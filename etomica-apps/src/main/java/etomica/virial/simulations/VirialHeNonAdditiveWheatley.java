@@ -164,7 +164,7 @@ public class VirialHeNonAdditiveWheatley {
         IAtomList atoms = sim.box[1].getLeafList();
         double r = 3;
         for (int i=1; i<nPoints; i++) {
-            Vector v = atoms.getAtom(i).getPosition();
+            Vector v = atoms.get(i).getPosition();
             v.setX(0, r*Math.cos(2*(i-1)*Math.PI/(nPoints-1)));
             v.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
         }

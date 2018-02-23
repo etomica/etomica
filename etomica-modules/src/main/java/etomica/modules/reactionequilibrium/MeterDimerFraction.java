@@ -50,9 +50,9 @@ public final class MeterDimerFraction implements IDataSource {
     public IData getData() {
         for(int i=0; i<count.length; i++) {count[i] = 0;}
         IAtomList leafAtoms = box.getLeafList();
-        int nLeaf = leafAtoms.getAtomCount();
+        int nLeaf = leafAtoms.size();
         for (int i=0; i<nLeaf; i++) {
-            IAtom a = leafAtoms.getAtom(i);
+            IAtom a = leafAtoms.get(i);
         	IAtom partner = (IAtom)agentManager.getAgent(a);
   //      	if(partner != null) System.out.println(a.node.index()+" "+partner.node.index());
             if(a.getType().getSpecies() == speciesA) {

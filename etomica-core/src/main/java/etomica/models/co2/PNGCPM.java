@@ -98,9 +98,9 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         speciesCO2.setConformation(new IConformation() {
 
             public void initializePositions(IAtomList atomList) {
-                atomList.getAtom(0).getPosition().E(0);
-                atomList.getAtom(1).getPosition().setX(0, 1.161);
-                atomList.getAtom(2).getPosition().setX(0, -1.161);
+                atomList.get(0).getPosition().E(0);
+                atomList.get(1).getPosition().setX(0, 1.161);
+                atomList.get(2).getPosition().setX(0, -1.161);
             }
         });
         sim.addSpecies(speciesCO2);
@@ -111,12 +111,12 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         IMolecule mol0 = box.getMoleculeList().getMolecule(0);
         IMolecule mol1 = box.getMoleculeList().getMolecule(1);
 
-        mol0.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{0.000000, 0, 0.000000}));
-        mol0.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, 0}));
-        mol0.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{1.161, 0, 0}));
-        mol1.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{0, 0, z}));
-        mol1.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, z}));
-        mol1.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{1.161, 0, z}));
+        mol0.getChildList().get(0).getPosition().E(space.makeVector(new double[]{0.000000, 0, 0.000000}));
+        mol0.getChildList().get(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, 0}));
+        mol0.getChildList().get(2).getPosition().E(space.makeVector(new double[]{1.161, 0, 0}));
+        mol1.getChildList().get(0).getPosition().E(space.makeVector(new double[]{0, 0, z}));
+        mol1.getChildList().get(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, z}));
+        mol1.getChildList().get(2).getPosition().E(space.makeVector(new double[]{1.161, 0, z}));
 
 //        space.makeVector(new double[]{ 1.000000,-11.000000,-5.000000 })
 //        space.makeVector(new double[]{ 0.732908,-10.699688,-3.910782 })
@@ -132,7 +132,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
             public Vector getParallelAxis(IMolecule mol) {
                 IAtomList atoms = mol.getChildList();
-                r.Ev1Mv2(atoms.getAtom(2).getPosition(), atoms.getAtom(1).getPosition());
+                r.Ev1Mv2(atoms.get(2).getPosition(), atoms.get(1).getPosition());
                 r.normalize();
                 return r;
             }
@@ -165,9 +165,9 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         speciesCO2.setConformation(new IConformation() {
 
             public void initializePositions(IAtomList atomList) {
-                atomList.getAtom(0).getPosition().E(0);
-                atomList.getAtom(1).getPosition().setX(0, 1.161);
-                atomList.getAtom(2).getPosition().setX(0, -1.161);
+                atomList.get(0).getPosition().E(0);
+                atomList.get(1).getPosition().setX(0, 1.161);
+                atomList.get(2).getPosition().setX(0, -1.161);
             }
         });
         sim.addSpecies(speciesCO2);
@@ -179,15 +179,15 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         IMolecule mol1 = box.getMoleculeList().getMolecule(1);
         IMolecule mol2 = box.getMoleculeList().getMolecule(2);
 
-        mol0.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{0.000000, 0, 0.000000}));
-        mol0.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, 0}));
-        mol0.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{1.161, 0, 0}));
-        mol1.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{0, 0, z1}));
-        mol1.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, z1}));
-        mol1.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{1.161, 0, z1}));
-        mol2.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{0, y2, 0}));
-        mol2.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{-1.161, y2, 0}));
-        mol2.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{1.161, y2, 0}));
+        mol0.getChildList().get(0).getPosition().E(space.makeVector(new double[]{0.000000, 0, 0.000000}));
+        mol0.getChildList().get(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, 0}));
+        mol0.getChildList().get(2).getPosition().E(space.makeVector(new double[]{1.161, 0, 0}));
+        mol1.getChildList().get(0).getPosition().E(space.makeVector(new double[]{0, 0, z1}));
+        mol1.getChildList().get(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, z1}));
+        mol1.getChildList().get(2).getPosition().E(space.makeVector(new double[]{1.161, 0, z1}));
+        mol2.getChildList().get(0).getPosition().E(space.makeVector(new double[]{0, y2, 0}));
+        mol2.getChildList().get(1).getPosition().E(space.makeVector(new double[]{-1.161, y2, 0}));
+        mol2.getChildList().get(2).getPosition().E(space.makeVector(new double[]{1.161, y2, 0}));
 
         Map<AtomType, GCPMAgent> typeManager = new HashMap<>();
         double qC = Electron.UNIT.toSim(0.6642);
@@ -196,7 +196,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
             public Vector getParallelAxis(IMolecule mol) {
                 IAtomList atoms = mol.getChildList();
-                r.Ev1Mv2(atoms.getAtom(2).getPosition(), atoms.getAtom(1).getPosition());
+                r.Ev1Mv2(atoms.get(2).getPosition(), atoms.get(1).getPosition());
                 r.normalize();
                 return r;
             }
@@ -347,8 +347,8 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         IAtomList atoms1 = molecules.getMolecule(0).getChildList();
         IAtomList atoms2 = molecules.getMolecule(1).getChildList();
 
-        Vector C1r = atoms1.getAtom(0).getPosition();
-        Vector C2r = atoms2.getAtom(0).getPosition();
+        Vector C1r = atoms1.get(0).getPosition();
+        Vector C2r = atoms2.get(0).getPosition();
 
         work.Ev1Mv2(C1r, C2r);
         shift.Ea1Tv1(-1, work);
@@ -360,15 +360,15 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
         double sum = 0;
         if (zeroShift) {
-            for (int i = 0; i < atoms1.getAtomCount(); i++) {
-                for (int j = 0; j < atoms2.getAtomCount(); j++) {
-                    GCPMAgent pairAgent = getPairAgent(atoms1.getAtom(i).getType(), atoms2.getAtom(j).getType());
+            for (int i = 0; i < atoms1.size(); i++) {
+                for (int j = 0; j < atoms2.size(); j++) {
+                    GCPMAgent pairAgent = getPairAgent(atoms1.get(i).getType(), atoms2.get(j).getType());
                     double epsilon = pairAgent.epsilon;
                     double r = Double.NaN;
                     if (epsilon > 0) {
                         double sigma = pairAgent.sigma;
                         double gamma = pairAgent.gamma;
-                        r2 = atoms1.getAtom(i).getPosition().Mv1Squared(atoms2.getAtom(j).getPosition());
+                        r2 = atoms1.get(i).getPosition().Mv1Squared(atoms2.get(j).getPosition());
                         r = Math.sqrt(r2);
                         double rOverSigma = r / sigma;
                         double sigma2OverR2 = 1 / (rOverSigma * rOverSigma);
@@ -381,7 +381,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
                     if (charge2 != 0) {
                         double tau = pairAgent.tau;
                         if (Double.isNaN(r)) {
-                            r2 = atoms1.getAtom(i).getPosition().Mv1Squared(atoms2.getAtom(j).getPosition());
+                            r2 = atoms1.get(i).getPosition().Mv1Squared(atoms2.get(j).getPosition());
                             r = Math.sqrt(r2);
                         }
                         sum += charge2 / r * (1 - org.apache.commons.math3.special.Erf.erfc(Math.sqrt(r2) / (2 * tau)));
@@ -389,17 +389,17 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
                 }
             }
         } else {
-            for (int i = 0; i < atoms1.getAtomCount(); i++) {
-                for (int j = 0; j < atoms2.getAtomCount(); j++) {
-                    GCPMAgent pairAgent = getPairAgent(atoms1.getAtom(i).getType(), atoms2.getAtom(j).getType());
+            for (int i = 0; i < atoms1.size(); i++) {
+                for (int j = 0; j < atoms2.size(); j++) {
+                    GCPMAgent pairAgent = getPairAgent(atoms1.get(i).getType(), atoms2.get(j).getType());
                     double epsilon = pairAgent.epsilon;
                     double r = Double.NaN;
                     if (epsilon > 0) {
 
                         double sigma = pairAgent.sigma;
-                        Vector r1 = atoms1.getAtom(i).getPosition();
+                        Vector r1 = atoms1.get(i).getPosition();
                         shift.PE(r1);
-                        r2 = atoms2.getAtom(j).getPosition().Mv1Squared(shift);
+                        r2 = atoms2.get(j).getPosition().Mv1Squared(shift);
                         shift.ME(r1);
                         r = Math.sqrt(r2);
 
@@ -417,9 +417,9 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
                     if (charge2 != 0) {
                         double tau = pairAgent.tau;
                         if (Double.isNaN(r)) {
-                            Vector r1 = atoms1.getAtom(i).getPosition();
+                            Vector r1 = atoms1.get(i).getPosition();
                             shift.PE(r1);
-                            r2 = atoms2.getAtom(j).getPosition().Mv1Squared(shift);
+                            r2 = atoms2.get(j).getPosition().Mv1Squared(shift);
                             shift.ME(r1);
                             r = Math.sqrt(r2);
                         }
@@ -451,7 +451,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
             }
         }
         for (int i = 0; i < moleculeCount; i++) {
-            int nAtoms = molecules.getMolecule(i).getChildList().getAtomCount();
+            int nAtoms = molecules.getMolecule(i).getChildList().size();
             if (Eq[i].length < nAtoms) {
                 Eq[i] = new Vector[nAtoms];
                 mu[i] = new Vector[nAtoms];
@@ -472,30 +472,30 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         double sqrtpi = Math.sqrt(Math.PI);
         for (int i = 0; i < molecules.getMoleculeCount(); i++) {
             IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
-            for (int ii = 0; ii < iLeafAtoms.getAtomCount(); ii++) {
-                GCPMAgent agenti = typeManager.get(iLeafAtoms.getAtom(ii).getType());
+            for (int ii = 0; ii < iLeafAtoms.size(); ii++) {
+                GCPMAgent agenti = typeManager.get(iLeafAtoms.get(ii).getType());
                 double alphaPerp = agenti.alphaPerp;
                 double alphaPar = agenti.alphaPar;
                 if (alphaPerp == 0 && alphaPar == 0) continue;
-                Vector ri = iLeafAtoms.getAtom(ii).getPosition();
+                Vector ri = iLeafAtoms.get(ii).getPosition();
 
                 for (int j = 0; j < molecules.getMoleculeCount(); j++) {
                     if (i == j) continue;
                     IAtomList jLeafAtoms = molecules.getMolecule(j).getChildList();
 
-                    Vector rj = jLeafAtoms.getAtom(0).getPosition();
+                    Vector rj = jLeafAtoms.get(0).getPosition();
                     work.Ev1Mv2(ri, rj);
                     shift.Ea1Tv1(-1, work);
                     boundary.nearestImage(work);
                     shift.PE(work);
 
-                    for (int jj = 0; jj < jLeafAtoms.getAtomCount(); jj++) {
-                        GCPMAgent agentj = typeManager.get(jLeafAtoms.getAtom(jj).getType());
+                    for (int jj = 0; jj < jLeafAtoms.size(); jj++) {
+                        GCPMAgent agentj = typeManager.get(jLeafAtoms.get(jj).getType());
                         double qj = agentj.charge;
                         if (qj == 0) continue;
-                        GCPMAgent agentij = getPairAgent(iLeafAtoms.getAtom(ii).getType(), jLeafAtoms.getAtom(jj).getType());
+                        GCPMAgent agentij = getPairAgent(iLeafAtoms.get(ii).getType(), jLeafAtoms.get(jj).getType());
                         double tauij = agentij.tau;
-                        rj = jLeafAtoms.getAtom(jj).getPosition();
+                        rj = jLeafAtoms.get(jj).getPosition();
 
                         work.Ev1Mv2(ri, rj);
                         work.PE(shift);
@@ -521,8 +521,8 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
             double sumMu = 0;
             for (int i = 0; i < molecules.getMoleculeCount(); i++) {
                 IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
-                for (int ii = 0; ii < iLeafAtoms.getAtomCount(); ii++) {
-                    GCPMAgent agenti = typeManager.get(iLeafAtoms.getAtom(ii).getType());
+                for (int ii = 0; ii < iLeafAtoms.size(); ii++) {
+                    GCPMAgent agenti = typeManager.get(iLeafAtoms.get(ii).getType());
                     double alphaPerp = agenti.alphaPerp;
                     double alphaPar = agenti.alphaPar;
                     if (alphaPerp == 0 && alphaPar == 0) continue;
@@ -550,26 +550,26 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
             for (int i = 0; i < molecules.getMoleculeCount(); i++) {
                 IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
-                for (int ii = 0; ii < iLeafAtoms.getAtomCount(); ii++) {
-                    GCPMAgent agenti = typeManager.get(iLeafAtoms.getAtom(ii).getType());
+                for (int ii = 0; ii < iLeafAtoms.size(); ii++) {
+                    GCPMAgent agenti = typeManager.get(iLeafAtoms.get(ii).getType());
                     if (agenti.alphaPerp == 0 && agenti.alphaPar == 0) continue;
-                    Vector ri = iLeafAtoms.getAtom(ii).getPosition();
+                    Vector ri = iLeafAtoms.get(ii).getPosition();
 
                     for (int j = i + 1; j < molecules.getMoleculeCount(); j++) {
                         IAtomList jLeafAtoms = molecules.getMolecule(j).getChildList();
-                        Vector rj = jLeafAtoms.getAtom(0).getPosition();
+                        Vector rj = jLeafAtoms.get(0).getPosition();
                         work.Ev1Mv2(ri, rj);
                         shift.Ea1Tv1(-1, work);
                         boundary.nearestImage(work);
                         shift.PE(work);
 
-                        for (int jj = 0; jj < jLeafAtoms.getAtomCount(); jj++) {
-                            GCPMAgent agentj = typeManager.get(jLeafAtoms.getAtom(jj).getType());
+                        for (int jj = 0; jj < jLeafAtoms.size(); jj++) {
+                            GCPMAgent agentj = typeManager.get(jLeafAtoms.get(jj).getType());
                             if (agentj.alphaPerp == 0 && agentj.alphaPar == 0) continue;
 
-                            GCPMAgent agentij = getPairAgent(iLeafAtoms.getAtom(ii).getType(), jLeafAtoms.getAtom(jj).getType());
+                            GCPMAgent agentij = getPairAgent(iLeafAtoms.get(ii).getType(), jLeafAtoms.get(jj).getType());
                             double tauij = agentij.tau;
-                            rj = jLeafAtoms.getAtom(jj).getPosition();
+                            rj = jLeafAtoms.get(jj).getPosition();
 
                             work.Ev1Mv2(ri, rj);
                             work.PE(shift);
@@ -604,7 +604,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
             if (debugme) {
                 for (int i = 0; i < molecules.getMoleculeCount(); i++) {
-                    for (int ii = 0; ii < molecules.getMolecule(i).getChildList().getAtomCount(); ii++) {
+                    for (int ii = 0; ii < molecules.getMolecule(i).getChildList().size(); ii++) {
                         if (Ep[i][ii].isZero()) continue;
                         System.out.println(iter + " " + i + " " + ii + " " + Ep[i][ii] + " " + mu[i][ii]);
                     }
@@ -621,7 +621,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         }
         UpolAtkins = 0;
         for (int i = 0; i < molecules.getMoleculeCount(); i++) {
-            for (int ii = 0; ii < molecules.getMolecule(i).getChildList().getAtomCount(); ii++) {
+            for (int ii = 0; ii < molecules.getMolecule(i).getChildList().size(); ii++) {
                 UpolAtkins += Eq[i][ii].dot(mu[i][ii]);
             }
         }
@@ -762,23 +762,23 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
             IAtomList atomsk = molecules.getMolecule(2).getChildList();
             double usum = 0;
 
-            for (int ii = 0; ii < atomsi.getAtomCount(); ii++) {
-                GCPMAgent agenti = typeManager.get(atomsi.getAtom(ii).getType());
+            for (int ii = 0; ii < atomsi.size(); ii++) {
+                GCPMAgent agenti = typeManager.get(atomsi.get(ii).getType());
                 if (agenti.alphaPerp == 0 && agenti.alphaPar == 0) continue;
                 double ei = agenti.E;
-                Vector ri = atomsi.getAtom(0).getPosition();
+                Vector ri = atomsi.get(0).getPosition();
 
                 double iAlphaPerp = agenti.alphaPerp;
                 double iAlphaAn = agenti.alphaPar - iAlphaPerp;
                 if (iAlphaAn != 0) bveci.E(agenti.getParallelAxis(molecules.getMolecule(0)));
 
-                for (int jj = 0; jj < atomsj.getAtomCount(); jj++) {
-                    GCPMAgent agentj = typeManager.get(atomsj.getAtom(jj).getType());
+                for (int jj = 0; jj < atomsj.size(); jj++) {
+                    GCPMAgent agentj = typeManager.get(atomsj.get(jj).getType());
                     if (agentj.alphaPerp == 0 && agentj.alphaPar == 0) continue;
                     double epij = ei * agentj.E;
                     double esij = ei + agentj.E;
                     double ej = agentj.E;
-                    Vector rj = atomsj.getAtom(0).getPosition();
+                    Vector rj = atomsj.get(0).getPosition();
                     double jAlphaPerp = agentj.alphaPerp;
                     double jAlphaAn = agentj.alphaPar - jAlphaPerp;
 
@@ -790,8 +790,8 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
                     double drij3 = drij2 * drij;
                     rij.TE(1 / drij);
 
-                    for (int kk = 0; kk < atomsk.getAtomCount(); kk++) {
-                        GCPMAgent agentk = typeManager.get(atomsk.getAtom(kk).getType());
+                    for (int kk = 0; kk < atomsk.size(); kk++) {
+                        GCPMAgent agentk = typeManager.get(atomsk.get(kk).getType());
                         if (agentk.alphaPerp == 0 && agentk.alphaPar == 0) continue;
                         double epijk = epij * agentk.E;
                         if (epijk == 0) continue;
@@ -804,7 +804,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
                         double kAlphaAn = agentk.alphaPar - kAlphaPerp;
                         if (kAlphaAn != 0) bveck.E(agentk.getParallelAxis(molecules.getMolecule(2)));
 
-                        Vector rk = atomsk.getAtom(0).getPosition();
+                        Vector rk = atomsk.get(0).getPosition();
                         rik.Ev1Mv2(rk, ri);
                         rjk.Ev1Mv2(rk, rj);
                         double drik2 = rik.squared();

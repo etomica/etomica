@@ -407,7 +407,7 @@ public class JouleThomson extends SimulationGraphic {
     	        BoxInflate inflater = new BoxInflate(sim.box, space);
     	        inflater.setTargetDensity(targetDensity/Math.pow(currentSig,sim.getSpace().D()));
     	        inflater.actionPerformed();
-    	        double size = currentSig*Math.pow(sim.box.getLeafList().getAtomCount()/targetDensity,1.0/sim.getSpace().D());
+    	        double size = currentSig*Math.pow(sim.box.getLeafList().size()/targetDensity,1.0/sim.getSpace().D());
                 Vector v = sim.getSpace().makeVector();
                 v.E(size);
                 sim.box.getBoundary().setBoxSize(v);

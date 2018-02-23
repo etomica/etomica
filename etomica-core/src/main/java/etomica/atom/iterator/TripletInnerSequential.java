@@ -50,9 +50,9 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
         if (childList == null) {
             return false;
         }
-        int n = childList.getAtomCount();
+        int n = childList.size();
         for (int i=0; i<n; i++) {
-            if (childList.getAtom(i) == targetAtom) {
+            if (childList.get(i) == targetAtom) {
                 return true;
             }
         }
@@ -69,10 +69,10 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
         }
 
         if (targetAtom != null) {
-            int n = childList.getAtomCount();
+            int n = childList.size();
             cursor = -1;
             for (int i=0; i<n; i++) {
-                if (childList.getAtom(i) == targetAtom) {
+                if (childList.get(i) == targetAtom) {
                     cursor = i;
                     break;
                 }
@@ -81,14 +81,14 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
                 stateUpDown = 3;
             }
             else if (doGoUp) {
-                if (cursor < childList.getAtomCount() - 2) {
+                if (cursor < childList.size() - 2) {
                     stateUpDown = 0;
                 }
                 else if (doGoDown) {
-                    if (cursor > 0 && cursor < childList.getAtomCount() - 1) {
+                    if (cursor > 0 && cursor < childList.size() - 1) {
                         stateUpDown = 1;
                     }
-                    else if (cursor > 1 && cursor < childList.getAtomCount()) {
+                    else if (cursor > 1 && cursor < childList.size()) {
                         stateUpDown = 2;
                     }
                     else {
@@ -97,7 +97,7 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
                 }
             }
             else {
-                if (cursor > 1 && cursor < childList.getAtomCount()) {
+                if (cursor > 1 && cursor < childList.size()) {
                     stateUpDown = 2;
                 }
                 else {
@@ -117,7 +117,7 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
         if (childList == null) {
             return;
         }
-        cursor = childList.getAtomCount();
+        cursor = childList.size();
     }
 
     public IAtomList next() {
@@ -125,9 +125,9 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
             return null;
         }
         
-        atomArray[0] = childList.getAtom(cursor-stateUpDown);
-        atomArray[1] = childList.getAtom(cursor-stateUpDown+1);
-        atomArray[2] = childList.getAtom(cursor-stateUpDown+2);
+        atomArray[0] = childList.get(cursor-stateUpDown);
+        atomArray[1] = childList.get(cursor-stateUpDown+1);
+        atomArray[2] = childList.get(cursor-stateUpDown+2);
         if (stateUpDown == 0) {
             if (targetAtom == null) {
                 cursor++;

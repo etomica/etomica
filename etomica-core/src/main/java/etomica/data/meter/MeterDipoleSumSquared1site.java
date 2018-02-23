@@ -40,7 +40,7 @@ public class MeterDipoleSumSquared1site extends DataSourceScalar {
 		int numMolecule = moleculeList.getMoleculeCount();
 		for (int i=0;i<numMolecule; i++){
 			IAtomList atomList = moleculeList.getMolecule(i).getChildList();
-			IAtomOriented atom = (IAtomOriented) atomList.getAtom(0);
+			IAtomOriented atom = (IAtomOriented) atomList.get(0);
 	        Vector v = atom.getOrientation().getDirection();
 			dipoleSum.PE(v);
         }

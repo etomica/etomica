@@ -7,7 +7,6 @@ package etomica.data.meter;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorHard;
-import etomica.space.Space;
 import etomica.units.dimensions.Pressure;
 
 /**
@@ -49,7 +48,7 @@ public class MeterPressureHard extends DataSourceScalar implements IntegratorHar
         if (elapsedTime < 0) throw new RuntimeException("you should have called reset");
         double numAtomTemp = integratorHard.getKineticEnergy() * 2 / dim;
         if (integratorHard.isIsothermal()) {
-            numAtomTemp = integratorHard.getTemperature() * box.getLeafList().getAtomCount();
+            numAtomTemp = integratorHard.getTemperature() * box.getLeafList().size();
         }
         double value = (numAtomTemp - virialSum / (dim * elapsedTime)) /
                 box.getBoundary().volume();

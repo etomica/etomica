@@ -133,8 +133,8 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
             double m = 0;
             moment.E(0);
             IAtomList atoms = molecule.getChildList();
-            for (int j=0; j<atoms.getAtomCount(); j++) {
-                IAtom a = atoms.getAtom(j);
+            for (int j = 0; j<atoms.size(); j++) {
+                IAtom a = atoms.get(j);
                 double mj = a.getType().getMass();
                 m += mj;
             }
@@ -145,15 +145,15 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
             double m = 0;
             moment.E(0);
             IAtomList atoms = molecule.getChildList();
-            for (int j=0; j<atoms.getAtomCount(); j++) {
-                IAtom a = atoms.getAtom(j);
+            for (int j = 0; j<atoms.size(); j++) {
+                IAtom a = atoms.get(j);
                 double mj = a.getType().getMass();
                 cm.PEa1Tv1(mj, a.getPosition());
                 m += mj;
             }
             cm.TE(1.0/m);
-            for (int j=0; j<atoms.getAtomCount(); j++) {
-                IAtom a = atoms.getAtom(j);
+            for (int j = 0; j<atoms.size(); j++) {
+                IAtom a = atoms.get(j);
                 double mj = a.getType().getMass();
                 rj.Ev1Mv2(a.getPosition(), cm);
                 momentj.E(id);

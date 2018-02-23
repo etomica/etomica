@@ -11,7 +11,6 @@ import etomica.box.Box;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
@@ -84,9 +83,9 @@ public final class IntegratorConNVT extends IntegratorMD {
         double k=0.0;
         double chi;
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             Vector v = a.getVelocity();
 
             work1.E(v); //work1 = v
@@ -101,7 +100,7 @@ public final class IntegratorConNVT extends IntegratorMD {
 
         //calculate constrained velbox.getSpace()ocities at T+Dt/2
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             Vector force = agentManager.getAgent(a);
             Vector v = a.getVelocity();
 
@@ -114,7 +113,7 @@ public final class IntegratorConNVT extends IntegratorMD {
         } 
 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             Vector r = a.getPosition();
             Vector v = a.getVelocity();
 

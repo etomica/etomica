@@ -79,9 +79,9 @@ public class AssociationHelperBranched implements IAssociationHelper {
         if (!validateBondList(atom, bondList, mightBeBroken)) {
             return true;
         }
-        for (int i=0; i<bondList.getAtomCount(); i++) {
-            if (smerList.indexOf(bondList.getAtom(i)) == -1) {
-                if (populate(smerList, bondList.getAtom(i), mightBeBroken)) {
+        for (int i = 0; i<bondList.size(); i++) {
+            if (smerList.indexOf(bondList.get(i)) == -1) {
+                if (populate(smerList, bondList.get(i), mightBeBroken)) {
                     return true;
                 }
             }
@@ -93,7 +93,7 @@ public class AssociationHelperBranched implements IAssociationHelper {
      * Returns false if invalid bonding is recognized
      */
     protected boolean validateBondList(IAtom atom, IAtomList bondList, boolean mightBeBroken) {
-        if (bondList.getAtomCount() > maxBonds){
+        if (bondList.size() > maxBonds){
             if (mightBeBroken) {
                 return false;
             }
@@ -101,11 +101,11 @@ public class AssociationHelperBranched implements IAssociationHelper {
             System.out.println(bondList);
             throw new RuntimeException();
         }
-        if (minR2 > 0 && bondList.getAtomCount() > 1){
-            for (int i=0; i<bondList.getAtomCount()-1; i++) {
-                IAtom atomi = bondList.getAtom(i);
-                for (int j=i+1; j<bondList.getAtomCount(); j++) {
-                    IAtom atomj = bondList.getAtom(j);
+        if (minR2 > 0 && bondList.size() > 1){
+            for (int i = 0; i<bondList.size()-1; i++) {
+                IAtom atomi = bondList.get(i);
+                for (int j = i+1; j<bondList.size(); j++) {
+                    IAtom atomj = bondList.get(j);
                     dr.Ev1Mv2(atomi.getPosition(), atomj.getPosition());
                     boundary.nearestImage(dr);
                     if (dr.squared() < minR2) {

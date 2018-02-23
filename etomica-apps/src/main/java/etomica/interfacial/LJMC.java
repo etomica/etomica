@@ -99,9 +99,9 @@ public class LJMC extends Simulation {
         Potential1 p1F = new Potential1(space) {
 
             public double energy(IAtomList atoms) {
-                double pz = atoms.getAtom(0).getPosition().getX(2);
+                double pz = atoms.get(0).getPosition().getX(2);
                 double zMin = -0.5 * boundary.getBoxSize().getX(2);
-                double zMax = box.getMoleculeList(speciesTopWall).getMolecule(0).getChildList().getAtom(0).getPosition().getX(2);
+                double zMax = box.getMoleculeList(speciesTopWall).getMolecule(0).getChildList().get(0).getPosition().getX(2);
                 return (pz < zMin || pz > zMax) ? Double.POSITIVE_INFINITY : 0;
             }
         };

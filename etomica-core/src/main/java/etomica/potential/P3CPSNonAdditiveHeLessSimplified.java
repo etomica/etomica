@@ -52,9 +52,9 @@ public class P3CPSNonAdditiveHeLessSimplified extends Potential implements Poten
     
   
     public double energy(IAtomList atomSet) {
-        IAtom atomA = atomSet.getAtom(0);
-        IAtom atomB = atomSet.getAtom(1);
-        IAtom atomC = atomSet.getAtom(2);
+        IAtom atomA = atomSet.get(0);
+        IAtom atomB = atomSet.get(1);
+        IAtom atomC = atomSet.get(2);
 
         drAB.Ev1Mv2(atomA.getPosition(),atomB.getPosition());
         drAC.Ev1Mv2(atomA.getPosition(),atomC.getPosition());

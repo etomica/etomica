@@ -48,12 +48,12 @@ public class ParmedStructureTest {
 
         assertEquals(
                 12.01078,
-                species.makeMolecule().getChildList().getAtom(0).getType().getMass(),
+                species.makeMolecule().getChildList().get(0).getType().getMass(),
                 EPSILON
         );
 
         assertTrue(
-                species.makeMolecule().getChildList().getAtom(0).getPosition()
+                species.makeMolecule().getChildList().get(0).getPosition()
                 .equals(new Vector3D(0.0, 0.0, 0.0))
         );
     }
@@ -87,12 +87,12 @@ public class ParmedStructureTest {
         List<IMolecule> molList = structure.getMolecules();
 
         assertTrue(
-                molList.get(0).getChildList().getAtom(0).getPosition()
+                molList.get(0).getChildList().get(0).getPosition()
                 .equals(new Vector3D(0, 0, 0))
         );
 
         assertTrue(
-                molList.get(1).getChildList().getAtom(1).getPosition()
+                molList.get(1).getChildList().get(1).getPosition()
                 .equals(new Vector3D(-0.9299999999999999, -0.56, 13.799999999999999))
         );
     }

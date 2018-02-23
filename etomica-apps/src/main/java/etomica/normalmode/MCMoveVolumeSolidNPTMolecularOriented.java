@@ -79,8 +79,8 @@ public class MCMoveVolumeSolidNPTMolecularOriented extends
             
             IAtomList atoms = molecule.getChildList();
 
-            dr.E(atoms.getAtom(1).getPosition());
-            dr.ME(atoms.getAtom(0).getPosition());
+            dr.E(atoms.get(1).getPosition());
+            dr.ME(atoms.get(0).getPosition());
             dr.normalize();
             double sintheta = Math.sqrt(dr.getX(0)*dr.getX(0) + dr.getX(1)*dr.getX(1));
             double costheta = dr.getX(2);
@@ -125,8 +125,8 @@ public class MCMoveVolumeSolidNPTMolecularOriented extends
     protected void doTransformPhi(IMolecule molecule) {
         com.E(moleculeCenter.position(molecule));
         IAtomList childList = molecule.getChildList();
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.ME(com);
             box.getBoundary().nearestImage(r);
@@ -138,8 +138,8 @@ public class MCMoveVolumeSolidNPTMolecularOriented extends
     protected void doTransformTheta(IMolecule molecule, double a, double b) {
         com.E(moleculeCenter.position(molecule));
         IAtomList childList = molecule.getChildList();
-        for (int i=0; i<childList.getAtomCount(); i++) {
-            Vector p1 = childList.getAtom(i).getPosition();
+        for (int i = 0; i<childList.size(); i++) {
+            Vector p1 = childList.get(i).getPosition();
             p1.ME(com);
             double bl = Math.sqrt(p1.squared());
             if (p1.getX(2) < 0) bl = -bl;
@@ -171,8 +171,8 @@ public class MCMoveVolumeSolidNPTMolecularOriented extends
 
             IAtomList atoms = molecule.getChildList();
             // add the trial orientation
-            drSumi.PE(atoms.getAtom(1).getPosition());
-            drSumi.ME(atoms.getAtom(0).getPosition());
+            drSumi.PE(atoms.get(1).getPosition());
+            drSumi.ME(atoms.get(0).getPosition());
         }
 
         for (int i=0; i<drSum.length; i++) {

@@ -48,9 +48,9 @@ public final class AtomLeafAgentManager<E> extends BoxEventListenerAdapter {
         box.getEventManager().addListener(this);
 
         IAtomList leafList = box.getLeafList();
-        agents = new IndexMap<>(leafList.getAtomCount());
-        for(int i = 0; i < leafList.getAtomCount(); i++) {
-            E agent = agentSource.makeAgent(leafList.getAtom(i), box);
+        agents = new IndexMap<>(leafList.size());
+        for(int i = 0; i < leafList.size(); i++) {
+            E agent = agentSource.makeAgent(leafList.get(i), box);
             if(agent != null) {
                 agents.put(i, agent);
             }
@@ -99,10 +99,10 @@ public final class AtomLeafAgentManager<E> extends BoxEventListenerAdapter {
         // remove ourselves as a listener to the box
         box.getEventManager().removeListener(this);
         IAtomList leafList = box.getLeafList();
-        for(int i = 0; i < leafList.getAtomCount(); i++) {
+        for(int i = 0; i < leafList.size(); i++) {
             E agent = this.agents.get(i);
             if(agent != null) {
-                agentSource.releaseAgent(agent, leafList.getAtom(i), box);
+                agentSource.releaseAgent(agent, leafList.get(i), box);
             }
         }
         agents.clear();
@@ -113,8 +113,8 @@ public final class AtomLeafAgentManager<E> extends BoxEventListenerAdapter {
         // add all leaf atoms below this atom
         IAtomList childList = mole.getChildList();
 
-        for(int i = 0; i < childList.getAtomCount(); i++) {
-            IAtom atom = childList.getAtom(i);
+        for(int i = 0; i < childList.size(); i++) {
+            IAtom atom = childList.get(i);
             E agent = this.agentSource.makeAgent(atom, box);
             if(agent != null) {
                 this.agents.put(atom.getLeafIndex(), agent);
@@ -126,8 +126,8 @@ public final class AtomLeafAgentManager<E> extends BoxEventListenerAdapter {
         IMolecule mole = e.getMolecule();
         // IAtomGroups don't have agents, but nuke all atoms below this atom
         IAtomList childList = mole.getChildList();
-        for(int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-            IAtom childAtom = childList.getAtom(iChild);
+        for(int iChild = 0; iChild < childList.size(); iChild++) {
+            IAtom childAtom = childList.get(iChild);
             int index = childAtom.getLeafIndex();
             E removed = this.agents.remove(index);
             if(removed != null) {

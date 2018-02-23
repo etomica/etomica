@@ -97,8 +97,8 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 			
 				 //leafPos0 is atom C1 in Paracetamol
 				 //leafPos5 is atom C4 in Paracetamol
-				Vector leafPos0 = molecule.getAtom(0).getPosition();
-				Vector leafPos5 = molecule.getAtom(5).getPosition();
+				Vector leafPos0 = molecule.get(0).getPosition();
+				Vector leafPos5 = molecule.get(5).getPosition();
 				
 				v.Ev1Mv2(leafPos5, leafPos0);
 				v.normalize();
@@ -140,7 +140,7 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 					  * To find the distance vector, d[] of each atoms within p-th molecule
 					  * that is perpendicular to the rotation axis
 					  */
-					 for (int q=0; q<molecule.getAtomCount(); q++){
+					 for (int q = 0; q<molecule.size(); q++){
 						 
 			    	    	/*
 			    	    	 * Determine the distance, d, by using Vector Projection
@@ -151,7 +151,7 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 						 		a.E(new double[] {0, 0, 0});
 						 	} else {
 						 	
-				    	    	a.Ev1Mv2(molecule.getAtom(q).getPosition(), leafPos0);
+				    	    	a.Ev1Mv2(molecule.get(q).getPosition(), leafPos0);
 				    	    	a.normalize();
 						 	}
 						 	
@@ -178,7 +178,7 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 					 moleculeForce.E(0); //initialize moleculeForce to zero
 					 torqueSum.E(0);
 					 
-					 for (int q=0; q<molecule.getAtomCount(); q++){ 
+					 for (int q = 0; q<molecule.size(); q++){
 						
 						if (q==0){
 							deltaV.E(new double[] {0, 0, 0});
@@ -189,7 +189,7 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 						deltaV.normalize();
 						}
 						
-						moleculeForce.E(agentManager.getAgent(molecule.getAtom(q)));
+						moleculeForce.E(agentManager.getAgent(molecule.get(q)));
 						
 						double scalarF = 0;
 						scalarF = moleculeForce.dot(deltaV);

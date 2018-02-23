@@ -35,7 +35,7 @@ public class AtomListProperty implements Property {
     @Override
     public Object invokeReader(int i) {
         try {
-            return ((IAtomList) reader.invoke(instance)).getAtom(i);
+            return ((IAtomList) reader.invoke(instance)).get(i);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
@@ -64,7 +64,7 @@ public class AtomListProperty implements Property {
     @Override
     public int invokeCount() {
         try {
-            return ((IAtomList) reader.invoke(instance)).getAtomCount();
+            return ((IAtomList) reader.invoke(instance)).size();
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }

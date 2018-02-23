@@ -272,7 +272,7 @@ public class VirialCO2H2OSC {
             double r = 3;
             IAtomList atoms = sim.box[1].getLeafList();
             for (int i=1; i<nPoints; i++) {
-                Vector pos = atoms.getAtom(i).getPosition();
+                Vector pos = atoms.get(i).getPosition();
                 double theta = 2*i*Math.PI/nPoints;
                 pos.setX(0, r*(1-Math.cos(theta)));
                 pos.setX(1, r*Math.sin(theta));

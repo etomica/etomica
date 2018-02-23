@@ -28,9 +28,9 @@ public class ColorSchemeNeighborCell extends ColorSchemeCollectiveAgent {
     
     public void colorAllAtoms() {
 		//color all atoms according to their type
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.getAtom(iLeaf);
+            IAtom atom = leafList.get(iLeaf);
             agentManager.setAgent(atom, typeColorScheme.getAtomColor(atom));
         }
         if (referenceAtom == null) {
@@ -40,7 +40,7 @@ public class ColorSchemeNeighborCell extends ColorSchemeCollectiveAgent {
         nbrIterator.reset();
         for (IAtomList pair = nbrIterator.next(); pair != null;
              pair = nbrIterator.next()) {
-            IAtom atom = pair.getAtom(1);
+            IAtom atom = pair.get(1);
             if(atom.getType() == referenceAtom.getType()) {
                 agentManager.setAgent(atom, Color.blue);
             } else {

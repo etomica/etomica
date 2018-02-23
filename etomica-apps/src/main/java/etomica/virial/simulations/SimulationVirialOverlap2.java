@@ -219,7 +219,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                     // we can use the bending move if none of the molecules has more than 3 atoms
                     boolean doBend = true;
                     for (int i = 0; i < species.length; i++) {
-                        if (box[iBox].getNMolecules(species[i]) > 0 && box[iBox].getMoleculeList(species[i]).getMolecule(0).getChildList().getAtomCount() > 3) {
+                        if (box[iBox].getNMolecules(species[i]) > 0 && box[iBox].getMoleculeList(species[i]).getMolecule(0).getChildList().size() > 3) {
                             doBend = false;
                         }
                     }

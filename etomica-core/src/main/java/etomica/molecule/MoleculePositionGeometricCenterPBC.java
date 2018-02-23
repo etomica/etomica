@@ -33,10 +33,10 @@ public class MoleculePositionGeometricCenterPBC implements IMoleculePositionDefi
     public Vector position(IMolecule molecule) {
         center.E(0.0);
         IAtomList children = molecule.getChildList();
-        int nAtoms = children.getAtomCount();
-        Vector pos0 = children.getAtom(0).getPosition();
+        int nAtoms = children.size();
+        Vector pos0 = children.get(0).getPosition();
         for (int i=0; i<nAtoms; i++) {
-            dr.Ev1Mv2(children.getAtom(i).getPosition(), pos0);
+            dr.Ev1Mv2(children.get(i).getPosition(), pos0);
             boundary.nearestImage(dr);
             center.PE(dr);
         }

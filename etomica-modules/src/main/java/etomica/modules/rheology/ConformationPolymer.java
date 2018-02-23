@@ -24,16 +24,16 @@ public class ConformationPolymer implements IConformation {
 
     public void initializePositions(IAtomList atomList) {
         r.E(0);
-        for (int i=0; i<atomList.getAtomCount(); i++) {
-            Vector p = atomList.getAtom(i).getPosition();
+        for (int i = 0; i<atomList.size(); i++) {
+            Vector p = atomList.get(i).getPosition();
             for (int j=0; j<p.getD(); j++) {
                 p.setX(j, random.nextGaussian());
             }
             r.PE(p);
         }
-        r.TE(-1.0/atomList.getAtomCount());
-        for (int i=0; i<atomList.getAtomCount(); i++) {
-            atomList.getAtom(i).getPosition().PE(r);
+        r.TE(-1.0/atomList.size());
+        for (int i = 0; i<atomList.size(); i++) {
+            atomList.get(i).getPosition().PE(r);
         }
     }
 

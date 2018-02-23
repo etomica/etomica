@@ -74,7 +74,7 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         if (atom == null) return false;
         int idx0 = atom.getLeafIndex();
         IAtomList allAtoms = box.getLeafList();
-        atom2 = allAtoms.getAtom(p1.getPartner(idx0));
+        atom2 = allAtoms.get(p1.getPartner(idx0));
 
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();

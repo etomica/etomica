@@ -129,7 +129,7 @@ public class LJMC3D extends Simulation {
         long t2 = System.currentTimeMillis();
 
         DataGroup dataPE = (DataGroup) acc.getData();
-        int numAtoms = sim.getBox(0).getLeafList().getAtomCount();
+        int numAtoms = sim.getBox(0).getLeafList().size();
         double avg = dataPE.getValue(acc.AVERAGE.index) / numAtoms;
         double err = dataPE.getValue(acc.ERROR.index) / numAtoms;
         double cor = dataPE.getValue(acc.BLOCK_CORRELATION.index);

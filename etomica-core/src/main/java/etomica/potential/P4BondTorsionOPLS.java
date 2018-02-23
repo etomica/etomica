@@ -78,7 +78,7 @@ public class P4BondTorsionOPLS extends P4BondTorsion {
             double U = potential.energy(atoms);
 
             int iRand = random.nextInt(4);
-            IAtom atom = atoms.getAtom(iRand);
+            IAtom atom = atoms.get(iRand);
             gradient.E(potential.gradient(atoms)[iRand]);
             
             dr.setRandomSphere(random);

@@ -154,10 +154,10 @@ public class ColloidSim extends Simulation {
 
         p2pseudo = new P2HardSphere(space, 1, true);
         if (nGraft > 1) {
-            IAtom atom1 = box.getMoleculeList(species).getMolecule(0).getChildList().getAtom(0);
+            IAtom atom1 = box.getMoleculeList(species).getMolecule(0).getChildList().get(0);
             double minr2 = Double.POSITIVE_INFINITY;
             for (int j = chainLength; j < box.getMoleculeList(species).getMoleculeCount(); j += chainLength) {
-                IAtom atom2 = box.getMoleculeList(species).getMolecule(j).getChildList().getAtom(0);
+                IAtom atom2 = box.getMoleculeList(species).getMolecule(j).getChildList().get(0);
                 Vector dr = space.makeVector();
                 dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
                 box.getBoundary().nearestImage(dr);
@@ -193,10 +193,10 @@ public class ColloidSim extends Simulation {
 
         if (newNumGraft > 1) {
 
-            IAtom atom1 = box.getMoleculeList(species).getMolecule(0).getChildList().getAtom(0);
+            IAtom atom1 = box.getMoleculeList(species).getMolecule(0).getChildList().get(0);
             double minr2 = Double.POSITIVE_INFINITY;
             for (int j=chainLength; j<box.getMoleculeList(species).getMoleculeCount(); j+=chainLength) {
-                IAtom atom2 = box.getMoleculeList(species).getMolecule(j).getChildList().getAtom(0);
+                IAtom atom2 = box.getMoleculeList(species).getMolecule(j).getChildList().get(0);
                 Vector dr = space.makeVector();
                 dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
                 box.getBoundary().nearestImage(dr);

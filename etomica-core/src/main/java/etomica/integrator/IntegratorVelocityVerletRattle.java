@@ -67,17 +67,17 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
                 }
 
                 for (int j=0; j<bondConstraints.bondedAtoms.length; j++) {
-                    IAtom atom0 = childList.getAtom(bondConstraints.bondedAtoms[j][0]);
-                    IAtom atom1 = childList.getAtom(bondConstraints.bondedAtoms[j][1]);
+                    IAtom atom0 = childList.get(bondConstraints.bondedAtoms[j][0]);
+                    IAtom atom1 = childList.get(bondConstraints.bondedAtoms[j][1]);
                     drOld[j].Ev1Mv2(atom1.getPosition(), atom0.getPosition());
                     boundary.nearestImage(drOld[j]);
                 }
             }
             
             IAtomList leafList = molecule.getChildList();
-            int nLeaf = leafList.getAtomCount();
+            int nLeaf = leafList.size();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+                IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
                 Vector force = agentManager.getAgent(a);
                 Vector r = a.getPosition();
                 Vector v = a.getVelocity();
@@ -95,17 +95,17 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             Boundary boundary = box.getBoundary();
             double[] bondLengths = bondConstraints.bondLengths;
 
-            if (childList.getAtomCount() > moved.length) {
-                moved = new boolean[2][childList.getAtomCount()];
+            if (childList.size() > moved.length) {
+                moved = new boolean[2][childList.size()];
             }
-            for (int j=0; j<childList.getAtomCount(); j++) {
+            for (int j = 0; j<childList.size(); j++) {
                 moved[1][j] = true;
             }
             
             for (int iter = 0; iter<maxIterations; iter++) {
                 numIterations++;
                 boolean success = true;
-                for (int j=0; j<childList.getAtomCount(); j++) {
+                for (int j = 0; j<childList.size(); j++) {
                     moved[0][j] = moved[1][j];
                     moved[1][j] = false;
                 }
@@ -115,8 +115,8 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
                     if (!moved[0][iAtom1] && !moved[0][iAtom2]) {
                         continue;
                     }
-                    IAtomKinetic atom1 = (IAtomKinetic)childList.getAtom(iAtom1);
-                    IAtomKinetic atom2 = (IAtomKinetic)childList.getAtom(iAtom2);
+                    IAtomKinetic atom1 = (IAtomKinetic)childList.get(iAtom1);
+                    IAtomKinetic atom2 = (IAtomKinetic)childList.get(iAtom2);
                     dr.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                     boundary.nearestImage(dr);
 //                    System.out.println(iter+" "+j+" "+atom1.getVelocity());
@@ -187,9 +187,9 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
 
         //Finish integration step
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
             Vector velocity = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
@@ -215,14 +215,14 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             Boundary boundary = box.getBoundary();
             double[] bondLengths = bondConstraints.bondLengths;
 
-            for (int j=0; j<childList.getAtomCount(); j++) {
+            for (int j = 0; j<childList.size(); j++) {
                 moved[1][j] = true;
             }
             
             for (int iter = 0; iter<maxIterations; iter++) {
                 numIterations++;
                 boolean success = true;
-                for (int j=0; j<childList.getAtomCount(); j++) {
+                for (int j = 0; j<childList.size(); j++) {
                     moved[0][j] = moved[1][j];
                     moved[1][j] = false;
                 }
@@ -232,8 +232,8 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
                     if (!moved[0][iAtom1] && !moved[0][iAtom2]) {
                         continue;
                     }
-                    IAtomKinetic atom1 = (IAtomKinetic)childList.getAtom(iAtom1);
-                    IAtomKinetic atom2 = (IAtomKinetic)childList.getAtom(iAtom2);
+                    IAtomKinetic atom1 = (IAtomKinetic)childList.get(iAtom1);
+                    IAtomKinetic atom2 = (IAtomKinetic)childList.get(iAtom2);
                     dr.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                     boundary.nearestImage(dr);
                     dv.Ev1Mv2(atom2.getVelocity(), atom1.getVelocity());
@@ -295,16 +295,16 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             Boundary boundary = box.getBoundary();
             double[] bondLengths = bondConstraints.bondLengths;
 
-            if (childList.getAtomCount() > moved[0].length) {
-                moved = new boolean[2][childList.getAtomCount()];
+            if (childList.size() > moved[0].length) {
+                moved = new boolean[2][childList.size()];
             }
-            for (int j=0; j<childList.getAtomCount(); j++) {
+            for (int j = 0; j<childList.size(); j++) {
                 moved[1][j] = true;
             }
             
             for (int iter = 0; iter<maxIterations; iter++) {
                 boolean success = true;
-                for (int j=0; j<childList.getAtomCount(); j++) {
+                for (int j = 0; j<childList.size(); j++) {
                     moved[0][j] = moved[1][j];
                     moved[1][j] = false;
                 }
@@ -314,8 +314,8 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
                     if (!moved[0][iAtom1] && !moved[0][iAtom2]) {
                         continue;
                     }
-                    IAtomKinetic atom1 = (IAtomKinetic)childList.getAtom(iAtom1);
-                    IAtomKinetic atom2 = (IAtomKinetic)childList.getAtom(iAtom2);
+                    IAtomKinetic atom1 = (IAtomKinetic)childList.get(iAtom1);
+                    IAtomKinetic atom2 = (IAtomKinetic)childList.get(iAtom2);
                     dr.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                     boundary.nearestImage(dr);
                     dv.Ev1Mv2(atom2.getVelocity(), atom1.getVelocity());

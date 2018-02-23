@@ -166,15 +166,15 @@ public class VirialLJOrC {
             mcDiscrete[i].setRPow(rPow);
             sim.integrators[i].getMoveManager().addMCMove(mcDiscrete[i]);
             ((MCMoveClusterAtomMulti)sim.mcMoveTranslate[i]).setStartAtom(2);
-            sim.box[i].getLeafList().getAtom(1).getPosition().setX(0, dr*Math.round(0.5/dr));
-            if (nPoints>2) sim.box[i].getLeafList().getAtom(2).getPosition().setX(1, dr*Math.round(0.5/dr));
+            sim.box[i].getLeafList().get(1).getPosition().setX(0, dr*Math.round(0.5/dr));
+            if (nPoints>2) sim.box[i].getLeafList().get(2).getPosition().setX(1, dr*Math.round(0.5/dr));
             sim.box[i].trialNotify();
             sim.box[i].acceptNotify();
 
         }
         indexer = new DataDistributer.Indexer() {
             public int getIndex() {
-                double x = sim.box[1].getLeafList().getAtom(1).getPosition().getX(0);
+                double x = sim.box[1].getLeafList().get(1).getPosition().getX(0);
                 return (int)Math.round(Math.abs(x)/dr);
             }
         };

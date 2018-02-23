@@ -33,14 +33,14 @@ public class MeterEntropy extends DataSourceScalar implements IDataSource {
             atomCount[i] = 0;
         }
         IAtomList leafList = box.getLeafList();
-        for (int i=0; i<leafList.getAtomCount(); i++) {
-            IAtom a = leafList.getAtom(i);
+        for (int i = 0; i<leafList.size(); i++) {
+            IAtom a = leafList.get(i);
             int x = (int)Math.round(a.getPosition().getX(0)+dimensions.getX(0)*0.5-0.5);
             atomCount[x]++;
         }
         
         double sum = 0;
-        double atomTotal = box.getLeafList().getAtomCount();
+        double atomTotal = box.getLeafList().size();
         for (int i=0; i<atomCount.length; i++) {
             if (atomCount[i] > 0) {
                 sum += atomCount[i] * Math.log(atomCount[i]/atomTotal);

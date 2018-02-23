@@ -26,35 +26,35 @@ public class ConformationNaphthaleneTraPPE implements IConformation, java.io.Ser
 
 	public void initializePositions(IAtomList atomList) {
 			// put 2 C without H in y-axis , one is on the top, one is under the origin
-		IAtom n1 = atomList.getAtom(SpeciesTraPPENaphthalene.indexC1);
+		IAtom n1 = atomList.get(SpeciesTraPPENaphthalene.indexC1);
 		n1.getPosition().E(new double[] {0, halfofthebondlength, 0});
 		
-		IAtom n2 = atomList.getAtom(SpeciesTraPPENaphthalene.indexC2);
+		IAtom n2 = atomList.get(SpeciesTraPPENaphthalene.indexC2);
 		n2.getPosition().E(new double[] {0, -halfofthebondlength, 0});
 		
 		// put the other CH United atoms
-		IAtom n3 = atomList.getAtom(SpeciesTraPPENaphthalene.indexCH1);
+		IAtom n3 = atomList.get(SpeciesTraPPENaphthalene.indexCH1);
 		n3.getPosition().E(new double[] {-sqrt3ofhalfofthebondlength, bondlength, 0});
 		
-		IAtom n4 = atomList.getAtom(SpeciesTraPPENaphthalene.indexCH2);
+		IAtom n4 = atomList.get(SpeciesTraPPENaphthalene.indexCH2);
 		n4.getPosition().E(new double[] {-twicesqrt3ofhalfofthebondlength, halfofthebondlength, 0});
 		
-		IAtom n5 = atomList.getAtom(SpeciesTraPPENaphthalene.indexCH3);
+		IAtom n5 = atomList.get(SpeciesTraPPENaphthalene.indexCH3);
 		n5.getPosition().E(new double[] {-twicesqrt3ofhalfofthebondlength, -halfofthebondlength, 0});
 		
-		IAtom n6 = atomList.getAtom(SpeciesTraPPENaphthalene.indexCH4);
+		IAtom n6 = atomList.get(SpeciesTraPPENaphthalene.indexCH4);
 		n6.getPosition().E(new double[] {-sqrt3ofhalfofthebondlength, -bondlength, 0});
 		
-		IAtom n7 = atomList.getAtom(SpeciesTraPPENaphthalene.indexCH5);
+		IAtom n7 = atomList.get(SpeciesTraPPENaphthalene.indexCH5);
 		n7.getPosition().E(new double[] {sqrt3ofhalfofthebondlength, -bondlength, 0});
 		
-		IAtom n8 = atomList.getAtom(SpeciesTraPPENaphthalene.indexCH6);
+		IAtom n8 = atomList.get(SpeciesTraPPENaphthalene.indexCH6);
 		n8.getPosition().E(new double[] {twicesqrt3ofhalfofthebondlength, -halfofthebondlength, 0});
 		
-		IAtom n9 = atomList.getAtom(SpeciesTraPPENaphthalene.indexCH7);
+		IAtom n9 = atomList.get(SpeciesTraPPENaphthalene.indexCH7);
 		n9.getPosition().E(new double[] {twicesqrt3ofhalfofthebondlength, halfofthebondlength, 0});
 		
-		IAtom n10 = atomList.getAtom(SpeciesTraPPENaphthalene.indexCH8);
+		IAtom n10 = atomList.get(SpeciesTraPPENaphthalene.indexCH8);
 		n10.getPosition().E(new double[] {sqrt3ofhalfofthebondlength, bondlength, 0});
 		
 			

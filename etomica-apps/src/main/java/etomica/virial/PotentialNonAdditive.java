@@ -267,10 +267,10 @@ public class PotentialNonAdditive implements IPotentialMolecular {
         box.setNMolecules(species, 3);
         p2.setBox(box);
         p3.setBox(box);
-        box.getLeafList().getAtom(0).getPosition().setX(0, -4);
-        box.getLeafList().getAtom(1).getPosition().setX(0, -4);
-        box.getLeafList().getAtom(0).getPosition().setX(1, -3);
-        box.getLeafList().getAtom(1).getPosition().setX(1, 3);
+        box.getLeafList().get(0).getPosition().setX(0, -4);
+        box.getLeafList().get(1).getPosition().setX(0, -4);
+        box.getLeafList().get(0).getPosition().setX(1, -3);
+        box.getLeafList().get(1).getPosition().setX(1, 3);
         MoleculeArrayList molecules02 = new MoleculeArrayList(2);
         molecules02.add(box.getMoleculeList().getMolecule(0));
         molecules02.add(box.getMoleculeList().getMolecule(1));
@@ -287,7 +287,7 @@ public class PotentialNonAdditive implements IPotentialMolecular {
         
         for (int i=0; i<100; i++) {
             double r = -3 + i*0.1;
-            box.getLeafList().getAtom(2).getPosition().setX(0, r);
+            box.getLeafList().get(2).getPosition().setX(0, r);
             box.trialNotify();
             box.acceptNotify();
             p3NA.setBox(box);

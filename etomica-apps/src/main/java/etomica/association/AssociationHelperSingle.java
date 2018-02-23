@@ -30,7 +30,7 @@ public class AssociationHelperSingle implements IAssociationHelper {
         mySmerList.clear();
         mySmerList.add(atom);
         IAtomList bondList = associationManager.getAssociatedAtoms(atom);
-        if (bondList.getAtomCount() > 1){
+        if (bondList.size() > 1){
             if (mightBeBroken) {
                 return true;
             }
@@ -38,15 +38,15 @@ public class AssociationHelperSingle implements IAssociationHelper {
             System.out.println(bondList);
             throw new RuntimeException();
         }
-        if (bondList.getAtomCount() == 0){
+        if (bondList.size() == 0){
             return false;
         }
-        mySmerList.add(bondList.getAtom(0));
-        IAtom bondedAtom = bondList.getAtom(0);
+        mySmerList.add(bondList.get(0));
+        IAtom bondedAtom = bondList.get(0);
         mySmerList.add(bondedAtom);
         bondList = associationManager.getAssociatedAtoms(bondedAtom);
-        if (bondList.getAtomCount() != 1 || bondList.getAtom(0) != atom) {
-            if (mightBeBroken && bondList.getAtomCount() == 1) {
+        if (bondList.size() != 1 || bondList.get(0) != atom) {
+            if (mightBeBroken && bondList.size() == 1) {
                 return true;
             }
             System.out.println("invalid bonding encountered");

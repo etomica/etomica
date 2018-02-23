@@ -605,7 +605,7 @@ public class SimDifferentImageSsFcc extends Simulation {
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
-            pumpListener.setInterval(getBox(iBox).getLeafList().getAtomCount());
+            pumpListener.setInterval(getBox(iBox).getLeafList().size());
             integrators[iBox].getEventManager().addListener(pumpListener);
         } else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);

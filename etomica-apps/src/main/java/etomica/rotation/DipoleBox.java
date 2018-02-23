@@ -44,7 +44,7 @@ public class DipoleBox extends Simulation {
         IMoleculeList molecules = box.getMoleculeList();
         for (int i = 0; i < nAtoms; i++) {
             IMolecule molecule = molecules.getMolecule(i);
-            ((IMoleculePositioned) molecule).getPosition().E(molecule.getChildList().getAtom(0).getPosition());
+            ((IMoleculePositioned) molecule).getPosition().E(molecule.getChildList().get(0).getPosition());
             IOrientationFull3D orientation = (IOrientationFull3D) ((IMoleculeOriented) molecule).getOrientation();
             for (int j = 0; j < 20; j++) {
                 orientation.randomRotation(getRandom(), 1);

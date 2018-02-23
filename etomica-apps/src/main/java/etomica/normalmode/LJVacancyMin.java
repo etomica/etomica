@@ -10,7 +10,6 @@ import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
-import etomica.integrator.Integrator.Forcible;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
@@ -158,7 +157,7 @@ public class LJVacancyMin extends Simulation {
             sim.potentialMaster.calculate(sim.box, all, pc);
             double dSum = 0;
             for (int j=0; j<numAtoms-1; j++) {
-                IAtom jAtom = sim.box.getLeafList().getAtom(j);
+                IAtom jAtom = sim.box.getLeafList().get(j);
                 Vector fj = forceManager.getAgent(jAtom);
                 Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
@@ -177,7 +176,7 @@ public class LJVacancyMin extends Simulation {
             }
             // take a small step
             for (int j=0; j<numAtoms-1; j++) {
-                IAtom jAtom = sim.box.getLeafList().getAtom(j);
+                IAtom jAtom = sim.box.getLeafList().get(j);
                 Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     pj.setX(k, pj.getX(k)+step0*dir[3*j+k]);
@@ -188,7 +187,7 @@ public class LJVacancyMin extends Simulation {
             sim.potentialMaster.calculate(sim.box, all, pc);
             dSum = 0;
             for (int j=0; j<numAtoms-1; j++) {
-                IAtom jAtom = sim.box.getLeafList().getAtom(j);
+                IAtom jAtom = sim.box.getLeafList().get(j);
                 Vector fj = forceManager.getAgent(jAtom);
                 Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
@@ -204,7 +203,7 @@ public class LJVacancyMin extends Simulation {
             double step1 = -step0*dNorm1/(dNorm1-dNorm0);
             if (verbose) System.out.print(String.format("  %10.4e\n", step1));
             for (int j=0; j<numAtoms-1; j++) {
-                IAtom jAtom = sim.box.getLeafList().getAtom(j);
+                IAtom jAtom = sim.box.getLeafList().get(j);
                 Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     pj.setX(k, pj.getX(k)+step1*dir[3*j+k]);

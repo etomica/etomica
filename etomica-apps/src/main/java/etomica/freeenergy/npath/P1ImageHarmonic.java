@@ -41,12 +41,12 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
     
     public void findNOffset(Box box) {
         IAtomList atoms = box.getLeafList();
-        partners = new int[atoms.getAtomCount()];
-        Vector p0 = atoms.getAtom(0).getPosition();
+        partners = new int[atoms.size()];
+        Vector p0 = atoms.get(0).getPosition();
         Boundary boundary = box.getBoundary();
         int nOffset = 0;
-        for (int i=1; i<atoms.getAtomCount(); i++) {
-            Vector p = atoms.getAtom(i).getPosition();
+        for (int i = 1; i<atoms.size(); i++) {
+            Vector p = atoms.get(i).getPosition();
             dr.Ev1Mv2(p, p0);
             dr.ME(offset);
             boundary.nearestImage(dr);
@@ -55,7 +55,7 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
             }
         }
         if (nOffset == 0) throw new RuntimeException("could not find N offset");
-        for (int i = 0; i < atoms.getAtomCount(); i++) {
+        for (int i = 0; i < atoms.size(); i++) {
             if (i % (nOffset * 2) >= nOffset) {
                 partners[i] = i - nOffset;
             } else {
@@ -86,10 +86,10 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
     }
 
     public double getDUDW(IAtomList atoms) {
-        IAtom atom0 = atoms.getAtom(0);
+        IAtom atom0 = atoms.get(0);
         int idx0 = atom0.getLeafIndex();
         if (partners[idx0] < idx0) return 0;
-        IAtom atom1 = allAtoms.getAtom(partners[idx0]);
+        IAtom atom1 = allAtoms.get(partners[idx0]);
         Vector p0 = atom0.getPosition();
         Vector p1 = atom1.getPosition();
         dr.Ev1Mv2(p1,p0);
@@ -118,9 +118,9 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
 
     @Override
     public double energy(IAtomList atoms) {
-        IAtom atom0 = atoms.getAtom(0);
+        IAtom atom0 = atoms.get(0);
         int idx0 = atom0.getLeafIndex();
-        IAtom atom1 = allAtoms.getAtom(partners[idx0]);
+        IAtom atom1 = allAtoms.get(partners[idx0]);
         Vector p0 = atom0.getPosition();
         Vector p1 = atom1.getPosition();
         dr.Ev1Mv2(p1,p0);
@@ -149,9 +149,9 @@ public class P1ImageHarmonic extends Potential1 implements PotentialSoft {
             return gradient;
         }
 
-        IAtom atom0 = atoms.getAtom(0);
+        IAtom atom0 = atoms.get(0);
         int idx0 = atom0.getLeafIndex();
-        IAtom atom1 = allAtoms.getAtom(partners[idx0]);
+        IAtom atom1 = allAtoms.get(partners[idx0]);
         Vector p0 = atom0.getPosition();
         Vector p1 = atom1.getPosition();
         dr.Ev1Mv2(p1,p0);

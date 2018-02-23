@@ -66,8 +66,8 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
      * both approaching and diverging
      */
     public void bump(IAtomList pair, double falseTime) {
-        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
-        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+        IAtomKinetic atom0 = (IAtomKinetic)pair.get(0);
+        IAtomKinetic atom1 = (IAtomKinetic)pair.get(1);
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
@@ -210,8 +210,8 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
      * approach, or when they edge of the wells are reached as atoms diverge.
      */
     public double collisionTime(IAtomList pair, double falseTime) {
-        IAtomKinetic coord0 = (IAtomKinetic)pair.getAtom(0);
-        IAtomKinetic coord1 = (IAtomKinetic)pair.getAtom(1);
+        IAtomKinetic coord0 = (IAtomKinetic)pair.get(0);
+        IAtomKinetic coord1 = (IAtomKinetic)pair.get(1);
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
         
         dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
@@ -242,8 +242,8 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
         }
         else if(bij < 0.0) {
             double collisionR2 = wellDiameterSquared;
-            CatalysisAgent agent0 = (CatalysisAgent)agentManager.getAgent(pair.getAtom(0));
-            CatalysisAgent agent1 = (CatalysisAgent)agentManager.getAgent(pair.getAtom(1));
+            CatalysisAgent agent0 = (CatalysisAgent)agentManager.getAgent(pair.get(0));
+            CatalysisAgent agent1 = (CatalysisAgent)agentManager.getAgent(pair.get(1));
             if (!agent0.isRadical && !agent1.isRadical && agent0.bondedAtom1 == agent1.bondedAtom1) {
                 //OCO
                 collisionR2 = minOCOr2;

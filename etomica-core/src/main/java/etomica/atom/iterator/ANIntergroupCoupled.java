@@ -45,7 +45,7 @@ public class ANIntergroupCoupled implements AtomsetIteratorBasisDependent {
         }
         atoms.clear();
         for (int i=0; i<nBody; i++) {
-            atoms.add(atomLists.get(i).getAtom(counter));
+            atoms.add(atomLists.get(i).get(counter));
         }
         counter++;
         return atoms;
@@ -75,7 +75,7 @@ public class ANIntergroupCoupled implements AtomsetIteratorBasisDependent {
         for (int i=0; i<nBody; i++) {
             atomLists.add(basisMolecules.getMolecule(i).getChildList());
         }
-        nLeafAtoms = atomLists.get(0).getAtomCount();
+        nLeafAtoms = atomLists.get(0).size();
     }
 
     public void reset() {

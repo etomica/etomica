@@ -47,9 +47,9 @@ public class MCMoveClusterMoleculeLayerMove extends MCMoveClusterMolecule {
        // if is 0, then the chosen molecule is moved toward the adjacent plane 
         IAtomList atoms = molecule.getChildList(); // get atoms
      // public IAtom getAtom(int i);
-        IAtom atom0 = atoms.getAtom(0);
-        IAtom atom1 = atoms.getAtom(1);
-        IAtom atom2 = atoms.getAtom(2);
+        IAtom atom0 = atoms.get(0);
+        IAtom atom1 = atoms.get(1);
+        IAtom atom2 = atoms.get(2);
       //public IVectorMutable getPosition();
         Vector position0 = atom0.getPosition();
         Vector position1 = atom1.getPosition();

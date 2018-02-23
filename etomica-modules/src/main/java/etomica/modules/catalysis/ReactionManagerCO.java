@@ -33,7 +33,7 @@ public class ReactionManagerCO implements IntegratorListener {
         IMoleculeList listC = box.getMoleculeList(sim.speciesC);
         for (int i=0; i<listC.getMoleculeCount(); i++) {
             IMolecule molecule = listC.getMolecule(i);
-            IAtom atom = molecule.getChildList().getAtom(0);
+            IAtom atom = molecule.getChildList().get(0);
             CatalysisAgent agent = (CatalysisAgent)agentManager.getAgent(atom);
             if (agent.bondedAtom1.getType() == atom.getType()) {
                 throw new RuntimeException("oops");

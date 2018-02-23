@@ -239,8 +239,8 @@ public class IntegratorDimerMin extends IntegratorBox {
 			IMoleculeList molecules = box.getMoleculeList(movableSpecies[i]);
 			IMoleculeList molecules1 = boxMin.getMoleculeList(movableSpecies[i]);
 			for (int j = 0; j < molecules.getMoleculeCount(); j++) {
-				list.add(molecules.getMolecule(j).getChildList().getAtom(0));
-				listMin.add(molecules1.getMolecule(j).getChildList().getAtom(0));
+				list.add(molecules.getMolecule(j).getChildList().get(0));
+				listMin.add(molecules1.getMolecule(j).getChildList().get(0));
 			}
 		}
 
@@ -334,9 +334,9 @@ public class IntegratorDimerMin extends IntegratorBox {
             // Use Nstar to offset(rotate) replicas
             Vector workVector1 = space.makeVector();
             for(int i=0; i<Nstar.length; i++){
-                workVector1.E(list.getAtom(i).getPosition());
+                workVector1.E(list.get(i).getPosition());
                 workVector1.PEa1Tv1(deltaR, Nstar[i]);
-                listMin.getAtom(i).getPosition().E(workVector1);
+                listMin.get(i).getPosition().E(workVector1);
             }
 
 			// Calculate F*'s
@@ -390,9 +390,9 @@ public class IntegratorDimerMin extends IntegratorBox {
                         
             // Use new N to offset(rotate) replica
             for(int i=0; i<N.length; i++){             
-                workVector.E(list.getAtom(i).getPosition());
+                workVector.E(list.get(i).getPosition());
                 workVector.PEa1Tv1(deltaR, N[i]);
-                listMin.getAtom(i).getPosition().E(workVector);
+                listMin.get(i).getPosition().E(workVector);
             }     
 						
 			rotCounter++;
@@ -414,8 +414,8 @@ public class IntegratorDimerMin extends IntegratorBox {
 		
 		for(int i=0; i<N.length; i++){
 			workvector.Ea1Tv1(stepLength, N[i]);
-			list.getAtom(i).getPosition().PE(workvector);
-			listMin.getAtom(i).getPosition().PE(workvector);
+			list.get(i).getPosition().PE(workvector);
+			listMin.get(i).getPosition().PE(workvector);
 		}
 		dimerNormal();
 	}
@@ -451,8 +451,8 @@ public class IntegratorDimerMin extends IntegratorBox {
         
         // N =  (Rmin - R0) / (deltaR)
         for (int i=0; i<N.length; i++){ 
-            workvector.E(listMin.getAtom(i).getPosition());
-            workvector.ME(list.getAtom(i).getPosition());
+            workvector.E(listMin.get(i).getPosition());
+            workvector.ME(list.get(i).getPosition());
             N[i].E(workvector);
             mag += workvector.squared();
         }
@@ -482,8 +482,8 @@ public class IntegratorDimerMin extends IntegratorBox {
 		// Copy forces of dimer ends (R1, R2) to local array
 		for(int i=0; i<aF1.length; i++){
 			
-			aF[i].E(atomAgent0.getAgent(list.getAtom(i)));
-			aF1[i].E(atomAgentMin.getAgent(listMin.getAtom(i)));
+			aF[i].E(atomAgent0.getAgent(list.get(i)));
+			aF1[i].E(atomAgentMin.getAgent(listMin.get(i)));
 			aF2[i].Ea1Tv1(2.0, aF[i]);
 			aF2[i].ME(aF1[i]);
 			
@@ -505,7 +505,7 @@ public class IntegratorDimerMin extends IntegratorBox {
         
      // Copy forces of dimer end and center (R1, R) to local array
         for(int i=0; i<aF1star.length; i++){
-            aF1star[i].E(atomAgentMin.getAgent(listMin.getAtom(i)));
+            aF1star[i].E(atomAgentMin.getAgent(listMin.get(i)));
             aF2star[i].Ea1Tv1(2.0, aF[i]);
             aF2star[i].ME(aF1star[i]);
         }

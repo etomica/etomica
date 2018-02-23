@@ -88,7 +88,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
         if (targetAtom != null || targetMolecule != null) {
             IAtom leafAtom = targetAtom;
             if (leafAtom == null) {
-                leafAtom = targetMolecule.getChildList().getAtom(0);
+                leafAtom = targetMolecule.getChildList().get(0);
             }
             final int targetIndex = leafAtom.getLeafIndex();
             final PotentialArrayByType potentialArray = potentialAgentManager.getAgent(leafAtom.getType());
@@ -103,8 +103,8 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
             for (int i=0; i<allPotentials.length; i++) {
                 allPotentials[i].setBox(box);
             }
-            for (int i=0; i<leafList.getAtomCount(); i++) {
-                IAtom atom = leafList.getAtom(i);
+            for (int i = 0; i<leafList.size(); i++) {
+                IAtom atom = leafList.get(i);
                 PotentialArrayByType potentialArray = potentialAgentManager.getAgent(atom.getType());
                 calculate(atom, leafList, i, potentialArray, IteratorDirective.Direction.UP, pc);
             }
@@ -117,7 +117,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
     protected void calculate(IAtom leafAtom, IAtomList leafList, int leafIndex, PotentialArrayByType potentialArray, IteratorDirective.Direction direction, PotentialCalculation pc) {
 
         IPotential[] potentials = potentialArray.getPotentials();
-        int leafCount = leafList.getAtomCount();
+        int leafCount = leafList.size();
         for(int i=0; i<potentials.length; i++) {
             if (potentials[i].nBody() == 1) {
                 atomSetSinglet.atom = leafAtom;
@@ -129,7 +129,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
         if (direction != IteratorDirective.Direction.DOWN) {
             atomPair.atom0 = leafAtom;
             for (int j=leafIndex+1; j<leafCount; j++) {
-                atomPair.atom1 = leafList.getAtom(j);
+                atomPair.atom1 = leafList.get(j);
                 AtomType type1 = atomPair.atom1.getType();
                 for (int i=0; i<types.length; i++) {
                     if (types[i] == type1) {
@@ -142,7 +142,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
         if (direction != IteratorDirective.Direction.UP) {
             atomPair.atom1 = leafAtom;
             for (int j=0; j<leafIndex; j++) {
-                atomPair.atom0 = leafList.getAtom(j);
+                atomPair.atom0 = leafList.get(j);
                 AtomType type0 = atomPair.atom0.getType();
                 for (int i=0; i<types.length; i++) {
                     if (types[i] == type0) {

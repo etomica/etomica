@@ -16,14 +16,14 @@ public class AtomSourceRandomMonomer extends AtomSourceRandomLeaf {
 
 	public IAtom getAtom() {
     	IAtomList atoms = associationManager.getAssociatedAtoms();
-    	if (atoms.getAtomCount() == list.getAtomCount()) {//all the atoms are dimer
+    	if (atoms.size() == list.size()) {//all the atoms are dimer
     		return null;
     	}
     	IAtom atom;
     	do {
     		atom = super.getAtom();
     	}
-		while (associationManager.getAssociatedAtoms(atom).getAtomCount()> 0);
+		while (associationManager.getAssociatedAtoms(atom).size()> 0);
         return atom;
 	}
 

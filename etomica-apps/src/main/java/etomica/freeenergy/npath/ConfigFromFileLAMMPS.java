@@ -18,7 +18,6 @@ import etomica.graphics.*;
 import etomica.math.numerical.ArrayReader1D;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
-import etomica.molecule.IMolecule;
 import etomica.simulation.Simulation;
 import etomica.space.*;
 import etomica.space3d.Space3D;
@@ -335,7 +334,7 @@ public class ConfigFromFileLAMMPS {
             for (int i = 0; i < 3; i++) {
                 edges[i] = box.getBoundary().getEdgeVector(i);
             }
-            int numAtoms = box.getLeafList().getAtomCount();
+            int numAtoms = box.getLeafList().size();
             t = space.makeTensor();
             scaledCoords0 = space.makeVectorArray(numAtoms);
             rescaledCoords0 = space.makeVectorArray(numAtoms);
@@ -355,7 +354,7 @@ public class ConfigFromFileLAMMPS {
         public void colorAllAtoms() {
             IAtomList atoms = box.getLeafList();
 
-            double vol = box.getBoundary().volume() / atoms.getAtomCount();
+            double vol = box.getBoundary().volume() / atoms.size();
             double a = Math.cbrt(vol);
             rNbr = a * Math.sqrt(3) / 2;
 
@@ -365,11 +364,11 @@ public class ConfigFromFileLAMMPS {
             }
             t.E(edges);
 
-            for (int i = 0; i < atoms.getAtomCount(); i++) {
+            for (int i = 0; i < atoms.size(); i++) {
                 r0.E(scaledCoords0[i]);
                 t.transform(r0);
                 rescaledCoords0[i].E(r0);
-                dr.Ev1Mv2(atoms.getAtom(i).getPosition(), r0);
+                dr.Ev1Mv2(atoms.get(i).getPosition(), r0);
                 boundary.nearestImage(dr);
                 double r2 = dr.squared();
             }
@@ -463,8 +462,8 @@ public class ConfigFromFileLAMMPS {
             }
             IAtomList atoms = box.getLeafList();
             Vector[] myCoords = allCoords.get(configIndex);
-            for (int i = 0; i < atoms.getAtomCount(); i++) {
-                IAtom a = atoms.getAtom(i);
+            for (int i = 0; i < atoms.size(); i++) {
+                IAtom a = atoms.get(i);
                 a.getPosition().E(myCoords[i]);
                 if (colorScheme != null) {
                     Vector orientation = colorScheme.getDisplacement(a);

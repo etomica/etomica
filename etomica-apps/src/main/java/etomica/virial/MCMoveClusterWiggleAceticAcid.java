@@ -74,11 +74,11 @@ public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
                 continue;
             }
             IAtomList childList = moleculeList.getMolecule(i).getChildList();
-            int numChildren = childList.getAtomCount();
+            int numChildren = childList.size();
 
             int j = random.nextInt(3)*2;
             selectedAtoms[i] = j;//0,2,4
-            IAtom selectedAtom = childList.getAtom(j);
+            IAtom selectedAtom = childList.get(j);
             Vector position = selectedAtom.getPosition();
             translationVectors[i].Ea1Tv1(-1,position);
             double oldBondLength1 = 0, oldBondLength2 = 0;
@@ -88,8 +88,8 @@ public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
 
             //work1 is the current vector from the bonded atom to atom j
             work1.E(position);
-            work1.ME(childList.getAtom(bondedAtoms[j]).getPosition());
-            position.E(childList.getAtom(bondedAtoms[j]).getPosition());
+            work1.ME(childList.get(bondedAtoms[j]).getPosition());
+            position.E(childList.get(bondedAtoms[j]).getPosition());
             double bondLength = Math.sqrt(work1.squared());
             if (Debug.ON && Debug.DEBUG_NOW) {
                 oldBondLength1 = bondLength;
@@ -127,20 +127,20 @@ public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
 
             translationVectors[i].PE(position);
             work1.E(translationVectors[i]);
-            work1.TE(1.0/childList.getAtomCount());
-            for (int k=0; k<childList.getAtomCount(); k++) {//handling COM
-                childList.getAtom(k).getPosition().ME(work1);
+            work1.TE(1.0/childList.size());
+            for (int k = 0; k<childList.size(); k++) {//handling COM
+                childList.get(k).getPosition().ME(work1);
             }
             if (Debug.ON && Debug.DEBUG_NOW) {
                 if (j > 0) {
-                    work1.Ev1Mv2(position, childList.getAtom(j-1).getPosition());
+                    work1.Ev1Mv2(position, childList.get(j-1).getPosition());
                     bondLength = Math.sqrt(work1.squared());
                     if (Math.abs(bondLength - oldBondLength1)/oldBondLength1 > 0.000001) {
                         throw new IllegalStateException("wiggle "+i+" "+j+" bond length should be close to "+oldBondLength1+" ("+bondLength+")");
                     }
                 }
                 if (j < numChildren-1) {
-                    work1.Ev1Mv2(position, childList.getAtom(j+1).getPosition());
+                    work1.Ev1Mv2(position, childList.get(j+1).getPosition());
                     bondLength = Math.sqrt(work1.squared());
                     double oldBondLength = oldBondLength2 == 0 ? oldBondLength1 : oldBondLength2;
                     if (Math.abs(bondLength - oldBondLength)/oldBondLength > 0.000001) {
@@ -165,11 +165,11 @@ public class MCMoveClusterWiggleAceticAcid extends MCMoveMolecule {
             if (species != null && moleculeList.getMolecule(i).getType() != species) continue;
             IAtomList childList = moleculeList.getMolecule(i).getChildList();
             work1.E(translationVectors[i]);
-            work1.TE(1.0/childList.getAtomCount());
-            for (int k=0; k<childList.getAtomCount(); k++) {
-                childList.getAtom(k).getPosition().PE(work1);//undo COM
+            work1.TE(1.0/childList.size());
+            for (int k = 0; k<childList.size(); k++) {
+                childList.get(k).getPosition().PE(work1);//undo COM
             }
-            childList.getAtom(selectedAtoms[i]).getPosition().ME(translationVectors[i]);
+            childList.get(selectedAtoms[i]).getPosition().ME(translationVectors[i]);
         }
         ((BoxCluster)box).rejectNotify();
     }

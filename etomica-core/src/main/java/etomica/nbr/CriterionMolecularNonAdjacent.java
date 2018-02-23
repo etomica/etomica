@@ -30,8 +30,8 @@ public final class CriterionMolecularNonAdjacent extends
      */
     public boolean accept(IAtomList pair) {
 
-        int a0 = pair.getAtom(0).getIndex();
-        int a1 = pair.getAtom(1).getIndex();
+        int a0 = pair.get(0).getIndex();
+        int a1 = pair.get(1).getIndex();
         int temp;
 
         //we do not need to consider a0 = a1, because then temp will be 0, and

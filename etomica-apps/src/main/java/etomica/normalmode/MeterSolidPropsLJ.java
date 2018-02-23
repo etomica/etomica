@@ -5,8 +5,6 @@
 package etomica.normalmode;
 
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
@@ -78,7 +76,7 @@ public class MeterSolidPropsLJ implements IDataSource {
         
         
         volume = coordinateDefinition.getBox().getBoundary().volume();
-        nMol = coordinateDefinition.getBox().getLeafList().getAtomCount();
+        nMol = coordinateDefinition.getBox().getLeafList().size();
         density = nMol/volume;
         dP = 9.530521593903*temperature;
     	f1 = (-1.0/volume + dP/temperature)/3.0/(nMol-1.0);

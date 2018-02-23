@@ -37,12 +37,12 @@ public class ColorSchemeSmerByLength extends ColorScheme {
     public synchronized Color getAtomColor(IAtom a) {
         associationHelper.populateList(smerList, a, false);
         int oldSize = colors.size();
-        if (oldSize < smerList.getAtomCount()+1) {
-            for (int i=oldSize; i<smerList.getAtomCount()+1; i++) {
+        if (oldSize < smerList.size()+1) {
+            for (int i = oldSize; i<smerList.size()+1; i++) {
                 colors.add(new Color((float)random.nextDouble(), (float)random.nextDouble(), (float)random.nextDouble()));
             }
         }
-        return colors.get(smerList.getAtomCount());
+        return colors.get(smerList.size());
     }
     
     private static final long serialVersionUID = 1L;

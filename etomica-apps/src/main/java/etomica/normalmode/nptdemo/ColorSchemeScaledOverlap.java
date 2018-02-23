@@ -28,7 +28,7 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
         super(coordinateDefinition.getBox());
         this.coordinateDefinition = coordinateDefinition;
         Box box = coordinateDefinition.getBox();
-        nOverlaps = new int[box.getLeafList().getAtomCount()];
+        nOverlaps = new int[box.getLeafList().size()];
         neighborManager = potentialMaster.getNeighborManager(box);
         pi = space.makeVector();
         pj = space.makeVector();
@@ -56,7 +56,7 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
         Box box = coordinateDefinition.getBox();
         IAtomList leafList = box.getLeafList();
         double vOld = box.getBoundary().volume();
-        int nAtoms = box.getLeafList().getAtomCount();
+        int nAtoms = box.getLeafList().size();
         double vNew = nAtoms/displayDensity;
         double rScale = Math.sqrt(vNew/vOld);
         double latticeScale = Math.exp((pressure*(vNew-vOld))/((nAtoms-1)*1*2))/rScale;
@@ -68,14 +68,14 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
         double sig2 = scaledSig*scaledSig;
         
         //color all atoms according to their type
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             nOverlaps[iLeaf] = 0;
         }
         Boundary boundary = box.getBoundary();
-        for (int i=0; i<leafList.getAtomCount(); i++) {
+        for (int i = 0; i<leafList.size(); i++) {
             //color blue the neighbor atoms in same group
-            IAtom atom = leafList.getAtom(i);
+            IAtom atom = leafList.get(i);
             pi.E(atom.getPosition());
             Vector l = coordinateDefinition.getLatticePosition(atom);
             pi.ME(l);
@@ -83,8 +83,8 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
             pi.PE(l);
 
             IAtomList list = neighborManager.getDownList(atom)[0];
-            for (int j=0; j<list.getAtomCount(); j++) {
-                IAtom jAtom = list.getAtom(j);
+            for (int j = 0; j<list.size(); j++) {
+                IAtom jAtom = list.get(j);
 
                 pj.E(jAtom.getPosition());
                 Vector lj = coordinateDefinition.getLatticePosition(jAtom);
@@ -101,9 +101,9 @@ public class ColorSchemeScaledOverlap extends ColorSchemeCollectiveAgent {
                 }
             }
         }
-        for (int i=0; i<leafList.getAtomCount(); i++) {
+        for (int i = 0; i<leafList.size(); i++) {
             //color green the target atom 
-            agentManager.setAgent(leafList.getAtom(i), colors[nOverlaps[i]]);
+            agentManager.setAgent(leafList.get(i), colors[nOverlaps[i]]);
         }
     }
 

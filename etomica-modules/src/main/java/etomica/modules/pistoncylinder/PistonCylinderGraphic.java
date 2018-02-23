@@ -897,8 +897,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             }
             if (newValue > oldDensity) {
                 // scale atom positions
-                for (int i=0; i<leafList.getAtomCount(); i++) {
-                    Vector pos = leafList.getAtom(i).getPosition();
+                for (int i = 0; i<leafList.size(); i++) {
+                    Vector pos = leafList.get(i).getPosition();
                     double y = (pos.getX(1)+yShift) * (oldDensity / newValue) - yShift;
                     pos.setX(1, y);
                 }

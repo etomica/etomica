@@ -343,14 +343,14 @@ public class RenderMDGraphic extends SimulationGraphic {
         	    public void actionPerformed() {
         	        IAtomList atoms = simulation.box.getLeafList();
         	        double lambda2 = sim.potentialBonded.getLambda()*sim.potentialBonded.getLambda();
-        	        int nAtoms = atoms.getAtomCount();
+        	        int nAtoms = atoms.size();
         	        int nBonds = allBonds.size();
         	        for(int i=0; i<nBonds; i++) {
         	            dis.releaseBond(allBonds.get(i));
         	        }
         	        allBonds.clear();
         	        for(int i=0; i<nAtoms; i++) {
-        	            pair.atom0 = atoms.getAtom(i);
+        	            pair.atom0 = atoms.get(i);
         	            Set<IAtom> aSet = bondedSet.get(pair.atom0);
         	            Iterator<IAtom> iterator = aSet.iterator();
         	            while(iterator.hasNext()) {

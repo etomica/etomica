@@ -169,8 +169,8 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
 	    	 * Determine the Orientation of Each Molecule
 	    	 */
 	    	
-	    	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-	    	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+	    	Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+	    	Vector leafPos1 = molecule.getChildList().get(1).getPosition();
 	    	
 	    	axis.Ev1Mv2(leafPos1, leafPos0);
 	       	axis.normalize();

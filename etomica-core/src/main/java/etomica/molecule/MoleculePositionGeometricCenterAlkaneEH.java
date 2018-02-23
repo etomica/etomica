@@ -32,11 +32,11 @@ public class MoleculePositionGeometricCenterAlkaneEH implements IMoleculePositio
     public Vector position(IMolecule molecule) {
         center.E(0.0);
         IAtomList children = molecule.getChildList();
-        int nAtoms = children.getAtomCount();
+        int nAtoms = children.size();
         // get the species info in the virial main class, if it is alkaneEH species, then use (n-2)/3, use nAtoms for CO2/N2/etc.
         int numCarbons = molecule.getType()== speciesAlkane? (nAtoms-2)/3 : nAtoms;
         for (int i=0; i<numCarbons; i++) {// loop over all carbons ONLY
-            center.PE(children.getAtom(i).getPosition());
+            center.PE(children.get(i).getPosition());
         }
         center.TE(1.0 / numCarbons);
         return center;

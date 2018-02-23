@@ -424,7 +424,7 @@ public class MuGraphic extends SimulationGraphic {
                 else {
                     for (int i=0; i<(d-oldValue); i++) {
                         IMolecule m = species.makeMolecule();
-                        Vector p = m.getChildList().getAtom(0).getPosition();
+                        Vector p = m.getChildList().get(0).getPosition();
                         p.setX(0, -7.5);
                         box.addMolecule(m);
                     }
@@ -459,7 +459,7 @@ public class MuGraphic extends SimulationGraphic {
                 else {
                     for (int i=0; i<(d-oldValue); i++) {
                         IMolecule m = species.makeMolecule();
-                        Vector p = m.getChildList().getAtom(0).getPosition();
+                        Vector p = m.getChildList().get(0).getPosition();
                         p.setX(0, -7.5);
                         box.addMolecule(m);
                     }
@@ -705,7 +705,7 @@ public class MuGraphic extends SimulationGraphic {
                 return null;
             }
             myData.E(data);
-            int numAtoms = box.getLeafList().getAtomCount();
+            int numAtoms = box.getLeafList().size();
             myData.TE(1.0/numAtoms);
             return myData;
         }

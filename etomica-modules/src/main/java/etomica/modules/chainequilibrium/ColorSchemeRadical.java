@@ -74,14 +74,14 @@ public class ColorSchemeRadical extends ColorSchemeByType implements ColorScheme
     public void colorAllAtoms() {
         // untag all the Atoms
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int i=0; i<nLeaf; i++) {
-            chainLengthManager.getAgent(leafList.getAtom(i)).chainNumber = -1;
+            chainLengthManager.getAgent(leafList.get(i)).chainNumber = -1;
         }
 
         int chainNumber = 0;
         for (int i=0; i<nLeaf; i++) {
-            IAtom a = leafList.getAtom(i);
+            IAtom a = leafList.get(i);
             // if an Atom has a chain length, it was already counted as part of
             // another chain
             if (chainLengthManager.getAgent(a).chainNumber > 0) continue;

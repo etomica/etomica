@@ -138,7 +138,7 @@ public class MeterVirialExternalFieldRho implements IDataSource, java.io.Seriali
         	    List<List<Byte>> cList = listsPoint.get(c);
         	    List<Byte> gList = cList.get(0);
         	    for(byte g : gList){
-        	    	if (atoms.getAtom(g).getPosition().getX(2)-0.5 < wallPosition[i]){
+        	    	if (atoms.get(g).getPosition().getX(2)-0.5 < wallPosition[i]){
         	    		v = 0;
         	    		break;
         	    	}
@@ -150,7 +150,7 @@ public class MeterVirialExternalFieldRho implements IDataSource, java.io.Seriali
         	    	List<Byte> gm1List = cList.get(j);
         	    	boolean inwall = false;
         	    	for(byte gm1 :gm1List){
-        	    		if (atoms.getAtom(gm1).getPosition().getX(2)-0.5 < wallPosition[i]){
+        	    		if (atoms.get(gm1).getPosition().getX(2)-0.5 < wallPosition[i]){
         	    			inwall = true;
         	    			break;
         	    		}

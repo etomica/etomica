@@ -331,7 +331,7 @@ public class SwmdGraphic extends SimulationGraphic {
         IntegratorListenerAction kePumpListener = new IntegratorListenerAction(kePump);
         sim.integrator.getEventManager().addListener(kePumpListener);
         dataStreamPumps.add(kePump);
-        int numAtoms = sim.box.getLeafList().getAtomCount();
+        int numAtoms = sim.box.getLeafList().size();
         energyPumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);
         kePumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);
         pePumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);

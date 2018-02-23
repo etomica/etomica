@@ -155,8 +155,8 @@ public class VirialHePCKLJSTempDeriv {
         if (QFH) {
         	
         } else {
-        	for (int i=1;i<atoms.getAtomCount();i++) {
-            	atoms.getAtom(i).getPosition().setX(0, i*10);
+        	for (int i = 1; i<atoms.size(); i++) {
+            	atoms.get(i).getPosition().setX(0, i*10);
             }
         }
         

@@ -44,7 +44,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
     public double[] calcU(IMoleculeList atoms) {
         int j = 0;
         for (int i=0; i<atoms.getMoleculeCount(); i++) {
-            IAtom a = atoms.getMolecule(i).getChildList().getAtom(0);
+            IAtom a = atoms.getMolecule(i).getChildList().get(0);
             Vector pos = a.getPosition();
             Vector site = getLatticePosition(a);
             workVector.Ev1Mv2(pos, site);
@@ -66,7 +66,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
     public void setToU(IMoleculeList atoms, double[] newU) {
         int j = 0;
         for (int i=0; i<atoms.getMoleculeCount(); i++) {
-            IAtom a = atoms.getMolecule(i).getChildList().getAtom(0);
+            IAtom a = atoms.getMolecule(i).getChildList().get(0);
             Vector pos = a.getPosition();
             for (int k=0; k<workVector.getD(); k++) {
                 pos.setX(k, newU[j+k]);

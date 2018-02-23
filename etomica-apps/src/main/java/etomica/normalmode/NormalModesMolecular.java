@@ -73,13 +73,13 @@ public class NormalModesMolecular implements NormalModes {
         	}
         	Vector comPos = comi.position(moleculei);
         	inertiaTensor.E(0);
-        	for(int j=0; j<moleculei.getChildList().getAtomCount(); j++){
-        		drk.Ev1Mv2(moleculei.getChildList().getAtom(j).getPosition(),comPos);
+        	for(int j = 0; j<moleculei.getChildList().size(); j++){
+        		drk.Ev1Mv2(moleculei.getChildList().get(j).getPosition(),comPos);
         		//System.out.println(drk.dot(drk));
         		tempTensor.Ev1v2(drk, drk);
         		tempTensor.TE(-1);
         		tempTensor.PEa1Tt1(drk.dot(drk), identity);
-        		tempTensor.TE(moleculei.getChildList().getAtom(j).getType().getMass());
+        		tempTensor.TE(moleculei.getChildList().get(j).getType().getMass());
         		inertiaTensor.PE(tempTensor);
         	}
     		for(int m=0;m<space.D();m++){

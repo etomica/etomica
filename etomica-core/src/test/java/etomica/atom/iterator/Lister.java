@@ -48,8 +48,8 @@ class Lister implements AtomAction {
      * Performs action on each element of array.
      */
     public void addEachToList(IAtomList a) {
-        for(int i=0; i<a.getAtomCount(); i++) {
-            actionPerformed(new AtomSetSinglet(a.getAtom(i)));
+        for(int i = 0; i<a.size(); i++) {
+            actionPerformed(new AtomSetSinglet(a.get(i)));
         }
     }
 

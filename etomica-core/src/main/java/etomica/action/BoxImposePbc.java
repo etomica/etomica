@@ -67,8 +67,8 @@ public class BoxImposePbc extends BoxActionAdapter {
         }
         else {
             IAtomList atoms = box.getLeafList();
-            for (int i=0; i<atoms.getAtomCount(); i++) {
-                IAtom atom = atoms.getAtom(i);
+            for (int i = 0; i<atoms.size(); i++) {
+                IAtom atom = atoms.get(i);
                 Vector shift = boundary.centralImage(atom.getPosition());
                 if (!shift.isZero()) {
                     atom.getPosition().PE(shift);

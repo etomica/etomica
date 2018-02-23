@@ -52,8 +52,8 @@ public class MCMoveMultiHarmonic extends MCMoveBox {
         IAtomList atoms = box.getLeafList();
         uNew = 0;
         double sqrtS = Math.sqrt(s);
-        for (int i=0; i<atoms.getAtomCount(); i++) {
-            Vector p = atoms.getAtom(i).getPosition();
+        for (int i = 0; i<atoms.size(); i++) {
+            Vector p = atoms.get(i).getPosition();
             for (int j=0; j<p.getD(); j++) {
                 double r = random.nextGaussian()/sqrtS;
                 uNew += 0.5*r*r*s;

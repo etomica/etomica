@@ -167,7 +167,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource<Dou
 	}
 
 	public boolean accept(IAtomList atom) {
-		dr = (atom.getAtom(0)).getPosition().getX(neighborDim);
+		dr = (atom.get(0)).getPosition().getX(neighborDim);
         if (!isBoundaryWall) {
             dr = Math.abs(dr - wallPosition);
         }

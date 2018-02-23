@@ -16,10 +16,10 @@ public class MoleculePositionFirstAtom implements IMoleculePositionDefinition, j
 
     public Vector position(IMolecule molecule) {
         IAtomList childList = molecule.getChildList();
-        if (childList.getAtomCount() == 0) {
+        if (childList.size() == 0) {
             return null;
         }
-        return childList.getAtom(0).getPosition();
+        return childList.get(0).getPosition();
     }
     
 

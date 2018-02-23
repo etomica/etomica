@@ -33,7 +33,7 @@ public class PotentialMolecularMonatomic extends PotentialMolecular {
     public double energy(IMoleculeList molecules) {
         atoms.clear();
         for (int i=0; i<nBody; i++) {
-            atoms.add(molecules.getMolecule(i).getChildList().getAtom(0));
+            atoms.add(molecules.getMolecule(i).getChildList().get(0));
         }
         return potentialAtomic.energy(atoms);
     }

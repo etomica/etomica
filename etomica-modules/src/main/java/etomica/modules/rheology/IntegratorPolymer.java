@@ -10,7 +10,6 @@ import etomica.integrator.IntegratorMD;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
@@ -55,19 +54,19 @@ public class IntegratorPolymer extends IntegratorMD {
             center.E(0);
             IMolecule molecule = molecules.getMolecule(i);
             IAtomList atoms = molecule.getChildList();
-            if (s.length != atoms.getAtomCount()) {
-                s = new Vector[atoms.getAtomCount()];
-                r = new Vector[atoms.getAtomCount()];
-                W = new Vector[atoms.getAtomCount()];
-                for (int j=0; j<atoms.getAtomCount(); j++) {
+            if (s.length != atoms.size()) {
+                s = new Vector[atoms.size()];
+                r = new Vector[atoms.size()];
+                W = new Vector[atoms.size()];
+                for (int j = 0; j<atoms.size(); j++) {
                     s[j] = space.makeVector();
                     r[j] = space.makeVector();
                     W[j] = space.makeVector();
                 }
-                fQ = new double[atoms.getAtomCount()];
+                fQ = new double[atoms.size()];
             }
-            for (int j=0; j<atoms.getAtomCount(); j++) {
-                s[j].E(atoms.getAtom(j).getPosition());
+            for (int j = 0; j<atoms.size(); j++) {
+                s[j].E(atoms.get(j).getPosition());
                 for (int k=0; k<3; k++) {
                     W[j].setX(k, sqdt*random.nextGaussian());
                 }
@@ -75,7 +74,7 @@ public class IntegratorPolymer extends IntegratorMD {
             //calculate 0-1 bond vector before moving 0 and 1.
 
             // predictor step
-            for (int j=0; j<atoms.getAtomCount(); j++) {
+            for (int j = 0; j<atoms.size(); j++) {
 
                 if (a < 0) {
                     r[j].setX(0, srdt*s[j].getX(1));
@@ -93,7 +92,7 @@ public class IntegratorPolymer extends IntegratorMD {
                     r[j].PEa1Tv1(fQ[j-1], ds);
                 }
 
-                if (j+1 < atoms.getAtomCount()) {
+                if (j+1 < atoms.size()) {
                     ds.Ev1Mv2(s[j+1], s[j]);
                     fQ[j] = (1 + b*ds.squared())*omdth;
                     r[j].PEa1Tv1(-fQ[j], ds);
@@ -104,8 +103,8 @@ public class IntegratorPolymer extends IntegratorMD {
             
             // corrector step
             double fR = 0;
-            for (int j=0; j<atoms.getAtomCount(); j++) {
-                Vector q = atoms.getAtom(j).getPosition();
+            for (int j = 0; j<atoms.size(); j++) {
+                Vector q = atoms.get(j).getPosition();
                 if (a < 0) {
                     q.setX(0, srdt2*(s[j].getX(1)+r[j].getX(1)));
                     q.setX(1, a*srdt2*(s[j].getX(0)+r[j].getX(0)));
@@ -120,7 +119,7 @@ public class IntegratorPolymer extends IntegratorMD {
                     q.PEa1Tv1(fQ[j-1], ds);
                     q.PEa1Tv1(fR, dr);
                 }
-                if (j+1 < atoms.getAtomCount()) {
+                if (j+1 < atoms.size()) {
                     ds.Ev1Mv2(s[j+1], s[j]);
                     fQ[j] *= 0.5;
                     q.PEa1Tv1(-fQ[j], ds);
@@ -133,10 +132,10 @@ public class IntegratorPolymer extends IntegratorMD {
             }
 
             // maintain center at 0
-            center.TE(-1.0/atoms.getAtomCount());
+            center.TE(-1.0/atoms.size());
 
-            for (int j=0; j<atoms.getAtomCount(); j++) {
-                atoms.getAtom(j).getPosition().PE(center);
+            for (int j = 0; j<atoms.size(); j++) {
+                atoms.get(j).getPosition().PE(center);
             }
         }
         

@@ -17,7 +17,6 @@ import etomica.integrator.IntegratorBox;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.units.Joule;
@@ -190,7 +189,7 @@ public class IntegratorKMC extends IntegratorBox{
         }
         
         for(int i=0; i<loopSet2.getMoleculeCount(); i++){
-            minPosition[i].E(loopSet2.getMolecule(i).getChildList().getAtom(0).getPosition());
+            minPosition[i].E(loopSet2.getMolecule(i).getChildList().get(0).getPosition());
         }  
     }
     
@@ -205,7 +204,7 @@ public class IntegratorKMC extends IntegratorBox{
         double offset = 0;
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
-            currentPos[i] = (loopSet3.getMolecule(i).getChildList().getAtom(0).getPosition());
+            currentPos[i] = (loopSet3.getMolecule(i).getChildList().get(0).getPosition());
             for(int j=0; j<3; j++){
                 offset = random.nextGaussian()/10.0;
                 if(Math.abs(offset)>0.1){offset=0.1;}
@@ -257,13 +256,13 @@ public class IntegratorKMC extends IntegratorBox{
     
     private boolean checkUniqueSaddle(){    
         for(int p=0; p<box.getMoleculeList().getMoleculeCount(); p++){
-            currentSaddle[p].E(box.getMoleculeList().getMolecule(p).getChildList().getAtom(0).getPosition());
+            currentSaddle[p].E(box.getMoleculeList().getMolecule(p).getChildList().get(0).getPosition());
         }
         for(int i=0; i<goodSearch; i++){
             double positionDiff = 0;
             loadConfiguration("s_"+i+"_saddle");
             for(int j=0; j<box.getMoleculeList().getMoleculeCount(); j++){
-                previousSaddle[j].E(box.getMoleculeList().getMolecule(j).getChildList().getAtom(0).getPosition());
+                previousSaddle[j].E(box.getMoleculeList().getMolecule(j).getChildList().get(0).getPosition());
                 previousSaddle[j].ME(currentSaddle[j]);
                 positionDiff += previousSaddle[j].squared();
             }
@@ -286,7 +285,7 @@ public class IntegratorKMC extends IntegratorBox{
         Vector workVector = space.makeVector();
         double positionDiff=0;
         for(int i=0; i<box.getMoleculeList().getMoleculeCount(); i++){
-            workVector.Ev1Mv2(minPosition[i],box.getMoleculeList().getMolecule(i).getChildList().getAtom(0).getPosition());
+            workVector.Ev1Mv2(minPosition[i],box.getMoleculeList().getMolecule(i).getChildList().get(0).getPosition());
             positionDiff += workVector.squared();
         }
         if(positionDiff > 0.5){return true;}

@@ -175,11 +175,11 @@ public class VirialH2PIXC {
 		AtomType type = species.getAtomType(0);
 
 		IAtomList leafList = sim.box.getLeafList();
-		for (int i=0; i<leafList.getAtomCount(); i++) {
+		for (int i = 0; i<leafList.size(); i++) {
 
-			AtomHydrogen o = (AtomHydrogen)leafList.getAtom(i);
-			double cT = Math.cos((Math.PI*i)/leafList.getAtomCount());
-			double sT = Math.sin((Math.PI*i)/leafList.getAtomCount());
+			AtomHydrogen o = (AtomHydrogen)leafList.get(i);
+			double cT = Math.cos((Math.PI*i)/leafList.size());
+			double sT = Math.sin((Math.PI*i)/leafList.size());
 			Vector vec = space.makeVector();
 			vec.setX(0, cT);
 			vec.setX(1, sT);
@@ -191,7 +191,7 @@ public class VirialH2PIXC {
 		//        System.exit(1);
 
 		for (int i=0; i<nSpheres; i++) {
-			((AtomHydrogen)leafList.getAtom(i)).setBondLength(newr0);
+			((AtomHydrogen)leafList.get(i)).setBondLength(newr0);
 		}
 		sim.box.trialNotify();
 		sim.box.acceptNotify();

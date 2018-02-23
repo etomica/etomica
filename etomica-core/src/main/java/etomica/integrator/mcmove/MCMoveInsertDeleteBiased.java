@@ -85,7 +85,7 @@ public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
     }
     
     public double getLnBiasDiff() {
-        int numAtoms = box.getLeafList().getAtomCount();
+        int numAtoms = box.getLeafList().size();
         if (lnbias != null && lnbias.length < numAtoms+1) {
             int oldSize = lnbias.length;
             lnbias = Arrays.copyOf(lnbias, numAtoms+1);
@@ -112,7 +112,7 @@ public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
     }
     
     public void acceptNotify() {
-        int numAtoms = box.getLeafList().getAtomCount();
+        int numAtoms = box.getLeafList().size();
         if ((numAtoms <= minN && !insert) || (numAtoms > maxN && insert)) {
             myRejectNotify();
         }

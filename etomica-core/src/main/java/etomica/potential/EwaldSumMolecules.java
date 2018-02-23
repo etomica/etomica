@@ -90,10 +90,10 @@ public class EwaldSumMolecules implements IPotentialMolecular {
 		Vector rAB = space.makeVector();// vector between site A @ molecule i & site B @ molecule j
 		for (int i=0; i < numMolecules; i++){
 			IMolecule molecule_i = moleculeList.getMolecule(i); // get i-th molecule
-			int numSites = molecule_i.getChildList().getAtomCount();
+			int numSites = molecule_i.getChildList().size();
 			
 			for (int a=0; a < numSites; a++){
-				IAtom siteA = molecule_i.getChildList().getAtom(a);// get siteA from i-th molecule
+				IAtom siteA = molecule_i.getChildList().get(a);// get siteA from i-th molecule
 				Vector positionA = siteA.getPosition();
 				double chargeA = ((MyCharge)atomAgentManager.getAgent(siteA)).charge;
 				
@@ -104,7 +104,7 @@ public class EwaldSumMolecules implements IPotentialMolecular {
 					// get siteB from molecule_j
 					for (int b=0; b < numSites ; b++){
 						
-						IAtom siteB = molecule_j.getChildList().getAtom(b);
+						IAtom siteB = molecule_j.getChildList().get(b);
 						Vector positionB = siteB.getPosition();
 						double chargeB = ((MyCharge)atomAgentManager.getAgent(siteB)).charge;
 						
@@ -192,11 +192,11 @@ public class EwaldSumMolecules implements IPotentialMolecular {
 						Complex expWithCharge = new Complex(0.0, 0.0);
 						
 						IMolecule molecule_i = moleculeList.getMolecule(i);
-						int numSites = molecule_i.getChildList().getAtomCount();
+						int numSites = molecule_i.getChildList().size();
 						
 						// get the interaction site from molecule_i
 						for (int a=0; a< numSites ; a++){
-							IAtom site = molecule_i.getChildList().getAtom(a);
+							IAtom site = molecule_i.getChildList().get(a);
 							Vector position = site.getPosition();
 							double charge = ((MyCharge)atomAgentManager.getAgent(site)).charge;
 							r.E(position);
@@ -249,10 +249,10 @@ public class EwaldSumMolecules implements IPotentialMolecular {
 			System.out.println("More generic algorithm, and I am looping every ion in the system");
 			for (int i=0; i< numMolecules; i++){
 				IMolecule molecule = moleculeList.getMolecule(i);	
-				int numSites = molecule.getChildList().getAtomCount();
+				int numSites = molecule.getChildList().size();
 				// each site has a charge. get charge info from every site, loop over all sites
 				for (int site=0; site<numSites; site++){
-					IAtom atom = molecule.getChildList().getAtom(site);					
+					IAtom atom = molecule.getChildList().get(site);
 					double charge = ((MyCharge)atomAgentManager.getAgent(atom)).charge;
 //					uSelf += coefficient*charge*charge;
 					uSelf += charge*charge;

@@ -90,8 +90,8 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
         if (atom == null) return false;
         populateList(smerList);
         uOld = 0.0;
-        for (int i=0; i<smerList.getAtomCount(); i+=1){
-        	energyMeter.setTarget(smerList.getAtom(i));
+        for (int i = 0; i<smerList.size(); i+=1){
+        	energyMeter.setTarget(smerList.get(i));
             uOld += energyMeter.getDataAsScalar();
         }  
         if(uOld > 1e8 && !fixOverlap) {
@@ -100,13 +100,13 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
         double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(r0.getD() == 3 ? random.nextInt(3) : 2,dTheta);
         r0.E(0.0);
-        for (int i = 0; i<smerList.getAtomCount(); i+=1){
-        	dr.Ev1Mv2(smerList.getAtom(i).getPosition(), r0);//dr = distance from the atom to the center of the mass
+        for (int i = 0; i<smerList.size(); i+=1){
+        	dr.Ev1Mv2(smerList.get(i).getPosition(), r0);//dr = distance from the atom to the center of the mass
         	box.getBoundary().nearestImage(dr);
         	r0.PEa1Tv1(1.0/(i+1), dr);//
         }
-        for (int i=0; i<smerList.getAtomCount(); i+=1){
-        	doTransform((IAtomOriented)smerList.getAtom(i));
+        for (int i = 0; i<smerList.size(); i+=1){
+        	doTransform((IAtomOriented)smerList.get(i));
         }
     
 //        if (atom.getParentGroup().getIndex() == 371 || atom.getParentGroup().getIndex() == 224 ||
@@ -120,12 +120,12 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
     	mySmerList.clear();
     	mySmerList.add(atom);
     	IAtomList bondList = associationManager.getAssociatedAtoms(atom);
-    	if (bondList.getAtomCount() > 2){
+    	if (bondList.size() > 2){
     		return 0;
     	}
-    	if (bondList.getAtomCount() == 2){
-    		IAtom atom0 = bondList.getAtom(0);
-    		IAtom atom1 = bondList.getAtom(1);
+    	if (bondList.size() == 2){
+    		IAtom atom0 = bondList.get(0);
+    		IAtom atom1 = bondList.get(1);
     		dr2.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());
         	box.getBoundary().nearestImage(dr2);
         	double innerRadius = 0.8;
@@ -134,18 +134,18 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
         		return 0;
         	}
     	}
-    	if (bondList.getAtomCount() == 0){
+    	if (bondList.size() == 0){
     		return 1;
     	}
-    	IAtom thisAtom = bondList.getAtom(0);
+    	IAtom thisAtom = bondList.get(0);
     	mySmerList.add(thisAtom);
     	IAtomList bondList1 = associationManager.getAssociatedAtoms(thisAtom);
-    	if (bondList1.getAtomCount() > 2){
+    	if (bondList1.size() > 2){
     		return 0;
     	}
-    	if (bondList1.getAtomCount() == 2){
-    		IAtom atom0 = bondList1.getAtom(0);
-    		IAtom atom1 = bondList1.getAtom(1);
+    	if (bondList1.size() == 2){
+    		IAtom atom0 = bondList1.get(0);
+    		IAtom atom1 = bondList1.get(1);
     		dr2.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
         	box.getBoundary().nearestImage(dr2);
         	double innerRadius = 0.8;
@@ -155,22 +155,22 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
         	}
     	}
     	IAtom previousAtom = atom;
-    	while (bondList1.getAtomCount() > 1){
-    		IAtom nextAtom = bondList1.getAtom(0);
+    	while (bondList1.size() > 1){
+    		IAtom nextAtom = bondList1.get(0);
     		if (nextAtom == previousAtom){
-    			nextAtom = bondList1.getAtom(1);
+    			nextAtom = bondList1.get(1);
     		} 
     		if (nextAtom == atom){
     			return 1;
     		}
     		mySmerList.add(nextAtom);
     		bondList1 = associationManager.getAssociatedAtoms(nextAtom);
-    		if (bondList1.getAtomCount() > 2){
+    		if (bondList1.size() > 2){
         		return 0;
         	}
-    		if (bondList1.getAtomCount() == 2){
-        		IAtom atom0 = bondList1.getAtom(0);
-        		IAtom atom1 = bondList1.getAtom(1);
+    		if (bondList1.size() == 2){
+        		IAtom atom0 = bondList1.get(0);
+        		IAtom atom1 = bondList1.get(1);
         		dr2.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());
             	box.getBoundary().nearestImage(dr2);
             	double innerRadius = 0.8;
@@ -182,16 +182,16 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
     		previousAtom = thisAtom;
     		thisAtom = nextAtom;
     	}
-    	if (bondList.getAtomCount()>1){
-    		thisAtom = bondList.getAtom(1);
+    	if (bondList.size()>1){
+    		thisAtom = bondList.get(1);
         	mySmerList.add(thisAtom);
         	bondList1 = associationManager.getAssociatedAtoms(thisAtom);
-        	if (bondList1.getAtomCount() > 2){
+        	if (bondList1.size() > 2){
         		return 0;
         	}
-        	if (bondList1.getAtomCount() == 2){
-        		IAtom atom0 = bondList1.getAtom(0);
-        		IAtom atom1 = bondList1.getAtom(1);
+        	if (bondList1.size() == 2){
+        		IAtom atom0 = bondList1.get(0);
+        		IAtom atom1 = bondList1.get(1);
         		dr2.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());
             	box.getBoundary().nearestImage(dr2);
             	double innerRadius = 0.8;
@@ -201,19 +201,19 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
             	}
         	}
         	previousAtom = atom;
-        	while (bondList1.getAtomCount() > 1){
-        		IAtom nextAtom = bondList1.getAtom(0);
+        	while (bondList1.size() > 1){
+        		IAtom nextAtom = bondList1.get(0);
         		if (nextAtom == previousAtom){
-        			nextAtom = bondList1.getAtom(1);
+        			nextAtom = bondList1.get(1);
         		} 
         		mySmerList.add(nextAtom);
         		bondList1 = associationManager.getAssociatedAtoms(nextAtom);
-        		if (bondList1.getAtomCount() > 2){
+        		if (bondList1.size() > 2){
             		return 0;
             	}
-        		if (bondList1.getAtomCount() == 2){
-            		IAtom atom0 = bondList1.getAtom(0);
-            		IAtom atom1 = bondList1.getAtom(1);
+        		if (bondList1.size() == 2){
+            		IAtom atom0 = bondList1.get(0);
+            		IAtom atom1 = bondList1.get(1);
             		dr2.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());
                 	box.getBoundary().nearestImage(dr2);
                 	double innerRadius = 0.8;
@@ -244,13 +244,13 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
         if (populateList(newSmerList) == 0) {
             return 0;
         }
-        if (smerList.getAtomCount() != newSmerList.getAtomCount()) {
+        if (smerList.size() != newSmerList.size()) {
             return 0;
 		}
 
     	uNew = 0.0;
-        for (int i=0; i<smerList.getAtomCount(); i+=1){
-        	energyMeter.setTarget(smerList.getAtom(i));
+        for (int i = 0; i<smerList.size(); i+=1){
+        	energyMeter.setTarget(smerList.get(i));
             uNew += energyMeter.getDataAsScalar();
         }
         return Math.exp(-(uNew - uOld) / temperature);
@@ -271,8 +271,8 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
      */
     public void rejectNotify() {
         rotationTensor.invert();
-        for (int i=0; i<smerList.getAtomCount(); i+=1){
-        	doTransform((IAtomOriented)smerList.getAtom(i));
+        for (int i = 0; i<smerList.size(); i+=1){
+        	doTransform((IAtomOriented)smerList.get(i));
         }
     }
         

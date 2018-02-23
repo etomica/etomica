@@ -111,7 +111,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<Vector> {
 	}
 
 	public boolean accept(IAtomList pair) {
-        dr.Ev1Mv2(pair.getAtom(1).getPosition(),pair.getAtom(0).getPosition());
+        dr.Ev1Mv2(pair.get(1).getPosition(),pair.get(0).getPosition());
         boundary.nearestImage(dr);
         if (Debug.ON && neighborRadius2 < interactionRange*interactionRange) {
             throw new IllegalStateException("neighbor radius "+Math.sqrt(neighborRadius2)+" is less than interaction range "+interactionRange);
@@ -119,7 +119,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<Vector> {
 		if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.anyAtom(pair)) || (Debug.LEVEL == 1 && Debug.allAtoms(pair)))) {
             double r2l = dr.squared(); 
 			if (r2l < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(pair))) {
-				System.out.println("Atom "+pair.getAtom(0)+" and "+pair.getAtom(1)+" are "+(r2l < neighborRadius2 ? "" : "not ")+"neighbors, r2="+r2l);
+				System.out.println("Atom "+pair.get(0)+" and "+pair.get(1)+" are "+(r2l < neighborRadius2 ? "" : "not ")+"neighbors, r2="+r2l);
             }
 		}
 		return dr.squared() < neighborRadius2;

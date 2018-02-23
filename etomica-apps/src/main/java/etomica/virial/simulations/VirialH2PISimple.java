@@ -242,10 +242,10 @@ public class VirialH2PISimple {
 			for (int m=0; m<molecules.getMoleculeCount(); m++) {
 				if (xcFlag[m]) {
 					IAtomList atoms = molecules.getMolecule(m).getChildList();
-					for (int i=0; i<atoms.getAtomCount(); i++) {
-						AtomHydrogen o = (AtomHydrogen)atoms.getAtom(i);
-						double cT = Math.cos((Math.PI*i)/atoms.getAtomCount());
-						double sT = Math.sin((Math.PI*i)/atoms.getAtomCount());
+					for (int i = 0; i<atoms.size(); i++) {
+						AtomHydrogen o = (AtomHydrogen)atoms.get(i);
+						double cT = Math.cos((Math.PI*i)/atoms.size());
+						double sT = Math.sin((Math.PI*i)/atoms.size());
 						Vector vec = space.makeVector();
 						vec.setX(0, cT);
 						vec.setX(1, sT);
@@ -273,8 +273,8 @@ public class VirialH2PISimple {
 			@Override
 			public void integratorStepFinished(IntegratorEvent e) {
 				IAtomList atoms = sim.box[1].getLeafList();
-				Vector a0 = ((IAtomOriented)atoms.getAtom(0)).getOrientation().getDirection();
-				Vector a1 = ((IAtomOriented)atoms.getAtom(1)).getOrientation().getDirection();
+				Vector a0 = ((IAtomOriented)atoms.get(0)).getOrientation().getDirection();
+				Vector a1 = ((IAtomOriented)atoms.get(1)).getOrientation().getDirection();
 				double angle = Math.acos(a0.dot(a1));
 				h1.addValue(angle);
 			}

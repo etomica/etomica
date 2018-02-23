@@ -80,9 +80,9 @@ public class MeterTiltRotationHistogram implements IAction, IDataSource {
         for (int i=0; i<nMolecules; i++) {
             IMolecule molecule = molecules.getMolecule(i);
             IAtomList atomList = molecule.getChildList();
-            int leafCount = atomList.getAtomCount();
-            dr.E(atomList.getAtom(leafCount-1).getPosition());
-            dr.ME(atomList.getAtom(0).getPosition());
+            int leafCount = atomList.size();
+            dr.E(atomList.get(leafCount-1).getPosition());
+            dr.ME(atomList.get(0).getPosition());
             histogram[0].addValue(Math.atan2(dr.getX(1), dr.getX(0)));
             int iPlane = (i/2)%nPlanes;
             drSum[iPlane].PE(dr);

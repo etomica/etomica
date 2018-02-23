@@ -128,12 +128,12 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 
         DataSourceScalar delta = new DataSourceScalar("exact",Energy.DIMENSION) {
             public double getDataAsScalar() {
-                return 0.5*sim.box.getLeafList().getAtomCount() * Math.log(omegaBSlider.getValue()/omegaASlider.getValue());
+                return 0.5*sim.box.getLeafList().size() * Math.log(omegaBSlider.getValue()/omegaASlider.getValue());
             }
         };
         DataSourceScalar uAvg = new DataSourceScalar("exact",Energy.DIMENSION) {
             public double getDataAsScalar() {
-                return 0.5*sim.box.getLeafList().getAtomCount();
+                return 0.5*sim.box.getLeafList().size();
             }
         };
         

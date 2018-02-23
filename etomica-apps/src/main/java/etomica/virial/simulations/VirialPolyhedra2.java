@@ -105,8 +105,8 @@ public class VirialPolyhedra2 {
             }
             
             public double energy(IAtomList atoms) {
-                int i0 = atoms.getAtom(0).getLeafIndex();
-                int i1 = atoms.getAtom(1).getLeafIndex();
+                int i0 = atoms.get(0).getLeafIndex();
+                int i1 = atoms.get(1).getLeafIndex();
                 if (Double.isNaN(uValues[i0][i1])) {
                     double u = p2.energy(atoms);
                     uValues[i0][i1] = uValues[i1][i0] = u;
@@ -230,11 +230,11 @@ public class VirialPolyhedra2 {
                 x[1] = v;
                 com.E(0);
                 for (int i=0; i<nPoints; i++) {
-                    com.PE(sim.box.getLeafList().getAtom(i).getPosition());
+                    com.PE(sim.box.getLeafList().get(i).getPosition());
                 }
                 com.TE(1.0/nPoints);
                 for (int i=0; i<nPoints; i++) {
-                    double r2 = sim.box.getLeafList().getAtom(i).getPosition().Mv1Squared(com);
+                    double r2 = sim.box.getLeafList().get(i).getPosition().Mv1Squared(com);
                     x[0] = Math.sqrt(r2);
                     if (v!= 0) accHistTarg.putData(dataTarg);
                     dataRef.x = x[0];
@@ -258,7 +258,7 @@ public class VirialPolyhedra2 {
                 double[] x = dataTarg.getData();
                 x[1] = v;
                 for (int i=0; i<nPoints; i++) {
-                    double r2 = sim.box.getLeafList().getAtom(i).getPosition().Mv1Squared(sim.box.getLeafList().getAtom(i<nPoints-1 ? i+1 : 0).getPosition());
+                    double r2 = sim.box.getLeafList().get(i).getPosition().Mv1Squared(sim.box.getLeafList().get(i<nPoints-1 ? i+1 : 0).getPosition());
                     x[0] = Math.sqrt(r2);
                     if (v!= 0) accHistTargRingy.putData(dataTarg);
                     dataRef.x = x[0];

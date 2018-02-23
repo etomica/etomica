@@ -145,7 +145,7 @@ public class MCMoveOverlapListener implements IListener {
             // trial failed, but we were still here.  we need to increment our sums here
             // for the histogram.
             Box box = mcMove.getBox();
-            int numAtoms = box.getLeafList().getAtomCount();
+            int numAtoms = box.getLeafList().size();
             if (sumInsert.length < numAtoms+1) {
                 sumInsert = Arrays.copyOf(sumInsert, numAtoms+1);
                 numInsert = Arrays.copyOf(numInsert, numAtoms+1);
@@ -162,7 +162,7 @@ public class MCMoveOverlapListener implements IListener {
         else if (event instanceof MCMoveTrialInitiatedEvent) {
             if (((MCMoveEvent)event).getMCMove() != mcMove) return;
             Box box = mcMove.getBox();
-            int numAtoms = box.getLeafList().getAtomCount();
+            int numAtoms = box.getLeafList().size();
             // x = V/N*Math.exp(-beta*deltaU)
             double x = mcMove.getChi(temperature) * Math.exp(-mcMove.getLnBiasDiff());
             if (mcMove.lastMoveInsert()) {

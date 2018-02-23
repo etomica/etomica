@@ -15,7 +15,6 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.models.water.ConfigurationFileTIP4P;
 import etomica.models.water.SpeciesWater4P;
 import etomica.molecule.IMolecule;
@@ -94,13 +93,13 @@ public class MinimizationTIP4P extends Simulation{
             for (int i = 0; i < box.getMoleculeList().getMoleculeCount(); i++) {
                 IMolecule molecule = box.getMoleculeList().getMolecule(i);
                 IAtomList childList = molecule.getChildList();
-                Vector O = childList.getAtom(2).getPosition();//O
+                Vector O = childList.get(2).getPosition();//O
                 O.PE(boundary.centralImage(O));// to wrap all O inside the BOX; next steps will move Hs and M with O to keep the conformation.
-                for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
+                for (int iChild = 0; iChild < childList.size(); iChild++) {
                     if (iChild == 2) {//Ignore O
                         continue;
                     }
-                    IAtom a = childList.getAtom(iChild);
+                    IAtom a = childList.get(iChild);
                     Vector ri = a.getPosition();
                     ri.ME(O);
                     boundary.nearestImage(ri);
@@ -109,7 +108,7 @@ public class MinimizationTIP4P extends Simulation{
             }
         }
 
-        AtomPair selfAtomLJ = new AtomPair(box.getLeafList().getAtom(2), box.getLeafList().getAtom(2));
+        AtomPair selfAtomLJ = new AtomPair(box.getLeafList().get(2), box.getLeafList().get(2));
         selfELJ = potentialLJLS.energy(selfAtomLJ);// = 0 if nLJshells=0
         System.out.println("selfELJ = " + Joule.UNIT.fromSim(selfELJ) * 1.0E-3 * Constants.AVOGADRO);
         MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(potentialMaster, box);
@@ -199,9 +198,9 @@ public class MinimizationTIP4P extends Simulation{
 		            torques[i].E(0); 
 		            IMolecule iMol = sim.box.getMoleculeList().getMolecule(i);
 		            IAtomList atoms = iMol.getChildList();
-                    Vector pO = atoms.getAtom(SpeciesWater4P.indexO).getPosition();
-                    for (int j = 0; j < atoms.getAtomCount(); j++){
-		            	IAtom atomj = atoms.getAtom(j);
+                    Vector pO = atoms.get(SpeciesWater4P.indexO).getPosition();
+                    for (int j = 0; j < atoms.size(); j++){
+		            	IAtom atomj = atoms.get(j);
 		            	Vector fj = atomAgentManager.getAgent(atomj);
 		            	f.PE(fj);
                         if (j != SpeciesWater4P.indexO) {
@@ -290,7 +289,7 @@ public class MinimizationTIP4P extends Simulation{
 	                translator.setDestination(p);
 	                translator.actionPerformed(iMol);
 	                if (orient0[i].isZero()) {
-                        orient0[i].E(iMol.getChildList().getAtom(0).getPosition());
+                        orient0[i].E(iMol.getChildList().get(0).getPosition());
                         orient0[i].ME(pos.position(iMol));
                         orient0[i].normalize();
                     }
@@ -313,7 +312,7 @@ public class MinimizationTIP4P extends Simulation{
                 disp += dx*dx;
             }
             
-            orientf[i].E(iMol.getChildList().getAtom(0).getPosition());
+            orientf[i].E(iMol.getChildList().get(0).getPosition());
             orientf[i].ME(pos.position(iMol));
             orientf[i].normalize();
             angleDisp += orientf[i].Mv1Squared(orient0[i]);
@@ -339,11 +338,11 @@ public class MinimizationTIP4P extends Simulation{
         	IMolecule iMol = sim.box.getMoleculeList().getMolecule(I);
         	fSum.E(0);
         	T.E(0);
-        	for(int j=0;j<iMol.getChildList().getAtomCount();j++){
-            	IAtom jAtom = iMol.getChildList().getAtom(j);
+        	for(int j = 0; j<iMol.getChildList().size(); j++){
+            	IAtom jAtom = iMol.getChildList().get(j);
             	Vector fj = atomAgentManager.getAgent(jAtom);
         		fSum.PE(fj);
-        		r.Ev1Mv2(jAtom.getPosition(), iMol.getChildList().getAtom(2).getPosition());
+        		r.Ev1Mv2(jAtom.getPosition(), iMol.getChildList().get(2).getPosition());
         		sim.box.getBoundary().nearestImage(r);
         		r.XE(fj);
         		T.PE(r); 
@@ -379,13 +378,13 @@ public class MinimizationTIP4P extends Simulation{
 	
     protected static void doTransform(IMolecule molecule, Boundary boundary, Tensor rotationTensor) {
         IAtomList childList = molecule.getChildList();
-        Vector O = childList.getAtom(2).getPosition();//O
+        Vector O = childList.get(2).getPosition();//O
         O.PE(boundary.centralImage(O));// to wrap all O inside the BOX; next steps will move Hs and M with O to keep the conformation.
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
         	if(iChild == 2){//Ignore O
         		continue;
         	}
-            IAtom a = childList.getAtom(iChild);
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.ME(O);
             boundary.nearestImage(r);

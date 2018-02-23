@@ -116,8 +116,8 @@ public class HexaneVolumeFraction extends Simulation {
                                 
                 //THIRD METHOD OF LOOPING
                 IAtomList list = sim.box.getLeafList();
-                for(int i = 0; i < list.getAtomCount(); i++){
-                    atom = list.getAtom(i);
+                for(int i = 0; i < list.size(); i++){
+                    atom = list.get(i);
                     temp.E(atom.getPosition());
                     temp.ME(rand);
                     double length = Math.sqrt(temp.dot(temp));

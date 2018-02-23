@@ -28,7 +28,7 @@ public class AtomArrayListTest extends TestCase {
 		assertEquals(40, arrayList.sizeOfArray());
 
 		for(int i = 0; i < size; i++) {
-			IAtom atom = arrayList.getAtom(i);
+			IAtom atom = arrayList.get(i);
 			assertSame(listOfAtoms[i], atom);
 		}
 	}
@@ -93,7 +93,7 @@ public class AtomArrayListTest extends TestCase {
 		arrayList.ensureCapacity(15);
 		assertEquals(size, arrayList.sizeOfArray());
 		for(int i = 0; i < 5; i++) {
-			assertSame(atomList[i], arrayList.getAtom(i));
+			assertSame(atomList[i], arrayList.get(i));
 		}
 		arrayList = null;
 		atomList = null;
@@ -109,7 +109,7 @@ public class AtomArrayListTest extends TestCase {
 		arrayList.ensureCapacity(21);
 		assertEquals(21, arrayList.sizeOfArray());
 		for(int i = 0; i < 5; i++) {
-			assertSame(atomList[i], arrayList.getAtom(i));
+			assertSame(atomList[i], arrayList.get(i));
 		}
 
 	}
@@ -206,7 +206,7 @@ public class AtomArrayListTest extends TestCase {
         // Replace first element in list
 		try {
 			resultAtom = arrayList.set(0, newElem);
-			IAtom a = arrayList.getAtom(0);
+			IAtom a = arrayList.get(0);
 			assertSame(a, newElem);
 		}
 		catch (IndexOutOfBoundsException e) {
@@ -218,7 +218,7 @@ public class AtomArrayListTest extends TestCase {
         // Replace last element in list
 		try {
 			resultAtom = arrayList.set(4, newElem);
-			IAtom a = arrayList.getAtom(4);
+			IAtom a = arrayList.get(4);
 			assertSame(a, newElem);
 		}
 		catch (IndexOutOfBoundsException e) {
@@ -262,14 +262,14 @@ public class AtomArrayListTest extends TestCase {
 		}
 
 		for(int i = 0; i < size; i++) {
-			assertSame(atomList[i], arrayList.getAtom(i));
+			assertSame(atomList[i], arrayList.get(i));
 		}
 
 		// Storage array is now full (10).  Add another atom
 		IAtom overTheTop = new Atom(space);
 		addResult = arrayList.add(overTheTop);
 		assertTrue(addResult);
-		assertSame(overTheTop, arrayList.getAtom(size));
+		assertSame(overTheTop, arrayList.get(size));
 		assertEquals((int)((float)size * (1.0f + AtomArrayList.getSizeIncreaseRatio()) + 1),
 				      arrayList.sizeOfArray());
 
@@ -307,10 +307,10 @@ public class AtomArrayListTest extends TestCase {
 		arrayList.addAll(atomSet);
 
 		for(int i = 0; i < size; i++) {
-			assertSame(atomList[i], arrayList.getAtom(i));
+			assertSame(atomList[i], arrayList.get(i));
 		}
 		for(int i = 0; i < size; i++) {
-			assertSame(atomsetList[i], arrayList.getAtom(size+i));
+			assertSame(atomsetList[i], arrayList.get(size+i));
 		}
 		assertEquals(23, arrayList.sizeOfArray());
 	}
@@ -327,10 +327,10 @@ public class AtomArrayListTest extends TestCase {
         }
 
         l1.addAll(l2);
-        assertEquals(22, l1.getAtomCount());
+        assertEquals(22, l1.size());
 
-        for (int i = 0; i < l2.getAtomCount(); i++) {
-            assertSame(l2.getAtom(i), l1.getAtom(i + 2));
+        for (int i = 0; i < l2.size(); i++) {
+            assertSame(l2.get(i), l1.get(i + 2));
         }
 	}
 
@@ -359,14 +359,14 @@ public class AtomArrayListTest extends TestCase {
 			assertNotNull(null);
 		}
 
-        IAtom postRemove = arrayList.getAtom(2);
+        IAtom postRemove = arrayList.get(2);
 
     	assertNotSame(preRemove, postRemove);
 
     	if (Debug.ON) {
     	    // AtomLeafArrayList.getAtom only does a range check if Debug is ON
         	try {
-        		arrayList.getAtom(size-1);
+        		arrayList.get(size-1);
         		// If an exception is not thrown, then the test
         		// has failed.  Fail test with an assertion that
         		// will fail.
@@ -395,12 +395,12 @@ public class AtomArrayListTest extends TestCase {
 
         IAtom removeAtom = arrayList.removeAndReplace(2);
 		assertSame(atomList[2], removeAtom);
-		assertSame(atomList[size-1], arrayList.getAtom(2));
+		assertSame(atomList[size-1], arrayList.get(2));
 
         if (Debug.ON) {
             // AtomLeafArrayList.getAtom only does a range check if Debug is ON
             try {
-                arrayList.getAtom(size-1);
+                arrayList.get(size-1);
                 // If an exception is not thrown, then the test
                 // has failed.  Fail test with an assertion that
                 // will fail.
@@ -423,7 +423,7 @@ public class AtomArrayListTest extends TestCase {
         if (Debug.ON) {
             // AtomLeafArrayList.getAtom only does a range check if Debug is ON
     		try {
-    			IAtom atom = arrayList.getAtom(3);
+    			IAtom atom = arrayList.get(3);
     			// Exception not thrown which indicates failure.
     			// Fail test with any assertion that will fail.
     			assertNotNull(null);
@@ -455,7 +455,7 @@ public class AtomArrayListTest extends TestCase {
 		if (Debug.ON) {
             // AtomLeafArrayList.getAtom only does a range check if Debug is ON
     		try {
-    			IAtom atom = arrayList.getAtom(0);
+    			IAtom atom = arrayList.get(0);
         		// If an exception is not thrown, then the test
         		// has failed.  Fail test with an assertion that
         		// will fail.

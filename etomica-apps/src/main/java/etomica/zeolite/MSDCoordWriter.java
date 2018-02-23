@@ -187,12 +187,12 @@ public class MSDCoordWriter implements IAction, IListener {
 		}
 				
 		public void setBox(Box box){
-			atomOldCoord = new Vector[box.getLeafList().getAtomCount()];
+			atomOldCoord = new Vector[box.getLeafList().size()];
 			for (int j=0; j < atomOldCoord.length; j++){
 				atomOldCoord[j] = space.makeVector();
 			}
 						
-			atomPBIarray = new int[box.getLeafList().getAtomCount()][space.D()];
+			atomPBIarray = new int[box.getLeafList().size()][space.D()];
 			iterator.setBox(box);
 			boxDim = box.getBoundary().getBoxSize();
 			updateAtomOldCoord();

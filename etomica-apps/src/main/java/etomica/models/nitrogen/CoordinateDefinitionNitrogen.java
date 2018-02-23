@@ -335,11 +335,11 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         			
     		}
     		
-    	   	Vector molleafPos0 = molecule.getChildList().getAtom(0).getPosition();
-    	   	Vector molleafPos1 = molecule.getChildList().getAtom(1).getPosition();
+    	   	Vector molleafPos0 = molecule.getChildList().get(0).getPosition();
+    	   	Vector molleafPos1 = molecule.getChildList().get(1).getPosition();
     	 
-    	  	Vector mol2leafPos0 = molecule2.getChildList().getAtom(0).getPosition();
-    	   	Vector mol2leafPos1 = molecule2.getChildList().getAtom(1).getPosition();
+    	  	Vector mol2leafPos0 = molecule2.getChildList().get(0).getPosition();
+    	   	Vector mol2leafPos1 = molecule2.getChildList().get(1).getPosition();
     	   	
     	   	
     	   	
@@ -589,8 +589,8 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	    	 * Determine the Orientation of Each Molecule
 	    	 */
 	    	
-	    	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-	    	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+	    	Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+	    	Vector leafPos1 = molecule.getChildList().get(1).getPosition();
 	    	
 	    	/*
 	    	 * Determine u3 and u4 by using Vector Projection
@@ -658,8 +658,8 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	   	 * Determine the Orientation of Each Molecule Within a basis cell
     	   	 */
     	    	
-    	   	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-    	   	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+    	   	Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+    	   	Vector leafPos1 = molecule.getChildList().get(1).getPosition();
     	 
     	   	orientation[0].Ev1Mv2(leafPos1, leafPos0);
     	    orientation[0].normalize();
@@ -705,8 +705,8 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
             			
         		}
         		
-        	  	Vector mol2leafPos0 = molecule2.getChildList().getAtom(0).getPosition();
-        	   	Vector mol2leafPos1 = molecule2.getChildList().getAtom(1).getPosition();
+        	  	Vector mol2leafPos0 = molecule2.getChildList().get(0).getPosition();
+        	   	Vector mol2leafPos1 = molecule2.getChildList().get(1).getPosition();
         	   	      
         	    orientationMol2.Ev1Mv2(mol2leafPos1, mol2leafPos0);
         	    orientationMol2.normalize();

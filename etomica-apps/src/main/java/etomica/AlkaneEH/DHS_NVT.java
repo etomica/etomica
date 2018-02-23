@@ -84,7 +84,7 @@ public class DHS_NVT extends Simulation {
 
         IMoleculePositionDefinition positionDefinition = new IMoleculePositionDefinition() {
             public Vector position(IMolecule molecule) {
-                return molecule.getChildList().getAtom(0).getPosition();
+                return molecule.getChildList().get(0).getPosition();
             }
         };
 
@@ -259,11 +259,11 @@ public class DHS_NVT extends Simulation {
         }
 
         public Vector getDipole(IMolecule molecule) {
-            if (molecule.getChildList().getAtomCount() != 1) {
+            if (molecule.getChildList().size() != 1) {
                 throw new RuntimeException("improper number of atom in the molecule");
             }
             IAtomList atomList = molecule.getChildList();
-            IAtomOriented atom = (IAtomOriented) atomList.getAtom(0);
+            IAtomOriented atom = (IAtomOriented) atomList.get(0);
             dipoleVector.E(atom.getOrientation().getDirection());
             dipoleVector.TE(dipoleStrength);
             return dipoleVector;

@@ -103,7 +103,7 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
         if (integrator.getStepCount() > lastStepCount) {
             forced = 0;
         }
-        int numAtoms = box.getLeafList().getAtomCount();
+        int numAtoms = box.getLeafList().size();
         if (forced==1) {
             insert = !insert;
             System.out.println("forcing "+(insert ? "insertion" : "deletion"));
@@ -118,11 +118,11 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
         if(insert) {
             if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.getMoleculeCount()-1);
             else testMolecule = species.makeMolecule();
-            IAtom testAtom = testMolecule.getChildList().getAtom(0);
+            IAtom testAtom = testMolecule.getChildList().get(0);
 
             int nInsertCandidates = insertCandidates.size();
             if (nInsertCandidates == 0) return false;
-            IAtom partner = box.getLeafList().getAtom(insertCandidates.get(random.nextInt(nInsertCandidates)));
+            IAtom partner = box.getLeafList().get(insertCandidates.get(random.nextInt(nInsertCandidates)));
 //            System.out.println("inserting next to "+partner);
             uOld = 0;
             double r2 = 0;
@@ -148,8 +148,8 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
             Vector pi = testAtom.getPosition();
             IAtomList nbrs = potentialMaster.getNeighborManager(box).getUpList(testAtom)[0];
             int nTestNbrs = 0, nTestNbrsDeletion = 0;
-            for (int j=0; j<nbrs.getAtomCount(); j++) {
-                IAtom jAtom = nbrs.getAtom(j);
+            for (int j = 0; j<nbrs.size(); j++) {
+                IAtom jAtom = nbrs.get(j);
                 int jj = jAtom.getLeafIndex();
                 dr.Ev1Mv2(pi, jAtom.getPosition());
                 box.getBoundary().nearestImage(dr);
@@ -172,8 +172,8 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
                 }
             }
             nbrs = potentialMaster.getNeighborManager(box).getDownList(testAtom)[0];
-            for (int j=0; j<nbrs.getAtomCount(); j++) {
-                IAtom jAtom = nbrs.getAtom(j);
+            for (int j = 0; j<nbrs.size(); j++) {
+                IAtom jAtom = nbrs.get(j);
                 int jj = jAtom.getLeafIndex();
                 dr.Ev1Mv2(pi, jAtom.getPosition());
                 box.getBoundary().nearestImage(dr);
@@ -222,7 +222,7 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
                 ip = numAtoms-1;
             }
 //            System.out.println("deleting "+ip);
-            IAtom testAtom = box.getLeafList().getAtom(ip);
+            IAtom testAtom = box.getLeafList().get(ip);
             testMolecule = testAtom.getParentGroup();
             //delete molecule only upon accepting trial
             energyMeter.setTarget(testMolecule);
@@ -238,7 +238,7 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
     protected void findCandidates() {
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         Boundary boundary = box.getBoundary();
-        int numAtoms = box.getLeafList().getAtomCount();
+        int numAtoms = box.getLeafList().size();
         numNeighbors = new int[numAtoms];
         numNeighborCandidatesOnDelete = new int[numAtoms];
         numDeleteCandidateNbrs = new int[numAtoms];
@@ -248,16 +248,16 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
         deleteCandidates.clear();
         totalDeleteCandidateTimes = 0;
         for (int i=0; i<numAtoms; i++) {
-            IAtom iAtom = box.getLeafList().getAtom(i);
+            IAtom iAtom = box.getLeafList().get(i);
             Vector pi = iAtom.getPosition();
             IAtomList nbrsUp = nbrManager.getUpList(iAtom)[0];
-            for (int j=0; j<nbrsUp.getAtomCount(); j++) {
-                dr.Ev1Mv2(pi, nbrsUp.getAtom(j).getPosition());
+            for (int j = 0; j<nbrsUp.size(); j++) {
+                dr.Ev1Mv2(pi, nbrsUp.get(j).getPosition());
                 boundary.nearestImage(dr);
                 double r2 = dr.squared();
                 if (r2 < maxDistance*maxDistance) {
                     numNeighbors[i]++;
-                    numNeighbors[nbrsUp.getAtom(j).getLeafIndex()]++;
+                    numNeighbors[nbrsUp.get(j).getLeafIndex()]++;
                 }
             }
         }
@@ -265,11 +265,11 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
             if (numNeighbors[i] < 13) {
                 // the neighbors of i may be candidates for deletion.  after deleting
                 // one of its neighbors, i would have <12 neighbors
-                IAtom iAtom = box.getLeafList().getAtom(i);
+                IAtom iAtom = box.getLeafList().get(i);
                 Vector pi = iAtom.getPosition();
                 IAtomList nbrs = nbrManager.getUpList(iAtom)[0];
-                for (int j=0; j<nbrs.getAtomCount(); j++) {
-                    IAtom jAtom = nbrs.getAtom(j);
+                for (int j = 0; j<nbrs.size(); j++) {
+                    IAtom jAtom = nbrs.get(j);
                     int jj = jAtom.getLeafIndex();
                     dr.Ev1Mv2(pi, jAtom.getPosition());
                     boundary.nearestImage(dr);
@@ -292,8 +292,8 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
                     }
                 }
                 nbrs = nbrManager.getDownList(iAtom)[0];
-                for (int j=0; j<nbrs.getAtomCount(); j++) {
-                    IAtom jAtom = nbrs.getAtom(j);
+                for (int j = 0; j<nbrs.size(); j++) {
+                    IAtom jAtom = nbrs.get(j);
                     int jj = jAtom.getLeafIndex();
                     dr.Ev1Mv2(pi, jAtom.getPosition());
                     boundary.nearestImage(dr);
@@ -387,7 +387,7 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
 //        System.out.println(insert+" "+Math.log(getA())+" "+getB()/0.7+" "+uOld+" "+uNew);
 //        System.out.println("accepted "+(insert ? "insertion" : "deletion"));
         if (!insert) {
-            oldPosition.E(testMolecule.getChildList().getAtom(0).getPosition());
+            oldPosition.E(testMolecule.getChildList().get(0).getPosition());
         }
         super.myAcceptNotify();
         dirty = true;

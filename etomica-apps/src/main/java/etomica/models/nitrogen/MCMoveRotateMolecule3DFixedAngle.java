@@ -105,8 +105,8 @@ public class MCMoveRotateMolecule3DFixedAngle extends MCMoveMolecule {
         r0.E(positionDefinition.position(molecule));
         setToU(iMolecule, u3, u4);
 		
-	    Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		Vector leaftPos1 = molecule.getChildList().getAtom(1).getPosition();
+	    Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+		Vector leaftPos1 = molecule.getChildList().get(1).getPosition();
 		molecOrientation.Ev1Mv2(leaftPos1, leafPos0);
 		molecOrientation.normalize();
 		
@@ -128,8 +128,8 @@ public class MCMoveRotateMolecule3DFixedAngle extends MCMoveMolecule {
 
     protected void setToU(int iMolecule, double u3, double u4){
     	IAtomList childList = molecule.getChildList();
-    	for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-    		IAtom a = childList.getAtom(iChild);
+    	for (int iChild = 0; iChild<childList.size(); iChild++) {
+    		IAtom a = childList.get(iChild);
     		Vector r = a.getPosition();
     		r.ME(r0);
     	}
@@ -138,8 +138,8 @@ public class MCMoveRotateMolecule3DFixedAngle extends MCMoveMolecule {
     	RotationTensor3D rotation = new RotationTensor3D();
     	rotation.E(tensor);
 	         
-    	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-    	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+    	Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+    	Vector leafPos1 = molecule.getChildList().get(1).getPosition();
 		    	
     	/*
          * a.
@@ -206,8 +206,8 @@ public class MCMoveRotateMolecule3DFixedAngle extends MCMoveMolecule {
 	   		}
         }
     
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.PE(r0);
         }

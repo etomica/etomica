@@ -101,7 +101,7 @@ public class MeterRDFPC implements IAction, IDataSource, DataSourceIndependent {
         
         final double[] y = data.getData();
         long numAtomPairs = 0;
-        long numAtoms = box.getLeafList().getAtomCount();
+        long numAtoms = box.getLeafList().size();
         numAtomPairs = numAtoms*(numAtoms-1)/2;
 	    double norm = numAtomPairs * callCount / box.getBoundary().volume();
 	    double[] r = rData.getData();

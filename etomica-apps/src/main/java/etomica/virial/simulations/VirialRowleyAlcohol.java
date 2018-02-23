@@ -280,8 +280,8 @@ public class VirialRowleyAlcohol {
             IAtomList atomSetA = monomerA.getChildList();
     		IAtomList atomSetB = monomerB.getChildList();
 
-            IAtom atom_aC_A = atomSetA.getAtom(1);
-    		IAtom atom_aC_B = atomSetB.getAtom(1);
+            IAtom atom_aC_A = atomSetA.get(1);
+    		IAtom atom_aC_B = atomSetB.get(1);
 
             dataDistance1.setAtoms(atom_aC_A, atom_aC_B);
 

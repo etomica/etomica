@@ -83,7 +83,7 @@ public class MCMoveDimer extends MCMoveBoxStep {
         atom1 = null;
         for (IAtomList pair = neighborIterator.next(); pair != null;
              pair = neighborIterator.next()) {
-        	 atom1 = pair.getAtom(1);
+        	 atom1 = pair.get(1);
         	dr.Ev1Mv2(atom0.getPosition(),atom1.getPosition());
         	box.getBoundary().nearestImage(dr);
         	if (dr.squared() < 1) {

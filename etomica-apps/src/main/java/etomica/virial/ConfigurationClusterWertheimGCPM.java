@@ -141,16 +141,16 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
 		Vector v2 = space.makeVector();
 		Vector v3 = space.makeVector();
 		
-		v1.E(box.getMoleculeList().getMolecule(1).getChildList().getAtom(SpeciesWater4P.indexO).getPosition());
-		v1.ME(box.getMoleculeList().getMolecule(0).getChildList().getAtom(SpeciesWater4P.indexO).getPosition());
+		v1.E(box.getMoleculeList().getMolecule(1).getChildList().get(SpeciesWater4P.indexO).getPosition());
+		v1.ME(box.getMoleculeList().getMolecule(0).getChildList().get(SpeciesWater4P.indexO).getPosition());
 		double distance12 = Math.sqrt(v1.squared());
 		
-		v2.E(box.getMoleculeList().getMolecule(2).getChildList().getAtom(SpeciesWater4P.indexO).getPosition());
-		v2.ME(box.getMoleculeList().getMolecule(1).getChildList().getAtom(SpeciesWater4P.indexO).getPosition());
+		v2.E(box.getMoleculeList().getMolecule(2).getChildList().get(SpeciesWater4P.indexO).getPosition());
+		v2.ME(box.getMoleculeList().getMolecule(1).getChildList().get(SpeciesWater4P.indexO).getPosition());
 		double distance23 = Math.sqrt(v2.squared());
 		
-		v3.E(box.getMoleculeList().getMolecule(2).getChildList().getAtom(SpeciesWater4P.indexO).getPosition());
-		v3.ME(box.getMoleculeList().getMolecule(0).getChildList().getAtom(SpeciesWater4P.indexO).getPosition());
+		v3.E(box.getMoleculeList().getMolecule(2).getChildList().get(SpeciesWater4P.indexO).getPosition());
+		v3.ME(box.getMoleculeList().getMolecule(0).getChildList().get(SpeciesWater4P.indexO).getPosition());
 		double distance13 = Math.sqrt(v3.squared());
 		
 		System.out.println("distance12 "+distance12+" distance23 "+distance23+" distance13 "+distance13);
@@ -296,8 +296,8 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
 
 	        r0.E(positionDefinition.position(water));
 		    IAtomList childList = water.getChildList();
-		    for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {//free rotation until finding association
-		        IAtom a = childList.getAtom(iChild);
+		    for (int iChild = 0; iChild<childList.size(); iChild++) {//free rotation until finding association
+		        IAtom a = childList.get(iChild);
 		        Vector r = a.getPosition();
 		        r.ME(r0);
 		        box.getBoundary().nearestImage(r);
@@ -323,7 +323,7 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
         	Vector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 4A
-	        positionWater.PE(pair.atom0.getChildList().getAtom(0).getPosition());
+	        positionWater.PE(pair.atom0.getChildList().get(0).getPosition());
 	        MoleculeActionTranslateTo translation = new MoleculeActionTranslateTo(space);
 	        translation.setDestination(positionWater);
 	        translation.actionPerformed(water);
@@ -337,8 +337,8 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
 
 	        r0.E(positionDefinition.position(water));
 		    IAtomList childList = water.getChildList();
-		    for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {//free rotation until finding association
-		        IAtom a = childList.getAtom(iChild);
+		    for (int iChild = 0; iChild<childList.size(); iChild++) {//free rotation until finding association
+		        IAtom a = childList.get(iChild);
 		        Vector r = a.getPosition();
 		        r.ME(r0);
 		        box.getBoundary().nearestImage(r);
@@ -364,7 +364,7 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
         	Vector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 8A
-	        positionWater.PE(pair.atom0.getChildList().getAtom(0).getPosition());
+	        positionWater.PE(pair.atom0.getChildList().get(0).getPosition());
 	        MoleculeActionTranslateTo translation = new MoleculeActionTranslateTo(space);
 	        translation.setDestination(positionWater);
 	        translation.actionPerformed(water);
@@ -378,8 +378,8 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
 
 	        r0.E(positionDefinition.position(water));
 		    IAtomList childList = water.getChildList();
-		    for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {//free rotation until finding association
-		        IAtom a = childList.getAtom(iChild);
+		    for (int iChild = 0; iChild<childList.size(); iChild++) {//free rotation until finding association
+		        IAtom a = childList.get(iChild);
 		        Vector r = a.getPosition();
 		        r.ME(r0);
 		        box.getBoundary().nearestImage(r);
@@ -408,7 +408,7 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
         	Vector positionWater = space.makeVector();
 	        positionWater.setRandomInSphere(random);
 	        positionWater.TE(4.0);//place water molecule within a sphere with r = 8A
-	        positionWater.PE(pair.atom0.getChildList().getAtom(0).getPosition());
+	        positionWater.PE(pair.atom0.getChildList().get(0).getPosition());
 	        MoleculeActionTranslateTo translation = new MoleculeActionTranslateTo(space);
 	        translation.setDestination(positionWater);
 	        translation.actionPerformed(water);
@@ -422,8 +422,8 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
 
 	        r0.E(positionDefinition.position(water));
 		    IAtomList childList = water.getChildList();
-		    for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {//free rotation until finding association
-		        IAtom a = childList.getAtom(iChild);
+		    for (int iChild = 0; iChild<childList.size(); iChild++) {//free rotation until finding association
+		        IAtom a = childList.get(iChild);
 		        Vector r = a.getPosition();
 		        r.ME(r0);
 		        box.getBoundary().nearestImage(r);
@@ -464,8 +464,8 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
 
 	        r0.E(positionDefinition.position(water));
 		    IAtomList childList = water.getChildList();
-		    for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {//free rotation until finding association
-		        IAtom a = childList.getAtom(iChild);
+		    for (int iChild = 0; iChild<childList.size(); iChild++) {//free rotation until finding association
+		        IAtom a = childList.get(iChild);
 		        Vector r = a.getPosition();
 		        r.ME(r0);
 		        box.getBoundary().nearestImage(r);
@@ -506,8 +506,8 @@ public class ConfigurationClusterWertheimGCPM extends ConfigurationCluster {
 
 	        r0.E(positionDefinition.position(water));
 		    IAtomList childList = water.getChildList();
-		    for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {//free rotation until finding association
-		        IAtom a = childList.getAtom(iChild);
+		    for (int iChild = 0; iChild<childList.size(); iChild++) {//free rotation until finding association
+		        IAtom a = childList.get(iChild);
 		        Vector r = a.getPosition();
 		        r.ME(r0);
 		        box.getBoundary().nearestImage(r);

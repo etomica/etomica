@@ -35,8 +35,8 @@ public class MeterEndToEnd extends DataSourceScalar {
         double ee_tot = 0;
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             IAtomList atoms = molecules.getMolecule(i).getChildList();
-            dr.E(atoms.getAtom(atoms.getAtomCount()-1).getPosition());
-            dr.ME(atoms.getAtom(0).getPosition());
+            dr.E(atoms.get(atoms.size()-1).getPosition());
+            dr.ME(atoms.get(0).getPosition());
             box.getBoundary().nearestImage(dr);
             ee_tot += dr.squared();
         }

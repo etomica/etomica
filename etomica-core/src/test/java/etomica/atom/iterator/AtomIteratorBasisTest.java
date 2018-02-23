@@ -88,7 +88,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         
         //test target is a child of the basis
         basis = moleculeList0.getMolecule(0);
-        target = moleculeList0.getMolecule(0).getChildList().getAtom(1);
+        target = moleculeList0.getMolecule(0).getChildList().get(1);
         iterate = target;
         testOneIterate(basis, target, iterate);
 
@@ -109,7 +109,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         
         //test null basis
         basis = null;
-        target = moleculeList0.getMolecule(0).getChildList().getAtom(1);
+        target = moleculeList0.getMolecule(0).getChildList().get(1);
         testNoIterates(basis, target);
         
         //test null basis with null target

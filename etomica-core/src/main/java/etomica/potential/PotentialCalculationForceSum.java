@@ -6,7 +6,6 @@ package etomica.potential;
 
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtomList;
-import etomica.integrator.IntegratorBox;
 import etomica.space.Vector;
 
 /**
@@ -41,24 +40,24 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
         switch(nBody) {
         	case 0:
         		IAtomList boxAtoms = integratorAgentManager.getBox().getLeafList();
-        		for (int i=0; i<boxAtoms.getAtomCount(); i++) {
-        			integratorAgentManager.getAgent(boxAtoms.getAtom(i)).ME(f[i]);
+        		for (int i = 0; i<boxAtoms.size(); i++) {
+        			integratorAgentManager.getAgent(boxAtoms.get(i)).ME(f[i]);
         		}
         		break;
 
             case 1:
-                integratorAgentManager.getAgent(atoms.getAtom(0)).ME(f[0]);
+                integratorAgentManager.getAgent(atoms.get(0)).ME(f[0]);
                 break;
             case 2:
-                integratorAgentManager.getAgent(atoms.getAtom(0)).ME(f[0]);
-                integratorAgentManager.getAgent(atoms.getAtom(1)).ME(f[1]);
+                integratorAgentManager.getAgent(atoms.get(0)).ME(f[0]);
+                integratorAgentManager.getAgent(atoms.get(1)).ME(f[1]);
                 break;
             default:
                 //TODO atoms.count might not equal f.length.  The potential might size its
                 //array of vectors to be large enough for one IAtomSet and then not resize it
                 //back down for another IAtomSet with fewer atoms.
-                for (int i=0; i<atoms.getAtomCount(); i++) {
-                    integratorAgentManager.getAgent(atoms.getAtom(i)).ME(f[i]);
+                for (int i = 0; i<atoms.size(); i++) {
+                    integratorAgentManager.getAgent(atoms.get(i)).ME(f[i]);
                 }
 		}
 	}

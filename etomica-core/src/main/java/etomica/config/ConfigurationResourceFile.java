@@ -43,8 +43,8 @@ public class ConfigurationResourceFile implements Configuration {
         try(BufferedReader reader =
                     new BufferedReader(new InputStreamReader(callingClass.getResourceAsStream(fileName)))) {
 
-            for(int i = 0; i < leafList.getAtomCount(); i++) {
-                Vector pos = leafList.getAtom(i).getPosition();
+            for(int i = 0; i < leafList.size(); i++) {
+                Vector pos = leafList.get(i).getPosition();
                 pos.E(parseLine(reader.readLine()));
             }
         } catch(IOException e) {

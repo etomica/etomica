@@ -32,25 +32,25 @@ public class Conformation7SiteRigidSF6 implements IConformation, java.io.Seriali
 
 	public void initializePositions(IAtomList atomList) {
 		
-		IAtom n1 = atomList.getAtom(Species7SiteRigidSF6.indexS);
+		IAtom n1 = atomList.get(Species7SiteRigidSF6.indexS);
 		n1.getPosition().E(new double[] {0, 0, 0});
 		
-		IAtom n2 = atomList.getAtom(Species7SiteRigidSF6.indexF1);
+		IAtom n2 = atomList.get(Species7SiteRigidSF6.indexF1);
 		n2.getPosition().E(new double[] {0, bondL, 0});
 		
-		IAtom n3 = atomList.getAtom(Species7SiteRigidSF6.indexF2);
+		IAtom n3 = atomList.get(Species7SiteRigidSF6.indexF2);
 		n3.getPosition().E(new double[] {0, -bondL, 0});
 		
-		IAtom n4 = atomList.getAtom(Species7SiteRigidSF6.indexF3);
+		IAtom n4 = atomList.get(Species7SiteRigidSF6.indexF3);
 		n4.getPosition().E(new double[] {0, 0, bondL});
 		
-		IAtom n5 = atomList.getAtom(Species7SiteRigidSF6.indexF4);
+		IAtom n5 = atomList.get(Species7SiteRigidSF6.indexF4);
 		n5.getPosition().E(new double[] {0, 0, -bondL});
 		
-		IAtom n6 = atomList.getAtom(Species7SiteRigidSF6.indexF5);
+		IAtom n6 = atomList.get(Species7SiteRigidSF6.indexF5);
 		n6.getPosition().E(new double[] {bondL,0,0});
 		
-		IAtom n7 = atomList.getAtom(Species7SiteRigidSF6.indexF6);
+		IAtom n7 = atomList.get(Species7SiteRigidSF6.indexF6);
 		n7.getPosition().E(new double[] {-bondL,0,0});
 			
 	}

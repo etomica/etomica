@@ -149,7 +149,7 @@ public class ConfigurationMembrane implements Configuration {
             for (int i=molecules.getMoleculeCount()-1; i>-1; i--) {
                 // molecules will be reversed in order, but that's OK
                 IMolecule molecule = molecules.getMolecule(i);
-                IAtom atom = molecule.getChildList().getAtom(0);
+                IAtom atom = molecule.getChildList().get(0);
                 double x = atom.getPosition().getX(membraneDim);
                 if (Math.abs(x - membraneCenter) > 0.5 * membraneThickness) {
                     // we encountered a pretend atom in our pretend box!

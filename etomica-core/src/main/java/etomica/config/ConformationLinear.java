@@ -76,13 +76,13 @@ public class ConformationLinear implements IConformation, java.io.Serializable {
     }
 
     public void initializePositions(IAtomList atomList) {
-        int size = atomList.getAtomCount();
+        int size = atomList.size();
         if(size == 0) return;
 
         double xNext = -bondLength*0.5*(size-1);
-        int nLeaf = atomList.getAtomCount();
+        int nLeaf = atomList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom a = atomList.getAtom(iLeaf);
+            IAtom a = atomList.get(iLeaf);
             a.getPosition().Ea1Tv1(xNext, orientation);
             xNext += bondLength;
         }

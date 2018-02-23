@@ -134,7 +134,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 //            System.out.println("accepted inserting "+testMolecule.getIndex());
 			activeAtoms.add(testMolecule);
             randomizer.setTemperature(integrator.getTemperature());
-			randomizer.actionPerformed(testMolecule.getChildList().getAtom(0));
+			randomizer.actionPerformed(testMolecule.getChildList().get(0));
 		}
 	}
     
@@ -146,7 +146,7 @@ public class MyMCMove extends MCMoveInsertDelete {
             IMolecule molecule = moleculeList.getMolecule(i);
             if (molecule.getType() != species) continue;
 
-    		double z = molecule.getChildList().getAtom(0).getPosition().getX(dim);
+    		double z = molecule.getChildList().get(0).getPosition().getX(dim);
     		if (bothSides) {
     		    if (Math.abs(z) < 0.5*zBoundary*zFraction) continue;
     		}

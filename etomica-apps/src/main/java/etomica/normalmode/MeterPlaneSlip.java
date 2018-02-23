@@ -55,8 +55,8 @@ public class MeterPlaneSlip implements IDataSource {
         for (int i=0; i<nMolecules; i++) {
             int iPlane = (i/2)%nPlanes;
             IAtomList atomList = molecules.getMolecule(i).getChildList();
-            drSum[iPlane][0].PE(atomList.getAtom(0).getPosition());
-            drSum[iPlane][1].PE(atomList.getAtom(1).getPosition());
+            drSum[iPlane][0].PE(atomList.get(0).getPosition());
+            drSum[iPlane][1].PE(atomList.get(1).getPosition());
         }
         int nMoleculesPerPlane = nMolecules/nPlanes;
         Vector ba = box.getBoundary().getEdgeVector(0);
@@ -92,8 +92,8 @@ public class MeterPlaneSlip implements IDataSource {
         for (int i=0; i<nMolecules; i++) {
             int iPlane = (i/2)%nPlanes;
             IAtomList atomList = molecules.getMolecule(i).getChildList();
-            drSum[iPlane][0].PE(atomList.getAtom(0).getPosition());
-            drSum[iPlane][1].PE(atomList.getAtom(1).getPosition());
+            drSum[iPlane][0].PE(atomList.get(0).getPosition());
+            drSum[iPlane][1].PE(atomList.get(1).getPosition());
         }
         int nMoleculesPerPlane = nMolecules/nPlanes;
         Vector ba = box.getBoundary().getEdgeVector(0);

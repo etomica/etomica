@@ -55,18 +55,18 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
     }
     
     public ReturnValue energyVirialCut(IAtomList atoms) {
-    	boolean isSelf = (atoms.getAtom(1) == atoms.getAtom(0));
-        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
-        drLat.E(coordinateDefinition.getLatticePosition(atoms.getAtom(1)));
-        drLat.ME(coordinateDefinition.getLatticePosition(atoms.getAtom(0)));
+    	boolean isSelf = (atoms.get(1) == atoms.get(0));
+        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
+        drLat.E(coordinateDefinition.getLatticePosition(atoms.get(1)));
+        drLat.ME(coordinateDefinition.getLatticePosition(atoms.get(0)));
         drTmp.E(drLat);
         boundary.nearestImage(drLat);
         dr.PE(drLat);
         dr.ME(drTmp);
         
-        drTmp.Ev1Mv2(atoms.getAtom(1).getPosition(), coordinateDefinition.getLatticePosition(atoms.getAtom(1)));
+        drTmp.Ev1Mv2(atoms.get(1).getPosition(), coordinateDefinition.getLatticePosition(atoms.get(1)));
         drA.E(drTmp);
-        drTmp.Ev1Mv2(atoms.getAtom(0).getPosition(), coordinateDefinition.getLatticePosition(atoms.getAtom(0)));
+        drTmp.Ev1Mv2(atoms.get(0).getPosition(), coordinateDefinition.getLatticePosition(atoms.get(0)));
         drA.ME(drTmp);
         
         for (int i=0; i<rCut2.length; i++) {

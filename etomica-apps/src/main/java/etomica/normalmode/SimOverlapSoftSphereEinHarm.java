@@ -380,7 +380,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
             accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
             integrators[iBox].getEventManager().addListener(pumpListener);
-            pumpListener.setInterval(box.getLeafList().getAtomCount());
+            pumpListener.setInterval(box.getLeafList().size());
         } else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);
         }

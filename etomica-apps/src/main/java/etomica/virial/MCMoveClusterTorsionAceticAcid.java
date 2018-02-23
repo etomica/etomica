@@ -45,11 +45,11 @@ public class MCMoveClusterTorsionAceticAcid extends MCMoveMolecule {
         	if (random.nextInt(2) == 0)continue;//random # can be 0 or 1. 50% chance of torsion move
         	selectedMolecules.add(allMolecules.getMolecule(i));
             IAtomList childList = allMolecules.getMolecule(i).getChildList();
-            int numChildren = childList.getAtomCount();//5
+            int numChildren = childList.size();//5
 
-            IAtom c = childList.getAtom(1);
-            IAtom sBO = childList.getAtom(3);
-            IAtom h = childList.getAtom(4);
+            IAtom c = childList.get(1);
+            IAtom sBO = childList.get(3);
+            IAtom h = childList.get(4);
             vCO.Ev1Mv2(sBO.getPosition(), c.getPosition());//vector CO
             vOH.Ev1Mv2(h.getPosition(), sBO.getPosition());//vector OH
             double lengthdr13 = vCO.squared();
@@ -65,7 +65,7 @@ public class MCMoveClusterTorsionAceticAcid extends MCMoveMolecule {
                 // shift the whole molecule so that the center of mass (or whatever
                 // the position definition uses) doesn't change
             	//newCenter is needed to be changed to oldCenter
-                IAtom atomk = childList.getAtom(k);
+                IAtom atomk = childList.get(k);
                 atomk.getPosition().PEa1Tv1(-0.2, secondaryDirection);
             }
         }
@@ -78,10 +78,10 @@ public class MCMoveClusterTorsionAceticAcid extends MCMoveMolecule {
     public void rejectNotify() {//only for the molecules which were moved in doTrial
         for(int i=0; i<selectedMolecules.getMoleculeCount(); i++) {
             IAtomList childList = selectedMolecules.getMolecule(i).getChildList();
-            int numChildren = childList.getAtomCount();//5
-            IAtom c = childList.getAtom(1);
-            IAtom sBO = childList.getAtom(3);
-            IAtom h = childList.getAtom(4);
+            int numChildren = childList.size();//5
+            IAtom c = childList.get(1);
+            IAtom sBO = childList.get(3);
+            IAtom h = childList.get(4);
             vCO.Ev1Mv2(sBO.getPosition(), c.getPosition());//vector CO
             vOH.Ev1Mv2(h.getPosition(), sBO.getPosition());//vector OH
             double lengthdr13 = vCO.squared();
@@ -94,7 +94,7 @@ public class MCMoveClusterTorsionAceticAcid extends MCMoveMolecule {
             secondaryDirection.TE(2);
             h.getPosition().PE(secondaryDirection);
             for (int k=0; k<numChildren; k++) {
-                IAtom atomk = childList.getAtom(k);
+                IAtom atomk = childList.get(k);
                 atomk.getPosition().PEa1Tv1(-0.2, secondaryDirection);
             }
         }

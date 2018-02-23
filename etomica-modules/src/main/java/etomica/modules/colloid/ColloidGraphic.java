@@ -123,7 +123,7 @@ public class ColloidGraphic extends SimulationGraphic {
                 }
                 sim.setChainLength((int)newValue);
                 meterE2E.setChainLength((int)newValue);
-                int n = sim.box.getLeafList().getAtomCount();
+                int n = sim.box.getLeafList().size();
                 sim.integrator.setThermostatInterval((1000+(n-1))/n);
             }
             public double getValue() {
@@ -406,7 +406,7 @@ public class ColloidGraphic extends SimulationGraphic {
         }
         public void actionPerformed() {
             sim.setNumGraft(nGraft);
-            int n = sim.box.getLeafList().getAtomCount();
+            int n = sim.box.getLeafList().size();
             sim.integrator.setThermostatInterval((1000+(n-1))/n);
             getDisplayBox(sim.box).repaint();
         }

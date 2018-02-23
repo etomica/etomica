@@ -8,7 +8,6 @@ import etomica.action.AtomAction;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
-import etomica.space.Space;
 import etomica.util.random.IRandom;
 
 /**
@@ -34,9 +33,9 @@ public class IntegratorAnalytic extends IntegratorMD {
         super.doStepInternal();
         action.setTime(currentTime);
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            action.actionPerformed(leafList.getAtom(iLeaf));
+            action.actionPerformed(leafList.get(iLeaf));
         }
     }
     

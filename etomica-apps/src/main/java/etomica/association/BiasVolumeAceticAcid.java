@@ -103,7 +103,7 @@ public class BiasVolumeAceticAcid extends BiasVolumeMolecule {
     	double a = 1.0/(1+maxCosTheta);
     	randomX = random.nextDouble();
     	double cosTheta = (a*maxCosTheta-randomX)/a;//uniform theta distribution(X is linear)
-		C2CH32.Ev1Mv2(molecule2.getChildList().getAtom(SpeciesAceticAcid.indexCH3).getPosition(), molecule2.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
+		C2CH32.Ev1Mv2(molecule2.getChildList().get(SpeciesAceticAcid.indexCH3).getPosition(), molecule2.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
 		C2CH32.normalize();
 		secondAxis.E(0.0);
 		if (Math.abs(C2CH32.getX(0))> 0.5){
@@ -124,15 +124,15 @@ public class BiasVolumeAceticAcid extends BiasVolumeMolecule {
     	newPositionC.TE(Math.sqrt(1-cosTheta*cosTheta));
     	newPositionC.PEa1Tv1(cosTheta, C2CH32);
     	newPositionC.TE(r);
-    	newPositionC.PE(molecule2.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
-        groupTranslationVector.Ev1Mv2(newPositionC, molecule1.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
+    	newPositionC.PE(molecule2.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
+        groupTranslationVector.Ev1Mv2(newPositionC, molecule1.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
         moveMoleculeAction.actionPerformed(molecule1);//molecule1 is translated, only C is perfect.The location of C is between 3.8 and 4.2. We should check other atoms. 
         //pick a phi for the perfect case
         //phi: angles between OO of 1 and oo of 2
         
-        C1CH31.Ev1Mv2(molecule1.getChildList().getAtom(SpeciesAceticAcid.indexCH3).getPosition(), molecule1.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
+        C1CH31.Ev1Mv2(molecule1.getChildList().get(SpeciesAceticAcid.indexCH3).getPosition(), molecule1.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
 		C1CH31.normalize();
-        C2C1.Ev1Mv2(molecule2.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition(), molecule1.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
+        C2C1.Ev1Mv2(molecule2.getChildList().get(SpeciesAceticAcid.indexC).getPosition(), molecule1.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
         boundary.nearestImage(C2C1);
         C2C1.normalize();
         
@@ -147,20 +147,20 @@ public class BiasVolumeAceticAcid extends BiasVolumeMolecule {
         	doTransform(molecule1,newPositionC,work1,-psi);//Now C1CH31 and C2CH32 are parallel.
     	}
     	
-        C1CH31.Ev1Mv2(molecule1.getChildList().getAtom(SpeciesAceticAcid.indexCH3).getPosition(), molecule1.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
+        C1CH31.Ev1Mv2(molecule1.getChildList().get(SpeciesAceticAcid.indexCH3).getPosition(), molecule1.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
 		C1CH31.normalize();
 
     	//perpendicular vector of C1CH31 on the place C1dBO1SBO1
-    	C1SBO1.Ev1Mv2(molecule1.getChildList().getAtom(SpeciesAceticAcid.indexSBO).getPosition(), molecule1.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
-    	C1DBO1.Ev1Mv2(molecule1.getChildList().getAtom(SpeciesAceticAcid.indexDBO).getPosition(), molecule1.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
+    	C1SBO1.Ev1Mv2(molecule1.getChildList().get(SpeciesAceticAcid.indexSBO).getPosition(), molecule1.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
+    	C1DBO1.Ev1Mv2(molecule1.getChildList().get(SpeciesAceticAcid.indexDBO).getPosition(), molecule1.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
     	work1.E(C1SBO1);
     	work1.XE(C1DBO1);
     	work1.XE(C1CH31);
     	work1.normalize();
     	
     	//perpendicular vector of C2CH32 on the place C2dBO2SBO2
-    	C2SBO2.Ev1Mv2(molecule2.getChildList().getAtom(SpeciesAceticAcid.indexSBO).getPosition(), molecule2.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
-    	C2DBO2.Ev1Mv2(molecule2.getChildList().getAtom(SpeciesAceticAcid.indexDBO).getPosition(), molecule2.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
+    	C2SBO2.Ev1Mv2(molecule2.getChildList().get(SpeciesAceticAcid.indexSBO).getPosition(), molecule2.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
+    	C2DBO2.Ev1Mv2(molecule2.getChildList().get(SpeciesAceticAcid.indexDBO).getPosition(), molecule2.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
     	work2.E(C2SBO2);
     	work2.XE(C2DBO2);
     	work2.XE(C2CH32);
@@ -205,7 +205,7 @@ public class BiasVolumeAceticAcid extends BiasVolumeMolecule {
         	doTransform(molecule1,newPositionC,work1,-psi2);
     	}
 
-    	C1CH31.Ev1Mv2(molecule1.getChildList().getAtom(SpeciesAceticAcid.indexCH3).getPosition(), molecule1.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
+    	C1CH31.Ev1Mv2(molecule1.getChildList().get(SpeciesAceticAcid.indexCH3).getPosition(), molecule1.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
 		C1CH31.normalize();
         
     	if (!isAssociated(molecule1,molecule2)){
@@ -217,11 +217,11 @@ public class BiasVolumeAceticAcid extends BiasVolumeMolecule {
     
     protected void doFlip(IMolecule molecule){
     	IAtomList childList = molecule.getChildList();
-    	Vector rC = childList.getAtom(SpeciesAceticAcid.indexC).getPosition();
-    	for (int i = 0;i<childList.getAtomCount();i+=1){
+    	Vector rC = childList.get(SpeciesAceticAcid.indexC).getPosition();
+    	for (int i = 0; i<childList.size(); i+=1){
     		if (i == SpeciesAceticAcid.indexC)continue;
-    		childList.getAtom(i).getPosition().TE(-1);
-    		childList.getAtom(i).getPosition().PEa1Tv1(2, rC);
+    		childList.get(i).getPosition().TE(-1);
+    		childList.get(i).getPosition().PEa1Tv1(2, rC);
     	}
     }
     
@@ -234,8 +234,8 @@ public class BiasVolumeAceticAcid extends BiasVolumeMolecule {
     protected void doTransform(IMolecule molecule, Vector r0, Vector axis, double theta) {
         IAtomList childList = molecule.getChildList();
         rotationTensor.setRotationAxis(axis, theta);
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.ME(r0);
             rotationTensor.transform(r);
@@ -250,9 +250,9 @@ public class BiasVolumeAceticAcid extends BiasVolumeMolecule {
     
     public boolean isAssociated(IMolecule molecule1, IMolecule molecule2){
     	
-		C2CH32.Ev1Mv2(molecule2.getChildList().getAtom(SpeciesAceticAcid.indexCH3).getPosition(), molecule2.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
+		C2CH32.Ev1Mv2(molecule2.getChildList().get(SpeciesAceticAcid.indexCH3).getPosition(), molecule2.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
 		C2CH32.normalize();
-        C2C1.Ev1Mv2(molecule1.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition(), molecule2.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
+        C2C1.Ev1Mv2(molecule1.getChildList().get(SpeciesAceticAcid.indexC).getPosition(), molecule2.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
         boundary.nearestImage(C2C1);
         double distance = C2C1.squared();
         if (distance < innerRadius*innerRadius || distance > radius*radius){
@@ -264,15 +264,15 @@ public class BiasVolumeAceticAcid extends BiasVolumeMolecule {
         	return false;
         }
         
-        C1CH31.Ev1Mv2(molecule1.getChildList().getAtom(SpeciesAceticAcid.indexCH3).getPosition(), molecule1.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
+        C1CH31.Ev1Mv2(molecule1.getChildList().get(SpeciesAceticAcid.indexCH3).getPosition(), molecule1.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
 		C1CH31.normalize();
         double cosTheta2 = -C1CH31.dot(C2C1);
         if (cosTheta2 > maxCosTheta){
         	return false;
         }
     	//perpendicular vector of C1CH31 on the place C1dBO1SBO1
-    	C1SBO1.Ev1Mv2(molecule1.getChildList().getAtom(SpeciesAceticAcid.indexSBO).getPosition(), molecule1.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
-    	C1DBO1.Ev1Mv2(molecule1.getChildList().getAtom(SpeciesAceticAcid.indexDBO).getPosition(), molecule1.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
+    	C1SBO1.Ev1Mv2(molecule1.getChildList().get(SpeciesAceticAcid.indexSBO).getPosition(), molecule1.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
+    	C1DBO1.Ev1Mv2(molecule1.getChildList().get(SpeciesAceticAcid.indexDBO).getPosition(), molecule1.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
     	work1.E(C1SBO1);
     	work1.XE(C1DBO1);
     	work1.XE(C1CH31);
@@ -291,8 +291,8 @@ public class BiasVolumeAceticAcid extends BiasVolumeMolecule {
     	}
     	
     	//perpendicular vector of C2CH32 on the place C2dBO2SBO2
-    	C2SBO2.Ev1Mv2(molecule2.getChildList().getAtom(SpeciesAceticAcid.indexSBO).getPosition(), molecule2.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
-    	C2DBO2.Ev1Mv2(molecule2.getChildList().getAtom(SpeciesAceticAcid.indexDBO).getPosition(), molecule2.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
+    	C2SBO2.Ev1Mv2(molecule2.getChildList().get(SpeciesAceticAcid.indexSBO).getPosition(), molecule2.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
+    	C2DBO2.Ev1Mv2(molecule2.getChildList().get(SpeciesAceticAcid.indexDBO).getPosition(), molecule2.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
     	work2.E(C2SBO2);
     	work2.XE(C2DBO2);
     	work2.XE(C2CH32);

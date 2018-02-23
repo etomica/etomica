@@ -183,7 +183,7 @@ public class TestSetToUHexane extends Simulation {
         Vector site = cdHex.getLatticePosition(box.getMoleculeList().getMolecule(0));
 
         for(int i = 0; i < chainLength; i++){
-            oldX[i].E(aal.getAtom(i).getPosition());
+            oldX[i].E(aal.get(i).getPosition());
         }
 
         for (int counter = 0; counter < nsteps; counter++) {
@@ -200,7 +200,7 @@ public class TestSetToUHexane extends Simulation {
 
             //Store the current positions for later use.
             for(int i = 0; i < chainLength; i++){
-                newX[i].E(aal.getAtom(i).getPosition());
+                newX[i].E(aal.get(i).getPosition());
 //                System.out.println("newX  " + newX[i]);
             }
 
@@ -219,7 +219,7 @@ public class TestSetToUHexane extends Simulation {
             //Compare the old and new positions.
             double tol = 0.0000005;
             for(int i = 0; i < chainLength; i++) {
-                newX[i].E(aal.getAtom(i).getPosition());
+                newX[i].E(aal.get(i).getPosition());
                 newX[i].ME(oldX[i]);
                 double test = Math.sqrt(newX[i].squared());
 //                System.out.println(test);

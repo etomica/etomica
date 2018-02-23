@@ -42,7 +42,7 @@ public class P1Wall implements PotentialHard {
     }
 
     public double energy(IAtomList atoms) {
-        Vector p = atoms.getAtom(0).getPosition();
+        Vector p = atoms.get(0).getPosition();
         double y = Math.abs(p.getX(1));
         double Ly = boundary.getBoxSize().getX(1);
         if (y > 0.5*Ly-0.5*sigma) {
@@ -67,7 +67,7 @@ public class P1Wall implements PotentialHard {
     }
 
     public void bump(IAtomList a, double falseTime) {
-        IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
+        IAtomKinetic atom = (IAtomKinetic)a.get(0);
         Vector v = atom.getVelocity();
         double vy = v.getX(1);
         // dv = 2*NewVelocity
@@ -77,9 +77,9 @@ public class P1Wall implements PotentialHard {
         lastEnergyChange = 0;
         if (monomerMonomerBondManager != null) {
             IAtomList bondAtoms = (IAtomList)monomerMonomerBondManager.getAgent(atom);
-            for (int i=0; i<bondAtoms.getAtomCount(); i++) {
-                if (bondAtoms.getAtom(i).getLeafIndex() < idx) {
-                    IAtomKinetic bondAtom = (IAtomKinetic)bondAtoms.getAtom(i);
+            for (int i = 0; i<bondAtoms.size(); i++) {
+                if (bondAtoms.get(i).getLeafIndex() < idx) {
+                    IAtomKinetic bondAtom = (IAtomKinetic)bondAtoms.get(i);
                     double by = bondAtom.getPosition().getX(1);
                     by += falseTime*bondAtom.getVelocity().getX(1);
                     if (y*by < 0) {
@@ -151,7 +151,7 @@ public class P1Wall implements PotentialHard {
     }
 
     public double collisionTime(IAtomList a, double falseTime) {
-        IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
+        IAtomKinetic atom = (IAtomKinetic)a.get(0);
         double y = atom.getPosition().getX(1);
         double v = atom.getVelocity().getX(1);
         if (v == 0) return Double.POSITIVE_INFINITY;

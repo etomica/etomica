@@ -138,7 +138,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		oldOrientations = new IOrientation3D[nMolecules][];
 		for (int i=0; i<nMolecules; i++) {
 			doExchange[i] = false;
-			int nAtoms = box.getMoleculeList().getMolecule(i).getChildList().getAtomCount();
+			int nAtoms = box.getMoleculeList().getMolecule(i).getChildList().size();
 			oldOrientations[i] = new IOrientation3D[nAtoms+1];
 			for (int j=0; j<nAtoms+1; j++) {
 				oldOrientations[i][j] = (IOrientation3D) space.makeOrientation();
@@ -187,14 +187,14 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 			for (int j=0; j<P; j++) {
 				int prev = j-1;
 				if (prev < 0) prev = P-1;
-				AtomHydrogen jAtom = (AtomHydrogen)atoms.getAtom(j);
-				AtomHydrogen jPrev = (AtomHydrogen)atoms.getAtom(prev);
+				AtomHydrogen jAtom = (AtomHydrogen)atoms.get(j);
+				AtomHydrogen jPrev = (AtomHydrogen)atoms.get(prev);
 				uOld += kHarmonic*dist(jAtom,jPrev, i);
 			}
-			oldOrientations[i][0].setDirection(((IAtomOriented) atoms.getAtom(0)).getOrientation().getDirection());
+			oldOrientations[i][0].setDirection(((IAtomOriented) atoms.get(0)).getOrientation().getDirection());
 			Vector rV1 = space.makeVector();
 			rV1.setRandomSphere(random);
-			newOrientations[i][0] = (IOrientation3D)((IAtomOriented) atoms.getAtom(0)).getOrientation();
+			newOrientations[i][0] = (IOrientation3D)((IAtomOriented) atoms.get(0)).getOrientation();
 			newOrientations[i][0].setDirection(rV1);
 			oldOrientations[i][P].setDirection(oldOrientations[i][0].getDirection());
 			newOrientations[i][P] = (IOrientation3D) space.makeOrientation();
@@ -213,7 +213,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 					boolean piFlagOld = false;
 					int imageIndex = nr*P/dr;
 					//                    System.out.println("image # = "+imageIndex);
-					IAtomOriented jAtom = ((IAtomOriented)atoms.getAtom(imageIndex));
+					IAtomOriented jAtom = ((IAtomOriented)atoms.get(imageIndex));
 					oldOrientations[i][imageIndex].setDirection(jAtom.getOrientation().getDirection());
 					newOrientations[i][imageIndex] = (IOrientation3D) jAtom.getOrientation();
 					fromImage = (nr-1)*P/dr;
@@ -221,10 +221,10 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 					double bl = 0;
 					for (int k = fromImage; k<= toImage; k++) {
 						if (k == P) {
-							bl += ((AtomHydrogen)atoms.getAtom(0)).getBondLength();
+							bl += ((AtomHydrogen)atoms.get(0)).getBondLength();
 						}
 						else {
-							bl += ((AtomHydrogen)atoms.getAtom(k)).getBondLength();
+							bl += ((AtomHydrogen)atoms.get(k)).getBondLength();
 						}
 
 					}
@@ -385,8 +385,8 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 			for (int j=0; j<P; j++) {
 				int prev = j-1;
 				if (prev < 0) prev = P-1;
-				AtomHydrogen jAtom = (AtomHydrogen)atoms.getAtom(j);
-				AtomHydrogen jPrev = (AtomHydrogen)atoms.getAtom(prev);
+				AtomHydrogen jAtom = (AtomHydrogen)atoms.get(j);
+				AtomHydrogen jPrev = (AtomHydrogen)atoms.get(prev);
 				uNew += kHarmonic*dist(jAtom,jPrev, i);
 
 			}
@@ -416,7 +416,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 			if (molIndexUntouched == i) continue;
 			IAtomList atoms = molecules.getMolecule(i).getChildList();
 			for (int k=0; k<P; k++) {
-				IAtomOriented kAtom = ((IAtomOriented)atoms.getAtom(k));
+				IAtomOriented kAtom = ((IAtomOriented)atoms.get(k));
 				kAtom.getOrientation().setDirection(oldOrientations[i][k].getDirection());
 			}
 		}

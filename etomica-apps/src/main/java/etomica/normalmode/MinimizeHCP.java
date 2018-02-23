@@ -126,7 +126,7 @@ public class MinimizeHCP extends Simulation {
         double c = newC*a;
         a *=  Math.sqrt(Math.sqrt(8.0/3.0)/newC);
         //System.out.println("cf "+newC);
-        int nC = (int)Math.ceil(Math.pow(box.getLeafList().getAtomCount()/2, 1.0/3.0));
+        int nC = (int)Math.ceil(Math.pow(box.getLeafList().size()/2, 1.0/3.0));
         Vector[] boxDim = new Vector[3];
         boxDim[0] = space.makeVector(new double[]{nC*a, 0, 0});
         boxDim[1] = space.makeVector(new double[]{-nC*a*Math.cos(Degree.UNIT.toSim(60)), nC*a*Math.sin(Degree.UNIT.toSim(60)), 0});

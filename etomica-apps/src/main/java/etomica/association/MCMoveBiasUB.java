@@ -73,13 +73,13 @@ public class MCMoveBiasUB extends MCMoveBox {
          
         if (isbonding) { // bonding
             IAtomList atoms = box.getLeafList();
-            atomA = atoms.getAtom(random.nextInt(atoms.getAtomCount()));
+            atomA = atoms.get(random.nextInt(atoms.size()));
             IAtom atomB = atomA;
-            while(atomB == atomA) atomB = atoms.getAtom(random.nextInt(atoms.getAtomCount()));
+            while(atomB == atomA) atomB = atoms.get(random.nextInt(atoms.size()));
             meterPotentialEnergy.setTarget(atomA);
             uOld = meterPotentialEnergy.getDataAsScalar();
-            ni = associationManager.getAssociatedAtoms(atomA).getAtomCount();
-            Nai = associationManager.getAssociatedAtoms().getAtomCount();
+            ni = associationManager.getAssociatedAtoms(atomA).size();
+            Nai = associationManager.getAssociatedAtoms().size();
             oldPosition.E(atomA.getPosition());
             oldDirection.E(((IAtomOriented)atomA).getOrientation().getDirection());
             biasVolume.biasInsert(atomA, atomB);
@@ -88,12 +88,12 @@ public class MCMoveBiasUB extends MCMoveBox {
         }//end bonding
         else { // unbonding,breaking bond
         	IAtomList atoms = associationManager.getAssociatedAtoms();//associated atoms
-        	if (atoms.getAtomCount() == 0) {
+        	if (atoms.size() == 0) {
         		return false;
         	}
-            atomA = atoms.getAtom(random.nextInt(atoms.getAtomCount()));
-            ni = associationManager.getAssociatedAtoms(atomA).getAtomCount();
-            Nai = associationManager.getAssociatedAtoms().getAtomCount();
+            atomA = atoms.get(random.nextInt(atoms.size()));
+            ni = associationManager.getAssociatedAtoms(atomA).size();
+            Nai = associationManager.getAssociatedAtoms().size();
             meterPotentialEnergy.setTarget(atomA);
             uOld = meterPotentialEnergy.getDataAsScalar();
             oldPosition.E(atomA.getPosition());
@@ -134,12 +134,12 @@ public class MCMoveBiasUB extends MCMoveBox {
 //        else if(isbonding){
 //        	throw new RuntimeException("wrong!!!");
 //        }
-    	int Naj = associationManager.getAssociatedAtoms().getAtomCount();
+    	int Naj = associationManager.getAssociatedAtoms().size();
     	int N = box.getMoleculeList().getMoleculeCount();
     	double phi = biasVolume.biasVolume()/box.getBoundary().volume()*N;
     	//if (Naj == 0) System.out.println("A1 = " +(ni*Nai/((N-1)*phi)));
     	if(Naj == 0) return ni*Nai/((N-1)*phi);//acceptance criteria
-    	int nj = associationManager.getAssociatedAtoms(atomA).getAtomCount();
+    	int nj = associationManager.getAssociatedAtoms(atomA).size();
     	//if (Nai == 0) System.out.println("A2 = "+((N-1)*phi/(nj*Naj)));
         if(Nai == 0) return (N-1)*phi/(nj*Naj);
         int deltaj = (nj == 0) ? 0 : 1;
@@ -153,7 +153,7 @@ public class MCMoveBiasUB extends MCMoveBox {
         if (populateList(smerList) == 0){
         	return 0;
         }
-        if (smerList.getAtomCount() > maxLength) {
+        if (smerList.size() > maxLength) {
     		return 0.0;
 		}
         uNew = meterPotentialEnergy.getDataAsScalar();
@@ -168,12 +168,12 @@ public class MCMoveBiasUB extends MCMoveBox {
     	mySmerList.clear();
     	mySmerList.add(atomA);
     	IAtomList bondList = associationManager.getAssociatedAtoms(atomA);
-    	if (bondList.getAtomCount() > 2){
+    	if (bondList.size() > 2){
     		return 0;
     	}
-    	if (bondList.getAtomCount() == 2){
-    		IAtom atom0 = bondList.getAtom(0);
-    		IAtom atom1 = bondList.getAtom(1);
+    	if (bondList.size() == 2){
+    		IAtom atom0 = bondList.get(0);
+    		IAtom atom1 = bondList.get(1);
     		dr.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
         	box.getBoundary().nearestImage(dr);
         	double innerRadius = 0.8;
@@ -182,18 +182,18 @@ public class MCMoveBiasUB extends MCMoveBox {
         		return 0;
         	}
     	}
-    	if (bondList.getAtomCount() == 0){
+    	if (bondList.size() == 0){
     		return 1;
     	}
-    	IAtom thisAtom = bondList.getAtom(0);
+    	IAtom thisAtom = bondList.get(0);
     	mySmerList.add(thisAtom);
     	IAtomList bondList1 = associationManager.getAssociatedAtoms(thisAtom);
-    	if (bondList1.getAtomCount() > 2){
+    	if (bondList1.size() > 2){
     		return 0;
     	}
-    	if (bondList1.getAtomCount() == 2){
-    		IAtom atom0 = bondList1.getAtom(0);
-    		IAtom atom1 = bondList1.getAtom(1);
+    	if (bondList1.size() == 2){
+    		IAtom atom0 = bondList1.get(0);
+    		IAtom atom1 = bondList1.get(1);
     		dr.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
         	box.getBoundary().nearestImage(dr);
         	double innerRadius = 0.8;
@@ -203,22 +203,22 @@ public class MCMoveBiasUB extends MCMoveBox {
         	}
     	}
     	IAtom previousAtom = atomA;
-    	while (bondList1.getAtomCount() > 1){
-    		IAtom nextAtom = bondList1.getAtom(0);
+    	while (bondList1.size() > 1){
+    		IAtom nextAtom = bondList1.get(0);
     		if (nextAtom == previousAtom){
-    			nextAtom = bondList1.getAtom(1);
+    			nextAtom = bondList1.get(1);
     		} 
     		if (nextAtom == atomA){
     			return 1;
     		}
     		mySmerList.add(nextAtom);
     		bondList1 = associationManager.getAssociatedAtoms(nextAtom);
-    		if (bondList1.getAtomCount() > 2){
+    		if (bondList1.size() > 2){
         		return 0;
         	}
-    		if (bondList1.getAtomCount() == 2){
-        		IAtom atom0 = bondList1.getAtom(0);
-        		IAtom atom1 = bondList1.getAtom(1);
+    		if (bondList1.size() == 2){
+        		IAtom atom0 = bondList1.get(0);
+        		IAtom atom1 = bondList1.get(1);
         		dr.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
             	box.getBoundary().nearestImage(dr);
             	double innerRadius = 0.8;
@@ -230,16 +230,16 @@ public class MCMoveBiasUB extends MCMoveBox {
     		previousAtom = thisAtom;
     		thisAtom = nextAtom;
     	}
-    	if (bondList.getAtomCount()>1){
-    		thisAtom = bondList.getAtom(1);
+    	if (bondList.size()>1){
+    		thisAtom = bondList.get(1);
         	mySmerList.add(thisAtom);
         	bondList1 = associationManager.getAssociatedAtoms(thisAtom);
-        	if (bondList1.getAtomCount() > 2){
+        	if (bondList1.size() > 2){
         		return 0;
         	}
-        	if (bondList1.getAtomCount() == 2){
-        		IAtom atom0 = bondList1.getAtom(0);
-        		IAtom atom1 = bondList1.getAtom(1);
+        	if (bondList1.size() == 2){
+        		IAtom atom0 = bondList1.get(0);
+        		IAtom atom1 = bondList1.get(1);
         		dr.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
             	box.getBoundary().nearestImage(dr);
             	double innerRadius = 0.8;
@@ -249,19 +249,19 @@ public class MCMoveBiasUB extends MCMoveBox {
             	}
         	}
         	previousAtom = atomA;
-        	while (bondList1.getAtomCount() > 1){
-        		IAtom nextAtom = bondList1.getAtom(0);
+        	while (bondList1.size() > 1){
+        		IAtom nextAtom = bondList1.get(0);
         		if (nextAtom == previousAtom){
-        			nextAtom = bondList1.getAtom(1);
+        			nextAtom = bondList1.get(1);
         		} 
         		mySmerList.add(nextAtom);
         		bondList1 = associationManager.getAssociatedAtoms(nextAtom);
-        		if (bondList1.getAtomCount() > 2){
+        		if (bondList1.size() > 2){
             		return 0;
             	}
-        		if (bondList1.getAtomCount() == 2){
-            		IAtom atom0 = bondList1.getAtom(0);
-            		IAtom atom1 = bondList1.getAtom(1);
+        		if (bondList1.size() == 2){
+            		IAtom atom0 = bondList1.get(0);
+            		IAtom atom1 = bondList1.get(1);
             		dr.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
                 	box.getBoundary().nearestImage(dr);
                 	double innerRadius = 0.8;

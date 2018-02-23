@@ -441,10 +441,10 @@ public class VirialHePIXCEven {
         
         double r = 2;
         IAtomList leafList = sim.box.getLeafList();
-        for (int i=0; i<leafList.getAtomCount(); i++) {
-            Vector p = leafList.getAtom(i).getPosition();
-            p.setX(0, r*Math.cos((2*Math.PI*i)/leafList.getAtomCount()));
-            p.setX(1, r*Math.sin((2*Math.PI*i)/leafList.getAtomCount()));
+        for (int i = 0; i<leafList.size(); i++) {
+            Vector p = leafList.get(i).getPosition();
+            p.setX(0, r*Math.cos((2*Math.PI*i)/leafList.size()));
+            p.setX(1, r*Math.sin((2*Math.PI*i)/leafList.size()));
         }
 		
         if (false) {
@@ -458,9 +458,9 @@ public class VirialHePIXCEven {
             
 //            IAtomList leafList = sim.box.getLeafList();
             AtomPair pair = new AtomPair();
-            for (int i=0; i<leafList.getAtomCount()-1; i++) {
-                pair.atom0 = leafList.getAtom(i);
-                pair.atom1 = leafList.getAtom(i+1);
+            for (int i = 0; i<leafList.size()-1; i++) {
+                pair.atom0 = leafList.get(i);
+                pair.atom1 = leafList.get(i+1);
                 ((DisplayBoxCanvasG3DSys)displayBox.canvas).makeBond(pair, null);
             }
 //            pair.atom0 = leafList.getAtom(leafList.getAtomCount()-1);

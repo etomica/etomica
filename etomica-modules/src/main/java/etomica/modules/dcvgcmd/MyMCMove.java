@@ -106,7 +106,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 		} else {
 			activeAtoms.add(testMolecule);
             randomizer.setTemperature(integrator.getTemperature());
-			randomizer.actionPerformed(testMolecule.getChildList().getAtom(0));
+			randomizer.actionPerformed(testMolecule.getChildList().get(0));
 			deltaN++;
 		}
 	}
@@ -120,7 +120,7 @@ public class MyMCMove extends MCMoveInsertDelete {
         for (int i=0; i<nMolecules; i++) {
             IMolecule molecule = moleculeList.getMolecule(i);
 
-    		double z = molecule.getChildList().getAtom(0).getPosition().getX(2);
+    		double z = molecule.getChildList().get(0).getPosition().getX(2);
     		if(z < zmin || z > zmax) continue;
     		activeAtoms.add(molecule);
     	}

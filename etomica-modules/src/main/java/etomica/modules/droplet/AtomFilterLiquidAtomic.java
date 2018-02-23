@@ -31,11 +31,11 @@ public class AtomFilterLiquidAtomic implements AtomFilterCollective, AtomLeafAge
     
     public void resetFilter() {
 		//color all atoms according to their type
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.getAtom(iLeaf);
-            int nbrs = nbrListManager.getUpList(atom)[0].getAtomCount() +
-                       nbrListManager.getDownList(atom)[0].getAtomCount();
+            IAtom atom = leafList.get(iLeaf);
+            int nbrs = nbrListManager.getUpList(atom)[0].size() +
+                       nbrListManager.getDownList(atom)[0].size();
             agentManager.setAgent(atom, nbrs > maxNbrsVapor);
         }
     }

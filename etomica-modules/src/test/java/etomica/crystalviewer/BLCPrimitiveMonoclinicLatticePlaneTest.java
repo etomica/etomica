@@ -75,8 +75,8 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
     	leafList = lptu.getBox().getLeafList();
 
     	try {
-		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a =  leafList.getAtom(idx);
+		    for(idx = 0; idx < leafList.size(); idx++) {
+			    IAtom a =  leafList.get(idx);
                 if(a.getPosition().getX(0) >= spacePos-epsilon &&
                    a.getPosition().getX(0) <= spacePos+epsilon) {
             	    assertTrue(lptu.getLatticePlane().inPlane(
@@ -89,7 +89,7 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtom a =  leafList.getAtom(idx);
+		    IAtom a =  leafList.get(idx);
             if(a.getPosition().getX(0) >= spacePos-epsilon &&
                a.getPosition().getX(0) <= spacePos+epsilon) {
                 System.out.println(funcName + " -> Atom position : " + a.getPosition() +
@@ -139,8 +139,8 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
     	leafList = lptu.getBox().getLeafList();
 
     	try {
-		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a =  leafList.getAtom(idx);
+		    for(idx = 0; idx < leafList.size(); idx++) {
+			    IAtom a =  leafList.get(idx);
 
                 if(a.getPosition().getX(0) >= spacePos-epsilon &&
                    a.getPosition().getX(0) <= spacePos+epsilon) {
@@ -154,7 +154,7 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtom a =  leafList.getAtom(idx);
+		    IAtom a =  leafList.get(idx);
             if(a.getPosition().getX(0) >= spacePos-epsilon &&
                a.getPosition().getX(0) <= spacePos+epsilon) {
             	System.out.println(funcName + " ->Atom position : " + a.getPosition() +
@@ -232,8 +232,8 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
     	leafList = lptu.getBox().getLeafList();
 
     	try {
-		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a = leafList.getAtom(idx);
+		    for(idx = 0; idx < leafList.size(); idx++) {
+			    IAtom a = leafList.get(idx);
 
 			    if(dd.contains(makeArray(a.getPosition())) == true) {
 			    	itemsFound++;
@@ -247,7 +247,7 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtom a =  leafList.getAtom(idx);
+		    IAtom a =  leafList.get(idx);
             if(dd.contains(makeArray(a.getPosition()))) {
             	System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should be in plane but is not.");
@@ -308,8 +308,8 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 
 
     	try {
-		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a = leafList.getAtom(idx);
+		    for(idx = 0; idx < leafList.size(); idx++) {
+			    IAtom a = leafList.get(idx);
 
 			    if(dd.contains(makeArray(a.getPosition())) == true) {
 			    	itemsFound++;
@@ -323,7 +323,7 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtom a =  leafList.getAtom(idx);
+		    IAtom a =  leafList.get(idx);
             if(dd.contains(makeArray(a.getPosition()))) {
             	System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should be in plane but is not.");
@@ -370,14 +370,14 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
     	leafList = lptu.getBox().getLeafList();
 
     	try {
-		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a =  leafList.getAtom(idx);
+		    for(idx = 0; idx < leafList.size(); idx++) {
+			    IAtom a =  leafList.get(idx);
             	assertFalse(lptu.getLatticePlane().inPlane(
             	    	a.getPosition()));
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtom a =  leafList.getAtom(idx);
+		    IAtom a =  leafList.get(idx);
             System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should not be in plane but is.");
             fail();
@@ -430,8 +430,8 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
     	leafList = lptu.getBox().getLeafList();
 
     	try {
-		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a = leafList.getAtom(idx);
+		    for(idx = 0; idx < leafList.size(); idx++) {
+			    IAtom a = leafList.get(idx);
 
 			    if(dd.contains(makeArray(a.getPosition())) == true) {
 			    	itemsFound++;
@@ -445,7 +445,7 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtom a =  leafList.getAtom(idx);
+		    IAtom a =  leafList.get(idx);
             if(dd.contains(makeArray(a.getPosition()))) {
             	System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should be in plane but is not.");
@@ -498,15 +498,15 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 
 
     	try {
-		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a = leafList.getAtom(idx);
+		    for(idx = 0; idx < leafList.size(); idx++) {
+			    IAtom a = leafList.get(idx);
 
             	assertFalse(lptu.getLatticePlane().inPlane(
             	    		a.getPosition()));
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtom a =  leafList.getAtom(idx);
+		    IAtom a =  leafList.get(idx);
             System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should not be in plane but is.");
             fail();
@@ -568,8 +568,8 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 
 
     	try {
-		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a = leafList.getAtom(idx);
+		    for(idx = 0; idx < leafList.size(); idx++) {
+			    IAtom a = leafList.get(idx);
 
 			    if(dd.contains(makeArray(a.getPosition())) == true) {
 			    	itemsFound++;
@@ -583,7 +583,7 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtom a =  leafList.getAtom(idx);
+		    IAtom a =  leafList.get(idx);
             if(dd.contains(makeArray(a.getPosition()))) {
             	System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should be in plane but is not.");
@@ -636,15 +636,15 @@ public class BLCPrimitiveMonoclinicLatticePlaneTest extends TestCase {
 
 
     	try {
-		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a = leafList.getAtom(idx);
+		    for(idx = 0; idx < leafList.size(); idx++) {
+			    IAtom a = leafList.get(idx);
 
             	assertFalse(lptu.getLatticePlane().inPlane(
             	    		a.getPosition()));
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtom a =  leafList.getAtom(idx);
+		    IAtom a =  leafList.get(idx);
             System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should not be in plane but is.");
             fail();

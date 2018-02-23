@@ -149,13 +149,13 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
 	}
 
     public IData getData() {
-        long numAtoms = atomList.getAtomCount();
+        long numAtoms = atomList.size();
         long n2 = numAtoms*numAtoms;
         for(int k=0; k<waveVec.length; k++){
             double term1 = 0;
             double term2 = 0;
             for(int i=0; i<numAtoms; i++){
-                double dotprod = waveVec[k].dot(atomList.getAtom(i).getPosition());
+                double dotprod = waveVec[k].dot(atomList.get(i).getPosition());
                 term1 += Math.cos(dotprod);
                 term2 += Math.sin(dotprod);
             }

@@ -558,8 +558,8 @@ public class HSNPT extends Simulation {
         public void actionPerformed() {
             Box box = agentManager.getBox();
             IAtomList atoms = box.getLeafList();
-            for (int i=0; i<atoms.getAtomCount(); i++) {
-                IAtom atom = atoms.getAtom(i);
+            for (int i = 0; i<atoms.size(); i++) {
+                IAtom atom = atoms.get(i);
                 MyAgent agent = agentManager.getAgent(atom);
                 v.E(atom.getPosition());
                 agent.pSum.PE(v);
@@ -576,8 +576,8 @@ public class HSNPT extends Simulation {
         public void reset() {
             Box box = agentManager.getBox();
             IAtomList atoms = box.getLeafList();
-            for (int i=0; i<atoms.getAtomCount(); i++) {
-                IAtom atom = atoms.getAtom(i);
+            for (int i = 0; i<atoms.size(); i++) {
+                IAtom atom = atoms.get(i);
                 MyAgent agent = agentManager.getAgent(atom);
                 agent.pSum.E(0);
                 agent.pSum2.E(0);

@@ -342,7 +342,7 @@ public class VirialHePI_PotentialCorrection {
             groupTranslationVector.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
             moveMoleculeAction.actionPerformed(molecules.getMolecule(i));
             if (nBeads>1) {
-                Vector v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
+                Vector v = molecules.getMolecule(i).getChildList().get(1).getPosition();
                 v.TE(0.95);
             }
         }

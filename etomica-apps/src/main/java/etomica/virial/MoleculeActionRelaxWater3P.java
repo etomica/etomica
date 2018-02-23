@@ -23,9 +23,9 @@ public class MoleculeActionRelaxWater3P implements MoleculeAction {
     }
     
     public void actionPerformed(IMolecule molecule) {
-        IAtom O = molecule.getChildList().getAtom(SpeciesWater3P.indexO);
-        IAtom H1 = molecule.getChildList().getAtom(SpeciesWater3P.indexH1);
-        IAtom H2 = molecule.getChildList().getAtom(SpeciesWater3P.indexH2);
+        IAtom O = molecule.getChildList().get(SpeciesWater3P.indexO);
+        IAtom H1 = molecule.getChildList().get(SpeciesWater3P.indexH1);
+        IAtom H2 = molecule.getChildList().get(SpeciesWater3P.indexH2);
         // normalize OH1
         Vector p1 = H1.getPosition();
         p1.ME(O.getPosition());

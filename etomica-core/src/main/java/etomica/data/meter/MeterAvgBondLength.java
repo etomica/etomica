@@ -21,10 +21,10 @@ public class MeterAvgBondLength extends DataSourceScalar {
         int mN = m.getMoleculeCount();
         double avgBondLength = 0.00;        
         for (int i=0; i<mN; i++) {
-            int nAtoms = m.getMolecule(i).getChildList().getAtomCount();
+            int nAtoms = m.getMolecule(i).getChildList().size();
             for (int j=0; j<nAtoms; j++) {
             	
-                AtomHydrogen jAtom = (AtomHydrogen) m.getMolecule(i).getChildList().getAtom(j);
+                AtomHydrogen jAtom = (AtomHydrogen) m.getMolecule(i).getChildList().get(j);
 //                if (j==0) System.out.println("zero bond length = "+jAtom.getBondLength());
                 avgBondLength += jAtom.getBondLength()/(mN*nAtoms);
             }

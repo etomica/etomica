@@ -48,13 +48,13 @@ public class MeterVirialExternalFieldSW implements IDataSource, java.io.Serializ
     
     public IData getData() {
     	IAtomList atoms = box.getLeafList();
-    	double [] z = new double [atoms.getAtomCount()+1];
-    	for (int i=0; i<atoms.getAtomCount()+1;i++){
-    		if (i == atoms.getAtomCount()){
+    	double [] z = new double [atoms.size()+1];
+    	for (int i = 0; i<atoms.size()+1; i++){
+    		if (i == atoms.size()){
     			z[i]=z[i-1]+2;
     			break;
     		}
-        	z[i] = atoms.getAtom(i).getPosition().getX(2);
+        	z[i] = atoms.get(i).getPosition().getX(2);
         	
     	}
     	Arrays.sort(z);
@@ -73,7 +73,7 @@ public class MeterVirialExternalFieldSW implements IDataSource, java.io.Serializ
 		double a = wallPosition[0];
 		x[x.length - 1] = 0;
 		double c = z[0] - 0.5;
-		for (int i = 0; i < atoms.getAtomCount()+1; i++) {
+		for (int i = 0; i < atoms.size()+1; i++) {
 			double b = z[i] - (1 + lambdaWF) * 0.5;
 			if (b > c) {
 				x[x.length - 1] += (c - a) * Math.exp(i*epsilonWF / temperature) * v;

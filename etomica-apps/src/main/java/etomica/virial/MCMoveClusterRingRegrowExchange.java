@@ -71,7 +71,7 @@ public class MCMoveClusterRingRegrowExchange extends MCMoveBox {
         oldOrientations = new IOrientation3D [nMolecules][0];
         oldBondlengths = new double [nMolecules][0];
         for (int i=0; i<nMolecules; i++) {
-            int nAtoms = box.getMoleculeList().getMolecule(i).getChildList().getAtomCount();
+            int nAtoms = box.getMoleculeList().getMolecule(i).getChildList().size();
             P = 2*nAtoms;
             oldOrientations[i] = new IOrientation3D[nAtoms];
             oldBondlengths[i] = new double [nAtoms];
@@ -95,10 +95,10 @@ public class MCMoveClusterRingRegrowExchange extends MCMoveBox {
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             IAtomList atoms = box.getMoleculeList().getMolecule(i).getChildList();            
             // determine the old center of mass
-            int nAtoms = atoms.getAtomCount();
+            int nAtoms = atoms.size();
             com.E(0);
             for (int k=0; k<nAtoms; k++) {
-            	AtomHydrogen kAtom = ((AtomHydrogen)atoms.getAtom(k));                
+            	AtomHydrogen kAtom = ((AtomHydrogen)atoms.get(k));
                 oldPositions[i][k].E(kAtom.getPosition());
                 com.PE(oldPositions[i][k]);
                 oldOrientations[i][k].setDirection(kAtom.getOrientation().getDirection());
@@ -106,7 +106,7 @@ public class MCMoveClusterRingRegrowExchange extends MCMoveBox {
             }
             com.TE(1.0/nAtoms);
             
-            AtomHydrogen atom0 = (AtomHydrogen) atoms.getAtom(0);
+            AtomHydrogen atom0 = (AtomHydrogen) atoms.get(0);
             // put the first atom at the origin, as a starting point
             // we'll translate everything back to the original center of mass later
             atom0.getPosition().E(0);
@@ -132,7 +132,7 @@ public class MCMoveClusterRingRegrowExchange extends MCMoveBox {
             com.ME(com0);
             
             for (int j=0; j<nAtoms; j++) {//setting positions, bond lengths and orientations
-            	AtomHydrogen jAtom = (AtomHydrogen)atoms.getAtom(j);            	
+            	AtomHydrogen jAtom = (AtomHydrogen)atoms.get(j);
             	Vector dummy = space.makeVector();
             	dummy.Ev1Pv2(newPositions[j], newPositions[j+nAtoms]);
             	dummy.TE(0.5);            	
@@ -148,7 +148,7 @@ public class MCMoveClusterRingRegrowExchange extends MCMoveBox {
 
             // translate back to original COM
             for (int k=0; k<nAtoms; k++) {
-                atoms.getAtom(k).getPosition().PE(com);
+                atoms.get(k).getPosition().PE(com);
             }
         }
         
@@ -167,11 +167,11 @@ public class MCMoveClusterRingRegrowExchange extends MCMoveBox {
 
         for (int i=0; i<molecules.getMoleculeCount(); i++) {
             IAtomList atoms = molecules.getMolecule(i).getChildList();
-            int nAtoms = atoms.getAtomCount();
+            int nAtoms = atoms.size();
             for (int j=0; j<nAtoms; j++) {
-                atoms.getAtom(j).getPosition().E(oldPositions[i][j]);
-                ((AtomHydrogen)atoms.getAtom(j)).setBondLength(oldBondlengths[i][j]);
-                ((AtomHydrogen)atoms.getAtom(j)).getOrientation().E(oldOrientations[i][j]);;
+                atoms.get(j).getPosition().E(oldPositions[i][j]);
+                ((AtomHydrogen)atoms.get(j)).setBondLength(oldBondlengths[i][j]);
+                ((AtomHydrogen)atoms.get(j)).getOrientation().E(oldOrientations[i][j]);;
             }
         }
     	((BoxCluster)box).rejectNotify();

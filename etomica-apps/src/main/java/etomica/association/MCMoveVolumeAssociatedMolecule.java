@@ -223,8 +223,8 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
         		if (dodebug){
         			if (molecule.getIndex() == 19 || molecule.getIndex() == 76||molecule.getIndex() == 127 || molecule.getIndex() == 139||molecule.getIndex() == 196){
         				System.out.println("One of these is monomer:1st "+molecule);
-        				IAtomOriented atom19 = (IAtomOriented)box.getLeafList().getAtom(19);
-        				IAtomOriented atom139 = (IAtomOriented)box.getLeafList().getAtom(139);
+        				IAtomOriented atom19 = (IAtomOriented)box.getLeafList().get(19);
+        				IAtomOriented atom139 = (IAtomOriented)box.getLeafList().get(139);
         				System.out.println(" orientation of atom19: "+atom19.getOrientation().getDirection());
     					System.out.println(" orientation of atom139: "+atom139.getOrientation().getDirection());
         			}
@@ -321,7 +321,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
     }
     
     public Vector positionDefinition(IMolecule molecule){
-    	return molecule.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition();
+    	return molecule.getChildList().get(SpeciesAceticAcid.indexC).getPosition();
     }
 
     public void setPressure(double p) {pressure = p;}

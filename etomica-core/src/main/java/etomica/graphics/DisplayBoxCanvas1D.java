@@ -168,13 +168,13 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
             ((ColorSchemeCollective)displayBox.getColorScheme()).colorAllAtoms();
         }
         IAtomList leafList = displayBox.getBox().getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         AtomFilter atomFilter = displayBox.getAtomFilter();
         if (atomFilter instanceof AtomFilterCollective) {
             ((AtomFilterCollective)atomFilter).resetFilter();
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom a = leafList.getAtom(iLeaf);
+            IAtom a = leafList.get(iLeaf);
             if(atomFilter != null && atomFilter.test(a)) continue;
             drawAtom(g, atomOrigin, a);
         }

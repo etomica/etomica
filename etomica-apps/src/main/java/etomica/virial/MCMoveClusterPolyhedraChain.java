@@ -39,7 +39,7 @@ public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
     public boolean doTrial() {
         
         IAtomList leafAtoms = box.getLeafList();
-        int n = leafAtoms.getAtomCount();
+        int n = leafAtoms.size();
         if (seq == null) {
             seq = new int[n];
         }
@@ -52,7 +52,7 @@ public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
             seq[j] = seq[i];
             seq[i] = k;
         }
-        leafAtoms.getAtom(seq[0]).getPosition().E(0);
+        leafAtoms.get(seq[0]).getPosition().E(0);
 
         for (int i=0; i<n; i++) {
             for (int j=0; j<n; j++) {
@@ -60,15 +60,15 @@ public class MCMoveClusterPolyhedraChain extends MCMoveAtom {
             }
         }
         for (int i=1; i<n; i++) {
-            pair.atom0 = leafAtoms.getAtom(seq[i-1]);
-            pair.atom1 = leafAtoms.getAtom(seq[i]);
-            Vector pos = leafAtoms.getAtom(seq[i]).getPosition();
-            Vector q = ((AtomOrientedQuaternion)leafAtoms.getAtom(seq[i])).getQuaternion();
+            pair.atom0 = leafAtoms.get(seq[i-1]);
+            pair.atom1 = leafAtoms.get(seq[i]);
+            Vector pos = leafAtoms.get(seq[i]).getPosition();
+            Vector q = ((AtomOrientedQuaternion)leafAtoms.get(seq[i])).getQuaternion();
 
             while (true) {
                 pos.setRandomInSphere(random);
                 pos.TE(sigma);
-                pos.PE(leafAtoms.getAtom(seq[i-1]).getPosition());
+                pos.PE(leafAtoms.get(seq[i-1]).getPosition());
 
                 randomOrientation(q);
                 if (p2.energy(pair) == Double.POSITIVE_INFINITY) break;

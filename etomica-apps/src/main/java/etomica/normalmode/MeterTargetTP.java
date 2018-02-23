@@ -89,9 +89,9 @@ public class MeterTargetTP implements IDataSource {
         for (int i=0; i<otherTemperatures.length; i++) {
             double fac = Math.sqrt(otherTemperatures[i]/temperature);
             
-            for (int j=0; j<atoms.getAtomCount(); j++) {
-                IAtom jRealAtom = atoms.getAtom(j);
-                Vector pos = pretendAtoms.getAtom(j).getPosition();
+            for (int j = 0; j<atoms.size(); j++) {
+                IAtom jRealAtom = atoms.get(j);
+                Vector pos = pretendAtoms.get(j).getPosition();
                 pos.Ea1Tv1(1-fac, coordinateDefinition.getLatticePosition(jRealAtom));
                 pos.PEa1Tv1(+fac, jRealAtom.getPosition());
             }
@@ -136,8 +136,8 @@ public class MeterTargetTP implements IDataSource {
     protected double constraintEnergy(Box box) {
         p1.setBox(box);
         IAtomList atomList = box.getLeafList();
-        for (int i=0; i<atomList.getAtomCount(); i++) {
-            if (p1.energyi(atomList.getAtom(i)) == Double.POSITIVE_INFINITY) {
+        for (int i = 0; i<atomList.size(); i++) {
+            if (p1.energyi(atomList.get(i)) == Double.POSITIVE_INFINITY) {
                 return Double.POSITIVE_INFINITY;
             }
         }
@@ -249,9 +249,9 @@ public class MeterTargetTP implements IDataSource {
         pretendBox.setNMolecules(species, realBox.getNMolecules(species));
         IAtomList atoms = realBox.getLeafList();
         IAtomList pretendAtoms = pretendBox.getLeafList();
-        for (int j=0; j<atoms.getAtomCount(); j++) {
-            IAtom jRealAtom = atoms.getAtom(j);
-            Vector pos = pretendAtoms.getAtom(j).getPosition();
+        for (int j = 0; j<atoms.size(); j++) {
+            IAtom jRealAtom = atoms.get(j);
+            Vector pos = pretendAtoms.get(j).getPosition();
             pos.E(coordinateDefinition.getLatticePosition(jRealAtom));
         }
 

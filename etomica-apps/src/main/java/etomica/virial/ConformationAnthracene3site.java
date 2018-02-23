@@ -26,13 +26,13 @@ public class ConformationAnthracene3site implements IConformation, java.io.Seria
 
 	public void initializePositions(IAtomList atomList) {
 			
-		IAtom n1 = atomList.getAtom(SpeciesAnthracene3site545.indexC1);
+		IAtom n1 = atomList.get(SpeciesAnthracene3site545.indexC1);
 		n1.getPosition().E(new double[] {0, 0, 0});
 		
-		IAtom n2 = atomList.getAtom(SpeciesAnthracene3site545.indexCH1);
+		IAtom n2 = atomList.get(SpeciesAnthracene3site545.indexCH1);
 		n2.getPosition().E(new double[] {-bondlength, 0, 0});
 		
-		IAtom n3 = atomList.getAtom(SpeciesAnthracene3site545.indexCH2);
+		IAtom n3 = atomList.get(SpeciesAnthracene3site545.indexCH2);
 		n3.getPosition().E(new double[] {bondlength, 0, 0});
 		
 		

@@ -26,7 +26,7 @@ public class MCMoveClusterPolyhedraTree extends MCMoveAtom {
     
     public void setBox(Box box) {
         super.setBox(box);
-        int n = box.getLeafList().getAtomCount();
+        int n = box.getLeafList().size();
         degree = new int[n];
         a = new int[n-2];
         inserted = new int[n];
@@ -48,7 +48,7 @@ public class MCMoveClusterPolyhedraTree extends MCMoveAtom {
     public boolean doTrial() {
         
         IAtomList leafAtoms = box.getLeafList();
-        int n = leafAtoms.getAtomCount();
+        int n = leafAtoms.size();
         for (int i=0; i<n; i++) {
             degree[i] = 1;
         }
@@ -86,7 +86,7 @@ public class MCMoveClusterPolyhedraTree extends MCMoveAtom {
         bonds[numBonds][1] = v;
         numBonds++;
 
-        leafAtoms.getAtom(0).getPosition().E(0);
+        leafAtoms.get(0).getPosition().E(0);
         inserted[0] = 0;
         int numInserted = 1;
         // inserted is a list of points that have inserted, but not coordinated
@@ -117,16 +117,16 @@ public class MCMoveClusterPolyhedraTree extends MCMoveAtom {
                     // already inserted nbr2, move along
                     continue;
                 }
-                pair.atom0 = leafAtoms.getAtom(nbr);
-                pair.atom1 = leafAtoms.getAtom(nbr2);
+                pair.atom0 = leafAtoms.get(nbr);
+                pair.atom1 = leafAtoms.get(nbr2);
                 // insert nbr2 around nbr
-                Vector q = ((AtomOrientedQuaternion)leafAtoms.getAtom(nbr2)).getQuaternion();
-                Vector pos = leafAtoms.getAtom(nbr2).getPosition();
+                Vector q = ((AtomOrientedQuaternion)leafAtoms.get(nbr2)).getQuaternion();
+                Vector pos = leafAtoms.get(nbr2).getPosition();
 
                 while (true) {
                     pos.setRandomInSphere(random);
                     pos.TE(sigma);
-                    pos.PE(leafAtoms.getAtom(nbr).getPosition());
+                    pos.PE(leafAtoms.get(nbr).getPosition());
 
                     randomOrientation(q);
                     double energy = p2.energy(pair);

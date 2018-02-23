@@ -76,8 +76,8 @@ public class MeterRotationDistributionGroup implements IDataSource, IAction, Ser
             for (int iMol=0; iMol<numMolecules; iMol++){
             	
 	          	IMolecule molecule = molecules.getMolecule(iMol);
-	          	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		    	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+	          	Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+		    	Vector leafPos1 = molecule.getChildList().get(1).getPosition();
 		
 		    	molAxis.Ev1Mv2(leafPos1, leafPos0);
 		       	molAxis.normalize();

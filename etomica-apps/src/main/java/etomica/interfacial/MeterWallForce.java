@@ -40,7 +40,7 @@ public class MeterWallForce extends DataSourceScalar {
         IMoleculeList topWallMolecules = box.getMoleculeList(topWall);
         pc.reset();
         for (int i=0; i<topWallMolecules.getMoleculeCount(); i++) {
-            IAtom wallAtom = topWallMolecules.getMolecule(i).getChildList().getAtom(0);
+            IAtom wallAtom = topWallMolecules.getMolecule(i).getChildList().get(0);
             id.setTargetAtom(wallAtom);
             potentialMaster.calculate(box, id, pc);
         }
@@ -77,10 +77,10 @@ public class MeterWallForce extends DataSourceScalar {
          * Implemented for only 1- and 2-body potentials.
          */
         public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-            if (atoms.getAtomCount()==1) return;
+            if (atoms.size()==1) return;
             PotentialSoft potentialSoft = (PotentialSoft)potential;
             Vector[] f = potentialSoft.gradient(atoms);
-            if (atoms.getAtom(0).getType() == atomType) {
+            if (atoms.get(0).getType() == atomType) {
                 sum -= f[0].getX(2);
             }
             else {

@@ -29,13 +29,13 @@ public class AtomPair implements IAtomList {
         return atom0.hashCode() + atom1.hashCode();
     }
 
-    public final IAtom getAtom(int i) {
+    public final IAtom get(int i) {
         if(i == 0) return atom0;
         if(i == 1) return atom1;
         throw new IllegalArgumentException();
     }
 
-    public final int getAtomCount() {
+    public final int size() {
         return 2;
     }
 

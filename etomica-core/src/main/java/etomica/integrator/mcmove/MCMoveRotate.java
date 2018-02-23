@@ -31,8 +31,8 @@ public class MCMoveRotate extends MCMoveAtom {
         super.setBox(box);
         if (oldOrientation != null) return;
         IAtomList atoms = box.getLeafList();
-        if (atoms.getAtomCount() == 0) return;
-        IAtomOriented atom0 = (IAtomOriented)atoms.getAtom(0);
+        if (atoms.size() == 0) return;
+        IAtomOriented atom0 = (IAtomOriented)atoms.get(0);
         if (atom0.getOrientation() instanceof Orientation3D) {
             oldOrientation = new Orientation3D(space);
         }
