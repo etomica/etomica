@@ -6,9 +6,11 @@ package etomica.atom;
 
 import etomica.util.Debug;
 
+import java.util.AbstractList;
 import java.util.Arrays;
+import java.util.RandomAccess;
 
-public final class AtomArrayList implements IAtomList {
+public final class AtomArrayList extends AbstractList<IAtom> implements IAtomList, RandomAccess {
 
     private float trimThreshold = 0.8f;
     private IAtom[] atomList;
@@ -22,6 +24,11 @@ public final class AtomArrayList implements IAtomList {
 
     public AtomArrayList(int initialSize) {
         atomList = new IAtom[initialSize];
+    }
+
+    public AtomArrayList(IAtomList list) {
+        this(list.size());
+        this.addAll(list);
     }
 
     public static float getSizeIncreaseRatio() {
@@ -62,7 +69,7 @@ public final class AtomArrayList implements IAtomList {
         return itemsInList == 0;
     }
 
-    protected IAtom[] toArray() {
+    public IAtom[] toArray() {
         IAtom[] tempList = new IAtom[itemsInList];
 
         System.arraycopy(atomList, 0, tempList, 0, itemsInList);
@@ -88,7 +95,7 @@ public final class AtomArrayList implements IAtomList {
         }
         return -1;
     }
-    
+
     /**
      * Returns true if the given atom is in the list, false otherwise
      */
@@ -119,7 +126,7 @@ public final class AtomArrayList implements IAtomList {
         if(itemsInList == atomList.length) {
             atomList = Arrays.copyOf(atomList, (int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)+1));
         }
-        atomList[itemsInList] = atom; 
+        atomList[itemsInList] = atom;
         itemsInList++;
 
         return true;
@@ -189,7 +196,7 @@ public final class AtomArrayList implements IAtomList {
     public int size() {
         return itemsInList;
     }
-    
+
     public IAtom get(int index) {
         if (Debug.ON && (index < 0 || index >= itemsInList)) {
             throw new IndexOutOfBoundsException("AtomLeafArrayList.remove invalid index");
