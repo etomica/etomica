@@ -100,7 +100,7 @@ public abstract class MoleculeIteratorTestAbstract extends TestCase {
         int j=0;
         for (IMoleculeList nextAtom = iterator.next(); nextAtom != null;
                nextAtom = iterator.next()) {
-            atoms[j] = new MoleculesetArray(nextAtom);
+            atoms[j] = new MoleculeArrayList(nextAtom);
             listerMolecule[1].actionPerformed(nextAtom);
             j++;
         }
