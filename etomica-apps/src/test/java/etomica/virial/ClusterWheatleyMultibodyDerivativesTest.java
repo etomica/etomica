@@ -69,7 +69,7 @@ public class ClusterWheatleyMultibodyDerivativesTest {
         MoleculeChildAtomAction mcal = new MoleculeChildAtomAction(translator);
         for(int i=0; i<npoints;i++){
             translator.getTranslationVector().setX(0,i*4);
-            mcal.actionPerformed(al.getMolecule(i));
+            mcal.actionPerformed(al.get(i));
         }
         box.trialNotify();
         box.acceptNotify();

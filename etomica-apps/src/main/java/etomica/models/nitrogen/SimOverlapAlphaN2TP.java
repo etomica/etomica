@@ -98,7 +98,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
             throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
 
-        int numNeigh = potentialMaster.getNeighborManager(box).getDownList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
+        int numNeigh = potentialMaster.getNeighborManager(box).getDownList(box.getMoleculeList().get(0))[0].size();
         System.out.println("numNeigh: " + numNeigh);
 
         MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster, getRandom(), space);

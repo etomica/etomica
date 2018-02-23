@@ -72,7 +72,7 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
             parentGroup = null;
         }
         else {
-            parentGroup = parent.getMolecule(0);
+            parentGroup = parent.get(0);
         }
         unset();
     }

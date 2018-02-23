@@ -77,10 +77,10 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
     public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
-        int nMolecules = box.getMoleculeList().getMoleculeCount();
+        int nMolecules = box.getMoleculeList().size();
         hist = new HistogramExpanding[nMolecules][0];
         for (int i=0; i<nMolecules; i++) {
-            int nAtoms = box.getMoleculeList().getMolecule(i).getChildList().size();
+            int nAtoms = box.getMoleculeList().get(i).getChildList().size();
             hist[i] = new HistogramExpanding[nAtoms];
             for (int j=0; j<nAtoms; j++) {
                 hist[i][j] = new HistogramExpanding(0.04);
@@ -101,7 +101,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
         double sigma = Math.sqrt(0.5/fac);
         numBeads = Math.round(random.nextInt((int)Math.round(maxNumBeads*0.9))+Math.round(maxNumBeads*0.1));
 
-            iMolecule = random.nextInt(molecules.getMoleculeCount());
+            iMolecule = random.nextInt(molecules.size());
             int i = iMolecule;
             atoms = null;
             int nAtoms = 0;
@@ -118,13 +118,13 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
                 }
             }
             if (single) {
-                atoms = molecules.getMolecule(i).getChildList();
+                atoms = molecules.get(i).getChildList();
                 nAtoms = atoms.size();
             }
             else {
                 myAtoms.clear();
                 for (int j=0; j<tangled.length; j++) {
-                    IAtomList jAtoms = molecules.getMolecule(tangled[j]).getChildList();
+                    IAtomList jAtoms = molecules.get(tangled[j]).getChildList();
                     myAtoms.addAll(jAtoms);
                     nAtoms += jAtoms.size();
                 }

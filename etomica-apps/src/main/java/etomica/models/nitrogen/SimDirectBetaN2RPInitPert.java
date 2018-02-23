@@ -168,7 +168,7 @@ public class SimDirectBetaN2RPInitPert extends Simulation {
         potentialMaster.getNeighborManager(box).reset();
         potential.setRange(Double.POSITIVE_INFINITY);
 
-        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
+        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().get(0))[0].size();
         System.out.println("numNeigh: " + numNeigh);
 
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);

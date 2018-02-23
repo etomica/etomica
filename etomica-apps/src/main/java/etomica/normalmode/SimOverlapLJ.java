@@ -335,7 +335,7 @@ public class SimOverlapLJ extends Simulation {
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
             integrators[iBox].getEventManager().addListener(pumpListener);
             if (iBox == 1) {
-                pumpListener.setInterval(boxTarget.getMoleculeList().getMoleculeCount());
+                pumpListener.setInterval(boxTarget.getMoleculeList().size());
             }
         }
         else {

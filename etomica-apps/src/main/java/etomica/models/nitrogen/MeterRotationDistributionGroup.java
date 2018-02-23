@@ -71,11 +71,11 @@ public class MeterRotationDistributionGroup implements IDataSource, IAction, Ser
       
             BasisCell cell = cells[iCell];
             IMoleculeList molecules = cell.molecules;
-            int numMolecules = molecules.getMoleculeCount();
+            int numMolecules = molecules.size();
             
             for (int iMol=0; iMol<numMolecules; iMol++){
             	
-	          	IMolecule molecule = molecules.getMolecule(iMol);
+	          	IMolecule molecule = molecules.get(iMol);
 	          	Vector leafPos0 = molecule.getChildList().get(0).getPosition();
 		    	Vector leafPos1 = molecule.getChildList().get(1).getPosition();
 		
@@ -94,7 +94,7 @@ public class MeterRotationDistributionGroup implements IDataSource, IAction, Ser
         } //end of cell; there is only 1 cell
         
         
-        histogramExpanding.addValue(cosThetaTotal/(cells.length*cells[0].molecules.getMoleculeCount()));
+        histogramExpanding.addValue(cosThetaTotal/(cells.length*cells[0].molecules.size()));
     }
 
     /**

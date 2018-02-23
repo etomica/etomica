@@ -38,7 +38,7 @@ public class SimulationRheology extends Simulation {
         addSpecies(species);
         box.setNMolecules(species, 1);
         conformation = new ConformationPolymer(space, random);
-        conformation.initializePositions(box.getMoleculeList().getMolecule(0).getChildList());
+        conformation.initializePositions(box.getMoleculeList().get(0).getChildList());
         integrator = new IntegratorPolymer(null, getRandom(), 0.01, 1.0, box);
         integrator.setB(1);
         activityIntegrate = new ActivityIntegrate(integrator, 0, false);
@@ -52,7 +52,7 @@ public class SimulationRheology extends Simulation {
         box.setNMolecules(species, 0);
         species.setNumLeafAtoms(newChainLength);
         box.setNMolecules(species, 1);
-        conformation.initializePositions(box.getMoleculeList().getMolecule(0).getChildList());
+        conformation.initializePositions(box.getMoleculeList().get(0).getChildList());
     }
 
     public int getChainLength() {

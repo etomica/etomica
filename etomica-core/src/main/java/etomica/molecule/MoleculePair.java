@@ -21,7 +21,7 @@ public class MoleculePair implements IMoleculeList, java.io.Serializable {
     /* (non-Javadoc)
      * @see etomica.AtomSet#getAtom(int)
      */
-    public final IMolecule getMolecule(int i) {
+    public final IMolecule get(int i) {
         if(i == 0) return atom0;
         if(i == 1) return atom1;
         throw new IllegalArgumentException();
@@ -30,7 +30,7 @@ public class MoleculePair implements IMoleculeList, java.io.Serializable {
     /* (non-Javadoc)
      * @see etomica.AtomSet#count()
      */
-    public final int getMoleculeCount() {
+    public final int size() {
         return 2;
     }
     

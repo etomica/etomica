@@ -30,17 +30,17 @@ public class AtomSetAllMolecules implements IMoleculeList {
      * @return a molecule as ordered by the species and then the molecules within the species.
      * @throws IndexOutOfBoundsException if i >= getMoleculeCount() or i < 0
      */
-    public IMolecule getMolecule(int i) {
-        if (i >= getMoleculeCount() || i < 0)
+    public IMolecule get(int i) {
+        if (i >= size() || i < 0)
             throw new IndexOutOfBoundsException("Index: " + i +
-                    ", Number of molecules: " + getMoleculeCount());
+                    ", Number of molecules: " + size());
         int nSpecies = moleculeLists.length;
         if (moleculeTotals[0] > i) {
-            return moleculeLists[0].getMolecule(i);
+            return moleculeLists[0].get(i);
         }
         for (int iSpecies = 1; iSpecies < nSpecies; iSpecies++) {
             if (moleculeTotals[iSpecies] > i) {
-                return moleculeLists[iSpecies].getMolecule(i - moleculeTotals[iSpecies - 1]);
+                return moleculeLists[iSpecies].get(i - moleculeTotals[iSpecies - 1]);
             }
         }
         throw new IllegalStateException("how can this be?!?!?!");
@@ -49,7 +49,7 @@ public class AtomSetAllMolecules implements IMoleculeList {
     /**
      * @return total number of molecules in the list.
      */
-    public int getMoleculeCount() {
+    public int size() {
         return moleculeTotals[moleculeTotals.length - 1];
     }
 
@@ -67,9 +67,9 @@ public class AtomSetAllMolecules implements IMoleculeList {
         if (moleculeLists.length == 0) {
             return;
         }
-        moleculeTotals[0] = moleculeLists[0].getMoleculeCount();
+        moleculeTotals[0] = moleculeLists[0].size();
         for (int i = 1; i < moleculeTotals.length - 1; i++) {
-            moleculeTotals[i] = moleculeTotals[i - 1] + moleculeLists[i].getMoleculeCount();
+            moleculeTotals[i] = moleculeTotals[i - 1] + moleculeLists[i].size();
         }
         moleculeTotals[moleculeTotals.length - 1] = moleculeTotals[moleculeTotals.length - 2];
     }

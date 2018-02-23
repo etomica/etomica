@@ -296,7 +296,7 @@ public class ClathrateHarmonicFE extends Simulation{
 	        Vector dx = space.makeVector();
 	        dx.setX(0, 0.0001);        dx.setX(1, 0.0);        dx.setX(2, 0.0);
 	        for (int m = 0; m < 46; m++){
-		        IMolecule iMol = sim.box.getMoleculeList().getMolecule(m);
+		        IMolecule iMol = sim.box.getMoleculeList().get(m);
 		        IAtomList atoms = iMol.getChildList();
 //		        for (int n = 0; n < atoms.getAtomCount(); n++){
 //		        	IAtom atomj = atoms.getAtom(n);
@@ -311,7 +311,7 @@ public class ClathrateHarmonicFE extends Simulation{
 		        //  dx of molecule m'
 		        int Mp=0, M=1;
 		        if(m==Mp){ //2ns molecule (m=1)
-			        IMolecule mpMol = sim.box.getMoleculeList().getMolecule(m);
+			        IMolecule mpMol = sim.box.getMoleculeList().get(m);
 //			        for(int j=0;j<4;j++){
 //				        atoms.getAtom(j).getPosition().PE(dx);
 //			        	System.out.println(atoms.getAtom(j).getPosition());

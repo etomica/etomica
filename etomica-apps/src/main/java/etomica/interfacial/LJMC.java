@@ -101,7 +101,7 @@ public class LJMC extends Simulation {
             public double energy(IAtomList atoms) {
                 double pz = atoms.get(0).getPosition().getX(2);
                 double zMin = -0.5 * boundary.getBoxSize().getX(2);
-                double zMax = box.getMoleculeList(speciesTopWall).getMolecule(0).getChildList().get(0).getPosition().getX(2);
+                double zMax = box.getMoleculeList(speciesTopWall).get(0).getChildList().get(0).getPosition().getX(2);
                 return (pz < zMin || pz > zMax) ? Double.POSITIVE_INFINITY : 0;
             }
         };

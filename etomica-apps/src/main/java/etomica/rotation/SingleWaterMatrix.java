@@ -92,7 +92,7 @@ public class SingleWaterMatrix {
 
             IAction writeA = new IAction() {
                 public void actionPerformed() {
-                    MoleculeOriented molecule = (MoleculeOriented) box.getMoleculeList().getMolecule(0);
+                    MoleculeOriented molecule = (MoleculeOriented) box.getMoleculeList().get(0);
                     A.setOrientation((IOrientationFull3D) molecule.getOrientation());
                     try {
                         if (isWriting) {

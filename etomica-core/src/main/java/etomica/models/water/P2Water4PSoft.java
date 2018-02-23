@@ -73,8 +73,8 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
     }
 
     public Vector[][] gradientAndTorque(IMoleculeList pair){
-        IMolecule water1 = pair.getMolecule(0);
-        IMolecule water2 = pair.getMolecule(1);
+        IMolecule water1 = pair.get(0);
+        IMolecule water2 = pair.get(1);
 
         //compute O-O distance to consider truncation	
         Vector O1r = (water1.getChildList().get(2)).getPosition();
@@ -248,8 +248,8 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   secondDerivative[0].E(0);
 	   secondDerivative[1].E(0);
 	   secondDerivative[2].E(0);
-	   IMolecule water1 = pair.getMolecule(0);
-	   IMolecule water2 = pair.getMolecule(1);
+	   IMolecule water1 = pair.get(0);
+	   IMolecule water2 = pair.get(1);
 	   Vector O1 = water1.getChildList().get(2).getPosition();
 	   Vector O2 = water2.getChildList().get(2).getPosition();
 	   

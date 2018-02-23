@@ -64,7 +64,7 @@ public class MCMoveBiasUB extends MCMoveBox {
     }
     
     public boolean doTrial() {
-        int N = box.getMoleculeList().getMoleculeCount();
+        int N = box.getMoleculeList().size();
         if(N < 2) return false;
         /*
         choose bonding or unbonding
@@ -135,7 +135,7 @@ public class MCMoveBiasUB extends MCMoveBox {
 //        	throw new RuntimeException("wrong!!!");
 //        }
     	int Naj = associationManager.getAssociatedAtoms().size();
-    	int N = box.getMoleculeList().getMoleculeCount();
+    	int N = box.getMoleculeList().size();
     	double phi = biasVolume.biasVolume()/box.getBoundary().volume()*N;
     	//if (Naj == 0) System.out.println("A1 = " +(ni*Nai/((N-1)*phi)));
     	if(Naj == 0) return ni*Nai/((N-1)*phi);//acceptance criteria

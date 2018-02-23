@@ -239,9 +239,9 @@ public class VirialH2PISimple {
 
 		for (int b=0; b<nPoints; b++) {
 			IMoleculeList molecules = sim.box[b].getMoleculeList();
-			for (int m=0; m<molecules.getMoleculeCount(); m++) {
+			for (int m = 0; m<molecules.size(); m++) {
 				if (xcFlag[m]) {
-					IAtomList atoms = molecules.getMolecule(m).getChildList();
+					IAtomList atoms = molecules.get(m).getChildList();
 					for (int i = 0; i<atoms.size(); i++) {
 						AtomHydrogen o = (AtomHydrogen)atoms.get(i);
 						double cT = Math.cos((Math.PI*i)/atoms.size());

@@ -28,8 +28,8 @@ public class MeterDensityCO2 extends DataSourceScalar {
     public double getDataAsScalar() {
         IMoleculeList listC = box.getMoleculeList(speciesC);
         int count = 0;
-        for (int i=0; i<listC.getMoleculeCount(); i++) {
-            IAtom atom = listC.getMolecule(i).getChildList().get(0);
+        for (int i = 0; i<listC.size(); i++) {
+            IAtom atom = listC.get(i).getChildList().get(0);
             CatalysisAgent agent = (CatalysisAgent)interactionAgentManager.getAgent(atom);
             if (agent.bondedAtom2 != null) count++;
         }

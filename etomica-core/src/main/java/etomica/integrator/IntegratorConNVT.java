@@ -78,7 +78,7 @@ public final class IntegratorConNVT extends IntegratorMD {
         //Advance velocities from T-Dt/2 to T without constraint
         double Free=0.0;
         //degrees of freedom
-        Free=((box.getMoleculeList().getMoleculeCount()-1)*dim); 
+        Free=((box.getMoleculeList().size()-1)*dim);
 
         double k=0.0;
         double chi;

@@ -80,7 +80,7 @@ public class MCMoveMoleculeExchange extends MCMove {
             iBox = box2;
             dBox = box1;
         }
-        if(dBox.getMoleculeList().getMoleculeCount() == 0) { //no molecules to delete; trial is over
+        if(dBox.getMoleculeList().size() == 0) { //no molecules to delete; trial is over
             uNew = uOld = 0.0;
             return false;
         }

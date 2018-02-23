@@ -71,10 +71,10 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
 
     public void setBox(Box p) {
         super.setBox(p);
-        int nMolecules = box.getMoleculeList().getMoleculeCount();
+        int nMolecules = box.getMoleculeList().size();
         oldPositions = new Vector[nMolecules][0];
         for (int i=0; i<nMolecules; i++) {
-            int nAtoms = box.getMoleculeList().getMolecule(i).getChildList().size();
+            int nAtoms = box.getMoleculeList().get(i).getChildList().size();
             oldPositions[i] = new Vector[nAtoms];
             for (int j=0; j<nAtoms; j++) {
                 oldPositions[i][j] = space.makeVector();
@@ -90,7 +90,7 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
         // Rosenbluth weight
         wNew = 1;
 
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+        for (int i = 0; i<molecules.size(); i++) {
             IAtomList atoms = null;
             int nAtoms = 0;
             boolean single = true;
@@ -113,13 +113,13 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
             // of "tangled" molecules
             if (skip) continue;
             if (single) {
-                atoms = molecules.getMolecule(i).getChildList();
+                atoms = molecules.get(i).getChildList();
                 nAtoms = atoms.size();
             }
             else {
                 myAtoms.clear();
                 for (int j=0; j<tangled.length; j++) {
-                    IAtomList jAtoms = molecules.getMolecule(tangled[j]).getChildList();
+                    IAtomList jAtoms = molecules.get(tangled[j]).getChildList();
                     myAtoms.addAll(jAtoms);
                     nAtoms += jAtoms.size();
                 }
@@ -140,7 +140,7 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
             Vector prevAtomPosition = atom0.getPosition();
             double pPrev = 1;
             com0.E(0);
-            IMolecule moleculei = molecules.getMolecule(i);
+            IMolecule moleculei = molecules.get(i);
             int iTangled = 0;
             int kStart = 0;
             for (int k=1; k<nAtoms; k++) {
@@ -148,7 +148,7 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
                     kStart += moleculei.getChildList().size();
                     iTangled++;
                     i = tangled[iTangled];
-                    moleculei = molecules.getMolecule(i);
+                    moleculei = molecules.get(i);
                 }
                 IAtom kAtom = atoms.get(k);
                 Vector kPosition = kAtom.getPosition();
@@ -218,8 +218,8 @@ public class MCMoveClusterRingRegrow extends MCMoveBox {
     public void rejectNotify() {
         IMoleculeList molecules = box.getMoleculeList();
 
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IAtomList atoms = molecules.getMolecule(i).getChildList();
+        for (int i = 0; i<molecules.size(); i++) {
+            IAtomList atoms = molecules.get(i).getChildList();
             int nAtoms = atoms.size();
             for (int j=0; j<nAtoms; j++) {
                 atoms.get(j).getPosition().E(oldPositions[i][j]);

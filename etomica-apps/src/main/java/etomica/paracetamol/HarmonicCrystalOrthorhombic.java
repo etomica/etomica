@@ -232,7 +232,7 @@ public class HarmonicCrystalOrthorhombic {
     		
     		this.coordinateDefinitionParacetamol = coordinateDefinitionParacetamol;
     		singleMolDim = coordinateDefinitionParacetamol.getCoordinateDim()
-  		  	/coordinateDefinitionParacetamol.getBasisCells()[0].molecules.getMoleculeCount();
+  		  	/coordinateDefinitionParacetamol.getBasisCells()[0].molecules.size();
     		dataInfo = new DataInfoDouble("Lattice Energy", Energy.DIMENSION);
     		pairEnergy = new DataDouble();
     		tag = new DataTag();
@@ -247,7 +247,7 @@ public class HarmonicCrystalOrthorhombic {
 			IMoleculeList molecules = coordinateDefinitionParacetamol.getBasisCells()[0].molecules; 
 			coordinateDefinitionParacetamol.setToU(molecules, u);
 			
-			MoleculePair pair = new MoleculePair(molecules.getMolecule(indexj), molecules.getMolecule(indexjp));
+			MoleculePair pair = new MoleculePair(molecules.get(indexj), molecules.get(indexjp));
 			
 			pairEnergy.x = potential.energy(pair);
 			

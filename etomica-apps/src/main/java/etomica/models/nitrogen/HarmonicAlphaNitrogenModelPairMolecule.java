@@ -87,7 +87,7 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
 		DataTensor transTensor = new DataTensor(space);
 		MoleculePair pair = new MoleculePair();
 	
-		int numMolecule = box.getMoleculeList().getMoleculeCount();
+		int numMolecule = box.getMoleculeList().size();
 		int dofPerMol = coordinateDef.getCoordinateDim()/numMolecule;
 		
 		CalcNumerical2ndDerivativeNitrogen cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef);
@@ -98,7 +98,7 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
 		 *	(Skipping the molec1 == molec2) 
 		 */
 		for(int molec0=0; molec0<numMolecule; molec0++){
-			pair.atom0 = box.getMoleculeList().getMolecule(molec0);
+			pair.atom0 = box.getMoleculeList().get(molec0);
 			
 			for(int molec1=molec0; molec1<numMolecule; molec1++){
 				if(molec0 == molec1) continue;
@@ -106,7 +106,7 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
 				 * working within the 5x5 Matrix
 				 */
 				// Analytical calculation for 3x3 Translational second Derivative
-				pair.atom1 = box.getMoleculeList().getMolecule(molec1);
+				pair.atom1 = box.getMoleculeList().get(molec1);
 		
 				int[] index = findPair.getPairMoleculesIndex(pair.atom0, pair.atom1, false);
 				boolean isNewPair = findPair.getIsNewPair(index);
@@ -178,7 +178,7 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
       	 */
 
 		for(int molec0=0; molec0<numMolecule; molec0++){
-			IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().getMolecule(molec0);
+			IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().get(molec0);
 			int[] index = findPair.getPairMoleculesIndex(molecule0, molecule0, false);
 			boolean isNewPair = findPair.getIsNewPair(index);
 			
@@ -213,7 +213,7 @@ public class HarmonicAlphaNitrogenModelPairMolecule extends Simulation{
     	}
 				
 		for(int molec0=0; molec0<numMolecule; molec0++){
-			IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().getMolecule(molec0);
+			IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().get(molec0);
 			int[] index = findPair.getPairMoleculesIndex(molecule0, molecule0, false);
 			boolean isNewPair = findPair.getIsNewPair(index);
 			

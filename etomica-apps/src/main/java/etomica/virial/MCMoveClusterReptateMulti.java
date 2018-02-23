@@ -138,10 +138,10 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
 	
     protected void selectMolecules() {
         IMoleculeList moleculeList = box.getMoleculeList();
-        if (moleculeList.getMoleculeCount() != nAtoms+1) throw new IllegalStateException("move should work on number of molecules in box - 1");
+        if (moleculeList.size() != nAtoms+1) throw new IllegalStateException("move should work on number of molecules in box - 1");
         //skip the first one
-        for (int i=1; i<moleculeList.getMoleculeCount(); i++) {
-            selectedMolecules[i++] = moleculeList.getMolecule(i);
+        for (int i = 1; i<moleculeList.size(); i++) {
+            selectedMolecules[i++] = moleculeList.get(i);
         }
     }
 	

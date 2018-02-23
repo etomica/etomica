@@ -137,7 +137,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 	
 	public double[][] get2ndDerivative(int molec0){
 	
-		int numMolecule = box.getMoleculeList().getMoleculeCount();
+		int numMolecule = box.getMoleculeList().size();
 		int dofTrans = 3;
 		double[][] array = new double[dofTrans][dofTrans*numMolecule];
 	
@@ -148,7 +148,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 		 *	Constructing the upper diagonal of the matrix
 		 *	(Skipping the molec1 == molec2) 
 		 */
-		IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().getMolecule(molec0);
+		IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().get(molec0);
 		pair.atom0 = molecule0;
 		
 		boolean isReverseOrder = false;
@@ -163,7 +163,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential extends Simulation{
 			
 			
 			// Analytical calculation for 3x3 Translational second Derivative
-			pair.atom1 = coordinateDef.getBox().getMoleculeList().getMolecule(molec1);
+			pair.atom1 = coordinateDef.getBox().getMoleculeList().get(molec1);
 		
 			int[] index = findPair.getPairMoleculesIndex(pair.atom0, pair.atom1, isReverseOrder);
 			boolean isNewPair = findPair.getIsNewPair(index);

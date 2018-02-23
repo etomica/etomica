@@ -73,7 +73,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         //test no-target iteration of children of a basis
         Box box = sim.getBox(0);
         IMoleculeList moleculeList0 = box.getMoleculeList(sim.getSpecies(0));
-        basis = moleculeList0.getMolecule(0);
+        basis = moleculeList0.get(0);
         target = null;
         iterates = new AtomArrayList();
         iterates.addAll(basis.getChildList());
@@ -87,8 +87,8 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
 //        testOneIterate(basis, target, iterate);
         
         //test target is a child of the basis
-        basis = moleculeList0.getMolecule(0);
-        target = moleculeList0.getMolecule(0).getChildList().get(1);
+        basis = moleculeList0.get(0);
+        target = moleculeList0.get(0).getChildList().get(1);
         iterate = target;
         testOneIterate(basis, target, iterate);
 
@@ -101,7 +101,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         assertEquals(list, testLister.list);
 
         //test specifying null target
-        basis = moleculeList0.getMolecule(0);
+        basis = moleculeList0.get(0);
         target = null;
         iterates.clear();
         iterates.addAll(basis.getChildList());
@@ -109,7 +109,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         
         //test null basis
         basis = null;
-        target = moleculeList0.getMolecule(0).getChildList().get(1);
+        target = moleculeList0.get(0).getChildList().get(1);
         testNoIterates(basis, target);
         
         //test null basis with null target

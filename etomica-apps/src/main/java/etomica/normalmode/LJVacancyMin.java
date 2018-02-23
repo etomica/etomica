@@ -132,7 +132,7 @@ public class LJVacancyMin extends Simulation {
         double uLat = pcEnergy.getSum();
         System.out.println("uLat: "+uLat/numAtoms);
 
-        sim.box.removeMolecule(sim.box.getMoleculeList().getMolecule(0));
+        sim.box.removeMolecule(sim.box.getMoleculeList().get(0));
 
         pcEnergy.zeroSum();
         sim.potentialMaster.calculate(sim.box, all, pcEnergy);

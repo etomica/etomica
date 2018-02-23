@@ -98,8 +98,8 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         double hNew = uNew1 + uNew2;
         double B = -(hNew - hOld);
         // assume both integrators have the same temperature
-        return Math.exp(B / temperature) * Math.pow(v1Scale, (firstBox.getMoleculeList().getMoleculeCount() + 1))
-                * Math.pow(v2Scale,(secondBox.getMoleculeList().getMoleculeCount()+1));
+        return Math.exp(B / temperature) * Math.pow(v1Scale, (firstBox.getMoleculeList().size() + 1))
+                * Math.pow(v2Scale,(secondBox.getMoleculeList().size()+1));
     }
     
     public void acceptNotify() {

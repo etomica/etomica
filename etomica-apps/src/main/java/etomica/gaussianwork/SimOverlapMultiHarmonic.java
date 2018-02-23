@@ -349,7 +349,7 @@ public class SimOverlapMultiHarmonic extends Simulation{
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
             integrators[iBox].getEventManager().addListener(pumpListener);
             if (iBox == 1) {
-                pumpListener.setInterval(boxB.getMoleculeList().getMoleculeCount());
+                pumpListener.setInterval(boxB.getMoleculeList().size());
             }
         } else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);

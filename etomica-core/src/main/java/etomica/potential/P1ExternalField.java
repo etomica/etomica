@@ -30,7 +30,7 @@ public class P1ExternalField extends PotentialMolecular {
 	
 
 	public double energy(IMoleculeList molecules) {
-		Vector dr = dipoleSource.getDipole(molecules.getMolecule(0));
+		Vector dr = dipoleSource.getDipole(molecules.get(0));
 		double energy = -externalField.dot(dr);
 //		System.out.println("E = " + externalField + " dipole = " + dr );
 		return energy;

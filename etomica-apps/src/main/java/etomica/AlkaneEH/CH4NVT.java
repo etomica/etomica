@@ -189,8 +189,8 @@ public class CH4NVT extends Simulation {
         sim.getController().actionPerformed();
         
         // compressibility factor Z=P/rho/T(all in sim units)
-        double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().getMoleculeCount() * sim.integrator.getTemperature());
-        double Zerr = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().getMoleculeCount() * sim.integrator.getTemperature());
+        double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
+        double Zerr = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
         double Zblock_correlation = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index)).x;
         double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         avgPE /= numberMolecules;

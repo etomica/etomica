@@ -112,8 +112,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         IMoleculeList molecules = box.getMoleculeList();
 
         // SHAKE
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints != null) {
                 IAtomList childList = molecule.getChildList();
@@ -218,8 +218,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             }
         }
 
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints == null) {
                 continue;
@@ -231,8 +231,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         //Compute forces on each atom
         potentialMaster.calculate(box, allAtoms, forceSum);
 
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints == null) {
                 continue;
@@ -264,7 +264,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         }
         if (printInterval > 0 && stepCount%printInterval == 0) {
             double PE = meterPE.getDataAsScalar();
-            int moleculeCount = box.getMoleculeList().getMoleculeCount();
+            int moleculeCount = box.getMoleculeList().size();
             double fac = Joule.UNIT.fromSim(1.0/moleculeCount)*Constants.AVOGADRO;
             System.out.println(currentTime+" "+Kelvin.UNIT.fromSim(2*currentKineticEnergy/moleculeCount/6)+" "
                               +fac*currentKineticEnergy+" "+fac*PE+" "+fac*(PE+currentKineticEnergy));

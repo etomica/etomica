@@ -73,8 +73,8 @@ public class P2HSDipole extends PotentialMolecular implements IPotentialMolecula
 	}
 
 	public double energy(IMoleculeList pair){
-		IMolecule molecule1 = pair.getMolecule(0);
-		IMolecule molecule2 = pair.getMolecule(1);
+		IMolecule molecule1 = pair.get(0);
+		IMolecule molecule2 = pair.get(1);
 		IAtomList atomList1 = molecule1.getChildList();
 		IAtomList atomList2 = molecule2.getChildList();
 
@@ -135,8 +135,8 @@ public class P2HSDipole extends PotentialMolecular implements IPotentialMolecula
     
     public double virial(IMoleculeList atoms) {
         gradient(atoms);
-    	IMolecule molecule1 = atoms.getMolecule(0);
-		IMolecule molecule2 = atoms.getMolecule(1);
+    	IMolecule molecule1 = atoms.get(0);
+		IMolecule molecule2 = atoms.get(1);
 		IAtomList atomList1 = molecule1.getChildList();
 		IAtomList atomList2 = molecule2.getChildList();
 
@@ -155,8 +155,8 @@ public class P2HSDipole extends PotentialMolecular implements IPotentialMolecula
     }
 
 	public Vector[][] gradientAndTorque(IMoleculeList atoms) {
-    	IMolecule molecule1 = atoms.getMolecule(0);
-		IMolecule molecule2 = atoms.getMolecule(1);
+    	IMolecule molecule1 = atoms.get(0);
+		IMolecule molecule2 = atoms.get(1);
 		IAtomList atomList1 = molecule1.getChildList();
 		IAtomList atomList2 = molecule2.getChildList();
 
@@ -228,8 +228,8 @@ public class P2HSDipole extends PotentialMolecular implements IPotentialMolecula
 	}
 	
 	public Tensor[] secondDerivative(IMoleculeList molecules){
-		IMolecule molecule0 = molecules.getMolecule(0);
-		IMolecule molecule1 = molecules.getMolecule(1);
+		IMolecule molecule0 = molecules.get(0);
+		IMolecule molecule1 = molecules.get(1);
 		IAtomList atomList0 = molecule0.getChildList();
 		IAtomList atomList1 = molecule1.getChildList();
 		IAtomOriented atom0 = (IAtomOriented)atomList0.get(0);

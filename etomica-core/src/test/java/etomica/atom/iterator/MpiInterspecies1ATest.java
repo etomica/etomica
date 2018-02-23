@@ -122,13 +122,13 @@ public class MpiInterspecies1ATest extends MoleculeIteratorTestAbstract {
         int[] nMolecules = new int[] { molecules0.length, molecules1.length };
 
         //species0 target; any direction
-        targetMolecule = box.getMoleculeList(species0).getMolecule(nMolecules[0] / 2);
+        targetMolecule = box.getMoleculeList(species0).get(nMolecules[0] / 2);
         api.setTarget(targetMolecule);
         LinkedList list0 = testApiIterates(api, UP, targetMolecule, molecules1);
         MoleculeIteratorTestAbstract.allAtoms(api, speciesTest);
 
         //species0 target; up
-        targetMolecule = box.getMoleculeList(species0).getMolecule(nMolecules[0] / 2);
+        targetMolecule = box.getMoleculeList(species0).get(nMolecules[0] / 2);
         api.setTarget(targetMolecule);
         api.setDirection(UP);
         testApiIterates(api, UP, targetMolecule, molecules1);
@@ -140,26 +140,26 @@ public class MpiInterspecies1ATest extends MoleculeIteratorTestAbstract {
         assertEquals(list0, list1);
 
         //species0 target; down
-        targetMolecule = box.getMoleculeList(species0).getMolecule(nMolecules[0] / 2);
+        targetMolecule = box.getMoleculeList(species0).get(nMolecules[0] / 2);
         api.setTarget(targetMolecule);
         api.setDirection(DOWN);
         testNoIterates(api);
 
         //species1 target; both
-        targetMolecule = box.getMoleculeList(species1).getMolecule(nMolecules[1] / 2);
+        targetMolecule = box.getMoleculeList(species1).get(nMolecules[1] / 2);
         api.setTarget(targetMolecule);
         api.setDirection(null);
         testApiIteratesSwap(api, targetMolecule, molecules0);
         MoleculeIteratorTestAbstract.allAtoms(api, speciesTest);
 
         //species1 target; up
-        targetMolecule = box.getMoleculeList(species1).getMolecule(nMolecules[1] / 2);
+        targetMolecule = box.getMoleculeList(species1).get(nMolecules[1] / 2);
         api.setTarget(targetMolecule);
         api.setDirection(UP);
         testNoIterates(api);
 
         //species1 target; down
-        targetMolecule = box.getMoleculeList(species1).getMolecule(nMolecules[1] / 2);
+        targetMolecule = box.getMoleculeList(species1).get(nMolecules[1] / 2);
         api.setTarget(targetMolecule);
         api.setDirection(DOWN);
         testApiIteratesSwap(api, targetMolecule, molecules0);
@@ -181,7 +181,7 @@ public class MpiInterspecies1ATest extends MoleculeIteratorTestAbstract {
         public void actionPerformed(IMoleculeList atomSet) {
 //            assertTrue(atoms.getAtom(0).type.getSpecies() == species0);
             //assertTrue(atoms.getAtom(1).type.getSpecies() == species1);
-            assertTrue(atomSet.getMolecule(0).getType().getIndex() < atomSet.getMolecule(1).getType().getIndex());
+            assertTrue(atomSet.get(0).getType().getIndex() < atomSet.get(1).getType().getIndex());
         }
     }
 

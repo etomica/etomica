@@ -254,7 +254,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 	            MoleculePair pair = new MoleculePair();
 		        	            
 		        for (int i=0; i<4; i++) {
-		            IMolecule molecule0 = sim.box.getMoleculeList().getMolecule(i);
+		            IMolecule molecule0 = sim.box.getMoleculeList().get(i);
 		            pair.atom0 = molecule0;
 		            
 		            Vector destination = sim.getSpace().makeVector();
@@ -262,7 +262,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		            torques[i].E(0.0);
 		            
 		           	for(int jp=0; jp<4; jp++){	
-		                IMolecule ghostMol = sim.ghostBox.getMoleculeList(sim.ghostBox.getMoleculeList().getMolecule(0).getType()).getMolecule(0);
+		                IMolecule ghostMol = sim.ghostBox.getMoleculeList(sim.ghostBox.getMoleculeList().get(0).getType()).get(0);
 	                    ghostMol.getType().initializeConformation(ghostMol);
 	                    
 	                    pair.atom1 = ghostMol;
@@ -274,7 +274,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		                ((AtomActionTransformed)sim.atomGroupAction.getAtomAction()).setTransformationTensor(sim.coordinateDef.xzOrientationTensor[rotationNum]);
 		                sim.atomGroupAction.actionPerformed(ghostMol);
 		            	
-		            	destination.E(pos.position(sim.box.getMoleculeList().getMolecule(jp)));
+		            	destination.E(pos.position(sim.box.getMoleculeList().get(jp)));
 		        		translator.setDestination(destination);
 						translator.actionPerformed(pair.atom1); 
 						
@@ -376,7 +376,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		        }
 		
 		        for (int i=0; i<4; i++) {
-		            IMolecule iMol = sim.box.getMoleculeList().getMolecule(i);
+		            IMolecule iMol = sim.box.getMoleculeList().get(i);
                     p.E(pos.position(iMol));
 	                for (int j=0; j<3; j++) {
 	                    if (x0[i*3+j] == 0) {
@@ -418,7 +418,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
         double disp = 0.0;
         double angleDisp = 0.0;
         for (int i=0; i<4; i++) {
-            IMolecule iMol = sim.box.getMoleculeList().getMolecule(i);
+            IMolecule iMol = sim.box.getMoleculeList().get(i);
             p.E(pos.position(iMol));
             for (int j=0; j<3; j++) {
 //                System.out.println(x0[i*3+j]+" => "+p.getX(j)+"    "+(p.getX(j)-x0[i*3+j]));

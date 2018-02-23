@@ -93,20 +93,20 @@ public class MpiIntraspecies1ATest extends MoleculeIteratorTestAbstract {
 
         //species0 target; any direction
         
-        target = box.getMoleculeList(species).getMolecule(nMolecules[0]/2);
+        target = box.getMoleculeList(species).get(nMolecules[0]/2);
         api.setTarget(target);
         testApiIterates(api,target,upMolecules(target,molecules0), dnMolecules(target, molecules0));
         MoleculeIteratorTestAbstract.allAtoms(api, speciesTest);
 
         //species0 target; up
-        target = box.getMoleculeList(species).getMolecule(nMolecules[0]/2);
+        target = box.getMoleculeList(species).get(nMolecules[0]/2);
         api.setTarget(target);
         api.setDirection(UP);
         testApiIterates(api,UP, target,upMolecules(target,molecules0));
         MoleculeIteratorTestAbstract.allAtoms(api, speciesTest);
 
         //species0 target; down
-        target = box.getMoleculeList(species).getMolecule(nMolecules[0]/2);
+        target = box.getMoleculeList(species).get(nMolecules[0]/2);
         api.setTarget(target);
         api.setDirection(DOWN);
         testApiIteratesSwap(api,target,dnMolecules(target,molecules0));
@@ -119,8 +119,8 @@ public class MpiIntraspecies1ATest extends MoleculeIteratorTestAbstract {
             this.species1 = species1;
         }
         public void actionPerformed(IMoleculeList atomSet) {
-            assertTrue(atomSet.getMolecule(0).getType() == species0);
-            assertTrue(atomSet.getMolecule(1).getType() == species1);
+            assertTrue(atomSet.get(0).getType() == species0);
+            assertTrue(atomSet.get(1).getType() == species1);
         }
     }
     

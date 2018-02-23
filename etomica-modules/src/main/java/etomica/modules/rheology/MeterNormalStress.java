@@ -37,7 +37,7 @@ public class MeterNormalStress extends DataSourceScalar {
             return Double.NaN;
         }
         double b = integrator.getB();
-        IAtomList list = box.getMoleculeList().getMolecule(0).getChildList();
+        IAtomList list = box.getMoleculeList().get(0).getChildList();
         double s = 0;
         for (int i = 0; i<list.size()-1; i++) {
             Vector p0 = list.get(i).getPosition();

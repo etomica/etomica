@@ -142,7 +142,7 @@ public class MeterTargetTPMolecule implements IDataSource {
               	
               	// checking for the disorderness of alpha phase
               	if(notOverScale){
-              		double aveCosTheta = totalCosTheta/molecules.getMoleculeCount();
+              		double aveCosTheta = totalCosTheta/molecules.size();
                   	if(aveCosTheta < 0.8 ){
                   		otherEnergy = Double.POSITIVE_INFINITY;
                   		notOverScale = false;

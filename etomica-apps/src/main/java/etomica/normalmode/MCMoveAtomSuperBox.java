@@ -120,18 +120,18 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
     	randomAtom0 = random.nextInt(4);
     	
     	if(coordinateDefinition.is864()){
-    		atom0 = boxCells[13][randomNumber0].molecules.getMolecule(randomAtom0).getChildList().get(0);
+    		atom0 = boxCells[13][randomNumber0].molecules.get(randomAtom0).getChildList().get(0);
     	} else {
-    		atom0 = boxCells[7 - randomNumber0][randomNumber0].molecules.getMolecule(randomAtom0).getChildList().get(0);
+    		atom0 = boxCells[7 - randomNumber0][randomNumber0].molecules.get(randomAtom0).getChildList().get(0);
     	}
     	
     	randomNumber1 = random.nextInt(8);
     	randomAtom1 = random.nextInt(4);
     	
     	if(coordinateDefinition.is864()){
-    		atom1 = boxCells[13][randomNumber1].molecules.getMolecule(randomAtom1).getChildList().get(0);
+    		atom1 = boxCells[13][randomNumber1].molecules.get(randomAtom1).getChildList().get(0);
     	} else{
-    		atom1 = boxCells[7 - randomNumber1][randomNumber1].molecules.getMolecule(randomAtom1).getChildList().get(0);
+    		atom1 = boxCells[7 - randomNumber1][randomNumber1].molecules.get(randomAtom1).getChildList().get(0);
     	}
     	
         if (atom0 == null || atom1 == null || atom0 == atom1) return false;
@@ -155,7 +155,7 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
     		}
     		
     		for (int i=0; i<4; i++){
-    			atomSpeciesA = cellA.molecules.getMolecule(i).getChildList().get(0);
+    			atomSpeciesA = cellA.molecules.get(i).getChildList().get(0);
     			pairAB.atom0 = atomSpeciesA;
     			
     			if (atomSpeciesA == atom0 || atomSpeciesA == atom1) continue;
@@ -181,12 +181,12 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
 					
 					if (!isCenterCell){
 						cellB = boxCells[nCellsBox][randomNumber0];
-						atomSpeciesB = cellB.molecules.getMolecule(randomAtom0).getChildList().get(0);
+						atomSpeciesB = cellB.molecules.get(randomAtom0).getChildList().get(0);
 						pairAB.atom1 = atomSpeciesB;
 						uCorrect += potential.energy(pairAB)/2;
 					
 						cellB = boxCells[nCellsBox][randomNumber1];
-						atomSpeciesB = cellB.molecules.getMolecule(randomAtom1).getChildList().get(0);
+						atomSpeciesB = cellB.molecules.get(randomAtom1).getChildList().get(0);
 						pairAB.atom1 = atomSpeciesB;
 						uCorrect += potential.energy(pairAB)/2;
 					
@@ -220,8 +220,8 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
          */
    
         for (int i=0; i<boxCells.length;i++){
-        	boxCells[i][randomNumber0].molecules.getMolecule(randomAtom0).getChildList().get(0).getPosition().PE(translationVector);
-        	boxCells[i][randomNumber1].molecules.getMolecule(randomAtom1).getChildList().get(0).getPosition().ME(translationVector);
+        	boxCells[i][randomNumber0].molecules.get(randomAtom0).getChildList().get(0).getPosition().PE(translationVector);
+        	boxCells[i][randomNumber1].molecules.get(randomAtom1).getChildList().get(0).getPosition().ME(translationVector);
         	
         }
         
@@ -235,7 +235,7 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
     		}
     		
     		for (int i=0; i<4; i++){
-    			atomSpeciesA = cellA.molecules.getMolecule(i).getChildList().get(0);
+    			atomSpeciesA = cellA.molecules.get(i).getChildList().get(0);
     			pairAB.atom0 = atomSpeciesA;
     			
     			if (atomSpeciesA == atom0 || atomSpeciesA == atom1) continue;
@@ -261,12 +261,12 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
 					
 					if (!isCenterCell){
 						cellB = boxCells[nCellsBox][randomNumber0];
-						atomSpeciesB = cellB.molecules.getMolecule(randomAtom0).getChildList().get(0);
+						atomSpeciesB = cellB.molecules.get(randomAtom0).getChildList().get(0);
 						pairAB.atom1 = atomSpeciesB;
 						uCorrect += potential.energy(pairAB)/2;
 					
 						cellB = boxCells[nCellsBox][randomNumber1];
-						atomSpeciesB = cellB.molecules.getMolecule(randomAtom1).getChildList().get(0);
+						atomSpeciesB = cellB.molecules.get(randomAtom1).getChildList().get(0);
 						pairAB.atom1 = atomSpeciesB;
 						uCorrect += potential.energy(pairAB)/2;
 					
@@ -309,8 +309,8 @@ public class MCMoveAtomSuperBox extends MCMoveBoxStep {
     	
     	//System.err.println("Rejected atom is in cell["+randomNumber0+"]["+randomAtom0+"]");
         for (int i=0; i<boxCells.length;i++){
-        	boxCells[i][randomNumber0].molecules.getMolecule(randomAtom0).getChildList().get(0).getPosition().ME(translationVector);
-        	boxCells[i][randomNumber1].molecules.getMolecule(randomAtom1).getChildList().get(0).getPosition().PE(translationVector);
+        	boxCells[i][randomNumber0].molecules.get(randomAtom0).getChildList().get(0).getPosition().ME(translationVector);
+        	boxCells[i][randomNumber1].molecules.get(randomAtom1).getChildList().get(0).getPosition().PE(translationVector);
  
         }
     }

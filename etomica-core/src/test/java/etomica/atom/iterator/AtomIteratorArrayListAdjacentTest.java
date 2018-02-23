@@ -37,7 +37,7 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         int nAtoms = 11;
         Simulation sim = UnitTestUtil.makeStandardSpeciesTree(
                 new int[] {1},11,new int[] {1});
-        IAtomList atomList = sim.getBox(0).getMoleculeList().getMolecule(0).getChildList();
+        IAtomList atomList = sim.getBox(0).getMoleculeList().get(0).getChildList();
 
         //atom in middle of list
         IAtom atom = atomList.get(5);
@@ -108,7 +108,7 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         assertEquals(list.get(0), new AtomSetSinglet(upAtom).toString());
 
         //short list
-        atomList = sim.getBox(0).getMoleculeList(sim.getSpecies(1)).getMolecule(0).getChildList();
+        atomList = sim.getBox(0).getMoleculeList(sim.getSpecies(1)).get(0).getChildList();
         assertEquals(atomList.size(), 1);
         atom = atomList.get(0);
         iteratorUp.setAtom(atom);

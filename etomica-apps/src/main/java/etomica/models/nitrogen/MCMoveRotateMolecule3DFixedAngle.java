@@ -60,7 +60,7 @@ public class MCMoveRotateMolecule3DFixedAngle extends MCMoveMolecule {
         constraintAngle = angle;
         this.coordinateDef = coordinateDef;
         
-        int numMolec = box.getMoleculeList().getMoleculeCount();
+        int numMolec = box.getMoleculeList().size();
      	initMolecOrientation = new Vector[numMolec][3];
      	molecOrientation = space.makeVector();
      	rotationAxis = space.makeVector();
@@ -73,7 +73,7 @@ public class MCMoveRotateMolecule3DFixedAngle extends MCMoveMolecule {
 		 */
 		for (int i=0; i<numMolec; i++){
 			initMolecOrientation[i] = space.makeVectorArray(3);
-			initMolecOrientation[i] = coordinateDef.getMoleculeOrientation(box.getMoleculeList().getMolecule(i));
+			initMolecOrientation[i] = coordinateDef.getMoleculeOrientation(box.getMoleculeList().get(i));
 		}
 		atomGroupAction = new MoleculeChildAtomAction(new AtomActionTransformed(space));
 	        
@@ -81,10 +81,10 @@ public class MCMoveRotateMolecule3DFixedAngle extends MCMoveMolecule {
      
     public boolean doTrial() {
 
-        if(box.getMoleculeList().getMoleculeCount()==0) {molecule = null; return false;}
-        int iMolecule = random.nextInt(box.getMoleculeList().getMoleculeCount());
+        if(box.getMoleculeList().size()==0) {molecule = null; return false;}
+        int iMolecule = random.nextInt(box.getMoleculeList().size());
         
-        molecule = coordinateDef.getBox().getMoleculeList().getMolecule(iMolecule);
+        molecule = coordinateDef.getBox().getMoleculeList().get(iMolecule);
         r0.E(positionDefinition.position(molecule));
         
         energyMeter.setTarget(molecule);

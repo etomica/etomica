@@ -1047,7 +1047,7 @@ public class LjMd3D extends Simulation {
             this.deltaP = deltaP;
             this.box = box;
             this.v0 = box.getBoundary().volume();
-            this.numMolecules0 = box.getMoleculeList().getMoleculeCount();
+            this.numMolecules0 = box.getMoleculeList().size();
             this.vBias = vBias;
         }
 
@@ -1060,7 +1060,7 @@ public class LjMd3D extends Simulation {
         protected IData processData(IData inputData) {
             double uFast = energyFastCache.getValue();
             double uFull = energyFullCache.getValue();
-            int numMolecules = box.getMoleculeList().getMoleculeCount();
+            int numMolecules = box.getMoleculeList().size();
             double[] x = data.getData();
             double dx = uFull - (uFast+uFac);
             double fac = 1;

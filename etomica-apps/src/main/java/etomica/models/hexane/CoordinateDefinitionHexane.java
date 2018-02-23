@@ -75,7 +75,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         // super.calcU fills in the first 3 elements of |u|
         super.calcU(molecules);
         
-        IMolecule molecule = molecules.getMolecule(0);
+        IMolecule molecule = molecules.get(0);
 
         // Now we play with the molecule we are measuring.
 
@@ -253,7 +253,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
     public void initNominalU(IMoleculeList molecules) {
         // handle center-of-mass part
         super.initNominalU(molecules);
-        IMolecule molecule = molecules.getMolecule(0);
+        IMolecule molecule = molecules.get(0);
         // assume they're all oriented the same way.
         
         // Set up all the axes based on the molecule atom0, the reference
@@ -296,7 +296,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         // atoms is a single molecule; we can grab its childlist for our
         //      AtomArrayList; we're looking at an AtomGroup
         // Put the molecule into its initial conformation
-        IAtomList childlist = atoms.getMolecule(0).getChildList();
+        IAtomList childlist = atoms.get(0).getChildList();
         confHex.initializePositions(childlist);
         
         /*

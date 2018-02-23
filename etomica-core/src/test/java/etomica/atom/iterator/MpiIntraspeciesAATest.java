@@ -77,7 +77,7 @@ public class MpiIntraspeciesAATest extends MoleculeIteratorTestAbstract {
         MoleculesetAction speciesTest = new SpeciesTestAction(species[species0Index], species[species0Index]);
 
         api.setBox(box);
-        int nMolecules = box.getMoleculeList(species[species0Index]).getMoleculeCount();
+        int nMolecules = box.getMoleculeList(species[species0Index]).size();
         
         int count = nMolecules * (nMolecules - 1) / 2;
         
@@ -102,8 +102,8 @@ public class MpiIntraspeciesAATest extends MoleculeIteratorTestAbstract {
             this.species1 = species1;
         }
         public void actionPerformed(IMoleculeList atomSet) {
-            assertTrue(atomSet.getMolecule(0).getType() == species0);
-            assertTrue(atomSet.getMolecule(1).getType() == species1);
+            assertTrue(atomSet.get(0).getType() == species0);
+            assertTrue(atomSet.get(1).getType() == species1);
         }
     }
     

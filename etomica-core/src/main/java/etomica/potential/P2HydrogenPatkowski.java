@@ -565,8 +565,8 @@ public class P2HydrogenPatkowski implements IPotential {
         }
 
         public double energy(IMoleculeList molecules) {
-            IMolecule m0 = molecules.getMolecule(0);
-            IMolecule m1 = molecules.getMolecule(1);
+            IMolecule m0 = molecules.get(0);
+            IMolecule m1 = molecules.get(1);
             IAtom a00 = m0.getChildList().get(0);
             IAtom a01 = m0.getChildList().get(1);
             IAtom a10 = m1.getChildList().get(0);

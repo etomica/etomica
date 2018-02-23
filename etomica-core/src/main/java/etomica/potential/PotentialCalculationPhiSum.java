@@ -66,8 +66,8 @@ public class PotentialCalculationPhiSum implements PotentialCalculationMolecular
 		
 		Tensor[] t = potentialSeconDerivative.secondDerivative(molecules);
 		
-		IMolecule molecule0 = molecules.getMolecule(0);
-		IMolecule molecule1 = molecules.getMolecule(1);
+		IMolecule molecule0 = molecules.get(0);
+		IMolecule molecule1 = molecules.get(1);
 		ei.E(dipoleSource.getDipole(molecule0));
 		ej.E(dipoleSource.getDipole(molecule1));
 		ei.normalize();

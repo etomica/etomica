@@ -54,7 +54,7 @@ public abstract class CoordinateDefinition {
     public void initializeCoordinates(int[] nCells) {
         MoleculeIteratorAllMolecules atomIterator = new MoleculeIteratorAllMolecules(box);
         IMoleculeList moleculeList = box.getMoleculeList();
-        if (moleculeList.getMoleculeCount() == 0) {
+        if (moleculeList.size() == 0) {
             throw new RuntimeException("There are no atoms yet!");
         }
 
@@ -107,8 +107,8 @@ public abstract class CoordinateDefinition {
         indexIterator.reset();
         Vector position = lattice.getSpace().makeVector();
         MoleculeArrayList currentList = null;
-        for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+        for (int iMolecule = 0; iMolecule<moleculeList.size(); iMolecule++) {
+            IMolecule molecule = moleculeList.get(iMolecule);
             // initialize coordinates of child atoms
             molecule.getType().initializeConformation(molecule);
 

@@ -74,7 +74,7 @@ public class ConfigurationOrthorhombicLattice implements Configuration, java.io.
      */
     public void initializeCoordinates(Box box) {
         IMoleculeList moleculeList = box.getMoleculeList();
-        int sumOfMolecules = moleculeList.getMoleculeCount();
+        int sumOfMolecules = moleculeList.size();
         if (sumOfMolecules == 0) {
             return;
         }
@@ -152,8 +152,8 @@ public class ConfigurationOrthorhombicLattice implements Configuration, java.io.
     	Vector cellPosition = null;
     	Tensor t = lattice.getSpace().makeTensor();
 
-    	for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
-    	    IMolecule molecule = moleculeList.getMolecule(iMolecule);
+    	for (int iMolecule = 0; iMolecule<moleculeList.size(); iMolecule++) {
+    	    IMolecule molecule = moleculeList.get(iMolecule);
 		    
        		int[] ii = indexIterator.next();
        		

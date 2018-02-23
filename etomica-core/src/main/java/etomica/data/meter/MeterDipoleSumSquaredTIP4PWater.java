@@ -39,9 +39,9 @@ public class MeterDipoleSumSquaredTIP4PWater extends DataSourceScalar{
 		dipoleSum = new Vector3D();
 		if (box == null) throw new IllegalStateException("no box");
 		IMoleculeList moleculeList = box.getMoleculeList();
-		int numMolecule = moleculeList.getMoleculeCount();
+		int numMolecule = moleculeList.size();
 		for (int i=0;i<numMolecule; i++){
-			IAtomList childList = moleculeList.getMolecule(i).getChildList();
+			IAtomList childList = moleculeList.get(i).getChildList();
 			IAtom atomH1 = childList.get(0);
 			IAtom atomH2 = childList.get(1);
 			IAtom atomO = childList.get(2);

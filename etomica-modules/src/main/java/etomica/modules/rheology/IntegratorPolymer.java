@@ -50,9 +50,9 @@ public class IntegratorPolymer extends IntegratorMD {
         }
         double srdt2 = 0.5*srdt;
         IMoleculeList molecules = box.getMoleculeList();
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+        for (int i = 0; i<molecules.size(); i++) {
             center.E(0);
-            IMolecule molecule = molecules.getMolecule(i);
+            IMolecule molecule = molecules.get(i);
             IAtomList atoms = molecule.getChildList();
             if (s.length != atoms.size()) {
                 s = new Vector[atoms.size()];

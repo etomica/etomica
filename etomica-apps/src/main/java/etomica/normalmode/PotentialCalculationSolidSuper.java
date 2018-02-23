@@ -177,7 +177,7 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
         int D = boundary.getBoxSize().getD();
         double vol = boundary.volume();
         fac1 = 1.0/(D*vol);
-        int N = box.getMoleculeList().getMoleculeCount();
+        int N = box.getMoleculeList().size();
         fac2 = (-1/vol + pHarmonic/temperature)/(D*N-D);
     }
     

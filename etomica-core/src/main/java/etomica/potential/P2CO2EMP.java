@@ -46,8 +46,8 @@ public class P2CO2EMP extends PotentialMolecular {
 
     public double energy(IMoleculeList pair){
 
-		IMolecule m1 = pair.getMolecule(0);
-		IMolecule m2 = pair.getMolecule(1);
+		IMolecule m1 = pair.get(0);
+		IMolecule m2 = pair.get(1);
 		
 		//compute C-C distance to consider truncation	
         Vector C1r = (m1.getChildList().get(0)).getPosition();

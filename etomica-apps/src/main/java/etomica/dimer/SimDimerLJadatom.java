@@ -151,19 +151,19 @@ public class SimDimerLJadatom extends Simulation{
         Vector rij = space.makeVector();
         MoleculeArrayList movableList = new MoleculeArrayList();
         IMoleculeList loopSet = box.getMoleculeList();
-        for (int i=0; i<loopSet.getMoleculeCount(); i++){
-            rij.Ev1Mv2(center,loopSet.getMolecule(i).getChildList().get(0).getPosition());
+        for (int i = 0; i<loopSet.size(); i++){
+            rij.Ev1Mv2(center,loopSet.get(i).getChildList().get(0).getPosition());
             if(rij.getX(0) > (box.getBoundary().getBoxSize().getX(0) - 3.0)){continue;}
             //box.getBoundary().nearestImage(rij);
             if(rij.getX(0)< distance){
-               movableList.add(loopSet.getMolecule(i));
+               movableList.add(loopSet.get(i));
             }
         }
-        for (int i=0; i<movableList.getMoleculeCount(); i++){
+        for (int i = 0; i<movableList.size(); i++){
             IMolecule newMolecule = movable.makeMolecule();
             box.addMolecule(newMolecule);
-            newMolecule.getChildList().get(0).getPosition().E(movableList.getMolecule(i).getChildList().get(0).getPosition());
-            box.removeMolecule(movableList.getMolecule(i));
+            newMolecule.getChildList().get(0).getPosition().E(movableList.get(i).getChildList().get(0).getPosition());
+            box.removeMolecule(movableList.get(i));
         }
         movableSet = box.getMoleculeList(movable);
     }
@@ -174,11 +174,11 @@ public class SimDimerLJadatom extends Simulation{
         Vector rij = space.makeVector();
 
         IMoleculeList loopSet = box.getMoleculeList(movable);
-        for (int i=0; i<loopSet.getMoleculeCount(); i++){
-            rij.Ev1Mv2(center,loopSet.getMolecule(i).getChildList().get(0).getPosition());
+        for (int i = 0; i<loopSet.size(); i++){
+            rij.Ev1Mv2(center,loopSet.get(i).getChildList().get(0).getPosition());
             box.getBoundary().nearestImage(rij);
             if(rij.squared() < distance){
-               box.removeMolecule(loopSet.getMolecule(i));
+               box.removeMolecule(loopSet.get(i));
             }
         }
     }
@@ -191,10 +191,10 @@ public class SimDimerLJadatom extends Simulation{
     public void generateConfigs(String fileName, double percentd) {
 
         Vector workVector = space.makeVector();
-        Vector[] currentPos = new Vector[movableSet.getMoleculeCount()];
+        Vector[] currentPos = new Vector[movableSet.size()];
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
-            currentPos[i].E(movableSet.getMolecule(i).getChildList().get(0).getPosition());
+            currentPos[i].E(movableSet.get(i).getChildList().get(0).getPosition());
         }
 
         //Create multiple configurations
@@ -203,8 +203,8 @@ public class SimDimerLJadatom extends Simulation{
             genConfig.setBox(box);
             genConfig.setConfName(fileName+"_config_"+m);
             //Displaces atom's by at most +/-0.03 in each coordinate
-            for(int i=0; i<movableSet.getMoleculeCount(); i++){
-                Vector atomPosition = movableSet.getMolecule(i).getChildList().get(0).getPosition();
+            for(int i = 0; i<movableSet.size(); i++){
+                Vector atomPosition = movableSet.get(i).getChildList().get(0).getPosition();
                 for(int j=0; j<3; j++){
                     workVector.setX(j,percentd*random.nextGaussian());
                 }
@@ -261,11 +261,11 @@ public class SimDimerLJadatom extends Simulation{
     public void randomizePositions(){
         Vector workVector = space.makeVector();
         IMoleculeList loopSet3 = box.getMoleculeList(movable);
-        Vector[] currentPos = new Vector[loopSet3.getMoleculeCount()];
+        Vector[] currentPos = new Vector[loopSet3.size()];
         double offset = 0;
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
-            currentPos[i] = (loopSet3.getMolecule(i).getChildList().get(0).getPosition());
+            currentPos[i] = (loopSet3.get(i).getChildList().get(0).getPosition());
             for(int j=0; j<3; j++){
                 offset = random.nextGaussian()/10.0;
                 if(Math.abs(offset)>0.1){offset=0.1;}

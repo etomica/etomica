@@ -111,7 +111,7 @@ public abstract class MoleculeIteratorTestAbstract extends TestCase {
             int i = 0;
             for (IMolecule next = ((MoleculeIterator)iterator).nextMolecule(); i<atoms.length;
                  next = ((MoleculeIterator)iterator).nextMolecule()) {
-                assertEquals(next, atoms[i++].getMolecule(0));
+                assertEquals(next, atoms[i++].get(0));
             }
             assertNull(((MoleculeIterator)iterator).nextMolecule());
         }
@@ -130,7 +130,7 @@ public abstract class MoleculeIteratorTestAbstract extends TestCase {
         iterator.reset();
         for (IMoleculeList atomSet = iterator.next(); atomSet != null;
              atomSet = iterator.next()) {
-            assertEquals(atomSet.getMoleculeCount(), iterator.nBody());
+            assertEquals(atomSet.size(), iterator.nBody());
         }
 
         print("Just tested nBody method");

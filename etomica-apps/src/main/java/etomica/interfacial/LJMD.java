@@ -102,7 +102,7 @@ public class LJMD extends Simulation {
         if (!fixedWall) {
             FixedWall fixedWallListener = new FixedWall(space, box, integrator.getAgentManager(), speciesTopWall);
             integrator.setFixedWall(fixedWallListener);
-            int nWall = box.getMoleculeList(speciesTopWall).getMoleculeCount();
+            int nWall = box.getMoleculeList(speciesTopWall).size();
             double Lxy = boundary.getBoxSize().getX(0);
             P1Wall p1Wall = new P1Wall(space, spring / nWall, springPosition + config.getShift().getX(2), Psat * Lxy * Lxy / nWall);
             potentialMaster.addPotential(p1Wall, new AtomType[]{speciesTopWall.getLeafType()});
@@ -125,7 +125,7 @@ public class LJMD extends Simulation {
                 public double energy(IAtomList atoms) {
                     double pz = atoms.get(0).getPosition().getX(2);
                     double zMin = -0.5 * boundary.getBoxSize().getX(2);
-                    double zMax = box.getMoleculeList(speciesTopWall).getMolecule(0).getChildList().get(0).getPosition().getX(2);
+                    double zMax = box.getMoleculeList(speciesTopWall).get(0).getChildList().get(0).getPosition().getX(2);
                     return (pz < zMin || pz > zMax) ? Double.POSITIVE_INFINITY : 0;
                 }
             };

@@ -37,7 +37,7 @@ public class SingleDumbellRattle {
         box.setNMolecules(species, 1);
         box.setDensity(0.01 / 18.0 * Constants.AVOGADRO / 1E24);
 //        new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
-        IMolecule molecule = box.getMoleculeList(species).getMolecule(0);
+        IMolecule molecule = box.getMoleculeList(species).get(0);
         species.getConformation().initializePositions(molecule.getChildList());
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeStep = 2 * Math.PI / 100;

@@ -92,7 +92,7 @@ public class TestHSMD3D extends Simulation {
 
         sim.getController().actionPerformed();
 
-        double Z = pMeter.getDataAsScalar()*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().getMoleculeCount()*sim.integrator.getTemperature());
+        double Z = pMeter.getDataAsScalar()*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().size()*sim.integrator.getTemperature());
         System.out.println("Z="+Z);
 
         // compressibility factor for this system should be 5.22

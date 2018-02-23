@@ -26,7 +26,7 @@ public class P3HydrogenGarberoglioMolecular extends P3HydrogenManzhosMolecular {
     }
     public double energy(IMoleculeList molecules) {
         double E1 = super.energy(molecules);        
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {                
+        for (int i = 0; i<molecules.size(); i++) {
             pos[i].Ev1Pv2(v[2*i], v[2*i+1]);
             pos[i].TE(0.5);
         }

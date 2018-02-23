@@ -422,9 +422,9 @@ public class PotentialMasterList extends PotentialMasterNbr {
             //no target atoms specified
             //call calculate with each SpeciesAgent
             IMoleculeList list = box.getMoleculeList();
-            int size = list.getMoleculeCount();
+            int size = list.size();
             for (int i=0; i<size; i++) {
-                calculate(list.getMolecule(i), id.direction(), pc, neighborManager);//call calculate with the SpeciesAgent
+                calculate(list.get(i), id.direction(), pc, neighborManager);//call calculate with the SpeciesAgent
             }
         }
         else {

@@ -195,9 +195,9 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
 
         DipoleSourceAceticAcid dipoleSource = new DipoleSourceAceticAcid(space);
 
-        System.out.println("number of molecules " + box.getMoleculeList().getMoleculeCount());
+        System.out.println("number of molecules " + box.getMoleculeList().size());
         System.out.println("volume " + box.getBoundary().volume());
-        System.out.println("Rho " + box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume());
+        System.out.println("Rho " + box.getMoleculeList().size() / box.getBoundary().volume());
 
         BoxImposePbc pbc = new BoxImposePbc(box, space);
         pbc.setApplyToMolecules(true);

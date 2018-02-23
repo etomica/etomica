@@ -49,8 +49,8 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
         // RATTLE
         int numBondedMolecules = 0;
         int numIterations = 0;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints != null) {
                 numBondedMolecules++;
@@ -163,8 +163,8 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             }
         }
 
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints == null) {
                 continue;
@@ -176,8 +176,8 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
         //Compute forces on each atom
         potentialMaster.calculate(box, allAtoms, forceSum);
 
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints == null) {
                 continue;
@@ -203,8 +203,8 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
         /*
          * Rattle Part II
          */
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints == null) {
                 continue;
@@ -269,7 +269,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
         if (printInterval > 0 && stepCount%printInterval == 0) {
             double PE = meterPE.getDataAsScalar();
             double KE = meterKE.getDataAsScalar();
-            int moleculeCount = box.getMoleculeList().getMoleculeCount();
+            int moleculeCount = box.getMoleculeList().size();
             double fac = Joule.UNIT.fromSim(1.0/moleculeCount)*Constants.AVOGADRO;
             System.out.println(currentTime+" "+((double)numIterations)/numBondedMolecules+" "+Kelvin.UNIT.fromSim(2*KE/moleculeCount/6)+" "
                               +fac*KE+" "+fac*PE+" "+fac*(PE+KE));
@@ -282,8 +282,8 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
          * Rattle Part I
          */
         IMoleculeList molecules = box.getMoleculeList();
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints == null) {
                 continue;

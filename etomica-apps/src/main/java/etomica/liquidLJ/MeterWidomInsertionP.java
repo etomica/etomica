@@ -96,7 +96,7 @@ public class MeterWidomInsertionP extends DataSourceScalar {
         energyMeter.setTarget((IMolecule)null);
         double u0 = energyMeter.getDataAsScalar();
         double v0 = box.getBoundary().volume();
-        int n0 = box.getMoleculeList().getMoleculeCount();
+        int n0 = box.getMoleculeList().size();
         boxInflate.setTargetDensity(n0*n0/(v0*(n0+1)));
         boxInflate.actionPerformed();
         double u1 = energyMeter.getDataAsScalar();

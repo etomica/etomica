@@ -33,8 +33,8 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialMolecularTorqu
 	}
 
     public Vector[][] gradientAndTorque(IMoleculeList pair){
-		MoleculeOrientedDynamic water1 = (MoleculeOrientedDynamic)pair.getMolecule(0);
-		MoleculeOrientedDynamic water2 = (MoleculeOrientedDynamic)pair.getMolecule(1);
+		MoleculeOrientedDynamic water1 = (MoleculeOrientedDynamic)pair.get(0);
+		MoleculeOrientedDynamic water2 = (MoleculeOrientedDynamic)pair.get(1);
 		
 		//compute O-O distance to consider truncation	
 		Vector O1r = (water1.getChildList().get(2)).getPosition();

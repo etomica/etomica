@@ -26,7 +26,7 @@ public class CriterionSpecies extends CriterionAdapterMolecular {
      * construction and if the wrapped criterion accept also returns true.
      */
     public boolean accept(IMoleculeList molecule) {
-        if (molecule.getMolecule(0).getType() == species) {
+        if (molecule.get(0).getType() == species) {
             return subCriterion.accept(molecule);
         }
         return false;

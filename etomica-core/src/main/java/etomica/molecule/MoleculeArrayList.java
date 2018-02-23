@@ -120,18 +120,18 @@ public final class MoleculeArrayList implements IMoleculeList {
     }
 
     public void addAll(IMoleculeList moleculeList) {
-        if ((itemsInList + moleculeList.getMoleculeCount()) > molecules.length) {
+        if ((itemsInList + moleculeList.size()) > molecules.length) {
             molecules = Arrays.copyOf(
                     molecules,
-                    (int) ((float) itemsInList * (1.0f + SIZE_INCREASE_RATIO)) + moleculeList.getMoleculeCount()
+                    (int) ((float) itemsInList * (1.0f + SIZE_INCREASE_RATIO)) + moleculeList.size()
             );
         }
         if (moleculeList instanceof MoleculeArrayList) {
-            System.arraycopy(((MoleculeArrayList) moleculeList).molecules, 0, this.molecules, itemsInList, moleculeList.getMoleculeCount());
-            itemsInList += moleculeList.getMoleculeCount();
+            System.arraycopy(((MoleculeArrayList) moleculeList).molecules, 0, this.molecules, itemsInList, moleculeList.size());
+            itemsInList += moleculeList.size();
         } else {
-            for (int i = 0; i < moleculeList.getMoleculeCount(); i++) {
-                molecules[itemsInList] = moleculeList.getMolecule(i);
+            for (int i = 0; i < moleculeList.size(); i++) {
+                molecules[itemsInList] = moleculeList.get(i);
                 itemsInList++;
             }
         }
@@ -172,11 +172,11 @@ public final class MoleculeArrayList implements IMoleculeList {
         return atom;
     }
 
-    public int getMoleculeCount() {
+    public int size() {
         return itemsInList;
     }
     
-    public IMolecule getMolecule(int index) {
+    public IMolecule get(int index) {
         if (Debug.ON && (index < 0 || index >= itemsInList)) {
             throw new IndexOutOfBoundsException("MoleculeArrayList.remove invalid index");
         }

@@ -24,7 +24,7 @@ public class PotentialCommonAtomic implements IPotentialAtomic {
     public void setBox(Box box) {
         this.box1 = box;
         pot.setBox(box);
-        int nMolecules = box.getMoleculeList().getMoleculeCount();
+        int nMolecules = box.getMoleculeList().size();
         int nPairs = nMolecules*(nMolecules-1)/2;
         if (pairDone != null && pairDone.length == nPairs && tripletDone != null) return;
         pairDone = new boolean[nPairs];

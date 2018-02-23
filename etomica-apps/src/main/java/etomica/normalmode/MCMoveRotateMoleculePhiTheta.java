@@ -41,8 +41,8 @@ public class MCMoveRotateMoleculePhiTheta extends MCMoveRotateMolecule3D {
         for (int iPlane=0; iPlane<nPlanes; iPlane++) {
             drSum[iPlane].E(0);
         }
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IAtomList atoms = molecules.getMolecule(i).getChildList();
+        for (int i = 0; i<molecules.size(); i++) {
+            IAtomList atoms = molecules.get(i).getChildList();
             int iPlane = (i/2)%nPlanes;
             drSum[iPlane].PE(atoms.get(1).getPosition());
             drSum[iPlane].ME(atoms.get(0).getPosition());
@@ -60,7 +60,7 @@ public class MCMoveRotateMoleculePhiTheta extends MCMoveRotateMolecule3D {
     public boolean doTrial() {
 //      System.out.println("doTrial MCMoveRotateMolecule called");
       
-        if(box.getMoleculeList().getMoleculeCount()==0) {molecule = null; return false;}
+        if(box.getMoleculeList().size()==0) {molecule = null; return false;}
           
         molecule = moleculeSource.getMolecule();
         energyMeter.setTarget(molecule);

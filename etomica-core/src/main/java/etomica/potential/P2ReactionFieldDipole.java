@@ -132,22 +132,22 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
     }
 
     public double energy(IMoleculeList molecules) {
-        IMolecule molecule0 = molecules.getMolecule(0);
-        IMolecule molecule1 = molecules.getMolecule(1);
+        IMolecule molecule0 = molecules.get(0);
+        IMolecule molecule1 = molecules.get(1);
         dr.E(positionDefinition.position(molecule1));
         dr.ME(positionDefinition.position(molecule0));
         boundary.nearestImage(dr);//rij
         double r2 = dr.squared();
         if (r2 > cutoff * cutoff) return 0;
 
-        iDipole.E(dipoleSource.getDipole(molecules.getMolecule(0)));
-        double idotj = iDipole.dot(dipoleSource.getDipole(molecules.getMolecule(1)));
+        iDipole.E(dipoleSource.getDipole(molecules.get(0)));
+        double idotj = iDipole.dot(dipoleSource.getDipole(molecules.get(1)));
         return -fac * idotj;
     }
 
     public Vector[][] gradientAndTorque(IMoleculeList molecules) {
-        IMolecule molecule0 = molecules.getMolecule(0);
-        IMolecule molecule1 = molecules.getMolecule(1);
+        IMolecule molecule0 = molecules.get(0);
+        IMolecule molecule1 = molecules.get(1);
         dr.E(positionDefinition.position(molecule1));
         dr.ME(positionDefinition.position(molecule0));
         boundary.nearestImage(dr);
@@ -170,8 +170,8 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
     }
 
     public Tensor[] secondDerivative(IMoleculeList molecules) {
-        IMolecule molecule0 = molecules.getMolecule(0);
-        IMolecule molecule1 = molecules.getMolecule(1);
+        IMolecule molecule0 = molecules.get(0);
+        IMolecule molecule1 = molecules.get(1);
         dr.E(positionDefinition.position(molecule1));
         dr.ME(positionDefinition.position(molecule0));
         boundary.nearestImage(dr);//rij
@@ -283,8 +283,8 @@ public class P2ReactionFieldDipole extends PotentialMolecular implements Potenti
                 u = -0.5 * fac * iDipole.squared();
             } else {
                 IMoleculeList moleculeList = box.getMoleculeList();
-                for (int i = 0; i < moleculeList.getMoleculeCount(); i++) {
-                    Vector iDipole = dipoleSource.getDipole(moleculeList.getMolecule(i));
+                for (int i = 0; i < moleculeList.size(); i++) {
+                    Vector iDipole = dipoleSource.getDipole(moleculeList.get(i));
                     u += -0.5 * fac * iDipole.squared();
                 }
             }

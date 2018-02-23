@@ -44,8 +44,8 @@ public class P2Water3P extends PotentialMolecular {
 		double sum = 0.0;
 		double r2 = 0.0;
 
-		IMolecule water1 = pair.getMolecule(0);
-		IMolecule water2 = pair.getMolecule(1);
+		IMolecule water1 = pair.get(0);
+		IMolecule water2 = pair.get(1);
 		
 		//compute O-O distance to consider truncation	
         Vector O1r = (water1.getChildList().get(2)).getPosition();

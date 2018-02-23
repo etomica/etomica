@@ -870,11 +870,11 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         }
 
         public double getValue() {
-            return pc.box.getMoleculeList().getMoleculeCount() / pc.box.getBoundary().volume();
+            return pc.box.getMoleculeList().size() / pc.box.getBoundary().volume();
         }
 
         public void setValue(double newValue) {
-            double oldDensity = pc.box.getMoleculeList().getMoleculeCount() / pc.box.getBoundary().volume();
+            double oldDensity = pc.box.getMoleculeList().size() / pc.box.getBoundary().volume();
             double maxDensity;
             int D = pc.getSpace().D();
             if (D == 2) {

@@ -153,7 +153,7 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
             integrator.getPotentialMaster().calculate(box, iteratorDirective, energy);
             double uNew = energy.getSum();
             dataArray[i] = Math.exp(-(uNew-uOld)/integrator.getTemperature()
-                              + box.getMoleculeList().getMoleculeCount()*(x[i]-1));
+                              + box.getMoleculeList().size()*(x[i]-1));
             inflater.undo();
         }
 

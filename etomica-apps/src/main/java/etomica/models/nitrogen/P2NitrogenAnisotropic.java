@@ -64,8 +64,8 @@ public class P2NitrogenAnisotropic extends PotentialMolecular {
 		double sum = 0.0;
 		double r2 = 0.0;
 
-		IMolecule nitrogena = pair.getMolecule(0);
-		IMolecule nitrogenb = pair.getMolecule(1);
+		IMolecule nitrogena = pair.get(0);
+		IMolecule nitrogenb = pair.get(1);
 		
 		// to compute the midpoint distance between the two
 		Vector pos1 = (nitrogena.getChildList().get(1)).getPosition();

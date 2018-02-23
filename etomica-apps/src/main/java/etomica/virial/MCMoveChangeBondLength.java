@@ -59,11 +59,11 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 	@Override
 	public void setBox(Box p) {
 		super.setBox(p);
-		int nMolecules = box.getMoleculeList().getMoleculeCount();
+		int nMolecules = box.getMoleculeList().size();
 		doExchange = new boolean[nMolecules];
 		eVal = new double[nMolecules][];
 		eVec = new double[nMolecules][][];
-		P = box.getMoleculeList().getMolecule(0).getChildList().size();
+		P = box.getMoleculeList().get(0).getChildList().size();
 		prevBondLength = new double[nMolecules][P];
 		sigma = new double[P];
 		leafIterator.setBox(p);
@@ -83,7 +83,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 		wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 		mpe.setBox(box);
 
-		int nMolecules = box.getMoleculeList().getMoleculeCount();
+		int nMolecules = box.getMoleculeList().size();
 		double uGenOld = 0.0;
 		double uGenNew = 0.0;
 		double uA1Old = 0.0;
@@ -94,7 +94,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 		if (deleteMode || doHist) {
 			for (int i=0; i<nMolecules; i++) {
 				avgBL = 0;
-				IAtomList atoms = box.getMoleculeList().getMolecule(i).getChildList();
+				IAtomList atoms = box.getMoleculeList().get(i).getChildList();
 				for (int j=0; j<P; j++) {
 					avgBL += ((AtomHydrogen)atoms.get(j)).getBondLength();
 				}
@@ -126,7 +126,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 			if (molIndexUntouched == i) continue;
 			double[] etaOld = new double[P];
 			double[] etaNew = new double[P];
-			IAtomList atoms = box.getMoleculeList().getMolecule(i).getChildList();
+			IAtomList atoms = box.getMoleculeList().get(i).getChildList();
 
 			for (int j=0; j<P; j++) {
 				prevBondLength[i][j] = ((AtomHydrogen)atoms.get(j)).getBondLength();
@@ -446,7 +446,7 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 		double lambda = Constants.PLANCK_H/(Math.sqrt(2*Math.PI*mass*t));
 		kHarmonic = Math.PI*P/(lambda*lambda);
 		if (debug) kHarmonic /= 2.0;
-		int nMolecules = box.getMoleculeList().getMoleculeCount();
+		int nMolecules = box.getMoleculeList().size();
 		for (int iMolIdx = 0; iMolIdx < nMolecules; iMolIdx++) {
 			double cT = 1.0;
 			double[][] m = new double[P][P];
@@ -542,9 +542,9 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 	}
 
     public double getChi(double temperature) {
-        int nMolecules = box.getMoleculeList().getMoleculeCount();
+        int nMolecules = box.getMoleculeList().size();
 		for (int i=0; i<nMolecules; i++) {
-			IAtomList atoms = box.getMoleculeList().getMolecule(i).getChildList();
+			IAtomList atoms = box.getMoleculeList().get(i).getChildList();
 			for (int j=0; j<P; j++) {
 				if (((AtomHydrogen)atoms.get(j)).getBondLength() < 0 ) return 0;
 			}
@@ -561,10 +561,10 @@ public class MCMoveChangeBondLength extends MCMoveBoxStep {
 
 	@Override
 	public void rejectNotify() {
-		int nMolecules = box.getMoleculeList().getMoleculeCount();
+		int nMolecules = box.getMoleculeList().size();
 		for (int i=0; i<nMolecules; i++) {
 			if (molIndexUntouched == i) continue;
-			IAtomList atoms = box.getMoleculeList().getMolecule(i).getChildList();
+			IAtomList atoms = box.getMoleculeList().get(i).getChildList();
 			for (int j=0; j<P; j++) {
 				((AtomHydrogen)atoms.get(j)).setBondLength(prevBondLength[i][j]);
 			}

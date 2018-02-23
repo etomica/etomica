@@ -35,7 +35,7 @@ public class MoleculeListProperty implements Property {
     @Override
     public Object invokeReader(int i) {
         try {
-            return ((IMoleculeList) reader.invoke(instance)).getMolecule(i);
+            return ((IMoleculeList) reader.invoke(instance)).get(i);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
@@ -64,7 +64,7 @@ public class MoleculeListProperty implements Property {
     @Override
     public int invokeCount() {
         try {
-            return ((IMoleculeList) reader.invoke(instance)).getMoleculeCount();
+            return ((IMoleculeList) reader.invoke(instance)).size();
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }

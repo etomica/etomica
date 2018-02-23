@@ -72,7 +72,7 @@ public class MeterTargetRPMolecule implements IDataSource {
          */
         for (int i = 0; i < numMolec; i++) {
             initMolecOrientation[i] = space.makeVectorArray(3);
-            initMolecOrientation[i] = coordinateDefinition.getMoleculeOrientation(sim.getBox(0).getMoleculeList().getMolecule(i));
+            initMolecOrientation[i] = coordinateDefinition.getMoleculeOrientation(sim.getBox(0).getMoleculeList().get(i));
         }
 
         Box realBox = coordinateDef.getBox();
@@ -120,7 +120,7 @@ public class MeterTargetRPMolecule implements IDataSource {
         		/*
                  * Re-scaling the coordinate deviation
                  */
-          		for (int iMolecule=0; iMolecule<molecules.getMoleculeCount(); iMolecule++){
+          		for (int iMolecule = 0; iMolecule<molecules.size(); iMolecule++){
           			//NOT scaling the translational DOF
           			for(int k=0; k<3; k++){
           				newU[iMolecule*5+k] = u[iMolecule*5+k];

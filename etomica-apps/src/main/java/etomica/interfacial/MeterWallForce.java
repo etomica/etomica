@@ -39,8 +39,8 @@ public class MeterWallForce extends DataSourceScalar {
     public double getDataAsScalar() {
         IMoleculeList topWallMolecules = box.getMoleculeList(topWall);
         pc.reset();
-        for (int i=0; i<topWallMolecules.getMoleculeCount(); i++) {
-            IAtom wallAtom = topWallMolecules.getMolecule(i).getChildList().get(0);
+        for (int i = 0; i<topWallMolecules.size(); i++) {
+            IAtom wallAtom = topWallMolecules.get(i).getChildList().get(0);
             id.setTargetAtom(wallAtom);
             potentialMaster.calculate(box, id, pc);
         }

@@ -58,12 +58,12 @@ public class CalcAnalytical2ndDerivativeNitrogen{
 			dUdRotB[i] = space.makeVector(); 
 		}	
 		
-		int numMolec = coordinateDefinition.getBox().getMoleculeList().getMoleculeCount();
+		int numMolec = coordinateDefinition.getBox().getMoleculeList().size();
 		initMolecOrientation = new Vector[numMolec][3];
 		
 		for (int i=0; i<numMolec; i++){
 			initMolecOrientation[i] = space.makeVectorArray(3);
-			initMolecOrientation[i] = coordinateDefinition.getMoleculeOrientation(box.getMoleculeList().getMolecule(i));
+			initMolecOrientation[i] = coordinateDefinition.getMoleculeOrientation(box.getMoleculeList().get(i));
 		}
 	}
  	
@@ -73,8 +73,8 @@ public class CalcAnalytical2ndDerivativeNitrogen{
 			throw new RuntimeException("C<CalcAnalytical2ndDerivcationNitrogen> CANNOT HANDLE SELF-TERM YET!");
 		}
 		
-		pair.atom0 = coordinateDefinition.getBox().getMoleculeList().getMolecule(moleculei[0]);
-		pair.atom1 = coordinateDefinition.getBox().getMoleculeList().getMolecule(moleculei[1]);
+		pair.atom0 = coordinateDefinition.getBox().getMoleculeList().get(moleculei[0]);
+		pair.atom1 = coordinateDefinition.getBox().getMoleculeList().get(moleculei[1]);
 		
 		tensorTrans.E(potential.secondDerivative(pair));
 		

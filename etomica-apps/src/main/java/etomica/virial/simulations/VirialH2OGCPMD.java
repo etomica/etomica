@@ -160,7 +160,7 @@ public class VirialH2OGCPMD {
                 pos.setX(0, r*(1-Math.cos(theta)));
                 pos.setX(1, r*Math.sin(theta));
                 act.setDestination(pos);
-                act.actionPerformed(sim.box[1].getMoleculeList().getMolecule(i));
+                act.actionPerformed(sim.box[1].getMoleculeList().get(i));
             }
             sim.box[1].trialNotify();
             sim.box[1].acceptNotify();

@@ -91,9 +91,9 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 			
 			int j=3;
 			
-			for (int p=0; p<molecules.getMoleculeCount(); p++){ //loop over the 8 molecules in the basis cell
+			for (int p = 0; p<molecules.size(); p++){ //loop over the 8 molecules in the basis cell
 				
-				IAtomList molecule = molecules.getMolecule(p).getChildList();
+				IAtomList molecule = molecules.get(p).getChildList();
 			
 				 //leafPos0 is atom C1 in Paracetamol
 				 //leafPos5 is atom C4 in Paracetamol
@@ -214,7 +214,7 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 					
 				 }
 				
-				 j += coordinateDefinition.getCoordinateDim()/molecules.getMoleculeCount();
+				 j += coordinateDefinition.getCoordinateDim()/molecules.size();
 			}
 		
 		return fPrimeRotation[index];

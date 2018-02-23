@@ -403,16 +403,16 @@ public class SimOverlapSsNxy extends Simulation {
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
             integrators[iBox].getEventManager().addListener(pumpListener);
             if (iBox == 1) {
-                if (boxTarget.getMoleculeList().getMoleculeCount() == 32) {
+                if (boxTarget.getMoleculeList().size() == 32) {
 
                     pumpListener.setInterval(100);
 
-                } else if (boxTarget.getMoleculeList().getMoleculeCount() == 108) {
+                } else if (boxTarget.getMoleculeList().size() == 108) {
 
                     pumpListener.setInterval(300);
                 } else
 
-                    pumpListener.setInterval(boxTarget.getMoleculeList().getMoleculeCount());
+                    pumpListener.setInterval(boxTarget.getMoleculeList().size());
             }
         } else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);

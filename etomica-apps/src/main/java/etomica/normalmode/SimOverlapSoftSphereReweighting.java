@@ -446,14 +446,14 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
             accumulatorPumps[iBox] = new DataPumpListener(meters[iBox], newAccumulator);
             integrators[iBox].getEventManager().addListener(accumulatorPumps[iBox]);
             if (iBox == 1) {
-                if (boxTarget.getMoleculeList().getMoleculeCount() == 32) {
+                if (boxTarget.getMoleculeList().size() == 32) {
                     accumulatorPumps[iBox].setInterval(100);
 
-                } else if (boxTarget.getMoleculeList().getMoleculeCount() == 108) {
+                } else if (boxTarget.getMoleculeList().size() == 108) {
 
                     accumulatorPumps[iBox].setInterval(300);
                 } else
-                    accumulatorPumps[iBox].setInterval(boxTarget.getMoleculeList().getMoleculeCount());
+                    accumulatorPumps[iBox].setInterval(boxTarget.getMoleculeList().size());
             }
         } else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);

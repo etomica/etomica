@@ -25,7 +25,7 @@ public class PRotConstraint extends PotentialMolecular{
 	public PRotConstraint(Space space, CoordinateDefinitionNitrogen coordinateDefinition, Box box) {
 		super(1, space);
 		this.box = box;
-		int numMolec = box.getMoleculeList().getMoleculeCount();
+		int numMolec = box.getMoleculeList().size();
 		
 		molecOrientation = space.makeVector();
 		initMolecOrientation = new Vector[numMolec][3];
@@ -34,7 +34,7 @@ public class PRotConstraint extends PotentialMolecular{
 		 */
 		for (int i=0; i<numMolec; i++){
 			initMolecOrientation[i] = space.makeVectorArray(3);
-			initMolecOrientation[i] = coordinateDefinition.getMoleculeOrientation(box.getMoleculeList().getMolecule(i));
+			initMolecOrientation[i] = coordinateDefinition.getMoleculeOrientation(box.getMoleculeList().get(i));
 		}
 	
 		
@@ -47,7 +47,7 @@ public class PRotConstraint extends PotentialMolecular{
 			return 0.0;
 		}
 		
-		IMolecule molecule = molecules.getMolecule(0);
+		IMolecule molecule = molecules.get(0);
 		int index = molecule.getIndex();
 				
 		Vector leafPos0 = molecule.getChildList().get(0).getPosition();

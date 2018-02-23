@@ -76,7 +76,7 @@ public class MoleculeIteratorAll implements MoleculesetIteratorPDT, java.io.Seri
     }
     
     public IMoleculeList next() {
-        if (nextCursor + 1 > next.getMoleculeCount()||(oneIterate && nextCursor>0)) {
+        if (nextCursor + 1 > next.size()||(oneIterate && nextCursor>0)) {
             return null;
         }
         if (nextCursor < 0) {
@@ -85,8 +85,8 @@ public class MoleculeIteratorAll implements MoleculesetIteratorPDT, java.io.Seri
             return next;
         }
         MoleculeArrayList arrayList = next.getArrayList();
-        IMolecule oldFirst = arrayList.getMolecule(0);
-        arrayList.set(0,arrayList.getMolecule(nextCursor));
+        IMolecule oldFirst = arrayList.get(0);
+        arrayList.set(0,arrayList.get(nextCursor));
         arrayList.set(nextCursor,oldFirst);
         nextCursor++;
         return next;
@@ -101,7 +101,7 @@ public class MoleculeIteratorAll implements MoleculesetIteratorPDT, java.io.Seri
      * a call to reset().
      */
     public int size() {
-        return next.getMoleculeCount();
+        return next.size();
     }
 
     protected final ISpecies[] species;

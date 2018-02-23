@@ -334,8 +334,8 @@ public class VirialB2WaterTIP4P_DHS_difference {
             boolean debug = false;
             if (debug && r2 > 40000) {
                 ///// ///////get O site position
-                IMolecule water1 = pair.getMolecule(0);
-                IMolecule water2 = pair.getMolecule(1);
+                IMolecule water1 = pair.get(0);
+                IMolecule water2 = pair.get(1);
                 IAtomList atomList1 = water1.getChildList();
                 IAtomList atomList2 = water2.getChildList();
                 Vector O1 = atomList1.get(2).getPosition();
@@ -408,8 +408,8 @@ public class VirialB2WaterTIP4P_DHS_difference {
         }
 
         public double energy(IMoleculeList pair) {
-            IMolecule water1 = pair.getMolecule(0);
-            IMolecule water2 = pair.getMolecule(1);
+            IMolecule water1 = pair.get(0);
+            IMolecule water2 = pair.get(1);
 
             Vector O1r = (water1.getChildList().get(2)).getPosition();//H-H-O-M, so O is the third atom
             Vector O2r = (water2.getChildList().get(2)).getPosition();

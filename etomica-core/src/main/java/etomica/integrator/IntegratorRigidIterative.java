@@ -139,9 +139,9 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
             }
         }
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             IAtomList children = molecule.getChildList();
             OrientationCalc calcer = (OrientationCalc)typeAgentManager.getAgent(molecule.getType());
             if (calcer == null) {
@@ -259,7 +259,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         potentialMaster.calculate(box, allAtoms, torqueSum);
         
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             IAtomList children = molecule.getChildList();
             if (typeAgentManager.getAgent(molecule.getType()) == null) {
                 // unimolecular or at least not rigid
@@ -332,7 +332,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         currentKineticEnergy *= 0.5;
         if (printInterval > 0 && stepCount%printInterval == 0) {
             double PE = meterPE.getDataAsScalar();
-            int moleculeCount = box.getMoleculeList().getMoleculeCount();
+            int moleculeCount = box.getMoleculeList().size();
             double fac = Joule.UNIT.fromSim(1.0/moleculeCount)*Constants.AVOGADRO;
             System.out.println(currentTime+" "+(iterationsTotal/(double)numRigid)+" "+Kelvin.UNIT.fromSim(currentKineticEnergy/moleculeCount/3)+" "
                               +fac*currentKineticEnergy+" "+fac*PE+" "+fac*(PE+currentKineticEnergy));
@@ -354,12 +354,12 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
     public void scaleMomenta() {
         double KE = 0;
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
         int D = 0;
         momentum.E(0);
         double totalMass = 0;
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             IAtomList children = molecule.getChildList();
             if (typeAgentManager.getAgent(molecule.getType()) == null) {
                 for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
@@ -377,7 +377,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         }
         momentum.TE(1.0/totalMass);
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             IAtomList children = molecule.getChildList();
             if (typeAgentManager.getAgent(molecule.getType()) == null) {
                 // unimolecular or at least not rigid
@@ -415,7 +415,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         currentKineticEnergy = 0.5*KE*scale*scale;
 //        System.out.println("initial KE "+currentKineticEnergy);
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             IAtomList children = molecule.getChildList();
             if (typeAgentManager.getAgent(molecule.getType()) == null) {
                 // unimolecular or at least not rigid
@@ -442,12 +442,12 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
     public void shiftMomenta() {
         momentum.E(0);
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
         if (nMolecules == 0) return;
         if (nMolecules > 1) {
             double totalMass = 0;
             for (int iLeaf = 0; iLeaf < nMolecules; iLeaf++) {
-                IMolecule m = moleculeList.getMolecule(iLeaf);
+                IMolecule m = moleculeList.get(iLeaf);
                 if (!(m instanceof IMoleculeKinetic)) {
                     IAtomList children = m.getChildList();
                     for (int i = 0; i < children.size(); i++) {
@@ -468,7 +468,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
             //momentum is now net velocity
             //set net momentum to 0
             for (int iLeaf = 0; iLeaf < nMolecules; iLeaf++) {
-                IMolecule m = moleculeList.getMolecule(iLeaf);
+                IMolecule m = moleculeList.get(iLeaf);
                 if (!(m instanceof IMoleculeKinetic)) {
                     IAtomList children = m.getChildList();
                     for (int i = 0; i < children.size(); i++) {
@@ -488,7 +488,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
             if (Debug.ON) {
                 momentum.E(0);
                 for (int iLeaf = 0; iLeaf < nMolecules; iLeaf++) {
-                    IMolecule m = moleculeList.getMolecule(iLeaf);
+                    IMolecule m = moleculeList.get(iLeaf);
                     if (!(m instanceof IMoleculeKinetic)) {
                         IAtomList children = m.getChildList();
                         for (int i = 0; i < children.size(); i++) {
@@ -514,10 +514,10 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
 
     public void randomizeMomenta() {
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
 //        System.out.println("rerandomize");
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             OrientationCalc calcer = (OrientationCalc)typeAgentManager.getAgent(molecule.getType());
             if (calcer == null) {
                 IAtomList children = molecule.getChildList();
@@ -616,10 +616,10 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         }
         
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
 
         for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             OrientationCalc calcer = (OrientationCalc)typeAgentManager.getAgent(molecule.getType());
             if (calcer == null) {
                 continue;
@@ -635,7 +635,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         potentialMaster.calculate(box, allAtoms, torqueSum);
 
         for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             if (typeAgentManager.getAgent(molecule.getType()) == null) {
                 continue;
             }

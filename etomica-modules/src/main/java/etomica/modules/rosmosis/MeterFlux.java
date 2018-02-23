@@ -118,8 +118,8 @@ public class MeterFlux implements IDataSource, MoleculeAgentSource {
         double boxLength = box.getBoundary().getBoxSize().getX(dim);
         for (int i=0; i<species.length; i++) {
             IMoleculeList molecules = box.getMoleculeList(species[i]);
-            for (int j=0; j<molecules.getMoleculeCount(); j++) {
-                IMolecule atom = molecules.getMolecule(j);
+            for (int j = 0; j<molecules.size(); j++) {
+                IMolecule atom = molecules.get(j);
                 Vector oldPosition = ((Vector)agentManager.getAgent(atom));
                 double oldX = oldPosition.getX(dim);
                 Vector newPosition = positionDefinition.position(atom);

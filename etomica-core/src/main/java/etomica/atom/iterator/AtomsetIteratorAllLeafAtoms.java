@@ -46,8 +46,8 @@ public class AtomsetIteratorAllLeafAtoms implements AtomsetIteratorBasisDependen
         if (next.size() > 0) {
             return null;
         }
-        for (int i = 0; i < basis.getMoleculeCount(); i++) {
-            next.add(basis.getMolecule(i).getChildList().get(0));
+        for (int i = 0; i < basis.size(); i++) {
+            next.add(basis.get(i).getChildList().get(0));
         }
         return next;
     }
@@ -69,8 +69,8 @@ public class AtomsetIteratorAllLeafAtoms implements AtomsetIteratorBasisDependen
     }
 
     public boolean haveTarget(IAtom target) {
-        for (int i = 0; i < basis.getMoleculeCount(); i++) {
-            if (basis.getMolecule(i).getChildList().get(0) == target) {
+        for (int i = 0; i < basis.size(); i++) {
+            if (basis.get(i).getChildList().get(0) == target) {
                 return true;
             }
         }

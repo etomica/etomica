@@ -66,12 +66,12 @@ public class MCMoveClusterRingRegrowExchange extends MCMoveBox {
 
     public void setBox(Box p) {
         super.setBox(p);
-        int nMolecules = box.getMoleculeList().getMoleculeCount();
+        int nMolecules = box.getMoleculeList().size();
         oldPositions = new Vector[nMolecules][0];
         oldOrientations = new IOrientation3D [nMolecules][0];
         oldBondlengths = new double [nMolecules][0];
         for (int i=0; i<nMolecules; i++) {
-            int nAtoms = box.getMoleculeList().getMolecule(i).getChildList().size();
+            int nAtoms = box.getMoleculeList().get(i).getChildList().size();
             P = 2*nAtoms;
             oldOrientations[i] = new IOrientation3D[nAtoms];
             oldBondlengths[i] = new double [nAtoms];
@@ -92,8 +92,8 @@ public class MCMoveClusterRingRegrowExchange extends MCMoveBox {
         // Rosenbluth weight
         wNew = 1;
 
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IAtomList atoms = box.getMoleculeList().getMolecule(i).getChildList();            
+        for (int i = 0; i<molecules.size(); i++) {
+            IAtomList atoms = box.getMoleculeList().get(i).getChildList();
             // determine the old center of mass
             int nAtoms = atoms.size();
             com.E(0);
@@ -165,8 +165,8 @@ public class MCMoveClusterRingRegrowExchange extends MCMoveBox {
     public void rejectNotify() {
         IMoleculeList molecules = box.getMoleculeList();
 
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IAtomList atoms = molecules.getMolecule(i).getChildList();
+        for (int i = 0; i<molecules.size(); i++) {
+            IAtomList atoms = molecules.get(i).getChildList();
             int nAtoms = atoms.size();
             for (int j=0; j<nAtoms; j++) {
                 atoms.get(j).getPosition().E(oldPositions[i][j]);

@@ -125,12 +125,12 @@ public class ANIntergroupExchange implements AtomsetIteratorBasisDependent {
      * iteration.
      */
     public void setBasis(IMoleculeList basisMolecules) {
-        if (basisMolecules.getMoleculeCount() != 2) {
+        if (basisMolecules.size() != 2) {
             throw new IllegalArgumentException();
         }
         
-        moleculePair.atom0 = basisMolecules.getMolecule(0);
-        moleculePair.atom1 = basisMolecules.getMolecule(1);
+        moleculePair.atom0 = basisMolecules.get(0);
+        moleculePair.atom1 = basisMolecules.get(1);
     }
 
     public void reset() {

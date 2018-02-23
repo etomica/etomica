@@ -55,7 +55,7 @@ public class MCMoveClusterRingScale extends MCMoveBox {
 
         IMoleculeList molecules = box.getMoleculeList();
 
-        iMolecule = random.nextInt(molecules.getMoleculeCount());
+        iMolecule = random.nextInt(molecules.size());
         int i = iMolecule;
         atoms = null;
         int nAtoms = 0;
@@ -72,13 +72,13 @@ public class MCMoveClusterRingScale extends MCMoveBox {
             }
         }
         if (single) {
-            atoms = molecules.getMolecule(i).getChildList();
+            atoms = molecules.get(i).getChildList();
             nAtoms = atoms.size();
         }
         else {
             myAtoms.clear();
             for (int j=0; j<tangled.length; j++) {
-                IAtomList jAtoms = molecules.getMolecule(tangled[j]).getChildList();
+                IAtomList jAtoms = molecules.get(tangled[j]).getChildList();
                 myAtoms.addAll(jAtoms);
                 nAtoms += jAtoms.size();
             }

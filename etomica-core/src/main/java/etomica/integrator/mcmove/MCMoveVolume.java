@@ -97,7 +97,7 @@ public class MCMoveVolume extends MCMoveBoxStep {
         // N, not N+1 here because of the shell volume
         // D. S. Corti, Mol. Phys. 100, 1887 (2002).
         double biasNew = vBias.f(box.getBoundary().volume());
-        return biasNew / biasOld * Math.exp(box.getMoleculeList().getMoleculeCount() * vScale - (hNew - hOld) / temperature);
+        return biasNew / biasOld * Math.exp(box.getMoleculeList().size() * vScale - (hNew - hOld) / temperature);
     }
 
     public void acceptNotify() {  /* do nothing */}

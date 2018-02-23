@@ -86,7 +86,7 @@ public class HarmonicBetaNitrogenModel extends Simulation{
 	
 	public double[][] get2ndDerivative(){
 	
-		int numMolecule = box.getMoleculeList().getMoleculeCount();
+		int numMolecule = box.getMoleculeList().size();
 		int dofTrans = 3;
 		double[][] array = new double[dofTrans*numMolecule][dofTrans*numMolecule];
 			
@@ -97,13 +97,13 @@ public class HarmonicBetaNitrogenModel extends Simulation{
 		 *	(Skipping the molec1 == molec2) 
 		 */
 		for(int molec0=0; molec0<numMolecule; molec0++){
-			pair.atom0 = box.getMoleculeList().getMolecule(molec0);
+			pair.atom0 = box.getMoleculeList().get(molec0);
 			
 			for(int molec1=molec0; molec1<numMolecule; molec1++){
 				if(molec0 == molec1) continue;
 				
 				// Analytical calculation for 3x3 Translational second Derivative
-				pair.atom1 = box.getMoleculeList().getMolecule(molec1);
+				pair.atom1 = box.getMoleculeList().get(molec1);
 		
 				transTensor.E(potential.secondDerivative(pair));
 				for(int i=0; i<3; i++){

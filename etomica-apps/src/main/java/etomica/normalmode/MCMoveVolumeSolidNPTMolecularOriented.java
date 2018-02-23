@@ -69,13 +69,13 @@ public class MCMoveVolumeSolidNPTMolecularOriented extends
         super.doTransform(vScaleLocal);
 
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
         if (maxMolecule == -1) {
             maxMolecule = nMolecules;
         }
 
         for (int i=0; i<maxMolecule; i++) {
-            IMolecule molecule = moleculeList.getMolecule(i);
+            IMolecule molecule = moleculeList.get(i);
             
             IAtomList atoms = molecule.getChildList();
 
@@ -156,14 +156,14 @@ public class MCMoveVolumeSolidNPTMolecularOriented extends
             return 0;
         }
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
         for (int i=0; i<drSum.length; i++) {
             drSumSave[i].E(drSum[i]);
             drSum[i].E(0);
         }
         // now recalculate drSum
         for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = moleculeList.getMolecule(i);
+            IMolecule molecule = moleculeList.get(i);
             
             int nPlanes = drSum.length;
             int iPlane = (molecule.getIndex()/2)%nPlanes;

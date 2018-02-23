@@ -94,16 +94,16 @@ public class CalcNumerical2ndDerivativeNitrogen{
 		//	pair of identical molecules 
 		if(moleculei[0] == moleculei[1]){
 			IMoleculeList moleculeList = coordinateDefinition.getBox().getMoleculeList();
-			int numMolecule = moleculeList.getMoleculeCount();
+			int numMolecule = moleculeList.size();
 			
-			pair.atom0 = moleculeList.getMolecule(moleculei[0]);
+			pair.atom0 = moleculeList.get(moleculei[0]);
 			
 			IMolecule molecule1;
 			for (int i=0; i<numMolecule; i++){
 				
 				if(i==moleculei[0] && !doLatticeSum) continue;
 				
-				molecule1 = moleculeList.getMolecule(i); 
+				molecule1 = moleculeList.get(i);
 				pair.atom1 = molecule1;
 				
 				if(doLatticeSum){
@@ -117,7 +117,7 @@ public class CalcNumerical2ndDerivativeNitrogen{
 							molNum = (i+4);
 						}
 						
-						molecule1 = moleculeList.getMolecule(molNum);
+						molecule1 = moleculeList.get(molNum);
 						pair.atom1 = molecule1;
 	
 						//rotate the "borrowed" molecule 
@@ -172,8 +172,8 @@ public class CalcNumerical2ndDerivativeNitrogen{
 		}
 		
 		//pair of non identical molecules 
-		pair.atom0 = coordinateDefinition.getBox().getMoleculeList().getMolecule(moleculei[0]);
-		IMolecule molecule1 = coordinateDefinition.getBox().getMoleculeList().getMolecule(moleculei[1]); 
+		pair.atom0 = coordinateDefinition.getBox().getMoleculeList().get(moleculei[0]);
+		IMolecule molecule1 = coordinateDefinition.getBox().getMoleculeList().get(moleculei[1]);
 		pair.atom1 = molecule1;
 
 		if(doLatticeSum){

@@ -50,10 +50,10 @@ public class AtomSourceRandomSpecies implements AtomSource {
      * returns a random atom from the box's leaf atom list
      */
     public IAtom getAtom() {
-        int n = list.getMoleculeCount();
+        int n = list.size();
         if (n == 0) return null;
         int r = random.nextInt(n);
-        IMolecule m = list.getMolecule(r);
+        IMolecule m = list.get(r);
         IAtomList atoms = m.getChildList();
 //        IAtomList atoms = list.getMolecule(random.nextInt(n)).getChildList();
         n = atoms.size();

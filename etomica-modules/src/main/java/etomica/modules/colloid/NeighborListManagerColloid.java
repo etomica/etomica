@@ -42,25 +42,25 @@ public class NeighborListManagerColloid extends NeighborListManager {
     protected void neighborSetup() {
         super.neighborSetup();
         
-        IAtom colloidAtom = box.getMoleculeList(speciesColloid).getMolecule(0).getChildList().get(0);
+        IAtom colloidAtom = box.getMoleculeList(speciesColloid).get(0).getChildList().get(0);
         int p2idx = potentialMaster.getRangedPotentials(colloidAtom.getType()).getPotentialIndex(p2mc);
         IMoleculeList monomers = box.getMoleculeList(speciesMonomer);
-        if (monomers.getMoleculeCount() == 0) {
+        if (monomers.size() == 0) {
             return;
         }
-        int p2idx2 = potentialMaster.getRangedPotentials(monomers.getMolecule(0).getChildList().get(0).getType()).getPotentialIndex(p2mc);
+        int p2idx2 = potentialMaster.getRangedPotentials(monomers.get(0).getChildList().get(0).getType()).getPotentialIndex(p2mc);
 
-        for (int i=0; i<monomers.getMoleculeCount(); i++) {
-            IAtom atom = monomers.getMolecule(i).getChildList().get(0);
+        for (int i = 0; i<monomers.size(); i++) {
+            IAtom atom = monomers.get(i).getChildList().get(0);
             agentManager2Body.getAgent(colloidAtom).addUpNbr(atom,p2idx);
             agentManager2Body.getAgent(atom).addDownNbr(colloidAtom,p2idx2);
         }
         
-        p2idx = potentialMaster.getRangedPotentials(monomers.getMolecule(0).getChildList().get(0).getType()).getPotentialIndex(p2pseudo);
-        for (int i=0; i<monomers.getMoleculeCount(); i+=chainLength) {
-            IAtom iAtom = monomers.getMolecule(i).getChildList().get(0);
-            for (int j=i+chainLength; j<monomers.getMoleculeCount(); j+=chainLength) {
-                IAtom jAtom = monomers.getMolecule(j).getChildList().get(0);
+        p2idx = potentialMaster.getRangedPotentials(monomers.get(0).getChildList().get(0).getType()).getPotentialIndex(p2pseudo);
+        for (int i = 0; i<monomers.size(); i+=chainLength) {
+            IAtom iAtom = monomers.get(i).getChildList().get(0);
+            for (int j = i+chainLength; j<monomers.size(); j+=chainLength) {
+                IAtom jAtom = monomers.get(j).getChildList().get(0);
                 // iAtom and jAtom are both bonded to the colloid.  we need to keep them apart with p2seudo
                 agentManager2Body.getAgent(iAtom).addUpNbr(jAtom,p2idx);
                 agentManager2Body.getAgent(jAtom).addDownNbr(iAtom,p2idx2);

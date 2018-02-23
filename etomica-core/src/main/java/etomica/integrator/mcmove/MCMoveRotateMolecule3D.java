@@ -41,7 +41,7 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
 	public boolean doTrial() {
 //        System.out.println("doTrial MCMoveRotateMolecule called");
         
-        if(box.getMoleculeList().getMoleculeCount()==0) {molecule = null; return false;}
+        if(box.getMoleculeList().size()==0) {molecule = null; return false;}
             
         molecule = moleculeSource.getMolecule();
         energyMeter.setTarget(molecule);

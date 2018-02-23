@@ -29,7 +29,7 @@ public class LatticeSumMolecularCrystal {
     	this.atomPosDef = new MoleculePositionGeometricCenterPBC(space, box.getBoundary());
     	this.com0 = space.makeVector();
     	this.com1 = space.makeVector();
-    	int atomsPerMol = box.getLeafList().size() / box.getMoleculeList().getMoleculeCount();
+    	int atomsPerMol = box.getLeafList().size() / box.getMoleculeList().size();
     	this.tmpAtomicTensor3 = new Tensor[basisDim*atomsPerMol];//46X4=184 atoms dimensional array of 3D Tensor
     	for (int i=0; i<basisDim*atomsPerMol ;i++){
     		tmpAtomicTensor3[i] = space.makeTensor();
@@ -67,21 +67,21 @@ public class LatticeSumMolecularCrystal {
             }
         }
         
-    	posl0.E(molList.getMolecule(0).getChildList().get(0).getPosition());
+    	posl0.E(molList.get(0).getChildList().get(0).getPosition());
 
         for(int j=0; j<basisDim; j++) {//1st u.c.
         	System.out.println("j = "+j+" out of "+basisDim );
-        	IMolecule moleculej = molList.getMolecule(j);
-        	int L = box.getMoleculeList().getMoleculeCount()/basisDim;
+        	IMolecule moleculej = molList.get(j);
+        	int L = box.getMoleculeList().size()/basisDim;
             for(int lp=0; lp<L; lp++) {//basisDim=46
             	if(lp==0){
-            		poslp.E(molList.getMolecule(0).getChildList().get(0).getPosition());
+            		poslp.E(molList.get(0).getChildList().get(0).getPosition());
             		dRpR0.Ev1Mv2(poslp, posl0);
             	}
                 for(int jp=0; jp<basisDim; jp++) {//basisDim=46
                 	if(jp==j && lp==0) continue; // skip tp next jp iter.: self j=jp
                 	
-                	IMolecule moleculejp = molList.getMolecule(basisDim*lp+jp);
+                	IMolecule moleculejp = molList.get(basisDim*lp+jp);
                 	if(jp==0){
                 		poslp.E(moleculejp.getChildList().get(0).getPosition());
                 		dRpR0.Ev1Mv2(poslp, posl0);
@@ -94,7 +94,7 @@ public class LatticeSumMolecularCrystal {
                 }//jp
             }//lp
             
-    		poslp.E(molList.getMolecule(0).getChildList().get(0).getPosition());//acc. ineffic.
+    		poslp.E(molList.get(0).getChildList().get(0).getPosition());//acc. ineffic.
     		dRpR0.Ev1Mv2(poslp, posl0);
         	Tensor D6jj = atomicToMolecularD(atomicTensorAtomicPair,moleculej,moleculej);
         	for(int k=0; k<kv.length; k++){

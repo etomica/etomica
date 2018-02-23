@@ -79,12 +79,12 @@ public class MpiInterspeciesAA implements MoleculesetIteratorBoxDependent {
                     "ApiInterList will not work correctly if inner and outer lists are the same instance");
         }
         outerIndex = 0;
-        if (outerList.getMoleculeCount() == 0) {
-            innerIndex = innerList.getMoleculeCount() - 1;
+        if (outerList.size() == 0) {
+            innerIndex = innerList.size() - 1;
             return;
         }
         innerIndex = -1;
-        atoms.atom0 = outerList.getMolecule(outerIndex);
+        atoms.atom0 = outerList.get(outerIndex);
     }
 
     /**
@@ -92,10 +92,10 @@ public class MpiInterspeciesAA implements MoleculesetIteratorBoxDependent {
      */
     public void unset() {
         if (outerList != null) {
-            outerIndex = outerList.getMoleculeCount() - 1;
+            outerIndex = outerList.size() - 1;
         }
         if (innerList != null) {
-            innerIndex = innerList.getMoleculeCount() - 1;
+            innerIndex = innerList.size() - 1;
         }
     }
 
@@ -104,16 +104,16 @@ public class MpiInterspeciesAA implements MoleculesetIteratorBoxDependent {
      * iterates.
      */
     public IMoleculeList next() {
-        if (innerIndex > innerList.getMoleculeCount() - 2) {
-            if (outerIndex > outerList.getMoleculeCount() - 2 || innerList.getMoleculeCount() == 0) {
+        if (innerIndex > innerList.size() - 2) {
+            if (outerIndex > outerList.size() - 2 || innerList.size() == 0) {
                 return null;
             }
             outerIndex++;
-            atoms.atom0 = outerList.getMolecule(outerIndex);
+            atoms.atom0 = outerList.get(outerIndex);
             innerIndex = -1;
         }
         innerIndex++;
-        atoms.atom1 = innerList.getMolecule(innerIndex);
+        atoms.atom1 = innerList.get(innerIndex);
         return atoms;
     }
 
@@ -121,7 +121,7 @@ public class MpiInterspeciesAA implements MoleculesetIteratorBoxDependent {
      * Returns the number of iterates, which is list.size*(list.size-1)/2
      */
     public int size() {
-        return outerList.getMoleculeCount() * innerList.getMoleculeCount();
+        return outerList.size() * innerList.size();
     }
 
     /**

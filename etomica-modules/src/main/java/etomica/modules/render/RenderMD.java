@@ -140,7 +140,7 @@ public class RenderMD extends Simulation {
         imposepbc.setBox(box);
         integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
 
-        double vNew = box.getMoleculeList().getMoleculeCount() / params.density;
+        double vNew = box.getMoleculeList().size() / params.density;
         double scale = Math.pow(vNew / box.getBoundary().volume(), 1.0 / 3.0);
 
         if (params.initCar) {

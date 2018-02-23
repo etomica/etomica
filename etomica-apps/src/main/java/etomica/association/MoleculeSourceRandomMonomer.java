@@ -16,14 +16,14 @@ public class MoleculeSourceRandomMonomer extends MoleculeSourceRandomMolecule {
 
 	public IMolecule getMolecule() {
     	IMoleculeList molecules = associationManager.getAssociatedMolecules();
-    	if (molecules.getMoleculeCount() == box.getMoleculeList().getMoleculeCount()) {//all the molecules are dimer
+    	if (molecules.size() == box.getMoleculeList().size()) {//all the molecules are dimer
     		return null;
     	}
     	IMolecule molecule;
     	do {
     		molecule = super.getMolecule();
     	}
-		while (associationManager.getAssociatedMolecules(molecule).getMoleculeCount()> 0);
+		while (associationManager.getAssociatedMolecules(molecule).size()> 0);
         return molecule;
 	}
 

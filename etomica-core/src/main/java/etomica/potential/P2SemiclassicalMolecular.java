@@ -73,7 +73,7 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
         Vector[][] gradAndTorque = p2Classy.gradientAndTorque(molecules);
         double sum = 0;
         for (int i=0; i<2; i++) {
-            IMolecule iMol = molecules.getMolecule(i);
+            IMolecule iMol = molecules.get(i);
             MoleculeInfo molInfo = agents.get(iMol.getType());
             if (molInfo == null) {
                 molInfo = new MoleculeInfoBrute(space);

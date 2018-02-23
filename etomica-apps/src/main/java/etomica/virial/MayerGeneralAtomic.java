@@ -27,8 +27,8 @@ public class MayerGeneralAtomic implements MayerFunction {
     }
 
     public double f(IMoleculeList pair, double r2, double beta) {
-        aPair.atom0 = pair.getMolecule(0).getChildList().get(0);
-        aPair.atom1 = pair.getMolecule(1).getChildList().get(0);
+        aPair.atom0 = pair.get(0).getChildList().get(0);
+        aPair.atom1 = pair.get(1).getChildList().get(0);
         double x = -beta*potential.energy(aPair);
         if (Math.abs(x) < 0.01) {
             return x + x*x/2.0 + x*x*x/6.0 + x*x*x*x/24.0 + x*x*x*x*x/120.0;

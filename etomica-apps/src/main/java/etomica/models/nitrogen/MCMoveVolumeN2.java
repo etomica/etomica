@@ -135,7 +135,7 @@ public class MCMoveVolumeN2 extends MCMoveBoxStep {
     }//end of doTrial
 
     public double getChi(double temperature) {
-        return Math.exp((box.getMoleculeList().getMoleculeCount() + 1) * vScale - (hNew - hOld) / temperature);
+        return Math.exp((box.getMoleculeList().size() + 1) * vScale - (hNew - hOld) / temperature);
     }
 
     public void acceptNotify() {  /* do nothing */}

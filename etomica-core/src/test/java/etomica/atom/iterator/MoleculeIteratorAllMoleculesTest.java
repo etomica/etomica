@@ -50,12 +50,12 @@ public class MoleculeIteratorAllMoleculesTest extends MoleculeIteratorTestAbstra
         MoleculeArrayList moleculeList = new MoleculeArrayList();
         for(int i=0; i<species.length; i++) {
             IMoleculeList molecules = box.getMoleculeList(species[i]);
-            for (int j=0; j<molecules.getMoleculeCount(); j++) {
-                moleculeList.add(molecules.getMolecule(j));
+            for (int j = 0; j<molecules.size(); j++) {
+                moleculeList.add(molecules.get(j));
             }
         }
         
         LinkedList list = testIterates(iterator, moleculeList.toMoleculeArray());
-        assertEquals(list.size(), box.getMoleculeList().getMoleculeCount());
+        assertEquals(list.size(), box.getMoleculeList().size());
     }
 }

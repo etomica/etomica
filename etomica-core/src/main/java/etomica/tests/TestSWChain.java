@@ -112,7 +112,7 @@ public class TestSWChain extends Simulation {
         
         sim.getController().actionPerformed();
         
-        double Z = pMeter.getDataAsScalar()*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().getMoleculeCount()*sim.integrator.getTemperature());
+        double Z = pMeter.getDataAsScalar()*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().size()*sim.integrator.getTemperature());
         double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         avgPE /= numMolecules;
         System.out.println("Z="+Z);

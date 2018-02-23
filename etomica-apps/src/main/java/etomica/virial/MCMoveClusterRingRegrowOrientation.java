@@ -133,12 +133,12 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	@Override
 	public void setBox(Box p) {
 		super.setBox(p);
-		int nMolecules = box.getMoleculeList().getMoleculeCount();
+		int nMolecules = box.getMoleculeList().size();
 		doExchange = new boolean[nMolecules];
 		oldOrientations = new IOrientation3D[nMolecules][];
 		for (int i=0; i<nMolecules; i++) {
 			doExchange[i] = false;
-			int nAtoms = box.getMoleculeList().getMolecule(i).getChildList().size();
+			int nAtoms = box.getMoleculeList().get(i).getChildList().size();
 			oldOrientations[i] = new IOrientation3D[nAtoms+1];
 			for (int j=0; j<nAtoms+1; j++) {
 				oldOrientations[i][j] = (IOrientation3D) space.makeOrientation();
@@ -167,7 +167,7 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		Vector oldCenter = space.makeVector();
 		Vector newCenter = space.makeVector();
 		IMoleculeList molecules = box.getMoleculeList();
-		IOrientation3D [][] newOrientations = new IOrientation3D[molecules.getMoleculeCount()][P+1];
+		IOrientation3D [][] newOrientations = new IOrientation3D[molecules.size()][P+1];
 		double [] oldAlpha = new double [P];
 		newAlpha = new double [P];
 		double [] theta = new double [P];
@@ -178,11 +178,11 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		double pGenRatio = 1.00;
 		Vector pVecOld = space.makeVector();
 		Vector pVecNew = space.makeVector();
-		int nMolecules = molecules.getMoleculeCount();
+		int nMolecules = molecules.size();
 		molIndexUntouched = random.nextInt(nMolecules);
 		for (int i=0; i<nMolecules; i++) {
 			if (molIndexUntouched == i) continue;
-			IMolecule molecule = molecules.getMolecule(i);
+			IMolecule molecule = molecules.get(i);
 			IAtomList atoms = molecule.getChildList();
 			for (int j=0; j<P; j++) {
 				int prev = j-1;
@@ -412,9 +412,9 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 	@Override
 	public void rejectNotify() {
 		IMoleculeList molecules = box.getMoleculeList();
-		for (int i=0; i<molecules.getMoleculeCount(); i++) {
+		for (int i = 0; i<molecules.size(); i++) {
 			if (molIndexUntouched == i) continue;
-			IAtomList atoms = molecules.getMolecule(i).getChildList();
+			IAtomList atoms = molecules.get(i).getChildList();
 			for (int k=0; k<P; k++) {
 				IAtomOriented kAtom = ((IAtomOriented)atoms.get(k));
 				kAtom.getOrientation().setDirection(oldOrientations[i][k].getDirection());

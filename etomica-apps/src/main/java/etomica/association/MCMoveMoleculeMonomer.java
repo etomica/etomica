@@ -53,10 +53,10 @@ public class MCMoveMoleculeMonomer extends MCMoveMolecule {
         if (associationHelper.populateList(smerList,molecule,true)){
     		return 0;
     	}
-		if (associationManager.getAssociatedMolecules(molecule).getMoleculeCount() > 0) {
+		if (associationManager.getAssociatedMolecules(molecule).size() > 0) {
         	return 0.0;
         } 
-		if (smerList.getMoleculeCount() > maxLength) {
+		if (smerList.size() > maxLength) {
     		return 0.0;
 		}
         return super.getChi(temperature);

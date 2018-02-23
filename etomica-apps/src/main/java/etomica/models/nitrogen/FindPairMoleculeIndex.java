@@ -41,7 +41,7 @@ public class FindPairMoleculeIndex {
 		molAVec = space.makeVector();
 		molBVec = space.makeVector();
 		
-		int numMolecule = coordinateDefination.getBox().getMoleculeList().getMoleculeCount();
+		int numMolecule = coordinateDefination.getBox().getMoleculeList().size();
 		nCell = (int) Math.round(Math.pow((numMolecule/4), 1.0/3.0));
 		if(nCell > 20){
 			throw new RuntimeException("<FindPairMoleculeIndex> nCell is greater than 20!!! " +

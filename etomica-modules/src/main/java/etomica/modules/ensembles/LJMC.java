@@ -92,7 +92,7 @@ public class LJMC extends Simulation {
 
         mcMoveID = new MCMoveInsertDelete(potentialMaster, random, space) {
             public void acceptNotify() {
-                if (moleculeList.getMoleculeCount() > 999 && insert) {
+                if (moleculeList.size() > 999 && insert) {
                     rejectNotify();
                     uNew = 0;
                     return;
