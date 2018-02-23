@@ -227,8 +227,8 @@ public class IntegratorDimerApproach extends IntegratorBox {
 	
 	public void setMolecules() {
 		moleculeList = box.getMoleculeList();
-		monomerA = moleculeList.getMolecule(0);
-		monomerB = moleculeList.getMolecule(1);
+		monomerA = moleculeList.get(0);
+		monomerB = moleculeList.get(1);
 	}
 	
 	public void setImportantAtoms() {

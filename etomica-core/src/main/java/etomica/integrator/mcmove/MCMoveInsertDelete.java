@@ -107,7 +107,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
         if(insert) {
             uOld = 0.0;
             
-            if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.getMoleculeCount()-1);
+            if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.size()-1);
             else testMolecule = species.makeMolecule();
 
             atomTranslator.setDestination(positionSource.randomPosition());
@@ -118,7 +118,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
                 testMolecule = null;
                 return false;
             }
-            testMolecule = moleculeList.getMolecule(random.nextInt(moleculeList.getMoleculeCount()));
+            testMolecule = moleculeList.get(random.nextInt(moleculeList.size()));
             //delete molecule only upon accepting trial
             energyMeter.setTarget(testMolecule);
             uOld = energyMeter.getDataAsScalar();

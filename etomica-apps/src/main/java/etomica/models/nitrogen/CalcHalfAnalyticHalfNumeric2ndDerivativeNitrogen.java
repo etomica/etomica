@@ -89,9 +89,9 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 		double df = 0.0;
 		
 		IMoleculeList moleculeList = coordinateDefinition.getBox().getMoleculeList();
-		int numMolecule = moleculeList.getMoleculeCount();
+		int numMolecule = moleculeList.size();
 		
-		pair.atom0 = moleculeList.getMolecule(moleculei[0]);
+		pair.atom0 = moleculeList.get(moleculei[0]);
 		
 		IMolecule molecule1;
 		Vector[][] gradTorq;
@@ -101,7 +101,7 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 			
 			if(i==moleculei[0] && !doLatticeSum) continue;
 			
-			molecule1 = moleculeList.getMolecule(i); 
+			molecule1 = moleculeList.get(i);
 			pair.atom1 = molecule1;
 			
 			if(doLatticeSum){
@@ -127,7 +127,7 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 						}
 					}
 					
-					molecule1 = moleculeList.getMolecule(molNum);
+					molecule1 = moleculeList.get(molNum);
 					pair.atom1 = molecule1;
 
 					//rotate the "borrowed" molecule 

@@ -82,8 +82,8 @@ public class ApiIntergroupExchange extends ApiIntergroup {
     public void setBasis(IMoleculeList basisAtoms) {
         super.setBasis(basisAtoms);
         if (basisAtoms != null) {
-        	startAtom0 = basisAtoms.getMolecule(0).getChildList().get(0);
-        	startAtom1 = basisAtoms.getMolecule(1).getChildList().get(0);
+        	startAtom0 = basisAtoms.get(0).getChildList().get(0);
+        	startAtom1 = basisAtoms.get(1).getChildList().get(0);
         }
     }
     

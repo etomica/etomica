@@ -121,8 +121,8 @@ public class CriterionSimpleMolecular implements NeighborCriterionMolecular, Mol
 	}
 
 	public boolean accept(IMoleculeList pair) {
-		dr.E(moleculeSite.position(pair.getMolecule(1)));
-		dr.ME(moleculeSite.position(pair.getMolecule(0)));
+		dr.E(moleculeSite.position(pair.get(1)));
+		dr.ME(moleculeSite.position(pair.get(0)));
 
 		boundary.nearestImage(dr);
 //        if (Debug.ON && neighborRadius2 < interactionRange*interactionRange) {

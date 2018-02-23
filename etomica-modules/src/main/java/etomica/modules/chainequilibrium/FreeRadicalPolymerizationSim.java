@@ -100,12 +100,12 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
     public void resetBonds() {
         
         IMoleculeList initiators = box.getMoleculeList(speciesA);
-        for (int i=0; i<initiators.getMoleculeCount(); i++) {
-            IAtom initiator0 = initiators.getMolecule(i).getChildList().get(0);
+        for (int i = 0; i<initiators.size(); i++) {
+            IAtom initiator0 = initiators.get(i).getChildList().get(0);
             IAtom[] bonds0 = agentManager.getAgent(initiator0);
-            if (i<initiators.getMoleculeCount()-1) {
+            if (i<initiators.size()-1) {
                 i++;
-                IAtom initiator1 = initiators.getMolecule(i).getChildList().get(0);
+                IAtom initiator1 = initiators.get(i).getChildList().get(0);
                 IAtom[] bonds1 = agentManager.getAgent(initiator1);
                 bonds0[0] = initiator1;
                 bonds1[0] = initiator0;
@@ -116,8 +116,8 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         }
         
         IMoleculeList monomers = box.getMoleculeList(speciesB);
-        for (int i=0; i<monomers.getMoleculeCount(); i++) {
-            IAtom[] bonds = agentManager.getAgent(monomers.getMolecule(i).getChildList().get(0));
+        for (int i = 0; i<monomers.size(); i++) {
+            IAtom[] bonds = agentManager.getAgent(monomers.get(i).getChildList().get(0));
             bonds[0] = null;
             bonds[1] = null;
         }

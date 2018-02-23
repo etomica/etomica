@@ -112,7 +112,7 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialLS extend
 	
 	public double[][] get2ndDerivative(int molec0){
 	
-		int numMolecule = box.getMoleculeList().getMoleculeCount();
+		int numMolecule = box.getMoleculeList().size();
 		int dofTrans = 3;	
 //		workArray = new double[3][3*numMolecule];
 		
@@ -133,7 +133,7 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialLS extend
 		 *	Constructing the upper diagonal of the matrix
 		 *	(Skipping the molec1 == molec2) 
 		 */
-		IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().getMolecule(molec0);
+		IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().get(molec0);
 		pair.atom0 = molecule0;
 		
 		boolean isReverseOrder = false;
@@ -148,7 +148,7 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialLS extend
 			
 			
 			// Analytical calculation for 3x3 Translational second Derivative
-			IMolecule molecule1 = coordinateDef.getBox().getMoleculeList().getMolecule(molec1);
+			IMolecule molecule1 = coordinateDef.getBox().getMoleculeList().get(molec1);
 			pair.atom1 = molecule1;
 			
 			int[] index = findPair.getPairMoleculesIndex(pair.atom0, pair.atom1, isReverseOrder);

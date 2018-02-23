@@ -178,9 +178,9 @@ public class TestSetToUHexane extends Simulation {
         int nsteps = chainLength * 500;
 
         //Store old positions
-        IAtomList aal = box.getMoleculeList().getMolecule(0).getChildList();
+        IAtomList aal = box.getMoleculeList().get(0).getChildList();
 
-        Vector site = cdHex.getLatticePosition(box.getMoleculeList().getMolecule(0));
+        Vector site = cdHex.getLatticePosition(box.getMoleculeList().get(0));
 
         for(int i = 0; i < chainLength; i++){
             oldX[i].E(aal.get(i).getPosition());

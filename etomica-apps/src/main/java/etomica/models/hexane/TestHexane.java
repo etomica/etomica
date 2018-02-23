@@ -284,7 +284,7 @@ public class TestHexane extends Simulation {
             
             DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
 //            normalModeData.TE(1.0/(sim.box.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
-            normalModeData.TE(1.0/sim.box.getMoleculeList().getMoleculeCount());
+            normalModeData.TE(1.0/sim.box.getMoleculeList().size());
             int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
             
             Vector[] waveVectors = waveVectorFactory.getWaveVectors();

@@ -31,10 +31,10 @@ public class MeterPhiDeviation extends DataSourceScalar {
 
     public double getDataAsScalar() {
         IMoleculeList molecules = box.getMoleculeList();
-        int nMolecules = molecules.getMoleculeCount();
+        int nMolecules = molecules.size();
         double sum = 0;
         for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+            IMolecule molecule = molecules.get(i);
             IAtomList atomList = molecule.getChildList();
             int leafCount = atomList.size();
             dr.E(atomList.get(leafCount-1).getPosition());

@@ -25,7 +25,7 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
     }
     
     public boolean doTrial() {
-        if(box.getMoleculeList().getMoleculeCount()==1) return false;
+        if(box.getMoleculeList().size()==1) return false;
         
         molecule = moleculeSource.getMolecule();
         while (molecule.getIndex() == 0) {

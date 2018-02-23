@@ -213,8 +213,8 @@ public class EwaldSummation implements PotentialSoft{
 
     public double uBondCorr(){
         double uCorr = 0.0;
-        for (int i=0; i< moleculeList.getMoleculeCount(); i++){
-            IMolecule molecule = moleculeList.getMolecule(i);
+        for (int i = 0; i< moleculeList.size(); i++){
+            IMolecule molecule = moleculeList.get(i);
             int numSites = molecule.getChildList().size();
             for (int siteA=0; siteA<numSites; siteA++){
                 IAtom atomA = molecule.getChildList().get(siteA);
@@ -270,7 +270,7 @@ public class EwaldSummation implements PotentialSoft{
 
         double totalEnergy = real + fourier + self + bondCorr;
         if (false) {
-            int numMolecules = moleculeList.getMoleculeCount();
+            int numMolecules = moleculeList.size();
             System.out.println("total:               "+ totalEnergy/numMolecules);
             System.out.println("real   : "+ real/numMolecules);
             System.out.println("fourier: "+ fourier/numMolecules);
@@ -388,8 +388,8 @@ public class EwaldSummation implements PotentialSoft{
         }//End loop over ks
 
         //Intra-Molecular  gradient:
-        for (int i=0; i< moleculeList.getMoleculeCount(); i++){
-            IMolecule molecule = moleculeList.getMolecule(i);	
+        for (int i = 0; i< moleculeList.size(); i++){
+            IMolecule molecule = moleculeList.get(i);
             int numSites = molecule.getChildList().size();
             for (int siteA=0; siteA<numSites; siteA++){
                 IAtom atomA = molecule.getChildList().get(siteA); // index = 0, 1, 2, 3|||leafIndex=0...184

@@ -33,7 +33,7 @@ public class MoleculeArrayListTest extends TestCase {
 		assertEquals(40, arrayList.sizeOfArray());
 
 		for(int i = 0; i < size; i++) {
-			IMolecule atom = arrayList.getMolecule(i);
+			IMolecule atom = arrayList.get(i);
 			assertSame(listOfAtoms[i], atom);
 		}
 	}
@@ -96,7 +96,7 @@ public class MoleculeArrayListTest extends TestCase {
 		arrayList.ensureCapacity(15);
 		assertEquals(size, arrayList.sizeOfArray());
 		for(int i = 0; i < 5; i++) {
-			assertSame(atomList[i], arrayList.getMolecule(i));
+			assertSame(atomList[i], arrayList.get(i));
 		}
 		arrayList = null;
 		atomList = null;
@@ -112,7 +112,7 @@ public class MoleculeArrayListTest extends TestCase {
 		arrayList.ensureCapacity(21); 
 		assertEquals(21, arrayList.sizeOfArray());
 		for(int i = 0; i < 5; i++) {
-			assertSame(atomList[i], arrayList.getMolecule(i));
+			assertSame(atomList[i], arrayList.get(i));
 		}
 		
 	}
@@ -205,7 +205,7 @@ public class MoleculeArrayListTest extends TestCase {
         // Replace first element in list
 		try {
 			resultAtom = arrayList.set(0, newElem);
-			IMolecule a = arrayList.getMolecule(0);
+			IMolecule a = arrayList.get(0);
 			assertSame(a, newElem);
 		}
 		catch (IndexOutOfBoundsException e) {
@@ -217,7 +217,7 @@ public class MoleculeArrayListTest extends TestCase {
         // Replace last element in list
 		try {
 			resultAtom = arrayList.set(4, newElem);
-			IMolecule a = arrayList.getMolecule(4);
+			IMolecule a = arrayList.get(4);
 			assertSame(a, newElem);
 		}
 		catch (IndexOutOfBoundsException e) {
@@ -260,14 +260,14 @@ public class MoleculeArrayListTest extends TestCase {
 		}
 
 		for(int i = 0; i < size; i++) {
-			assertSame(atomList[i], arrayList.getMolecule(i));
+			assertSame(atomList[i], arrayList.get(i));
 		}
 
 		// Storage array is now full (10).  Add another atom
 		IMolecule overTheTop = new Molecule(species, 0);
 		addResult = arrayList.add(overTheTop);
 		assertTrue(addResult);
-		assertSame(overTheTop, arrayList.getMolecule(size));
+		assertSame(overTheTop, arrayList.get(size));
 		assertEquals((int)((float)size * (1.0f + MoleculeArrayList.getSizeIncreaseRatio()) + 1),
 				      arrayList.sizeOfArray());
 
@@ -304,10 +304,10 @@ public class MoleculeArrayListTest extends TestCase {
 		arrayList.addAll(atomSet);
 		
 		for(int i = 0; i < size; i++) {
-			assertSame(atomList[i], arrayList.getMolecule(i));
+			assertSame(atomList[i], arrayList.get(i));
 		}
 		for(int i = 0; i < size; i++) {
-			assertSame(atomsetList[i], arrayList.getMolecule(size+i));
+			assertSame(atomsetList[i], arrayList.get(size+i));
 		}
 		assertEquals(23, arrayList.sizeOfArray());
 	}
@@ -336,14 +336,14 @@ public class MoleculeArrayListTest extends TestCase {
 			assertNotNull(null);
 		}
 
-        IMolecule postRemove = arrayList.getMolecule(2);
+        IMolecule postRemove = arrayList.get(2);
 
     	assertNotSame(preRemove, postRemove);
 
     	if (Debug.ON) {
     	    // MoleculeArrayList.getMolecule only does a range check if Debug is ON
         	try {
-        		arrayList.getMolecule(size-1);
+        		arrayList.get(size-1);
         		// If an exception is not thrown, then the test
         		// has failed.  Fail test with an assertion that
         		// will fail.
@@ -371,12 +371,12 @@ public class MoleculeArrayListTest extends TestCase {
 
         IMolecule removeAtom = arrayList.removeAndReplace(2);
 		assertSame(atomList[2], removeAtom);
-		assertSame(atomList[size-1], arrayList.getMolecule(2));
+		assertSame(atomList[size-1], arrayList.get(2));
 
         if (Debug.ON) {
             // MoleculeArrayList.getMolecule only does a range check if Debug is ON
             try {
-                arrayList.getMolecule(size-1);
+                arrayList.get(size-1);
                 // If an exception is not thrown, then the test
                 // has failed.  Fail test with an assertion that
                 // will fail.
@@ -399,7 +399,7 @@ public class MoleculeArrayListTest extends TestCase {
         if (Debug.ON) {
             // MoleculeArrayList.getMolecule only does a range check if Debug is ON
     		try {
-    			IMolecule atom = arrayList.getMolecule(3);
+    			IMolecule atom = arrayList.get(3);
     			// Exception not thrown which indicates failure.
     			// Fail test with any assertion that will fail.
     			assertNotNull(null);
@@ -430,7 +430,7 @@ public class MoleculeArrayListTest extends TestCase {
 		if (Debug.ON) {
             // MoleculeArrayList.getMolecule only does a range check if Debug is ON
     		try {
-    			IMolecule atom = arrayList.getMolecule(0);
+    			IMolecule atom = arrayList.get(0);
         		// If an exception is not thrown, then the test
         		// has failed.  Fail test with an assertion that
         		// will fail.

@@ -56,7 +56,7 @@ public class LatticeSumCrystalParacetamol {
         }
         
         int singleMolDim = coordinateDefinitionParacetamol.getCoordinateDim()
-        				  /coordinateDefinitionParacetamol.getBasisCells()[0].molecules.getMoleculeCount();
+        				  /coordinateDefinitionParacetamol.getBasisCells()[0].molecules.size();
         DataDoubleArray u = new DataDoubleArray(singleMolDim);
         
         /*

@@ -33,7 +33,7 @@ public class MCMoveWV extends MCMoveBoxStep {
 
     public void setBox(Box newBox) {
         super.setBox(newBox);
-        int nMolecules = box.getMoleculeList().getMoleculeCount();
+        int nMolecules = box.getMoleculeList().size();
         double L = box.getBoundary().getBoxSize().getX(0);
         double minWV = 2. * Math.PI / L;
         double maxWV = 2. * Math.PI * (nMolecules/2) / L;
@@ -67,7 +67,7 @@ public class MCMoveWV extends MCMoveBoxStep {
             // density is 1
             double wv = waveVectors[mode].getX(0);
             wv += stepSize*2.0*(random.nextDouble()-0.5);
-            int nMolecules = box.getMoleculeList().getMoleculeCount();
+            int nMolecules = box.getMoleculeList().size();
             double L = box.getBoundary().getBoxSize().getX(0);
             double minWV = 2. * Math.PI / L;
             double maxWV = 2. * Math.PI * (nMolecules/2) / L;

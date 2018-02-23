@@ -31,8 +31,8 @@ public class ReactionManagerCO implements IntegratorListener {
         AtomLeafAgentManager agentManager = sim.interactionTracker.getAgentManager();
 
         IMoleculeList listC = box.getMoleculeList(sim.speciesC);
-        for (int i=0; i<listC.getMoleculeCount(); i++) {
-            IMolecule molecule = listC.getMolecule(i);
+        for (int i = 0; i<listC.size(); i++) {
+            IMolecule molecule = listC.get(i);
             IAtom atom = molecule.getChildList().get(0);
             CatalysisAgent agent = (CatalysisAgent)agentManager.getAgent(atom);
             if (agent.bondedAtom1.getType() == atom.getType()) {

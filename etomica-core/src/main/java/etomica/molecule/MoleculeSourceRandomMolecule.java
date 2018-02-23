@@ -36,7 +36,7 @@ public class MoleculeSourceRandomMolecule implements MoleculeSource, java.io.Ser
      */
     @IgnoreProperty
     public IMolecule getMolecule() {
-        return box.getMoleculeList().getMolecule(random.nextInt(box.getMoleculeList().getMoleculeCount()));
+        return box.getMoleculeList().get(random.nextInt(box.getMoleculeList().size()));
     }
     
     private static final long serialVersionUID = 1L;

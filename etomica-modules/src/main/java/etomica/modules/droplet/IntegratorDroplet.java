@@ -161,7 +161,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         //Compute forces on each atom
         potentialMaster.calculate(box, allAtoms, forceSum);
         double vol = 4.0/3.0*Math.PI;
-        double dv = vol / box.getMoleculeList().getMoleculeCount();
+        double dv = vol / box.getMoleculeList().size();
         double sp = 2.0*Math.pow(dv,1.0/3.0);
 
         IAtomList leafList = box.getLeafList();

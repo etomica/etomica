@@ -440,13 +440,13 @@ public class VirialHePIXCOdd {
         //Exchange interaction would yield sampling weight of zero.
         double r = 2;
         for (int j=0;j<nRings;j++) {
-        	IAtomList leafList = sim.box[0].getMoleculeList(species[j]).getMolecule(0).getChildList();
+        	IAtomList leafList = sim.box[0].getMoleculeList(species[j]).get(0).getChildList();
             for (int i = 0; i<leafList.size(); i++) {
                 Vector p = leafList.get(i).getPosition();
                 p.setX(0, r*Math.cos((2*Math.PI*i)/leafList.size()));
                 p.setX(1, r*Math.sin((2*Math.PI*i)/leafList.size()));
             }
-            IAtomList leafList1 = sim.box[1].getMoleculeList(species[j]).getMolecule(0).getChildList();
+            IAtomList leafList1 = sim.box[1].getMoleculeList(species[j]).get(0).getChildList();
             for (int i = 0; i<leafList1.size(); i++) {
                 Vector p = leafList1.get(i).getPosition();
                 p.setX(0, j*10+r*Math.cos((2*Math.PI*i)/leafList1.size()));

@@ -59,14 +59,14 @@ public class AssociationManagerMolecule implements MoleculeAgentSource,IListener
     }
     public void initialize() {
         IMoleculeList moleculeList = box.getMoleculeList();//list of all atoms in this box
-        for (int i=0; i<moleculeList.getMoleculeCount();i+=1) {
-        	IMolecule moleculei = moleculeList.getMolecule(i);
+        for (int i = 0; i<moleculeList.size(); i+=1) {
+        	IMolecule moleculei = moleculeList.get(i);
         	((MoleculeArrayList)agentManager.getAgent(moleculei)).clear();
         }
-        for (int i=0; i<moleculeList.getMoleculeCount()-1;i+=1) {
-        	IMolecule moleculei = moleculeList.getMolecule(i);//definition of atom i
-        	for (int j=i+1; j<moleculeList.getMoleculeCount();j+=1) {
-            	IMolecule moleculej = moleculeList.getMolecule(j);
+        for (int i = 0; i<moleculeList.size()-1; i+=1) {
+        	IMolecule moleculei = moleculeList.get(i);//definition of atom i
+        	for (int j = i+1; j<moleculeList.size(); j+=1) {
+            	IMolecule moleculej = moleculeList.get(j);
             	if(associationDefinition.isAssociated(moleculei,moleculej)) {
                     ((MoleculeArrayList)agentManager.getAgent(moleculei)).add(moleculej);//i and j are associated
                     ((MoleculeArrayList)agentManager.getAgent(moleculej)).add(moleculei);
@@ -74,9 +74,9 @@ public class AssociationManagerMolecule implements MoleculeAgentSource,IListener
         	}
          }
         associatedMolecules.clear();
-        for (int i=0; i<moleculeList.getMoleculeCount();i+=1) {
-        	IMolecule moleculei = moleculeList.getMolecule(i);
-        	if(((MoleculeArrayList)agentManager.getAgent(moleculei)).getMoleculeCount() > 0){
+        for (int i = 0; i<moleculeList.size(); i+=1) {
+        	IMolecule moleculei = moleculeList.get(i);
+        	if(((MoleculeArrayList)agentManager.getAgent(moleculei)).size() > 0){
         		associatedMolecules.add(moleculei);
         	}
         }
@@ -98,12 +98,12 @@ public class AssociationManagerMolecule implements MoleculeAgentSource,IListener
         neighborIterator.setBox(box);
         for (IMolecule moleculei = iterator.nextMolecule();moleculei != null; moleculei =iterator.nextMolecule()){
         	MoleculeArrayList listi = (MoleculeArrayList)agentManager.getAgent(moleculei);//list of the old bonds
-        	if (listi.getMoleculeCount() > 0){
-        		for (int i = 0; i<listi.getMoleculeCount();i++){
-            		IMolecule moleculej = listi.getMolecule(i);
+        	if (listi.size() > 0){
+        		for (int i = 0; i<listi.size(); i++){
+            		IMolecule moleculej = listi.get(i);
             		MoleculeArrayList listj = (MoleculeArrayList)agentManager.getAgent(moleculej);
         			listj.remove(listj.indexOf(moleculei));//remove atom i from the listj
-        			if ( listj.getMoleculeCount() == 0) {
+        			if ( listj.size() == 0) {
         				associatedMolecules.remove(associatedMolecules.indexOf(moleculej));
         			}
             	}
@@ -114,18 +114,18 @@ public class AssociationManagerMolecule implements MoleculeAgentSource,IListener
         	neighborIterator.setTarget(moleculei);
         	neighborIterator.reset();
         	for (IMoleculeList moleculeij = neighborIterator.next();moleculeij != null; moleculeij =neighborIterator.next()){
-            	IMolecule moleculej = moleculeij.getMolecule(0);
+            	IMolecule moleculej = moleculeij.get(0);
             	if (moleculej == moleculei){
-            		moleculej = moleculeij.getMolecule(1);
+            		moleculej = moleculeij.get(1);
             	}
             	if (moleculeij == null) throw new RuntimeException();
             	if (associationDefinition.isAssociated(moleculei, moleculej)){ //they are associated
-        			if (listi.getMoleculeCount() == 0) {
+        			if (listi.size() == 0) {
         				associatedMolecules.add(moleculei);
         			}
         			listi.add(moleculej); //make atom i and atom j to be associated
         			MoleculeArrayList listj = (MoleculeArrayList)agentManager.getAgent(moleculej);
-        			if (listj.getMoleculeCount() == 0) {
+        			if (listj.size() == 0) {
         				associatedMolecules.add(moleculej);
         			}
         			listj.add(moleculei);//make atom i and atom j to be associated
@@ -134,13 +134,13 @@ public class AssociationManagerMolecule implements MoleculeAgentSource,IListener
         	}
         }
         for (IMolecule moleculei = iterator.nextMolecule();moleculei != null; moleculei =iterator.nextMolecule()){
-        if (getAssociatedMolecules(moleculei).getMoleculeCount() > 1) {
+        if (getAssociatedMolecules(moleculei).size() > 1) {
         	//System.out.println("moleculei" +moleculei);
-        } else if (getAssociatedMolecules(moleculei).getMoleculeCount() == 1){
-        	IMolecule moleculej = getAssociatedMolecules(moleculei).getMolecule(0);
-        	if (getAssociatedMolecules(moleculej).getMoleculeCount() == 0){
+        } else if (getAssociatedMolecules(moleculei).size() == 1){
+        	IMolecule moleculej = getAssociatedMolecules(moleculei).get(0);
+        	if (getAssociatedMolecules(moleculej).size() == 0){
         		System.out.println("Wrong");
-        	} else if(getAssociatedMolecules(moleculej).getMoleculeCount() > 1){
+        	} else if(getAssociatedMolecules(moleculej).size() > 1){
         		AtomArrayList listj = (AtomArrayList)agentManager.getAgent(moleculej);
         		System.out.println("Wrong:smer");
         		System.out.println("listj = "+listj+" moleculei= " +moleculei+" moleculej= "+moleculej);

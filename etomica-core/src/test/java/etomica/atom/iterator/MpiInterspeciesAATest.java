@@ -89,7 +89,7 @@ public class MpiInterspeciesAATest extends MoleculeIteratorTestAbstract {
         MoleculesetAction speciesTest = new SpeciesTestAction();
 
         api.setBox(box);
-        int count = box.getMoleculeList(species[species0Index]).getMoleculeCount() * box.getMoleculeList(species[species1Index]).getMoleculeCount();
+        int count = box.getMoleculeList(species[species0Index]).size() * box.getMoleculeList(species[species1Index]).size();
 
         countTest(api, count);
         MoleculeIteratorTestAbstract.allAtoms(api, speciesTest);
@@ -109,7 +109,7 @@ public class MpiInterspeciesAATest extends MoleculeIteratorTestAbstract {
         public SpeciesTestAction() {
         }
         public void actionPerformed(IMoleculeList atomSet) {
-            assertTrue(atomSet.getMolecule(0).getType().getIndex() < atomSet.getMolecule(1).getType().getIndex());
+            assertTrue(atomSet.get(0).getType().getIndex() < atomSet.get(1).getType().getIndex());
         }
     }
     

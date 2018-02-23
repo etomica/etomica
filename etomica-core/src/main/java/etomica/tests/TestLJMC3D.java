@@ -10,7 +10,6 @@ import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
-import etomica.config.ConfigurationFile;
 import etomica.config.Configurations;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
@@ -106,7 +105,7 @@ public class TestLJMC3D extends Simulation {
         
         sim.getController().actionPerformed();
 
-        double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().getMoleculeCount() * sim.integrator.getTemperature());
+        double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
         double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         avgPE /= numAtoms;
         System.out.println("Z="+Z);

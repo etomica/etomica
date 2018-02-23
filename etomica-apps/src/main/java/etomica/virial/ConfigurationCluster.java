@@ -30,9 +30,9 @@ public class ConfigurationCluster implements Configuration, java.io.Serializable
         Vector dimVector = space.makeVector();
         dimVector.E(box.getBoundary().getBoxSize());
 		IMoleculeList moleculeList = box.getMoleculeList();
-		for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
+		for (int i = 0; i<moleculeList.size(); i++) {
             // initialize coordinates of child atoms
-		    IMolecule a = moleculeList.getMolecule(i);
+		    IMolecule a = moleculeList.get(i);
             a.getType().initializeConformation(a);
         }
 

@@ -155,9 +155,9 @@ public class ApiIntergroup implements AtomsetIteratorBasisDependent {
         if (basisAtoms == null) {
             aiOuter.setBasis(null);
         } else {
-            atomSetSinglet.atom = basisAtoms.getMolecule(0);
+            atomSetSinglet.atom = basisAtoms.get(0);
             aiOuter.setBasis(atomSetSinglet);
-            atomSetSinglet.atom = basisAtoms.getMolecule(1);
+            atomSetSinglet.atom = basisAtoms.get(1);
             aiInner.setBasis(atomSetSinglet);
         }
         needSetupIterators = true;

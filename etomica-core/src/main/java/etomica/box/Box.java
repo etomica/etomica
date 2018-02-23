@@ -146,13 +146,13 @@ public class Box {
     public void addMolecule(IMolecule molecule) {
         int speciesIndex = molecule.getType().getIndex();
         if (Debug.ON) {
-            for (int i = 0; i < moleculeLists[speciesIndex].getMoleculeCount(); i++) {
-                if (moleculeLists[speciesIndex].getMolecule(i) == molecule) {
+            for (int i = 0; i < moleculeLists[speciesIndex].size(); i++) {
+                if (moleculeLists[speciesIndex].get(i) == molecule) {
                     throw new RuntimeException("you bastard!");
                 }
             }
         }
-        molecule.setIndex(moleculeLists[speciesIndex].getMoleculeCount());
+        molecule.setIndex(moleculeLists[speciesIndex].size());
         moleculeLists[speciesIndex].add(molecule);
         allMoleculeList.setMoleculeLists(moleculeLists);
 
@@ -166,9 +166,9 @@ public class Box {
         eventManager.moleculeAdded(molecule);
 
         if (Debug.ON) {
-            for (int i = 0; i < moleculeLists[speciesIndex].getMoleculeCount(); i++) {
-                if (moleculeLists[speciesIndex].getMolecule(i).getIndex() != i) {
-                    throw new RuntimeException("oops " + molecule + " " + moleculeLists[speciesIndex].getMolecule(i) + " " + i);
+            for (int i = 0; i < moleculeLists[speciesIndex].size(); i++) {
+                if (moleculeLists[speciesIndex].get(i).getIndex() != i) {
+                    throw new RuntimeException("oops " + molecule + " " + moleculeLists[speciesIndex].get(i) + " " + i);
                 }
             }
         }
@@ -183,14 +183,14 @@ public class Box {
     public void removeMolecule(IMolecule molecule) {
         int moleculeIndex = molecule.getIndex();
         MoleculeArrayList moleculeList = moleculeLists[molecule.getType().getIndex()];
-        if (moleculeList.getMolecule(moleculeIndex) != molecule) {
+        if (moleculeList.get(moleculeIndex) != molecule) {
             throw new IllegalArgumentException("can't find " + molecule);
         }
-        if (moleculeIndex < moleculeList.getMoleculeCount() - 1) {
+        if (moleculeIndex < moleculeList.size() - 1) {
             moleculeList.removeAndReplace(moleculeIndex);
-            IMolecule replacingMolecule = moleculeList.getMolecule(moleculeIndex);
+            IMolecule replacingMolecule = moleculeList.get(moleculeIndex);
             replacingMolecule.setIndex(moleculeIndex);
-            eventManager.moleculeIndexChanged(replacingMolecule, moleculeList.getMoleculeCount());
+            eventManager.moleculeIndexChanged(replacingMolecule, moleculeList.size());
         } else {
             moleculeList.remove(moleculeIndex);
         }
@@ -224,11 +224,11 @@ public class Box {
     public void setNMolecules(ISpecies species, int n) {
         int speciesIndex = species.getIndex();
         MoleculeArrayList moleculeList = moleculeLists[speciesIndex];
-        int currentNMolecules = moleculeList.getMoleculeCount();
+        int currentNMolecules = moleculeList.size();
         int moleculeLeafAtoms = 0;
         IMolecule newMolecule0 = null;
         if (currentNMolecules > 0) {
-            moleculeLeafAtoms = moleculeList.getMolecule(0).getChildList().size();
+            moleculeLeafAtoms = moleculeList.get(0).getChildList().size();
         } else if (n > currentNMolecules) {
             newMolecule0 = species.makeMolecule();
             moleculeLeafAtoms = newMolecule0.getChildList().size();
@@ -249,7 +249,7 @@ public class Box {
             }
         } else {
             for (int i = currentNMolecules; i > n; i--) {
-                removeMolecule(moleculeList.getMolecule(i - 1));
+                removeMolecule(moleculeList.get(i - 1));
             }
         }
     }
@@ -259,7 +259,7 @@ public class Box {
      */
     public int getNMolecules(ISpecies species) {
         int speciesIndex = species.getIndex();
-        return moleculeLists[speciesIndex].getMoleculeCount();
+        return moleculeLists[speciesIndex].size();
     }
 
     /**
@@ -304,7 +304,7 @@ public class Box {
      * @param rho the specified density
      */
     public void setDensity(double rho) {
-        double vNew = getMoleculeList().getMoleculeCount() / rho;
+        double vNew = getMoleculeList().size() / rho;
         double scale = Math.pow(vNew / boundary.volume(), 1.0 / space.D());
         BoxInflate inflater = new BoxInflate(this, space);
         inflater.setScale(scale);
@@ -356,7 +356,7 @@ public class Box {
         // actual max index has already increased, there's no harm since
         // there's nothing that says the max index can't be too large.
         int numNewLeafAtoms = numNewMolecules * moleculeLeafAtoms;
-        eventManager.numberMolecules(species, moleculeLists[species.getIndex()].getMoleculeCount() + numNewMolecules);
+        eventManager.numberMolecules(species, moleculeLists[species.getIndex()].size() + numNewMolecules);
         if (numNewLeafAtoms > 1) {
             eventManager.globalAtomLeafIndexChanged(leafList.size() + numNewLeafAtoms);
         }

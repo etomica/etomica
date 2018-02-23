@@ -159,7 +159,7 @@ public class ConfigurationColloid implements Configuration {
         box.setNMolecules(speciesColloid, 1);
 
         IMoleculeList colloidList = box.getMoleculeList(speciesColloid);
-        IAtom colloidAtom = colloidList.getMolecule(0).getChildList().get(0);
+        IAtom colloidAtom = colloidList.get(0).getChildList().get(0);
         ((AtomArrayList)colloidMonomerBondManager.getAgent(colloidAtom)).clear();
         Vector colloidPos = colloidAtom.getPosition();
         colloidPos.E(0);
@@ -179,7 +179,7 @@ public class ConfigurationColloid implements Configuration {
             lastPos.E(colloidPos);
             lastPos.PEa1Tv1(0.5*sigmaColloid-0.5*sigmaMonomer, graftVectors[j]);
             for (int k=0; k<chainLength; k++) {
-                IAtom atom = monomerList.getMolecule(iMonomer).getChildList().get(0);
+                IAtom atom = monomerList.get(iMonomer).getChildList().get(0);
                 if (k==0) {
                     ((AtomArrayList)colloidMonomerBondManager.getAgent(colloidAtom)).add(atom);
                     ((AtomArrayList)colloidMonomerBondManager.getAgent(atom)).add(colloidAtom);

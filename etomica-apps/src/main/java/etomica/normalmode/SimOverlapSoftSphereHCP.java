@@ -353,19 +353,19 @@ public class SimOverlapSoftSphereHCP extends Simulation {
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
             integrators[iBox].getEventManager().addListener(pumpListener);
             if (iBox == 1) {
-            	if (boxTarget.getMoleculeList().getMoleculeCount()==54){
+            	if (boxTarget.getMoleculeList().size()==54){
 
                     pumpListener.setInterval(100);
 
-                } else if (boxTarget.getMoleculeList().getMoleculeCount()==128){
+                } else if (boxTarget.getMoleculeList().size()==128){
             	    pumpListener.setInterval(300);
 
-                } else if (boxTarget.getMoleculeList().getMoleculeCount()==250){
+                } else if (boxTarget.getMoleculeList().size()==250){
             	    pumpListener.setInterval(500);
 
                 } else
 
-            	    pumpListener.setInterval(boxTarget.getMoleculeList().getMoleculeCount());
+            	    pumpListener.setInterval(boxTarget.getMoleculeList().size());
             }
         }
         else {

@@ -114,8 +114,8 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         	configuration.initializeCoordinates(box);
         }
 
-        for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+        for (int iMolecule = 0; iMolecule<moleculeList.size(); iMolecule++) {
+            IMolecule molecule = moleculeList.get(iMolecule);
             if (configuration == null) {
                 // initialize coordinates of child atoms
                 molecule.getType().initializeConformation(molecule);
@@ -236,8 +236,8 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     	super.calcU(molecules);
         int j = 3;
         
-        for (int i=0; i < molecules.getMoleculeCount() ; i++){
-        	IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i < molecules.size() ; i++){
+        	IMolecule molecule = molecules.get(i);
         	Vector[] siteOrientation = (Vector[])orientationManager.getAgent(molecule);
         	
 	    	/*
@@ -316,7 +316,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 		    	u[j+2] = -u[j+2];  
 	    	}
 	        
-	    	j += coordinateDim/molecules.getMoleculeCount();
+	    	j += coordinateDim/molecules.size();
         }
         return u;
      }
@@ -326,14 +326,14 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
      */
     public void initNominalU(IMoleculeList molecules) {
     	
-    	for (int i=0; i < molecules.getMoleculeCount() ; i++){
+    	for (int i = 0; i < molecules.size() ; i++){
     		
     		Vector[] orientation = new Vector[3];
     		
     		orientation[0] = space.makeVector();
     		orientation[1] = space.makeVector();
     		orientation[2] = space.makeVector();
-    		IMolecule molecule = molecules.getMolecule(i);
+    		IMolecule molecule = molecules.get(i);
     		
     	    	/*
     	    	 * Determine the Orientation of Each Molecule
@@ -375,9 +375,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     	
         int j=3;
         
-        for (int i=0; i < molecules.getMoleculeCount() ; i++){
+        for (int i = 0; i < molecules.size() ; i++){
         	
-        	IMolecule molecule = molecules.getMolecule(i);
+        	IMolecule molecule = molecules.get(i);
             Vector[] siteOrientation = (Vector[])orientationManager.getAgent(molecule);
 	    	
 	    	/*
@@ -688,7 +688,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 		    	((AtomActionTransformed)atomGroupAction.getAtomAction()).setTransformationTensor(rotationN);
 		        atomGroupAction.actionPerformed(molecule);
 	        }
-	    	j += coordinateDim/molecules.getMoleculeCount();
+	    	j += coordinateDim/molecules.size();
 	    	
         }
         super.setToU(molecules, newU);

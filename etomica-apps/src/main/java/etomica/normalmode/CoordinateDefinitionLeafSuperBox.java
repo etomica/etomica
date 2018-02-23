@@ -36,7 +36,7 @@ public class CoordinateDefinitionLeafSuperBox extends CoordinateDefinitionLeaf {
     public void initializeCoordinates(int[] nCells) {
         MoleculeIteratorAllMolecules atomIterator = new MoleculeIteratorAllMolecules(box);
         IMoleculeList moleculeList = box.getMoleculeList();
-        if (moleculeList.getMoleculeCount() == 0) {
+        if (moleculeList.size() == 0) {
             throw new RuntimeException("There are no atoms yet!");
         }
 
@@ -96,11 +96,11 @@ public class CoordinateDefinitionLeafSuperBox extends CoordinateDefinitionLeaf {
         	
         	IMolecule molecule;
         	if (inCenterBox) {
-        		molecule = box.getMoleculeList(speciesA).getMolecule(counterSpeciesA);
+        		molecule = box.getMoleculeList(speciesA).get(counterSpeciesA);
         		counterSpeciesA ++;
         		
         	} else {
-        		molecule = box.getMoleculeList(speciesB).getMolecule(counterSpeciesB);
+        		molecule = box.getMoleculeList(speciesB).get(counterSpeciesB);
         		counterSpeciesB ++;
         		
         	}

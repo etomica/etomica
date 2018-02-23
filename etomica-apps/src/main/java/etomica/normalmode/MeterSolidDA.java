@@ -89,9 +89,9 @@ public class MeterSolidDA implements IDataSource {
         System.out.println(p1+" "+pXYZ);
         double[] x = data.getData();
         double V = box.getBoundary().volume();
-        double rho = box.getMoleculeList().getMoleculeCount()/V;
+        double rho = box.getMoleculeList().size()/V;
         double measuredP = temperature*rho - pc.getVirialSum()/(dim*V);
-        int N = box.getMoleculeList().getMoleculeCount();
+        int N = box.getMoleculeList().size();
         x[0] = pc.getEnergySum()/N;
         x[1] = measuredP;
         double buc = (0.5*pc.getDADBSum() + (pc.getEnergySum() - latticeEnergy))/temperature/N;

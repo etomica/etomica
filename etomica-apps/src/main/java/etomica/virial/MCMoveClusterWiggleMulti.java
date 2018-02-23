@@ -50,8 +50,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
 
     public void setBox(Box p) {
         super.setBox(p);
-        selectedAtoms = new IAtom[box.getMoleculeList().getMoleculeCount()];
-        translationVectors = new Vector3D[box.getMoleculeList().getMoleculeCount()];
+        selectedAtoms = new IAtom[box.getMoleculeList().size()];
+        translationVectors = new Vector3D[box.getMoleculeList().size()];
         for (int i=0; i<translationVectors.length; i++) {
             translationVectors[i] = space.makeVector();
         }
@@ -68,11 +68,11 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            if (species != null && moleculeList.getMolecule(i).getType() != species) {
+        for(int i = 0; i<moleculeList.size(); i++) {
+            if (species != null && moleculeList.get(i).getType() != species) {
                 continue;
             }
-            IAtomList childList = moleculeList.getMolecule(i).getChildList();
+            IAtomList childList = moleculeList.get(i).getChildList();
             int numChildren = childList.size();
 
             int j = -1;
@@ -212,8 +212,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i=0; i<selectedAtoms.length; i++) {
-            if (species != null && moleculeList.getMolecule(i).getType() != species) continue;
-            IAtomList childList = moleculeList.getMolecule(i).getChildList();
+            if (species != null && moleculeList.get(i).getType() != species) continue;
+            IAtomList childList = moleculeList.get(i).getChildList();
             work1.E(translationVectors[i]);
             work1.TE(1.0/childList.size());
             for (int k = 0; k<childList.size(); k++) {

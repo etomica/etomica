@@ -67,7 +67,7 @@ public class Atomset3IteratorIndexList implements AtomsetIteratorBasisDependent 
         if (parent == null) {
             parentGroup = null;
         } else {
-            parentGroup = parent.getMolecule(0);
+            parentGroup = parent.get(0);
         }
         unset();
     }

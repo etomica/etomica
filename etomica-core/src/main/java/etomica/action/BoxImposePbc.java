@@ -48,8 +48,8 @@ public class BoxImposePbc extends BoxActionAdapter {
         if (applyToMolecules) {
             IMoleculeList molecules = box.getMoleculeList();
             
-            for (int i=0; i<molecules.getMoleculeCount(); i++) {
-                IMolecule molecule = molecules.getMolecule(i);
+            for (int i = 0; i<molecules.size(); i++) {
+                IMolecule molecule = molecules.get(i);
                 Vector shift;
                 if (molecule instanceof IMoleculePositioned) {
                     Vector position = ((IMoleculePositioned)molecule).getPosition();

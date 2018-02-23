@@ -25,9 +25,9 @@ public abstract class MayerFunctionThreeBody implements MayerFunctionNonAdditive
 
     public double f(IMoleculeList molecules, double[] r2, double beta) {
         // just construct info to pass to the other method
-        int nMolecules = molecules.getMoleculeCount();
+        int nMolecules = molecules.size();
         for (int i=0; i<nMolecules; i++) {
-            myMoleculeIndices[i] = molecules.getMolecule(i).getIndex();
+            myMoleculeIndices[i] = molecules.get(i).getIndex();
         }
         return f(molecules, nMolecules, myMoleculeIndices, r2, beta);
     }
@@ -80,7 +80,7 @@ public abstract class MayerFunctionThreeBody implements MayerFunctionNonAdditive
     public void setBox(Box box) {
         if (lastValue != null) return;
         IMoleculeList molecules = box.getMoleculeList();
-        totalMolecules = molecules.getMoleculeCount();
+        totalMolecules = molecules.size();
         if (totalMolecules<3) throw new RuntimeException("need at least 3");
         int nTriplets = VirialDiagrams.tripletId(totalMolecules-3, totalMolecules-2, totalMolecules-1, totalMolecules)+1;
         lastValue = new double[nTriplets];

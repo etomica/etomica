@@ -17,12 +17,12 @@ public class MoleculeSetSinglet implements IMoleculeList, java.io.Serializable {
         this.atom = atom;
     }
     
-    public final IMolecule getMolecule(int i) {
+    public final IMolecule get(int i) {
         if(i == 0) return atom;
         throw new IllegalArgumentException();
     }
 
-    public final int getMoleculeCount() {
+    public final int size() {
         return 1;
     }
     

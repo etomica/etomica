@@ -99,7 +99,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
      * the given density.
      */
     public void setTargetDensity(double newTargetDensity) {
-        double vNew = box.getMoleculeList().getMoleculeCount()/newTargetDensity;
+        double vNew = box.getMoleculeList().size()/newTargetDensity;
         double scale = Math.pow(vNew/box.getBoundary().volume(), 1.0/scaleVector.getD());
         setScale(scale);
     }
@@ -108,7 +108,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
      * Returns the target density of the action.
      */
     public double getTargetDensity() {
-        double rho = box.getMoleculeList().getMoleculeCount()/box.getBoundary().volume();
+        double rho = box.getMoleculeList().size()/box.getBoundary().volume();
         for (int i=0; i<scaleVector.getD(); i++) {
             rho *= scaleVector.getX(i);
         }
@@ -126,8 +126,8 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
         Vector translationVector = translator.getTranslationVector();
 
         IMoleculeList molecules = box.getMoleculeList();
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             translationVector.E(moleculeCenter.position(molecule));
             translationVector.TE(scaleVector);
             groupScaler.actionPerformed(molecule);

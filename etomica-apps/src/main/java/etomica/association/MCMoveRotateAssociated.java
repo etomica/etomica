@@ -42,7 +42,7 @@ public class MCMoveRotateAssociated extends MCMoveAtom {
     }
     
     public boolean doTrial() {//rotate any atom
-        if(box.getMoleculeList().getMoleculeCount()==0) {return false;}
+        if(box.getMoleculeList().size()==0) {return false;}
         atom = atomSource.getAtom();
 
         energyMeter.setTarget(atom);

@@ -28,11 +28,11 @@ public class MeterDisplacementMoleculeRMS extends DataSourceScalar {
     public double getDataAsScalar() {
         IMoleculeList molecules = coordinateDefinition.getBox().getMoleculeList();
         double sum = 0;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            dr.E(position.position(molecules.getMolecule(i)));
-            dr.ME(coordinateDefinition.getLatticePosition(molecules.getMolecule(i)));
+        for (int i = 0; i<molecules.size(); i++) {
+            dr.E(position.position(molecules.get(i)));
+            dr.ME(coordinateDefinition.getLatticePosition(molecules.get(i)));
             sum += dr.squared();
         }
-        return Math.sqrt(sum/molecules.getMoleculeCount()/3);
+        return Math.sqrt(sum/molecules.size()/3);
     }
 }

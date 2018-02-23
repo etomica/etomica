@@ -59,8 +59,8 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
 		double sum = 0.0;
 		double r2 = 0.0;
 
-		IMolecule nitrogena = pair.getMolecule(0);
-		IMolecule nitrogenb = pair.getMolecule(1);
+		IMolecule nitrogena = pair.get(0);
+		IMolecule nitrogenb = pair.get(1);
 		
 		// to compute the midpoint distance between the two
 		Vector com1 = (nitrogena.getChildList().get(2)).getPosition();
@@ -422,8 +422,8 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
      */
 	public double virial(IMoleculeList pair) {
 		
-		IMolecule nitrogena = pair.getMolecule(0);
-		IMolecule nitrogenb = pair.getMolecule(1);
+		IMolecule nitrogena = pair.get(0);
+		IMolecule nitrogenb = pair.get(1);
 		
 		// to compute the midpoint distance between the two
 		Vector com1 = (nitrogena.getChildList().get(2)).getPosition();
@@ -450,8 +450,8 @@ public class P2NitrogenShellModel extends PotentialMolecular implements Potentia
 	 */
 	public Vector[] gradient(IMoleculeList pair) {
 		
-		IMolecule nitrogena = pair.getMolecule(0);
-		IMolecule nitrogenb = pair.getMolecule(1);
+		IMolecule nitrogena = pair.get(0);
+		IMolecule nitrogenb = pair.get(1);
 		
 		// to compute the midpoint distance between the two
 		Vector com1 = (nitrogena.getChildList().get(2)).getPosition();

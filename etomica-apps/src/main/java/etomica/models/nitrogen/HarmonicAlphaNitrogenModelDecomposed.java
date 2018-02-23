@@ -93,7 +93,7 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 	
 	public double[][] get2ndDerivativeMoleculei(CoordinateDefinition coordinateDef, int iMolecule){
 		
-		int numMolecule = box.getMoleculeList().getMoleculeCount();
+		int numMolecule = box.getMoleculeList().size();
 		int dofPerMol = coordinateDef.getCoordinateDim()/numMolecule;
 		
 		double[][] array = new double[dofPerMol][coordinateDef.getCoordinateDim() - ((iMolecule+1)*dofPerMol)];
@@ -108,14 +108,14 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 		 *	(Skipping the molec1 == molec2) 
 		 */
 	
-		pair.atom0 = box.getMoleculeList().getMolecule(iMolecule);
+		pair.atom0 = box.getMoleculeList().get(iMolecule);
 			
 		for(int molec1=(iMolecule+1); molec1<numMolecule; molec1++){
 			/*
 			 * working within the 5x5 Matrix
 			 */
 			// Analytical calculation for 3x3 Translational second Derivative
-			pair.atom1 = box.getMoleculeList().getMolecule(molec1);
+			pair.atom1 = box.getMoleculeList().get(molec1);
 		
 			transTensor.E(potential.secondDerivative(pair));
 			for(int i=0; i<3; i++){
@@ -141,7 +141,7 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 		double[][] array = new double[coordinateDef.getCoordinateDim()][coordinateDef.getCoordinateDim()];
 		double[] newU = new double[coordinateDef.getCoordinateDim()];
 		
-		int numMolecule = box.getMoleculeList().getMoleculeCount();
+		int numMolecule = box.getMoleculeList().size();
 		int dofPerMol = coordinateDef.getCoordinateDim()/numMolecule;
 		
 		CalcNumerical2ndDerivative cm2ndD = new CalcNumerical2ndDerivative(box, potentialMaster, coordinateDef);

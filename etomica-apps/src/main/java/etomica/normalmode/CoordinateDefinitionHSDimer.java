@@ -99,8 +99,8 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
         
         indexIterator.reset();
                 
-        for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+        for (int iMolecule = 0; iMolecule<moleculeList.size(); iMolecule++) {
+            IMolecule molecule = moleculeList.get(iMolecule);
             IConformationOriented conformation = (IConformationOriented)((Species)molecule.getType()).getConformation();
             
             if (configuration == null) {
@@ -161,8 +161,8 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
     	
         int j = 3;
         
-        for (int i=0; i < molecules.getMoleculeCount() ; i++){
-        	IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i < molecules.size() ; i++){
+        	IMolecule molecule = molecules.get(i);
         	int thisOrientationIndex = orientationSelector.f(i);
         	
 	    	/*
@@ -195,7 +195,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
 	    	else {
 	    	    u[j+1] = phi/sintheta;
 	    	}
-	    	j += coordinateDim/molecules.getMoleculeCount();
+	    	j += coordinateDim/molecules.size();
         }
         return u;
      }
@@ -216,9 +216,9 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
     	
     	int j=3;
 	        
-        for (int i=0; i < molecules.getMoleculeCount() ; i++){
+        for (int i = 0; i < molecules.size() ; i++){
         	
-        	IMolecule molecule = molecules.getMolecule(i);
+        	IMolecule molecule = molecules.get(i);
             int thisOrientationIndex = orientationSelector.f(i);
             Vector[] myAxes = axes[thisOrientationIndex];
 
@@ -236,7 +236,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
             IConformationOriented conformationOriented = (IConformationOriented)((Species)molecule.getType()).getConformation();
             conformationOriented.initializePositions(molecule.getChildList(), orientation);
 	    	
-	    	j += coordinateDim/molecules.getMoleculeCount();
+	    	j += coordinateDim/molecules.size();
 	    	
         }
         super.setToU(molecules, newU);
@@ -249,7 +249,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
     		throw new RuntimeException("<CoordinateDefinitionNitrogen> setToUMoleculei method, newU[] length should be 5!");
     	}
     	
-		IMolecule molecule = box.getMoleculeList().getMolecule(moleculei);
+		IMolecule molecule = box.getMoleculeList().get(moleculei);
         int thisOrientationIndex = orientationSelector.f(moleculei);
         Vector[] myAxes = axes[thisOrientationIndex];
 

@@ -52,8 +52,8 @@ public class MayerHSMixture implements MayerFunction {
     }
 
     public double f(IMoleculeList pair, double r2, double beta) {
-        int i = pair.getMolecule(0).getIndex();
-        int j = pair.getMolecule(1).getIndex();
+        int i = pair.get(0).getIndex();
+        int j = pair.get(1).getIndex();
         return (r2 < sigma2[i][j]) ? allVal[i][j] : 0.0;
     }
 

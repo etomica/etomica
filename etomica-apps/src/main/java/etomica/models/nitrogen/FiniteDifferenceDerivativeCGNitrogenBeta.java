@@ -124,9 +124,9 @@ public class FiniteDifferenceDerivativeCGNitrogenBeta{
 
 	public double[] generateNewU (double[] parameter){
 		int numDOF = coordinateDefinition.getCoordinateDim();
-		int dofPerMol = numDOF/box.getMoleculeList().getMoleculeCount(); 
+		int dofPerMol = numDOF/box.getMoleculeList().size();
 		
-		int nC = (int)Math.pow(box.getMoleculeList().getMoleculeCount()/1.9999999999, 1.0/3.0);
+		int nC = (int)Math.pow(box.getMoleculeList().size()/1.9999999999, 1.0/3.0);
 		int nCelldofinZ = nC*2*dofPerMol;
 		double[] newU = new double[numDOF];
 		

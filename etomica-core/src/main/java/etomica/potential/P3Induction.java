@@ -174,9 +174,9 @@ public class P3Induction implements IPotentialAtomic {
         AtomPair pair23 = new AtomPair(atom2, atom3);
 
         IMoleculeList moleculeTriplet = box2.getMoleculeList();
-        IMolecule molecule1 = moleculeTriplet.getMolecule(0);
-        IMolecule molecule2 = moleculeTriplet.getMolecule(1);
-        IMolecule molecule3 = moleculeTriplet.getMolecule(2);
+        IMolecule molecule1 = moleculeTriplet.get(0);
+        IMolecule molecule2 = moleculeTriplet.get(1);
+        IMolecule molecule3 = moleculeTriplet.get(2);
         MoleculePair mPair12 = new MoleculePair(molecule1, molecule2);
         MoleculePair mPair13 = new MoleculePair(molecule1, molecule3);
         MoleculePair mPair23 = new MoleculePair(molecule2, molecule3);

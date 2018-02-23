@@ -148,8 +148,8 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
          */
         boolean isUnitCellA = true;
         
-        for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+        for (int iMolecule = 0; iMolecule<moleculeList.size(); iMolecule++) {
+            IMolecule molecule = moleculeList.get(iMolecule);
             
             if (isAlpha){
 	            int rotationNum = iMolecule % 4;
@@ -183,7 +183,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
             }
             
             if(isBeta || isBetaHCP){
-            	int nCell = (int)Math.pow(moleculeList.getMoleculeCount()/2, 1.000001/3.0)/nCells[2];
+            	int nCell = (int)Math.pow(moleculeList.size()/2, 1.000001/3.0)/nCells[2];
             	int numMolinZ = 2*nCell;
             	
             	if(iMolecule>0 && iMolecule%numMolinZ == 0){
@@ -232,7 +232,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
             }
             
             if(isBetaLatticeSum){
-            	if(moleculeList.getMoleculeCount() != 4){
+            	if(moleculeList.size() != 4){
             		throw new RuntimeException("<CoordinateDefinitionNitrogen> The method has been hard-coded to have 4-molecules ONLY!");
             	}
             		
@@ -315,7 +315,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
  */
 	public void setBetaPositionAndOrientation(IMoleculeList molecules){
     	
-    	for (int i=0; i < molecules.getMoleculeCount() ; i++){
+    	for (int i = 0; i < molecules.size() ; i++){
     		
     		Vector[] orientation = new Vector[3];
     		Vector orientationMol2 = space.makeVector();
@@ -324,14 +324,14 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     		orientation[1] = space.makeVector();
     		orientation[2] = space.makeVector();
     		
-    		IMolecule molecule = molecules.getMolecule(i);
+    		IMolecule molecule = molecules.get(i);
     		IMolecule molecule2;
     		
     		if(i%2 == 0){
-	    		molecule2 = molecules.getMolecule(i+1);
+	    		molecule2 = molecules.get(i+1);
     		
     		} else {
-    			molecule2 = molecules.getMolecule(i-1);
+    			molecule2 = molecules.get(i-1);
         			
     		}
     		
@@ -377,7 +377,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     
 	public void setNominalReference(IMoleculeList molecules){
     	
-    	for (int i=0; i < molecules.getMoleculeCount() ; i++){
+    	for (int i = 0; i < molecules.size() ; i++){
     		
     		Vector[] orientation = new Vector[3];
     		
@@ -385,7 +385,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     		orientation[1] = space.makeVector();
     		orientation[2] = space.makeVector();
     		
-    		IMolecule molecule = molecules.getMolecule(i);
+    		IMolecule molecule = molecules.get(i);
     		
     	    orientation[0].E(new double[]{1.0, 0.0, 0.0});
     		orientation[1].E(new double[]{0.0, 1.0, 0.0});
@@ -581,8 +581,8 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	}
         int j = 3;
         
-        for (int i=0; i < molecules.getMoleculeCount() ; i++){
-        	IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i < molecules.size() ; i++){
+        	IMolecule molecule = molecules.get(i);
         	Vector[] siteOrientation = (Vector[])orientationManager.getAgent(molecule);
         	
 	    	/*
@@ -631,7 +631,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
                 u[j] *= -1;
             }
 
-	    	j += coordinateDim/molecules.getMoleculeCount();
+	    	j += coordinateDim/molecules.size();
         }
         return u;
      }
@@ -645,14 +645,14 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     public void initNominalU(IMoleculeList molecules) {
     	Vector orientationMol2 = space.makeVector();
     	
-    	for (int i=0; i < molecules.getMoleculeCount() ; i++){
+    	for (int i = 0; i < molecules.size() ; i++){
     		
     		Vector[] orientation = new Vector[3];
     			
     		orientation[0] = space.makeVector();
     		orientation[1] = space.makeVector();
     		orientation[2] = space.makeVector();
-    		IMolecule molecule = molecules.getMolecule(i);
+    		IMolecule molecule = molecules.get(i);
     		
     	   	/*
     	   	 * Determine the Orientation of Each Molecule Within a basis cell
@@ -698,10 +698,10 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         		IMolecule molecule2;
         		
         		if(i%2 == 0){
-    	    		molecule2 = molecules.getMolecule(i+1);
+    	    		molecule2 = molecules.get(i+1);
         		
         		} else {
-        			molecule2 = molecules.getMolecule(i-1);
+        			molecule2 = molecules.get(i-1);
             			
         		}
         		
@@ -789,9 +789,9 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     	if(rotDim==2){
 	        int j=3;
 	        
-	        for (int i=0; i < molecules.getMoleculeCount() ; i++){
+	        for (int i = 0; i < molecules.size() ; i++){
 	        	
-	        	IMolecule molecule = molecules.getMolecule(i);
+	        	IMolecule molecule = molecules.get(i);
 	        	
 	        	Vector[] siteOrientation = (Vector[])orientationManager.getAgent(molecule);
 
@@ -803,7 +803,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 	        	// when u3 and u4 equal to zero
 	        	if(check==0.0){
 	        	    ((ConformationNitrogen)((SpeciesN2)molecule.getType()).getConformation()).initializePositions(molecule.getChildList(), siteOrientation[0]);
-	        	    j+= coordinateDim/molecules.getMoleculeCount();
+	        	    j+= coordinateDim/molecules.size();
 	        	    continue;
 	        	}
 	                    
@@ -861,7 +861,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 		    	if (orientVector.isNaN()) throw new RuntimeException();
 		    	((ConformationNitrogen)((SpeciesN2)molecule.getType()).getConformation()).initializePositions(molecule.getChildList(), orientVector);
 			    
-		    	j += coordinateDim/molecules.getMoleculeCount();
+		    	j += coordinateDim/molecules.size();
 		    	
 	        }
     	}
@@ -875,7 +875,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
     		throw new RuntimeException("<CoordinateDefinitionNitrogen> setToUMoleculei method, newU[] length should be 5!");
     	}
     	
-		IMolecule molecule = box.getMoleculeList().getMolecule(moleculei);
+		IMolecule molecule = box.getMoleculeList().get(moleculei);
         
         Vector[] siteOrientation = (Vector[])orientationManager.getAgent(molecule);
 

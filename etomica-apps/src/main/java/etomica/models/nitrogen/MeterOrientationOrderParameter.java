@@ -36,11 +36,11 @@ public class MeterOrientationOrderParameter extends DataSourceScalar {
 	      
 	            BasisCell cell = cells[iCell];
 	            IMoleculeList molecules = cell.molecules;
-	            numMol = molecules.getMoleculeCount();
+	            numMol = molecules.size();
 	            
 	            for (int iMol=0; iMol<numMol; iMol++){
 	            	
-		          	IMolecule molecule = molecules.getMolecule(iMol);
+		          	IMolecule molecule = molecules.get(iMol);
 		          	Vector leafPos0 = molecule.getChildList().get(0).getPosition();
 			    	Vector leafPos1 = molecule.getChildList().get(1).getPosition();
 			

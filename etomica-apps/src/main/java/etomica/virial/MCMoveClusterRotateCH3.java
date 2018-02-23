@@ -46,8 +46,8 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
 
     public void setBox(Box p) {
     	super.setBox(p);
-        selectedAtoms = new IAtom[box.getMoleculeList().getMoleculeCount()];
-        translationVectors = new Vector3D[box.getMoleculeList().getMoleculeCount()];
+        selectedAtoms = new IAtom[box.getMoleculeList().size()];
+        translationVectors = new Vector3D[box.getMoleculeList().size()];
         for (int i=0; i<translationVectors.length; i++) {
             translationVectors[i] = space.makeVector();
         }
@@ -64,11 +64,11 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
         wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            if (species != null && moleculeList.getMolecule(i).getType() != species) {
+        for(int i = 0; i<moleculeList.size(); i++) {
+            if (species != null && moleculeList.get(i).getType() != species) {
                 continue;
             }
-            IAtomList childList = moleculeList.getMolecule(i).getChildList();
+            IAtomList childList = moleculeList.get(i).getChildList();
             Vector position = space.makeVector();
             Vector positionNeighbor = space.makeVector();
             int numChildren = childList.size();// total atoms in the i-th molecule
@@ -148,8 +148,8 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i=0; i<selectedAtoms.length; i++) {
-            if (species != null && moleculeList.getMolecule(i).getType() != species) continue;
-            IAtomList childList = moleculeList.getMolecule(i).getChildList();
+            if (species != null && moleculeList.get(i).getType() != species) continue;
+            IAtomList childList = moleculeList.get(i).getChildList();
             axis.E(translationVectors[i]);
             axis.TE(1.0/childList.size());
             for (int k = 0; k<childList.size(); k++) {

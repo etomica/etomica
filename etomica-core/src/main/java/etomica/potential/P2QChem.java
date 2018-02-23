@@ -42,8 +42,8 @@ public class P2QChem extends PotentialMolecular {
 
 		//System.out.println("Made it to P2QChem.energy()");
         
-    	IMolecule molecule1 = atoms.getMolecule(0);
-    	IMolecule molecule2 = atoms.getMolecule(1);
+    	IMolecule molecule1 = atoms.get(0);
+    	IMolecule molecule2 = atoms.get(1);
     	
     	Vector atomPos1 = molecule1.getChildList().get(0).getPosition();
     	Vector atomPos2  = molecule2.getChildList().get(0).getPosition();

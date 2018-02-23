@@ -81,9 +81,9 @@ public class ConfigurationSAM implements Configuration {
         Vector offset = space.makeVector();
 
         IMoleculeList molecules = pretendBox.getMoleculeList(speciesMolecules);
-        double y0 = molecules.getMolecule(0).getChildList().get(0).getPosition().getX(1) + moleculeOffset.getX(1);
+        double y0 = molecules.get(0).getChildList().get(0).getPosition().getX(1) + moleculeOffset.getX(1);
         for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = molecules.getMolecule(0);
+            IMolecule molecule = molecules.get(0);
             pretendBox.removeMolecule(molecule);
             groupTranslator.actionPerformed(molecule);
             box.addMolecule(molecule);
@@ -124,7 +124,7 @@ public class ConfigurationSAM implements Configuration {
 
         molecules = pretendBox.getMoleculeList(speciesSurface);
         for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = molecules.getMolecule(0);
+            IMolecule molecule = molecules.get(0);
             pretendBox.removeMolecule(molecule);
             box.addMolecule(molecule);
             Vector pos = molecule.getChildList().get(0).getPosition();

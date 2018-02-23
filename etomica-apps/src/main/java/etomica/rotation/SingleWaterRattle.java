@@ -96,7 +96,7 @@ public class SingleWaterRattle {
             final IOrientationFull3D orientation = (IOrientationFull3D) space.makeOrientation();
             IAction writeA = new IAction() {
                 public void actionPerformed() {
-                    IMolecule molecule = box.getMoleculeList().getMolecule(0);
+                    IMolecule molecule = box.getMoleculeList().get(0);
                     calcer.calcOrientation(molecule, orientation);
                     A.setOrientation(orientation);
                     try {

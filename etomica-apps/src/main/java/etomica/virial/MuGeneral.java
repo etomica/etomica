@@ -29,8 +29,8 @@ public class MuGeneral implements MayerFunction, java.io.Serializable {
 
 	public double f(IMoleculeList pair, double r2, double beta) {
 
-		IMolecule molecule1 = pair.getMolecule(0);
-		IMolecule molecule2 = pair.getMolecule(1);
+		IMolecule molecule1 = pair.get(0);
+		IMolecule molecule2 = pair.get(1);
 		IAtomList atomList1 = molecule1.getChildList();
 		IAtomList atomList2 = molecule2.getChildList();
         IAtomOriented atom1 = (IAtomOriented)atomList1.get(0);

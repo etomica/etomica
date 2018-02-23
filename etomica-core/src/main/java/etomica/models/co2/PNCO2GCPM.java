@@ -110,10 +110,10 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
     public double energy(IMoleculeList atoms){
         double sum = 0;
         if (component != Component.INDUCTION) {
-            for (int i=0; i<atoms.getMoleculeCount()-1; i++) {
-                pair.atom0 = atoms.getMolecule(i);
-                for (int j=i+1; j<atoms.getMoleculeCount(); j++) {
-                    pair.atom1 = atoms.getMolecule(j);
+            for (int i = 0; i<atoms.size()-1; i++) {
+                pair.atom0 = atoms.get(i);
+                for (int j = i+1; j<atoms.size(); j++) {
+                    pair.atom1 = atoms.get(j);
                     sum += getNonPolarizationEnergy(pair);
                     if (Double.isInfinite(sum)) {
                         return sum;
@@ -139,8 +139,8 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
      * pair of atoms (dispersion + fixed-charge electrostatics)
      */
     public double getNonPolarizationEnergy(IMoleculeList molecules) {
-        IAtomList water1Atoms = molecules.getMolecule(0).getChildList();
-        IAtomList water2Atoms = molecules.getMolecule(1).getChildList();
+        IAtomList water1Atoms = molecules.get(0).getChildList();
+        IAtomList water2Atoms = molecules.get(1).getChildList();
 
         Vector C1r = water1Atoms.get(0).getPosition();
         Vector C2r = water2Atoms.get(0).getPosition();
@@ -279,7 +279,7 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
      */
     public double getPolarizationEnergy(IMoleculeList molecules) {
         
-        final int atomCount = molecules.getMoleculeCount();
+        final int atomCount = molecules.size();
         if (Eq.length < atomCount+1) {
             int oldSize = Eq.length;
             Eq = Arrays.copyOf(Eq, atomCount);
@@ -297,13 +297,13 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
             Ep[i].E(0);
         }
         
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
+        for (int i = 0; i<molecules.size(); i++) {
+            IAtomList iLeafAtoms = molecules.get(i).getChildList();
             Vector C1r = iLeafAtoms.get(0).getPosition();
 
-            for (int j=0; j<molecules.getMoleculeCount(); j++) {
+            for (int j = 0; j<molecules.size(); j++) {
                 if  (i == j) continue;
-                IAtomList jLeafAtoms = molecules.getMolecule(j).getChildList();
+                IAtomList jLeafAtoms = molecules.get(j).getChildList();
                 Vector Cjr = jLeafAtoms.get(0).getPosition();
                 Vector Oj1r = jLeafAtoms.get(1).getPosition();
                 Vector Oj2r = jLeafAtoms.get(2).getPosition();
@@ -369,8 +369,8 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
 for (int iter=0; iter<maxIter; iter++) {
         double sumDeltaMu = 0;
         double sumMu = 0;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
+        for (int i = 0; i<molecules.size(); i++) {
+            IAtomList iLeafAtoms = molecules.get(i).getChildList();
             Vector C1r = iLeafAtoms.get(0).getPosition();
 
             work.Ev1Mv2(C1r,iLeafAtoms.get(1).getPosition());
@@ -384,17 +384,17 @@ for (int iter=0; iter<maxIter; iter++) {
             sumDeltaMu += mu[i].Mv1Squared(oldMu);
             sumMu += mu[i].squared();
         }
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+        for (int i = 0; i<molecules.size(); i++) {
             Ep[i].E(0);
         }
 
         double tauK = tauAll[0][0];
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
+        for (int i = 0; i<molecules.size(); i++) {
+            IAtomList iLeafAtoms = molecules.get(i).getChildList();
             Vector C1r = iLeafAtoms.get(0).getPosition();
 
-            for (int j=i+1; j<molecules.getMoleculeCount(); j++) {
-                IAtomList jLeafAtoms = molecules.getMolecule(j).getChildList();
+            for (int j = i+1; j<molecules.size(); j++) {
+                IAtomList jLeafAtoms = molecules.get(j).getChildList();
                 Vector Cjr = jLeafAtoms.get(0).getPosition();
                 
                 rijVector.Ev1Mv2(C1r, Cjr);
@@ -430,7 +430,7 @@ for (int iter=0; iter<maxIter; iter++) {
         }
         
         if (debugme) {
-            for (int i=0; i<molecules.getMoleculeCount(); i++) {
+            for (int i = 0; i<molecules.size(); i++) {
                 System.out.println(iter+" "+i+" "+Ep[i]+" "+mu[i]);
             }
         }
@@ -443,7 +443,7 @@ for (int iter=0; iter<maxIter; iter++) {
         }
 }
         UpolAtkins = 0;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+        for (int i = 0; i<molecules.size(); i++) {
             UpolAtkins += Eq[i].dot(mu[i]);
         }
         UpolAtkins *= -0.5;
@@ -545,9 +545,9 @@ for (int iter=0; iter<maxIter; iter++) {
 
         public double energy(IMoleculeList molecules) {
             double bfac = 1.0/(2*1.161);
-            IAtomList atomsi = molecules.getMolecule(0).getChildList();
-            IAtomList atomsj = molecules.getMolecule(1).getChildList();
-            IAtomList atomsk = molecules.getMolecule(2).getChildList();
+            IAtomList atomsi = molecules.get(0).getChildList();
+            IAtomList atomsj = molecules.get(1).getChildList();
+            IAtomList atomsk = molecules.get(2).getChildList();
             Vector ri = atomsi.get(0).getPosition();
             Vector rj = atomsj.get(0).getPosition();
             Vector rk = atomsk.get(0).getPosition();
@@ -734,8 +734,8 @@ for (int iter=0; iter<maxIter; iter++) {
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 2);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100, 100, 100}));
-        IMolecule mol0 = box.getMoleculeList().getMolecule(0);
-        IMolecule mol1 = box.getMoleculeList().getMolecule(1);
+        IMolecule mol0 = box.getMoleculeList().get(0);
+        IMolecule mol1 = box.getMoleculeList().get(1);
 
         mol0.getChildList().get(0).getPosition().E(space.makeVector(new double[]{0.000000, 0, 0.000000}));
         mol0.getChildList().get(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, 0}));
@@ -801,9 +801,9 @@ for (int iter=0; iter<maxIter; iter++) {
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 3);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{100, 100, 100}));
-        IMolecule mol0 = box.getMoleculeList().getMolecule(0);
-        IMolecule mol1 = box.getMoleculeList().getMolecule(1);
-        IMolecule mol2 = box.getMoleculeList().getMolecule(2);
+        IMolecule mol0 = box.getMoleculeList().get(0);
+        IMolecule mol1 = box.getMoleculeList().get(1);
+        IMolecule mol2 = box.getMoleculeList().get(2);
 
         mol0.getChildList().get(0).getPosition().E(space.makeVector(new double[]{0.000000, 0, 0.000000}));
         mol0.getChildList().get(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, 0}));

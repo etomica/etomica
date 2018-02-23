@@ -42,12 +42,12 @@ public class MeterTilt implements IDataSource {
 
     public IData getData() {
         IMoleculeList molecules = box.getMoleculeList(species);
-        int nMolecules = molecules.getMoleculeCount();
+        int nMolecules = molecules.size();
         for (int i=0; i<drSum.length; i++) {
             drSum[i].E(0);
         }
         for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+            IMolecule molecule = molecules.get(i);
             IAtomList atomList = molecule.getChildList();
             int leafCount = atomList.size();
             dr.E(atomList.get(leafCount-1).getPosition());

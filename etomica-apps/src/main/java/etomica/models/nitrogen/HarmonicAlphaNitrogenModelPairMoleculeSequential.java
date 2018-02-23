@@ -93,7 +93,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 		DataTensor transTensor = new DataTensor(space);
 		MoleculePair pair = new MoleculePair();
 	
-		int numMolecule = coordinateDef.getBox().getMoleculeList().getMoleculeCount();
+		int numMolecule = coordinateDef.getBox().getMoleculeList().size();
 		int dofPerMol = coordinateDef.getCoordinateDim()/numMolecule;
 		double[][] array = new double[dofPerMol][coordinateDef.getCoordinateDim()];
 			
@@ -101,7 +101,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 		 *	Constructing the upper diagonal of the matrix
 		 *	(Skipping the molec1 == molec2) 
 		 */
-		IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().getMolecule(molec0);
+		IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().get(molec0);
 		pair.atom0 = molecule0;
 			
 		boolean isReverseOrder = false;
@@ -118,7 +118,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 				isReverseOrder = false;
 			}
 			
-			pair.atom1 = coordinateDef.getBox().getMoleculeList().getMolecule(molec1);
+			pair.atom1 = coordinateDef.getBox().getMoleculeList().get(molec1);
 		
 			int[] index = findPair.getPairMoleculesIndex(pair.atom0, pair.atom1, isReverseOrder);
 			boolean isNewPair = findPair.getIsNewPair(index);

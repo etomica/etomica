@@ -52,13 +52,13 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
         double ke = 0.0;
         for (int i=0; i<sim.getSpeciesCount(); i++) {
             IMoleculeList moleculeList = box.getMoleculeList(sim.getSpecies(i));
-            if (moleculeList.getMoleculeCount() == 0) {
+            if (moleculeList.size() == 0) {
                 continue;
             }
-            IMolecule molecule0 = moleculeList.getMolecule(0);
+            IMolecule molecule0 = moleculeList.get(0);
             if (molecule0 instanceof IMoleculeOrientedKinetic) {
-                for (int j=0; j<moleculeList.getMoleculeCount(); j++) {
-                    IMoleculeOrientedKinetic moleculeOrientedKinetic = (IMoleculeOrientedKinetic)moleculeList.getMolecule(j);
+                for (int j = 0; j<moleculeList.size(); j++) {
+                    IMoleculeOrientedKinetic moleculeOrientedKinetic = (IMoleculeOrientedKinetic)moleculeList.get(j);
                     double mass = ((ISpeciesOriented)molecule0.getType()).getMass();
                     if (Double.isInfinite(mass)) {
                         continue;
@@ -77,8 +77,8 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
                 }
             }
             else {
-                for (int j=0; j<moleculeList.getMoleculeCount(); j++) {
-                    IMolecule molecule = moleculeList.getMolecule(j);
+                for (int j = 0; j<moleculeList.size(); j++) {
+                    IMolecule molecule = moleculeList.get(j);
                     IAtomList children = molecule.getChildList();
                     for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
                         IAtomKinetic a = (IAtomKinetic)children.get(iLeaf);

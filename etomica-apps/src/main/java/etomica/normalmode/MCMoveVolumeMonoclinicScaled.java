@@ -165,12 +165,12 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
 
         IMoleculeList moleculeList = box.getMoleculeList();
         IMoleculeList moleculeLatticeList = latticeBox.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
 
         
-        for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            IMolecule moleculei = moleculeList.getMolecule(i);
-            IMolecule moleculeLattice = moleculeLatticeList.getMolecule(i);
+        for (int i = 0; i<moleculeList.size(); i++) {
+            IMolecule moleculei = moleculeList.get(i);
+            IMolecule moleculeLattice = moleculeLatticeList.get(i);
             comOld.E(moleculeCenter.position(moleculei));
             comOld.ME(moleculeCenter.position(moleculeLattice));
             // comOld is now the deviation of the molecule from its lattice site.
@@ -192,9 +192,9 @@ public class MCMoveVolumeMonoclinicScaled extends MCMoveBoxStep {
         // latticeScaleC = 1/latticeScaleAB^2
         latticeScale.setX(2, Math.exp((-pressure*deltaVAB)/((nMolecules-1)*temperature)));
 
-        for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            IMolecule moleculei = moleculeList.getMolecule(i);
-            IMolecule moleculeLattice = moleculeLatticeList.getMolecule(i);
+        for (int i = 0; i<moleculeList.size(); i++) {
+            IMolecule moleculei = moleculeList.get(i);
+            IMolecule moleculeLattice = moleculeLatticeList.get(i);
             
             dest.E(moleculeCenter.position(moleculei));
             dest.TE(latticeScale);

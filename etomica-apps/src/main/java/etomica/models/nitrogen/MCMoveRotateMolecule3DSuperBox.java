@@ -122,10 +122,10 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
      
     public boolean doTrial() {
     	
-        if(box.getMoleculeList().getMoleculeCount()==0) {molecule = null; return false;}
+        if(box.getMoleculeList().size()==0) {molecule = null; return false;}
             
         molNum = random.nextInt(nA);
-        molecule = basisCell[0].molecules.getMolecule(molIndex[13][molNum]);
+        molecule = basisCell[0].molecules.get(molIndex[13][molNum]);
       
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
@@ -134,7 +134,7 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
         pairAB.atom0 = molecule;
         for(int i=0; i<molIndex.length; i++){
         	if(i==13) continue;
-        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][molNum]);
+        	pairAB.atom1 = basisCell[0].molecules.get(molIndex[i][molNum]);
         	uCorrect += potentialAA.energy(pairAB);
      
         }
@@ -151,7 +151,7 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
         affectedMoleculeList.clear();
         
         for(int i=0; i<molIndex.length; i++){
-        	molecule = basisCell[0].molecules.getMolecule(molIndex[i][molNum]);
+        	molecule = basisCell[0].molecules.get(molIndex[i][molNum]);
         	affectedMoleculeList.add(affectedMol);
         	r0.E(positionDefinition.position(molecule));
         	doTransform(molecule, r0);
@@ -161,7 +161,7 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
          * After the rotational move
          */
       
-        molecule = basisCell[0].molecules.getMolecule(molIndex[13][molNum]);
+        molecule = basisCell[0].molecules.get(molIndex[13][molNum]);
         energyMeter.setTarget(molecule);
         uNew = energyMeter.getDataAsScalar();
         
@@ -172,7 +172,7 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
         pairAB.atom0 = molecule;
         for(int i=0; i<molIndex.length; i++){
         	if(i==13) continue;
-        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][molNum]);
+        	pairAB.atom1 = basisCell[0].molecules.get(molIndex[i][molNum]);
         	uCorrect += potentialAA.energy(pairAB);
 
         }
@@ -206,7 +206,7 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
     public void rejectNotify() {
     	rotationTensor.invert();
     	for(int i=0; i<molIndex.length; i++){
-        	molecule = basisCell[0].molecules.getMolecule(molIndex[i][molNum]);
+        	molecule = basisCell[0].molecules.get(molIndex[i][molNum]);
         	r0.E(positionDefinition.position(molecule));
 	        doTransform(molecule, r0);
     	}

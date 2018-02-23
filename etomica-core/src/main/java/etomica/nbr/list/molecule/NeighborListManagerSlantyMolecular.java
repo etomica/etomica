@@ -43,10 +43,10 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
     protected void neighborSetup() {
 
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nLeaf = moleculeList.getMoleculeCount();
+        int nLeaf = moleculeList.size();
         // reset criteria
         for (int j=0; j<nLeaf; j++) {
-            IMolecule molecule = moleculeList.getMolecule(j);
+            IMolecule molecule = moleculeList.get(j);
             final NeighborCriterionMolecular[] criterion = getCriterion(molecule.getType());
             ((MoleculeNeighborLists)agentManager2Body.getAgent(molecule)).clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
@@ -67,16 +67,16 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
         }
         
         moleculeList = box.getMoleculeList();
-        for (int iMolecule=0; iMolecule<moleculeList.getMoleculeCount()-1; iMolecule++) {
-            IMolecule molecule0 = moleculeList.getMolecule(iMolecule);
+        for (int iMolecule = 0; iMolecule<moleculeList.size()-1; iMolecule++) {
+            IMolecule molecule0 = moleculeList.get(iMolecule);
             pair.atom0 = molecule0;
             PotentialArrayMolecular potentialArray = potentialMaster.getRangedPotentials(molecule0.getType());
             IPotentialMolecular[] potentials = potentialArray.getPotentials();
             NeighborCriterionMolecular[] criteria = potentialArray.getCriteria();
 
-            for (int jMolecule=iMolecule+1; jMolecule<moleculeList.getMoleculeCount(); jMolecule++) {
+            for (int jMolecule = iMolecule+1; jMolecule<moleculeList.size(); jMolecule++) {
         
-                IMolecule molecule1 = moleculeList.getMolecule(jMolecule);
+                IMolecule molecule1 = moleculeList.get(jMolecule);
                 pair.atom1 = molecule1;
                 for (int i = 0; i < potentials.length; i++) {
                     if (potentials[i].nBody() < 2) {
@@ -115,11 +115,11 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
         PotentialArrayMolecular potentialArray = potentialMaster.getRangedPotentials(molecule.getType());
         IPotentialMolecular[] potentials = potentialArray.getPotentials();
         NeighborCriterionMolecular[] criteria = potentialArray.getCriteria();
-        for (int jMolecule=0; jMolecule<moleculeList.getMoleculeCount(); jMolecule++) {
+        for (int jMolecule = 0; jMolecule<moleculeList.size(); jMolecule++) {
             if (jMolecule == molecule.getIndex()) {
                 continue;
             }
-            IMolecule molecule1 = moleculeList.getMolecule(jMolecule);
+            IMolecule molecule1 = moleculeList.get(jMolecule);
             if (jMolecule < molecule.getIndex()) {
                 pair.atom1 = molecule;
                 pair.atom0 = molecule1;

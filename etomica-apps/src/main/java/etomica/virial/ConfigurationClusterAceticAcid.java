@@ -48,23 +48,23 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 		MoleculePair pair1 = new MoleculePair();
 		MoleculePair pair2 = new MoleculePair();
 		MoleculePair pair3 = new MoleculePair();
-		pair1.atom0 = list.getMolecule(0);
-		pair1.atom1 = list.getMolecule(1);
+		pair1.atom0 = list.get(0);
+		pair1.atom1 = list.get(1);
 		association(f,pair1,box);
-		if (list.getMoleculeCount()==3){
-			pair2.atom0 = list.getMolecule(1);
-			pair2.atom1 = list.getMolecule(2);
+		if (list.size()==3){
+			pair2.atom0 = list.get(1);
+			pair2.atom1 = list.get(2);
 			double[] e = new double[] {1.0,1.0,0};
 			translation2Mol(2, e, box);
 			if(a){
 				association(f,pair2,box);
 			}
 		}
-		if (list.getMoleculeCount()==4){
-			pair2.atom0 = list.getMolecule(1);
-			pair2.atom1 = list.getMolecule(2);
-			pair3.atom0 = list.getMolecule(2);
-			pair3.atom1 = list.getMolecule(3);
+		if (list.size()==4){
+			pair2.atom0 = list.get(1);
+			pair2.atom1 = list.get(2);
+			pair3.atom0 = list.get(2);
+			pair3.atom1 = list.get(3);
 			double[] e = new double[] {1.0,1.0,0};
 			double[] g = new double[] {0,1.0,0};
 			translation3Mol(e,g,box);
@@ -92,18 +92,18 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 		MoleculePair pair3 = new MoleculePair();
 		MoleculePair pair4 = new MoleculePair();
 		MoleculePair pair5 = new MoleculePair();
-		pair1.atom0 = list.getMolecule(0);
-		pair1.atom1 = list.getMolecule(1);
-		pair2.atom0 = list.getMolecule(1);
-		pair2.atom1 = list.getMolecule(2);
-		pair4.atom0 = list.getMolecule(0);
-		pair4.atom1 = list.getMolecule(2);
+		pair1.atom0 = list.get(0);
+		pair1.atom1 = list.get(1);
+		pair2.atom0 = list.get(1);
+		pair2.atom1 = list.get(2);
+		pair4.atom0 = list.get(0);
+		pair4.atom1 = list.get(2);
 		  
-		if (list.getMoleculeCount() >3){
-			pair3.atom0 = list.getMolecule(0);
-			pair3.atom1 = list.getMolecule(3);
-			pair5.atom0 = list.getMolecule(2);
-			pair5.atom1 = list.getMolecule(3);			  
+		if (list.size() >3){
+			pair3.atom0 = list.get(0);
+			pair3.atom1 = list.get(3);
+			pair5.atom0 = list.get(2);
+			pair5.atom1 = list.get(3);
 		}
 		if (molNumber2 >-1){
 			double[] amount = new double[] {5.0,5.0,0};
@@ -156,7 +156,7 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 			association(f3,pair5,box);
 		}
 		if (molNumber > -1){
-			translationRandom(list.getMolecule(molNumber), box);
+			translationRandom(list.get(molNumber), box);
 		}
 		clusterBox.trialNotify();
 		clusterBox.acceptNotify();
@@ -172,12 +172,12 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 		MoleculePair pair1 = new MoleculePair();
 		MoleculePair pair2 = new MoleculePair();
 		MoleculePair pair3 = new MoleculePair();
-		pair1.atom0 = list.getMolecule(0);
-		pair1.atom1 = list.getMolecule(1);
-		pair2.atom0 = list.getMolecule(1);
-		pair2.atom1 = list.getMolecule(2);
-		pair3.atom0 = list.getMolecule(2);
-		pair3.atom1 = list.getMolecule(3);
+		pair1.atom0 = list.get(0);
+		pair1.atom1 = list.get(1);
+		pair2.atom0 = list.get(1);
+		pair2.atom1 = list.get(2);
+		pair3.atom0 = list.get(2);
+		pair3.atom1 = list.get(3);
 		double[] e = new double[] {1.0,1.0,0};
 		double[] g = new double[] {0,1.0,0};
 		translation3Mol(e,g,box);
@@ -194,7 +194,7 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 		Vector b = space.makeVector();
 		b.E(e);
 		translationB.setDestination(b);
-		IMolecule mol = list.getMolecule(a);
+		IMolecule mol = list.get(a);
 		translationB.actionPerformed(mol);
 	}
 	 
@@ -208,8 +208,8 @@ public class ConfigurationClusterAceticAcid extends ConfigurationCluster {
 		c.E(f);
 		translationB.setDestination(b);
 		translationC.setDestination(c);
-		IMolecule mol2 = list.getMolecule(2);
-		IMolecule mol3 = list.getMolecule(3);
+		IMolecule mol2 = list.get(2);
+		IMolecule mol3 = list.get(3);
 		translationB.actionPerformed(mol2);
 		translationC.actionPerformed(mol3);
 	}

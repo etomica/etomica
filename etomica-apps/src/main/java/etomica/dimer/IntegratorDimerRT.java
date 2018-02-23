@@ -200,8 +200,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 
         // Set positions of atoms in replicas equal to box
         for(int i = 0; i<box.getLeafList().size(); i++){
-            box1.getMoleculeList().getMolecule(i).getChildList().get(0).getPosition().E(box.getMoleculeList().getMolecule(i).getChildList().get(0).getPosition());
-            box2.getMoleculeList().getMolecule(i).getChildList().get(0).getPosition().E(box.getMoleculeList().getMolecule(i).getChildList().get(0).getPosition());
+            box1.getMoleculeList().get(i).getChildList().get(0).getPosition().E(box.getMoleculeList().get(i).getChildList().get(0).getPosition());
+            box2.getMoleculeList().get(i).getChildList().get(0).getPosition().E(box.getMoleculeList().get(i).getChildList().get(0).getPosition());
 
         }
         // Offset replicas
@@ -231,7 +231,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 
 		movableAtoms = 0;
 		for (int i = 0; i < movableSpecies.length; i++) {
-			movableAtoms += box.getMoleculeList(movableSpecies[i]).getMoleculeCount();
+			movableAtoms += box.getMoleculeList(movableSpecies[i]).size();
 		}
 		workVector = space.makeVector();
 
@@ -328,10 +328,10 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 			IMoleculeList molecules = box.getMoleculeList(movableSpecies[i]);
 			IMoleculeList molecules1 = box1.getMoleculeList(movableSpecies[i]);
 			IMoleculeList molecules2 = box2.getMoleculeList(movableSpecies[i]);
-			for (int j = 0; j < molecules.getMoleculeCount(); j++) {
-				list.add(molecules.getMolecule(j).getChildList().get(0));
-				list1.add(molecules1.getMolecule(j).getChildList().get(0));
-				list2.add(molecules2.getMolecule(j).getChildList().get(0));
+			for (int j = 0; j < molecules.size(); j++) {
+				list.add(molecules.get(j).getChildList().get(0));
+				list1.add(molecules1.get(j).getChildList().get(0));
+				list2.add(molecules2.get(j).getChildList().get(0));
 			}
 		}
 
@@ -843,8 +843,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 	    
 	    // Set positions of atoms in replicas equal to box
         for(int i = 0; i<box.getLeafList().size(); i++){
-            box1.getMoleculeList().getMolecule(i).getChildList().get(0).getPosition().E(box.getMoleculeList().getMolecule(i).getChildList().get(0).getPosition());
-            box2.getMoleculeList().getMolecule(i).getChildList().get(0).getPosition().E(box.getMoleculeList().getMolecule(i).getChildList().get(0).getPosition());
+            box1.getMoleculeList().get(i).getChildList().get(0).getPosition().E(box.getMoleculeList().get(i).getChildList().get(0).getPosition());
+            box2.getMoleculeList().get(i).getChildList().get(0).getPosition().E(box.getMoleculeList().get(i).getChildList().get(0).getPosition());
 
         }
         // Offset replicas

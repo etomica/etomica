@@ -52,8 +52,8 @@ public class CheckCBMCHexane implements IAction {
 
         // Check that bond lengths are 0.4;
         IMoleculeList moleculeList = box.getMoleculeList();
-        for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+        for (int iMolecule = 0; iMolecule<moleculeList.size(); iMolecule++) {
+            IMolecule molecule = moleculeList.get(iMolecule);
             IAtomList atomList = molecule.getChildList();
             for (int i = 0; i < atomList.size() - 1; i++) {
                 // vex.E(((AtomLeaf)atomList.get(i)).getPosition());
@@ -71,8 +71,8 @@ public class CheckCBMCHexane implements IAction {
 
         // Check that bond angles are 109.47 degrees
         tol = 0.0000005;
-        for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+        for (int iMolecule = 0; iMolecule<moleculeList.size(); iMolecule++) {
+            IMolecule molecule = moleculeList.get(iMolecule);
             IAtomList atomList = molecule.getChildList();
             for (int i = 0; i < atomList.size() - 2; i++) {
                 vex.E(atomList.get(i).getPosition());
@@ -93,8 +93,8 @@ public class CheckCBMCHexane implements IAction {
         // Check that torsional bond angles are between ~108 and ~251
         tol = 0.0000000001;
         double makeGood;
-        for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+        for (int iMolecule = 0; iMolecule<moleculeList.size(); iMolecule++) {
+            IMolecule molecule = moleculeList.get(iMolecule);
             IAtomList atomList = molecule.getChildList();
             for (int i = 0; i < atomList.size() - 3; i++) {
                 vex.E(atomList.get(i).getPosition());

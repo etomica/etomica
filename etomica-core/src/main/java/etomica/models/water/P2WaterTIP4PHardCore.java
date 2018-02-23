@@ -75,8 +75,8 @@ public class P2WaterTIP4PHardCore extends PotentialMolecular {
 
     public double energy(IMoleculeList pair) {
         double sum = 0.0;
-        IMolecule water1 = pair.getMolecule(0);
-        IMolecule water2 = pair.getMolecule(1);
+        IMolecule water1 = pair.get(0);
+        IMolecule water2 = pair.get(1);
 
         Vector O1r = water1.getChildList().get(2).getPosition();//H-H-O-M, so O is the third atom
         Vector O2r = water2.getChildList().get(2).getPosition();

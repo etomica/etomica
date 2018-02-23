@@ -48,8 +48,8 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         int dI = atom1.getParentGroup().getIndex() - atom0.getParentGroup().getIndex();
         // assume 1 species
-        if (hasPBC && Math.abs(dI) == box.getMoleculeList().getMoleculeCount()-1) {
-            if (box.getMoleculeList().getMoleculeCount() == 2) {
+        if (hasPBC && Math.abs(dI) == box.getMoleculeList().size()-1) {
+            if (box.getMoleculeList().size() == 2) {
                 // order is more complicated for 2 atoms since an atom is on both sides of the other
                 if (dr.getX(0)*dI < 0 || Math.abs(dr.getX(0)) > box.getBoundary().getBoxSize().getX(0)) {
                     // out of order

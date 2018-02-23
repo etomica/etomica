@@ -189,7 +189,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
             }
         
             protected IData processData(IData inputData) {
-                ((DataDouble)inputData).x /= sim.box.getMoleculeList().getMoleculeCount() * Kelvin.UNIT.toSim(118);
+                ((DataDouble)inputData).x /= sim.box.getMoleculeList().size() * Kelvin.UNIT.toSim(118);
                 return inputData;
             }
         };

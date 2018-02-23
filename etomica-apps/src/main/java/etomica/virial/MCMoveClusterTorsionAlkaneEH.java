@@ -182,9 +182,9 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
         wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
   //      System.out.println("wOld:" + wOld);
         bias = 1;
-        for(int i=0; i<selectedMolecules.getMoleculeCount(); i++) {
-            oldCenter.E(positionDefinition.position(selectedMolecules.getMolecule(i)));
-            IAtomList childList = selectedMolecules.getMolecule(i).getChildList();
+        for(int i = 0; i<selectedMolecules.size(); i++) {
+            oldCenter.E(positionDefinition.position(selectedMolecules.get(i)));
+            IAtomList childList = selectedMolecules.get(i).getChildList();
             int numChildren = childList.size();
             int numCarbons = (numChildren-2)/3;
             int j = random.nextInt(numCarbons-3); // pick up an atom from all the carbons
@@ -302,7 +302,7 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
     
             }
        
-            oldCenter.ME(positionDefinition.position(selectedMolecules.getMolecule(i)));// COM of i-th molecule
+            oldCenter.ME(positionDefinition.position(selectedMolecules.get(i)));// COM of i-th molecule
             for (int k=0; k<numChildren; k++) {
                 // shift the whole molecule so that the center of mass (or whatever the position definition uses) doesn't change
             	IAtom atomk = childList.get(k);
@@ -325,10 +325,10 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
     protected void selectMolecules() {
         IMoleculeList molecules = box.getMoleculeList();
         selectedMolecules = new MoleculeArrayList();
-        oldPositions = new Vector[molecules.getMoleculeCount()][0];
+        oldPositions = new Vector[molecules.size()][0];
         int i=0;
-        for (int k=0; k < molecules.getMoleculeCount();k++) {
-            IMolecule a = molecules.getMolecule(k);
+        for (int k = 0; k < molecules.size(); k++) {
+            IMolecule a = molecules.get(k);
             int numChildren = a.getChildList().size();
             if (numChildren<14) { //at least C4H10, total atoms:14
                 continue;
@@ -347,8 +347,8 @@ public class MCMoveClusterTorsionAlkaneEH extends MCMoveMolecule {
     }
 
     public void rejectNotify() {
-        for(int i=0; i<selectedMolecules.getMoleculeCount(); i++) {
-            IAtomList childList = selectedMolecules.getMolecule(i).getChildList();
+        for(int i = 0; i<selectedMolecules.size(); i++) {
+            IAtomList childList = selectedMolecules.get(i).getChildList();
             for (int j = 0; j<childList.size(); j++) {
                 IAtom atomj = childList.get(j);
                 atomj.getPosition().E(oldPositions[i][j]);// move every atom back

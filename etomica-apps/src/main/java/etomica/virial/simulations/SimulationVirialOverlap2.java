@@ -219,7 +219,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                     // we can use the bending move if none of the molecules has more than 3 atoms
                     boolean doBend = true;
                     for (int i = 0; i < species.length; i++) {
-                        if (box[iBox].getNMolecules(species[i]) > 0 && box[iBox].getMoleculeList(species[i]).getMolecule(0).getChildList().size() > 3) {
+                        if (box[iBox].getNMolecules(species[i]) > 0 && box[iBox].getMoleculeList(species[i]).get(0).getChildList().size() > 3) {
                             doBend = false;
                         }
                     }
@@ -391,7 +391,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
                 CoordinatePairSet cPairs = box[1].getCPairSet();
-                int nPoints = box[1].getMoleculeList().getMoleculeCount();
+                int nPoints = box[1].getMoleculeList().size();
                 for (int i=0; i<nPoints; i++) {
                     for (int j=i+1; j<nPoints; j++) {
                         double r2ij = cPairs.getr2(i, j);

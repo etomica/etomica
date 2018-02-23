@@ -68,7 +68,7 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
 
     public void setBox(Box p) {
     	super.setBox(p);
-    	int nMolecules = box.getMoleculeList().getMoleculeCount();
+    	int nMolecules = box.getMoleculeList().size();
     	selectedAtoms = new IAtom[nMolecules][8];// [0] is carbon, other 5 or 6 or 7 are H
     	positionSelectedAtoms = new Vector[8];   // [0] is carbon, other 5 or 6 or 7 are H
     	translationVectors = new Vector3D[nMolecules][8];// [0] is carbon, other 5 or 6 or 7 are H
@@ -89,12 +89,12 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
     	uOld = energyMeter.getDataAsScalar();
     	wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
     	IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i=0; i<moleculeList.getMoleculeCount(); i++) {//loop over all the molecules in the box
-        	if (species != null && moleculeList.getMolecule(i).getType() != species) {
+        for(int i = 0; i<moleculeList.size(); i++) {//loop over all the molecules in the box
+        	if (species != null && moleculeList.get(i).getType() != species) {
         		continue;
             }
 
-        	IAtomList childList = moleculeList.getMolecule(i).getChildList();
+        	IAtomList childList = moleculeList.get(i).getChildList();
         	int numChildren = childList.size(); // number of total atoms in the i-th molecule
             numCarbons = (numChildren - 2)/3; // number of carbons in the i-th molecule
             
@@ -664,9 +664,9 @@ public class MCMoveClusterWiggleAlkaneEH extends MCMoveMolecule {
     public void rejectNotify() {
   //  	System.out.println("reject");
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            if (species != null && moleculeList.getMolecule(i).getType() != species) continue;
-            IAtomList childList = moleculeList.getMolecule(i).getChildList();
+        for(int i = 0; i<moleculeList.size(); i++) {
+            if (species != null && moleculeList.get(i).getType() != species) continue;
+            IAtomList childList = moleculeList.get(i).getChildList();
             work1.E(translationVectors[i][0]);//based on carbon 
             work1.TE(1.0/numCarbons);// Center of mass is based on all carbons
             for (int k = 0; k<childList.size(); k++) {

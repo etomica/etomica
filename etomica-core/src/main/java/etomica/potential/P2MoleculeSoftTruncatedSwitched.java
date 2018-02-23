@@ -74,7 +74,7 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
     }
 
     public Vector[][] gradientAndTorque(IMoleculeList atoms) {
-        dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getMolecule(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getMolecule(0)).getPosition());
+        dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.get(1)).getPosition(),((MoleculeOrientedDynamic)atoms.get(0)).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (r2 < r2Cutoff) {
@@ -163,7 +163,7 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
     }
     
     public double energy(IMoleculeList atoms) {
-        dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getMolecule(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getMolecule(0)).getPosition());
+        dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.get(1)).getPosition(),((MoleculeOrientedDynamic)atoms.get(0)).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (dr.squared() > r2Cutoff) {
@@ -177,7 +177,7 @@ public class P2MoleculeSoftTruncatedSwitched extends PotentialMolecular implemen
     }
     
     public double virial(IMoleculeList atoms) {
-        dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.getMolecule(1)).getPosition(),((MoleculeOrientedDynamic)atoms.getMolecule(0)).getPosition());
+        dr.Ev1Mv2(((MoleculeOrientedDynamic)atoms.get(1)).getPosition(),((MoleculeOrientedDynamic)atoms.get(0)).getPosition());
         boundary.nearestImage(dr);
         if (dr.squared() < r2Cutoff) {
             return potential.virial(atoms);

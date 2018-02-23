@@ -60,8 +60,8 @@ public final class MoleculeAgentManager<E> implements BoxEventListener, Simulati
 
         // fill in the map with agents from all the molecules
         IMoleculeList molecules = box.getMoleculeList();
-        for (int i = 0; i < molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i < molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
 
             // Make an agent for the molecule and add it to the IndexMap for its species
             E agent = agentSource.apply(molecule);
@@ -116,8 +116,8 @@ public final class MoleculeAgentManager<E> implements BoxEventListener, Simulati
             IMoleculeList molecules = box.getMoleculeList(species);
             IndexMap<E> speciesAgents = this.agents.get(species);
 
-            for (int j = 0; j < molecules.getMoleculeCount(); j++) {
-                IMolecule molecule = molecules.getMolecule(j);
+            for (int j = 0; j < molecules.size(); j++) {
+                IMolecule molecule = molecules.get(j);
                 E agent = speciesAgents.remove(molecule.getIndex());
                 if (agent != null) {
                     onRelease.accept(agent, molecule);

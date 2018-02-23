@@ -67,7 +67,7 @@ public class NormalModesMolecular implements NormalModes {
         Tensor identity = new Tensor3D(new double[][] {{1.0,0.0,0.0}, {0.0,1.0,0.0}, {0.0,0.0,1.0}});
 
         for(int i=0; i<basisDim; i++) {
-        	IMolecule moleculei = molList.getMolecule(i);
+        	IMolecule moleculei = molList.get(i);
         	for(int j=0;j<space.D();j++){ // 4 NOT 3 but that is fine as the mass of M = 0
             	Inertia[i][i].setComponent(j, j,massH2O);        		
         	}

@@ -369,7 +369,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
             integrators[iBox].getEventManager().addListener(pumpListener);
 
-            pumpListener.setInterval(boxTarg.getMoleculeList().getMoleculeCount());
+            pumpListener.setInterval(boxTarg.getMoleculeList().size());
         } else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);
         }

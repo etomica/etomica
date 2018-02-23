@@ -89,9 +89,9 @@ public class ClusterCoupledFlippedPartial implements ClusterAbstract {
             for (int i = 0; !didFlipTrue && i<flipMol; i++) {
                 flippedAtoms[i] = !flippedAtoms[i];
                 didFlipTrue = flippedAtoms[i];
-                flip(atomList.getMolecule(flipList[actualFlipList[i]][0]));
+                flip(atomList.get(flipList[actualFlipList[i]][0]));
                 for (int j = 2;j < flipList[actualFlipList[i]].length; j++){
-                	flip(atomList.getMolecule(flipList[actualFlipList[i]][j]),atomList.getMolecule(flipList[actualFlipList[i]][0]));
+                	flip(atomList.get(flipList[actualFlipList[i]][j]),atomList.get(flipList[actualFlipList[i]][0]));
                 }
             }
             if (!didFlipTrue) {

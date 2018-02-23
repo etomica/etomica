@@ -43,45 +43,45 @@ public class MpiIntraspeciesAA implements MoleculesetIteratorBoxDependent, Seria
      * Sets iterator in condition to begin iteration.
      */
     public void reset() {
-        if (list.getMoleculeCount() < 2) {
+        if (list.size() < 2) {
             outerIndex = 2;
             innerIndex = 2;
             return;
         }
         outerIndex = 0;
         innerIndex = 0;
-        atoms.atom0 = list.getMolecule(0);
+        atoms.atom0 = list.get(0);
     }
 
     /**
      * Sets iterator such that next is null.
      */
     public void unset() {
-        outerIndex = list.getMoleculeCount() - 2;
-        innerIndex = list.getMoleculeCount() - 1;
+        outerIndex = list.size() - 2;
+        innerIndex = list.size() - 1;
     }
 
     /**
      * Returns the number of iterates, which is list.size*(list.size-1)/2
      */
     public int size() {
-        return list.getMoleculeCount() * (list.getMoleculeCount() - 1) / 2;
+        return list.size() * (list.size() - 1) / 2;
     }
 
     /**
      * Returns the next iterate pair. Returns null if hasNext() is false.
      */
     public IMoleculeList next() {
-        if (innerIndex > list.getMoleculeCount() - 2) {
-            if (outerIndex > list.getMoleculeCount() - 3) {
+        if (innerIndex > list.size() - 2) {
+            if (outerIndex > list.size() - 3) {
                 return null;
             }
             outerIndex++;
-            atoms.atom0 = list.getMolecule(outerIndex);
+            atoms.atom0 = list.get(outerIndex);
             innerIndex = outerIndex;
         }
         innerIndex++;
-        atoms.atom1 = list.getMolecule(innerIndex);
+        atoms.atom1 = list.get(innerIndex);
         if (Debug.ON && atoms.atom0 == atoms.atom1) {
             throw new RuntimeException("oops");
         }

@@ -128,8 +128,8 @@ public class DropletAtomic extends Simulation {
                 }
             }
         }
-        for (int i=0; i<outerMolecules.getMoleculeCount(); i++) {
-            box.removeMolecule(outerMolecules.getMolecule(i));
+        for (int i = 0; i<outerMolecules.size(); i++) {
+            box.removeMolecule(outerMolecules.get(i));
         }
     }
 }

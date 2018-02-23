@@ -23,9 +23,9 @@ public class MoleculesetArray implements IMoleculeList, java.io.Serializable {
      * zero-body AtomSet if argument is null.
      */
     public MoleculesetArray(IMoleculeList atomSet) {
-        this((atomSet != null) ? atomSet.getMoleculeCount() : 0);
+        this((atomSet != null) ? atomSet.size() : 0);
         for (int i = 0; i < atoms.length; i++) {
-            atoms[i] = atomSet.getMolecule(i);
+            atoms[i] = atomSet.get(i);
         }
     }
 
@@ -52,7 +52,7 @@ public class MoleculesetArray implements IMoleculeList, java.io.Serializable {
     /**
      * Part of implementation of AtomSet interface.
      */
-    public IMolecule getMolecule(int i) {
+    public IMolecule get(int i) {
         return atoms[i];
     }
 
@@ -89,17 +89,17 @@ public class MoleculesetArray implements IMoleculeList, java.io.Serializable {
      *             if argument is null
      */
     public void setAtoms(IMoleculeList atomSet) {
-        if (atomSet.getMoleculeCount() != atoms.length)
+        if (atomSet.size() != atoms.length)
             throw new IllegalArgumentException("Wrong size for atomSet");
         for (int i = 0; i < atoms.length; i++) {
-            atoms[i] = atomSet.getMolecule(i);
+            atoms[i] = atomSet.get(i);
         }
     }
 
     /**
      * Returns the length of the wrapped array.
      */
-    public int getMoleculeCount() {
+    public int size() {
         return atoms.length;
     }
     

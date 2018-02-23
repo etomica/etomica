@@ -484,9 +484,9 @@ public class VirialHePIGraphic {
             for (int i=1; i<nPoints; i++) {
                 groupTranslationVector.setX(0, r*Math.cos(2*(i-1)*Math.PI/(nPoints-1)));
                 groupTranslationVector.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
-                moveMoleculeAction.actionPerformed(molecules.getMolecule(i));
+                moveMoleculeAction.actionPerformed(molecules.get(i));
                 if (nBeads>1) {
-                    Vector v = molecules.getMolecule(i).getChildList().get(1).getPosition();
+                    Vector v = molecules.get(i).getChildList().get(1).getPosition();
                     v.TE(0.95);
                 }
             }
@@ -550,7 +550,7 @@ public class VirialHePIGraphic {
         ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
         AtomPair pair = new AtomPair();
         for (int j=0; j<nPoints+(doFlex?1:0); j++) {
-            IAtomList beads = sim.box[1].getMoleculeList().getMolecule(j).getChildList();
+            IAtomList beads = sim.box[1].getMoleculeList().get(j).getChildList();
             for (int i=0; i<nBeads; i++) {
                 pair.atom0 = beads.get(i);
                 int next = i+1;

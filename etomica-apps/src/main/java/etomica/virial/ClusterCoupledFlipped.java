@@ -100,7 +100,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
             for (int i=0; !didFlipTrue && i<pointCount; i++) {
                 flippedAtoms[i] = !flippedAtoms[i];
                 didFlipTrue = flippedAtoms[i];
-                flip(atomList.getMolecule(i));
+                flip(atomList.get(i));
             }
             if (!didFlipTrue) {
                 // if we flipped every atom from true to false, we must be done

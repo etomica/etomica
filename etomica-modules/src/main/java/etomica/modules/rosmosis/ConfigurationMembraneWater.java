@@ -68,7 +68,7 @@ public class ConfigurationMembraneWater implements Configuration {
         IMoleculeList molecules = pretendBox.getMoleculeList(speciesSolvent);
         for (int i=nMolecules-1; i>-1; i--) {
             // molecules will be reversed in order, but that's OK
-            IMolecule atom = molecules.getMolecule(i);
+            IMolecule atom = molecules.get(i);
             pretendBox.removeMolecule(atom);
             box.addMolecule(atom);
         }
@@ -84,9 +84,9 @@ public class ConfigurationMembraneWater implements Configuration {
         ISpecies[] fluidSpecies = new ISpecies[]{speciesSolute1, speciesSolvent};
         for (int iSpecies=0; iSpecies<fluidSpecies.length; iSpecies++) {
             molecules = pretendBox.getMoleculeList(fluidSpecies[iSpecies]);
-            for (int i=molecules.getMoleculeCount()-1; i>-1; i--) {
+            for (int i = molecules.size()-1; i>-1; i--) {
                 // molecules will be reversed in order, but that's OK
-                IMolecule molecule = molecules.getMolecule(i);
+                IMolecule molecule = molecules.get(i);
                 pretendBox.removeMolecule(molecule);
                 // we need to translate the molecules into the proper chamber
                 double x = positionDefinition.position(molecule).getX(membraneDim);
@@ -158,9 +158,9 @@ public class ConfigurationMembraneWater implements Configuration {
             double membraneShift = shifts[iShift]*boxDimensions.getX(membraneDim) - membraneCenter;
             // move molecules over to the real box
             molecules = pretendBox.getMoleculeList(speciesMembrane);
-            for (int i=molecules.getMoleculeCount()-1; i>-1; i--) {
+            for (int i = molecules.size()-1; i>-1; i--) {
                 // molecules will be reversed in order, but that's OK
-                IMolecule molecule = molecules.getMolecule(i);
+                IMolecule molecule = molecules.get(i);
                 IAtom atom = molecule.getChildList().get(0);
                 double x = atom.getPosition().getX(membraneDim);
                 if (Math.abs(x - membraneCenter) > 0.5 * membraneTotalThickness) {

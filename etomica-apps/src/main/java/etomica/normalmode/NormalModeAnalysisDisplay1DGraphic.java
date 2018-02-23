@@ -275,7 +275,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                 getController().getSimRestart().getDataResetAction().actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
-       	  	int oldN = sim.box.getMoleculeList().getMoleculeCount();
+       	  	int oldN = sim.box.getMoleculeList().size();
         });
         
         //end of N Slider

@@ -25,7 +25,7 @@ public class P2DLPOLY extends PotentialMolecular {
 	
 	public double energy(IMoleculeList atoms) {
 
-		configP2DLPOLY.setMolecule(atoms.getMolecule(0), atoms.getMolecule(1));
+		configP2DLPOLY.setMolecule(atoms.get(0), atoms.get(1));
 		
 		
 		

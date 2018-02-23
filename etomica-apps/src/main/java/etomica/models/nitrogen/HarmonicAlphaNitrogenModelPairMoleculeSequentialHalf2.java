@@ -109,7 +109,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 		 *	Constructing the upper diagonal of the matrix
 		 *	(Skipping the molec1 == molec2) 
 		 */
-		IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().getMolecule(molec0);
+		IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().get(molec0);
 		pair.atom0 = molecule0;
 			
 		boolean isReverseOrder = false;
@@ -126,7 +126,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 				isReverseOrder = false;
 			}
 			
-			pair.atom1 = coordinateDef.getBox().getMoleculeList().getMolecule(molec1);
+			pair.atom1 = coordinateDef.getBox().getMoleculeList().get(molec1);
 		
 			int[] index = findPair.getPairMoleculesIndex(pair.atom0, pair.atom1, isReverseOrder);
 			boolean isNewPair = findPair.getIsNewPair(index);

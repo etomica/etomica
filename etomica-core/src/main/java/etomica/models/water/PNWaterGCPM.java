@@ -102,10 +102,10 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         double sum = 0;
 
         if (component != Component.INDUCTION) {
-            for (int i = 0; i < molecules.getMoleculeCount() - 1; i++) {
-                pair.atom0 = molecules.getMolecule(i);
-                for (int j = i + 1; j < molecules.getMoleculeCount(); j++) {
-                    pair.atom1 = molecules.getMolecule(j);
+            for (int i = 0; i < molecules.size() - 1; i++) {
+                pair.atom0 = molecules.get(i);
+                for (int j = i + 1; j < molecules.size(); j++) {
+                    pair.atom1 = molecules.get(j);
                     sum += getNonPolarizationEnergy(pair);
                     if (Double.isInfinite(sum)) {
                         return sum;
@@ -115,9 +115,9 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
         }
         if (component != Component.TWO_BODY) {
             double up = getPolarizationEnergy(molecules);
-            if (molecules.getMoleculeCount() == 2) {
-                int idx0 = molecules.getMolecule(0).getIndex();
-                int idx1 = molecules.getMolecule(1).getIndex();
+            if (molecules.size() == 2) {
+                int idx0 = molecules.get(0).getIndex();
+                int idx1 = molecules.get(1).getIndex();
                 if (idx0 > idx1) {
                     pairPolarization[idx1][idx0] = up;
                 } else {
@@ -139,8 +139,8 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
      */
     public double getNonPolarizationEnergy(IMoleculeList atoms) {
 
-        IAtomList water1Atoms = atoms.getMolecule(0).getChildList();
-        IAtomList water2Atoms = atoms.getMolecule(1).getChildList();
+        IAtomList water1Atoms = atoms.get(0).getChildList();
+        IAtomList water2Atoms = atoms.get(1).getChildList();
 
         Vector O1r = water1Atoms.get(SpeciesWater4P.indexO).getPosition();
         Vector O2r = water2Atoms.get(SpeciesWater4P.indexO).getPosition();
@@ -255,7 +255,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
      */
     public double getPolarizationEnergy(IMoleculeList atoms) {
 
-        final int atomCount = atoms.getMoleculeCount();
+        final int atomCount = atoms.size();
         if (Eq.length < atomCount + 1) {
             Eq = Arrays.copyOf(Eq, atomCount + 1);
             A = Arrays.copyOf(A, atomCount + 1);
@@ -279,8 +279,8 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
          * kmb, 8/7/06
          */
 
-        for (int i = 0; i < atoms.getMoleculeCount(); i++) {
-            IAtomList iLeafAtoms = atoms.getMolecule(i).getChildList();
+        for (int i = 0; i < atoms.size(); i++) {
+            IAtomList iLeafAtoms = atoms.get(i).getChildList();
             Vector O1r = iLeafAtoms.get(SpeciesWater4P.indexO).getPosition();
             Vector H11r = iLeafAtoms.get(SpeciesWater4P.indexH1).getPosition();
             Vector H12r = iLeafAtoms.get(SpeciesWater4P.indexH2).getPosition();
@@ -290,9 +290,9 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
             comWi.PEa1Tv1(massH, H12r);
             comWi.TE(1.0 / totalMass);//c.o.m of molecule i
 
-            for (int j = 0; j < atoms.getMoleculeCount(); j++) {
+            for (int j = 0; j < atoms.size(); j++) {
                 if (i == j) continue;
-                IAtomList jLeafAtoms = atoms.getMolecule(j).getChildList();
+                IAtomList jLeafAtoms = atoms.get(j).getChildList();
                 Vector Mjr = jLeafAtoms.get(SpeciesWater4P.indexM).getPosition();
                 Vector Ojr = jLeafAtoms.get(SpeciesWater4P.indexO).getPosition();
                 Vector Hj1r = jLeafAtoms.get(SpeciesWater4P.indexH1).getPosition();
@@ -463,8 +463,8 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
     public class PNWaterGCPMCached implements IPotentialMolecular {
 
         public double energy(IMoleculeList molecules) {
-            int idx0 = molecules.getMolecule(0).getIndex();
-            int idx1 = molecules.getMolecule(1).getIndex();
+            int idx0 = molecules.get(0).getIndex();
+            int idx1 = molecules.get(1).getIndex();
             if (idx0 > idx1) {
                 return pairPolarization[idx1][idx0];
             }

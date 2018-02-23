@@ -48,8 +48,8 @@ public class MayerPUGeneral implements MayerFunction, java.io.Serializable {
         
         if (r2 > sigmaHS * sigmaHS){
         
-        	IMolecule molecule1 = pair.getMolecule(0);
-        	IMolecule molecule2 = pair.getMolecule(1);
+        	IMolecule molecule1 = pair.get(0);
+        	IMolecule molecule2 = pair.get(1);
         	IAtomList atomList1 = molecule1.getChildList();
         	IAtomList atomList2 = molecule2.getChildList();
         	IAtomOriented atom1 = (IAtomOriented)atomList1.get(0);

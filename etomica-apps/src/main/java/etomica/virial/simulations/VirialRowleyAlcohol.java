@@ -274,8 +274,8 @@ public class VirialRowleyAlcohol {
             sim.integrators[1].getEventManager().addListener(new IntegratorListenerAction(dataPumpDistance)); // measure data at each step
 
             IMoleculeList moleculeList = targetBox.getMoleculeList();
-    		IMolecule monomerA = moleculeList.getMolecule(0);
-    		IMolecule monomerB = moleculeList.getMolecule(1);
+    		IMolecule monomerA = moleculeList.get(0);
+    		IMolecule monomerB = moleculeList.get(1);
 
             IAtomList atomSetA = monomerA.getChildList();
     		IAtomList atomSetB = monomerB.getChildList();

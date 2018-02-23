@@ -56,7 +56,7 @@ public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
     public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
-        dTheta = new double[p.getMoleculeList().getMoleculeCount()];
+        dTheta = new double[p.getMoleculeList().size()];
     }
     
     public void setSpecies(ISpecies newSpecies) {
@@ -68,11 +68,11 @@ public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
         wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            if (species != null && moleculeList.getMolecule(i).getType() != species) {
+        for(int i = 0; i<moleculeList.size(); i++) {
+            if (species != null && moleculeList.get(i).getType() != species) {
                 continue;
             }
-            IMolecule molecule = moleculeList.getMolecule(i);
+            IMolecule molecule = moleculeList.get(i);
             IAtomList childList = molecule.getChildList();
             int numChildren = childList.size();
             if (numChildren != 5) continue;
@@ -159,9 +159,9 @@ public class MCMoveClusterAngleBendAceticAcid extends MCMoveBoxStep {
 
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i=0; i<box.getMoleculeList().getMoleculeCount(); i++) {
+        for(int i = 0; i<box.getMoleculeList().size(); i++) {
             if (dTheta[i] == 0) continue;
-            transform(moleculeList.getMolecule(i), -dTheta[i]);
+            transform(moleculeList.get(i), -dTheta[i]);
         }
         ((BoxCluster)box).rejectNotify();
     }

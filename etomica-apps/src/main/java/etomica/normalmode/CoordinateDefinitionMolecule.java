@@ -56,8 +56,8 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         // degrees of freedom
     
     	int j = 0;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             Vector pos = positionDefinition.position(molecule);
             Vector site = getLatticePosition(molecule);
             
@@ -66,7 +66,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             for (int k = 0; k < pos.getD(); k++) {
                 u[j+k] = work1.getX(k);
             }
-               j += coordinateDim/molecules.getMoleculeCount();
+               j += coordinateDim/molecules.size();
 
         }
         
@@ -84,8 +84,8 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         // subclass is responsible for setting orientation or intramolecular
         // degrees of freedom
         int j = 0;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             Vector site = getLatticePosition(molecule);
             for (int k = 0; k < site.getD(); k++) {
                 work1.setX(k, site.getX(k) + newU[j+k]);
@@ -94,7 +94,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             atomActionTranslateTo.setDestination(work1);
             atomActionTranslateTo.actionPerformed(molecule);
             
-            j += coordinateDim/molecules.getMoleculeCount();
+            j += coordinateDim/molecules.size();
 
         }
     }

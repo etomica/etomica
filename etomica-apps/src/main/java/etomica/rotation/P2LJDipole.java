@@ -75,8 +75,8 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
     }
 
     public double energy(IMoleculeList pair){
-        IMoleculeOriented atom1 = (IMoleculeOriented)pair.getMolecule(0);
-        IMoleculeOriented atom2 = (IMoleculeOriented)pair.getMolecule(1);
+        IMoleculeOriented atom1 = (IMoleculeOriented)pair.get(0);
+        IMoleculeOriented atom2 = (IMoleculeOriented)pair.get(1);
 
         // LJ contributation
 
@@ -147,8 +147,8 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
 
     public double virial(IMoleculeList atoms) {
         gradient(atoms);
-        IMoleculeOriented atom1 = (IMoleculeOriented)atoms.getMolecule(0);
-        IMoleculeOriented atom2 = (IMoleculeOriented)atoms.getMolecule(1);
+        IMoleculeOriented atom1 = (IMoleculeOriented)atoms.get(0);
+        IMoleculeOriented atom2 = (IMoleculeOriented)atoms.get(1);
 
         // LJ contributation
 
@@ -163,8 +163,8 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
 
 
     public Vector[][] gradientAndTorque(IMoleculeList atoms) {
-        IMoleculeOriented atom1 = (IMoleculeOriented)atoms.getMolecule(0);
-        IMoleculeOriented atom2 = (IMoleculeOriented)atoms.getMolecule(1);
+        IMoleculeOriented atom1 = (IMoleculeOriented)atoms.get(0);
+        IMoleculeOriented atom2 = (IMoleculeOriented)atoms.get(1);
 
         // LJ contributation
 
@@ -263,7 +263,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
         
         IMoleculeList leafAtoms = box.getMoleculeList();
 //        IAtomOriented atom0 = (IAtomOriented)leafAtoms.getMolecule(0);
-        IAtomOriented atom1 = (IAtomOriented)leafAtoms.getMolecule(1);
+        IAtomOriented atom1 = (IAtomOriented)leafAtoms.get(1);
         potential.setBox(box);
         
         Vector grad1 = space.makeVector();

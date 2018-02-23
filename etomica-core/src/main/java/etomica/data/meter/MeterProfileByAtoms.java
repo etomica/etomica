@@ -105,9 +105,9 @@ public class MeterProfileByAtoms implements IDataSource, DataSourceIndependent, 
         if (species != null) {
             moleculeList = box.getMoleculeList(species);
         }
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
         for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule a = moleculeList.getMolecule(iMolecule);
+            IMolecule a = moleculeList.get(iMolecule);
             double value = ((DataDouble)meter.getData(a)).x;
             position.E(positionDefinition.position(a));
             position.PE(boundary.centralImage(position));

@@ -179,7 +179,7 @@ public class SimulationBetaNitrogenModel extends Simulation{
             throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
 
-        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
+        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().get(0))[0].size();
         System.out.println("numNeigh: " + numNeigh);
 
         MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster, getRandom(), space);

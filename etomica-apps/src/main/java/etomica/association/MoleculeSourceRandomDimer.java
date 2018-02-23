@@ -28,10 +28,10 @@ public class MoleculeSourceRandomDimer implements MoleculeSource {
 
 	public IMolecule getMolecule() {
     	IMoleculeList molecules = associationManager.getAssociatedMolecules();
-    	if (molecules.getMoleculeCount() == 0) {
+    	if (molecules.size() == 0) {
     		return null;
     	}
-        return molecules.getMolecule(random.nextInt(molecules.getMoleculeCount()));
+        return molecules.get(random.nextInt(molecules.size()));
 	}
 
 	public void setBox(Box p) {

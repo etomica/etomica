@@ -96,7 +96,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 configLattice.initializeCoordinates(pretendBox);
                 IMoleculeList surfactants = pretendBox.getMoleculeList(sim.surfactant);
                 for (int i=0; i<numSurfactants; i++) {
-                    IMolecule surfactant = surfactants.getMolecule(0);
+                    IMolecule surfactant = surfactants.get(0);
                     pretendBox.removeMolecule(surfactant);
                     double deltaX = 0.55 * dim.getX(0);
                     if (surfactant.getChildList().get(0).getPosition().getX(0) < 0) {
@@ -503,7 +503,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         // don't need as much thermostating.
         final ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space);
         nSlider.setPostAction(new IAction() {
-            int oldN = sim.box.getMoleculeList().getMoleculeCount();
+            int oldN = sim.box.getMoleculeList().size();
 
             public void actionPerformed() {
                 int n = sim.box.getNMolecules(sim.species);

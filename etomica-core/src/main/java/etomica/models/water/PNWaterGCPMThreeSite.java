@@ -37,8 +37,8 @@ public class PNWaterGCPMThreeSite extends PNWaterGCPM {
 	}
 	
 	public double energy(IMoleculeList atoms){
-        IAtomList water1Atoms = atoms.getMolecule(0).getChildList();
-        IAtomList water2Atoms = atoms.getMolecule(1).getChildList();
+        IAtomList water1Atoms = atoms.get(0).getChildList();
+        IAtomList water2Atoms = atoms.get(1).getChildList();
 
         Vector O1r = water1Atoms.get(SpeciesWater4P.indexO).getPosition();
         Vector O2r = water2Atoms.get(SpeciesWater4P.indexO).getPosition();

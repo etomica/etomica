@@ -19,7 +19,7 @@ public class AtomPairSet implements java.io.Serializable {
      * @param list The list of atoms for which the set of pairs is formed.
      */
     public AtomPairSet(IMoleculeList list) {
-        aPairs = new MoleculePair[list.getMoleculeCount()-1][];
+        aPairs = new MoleculePair[list.size()-1][];
         setAtoms(list);
     }
     
@@ -32,16 +32,16 @@ public class AtomPairSet implements java.io.Serializable {
     }
 
     private void setAtoms(IMoleculeList list) {
-        int N = list.getMoleculeCount();
+        int N = list.size();
         for(int i=0; i<N-1; i++) {
             aPairs[i] = new MoleculePair[N-1-i];
             for(int j=0; j<N-1-i; j++) {
                 MoleculePair aPair = new MoleculePair();
-                aPair.atom0 = list.getMolecule(i);
-                aPair.atom1 = list.getMolecule(i+j+1);
+                aPair.atom0 = list.get(i);
+                aPair.atom1 = list.get(i+j+1);
                 if(aPair.atom0.getType().getIndex()>aPair.atom1.getType().getIndex()){//only for mixtures
                 	aPair.atom0 = aPair.atom1;
-                	aPair.atom1 = list.getMolecule(i);
+                	aPair.atom1 = list.get(i);
                 }
                 aPairs[i][j] = aPair;
             }
