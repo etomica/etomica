@@ -69,7 +69,7 @@ public class MoleculeIteratorArrayListSimple implements MoleculeIterator, java.i
  	public IMoleculeList next() {
         IMolecule atom = nextMolecule();
         if (atom == null) return null;
-        atomSetSinglet.atom = atom;
+        atomSetSinglet.mol = atom;
  		return atomSetSinglet;
  	}
  

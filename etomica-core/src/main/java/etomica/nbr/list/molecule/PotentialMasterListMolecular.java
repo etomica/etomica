@@ -388,7 +388,7 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
             case 1:
                 boolean[] potential1BodyArray = neighborManager.getPotential1BodyList(molecule).getInteractingList();
                 if (potential1BodyArray[i]) {
-                    moleculeSetSinglet.atom = molecule;
+                    moleculeSetSinglet.mol = molecule;
                     ((PotentialCalculationMolecular)pc).doCalculation(moleculeSetSinglet, (IPotentialMolecular)potentials[i]);
                 }
                 break;
@@ -396,18 +396,18 @@ public class PotentialMasterListMolecular extends PotentialMasterNbrMolecular {
                 if (direction != IteratorDirective.Direction.DOWN) {
                     IMoleculeList list = neighborManager.getUpList(molecule)[i];
                     int nNeighbors = list.size();
-                    moleculePair.atom0 = molecule;
+                    moleculePair.mol0 = molecule;
                     for (int j=0; j<nNeighbors; j++) {
-                        moleculePair.atom1 = list.get(j);
+                        moleculePair.mol1 = list.get(j);
                         ((PotentialCalculationMolecular)pc).doCalculation(moleculePair, (IPotentialMolecular)potentials[i]);
                     }
                 }
                 if (direction != IteratorDirective.Direction.UP) {
                     IMoleculeList list = neighborManager.getDownList(molecule)[i];
                     int nNeighbors = list.size();
-                    moleculePair.atom1 = molecule;
+                    moleculePair.mol1 = molecule;
                     for (int j=0; j<nNeighbors; j++) {
-                        moleculePair.atom0 = list.get(j);
+                        moleculePair.mol0 = list.get(j);
                         ((PotentialCalculationMolecular)pc).doCalculation(moleculePair, (IPotentialMolecular)potentials[i]);
                     }
                 }

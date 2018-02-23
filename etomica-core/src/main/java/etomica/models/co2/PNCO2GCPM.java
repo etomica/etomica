@@ -111,9 +111,9 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
         double sum = 0;
         if (component != Component.INDUCTION) {
             for (int i = 0; i<atoms.size()-1; i++) {
-                pair.atom0 = atoms.get(i);
+                pair.mol0 = atoms.get(i);
                 for (int j = i+1; j<atoms.size(); j++) {
-                    pair.atom1 = atoms.get(j);
+                    pair.mol1 = atoms.get(j);
                     sum += getNonPolarizationEnergy(pair);
                     if (Double.isInfinite(sum)) {
                         return sum;

@@ -92,12 +92,12 @@ public class Mpi1ACell implements MoleculesetIteratorPDT, MoleculesetIteratorCel
             }
         }
         if (upListNow) {
-            pair.atom1 = innerMolecule;
-            pair.atom0 = targetMolecule;
+            pair.mol1 = innerMolecule;
+            pair.mol0 = targetMolecule;
         }
         else {
-            pair.atom0 = innerMolecule;
-            pair.atom1 = targetMolecule;
+            pair.mol0 = innerMolecule;
+            pair.mol1 = targetMolecule;
         }
         return pair;
     }
@@ -133,13 +133,13 @@ public class Mpi1ACell implements MoleculesetIteratorPDT, MoleculesetIteratorCel
         if (upListNow) {
             aiSeqDirectableUp.setMolecule(targetMolecule);
             aiSeqDirectableUp.reset();
-            pair.atom0 = targetMolecule;
+            pair.mol0 = targetMolecule;
             aiInner = aiSeqDirectableUp;
             return;
         }
         aiSeqDirectableDn.setMolecule(targetMolecule);
         aiSeqDirectableDn.reset();
-        pair.atom1 = targetMolecule;
+        pair.mol1 = targetMolecule;
         aiInner = aiSeqDirectableDn;
     }
     

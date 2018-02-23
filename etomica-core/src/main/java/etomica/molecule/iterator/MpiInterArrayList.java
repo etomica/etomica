@@ -58,7 +58,7 @@ public class MpiInterArrayList implements MoleculesetIterator, java.io.Serializa
             return;
         }
         innerIndex = -1;
-        molecules.atom0 = outerList.get(outerIndex);
+        molecules.mol0 = outerList.get(outerIndex);
     }
 
     /**
@@ -83,11 +83,11 @@ public class MpiInterArrayList implements MoleculesetIterator, java.io.Serializa
                 return null;
             }
             outerIndex++;
-            molecules.atom0 = outerList.get(outerIndex);
+            molecules.mol0 = outerList.get(outerIndex);
             innerIndex = -1;
         }
         innerIndex++;
-        molecules.atom1 = innerList.get(innerIndex);
+        molecules.mol1 = innerList.get(innerIndex);
         return molecules;
     }
 

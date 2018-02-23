@@ -125,7 +125,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 		 *	(Skipping the molec1 == molec2) 
 		 */
 		IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().get(molec0);
-		pair.atom0 = molecule0;
+		pair.mol0 = molecule0;
 		
 		boolean isReverseOrder = false;
 
@@ -143,9 +143,9 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialLS extends Simulati
 			}
 			
 			IMolecule molecule1 = coordinateDef.getBox().getMoleculeList().get(molec1);
-			pair.atom1 = molecule1;
+			pair.mol1 = molecule1;
 		
-			int[] index = findPair.getPairMoleculesIndex(pair.atom0, pair.atom1, isReverseOrder);
+			int[] index = findPair.getPairMoleculesIndex(pair.mol0, pair.mol1, isReverseOrder);
 			boolean isNewPair = findPair.getIsNewPair(index);
 
 			if(isReverseOrder && isNewPair){

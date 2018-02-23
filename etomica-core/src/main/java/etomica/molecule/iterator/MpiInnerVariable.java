@@ -101,10 +101,10 @@ public class MpiInnerVariable implements MoleculesetIterator, java.io.Serializab
             return;
         }
         if (doSwap) {
-            pair.atom1 = nextOuter;
+            pair.mol1 = nextOuter;
         }
         else {
-            pair.atom0 = nextOuter;
+            pair.mol0 = nextOuter;
         }
         aiInner.setMolecule(nextOuter);
         aiInner.reset();
@@ -123,10 +123,10 @@ public class MpiInnerVariable implements MoleculesetIterator, java.io.Serializab
                 return null;
             }
             if (doSwap) {
-                pair.atom1 = nextOuter;
+                pair.mol1 = nextOuter;
             }
             else {
-                pair.atom0 = nextOuter;
+                pair.mol0 = nextOuter;
             }
             aiInner.setMolecule(nextOuter);
             aiInner.reset();
@@ -137,13 +137,13 @@ public class MpiInnerVariable implements MoleculesetIterator, java.io.Serializab
         }
         
         if (doSwap) {
-            pair.atom0 = nextInner;
+            pair.mol0 = nextInner;
         }
         else {
-            pair.atom1 = nextInner;
+            pair.mol1 = nextInner;
         }
         
-        if (pair.atom0 == null || pair.atom1 == null) {
+        if (pair.mol0 == null || pair.mol1 == null) {
             throw new RuntimeException("oops "+pair);
         }
         

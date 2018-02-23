@@ -283,9 +283,9 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         double sum = 0;
         if (component != Component.INDUCTION) {
             for (int i = 0; i < molecules.size() - 1; i++) {
-                pair.atom0 = molecules.get(i);
+                pair.mol0 = molecules.get(i);
                 for (int j = i + 1; j < molecules.size(); j++) {
-                    pair.atom1 = molecules.get(j);
+                    pair.mol1 = molecules.get(j);
                     sum += getNonPolarizationEnergy(pair);
                     if (Double.isInfinite(sum)) {
                         return sum;

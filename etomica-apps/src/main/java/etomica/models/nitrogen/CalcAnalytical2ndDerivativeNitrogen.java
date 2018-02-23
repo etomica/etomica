@@ -73,8 +73,8 @@ public class CalcAnalytical2ndDerivativeNitrogen{
 			throw new RuntimeException("C<CalcAnalytical2ndDerivcationNitrogen> CANNOT HANDLE SELF-TERM YET!");
 		}
 		
-		pair.atom0 = coordinateDefinition.getBox().getMoleculeList().get(moleculei[0]);
-		pair.atom1 = coordinateDefinition.getBox().getMoleculeList().get(moleculei[1]);
+		pair.mol0 = coordinateDefinition.getBox().getMoleculeList().get(moleculei[0]);
+		pair.mol1 = coordinateDefinition.getBox().getMoleculeList().get(moleculei[1]);
 		
 		tensorTrans.E(potential.secondDerivative(pair));
 		

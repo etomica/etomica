@@ -84,7 +84,7 @@ public class MpiInterspeciesAA implements MoleculesetIteratorBoxDependent {
             return;
         }
         innerIndex = -1;
-        atoms.atom0 = outerList.get(outerIndex);
+        atoms.mol0 = outerList.get(outerIndex);
     }
 
     /**
@@ -109,11 +109,11 @@ public class MpiInterspeciesAA implements MoleculesetIteratorBoxDependent {
                 return null;
             }
             outerIndex++;
-            atoms.atom0 = outerList.get(outerIndex);
+            atoms.mol0 = outerList.get(outerIndex);
             innerIndex = -1;
         }
         innerIndex++;
-        atoms.atom1 = innerList.get(innerIndex);
+        atoms.mol1 = innerList.get(innerIndex);
         return atoms;
     }
 

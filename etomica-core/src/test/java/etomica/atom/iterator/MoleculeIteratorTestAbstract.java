@@ -213,7 +213,7 @@ public abstract class MoleculeIteratorTestAbstract extends TestCase {
      * Tests that iterator gives two particular iterates
      */
     protected LinkedList testApiTwoIterates(MoleculesetIterator iterator, MoleculePair pair0, MoleculePair pair1) {
-        if((pair0.atom1 == null || pair0.atom0 == null) && (pair1.atom0 == null || pair1.atom1 == null)) {
+        if((pair0.mol1 == null || pair0.mol0 == null) && (pair1.mol0 == null || pair1.mol1 == null)) {
             testNoIterates(iterator);
             return new LinkedList();
         }
@@ -229,7 +229,7 @@ public abstract class MoleculeIteratorTestAbstract extends TestCase {
      * Tests that iterator gives a single particular iterate.
      */
     protected LinkedList testApiOneIterate(MoleculesetIterator iterator, MoleculePair pair) {
-        if(pair.atom0 == null || pair.atom1 == null) {
+        if(pair.mol0 == null || pair.mol1 == null) {
             testNoIterates(iterator);
             return new LinkedList();
         }

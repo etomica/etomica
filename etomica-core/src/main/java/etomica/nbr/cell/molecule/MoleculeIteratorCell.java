@@ -61,7 +61,7 @@ public class MoleculeIteratorCell implements MoleculeIterator, java.io.Serializa
     }
     
     public final IMoleculeList next() {
-        moleculeSetSinglet.atom = nextMolecule();
+        moleculeSetSinglet.mol = nextMolecule();
         return moleculeSetSinglet;
     }
     

@@ -12,24 +12,24 @@ import java.util.*;
  */
 public final class MoleculeSetSinglet extends AbstractList<IMolecule> implements IMoleculeList {
 
-    public IMolecule atom;
+    public IMolecule mol;
 
     public MoleculeSetSinglet() {
     }
 
     public MoleculeSetSinglet(IMolecule molecule) {
-        this.atom = molecule;
+        this.mol = molecule;
     }
 
     public IMolecule get(int i) {
-        if (i == 0) return atom;
+        if (i == 0) return mol;
         throw new IllegalArgumentException();
     }
 
     @Override
     public IMolecule set(int i, IMolecule iMolecule) {
         if (i == 0) {
-            atom = iMolecule;
+            mol = iMolecule;
         }
         throw new IndexOutOfBoundsException();
     }
@@ -46,7 +46,7 @@ public final class MoleculeSetSinglet extends AbstractList<IMolecule> implements
 
     @Override
     public int indexOf(Object o) {
-        return o == atom ? 0 : -1;
+        return o == mol ? 0 : -1;
     }
 
     @Override
@@ -60,12 +60,12 @@ public final class MoleculeSetSinglet extends AbstractList<IMolecule> implements
 
     @Override
     public boolean isEmpty() {
-        return atom == null;
+        return mol == null;
     }
 
     @Override
     public boolean contains(Object o) {
-        return o == atom;
+        return o == mol;
     }
 
     @Override
@@ -75,7 +75,7 @@ public final class MoleculeSetSinglet extends AbstractList<IMolecule> implements
 
     @Override
     public IMolecule[] toArray() {
-        return new IMolecule[]{atom};
+        return new IMolecule[]{mol};
     }
 
     @Override
@@ -110,11 +110,11 @@ public final class MoleculeSetSinglet extends AbstractList<IMolecule> implements
 
     @Override
     public void clear() {
-        atom = null;
+        mol = null;
     }
 
     public String toString() {
-        return "[" + atom + "]";
+        return "[" + mol + "]";
     }
 
     private class Itr implements Iterator<IMolecule> {
@@ -129,7 +129,7 @@ public final class MoleculeSetSinglet extends AbstractList<IMolecule> implements
         public IMolecule next() {
             if (!didNext) {
                 didNext = true;
-                return atom;
+                return mol;
             }
             throw new NoSuchElementException();
         }
