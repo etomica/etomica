@@ -107,8 +107,9 @@ public class LatticePlaneTestUtility {
 	}
 
 	public void setDimensions(int size) {
-        box.getBoundary().setBoxSize(Vector.of(size, size, size));
-        
+	    sim.removeBox(box);
+	    box = sim.makeBox(new BoundaryDeformableLattice(lattice.getPrimitive(), new int[]{size, size, size}));
+
         // Set the number of atoms
         int numAtoms = size*size*size;
 
@@ -117,7 +118,7 @@ public class LatticePlaneTestUtility {
 	    box.setNMolecules(species, numAtoms);
 	    ConfigurationLattice config = new ConfigurationLattice(lattice, space);
 	    config.initializeCoordinates(box);
-		
+
 	}
 
 	public void setLatticePlanePosition(double pos) {
@@ -131,19 +132,19 @@ public class LatticePlaneTestUtility {
 	public Simulation getSimulation() {
 		return sim;
 	}
-	
+
 	public ISpecies getSpecies() {
 		return species;
 	}
-	
+
 	public BravaisLattice getLattice() {
 		return lattice;
 	}
-	
+
 	public Box getBox() {
 		return box;
 	}
-	
+
 	public LatticePlane getLatticePlane() {
 		return latticePlane;
 	}
