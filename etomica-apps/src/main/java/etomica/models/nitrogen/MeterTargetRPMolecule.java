@@ -75,9 +75,7 @@ public class MeterTargetRPMolecule implements IDataSource {
             initMolecOrientation[i] = coordinateDefinition.getMoleculeOrientation(sim.getBox(0).getMoleculeList().get(i));
         }
 
-        Box realBox = coordinateDef.getBox();
-        pretendBox.setBoundary(realBox.getBoundary());
-        pretendBox.setNMolecules(species, realBox.getNMolecules(species));
+        pretendBox.setNMolecules(species, coordinateDef.getBox().getNMolecules(species));
 
         IMoleculeList pretendMolecule = pretendBox.getMoleculeList();
         double[] initU = new double[coordinateDef.getCoordinateDim()];
