@@ -77,18 +77,6 @@ public class SimOverlapSoftSphereTP extends Simulation {
         addSpecies(species);
 
         // TARGET
-        box = this.makeBox();
-        box.setNMolecules(species, numAtoms);
-
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
-        atomMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);
-        atomMove.setStepSize(0.1);
-        atomMove.setStepSizeMax(0.5);
-        atomMove.setDoExcludeNonNeighbors(true);
-        integrator.getMoveManager().addMCMove(atomMove);
-//        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
-
         double nbrDistance = 0;
         if (slanty) {
             int c = (int) Math.round(Math.pow(numAtoms, 1.0 / 3.0));
@@ -117,8 +105,17 @@ public class SimOverlapSoftSphereTP extends Simulation {
             Basis basisFCC = new BasisCubicFcc();
             basis = new BasisBigCell(space, basisFCC, nCells);
         }
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numAtoms);
 
-        box.setBoundary(boundary);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
+        atomMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);
+        atomMove.setStepSize(0.1);
+        atomMove.setStepSizeMax(0.5);
+        atomMove.setDoExcludeNonNeighbors(true);
+        integrator.getMoveManager().addMCMove(atomMove);
+//        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
@@ -167,8 +164,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
         // this is the meterPE we gave to the MCMove but it hasn't called setTarget yet, so we're OK
         latticeEnergy = meterPE.getDataAsScalar();
 
-        meter = new MeterTargetTP(potentialMaster, species, space, this);
-        meter.setCoordinateDefinition(coordinateDefinition);
+        meter = new MeterTargetTP(potentialMaster, species, this, coordinateDefinition);
         meter.setLatticeEnergy(latticeEnergy);
         meter.setTemperature(temperature);
         meter.setOtherTemperatures(otherTemperatures);

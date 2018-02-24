@@ -87,15 +87,6 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         addSpecies(species);
 
         // TARGET
-        box = this.makeBox();
-        box.setNMolecules(species, numAtoms);
-
-        integrators = new IntegratorBox[2];
-        accumulatorPumps = new DataPump[2];
-        meters = new IDataSource[2];
-        accumulators = new AccumulatorVirialOverlapSingleAverage[2];
-
-        integrators[1] = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         double nbrDistance = 0;
         if (slanty) {
             int c = (int) Math.round(Math.pow(numAtoms, 1.0 / 3.0));
@@ -128,8 +119,15 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
             basis = new BasisBigCell(space, basisFCC, nCells);
         }
         System.out.println("nbr distance " + nbrDistance);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numAtoms);
 
-        box.setBoundary(boundary);
+        integrators = new IntegratorBox[2];
+        accumulatorPumps = new DataPump[2];
+        meters = new IDataSource[2];
+        accumulators = new AccumulatorVirialOverlapSingleAverage[2];
+
+        integrators[1] = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
 
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});

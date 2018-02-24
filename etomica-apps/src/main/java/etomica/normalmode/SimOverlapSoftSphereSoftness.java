@@ -83,7 +83,10 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         addSpecies(species);
 
         // TARGET
-        boxTarg = this.makeBox();
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        boundaryTarg = new BoundaryRectangularPeriodic(space, n * L);
+        boxTarg = this.makeBox(boundaryTarg);
         boxTarg.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature, boxTarg);
@@ -96,17 +99,13 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
 
         integrators[1] = integratorTarg;
 
-        double L = Math.pow(4.0 / density, 1.0 / 3.0);
-        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         primitive = new PrimitiveCubic(space, n * L);
         primitiveUnitCell = new PrimitiveCubic(space, L);
 
         nCells = new int[]{n, n, n};
-        boundaryTarg = new BoundaryRectangularPeriodic(space, n * L);
         Basis basisFCC = new BasisCubicFcc();
         basis = new BasisBigCell(space, basisFCC, nCells);
 
-        boxTarg.setBoundary(boundaryTarg);
 
         CoordinateDefinitionLeaf coordinateDefinitionTarg = new CoordinateDefinitionLeaf(boxTarg, primitive, basis, space);
         coordinateDefinitionTarg.initializeCoordinates(new int[]{1, 1, 1});
@@ -169,8 +168,6 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         ((MCMoveStepTracker) atomMoveRef.getTracker()).setNoisyAdjustment(false);
 
         integrators[0] = integratorRef;
-
-        boxRef.setBoundary(boundaryTarg);
 
         CoordinateDefinitionLeaf coordinateDefinitionRef = new CoordinateDefinitionLeaf(boxRef, primitive, basis, space);
         coordinateDefinitionRef.initializeCoordinates(new int[]{1, 1, 1});

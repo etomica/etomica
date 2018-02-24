@@ -60,9 +60,6 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         addSpecies(speciesA);
         addSpecies(speciesB);
 
-        box = this.makeBox();
-        box.setNMolecules(speciesA, numAtoms / 8);
-        box.setNMolecules(speciesB, numAtoms * 7 / 8);
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0 / density);
             boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
@@ -76,6 +73,9 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
             boundary = new BoundaryRectangularPeriodic(space, n * L);
             basis = new BasisCubicFcc();
         }
+        box = this.makeBox(boundary);
+        box.setNMolecules(speciesA, numAtoms / 8);
+        box.setNMolecules(speciesB, numAtoms * 7 / 8);
 
         Potential2SoftSpherical potentialAA = new P2SoftSphere(space, 1.0, 1.0, exponent);
         Potential2SoftSpherical potentialAB = new P2SoftSphere(space, 1.0, 0.5, exponent);
@@ -92,7 +92,6 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         potentialMaster.addPotential(pTruncatedAA, new AtomType[]{sphereTypeA, sphereTypeA});
         potentialMaster.addPotential(pTruncatedAB, new AtomType[]{sphereTypeA, sphereTypeB});
 
-        box.setBoundary(boundary);
         coordinateDefinition = new CoordinateDefinitionLeafSuperBox(box, primitive, basis, space);
         coordinateDefinition.setSpecies(speciesA, speciesB);
         coordinateDefinition.setIs256();

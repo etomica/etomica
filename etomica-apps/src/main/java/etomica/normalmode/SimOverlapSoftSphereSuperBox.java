@@ -81,11 +81,6 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
 
         // TARGET
 
-        boxTarget = this.makeBox();
-        boxTarget.setNMolecules(speciesA, numAtoms / 8);
-        boxTarget.setNMolecules(speciesB, numAtoms * 7 / 8);
-
-
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0 / density);
             boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms / density);
@@ -99,7 +94,10 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
             boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
             basis = new BasisCubicFcc();
         }
-        boxTarget.setBoundary(boundaryTarget);
+        boxTarget = this.makeBox(boundaryTarget);
+        boxTarget.setNMolecules(speciesA, numAtoms / 8);
+        boxTarget.setNMolecules(speciesB, numAtoms * 7 / 8);
+
 
         CoordinateDefinitionLeafSuperBox coordinateDefinitionTarget = new CoordinateDefinitionLeafSuperBox(boxTarget, primitive, basis, space);
         coordinateDefinitionTarget.setSpecies(speciesA, speciesB);
@@ -145,8 +143,15 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
 
 
         // HARMONIC
-        boundaryHarmonic = new BoundaryRectangularPeriodic(space);
-        boxHarmonic = this.makeBox();
+        if (space.D() == 1) {
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms / density);
+        } else {
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            nCells = new int[]{n, n, n};
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
+        }
+        boxHarmonic = this.makeBox(boundaryHarmonic);
         System.out.println("numAtoms: " + numAtoms);
         boxHarmonic.setNMolecules(speciesA, numAtoms / 8);
         boxHarmonic.setNMolecules(speciesB, numAtoms * 7 / 8);
@@ -156,16 +161,6 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
         MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(move);
         integrators[0] = integratorHarmonic;
-
-        if (space.D() == 1) {
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms / density);
-        } else {
-            double L = Math.pow(4.0 / density, 1.0 / 3.0);
-            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
-            nCells = new int[]{n, n, n};
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
-        }
-        boxHarmonic.setBoundary(boundaryHarmonic);
 
         CoordinateDefinitionLeafSuperBox coordinateDefinitionHarmonic = new CoordinateDefinitionLeafSuperBox(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.setSpecies(speciesA, speciesB);

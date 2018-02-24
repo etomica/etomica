@@ -45,7 +45,10 @@ public class HTTPSoftSphereSim extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        Box box = new Box(space);
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        Boundary boundary = new BoundaryRectangularPeriodic(space, n * L);
+        Box box = new Box(boundary, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
@@ -58,18 +61,14 @@ public class HTTPSoftSphereSim extends Simulation {
         integrator.getMoveManager().addMCMove(atomMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
 
-        double L = Math.pow(4.0 / density, 1.0 / 3.0);
         double nbrDistance = L / Math.sqrt(2);
-        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         Primitive primitive = new PrimitiveCubic(space, n * L);
         double rc = 0.495 * n * L;
 
         int[] nCells = new int[]{n, n, n};
-        Boundary boundary = new BoundaryRectangularPeriodic(space, n * L);
         Basis basisFCC = new BasisCubicFcc();
         Basis basis = new BasisBigCell(space, basisFCC, nCells);
 
-        box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});

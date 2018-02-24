@@ -49,20 +49,6 @@ public class SimCalcSLJ extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = this.makeBox();
-        box.setNMolecules(species, numAtoms);
-
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
-        MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), getRandom(), space);
-        move.setStepSize(0.1);
-        move.setStepSizeMax(0.5);
-        move.setDoExcludeNonNeighbors(true);
-        integrator.getMoveManager().addMCMove(move);
-        ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
-
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0 / density);
             boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
@@ -79,6 +65,20 @@ public class SimCalcSLJ extends Simulation {
             Basis basisFCC = new BasisCubicFcc();
             basis = new BasisBigCell(space, basisFCC, nCells);
         }
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numAtoms);
+
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
+        MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), getRandom(), space);
+        move.setStepSize(0.1);
+        move.setStepSizeMax(0.5);
+        move.setDoExcludeNonNeighbors(true);
+        integrator.getMoveManager().addMCMove(move);
+        ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
+
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
         double truncationRadius = boundary.getBoxSize().getX(0) * 0.45;
@@ -94,8 +94,6 @@ public class SimCalcSLJ extends Simulation {
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
         move.setPotential(potential);
-
-        box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});

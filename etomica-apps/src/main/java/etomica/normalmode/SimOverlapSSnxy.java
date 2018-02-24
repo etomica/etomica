@@ -90,15 +90,11 @@ public class SimOverlapSSnxy extends Simulation {
         addSpecies(species);
 
         // TARGET
-        boxTarget = this.makeBox();
-        boxTarget.setNMolecules(species, numAtoms);
-
+        boundaryTarget = new BoundaryRectangularPeriodic(space, 1.0);
         double primitiveLength = Math.pow(4.0 / density, 1.0 / 3.0);
         primitive = new PrimitiveCubic(space);
         basis = new BasisCubicFcc();
         primitive.scaleSize(primitiveLength);
-
-        boundaryTarget = new BoundaryRectangularPeriodic(space, 1.0);
         Vector edges = new Vector3D();
         double[] lengths = new double[3];
         lengths[0] = shape[0] * primitiveLength;
@@ -106,7 +102,8 @@ public class SimOverlapSSnxy extends Simulation {
         lengths[2] = shape[2] * primitiveLength;
         edges.E(lengths);
         boundaryTarget.setBoxSize(edges);
-        boxTarget.setBoundary(boundaryTarget);
+        boxTarget = this.makeBox(boundaryTarget);
+        boxTarget.setNMolecules(species, numAtoms);
 
         potentialMasterTarget = new PotentialMasterList(this, space);
         double neighborRange = 0.495 * lengths[0];
@@ -145,7 +142,9 @@ public class SimOverlapSSnxy extends Simulation {
         System.out.println("lattice energy of SS system: " + latticeEnergy);
 
         // HARMONIC
-        boxHarmonic = this.makeBox();
+        boundaryHarmonic = new BoundaryRectangularPeriodic(space, 1.0);
+        boundaryHarmonic.setBoxSize(edges);
+        boxHarmonic = this.makeBox(boundaryTarget);
         boxHarmonic.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0, boxHarmonic);
@@ -153,9 +152,6 @@ public class SimOverlapSSnxy extends Simulation {
         integratorHarmonic.getMoveManager().addMCMove(move);
         integrators[0] = integratorHarmonic;
 
-        boundaryHarmonic = new BoundaryRectangularPeriodic(space, 1.0);
-        boundaryHarmonic.setBoxSize(edges);
-        boxHarmonic.setBoundary(boundaryHarmonic);
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new
                 CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.initializeCoordinates(shape);

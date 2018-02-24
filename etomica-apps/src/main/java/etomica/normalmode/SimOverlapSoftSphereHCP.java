@@ -101,6 +101,11 @@ public class SimOverlapSoftSphereHCP extends Simulation {
         BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
         potentialMasterTarget = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
 
+        Vector[] boxDim = new Vector[3];
+        boxDim[0] = space.makeVector(new double[]{nC * a, 0, 0});
+        boxDim[1] = space.makeVector(new double[]{-nC * a * Math.cos(Degree.UNIT.toSim(60)), nC * a * Math.sin(Degree.UNIT.toSim(60)), 0});
+        boxDim[2] = space.makeVector(new double[]{0, 0, nC * c});
+        boundaryTarget = new BoundaryDeformablePeriodic(space, boxDim);
         boxTarget = this.makeBox();
         boxTarget.setNMolecules(species, numAtoms);
 
@@ -114,18 +119,11 @@ public class SimOverlapSoftSphereHCP extends Simulation {
 
         integrators[1] = integratorTarget;
 
-        Vector[] boxDim = new Vector[3];
-        boxDim[0] = space.makeVector(new double[]{nC * a, 0, 0});
-        boxDim[1] = space.makeVector(new double[]{-nC * a * Math.cos(Degree.UNIT.toSim(60)), nC * a * Math.sin(Degree.UNIT.toSim(60)), 0});
-        boxDim[2] = space.makeVector(new double[]{0, 0, nC * c});
 
         primitive = new PrimitiveHexagonal(space, nC * a, nC * c);
         nCells = new int[]{nC, nC, nC};
-        boundaryTarget = new BoundaryDeformablePeriodic(space, boxDim);
         Basis basisHCP = new BasisHcp();
         basis = new BasisBigCell(space, basisHCP, nCells);
-
-        boxTarget.setBoundary(boundaryTarget);
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         coordinateDefinitionTarget.initializeCoordinates(new int[]{1, 1, 1});
@@ -174,8 +172,6 @@ public class SimOverlapSoftSphereHCP extends Simulation {
         move = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(move);
         integrators[0] = integratorHarmonic;
-
-        boxHarmonic.setBoundary(boundaryHarmonic);
 
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1, 1, 1});

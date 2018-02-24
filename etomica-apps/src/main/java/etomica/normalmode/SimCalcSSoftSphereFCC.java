@@ -53,27 +53,27 @@ public class SimCalcSSoftSphereFCC extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = this.makeBox();
+		if (space.D() == 1) {
+			primitive = new PrimitiveCubic(space, 1.0 / density);
+			boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
+			nCells = new int[]{numAtoms};
+			basis = new BasisMonatomic(space);
+		} else {
+			double L = Math.pow(4.0 / density, 1.0 / 3.0);
+			int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+			primitive = new PrimitiveCubic(space, n * L);
+			primitiveUnitCell = new PrimitiveCubic(space, L);
+
+			nCells = new int[]{n, n, n};
+			boundary = new BoundaryRectangularPeriodic(space, n * L);
+			Basis basisFCC = new BasisCubicFcc();
+			basis = new BasisBigCell(space, basisFCC, nCells);
+		}
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
 
-        if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0 / density);
-            boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
-            nCells = new int[]{numAtoms};
-            basis = new BasisMonatomic(space);
-        } else {
-            double L = Math.pow(4.0 / density, 1.0 / 3.0);
-            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
-            primitive = new PrimitiveCubic(space, n * L);
-            primitiveUnitCell = new PrimitiveCubic(space, L);
-
-            nCells = new int[]{n, n, n};
-            boundary = new BoundaryRectangularPeriodic(space, n * L);
-            Basis basisFCC = new BasisCubicFcc();
-            basis = new BasisBigCell(space, basisFCC, nCells);
-        }
 
         Potential2SoftSpherical potential = new P2SoftSphere(space);
         double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
@@ -99,7 +99,6 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
-        box.setBoundary(boundary);
 
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);

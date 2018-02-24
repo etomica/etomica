@@ -130,8 +130,7 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
         latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy: " + latticeEnergy / numAtoms);
 
-        meter = new MeterTargetTP(potentialMaster, species, space, this);
-        meter.setCoordinateDefinition(coordinateDefinition);
+        meter = new MeterTargetTP(potentialMaster, species, this, coordinateDefinition);
         meter.setLatticeEnergy(latticeEnergy);
         meter.setTemperature(temperature);
         meter.setOtherTemperatures(otherTemperatures);
