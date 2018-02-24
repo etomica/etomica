@@ -63,7 +63,7 @@ public class Box {
     private final BoxEventManager eventManager;
     private final Space space;
     protected MoleculeArrayList[] moleculeLists;
-    private Boundary boundary;
+    private final Boundary boundary;
     private int index;
 
     /**
@@ -285,16 +285,6 @@ public class Box {
      */
     public final Boundary getBoundary() {
         return boundary;
-    }
-
-    /**
-     * Sets the box's boundary to the given Boundary.
-     *
-     * @param b the new boundary
-     */
-    public void setBoundary(Boundary b) {
-        boundary = b;
-        boundary.setBox(this);
     }
 
     /**
