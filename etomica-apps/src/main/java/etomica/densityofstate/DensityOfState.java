@@ -58,7 +58,7 @@ public class DensityOfState extends Simulation{
 
 
 		potentialMaster = new PotentialMasterMonatomic(this);
-		box = new Box(space);
+		box = this.makeBox();
 		integrator = new IntegratorMC(this, potentialMaster, box);
 		mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
 		mcMoveAtom.setAtomSource(new AtomSourceRandomLeaf());
