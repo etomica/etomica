@@ -40,7 +40,6 @@ public class MinimizationTIP4P extends Simulation{
     protected static double[] initialU;
     protected static double selfELJ;
     protected Box box;
-	protected Space space;
 	protected PotentialMaster potentialMaster;
 	protected SpeciesWater4P species;
 	protected MeterHarmonicEnergy meterHarm;
@@ -49,14 +48,12 @@ public class MinimizationTIP4P extends Simulation{
 	protected EwaldSummation potentialES;
 	public MinimizationTIP4P(Space space, double rCutLJ, double rCutRealES, double[] a0, int[] nC, int nBasis, boolean isIce, double kCut, String configFile, boolean includeM) {
         super(space);
-        this.space = space;
         species = new SpeciesWater4P(space);
         addSpecies(species);
-        box = this.makeBox();
-        box.setNMolecules(species, nBasis * nC[0] * nC[1] * nC[2]);
-        double[] a0_sc = new double[]{a0[0] * nC[0], a0[1] * nC[1], a0[2] * nC[2]};
-        Boundary boundary = new BoundaryRectangularPeriodic(space, a0_sc);
-        box.setBoundary(boundary);
+		double[] a0_sc = new double[]{a0[0] * nC[0], a0[1] * nC[1], a0[2] * nC[2]};
+		Boundary boundary = new BoundaryRectangularPeriodic(space, a0_sc);
+        box = this.makeBox(boundary);
+		box.setNMolecules(species, nBasis * nC[0] * nC[1] * nC[2]);
         ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
         AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
         double sigma, epsilon;

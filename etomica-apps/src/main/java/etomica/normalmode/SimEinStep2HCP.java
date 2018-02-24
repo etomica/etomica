@@ -69,16 +69,10 @@ public class SimEinStep2HCP extends Simulation {
         addSpecies(species);
 
         // TARGET
-        box = this.makeBox();
-        box.setNMolecules(species, numAtoms);
-
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
-
         int n = (int) Math.round(Math.pow(numAtoms / 8, 1.0 / 3.0));
         if (8 * n * n * n != numAtoms) {
             throw new RuntimeException("Not compatible with HCP");
         }
-
         double a = Math.pow(4 / (Math.sqrt(3) * density * coa), 1.0 / 3.0);
         double c = coa * a;  // sqrt(8/3)
         Vector[] boxDim = new Vector[3];
@@ -88,11 +82,15 @@ public class SimEinStep2HCP extends Simulation {
 
         primitive = new PrimitiveHexagonal(space, a, c);
         nCells = new int[]{2 * n, 2 * n, n};
-        boundary = new BoundaryDeformableLattice(primitive, nCells);
         boundary.setTruncationRadius(rc);
-        basis = new BasisHcp();
+        boundary = new BoundaryDeformableLattice(primitive, nCells);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numAtoms);
 
-        box.setBoundary(boundary);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
+
+
+        basis = new BasisHcp();
 
 
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);

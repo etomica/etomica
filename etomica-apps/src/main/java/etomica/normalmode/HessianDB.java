@@ -65,17 +65,17 @@ public class HessianDB extends Simulation {
          */
 
         potentialMaster = new PotentialMasterMonatomic(this);
-        box = this.makeBox();
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        boundary = new BoundaryRectangularPeriodic(space, n * L);
+        box = this.makeBox(boundary);
         integrator = new IntegratorMC(this, potentialMaster, box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
         box.setNMolecules(species, numAtoms);
 
-        double L = Math.pow(4.0 / density, 1.0 / 3.0);
-        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         primitive = new PrimitiveCubic(space, n * L);
         nCells = new int[]{n, n, n};
-        boundary = new BoundaryRectangularPeriodic(space, n * L);
         basisFCC = new BasisCubicFcc();
         basis = new BasisBigCell(space, basisFCC, nCells);
 
@@ -86,7 +86,6 @@ public class HessianDB extends Simulation {
 
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
-        box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});

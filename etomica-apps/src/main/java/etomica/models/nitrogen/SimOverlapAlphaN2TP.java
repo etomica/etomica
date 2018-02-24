@@ -58,20 +58,18 @@ public class SimOverlapAlphaN2TP extends Simulation {
         species = new SpeciesN2(space);
         addSpecies(species);
 
-        box = this.makeBox();
+        double[] boxSize = new double[]{nC[0] * a, nC[1] * a, nC[2] * a};
+        Boundary boundary = new BoundaryRectangularPeriodic(space, boxSize);
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numMolecules);
 
         int[] nCells = new int[]{1, 1, 1};
-        double[] boxSize = new double[]{nC[0] * a, nC[1] * a, nC[2] * a};
-        Boundary boundary = new BoundaryRectangularPeriodic(space, boxSize);
         primitive = new PrimitiveTetragonal(space, nC[0] * a, nC[2] * a);
 
         coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
         coordinateDef.setIsAlpha();
         coordinateDef.setOrientationVectorAlpha(space);
         coordinateDef.initializeCoordinates(nCells);
-
-        box.setBoundary(boundary);
         double rC = box.getBoundary().getBoxSize().getX(0) * rcScale;
         System.out.println("Truncation Radius (" + rcScale + " Box Length): " + rC);
         potential = new P2Nitrogen(space, rC);

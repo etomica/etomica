@@ -85,7 +85,8 @@ public class Box {
     public Box(Boundary boundary, Space space) {
         this.space = space;
         eventManager = new BoxEventManager(this);
-        setBoundary(boundary);
+        this.boundary = boundary;
+        this.boundary.setBox(this);
 
         moleculeLists = new MoleculeArrayList[0];
         allMoleculeList = new AtomSetAllMolecules();

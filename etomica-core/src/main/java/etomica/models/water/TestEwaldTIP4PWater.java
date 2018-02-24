@@ -49,7 +49,6 @@ public class TestEwaldTIP4PWater extends Simulation {
     protected final Box box;
     protected final SpeciesWater4P species;
     protected final IntegratorMC integrator;
-    protected final BoundaryRectangularPeriodic boundary;
 
     TestEwaldTIP4PWater(Space space) {
         super(space);
@@ -104,10 +103,6 @@ public class TestEwaldTIP4PWater extends Simulation {
 
 
         BoxImposePbc imposePBC = new BoxImposePbc(box, space);
-
-        boundary = new BoundaryRectangularPeriodic(space, 20);
-        boundary.setBoxSize(space.makeVector(new double[]{20, 20, 20}));
-        box.setBoundary(boundary);
 
         configuration.initializeCoordinates(box);
 

@@ -63,23 +63,20 @@ public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
 		species = new SpeciesN2(space);
 		addSpecies(species);
 
-		box = this.makeBox();
-		box.setNMolecules(species, numMolecule);
-
 		boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC[0] * aDim, 0, 0});
 		boxDim[1] = space.makeVector(new double[]{-nC[1] * aDim * Math.cos(Degree.UNIT.toSim(60)), nC[1] * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
 		boxDim[2] = space.makeVector(new double[]{0, 0, nC[2] * cDim});
-
 		boundary = new BoundaryDeformablePeriodic(space, boxDim);
+		box = this.makeBox(boundary);
+		box.setNMolecules(species, numMolecule);
+
 		primitive = new PrimitiveHexagonal(space, nC[0] * aDim, nC[2] * cDim);
 
 		coordinateDefinition = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDefinition.setIsGamma();
 		coordinateDefinition.setOrientationVectorGamma(space);
 		coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
-
-		box.setBoundary(boundary);
 		double rC = box.getBoundary().getBoxSize().getX(0) * 0.475;
 		//System.out.println("rC: " + rC);
 

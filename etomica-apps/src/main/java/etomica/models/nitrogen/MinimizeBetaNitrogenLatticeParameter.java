@@ -40,50 +40,47 @@ public class MinimizeBetaNitrogenLatticeParameter extends Simulation {
 	
 
 	public MinimizeBetaNitrogenLatticeParameter(Space space, int[] nC, double density) {
-        super(space);
-        this.space = space;
-        this.density = density;
-        this.nC = nC;
+		super(space);
+		this.space = space;
+		this.density = density;
+		this.nC = nC;
 
-        double ratio = 1.631;
-        aDim = Math.pow(4.0 / (Math.sqrt(3.0) * ratio * density), 1.0 / 3.0);
-        cDim = aDim * ratio;
-        numMolecule = nC[0] * nC[1] * nC[2] * 2;
+		double ratio = 1.631;
+		aDim = Math.pow(4.0 / (Math.sqrt(3.0) * ratio * density), 1.0 / 3.0);
+		cDim = aDim * ratio;
+		numMolecule = nC[0] * nC[1] * nC[2] * 2;
 
-        potentialMaster = new PotentialMaster();
-        Basis basisHCP = new BasisHcp();
-        BasisBigCell basis = new BasisBigCell(space, basisHCP, nC);
+		potentialMaster = new PotentialMaster();
+		Basis basisHCP = new BasisHcp();
+		BasisBigCell basis = new BasisBigCell(space, basisHCP, nC);
 
-        species = new SpeciesN2(space);
-        addSpecies(species);
+		species = new SpeciesN2(space);
+		addSpecies(species);
 
-        box = this.makeBox();
-        box.setNMolecules(species, numMolecule);
+		boxDim = new Vector[3];
+		boxDim[0] = space.makeVector(new double[]{nC[0] * aDim, 0, 0});
+		boxDim[1] = space.makeVector(new double[]{-nC[1] * aDim * Math.cos(Degree.UNIT.toSim(60)), nC[1] * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
+		boxDim[2] = space.makeVector(new double[]{0, 0, nC[2] * cDim});
+		boundary = new BoundaryDeformablePeriodic(space, boxDim);
+		box = this.makeBox(boundary);
+		box.setNMolecules(species, numMolecule);
 
-        boxDim = new Vector[3];
-        boxDim[0] = space.makeVector(new double[]{nC[0] * aDim, 0, 0});
-        boxDim[1] = space.makeVector(new double[]{-nC[1] * aDim * Math.cos(Degree.UNIT.toSim(60)), nC[1] * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
-        boxDim[2] = space.makeVector(new double[]{0, 0, nC[2] * cDim});
+		primitive = new PrimitiveHexagonal(space, nC[0] * aDim, nC[2] * cDim);
 
-        boundary = new BoundaryDeformablePeriodic(space, boxDim);
-        primitive = new PrimitiveHexagonal(space, nC[0] * aDim, nC[2] * cDim);
+		coordinateDefinition = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+		coordinateDefinition.setIsGamma();
+		coordinateDefinition.setOrientationVectorGamma(space);
+		coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
+		double rC = box.getBoundary().getBoxSize().getX(0) * 0.475;
+		//System.out.println("rC: " + rC);
 
-        coordinateDefinition = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-        coordinateDefinition.setIsGamma();
-        coordinateDefinition.setOrientationVectorGamma(space);
-        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
+		P2Nitrogen potential = new P2Nitrogen(space, rC);
+		potential.setBox(box);
 
-        box.setBoundary(boundary);
-        double rC = box.getBoundary().getBoxSize().getX(0) * 0.475;
-        //System.out.println("rC: " + rC);
+		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 
-        P2Nitrogen potential = new P2Nitrogen(space, rC);
-        potential.setBox(box);
-
-        potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-
-        meterPotential = new MeterPotentialEnergy(potentialMaster, box);
-    }
+		meterPotential = new MeterPotentialEnergy(potentialMaster, box);
+	}
 	
 
 	public double getEnergy (double[] u){

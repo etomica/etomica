@@ -65,9 +65,6 @@ public class SimLJHTTISuperHCP extends Simulation {
         addSpecies(species);
 
         // TARGET
-        box = this.makeBox();
-        box.setNMolecules(species, numAtoms);
-
         int n = (int) Math.round(Math.pow(numAtoms / 8, 1.0 / 3.0));
         if (8 * n * n * n != numAtoms) {
             throw new RuntimeException("Not compatible with HCP");
@@ -85,14 +82,15 @@ public class SimLJHTTISuperHCP extends Simulation {
         boxDim[0] = space.makeVector(new double[]{2 * n * a, 0, 0});
         boxDim[1] = space.makeVector(new double[]{-2 * n * a * Math.cos(Degree.UNIT.toSim(60)), 2 * n * a * Math.sin(Degree.UNIT.toSim(60)), 0});
         boxDim[2] = space.makeVector(new double[]{0, 0, n * c});
-
+        boundary = new BoundaryDeformableLattice(primitive, nCells);
         primitive = new PrimitiveHexagonal(space, a, c);
         nCells = new int[]{2 * n, 2 * n, n};
-        boundary = new BoundaryDeformableLattice(primitive, nCells);
         boundary.setTruncationRadius(rc);
-        basis = new BasisHcp();
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numAtoms);
 
-        box.setBoundary(boundary);
+
+        basis = new BasisHcp();
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);

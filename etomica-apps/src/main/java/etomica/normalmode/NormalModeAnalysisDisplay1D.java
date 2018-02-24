@@ -32,13 +32,12 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = this.makeBox();
+        boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
         primitive = new PrimitiveCubic(space, 1.0 / density);
-        boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
         nCells = new int[]{numAtoms};
-        box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, space);
         coordinateDefinition.initializeCoordinates(nCells);

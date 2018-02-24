@@ -54,9 +54,6 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
         addSpecies(species);
 
         // TARGET
-        boxTarg = this.makeBox();
-        boxTarg.setNMolecules(species, numMolecules);
-
         double ratio = 1.631;
         double aDim = Math.pow(4.0 / (Math.sqrt(3.0) * ratio * density), 1.0 / 3.0);
         double cDim = aDim * ratio;
@@ -70,17 +67,18 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
         boxDim[0] = space.makeVector(new double[]{nC * aDim, 0, 0});
         boxDim[1] = space.makeVector(new double[]{-nC * aDim * Math.cos(Degree.UNIT.toSim(60)), nC * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
         boxDim[2] = space.makeVector(new double[]{0, 0, nC * cDim});
+        Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
+        boxTarg = this.makeBox(boundary);
+        boxTarg.setNMolecules(species, numMolecules);
+
 
         int[] nCells = new int[]{1, 1, 1};
-        Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
         Primitive primitive = new PrimitiveHexagonal(space, nC * aDim, nC * cDim);
 
         CoordinateDefinitionNitrogen coordinateDefTarg = new CoordinateDefinitionNitrogen(this, boxTarg, primitive, basis, space);
         coordinateDefTarg.setIsBetaHCP();
         coordinateDefTarg.setOrientationVectorBeta(space);
         coordinateDefTarg.initializeCoordinates(nCells);
-
-        boxTarg.setBoundary(boundary);
 
         double rCScale = 0.475;
         double rc = aDim * nC * rCScale;

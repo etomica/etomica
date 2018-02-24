@@ -71,7 +71,16 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
         addSpecies(species);
 
         // TARGET
-        box = this.makeBox();
+        System.out.println("numatoms: " + numAtoms);
+        int c = (int) Math.round(Math.pow(numAtoms, 1.0 / 3.0));
+        nCells = new int[]{c, c, c};
+        double sixtyDeg = Degree.UNIT.toSim(60);
+
+        double L = Math.pow(numAtoms * Math.sqrt(2) / density, 1.0 / 3.0);
+
+        primitive = new PrimitiveTriclinic(space, L, L, L, sixtyDeg, sixtyDeg, sixtyDeg);
+        boundary = new BoundaryDeformablePeriodic(space,primitive.vectors());
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
@@ -82,20 +91,8 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
         integrator.getMoveManager().addMCMove(atomMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
 
-        System.out.println("numatoms: " + numAtoms);
-        int c = (int) Math.round(Math.pow(numAtoms, 1.0 / 3.0));
-        nCells = new int[]{c, c, c};
-        double sixtyDeg = Degree.UNIT.toSim(60);
-
-        double L = Math.pow(numAtoms * Math.sqrt(2) / density, 1.0 / 3.0);
-
-        primitive = new PrimitiveTriclinic(space, L, L, L, sixtyDeg, sixtyDeg, sixtyDeg);
-
-        boundary = new BoundaryDeformablePeriodic(space, primitive.vectors());
         Basis basisSimple = new Basis(new Vector3D[]{new Vector3D(0.0, 0.0, 0.0)});
         basis = new BasisBigCell(space, basisSimple, nCells);
-
-        box.setBoundary(boundary);
 
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
