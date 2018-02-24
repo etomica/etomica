@@ -8,6 +8,9 @@ import java.util.Iterator;
 
 import etomica.graph.model.Graph;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 public class GraphIteratorTest extends CustomTestCase {
 
   protected void testTemplate(byte nodeCount, Iterator<Graph> iterator) {
