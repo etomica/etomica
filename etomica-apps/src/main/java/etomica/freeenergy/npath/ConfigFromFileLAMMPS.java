@@ -199,12 +199,11 @@ public class ConfigFromFileLAMMPS {
         configSlider.setNMajor(config);
         configSlider.setMinimum(0);
         configSlider.setPrecision(0);
-        Box finalBox1 = box;
         modifierConfig.setPostAction(new IAction() {
 
             @Override
             public void actionPerformed() {
-                graphic.getDisplayBox(finalBox1).repaint();
+                graphic.getDisplayBox(finalBox).repaint();
             }
         });
         graphic.add(configSlider);
