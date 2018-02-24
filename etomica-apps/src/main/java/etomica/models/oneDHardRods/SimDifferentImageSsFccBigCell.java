@@ -123,11 +123,11 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
 
 //REFERENCE
         // Set up reference system - B, 0
-        boxRef = this.makeBox();
+        bdryRef = new BoundaryRectangularPeriodic(space, 1.0);
+        boxRef = this.makeBox(bdryRef);
         boxRef.setNMolecules(species, refAtoms);
 
         double primitiveLength = Math.pow(4.0 / density, 1.0 / 3.0);
-        bdryRef = new BoundaryRectangularPeriodic(space, 1.0);
         Vector edges = new Vector3D();
         double[] lengths = new double[3];
         lengths[0] = nCellsRef[0] * primitiveLength;
@@ -135,7 +135,6 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         lengths[2] = nCellsRef[2] * primitiveLength;
         edges.E(lengths);
         bdryRef.setBoxSize(edges);
-        boxRef.setBoundary(bdryRef);
         primitive = new PrimitiveOrthorhombic(space, lengths[0], lengths[1],
                 lengths[2]);
 
@@ -202,10 +201,10 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
 
 //TARGET
         // Set up target system
-        boxTarget = this.makeBox();
+        bdryTarget = new BoundaryRectangularPeriodic(space, 1.0);
+        boxTarget = this.makeBox(bdryTarget);
         boxTarget.setNMolecules(species, targAtoms);
 
-        bdryTarget = new BoundaryRectangularPeriodic(space, 1.0);
         edges = new Vector3D();
         lengths = new double[3];
         lengths[0] = nCellsTarget[0] * primitiveLength;
@@ -213,7 +212,6 @@ public class SimDifferentImageSsFccBigCell extends Simulation {
         lengths[2] = nCellsTarget[2] * primitiveLength;
         edges.E(lengths);
         bdryTarget.setBoxSize(edges);
-        boxTarget.setBoundary(bdryTarget);
         primitive = new PrimitiveOrthorhombic(space, lengths[0], lengths[1],
                 lengths[2]);
         basis = new BasisBigCell(space, basisFCC, nCellsTarget);

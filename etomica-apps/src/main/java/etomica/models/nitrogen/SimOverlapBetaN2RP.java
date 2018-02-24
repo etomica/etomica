@@ -113,15 +113,13 @@ public class SimOverlapBetaN2RP extends Simulation {
 
 
         // Reference System
-        boxRef = this.makeBox();
+        boxRef = this.makeBox(boundary);
         boxRef.setNMolecules(species, numMolecules);
 
         CoordinateDefinitionNitrogen coordinateDefRef = new CoordinateDefinitionNitrogen(this, boxRef, primitive, basis, space);
         coordinateDefRef.setIsBeta();
         coordinateDefRef.setOrientationVectorBeta(space);
         coordinateDefRef.initializeCoordinates(nCells);
-
-        boxRef.setBoundary(boundary);
 
         P2Nitrogen potentialRef = new P2Nitrogen(space, rc);
         potentialRef.setBox(boxRef);

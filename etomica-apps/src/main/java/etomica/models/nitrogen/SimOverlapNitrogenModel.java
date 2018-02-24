@@ -77,11 +77,11 @@ public class SimOverlapNitrogenModel extends Simulation {
         addSpecies(species);
 
         // TARGET
-        boxTarget = this.makeBox();
+        boundaryTarget = new BoundaryDeformablePeriodic(space, nCell * unitCellLength);
+        boxTarget = this.makeBox(boundaryTarget);
         boxTarget.setNMolecules(species, numMolecules);
 
         int[] nCells = new int[]{1, 1, 1};
-        boundaryTarget = new BoundaryDeformablePeriodic(space, nCell * unitCellLength);
         primitive = new PrimitiveCubic(space, nCell * unitCellLength);
 
         CoordinateDefinitionNitrogen coordDefTarget = new CoordinateDefinitionNitrogen(this, boxTarget, primitive, basis, space);
@@ -89,7 +89,6 @@ public class SimOverlapNitrogenModel extends Simulation {
         coordDefTarget.setOrientationVectorAlpha(space);
         coordDefTarget.initializeCoordinates(nCells);
 
-        boxTarget.setBoundary(boundaryTarget);
         double rCScale = 0.45;
         double rC = boxTarget.getBoundary().getBoxSize().getX(0) * rCScale;
         System.out.println("Truncation Radius (" + rCScale + " Box Length): " + rC);
@@ -135,7 +134,6 @@ public class SimOverlapNitrogenModel extends Simulation {
         boundaryHarmonic = new BoundaryDeformablePeriodic(space, nCell * unitCellLength);
         boxHarmonic = this.makeBox(boundaryHarmonic);
         boxHarmonic.setNMolecules(species, numMolecules);
-        boxHarmonic.setBoundary(boundaryHarmonic);
 
         integratorHarmonic = new IntegratorMC(null, random, 1.0, boxHarmonic); //null changed on 11/20/2009
 

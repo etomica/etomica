@@ -94,9 +94,6 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
         double density = simCDef.getBox().getLeafList().size() /
                 simCDef.getBox().getBoundary().volume();
         numAtoms = otherCD.getBox().getLeafList().size();
-        box = sim.makeBox();
-        box.setNMolecules(sim.getSpecies(0), numAtoms);
-
         if (space.D() == 1) {
             bdry = new BoundaryRectangularPeriodic(space, numAtoms / density);
         } else {
@@ -104,7 +101,8 @@ public class MeterDifferentImageSubtract extends DataSourceScalar {
             Vector edges = otherCD.getBox().getBoundary().getBoxSize();
             bdry.setBoxSize(edges);
         }
-        box.setBoundary(bdry);
+        box = sim.makeBox(bdry);
+        box.setNMolecules(sim.getSpecies(0), numAtoms);
 
         cDef = new CoordinateDefinitionLeaf(box, otherCD.getPrimitive(),
                 otherCD.getBasis(), space);

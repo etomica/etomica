@@ -118,8 +118,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
         System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy / numMolecules);
 
         potential.setRange(rC);
-        meter = new MeterTargetTPMolecule(potentialMaster, species, space, this);
-        meter.setCoordinateDefinition(coordinateDef);
+        meter = new MeterTargetTPMolecule(potentialMaster, species, this, coordinateDef);
         meter.setLatticeEnergy(latticeEnergy);
         meter.setTemperature(Kelvin.UNIT.toSim(temperature));
         meter.setOtherTemperatures(otherTemperatures);

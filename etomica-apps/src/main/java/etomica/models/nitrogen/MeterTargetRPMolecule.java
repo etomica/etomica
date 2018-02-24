@@ -61,8 +61,7 @@ public class MeterTargetRPMolecule implements IDataSource {
 
         meterPotential = new MeterPotentialEnergy(potentialMasterSampled);
         this.species = species;
-        pretendBox = sim.makeBox();
-        pretendBox.setBoundary(coordinateDef.getBox().getBoundary());
+        pretendBox = sim.makeBox(coordinateDef.getBox().getBoundary());
         tag = new DataTag();
 
         int numMolec = sim.getBox(0).getNMolecules(species);
@@ -98,7 +97,6 @@ public class MeterTargetRPMolecule implements IDataSource {
         
         double energy = meterPotential.getDataAsScalar();
     
-        pretendBox.setBoundary(realBox.getBoundary());
         pretendBox.setNMolecules(species, realBox.getNMolecules(species));
         
         IMoleculeList molecules = realBox.getMoleculeList();

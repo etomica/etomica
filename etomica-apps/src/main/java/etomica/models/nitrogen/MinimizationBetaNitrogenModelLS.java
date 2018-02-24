@@ -71,21 +71,20 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
         addSpecies(ghostSpecies);
 
         int numMolecule = 4;
-        box = this.makeBox();
+		Vector[] boxDim = new Vector[3];
+		boxDim[0] = space.makeVector(new double[]{aDim, 0, 0});
+		boxDim[1] = space.makeVector(new double[]{-2 * aDim * Math.cos(Degree.UNIT.toSim(60)), 2 * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
+		boxDim[2] = space.makeVector(new double[]{0, 0, cDim});
+
+		BoundaryDeformablePeriodicSwitch boundary = new BoundaryDeformablePeriodicSwitch(space, boxDim);
+		boundary.setDoPBC(false);
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numMolecule);
 
         ghostBox = this.makeBox();
         ghostBox.setNMolecules(ghostSpecies, 1);
 
-        Vector[] boxDim = new Vector[3];
-        boxDim[0] = space.makeVector(new double[]{aDim, 0, 0});
-        boxDim[1] = space.makeVector(new double[]{-2 * aDim * Math.cos(Degree.UNIT.toSim(60)), 2 * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
-        boxDim[2] = space.makeVector(new double[]{0, 0, cDim});
-
-        BoundaryDeformablePeriodicSwitch boundary = new BoundaryDeformablePeriodicSwitch(space, boxDim);
-        boundary.setDoPBC(false);
         primitive = new PrimitiveTriclinic(space, aDim, 2 * aDim, cDim, Math.PI * (90 / 180.0), Math.PI * (90 / 180.0), Math.PI * (120 / 180.0));
-        box.setBoundary(boundary);
 
         BetaPhaseLatticeParameterLS parameters = new BetaPhaseLatticeParameterLS();
         double[][] param = parameters.getParameter(density);

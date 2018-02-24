@@ -91,7 +91,11 @@ public class SimOverlapSsNxy extends Simulation {
         addSpecies(species);
 
         // TARGET
-        boxTarget = this.makeBox();
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        double[] edges = new double[]{shape[0] * L, shape[1] * L, shape[2] * L};
+        boundaryTarget = new BoundaryRectangularPeriodic(space, edges);
+        boxTarget = this.makeBox(boundaryTarget);
         boxTarget.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature, boxTarget);
@@ -104,18 +108,12 @@ public class SimOverlapSsNxy extends Simulation {
 
         integrators[1] = integratorTarget;
 
-        double L = Math.pow(4.0 / density, 1.0 / 3.0);
-        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
 
-        double[] edges = new double[]{shape[0] * L, shape[1] * L, shape[2] * L};
 
         primitive = new PrimitiveOrthorhombic(space, edges[0], edges[1], edges[2]);
 
-        boundaryTarget = new BoundaryRectangularPeriodic(space, edges);
         Basis basisFCC = new BasisCubicFcc();
         basis = new BasisBigCell(space, basisFCC, shape);
-
-        boxTarget.setBoundary(boundaryTarget);
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         coordinateDefinitionTarget.initializeCoordinates(new int[]{1, 1, 1});
@@ -159,8 +157,6 @@ public class SimOverlapSsNxy extends Simulation {
         move = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(move);
         integrators[0] = integratorHarmonic;
-
-        boxHarmonic.setBoundary(boundaryHarmonic);
 
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1, 1, 1});

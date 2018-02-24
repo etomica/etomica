@@ -31,10 +31,9 @@ public class MeterBoltzmannRotPerturb implements IDataSource {
         this.primaryCoordDef = coordinateDef;
 
         Box realBox = coordinateDef.getBox();
-        secondaryBox = sim.makeBox();
+        secondaryBox = sim.makeBox(realBox.getBoundary());
 
         secondaryBox.setNMolecules(species, realBox.getNMolecules(species));
-        secondaryBox.setBoundary(realBox.getBoundary());
 
         secondaryCoordDef = new CoordinateDefinitionNitrogen(sim, secondaryBox, coordinateDef.getPrimitive(), coordinateDef.getBasis(), space);
         secondaryCoordDef.setIsBeta();

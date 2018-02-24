@@ -115,9 +115,6 @@ public class SimDifferentImageSsFcc extends Simulation {
 
 //REFERENCE
         // Set up reference system - B, 0
-        boxRef = this.makeBox();
-        boxRef.setNMolecules(species, refAtoms);
-
         double primitiveLength = Math.pow(4.0 / density, 1.0 / 3.0);
         double[] lengths;
         if (space.D() == 1) {
@@ -140,7 +137,9 @@ public class SimDifferentImageSsFcc extends Simulation {
             edges.E(lengths);
             bdryRef.setBoxSize(edges);
         }
-        boxRef.setBoundary(bdryRef);
+        boxRef = this.makeBox(bdryRef);
+        boxRef.setNMolecules(species, refAtoms);
+
         cDefRef = new CoordinateDefinitionLeaf(boxRef, primitive, basis, space);
         cDefRef.initializeCoordinates(nCellsRef);
 
@@ -230,9 +229,6 @@ public class SimDifferentImageSsFcc extends Simulation {
 
 //TARGET
         // Set up target system
-        boxTarget = this.makeBox();
-        boxTarget.setNMolecules(species, targAtoms);
-
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0 / density);
             bdryTarget = new BoundaryRectangularPeriodic(space, targAtoms / density);
@@ -257,7 +253,9 @@ public class SimDifferentImageSsFcc extends Simulation {
             edges.E(lengths);
             bdryTarget.setBoxSize(edges);
         }
-        boxTarget.setBoundary(bdryTarget);
+        boxTarget = this.makeBox(bdryTarget);
+        boxTarget.setNMolecules(species, targAtoms);
+
         cDefTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         cDefTarget.initializeCoordinates(nCellsTarget);
 

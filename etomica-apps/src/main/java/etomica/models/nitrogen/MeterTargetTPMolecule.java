@@ -55,7 +55,7 @@ public class MeterTargetTPMolecule implements IDataSource {
     protected DataDoubleArray data;
     protected final DataTag tag;
     protected final Box pretendBox;
-    protected CoordinateDefinitionNitrogen coordinateDefinition;
+    protected final CoordinateDefinitionNitrogen coordinateDefinition;
     protected final ISpecies species;
     protected double[][] alpha;
     protected double[] alphaCenter;
@@ -64,11 +64,25 @@ public class MeterTargetTPMolecule implements IDataSource {
     protected FileWriter fw;
     protected boolean isBetaPhase = false;
    
-    public MeterTargetTPMolecule(PotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim) {
+    public MeterTargetTPMolecule(PotentialMaster potentialMaster, ISpecies species, Simulation sim, CoordinateDefinitionNitrogen coordinateDefinition) {
         this.potentialMaster = potentialMaster;
         meterPotential = new MeterPotentialEnergy(potentialMaster);
+        this.coordinateDefinition = coordinateDefinition;
         this.species = species;
-        pretendBox = sim.makeBox();
+        pretendBox = sim.makeBox(coordinateDefinition.getBox().getBoundary());
+        // insert molecules into the box at their lattice sites.
+        // we do this because want to find neighbors now (and then never again)
+        Box realBox = coordinateDefinition.getBox();
+        pretendBox.setNMolecules(species, realBox.getNMolecules(species));
+        IMoleculeList pretendMolecules = pretendBox.getMoleculeList();
+
+        double[] u = new double[coordinateDefinition.getCoordinateDim()];
+        coordinateDefinition.setToU(pretendMolecules, u);
+
+        if (potentialMaster instanceof PotentialMasterListMolecular) {
+            // find neighbors now.
+            ((PotentialMasterListMolecular)potentialMaster).getNeighborManager(pretendBox).reset();
+        }
 
         tag = new DataTag();
     }
@@ -87,7 +101,6 @@ public class MeterTargetTPMolecule implements IDataSource {
         double energy = meterPotential.getDataAsScalar();
         meterPotential.setBox(pretendBox);
  
-        pretendBox.setBoundary(realBox.getBoundary());      
         IMoleculeList molecules = realBox.getMoleculeList();
         IMoleculeList pretendMolecules = pretendBox.getMoleculeList();
  
@@ -282,25 +295,6 @@ public class MeterTargetTPMolecule implements IDataSource {
 
     public CoordinateDefinitionNitrogen getCoordinateDefinition() {
         return coordinateDefinition;
-    }
-
-    public void setCoordinateDefinition(CoordinateDefinitionNitrogen newCoordinateDefinition) {
-        this.coordinateDefinition = newCoordinateDefinition;
-
-        // insert molecules into the box at their lattice sites.
-        // we do this because want to find neighbors now (and then never again)
-        Box realBox = coordinateDefinition.getBox();
-        pretendBox.setBoundary(realBox.getBoundary());
-        pretendBox.setNMolecules(species, realBox.getNMolecules(species));
-        IMoleculeList pretendMolecules = pretendBox.getMoleculeList();
-        
-        double[] u = new double[coordinateDefinition.getCoordinateDim()];
-        coordinateDefinition.setToU(pretendMolecules, u);
-
-        if (potentialMaster instanceof PotentialMasterListMolecular) {
-            // find neighbors now.
-            ((PotentialMasterListMolecular)potentialMaster).getNeighborManager(pretendBox).reset();
-        }
     }
 
 }

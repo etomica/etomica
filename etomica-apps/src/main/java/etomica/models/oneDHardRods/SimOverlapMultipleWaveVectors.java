@@ -90,7 +90,8 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         // Set up target system - A, 1, hard rod
         PotentialMasterList potentialMasterTarget = new PotentialMasterList(
                 this, space);
-        boxTarget = this.makeBox();
+        boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms / density);
+        boxTarget = this.makeBox(boundaryTarget);
         boxTarget.setNMolecules(species, numAtoms);
 
         Potential2 p2 = new P2HardSphere(space, 1.0, true);
@@ -100,9 +101,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
                 species.getLeafType(), species.getLeafType()});
 
         primitive = new PrimitiveCubic(space, 1.0 / density);
-        boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms / density);
         nCells = new int[]{numAtoms};
-        boxTarget.setBoundary(boundaryTarget);
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new
                 CoordinateDefinitionLeaf(boxTarget, primitive, space);
@@ -182,7 +181,8 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
 //REFERENCE
         // Set up REFERENCE system - System B - 0 - Hybrid system
         PotentialMasterList potentialMasterRef = new PotentialMasterList(this, space);
-        boxRef = this.makeBox();
+        boundaryRef = new BoundaryRectangularPeriodic(space, numAtoms / density);
+        boxRef = this.makeBox(boundaryRef);
         boxRef.setNMolecules(species, numAtoms);
 
         p2 = new P2HardSphere(space, 1.0, true);
@@ -192,9 +192,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
                 species.getLeafType(), species.getLeafType()});
 
         primitive = new PrimitiveCubic(space, 1.0 / density);
-        boundaryRef = new BoundaryRectangularPeriodic(space, numAtoms / density);
         nCells = new int[]{numAtoms};
-        boxRef.setBoundary(boundaryRef);
 
         CoordinateDefinitionLeaf coordinateDefinitionRef = new
                 CoordinateDefinitionLeaf(boxRef, primitive, space);
