@@ -34,106 +34,103 @@ import etomica.units.Degree;
 public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2 extends Simulation{
 	
 	public HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2(Space space, int numMolecule, String densityStr) {
-        super(space);
-        this.space = space;
+		super(space);
+		this.space = space;
 
-        potentialMaster = new PotentialMaster();
+		potentialMaster = new PotentialMaster();
 
-        double density = Double.parseDouble(densityStr);
-        int division = 2;
-        double ratio = 1.631;
-        double aDim = Math.pow(4.0 / (Math.sqrt(3.0) * ratio * density), 1.0 / 3.0);
-        double cDim = aDim * ratio;
-        //System.out.println("\naDim: " + aDim + " ;cDim: " + cDim);
-        int nCell = (int) Math.pow(numMolecule / 1.999999999, 1.0 / 3.0);
+		double density = Double.parseDouble(densityStr);
+		int division = 2;
+		double ratio = 1.631;
+		double aDim = Math.pow(4.0 / (Math.sqrt(3.0) * ratio * density), 1.0 / 3.0);
+		double cDim = aDim * ratio;
+		//System.out.println("\naDim: " + aDim + " ;cDim: " + cDim);
+		int nCell = (int) Math.pow(numMolecule / 1.999999999, 1.0 / 3.0);
 
-        Basis basisHCP = new BasisHcp();
-        BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nCell / division, nCell / division, nCell / division});
+		Basis basisHCP = new BasisHcp();
+		BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nCell / division, nCell / division, nCell / division});
 
-        Vector[] boxDim = new Vector[3];
-        boxDim[0] = space.makeVector(new double[]{nCell * aDim, 0, 0});
-        boxDim[1] = space.makeVector(new double[]{-nCell * aDim * Math.cos(Degree.UNIT.toSim(60)), nCell * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
-        boxDim[2] = space.makeVector(new double[]{0, 0, nCell * cDim});
+		Vector[] boxDim = new Vector[3];
+		boxDim[0] = space.makeVector(new double[]{nCell * aDim, 0, 0});
+		boxDim[1] = space.makeVector(new double[]{-nCell * aDim * Math.cos(Degree.UNIT.toSim(60)), nCell * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
+		boxDim[2] = space.makeVector(new double[]{0, 0, nCell * cDim});
 
-        int[] nCells = new int[]{division, division, division};
-        Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
-        Primitive primitive = new PrimitiveHexagonal(space, (nCell / division) * aDim, (nCell / division) * cDim);
+		int[] nCells = new int[]{division, division, division};
+		Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
+		Primitive primitive = new PrimitiveHexagonal(space, (nCell / division) * aDim, (nCell / division) * cDim);
 
-        SpeciesN2 species = new SpeciesN2(space);
-        addSpecies(species);
+		SpeciesN2 species = new SpeciesN2(space);
+		addSpecies(species);
+		box = this.makeBox(boundary);
+		box.setNMolecules(species, numMolecule);
 
-        box = this.makeBox();
-        box.setNMolecules(species, numMolecule);
-
-        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-        coordinateDef.setIsBeta();
-        coordinateDef.setOrientationVectorBeta(space);
-        coordinateDef.initializeCoordinates(nCells);
+		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+		coordinateDef.setIsBeta();
+		coordinateDef.setOrientationVectorBeta(space);
+		coordinateDef.initializeCoordinates(nCells);
 //		System.out.println("density: " + density);
 //		System.exit(1);
-        double[] u = new double[20];
-        if (true) {
-            BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
-            double[][] param = parameters.getParameter(density);
+		double[] u = new double[20];
+		if (true) {
+			BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
+			double[][] param = parameters.getParameter(density);
 
-            int kParam = 0;
-            for (int i = 0; i < param.length; i++) {
-                for (int j = 0; j < param[0].length; j++) {
-                    u[kParam] = param[i][j];
-                    kParam++;
-                }
-            }
+			int kParam = 0;
+			for (int i = 0; i < param.length; i++) {
+				for (int j = 0; j < param[0].length; j++) {
+					u[kParam] = param[i][j];
+					kParam++;
+				}
+			}
 
-            int numDOF = coordinateDef.getCoordinateDim();
-            double[] newU = new double[numDOF];
-            if (true) {
-                for (int j = 0; j < numDOF; j += 10) {
-                    if (j > 0 && j % (nCell * 10) == 0) {
-                        j += nCell * 10;
-                        if (j >= numDOF) {
-                            break;
-                        }
-                    }
-                    for (int k = 0; k < 10; k++) {
-                        newU[j + k] = u[k];
-                    }
-                }
+			int numDOF = coordinateDef.getCoordinateDim();
+			double[] newU = new double[numDOF];
+			if (true) {
+				for (int j = 0; j < numDOF; j += 10) {
+					if (j > 0 && j % (nCell * 10) == 0) {
+						j += nCell * 10;
+						if (j >= numDOF) {
+							break;
+						}
+					}
+					for (int k = 0; k < 10; k++) {
+						newU[j + k] = u[k];
+					}
+				}
 
-                for (int j = nCell * 10; j < numDOF; j += 10) {
-                    if (j > nCell * 10 && j % (nCell * 10) == 0) {
-                        j += nCell * 10;
-                        if (j >= numDOF) {
-                            break;
-                        }
-                    }
-                    for (int k = 0; k < 10; k++) {
-                        newU[j + k] = u[k + 10];
-                    }
-                }
-            }
+				for (int j = nCell * 10; j < numDOF; j += 10) {
+					if (j > nCell * 10 && j % (nCell * 10) == 0) {
+						j += nCell * 10;
+						if (j >= numDOF) {
+							break;
+						}
+					}
+					for (int k = 0; k < 10; k++) {
+						newU[j + k] = u[k + 10];
+					}
+				}
+			}
 
-            coordinateDef.setToU(box.getMoleculeList(), newU);
-            coordinateDef.initNominalU(box.getMoleculeList());
+			coordinateDef.setToU(box.getMoleculeList(), newU);
+			coordinateDef.initNominalU(box.getMoleculeList());
 
-        }
+		}
+		double rCScale = 0.475;
+		double rC = aDim * nCell * rCScale;
+		//System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
 
-        box.setBoundary(boundary);
-        double rCScale = 0.475;
-        double rC = aDim * nCell * rCScale;
-        //System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
+		potential = new P2Nitrogen(space, rC);
+		potential.setBox(box);
 
-        potential = new P2Nitrogen(space, rC);
-        potential.setBox(box);
+		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 
-        potentialMaster.addPotential(potential, new ISpecies[]{species, species});
+		int xSites = 2 * nCell + 1;
+		int ySites = 4 * nCell + 1;
+		int zSites = 2 * nCell + 1;
+		pairMatrix = new double[xSites][ySites][zSites][4][4][3][3];
 
-        int xSites = 2 * nCell + 1;
-        int ySites = 4 * nCell + 1;
-        int zSites = 2 * nCell + 1;
-        pairMatrix = new double[xSites][ySites][zSites][4][4][3][3];
-
-        findPair = new FindPairMoleculeIndexBetaN2(space, coordinateDef);
-    }
+		findPair = new FindPairMoleculeIndexBetaN2(space, coordinateDef);
+	}
 	
 	public double[][] get2ndDerivative(int molec0){
 	

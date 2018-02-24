@@ -72,7 +72,16 @@ public class SimOverlapSoftSphereTPHCP extends Simulation {
         addSpecies(species);
 
         // TARGET
-        box = this.makeBox();
+        double a = Math.pow(Math.sqrt(2) / density, 1.0 / 3.0);
+        double c = Math.sqrt(8.0 / 3.0) * a;
+        int nC = (int) Math.ceil(Math.pow(numAtoms / 2, 1.0 / 3.0));
+        System.out.println("nC: " + nC);
+        Vector[] boxDim = new Vector[3];
+        boxDim[0] = space.makeVector(new double[]{nC * a, 0, 0});
+        boxDim[1] = space.makeVector(new double[]{-nC * a * Math.cos(Degree.UNIT.toSim(60)), nC * a * Math.sin(Degree.UNIT.toSim(60)), 0});
+        boxDim[2] = space.makeVector(new double[]{0, 0, nC * c});
+        boundary = new BoundaryDeformablePeriodic(space,boxDim);
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
@@ -83,23 +92,12 @@ public class SimOverlapSoftSphereTPHCP extends Simulation {
         integrator.getMoveManager().addMCMove(atomMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
 
-        double a = Math.pow(Math.sqrt(2) / density, 1.0 / 3.0);
-        double c = Math.sqrt(8.0 / 3.0) * a;
-        int nC = (int) Math.ceil(Math.pow(numAtoms / 2, 1.0 / 3.0));
-        System.out.println("nC: " + nC);
-        Vector[] boxDim = new Vector[3];
-        boxDim[0] = space.makeVector(new double[]{nC * a, 0, 0});
-        boxDim[1] = space.makeVector(new double[]{-nC * a * Math.cos(Degree.UNIT.toSim(60)), nC * a * Math.sin(Degree.UNIT.toSim(60)), 0});
-        boxDim[2] = space.makeVector(new double[]{0, 0, nC * c});
 
         primitive = new PrimitiveHexagonal(space, nC * a, nC * c);
 
         nCells = new int[]{nC, nC, nC};
-        boundary = new BoundaryDeformablePeriodic(space, boxDim);
         Basis basisHCP = new BasisHcp();
         basis = new BasisBigCell(space, basisHCP, nCells);
-
-        box.setBoundary(boundary);
 
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});

@@ -58,7 +58,13 @@ public class SimCalcSSoftSphere2D extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = this.makeBox();
+        primitive = new PrimitiveOrthorhombicHexagonal(space, 1);
+        Vector[] dimension = space.makeVectorArray(2);
+        for (int i = 0; i < space.D(); i++) {
+            dimension[i].Ea1Tv1(nCells[i], primitive.vectors()[i]);
+        }
+        boundary = new BoundaryDeformablePeriodic(space, dimension);
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
@@ -72,12 +78,6 @@ public class SimCalcSSoftSphere2D extends Simulation {
         getController().addAction(activityIntegrate);
         // activityIntegrate.setMaxSteps(nSteps);
 
-        primitive = new PrimitiveOrthorhombicHexagonal(space, 1);
-        Vector[] dimension = space.makeVectorArray(2);
-        for (int i = 0; i < space.D(); i++) {
-            dimension[i].Ea1Tv1(nCells[i], primitive.vectors()[i]);
-        }
-        boundary = new BoundaryDeformablePeriodic(space, dimension);
         basis = new BasisOrthorhombicHexagonal();
 
         Potential2SoftSpherical potential = new P2SoftSphere(space);
@@ -89,8 +89,6 @@ public class SimCalcSSoftSphere2D extends Simulation {
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
         move.setPotential(pTruncated);
-
-        box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);

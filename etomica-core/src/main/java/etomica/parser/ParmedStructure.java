@@ -73,10 +73,7 @@ public class ParmedStructure {
         }
         double[] boxCoordinates = Arrays.copyOf(boxGeometry, 3);
 
-        Box box = new Box(SPACE);
-        Boundary bound = new BoundaryRectangularPeriodic(SPACE, boxCoordinates);
-        box.setBoundary(bound);
-        return box;
+        return new Box(new BoundaryRectangularPeriodic(SPACE, boxCoordinates), SPACE);
     }
 
     public SpeciesSpheresCustom getSpecies() {

@@ -83,20 +83,19 @@ public class SimDegreeFreedom3D extends Simulation {
         addSpecies(species);
 
         basis = new BasisCubicFcc();
-        box = this.makeBox();
-        box.setNMolecules(species, numAtoms);
-
-        Potential2 potential = new P2HardSphere(space, 1.0, true);
-        potential.setBox(box);
-        potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
-
         primitive = new PrimitiveCubic(space, 1.0);
         double v = primitive.unitCell().getVolume();
         primitive.scaleSize(Math.pow(v * density / 4, -1.0 / 3.0));
         int numberOfCells = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         nCells = new int[]{numberOfCells, numberOfCells, numberOfCells};
         boundary = new BoundaryDeformableLattice(primitive, nCells);
-        box.setBoundary(boundary);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numAtoms);
+
+        Potential2 potential = new P2HardSphere(space, 1.0, true);
+        potential.setBox(box);
+        potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
+
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);

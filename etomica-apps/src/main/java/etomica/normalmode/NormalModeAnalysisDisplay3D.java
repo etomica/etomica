@@ -61,16 +61,14 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = this.makeBox();
-        box.setNMolecules(species, 4 * n * n * n);
-
         L = Math.pow(4.0 / density, 1.0 / 3.0);
+        boundary = new BoundaryRectangularPeriodic(space, n * L);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, 4 * n * n * n);
         primitive = new PrimitiveCubic(space, L);
 
         nCells = new int[]{n, n, n};
-        boundary = new BoundaryRectangularPeriodic(space, n * L);
         basis = new BasisCubicFcc();
-        box.setBoundary(boundary);
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, 12);
         truncationRadius = boundary.getBoxSize().getX(0) * 0.495;

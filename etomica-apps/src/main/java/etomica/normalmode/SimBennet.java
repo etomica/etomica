@@ -80,7 +80,11 @@ public class SimBennet extends Simulation {
         int D = space.D();
 
         potentialMasterMonatomic = new PotentialMasterMonatomic(this);
-        box = this.makeBox();
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        primitive = new PrimitiveCubic(space, L);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        boundary = new BoundaryRectangularPeriodic(space, n * L);
+        box = this.makeBox(boundary);
         integrator = new IntegratorMC(potentialMasterMonatomic, getRandom(), temperature, box);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
@@ -91,14 +95,8 @@ public class SimBennet extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-        double L = Math.pow(4.0 / density, 1.0 / 3.0);
-        primitive = new PrimitiveCubic(space, L);
-        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         nCells = new int[]{n, n, n};
-        boundary = new BoundaryRectangularPeriodic(space, n * L);
         basis = new BasisCubicFcc();
-
-        box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         normalModes = new NormalModesFromFile(filename, D);

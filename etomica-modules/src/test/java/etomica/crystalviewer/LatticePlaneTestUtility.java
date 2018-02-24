@@ -10,6 +10,7 @@ import etomica.lattice.*;
 import etomica.lattice.crystal.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
@@ -106,8 +107,7 @@ public class LatticePlaneTestUtility {
 	}
 
 	public void setDimensions(int size) {
-        box.setBoundary(new etomica.space.BoundaryDeformableLattice(
-                      lattice.getPrimitive(), new int[]{size,size,size}));
+        box.getBoundary().setBoxSize(Vector.of(size, size, size));
         
         // Set the number of atoms
         int numAtoms = size*size*size;

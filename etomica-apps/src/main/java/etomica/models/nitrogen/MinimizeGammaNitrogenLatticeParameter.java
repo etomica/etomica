@@ -53,19 +53,16 @@ public class MinimizeGammaNitrogenLatticeParameter extends Simulation{
         species = new SpeciesN2ShellModel(space);
         addSpecies(species);
 
-        box = this.makeBox();
+        Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell * a, nCell * a, nCell * c});
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numMolecule);
         int[] nCells = new int[]{1, 1, 1};
-
-        Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell * a, nCell * a, nCell * c});
         Primitive primitive = new PrimitiveTetragonal(space, nCell * a, nCell * c);
 
         coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
         coordinateDef.setIsGamma();
         coordinateDef.setOrientationVectorGamma(space);
         coordinateDef.initializeCoordinates(nCells);
-
-        box.setBoundary(boundary);
         double rC = box.getBoundary().getBoxSize().getX(0) * 0.485;
         //System.out.println("Truncation Radius: " + rC);
         potential = new P2NitrogenShellModel(space, rC);

@@ -68,16 +68,15 @@ public class MinimizationBetaNitrogenModel extends Simulation{
         species = new SpeciesN2(space);
         addSpecies(species);
 
-        box = this.makeBox();
-        box.setNMolecules(species, numMolecule);
-        int[] nCells = new int[]{1, 1, 1};
-
         Vector[] boxDim = new Vector[3];
         boxDim[0] = space.makeVector(new double[]{nC[0] * a, 0, 0});
         boxDim[1] = space.makeVector(new double[]{-nC[1] * a * Math.cos(Degree.UNIT.toSim(60)), nC[1] * a * Math.sin(Degree.UNIT.toSim(60)), 0});
         boxDim[2] = space.makeVector(new double[]{0, 0, nC[2] * c});
-
         Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numMolecule);
+        int[] nCells = new int[]{1, 1, 1};
+
         primitive = new PrimitiveHexagonal(space, (nC[0]) * a, nC[2] * c);
 
         coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
@@ -104,18 +103,18 @@ public class MinimizationBetaNitrogenModel extends Simulation{
             double[] newU = new double[numDOF];
 
 //			double[] deviation = new double[]{
-//					1.2780887459484802E-10, -7.492459985769528E-10, 1.4581758023268776E-10, 2.4394273825234006E-8, 8.42930716693827E-9, 
-//					-1.3034284762625248E-10, 7.715463823387836E-10, -1.397282289872237E-10, -2.4096713784662293E-8, -9.245658416530434E-9, 
-//					-1.4337864229219122E-10, -7.749569874704321E-10, -1.4337686593535182E-10, 3.1120726966510594E-8, -1.1904762815825307E-8, 
+//					1.2780887459484802E-10, -7.492459985769528E-10, 1.4581758023268776E-10, 2.4394273825234006E-8, 8.42930716693827E-9,
+//					-1.3034284762625248E-10, 7.715463823387836E-10, -1.397282289872237E-10, -2.4096713784662293E-8, -9.245658416530434E-9,
+//					-1.4337864229219122E-10, -7.749569874704321E-10, -1.4337686593535182E-10, 3.1120726966510594E-8, -1.1904762815825307E-8,
 //					1.4595613606616098E-10, 7.526033130034193E-10, 1.3732659454035456E-10, -0.0, 0.0
 //			};
-//			
+//
 //			for(int i=0; i<u.length; i++){
 //				u[i] += deviation[i];
 //				System.out.print(u[i]+", ");
 //				if(i%5==4) System.out.println();
 //			}
-//			
+//
 //			System.exit(1);
             if (true) {
                 for (int j = 0; j < numDOF; j += 10) {
@@ -148,8 +147,6 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 
         }
         this.initialU = u;
-
-        box.setBoundary(boundary);
         double rC = a * nC[0] * 0.475;
         //System.out.println("Truncation Radius: " + rC);
         potential = new P2Nitrogen(space, rC);

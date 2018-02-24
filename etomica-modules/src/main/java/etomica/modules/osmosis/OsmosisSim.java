@@ -87,8 +87,7 @@ public class OsmosisSim extends Simulation {
         boundarySemiB.setCollisionRadius(0.5 * sigma);
 
         //construct box
-        box = this.makeBox();
-        box.setBoundary(new BoundaryRectangularNonperiodic(space));
+        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
 
         if (space instanceof Space2D) { // 2D
             box.getBoundary().setBoxSize(new Vector2D(10.0, 10.0));

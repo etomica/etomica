@@ -52,10 +52,8 @@ public class ClathrateHarmonicFE extends Simulation{
         super(space);
         species = new SpeciesWater4P(space);
         addSpecies(species);
-        box = this.makeBox();
-        box.setNMolecules(species, numMolecule);
-        Boundary boundary = new BoundaryRectangularPeriodic(space, a0_sc);
-        box.setBoundary(boundary);
+        box = this.makeBox(new BoundaryRectangularPeriodic(space, a0_sc));
+		box.setNMolecules(species, numMolecule);
         ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
         AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
         double sigma, epsilon;

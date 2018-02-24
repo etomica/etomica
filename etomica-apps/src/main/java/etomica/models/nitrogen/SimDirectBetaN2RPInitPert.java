@@ -52,9 +52,6 @@ public class SimDirectBetaN2RPInitPert extends Simulation {
         SpeciesN2 species = new SpeciesN2(space);
         addSpecies(species);
 
-        box = this.makeBox();
-        box.setNMolecules(species, numMolecules);
-
         double ratio = 1.631;
         double aDim = Math.pow(4.0 / (Math.sqrt(3.0) * ratio * density), 1.0 / 3.0);
         double cDim = aDim * ratio;
@@ -72,9 +69,12 @@ public class SimDirectBetaN2RPInitPert extends Simulation {
                 0
         );
         boxDim[2] = Vector.of(0, 0, nC * cDim);
+        Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numMolecules);
+
 
         int[] nCells = {1, 1, 1};
-        Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
         Primitive primitive = new PrimitiveHexagonal(space, nC * aDim, nC * cDim);
 
         CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
@@ -139,9 +139,6 @@ public class SimDirectBetaN2RPInitPert extends Simulation {
 
         coordinateDef.setToU(box.getMoleculeList(), newU);
         coordinateDef.initNominalU(box.getMoleculeList());
-
-
-        box.setBoundary(boundary);
 
         double rCScale = 0.475;
         double rc = aDim * nC * rCScale;

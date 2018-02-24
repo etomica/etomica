@@ -16,6 +16,7 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.units.Degree;
 import etomica.units.dimensions.*;
@@ -279,11 +280,7 @@ public class LatticeEditor {
     }
 
     protected void update() {
-        double[]  boxSize = new double[] { size,size,size };
-
-        box.setBoundary(new BoundaryDeformableLattice
-                                             (currentLattice.getPrimitive(),
-                                              boxSize));
+        box.getBoundary().setBoxSize(Vector.of(size, size, size));
 
         int numAtoms = size*size*size;
         if (currentLattice instanceof BravaisLatticeCrystal) {

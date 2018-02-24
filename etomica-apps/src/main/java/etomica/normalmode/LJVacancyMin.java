@@ -46,22 +46,19 @@ public class LJVacancyMin extends Simulation {
         addSpecies(species);
 
         // TARGET
-        box = this.makeBox();
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        boundary = new BoundaryRectangularPeriodic(space, n * L);
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
 
-        double L = Math.pow(4.0 / density, 1.0 / 3.0);
-        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         primitive = new PrimitiveCubic(space, n * L);
 
         nCells = new int[]{n, n, n};
-        boundary = new BoundaryRectangularPeriodic(space, n * L);
-
         Basis basisFCC = new BasisCubicFcc();
         basis = new BasisBigCell(space, basisFCC, nCells);
-
-        box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});

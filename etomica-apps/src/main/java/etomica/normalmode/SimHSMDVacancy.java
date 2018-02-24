@@ -73,18 +73,17 @@ public class SimHSMDVacancy extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        box = this.makeBox();
-        box.setNMolecules(species, numAtoms);
 
         double L = Math.pow(4.0 / density, 1.0 / 3.0);
         int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        Boundary boundary = new BoundaryRectangularPeriodic(space, n * L);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numAtoms);
+
         PrimitiveCubic primitive = new PrimitiveCubic(space, n * L);
         int[] nCells = new int[]{n, n, n};
-        Boundary boundary = new BoundaryRectangularPeriodic(space, n * L);
         Basis basisFCC = new BasisCubicFcc();
         BasisBigCell basis = new BasisBigCell(space, basisFCC, nCells);
-
-        box.setBoundary(boundary);
 
 
         double nbrRange = 1.7;

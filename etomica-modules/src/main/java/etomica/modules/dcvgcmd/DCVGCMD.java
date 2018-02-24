@@ -75,8 +75,7 @@ public class DCVGCMD extends Simulation {
         //Instantiate classes
         super(_space);
 
-        box = this.makeBox();
-        box.setBoundary(new BoundaryRectangularSlit(2, space));
+        box = this.makeBox(new BoundaryRectangularSlit(2, space));
         box.getBoundary().setBoxSize(new Vector3D(40, 40, 80));
 
         PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 5.2, space);
