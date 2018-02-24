@@ -64,13 +64,12 @@ public class DoubleIntegralEtas extends Simulation{
         addSpecies(species);
         Basis basis = new BasisMonatomic(space);
 
-        boxT = this.makeBox();
+        Boundary bdryT = new BoundaryRectangularPeriodic(space, nAtomsT / density);
+        boxT = this.makeBox(bdryT);
         boxT.setNMolecules(species, nAtomsT);
 
         Primitive primitive = new PrimitiveCubic(space, 1.0 / density);
-        Boundary bdryT = new BoundaryRectangularPeriodic(space, nAtomsT / density);
         nCellsT = new int[]{nAtomsT};
-        boxT.setBoundary(bdryT);
 
         cDefT = new CoordinateDefinitionLeaf(boxT, primitive, basis, space);
         cDefT.initializeCoordinates(nCellsT);

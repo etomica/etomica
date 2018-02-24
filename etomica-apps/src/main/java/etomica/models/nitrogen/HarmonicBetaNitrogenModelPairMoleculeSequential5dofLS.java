@@ -62,7 +62,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential5dofLS extends Simul
         SpeciesN2 species = new SpeciesN2(space);
         addSpecies(species);
 
-        box = this.makeBox();
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numMolecule);
 
         coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
@@ -116,7 +116,6 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential5dofLS extends Simul
 
         }
 
-        box.setBoundary(boundary);
         this.rC = rC;
         //System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
 

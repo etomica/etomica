@@ -74,10 +74,9 @@ public class MeterDifferentImageAdd1D extends DataSourceScalar {
         simImagT = new double[simCDim];
 
         numAtoms = numSimAtoms + 1;
-        box = sim.makeBox();
-        box.setNMolecules(sim.getSpecies(0), numAtoms);
         bdry = new BoundaryRectangularPeriodic(sim.getSpace(), numAtoms / density);
-        box.setBoundary(bdry);
+        box = sim.makeBox(bdry);
+        box.setNMolecules(sim.getSpecies(0), numAtoms);
 
         int[] nCells = new int[]{numAtoms};
         cDef = new CoordinateDefinitionLeaf(box, simPrimitive,

@@ -86,7 +86,8 @@ public class SimDegreeFreedom extends Simulation {
         addSpecies(species);
 
         basis = new BasisMonatomic(space);
-        box = this.makeBox();
+        bdry = new BoundaryRectangularPeriodic(space, numAtoms / density);
+        box = this.makeBox(bdry);
         box.setNMolecules(species, numAtoms);
 
         Potential2 potential = new P2HardSphere(space, 1.0, true);
@@ -95,9 +96,7 @@ public class SimDegreeFreedom extends Simulation {
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         primitive = new PrimitiveCubic(space, 1.0 / density);
-        bdry = new BoundaryRectangularPeriodic(space, numAtoms / density);
         nCells = new int[]{numAtoms};
-        box.setBoundary(bdry);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);

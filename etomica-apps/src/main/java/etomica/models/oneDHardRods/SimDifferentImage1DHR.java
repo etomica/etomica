@@ -114,7 +114,8 @@ public class SimDifferentImage1DHR extends Simulation {
         // Set up target system - A, 1
         PotentialMasterList potentialMasterTarget = new PotentialMasterList(this, space);
 
-        boxTarget = this.makeBox();
+        bdryTarget = new BoundaryRectangularPeriodic(space, targAtoms / density);
+        boxTarget = this.makeBox(bdryTarget);
         boxTarget.setNMolecules(species, targAtoms);
 
         Potential2 potential = new P2HardSphere(space, 1.0, true);
@@ -124,9 +125,7 @@ public class SimDifferentImage1DHR extends Simulation {
                 species.getLeafType(), species.getLeafType()});
 
         primitive = new PrimitiveCubic(space, 1.0 / density);
-        bdryTarget = new BoundaryRectangularPeriodic(space, targAtoms / density);
         nCellsTarget = new int[]{targAtoms};
-        boxTarget.setBoundary(bdryTarget);
 
         cDefTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         cDefTarget.initializeCoordinates(nCellsTarget);
@@ -182,7 +181,8 @@ public class SimDifferentImage1DHR extends Simulation {
         // Set up reference system - B, 0
         PotentialMasterList potentialMasterRef = new PotentialMasterList(this, space);
 
-        boxRef = this.makeBox();
+        bdryRef = new BoundaryRectangularPeriodic(space, refAtoms / density);
+        boxRef = this.makeBox(bdryRef);
         boxRef.setNMolecules(species, refAtoms);
 
         potential = new P2HardSphere(space, 1.0, true);
@@ -192,9 +192,7 @@ public class SimDifferentImage1DHR extends Simulation {
                 species.getLeafType(), species.getLeafType()});
 
         primitive = new PrimitiveCubic(space, 1.0 / density);
-        bdryRef = new BoundaryRectangularPeriodic(space, refAtoms / density);
         nCellsRef = new int[]{refAtoms};
-        boxRef.setBoundary(bdryRef);
 
         cDefRef = new CoordinateDefinitionLeaf(boxRef, primitive, basis, space);
         cDefRef.initializeCoordinates(nCellsRef);

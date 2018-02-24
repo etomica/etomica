@@ -91,16 +91,15 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         // Set up target system - A, 1, hard rod
         PotentialMasterMonatomic potentialMasterTarget = new
                 PotentialMasterMonatomic(this);
-        boxTarget = this.makeBox();
-        boxTarget.setNMolecules(species, numAtoms);
-
         primitiveTarget = new PrimitiveCubic(space, 1.0);
         double v = primitiveTarget.unitCell().getVolume();
         primitiveTarget.scaleSize(Math.pow(v * density / 4, -1.0 / 3.0));
         int numberOfCells = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         nCells = new int[]{numberOfCells, numberOfCells, numberOfCells};
         boundaryTarget = new BoundaryDeformableLattice(primitiveTarget, nCells);
-        boxTarget.setBoundary(boundaryTarget);
+        boxTarget = this.makeBox(boundaryTarget);
+        boxTarget.setNMolecules(species, numAtoms);
+
         Basis basisTarget = new BasisCubicFcc();
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new
@@ -182,16 +181,15 @@ public class SimOverlapMultipleWV3DLJ extends Simulation {
         // Set up REFERENCE system - System B - 0 - Hybrid system
         PotentialMasterMonatomic potentialMasterRef = new
                 PotentialMasterMonatomic(this);
-        boxRef = this.makeBox();
-        boxRef.setNMolecules(species, numAtoms);
-
         primitiveRef = new PrimitiveCubic(space, 1.0);
         v = primitiveRef.unitCell().getVolume();
         primitiveRef.scaleSize(Math.pow(v * density / 4, -1.0 / 3.0));
         numberOfCells = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         nCells = new int[]{numberOfCells, numberOfCells, numberOfCells};
         boundaryRef = new BoundaryDeformableLattice(primitiveRef, nCells);
-        boxRef.setBoundary(boundaryRef);
+        boxRef = this.makeBox(boundaryRef);
+        boxRef.setNMolecules(species, numAtoms);
+
         Basis basisRef = new BasisCubicFcc();
 
         CoordinateDefinitionLeaf coordinateDefinitionRef = new
