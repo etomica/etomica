@@ -39,20 +39,26 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
     protected final IteratorDirective downList = new IteratorDirective(IteratorDirective.Direction.DOWN);
     protected final AtomArrayList listToUpdate = new AtomArrayList();
     protected final TreeList eventList = new TreeList();
-    protected final ReverseCollisionHandler reverseCollisionHandler;
-    protected final CollisionHandlerUp collisionHandlerUp;
-    protected final CollisionHandlerDown collisionHandlerDown;
-    protected final Map<AtomType, PotentialHard> nullPotentialManager;
+    private final ReverseCollisionHandler reverseCollisionHandler;
+    private final CollisionHandlerUp collisionHandlerUp;
+    private final CollisionHandlerDown collisionHandlerDown;
+    private final Map<AtomType, PotentialHard> nullPotentialManager;
     private final AtomPair pair;
     private final AtomSetSinglet singlet;
-    //handle to the integrator agent holding information about the next collision
-    protected IntegratorHard.Agent colliderAgent;
-    /* list of objects (typically meters) that are called each time a collision is processed */
+
+    /**
+     * The agent of the last collision, set at the end of doStepInternal
+     */
+    private IntegratorHard.Agent lastColliderAgent;
+
+    /**
+     * list of objects (typically meters) that are called each time a collision is processed
+     */
     private final List<CollisionListener> collisionListeners = new ArrayList<>();
     protected double collisionTimeStep;
-    protected long collisionCount;
+    private long collisionCount;
     protected final AtomLeafAgentManager<Agent> agentManager;
-    protected int handlingEvent;
+    private int handlingEvent;
     private double minDelta;
     private AtomPair debugPair;
 
@@ -88,8 +94,8 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         minDelta = -5.e-8/Math.sqrt(temperature);
     }
 
-    public IntegratorHard.Agent colliderAgent() {
-        return colliderAgent;
+    public IntegratorHard.Agent getLastColliderAgent() {
+        return lastColliderAgent;
     }
 
     /** 
@@ -102,7 +108,8 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
             currentPotentialEnergy = meterPE.getDataAsScalar();
         }
         super.doStepInternal();
-        findNextCollider();
+
+        Agent colliderAgent = (Agent) this.eventList.firstElement();
         collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.POSITIVE_INFINITY;
         double oldTime = 0;
         while(collisionTimeStep < timeStep) {//advance to collision if occurs before remaining interval
@@ -202,7 +209,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
             else {
                 updateAtoms((AtomPair)atoms);
             }
-            findNextCollider(); //this sets colliderAgent for the next collision
+            colliderAgent = (Agent) this.eventList.firstElement();
             if (Debug.ON && colliderAgent != null && colliderAgent.atom == atoms.get(0) && (atoms.size() == 2 && colliderAgent.collisionPartner == atoms.get(1))
                     && colliderAgent.collisionTime() == collisionTimeStep) {
                 throw new RuntimeException("repeating collision "+atoms+" "+collisionTimeStep);
@@ -228,19 +235,14 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         }
 
         if(isothermal) doThermostatInternal();
-    }//end of doStep
+
+        // set the last collider to be read externally
+        this.lastColliderAgent = colliderAgent;
+    }
 
     public long getCollisionCount() {
         return collisionCount;
     }
-
-   /**
-	* Loops through all atoms to identify the one with the smallest value of collisionTime
-	* Collision time is obtained from the value stored in the Integrator.Agent from each atom.
-	*/
-	protected void findNextCollider() {
-        colliderAgent = (Agent)eventList.firstElement();
-	}
 
     /**
      * Updates collision times/partners for collider and partner, and 
@@ -374,7 +376,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         catch (ConfigurationOverlapException e) {
             overlapException = e;
         }
-        colliderAgent = null;
+        lastColliderAgent = null;
         resetCollisionTimes();
         if (overlapException != null) {
             throw overlapException;
@@ -399,7 +401,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
     /**
      * Do an upList call for each atom and reconstruct the event list.
      */
-    public void resetCollisionTimes() {
+    private void resetCollisionTimes() {
         if(!initialized) return;
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.size();
