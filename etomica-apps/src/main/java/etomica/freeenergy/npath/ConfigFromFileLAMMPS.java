@@ -64,8 +64,7 @@ public class ConfigFromFileLAMMPS {
         Simulation sim = new Simulation(space);
         Species species = new SpeciesSpheresRotating(sim, space);
         sim.addSpecies(species);
-        Box box = new Box(space);
-        sim.addBox(box);
+        Box box = null;
         int config = 0;
         List<Vector[]> allCoords = new ArrayList<>();
         Vector[] iCoords = null;
@@ -73,7 +72,7 @@ public class ConfigFromFileLAMMPS {
         List<DataFunction> sfacData = new ArrayList<>();
         List<DataFunction.DataInfoFunction> sfacDataInfo = new ArrayList<>();
         DataTag sfacTag = new DataTag();
-        ModifierConfiguration modifierConfig = new ModifierConfiguration(box, allCoords, allEdges, sfacData, sfacDataInfo, sfacTag);
+        ModifierConfiguration modifierConfig =  null;
         while ((line = reader.readLine()) != null) {
             if (line.matches("ITEM:.*")) {
                 read = "";
@@ -88,7 +87,9 @@ public class ConfigFromFileLAMMPS {
                     allEdges.add(edges);
                     if (config == 0) {
                         Boundary boundary = new BoundaryDeformablePeriodic(space, edges);
-                        box.setBoundary(boundary);
+                        box = sim.makeBox(boundary);
+                        box.setNMolecules(species, numAtoms);
+                        modifierConfig = new ModifierConfiguration(box, allCoords, allEdges, sfacData, sfacDataInfo, sfacTag);
                     }
                     iCoords = new Vector[numAtoms];
                 }
@@ -98,7 +99,6 @@ public class ConfigFromFileLAMMPS {
             if (read.equals("numAtoms")) {
                 numAtoms = Integer.parseInt(line);
                 System.out.println("numAtoms: " + numAtoms);
-                box.setNMolecules(species, numAtoms);
             } else if (read.equals("boundary")) {
                 String[] bits = line.split("[ \t]+");
                 if (bits.length == 2) {
@@ -191,24 +191,20 @@ public class ConfigFromFileLAMMPS {
         filterSlider.setMaximum(2);
         filterSlider.setPrecision(2);
         filterSlider.setNMajor(4);
-        filterSlider.setPostAction(new IAction() {
-
-            @Override
-            public void actionPerformed() {
-                graphic.getDisplayBox(box).repaint();
-            }
-        });
+        Box finalBox = box;
+        filterSlider.setPostAction(() -> graphic.getDisplayBox(finalBox).repaint());
         graphic.add(filterSlider);
         DeviceSlider configSlider = new DeviceSlider(sim.getController(), modifierConfig);
         configSlider.setMaximum(config - 1);
         configSlider.setNMajor(config);
         configSlider.setMinimum(0);
         configSlider.setPrecision(0);
+        Box finalBox1 = box;
         modifierConfig.setPostAction(new IAction() {
 
             @Override
             public void actionPerformed() {
-                graphic.getDisplayBox(box).repaint();
+                graphic.getDisplayBox(finalBox1).repaint();
             }
         });
         graphic.add(configSlider);
@@ -253,15 +249,16 @@ public class ConfigFromFileLAMMPS {
         }
 
         modifierConfig.setValue(0);
+        ModifierConfiguration finalModifierConfig = modifierConfig;
         DeviceToggleRadioButtons deviceDoPrevious = new DeviceToggleRadioButtons(new ModifierBoolean() {
             @Override
             public void setBoolean(boolean b) {
-                modifierConfig.setDoPrevious(b);
+                finalModifierConfig.setDoPrevious(b);
             }
     
             @Override
             public boolean getBoolean() {
-                return modifierConfig.getDoPrevious();
+                return finalModifierConfig.getDoPrevious();
             }
         },"Deviation from","previous","original");
         graphic.add(deviceDoPrevious);
