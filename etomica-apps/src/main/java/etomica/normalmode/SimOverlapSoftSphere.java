@@ -83,7 +83,10 @@ public class SimOverlapSoftSphere extends Simulation {
         addSpecies(species);
 
         // TARGET
-        boxTarget = this.makeBox();
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
+        boxTarget = this.makeBox(boundaryTarget);
         boxTarget.setNMolecules(species, numAtoms);
 
         final IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature, boxTarget);
@@ -96,17 +99,13 @@ public class SimOverlapSoftSphere extends Simulation {
 
         integrators[1] = integratorTarget;
 
-        double L = Math.pow(4.0 / density, 1.0 / 3.0);
-        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         primitive = new PrimitiveCubic(space, n * L);
         primitiveUnitCell = new PrimitiveCubic(space, L);
 
         nCells = new int[]{n, n, n};
-        boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
         Basis basisFCC = new BasisCubicFcc();
         basis = new BasisBigCell(space, basisFCC, nCells);
 
-        boxTarget.setBoundary(boundaryTarget);
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         coordinateDefinitionTarget.initializeCoordinates(new int[]{1, 1, 1});
@@ -156,7 +155,7 @@ public class SimOverlapSoftSphere extends Simulation {
         System.out.println("lattice energy: " + latticeEnergy);
 
         // HARMONIC
-        boundaryHarmonic = new BoundaryRectangularPeriodic(space);
+        boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
         boxHarmonic = this.makeBox(boundaryHarmonic);
         boxHarmonic.setNMolecules(species, numAtoms);
 
@@ -165,9 +164,6 @@ public class SimOverlapSoftSphere extends Simulation {
         move = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(move);
         integrators[0] = integratorHarmonic;
-
-        boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
-        boxHarmonic.setBoundary(boundaryHarmonic);
 
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1, 1, 1});

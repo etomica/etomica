@@ -57,17 +57,6 @@ public class SimHarmonic extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = this.makeBox();
-        box.setNMolecules(species, numAtoms);
-
-        integrator = new IntegratorMC(this, null, box);
-
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-
-        MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
-        integrator.getMoveManager().addMCMove(move);
-
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0 / density);
             boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
@@ -80,7 +69,17 @@ public class SimHarmonic extends Simulation {
             nCells = new int[]{n, n, n};
             boundary = new BoundaryDeformableLattice(primitive, nCells);
         }
-        box.setBoundary(boundary);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numAtoms);
+
+        integrator = new IntegratorMC(this, null, box);
+
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+
+        MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
+        integrator.getMoveManager().addMCMove(move);
+
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, space);
         coordinateDefinition.initializeCoordinates(nCells);

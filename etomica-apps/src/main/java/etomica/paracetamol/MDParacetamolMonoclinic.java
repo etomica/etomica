@@ -113,7 +113,8 @@ public class MDParacetamolMonoclinic extends Simulation {
 
         double neighborRangeFac = 1.6;
 
-        box = this.makeBox();
+        bdry = new BoundaryDeformableLattice(primitive, new int[]{2, 3, 4});
+        box = this.makeBox(bdry);
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setIsothermal(false);
         //integrator.setThermostatInterval(1);
@@ -374,9 +375,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         ((CriterionInterMolecular) potentialMaster.getCriterion(interpotentialNN)).setIntraMolecularCriterion(new CriterionNone());
 
 
-        bdry = new BoundaryDeformableLattice(primitive, new int[]{2, 3, 4});
         // bdry.setDimensions(Space.makeVector(new double []{3*12.119, 4*8.944, 4*7.278}));
-        box.setBoundary(bdry);
         configMonoLattice.initializeCoordinates(box);
 
         CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(this, box, primitive, basis, space);

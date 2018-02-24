@@ -45,20 +45,6 @@ public class SimCalcSMorse extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = this.makeBox();
-        box.setNMolecules(species, numAtoms);
-
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
-        MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), getRandom(), space);
-        move.setStepSize(0.1);
-        move.setStepSizeMax(0.5);
-        integrator.getMoveManager().addMCMove(move);
-        ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
-
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-        // activityIntegrate.setMaxSteps(nSteps);
-
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0 / density);
             boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
@@ -72,6 +58,20 @@ public class SimCalcSMorse extends Simulation {
             boundary = new BoundaryRectangularPeriodic(space, n * L);
             basis = new BasisCubicFcc();
         }
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numAtoms);
+
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
+        MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), getRandom(), space);
+        move.setStepSize(0.1);
+        move.setStepSizeMax(0.5);
+        integrator.getMoveManager().addMCMove(move);
+        ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
+
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+        // activityIntegrate.setMaxSteps(nSteps);
+
 
         Potential2SoftSpherical potential = new P2Morse(space, 1.0, 1.0, 6.0);
         double truncationRadius = boundary.getBoxSize().getX(0) * 0.5;
@@ -79,8 +79,6 @@ public class SimCalcSMorse extends Simulation {
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
         move.setPotential(pTruncated);
-
-        box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);

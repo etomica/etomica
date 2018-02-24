@@ -71,7 +71,9 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
         BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();
         lattice = new BravaisLatticeCrystal(primitive, basis);
 
-        box = this.makeBox();
+        bdry = new BoundaryRectangularPeriodic(space, 1); //unit cell
+        bdry.setBoxSize(space.makeVector(new double[]{2 * 17.248, 3 * 12.086, 4 * 7.382}));
+        box = this.makeBox(bdry);
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTemperature(Kelvin.UNIT.toSim(1));
@@ -287,9 +289,6 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
          *
          */
 
-        bdry = new BoundaryRectangularPeriodic(space, 1); //unit cell
-        bdry.setBoxSize(space.makeVector(new double[]{2 * 17.248, 3 * 12.086, 4 * 7.382}));
-        box.setBoundary(bdry);
 
         CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(this, box, primitive, basis, space);
         coordDef.setBasisOrthorhombic();

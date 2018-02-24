@@ -73,18 +73,6 @@ public class SimOverlapSoftSphereDP extends Simulation {
         addSpecies(species);
 
         // TARGET
-        box = this.makeBox();
-        box.setNMolecules(species, numAtoms);
-
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
-        atomMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);
-        atomMove.setStepSize(0.1);
-        atomMove.setStepSizeMax(0.5);
-        atomMove.setDoExcludeNonNeighbors(true);
-//        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
-        integrator.getMoveManager().addMCMove(atomMove);
-
         double nbrDistance = 0;
         if (slanty) {
             int c = (int) Math.round(Math.pow(numAtoms, 1.0 / 3.0));
@@ -113,8 +101,19 @@ public class SimOverlapSoftSphereDP extends Simulation {
             Basis basisFCC = new BasisCubicFcc();
             basis = new BasisBigCell(space, basisFCC, nCells);
         }
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numAtoms);
 
-        box.setBoundary(boundary);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
+        atomMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);
+        atomMove.setStepSize(0.1);
+        atomMove.setStepSizeMax(0.5);
+        atomMove.setDoExcludeNonNeighbors(true);
+//        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
+        integrator.getMoveManager().addMCMove(atomMove);
+
+
 
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});

@@ -72,11 +72,6 @@ public class SimEinStep1 extends Simulation {
         addSpecies(species);
 
         // TARGET
-        box = this.makeBox();
-        box.setNMolecules(species, numAtoms);
-
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
-
         if (slanty) {
             int c = (int) Math.round(Math.pow(numAtoms, 1.0 / 3.0));
             nCells = new int[]{c, c, c};
@@ -102,8 +97,10 @@ public class SimEinStep1 extends Simulation {
             Basis basisFCC = new BasisCubicFcc();
             basis = new BasisBigCell(space, basisFCC, nCells);
         }
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numAtoms);
 
-        box.setBoundary(boundary);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
 
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});

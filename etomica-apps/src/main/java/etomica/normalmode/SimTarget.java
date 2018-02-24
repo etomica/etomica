@@ -57,22 +57,10 @@ public class SimTarget extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = this.makeBox();
-        box.setNMolecules(species, numAtoms);
-
-        integrator = new IntegratorHard(this, potentialMaster, box);
-
-        integrator.setIsothermal(false);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        double timeStep = 0.4;
-        integrator.setTimeStep(timeStep);
-        getController().addAction(activityIntegrate);
-
         Potential potential = new P2HardSphere(space, 1.0, false);
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(potential, new AtomType[]{sphereType,
                 sphereType});
-
         int nCells;
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0 / density);
@@ -86,7 +74,16 @@ public class SimTarget extends Simulation {
             nCells = (int) Math.round(Math.pow(numAtoms, 1.0 / 3.0));
             boundary = new BoundaryDeformableLattice(primitive, new int[]{nCells, nCells, nCells});
         }
-        box.setBoundary(boundary);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numAtoms);
+
+        integrator = new IntegratorHard(this, potentialMaster, box);
+
+        integrator.setIsothermal(false);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        double timeStep = 0.4;
+        integrator.setTimeStep(timeStep);
+        getController().addAction(activityIntegrate);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, space);
         coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});

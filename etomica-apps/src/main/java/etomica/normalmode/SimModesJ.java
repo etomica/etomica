@@ -39,9 +39,6 @@ public class SimModesJ extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = this.makeBox();
-        box.setNMolecules(species, numAtoms);
-
         Basis basis;
         int[] nCells;
         primitive = new PrimitiveCubic(space, 1);
@@ -60,7 +57,8 @@ public class SimModesJ extends Simulation {
             nCells = new int[]{n, n, n};
             bdry = new BoundaryDeformableLattice(primitive, nCells);
         }
-        box.setBoundary(bdry);
+        box = this.makeBox(bdry);
+        box.setNMolecules(species, numAtoms);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);

@@ -100,7 +100,8 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         BasisMonoclinicParacetamol basis = new BasisMonoclinicParacetamol();
         lattice = new BravaisLatticeCrystal(primitive, basis);
 
-        box = this.makeBox();
+        bdry = new BoundaryDeformableLattice(primitive, new int[]{cellDim[0], cellDim[1], cellDim[2]});
+        box = this.makeBox(bdry);
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setIsothermal(false);
         //integrator.setThermostatInterval(1);
@@ -118,9 +119,7 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         box.getBoundary().setBoxSize(space.makeVector(new double[]{35, 35, 35}));
         box.setNMolecules(species, numMolecules);
 
-        bdry = new BoundaryDeformableLattice(primitive, new int[]{cellDim[0], cellDim[1], cellDim[2]});
         //bdry.setDimensions(space.makeVector(new double []{cellDim[0]*12.119, cellDim[1]*8.944, cellDim[2]*7.278}));
-        box.setBoundary(bdry);
 
         coordDef = new CoordinateDefinitionParacetamol(this, box, primitive, basis, space);
         coordDef.setBasisMonoclinic();

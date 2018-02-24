@@ -136,7 +136,7 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
 	protected IntegratorHarmonic integrator;
 	protected ActivityIntegrate activityIntegrate;
 	protected Box box;
-	protected Boundary boundary;
+	protected BoundaryDeformablePeriodic boundary;
 	protected Primitive primitive;
 	protected Basis basis;
 	protected SpeciesSpheresMono species;

@@ -33,9 +33,6 @@ public class SimCalcJ extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = this.makeBox();
-        box.setNMolecules(species, numAtoms);
-
         Basis basis;
         int[] nCells;
         if (space.D() == 1) {
@@ -56,7 +53,8 @@ public class SimCalcJ extends Simulation {
             bdry = new BoundaryDeformableLattice(primitive, nCells);
             basis = new BasisCubicFcc();
         }
-        box.setBoundary(bdry);
+        box = this.makeBox(bdry);
+        box.setNMolecules(species, numAtoms);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);

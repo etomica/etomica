@@ -42,6 +42,7 @@ public class MinimizeHCP extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public final Box box;
+    private final BoundaryDeformablePeriodic boundary;
     public final PotentialMaster potentialMaster;
     public final double density;
     public final int numMolecules;
@@ -55,7 +56,8 @@ public class MinimizeHCP extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = this.makeBox();
+        boundary = new BoundaryDeformablePeriodic(space);
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
         setC(initC, density);
@@ -134,10 +136,10 @@ public class MinimizeHCP extends Simulation {
 
         Primitive primitive = new PrimitiveHexagonal(space, nC*a, nC*c);
 
-        Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
+        for (int i = 0; i < boxDim.length; i++) {
+            boundary.setEdgeVector(i, boxDim[i]);
+        }
         Basis basisHCP = new BasisHcp();
-
-        box.setBoundary(boundary);
 
         ConfigurationLattice config = new ConfigurationLattice(new BravaisLatticeCrystal(primitive, basisHCP), space);
         config.initializeCoordinates(box);

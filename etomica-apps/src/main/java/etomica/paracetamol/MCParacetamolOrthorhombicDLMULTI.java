@@ -31,6 +31,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 
@@ -88,7 +89,9 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
         BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();
         lattice = new BravaisLatticeCrystal(primitive, basis);
 
-        box = this.makeBox();
+        bdry = new BoundaryRectangularPeriodic(space, 1); //unit cell
+        bdry.setBoxSize(Vector.of(cellDim[0] * 17.248, cellDim[1] * 12.086, cellDim[2] * 7.382));
+        box = this.makeBox(bdry);
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setIsothermal(false);
         //integrator.setThermostatInterval(1);
@@ -103,10 +106,6 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
         addSpecies(species);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{25, 25, 25}));
         box.setNMolecules(species, numMolecules);
-
-        bdry = new BoundaryRectangularPeriodic(space, 1); //unit cell
-        bdry.setBoxSize(space.makeVector(new double[]{cellDim[0] * 17.248, cellDim[1] * 12.086, cellDim[2] * 7.382}));
-        box.setBoundary(bdry);
 
         coordDef = new CoordinateDefinitionParacetamol(this, box, primitive, basis, space);
         coordDef.setBasisOrthorhombic();

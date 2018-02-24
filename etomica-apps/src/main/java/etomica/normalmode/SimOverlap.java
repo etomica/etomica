@@ -76,25 +76,6 @@ public class SimOverlap extends Simulation {
         addSpecies(species);
 
         // TARGET
-        potentialMasterTarget = new PotentialMasterList(this, space);
-        boxTarget = this.makeBox();
-        boxTarget.setNMolecules(species, numAtoms);
-
-        integratorTarget = new IntegratorHard(this, potentialMasterTarget, boxTarget);
-        // needs to be irrational so that configurations don't repeat in 1D with 2 atoms
-        integratorTarget.setTimeStep(Math.PI);
-        integratorTarget.setTemperature(1.0);
-
-        integratorTarget.setIsothermal(false);
-        integrators[1] = integratorTarget;
-
-        Potential2 p2 = new P2HardSphere(space, 1.0, false);
-        if (space.D() == 1) {
-            // don't need this for the target system, but we do need it for the reference
-            p2 = new P2XOrder(space, (Potential2HardSpherical) p2);
-        }
-        potentialMasterTarget.addPotential(p2, new AtomType[]{species.getLeafType(), species.getLeafType()});
-
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0 / density);
             boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms / density);
@@ -116,7 +97,24 @@ public class SimOverlap extends Simulation {
             basis = new BasisBigCell(space, basisFCC, nCells);
             primitive = new PrimitiveCubic(space, n * L);
         }
-        boxTarget.setBoundary(boundaryTarget);
+        potentialMasterTarget = new PotentialMasterList(this, space);
+        boxTarget = this.makeBox(boundaryTarget);
+        boxTarget.setNMolecules(species, numAtoms);
+
+        integratorTarget = new IntegratorHard(this, potentialMasterTarget, boxTarget);
+        // needs to be irrational so that configurations don't repeat in 1D with 2 atoms
+        integratorTarget.setTimeStep(Math.PI);
+        integratorTarget.setTemperature(1.0);
+
+        integratorTarget.setIsothermal(false);
+        integrators[1] = integratorTarget;
+
+        Potential2 p2 = new P2HardSphere(space, 1.0, false);
+        if (space.D() == 1) {
+            // don't need this for the target system, but we do need it for the reference
+            p2 = new P2XOrder(space, (Potential2HardSpherical) p2);
+        }
+        potentialMasterTarget.addPotential(p2, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         if (space.D() == 1) {

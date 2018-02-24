@@ -39,18 +39,6 @@ public class SimCalcS extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = this.makeBox();
-        box.setNMolecules(species, numAtoms);
-
-        integrator = new IntegratorHard(this, potentialMaster, box);
-        integrator.setTimeStep(0.04);
-        integrator.setTemperature(1.0);
-
-        integrator.setIsothermal(false);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-        // activityIntegrate.setMaxSteps(nSteps);
-
         Potential potential = new P2HardSphere(space, 1.0, false);
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(potential, new AtomType[]{sphereType,
@@ -76,7 +64,19 @@ public class SimCalcS extends Simulation {
             primitive.scaleSize(n);
 
         }
-        box.setBoundary(bdry);
+        box = this.makeBox(bdry);
+        box.setNMolecules(species, numAtoms);
+
+        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator.setTimeStep(0.04);
+        integrator.setTemperature(1.0);
+
+        integrator.setIsothermal(false);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+        // activityIntegrate.setMaxSteps(nSteps);
+
+
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         if (space.D() == 1) {

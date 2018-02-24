@@ -111,7 +111,9 @@ public class MDParacetamolOrthorhombic extends Simulation {
 
         double neighborRangeFac = 1.6;
 
-        box = this.makeBox();
+        bdry = new BoundaryRectangularPeriodic(space, 1); //unit cell
+        bdry.setBoxSize(space.makeVector(new double[]{2 * 17.248, 2 * 12.086, 4 * 7.382}));
+        box = this.makeBox(bdry);
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setIsothermal(false);
         //integrator.setThermostatInterval(1);
@@ -371,9 +373,6 @@ public class MDParacetamolOrthorhombic extends Simulation {
         ((CriterionInterMolecular) potentialMaster.getCriterion(interpotentialOO)).setIntraMolecularCriterion(new CriterionNone());
         ((CriterionInterMolecular) potentialMaster.getCriterion(interpotentialNN)).setIntraMolecularCriterion(new CriterionNone());
 
-        bdry = new BoundaryRectangularPeriodic(space, 1); //unit cell
-        bdry.setBoxSize(space.makeVector(new double[]{2 * 17.248, 2 * 12.086, 4 * 7.382}));
-        box.setBoundary(bdry);
         configOrthoLattice.initializeCoordinates(box);
 
         CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(this, box, primitive, basis, space);
