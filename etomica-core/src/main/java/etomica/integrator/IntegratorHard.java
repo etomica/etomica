@@ -123,75 +123,15 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
                 atoms = singlet;
                 singlet.atom = colliderAgent.atom();
             }
+
             if (collisionTimeStep - oldTime < minDelta) {
-                System.out.println("diff "+(collisionTimeStep - oldTime)+" minDelta "+minDelta);
-                System.out.println("previous collision occured after current one");
-                System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
-                System.out.println("collision for "+atoms+" potential "+colliderAgent.collisionPotential.getClass());
-                if (atoms instanceof AtomPair) {
-                    Vector dr = space.makeVector();
-                    Vector dv = space.makeVector();
-
-                    IAtomKinetic atom0 = (IAtomKinetic)pair.atom0;
-                    IAtomKinetic atom1 = (IAtomKinetic)pair.atom1;
-                    dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
-                    
-                    dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-                    box.getBoundary().nearestImage(dr);
-
-                    dr.PEa1Tv1(oldTime,dv);
-                    System.out.println("distance at last collision time was "+Math.sqrt(dr.squared()));
-                    dr.PEa1Tv1(collisionTimeStep-oldTime,dv);
-                    System.out.println("distance now "+Math.sqrt(dr.squared()));
-                }
-                throw new RuntimeException("this simulation is not a time machine");
+                logTimeDiffError(colliderAgent, oldTime, atoms);
             }
             if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 0 &&((Debug.LEVEL > 1 && Debug.thisBox(box)) || Debug.anyAtom(atoms))) {
                 System.out.println("collision between atoms "+atoms+" at "+collisionTimeStep+" with "+colliderAgent.collisionPotential.getClass());
             }
             if (Debug.ON && Debug.DEBUG_NOW && Debug.thisBox(box) && (debugPair = Debug.getAtoms(box)) != null) {
-                if (Debug.LEVEL > 1) {
-                    IAtom a = debugPair.atom0;
-                    if (a != null) {
-                        Agent agent = agentManager.getAgent(a);
-                        System.out.println(a+" collision with "+agent.collisionPartner+" "+agent.collisionPotential+" at "+agent.collisionTime());
-                    }
-                    a = debugPair.atom1;
-                    if (a != null) {
-                        Agent agent = agentManager.getAgent(a);
-                        System.out.println(a+" collision with "+agent.collisionPartner+" "+agent.collisionPotential+" at "+agent.collisionTime());
-                    }
-                }
-                if (debugPair.atom0 != null && debugPair.atom1 != null && !(debugPair.atom0 instanceof IMolecule && debugPair.atom1 instanceof IMolecule)) {
-                    Vector dr = space.makeVector();
-                    Vector dv = space.makeVector();
-
-                    IAtomKinetic atom0 = (IAtomKinetic)debugPair.atom0;
-                    IAtomKinetic atom1 = (IAtomKinetic)debugPair.atom1;
-                    dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
-
-                    dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-
-                    dr.PEa1Tv1(collisionTimeStep,dv);
-                    box.getBoundary().nearestImage(dr);
-                    double r2 = dr.squared();
-                    if (Debug.LEVEL > 1 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
-                        System.out.println("distance between "+debugPair+" is "+Math.sqrt(r2));
-                        if (Debug.LEVEL > 2 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
-                            dr.Ea1Tv1(collisionTimeStep,atom0.getVelocity());
-                            dr.PE(atom0.getPosition());
-                            System.out.println(atom0+" coordinates "+dr);
-                            dr.Ea1Tv1(collisionTimeStep,atom1.getVelocity());
-                            dr.PE(atom1.getPosition());
-                            System.out.println(atom1+" coordinates "+dr);
-                        }
-                    }
-                    else if (Debug.LEVEL > 2 && !(debugPair.atom0 instanceof IMolecule)) {
-                        dr.Ea1Tv1(collisionTimeStep,((IAtomKinetic)debugPair.atom0).getVelocity());
-                        dr.PE(debugPair.atom0.getPosition());
-                        System.out.println(debugPair.atom0+" coordinates "+dr);
-                    }
-                }
+                debugStep();
             }
 
             colliderAgent.collisionPotential.bump(atoms,collisionTimeStep);
@@ -238,6 +178,75 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
 
         // set the last collider to be read externally
         this.lastColliderAgent = colliderAgent;
+    }
+
+    private void debugStep() {
+        if (Debug.LEVEL > 1) {
+            IAtom a = debugPair.atom0;
+            if (a != null) {
+                Agent agent = agentManager.getAgent(a);
+                System.out.println(a+" collision with "+agent.collisionPartner+" "+agent.collisionPotential+" at "+agent.collisionTime());
+            }
+            a = debugPair.atom1;
+            if (a != null) {
+                Agent agent = agentManager.getAgent(a);
+                System.out.println(a+" collision with "+agent.collisionPartner+" "+agent.collisionPotential+" at "+agent.collisionTime());
+            }
+        }
+        if (debugPair.atom0 != null && debugPair.atom1 != null && !(debugPair.atom0 instanceof IMolecule && debugPair.atom1 instanceof IMolecule)) {
+            Vector dr = space.makeVector();
+            Vector dv = space.makeVector();
+
+            IAtomKinetic atom0 = (IAtomKinetic)debugPair.atom0;
+            IAtomKinetic atom1 = (IAtomKinetic)debugPair.atom1;
+            dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
+
+            dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
+
+            dr.PEa1Tv1(collisionTimeStep,dv);
+            box.getBoundary().nearestImage(dr);
+            double r2 = dr.squared();
+            if (Debug.LEVEL > 1 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
+                System.out.println("distance between "+debugPair+" is "+Math.sqrt(r2));
+                if (Debug.LEVEL > 2 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
+                    dr.Ea1Tv1(collisionTimeStep,atom0.getVelocity());
+                    dr.PE(atom0.getPosition());
+                    System.out.println(atom0+" coordinates "+dr);
+                    dr.Ea1Tv1(collisionTimeStep,atom1.getVelocity());
+                    dr.PE(atom1.getPosition());
+                    System.out.println(atom1+" coordinates "+dr);
+                }
+            }
+            else if (Debug.LEVEL > 2 && !(debugPair.atom0 instanceof IMolecule)) {
+                dr.Ea1Tv1(collisionTimeStep,((IAtomKinetic)debugPair.atom0).getVelocity());
+                dr.PE(debugPair.atom0.getPosition());
+                System.out.println(debugPair.atom0+" coordinates "+dr);
+            }
+        }
+    }
+
+    private void logTimeDiffError(Agent colliderAgent, double oldTime, IAtomList atoms) {
+        System.out.println("diff "+(collisionTimeStep - oldTime)+" minDelta "+minDelta);
+        System.out.println("previous collision occured after current one");
+        System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
+        System.out.println("collision for "+atoms+" potential "+colliderAgent.collisionPotential.getClass());
+        if (atoms instanceof AtomPair) {
+            Vector dr = space.makeVector();
+            Vector dv = space.makeVector();
+
+            IAtomKinetic atom0 = (IAtomKinetic)pair.atom0;
+            IAtomKinetic atom1 = (IAtomKinetic)pair.atom1;
+            dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
+
+            dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
+            box.getBoundary().nearestImage(dr);
+
+            dr.PEa1Tv1(oldTime,dv);
+            System.out.println("distance at last collision time was "+Math.sqrt(dr.squared()));
+            dr.PEa1Tv1(collisionTimeStep-oldTime,dv);
+            System.out.println("distance now "+Math.sqrt(dr.squared()));
+        }
+        throw new RuntimeException("this simulation is not a time machine");
     }
 
     public long getCollisionCount() {
