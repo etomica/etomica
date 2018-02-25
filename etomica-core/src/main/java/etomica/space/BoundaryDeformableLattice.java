@@ -31,6 +31,10 @@ public class BoundaryDeformableLattice extends BoundaryDeformablePeriodic {
         super(primitive.getSpace(), makeDimensionVectors(primitive, nCells));
     }
 
+    public void updateSize(Primitive primitive, int[] nCells) {
+        this.setEdgeVectors(makeDimensionVectors(primitive, nCells));
+    }
+
     /**
      * Creates boundary vectors in the direction of the primitive vectors, 
      * scaled by nCells

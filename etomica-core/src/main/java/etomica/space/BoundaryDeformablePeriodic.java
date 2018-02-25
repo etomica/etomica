@@ -236,6 +236,13 @@ public class BoundaryDeformablePeriodic extends Boundary {
 	    edgeVectors[i].E(v);
         update();
 	}
+
+	public void setEdgeVectors(Vector[] vectors) {
+        for (int i = 0; i < vectors.length; i++) {
+            edgeVectors[i].E(vectors[i]);
+        }
+        update();
+    }
 	
 	
 	/**

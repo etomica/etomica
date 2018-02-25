@@ -107,10 +107,9 @@ public class LatticePlaneTestUtility {
 	}
 
 	public void setDimensions(int size) {
-	    sim.removeBox(box);
-	    box = sim.makeBox(new BoundaryDeformableLattice(lattice.getPrimitive(), new int[]{size, size, size}));
+		((BoundaryDeformableLattice) box.getBoundary()).updateSize(lattice.getPrimitive(), new int[]{size, size, size});
 
-        // Set the number of atoms
+		// Set the number of atoms
         int numAtoms = size*size*size;
 
 	    // Set the number of molecules for the box and
