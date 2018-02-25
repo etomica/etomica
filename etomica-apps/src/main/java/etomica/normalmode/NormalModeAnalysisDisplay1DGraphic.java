@@ -195,7 +195,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
        	  		int n = (int)nSlider.getValue();                 
        	  	
                 if (oldN != n) {
-                    sim.box.getBoundary().setBoxSize(Vector.of(n / sim.density, n / sim.density, n / sim.density));
+                    sim.box.getBoundary().setBoxSize(Vector.of(n / sim.density));
                 	sim.waveVectorFactory.makeWaveVectors(sim.box);
                 	sim.coordinateDefinition.initializeCoordinates(new int[]{(int)nSlider.getValue()});
                 	
