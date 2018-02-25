@@ -40,6 +40,7 @@ public class CrystalViewer extends SimulationPanel {
 
     protected SpeciesSpheresMono species;
     protected Box box;
+    BoundaryDeformableLattice boundary;
     protected Vector center;
     protected LatticePlane latticePlane;
     protected ClipPlaneEditor clipPlaneEditor;
@@ -73,8 +74,8 @@ public class CrystalViewer extends SimulationPanel {
 
         double[] boxSize = new double[]{10.0, 10.0, 10.0};
 
-        box = sim.makeBox(new BoundaryDeformableLattice(lattices[0].getPrimitive(),
-                boxSize));
+        boundary = new BoundaryDeformableLattice(lattices[0].getPrimitive(), boxSize);
+        box = sim.makeBox(boundary);
 
         String[] latticeNames = new String[]{
                 "Simple Cubic", "Tetragonal", "Hexagonal", "Orthorhombic", "Monoclinic", "Triclinic", "FCC", "BCC", "HCP", "Diamond"};

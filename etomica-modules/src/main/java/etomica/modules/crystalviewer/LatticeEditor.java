@@ -45,6 +45,7 @@ public class LatticeEditor {
     protected BravaisLattice currentLattice;
     private JPanel panel;
     protected Box box;
+    private BoundaryDeformableLattice boundary;
     protected ISpecies species;
     private DeviceBox[] angleBoxes, sizeBoxes;
     public JPanel anglePanel, sizePanel;
@@ -81,6 +82,7 @@ public class LatticeEditor {
         this.viewer = viewer;
         this.space = _space;
         box = viewer.box;
+        boundary = viewer.boundary;
         species = viewer.species;
         latticeNameHash = new HashMap();
         for (int i=0; i<lattices.length; i++) {
@@ -280,7 +282,7 @@ public class LatticeEditor {
     }
 
     protected void update() {
-        box.getBoundary().setBoxSize(Vector.of(size, size, size));
+        boundary.updateSize(currentLattice.getPrimitive(), new int[]{size, size, size});
 
         int numAtoms = size*size*size;
         if (currentLattice instanceof BravaisLatticeCrystal) {
