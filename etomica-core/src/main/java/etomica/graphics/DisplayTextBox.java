@@ -8,7 +8,6 @@ package etomica.graphics;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.IDataSink;
-import etomica.data.types.DataDouble;
 import etomica.units.dimensions.Null;
 import etomica.units.systems.UnitSystem;
 import etomica.util.Constants;
@@ -193,7 +192,7 @@ public class DisplayTextBox extends Display implements IDataSink, javax.swing.ev
      * Sets the display text to reflect the desired value from the datasource.
      */
     public void putData(IData data) {
-        double xValue = unit.fromSim(((DataDouble)data).x);
+        double xValue = unit.fromSim(data.getValue(0));
         if(integerDisplay) {
             value.setText(Integer.toString((int)xValue));
         } else {
