@@ -6,10 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomType;
-import etomica.atom.DiameterHashByType;
-import etomica.atom.IAtomList;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationFileBinary;
@@ -112,8 +109,6 @@ public class WaterDADB extends Simulation {
 		}
 		latticeCoordinates = new MoleculeAgentManager(this,box,new MoleculeSiteSource(space, new MoleculePositionCOM(space), new WaterOrientationDefinition(space)));
         EwaldSummationLattice potentialES = new EwaldSummationLattice(box, atomAgentManager, space, kCut ,rCutRealES,latticeCoordinates);
-//        EwaldSummation potentialES = new EwaldSummation(box, atomAgentManager, space, kCut ,rCutRealES);
-		//TODO
 		P2LennardJones potentialLJ = new P2LennardJones(space, sigma, epsilon);
 		potentialLJLS = new Potential2SoftSphericalLS(space,rCutLJ,rC,potentialLJ,latticeCoordinates);
 //		potentialLJ =  new P2SoftSphericalTruncated(space, potentialLJ, rC);
@@ -329,7 +324,7 @@ public class WaterDADB extends Simulation {
 		integrator.setTimeStep(timeInterval);
 		integrator.setMaxIterations(maxIterations);
 		integrator.setBox(box);
-//        integrator.setOrientAtom((IAtomPositioned)((IMolecule)box.getMoleculeList(speciesOrient).getAtom(0)).getChildList().getAtom(0));
+//        integrator.setOrientAtom((IAtom)((IMolecule)box.getMoleculeList(speciesOrient).getAtom(0)).getChildList().getAtom(0));
 		integrator.setIsothermal(true);
 		integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
 		integrator.setThermostatInterval(100);
@@ -483,19 +478,7 @@ public class WaterDADB extends Simulation {
 		sim.ai.setMaxSteps(numSteps);
 
 
-
-//        sim.integrator.getEventManager().addListener(dataPumpListener);
-
-
-
-
-
-
-
-
-
-
-
+        sim.integrator.getEventManager().addListener(dataPumpListener);
 		sim.integrator.getEventManager().addListener(dataPumpListener2);
 //        sim.integrator.getEventManager().addListener(dataPumpListener3);
 
@@ -550,7 +533,7 @@ public class WaterDADB extends Simulation {
 		double PEAverage = accumulatorAverageFixed2.getData(accumulatorAverageFixed2.AVERAGE).getValue(0);
 		double PEArror = accumulatorAverageFixed2.getData(accumulatorAverageFixed2.ERROR).getValue(0);
 		double PECorrelation = accumulatorAverageFixed2.getData(accumulatorAverageFixed2.BLOCK_CORRELATION).getValue(0);
-		System.out.println("PEaverage = " +  (PEAverage-latticeEnergy));
+        System.out.println("PEaverage = " + (PEAverage - latticeEnergy - Kelvin.UNIT.toSim(((molecules.getMoleculeCount() - 1) * 3 * temperature))));
 		System.out.println("PEerror = " + PEArror);
 		System.out.println("PEcorrelation = " + PECorrelation);
 
