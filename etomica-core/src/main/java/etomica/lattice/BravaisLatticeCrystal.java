@@ -46,7 +46,7 @@ public class BravaisLatticeCrystal extends BravaisLattice {
      * index specifies the basis atom at the Bravais site. The same Vector
      * instance is returned with each call.
      */
-    public Object site(int[] index) {
+    public Vector site(int[] index) {
         if (index.length != D)
             throw new IllegalArgumentException(
                     "index given to site method of lattice must have number of elements equal to dimension of lattice");

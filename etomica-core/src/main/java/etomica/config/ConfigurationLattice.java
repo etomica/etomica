@@ -306,7 +306,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         /**
          * Returns the same instance of Vector with each call.
          */
-        public Object site(int[] index) {
+        public Vector site(int[] index) {
             site.E((Vector) lattice.site(index));
             site.TE(latticeScaling);
             site.PE(offset);

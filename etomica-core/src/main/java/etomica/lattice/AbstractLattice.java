@@ -9,7 +9,7 @@ package etomica.lattice;
  * accessed individually via specification of a set of integers.  Any object can
  * play the role of a site. 
  */
-public interface AbstractLattice {
+public interface AbstractLattice<T> {
 
     /**
      * Dimension of the lattice.  The value of D describes the number of
@@ -25,6 +25,6 @@ public interface AbstractLattice {
      * regardless of the argument.  The concrete implementations of this class should
      * provide this specification. 
      */
-    public Object site(int[] index);
+    public T site(int[] index);
     
 }
