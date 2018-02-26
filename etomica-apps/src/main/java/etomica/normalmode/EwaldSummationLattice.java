@@ -4,7 +4,9 @@ import etomica.atom.Atom;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.molecule.MoleculeAgentManager;
+import etomica.molecule.MoleculePositionCOM;
 import etomica.space.Space;
 import etomica.space.Vector;
 import org.apache.commons.math3.special.Erf;
@@ -18,9 +20,9 @@ public class EwaldSummationLattice extends EwaldSummation {
 	protected final Vector ldr;
 	protected final Vector shift;
 	protected final MoleculeAgentManager latticeCoordinates;
-	protected IAtomPositionDefinition positionDefinition;
+	protected IMoleculePositionDefinition positionDefinition;
 	protected final Vector rA;
-	
+
 	public EwaldSummationLattice(Box box,
 			AtomLeafAgentManager<MyCharge> atomAgentManager, Space _space,
 			double kCut, double rCutRealES) {
@@ -37,7 +39,7 @@ public class EwaldSummationLattice extends EwaldSummation {
 		shift = space.makeVector();
 		rA = space.makeVector();
 		this.latticeCoordinates = latticeCoordinates;
-		this.positionDefinition = new AtomPositionCOM(space);
+		this.positionDefinition = new MoleculePositionCOM(space);
 	}
 	
 	  public double uReal(){
@@ -45,7 +47,7 @@ public class EwaldSummationLattice extends EwaldSummation {
 	        int nAtoms = box.getLeafList().getAtomCount();
 	        double uReal = 0.0;
 	        for (int i=0; i < nAtoms; i++){//H
-	            Atom atomA = box.getLeafList().getAtom(i);
+	            IAtom atomA = box.getLeafList().getAtom(i);
 	            double chargeA = atomAgentManager.getAgent(atomA).charge;
 	            rA.E(latticeCoordinates == null?positionDefinition.position(atomA.getParentGroup()):
 	            	((MoleculeSiteSource.LatticeCoordinate)latticeCoordinates.getAgent(atomA.getParentGroup())).position);
@@ -55,7 +57,7 @@ public class EwaldSummationLattice extends EwaldSummation {
 	            int aIndex = atomA.getParentGroup().getIndex();
 	            Vector positionA = atomA.getPosition();
 	            for (int j=i; j < nAtoms; j++){
-	                Atom atomB = box.getLeafList().getAtom(j);
+	                IAtom atomB = box.getLeafList().getAtom(j);
 
 	                int bIndex = atomB.getParentGroup().getIndex();
 	     

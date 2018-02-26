@@ -1,6 +1,7 @@
 package etomica.normalmode;
 
 import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.molecule.MoleculeAgentManager;
 import etomica.space.IOrientation;
 import etomica.space.Space;
@@ -10,7 +11,7 @@ import etomica.space3d.OrientationFull3D;
 public class MoleculeSiteSource implements MoleculeAgentManager.MoleculeAgentSource {
     
 	
-    public MoleculeSiteSource(Space space, IAtomPositionDefinition positionDefinition, MoleculeOrientationDefinition  moleculeOrientationDefinition) {
+    public MoleculeSiteSource(Space space, IMoleculePositionDefinition positionDefinition, MoleculeOrientationDefinition  moleculeOrientationDefinition) {
         this.space = space;
         this.positionDefinition = positionDefinition;
         
@@ -31,7 +32,7 @@ public class MoleculeSiteSource implements MoleculeAgentManager.MoleculeAgentSou
     }
 
     private final Space space;
-    protected final IAtomPositionDefinition positionDefinition;
+    protected final IMoleculePositionDefinition positionDefinition;
     protected final  MoleculeOrientationDefinition  moleculeOrientationDefinition;
     public static class LatticeCoordinate{
     	public final Vector position;

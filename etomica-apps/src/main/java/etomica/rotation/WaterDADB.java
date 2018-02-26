@@ -1,13 +1,13 @@
 package etomica.rotation;
 
 import java.awt.Color;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -118,8 +118,8 @@ public class WaterDADB extends Simulation {
 		potentialLJLS = new Potential2SoftSphericalLS(space,rCutLJ,rC,potentialLJ,latticeCoordinates);
 //		potentialLJ =  new P2SoftSphericalTruncated(space, potentialLJ, rC);
 		potentialMaster = new PotentialMaster();
-		potentialMaster.addPotential(potentialES, new IAtomType[0]);
-		potentialMaster.addPotential(potentialLJLS, new IAtomType[]{species.getOxygenType(), species.getOxygenType()});
+		potentialMaster.addPotential(potentialES, new AtomType[0]);
+		potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
 
 
 		double timeInterval = 0.002;
@@ -576,7 +576,7 @@ public class WaterDADB extends Simulation {
 			IAtomList leafList = molecule.getChildList();
 			Vector h1 = leafList.getAtom(0).getPosition();
 			Vector h2 = leafList.getAtom(1).getPosition();
-			Vector o = leafList.getAtom(2).getPosition();r
+			Vector o = leafList.getAtom(2).getPosition();
 			Vector m = leafList.getAtom(3).getPosition();
 			v1.Ev1Mv2(m, o);
 			v1.normalize();

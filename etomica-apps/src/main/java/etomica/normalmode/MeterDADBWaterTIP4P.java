@@ -8,16 +8,10 @@ import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.atom.MoleculeAgentManager;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
-import etomica.data.DataSourceScalar;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataSource;
-import etomica.data.IEtomicaDataInfo;
-import etomica.data.IEtomicaDataSource;
+import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -28,15 +22,11 @@ import etomica.molecule.MoleculeAgentManager;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.ISpace;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Orientation3D;
 import etomica.space3d.OrientationFull3D;
-import etomica.units.Null;
 import etomica.units.dimensions.Null;
-import etomica.util.Constants;
 /**
  @author  Weisong Lin
  */
@@ -708,7 +698,7 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 	}
     
     public void debug(){
-    	IBox box = latticeCoordinates.getBox();
+    	Box box = latticeCoordinates.getBox();
     	IMoleculeList molecules = box.getMoleculeList();
     	for(int j = 99; j > 0 ; j--){
         	for (int i = 0; i<molecules.getMoleculeCount(); i++){
@@ -883,13 +873,13 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
         return tag;
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 
-    public final MyAgent makeAgent(IAtom a) {
+    public final MyAgent makeAgent(IAtom a,Box box) {
         return new MyAgent(space);
     }
     
-    public void releaseAgent(MyAgent agent, IAtom atom) {}
+    public void releaseAgent(MyAgent agent, IAtom atom,Box box) {}
 }

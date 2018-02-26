@@ -1,12 +1,14 @@
 package etomica.normalmode;
 
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.molecule.MoleculeAgentManager;
 import etomica.molecule.MoleculePositionCOM;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialSoft;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -49,7 +51,7 @@ public class Potential2SoftSphericalLS extends Potential2 implements PotentialSo
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         r0.E(latticeCoordinates == null?positionDefinition.position(atoms.getAtom(0).getParentGroup()):
         	((MoleculeSiteSource.LatticeCoordinate)latticeCoordinates.getAgent(atoms.getAtom(0).getParentGroup())).position);
-        IVector r1 = latticeCoordinates == null?positionDefinition.position(atoms.getAtom(1).getParentGroup()):
+        Vector r1 = latticeCoordinates == null?positionDefinition.position(atoms.getAtom(1).getParentGroup()):
         	((MoleculeSiteSource.LatticeCoordinate)latticeCoordinates.getAgent(atoms.getAtom(1).getParentGroup())).position;
         
         ldr.Ev1Mv2(r1, r0);
@@ -120,9 +122,9 @@ public class Potential2SoftSphericalLS extends Potential2 implements PotentialSo
     	boolean isSelf = (atoms.getAtom(1) == atoms.getAtom(0));
         dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
         r0.E(latticeCoordinates == null?positionDefinition.position(atoms.getAtom(0).getParentGroup()):
-        	((CoordinateDefinitionMolecule.MoleculeSiteSource.LatticeCoordinate)latticeCoordinates.getAgent(atoms.getAtom(0).getParentGroup())).position);
+        	((MoleculeSiteSource.LatticeCoordinate)latticeCoordinates.getAgent(atoms.getAtom(0).getParentGroup())).position);
         Vector r1 = latticeCoordinates == null?positionDefinition.position(atoms.getAtom(1).getParentGroup()):
-        	((CoordinateDefinitionMolecule.MoleculeSiteSource.LatticeCoordinate)latticeCoordinates.getAgent(atoms.getAtom(1).getParentGroup())).position;
+        	((MoleculeSiteSource.LatticeCoordinate)latticeCoordinates.getAgent(atoms.getAtom(1).getParentGroup())).position;
      
         
         ldr.Ev1Mv2(r1, r0);
@@ -155,7 +157,7 @@ public class Potential2SoftSphericalLS extends Potential2 implements PotentialSo
         return gradient;
     }
     
-    public IVector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
         gradient(atoms);
         pressureTensor.PEv1v2(gradient[0],dr);
         return gradient;
@@ -169,13 +171,13 @@ public class Potential2SoftSphericalLS extends Potential2 implements PotentialSo
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(IBox box) {
+    public void setBox(Box box) {
         boundary = box.getBoundary();
         p2Soft.setBox(box);
     }
 
     protected final Vector[] gradient;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final int[] nShells;
     protected final double[] a0;
     protected final Potential2Soft p2Soft;
