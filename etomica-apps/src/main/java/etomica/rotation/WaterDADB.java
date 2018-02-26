@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
@@ -12,16 +13,14 @@ import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationFileBinary;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.SimulationGraphic;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.integrator.IntegratorVelocityVerletRattle;
 import etomica.integrator.IntegratorVelocityVerletShake.BondConstraints;
@@ -67,7 +66,7 @@ public class WaterDADB extends Simulation {
 	protected Potential2SoftSphericalLS potentialLJLS;
 	protected final MoleculeAgentManager latticeCoordinates;
 
-	public WaterDADB(final Space space, double temperature, int numCells, double rCutRealES, double rCutLJ, boolean isIce, double kCut, double shakeTol, boolean unitCells) {
+    public WaterDADB(final Space space, double temperature, int numCells, double rCutRealES, double rCutLJ, boolean isIce, double kCut, double shakeTol, boolean unitCells, final boolean doTranslation, final boolean doRotation) {
 		super(space);
 		setRandom(new RandomMersenneTwister(2));
 //		if (precision ==1.0e-5 ){
@@ -221,26 +220,30 @@ public class WaterDADB extends Simulation {
 				mforce.ME(mforce);
 
 				//redistribute the forces s.t. only translation
-//				totalforce.E(h1force);
-//				totalforce.PE(h2force);
-//				totalforce.PE(mforce);
-//				totalforce.PE(oforce);
-//				h1force.E(0);
-//				h2force.E(0);
-//				oforce.E(0);
-//				mforce.E(0);
-//				h1force.PEa1Tv1(hmassPersent, totalforce);
-//				h2force.PEa1Tv1(hmassPersent, totalforce);
-//				oforce.PEa1Tv1(omassPersent, totalforce);
+                if (!doRotation) {
+                    totalforce.E(h1force);
+                    totalforce.PE(h2force);
+                    totalforce.PE(mforce);
+                    totalforce.PE(oforce);
+                    h1force.E(0);
+                    h2force.E(0);
+                    oforce.E(0);
+                    mforce.E(0);
+                    h1force.PEa1Tv1(hmassPersent, totalforce);
+                    h2force.PEa1Tv1(hmassPersent, totalforce);
+                    oforce.PEa1Tv1(omassPersent, totalforce);
+                }
 
 				//redistribute s.t. only rotation
-//				totalforce.E(h1force);
-//				totalforce.PE(h2force);
-//				totalforce.PE(mforce);
-//				totalforce.PE(oforce);
-//				h1force.PEa1Tv1(-1.0*hmassPersent, totalforce);
-//				h2force.PEa1Tv1(-1.0*hmassPersent, totalforce);
-//				oforce.PEa1Tv1(-1.0*omassPersent, totalforce);
+                if (!doTranslation) {
+                    totalforce.E(h1force);
+                    totalforce.PE(h2force);
+                    totalforce.PE(mforce);
+                    totalforce.PE(oforce);
+                    h1force.PEa1Tv1(-1.0 * hmassPersent, totalforce);
+                    h2force.PEa1Tv1(-1.0 * hmassPersent, totalforce);
+                    oforce.PEa1Tv1(-1.0 * omassPersent, totalforce);
+                }
 
 				//redistribute such that only K3 freedom
 //				oforce.E(0);
@@ -329,6 +332,8 @@ public class WaterDADB extends Simulation {
 		integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
 		integrator.setThermostatInterval(100);
 		integrator.setThermostatNoDrift(true);
+        integrator.doRotation = doRotation;
+        integrator.doTranslation = doTranslation;
 		try {
 			integrator.reset();
 		}
@@ -357,11 +362,12 @@ public class WaterDADB extends Simulation {
 		double kCut = waterDADBParam.kCut;
 		double shakeTol = waterDADBParam.shakeTol;
 		boolean uniteCells = waterDADBParam.unitCells;
-		final WaterDADB sim = new WaterDADB(Space3D.getInstance(),temperature,numCells,rCutRealES,rCutLJ,isIce,kCut,shakeTol,uniteCells);
+        boolean doTranslation = waterDADBParam.doTranlation;
+        boolean doRotation = waterDADBParam.doRotation;
+        final WaterDADB sim = new WaterDADB(Space3D.getInstance(), temperature, numCells, rCutRealES, rCutLJ, isIce, kCut, shakeTol, uniteCells, doTranslation, doRotation);
 		MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(sim.potentialMaster);
 		meterPE2.setBox(sim.box);
-		final double latticeEnergy;
-		latticeEnergy = meterPE2.getDataAsScalar();
+        final double latticeEnergy = meterPE2.getDataAsScalar();
 		System.out.println("latticeEnergy = " + latticeEnergy);
 
 //      try{
@@ -375,9 +381,9 @@ public class WaterDADB extends Simulation {
 
 
 		if (false) {
-			SpeciesSpheresMono guestSpecies = new SpeciesSpheresMono(sim,sim.space);
-			sim.addSpecies(guestSpecies);
-			sim.box.setNMolecules(guestSpecies, 8);
+//			SpeciesSpheresMono guestSpecies = new SpeciesSpheresMono(sim,sim.space);
+//			sim.addSpecies(guestSpecies);
+//			sim.box.setNMolecules(guestSpecies, 8);
 //        	sim.box.getMoleculeList(guestSpecies).getMolecule(0).getChildList().getAtom(0).getPosition().E(new double [] {6, 6, 6});
 //        	sim.box.getMoleculeList(guestSpecies).getMolecule(1).getChildList().getAtom(0).getPosition().E(new double [] {6, -6, -6});
 //        	sim.box.getMoleculeList(guestSpecies).getMolecule(2).getChildList().getAtom(0).getPosition().E(new double [] {6, -6, 6});
@@ -386,24 +392,23 @@ public class WaterDADB extends Simulation {
 //        	sim.box.getMoleculeList(guestSpecies).getMolecule(5).getChildList().getAtom(0).getPosition().E(new double [] {-6, -6, -6});
 //        	sim.box.getMoleculeList(guestSpecies).getMolecule(6).getChildList().getAtom(0).getPosition().E(new double [] {-6, 6, -6});
 //        	sim.box.getMoleculeList(guestSpecies).getMolecule(7).getChildList().getAtom(0).getPosition().E(new double [] {-6, -6, 6});
-			sim.box.getMoleculeList(guestSpecies).getMolecule(0).getChildList().getAtom(0).getPosition().E(new double [] {0, 0, 0});
+//			sim.box.getMoleculeList(guestSpecies).getMolecule(0).getChildList().getAtom(0).getPosition().E(new double [] {0, 0, 0});
 
-			sim.ai.setSleepPeriod(2);
+//			sim.ai.setSleepPeriod(2);
 			SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rattle", 1, sim.space, sim.getController());
 			((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getHydrogenType(), Color.WHITE);
 			((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getOxygenType(), Color.RED);
 			((DiameterHashByType)graphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getMType(), 0.1);
-			((DiameterHashByType)graphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(guestSpecies.getAtomType(0), 2.5);
+//			((DiameterHashByType)graphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(guestSpecies.getAtomType(0), 2.5);
 
-			((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(guestSpecies.getAtomType(0), Color.ORANGE);
+//			((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(guestSpecies.getAtomType(0), Color.ORANGE);
 
 			((DisplayBoxCanvasG3DSys)graphic.getDisplayBox(sim.box).canvas).setBackgroundColor(Color.WHITE);
 			((DisplayBoxCanvasG3DSys)graphic.getDisplayBox(sim.box).canvas).setBoundaryFrameColor(Color.black);
 			//((DiameterHashByType)graphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getOxygenType(), .1);
 //            ((DiameterHashByType)graphic.getDisplayBox(box).getDiameterHash()).setDiameter(hType, 1);
 //            MeterEnergy meterE = new MeterEnergy(sim.potentialMaster, sim.box);
-			MeterKineticEnergy meterE = new MeterKineticEnergy();
-			meterE.setBox(sim.box);
+            MeterEnergy meterE = new MeterEnergy(sim.potentialMaster, sim.box);
 			AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsingAverage());
 			history.setTimeDataSource(new DataSourceCountTime(sim.integrator));
 			DataProcessor processor = new DataProcessor() {
@@ -438,7 +443,84 @@ public class WaterDADB extends Simulation {
 			graphic.makeAndDisplayFrame();
 			System.out.println(meterE.getDataAsScalar()/(46*Joule.UNIT.toSim(1)/Constants.AVOGADRO*1000));
 			System.out.println(meterE.getDataAsScalar());
-			return ;
+
+            List<DataPump> pumps = graphic.getController().getDataStreamPumps();
+            final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
+            meterPE.setBox(sim.box);
+
+            MeterDADBWaterTIP4P meterDADB = new MeterDADBWaterTIP4P(sim.space, meterPE, sim.potentialMaster, Kelvin.UNIT.toSim(temperature), sim.latticeCoordinates);
+            meterDADB.doRotation = doRotation;
+            meterDADB.doTranslation = doTranslation;
+            DataFork forkPE = new DataFork();
+            AccumulatorHistory historyPE = new AccumulatorHistory(new HistoryCollapsingAverage());
+            DataPumpListener pumpPE = new DataPumpListener(meterPE, null, 10);
+            pumps.add(pumpPE);
+            sim.integrator.getEventManager().addListener(pumpPE);
+            AccumulatorAverageCollapsing accPE = new AccumulatorAverageCollapsing(100, 1);
+            accPE.setPushInterval(1);
+            forkPE.addDataSink(accPE);
+            forkPE.addDataSink(historyPE);
+
+            DisplayTextBoxesCAE displayPE = new DisplayTextBoxesCAE();
+            displayPE.setAccumulator(accPE);
+            graphic.add(displayPE);
+
+            DataFork forkHMA = new DataFork();
+            AccumulatorHistory historyHMA = new AccumulatorHistory(new HistoryCollapsingAverage());
+            DataPumpListener pumpHMA = new DataPumpListener(meterDADB, forkHMA, 10);
+            pumps.add(pumpHMA);
+
+            sim.integrator.getEventManager().addListener(pumpHMA);
+            AccumulatorAverageCollapsing accHMA = new AccumulatorAverageCollapsing(100, 1);
+            accHMA.setPushInterval(1);
+            forkHMA.addDataSink(historyHMA);
+            forkHMA.addDataSink(accHMA);
+
+            DisplayTextBoxesCAE displayHMA = new DisplayTextBoxesCAE();
+            displayHMA.setAccumulator(accHMA);
+            graphic.add(displayHMA);
+
+            DisplayPlot plotPE = new DisplayPlot();
+            historyHMA.addDataSink(plotPE.getDataSet().makeDataSink());
+            historyPE.addDataSink(plotPE.getDataSet().makeDataSink());
+            plotPE.setLabel("PE");
+            plotPE.setLegend(new DataTag[]{meterPE.getTag()}, "Conv");
+            plotPE.setLegend(new DataTag[]{meterDADB.getTag()}, "HMA");
+            graphic.add(plotPE);
+
+            if (false) {
+                meterDADB.justU = true;
+                pumpPE.setDataSink(historyPE);
+            }
+            else {
+                DataProcessor processorAnh = new DataProcessor() {
+                    protected DataInfoDouble dataInfo;
+                    protected DataDouble data = new DataDouble();
+                    protected DataTag tag = new DataTag();
+
+                    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
+                        return null;
+                    }
+
+                    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+                        dataInfo = new DataInfoDouble("conv U anh", Null.DIMENSION);
+                        dataInfo.addTags(inputDataInfo.getTags());
+                        dataInfo.addTag(tag);
+                        return dataInfo;
+                    }
+
+                    protected IData processData(IData inputData) {
+                        int N = sim.box.getMoleculeList().getMoleculeCount();
+                        double fac = (doRotation ? 1.5 : 0) * N + (doTranslation ? 1.5 : 0) * (N - 1);
+                        data.x = inputData.getValue(0) - latticeEnergy - fac * Kelvin.UNIT.toSim(temperature);
+                        return data;
+                    }
+                };
+                pumpPE.setDataSink(processorAnh);
+                processorAnh.setDataSink(forkPE);
+            }
+
+            return;
 		}
 		final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
 		meterPE.setBox(sim.box);
@@ -446,7 +528,10 @@ public class WaterDADB extends Simulation {
 		int blockSize = numSteps >= 1000? (numSteps/1000):1;
 
 		MeterDADBWaterTIP4P meterDADB = new MeterDADBWaterTIP4P(sim.space,meterPE,sim.potentialMaster, Kelvin.UNIT.toSim(temperature),sim.latticeCoordinates);
+//        meterDADB.getData();
 //        MeterDADB.justU = true;
+        meterDADB.doTranslation = doTranslation;
+        meterDADB.doRotation = doRotation;
 		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
 
 		MeterPressure meterPressure = new MeterPressure(sim.space);
@@ -533,7 +618,10 @@ public class WaterDADB extends Simulation {
 		double PEAverage = accumulatorAverageFixed2.getData(accumulatorAverageFixed2.AVERAGE).getValue(0);
 		double PEArror = accumulatorAverageFixed2.getData(accumulatorAverageFixed2.ERROR).getValue(0);
 		double PECorrelation = accumulatorAverageFixed2.getData(accumulatorAverageFixed2.BLOCK_CORRELATION).getValue(0);
-        System.out.println("PEaverage = " + (PEAverage - latticeEnergy - Kelvin.UNIT.toSim(((molecules.getMoleculeCount() - 1) * 3 * temperature))));
+        System.out.println("PE full = " + PEAverage);
+        int N = sim.box.getMoleculeList().getMoleculeCount();
+        double fac = (doRotation ? 1.5 : 0) * N + (doTranslation ? 1.5 : 0) * (N - 1);
+        System.out.println("PEaverage = " + (PEAverage - latticeEnergy - fac * Kelvin.UNIT.toSim(temperature)));
 		System.out.println("PEerror = " + PEArror);
 		System.out.println("PEcorrelation = " + PECorrelation);
 
@@ -581,6 +669,7 @@ public class WaterDADB extends Simulation {
 		public boolean isIce =  false;
 		public double shakeTol = 1e-12;
 		public boolean unitCells = false;
-
+        public boolean doRotation = true;
+        public boolean doTranlation = false;
 	}
 }
