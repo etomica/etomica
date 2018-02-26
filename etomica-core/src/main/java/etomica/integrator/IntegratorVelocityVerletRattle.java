@@ -35,13 +35,14 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
     public IntegratorVelocityVerletRattle(Simulation sim, PotentialMaster potentialMaster, Space _space) {
         this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
-    
-    
+
+    public boolean doTranslation = true;
+    public boolean doRotation = true;
 
 	protected void randomizeMomenta() {
 		super.randomizeMomenta();
-		
-		if(true)return;//make the initial translation or rotation velocity zero
+
+        if (doRotation && doTranslation) return;//make the initial translation or rotation velocity zero
 		IMoleculeList molecules = box.getMoleculeList();
 		  for (int i = 0; i<molecules.getMoleculeCount(); i++){
 	            IMolecule molecule = molecules.getMolecule(i);
@@ -49,20 +50,22 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
 	        	Vector totalMom =  space.makeVector();
 	        	Vector totalV = space.makeVector();
 	        	double totalMass = 0.0;
-//	        	for(int j = 0; j < leafList.getAtomCount() -1; j++){
-//	        		IAtomKinetic a = (IAtomKinetic)leafList.getAtom(j);
-//	        		IVectorMutable v = a.getVelocity();
-//	        		double mass = a.getType().getMass();
-//	        		totalMass += mass;
-//		        	totalMom.PEa1Tv1(mass, v);
-//    			}
-	//	        totalV.E(totalMom);
-	//	        double totalMassInverse = 1.0/totalMass;
-	//	        totalV.TE(totalMassInverse);
-//	            for(int j = 0; j < leafList.getAtomCount()-1; j++){
-//	        	   IAtomKinetic a = (IAtomKinetic)leafList.getAtom(j);
-//	        	   a.getVelocity().ME(totalV);//make it with no translation velocity, only rotation velocity 
-//	           }
+//	        	if (!doTranslation) {
+//                    for (int j = 0; j < leafList.getAtomCount() - 1; j++) {
+//                        IAtomKinetic a = (IAtomKinetic) leafList.getAtom(j);
+//                        Vector v = a.getVelocity();
+//                        double mass = a.getType().getMass();
+//                        totalMass += mass;
+//                        totalMom.PEa1Tv1(mass, v);
+//                    }
+//                    totalV.E(totalMom);
+//                    double totalMassInverse = 1.0 / totalMass;
+//                    totalV.TE(totalMassInverse);
+//                    for (int j = 0; j < leafList.getAtomCount() - 1; j++) {
+//                        IAtomKinetic a = (IAtomKinetic) leafList.getAtom(j);
+//                        a.getVelocity().ME(totalV);//make it with no translation velocity, only rotation velocity
+//                    }
+//                }
 	           
 	           //make the initial only two hydrogen have the initial rotation velocity
 //	           ((IAtomKinetic)leafList.getAtom(2)).getVelocity().E(0);
@@ -125,8 +128,12 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
 		        
 		             for(int j = 0; j < leafList.getAtomCount()-1; j++){
 		        	   IAtomKinetic a = (IAtomKinetic)leafList.getAtom(j);
-//		        	   a.getVelocity().E(totalV);//make it translation velocity 
-		        	   a.getVelocity().ME(totalV);//make it  rotation velocity 
+                         if (doTranslation) {
+                             a.getVelocity().E(totalV);//make it translation velocity
+                         }
+                         else if (doRotation) {
+                             a.getVelocity().ME(totalV);//make it  rotation velocity
+                         }
 		        }
 		  }
 	}
