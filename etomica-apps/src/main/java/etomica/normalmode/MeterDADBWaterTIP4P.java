@@ -1,9 +1,5 @@
 package etomica.normalmode;
 
-import java.util.Arrays;
-
-import javax.crypto.spec.IvParameterSpec;
-
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import etomica.atom.AtomLeafAgentManager;
@@ -27,6 +23,8 @@ import etomica.space.Vector;
 import etomica.space3d.Orientation3D;
 import etomica.space3d.OrientationFull3D;
 import etomica.units.dimensions.Null;
+
+import java.util.Arrays;
 /**
  @author  Weisong Lin
  */
@@ -52,6 +50,8 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 	protected final Vector q;
 	protected final Vector totalforce;
 	private final Vector centermass;
+    public boolean doTranslation;
+    public boolean doRotation;
 	
 	protected final Vector torque;
     //TODO  I use different MoleculeAgentManager
@@ -88,9 +88,9 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
     
     public IData getData() {
         Box box = latticeCoordinates.getBox();
-        pcForceSum.reset();
         double[] x = data.getData();
         double x0 = meterPE.getDataAsScalar() - latticeEnergy;
+        pcForceSum.reset();
         potentialMaster.calculate(box, id, pcForceSum);
         IMoleculeList molecules = box.getMoleculeList();
         double ForceSum = 0;
@@ -151,7 +151,7 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
         
         
       //test make configuration translate back to its nominal orientation
-        for(int j = 99; j > 0 && false ; j--){
+        for (int j = 99; j > 0 && false; j--) {
         	for (int i = 0; i<molecules.getMoleculeCount(); i++){
         		
         		IMolecule molecule = molecules.getMolecule(i);
@@ -179,7 +179,41 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 //    			}
         	}
         	double u = meterPE.getDataAsScalar()-latticeEnergy;
-        	System.out.println( j*0.01+ " " + u );
+
+            pcForceSum.reset();
+            potentialMaster.calculate(box, id, pcForceSum);
+            double fdr = 0, fdr2 = 0;
+            for (int i = 0; i < molecules.getMoleculeCount(); i++) {
+
+                IMolecule molecule = molecules.getMolecule(i);
+                IAtomList leafList = molecule.getChildList();
+                Vector h1 = leafList.getAtom(0).getPosition();
+                Vector h2 = leafList.getAtom(1).getPosition();
+                Vector o = leafList.getAtom(2).getPosition();
+                Vector m = leafList.getAtom(3).getPosition();
+                double hmass = leafList.getAtom(0).getType().getMass();
+                double omass = leafList.getAtom(2).getType().getMass();
+                centermass.Ea1Tv1(hmass, h1);
+                centermass.PEa1Tv1(hmass, h2);
+                centermass.PEa1Tv1(omass, o);
+                centermass.TE(1 / (2 * hmass + omass));
+                Vector nominalcentermass = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).position;
+                dr.Ev1Mv2(nominalcentermass, centermass);
+
+                Vector h1force = ((MyAgent) forceManager.getAgent(leafList.getAtom(0))).force();
+                Vector h2force = ((MyAgent) forceManager.getAgent(leafList.getAtom(1))).force();
+                Vector oforce = ((MyAgent) forceManager.getAgent(leafList.getAtom(2))).force();
+                Vector mforce = ((MyAgent) forceManager.getAgent(leafList.getAtom(3))).force();
+                totalforce.E(h1force);
+                totalforce.PE(h2force);
+                totalforce.PE(mforce);
+                totalforce.PE(oforce);
+                fdr += totalforce.dot(dr);
+                dr.normalize();
+                fdr2 += totalforce.dot(dr);
+            }
+            System.out.println(j * 0.01 + " " + u + " " + fdr + " " + fdr2);
+
         }
         
 //        System.out.println(latticeEnergy);
@@ -187,7 +221,8 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
         
         
         //debug for rotation angle and axis
-        for(int j = 99; j > 0 && false; j--){
+        double[] beta0 = new double[46];
+        for (int j = 99; j > 0; j--) {
         	for (int i = 0; i<molecules.getMoleculeCount(); i++){
         		IMolecule molecule = molecules.getMolecule(i);
              	IAtomList leafList = molecule.getChildList();
@@ -279,8 +314,8 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
                 	dr.XE(a1);
                 }
                 beta =  Math.signum(axis.dot(dr))*Math.acos((matrix.trace()-1)/2.0);//rotation angle
-                
-                
+
+                if (j == 99) beta0[i] = beta;
 //                dr.Ev1Mv2(m, o);
 //    			ph1h2.Ev1Mv2(h2, h1);
 //    			System.out.println("old  =" + dr.dot(ph1h2));
@@ -343,9 +378,222 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 //    				System.out.println(beta);
 //    			}
         	}
-        	
-        	double u = meterPE.getDataAsScalar() - latticeEnergy + orientationSum;
-        	System.out.println( j*0.01+ " " + u );
+
+            double u = meterPE.getDataAsScalar() - latticeEnergy;
+            pcForceSum.reset();
+            potentialMaster.calculate(box, id, pcForceSum);
+
+            orientationSum = 0;
+            double DUDTsum = 0, fooSum = 0;
+            for (int i = 0; i < molecules.getMoleculeCount(); i++) {
+                IMolecule molecule = molecules.getMolecule(i);
+                IAtomList leafList = molecule.getChildList();
+                Vector h1force = ((MyAgent) forceManager.getAgent(leafList.getAtom(0))).force();
+                Vector h2force = ((MyAgent) forceManager.getAgent(leafList.getAtom(1))).force();
+                Vector oforce = ((MyAgent) forceManager.getAgent(leafList.getAtom(2))).force();
+                Vector mforce = ((MyAgent) forceManager.getAgent(leafList.getAtom(3))).force();
+                totalforce.E(h1force);
+                totalforce.PE(h2force);
+                totalforce.PE(mforce);
+                totalforce.PE(oforce);
+                Vector h1 = leafList.getAtom(0).getPosition();
+                Vector h2 = leafList.getAtom(1).getPosition();
+                Vector o = leafList.getAtom(2).getPosition();
+                Vector m = leafList.getAtom(3).getPosition();
+                double hmass = leafList.getAtom(0).getType().getMass();
+                double omass = leafList.getAtom(2).getType().getMass();
+
+                centermass.Ea1Tv1(hmass, h1);
+                centermass.PEa1Tv1(hmass, h2);
+                centermass.PEa1Tv1(omass, o);
+                centermass.TE(1 / (2 * hmass + omass));
+
+                dr.Ev1Mv2(m, centermass);
+                torque.E(mforce);
+                torque.XE(dr);
+                q.E(torque);
+                dr.Ev1Mv2(h1, centermass);
+                torque.E(h1force);
+                torque.XE(dr);
+                q.PE(torque);
+                dr.Ev1Mv2(h2, centermass);
+                torque.E(h2force);
+                torque.XE(dr);
+                q.PE(torque);
+                dr.Ev1Mv2(o, centermass);
+                torque.E(oforce);
+                torque.XE(dr);
+                q.PE(torque);
+                //for the total torque q
+
+                Vector lPos = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).position;
+                dr.Ev1Mv2(centermass, lPos);
+                ForceSum += totalforce.dot(dr);
+                //get the forcesum!!
+
+
+                OrientationFull3D or = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).orientation;
+//            OrientationFull3D newor = new OrientationFull3D(space);
+//            newor.E(or);
+                Vector a0 = (Vector) or.getDirection();//om
+                Vector a1 = (Vector) or.getSecondaryDirection();//h1h2
+
+                dr.Ev1Mv2(h2, h1);
+                dr.normalize();
+
+                Vector axis = space.makeVector();
+                Vector oh1 = space.makeVector();
+                Vector oh2 = space.makeVector();
+                Vector h1lpos = space.makeVector();
+                Vector h2lpos = space.makeVector();
+                Vector om = space.makeVector();
+                Vector hh = space.makeVector();
+
+
+//        	  Vector p1 = space.makeVector();
+//            Vector p2 = space.makeVector();
+//            p1.Ev1Mv2(dr, a1);
+//            dr.Ev1Mv2(m, o);meterPE.getDataAsScalar() - latticeEnergy
+//            dr.normalize();
+//            p2.Ev1Mv2(dr, a0);
+//            axis.E(p1);
+//            axis.XE(p2);
+//            double alpha = -1.0*Math.signum(p1.dot(p2))*Math.atan(Math.sqrt(p1.squared()/p2.squared()));
+//            if(axis.squared() < 1e-14){
+//            	axis.Ea1Tv1(Math.cos(alpha), a1);
+//            	axis.PEa1Tv1(Math.sin(alpha), a0);
+//            }
+//            else{
+//            	axis.normalize();
+//            }
+//            om.Ev1Mv2(m, o);
+//            hh.Ev1Mv2(h2,h1);
+//            om.normalize();
+//            hh.normalize();
+//            System.out.println("om = " + om);
+//            System.out.println("hh =  " + hh);
+//            double rotationAngle = 0;
+//            double omAngle = 0;
+//            double hhAngle = 0;
+//            double distance = 0;
+//            omAngle = Math.acos(om.dot(axis));
+//            hhAngle = Math.acos(hh.dot(axis));
+//
+//            if(omAngle > hhAngle){
+//            	distance = Math.sqrt(om.squared())*Math.sin(omAngle);
+//            	om.ME(a0);
+//            	rotationAngle = 2.0*Math.asin(Math.sqrt(om.squared()/2/distance));
+//
+//            }
+//            else{
+//            	distance = Math.sqrt(hh.squared())*Math.sin(hhAngle);
+//            	hh.ME(a1);
+//            	rotationAngle = 2.0*Math.asin(Math.sqrt(hh.squared()/2/distance));
+//            }
+////            System.out.println("axis = " + axis);
+//
+//            double DUDT = q.dot(axis);
+//            orientationSum -= 0.5*rotationAngle*DUDT;
+//            newor.rotateBy(-1.0*rotationAngle, axis);
+//            System.out.println("a0 = " + a0);
+//            System.out.println("a1 = " + a1);
+//            System.out.println(newor.getDirection());
+//            System.out.println(newor.getSecondaryDirection());
+
+
+                Vector a2 = space.makeVector();
+                a2.E(a0);
+                a2.XE(a1);
+                a2.normalize();
+                double[][] array = new double[3][3];
+                a0.assignTo(array[0]);
+                a1.assignTo(array[1]);
+                a2.assignTo(array[2]);
+                Matrix a = new Matrix(array).transpose();
+
+                om.Ev1Mv2(m, o);
+                om.normalize();
+                hh.Ev1Mv2(h2, h1);
+
+
+                //try to test shake tolerance effect the purpendicular or not
+                Vector p = space.makeVector();
+                p.E(om);
+                p.TE(hh.dot(om));
+                hh.ME(p);
+                hh.normalize();
+
+                a2.E(om);
+                a2.XE(hh);
+                a2.normalize();
+
+                double[][] array1 = new double[3][3];
+                om.assignTo(array1[0]);
+                hh.assignTo(array1[1]);
+                a2.assignTo(array1[2]);
+                Matrix newa = new Matrix(array1).transpose();
+
+
+                a = a.inverse();
+                Matrix matrix = newa.times(a);
+                double beta = 0;
+                EigenvalueDecomposition eigenvalueDecomposition = matrix.eig();
+                Matrix eigenvectormatrix = eigenvalueDecomposition.getV();
+                double[] eigenValueArray = eigenvalueDecomposition.getRealEigenvalues();
+                double[][] eigenVectors = eigenvectormatrix.transpose().getArrayCopy();
+
+                int best = 0;
+                double value = Math.abs(eigenValueArray[0] - 1);
+                if (value > Math.abs(eigenValueArray[1] - 1)) {
+                    best = 1;
+                    value = Math.abs(eigenValueArray[1] - 1);
+                }
+                if (value > Math.abs(eigenValueArray[2] - 1)) {
+                    best = 2;
+                    value = Math.abs(eigenValueArray[2] - 1);
+                }
+                axis.E(eigenVectors[best]);
+
+
+                if (value > 1e-12) {
+                    System.out.println(Arrays.toString(eigenValueArray));
+                    System.out.println("non of the eigenvalue is close to one, use the closest one instead");
+                }
+                om.Ev1Mv2(m, o);
+                hh.Ev1Mv2(h2, h1);
+                if (om.dot(a0) > hh.dot(a0)) {
+                    dr.E(om);
+                    dr.XE(a0);
+                }
+                else {
+                    dr.E(hh);
+                    dr.XE(a1);
+                }
+                beta = -1.0 * Math.signum(axis.dot(dr)) * Math.acos((matrix.trace() - 1) / 2.0);
+
+//            newor.rotateBy(-1.0*beta, axis);
+//            System.out.println("a0 = " + a0);
+//            System.out.println("a1 = " + a1);
+                om.Ev1Mv2(m, o);
+                hh.Ev1Mv2(h2, h1);
+                om.normalize();
+                hh.normalize();
+//            System.out.println("om = " + om);
+//            System.out.println("hh =  " + hh);
+//            System.out.println(newor.getDirection());
+//            System.out.println(newor.getSecondaryDirection());
+                double DUDT = q.dot(axis);
+//                System.out.println(i+" "+q+" "+DUDT);
+//            if(i == 2){
+////            	System.out.println(axis + " " + beta + " " + DUDT);
+////            	System.out.println(Math.sqrt(q.squared()));
+//            	System.out.println(" " + DUDT);
+//            }
+                orientationSum -= 1.5 * (beta - Math.sin(beta)) / (1 - Math.cos(beta)) * DUDT;
+                fooSum += (beta - Math.sin(beta)) / (1 - Math.cos(beta));
+                DUDTsum += DUDT * beta0[i];
+            }
+            System.out.println(j * 0.01 + " " + u + " " + orientationSum + " " + DUDTsum);
         }
         
 //        System.exit(2);
@@ -390,7 +638,7 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 			torque.XE(dr);
 			q.PE(torque);
 			//for the total torque q
-			
+
             Vector lPos = ((MoleculeSiteSource.LatticeCoordinate)latticeCoordinates.getAgent(molecule)).position;
 			dr.Ev1Mv2(centermass, lPos);
             ForceSum += totalforce.dot(dr);
@@ -636,10 +884,16 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 //			}
 			
         }
-        
+
+//        System.exit(1);
+
+        if (!doTranslation) ForceSum = 0;
+        if (!doRotation) orientationSum = 0;
         if (justDADB) {
             if (justU) {
-                x[0] = (x0+latticeEnergy) + (molecules.getMoleculeCount()*3*temperature) + 0.5*ForceSum + orientationSum;
+                int N = molecules.getMoleculeCount();
+                double fac = (doTranslation ? 1.5 : 0) * (N - 1) + (doRotation ? 1.5 : 0) * N;
+                x[0] = (x0 + latticeEnergy) + (fac * temperature) + 0.5 * ForceSum + orientationSum;
             }
             else {
 //                System.out.println(x0+" "+(0.5*sum)+" "+(x0+0.5*sum)/atoms.getAtomCount());
