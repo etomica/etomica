@@ -90,7 +90,9 @@ public class TestHSMD3D extends Simulation {
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
 
+        sim.LOG.info("Starting simulation");
         sim.getController().actionPerformed();
+        sim.LOG.info("Simulation done");
 
         double Z = pMeter.getDataAsScalar()*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().size()*sim.integrator.getTemperature());
         System.out.println("Z="+Z);
