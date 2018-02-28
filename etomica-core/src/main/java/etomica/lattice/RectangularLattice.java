@@ -57,6 +57,7 @@ public class RectangularLattice implements FiniteLattice {
     }
 
     private void computeUpNeighbors() {
+        System.out.println("Computing up neighbors");
         this.upNeighbors = new int[sites.length][];
         CellLattice.NeighborIterator iter = new CellLattice.NeighborIterator(d, neighborRange);
         iter.setLattice(this);

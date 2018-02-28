@@ -13,6 +13,7 @@ import etomica.integrator.IntegratorListener;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.ApiAACell;
+import etomica.nbr.cell.ApiAACellFast;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
@@ -33,12 +34,11 @@ import etomica.util.Debug;
  */
 public class NeighborListManager implements IntegratorListener, AgentSource<AtomNeighborLists> {
 
-    private static final long serialVersionUID = 1L;
     protected final AtomSetSinglet atomSetSinglet;
     protected final PotentialMasterList potentialMaster;
     protected final AtomLeafAgentManager<AtomNeighborLists> agentManager2Body;
     protected final AtomLeafAgentManager<AtomPotentialList> agentManager1Body;
-    private final ApiAACell cellNbrIterator;
+    private final ApiAACellFast cellNbrIterator;
     private final Api1ACell cell1ANbrIterator;
     protected long numUnsafe;
     protected Box box;
@@ -51,6 +51,29 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
     private boolean quiet;
     private NeighborListEventManager eventManager;
     private NeighborCriterion[] oldCriteria;
+
+    private final ApiAACellFast.AtomPairConsumer nbrUpdater = new ApiAACellFast.AtomPairConsumer() {
+        private final AtomPair pair = new AtomPair();
+        @Override
+        public void accept(IAtom atom1, IAtom atom2) {
+            PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom1.getType());
+            IPotential[] potentials = potentialArray.getPotentials();
+            NeighborCriterion[] criteria = potentialArray.getCriteria();
+            for (int i = 0; i < potentials.length; i++) {
+                IPotential potential = potentials[i];
+                if (potential.nBody() < 2) {
+                    continue;
+                }
+
+                pair.atom0 = atom1;
+                pair.atom1 = atom2;
+                if (criteria[i].accept(pair)) {
+                    agentManager2Body.getAgent(atom1).addUpNbr(atom2, i);
+                    agentManager2Body.getAgent(atom2).addDownNbr(atom1, potentialMaster.getRangedPotentials(atom2.getType()).getPotentialIndex(potentials[i]));
+                }
+            }
+        }
+    };
     
     /**
      * Configures instance for use by the given PotentialMaster.
@@ -64,7 +87,7 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
         pbcEnforcer.setBox(box);
         pbcEnforcer.setApplyToMolecules(false);
         potentialMaster = potentialMasterList;
-        cellNbrIterator = new ApiAACell(space.D(), range, box);
+        cellNbrIterator = new ApiAACellFast(box);
         cell1ANbrIterator = new Api1ACell(space.D(), range, potentialMasterList.getCellAgentManager());
         agentManager2Body = new AtomLeafAgentManager<AtomNeighborLists>(this, box);
         AtomPotential1ListSource source1 = new AtomPotential1ListSource(potentialMasterList);
@@ -281,27 +304,7 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
         cellManager.setDoApplyPBC(!doApplyPBC);
         cellManager.assignCellAll();
 
-        cellNbrIterator.reset();
-        //TODO change looping scheme so getPotentials isn't called for every pair
-        //consider doing this by introducing ApiNested interface, with hasNextInner and hasNextOuter methods
-        for (IAtomList pair = cellNbrIterator.nextPair(); pair != null;
-             pair = cellNbrIterator.nextPair()) {
-            IAtom atom0 = pair.get(0);
-            IAtom atom1 = pair.get(1);
-            PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom0.getType());
-            IPotential[] potentials = potentialArray.getPotentials();
-            NeighborCriterion[] criteria = potentialArray.getCriteria();
-            for (int i = 0; i < potentials.length; i++) {
-                if (potentials[i].nBody() < 2) {
-                    continue;
-                }
-                if (criteria[i].accept(pair)) {
-                    agentManager2Body.getAgent(atom0).addUpNbr(atom1,i);
-                    agentManager2Body.getAgent(atom1).addDownNbr(atom0,
-                            potentialMaster.getRangedPotentials(atom1.getType()).getPotentialIndex(potentials[i]));
-                }
-            }
-        }
+        cellNbrIterator.forEachPair(nbrUpdater);
         initialized = true;
     }
 
@@ -359,7 +362,8 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
     }
 
     public double getRange() {
-        return cellNbrIterator.getNbrCellIterator().getNeighborDistance();
+//        return cellNbrIterator.getNbrCellIterator().getNeighborDistance();
+        return 0;
     }
 
     /**
@@ -368,7 +372,7 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
      */
     public void setRange(double d) {
         cell1ANbrIterator.getNbrCellIterator().setNeighborDistance(d);
-        cellNbrIterator.getNbrCellIterator().setNeighborDistance(d);
+//        cellNbrIterator.getNbrCellIterator().setNeighborDistance(d);
     }
 
     /**

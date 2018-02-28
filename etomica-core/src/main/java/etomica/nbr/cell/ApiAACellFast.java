@@ -9,19 +9,21 @@ import java.util.function.BiConsumer;
 
 public class ApiAACellFast {
     private final Box box;
-    private final CellLattice lattice;
+    private CellLattice lattice;
 
-    public ApiAACellFast(Box box, CellLattice lattice) {
+    public ApiAACellFast(Box box) {
         this.box = box;
+    }
+
+    public void setLattice(CellLattice lattice) {
         this.lattice = lattice;
     }
 
     public void forEachPair(AtomPairConsumer action) {
-        Cell[] sites = (Cell[]) lattice.sites();
         int[][] nbrCells = lattice.getUpNeighbors();
-        for (int centralCellIdx = 0; centralCellIdx < sites.length; centralCellIdx++) {
+        for (int centralCellIdx = 0; centralCellIdx < lattice.sites().length; centralCellIdx++) {
 
-            Cell centralCell = sites[centralCellIdx];
+            Cell centralCell = (Cell) lattice.sites()[centralCellIdx];
             IAtomList centralCellAtoms = centralCell.occupants();
 
             // loop over pairs within the cell
@@ -32,7 +34,7 @@ public class ApiAACellFast {
             }
 
             for (int nbrCellIdx : nbrCells[centralCellIdx]) {
-                Cell nbrCell = sites[nbrCellIdx];
+                Cell nbrCell = (Cell) lattice.sites()[nbrCellIdx];
                 IAtomList nbrCellAtoms = nbrCell.occupants();
 
                 for (int i = 0; i < centralCellAtoms.size(); i++) {
