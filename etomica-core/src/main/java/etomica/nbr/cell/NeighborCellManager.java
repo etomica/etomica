@@ -106,6 +106,7 @@ public class NeighborCellManager implements BoxCellManager, BoundaryEventListene
         range = newRange;
         if (checkDimensions() && agentManager != null) {
             assignCellAll();
+            lattice.setNeighborRange(newRange);
         }
     }
     

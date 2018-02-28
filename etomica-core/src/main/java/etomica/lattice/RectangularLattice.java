@@ -5,6 +5,11 @@
 package etomica.lattice;
 
 
+import etomica.potential.IteratorDirective;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Basic implementation of the AbstractLattice interface, providing construction
  * and access of sites for a lattice of arbitrary dimension. Lattice is
@@ -25,15 +30,17 @@ package etomica.lattice;
 //  for this example, size = {2, 2, 3}, jumpCount = {6, 3, 1}
 //  note that number of sites = size[0]*jumpCount[0]
 
-public class RectangularLattice implements FiniteLattice, java.io.Serializable {
+public class RectangularLattice implements FiniteLattice {
 
-    private static final long serialVersionUID = 1L;
     protected final int[] size;
     //  jumpCount[i] gives the number of sites skipped when the i-th index is incremented by 1
     protected final int[] jumpCount;
-    protected final int D;
+    protected final int d;
     protected Object[] sites;
     protected SiteFactory siteFactory;
+
+    private double neighborRange = 1.0;
+    private int[][] upNeighbors;
 
     /**
      * Constructs a lattice of the given dimension (D) with sites
@@ -41,7 +48,7 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
      * no sites; these are created when setSize is invoked.
      */
     public RectangularLattice(int D, SiteFactory siteFactory) {
-        this.D = D;
+        this.d = D;
         jumpCount = new int[D];
         jumpCount[D - 1] = 1;
         size = new int[D];
@@ -49,16 +56,36 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
         //do not create lattice with default size because siteFactory  might not yet be ready
     }
 
-    /* (non-Javadoc)
-     * @see etomica.lattice.AbstractLattice#D()
-     */
-    public final int D() {
-        return D;
+    private void computeUpNeighbors() {
+        this.upNeighbors = new int[sites.length][];
+        CellLattice.NeighborIterator iter = new CellLattice.NeighborIterator(d, neighborRange);
+        iter.setLattice(this);
+        iter.setDirection(IteratorDirective.Direction.UP);
+        for (int i = 0; i < sites().length; i++) {
+            iter.setSite(this.latticeIndex(i));
+            iter.reset();
+            List<Integer> nbrIndices = new ArrayList<>();
+            while(iter.hasNext()) {
+                nbrIndices.add(this.arrayIndex(iter.nextIndex()));
+            }
+
+            upNeighbors[i] = new int[nbrIndices.size()];
+            for (int j = 0; j < nbrIndices.size(); j++) {
+                upNeighbors[i][j] = nbrIndices.get(j);
+            }
+        }
     }
 
-    /* (non-Javadoc)
-     * @see etomica.lattice.AbstractLattice#siteList()
-     */
+    public int[][] getUpNeighbors() {
+        return upNeighbors;
+    }
+
+    @Override
+    public final int D() {
+        return d;
+    }
+
+    @Override
     public Object[] sites() {
         return sites;
     }
@@ -68,6 +95,7 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
      * Repeated calls with the same index will return the same instance, and
      * calls with different indexes will return different instances.
      */
+    @Override
     public Object site(int[] index) {
         return sites[arrayIndex(index)];
     }
@@ -78,7 +106,7 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
      */
     public final int arrayIndex(int[] index) {
         int idx = 0;
-        for (int i = 0; i < D; i++) {
+        for (int i = 0; i < d; i++) {
             idx += index[i] * jumpCount[i];
         }
         return idx;
@@ -89,13 +117,13 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
      * the effect of arrayIndex method.
      */
     public int[] latticeIndex(int index) {
-        int[] latticeIndex = new int[D];
+        int[] latticeIndex = new int[d];
         latticeIndex(index, latticeIndex);
         return latticeIndex;
     }
 
     public void latticeIndex(int index, int[] latticeIndex) {
-        for (int i = 0; i < D; i++) {
+        for (int i = 0; i < d; i++) {
             latticeIndex[i] = index / jumpCount[i];
             index -= latticeIndex[i] * jumpCount[i];
         }
@@ -104,6 +132,7 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
     /* (non-Javadoc)
      * @see etomica.lattice.AbstractLattice#getDimensions()
      */
+    @Override
     public final int[] getSize() {
         return size;
     }
@@ -115,29 +144,37 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
      * @param newSize array giving the number of index values in each dimension
      * @throws IllegalArgumentException if length of given array is not equal to D
      */
+    @Override
     public void setSize(int[] newSize) {
-        if (newSize.length != D) throw new IllegalArgumentException("Incorrect dimension dimension");
-        System.arraycopy(newSize, 0, size, 0, D);
-        for (int i = D - 1; i > 0; i--) {
+        if (newSize.length != d) throw new IllegalArgumentException("Incorrect dimension dimension");
+        System.arraycopy(newSize, 0, size, 0, d);
+        for (int i = d - 1; i > 0; i--) {
             jumpCount[i - 1] = jumpCount[i] * size[i];
         }
         sites = new Object[jumpCount[0] * size[0]];
-        int[] idx = new int[D];
-        idx[D - 1] = -1;
+        int[] idx = new int[d];
+        idx[d - 1] = -1;
         for (int i = 0; i < sites.length; i++) {
             increment(idx);
             sites[i] = siteFactory.makeSite(this, idx);
         }
+
+        this.computeUpNeighbors();
     }
 
     //method used by setDimensions method to cycle the index array through its values
     protected void increment(int[] idx) {
-        int d = D - 1;
+        int d = this.d - 1;
         idx[d]++;
         while (idx[d] == size[d] && d > 0) {//replaces recursive call
             idx[d] = 0;
             idx[--d]++;//decrement d, then increment idx
         }
+    }
+
+    public void setNeighborRange(double neighborRange) {
+        this.neighborRange = neighborRange;
+        this.computeUpNeighbors();
     }
 
     /**
@@ -155,10 +192,12 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
             idx = new int[D];
         }
 
+        @Override
         public boolean hasNext() {
             return cursor < size;
         }
 
+        @Override
         public Object next() {
             if (hasNext()) {
                 lattice.increment(idx);
@@ -167,6 +206,7 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
             return null;
         }
 
+        @Override
         public int[] nextIndex() {
             if (hasNext()) {
                 lattice.increment(idx);
@@ -176,10 +216,12 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
             return null;
         }
 
+        @Override
         public Object peek() {
             return hasNext() ? lattice.sites[cursor] : null;
         }
 
+        @Override
         public void reset() {
             size = size();
             cursor = 0;
@@ -187,14 +229,17 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
             idx[idx.length - 1] = -1;
         }
 
+        @Override
         public int size() {
             return (lattice != null) ? lattice.sites.length : 0;
         }
 
+        @Override
         public void unset() {
             cursor = Integer.MAX_VALUE;
         }
 
+        @Override
         public void setLattice(FiniteLattice lattice) {
             this.lattice = (RectangularLattice) lattice;
             unset();

@@ -4,6 +4,7 @@
 
 package etomica.lattice;
 
+import etomica.nbr.cell.Cell;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -12,8 +13,6 @@ import etomica.space.Vector;
  * associated with one of the cells.
  */
 public class CellLattice extends RectangularLattice {
-
-    private static final long serialVersionUID = 1L;
     private final double[] cellSize;
     private final Vector dimensions;
 
@@ -28,10 +27,9 @@ public class CellLattice extends RectangularLattice {
      *                    by giving a reference to box.boundary().dimension() here).
      *                    The dimensions array reference is final and cannot be changed .
      *                    The lattice dimension D is given by dimensions.length.
-     * @param siteFactory makes the sites of the lattice
      */
-    public CellLattice(Space space, Vector dimVector, SiteFactory siteFactory) {
-        super(space.D(), siteFactory);
+    public CellLattice(Space space, Vector dimVector, SiteFactory factory) {
+        super(space.D(), factory);
         cellSize = new double[D()];
         this.dimensions = space.makeVector();
         dimensions.E(dimVector);
@@ -46,7 +44,7 @@ public class CellLattice extends RectangularLattice {
      */
     public Object site(Vector r) {
         int idx1D = 0;
-        for (int i = 0; i < D; i++) {
+        for (int i = 0; i < d; i++) {
             int j = ((int) (size[i] * (r.getX(i) / dimensions.getX(i) + 0.5)));
             if (j == -1) j = 0;
             else if (j == size[i]) j = size[i] - 1;

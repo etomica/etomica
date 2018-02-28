@@ -19,19 +19,26 @@ import etomica.potential.IteratorDirective;
  */
 public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable {
 
+    private static final long serialVersionUID = 1L;
+    protected final boolean[] periodicity;
+    private final Box box;
+    private final ApiIntraArrayList intraListIterator;
+    private final ApiInterArrayList interListIterator;
+    private final CellLattice.NeighborIterator neighborIterator;
+    private final RectangularLattice.Iterator cellIterator;
+    private AtomLeafsetIterator listIterator;
+
     /**
      * Constructor makes iterator that must have box specified and then be
      * reset() before iteration.
-     * 
-     * @param D
-     *            the dimension of the space of the simulation (used to
-     *            construct cell iterators)
-     * @param range
-     *            the distance within which pairs of atoms are considered
-     *            neighbors. Used to define neighbor cells; some iterates may
-     *            exceed this separation
+     *
+     * @param D     the dimension of the space of the simulation (used to
+     *              construct cell iterators)
+     * @param range the distance within which pairs of atoms are considered
+     *              neighbors. Used to define neighbor cells; some iterates may
+     *              exceed this separation
      */
-	public ApiAACell(int D, double range, Box box) {
+    public ApiAACell(int D, double range, Box box) {
         cellIterator = new RectangularLattice.Iterator(D);
         neighborIterator = new CellLattice.NeighborIterator(D, range);
         neighborIterator.setDirection(IteratorDirective.Direction.UP);
@@ -40,27 +47,27 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
         listIterator = intraListIterator;
         periodicity = new boolean[D];
         this.box = box;
-	}
+    }
 
-	public void setLattice(CellLattice lattice) {
+    public void setLattice(CellLattice lattice) {
         cellIterator.setLattice(lattice);
-		neighborIterator.setLattice(lattice);
+        neighborIterator.setLattice(lattice);
         unset();
-	}
-    
-	/**
+    }
+
+    /**
      * Returns the number of atom pairs the iterator will return if reset and
      * iterated in its present state.
      */
-	public int size() {
+    public int size() {
         int count = 0;
         reset();
         for (Object a = nextPair(); a != null; a = nextPair()) {
             count++;
         }
         return count;
-	}
-	
+    }
+
     public IAtomList nextPair() {
         IAtomList nextPair = listIterator.next();
         if (nextPair == null) {
@@ -68,7 +75,7 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
         }
         return nextPair;
     }
-    
+
     public void unset() {
         listIterator.unset();
     }
@@ -79,9 +86,9 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
     public int nBody() {
         return 2;
     }
-    
+
     public void reset() {
-        for (int i=0; i<periodicity.length; i++) {
+        for (int i = 0; i < periodicity.length; i++) {
             periodicity[i] = box.getBoundary().getPeriodicity(i);
         }
         neighborIterator.setPeriodicity(periodicity);
@@ -91,14 +98,14 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
         listIterator.unset();
         //System.out.println("reset in ApiAACell");
     }//end of reset
-    
+
     // Moves to next pair of lists that can provide an iterate
     // This should be invoked only if listIterator.hasNext is false
     private IAtomList advanceLists() {
         do {
-              //advance neighbor cell
-            if(neighborIterator.hasNext()) {
-                interListIterator.setInnerList(((Cell)neighborIterator.next()).occupants());
+            //advance neighbor cell
+            if (neighborIterator.hasNext()) {
+                interListIterator.setInnerList(((Cell) neighborIterator.next()).occupants());
                 listIterator = interListIterator;
                 interListIterator.reset();
                 IAtomList pair = listIterator.next();
@@ -108,18 +115,18 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
 
                 //advance central cell and set up neighbor cell iterator if
                 // central cell has some molecules
-            } else if(cellIterator.hasNext()) {
-                AtomArrayList list = ((Cell)cellIterator.peek()).occupants();
+            } else if (cellIterator.hasNext()) {
+                AtomArrayList list = ((Cell) cellIterator.peek()).occupants();
                 neighborIterator.setSite(cellIterator.nextIndex());
 
-                if(!list.isEmpty()) {//central cell has molecules
+                if (!list.isEmpty()) {//central cell has molecules
                     interListIterator.setOuterList(list); //for neighbor-cell looping
                     intraListIterator.setList(list);//for intra-cell looping
                     neighborIterator.reset();
 
                     listIterator = intraListIterator;
                     intraListIterator.reset();
-                        
+
                     IAtomList pair = listIterator.next();
                     if (pair != null) {
                         return pair;
@@ -131,22 +138,13 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
             } else {//no more cells at all
                 return null;
             }
-        } while(true);
+        } while (true);
     }//end of advanceCell
-    
+
     /**
      * @return Returns the cellIterator.
      */
     public CellLattice.NeighborIterator getNbrCellIterator() {
         return neighborIterator;
     }
-   
-    private static final long serialVersionUID = 1L;
-    private AtomLeafsetIterator listIterator;
-    private final Box box;
-    private final ApiIntraArrayList intraListIterator;
-    private final ApiInterArrayList interListIterator;
-    private final CellLattice.NeighborIterator neighborIterator;
-    private final RectangularLattice.Iterator cellIterator;
-    protected final boolean[] periodicity;
 }
