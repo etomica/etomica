@@ -237,7 +237,7 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
         /**
          * Returns the same Vector instance with each call.
          */
-        public Object site(int[] index) {
+        public Vector site(int[] index) {
             site.E((Vector) lattice.site(index));
             site.PE(offset);
             return site;

@@ -10,9 +10,9 @@ package etomica.lattice;
  * and access of sites for a lattice of arbitrary dimension. Lattice is
  * retangular in the sense that the size in one dimension does not depend on the
  * index in another dimension (e.g., it cannot be triangular). <p>
- * RectangularLatticeNbrIterator defines a configurable neighbor iterator that 
+ * RectangularLatticeNbrIterator defines a configurable neighbor iterator that
  * returns the sites it defines as neighbors of a given site.
- *  
+ *
  * @see RectangularLatticeNbrIterator
  */
 
@@ -27,6 +27,14 @@ package etomica.lattice;
 
 public class RectangularLattice implements FiniteLattice, java.io.Serializable {
 
+    private static final long serialVersionUID = 1L;
+    protected final int[] size;
+    //  jumpCount[i] gives the number of sites skipped when the i-th index is incremented by 1
+    protected final int[] jumpCount;
+    protected final int D;
+    protected Object[] sites;
+    protected SiteFactory siteFactory;
+
     /**
      * Constructs a lattice of the given dimension (D) with sites
      * made from the given factory.  Upon construction, lattice contains
@@ -35,7 +43,7 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
     public RectangularLattice(int D, SiteFactory siteFactory) {
         this.D = D;
         jumpCount = new int[D];
-        jumpCount[D-1] = 1;
+        jumpCount[D - 1] = 1;
         size = new int[D];
         this.siteFactory = siteFactory;
         //do not create lattice with default size because siteFactory  might not yet be ready
@@ -58,38 +66,38 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
     /**
      * Returns the instance of the object associated with the given index.
      * Repeated calls with the same index will return the same instance, and
-     * calls with different indexes will return different instances. 
+     * calls with different indexes will return different instances.
      */
     public Object site(int[] index) {
         return sites[arrayIndex(index)];
     }
-    
+
     /**
      * Returns the index in the 1-d array for the site corresponding
      * to the given lattice index.
      */
     public final int arrayIndex(int[] index) {
         int idx = 0;
-        for(int i=0; i<D; i++) {
-            idx += index[i]*jumpCount[i];
+        for (int i = 0; i < D; i++) {
+            idx += index[i] * jumpCount[i];
         }
         return idx;
     }
-    
+
     /**
      * Returns the lattice index given the 1-d array index; reverses
      * the effect of arrayIndex method.
      */
     public int[] latticeIndex(int index) {
         int[] latticeIndex = new int[D];
-        latticeIndex(index,latticeIndex);
+        latticeIndex(index, latticeIndex);
         return latticeIndex;
     }
-    
+
     public void latticeIndex(int index, int[] latticeIndex) {
-        for(int i=0; i<D; i++) {
-            latticeIndex[i] = index/jumpCount[i];
-            index -= latticeIndex[i]*jumpCount[i];
+        for (int i = 0; i < D; i++) {
+            latticeIndex[i] = index / jumpCount[i];
+            index -= latticeIndex[i] * jumpCount[i];
         }
     }
 
@@ -103,21 +111,20 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
     /**
      * Sets the number lattice size (specified via the largest index in each dimension), and
      * rebuilds the all sites using the site factory.
-     * 
+     *
      * @param newSize array giving the number of index values in each dimension
-     * 
      * @throws IllegalArgumentException if length of given array is not equal to D
      */
     public void setSize(int[] newSize) {
-        if(newSize.length != D) throw new IllegalArgumentException("Incorrect dimension dimension");
+        if (newSize.length != D) throw new IllegalArgumentException("Incorrect dimension dimension");
         System.arraycopy(newSize, 0, size, 0, D);
-        for(int i=D-1; i>0; i--) {
-            jumpCount[i-1] = jumpCount[i]*size[i];
+        for (int i = D - 1; i > 0; i--) {
+            jumpCount[i - 1] = jumpCount[i] * size[i];
         }
-        sites = new Object[jumpCount[0]*size[0]];
+        sites = new Object[jumpCount[0] * size[0]];
         int[] idx = new int[D];
-        idx[D-1] = -1;
-        for(int i=0; i<sites.length; i++) {
+        idx[D - 1] = -1;
+        for (int i = 0; i < sites.length; i++) {
             increment(idx);
             sites[i] = siteFactory.makeSite(this, idx);
         }
@@ -125,73 +132,72 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
 
     //method used by setDimensions method to cycle the index array through its values
     protected void increment(int[] idx) {
-        int d = D-1;
+        int d = D - 1;
         idx[d]++;
-        while(idx[d] == size[d] && d > 0) {//replaces recursive call
+        while (idx[d] == size[d] && d > 0) {//replaces recursive call
             idx[d] = 0;
             idx[--d]++;//decrement d, then increment idx
         }
     }
-    
-    private static final long serialVersionUID = 1L;
-    protected Object[] sites;
-    protected final int[] size;
-//  jumpCount[i] gives the number of sites skipped when the i-th index is incremented by 1
-    protected final int[] jumpCount;
-    protected final int D;
-    protected SiteFactory siteFactory;
-    
+
     /**
-     *  Iterates over all sites of the lattice. 
+     * Iterates over all sites of the lattice.
      */
     public static class Iterator implements SiteIterator, java.io.Serializable {
-        
+
+        private static final long serialVersionUID = 1L;
+        private final int[] idx;//index of the most recently returned iterate
+        private int cursor = Integer.MAX_VALUE;
+        private RectangularLattice lattice;
+        private int size = 0;
+
         public Iterator(int D) {
             idx = new int[D];
         }
-        
+
         public boolean hasNext() {
             return cursor < size;
         }
+
         public Object next() {
-            if(hasNext()) {
+            if (hasNext()) {
                 lattice.increment(idx);
                 return lattice.sites[cursor++];
             }
             return null;
         }
+
         public int[] nextIndex() {
-            if(hasNext()) {
+            if (hasNext()) {
                 lattice.increment(idx);
                 cursor++;
                 return idx;
             }
             return null;
         }
+
         public Object peek() {
             return hasNext() ? lattice.sites[cursor] : null;
         }
+
         public void reset() {
             size = size();
             cursor = 0;
-            for(int i=0; i<idx.length; i++) idx[i] = 0;
-            idx[idx.length-1] = -1;
+            for (int i = 0; i < idx.length; i++) idx[i] = 0;
+            idx[idx.length - 1] = -1;
         }
+
         public int size() {
             return (lattice != null) ? lattice.sites.length : 0;
         }
+
         public void unset() {
             cursor = Integer.MAX_VALUE;
         }
+
         public void setLattice(FiniteLattice lattice) {
-            this.lattice = (RectangularLattice)lattice;
+            this.lattice = (RectangularLattice) lattice;
             unset();
         }
-
-        private static final long serialVersionUID = 1L;
-        private int cursor = Integer.MAX_VALUE;
-        private RectangularLattice lattice;
-        private int size = 0;
-        private final int[] idx;//index of the most recently returned iterate
     }
 }
