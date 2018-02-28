@@ -9,8 +9,6 @@ import etomica.box.Box;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.cell.Cell;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.simulation.Simulation;
-import etomica.space.Space;
 
 /**
  * Subclass of NeighborCellManager that notifies the NeighborListManager when
@@ -20,15 +18,8 @@ import etomica.space.Space;
  */
 public class NeighborCellManagerList extends NeighborCellManager {
 
-    public NeighborCellManagerList(Simulation sim, Box box,
-                                   double potentialRange, Space _space) {
-        this(sim, box, potentialRange, null, _space);
-    }
-
-    public NeighborCellManagerList(Simulation sim, Box box,
-                                   double potentialRange, IMoleculePositionDefinition positionDefinition,
-                                   Space _space) {
-        super(sim, box, potentialRange, positionDefinition, _space);
+    public NeighborCellManagerList(Box box, double potentialRange, IMoleculePositionDefinition positionDefinition) {
+        super(box, potentialRange, positionDefinition);
     }
 
     public void setPotentialMaster(PotentialMasterList newPotentialMaster) {

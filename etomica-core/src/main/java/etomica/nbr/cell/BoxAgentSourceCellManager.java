@@ -26,7 +26,7 @@ public class BoxAgentSourceCellManager implements BoxAgentSource<NeighborCellMan
     }
 
     public NeighborCellManager makeAgent(Box box) {
-        NeighborCellManager cellManager = new NeighborCellManager(sim, box,range,positionDefinition, space);
+        NeighborCellManager cellManager = new NeighborCellManager(box,range,positionDefinition);
         box.getBoundary().getEventManager().addListener(cellManager);
         return cellManager;
     }

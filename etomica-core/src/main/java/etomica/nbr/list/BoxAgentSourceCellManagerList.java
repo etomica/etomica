@@ -25,7 +25,7 @@ public class BoxAgentSourceCellManagerList extends BoxAgentSourceCellManager {
     }
 
     public NeighborCellManager makeAgent(Box box) {
-        NeighborCellManagerList cellManager = new NeighborCellManagerList(sim, box,range,positionDefinition, space);
+        NeighborCellManagerList cellManager = new NeighborCellManagerList(box,range,positionDefinition);
         cellManager.setPotentialMaster(potentialMaster);
         box.getBoundary().getEventManager().addListener(cellManager);
         return cellManager;

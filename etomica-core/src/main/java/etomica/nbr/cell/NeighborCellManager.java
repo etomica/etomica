@@ -17,7 +17,6 @@ import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialFailedEvent;
 import etomica.lattice.CellLattice;
 import etomica.molecule.IMoleculePositionDefinition;
-import etomica.simulation.Simulation;
 import etomica.space.*;
 import etomica.util.Debug;
 import etomica.util.IListener;
@@ -36,7 +35,6 @@ import etomica.util.IListener;
 
 public class NeighborCellManager implements BoxCellManager, BoundaryEventListener, AtomLeafAgentManager.AgentSource<Cell> {
 
-    protected final Simulation sim;
     protected final CellLattice lattice;
     protected final IMoleculePositionDefinition positionDefinition;
     protected final Box box;
@@ -53,8 +51,8 @@ public class NeighborCellManager implements BoxCellManager, BoundaryEventListene
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborCellManager(Simulation sim, Box box, double potentialRange, Space _space) {
-        this(sim, box, potentialRange, null, _space);
+    public NeighborCellManager(Box box, double potentialRange) {
+        this(box, potentialRange, null);
     }
     
     /**
@@ -64,10 +62,10 @@ public class NeighborCellManager implements BoxCellManager, BoundaryEventListene
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManager(Simulation sim, Box box, double potentialRange, IMoleculePositionDefinition positionDefinition, Space space) {
+    public NeighborCellManager(Box box, double potentialRange, IMoleculePositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
         this.box = box;
-        this.sim = sim;
+        Space space = box.getSpace();
         numCells = new int[space.D()];
 
         lattice = new CellLattice(space, box.getBoundary().getBoxSize(), Cell.FACTORY);
