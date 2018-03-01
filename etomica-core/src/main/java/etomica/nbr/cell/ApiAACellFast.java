@@ -26,23 +26,26 @@ public class ApiAACellFast {
             Cell centralCell = (Cell) lattice.sites()[centralCellIdx];
             IAtomList centralCellAtoms = centralCell.occupants();
 
-            // loop over pairs within the cell
-            for (int i = 0; i < centralCellAtoms.size(); i++) {
-                for (int j = i + 1; j < centralCellAtoms.size(); j++) {
-                    action.accept(centralCellAtoms.get(i), centralCellAtoms.get(j));
-                }
-            }
+            if (!centralCellAtoms.isEmpty()) {
 
-            for (int nbrCellIdx : nbrCells[centralCellIdx]) {
-                Cell nbrCell = (Cell) lattice.sites()[nbrCellIdx];
-                IAtomList nbrCellAtoms = nbrCell.occupants();
-
+                // loop over pairs within the cell
                 for (int i = 0; i < centralCellAtoms.size(); i++) {
-                    for (int j = 0; j < nbrCellAtoms.size(); j++) {
-                        action.accept(centralCellAtoms.get(i), nbrCellAtoms.get(j));
+                    for (int j = i + 1; j < centralCellAtoms.size(); j++) {
+                        action.accept(centralCellAtoms.get(i), centralCellAtoms.get(j));
                     }
                 }
 
+                for (int nbrCellIdx : nbrCells[centralCellIdx]) {
+                    Cell nbrCell = (Cell) lattice.sites()[nbrCellIdx];
+                    IAtomList nbrCellAtoms = nbrCell.occupants();
+
+                    for (int i = 0; i < centralCellAtoms.size(); i++) {
+                        for (int j = 0; j < nbrCellAtoms.size(); j++) {
+                            action.accept(centralCellAtoms.get(i), nbrCellAtoms.get(j));
+                        }
+                    }
+
+                }
             }
         }
     }
