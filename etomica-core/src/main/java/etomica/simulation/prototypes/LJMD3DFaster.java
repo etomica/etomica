@@ -4,6 +4,7 @@
 
 package etomica.simulation.prototypes;
 
+import etomica.action.ActionIntegrate;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
@@ -48,9 +49,6 @@ public class LJMD3DFaster extends Simulation {
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setTimeStep(0.02);
         integrator.setForceSum(new PotentialCalculationForceSum());
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
-        getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
@@ -76,16 +74,24 @@ public class LJMD3DFaster extends Simulation {
     public static void main(String[] args) {
         final String APP_NAME = "LJMD3D";
         final LJMD3DFaster sim = new LJMD3DFaster();
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
-
-        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-        simGraphic.getController().getDataStreamPumps().add(sim.pump);
-
-        simGraphic.makeAndDisplayFrame(APP_NAME);
-
-        DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
-        display.setAccumulator(sim.avgEnergy);
-        simGraphic.add(display);
+        ActionIntegrate ai = new ActionIntegrate(sim.integrator);
+        ai.setMaxSteps(5000);
+        sim.getController().addAction(ai);
+        sim.getController().actionPerformed();
+//        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
+//
+//        ActivityIntegrate activityIntegrate = new ActivityIntegrate(sim.integrator);
+//        activityIntegrate.setSleepPeriod(1);
+//        sim.getController().addAction(activityIntegrate);
+//
+//        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+//        simGraphic.getController().getDataStreamPumps().add(sim.pump);
+//
+//        simGraphic.makeAndDisplayFrame(APP_NAME);
+//
+//        DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
+//        display.setAccumulator(sim.avgEnergy);
+//        simGraphic.add(display);
     }
 
     public static class Applet extends javax.swing.JApplet {

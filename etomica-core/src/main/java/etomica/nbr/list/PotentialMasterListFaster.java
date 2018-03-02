@@ -42,6 +42,7 @@ public class PotentialMasterListFaster extends PotentialMasterList {
     private Vector[] forces;
     private Vector[] positions;
     private int[][] neighbors;
+    ThreadLocal<Vector> threadDr = ThreadLocal.withInitial(space::makeVector);
 
     /**
      * Constructor specifying space and range for neighbor listing; uses null AtomPositionDefinition.
@@ -149,6 +150,7 @@ public class PotentialMasterListFaster extends PotentialMasterList {
                 Vector force = forces[i];
                 Boundary boundary = box.getBoundary();
                 Vector dr = space.makeVector();
+//                Vector dr = threadDr.get();
 
                 for (int j = 0; j < nbrs.length; j++) {
                     dr.Ev1Mv2(pos, positions[nbrs[j]]);
@@ -159,7 +161,9 @@ public class PotentialMasterListFaster extends PotentialMasterList {
                     double du = -12 * s6 * (s6 - 0.5);
                     dr.Ea1Tv1(du / r2, dr);
                     force.ME(dr);
-                    forces[nbrs[j]].PE(dr); // !!!
+                    synchronized (forces[nbrs[j]]) {
+                        forces[nbrs[j]].PE(dr);
+                    }
                 }
             });
 
