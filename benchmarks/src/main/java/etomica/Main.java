@@ -13,7 +13,12 @@ public class Main {
     public static void main(String[] args) throws RunnerException {
 
         Options opts = new OptionsBuilder()
-                .include("BenchSim")
+                .include("BenchBox")
+//                .jvmArgs(
+//                        "-XX:+UnlockDiagnosticVMOptions",
+//                        "-XX:+PrintAssembly",
+//                        "-XX:PrintAssemblyOptions=intel",
+//                        "-XX:CompileCommand=print,*BoxBench.bench*")
                 .build();
 
         new Runner(opts).run();
