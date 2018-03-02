@@ -26,6 +26,9 @@ import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
 import etomica.util.Debug;
 
+import java.util.Arrays;
+import java.util.stream.IntStream;
+
 /**
  * PotentialMaster used to implement neighbor listing.  Instance of this
  * class is given as an argument to the Simulation constructor.
@@ -138,27 +141,46 @@ public class PotentialMasterListFaster extends PotentialMasterList {
             }
 
             AtomLeafAgentManager<? extends Integrator.Forcible> agentManager = ((PotentialCalculationForceSum) pc).getAgentManager();
-            Boundary boundary = box.getBoundary();
-            Vector3D dimHalf = (Vector3D) ((BoundaryRectangularPeriodic) boundary).dimensionsHalf;
-            Vector3D dim = (Vector3D) ((BoundaryRectangularPeriodic) boundary).dimensions;
-            for (int i = 0; i < positions.length; i++) {
-                Vector pos = positions[i];
-                int[] iNeighbors = neighbors[i];
-                Vector iForce = forces[i];
+//            Boundary boundary = box.getBoundary();
 
-                for (int j = 0; j < iNeighbors.length; j++) {
-                    dr.Ev1Mv2(pos, positions[iNeighbors[j]]);
+            IntStream.range(0, positions.length).parallel().forEach(i -> {
+                Vector pos = positions[i];
+                int[] nbrs = neighbors[i];
+                Vector force = forces[i];
+                Boundary boundary = box.getBoundary();
+                Vector dr = space.makeVector();
+
+                for (int j = 0; j < nbrs.length; j++) {
+                    dr.Ev1Mv2(pos, positions[nbrs[j]]);
                     boundary.nearestImage(dr);
                     double r2 = dr.squared();
                     if (r2 > 9) continue;
                     double s6 = 1 / (r2 * r2 * r2);
                     double du = -12 * s6 * (s6 - 0.5);
                     dr.Ea1Tv1(du / r2, dr);
-                    iForce.ME(dr);
-                    forces[iNeighbors[j]].PE(dr);
+                    force.ME(dr);
+                    forces[nbrs[j]].PE(dr); // !!!
                 }
+            });
 
-            }
+//            for (int i = 0; i < positions.length; i++) {
+//                Vector pos = positions[i];
+//                int[] iNeighbors = neighbors[i];
+//                Vector iForce = forces[i];
+//
+//                for (int j = 0; j < iNeighbors.length; j++) {
+//                    dr.Ev1Mv2(pos, positions[iNeighbors[j]]);
+//                    boundary.nearestImage(dr);
+//                    double r2 = dr.squared();
+//                    if (r2 > 9) continue;
+//                    double s6 = 1 / (r2 * r2 * r2);
+//                    double du = -12 * s6 * (s6 - 0.5);
+//                    dr.Ea1Tv1(du / r2, dr);
+//                    iForce.ME(dr);
+//                    forces[iNeighbors[j]].PE(dr);
+//                }
+//
+//            }
             for (int i = 0; i < forces.length; i++) {
                 agentManager.getAgents().get(i).force().E(forces[i]);
             }
