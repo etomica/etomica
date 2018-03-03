@@ -14,6 +14,7 @@ import etomica.lattice.CellLattice;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.*;
 import etomica.potential.IPotential;
+import etomica.potential.Potential;
 import etomica.potential.PotentialArray;
 import etomica.space.Space;
 import etomica.util.Debug;
@@ -351,7 +352,7 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
     public void ensureDownLists() {
         if (downListsOutOfDate) {
             IAtomList atoms = box.getLeafList();
-            for (int i = 0; i < atoms.size(); i++) {
+            IntStream.range(0, atoms.size()).parallel().forEach(i -> {
                 IAtom atom = atoms.get(i);
                 IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
                 AtomNeighborLists nbrs = agentManager2Body.getAgent(atom);
@@ -362,12 +363,17 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
                     }
                     IAtomList upNbrs = nbrs.getUpList()[potentialIdx];
                     for (int j = 0; j < upNbrs.size(); j++) {
-                        agentManager2Body.getAgent(upNbrs.get(j)).addDownNbr(
-                                atom,
-                                potentialMaster.getRangedPotentials(atoms.get(j).getType()).getPotentialIndex(potentials[potentialIdx]));
+                        AtomNeighborLists atom2Nbrs = agentManager2Body.getAgent(upNbrs.get(j));
+                        PotentialArray atom2Potentials = potentialMaster.getRangedPotentials(upNbrs.get(j).getType());
+                        synchronized (atom2Nbrs) {
+                            atom2Nbrs.addDownNbr(
+                                    atom,
+                                    atom2Potentials.getPotentialIndex(potentials[potentialIdx])
+                            );
+                        }
                     }
                 }
-            }
+            });
 
             downListsOutOfDate = false;
         }
