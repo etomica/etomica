@@ -111,6 +111,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<Vector> {
 	}
 
 	public boolean accept(IAtomList pair) {
+	    Vector dr = space.makeVector();
         dr.Ev1Mv2(pair.get(1).getPosition(),pair.get(0).getPosition());
         boundary.nearestImage(dr);
         if (Debug.ON && neighborRadius2 < interactionRange*interactionRange) {
