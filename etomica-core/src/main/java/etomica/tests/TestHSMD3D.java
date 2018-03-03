@@ -4,6 +4,7 @@
 
 package etomica.tests;
 
+import etomica.action.ActionIntegrate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -54,7 +55,7 @@ public class TestHSMD3D extends Simulation {
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        ActionIntegrate activityIntegrate = new ActionIntegrate(integrator);
         getController().addAction(activityIntegrate);
         activityIntegrate.setMaxSteps(numSteps);
         AtomType type1 = species.getLeafType();

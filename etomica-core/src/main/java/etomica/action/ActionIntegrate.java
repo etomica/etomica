@@ -52,7 +52,9 @@ public class ActionIntegrate implements IAction {
                 if (Debug.DEBUG_NOW && Debug.LEVEL > 0) System.out.println("*** integrator step "+stepCount);
                 Debug.stepCount = stepCount;
             }
+            long t0 = System.nanoTime();
             integrator.doStep();
+            System.out.printf("Step %d done in %dms%n", stepCount, (System.nanoTime() - t0) / 1_000_000);
         }
 	}
 

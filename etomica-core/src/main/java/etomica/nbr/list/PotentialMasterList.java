@@ -505,6 +505,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     }
                 }
                 if (direction != IteratorDirective.Direction.UP) {
+                    neighborManager.ensureDownLists();
                     IAtomList list = neighborManager.getDownList(atom)[i];
                     int nNeighbors = list.size();
                     atomPair.atom1 = atom;
