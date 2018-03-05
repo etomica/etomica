@@ -49,7 +49,7 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 	protected final Vector ph1h2;
 	protected final Vector q;
 	protected final Vector totalforce;
-	private final Vector centermass;
+    private final Vector centerMass;
     public boolean doTranslation;
     public boolean doRotation;
 	
@@ -78,7 +78,7 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 		ph1h2 = space.makeVector();
 		q = space.makeVector();
 		totalforce = space.makeVector();
-		centermass = space.makeVector();
+        centerMass = space.makeVector();
 		torque = space.makeVector();
     }
     
@@ -108,15 +108,9 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
             	Vector o = leafList.getAtom(2).getPosition();
     			Vector m = leafList.getAtom(3).getPosition();
     		    OrientationFull3D or = ((MoleculeSiteSource.LatticeCoordinate)latticeCoordinates.getAgent(molecule)).orientation;
-                Vector a0 = (Vector) or.getDirection();//om
-                Vector a1 = (Vector) or.getSecondaryDirection();//h1h2
-//                dr.Ev1Mv2(m, o);
-//                dr.normalize();
-//                System.out.println("om = " + dr);
-//                System.out.println("a0 =  " + a0);
-//                System.out.println("a1 = " + a1);
-//                if(i == 3){System.exit(2);}
-            	dr.Ev1Mv2(h2, h1);
+                Vector a0 = or.getDirection();//om
+                Vector a1 = or.getSecondaryDirection();//h1h2
+                dr.Ev1Mv2(h2, h1);
     			dr.normalize();
     			ph1h2.Ea1Tv1((dr.dot(a0)), a0);//ph1h2 is the vector perpendicular to oh1h2 plane
     			ph1h2.ME(dr);
@@ -148,9 +142,9 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 //        	System.out.println( j*0.01+ " " + u );
         }
 //        System.exit(2);
-        
-        
-      //test make configuration translate back to its nominal orientation
+
+
+        //test make configuration translate back to its nominal position
         for (int j = 99; j > 0 && false; j--) {
         	for (int i = 0; i<molecules.getMoleculeCount(); i++){
         		
@@ -162,12 +156,12 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
     			Vector m = leafList.getAtom(3).getPosition();
     			double hmass = leafList.getAtom(0).getType().getMass();
 				double omass = leafList.getAtom(2).getType().getMass();
-    			centermass.Ea1Tv1(hmass, h1);
-				centermass.PEa1Tv1(hmass, h2) ;
-				centermass.PEa1Tv1(omass, o) ;
-				centermass.TE(1/(2*hmass + omass));
-				Vector nominalcentermass = ((MoleculeSiteSource.LatticeCoordinate)latticeCoordinates.getAgent(molecule)).position;
-                dr.Ev1Mv2(nominalcentermass,centermass);
+                centerMass.Ea1Tv1(hmass, h1);
+                centerMass.PEa1Tv1(hmass, h2);
+                centerMass.PEa1Tv1(omass, o);
+                centerMass.TE(1 / (2 * hmass + omass));
+                Vector nominalCenterMass = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).position;
+                dr.Ev1Mv2(nominalCenterMass, centerMass);
                 dr.TE(1.0/(j+1));
                 o.PE( dr);
                 h1.PE(dr);
@@ -178,6 +172,7 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 //    				System.out.println(latticeEnergy);
 //    			}
         	}
+
         	double u = meterPE.getDataAsScalar()-latticeEnergy;
 
             pcForceSum.reset();
@@ -193,17 +188,17 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
                 Vector m = leafList.getAtom(3).getPosition();
                 double hmass = leafList.getAtom(0).getType().getMass();
                 double omass = leafList.getAtom(2).getType().getMass();
-                centermass.Ea1Tv1(hmass, h1);
-                centermass.PEa1Tv1(hmass, h2);
-                centermass.PEa1Tv1(omass, o);
-                centermass.TE(1 / (2 * hmass + omass));
-                Vector nominalcentermass = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).position;
-                dr.Ev1Mv2(nominalcentermass, centermass);
+                centerMass.Ea1Tv1(hmass, h1);
+                centerMass.PEa1Tv1(hmass, h2);
+                centerMass.PEa1Tv1(omass, o);
+                centerMass.TE(1 / (2 * hmass + omass));
+                Vector nominalCenterMass = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).position;
+                dr.Ev1Mv2(nominalCenterMass, centerMass);
 
-                Vector h1force = ((MyAgent) forceManager.getAgent(leafList.getAtom(0))).force();
-                Vector h2force = ((MyAgent) forceManager.getAgent(leafList.getAtom(1))).force();
-                Vector oforce = ((MyAgent) forceManager.getAgent(leafList.getAtom(2))).force();
-                Vector mforce = ((MyAgent) forceManager.getAgent(leafList.getAtom(3))).force();
+                Vector h1force = forceManager.getAgent(leafList.getAtom(0)).force();
+                Vector h2force = forceManager.getAgent(leafList.getAtom(1)).force();
+                Vector oforce = forceManager.getAgent(leafList.getAtom(2)).force();
+                Vector mforce = forceManager.getAgent(leafList.getAtom(3)).force();
                 totalforce.E(h1force);
                 totalforce.PE(h2force);
                 totalforce.PE(mforce);
@@ -226,13 +221,13 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
         	for (int i = 0; i<molecules.getMoleculeCount(); i++){
         		IMolecule molecule = molecules.getMolecule(i);
              	IAtomList leafList = molecule.getChildList();
-             	Vector h1 = leafList.getAtom(0).getPosition();
+                Vector h1 = leafList.getAtom(0).getPosition();
             	Vector h2 = leafList.getAtom(1).getPosition();
             	Vector o = leafList.getAtom(2).getPosition();
     			Vector m = leafList.getAtom(3).getPosition();
     		    OrientationFull3D or = ((MoleculeSiteSource.LatticeCoordinate)latticeCoordinates.getAgent(molecule)).orientation;
-                Vector a0 = (Vector) or.getDirection();//om
-                Vector a1 = (Vector) or.getSecondaryDirection();//h1h2
+                Vector a0 = or.getDirection();//om
+                Vector a1 = or.getSecondaryDirection();//h1h2
 //                dr.Ev1Mv2(m, o);
 //                dr.normalize();
 //                System.out.println("om = " + dr);
@@ -321,10 +316,10 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 //    			System.out.println("old  =" + dr.dot(ph1h2));
                 double hmass = leafList.getAtom(0).getType().getMass();
 				double omass = leafList.getAtom(2).getType().getMass();
-                centermass.Ea1Tv1(hmass, h1);
-				centermass.PEa1Tv1(hmass, h2) ;
-				centermass.PEa1Tv1(omass, o) ;
-				centermass.TE(1/(2*hmass + omass));
+                centerMass.Ea1Tv1(hmass, h1);
+                centerMass.PEa1Tv1(hmass, h2);
+                centerMass.PEa1Tv1(omass, o);
+                centerMass.TE(1 / (2 * hmass + omass));
 				
 //              h1.ME(o);
 //    			double lenth = Math.sqrt(h1.squared());
@@ -340,10 +335,10 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 //    			orientation.rotateBy(-beta/(j+1), a0);
 //    			h2.Ea1Tv1(lenth, orientation.getDirection());
 //    			h2.PE(o);
-                h1.ME(centermass);
-                h2.ME(centermass);
-                o.ME(centermass);
-                m.ME(centermass);
+                h1.ME(centerMass);
+                h2.ME(centerMass);
+                o.ME(centerMass);
+                m.ME(centerMass);
     			double hlength = Math.sqrt(h1.squared());
     			double olength = Math.sqrt(o.squared());
     			double mlength = Math.sqrt(m.squared());
@@ -355,19 +350,19 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
     			orientation.setDirection(h1);
     			orientation.rotateBy(beta/(j+1), axis);
     			h1.Ea1Tv1(hlength, orientation.getDirection());
-    			h1.PE(centermass);
+                h1.PE(centerMass);
     		    orientation.setDirection(h2);
     			orientation.rotateBy(beta/(j+1), axis);
     			h2.Ea1Tv1(hlength, orientation.getDirection());
-    			h2.PE(centermass);
+                h2.PE(centerMass);
     			orientation.setDirection(o);
     			orientation.rotateBy(beta/(j+1), axis);
     			o.Ea1Tv1(olength, orientation.getDirection());
-    			o.PE(centermass);
+                o.PE(centerMass);
     			orientation.setDirection(m);
     			orientation.rotateBy(beta/(j+1), axis);
     			m.Ea1Tv1(mlength, orientation.getDirection());
-    			m.PE(centermass);
+                m.PE(centerMass);
 //    			
 //    			dr.Ev1Mv2(m, o);
 //    			ph1h2.Ev1Mv2(h2, h1);
@@ -388,10 +383,10 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
             for (int i = 0; i < molecules.getMoleculeCount(); i++) {
                 IMolecule molecule = molecules.getMolecule(i);
                 IAtomList leafList = molecule.getChildList();
-                Vector h1force = ((MyAgent) forceManager.getAgent(leafList.getAtom(0))).force();
-                Vector h2force = ((MyAgent) forceManager.getAgent(leafList.getAtom(1))).force();
-                Vector oforce = ((MyAgent) forceManager.getAgent(leafList.getAtom(2))).force();
-                Vector mforce = ((MyAgent) forceManager.getAgent(leafList.getAtom(3))).force();
+                Vector h1force = forceManager.getAgent(leafList.getAtom(0)).force();
+                Vector h2force = forceManager.getAgent(leafList.getAtom(1)).force();
+                Vector oforce = forceManager.getAgent(leafList.getAtom(2)).force();
+                Vector mforce = forceManager.getAgent(leafList.getAtom(3)).force();
                 totalforce.E(h1force);
                 totalforce.PE(h2force);
                 totalforce.PE(mforce);
@@ -403,31 +398,31 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
                 double hmass = leafList.getAtom(0).getType().getMass();
                 double omass = leafList.getAtom(2).getType().getMass();
 
-                centermass.Ea1Tv1(hmass, h1);
-                centermass.PEa1Tv1(hmass, h2);
-                centermass.PEa1Tv1(omass, o);
-                centermass.TE(1 / (2 * hmass + omass));
+                centerMass.Ea1Tv1(hmass, h1);
+                centerMass.PEa1Tv1(hmass, h2);
+                centerMass.PEa1Tv1(omass, o);
+                centerMass.TE(1 / (2 * hmass + omass));
 
-                dr.Ev1Mv2(m, centermass);
+                dr.Ev1Mv2(m, centerMass);
                 torque.E(mforce);
                 torque.XE(dr);
                 q.E(torque);
-                dr.Ev1Mv2(h1, centermass);
+                dr.Ev1Mv2(h1, centerMass);
                 torque.E(h1force);
                 torque.XE(dr);
                 q.PE(torque);
-                dr.Ev1Mv2(h2, centermass);
+                dr.Ev1Mv2(h2, centerMass);
                 torque.E(h2force);
                 torque.XE(dr);
                 q.PE(torque);
-                dr.Ev1Mv2(o, centermass);
+                dr.Ev1Mv2(o, centerMass);
                 torque.E(oforce);
                 torque.XE(dr);
                 q.PE(torque);
                 //for the total torque q
 
                 Vector lPos = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).position;
-                dr.Ev1Mv2(centermass, lPos);
+                dr.Ev1Mv2(centerMass, lPos);
                 ForceSum += totalforce.dot(dr);
                 //get the forcesum!!
 
@@ -435,8 +430,8 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
                 OrientationFull3D or = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).orientation;
 //            OrientationFull3D newor = new OrientationFull3D(space);
 //            newor.E(or);
-                Vector a0 = (Vector) or.getDirection();//om
-                Vector a1 = (Vector) or.getSecondaryDirection();//h1h2
+                Vector a0 = or.getDirection();//om
+                Vector a1 = or.getSecondaryDirection();//h1h2
 
                 dr.Ev1Mv2(h2, h1);
                 dr.normalize();
@@ -601,10 +596,10 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
         for (int i = 0; i<molecules.getMoleculeCount(); i++){
             IMolecule molecule = molecules.getMolecule(i);
         	IAtomList leafList = molecule.getChildList();
-			Vector h1force = ((MyAgent)forceManager.getAgent(leafList.getAtom(0))).force();
-			Vector h2force = ((MyAgent)forceManager.getAgent(leafList.getAtom(1))).force();
-			Vector oforce = ((MyAgent)forceManager.getAgent(leafList.getAtom(2))).force();
-			Vector mforce = ((MyAgent)forceManager.getAgent(leafList.getAtom(3))).force();
+            Vector h1force = forceManager.getAgent(leafList.getAtom(0)).force();
+            Vector h2force = forceManager.getAgent(leafList.getAtom(1)).force();
+            Vector oforce = forceManager.getAgent(leafList.getAtom(2)).force();
+            Vector mforce = forceManager.getAgent(leafList.getAtom(3)).force();
 			totalforce.E(h1force);
 			totalforce.PE(h2force);
 			totalforce.PE(mforce);
@@ -615,32 +610,32 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 			Vector m = leafList.getAtom(3).getPosition();
 			double hmass = leafList.getAtom(0).getType().getMass();
 			double omass = leafList.getAtom(2).getType().getMass();
-			
-			centermass.Ea1Tv1(hmass, h1);
-			centermass.PEa1Tv1(hmass, h2) ;
-			centermass.PEa1Tv1(omass, o) ;
-			centermass.TE(1/(2*hmass + omass));
-			
-			dr.Ev1Mv2(m, centermass);
+
+            centerMass.Ea1Tv1(hmass, h1);
+            centerMass.PEa1Tv1(hmass, h2);
+            centerMass.PEa1Tv1(omass, o);
+            centerMass.TE(1 / (2 * hmass + omass));
+
+            dr.Ev1Mv2(m, centerMass);
 			torque.E(mforce);
 			torque.XE(dr);
 			q.E(torque);
-			dr.Ev1Mv2(h1, centermass);
+            dr.Ev1Mv2(h1, centerMass);
 			torque.E(h1force);
 			torque.XE(dr);
 			q.PE(torque);
-			dr.Ev1Mv2(h2, centermass);
+            dr.Ev1Mv2(h2, centerMass);
 			torque.E(h2force);
 			torque.XE(dr);
 			q.PE(torque);
-			dr.Ev1Mv2(o,centermass);
+            dr.Ev1Mv2(o, centerMass);
 			torque.E(oforce);
 			torque.XE(dr);
 			q.PE(torque);
 			//for the total torque q
 
             Vector lPos = ((MoleculeSiteSource.LatticeCoordinate)latticeCoordinates.getAgent(molecule)).position;
-			dr.Ev1Mv2(centermass, lPos);
+            dr.Ev1Mv2(centerMass, lPos);
             ForceSum += totalforce.dot(dr);
             //get the forcesum!!
             
@@ -648,8 +643,8 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
             OrientationFull3D or = ((MoleculeSiteSource.LatticeCoordinate)latticeCoordinates.getAgent(molecule)).orientation;
 //            OrientationFull3D newor = new OrientationFull3D(space);
 //            newor.E(or);
-            Vector a0 = (Vector) or.getDirection();//om
-            Vector a1 = (Vector) or.getSecondaryDirection();//h1h2
+            Vector a0 = or.getDirection();//om
+            Vector a1 = or.getSecondaryDirection();//h1h2
            
             dr.Ev1Mv2(h2, h1);
             dr.normalize();
@@ -963,8 +958,8 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
             	Vector o = leafList.getAtom(2).getPosition();
     			Vector m = leafList.getAtom(3).getPosition();
     		    OrientationFull3D or = ((MoleculeSiteSource.LatticeCoordinate)latticeCoordinates.getAgent(molecule)).orientation;
-                Vector a0 = (Vector) or.getDirection();//om
-                Vector a1 = (Vector) or.getSecondaryDirection();//h1h2
+                Vector a0 = or.getDirection();//om
+                Vector a1 = or.getSecondaryDirection();//h1h2
 //                dr.Ev1Mv2(m, o);
 //                dr.normalize();
 //                System.out.println("om = " + dr);
@@ -1058,10 +1053,10 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 //    			System.out.println("old  =" + dr.dot(ph1h2));
                 double hmass = leafList.getAtom(0).getType().getMass();
 				double omass = leafList.getAtom(2).getType().getMass();
-                centermass.Ea1Tv1(hmass, h1);
-				centermass.PEa1Tv1(hmass, h2) ;
-				centermass.PEa1Tv1(omass, o) ;
-				centermass.TE(1/(2*hmass + omass));
+                centerMass.Ea1Tv1(hmass, h1);
+                centerMass.PEa1Tv1(hmass, h2);
+                centerMass.PEa1Tv1(omass, o);
+                centerMass.TE(1 / (2 * hmass + omass));
 				
 //              h1.ME(o);
 //    			double lenth = Math.sqrt(h1.squared());
@@ -1077,10 +1072,10 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 //    			orientation.rotateBy(-beta/(j+1), a0);
 //    			h2.Ea1Tv1(lenth, orientation.getDirection());
 //    			h2.PE(o);
-                h1.ME(centermass);
-                h2.ME(centermass);
-                o.ME(centermass);
-                m.ME(centermass);
+                h1.ME(centerMass);
+                h2.ME(centerMass);
+                o.ME(centerMass);
+                m.ME(centerMass);
     			double hlength = Math.sqrt(h1.squared());
     			double olength = Math.sqrt(o.squared());
     			double mlength = Math.sqrt(m.squared());
@@ -1092,19 +1087,19 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
     			orientation.setDirection(h1);
     			orientation.rotateBy(beta/(j+1), axis);
     			h1.Ea1Tv1(hlength, orientation.getDirection());
-    			h1.PE(centermass);
+                h1.PE(centerMass);
     		    orientation.setDirection(h2);
     			orientation.rotateBy(beta/(j+1), axis);
     			h2.Ea1Tv1(hlength, orientation.getDirection());
-    			h2.PE(centermass);
+                h2.PE(centerMass);
     			orientation.setDirection(o);
     			orientation.rotateBy(beta/(j+1), axis);
     			o.Ea1Tv1(olength, orientation.getDirection());
-    			o.PE(centermass);
+                o.PE(centerMass);
     			orientation.setDirection(m);
     			orientation.rotateBy(beta/(j+1), axis);
     			m.Ea1Tv1(mlength, orientation.getDirection());
-    			m.PE(centermass);
+                m.PE(centerMass);
 //    			
 //    			dr.Ev1Mv2(m, o);
 //    			ph1h2.Ev1Mv2(h2, h1);
