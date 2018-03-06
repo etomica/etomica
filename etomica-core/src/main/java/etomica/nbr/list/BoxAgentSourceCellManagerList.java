@@ -16,8 +16,8 @@ import etomica.space.Space;
  */
 public class BoxAgentSourceCellManagerList extends BoxAgentSourceCellManager {
 
-    public BoxAgentSourceCellManagerList(Simulation sim, IMoleculePositionDefinition positionDefinition, Space _space) {
-        super(sim, positionDefinition, _space);
+    public BoxAgentSourceCellManagerList(IMoleculePositionDefinition positionDefinition) {
+        super(positionDefinition);
     }
 
     public void setPotentialMaster(PotentialMasterList newPotentialMaster) {

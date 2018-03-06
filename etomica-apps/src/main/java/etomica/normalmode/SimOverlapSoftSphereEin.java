@@ -68,7 +68,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
         addSpecies(species);
 
         if (slanty) {
-            BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
+            BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(null);
             BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
             potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
         } else {

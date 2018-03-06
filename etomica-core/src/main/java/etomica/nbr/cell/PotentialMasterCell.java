@@ -12,8 +12,6 @@ import etomica.nbr.site.PotentialMasterSite;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 
-import java.util.function.Function;
-
 /**
  * A PotentialMaster for use with a Simulation where cell-listing of atoms and
  * their neighbors is appropriate.
@@ -47,7 +45,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
 
     public PotentialMasterCell(Simulation sim, double range,
                                IMoleculePositionDefinition positionDefinition, Space _space) {
-        this(sim, range, new BoxAgentSourceCellManager(sim, positionDefinition, _space), _space);
+        this(sim, range, new BoxAgentSourceCellManager(positionDefinition), _space);
     }
 
     public PotentialMasterCell(Simulation sim, double range,

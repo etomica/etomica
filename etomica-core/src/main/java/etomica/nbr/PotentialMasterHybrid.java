@@ -46,7 +46,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
      * @param positionDefinition if null, specifies use of atom type's position definition
      */
     public PotentialMasterHybrid(Simulation sim, IMoleculePositionDefinition positionDefinition, double range, Space space) {
-        this(sim, range, new BoxAgentSourceCellManagerList(sim, positionDefinition, space), space);
+        this(sim, range, new BoxAgentSourceCellManagerList(positionDefinition), space);
     }
     
     private PotentialMasterHybrid(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, Space space) {

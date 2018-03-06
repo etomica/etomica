@@ -63,7 +63,7 @@ public class ColloidSim extends Simulation {
         speciesColloid.setIsDynamic(true);
         addSpecies(speciesColloid);
 
-        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, _space);
+        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(null);
         potentialMaster = new PotentialMasterList(this, 6, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, this),
                 new NeighborListManagerColloid.NeighborListAgentSourceColloid(6), _space);
 

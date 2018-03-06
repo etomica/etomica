@@ -67,7 +67,7 @@ public class MinimizeHCP extends Simulation {
             rc = box.getBoundary().getBoxSize().getX(0) * 0.495;
         }
 
-        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
+        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(null);
         BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
         potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
 

@@ -99,7 +99,7 @@ public class SimLJHTTISuperHCP extends Simulation {
             throw new RuntimeException("cutoff too big");
         }
 
-        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, _space);
+        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(null);
         BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
         potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
 
@@ -257,7 +257,7 @@ public class SimLJHTTISuperHCP extends Simulation {
         Potential2SoftSpherical potential = ss ? new P2SoftSphere(sim.getSpace(), 1.0, 4.0, 12) : new P2LennardJones(sim.getSpace(), 1.0, 1.0);
         {
 
-            BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(sim, null, sim.space);
+            BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(null);
             BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, sim);
             potentialMasterData = new PotentialMasterList(sim, cutoffs[nCutoffs-1], boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), sim.space);
 

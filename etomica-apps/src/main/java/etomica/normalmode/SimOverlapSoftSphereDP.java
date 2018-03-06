@@ -65,7 +65,7 @@ public class SimOverlapSoftSphereDP extends Simulation {
         // rc is the cutoff at unit density
         rc *= Math.pow(rho, -1.0 / 3.0);
         if (slanty) {
-            BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
+            BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(null);
             BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
             potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
         } else {
