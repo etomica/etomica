@@ -75,6 +75,10 @@ public final class AtomLeafAgentManager<E> extends BoxEventListenerAdapter {
         return this.agents.get(a.getLeafIndex());
     }
 
+    public E getAgentUnsafe(int i) {
+        return this.agents.getFast(i);
+    }
+
     /**
      * Sets the agent associated with the given atom to be the given agent.
      * The IAtom must be from the Box associated with this instance.  The

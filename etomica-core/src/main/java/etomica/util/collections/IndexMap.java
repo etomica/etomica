@@ -146,6 +146,10 @@ public final class IndexMap<V> implements Map<Integer, V> {
         }
     }
 
+    public V getFast(int key) {
+        return values[key];
+    }
+
     public V put(int key, V value) {
 //        if(value == null) {
 //            throw new IllegalArgumentException("Value must not be null");

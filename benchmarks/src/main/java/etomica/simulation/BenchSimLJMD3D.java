@@ -45,7 +45,7 @@ public class BenchSimLJMD3D {
 //
 //    }
 
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
@@ -68,7 +68,7 @@ public class BenchSimLJMD3D {
         return simFast.integrator.getStepCount();
     }
 
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)

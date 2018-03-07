@@ -37,14 +37,20 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
         potentialSoft.gradientFast(atoms, forces[atoms.get(0).getLeafIndex()], forces[atoms.get(1).getLeafIndex()]);
 
     }
+//
+    public void doCalcFast2(IAtomList atoms, IPotentialAtomic potential, AtomLeafAgentManager<Vector> forces) {
+        Potential2SoftSpherical potentialSoft = (Potential2SoftSpherical) potential;
+        potentialSoft.gradientFast(atoms, forces.getAgentUnsafe(atoms.get(0).getLeafIndex()), forces.getAgentUnsafe(atoms.get(1).getLeafIndex()));
+    }
+
     /**
      * Adds forces due to given potential acting on the atoms produced by the iterator.
      * Implemented for only 1- and 2-body potentials.
      */
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         Potential2SoftSpherical potentialSoft = (Potential2SoftSpherical) potential;
-        potentialSoft.gradientFast(atoms, integratorAgentManager.getAgent(atoms.get(0)),
-                integratorAgentManager.getAgent(atoms.get(1)));
+        potentialSoft.gradientFast(atoms, integratorAgentManager.getAgentUnsafe(atoms.get(0).getLeafIndex()),
+                integratorAgentManager.getAgentUnsafe(atoms.get(1).getLeafIndex()));
         if (true) return;
         int nBody = potential.nBody();
         Vector[] f = potentialSoft.gradient(atoms);

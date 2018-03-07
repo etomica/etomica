@@ -94,16 +94,16 @@ public class PotentialMasterListFast extends PotentialMasterList {
      * superclass method is invoked.
      */
     public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
-        if (forces == null) {
-            forces = new Vector[box.getLeafList().size()];
-            for (int i = 0; i < box.getLeafList().size(); i++) {
-                forces[i] = space.makeVector();
-            }
-        } else {
-            for (int i = 0; i < box.getLeafList().size(); i++) {
-                forces[i].E(0);
-            }
-        }
+//        if (forces == null) {
+//            forces = new Vector[box.getLeafList().size()];
+//            for (int i = 0; i < box.getLeafList().size(); i++) {
+//                forces[i] = space.makeVector();
+//            }
+//        } else {
+//            for (int i = 0; i < box.getLeafList().size(); i++) {
+//                forces[i].E(0);
+//            }
+//        }
         if (!enabled) return;
         IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
@@ -123,14 +123,15 @@ public class PotentialMasterListFast extends PotentialMasterList {
                 Vector v = atom.getPosition();
                 IAtomList list = neighborManager.getUpList(atom)[0];
                 int nNeighbors = list.size();
-                Vector iForce = forces[i];
+//                Vector iForce = forces[i];
 
                 for (int j = 0; j < nNeighbors; j++) {
                     IAtom jAtom = list.get(j);
                     pair.atom1 = jAtom;
-//                    pc.doCalculation(pair, p2);
-                    ((PotentialCalculationForceSum) pc).doCalcFast(pair, p2, forces);
-//                    p2.gradientFast(pair, iForce, forces[jAtom.getLeafIndex()]);
+                    pc.doCalculation(pair, p2);
+//                    ((PotentialCalculationForceSum) pc).doCalcFast(pair, p2, forces);
+//                    ((PotentialCalculationForceSum) pc).doCalcFast2(pair, p2, agentManager);
+//                    p2.gradientFast(pair, agentManager.getAgentUnsafe(i), agentManager.getAgentUnsafe(jAtom.getLeafIndex()));
 //                    dr.Ev1Mv2(v, jAtom.getPosition());
 //                    boundary.nearestImage(dr);
 //                    double r2 = dr.squared();
@@ -146,9 +147,9 @@ public class PotentialMasterListFast extends PotentialMasterList {
                 }
 
             }
-            for (int i = 0; i < forces.length; i++) {
-                agentManager.getAgents().get(i).E(forces[i]);
-            }
+//            for (int i = 0; i < forces.length; i++) {
+//                agentManager.getAgents().get(i).E(forces[i]);
+//            }
         }
         else {
 
