@@ -5,11 +5,11 @@
 package etomica.modules.multiharmonic.mbar;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.integrator.Integrator;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
 import etomica.modules.multiharmonic.MCMoveMultiHarmonic;
 import etomica.overlap.IntegratorOverlap;
@@ -40,10 +40,10 @@ public class MultiharmonicMC extends Simulation {
     protected final MeterMBAR meterOverlapA, meterOverlapB;
     public MultiharmonicMC() {
         super(Space1D.getInstance());
-        PotentialMaster potentialMasterA = new PotentialMasterMonatomic(this);
-        PotentialMaster potentialMasterB = new PotentialMasterMonatomic(this);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
+        PotentialMaster potentialMasterA = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMasterB = new PotentialMasterMonatomic(this);
 
         boxA = this.makeBox(new BoundaryRectangularNonperiodic(space));
         boxA.getBoundary().setBoxSize(new Vector1D(3.0));

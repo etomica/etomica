@@ -6,7 +6,6 @@ package etomica.modules.reactionequilibrium;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomType;
@@ -27,7 +26,6 @@ import javax.swing.*;
 
 public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom> {
 
-    public Controller controller1;
     public JPanel panel = new JPanel(new java.awt.BorderLayout());
     public IntegratorHard integratorHard1;
     public java.awt.Component display;
@@ -47,8 +45,15 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
     
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
+
+        speciesA = new SpeciesSpheresMono(this, space);
+        speciesA.setIsDynamic(true);
+        speciesB = new SpeciesSpheresMono(this, space);
+        speciesB.setIsDynamic(true);
+        addSpecies(speciesA);
+        addSpecies(speciesB);
+
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-        controller1 = getController();
 
         double diameter = 1.0;
 
@@ -57,12 +62,6 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
         integratorHard1 = new IntegratorHard(this, potentialMaster, box);
         integratorHard1.setIsothermal(true);
 
-        speciesA = new SpeciesSpheresMono(this, space);
-        speciesA.setIsDynamic(true);
-        speciesB = new SpeciesSpheresMono(this, space);
-        speciesB.setIsDynamic(true);
-        addSpecies(speciesA);
-        addSpecies(speciesB);
         box.setNMolecules(speciesA, 30);
         box.setNMolecules(speciesB, 30);
         P1HardPeriodic nullPotential = new P1HardPeriodic(space, diameter);

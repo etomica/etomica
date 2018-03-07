@@ -12,8 +12,8 @@ import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorMC;
 import etomica.potential.P1Harmonic;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -48,9 +48,9 @@ public class MultiharmonicMC extends Simulation {
     DataSourceCountSteps stepCounter;
     public MultiharmonicMC() {
         super(Space1D.getInstance());
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector1D(3.0));
         controller = getController();

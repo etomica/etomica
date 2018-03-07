@@ -15,13 +15,13 @@ import etomica.data.DataLogger;
 import etomica.data.DataPump;
 import etomica.data.DataTableWriter;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.normalmode.MCMoveHarmonicStep;
 import etomica.normalmode.NormalModesFromFile;
@@ -87,6 +87,10 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
   
     public MCParacetamolMonoclinicDLMULTI(Space _space, int numMolecules, double temperature, int simType, int[] cellDim) {
         super(_space);
+
+        species = new SpeciesParacetamol(space, false);
+        addSpecies(species);
+
         potentialMaster = new PotentialMaster();
         this.simType = simType;
         this.cellDim = cellDim;
@@ -113,9 +117,7 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         getController().addAction(actionIntegrate);
 
         ConformationParacetamolMonoclinic conformation = new ConformationParacetamolMonoclinic(space);
-        species = new SpeciesParacetamol(space, false);
         species.setConformation(conformation);
-        addSpecies(species);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{35, 35, 35}));
         box.setNMolecules(species, numMolecules);
 

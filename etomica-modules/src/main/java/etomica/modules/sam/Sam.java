@@ -80,6 +80,17 @@ public class Sam extends Simulation {
 
     public Sam() {
         super(Space.getInstance(3));
+
+        //species and potentials
+        species = new SpeciesAlkaneThiol(space, chainLength - 1);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
+        speciesSurface = new SpeciesSpheresMono(this, space);
+        speciesSurface.setIsDynamic(true);
+        ((ElementSimple) speciesSurface.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
+        addSpecies(speciesSurface);
+
         positionDefinition = new MoleculePositionGeometricCenter(space);
         sigmaCH2 = 3.95;
         potentialMaster = new PotentialMasterList(this, 2.8 * sigmaCH2, space); //List(this, 2.0);
@@ -91,23 +102,11 @@ public class Sam extends Simulation {
         sizeCellX = sizeCellZ / Math.sqrt(3);
         chainLength = 16;
 
-        //controller and integrator
-
-        //species and potentials
-        species = new SpeciesAlkaneThiol(space, chainLength - 1);
-        species.setIsDynamic(true);
-        addSpecies(species);
-
         //construct box
         box = this.makeBox(new BoundaryRectangularSlit(1, space));
         Vector dim = space.makeVector();
         dim.E(new double[]{sizeCellX * numXCells, chainLength * 2.4, sizeCellZ * numZCells});
         box.getBoundary().setBoxSize(dim);
-
-        speciesSurface = new SpeciesSpheresMono(this, space);
-        speciesSurface.setIsDynamic(true);
-        ((ElementSimple) speciesSurface.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
-        addSpecies(speciesSurface);
 
         bondL_CC = 1.54;
         double bondL_CS = 1.82;

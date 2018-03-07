@@ -9,9 +9,9 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.PotentialMaster;
@@ -44,18 +44,6 @@ public class ReverseOsmosis extends Simulation {
     
     public ReverseOsmosis(Space _space) {
         super(_space);
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this); //List(this, 2.0);
-
-        //controller and integrator
-        box = this.makeBox();
-        integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), 0.01, Kelvin.UNIT.toSim(125), box);
-        integrator.setIsothermal(false);
-        integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
-        integrator.setThermostatInterval(1);
-        integrator.setTimeStep(0.02);
-
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
 
         //solute (1)
         speciesSolute = new SpeciesSpheresMono(this, space);
@@ -74,6 +62,19 @@ public class ReverseOsmosis extends Simulation {
         speciesMembrane.setIsDynamic(true);
         ((ElementSimple) speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
         addSpecies(speciesMembrane);
+
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this); //List(this, 2.0);
+
+        //controller and integrator
+        box = this.makeBox();
+        integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), 0.01, Kelvin.UNIT.toSim(125), box);
+        integrator.setIsothermal(false);
+        integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
+        integrator.setThermostatInterval(1);
+        integrator.setTimeStep(0.02);
+
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
 
         double epsSolute = Kelvin.UNIT.toSim(125.0);
         double sigSolute = 3.5;

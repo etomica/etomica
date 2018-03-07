@@ -10,12 +10,12 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.PrimitiveGeneral;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
 import etomica.potential.PotentialMaster;
@@ -38,6 +38,12 @@ public class MaterialFracture extends Simulation {
 
     public MaterialFracture() {
         super(Space2D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        ((ElementSimple) species.getLeafType().getElement()).setMass(40);
+        addSpecies(species);
+
         PotentialMaster potentialMaster = new PotentialMaster();
         box = this.makeBox(new BoundaryRectangularSlit(0, space));
         box.getBoundary().setBoxSize(space.makeVector(new double[]{90, 30}));
@@ -55,10 +61,6 @@ public class MaterialFracture extends Simulation {
         pt = new P2SoftSphericalTruncatedForceShifted(space, p2LJ, 7);
 
         p1Tension = new P1Tension(space);
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        ((ElementSimple) species.getLeafType().getElement()).setMass(40);
-        addSpecies(species);
         box.setNMolecules(species, 198);
 
         potentialMaster.addPotential(pt, new AtomType[]{species.getLeafType(), species.getLeafType()});

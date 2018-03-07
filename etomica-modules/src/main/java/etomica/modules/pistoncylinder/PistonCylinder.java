@@ -40,13 +40,13 @@ public class PistonCylinder extends Simulation {
 
     public PistonCylinder(int D) {
         super(Space.getInstance(D));
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-        lambda = 2.0;
-        double sigma = 4.0;
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         ((ElementSimple) species.getLeafType().getElement()).setMass(16);
         addSpecies(species);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        lambda = 2.0;
+        double sigma = 4.0;
         box = this.makeBox(new BoundaryPistonCylinder(space));
         box.setNMolecules(species, INIT_NUM_MOLECULES);
         Vector newDim;

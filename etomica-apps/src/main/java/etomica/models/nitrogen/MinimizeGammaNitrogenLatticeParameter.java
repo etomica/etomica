@@ -55,13 +55,13 @@ public class MinimizeGammaNitrogenLatticeParameter extends Simulation {
         this.a = Math.pow(numMolecule / (ratio * density), 1.0 / 3.0) / nCell;
         this.c = ratio * a;
 
-        potentialMaster = new PotentialMaster();
-
         Basis basisBCC = new BasisCubicBcc();
         Basis basis = new BasisBigCell(space, basisBCC, new int[]{nCell, nCell, nCell});
 
         species = new SpeciesN2ShellModel(space);
         addSpecies(species);
+
+        potentialMaster = new PotentialMaster();
 
         Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell * a, nCell * a, nCell * c});
         box = this.makeBox(boundary);

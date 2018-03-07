@@ -11,8 +11,8 @@ import etomica.box.Box;
 import etomica.chem.elements.Chlorine;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Sodium;
-import etomica.integrator.IntegratorRigidIterative;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorRigidIterative;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
 import etomica.models.water.SpeciesWater3POriented;
@@ -54,15 +54,6 @@ public class ReverseOsmosisWater extends Simulation {
     
     public ReverseOsmosisWater(Space space) {
         super(space);
-        PotentialMaster potentialMaster = new PotentialMaster(); //List(this, 2.0);
-
-        //controller and integrator
-        integrator = new IntegratorRigidIterative(this, potentialMaster, 0.01, Kelvin.UNIT.toSim(298), box);
-        integrator.setIsothermal(true);
-        integrator.setThermostatInterval(100);
-        integrator.setTimeStep(0.004);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
 
         //solute (1)
         speciesSodium = new SpeciesSpheresMono(space, Sodium.INSTANCE);
@@ -83,6 +74,16 @@ public class ReverseOsmosisWater extends Simulation {
         speciesMembrane.setIsDynamic(true);
         ((ElementSimple) speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
         addSpecies(speciesMembrane);
+
+        PotentialMaster potentialMaster = new PotentialMaster(); //List(this, 2.0);
+
+        //controller and integrator
+        integrator = new IntegratorRigidIterative(this, potentialMaster, 0.01, Kelvin.UNIT.toSim(298), box);
+        integrator.setIsothermal(true);
+        integrator.setThermostatInterval(100);
+        integrator.setTimeStep(0.004);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
 
         /*
          * Sodium and chloride potential parameters from

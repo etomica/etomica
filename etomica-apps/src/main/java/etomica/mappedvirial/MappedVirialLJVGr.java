@@ -15,10 +15,10 @@ import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterRDFPC;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.mappedvirial.PotentialCalculationMappedVirialV.VFunc;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
@@ -44,6 +44,11 @@ public class MappedVirialLJVGr extends Simulation {
     
     public MappedVirialLJVGr(Space _space, int numAtoms, double temperature, double density, double rc) {
         super(_space);
+
+        //species
+        species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, rc, space);
         potentialMaster.lrcMaster().setEnabled(false);
 
@@ -55,10 +60,7 @@ public class MappedVirialLJVGr extends Simulation {
         move = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(move);
 
-        //species and potentials
-        species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
-
+        //potentials
         P2LennardJones potential = new P2LennardJones(space);
         p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});

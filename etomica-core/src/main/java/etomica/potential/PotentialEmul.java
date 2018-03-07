@@ -251,10 +251,10 @@ public class PotentialEmul extends PotentialMolecular {
 	    if (false) {
     	    PotentialEmul p2 = new PotentialEmul(space, "template.in");
     	    Simulation sim = new Simulation(space);
+			SpeciesSpheresMono species = new SpeciesSpheresMono(space, Helium.INSTANCE);
+			sim.addSpecies(species);
     	    Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
     	    sim.addBox(box);
-    	    SpeciesSpheresMono species = new SpeciesSpheresMono(space, Helium.INSTANCE);
-    	    sim.addSpecies(species);
     	    box.setNMolecules(species, 2);
     	    p2.setBox(box);
     	    P2LennardJones p2LJ = new P2LennardJones(space, 3.1, Kelvin.UNIT.toSim(98));

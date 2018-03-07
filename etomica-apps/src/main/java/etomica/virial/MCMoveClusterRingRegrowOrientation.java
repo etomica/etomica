@@ -91,12 +91,12 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 				return null;
 			}
 		};
-		BoxCluster box = new BoxCluster(cluster, space);
 		Simulation sim = new Simulation(space);
-		sim.addBox(box);
 		AtomTypeOriented atype = new AtomTypeOriented(Hydrogen.INSTANCE, space);
 		SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype});
 		sim.addSpecies(species);
+        BoxCluster box = new BoxCluster(cluster, space);
+        sim.addBox(box);
 		File file1 = new File("acceptance.dat");
 		if (file1.exists()) {
 			file1.delete();

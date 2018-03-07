@@ -15,8 +15,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * Created by andrew on 6/15/17.
  */
@@ -29,12 +27,12 @@ class MeterRMSDTest {
     public void setUp() throws Exception {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
+        Species species = new SpeciesSpheresMono(sim, space);
+        sim.addSpecies(species);
         box = sim.makeBox();
         Vector L = space.makeVector();
         L.E(10);
         box.getBoundary().setBoxSize(L);
-        Species species = new SpeciesSpheresMono(sim, space);
-        sim.addSpecies(species);
         box.setNMolecules(species, 1);
         meter = new MeterRMSD(box, space);
     }

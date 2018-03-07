@@ -21,12 +21,12 @@ import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -61,6 +61,14 @@ public class MEAM_MC extends Simulation {
 
 	public MEAM_MC() {
         super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
+
+        sn = new SpeciesSpheresMono(space, Tin.INSTANCE);
+        ag = new SpeciesSpheresMono(space, Silver.INSTANCE);
+        cu = new SpeciesSpheresMono(space, Copper.INSTANCE);
+        addSpecies(sn);
+        addSpecies(ag);
+        addSpecies(cu);
+
         potentialMaster = new PotentialMaster();
         box = this.makeBox();
         integrator = new IntegratorMC(this, potentialMaster, box);
@@ -72,13 +80,6 @@ public class MEAM_MC extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
-        sn = new SpeciesSpheresMono(space, Tin.INSTANCE);
-        ag = new SpeciesSpheresMono(space, Silver.INSTANCE);
-        cu = new SpeciesSpheresMono(space, Copper.INSTANCE);
-
-        addSpecies(sn);
-        addSpecies(ag);
-        addSpecies(cu);
         box.setNMolecules(sn, 216);
         box.setNMolecules(ag, 0);
         box.setNMolecules(cu, 0);

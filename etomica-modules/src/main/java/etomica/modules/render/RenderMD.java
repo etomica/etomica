@@ -11,9 +11,9 @@ import etomica.atom.*;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.modules.render.ParseObj.BondInfo;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterList;
@@ -84,6 +84,10 @@ public class RenderMD extends Simulation {
         super(_space);
         setRandom(new RandomNumberGenerator(2));
 
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         potentialMaster = new PotentialMasterList(this, 1, space);
 
         parser = new ParseObj(params.file);
@@ -99,9 +103,6 @@ public class RenderMD extends Simulation {
         activityIntegrate.setSleepPeriod(0);
         getController().addAction(activityIntegrate);
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
         box.setNMolecules(species, numAtoms);
 
         potentialBonded = new P2PenetrableCar(space, parser, box);

@@ -36,6 +36,15 @@ public class Mu extends Simulation {
     
     public Mu(Space _space) {
         super(_space);
+
+        //species
+        speciesA = new SpeciesSpheresMono(this, space);
+        speciesA.setIsDynamic(true);
+        addSpecies(speciesA);
+        speciesB = new SpeciesSpheresMono(this, space);
+        speciesB.setIsDynamic(true);
+        addSpecies(speciesB);
+
         box = this.makeBox(new BoundaryRectangularSlit(0, space));
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space); //List(this, 2.0);
 
@@ -54,14 +63,6 @@ public class Mu extends Simulation {
         integrator.setThermostatInterval(1);
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
-
-        //species and potentials
-        speciesA = new SpeciesSpheresMono(this, space);
-        speciesA.setIsDynamic(true);
-        addSpecies(speciesA);
-        speciesB = new SpeciesSpheresMono(this, space);
-        speciesB.setIsDynamic(true);
-        addSpecies(speciesB);
 
         //instantiate several potentials for selection in combo-box
         potentialAA = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);

@@ -20,11 +20,11 @@ import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
@@ -76,16 +76,7 @@ public class MEAMMd3D extends Simulation {
 
     public MEAMMd3D() {
         super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
-        potentialMaster = new PotentialMasterList(this, space);
-        box = this.makeBox();
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
-        integrator.setTimeStep(0.001);
-        integrator.setTemperature(Kelvin.UNIT.toSim(295));
-        integrator.setThermostatInterval(100);
-        integrator.setIsothermal(true);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(2);
-        getController().addAction(activityIntegrate);
+
         sn = new SpeciesSpheresMono(space, Tin.INSTANCE);
         sn.setIsDynamic(true);
         ag = new SpeciesSpheresMono(space, Silver.INSTANCE);
@@ -96,6 +87,17 @@ public class MEAMMd3D extends Simulation {
         addSpecies(sn);
         addSpecies(ag);
         addSpecies(cu);
+
+        potentialMaster = new PotentialMasterList(this, space);
+        box = this.makeBox();
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator.setTimeStep(0.001);
+        integrator.setTemperature(Kelvin.UNIT.toSim(295));
+        integrator.setThermostatInterval(100);
+        integrator.setIsothermal(true);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate.setSleepPeriod(2);
+        getController().addAction(activityIntegrate);
         box.setNMolecules(sn, 0);
         box.setNMolecules(ag, 256);
         box.setNMolecules(cu, 0);

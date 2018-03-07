@@ -245,11 +245,11 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
         RandomNumberGenerator random = new RandomNumberGenerator();
         Space3D space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
-        sim.addBox(box);
         SpeciesSpheresRotating species = new SpeciesSpheresRotating(sim, space);
         species.setIsDynamic(true);
         sim.addSpecies(species);
+        Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
+        sim.addBox(box);
         box.setNMolecules(species, 2);
         
         double rCut = 2.5;

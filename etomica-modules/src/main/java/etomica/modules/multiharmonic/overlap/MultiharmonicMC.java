@@ -5,9 +5,9 @@
 package etomica.modules.multiharmonic.overlap;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.integrator.Integrator;
 import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
 import etomica.modules.multiharmonic.MCMoveMultiHarmonic;
 import etomica.overlap.IntegratorOverlap;
@@ -38,10 +38,10 @@ public class MultiharmonicMC extends Simulation {
     protected final ActivityIntegrate activityIntegrate;
     public MultiharmonicMC() {
         super(Space1D.getInstance());
-        potentialMasterA = new PotentialMasterMonatomic(this);
-        potentialMasterB = new PotentialMasterMonatomic(this);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
+        potentialMasterA = new PotentialMasterMonatomic(this);
+        potentialMasterB = new PotentialMasterMonatomic(this);
 
         boxA = this.makeBox(new BoundaryRectangularNonperiodic(space));
         boxA.getBoundary().setBoxSize(new Vector1D(3.0));

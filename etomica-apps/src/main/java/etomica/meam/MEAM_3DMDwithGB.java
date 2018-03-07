@@ -17,11 +17,11 @@ import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
@@ -78,15 +78,7 @@ public class MEAM_3DMDwithGB extends Simulation {
 
     public MEAM_3DMDwithGB() {
         super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
-        potentialMaster = new PotentialMasterList(this, space);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
-        integrator.setTimeStep(0.001);
-        integrator.setTemperature(Kelvin.UNIT.toSim(295));
-        integrator.setThermostatInterval(100);
-        integrator.setIsothermal(true);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(2);
-        getController().addAction(activityIntegrate);
+
         Tin SnF = new Tin("SnF", Double.POSITIVE_INFINITY);
         snFixedA = new SpeciesSpheresMono(space, SnF);
         snFixedA.setIsDynamic(true);
@@ -100,7 +92,24 @@ public class MEAM_3DMDwithGB extends Simulation {
         snB.setIsDynamic(true);
 //        agB = new SpeciesSpheresMono(space, Silver.INSTANCE);
 //        cuB = new SpeciesSpheresMono(space, Copper.INSTANCE);
+        addSpecies(snFixedA);
+        addSpecies(snA);
+//        addSpecies(agA);
+//        addSpecies(cuA);
+        addSpecies(snFixedB);
+        addSpecies(snB);
+//        addSpecies(agB);
+//        addSpecies(cuB);
 
+        potentialMaster = new PotentialMasterList(this, space);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator.setTimeStep(0.001);
+        integrator.setTemperature(Kelvin.UNIT.toSim(295));
+        integrator.setThermostatInterval(100);
+        integrator.setIsothermal(true);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate.setSleepPeriod(2);
+        getController().addAction(activityIntegrate);
 
         double aA, bA, cA, aB, bB, cB;
 
@@ -182,15 +191,6 @@ public class MEAM_3DMDwithGB extends Simulation {
         nB = (nCellsBx * nCellsBy * nCellsBz) * basisB;
         nBFixed = (nCellsBx * nCellsBy * 2) * basisB;
         nBMobile = nB - nBFixed - nBImpurity - nBVacancy;
-
-        addSpecies(snFixedA);
-        addSpecies(snA);
-//        addSpecies(agA);
-//        addSpecies(cuA);
-        addSpecies(snFixedB);
-        addSpecies(snB);
-//        addSpecies(agB);
-//        addSpecies(cuB);
 
         box.setNMolecules(snFixedA, nAFixed);
         box.setNMolecules(snA, nAMobile);

@@ -15,13 +15,13 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.normalmode.MCMoveHarmonic;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
@@ -73,6 +73,9 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
 
         super(Space3D.getInstance());
 
+        species = new SpeciesParacetamol(space, false);
+        addSpecies(species);
+
         potentialMaster = new PotentialMaster();
 
         /*
@@ -114,9 +117,7 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
         getController().addAction(actionIntegrate);
 
         ConformationParacetamolOrthorhombic conformation = new ConformationParacetamolOrthorhombic(space);
-        species = new SpeciesParacetamol(space, false);
         species.setConformation(conformation);
-        addSpecies(species);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{25, 25, 25}));
         box.setNMolecules(species, numMolecules);
 
