@@ -40,6 +40,14 @@ public class HSMD2D extends Simulation {
 
     public HSMD2D() {
         super(Space2D.getInstance());
+
+        species1 = new SpeciesSpheresMono(this, space);
+        species1.setIsDynamic(true);
+        species2 = new SpeciesSpheresMono(this, space);
+        species2.setIsDynamic(true);
+        addSpecies(species1);
+        addSpecies(species2);
+
         box = this.makeBox();
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         double sigma = 1;
@@ -56,14 +64,8 @@ public class HSMD2D extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
-        species1 = new SpeciesSpheresMono(this, space);
-        species1.setIsDynamic(true);
-        species2 = new SpeciesSpheresMono(this, space);
-        species2.setIsDynamic(true);
         AtomType leafType1 = species1.getLeafType();
         AtomType leafType2 = species2.getLeafType();
-        addSpecies(species1);
-        addSpecies(species2);
         ((ElementSimple) leafType2.getElement()).setMass(10);
 
         potential11 = new P2HardSphere(space, sigma, false);

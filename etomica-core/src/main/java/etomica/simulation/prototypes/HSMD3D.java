@@ -16,9 +16,9 @@ import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
@@ -75,6 +75,11 @@ public class HSMD3D extends Simulation {
     public HSMD3D(HSMD3DParam params) {
 
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         box = this.makeBox();
 
         double neighborRangeFac = 1.6;
@@ -91,9 +96,6 @@ public class HSMD3D extends Simulation {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
         potential = new P2HardSphere(space, sigma, true);
         AtomType leafType = species.getLeafType();
 

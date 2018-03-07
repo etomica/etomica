@@ -9,11 +9,11 @@ import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMasterMonatomic;
@@ -38,6 +38,11 @@ public class DemoSim extends Simulation {
 
     public DemoSim() {
         super(Space3D.getInstance());
+
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        //species2 = new SpeciesSpheresMono(this);
+        addSpecies(species);
+
         Box box = new Box(space);
         potentialMaster = new PotentialMasterMonatomic(this);
         IntegratorMC integrator = new IntegratorMC(this, potentialMaster, box);
@@ -49,9 +54,6 @@ public class DemoSim extends Simulation {
         activityIntegrate.setMaxSteps(10000000);
         getController().addAction(activityIntegrate);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        //species2 = new SpeciesSpheresMono(this);
-        addSpecies(species);
         addBox(box);
         box.setNMolecules(species, 108);
         BoxInflate inflater = new BoxInflate(box, space);

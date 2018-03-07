@@ -40,6 +40,11 @@ public class SWMD3D extends Simulation {
 
     public SWMD3D() {
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.5, space);
 
         box = this.makeBox();
@@ -53,9 +58,6 @@ public class SWMD3D extends Simulation {
         potential = new P2SquareWell(space);
         potential.setLambda(lambda);
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
         box.setNMolecules(species, 108);
 
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});

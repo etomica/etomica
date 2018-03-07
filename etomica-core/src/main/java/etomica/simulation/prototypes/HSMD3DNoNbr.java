@@ -13,8 +13,8 @@ import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
-import etomica.lattice.LatticeCubicFcc;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -37,6 +37,11 @@ public class HSMD3DNoNbr extends Simulation {
 
     public HSMD3DNoNbr() {
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
 
         int numAtoms = 256;
@@ -51,9 +56,6 @@ public class HSMD3DNoNbr extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
         potential = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
         box.setNMolecules(species, numAtoms);

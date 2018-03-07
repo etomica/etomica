@@ -17,8 +17,8 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorHard;
-import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
@@ -50,14 +50,16 @@ public class HSMD2D_noNbr extends Simulation {
 
     public HSMD2D_noNbr() {
         super(Space2D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(space.makeVector(new double[]{10, 10}));
         box.setNMolecules(species, 64);

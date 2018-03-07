@@ -44,9 +44,15 @@ public class ChainHSMD3D extends Simulation {
 
     public ChainHSMD3D() {
         super(Space3D.getInstance());
+
+        int chainLength = 4;
+        model = new ModelChain(space, true);
+        model.setNumAtoms(chainLength);
+        model.setBondingPotential(new P2HardBond(space, 1.0, 0.15, true));
+        species = (SpeciesSpheres) model.makeSpecies(this);
+
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         int numAtoms = 108;
-        int chainLength = 4;
         double neighborRangeFac = 1.6;
         potentialMaster.setRange(neighborRangeFac);
 
@@ -58,11 +64,6 @@ public class ChainHSMD3D extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator, 1, true);
         getController().addAction(activityIntegrate);
 
-        model = new ModelChain(space, true);
-        model.setNumAtoms(chainLength);
-        model.setBondingPotential(new P2HardBond(space, 1.0, 0.15, true));
-
-        species = (SpeciesSpheres) model.makeSpecies(this);
         potentialMaster.addModel(model);
         ((ConformationLinear) model.getConformation()).setBondLength(1.0);
         ((ConformationLinear) model.getConformation()).setAngle(1, 0.35);

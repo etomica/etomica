@@ -54,11 +54,12 @@ public class LJMC3D extends Simulation {
      */
     public LJMC3D(SimParams params) {
         super(Space3D.getInstance());
-        double rc = 3;
-        potentialMaster = new PotentialMasterCell(this, rc, space);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
+
+        double rc = 3;
+        potentialMaster = new PotentialMasterCell(this, rc, space);
 
         Box box = new Box(space);
         addBox(box);
