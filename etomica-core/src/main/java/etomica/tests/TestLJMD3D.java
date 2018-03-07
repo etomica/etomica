@@ -10,7 +10,7 @@ import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
-import etomica.config.ConfigurationFile;
+import etomica.config.Configurations;
 import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
@@ -73,7 +73,7 @@ public class TestLJMD3D extends Simulation {
         SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
         int numAtoms = params.numAtoms;
-        ConfigurationFile config = new ConfigurationFile("LJMC3D" + Integer.toString(numAtoms));
+        Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3D.class);
 
         TestLJMD3D sim = new TestLJMD3D(numAtoms, params.numSteps / params.numAtoms, config);
 
