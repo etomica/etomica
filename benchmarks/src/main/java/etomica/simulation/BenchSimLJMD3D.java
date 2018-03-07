@@ -74,9 +74,9 @@ public class BenchSimLJMD3D {
     @Warmup(time = 1, iterations = 5)
     @Measurement(time = 3, iterations = 5)
     public long integratorStepFaster() {
-//        simFast.integrator.doStep();
+//        simFaster.integrator.doStep();
         simFaster.integrator.getPotentialMaster().calculate(simFast.box, id, pcFast);
-        return simFast.integrator.getStepCount();
+        return simFaster.integrator.getStepCount();
     }
 }
 
