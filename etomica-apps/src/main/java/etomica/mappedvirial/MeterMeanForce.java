@@ -49,13 +49,8 @@ public class MeterMeanForce implements IDataSource, DataSourceIndependent, IActi
         this.box = box;
         this.potentialMaster = potentialMaster;
         pcForce = new PotentialCalculationForceSum();
-        if (box != null) {
-            forceManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
-            pcForce.setAgentManager(forceManager);
-        }
-        else {
-            forceManager = null;
-        }
+        forceManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
+        pcForce.setAgentManager(forceManager);
         allAtoms = new IteratorDirective();
         dr = space.makeVector();
         fij = space.makeVector();
