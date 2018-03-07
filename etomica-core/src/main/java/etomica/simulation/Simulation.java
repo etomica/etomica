@@ -89,7 +89,8 @@ public class Simulation {
     }
 
     /**
-     * Adds a Box to the simulation.
+     * Adds a Box to the simulation.  This method may not be called until all Species have
+     * been added to the simulation.
      *
      * @param newBox the Box being added.
      * @throws IllegalArgumentException if newBox was already added to the simulation.
@@ -221,9 +222,13 @@ public class Simulation {
      * notifies all Boxes of the addition.
      *
      * @param species the Species being added.
-     * @throws IllegalArgumentException if species was already added (and not removed).
+     * @throws IllegalArgumentException if species was already added.
+     * @throws IllegalStateException if a Box has already been added to the simulation.
      */
     public final void addSpecies(ISpecies species) {
+        if (boxes.size() > 0) {
+            throw new IllegalStateException("Cannot add species after adding a box");
+        }
         if(speciesList.contains(species)) {
             throw new IllegalArgumentException("Species already exists");
         }
@@ -249,54 +254,6 @@ public class Simulation {
 
         // this just fires an event for listeners to receive
         eventManager.speciesAdded(species);
-    }
-
-    /**
-     * Removes the given ISpecies from the Simulation.
-     *
-     * @param removedSpecies the Species to be removed.
-     * @throws IllegalArgumentException if species is not in the Simulation.
-     */
-    public final void removeSpecies(ISpecies removedSpecies) {
-
-        int index = removedSpecies.getIndex();
-
-        if (speciesList.get(index) != removedSpecies) {
-            throw new IllegalArgumentException("Species to remove not found at expected location.");
-        }
-
-        speciesList.remove(removedSpecies);
-
-        for (int i = index; i < speciesList.size(); i++) {
-            int oldIndex = speciesList.get(i).getIndex();
-            speciesList.get(i).setIndex(i);
-            eventManager.speciesIndexChanged(speciesList.get(i), oldIndex);
-        }
-
-        for (AtomType atomType : removedSpecies.getAtomTypes()) {
-            atomTypeRemovedNotify(atomType);
-        }
-
-
-        int atomTypeMaxIndex = 0;
-        for (ISpecies species : speciesList) {
-            for (AtomType atomType : species.getAtomTypes()) {
-                if (atomType.getIndex() != atomTypeMaxIndex) {
-                    int oldIndex = atomType.getIndex();
-                    atomType.setIndex(atomTypeMaxIndex);
-                    eventManager.atomTypeIndexChanged(atomType, oldIndex);
-                }
-                atomTypeMaxIndex++;
-            }
-        }
-
-        for(Box box : boxes) {
-            box.removeSpeciesNotify(removedSpecies);
-        }
-
-        eventManager.speciesRemoved(removedSpecies);
-        eventManager.atomTypeMaxIndexChanged(atomTypeMaxIndex);
-        eventManager.speciesMaxIndexChanged(speciesList.size());
     }
 
     /**
@@ -348,12 +305,6 @@ public class Simulation {
             elementAtomTypeHash.put(newElement, atomTypeList);
         }
         atomTypeList.add(newChildType);
-    }
-
-    private void atomTypeRemovedNotify(AtomType removedType) {
-        // remove the type's element from our hash
-        IElement oldElement = removedType.getElement();
-        elementSymbolHash.remove(oldElement.getSymbol());
     }
 
     /**
