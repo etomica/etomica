@@ -38,11 +38,11 @@ public class DipoleSourceAceticAcid implements DipoleSource {
 
         IAtomList childList = molecule.getChildList();
 
-        IAtom cH3 = childList.getAtom(0);
-        IAtom c = childList.getAtom(1);
-        IAtom dBO = childList.getAtom(2);
-        IAtom sBO = childList.getAtom(3);
-        IAtom h = childList.getAtom(4);
+        IAtom cH3 = childList.get(0);
+        IAtom c = childList.get(1);
+        IAtom dBO = childList.get(2);
+        IAtom sBO = childList.get(3);
+        IAtom h = childList.get(4);
         double zCH3 = Electron.UNIT.toSim(0.08);//partial charge of CH3 site
         double zC = Electron.UNIT.toSim(0.55);
         double zDBO = Electron.UNIT.toSim(-0.50);

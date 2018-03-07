@@ -33,7 +33,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
         rotationTensor.setAxial(random.nextInt(3),dTheta);
 
         IAtomList leafAtoms = molecule.getChildList();
-        IAtom first = leafAtoms.getAtom(0);
+        IAtom first = leafAtoms.get(0);
         r0.E(first.getPosition());
         doTransform();
 

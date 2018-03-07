@@ -130,9 +130,9 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 				j=i+2;
 			}
 			
-			IMolecule molecule = coordinateDef.getBox().getMoleculeList().getMolecule(j);
-		  	Vector molleafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		   	Vector molleafPos1 = molecule.getChildList().getAtom(1).getPosition();
+			IMolecule molecule = coordinateDef.getBox().getMoleculeList().get(j);
+		  	Vector molleafPos0 = molecule.getChildList().get(0).getPosition();
+		   	Vector molleafPos1 = molecule.getChildList().get(1).getPosition();
 		   	
 			aVector[i].Ev1Mv2(molleafPos1, molleafPos0);
 		    aVector[i].normalize();

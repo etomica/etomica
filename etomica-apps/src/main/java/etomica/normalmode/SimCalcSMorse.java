@@ -9,10 +9,10 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.*;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -40,39 +40,38 @@ public class SimCalcSMorse extends Simulation {
     public SimCalcSMorse(Space _space, int numAtoms, double density, double temperature) {
         super(_space);
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = new Box(space);
-        addBox(box);
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+
+        if (space.D() == 1) {
+            primitive = new PrimitiveCubic(space, 1.0 / density);
+            boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
+            nCells = new int[]{numAtoms};
+            basis = new BasisMonatomic(space);
+        } else {
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
+            primitive = new PrimitiveCubic(space, L);
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            nCells = new int[]{n, n, n};
+            boundary = new BoundaryRectangularPeriodic(space, n * L);
+            basis = new BasisCubicFcc();
+        }
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), getRandom(), space);
         move.setStepSize(0.1);
         move.setStepSizeMax(0.5);
         integrator.getMoveManager().addMCMove(move);
-        ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
 
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         // activityIntegrate.setMaxSteps(nSteps);
 
-        if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
-            boundary = new BoundaryRectangularPeriodic(space, numAtoms/density);
-            nCells = new int[]{numAtoms};
-            basis = new BasisMonatomic(space);
-        } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            primitive = new PrimitiveCubic(space, L);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            nCells = new int[]{n,n,n};
-            boundary = new BoundaryRectangularPeriodic(space, n * L);
-            basis = new BasisCubicFcc();
-        }
 
         Potential2SoftSpherical potential = new P2Morse(space, 1.0, 1.0, 6.0);
         double truncationRadius = boundary.getBoxSize().getX(0) * 0.5;
@@ -81,12 +80,8 @@ public class SimCalcSMorse extends Simulation {
         potentialMaster.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
         move.setPotential(pTruncated);
 
-        box.setBoundary(boundary);
-
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
-
-        integrator.setBox(box);
     }
 
     /**

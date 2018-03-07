@@ -6,9 +6,9 @@ package etomica.molecule;
 
 import etomica.util.Debug;
 
-import java.util.Arrays;
+import java.util.*;
 
-public final class MoleculeArrayList implements IMoleculeList {
+public final class MoleculeArrayList extends AbstractList<IMolecule> implements IMoleculeList, RandomAccess {
 
     private float trimThreshold = 0.8f;
     private IMolecule[] molecules;
@@ -22,6 +22,11 @@ public final class MoleculeArrayList implements IMoleculeList {
 
     public MoleculeArrayList(int initialSize) {
         molecules = new IMolecule[initialSize];
+    }
+
+    public MoleculeArrayList(Collection<IMolecule> collection) {
+        this(collection.size());
+        this.addAll(collection);
     }
 
     public static float getSizeIncreaseRatio() {
@@ -62,7 +67,7 @@ public final class MoleculeArrayList implements IMoleculeList {
         return itemsInList == 0;
     }
 
-    protected IMolecule[] toArray() {
+    public IMolecule[] toArray() {
         IMolecule[] tempList = new IMolecule[itemsInList];
 
         System.arraycopy(molecules, 0, tempList, 0, itemsInList);
@@ -119,22 +124,24 @@ public final class MoleculeArrayList implements IMoleculeList {
         return true;
     }
 
-    public void addAll(IMoleculeList moleculeList) {
-        if ((itemsInList + moleculeList.getMoleculeCount()) > molecules.length) {
+    public boolean addAll(Collection<? extends IMolecule> moleculeList) {
+        if ((itemsInList + moleculeList.size()) > molecules.length) {
             molecules = Arrays.copyOf(
                     molecules,
-                    (int) ((float) itemsInList * (1.0f + SIZE_INCREASE_RATIO)) + moleculeList.getMoleculeCount()
+                    (int) ((float) itemsInList * (1.0f + SIZE_INCREASE_RATIO)) + moleculeList.size()
             );
         }
         if (moleculeList instanceof MoleculeArrayList) {
-            System.arraycopy(((MoleculeArrayList) moleculeList).molecules, 0, this.molecules, itemsInList, moleculeList.getMoleculeCount());
-            itemsInList += moleculeList.getMoleculeCount();
+            System.arraycopy(((MoleculeArrayList) moleculeList).molecules, 0, this.molecules, itemsInList, moleculeList.size());
+            itemsInList += moleculeList.size();
         } else {
-            for (int i = 0; i < moleculeList.getMoleculeCount(); i++) {
-                molecules[itemsInList] = moleculeList.getMolecule(i);
+            for (IMolecule molecule : moleculeList) {
+                molecules[itemsInList] = molecule;
                 itemsInList++;
             }
         }
+
+        return true;
     }
 
     public IMolecule remove(int index) {
@@ -172,11 +179,11 @@ public final class MoleculeArrayList implements IMoleculeList {
         return atom;
     }
 
-    public int getMoleculeCount() {
+    public int size() {
         return itemsInList;
     }
     
-    public IMolecule getMolecule(int index) {
+    public IMolecule get(int index) {
         if (Debug.ON && (index < 0 || index >= itemsInList)) {
             throw new IndexOutOfBoundsException("MoleculeArrayList.remove invalid index");
         }

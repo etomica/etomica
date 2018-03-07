@@ -277,9 +277,9 @@ public class P3HydrogenManzhos implements IPotential{
         }
 
         public double energy(IMoleculeList molecules) {
-            for (int i=0; i<molecules.getMoleculeCount(); i++) {                
-                v[2*i] = molecules.getMolecule(i).getChildList().getAtom(0).getPosition();
-                v[2*i+1] = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
+            for (int i = 0; i<molecules.size(); i++) {
+                v[2*i] = molecules.get(i).getChildList().get(0).getPosition();
+                v[2*i+1] = molecules.get(i).getChildList().get(1).getPosition();
             }
             double[] q0 = new double [D];
             double[] q = new double [D];

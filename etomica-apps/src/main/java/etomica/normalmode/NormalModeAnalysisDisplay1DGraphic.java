@@ -195,8 +195,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
        	  		int n = (int)nSlider.getValue();                 
        	  	
                 if (oldN != n) {
-                	Boundary boundary = new BoundaryRectangularPeriodic(sim.getSpace(), n/sim.density);
-                	sim.box.setBoundary(boundary);
+                    sim.box.getBoundary().setBoxSize(Vector.of(n / sim.density));
                 	sim.waveVectorFactory.makeWaveVectors(sim.box);
                 	sim.coordinateDefinition.initializeCoordinates(new int[]{(int)nSlider.getValue()});
                 	
@@ -275,7 +274,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                 getController().getSimRestart().getDataResetAction().actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
-       	  	int oldN = sim.box.getMoleculeList().getMoleculeCount();
+       	  	int oldN = sim.box.getMoleculeList().size();
         });
         
         //end of N Slider

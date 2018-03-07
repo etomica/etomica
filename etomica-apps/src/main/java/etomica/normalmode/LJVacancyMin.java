@@ -10,7 +10,6 @@ import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
-import etomica.integrator.Integrator.Forcible;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
@@ -47,27 +46,22 @@ public class LJVacancyMin extends Simulation {
         addSpecies(species);
 
         // TARGET
-        box = new Box(space);
-        addBox(box);
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        boundary = new BoundaryRectangularPeriodic(space, n * L);
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
 
-        double L = Math.pow(4.0/density, 1.0/3.0);
-        int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-        primitive = new PrimitiveCubic(space, n*L);
+        primitive = new PrimitiveCubic(space, n * L);
 
-        nCells = new int[]{n,n,n};
-        boundary = new BoundaryRectangularPeriodic(space, n * L);
-
+        nCells = new int[]{n, n, n};
         Basis basisFCC = new BasisCubicFcc();
         basis = new BasisBigCell(space, basisFCC, nCells);
 
-        box.setBoundary(boundary);
-
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
         potential = ss ? new P2SoftSphere(space, 1.0, 4.0, 12) : new P2LennardJones(space, 1.0, 1.0);
         potential = new P2SoftSphericalTruncated(space, potential, rc);
@@ -82,13 +76,13 @@ public class LJVacancyMin extends Simulation {
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
         potentialMaster.getNeighborManager(box).reset();
         int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange*2+1) {
-            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+        if (potentialCells < cellRange * 2 + 1) {
+            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
-        ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
+        ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
     }
 
     /**
@@ -135,17 +129,14 @@ public class LJVacancyMin extends Simulation {
         double uLat = pcEnergy.getSum();
         System.out.println("uLat: "+uLat/numAtoms);
 
-        sim.box.removeMolecule(sim.box.getMoleculeList().getMolecule(0));
+        sim.box.removeMolecule(sim.box.getMoleculeList().get(0));
 
         pcEnergy.zeroSum();
         sim.potentialMaster.calculate(sim.box, all, pcEnergy);
         double u0 = pcEnergy.getSum();
 
         PotentialCalculationForceSum pc = new PotentialCalculationForceSum();
-        AtomLeafAgentManager<VectorForce> forceManager = new AtomLeafAgentManager<VectorForce>(null, sim.box);
-        for (int i=0; i<numAtoms-1; i++) {
-            forceManager.setAgent(sim.box.getLeafList().getAtom(i), new VectorForce(sim.space));
-        }
+        AtomLeafAgentManager<Vector> forceManager = new AtomLeafAgentManager<>(a -> sim.space.makeVector(), sim.box);
         pc.setAgentManager(forceManager);
 
         double[] d = new double[3*(numAtoms-1)];
@@ -163,8 +154,8 @@ public class LJVacancyMin extends Simulation {
             sim.potentialMaster.calculate(sim.box, all, pc);
             double dSum = 0;
             for (int j=0; j<numAtoms-1; j++) {
-                IAtom jAtom = sim.box.getLeafList().getAtom(j);
-                Vector fj = forceManager.getAgent(jAtom).f;
+                IAtom jAtom = sim.box.getLeafList().get(j);
+                Vector fj = forceManager.getAgent(jAtom);
                 Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     d[3*j+k] = fj.getX(k);
@@ -182,7 +173,7 @@ public class LJVacancyMin extends Simulation {
             }
             // take a small step
             for (int j=0; j<numAtoms-1; j++) {
-                IAtom jAtom = sim.box.getLeafList().getAtom(j);
+                IAtom jAtom = sim.box.getLeafList().get(j);
                 Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     pj.setX(k, pj.getX(k)+step0*dir[3*j+k]);
@@ -193,8 +184,8 @@ public class LJVacancyMin extends Simulation {
             sim.potentialMaster.calculate(sim.box, all, pc);
             dSum = 0;
             for (int j=0; j<numAtoms-1; j++) {
-                IAtom jAtom = sim.box.getLeafList().getAtom(j);
-                Vector fj = forceManager.getAgent(jAtom).f;
+                IAtom jAtom = sim.box.getLeafList().get(j);
+                Vector fj = forceManager.getAgent(jAtom);
                 Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     d[3*j+k] = fj.getX(k);
@@ -209,7 +200,7 @@ public class LJVacancyMin extends Simulation {
             double step1 = -step0*dNorm1/(dNorm1-dNorm0);
             if (verbose) System.out.print(String.format("  %10.4e\n", step1));
             for (int j=0; j<numAtoms-1; j++) {
-                IAtom jAtom = sim.box.getLeafList().getAtom(j);
+                IAtom jAtom = sim.box.getLeafList().get(j);
                 Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     pj.setX(k, pj.getX(k)+step1*dir[3*j+k]);
@@ -225,18 +216,6 @@ public class LJVacancyMin extends Simulation {
         System.out.println("deltaP: "+(pLat1-pLat));
     }
 
-    public static class VectorForce implements Forcible {
-        public final Vector f;
-
-        public VectorForce(Space space) {
-            f = space.makeVector();
-        }
-
-        public Vector force() {
-            return f;
-        }
-    }
-    
     /**
      * Inner class for parameters understood by the HSMD3D constructor
      */

@@ -64,75 +64,72 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
     
     public SimOverlapMultipleWaveVectors(Space _space, int numAtoms, double 
             density, double temperature, String filename, double harmonicFudge,
-            int[] compWV, int[] chbleWV){
+            int[] compWV, int[] chbleWV) {
         super(_space);
-        
+
         System.out.println("Running " + SimOverlapMultipleWaveVectors.APP_NAME);
-        
+
 //        long seed = 2;
 //        System.out.println("Seed explicitly set to " + seed);
 //        IRandom rand = new RandomNumberGenerator(seed);
 //        this.setRandom(rand);
-        
+
         //Set up some of the joint stuff
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        
+
         integrators = new IntegratorMC[2];
         accumulatorPumps = new DataPump[2];
         meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
-        
+
         basis = new BasisMonatomic(space);
-        
-        
+
+
 //TARGET    
         // Set up target system - A, 1, hard rod
         PotentialMasterList potentialMasterTarget = new PotentialMasterList(
                 this, space);
-        boxTarget = new Box(space);
-        addBox(boxTarget);
+        boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms / density);
+        boxTarget = this.makeBox(boundaryTarget);
         boxTarget.setNMolecules(species, numAtoms);
-        
+
         Potential2 p2 = new P2HardSphere(space, 1.0, true);
-        p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
+        p2 = new P2XOrder(space, (Potential2HardSpherical) p2);
         p2.setBox(boxTarget);
         potentialMasterTarget.addPotential(p2, new AtomType[]{
                 species.getLeafType(), species.getLeafType()});
-        
-        primitive = new PrimitiveCubic(space, 1.0/density);
-        boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms/density);
+
+        primitive = new PrimitiveCubic(space, 1.0 / density);
         nCells = new int[]{numAtoms};
-        boxTarget.setBoundary(boundaryTarget);
-        
-        CoordinateDefinitionLeaf coordinateDefinitionTarget = new 
+
+        CoordinateDefinitionLeaf coordinateDefinitionTarget = new
                 CoordinateDefinitionLeaf(boxTarget, primitive, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
-        
-        double neighborRange = 1.01/density;
+
+        double neighborRange = 1.01 / density;
         potentialMasterTarget.setRange(neighborRange);
         // Find neighbors now.  Don't hook up the NieghborListManager since the
         //  neighbors won't change.
         potentialMasterTarget.getNeighborManager(boxTarget).reset();
-        
+
         IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget,
-                random, temperature);
+                random, temperature, boxTarget);
         integrators[1] = integratorTarget;
-        integratorTarget.setBox(boxTarget);
-        
+
         nm = new NormalModes1DHR(boundaryTarget, numAtoms);
         nm.setHarmonicFudge(harmonicFudge);
         nm.setTemperature(temperature);
-        
+
         WaveVectorFactory waveVectorFactoryTarget = nm.getWaveVectorFactory();
         waveVectorFactoryTarget.makeWaveVectors(boxTarget);
         int wvflength = waveVectorFactoryTarget.getWaveVectors().length;
-        System.out.println("We have " + wvflength +" wave vectors.");
+        System.out.println("We have " + wvflength + " wave vectors.");
         System.out.println("Wave Vector Coefficients:");
-        for(int i = 0; i < wvflength; i++){
+        for (int i = 0; i < wvflength; i++) {
             System.out.println(i + " " + waveVectorFactoryTarget.getCoefficients()[i]);
         }
-        
+
         changeMove = new MCMoveChangeMultipleWV(potentialMasterTarget, random);
         integratorTarget.getMoveManager().addMCMove(changeMove);
         changeMove.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
@@ -143,24 +140,23 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         changeMove.setStepSizeMin(0.001);
         changeMove.setStepSize(0.01);
         changeMove.setOmegaSquared(nm.getOmegaSquared());
-        
-        meterAinA = new MeterPotentialEnergy(potentialMasterTarget);
-        meterAinA.setBox(boxTarget);
-        
-        meterBinA = new MeterCompareMultipleWVBrute("meterBinA", 
+
+        meterAinA = new MeterPotentialEnergy(potentialMasterTarget, boxTarget);
+
+        meterBinA = new MeterCompareMultipleWVBrute("meterBinA",
                 potentialMasterTarget, coordinateDefinitionTarget, boxTarget);
         meterBinA.setEigenVectors(nm.getEigenvectors());
         meterBinA.setOmegaSquared(nm.getOmegaSquared());
         meterBinA.setTemperature(temperature);
         meterBinA.setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
         meterBinA.setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
-        
-        MeterOverlap meterOverlapInA = new MeterOverlap("meterOverlapInA", Null.DIMENSION, 
+
+        MeterOverlap meterOverlapInA = new MeterOverlap("meterOverlapInA", Null.DIMENSION,
                 meterAinA, meterBinA, temperature);
         meters[1] = meterOverlapInA;
-        
+
         potentialMasterTarget.getNeighborManager(boxTarget).reset();
-        
+
 //        meterBinA.getSingle().setCoordinateDefinition(coordinateDefinitionTarget);
 //        meterBinA.getSingle().setEigenVectors(nm.getEigenvectors(boxTarget));
 //        meterBinA.getSingle().setOmegaSquared(nm.getOmegaSquared(boxTarget));
@@ -168,7 +164,7 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
 //        meterBinA.getSingle().setWaveVectorCoefficients(waveVectorFactoryTarget.getCoefficients());
 //        meterBinA.getSingle().setWaveVectors(waveVectorFactoryTarget.getWaveVectors());
 //        meterBinA.setA(true);
-        
+
 //        singleBinA = new MeterCompareSingleModeBrute("singleBinA", potentialMasterTarget, coordinateDefinitionTarget, boxTarget);
 //        singleBinA.setEigenVectors(nm.getEigenvectors(boxTarget));
 //        singleBinA.setOmegaSquared(nm.getOmegaSquared(boxTarget));
@@ -180,54 +176,47 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
 //        
 //        MeterOverlap singleOverlapinA = new MeterOverlap("singleOverlapinA", Null.DIMENSION, meterAinA, singleBinA, temperature);
 //        bMeters[1] = singleOverlapinA;
-        
-        
-        
-        
-        
-        
+
+
 //REFERENCE
         // Set up REFERENCE system - System B - 0 - Hybrid system
         PotentialMasterList potentialMasterRef = new PotentialMasterList(this, space);
-        boxRef = new Box(space);
-        addBox(boxRef);
+        boundaryRef = new BoundaryRectangularPeriodic(space, numAtoms / density);
+        boxRef = this.makeBox(boundaryRef);
         boxRef.setNMolecules(species, numAtoms);
-        
+
         p2 = new P2HardSphere(space, 1.0, true);
-        p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
+        p2 = new P2XOrder(space, (Potential2HardSpherical) p2);
         p2.setBox(boxRef);
         potentialMasterRef.addPotential(p2, new AtomType[]{
                 species.getLeafType(), species.getLeafType()});
-        
-        primitive = new PrimitiveCubic(space, 1.0/density);
-        boundaryRef = new BoundaryRectangularPeriodic(space, numAtoms/density);
+
+        primitive = new PrimitiveCubic(space, 1.0 / density);
         nCells = new int[]{numAtoms};
-        boxRef.setBoundary(boundaryRef);
-        
-        CoordinateDefinitionLeaf coordinateDefinitionRef = new 
+
+        CoordinateDefinitionLeaf coordinateDefinitionRef = new
                 CoordinateDefinitionLeaf(boxRef, primitive, space);
         coordinateDefinitionRef.initializeCoordinates(nCells);
-        
-        neighborRange = 1.01/density;
+
+        neighborRange = 1.01 / density;
         potentialMasterRef.setRange(neighborRange);
         //find neighbors now.  Don't hook up NeighborListManager since the
         //  neighbors won't change
         potentialMasterRef.getNeighborManager(boxRef).reset();
-        
-        IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef, 
-                random, temperature);
-        integratorRef.setBox(boxRef);
+
+        IntegratorMC integratorRef = new IntegratorMC(potentialMasterRef,
+                random, temperature, boxRef);
         integrators[0] = integratorRef;
-        
+
         WaveVectorFactory waveVectorFactoryRef = nm.getWaveVectorFactory();
         waveVectorFactoryRef.makeWaveVectors(boxRef);
-        
-        compareMove = new MCMoveCompareMultipleWV(potentialMasterRef, 
+
+        compareMove = new MCMoveCompareMultipleWV(potentialMasterRef,
                 random);
         integratorRef.getMoveManager().addMCMove(compareMove);
         compareMove.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
         compareMove.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
-        compareMove.setOmegaSquared(nm.getOmegaSquared(), 
+        compareMove.setOmegaSquared(nm.getOmegaSquared(),
                 waveVectorFactoryRef.getCoefficients());
         compareMove.setEigenVectors(nm.getEigenvectors());
         compareMove.setCoordinateDefinition(coordinateDefinitionRef);
@@ -235,10 +224,9 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         compareMove.setBox(boxRef);
         compareMove.setStepSizeMin(0.001);
         compareMove.setStepSize(0.01);
-        
-        meterAinB = new MeterPotentialEnergy(potentialMasterRef);
-        meterAinB.setBox(boxRef);
-       
+
+        meterAinB = new MeterPotentialEnergy(potentialMasterRef, boxRef);
+
         meterBinB = new MeterCompareMultipleWVBrute(potentialMasterRef,
                 coordinateDefinitionRef, boxRef);
         meterBinB.setCoordinateDefinition(coordinateDefinitionRef);
@@ -248,31 +236,29 @@ public class SimOverlapMultipleWaveVectors extends Simulation {
         meterBinB.setWaveVectorCoefficients(waveVectorFactoryRef.getCoefficients());
         meterBinB.setWaveVectors(waveVectorFactoryRef.getWaveVectors());
         integratorRef.setMeterPotentialEnergy(meterBinB);
-        
-        MeterOverlap meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION, 
+
+        MeterOverlap meterOverlapInB = new MeterOverlap("MeterOverlapInB", Null.DIMENSION,
                 meterBinB, meterAinB, temperature);
         meters[0] = meterOverlapInB;
-        
-        integratorRef.setBox(boxRef);
         potentialMasterRef.getNeighborManager(boxRef).reset();
-        
-        
+
+
 //JOINT
         //Set up the rest of the joint stuff
         setComparedWV(compWV);
         setChangeableWVs(chbleWV);
-        
-        integratorSim = new IntegratorOverlap(new 
+
+        integratorSim = new IntegratorOverlap(new
                 IntegratorMC[]{integratorRef, integratorTarget});
-        
+
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
-        
+
         setBennettParameter(1.0, 30);
-        
+
         activityIntegrate = new ActivityIntegrate(integratorSim, 0, true);
         getController().addAction(activityIntegrate);
-        
+
     }
 
     public static void main(String args[]) {

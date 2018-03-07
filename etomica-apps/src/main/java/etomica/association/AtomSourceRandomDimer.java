@@ -28,10 +28,10 @@ public class AtomSourceRandomDimer implements AtomSource {
 
 	public IAtom getAtom() {
     	IAtomList atoms = associationManager.getAssociatedAtoms();
-    	if (atoms.getAtomCount() == 0) {
+    	if (atoms.size() == 0) {
     		return null;
     	}
-        return atoms.getAtom(random.nextInt(atoms.getAtomCount()));
+        return atoms.get(random.nextInt(atoms.size()));
 	}
 
 	public void setBox(Box p) {

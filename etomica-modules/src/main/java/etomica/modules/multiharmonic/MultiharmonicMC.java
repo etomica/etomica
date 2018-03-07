@@ -51,12 +51,10 @@ public class MultiharmonicMC extends Simulation {
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        box = new Box(new BoundaryRectangularNonperiodic(space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector1D(3.0));
         controller = getController();
-        integrator = new IntegratorMC(this, potentialMaster);
-        integrator.setBox(box);
+        integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(1.0);
         potentialA = new P1Harmonic(space);
         integrator.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialA, random));
@@ -75,8 +73,7 @@ public class MultiharmonicMC extends Simulation {
         dataPump = new DataPump(meter, accumulator);
         integrator.getEventManager().addListener(new IntegratorListenerAction(dataPump));
 
-        meterEnergy = new MeterPotentialEnergy(potentialMaster);
-        meterEnergy.setBox(box);
+        meterEnergy = new MeterPotentialEnergy(potentialMaster, box);
         accumulatorEnergy = new AccumulatorAverageCollapsing();
         dataPumpEnergy = new DataPump(meterEnergy, accumulatorEnergy);
         integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpEnergy));

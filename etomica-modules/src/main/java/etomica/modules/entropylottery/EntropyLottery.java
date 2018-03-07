@@ -26,32 +26,30 @@ public class EntropyLottery extends Simulation {
     public EntropyLottery(Space _space) {
         super(_space);
         PotentialMaster potentialMaster = new PotentialMaster();
-        
+
         final int N = 30;  //number of atoms
-        
+
         //controller and integrator
-	    integrator = new IntegratorMC(this, potentialMaster);
+        integrator = new IntegratorMC(this, potentialMaster, box);
         MCMoveAtomAdjacent move = new MCMoveAtomAdjacent(getRandom(), space);
         integrator.getMoveManager().addMCMove(move);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-	    species = new SpeciesSpheresMono(this, space);
+        species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        
+
         //construct box
-	    box = new Box(new BoundaryRectangularNonperiodic(space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.setNMolecules(species, N);
         Vector dimensions = space.makeVector();
         dimensions.E(10);
         box.getBoundary().setBoxSize(dimensions);
         new ConfigurationZero(space).initializeCoordinates(box);
-        integrator.setBox(box);
-		
+
 //        BoxImposePbc imposePBC = new BoxImposePbc(box);
 //        integrator.addListener(new IntervalActionAdapter(imposePBC));
-        
+
     }  
     
     public static void main(String[] args) {

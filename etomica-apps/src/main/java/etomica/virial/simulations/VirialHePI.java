@@ -527,9 +527,9 @@ public class VirialHePI {
             for (int i=1; i<nPoints; i++) {
                 groupTranslationVector.setX(0, r*Math.cos(2*(i-1)*Math.PI/(nPoints-1)));
                 groupTranslationVector.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
-                moveMoleculeAction.actionPerformed(molecules.getMolecule(i));
+                moveMoleculeAction.actionPerformed(molecules.get(i));
                 if (nBeads>1) {
-                    Vector v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
+                    Vector v = molecules.get(i).getChildList().get(1).getPosition();
                     v.TE(0.95);
                 }
             }

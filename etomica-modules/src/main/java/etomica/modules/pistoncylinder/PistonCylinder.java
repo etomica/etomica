@@ -45,68 +45,63 @@ public class PistonCylinder extends Simulation {
         double sigma = 4.0;
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
-        ((ElementSimple)species.getLeafType().getElement()).setMass(16);
+        ((ElementSimple) species.getLeafType().getElement()).setMass(16);
         addSpecies(species);
-        box = new Box(new BoundaryPistonCylinder(space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryPistonCylinder(space));
         box.setNMolecules(species, INIT_NUM_MOLECULES);
         Vector newDim;
         if (space.D() == 2) {
             config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space);
-            newDim = new Vector2D(80,150);
-        }
-        else {
+            newDim = new Vector2D(80, 150);
+        } else {
             config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
-            newDim = new Vector3D(30,80,30);
+            newDim = new Vector3D(30, 80, 30);
         }
         config.setBoundaryPadding(sigma);
         box.getBoundary().setBoxSize(newDim);
         config.initializeCoordinates(box);
-        
-        P2SquareWell potentialSW = new P2SquareWell(space,sigma,lambda,31.875,true);
-        potentialWrapper = new P2HardWrapper(space,potentialSW);
+
+        P2SquareWell potentialSW = new P2SquareWell(space, sigma, lambda, 31.875, true);
+        potentialWrapper = new P2HardWrapper(space, potentialSW);
         potentialMaster.addPotential(potentialWrapper, new AtomType[]{species.getLeafType(), species.getLeafType()});
-        
+
         wallPotential = new P1HardBoundary(space, true);
-        wallPotential.setCollisionRadius(sigma*0.5); //potential.getCoreDiameter()*0.5);
+        wallPotential.setCollisionRadius(sigma * 0.5); //potential.getCoreDiameter()*0.5);
         potentialMaster.addPotential(wallPotential, new AtomType[]{species.getLeafType()});
-        wallPotential.setActive(0,true,true);  // left wall
-        wallPotential.setActive(0,false,true); // right wall
-        if (D==3) {
-            wallPotential.setActive(1,true,true); // top wall
-            wallPotential.setActive(1,false,false); // bottom wall
-            wallPotential.setActive(2,true,true);  // front wall
-            wallPotential.setActive(2,false,true); // back wall
-        }
-        else {
-            wallPotential.setActive(1,true,false); // top wall
-            wallPotential.setActive(1,false,true); // bottom wall
+        wallPotential.setActive(0, true, true);  // left wall
+        wallPotential.setActive(0, false, true); // right wall
+        if (D == 3) {
+            wallPotential.setActive(1, true, true); // top wall
+            wallPotential.setActive(1, false, false); // bottom wall
+            wallPotential.setActive(2, true, true);  // front wall
+            wallPotential.setActive(2, false, true); // back wall
+        } else {
+            wallPotential.setActive(1, true, false); // top wall
+            wallPotential.setActive(1, false, true); // bottom wall
         }
 
-        pistonPotential = new P1HardMovingBoundary(space,box.getBoundary(),1,400, true);
-        pistonPotential.setCollisionRadius(sigma*0.5);
+        pistonPotential = new P1HardMovingBoundary(space, box.getBoundary(), 1, 400, true);
+        pistonPotential.setCollisionRadius(sigma * 0.5);
         if (D == 3) {
-            pistonPotential.setWallPosition(box.getBoundary().getBoxSize().getX(1)*0.5);
+            pistonPotential.setWallPosition(box.getBoundary().getBoxSize().getX(1) * 0.5);
             pistonPotential.setWallVelocity(-0.5);
             pistonPotential.setPressure(-Bar.UNIT.toSim(1.0));
-        }
-        else {
-            pistonPotential.setWallPosition(-box.getBoundary().getBoxSize().getX(1)*0.5);
+        } else {
+            pistonPotential.setWallPosition(-box.getBoundary().getBoxSize().getX(1) * 0.5);
             pistonPotential.setWallVelocity(0.5);
             pistonPotential.setPressure(Bar.UNIT.toSim(100.0));
         }
         pistonPotential.setThickness(1.0);
         potentialMaster.addPotential(pistonPotential, new AtomType[]{species.getLeafType()});
-        ((BoundaryPistonCylinder)box.getBoundary()).setPistonPotential(pistonPotential);
-        
-        integrator = new IntegratorHardPiston(this,potentialMaster,pistonPotential, space);
-        integrator.setBox(box);
+        ((BoundaryPistonCylinder) box.getBoundary()).setPistonPotential(pistonPotential);
+
+        integrator = new IntegratorHardPiston(this, potentialMaster, pistonPotential, box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(1);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setTimeStep(1.0);
-        ai = new ActivityIntegrate(integrator,0,true);
+        ai = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(ai);
-        
+
     }
 }

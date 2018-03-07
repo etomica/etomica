@@ -57,19 +57,20 @@ public class SimLJHTTISuper extends Simulation {
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
         }
-        potentialMaster = new PotentialMasterList(this, space);
-
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
+        potentialMaster = new PotentialMasterList(this, space);
+
         // TARGET
-        box = new Box(space);
-        addBox(box);
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        boundary = new BoundaryRectangularPeriodic(space, n * L);
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         atomMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
@@ -77,20 +78,14 @@ public class SimLJHTTISuper extends Simulation {
         integrator.getMoveManager().addMCMove(atomMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
 
-        double L = Math.pow(4.0/density, 1.0/3.0);
-        int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-        primitive = new PrimitiveCubic(space, n*L);
+        primitive = new PrimitiveCubic(space, n * L);
 
-        nCells = new int[]{n,n,n};
-        boundary = new BoundaryRectangularPeriodic(space, n * L);
-
+        nCells = new int[]{n, n, n};
         Basis basisFCC = new BasisCubicFcc();
         basis = new BasisBigCell(space, basisFCC, nCells);
 
-        box.setBoundary(boundary);
-
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
         potential = ss ? new P2SoftSphere(space, 1.0, 4.0, 12) : new P2LennardJones(space, 1.0, 1.0);
         potential = new P2SoftSphericalTruncated(space, potential, rc);
@@ -100,16 +95,14 @@ public class SimLJHTTISuper extends Simulation {
 
         potentialMaster.lrcMaster().setEnabled(false);
 
-        integrator.setBox(box);
-
         int cellRange = 7;
         potentialMaster.setRange(rc);
         potentialMaster.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
         potentialMaster.getNeighborManager(box).reset();
         int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange*2+1) {
-            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+        if (potentialCells < cellRange * 2 + 1) {
+            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
 
         activityIntegrate = new ActivityIntegrate(integrator);
@@ -118,7 +111,7 @@ public class SimLJHTTISuper extends Simulation {
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
-        ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
+        ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
     }
 
     /**
@@ -285,8 +278,7 @@ public class SimLJHTTISuper extends Simulation {
         meterSolid.setBPRes(bpharm);
         IData d = meterSolid.getData();
 
-        MeterPotentialEnergy meterEnergyShort = new MeterPotentialEnergy(sim.potentialMaster);
-        meterEnergyShort.setBox(sim.box);
+        MeterPotentialEnergy meterEnergyShort = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         final double[] uFacCut = new double[cutoffs.length];
         double uShort = meterEnergyShort.getDataAsScalar();
         for (int i=0; i<uFacCut.length; i++) {

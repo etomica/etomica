@@ -55,7 +55,7 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
     }
 
     public boolean haveTarget(IAtom a){
-        if (parentGroup.getChildList().getAtom(a.getIndex()) != a) return false;
+        if (parentGroup.getChildList().get(a.getIndex()) != a) return false;
         if (a.getIndex() >= partners.length) return false;
         int[][] aPartners = partners[a.getIndex()];
         if (aPartners[0].length + aPartners[1].length == 0) return false;
@@ -72,7 +72,7 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
             parentGroup = null;
         }
         else {
-            parentGroup = parent.getMolecule(0);
+            parentGroup = parent.get(0);
         }
         unset();
     }
@@ -112,13 +112,13 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
             int t0Length = tPartners[0].length;
             if (cursor < t0Length) {
                 pair.atom0 = target;
-                pair.atom1 = parentGroup.getChildList().getAtom(tPartners[0][cursor]);
+                pair.atom1 = parentGroup.getChildList().get(tPartners[0][cursor]);
                 cursor++;
                 return pair;
             }
             if (cursor < t0Length + tPartners[1].length) {
                 pair.atom1 = target;
-                pair.atom0 = parentGroup.getChildList().getAtom(tPartners[1][cursor-t0Length]);
+                pair.atom0 = parentGroup.getChildList().get(tPartners[1][cursor-t0Length]);
                 cursor++;
                 return pair;
             }
@@ -128,8 +128,8 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
         if (cursor >= index.length){
             return null;
         }
-        pair.atom0 = parentGroup.getChildList().getAtom(index[cursor][0]);
-        pair.atom1 = parentGroup.getChildList().getAtom(index[cursor][1]);
+        pair.atom0 = parentGroup.getChildList().get(index[cursor][0]);
+        pair.atom1 = parentGroup.getChildList().get(index[cursor][1]);
         cursor++;
         return pair;
     }

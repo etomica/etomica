@@ -56,10 +56,10 @@ public class BasisBigCell extends Basis {
         
         // retrieve real coordinates and scale them
         IAtomList atomList = box.getLeafList();
-        Vector[] pos = new Vector[atomList.getAtomCount()];
-        for (int i=0; i<atomList.getAtomCount(); i++) {
+        Vector[] pos = new Vector[atomList.size()];
+        for (int i = 0; i<atomList.size(); i++) {
             pos[i] = space.makeVector();
-            pos[i].E(atomList.getAtom(i).getPosition());
+            pos[i].E(atomList.get(i).getPosition());
             pos[i].DE(boxSize);
             // coordinates now range from -0.5 to +0.5, we want 0.0 to 1.0
             pos[i].PE(0.5);

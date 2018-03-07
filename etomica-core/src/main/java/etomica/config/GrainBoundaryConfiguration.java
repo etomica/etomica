@@ -157,11 +157,11 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
         	//ii[2] goes from 0 to nCellsAz-1, not 1 to nCellsAz, because of 
         	//how setSize method works
             if (ii[2] > ((nCellsAz - 2) - 1)) {
-            	a = listFixedA.getMolecule(iFixedA);
+            	a = listFixedA.get(iFixedA);
             	iFixedA++;
             }
             else {
-            	a = listMobileA.getMolecule(iMobileA);
+            	a = listMobileA.get(iMobileA);
             	iMobileA++;
             	//System.out.println(ii[2] + "  |  " + a);
             }
@@ -182,10 +182,10 @@ public class GrainBoundaryConfiguration implements Configuration, java.io.Serial
         	int[] ii = indexIteratorB.next();
         	//ii[2] goes from 0 to nCellsAz-1, not 1 to nCellsAz
             if (ii[2] < 2) {
-            	a = listFixedB.getMolecule(iFixedB);
+            	a = listFixedB.get(iFixedB);
             }
             else {
-            	a = listMobileB.getMolecule(iMobileB);
+            	a = listMobileB.get(iMobileB);
             }
             // initialize coordinates of child atoms
             a.getType().initializeConformation(a);

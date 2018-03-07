@@ -51,13 +51,13 @@ public class P22CLJQ extends PotentialMolecular {
     public double energy(IMoleculeList pair){
         double ener=0.0;
 
-        IAtomList mol1 = pair.getMolecule(0).getChildList();
-        IAtomList mol2 = pair.getMolecule(1).getChildList(); 
-        IAtom bead11 = mol1.getAtom(0);
-        IAtom bead12 = mol1.getAtom(1);
+        IAtomList mol1 = pair.get(0).getChildList();
+        IAtomList mol2 = pair.get(1).getChildList();
+        IAtom bead11 = mol1.get(0);
+        IAtom bead12 = mol1.get(1);
 
-        IAtom bead21 = mol2.getAtom(0);
-        IAtom bead22 = mol2.getAtom(1);
+        IAtom bead21 = mol2.get(0);
+        IAtom bead22 = mol2.get(1);
 
         // LJ contributation
 

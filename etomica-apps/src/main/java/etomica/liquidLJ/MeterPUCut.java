@@ -93,7 +93,7 @@ public class MeterPUCut implements IDataSource {
         int j = 0;
         for (int i=0; i<uSum.length; i++) {
             double vol = box.getBoundary().volume();
-            int N = box.getMoleculeList().getMoleculeCount();
+            int N = box.getMoleculeList().size();
             double density = N / vol;
 
             double P = density*temperature - vSum[i]/(vol*dim);

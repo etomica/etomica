@@ -40,46 +40,46 @@ public class MpiIntraArrayList implements MoleculesetIterator, java.io.Serializa
      * Sets iterator in condition to begin iteration.
      */
     public void reset() {
-        if (list.getMoleculeCount() < 2) {
+        if (list.size() < 2) {
             outerIndex = 2;
             innerIndex = 2;
             return;
         }
         outerIndex = 0;
         innerIndex = 0;
-        molecules.atom0 = list.getMolecule(0);
+        molecules.mol0 = list.get(0);
     }
 
     /**
      * Sets iterator such that next is null.
      */
     public void unset() {
-        outerIndex = list.getMoleculeCount() - 2;
-        innerIndex = list.getMoleculeCount() - 1;
+        outerIndex = list.size() - 2;
+        innerIndex = list.size() - 1;
     }
 
     /**
      * Returns the number of iterates, which is list.size*(list.size-1)/2
      */
     public int size() {
-        return list.getMoleculeCount() * (list.getMoleculeCount() - 1) / 2;
+        return list.size() * (list.size() - 1) / 2;
     }
 
     /**
      * Returns the next iterate pair. Returns null if hasNext() is false.
      */
     public IMoleculeList next() {
-        if (innerIndex > list.getMoleculeCount() - 2) {
-            if (outerIndex > list.getMoleculeCount() - 3) {
+        if (innerIndex > list.size() - 2) {
+            if (outerIndex > list.size() - 3) {
                 return null;
             }
             outerIndex++;
-            molecules.atom0 = list.getMolecule(outerIndex);
+            molecules.mol0 = list.get(outerIndex);
             innerIndex = outerIndex;
         }
         innerIndex++;
-        molecules.atom1 = list.getMolecule(innerIndex);
-        if (Debug.ON && molecules.atom0 == molecules.atom1) {
+        molecules.mol1 = list.get(innerIndex);
+        if (Debug.ON && molecules.mol0 == molecules.mol1) {
             throw new RuntimeException("oops");
         }
         return molecules;
@@ -100,7 +100,7 @@ public class MpiIntraArrayList implements MoleculesetIterator, java.io.Serializa
      *            the new molecule list for iteration
      */
     public void setList(IMoleculeList newList) {
-        if (newList.getMoleculeCount() > 1 && newList.getMolecule(0) == newList.getMolecule(1)) {
+        if (newList.size() > 1 && newList.get(0) == newList.get(1)) {
             throw new RuntimeException("oops");
         }
         list = newList;

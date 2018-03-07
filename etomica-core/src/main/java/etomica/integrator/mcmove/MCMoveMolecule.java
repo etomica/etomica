@@ -75,7 +75,7 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
     
 
     public boolean doTrial() {
-        if(box.getMoleculeList().getMoleculeCount()==0) return false;
+        if(box.getMoleculeList().size()==0) return false;
         
         
         molecule = moleculeSource.getMolecule();

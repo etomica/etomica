@@ -57,8 +57,8 @@ public class P2HardSphere extends Potential2HardSpherical {
      * Time to collision of pair, assuming free-flight kinematics
      */
     public double collisionTime(IAtomList pair, double falseTime) {
-        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
-        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+        IAtomKinetic atom0 = (IAtomKinetic)pair.get(0);
+        IAtomKinetic atom1 = (IAtomKinetic)pair.get(1);
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
@@ -87,8 +87,8 @@ public class P2HardSphere extends Potential2HardSpherical {
      * Implements collision dynamics and updates lastCollisionVirial
      */
     public void bump(IAtomList pair, double falseTime) {
-        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
-        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+        IAtomKinetic atom0 = (IAtomKinetic)pair.get(0);
+        IAtomKinetic atom1 = (IAtomKinetic)pair.get(1);
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());

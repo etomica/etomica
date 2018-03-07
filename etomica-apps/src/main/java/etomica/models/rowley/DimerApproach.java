@@ -68,79 +68,77 @@ public class DimerApproach extends Simulation {
     
 
 	public DimerApproach() {
-		
-	
-		super(Space3D.getInstance());
-		
-		box = new Box(new BoundaryRectangularNonperiodic(space), space);
-		addBox(box);
-		
-		// *************************
-		// The Species & Potential
-		// *************************
-		
-		PotentialGroup U_a_b = new PotentialGroup(2);
-		if (ethanol) {
-			species = new SpeciesEthanol(space, pointCharges);
-			speciesEthanol = (SpeciesEthanol) species;
-			EthanolPotentialHelper.initPotential(space, speciesEthanol, U_a_b, pointCharges);
-			
-		} else {
-			species = new SpeciesMethanol(space, pointCharges);
-			speciesMethanol = (SpeciesMethanol) species;
-			double sigmaOC = 0.00001;
-			double sigmaOH = 0.05;
-			MethanolPotentialHelper.initPotential(space, speciesMethanol, U_a_b, pointCharges, sigmaOC, sigmaOH);
-		}
-		addSpecies(species);
-		box.setNMolecules(species, 2); // 2 molecules in box...
-		U_a_b.setBox(box);
-		potentialMaster = new PotentialMaster();
-		potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
-		
-		// *********************
-		// The Integrator
-		// *********************
-		
-		dimerApproach = new IntegratorDimerApproach(potentialMaster, space);
-		dimerApproach.setBox(box);
-		
-		// Methods in dimerApproach that must be called
-		dimerApproach.setMolecules();
+
+
+        super(Space3D.getInstance());
+
+        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
+
+        // *************************
+        // The Species & Potential
+        // *************************
+
+        PotentialGroup U_a_b = new PotentialGroup(2);
+        if (ethanol) {
+            species = new SpeciesEthanol(space, pointCharges);
+            speciesEthanol = (SpeciesEthanol) species;
+            EthanolPotentialHelper.initPotential(space, speciesEthanol, U_a_b, pointCharges);
+
+        } else {
+            species = new SpeciesMethanol(space, pointCharges);
+            speciesMethanol = (SpeciesMethanol) species;
+            double sigmaOC = 0.00001;
+            double sigmaOH = 0.05;
+            MethanolPotentialHelper.initPotential(space, speciesMethanol, U_a_b, pointCharges, sigmaOC, sigmaOH);
+        }
+        addSpecies(species);
+        box.setNMolecules(species, 2); // 2 molecules in box...
+        U_a_b.setBox(box);
+        potentialMaster = new PotentialMaster();
+        potentialMaster.addPotential(U_a_b, new ISpecies[]{species, species});
+
+        // *********************
+        // The Integrator
+        // *********************
+
+        dimerApproach = new IntegratorDimerApproach(potentialMaster, box);
+
+        // Methods in dimerApproach that must be called
+        dimerApproach.setMolecules();
         dimerApproach.setImportantAtoms();
         dimerApproach.setRoute(route);
-        
-        double [][] params;
-        if (ethanol) { 
-        	params = EthanolRouteParams.setEthanolParams(route); 
-        } else {         
-        	params = MethanolRouteParams.setMethanolParams(route); 
+
+        double[][] params;
+        if (ethanol) {
+            params = EthanolRouteParams.setEthanolParams(route);
+        } else {
+            params = MethanolRouteParams.setMethanolParams(route);
         }
-        
+
         dimerApproach.setRouteParams(params);
-        
+
         // The following is required for dataDistances:
-        atom_O_A  =  dimerApproach.getAtom_O_A(); 
-		atom_aC_A =  dimerApproach.getAtom_aC_A();
-		atom_aH_A =  dimerApproach.getAtom_aH_A();
-		atom_H1_A =  dimerApproach.getAtom_H1_A();
-		
-		atom_O_B  =  dimerApproach.getAtom_O_B();
-		atom_aC_B =  dimerApproach.getAtom_aC_B();
-		atom_aH_B =  dimerApproach.getAtom_aH_B();
-		
-       
+        atom_O_A = dimerApproach.getAtom_O_A();
+        atom_aC_A = dimerApproach.getAtom_aC_A();
+        atom_aH_A = dimerApproach.getAtom_aH_A();
+        atom_H1_A = dimerApproach.getAtom_H1_A();
+
+        atom_O_B = dimerApproach.getAtom_O_B();
+        atom_aC_B = dimerApproach.getAtom_aC_B();
+        atom_aH_B = dimerApproach.getAtom_aH_B();
+
+
         // This may be called here or in the main method
-		// Must be called after above set methods
-		dimerApproach.initializeCoordinates();
-		
-		ActivityIntegrate activityIntegrate = new ActivityIntegrate(dimerApproach);	
-		activityIntegrate.setMaxSteps(75);
-		activityIntegrate.setSleepPeriod(100);
-	
-		getController().addAction(activityIntegrate);	
-		
-	}
+        // Must be called after above set methods
+        dimerApproach.initializeCoordinates();
+
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(dimerApproach);
+        activityIntegrate.setMaxSteps(75);
+        activityIntegrate.setSleepPeriod(100);
+
+        getController().addAction(activityIntegrate);
+
+    }
 
 	public static void main(String[] string)  {
 		
@@ -154,9 +152,7 @@ public class DimerApproach extends Simulation {
 	     ****************************************************************************
 	     */
 
-		meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-
-		meterPE.setBox(sim.box);
+		meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
 		
 		DataLogger dataLoggerPE = new DataLogger();
 		

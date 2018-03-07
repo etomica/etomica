@@ -79,8 +79,14 @@ public class EFSTungsten extends Simulation {
 
     public EFSTungsten(int numatoms, double density, double temperature) {
         super(Space3D.getInstance());
+
+        w = new SpeciesSpheresMono(space, Tungsten.INSTANCE);
+        w.setIsDynamic(true);
+        addSpecies(w);
+
         potentialMaster = new PotentialMasterList(this, space);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
+        box = this.makeBox();
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
         integrator.setThermostatInterval(100);
@@ -88,15 +94,7 @@ public class EFSTungsten extends Simulation {
         integrator.setThermostatNoDrift(true);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        w = new SpeciesSpheresMono(space, Tungsten.INSTANCE);
-        w.setIsDynamic(true);
-
-        addSpecies(w);
-
-        box = new Box(space);
-        addBox(box);
         box.setNMolecules(w, numatoms);
-
 
         //BCC W
 
@@ -126,8 +124,6 @@ public class EFSTungsten extends Simulation {
         potentialMaster.setRange(potentialN.getRange() * 1.3);
         potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange() * 1.3));
 //        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
-
-        integrator.setBox(box);
         potentialMaster.getNeighborManager(box).reset();
     }
 
@@ -147,14 +143,11 @@ public class EFSTungsten extends Simulation {
     	System.out.println(numatoms+" atoms");
     	System.out.println(numsteps+" steps");
     	
-    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
-    	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
+    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
+        MeterKineticEnergy kineticMeter = new MeterKineticEnergy(sim.box);
         MeterEnergy totalEnergyMeter = new MeterEnergy(sim.potentialMaster,sim.box);
         MeterDADB DADBMeter = new MeterDADB(sim.getSpace(),energyMeter,sim.potentialMaster,sim.coordinateDefinition,Kelvin.UNIT.toSim(temperature));
         MeterPressure pressureMeter = new MeterPressure(sim.getSpace());
-
-    	energyMeter.setBox(sim.box);
-    	kineticMeter.setBox(sim.box);
     	System.out.println("lattice energy "+ElectronVolt.UNIT.fromSim(energyMeter.getDataAsScalar()/numatoms));
     	System.out.println("eV is "+ElectronVolt.UNIT.fromSim(1));
     	System.out.println("K is "+Kelvin.UNIT.fromSim(1));
@@ -325,19 +318,19 @@ public class EFSTungsten extends Simulation {
         }
 
         double PE = accumulatorAveragePE.getData(AccumulatorAverage.AVERAGE).getValue(0)
-                    /sim.box.getLeafList().getAtomCount();
+                    /sim.box.getLeafList().size();
         double PEerror = accumulatorAveragePE.getData(AccumulatorAverage.ERROR).getValue(0)
-                /sim.box.getLeafList().getAtomCount();
+                /sim.box.getLeafList().size();
         double PEcor = accumulatorAveragePE.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0)
-                /sim.box.getLeafList().getAtomCount();
+                /sim.box.getLeafList().size();
         double PV = Pascal.UNIT.toSim(0)*1e9/(Mole.UNIT.toSim(1/16.870e24));
 
         double dadb = accumulatorAverageDADB.getData(AccumulatorAverage.AVERAGE).getValue(0)
-                /sim.box.getLeafList().getAtomCount();
+                /sim.box.getLeafList().size();
         double dadbError = accumulatorAverageDADB.getData(AccumulatorAverage.ERROR).getValue(0)
-                /sim.box.getLeafList().getAtomCount();
+                /sim.box.getLeafList().size();
         double dadbCor = accumulatorAverageDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0)
-                /sim.box.getLeafList().getAtomCount();
+                /sim.box.getLeafList().size();
 	
         System.out.println("PE(eV) "+ElectronVolt.UNIT.fromSim(PE)+" error: "+ElectronVolt.UNIT.fromSim(PEerror)+ " corrolation: "+PEcor);
 	//        System.out.println("PV(ev)= "+ElectronVolt.UNIT.fromSim(PV));

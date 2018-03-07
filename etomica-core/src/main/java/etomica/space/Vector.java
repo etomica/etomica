@@ -203,7 +203,7 @@ public interface Vector {
      */
     void setRandomInSphere(IRandom random);
 
-    default void nearestImage(Vector dimensionsHalf, Vector dimensions) {}
+    void nearestImage(Vector dimensions);
 
 
     /**

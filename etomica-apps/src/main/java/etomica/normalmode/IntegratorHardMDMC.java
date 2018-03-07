@@ -24,13 +24,9 @@ import etomica.space.Space;
 public class IntegratorHardMDMC extends IntegratorHard {
     protected List<IAction> thermostatActions;
 
-    public IntegratorHardMDMC(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-        super(sim, potentialMaster, _space);
+    public IntegratorHardMDMC(Simulation sim, PotentialMaster potentialMaster, Box box) {
+        super(sim, potentialMaster, box);
         thermostatActions = new ArrayList<IAction>();
-    }
-    
-    public void setBox(Box box) {
-        super.setBox(box);
     }
     
     public void addThermostatAction(IAction a) {

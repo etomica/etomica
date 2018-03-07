@@ -9,11 +9,11 @@ import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMasterMonatomic;
@@ -38,8 +38,14 @@ public class DemoSim extends Simulation {
 
     public DemoSim() {
         super(Space3D.getInstance());
+
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        //species2 = new SpeciesSpheresMono(this);
+        addSpecies(species);
+
+        Box box = new Box(space);
         potentialMaster = new PotentialMasterMonatomic(this);
-        IntegratorMC integrator = new IntegratorMC(this, potentialMaster);
+        IntegratorMC integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(1);
 
 
@@ -48,10 +54,6 @@ public class DemoSim extends Simulation {
         activityIntegrate.setMaxSteps(10000000);
         getController().addAction(activityIntegrate);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        //species2 = new SpeciesSpheresMono(this);
-        addSpecies(species);
-        Box box = new Box(space);
         addBox(box);
         box.setNMolecules(species, 108);
         BoxInflate inflater = new BoxInflate(box, space);
@@ -65,16 +67,13 @@ public class DemoSim extends Simulation {
         potentialMaster.addPotential(truncated, new AtomType[]{type1, type1});
 
         DataSourceCountSteps meterCycles = new DataSourceCountSteps(integrator);
-
-        integrator.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
 
         MCMoveVolume mcMoveVolume = new MCMoveVolume(potentialMaster, this.getRandom(), this.getSpace(), 1);
         integrator.getMoveManager().addMCMove(mcMoveVolume);
 
-        MeterPotentialEnergy energy = new MeterPotentialEnergy(potentialMaster);
-        energy.setBox(box);
+        MeterPotentialEnergy energy = new MeterPotentialEnergy(potentialMaster, box);
 
         AccumulatorHistogram hist = new AccumulatorHistogram();
         DataPump histPump = new DataPump(energy, hist);

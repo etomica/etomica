@@ -40,7 +40,6 @@ public class DefaultPermutator implements Permutator {
 
   public DefaultPermutator(int[] psizes) {
 
-    assert (groupSizes != null);
     /**
      * Copy the partition sizes array into a local array to protect the iterator
      * from external changes to this array.

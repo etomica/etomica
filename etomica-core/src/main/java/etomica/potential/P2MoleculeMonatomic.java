@@ -15,8 +15,8 @@ public class P2MoleculeMonatomic implements IPotentialMolecular {
 	}
 
 	public double energy(IMoleculeList atoms) {
-		leafAtoms.atom0 = atoms.getMolecule(0).getChildList().getAtom(0); 
-		leafAtoms.atom1 = atoms.getMolecule(1).getChildList().getAtom(0); 
+		leafAtoms.atom0 = atoms.get(0).getChildList().get(0);
+		leafAtoms.atom1 = atoms.get(1).getChildList().get(0);
 		return wrappedPotential.energy(leafAtoms); 
 	}
 

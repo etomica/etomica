@@ -53,8 +53,7 @@ public class Heisenberg extends Simulation {
     public Heisenberg(Space _space, int nCells) {
         super(_space);
         potentialMaster = new PotentialMasterSite(this, nCells, space);
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         int numAtoms = space.powerD(nCells);
         spins = new SpeciesSpheresMono(this, space);
         addSpecies(spins);
@@ -63,7 +62,7 @@ public class Heisenberg extends Simulation {
 
         potential = new P2Spin(space);
         field = new P1MagneticField(space);
-        integrator = new IntegratorMC(this, potentialMaster);
+        integrator = new IntegratorMC(this, potentialMaster, box);
         mcmove = new MCMoveSpinFlip(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(mcmove);
 
@@ -73,8 +72,6 @@ public class Heisenberg extends Simulation {
         AtomType type = spins.getLeafType();
         potentialMaster.addPotential(field, new AtomType[]{type});
         potentialMaster.addPotential(potential, new AtomType[]{type, type});
-
-        integrator.setBox(box);
 
         meter = new MeterSpin(space);
         meter.setBox(box);

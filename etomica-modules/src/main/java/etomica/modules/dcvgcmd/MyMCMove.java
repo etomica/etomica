@@ -48,7 +48,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 		if(insert) {
 			uOld = 0.0;
 			if(!reservoir.isEmpty()) {
-			    testMolecule = reservoir.remove(reservoir.getMoleculeCount()-1);
+			    testMolecule = reservoir.remove(reservoir.size()-1);
 			}
 			else {
 			    testMolecule = species.makeMolecule();
@@ -68,12 +68,12 @@ public class MyMCMove extends MCMoveInsertDelete {
 			atomTranslator.setDestination(position);
 			atomTranslator.actionPerformed(testMolecule);
 		} else {//delete
-			if(activeAtoms.getMoleculeCount() == 0) {
+			if(activeAtoms.size() == 0) {
 				testMolecule = null;//added this line 09/19/02
 				return false;
 			}
-            testMoleculeIndex = random.nextInt(activeAtoms.getMoleculeCount());
-			testMolecule = activeAtoms.getMolecule(testMoleculeIndex);
+            testMoleculeIndex = random.nextInt(activeAtoms.size());
+			testMolecule = activeAtoms.get(testMoleculeIndex);
 			energyMeter.setTarget(testMolecule);
 			uOld = energyMeter.getDataAsScalar();
 		} 
@@ -93,8 +93,8 @@ public class MyMCMove extends MCMoveInsertDelete {
         if (insert) b += mu;
         else b -= mu;
 
-        double a = insert ? zFraction * box.getBoundary().volume() / (activeAtoms.getMoleculeCount() + 1)
-                : activeAtoms.getMoleculeCount() / zFraction / box.getBoundary().volume();
+        double a = insert ? zFraction * box.getBoundary().volume() / (activeAtoms.size() + 1)
+                : activeAtoms.size() / zFraction / box.getBoundary().volume();
         return a * Math.exp(b / temperature);
     }
 
@@ -106,7 +106,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 		} else {
 			activeAtoms.add(testMolecule);
             randomizer.setTemperature(integrator.getTemperature());
-			randomizer.actionPerformed(testMolecule.getChildList().getAtom(0));
+			randomizer.actionPerformed(testMolecule.getChildList().get(0));
 			deltaN++;
 		}
 	}
@@ -116,11 +116,11 @@ public class MyMCMove extends MCMoveInsertDelete {
     	double zBoundary = box.getBoundary().getBoxSize().getX(2);
     	double zmin = leftSide ? -0.5*zBoundary : (0.5-zFraction)*zBoundary;
     	double zmax = zmin + zFraction*zBoundary;
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
         for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = moleculeList.getMolecule(i);
+            IMolecule molecule = moleculeList.get(i);
 
-    		double z = molecule.getChildList().getAtom(0).getPosition().getX(2);
+    		double z = molecule.getChildList().get(0).getPosition().getX(2);
     		if(z < zmin || z > zmax) continue;
     		activeAtoms.add(molecule);
     	}

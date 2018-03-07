@@ -48,21 +48,17 @@ public class HexaneVolumeFraction extends Simulation {
         addSpecies(species);
 
         bdry = new BoundaryRectangularPeriodic(_space);
-        box = new Box(bdry, _space);
-        addBox(box);        
-        box.getBoundary().setBoxSize(space.makeVector(new double[] {3.8, 3.8, 3.8}));
+        box = this.makeBox(bdry);
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{3.8, 3.8, 3.8}));
         box.setNMolecules(species, 1);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, box);
 
         activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setMaxSteps(2000000);
         getController().addAction(activityIntegrate);
-  
-        integrator.setBox(box);
-        
 
-       
+
     }
     /**
      * @param args
@@ -120,8 +116,8 @@ public class HexaneVolumeFraction extends Simulation {
                                 
                 //THIRD METHOD OF LOOPING
                 IAtomList list = sim.box.getLeafList();
-                for(int i = 0; i < list.getAtomCount(); i++){
-                    atom = list.getAtom(i);
+                for(int i = 0; i < list.size(); i++){
+                    atom = list.get(i);
                     temp.E(atom.getPosition());
                     temp.ME(rand);
                     double length = Math.sqrt(temp.dot(temp));

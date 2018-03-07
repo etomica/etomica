@@ -46,7 +46,7 @@ public class DataSourceProbabilityDensity implements IDataSource, IAction {
     }
     
     public void reset() {
-        totalAtomCount = box.getMoleculeList().getMoleculeCount();
+        totalAtomCount = box.getMoleculeList().size();
         Vector dimensions = box.getBoundary().getBoxSize();
         if (data.getLength() != (int)Math.round(dimensions.getX(0))) {
             int newSize = (int)Math.round(dimensions.getX(0));

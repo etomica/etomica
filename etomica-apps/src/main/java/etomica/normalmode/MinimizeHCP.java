@@ -42,6 +42,7 @@ public class MinimizeHCP extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public final Box box;
+    private final BoundaryDeformablePeriodic boundary;
     public final PotentialMaster potentialMaster;
     public final double density;
     public final int numMolecules;
@@ -55,20 +56,20 @@ public class MinimizeHCP extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = new Box(space);
-        addBox(box);
+        boundary = new BoundaryDeformablePeriodic(space);
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
         setC(initC, density);
 
-        if(exponent ==6){
-        	System.out.println("set rc");
-        	rc = box.getBoundary().getBoxSize().getX(0)*0.495;
+        if (exponent == 6) {
+            System.out.println("set rc");
+            rc = box.getBoundary().getBoxSize().getX(0) * 0.495;
         }
 
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
         BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
-        potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
+        potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         potential = new P2SoftSphericalTruncated(space, potential, rc);
@@ -79,13 +80,13 @@ public class MinimizeHCP extends Simulation {
         potentialMaster.lrcMaster().setEnabled(false);
 
 
-        ((PotentialMasterList)potentialMaster).setRange(rc);
+        ((PotentialMasterList) potentialMaster).setRange(rc);
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-        ((PotentialMasterList)potentialMaster).getNeighborManager(box).reset();
+        ((PotentialMasterList) potentialMaster).getNeighborManager(box).reset();
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
-        ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*box.getBoundary().getBoxSize().getX(0));
+        ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * box.getBoundary().getBoxSize().getX(0));
     }
 
     /**
@@ -127,7 +128,7 @@ public class MinimizeHCP extends Simulation {
         double c = newC*a;
         a *=  Math.sqrt(Math.sqrt(8.0/3.0)/newC);
         //System.out.println("cf "+newC);
-        int nC = (int)Math.ceil(Math.pow(box.getLeafList().getAtomCount()/2, 1.0/3.0));
+        int nC = (int)Math.ceil(Math.pow(box.getLeafList().size()/2, 1.0/3.0));
         Vector[] boxDim = new Vector[3];
         boxDim[0] = space.makeVector(new double[]{nC*a, 0, 0});
         boxDim[1] = space.makeVector(new double[]{-nC*a*Math.cos(Degree.UNIT.toSim(60)), nC*a*Math.sin(Degree.UNIT.toSim(60)), 0});
@@ -135,10 +136,10 @@ public class MinimizeHCP extends Simulation {
 
         Primitive primitive = new PrimitiveHexagonal(space, nC*a, nC*c);
 
-        Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
+        for (int i = 0; i < boxDim.length; i++) {
+            boundary.setEdgeVector(i, boxDim[i]);
+        }
         Basis basisHCP = new BasisHcp();
-
-        box.setBoundary(boundary);
 
         ConfigurationLattice config = new ConfigurationLattice(new BravaisLatticeCrystal(primitive, basisHCP), space);
         config.initializeCoordinates(box);
@@ -152,8 +153,7 @@ public class MinimizeHCP extends Simulation {
 
         double cf = mincf;
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-    	meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
 
 
         while (true) {

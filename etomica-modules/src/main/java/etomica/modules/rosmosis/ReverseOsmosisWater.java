@@ -55,10 +55,10 @@ public class ReverseOsmosisWater extends Simulation {
     public ReverseOsmosisWater(Space space) {
         super(space);
         PotentialMaster potentialMaster = new PotentialMaster(); //List(this, 2.0);
-        
+
         //controller and integrator
-	    integrator = new IntegratorRigidIterative(this, potentialMaster, 0.01, Kelvin.UNIT.toSim(298), space);
-	    integrator.setIsothermal(true);
+        integrator = new IntegratorRigidIterative(this, potentialMaster, 0.01, Kelvin.UNIT.toSim(298), box);
+        integrator.setIsothermal(true);
         integrator.setThermostatInterval(100);
         integrator.setTimeStep(0.004);
         activityIntegrate = new ActivityIntegrate(integrator);
@@ -68,11 +68,11 @@ public class ReverseOsmosisWater extends Simulation {
         speciesSodium = new SpeciesSpheresMono(space, Sodium.INSTANCE);
         speciesSodium.setIsDynamic(true);
         addSpecies(speciesSodium);
-        
+
         speciesChlorine = new SpeciesSpheresMono(space, Chlorine.INSTANCE);
         speciesChlorine.setIsDynamic(true);
         addSpecies(speciesChlorine);
-        
+
         //solvent (2)
         speciesSolvent = new SpeciesWater3POriented(space, true);
         addSpecies(speciesSolvent);
@@ -81,14 +81,14 @@ public class ReverseOsmosisWater extends Simulation {
         //membrane
         speciesMembrane = new SpeciesSpheresMono(this, space);
         speciesMembrane.setIsDynamic(true);
-        ((ElementSimple)speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
+        ((ElementSimple) speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
         addSpecies(speciesMembrane);
-        
+
         /*
-         * Sodium and chloride potential parameters from 
+         * Sodium and chloride potential parameters from
          * I G. Tironi et al., J. Chem. Phys. 102 (1995), pp. 5451
          */
-        
+
         double epsSodium = 6.177425;
         double epsChlorine = 44.5586;
         double sigSodium = 2.57155;
@@ -99,10 +99,10 @@ public class ReverseOsmosisWater extends Simulation {
         double chargeHydrogen = Electron.UNIT.toSim(0.41);
         double epsMembrane = Kelvin.UNIT.toSim(12.5);
         double sigMembrane = 3;
-        
+
         double xSize = 44;// 80 originally
         double yzSize = 18;       // 28 originally
-        double rCut = 0.49*yzSize;
+        double rCut = 0.49 * yzSize;
         double switchFac = 0.7;
 
         AtomType oType = speciesSolvent.getOxygenType();
@@ -110,17 +110,17 @@ public class ReverseOsmosisWater extends Simulation {
         AtomType naType = speciesSodium.getLeafType();
         AtomType clType = speciesChlorine.getLeafType();
         AtomType mType = speciesMembrane.getLeafType();
-        
+
         potentialWater = new P2WaterSPCSoft(space);
         P2MoleculeSoftTruncatedSwitched pWaterTrunc = new P2MoleculeSoftTruncatedSwitched(potentialWater, rCut, space);
         pWaterTrunc.setSwitchFac(switchFac);
         potentialMaster.addPotential(pWaterTrunc, new ISpecies[]{speciesSolvent, speciesSolvent});
         double epsOxygen = potentialWater.getEpsilon();
         double sigOxygen = potentialWater.getSigma();
-        
+
         potentialLJNaNa = new P2LennardJones(space, sigSodium, epsSodium);
-	    P2SoftSphericalTruncatedSwitched pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialLJNaNa, rCut);
-	    pTrunc.setSwitchFac(switchFac);
+        P2SoftSphericalTruncatedSwitched pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialLJNaNa, rCut);
+        pTrunc.setSwitchFac(switchFac);
         potentialMaster.addPotential(pTrunc, new AtomType[]{naType, naType});
 
         potentialLJClCl = new P2LennardJones(space, sigChlorine, epsChlorine);
@@ -128,7 +128,7 @@ public class ReverseOsmosisWater extends Simulation {
         pTrunc.setSwitchFac(switchFac);
         potentialMaster.addPotential(pTrunc, new AtomType[]{clType, clType});
 
-        potentialLJNaCl = new P2LennardJones(space, 0.5*(sigChlorine+sigSodium), Math.sqrt(epsChlorine*epsSodium));
+        potentialLJNaCl = new P2LennardJones(space, 0.5 * (sigChlorine + sigSodium), Math.sqrt(epsChlorine * epsSodium));
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialLJNaCl, rCut);
         pTrunc.setSwitchFac(switchFac);
         potentialMaster.addPotential(pTrunc, new AtomType[]{naType, clType});
@@ -154,12 +154,12 @@ public class ReverseOsmosisWater extends Simulation {
         pTrunc.setSwitchFac(switchFac);
         potentialMaster.addPotential(pTrunc, new AtomType[]{naType, clType});
 
-        potentialLJOCl = new P2LennardJones(space, 0.5*(sigOxygen+sigChlorine), Math.sqrt(epsOxygen*epsChlorine));
+        potentialLJOCl = new P2LennardJones(space, 0.5 * (sigOxygen + sigChlorine), Math.sqrt(epsOxygen * epsChlorine));
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialLJOCl, rCut);
         pTrunc.setSwitchFac(switchFac);
         potentialMaster.addPotential(pTrunc, new AtomType[]{clType, oType});
 
-        potentialLJONa = new P2LennardJones(space, 0.5*(sigOxygen+sigSodium), Math.sqrt(epsOxygen*epsSodium));
+        potentialLJONa = new P2LennardJones(space, 0.5 * (sigOxygen + sigSodium), Math.sqrt(epsOxygen * epsSodium));
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialLJONa, rCut);
         pTrunc.setSwitchFac(switchFac);
         potentialMaster.addPotential(pTrunc, new AtomType[]{naType, oType});
@@ -170,7 +170,7 @@ public class ReverseOsmosisWater extends Simulation {
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialQONa, rCut);
         pTrunc.setSwitchFac(switchFac);
         potentialMaster.addPotential(pTrunc, new AtomType[]{oType, naType});
-        
+
         potentialQOCl = new P2Electrostatic(space);
         potentialQOCl.setCharge1(chargeOxygen);
         potentialQOCl.setCharge2(chargeChlorine);
@@ -184,7 +184,7 @@ public class ReverseOsmosisWater extends Simulation {
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialQHNa, rCut);
         pTrunc.setSwitchFac(switchFac);
         potentialMaster.addPotential(pTrunc, new AtomType[]{hType, naType});
-        
+
         potentialQHCl = new P2Electrostatic(space);
         potentialQHCl.setCharge1(chargeHydrogen);
         potentialQHCl.setCharge2(chargeChlorine);
@@ -196,31 +196,30 @@ public class ReverseOsmosisWater extends Simulation {
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialMM, rCut);
         pTrunc.setSwitchFac(switchFac);
         potentialMaster.addPotential(pTrunc, new AtomType[]{mType, mType});
-        
-        potentialMO = new P2LennardJones(space, 0.5*(sigMembrane+sigOxygen), Math.sqrt(epsMembrane*epsOxygen));
+
+        potentialMO = new P2LennardJones(space, 0.5 * (sigMembrane + sigOxygen), Math.sqrt(epsMembrane * epsOxygen));
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialMO, rCut);
         pTrunc.setSwitchFac(switchFac);
         potentialMaster.addPotential(pTrunc, new AtomType[]{mType, oType});
-        
-        potentialMNa = new P2LennardJones(space, 0.5*(sigMembrane+sigSodium), Math.sqrt(epsMembrane*epsSodium));
+
+        potentialMNa = new P2LennardJones(space, 0.5 * (sigMembrane + sigSodium), Math.sqrt(epsMembrane * epsSodium));
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialMNa, rCut);
         pTrunc.setSwitchFac(switchFac);
         potentialMaster.addPotential(pTrunc, new AtomType[]{mType, naType});
 
-        potentialMCl = new P2LennardJones(space, 0.5*(sigMembrane+sigChlorine), Math.sqrt(epsMembrane*epsChlorine));
+        potentialMCl = new P2LennardJones(space, 0.5 * (sigMembrane + sigChlorine), Math.sqrt(epsMembrane * epsChlorine));
         pTrunc = new P2SoftSphericalTruncatedSwitched(space, potentialMCl, rCut);
         pTrunc.setSwitchFac(switchFac);
         potentialMaster.addPotential(pTrunc, new AtomType[]{mType, clType});
 
         //construct box
-	    box = new Box(new BoundaryRectangularPeriodic(space, 15), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularPeriodic(space, 15));
         Vector dim = space.makeVector();
         dim.E(new double[]{xSize, yzSize, yzSize});
         box.getBoundary().setBoxSize(dim);
         configMembrane = new ConfigurationMembraneWater(this, space);
         configMembrane.setMembraneDim(0);
-        configMembrane.setMembraneThickness(2*4.0);
+        configMembrane.setMembraneThickness(2 * 4.0);
         configMembrane.setNumMembraneLayers(2);
         configMembrane.setMembraneWidth(2);
         double density = 0.01;
@@ -234,15 +233,13 @@ public class ReverseOsmosisWater extends Simulation {
         configMembrane.initializeCoordinates(box);
 
         potentialTether = new P1Tether(box, speciesMembrane, space);
-        potentialTether.setEpsilon(20000*298/125);
+        potentialTether.setEpsilon(20000 * 298 / 125);
         potentialMaster.addPotential(potentialTether, new AtomType[]{speciesMembrane.getLeafType()});
-        
-        integrator.setBox(box);
 
         BoxImposePbc pbc = new BoxImposePbc(box, space);
         pbc.setApplyToMolecules(true);
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
-        
+
         torqueSum = new PotentialCalculationTorqueSumWallForce(potentialTether);
         integrator.setTorqueSum(torqueSum);
     }

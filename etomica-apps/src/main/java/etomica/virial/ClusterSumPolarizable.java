@@ -128,9 +128,9 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             if (g12*g13*g23 != 0) {
                 // Get a handle on the list of atoms from the AtomPairSet
                 scfAtoms.clear();
-                scfAtoms.add(atomSet.getMolecule(0));
-                scfAtoms.add(atomSet.getMolecule(1));
-                scfAtoms.add(atomSet.getMolecule(2));
+                scfAtoms.add(atomSet.get(0));
+                scfAtoms.add(atomSet.get(1));
+                scfAtoms.add(atomSet.get(2));
                 double u123Pol = scfPotential.getPolarizationEnergy(scfAtoms);
 
                 //deltaC = Math.exp(-beta*u123) - Math.exp(-beta*(u12 + u13 + u23));
@@ -181,9 +181,9 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             // we need to properly construct these lists even if we don't use them
             // (due to overlaps) because the next list is obtained by removing/adding
             // atoms from this one.
-            scfAtoms.add(atomSet.getMolecule(0));
-            scfAtoms.add(atomSet.getMolecule(1));
-            scfAtoms.add(atomSet.getMolecule(2));
+            scfAtoms.add(atomSet.get(0));
+            scfAtoms.add(atomSet.get(1));
+            scfAtoms.add(atomSet.get(2));
 
             double deltaD = 0;
             // if 12 13 or 23 is overlapped, then we can't calculate u123Pol and
@@ -209,7 +209,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
 
             scfAtoms.remove(2);
-            scfAtoms.add(atomSet.getMolecule(3));
+            scfAtoms.add(atomSet.get(3));
             if (g12*g14*g24 != 0) {
                 double u124Pol = scfPotential.getPolarizationEnergy(scfAtoms);
                 double deltaU124 = u124Pol-(uijPol[0][1]+uijPol[0][3]+uijPol[1][3]);
@@ -222,7 +222,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
 
             scfAtoms.remove(1);
-            scfAtoms.add(atomSet.getMolecule(2));
+            scfAtoms.add(atomSet.get(2));
             if (g13*g14*g34 != 0) {
                 double u134Pol = scfPotential.getPolarizationEnergy(scfAtoms);
                 double deltaU134 = u134Pol-(uijPol[0][2]+uijPol[0][3]+uijPol[2][3]);
@@ -235,7 +235,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
 
             scfAtoms.remove(0);
-            scfAtoms.add(atomSet.getMolecule(1));
+            scfAtoms.add(atomSet.get(1));
             if (g23*g24*g34 != 0) {
                 double u234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
                 double deltaU234 = u234Pol-(uijPol[1][2]+uijPol[1][3]+uijPol[2][3]);
@@ -247,7 +247,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
                 deltaD += -exp234*g23*g24*g34*((f12+f13+f14)+1);
             }
 
-            scfAtoms.add(atomSet.getMolecule(0));
+            scfAtoms.add(atomSet.get(0));
             if (g12*g13*g14*g23*g24*g34 != 0) {
                 double u1234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
                 // deltaU1234 would have deltaUabc subtracted off, but we'd also add it back
@@ -324,9 +324,9 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             // we need to properly construct these lists even if we don't use them
             // (due to overlaps) because the next list is obtained by removing/adding
             // atoms from this one.
-            scfAtoms.add(atomSet.getMolecule(0));
-            scfAtoms.add(atomSet.getMolecule(1));
-            scfAtoms.add(atomSet.getMolecule(2));  // 123
+            scfAtoms.add(atomSet.get(0));
+            scfAtoms.add(atomSet.get(1));
+            scfAtoms.add(atomSet.get(2));  // 123
 
             if (g12*g13*g23 != 0) {
                 double u123Pol = scfPotential.getPolarizationEnergy(scfAtoms);
@@ -351,7 +351,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
             
             scfAtoms.remove(2);
-            scfAtoms.add(atomSet.getMolecule(3));  // 124
+            scfAtoms.add(atomSet.get(3));  // 124
 
             if (g12*g14*g24 != 0) {
                 double u124Pol = scfPotential.getPolarizationEnergy(scfAtoms);
@@ -369,7 +369,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
 
             scfAtoms.remove(2);
-            scfAtoms.add(atomSet.getMolecule(4));  // 125
+            scfAtoms.add(atomSet.get(4));  // 125
 
             if (g12*g15*g25 != 0) {
                 double u125Pol = scfPotential.getPolarizationEnergy(scfAtoms);
@@ -387,7 +387,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
 
             scfAtoms.remove(1);
-            scfAtoms.add(atomSet.getMolecule(2));  // 153
+            scfAtoms.add(atomSet.get(2));  // 153
             
             if (g13*g15*g35 != 0) {
                 double u135Pol = scfPotential.getPolarizationEnergy(scfAtoms);
@@ -413,7 +413,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
 
             scfAtoms.remove(1);
-            scfAtoms.add(atomSet.getMolecule(3));  // 134
+            scfAtoms.add(atomSet.get(3));  // 134
             
             if (g13*g14*g34 != 0) {
                 double u134Pol = scfPotential.getPolarizationEnergy(scfAtoms);
@@ -439,7 +439,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
 
             scfAtoms.remove(1);
-            scfAtoms.add(atomSet.getMolecule(4));  // 145
+            scfAtoms.add(atomSet.get(4));  // 145
 
             if (g14*g15*g45 != 0) {
                 double u145Pol = scfPotential.getPolarizationEnergy(scfAtoms);
@@ -465,7 +465,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
 
             scfAtoms.remove(0);
-            scfAtoms.add(atomSet.getMolecule(1));  // 452
+            scfAtoms.add(atomSet.get(1));  // 452
             
             if (g24*g25*g45 != 0) {
                 double u245Pol = scfPotential.getPolarizationEnergy(scfAtoms);
@@ -504,7 +504,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
 
             scfAtoms.remove(1);
-            scfAtoms.add(atomSet.getMolecule(2));  // 423
+            scfAtoms.add(atomSet.get(2));  // 423
             
             if (g23*g24*g34 != 0) {
                 double u234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
@@ -543,7 +543,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
 
             scfAtoms.remove(0);
-            scfAtoms.add(atomSet.getMolecule(4));  // 235
+            scfAtoms.add(atomSet.get(4));  // 235
             
             if (g23*g25*g35 != 0) {
                 double u235Pol = scfPotential.getPolarizationEnergy(scfAtoms);
@@ -582,7 +582,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
 
             scfAtoms.remove(0);
-            scfAtoms.add(atomSet.getMolecule(3));  // 354
+            scfAtoms.add(atomSet.get(3));  // 354
             
             if (g34*g35*g45 != 0) {
                 double u345Pol = scfPotential.getPolarizationEnergy(scfAtoms);
@@ -620,7 +620,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
                 }
             }
 
-            scfAtoms.add(atomSet.getMolecule(0));  // 3541
+            scfAtoms.add(atomSet.get(0));  // 3541
             if (g13*g14*g15*g34*g35*g45 != 0) {
                 double u1345Pol = scfPotential.getPolarizationEnergy(scfAtoms);
                 double deltaU1345 = u1345Pol-uijPol[0][2]-uijPol[0][3]-uijPol[0][4]-uijPol[2][3]-uijPol[2][4]-uijPol[3][4];
@@ -633,7 +633,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
 
             scfAtoms.remove(1);
-            scfAtoms.add(atomSet.getMolecule(1));  // 3412
+            scfAtoms.add(atomSet.get(1));  // 3412
             if (g12*g13*g14*g23*g24*g34 != 0) {
                 double u1234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
                 double deltaU1234 = u1234Pol-uijPol[0][1]-uijPol[0][2]-uijPol[0][3]-uijPol[1][2]-uijPol[1][3]-uijPol[2][3];
@@ -646,7 +646,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
 
             scfAtoms.remove(1);
-            scfAtoms.add(atomSet.getMolecule(4));  // 3125
+            scfAtoms.add(atomSet.get(4));  // 3125
             if (g12*g13*g15*g23*g25*g35 != 0) {
                 double u1235Pol = scfPotential.getPolarizationEnergy(scfAtoms);
                 double deltaU1235 = u1235Pol-uijPol[0][1]-uijPol[0][2]-uijPol[0][4]-uijPol[1][2]-uijPol[1][4]-uijPol[2][4];
@@ -659,7 +659,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
 
             scfAtoms.remove(0);
-            scfAtoms.add(atomSet.getMolecule(3));  // 1254
+            scfAtoms.add(atomSet.get(3));  // 1254
             if (g12*g14*g15*g24*g25*g45 != 0) {
                 double u1245Pol = scfPotential.getPolarizationEnergy(scfAtoms);
                 double deltaU1245 = u1245Pol-uijPol[0][1]-uijPol[0][3]-uijPol[0][4]-uijPol[1][3]-uijPol[1][4]-uijPol[3][4];
@@ -672,7 +672,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
 
             scfAtoms.remove(0);
-            scfAtoms.add(atomSet.getMolecule(2));  // 2543
+            scfAtoms.add(atomSet.get(2));  // 2543
             if (g23*g24*g25*g34*g35*g45 != 0) {
                 double u2345Pol = scfPotential.getPolarizationEnergy(scfAtoms);
                 double deltaU2345 = u2345Pol-uijPol[1][2]-uijPol[1][3]-uijPol[1][4]-uijPol[2][3]-uijPol[2][4]-uijPol[3][4];
@@ -684,7 +684,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
                 deltaE += -exp2345*g23*g24*g25*g34*g35*g45*(f12 + f13 + f14 + f15 + 1);
             }
 
-            scfAtoms.add(atomSet.getMolecule(0));  // 25431
+            scfAtoms.add(atomSet.get(0));  // 25431
             if (g12*g13*g14*g15*g23*g24*g25*g34*g35*g45 != 0) {
                 double u12345Pol = scfPotential.getPolarizationEnergy(scfAtoms);
                 double deltaU12345 = u12345Pol-uijPol[0][1]-uijPol[0][2]-uijPol[0][3]-uijPol[0][4]-uijPol[1][2]-uijPol[1][3]-uijPol[1][4]

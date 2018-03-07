@@ -37,6 +37,8 @@ import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
+import java.awt.*;
+
 /**
  * Simulation using Henkelman's Dimer method to find a saddle point for
  * an adatom of Sn on a surface, modeled with MEAM.
@@ -61,87 +63,83 @@ public class SimDimerLJgb extends Simulation{
     
     
     public SimDimerLJgb() {
-    	super(Space3D.getInstance());
-    	potentialMaster = new PotentialMasterMonatomic(this);
-    	
-    //SIMULATION BOX
-        box = new Box(new BoundaryRectangularSlit(2, 5, space), space);
-        addBox(box);
-        
+        super(Space3D.getInstance());
+        potentialMaster = new PotentialMasterMonatomic(this);
+
+        //SIMULATION BOX
+        box = this.makeBox(new BoundaryRectangularSlit(2, 5, space));
+
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);
-        
-    // INTEGRATOR - MD
-    	integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space);
-    	integratorMD.setTimeStep(0.01);
-    	integratorMD.setTemperature(0.1);
-    	integratorMD.setThermostatInterval(100);
-    	integratorMD.setIsothermal(true);
-    	integratorMD.setBox(box);
-    	activityIntegrateMD = new ActivityIntegrate(integratorMD);
-    	integratorMD.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
-    	
-    //SPECIES
-    	double sigma = 1.0;
-    	Tin tinFixed = new Tin("SnFixed", Double.POSITIVE_INFINITY);
-    	fixed = new SpeciesSpheresMono(space, tinFixed);
-    	fixed.setIsDynamic(true);
+
+        // INTEGRATOR - MD
+        integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integratorMD.setTimeStep(0.01);
+        integratorMD.setTemperature(0.1);
+        integratorMD.setThermostatInterval(100);
+        integratorMD.setIsothermal(true);
+        activityIntegrateMD = new ActivityIntegrate(integratorMD);
+        integratorMD.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
+
+        //SPECIES
+        double sigma = 1.0;
+        Tin tinFixed = new Tin("SnFixed", Double.POSITIVE_INFINITY);
+        fixed = new SpeciesSpheresMono(space, tinFixed);
+        fixed.setIsDynamic(true);
         movable = new SpeciesSpheresMono(this, space);
         movable.setIsDynamic(true);
         addSpecies(fixed);
         addSpecies(movable);
-    	
+
         // Must be in same order as the respective species is added to SpeciesManager
         //box.setNMolecules(fixed, 256);    	
-    	
-    	
-    	
-    	potential = new P2LennardJones(space, sigma, 1.0);
+
+
+        potential = new P2LennardJones(space, sigma, 1.0);
         potentialMaster.addPotential(potential, new AtomType[]{fixed.getLeafType(), fixed.getLeafType()});
         potentialMaster.addPotential(potential, new AtomType[]{movable.getLeafType(), fixed.getLeafType()});
         potentialMaster.addPotential(potential, new AtomType[]{movable.getLeafType(), movable.getLeafType()});
-        
-    	
-	 //CRYSTAL
-    	box.getBoundary().setBoxSize(new Vector3D(Math.sqrt(5)*4,Math.pow(4, 1.0/3.0)*4,Math.pow(4, 1.0/3.0)*8));
-        BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(new PrimitiveCubic(space, Math.pow(4, 1.0/3.0)),new BasisCubicFcc());
-        GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {fixed, movable}, 2.5, space);
+
+
+        //CRYSTAL
+        box.getBoundary().setBoxSize(new Vector3D(Math.sqrt(5) * 4, Math.pow(4, 1.0 / 3.0) * 4, Math.pow(4, 1.0 / 3.0) * 8));
+        BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(new PrimitiveCubic(space, Math.pow(4, 1.0 / 3.0)), new BasisCubicFcc());
+        GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[]{fixed, movable}, 2.5, space);
         //gbtilt.setRotation(2, 45*Math.PI/180);
-        gbtilt.setRotationTOP(1, 63.434948829*Math.PI/180);
-        gbtilt.setRotationBOTTOM(1, 63.434948829*Math.PI/180);
-        
+        gbtilt.setRotationTOP(1, 63.434948829 * Math.PI / 180);
+        gbtilt.setRotationBOTTOM(1, 63.434948829 * Math.PI / 180);
+
         gbtilt.setMobileSpecies(movable);
         gbtilt.setFixedSpecies(fixed);
         gbtilt.initializeCoordinates(box);
 
-      //INTEGRATOR - Dimer
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space);
-        integratorDimer.setBox(box);
+        //INTEGRATOR - Dimer
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, box);
         integratorDimer.setOrtho(false, false);
         integratorDimer.setFileName("lj");
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
 
-    //ADD CONTROLLER ACTIONS
-    	getController().addAction(activityIntegrateMD);
-    	getController().addAction(activityIntegrateDimer);
-    	
+        //ADD CONTROLLER ACTIONS
+        getController().addAction(activityIntegrateMD);
+        getController().addAction(activityIntegrateDimer);
+
         //Set movable atoms
-        /** 
-        Vector rij = space.makeVector();
-        AtomArrayList movableList = new AtomArrayList();
-        AtomSet loopSet = box.getMoleculeList(cu);
-        
-        for (int i=0; i<loopSet.getAtomCount(); i++){
-            rij.Ev1Mv2(((IAtomPositioned)iAtom).getPosition(),((IAtomPositioned)loopSet.getAtom(i)).getPosition());  
-            if(rij.squared()<21.0){
-               movableList.add(loopSet.getAtom(i));
-            } 
-        }
-       for (int i=0; i<movableList.getAtomCount(); i++){
-           ((IAtomPositioned)box.addNewMolecule(movable)).getPosition().E(((IAtomPositioned)movableList.getAtom(i)).getPosition());
-           box.removeMolecule(movableList.getAtom(i));
-       }
-       */
+        /**
+         Vector rij = space.makeVector();
+         AtomArrayList movableList = new AtomArrayList();
+         AtomSet loopSet = box.getMoleculeList(cu);
+
+         for (int i=0; i<loopSet.getAtomCount(); i++){
+         rij.Ev1Mv2(((IAtomPositioned)iAtom).getPosition(),((IAtomPositioned)loopSet.getAtom(i)).getPosition());
+         if(rij.squared()<21.0){
+         movableList.add(loopSet.getAtom(i));
+         }
+         }
+         for (int i=0; i<movableList.getAtomCount(); i++){
+         ((IAtomPositioned)box.addNewMolecule(movable)).getPosition().E(((IAtomPositioned)movableList.getAtom(i)).getPosition());
+         box.removeMolecule(movableList.getAtom(i));
+         }
+         */
     }
 
     public static void main(String[] args){
@@ -150,8 +148,7 @@ public class SimDimerLJgb extends Simulation{
     	sim.activityIntegrateMD.setMaxSteps(1000);
     	sim.activityIntegrateDimer.setMaxSteps(0);
     	    	
-        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
-        energyMeter.setBox(sim.box);
+        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
@@ -178,8 +175,8 @@ public class SimDimerLJgb extends Simulation{
     	//sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
     	
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-    	colorScheme.setColor(sim.fixed.getLeafType(),java.awt.Color.blue);
-        colorScheme.setColor(sim.movable.getLeafType(),java.awt.Color.PINK);
+    	colorScheme.setColor(sim.fixed.getLeafType(), Color.blue);
+        colorScheme.setColor(sim.movable.getLeafType(), Color.PINK);
     	
         simGraphic.makeAndDisplayFrame(APP_NAME);
     }

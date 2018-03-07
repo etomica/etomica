@@ -12,30 +12,30 @@ import etomica.lattice.IndexIteratorSizable;
  */
 public class BoundaryRectangularPeriodic extends BoundaryRectangular {
 
+    protected final Vector tempImage;
+
     /**
      * Constructs cubic boundary with the default box-size given by the Simulation.
      */
     public BoundaryRectangularPeriodic(Space _space) {
         this(_space, 10.0);
     }
-    
+
     /**
      * Constructs cubic boundary for the given Space, with each edge of length boxSize.
      */
     public BoundaryRectangularPeriodic(Space _space, double boxSize) {
         super(_space, boxSize);
-        dimensionsHalf = space.makeVector();
         tempImage = space.makeVector();
         // call updateDimensions again so dimensionsHalf is updated
         updateDimensions();
     }
-    
+
     /**
      * Constructs rectangular boundary for the given Space, with each edge of length boxSize.
      */
     public BoundaryRectangularPeriodic(Space _space, double[] boxSize) {
         super(_space, boxSize);
-        dimensionsHalf = space.makeVector();
         tempImage = space.makeVector();
         // call updateDimensions again so dimensionsHalf is updated
         updateDimensions();
@@ -43,14 +43,10 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
 
     public void updateDimensions() {
         super.updateDimensions();
-        // superclass constructor calls this before dimensionsHalf has been instantiated
-        if (dimensionsHalf != null) {
-            dimensionsHalf.Ea1Tv1(0.5,dimensions);
-        }
     }
-    
-    public void nearestImage(Vector dr) {
-        dr.nearestImage(dimensionsHalf, dimensions);
+
+    public IndexIteratorSizable getIndexIterator() {
+        return new IndexIteratorRectangular(space.D());
     }
 
     public Vector centralImage(Vector r) {
@@ -60,16 +56,11 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
         return tempImage;
     }
 
-
-    public IndexIteratorSizable getIndexIterator() {
-        return new IndexIteratorRectangular(space.D());
+    public void nearestImage(Vector dr) {
+        dr.nearestImage(dimensions);
     }
 
     public boolean getPeriodicity(int d) {
         return true;
     }
-
-    private static final long serialVersionUID = 1L;
-    public final Vector dimensionsHalf;
-    protected final Vector tempImage;
 }

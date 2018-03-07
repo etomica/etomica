@@ -90,8 +90,8 @@ public class P2EAM extends Potential2 implements PotentialSoft {
     }
 
     public double energy(IAtomList atoms) {
-        Vector pos0 = atoms.getAtom(0).getPosition();
-        Vector pos1 = atoms.getAtom(1).getPosition();
+        Vector pos0 = atoms.get(0).getPosition();
+        Vector pos1 = atoms.get(1).getPosition();
         dr.Ev1Mv2(pos1, pos0);
         boundary.nearestImage(dr);
         double r2 = dr.squared();
@@ -101,8 +101,8 @@ public class P2EAM extends Potential2 implements PotentialSoft {
         }
         if (r2 < rc22) {
             double rhoi = Math.pow(a2 / r2, m2);
-            rho[atoms.getAtom(0).getLeafIndex()] += rhoi;
-            rho[atoms.getAtom(1).getLeafIndex()] += rhoi;
+            rho[atoms.get(0).getLeafIndex()] += rhoi;
+            rho[atoms.get(1).getLeafIndex()] += rhoi;
         }
 
         return u;
@@ -118,8 +118,8 @@ public class P2EAM extends Potential2 implements PotentialSoft {
 
     public void setBox(Box box) {
         boundary = box.getBoundary();
-        if (rho.length != box.getLeafList().getAtomCount()) {
-            rho = new double[box.getLeafList().getAtomCount()];
+        if (rho.length != box.getLeafList().size()) {
+            rho = new double[box.getLeafList().size()];
         }
     }
 
@@ -129,8 +129,8 @@ public class P2EAM extends Potential2 implements PotentialSoft {
 
     public Vector[] gradient(IAtomList atoms) {
 
-        Vector pos0 = atoms.getAtom(0).getPosition();
-        Vector pos1 = atoms.getAtom(1).getPosition();
+        Vector pos0 = atoms.get(0).getPosition();
+        Vector pos1 = atoms.get(1).getPosition();
         dr.Ev1Mv2(pos1, pos0);
         boundary.nearestImage(dr);
         double r2 = dr.squared();
@@ -152,7 +152,7 @@ public class P2EAM extends Potential2 implements PotentialSoft {
         if (r2 < rc22) {
             double rdrhodr = -2 * m2 * Math.pow(a2r2, m2);
             rhograd.Ea1Tv1(rdrhodr * Ceps / (2*r2), dr);
-            double sqrtRhoDiff = rho[atoms.getAtom(1).getLeafIndex()] + rho[atoms.getAtom(0).getLeafIndex()];
+            double sqrtRhoDiff = rho[atoms.get(1).getLeafIndex()] + rho[atoms.get(0).getLeafIndex()];
             gradient[1].PEa1Tv1(-sqrtRhoDiff, rhograd);
         }
         gradient[0].Ea1Tv1(-1, gradient[1]);

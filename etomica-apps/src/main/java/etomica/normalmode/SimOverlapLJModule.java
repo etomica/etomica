@@ -103,16 +103,6 @@ public class SimOverlapLJModule {
 
         // HARMONIC
         Boundary boundaryHarmonic = new BoundaryRectangularPeriodic(space);
-        Box boxHarmonic = new Box(boundaryHarmonic, space);
-        sim.addBox(boxHarmonic);
-        boxHarmonic.setNMolecules(species, numMolecules);
-
-        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, sim.getRandom(), 1.0);
-
-        MCMoveHarmonic move = new MCMoveHarmonic(sim.getRandom());
-        integratorHarmonic.getMoveManager().addMCMove(move);
-        integrators[0] = integratorHarmonic;
-
         Primitive primitive;
         int[] nCells;
         Basis basis;
@@ -129,7 +119,16 @@ public class SimOverlapLJModule {
             boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
             basis = new BasisCubicFcc();
         }
-        boxHarmonic.setBoundary(boundaryHarmonic);
+        Box boxHarmonic = new Box(boundaryHarmonic, space);
+        sim.addBox(boxHarmonic);
+        boxHarmonic.setNMolecules(species, numMolecules);
+
+        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, sim.getRandom(), 1.0, boxHarmonic);
+
+        MCMoveHarmonic move = new MCMoveHarmonic(sim.getRandom());
+        integratorHarmonic.getMoveManager().addMCMove(move);
+        integrators[0] = integratorHarmonic;
+
 
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.initializeCoordinates(nCells);
@@ -143,23 +142,9 @@ public class SimOverlapLJModule {
 
         move.setBox(boxHarmonic);
 
-        integratorHarmonic.setBox(boxHarmonic);
-
 
         // TARGET
 
-        Box boxTarget = new Box(space);
-        sim.addBox(boxTarget);
-        boxTarget.setNMolecules(species, numMolecules);
-
-        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, sim.getRandom(), temperature);
-        MCMoveAtomCoupled atomMove = new MCMoveAtomCoupled(potentialMasterTarget, new MeterPotentialEnergy(potentialMasterTarget), sim.getRandom(), space);
-        atomMove.setStepSize(0.1);
-        atomMove.setStepSizeMax(0.5);
-        integratorTarget.getMoveManager().addMCMove(atomMove);
-        ((MCMoveStepTracker) atomMove.getTracker()).setNoisyAdjustment(true);
-
-        integrators[1] = integratorTarget;
 
         Boundary boundaryTarget;
         if (space.D() == 1) {
@@ -169,7 +154,19 @@ public class SimOverlapLJModule {
             int n = (int) Math.round(Math.pow(numMolecules / 4, 1.0 / 3.0));
             boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
         }
-        boxTarget.setBoundary(boundaryTarget);
+        Box boxTarget = new Box(boundaryTarget, space);
+        sim.addBox(boxTarget);
+        boxTarget.setNMolecules(species, numMolecules);
+
+        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, sim.getRandom(), temperature, boxTarget);
+        MCMoveAtomCoupled atomMove = new MCMoveAtomCoupled(potentialMasterTarget, new MeterPotentialEnergy(potentialMasterTarget), sim.getRandom(), space);
+        atomMove.setStepSize(0.1);
+        atomMove.setStepSizeMax(0.5);
+        integratorTarget.getMoveManager().addMCMove(atomMove);
+        ((MCMoveStepTracker) atomMove.getTracker()).setNoisyAdjustment(true);
+
+        integrators[1] = integratorTarget;
+
         waveVectorFactory.makeWaveVectors(boxTarget);
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
@@ -181,8 +178,6 @@ public class SimOverlapLJModule {
         AtomType sphereType = species.getLeafType();
         potentialMasterTarget.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
         atomMove.setPotential(pTruncated);
-
-        integratorTarget.setBox(boxTarget);
 
         potentialMasterTarget.lrcMaster().setEnabled(false);
         integratorTarget.reset();

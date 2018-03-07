@@ -52,8 +52,7 @@ public class MeterCompareMultipleWVBrute extends DataSourceScalar {
         realT = new double[coordinateDim];
         imagT = new double[coordinateDim];
         deltaU = new double[coordinateDim];
-        meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        meterPE = new MeterPotentialEnergy(potentialMaster, box);
     }
     
     public double getDataAsScalar(){

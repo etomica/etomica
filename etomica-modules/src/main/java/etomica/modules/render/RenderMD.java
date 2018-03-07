@@ -77,7 +77,7 @@ public class RenderMD extends Simulation {
     }
     
     public RenderMD(Space _space, RenderMDParam params) {
-        
+
         // invoke the superclass constructor
         // "true" is indicating to the superclass that this is a dynamic simulation
         // the PotentialMaster is selected such as to implement neighbor listing
@@ -85,11 +85,12 @@ public class RenderMD extends Simulation {
         setRandom(new RandomNumberGenerator(2));
 
         potentialMaster = new PotentialMasterList(this, 1, space);
-        
+
         parser = new ParseObj(params.file);
 
         int numAtoms = parser.nAtoms;
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        box = this.makeBox();
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTemperature(params.temperature);
         integrator.setIsothermal(true);
         integrator.setTimeStep(params.timeStep);
@@ -101,13 +102,10 @@ public class RenderMD extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        
-        box = new Box(space);
-        addBox(box);
         box.setNMolecules(species, numAtoms);
 
         potentialBonded = new P2PenetrableCar(space, parser, box);
-        
+
         potentialBonded.setEpsilonCore(params.epsilonCore);
         potentialBonded.setEpsilon(params.epsilon);
         potentialBonded.setLambda(params.lambda);
@@ -115,18 +113,18 @@ public class RenderMD extends Simulation {
         AtomType leafType = species.getLeafType();
 
         potentialMaster.addPotential(potentialBonded, new AtomType[]{leafType, leafType});
-        
+
         IAtomList leafList = box.getLeafList();
-        for (int iLeaf=0; iLeaf<numAtoms; iLeaf++) {
-            IAtom a = leafList.getAtom(iLeaf);
+        for (int iLeaf = 0; iLeaf < numAtoms; iLeaf++) {
+            IAtom a = leafList.get(iLeaf);
             Vector pos = a.getPosition();
             pos.E(parser.vertices.get(iLeaf));
         }
-        
+
         criterion = new CriterionCar(parser, box);
         potentialMaster.setCriterion(potentialBonded, criterion);
         integrator.setThermostat(params.thermostatType);
-        
+
 //        int bondSum = 0;
 //        int bondMax = 0;
 //        int bondMin = 0;
@@ -138,16 +136,14 @@ public class RenderMD extends Simulation {
 //            bondMin = Math.min(bondMin, bondCount);
 //        }
 //        System.out.println("Avg, max, min bonds per atom: "+((float)bondSum/numAtoms)+" "+bondMax+" "+bondMin);
-
-        integrator.setBox(box);
         BoxImposePbc imposepbc = new BoxImposePbc(space);
         imposepbc.setBox(box);
         integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
 
-        double vNew = box.getMoleculeList().getMoleculeCount()/params.density;
-        double scale = Math.pow(vNew/box.getBoundary().volume(), 1.0/3.0);
+        double vNew = box.getMoleculeList().size() / params.density;
+        double scale = Math.pow(vNew / box.getBoundary().volume(), 1.0 / 3.0);
 
-        if(params.initCar) {
+        if (params.initCar) {
             Vector3D dimVector = new Vector3D();
             dimVector.E(box.getBoundary().getBoxSize());
             dimVector.TE(scale);
@@ -158,8 +154,8 @@ public class RenderMD extends Simulation {
             inflater.actionPerformed();
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         }
-        potentialMaster.setRange(box.getBoundary().getBoxSize().getX(0)*0.49);
-        
+        potentialMaster.setRange(box.getBoundary().getBoxSize().getX(0) * 0.49);
+
         // find neighbors now.  don't try to update later (neighbors never change)
         potentialMaster.getNeighborManager(box).reset();
     }
@@ -174,14 +170,14 @@ public class RenderMD extends Simulation {
         public CriterionCar(ParseObj parser, Box box) {
             bondedSet = new HashMap<IAtom,Set<IAtom>>();
             IAtomList leafList = box.getLeafList();
-            for (int i=0; i<leafList.getAtomCount(); i++) {
-                bondedSet.put(leafList.getAtom(i), new HashSet<IAtom>());
+            for (int i = 0; i<leafList.size(); i++) {
+                bondedSet.put(leafList.get(i), new HashSet<IAtom>());
             }
             int nBonds = parser.bondList.size();
             for(int i=0; i<nBonds; i++) {
                 BondInfo bond = parser.bondList.get(i);
-                IAtom atom0 = leafList.getAtom(bond.i0);
-                IAtom atom1 = leafList.getAtom(bond.i1);
+                IAtom atom0 = leafList.get(bond.i0);
+                IAtom atom1 = leafList.get(bond.i1);
                 bondedSet.get(atom0).add(atom1);
                 bondedSet.get(atom1).add(atom0);
             }
@@ -189,7 +185,7 @@ public class RenderMD extends Simulation {
 
 
         public boolean accept(IAtomList pair) {
-            return bondedSet.get(pair.getAtom(0)).contains(pair.getAtom(1));
+            return bondedSet.get(pair.get(0)).contains(pair.get(1));
         }
 
         public boolean needUpdate(IAtom atom) {return false;}
@@ -212,15 +208,15 @@ public class RenderMD extends Simulation {
             int nBonds = parser.bondList.size();
             for(int i=0; i<nBonds; i++) {
                 BondInfo bond = parser.bondList.get(i);
-                IAtom atom0 = leafList.getAtom(bond.i0);
-                IAtom atom1 = leafList.getAtom(bond.i1);
+                IAtom atom0 = leafList.get(bond.i0);
+                IAtom atom1 = leafList.get(bond.i1);
                 bondMap.put(new AtomPair(atom0, atom1), bond.bondLengthSquared*0.9999);
             }
         }
 
         public void bump(IAtomList pair, double falseTime) {
-            IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
-            IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+            IAtomKinetic atom0 = (IAtomKinetic)pair.get(0);
+            IAtomKinetic atom1 = (IAtomKinetic)pair.get(1);
             double v2old = atom1.getVelocity().Mv1Squared(atom0.getVelocity());
 
             setCoreDiameterSquared(bondMap.get(pair));

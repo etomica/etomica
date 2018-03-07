@@ -5,10 +5,7 @@
 package etomica.math.numerical;
 
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.math.function.FunctionMultiDimensionalDifferentiable;
 import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.PotentialMasterList;
@@ -16,6 +13,7 @@ import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Uses finite difference methods to determine the second order differential of the potential (i.e. dF/dx).
@@ -27,7 +25,7 @@ import etomica.space.Space;
  */
 
 
-public class CalcGradientDifferentiable implements FunctionMultiDimensionalDifferentiable, AgentSource<IntegratorVelocityVerlet.MyAgent> {
+public class CalcGradientDifferentiable implements FunctionMultiDimensionalDifferentiable {
 
     public Box box;
     public PotentialMaster potentialMaster;
@@ -36,7 +34,7 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
     FiniteDifferenceDerivative finiteDifferenceDerivative;
     public IteratorDirective allAtoms;
     PotentialCalculationForceSum force;
-    AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgent;
+    AtomLeafAgentManager<Vector> atomAgent;
     int gradDcomponent, startAtom, stopAtom;
     IMoleculeList movableSet;
     private final Space space;
@@ -54,7 +52,7 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         
         force = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
-        atomAgent = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box);
+        atomAgent = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
         force.setAgentManager(atomAgent);
         
         finiteDifferenceDerivative = new FiniteDifferenceDerivative(this);
@@ -71,14 +69,14 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         
         for(int i=0; i<position.length/3; i++){
            for(int j=0; j<3; j++){
-        	   movableSet.getMolecule(i).getChildList().getAtom(0).getPosition().setX(j, position[(3*i)+j]);
+        	   movableSet.get(i).getChildList().get(0).getPosition().setX(j, position[(3*i)+j]);
            }
         }
         force.reset();
         potentialMaster.calculate(box, allAtoms, force);
         
         //not used
-        return atomAgent.getAgent(movableSet.getMolecule(gradDcomponent/3).getChildList().getAtom(0)).force().getX(gradDcomponent%3);
+        return atomAgent.getAgent(movableSet.get(gradDcomponent/3).getChildList().get(0)).getX(gradDcomponent%3);
 
     }
     
@@ -111,14 +109,14 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         f(position);
         
         for(int j=0; j<forceRow.length; j++){
-            forceRow[j] = -atomAgent.getAgent(movableSet.getMolecule(j/3).getChildList().getAtom(0)).force.getX(j%3);
+            forceRow[j] = -atomAgent.getAgent(movableSet.get(j/3).getChildList().get(0)).getX(j%3);
         }
         
         position[elem]-=2*newH;
         f(position);
         
         for(int j=0; j<forceRow.length; j++){
-            forceRow[j] -= -atomAgent.getAgent(movableSet.getMolecule(j/3).getChildList().getAtom(0)).force().getX(j%3);
+            forceRow[j] -= -atomAgent.getAgent(movableSet.get(j/3).getChildList().get(0)).getX(j%3);
             forceRow[j] /= (2.0*newH);
         }
         
@@ -128,13 +126,4 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
     public int getDimension(){
         return space.D();
     }
-
-    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
-        return new IntegratorVelocityVerlet.MyAgent(space);
-    }
-
-    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {
-        // do nothing  
-    }
-    
 }

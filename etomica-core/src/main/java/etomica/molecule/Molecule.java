@@ -46,7 +46,7 @@ public class Molecule implements IMolecule, java.io.Serializable {
 
         newChildAtom.setParent(this);
 
-        newChildAtom.setIndex(childList.getAtomCount());
+        newChildAtom.setIndex(childList.size());
         childList.add(newChildAtom);
     }
     
@@ -55,15 +55,15 @@ public class Molecule implements IMolecule, java.io.Serializable {
      * @throws IllegalArgumentException if the given atom is not a child.
      */
     public void removeChildAtom(IAtom oldChildAtom) {
-        for (int i=0; i<childList.getAtomCount(); i++) {
-            if (childList.getAtom(i) == oldChildAtom) {
+        for (int i = 0; i<childList.size(); i++) {
+            if (childList.get(i) == oldChildAtom) {
                 oldChildAtom.setParent(null);
                 childList.removeAndReplace(i);
                 childList.maybeTrimToSize();
-                if (childList.getAtomCount() > i) {
+                if (childList.size() > i) {
                     // reassign the old last Atom (which is now in the removed
                     // Atom's place) to have the old Atom's index.
-                    childList.getAtom(i).setIndex(i);
+                    childList.get(i).setIndex(i);
                 }
                 return;
             }

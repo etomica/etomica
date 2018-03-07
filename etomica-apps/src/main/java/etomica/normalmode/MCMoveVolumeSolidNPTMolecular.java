@@ -139,11 +139,11 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
 
         IMoleculeList moleculeList = box.getMoleculeList();
         IMoleculeList moleculeLatticeList = latticeBox.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
 
-        for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            IMolecule moleculei = moleculeList.getMolecule(i);
-            IMolecule moleculeLattice = moleculeLatticeList.getMolecule(i);
+        for (int i = 0; i<moleculeList.size(); i++) {
+            IMolecule moleculei = moleculeList.get(i);
+            IMolecule moleculeLattice = moleculeLatticeList.get(i);
             comOld.E(moleculeCenter.position(moleculei));
             comOld.ME(moleculeCenter.position(moleculeLattice));
             // comOld is now the deviation of the molecule from its lattice site.
@@ -166,9 +166,9 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
         int transDim = boxSize.getD();
         latticeScale = Math.exp((pressure*(vNewLocal-vOldLocal)+(uLatNew-uLatOld) - vScaleLocal)/((nMolecules*D-transDim)*temperature));
 
-        for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            IMolecule moleculei = moleculeList.getMolecule(i);
-            IMolecule moleculeLattice = moleculeLatticeList.getMolecule(i);
+        for (int i = 0; i<moleculeList.size(); i++) {
+            IMolecule moleculei = moleculeList.get(i);
+            IMolecule moleculeLattice = moleculeLatticeList.get(i);
             
             dest.E(moleculeCenter.position(moleculei));
             dest.TE(latticeScale);
@@ -193,7 +193,7 @@ public class MCMoveVolumeSolidNPTMolecular extends MCMoveBoxStep {
     }
 
     public double getChi(double temperature) {
-        int nMolecules = box.getMoleculeList().getMoleculeCount();
+        int nMolecules = box.getMoleculeList().size();
         double uLatOld = nMolecules*uLatFunction.f(nMolecules/vOld);
         double uLatNew = nMolecules*uLatFunction.f(nMolecules/vNew);
         return Math.exp(-((uNew - uLatNew) - (uOld - uLatOld)) / temperature);

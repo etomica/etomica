@@ -4,17 +4,19 @@
 
 package etomica.parser;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static etomica.parser.ParmedParser.parseGromacsResourceFiles;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.*;
 
-public class ParmedParserTest {
+class ParmedParserTest {
 
     @Test
-    public void testParseGromacsResourceFiles() {
+    void testParseGromacsResourceFiles() {
+        assumeTrue(ParmedParser.class.getClassLoader().getResource("virtualenv/bin/parmed_json") != null);
         try {
             ParmedStructure p = parseGromacsResourceFiles("test.top", "test.gro");
         } catch(IOException e) {

@@ -57,37 +57,33 @@ public class SimTarget extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = new Box(space);
-        addBox(box);
+        Potential potential = new P2HardSphere(space, 1.0, false);
+        AtomType sphereType = species.getLeafType();
+        potentialMaster.addPotential(potential, new AtomType[]{sphereType,
+                sphereType});
+        int nCells;
+        if (space.D() == 1) {
+            primitive = new PrimitiveCubic(space, 1.0 / density);
+            boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
+            integrator.setNullPotential(new P1HardPeriodic(space), sphereType);
+            nCells = numAtoms;
+        } else {
+            primitive = new PrimitiveFcc(space, 1);
+            double v = primitive.unitCell().getVolume();
+            primitive.scaleSize(Math.pow(v * density, -1.0 / 3.0));
+            nCells = (int) Math.round(Math.pow(numAtoms, 1.0 / 3.0));
+            boundary = new BoundaryDeformableLattice(primitive, new int[]{nCells, nCells, nCells});
+        }
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        integrator = new IntegratorHard(this, potentialMaster, box);
 
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(integrator);
         double timeStep = 0.4;
         integrator.setTimeStep(timeStep);
         getController().addAction(activityIntegrate);
-
-        Potential potential = new P2HardSphere(space, 1.0, false);
-        AtomType sphereType = species.getLeafType();
-        potentialMaster.addPotential(potential, new AtomType[]{sphereType,
-                sphereType });
-
-        int nCells;
-        if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
-            boundary = new BoundaryRectangularPeriodic(space, numAtoms/density);
-            integrator.setNullPotential(new P1HardPeriodic(space), sphereType);
-            nCells = numAtoms;
-        } else {
-            primitive = new PrimitiveFcc(space, 1);
-            double v = primitive.unitCell().getVolume();
-            primitive.scaleSize(Math.pow(v*density,-1.0/3.0));
-            nCells = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
-            boundary = new BoundaryDeformableLattice(primitive, new int[]{nCells,nCells,nCells});
-        }
-        box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, space);
         coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
@@ -96,18 +92,15 @@ public class SimTarget extends Simulation {
             double neighborRange;
             if (space.D() == 1) {
                 neighborRange = 1.01 / density;
-            }
-            else {
+            } else {
                 //FCC
-                double L = Math.pow(4.01/density, 1.0/3.0);
+                double L = Math.pow(4.01 / density, 1.0 / 3.0);
                 neighborRange = L / Math.sqrt(2.0);
             }
-            ((PotentialMasterList)potentialMaster).setRange(neighborRange);
+            ((PotentialMasterList) potentialMaster).setRange(neighborRange);
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMaster).getNeighborManager(box).reset();
+            ((PotentialMasterList) potentialMaster).getNeighborManager(box).reset();
         }
-
-        integrator.setBox(box);
     }
 
     /**

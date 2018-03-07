@@ -53,8 +53,8 @@ public class P2SpheroPolyhedron extends Potential2 {
     }
 
     public double energy(IAtomList atoms) {
-        AtomOrientedQuaternion atom0 = (AtomOrientedQuaternion)atoms.getAtom(0);
-        AtomOrientedQuaternion atom1 = (AtomOrientedQuaternion)atoms.getAtom(1);
+        AtomOrientedQuaternion atom0 = (AtomOrientedQuaternion)atoms.get(0);
+        AtomOrientedQuaternion atom1 = (AtomOrientedQuaternion)atoms.get(1);
         AtomTypeSpheroPolyhedron atomType0 = (AtomTypeSpheroPolyhedron)atom0.getType();
         AtomTypeSpheroPolyhedron atomType1 = (AtomTypeSpheroPolyhedron)atom1.getType();
         Vector position0 = atom0.getPosition();

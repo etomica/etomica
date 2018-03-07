@@ -18,13 +18,13 @@ import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
@@ -34,6 +34,7 @@ import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.*;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -80,16 +81,8 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
     public IDataInfo info2;
 
     public MEAM_3DMDwithSnAgGB() {
-        super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
-        potentialMaster = new PotentialMasterList(this, space);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
-        integrator.setTimeStep(0.001);
-        integrator.setTemperature(Kelvin.UNIT.toSim(295));
-        integrator.setThermostatInterval(100);
-        integrator.setIsothermal(true);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(2);
-        getController().addAction(activityIntegrate);
+        super(Space3D.getInstance());
+
         Tin SnF = new Tin("SnF", Double.POSITIVE_INFINITY);
         snFixedA = new SpeciesSpheresMono(space, SnF);
         snFixedA.setIsDynamic(true);
@@ -113,19 +106,33 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         addSpecies(agB);
 //        addSpecies(cuB);
 
+        potentialMaster = new PotentialMasterList(this, space);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator.setTimeStep(0.001);
+        integrator.setTemperature(Kelvin.UNIT.toSim(295));
+        integrator.setThermostatInterval(100);
+        integrator.setIsothermal(true);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate.setSleepPeriod(2);
+        getController().addAction(activityIntegrate);
         double aA, bA, cA, aB, bB, cB;
 
         int nCellsAx, nCellsAy, nCellsAz, nAMobile, nAFixed, basisA,
-		nCellsBx, nCellsBy, nCellsBz, nBMobile, nBFixed, basisB,
-		nA, nB, nAImpurity, nBImpurity, nAVacancy, nBVacancy;
+                nCellsBx, nCellsBy, nCellsBz, nBMobile, nBFixed, basisB,
+                nA, nB, nAImpurity, nBImpurity, nAVacancy, nBVacancy;
 
-        nCellsAx = 5; nCellsAy = 5; nCellsAz = 4;
-        nCellsBx = 7; nCellsBy = 7; nCellsBz = 4;
-        nAImpurity = 0; nAVacancy = 0;
-        nBImpurity = 0; nBVacancy = 0;
+        nCellsAx = 5;
+        nCellsAy = 5;
+        nCellsAz = 4;
+        nCellsBx = 7;
+        nCellsBy = 7;
+        nCellsBz = 4;
+        nAImpurity = 0;
+        nAVacancy = 0;
+        nBImpurity = 0;
+        nBVacancy = 0;
 
-        box = new Box(new BoundaryRectangularSlit(2, space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularSlit(2, space));
 
         // beta-Sn box
 
@@ -133,25 +140,28 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         //the unit cell to prevent distortion of the lattice.  The values for the
         //lattice parameters for tin's beta box (a = 5.8314 angstroms, c = 3.1815
         //angstroms) are taken from the ASM Handbook.
-        aA = bA = 5.796; cA = 3.1815; basisA = 4;
+        aA = bA = 5.796;
+        cA = 3.1815;
+        basisA = 4;
         PrimitiveTetragonal primitiveA = new PrimitiveTetragonal(space, aA, cA);
         //Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
         //box.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
         //PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
         BravaisLatticeCrystal latticeA = new BravaisLatticeCrystal(primitiveA, new BasisBetaSnA5());
 
-        aB = bB = cB = 4.14; basisB = 4;
-	    PrimitiveCubic primitiveB = new PrimitiveCubic(space, aB);
-	    BravaisLatticeCrystal latticeB = new BravaisLatticeCrystal(primitiveB, new BasisCubicFcc());
+        aB = bB = cB = 4.14;
+        basisB = 4;
+        PrimitiveCubic primitiveB = new PrimitiveCubic(space, aB);
+        BravaisLatticeCrystal latticeB = new BravaisLatticeCrystal(primitiveB, new BasisCubicFcc());
 
-        box.getBoundary().setBoxSize(new Vector3D(aA*nCellsAx, aA*nCellsAy, (cA*nCellsAz)+(cB*nCellsBz)));
+        box.getBoundary().setBoxSize(new Vector3D(aA * nCellsAx, aA * nCellsAy, (cA * nCellsAz) + (cB * nCellsBz)));
 
         nA = (nCellsAx * nCellsAy * nCellsAz) * basisA;
-	    nAFixed = (nCellsAx * nCellsAy * 2) * basisA;
-	    nAMobile = nA - nAFixed - nAImpurity - nAVacancy;
-	    nB = (nCellsBx * nCellsBy * nCellsBz) * basisB;
-	    nBFixed = (nCellsBx * nCellsBy * 2) * basisB;
-	    nBMobile = nB - nBFixed - nBImpurity - nBVacancy;
+        nAFixed = (nCellsAx * nCellsAy * 2) * basisA;
+        nAMobile = nA - nAFixed - nAImpurity - nAVacancy;
+        nB = (nCellsBx * nCellsBy * nCellsBz) * basisB;
+        nBFixed = (nCellsBx * nCellsBy * 2) * basisB;
+        nBMobile = nB - nBFixed - nBImpurity - nBVacancy;
 
         box.setNMolecules(snFixedA, nAFixed);
         box.setNMolecules(snA, nAMobile);
@@ -162,28 +172,26 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         GrainBoundaryConfiguration config = new GrainBoundaryConfiguration(latticeA, latticeB, space);
         config.setDimensions(nCellsAx, nCellsAy, nCellsAz, nCellsBx, nCellsBy,
                 nCellsBz, aA, bA, cA, aB, bB, cB);
-	    config.initializeCoordinates(box);
+        config.initializeCoordinates(box);
 
         potentialN = new PotentialMEAM(space);
-		potentialN.setParameters(snFixedA.getLeafType(), ParameterSetMEAM.Sn);
-		potentialN.setParameters(snA.getLeafType(), ParameterSetMEAM.Sn);
+        potentialN.setParameters(snFixedA.getLeafType(), ParameterSetMEAM.Sn);
+        potentialN.setParameters(snA.getLeafType(), ParameterSetMEAM.Sn);
 //		potentialN.setParameters(agA.getLeafType(), ParameterSetMEAM.Ag);
 //		potentialN.setParameters(cuA.getLeafType(), ParameterSetMEAM.Cu);
-		potentialN.setParameters(agFixedB.getLeafType(), ParameterSetMEAM.Ag);
+        potentialN.setParameters(agFixedB.getLeafType(), ParameterSetMEAM.Ag);
 //		potentialN.setParameters(snB.getLeafType(), ParameterSetMEAM.Sn);
-		potentialN.setParameters(agB.getLeafType(), ParameterSetMEAM.Ag);
+        potentialN.setParameters(agB.getLeafType(), ParameterSetMEAM.Ag);
 //		potentialN.setParameters(cuB.getLeafType(), ParameterSetMEAM.Cu);
 //		potentialN.setParametersIMC(cuA.getLeafType(), ParameterSetMEAM.Cu3Sn);
 //		potentialN.setParametersIMC(agA.getLeafType(), ParameterSetMEAM.Ag3Sn);
 //		potentialN.setParametersIMC(cuB.getLeafType(), ParameterSetMEAM.Cu3Sn);
-		potentialN.setParametersIMC(agB.getLeafType(), ParameterSetMEAM.Ag3Sn);
-		potentialN.setParametersIMC(agFixedB.getLeafType(), ParameterSetMEAM.Ag3Sn);
+        potentialN.setParametersIMC(agB.getLeafType(), ParameterSetMEAM.Ag3Sn);
+        potentialN.setParametersIMC(agFixedB.getLeafType(), ParameterSetMEAM.Ag3Sn);
         this.potentialMaster.addPotential(potentialN, new AtomType[]{snFixedA.getLeafType(), snA.getLeafType(), agFixedB.getLeafType(), agB.getLeafType()});
-        potentialMaster.setRange(potentialN.getRange()*1.1);
-        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange()*1.1));
+        potentialMaster.setRange(potentialN.getRange() * 1.1);
+        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, space, potentialN.getRange(), potentialN.getRange() * 1.1));
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
-
-        integrator.setBox(box);
 
         // IntegratorCoordConfigWriter - Displacement output (3/1/06 - MS)
         //IntegratorCoordConfigWriter coordWriter = new IntegratorCoordConfigWriter(space, "MEAMoutput");
@@ -194,17 +202,14 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         // Control simulation lengths
         //activityIntegrate.setMaxSteps(500);
 
-		energy = new MeterEnergy(potentialMaster, box);
+        energy = new MeterEnergy(potentialMaster, box);
     }
 
     public static void main(String[] args) {
         MEAM_3DMDwithSnAgGB sim = new MEAM_3DMDwithSnAgGB();
 
-        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
-        MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
-
-        energyMeter.setBox(sim.box);
-        kineticMeter.setBox(sim.box);
+        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
+        MeterKineticEnergy kineticMeter = new MeterKineticEnergy(sim.box);
 
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         AccumulatorHistory kineticAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -264,13 +269,13 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         simgraphic.getController().getReinitButton().setPostAction(simgraphic.getPaintAction(sim.box));
 
         ColorSchemeByType colorScheme = ((ColorSchemeByType) ((DisplayBox) simgraphic.displayList().getFirst()).getColorScheme());
-        colorScheme.setColor(sim.snFixedA.getLeafType(), java.awt.Color.white);
-        colorScheme.setColor(sim.snA.getLeafType(), java.awt.Color.white);
+        colorScheme.setColor(sim.snFixedA.getLeafType(), Color.white);
+        colorScheme.setColor(sim.snA.getLeafType(), Color.white);
 //    	colorScheme.setColor(sim.agA.getMoleculeType(),java.awt.Color.gray);
 //    	colorScheme.setColor(sim.cuA.getMoleculeType(),java.awt.Color.orange);
-        colorScheme.setColor(sim.agFixedB.getLeafType(), java.awt.Color.gray);
+        colorScheme.setColor(sim.agFixedB.getLeafType(), Color.gray);
 //    	colorScheme.setColor(sim.snB.getMoleculeType(),java.awt.Color.white);
-        colorScheme.setColor(sim.agB.getLeafType(), java.awt.Color.gray);
+        colorScheme.setColor(sim.agB.getLeafType(), Color.gray);
 //    	colorScheme.setColor(sim.cuB.getMoleculeType(),java.awt.Color.orange);
 
         simgraphic.makeAndDisplayFrame(APP_NAME);

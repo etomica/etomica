@@ -28,7 +28,7 @@ public class ConfigurationLatticeRandom extends ConfigurationLattice {
 
     public void initializeCoordinates(Box box) {
         IMoleculeList moleculeList = box.getMoleculeList();
-        int sumOfMolecules = moleculeList.getMoleculeCount();
+        int sumOfMolecules = moleculeList.size();
         if (sumOfMolecules == 0) {
             return;
         }
@@ -114,7 +114,7 @@ public class ConfigurationLatticeRandom extends ConfigurationLattice {
             }
             while (done[i]);
             done[i] = true;
-            IMolecule a = moleculeList.getMolecule(i);
+            IMolecule a = moleculeList.get(i);
             int[] ii = indexIterator.next();
             siteCount++;
             // add voidFrac for each /site/ (not molecule)

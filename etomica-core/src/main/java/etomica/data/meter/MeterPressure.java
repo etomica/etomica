@@ -100,7 +100,7 @@ public class MeterPressure extends DataSourceScalar {
         }
         double temp = (integrator != null) ? integrator.getTemperature() : temperature;
         //System.out.println("fac="+(1/(box.getBoundary().volume()*box.getSpace().D())));
-        return (b.getMoleculeList().getMoleculeCount() / b.getBoundary().volume())*temp - virial.getSum()/(b.getBoundary().volume()*dim);
+        return (b.getMoleculeList().size() / b.getBoundary().volume())*temp - virial.getSum()/(b.getBoundary().volume()*dim);
     }
 
     private IntegratorBox integrator;

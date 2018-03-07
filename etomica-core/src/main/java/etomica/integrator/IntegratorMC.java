@@ -9,7 +9,6 @@ import etomica.integrator.mcmove.*;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.util.EventManager;
-import etomica.util.IEvent;
 import etomica.util.random.IRandom;
 
 /**
@@ -27,9 +26,9 @@ public class IntegratorMC extends IntegratorBox {
 
     public static boolean dodebug;
     protected final IRandom random;
-    protected final EventManager<IEvent> moveEventManager;
-    private final IEvent trialEvent, trialFailedEvent;
-    private final IEvent acceptedEvent, rejectedEvent;
+    protected final EventManager<MCMoveEvent> moveEventManager;
+    private final MCMoveEvent trialEvent, trialFailedEvent;
+    private final MCMoveEvent acceptedEvent, rejectedEvent;
     protected MCMoveManager moveManager;
 
     /**
@@ -37,8 +36,8 @@ public class IntegratorMC extends IntegratorBox {
      * @param potentialMaster PotentialMaster instance used by moves to calculate the energy
      */
 
-    public IntegratorMC(Simulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(), 1.0);
+    public IntegratorMC(Simulation sim, PotentialMaster potentialMaster, Box box) {
+        this(potentialMaster, sim.getRandom(), 1.0, box);
     }
 
     /**
@@ -46,8 +45,8 @@ public class IntegratorMC extends IntegratorBox {
      * @param random          random number generator used to select moves and decide acceptance
      * @param temperature     temperature of the ensemble
      */
-    public IntegratorMC(PotentialMaster potentialMaster, IRandom random, double temperature) {
-        super(potentialMaster, temperature);
+    public IntegratorMC(PotentialMaster potentialMaster, IRandom random, double temperature, Box box) {
+        super(potentialMaster, temperature, box);
         this.random = random;
         setIsothermal(true); //has no practical effect, but sets value of
         // isothermal to be consistent with way integrator
@@ -58,6 +57,7 @@ public class IntegratorMC extends IntegratorBox {
         trialFailedEvent = new MCMoveTrialFailedEvent(moveManager);
         acceptedEvent = new MCMoveTrialCompletedEvent(moveManager, true);
         rejectedEvent = new MCMoveTrialCompletedEvent(moveManager, false);
+        moveManager.setBox(box);
     }
 
     /**
@@ -72,11 +72,6 @@ public class IntegratorMC extends IntegratorBox {
      */
     public void setMoveManager(MCMoveManager newMoveManager) {
         moveManager = newMoveManager;
-    }
-
-    public void setBox(Box box) {
-        super.setBox(box);
-        moveManager.setBox(box);
     }
 
     /**
@@ -144,7 +139,7 @@ public class IntegratorMC extends IntegratorBox {
     /**
      * @return moveEventManager that fires move events
      */
-    public EventManager<IEvent> getMoveEventManager() {
+    public EventManager<MCMoveEvent> getMoveEventManager() {
         return moveEventManager;
     }
 }

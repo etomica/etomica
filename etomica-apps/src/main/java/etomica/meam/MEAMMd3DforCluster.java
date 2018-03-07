@@ -48,12 +48,9 @@ public class MEAMMd3DforCluster {
     	sim.activityIntegrate.setMaxSteps(3000);
     	sim.getController().actionPerformed();
     	
-    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
-    	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
-    	
-    	energyMeter.setBox(sim.box);
-    	kineticMeter.setBox(sim.box);
-        
+    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
+        MeterKineticEnergy kineticMeter = new MeterKineticEnergy(sim.box);
+
         AccumulatorAverage accumulatorAveragePE = new AccumulatorAverageFixed(50);
     	AccumulatorAverage accumulatorAverageKE = new AccumulatorAverageFixed(50);
     	
@@ -90,12 +87,12 @@ public class MEAMMd3DforCluster {
     			getData(accumulatorAveragePE.STANDARD_DEVIATION.index)).x;
     	double systemTemp = sim.integrator.getTemperature();
     	cvPE /= systemTemp;
-    	cvPE *= cvPE/sim.box.getMoleculeList().getMoleculeCount();
+    	cvPE *= cvPE/sim.box.getMoleculeList().size();
     	
     	double cvKE = ((DataDouble)((DataGroup)accumulatorAverageKE.getData()).
     			getData(accumulatorAverageKE.STANDARD_DEVIATION.index)).x;
       	cvKE /= systemTemp;
-    	cvKE *= cvKE/sim.box.getMoleculeList().getMoleculeCount();
+    	cvKE *= cvKE/sim.box.getMoleculeList().size();
     
     	System.out.println("PE contribution to Cv/k is  "+ cvPE + " (simulation units)");
     	System.out.println("KE contribution to Cv/k is  "+ cvKE + " (simulation units)");

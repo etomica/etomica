@@ -12,8 +12,8 @@ import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.DisplayBox;
 import etomica.integrator.IntegratorHard;
-import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -36,27 +36,26 @@ public class SWMD2D extends Simulation {
 
     public SWMD2D() {
         super(Space2D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double sigma = 0.8;
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        box = this.makeBox();
+        integrator = new IntegratorHard(this, potentialMaster, box);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         integrator.setTimeStep(0.02);
         integrator.setTemperature(1.);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
         AtomType leafType = species.getLeafType();
-        box = new Box(space);
-        addBox(box);
         box.setNMolecules(species, 50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         potential = new P2SquareWell(space);
         potential.setCoreDiameter(sigma);
         potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
-
-        integrator.setBox(box);
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
     }
 }

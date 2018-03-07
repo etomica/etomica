@@ -50,8 +50,7 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
         ((MoleculeSourceRandomMolecule)moleculeSource).setRandomNumberGenerator(random);
         moleculeSource.setBox(box);
         
-        energyMeter = new MeterPotentialEnergy(potentialMaster);
-        energyMeter.setBox(box);
+        energyMeter = new MeterPotentialEnergy(potentialMaster, box);
         
         affectedMoleculeIterator = new MoleculeIteratorArrayListSimple();
         affectedMoleculeList = new MoleculeArrayList();
@@ -151,8 +150,8 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
         randomMol0 = random.nextInt(nA);
         randomMol1 = random.nextInt(nA);
 
-        molecule0 = basisCell[0].molecules.getMolecule(molIndex[13][randomMol0]);
-        molecule1 = basisCell[0].molecules.getMolecule(molIndex[13][randomMol1]);
+        molecule0 = basisCell[0].molecules.get(molIndex[13][randomMol0]);
+        molecule1 = basisCell[0].molecules.get(molIndex[13][randomMol1]);
 
         affectedMoleculeList.clear();
         affectedMoleculeList.add(molecule0);
@@ -168,30 +167,30 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
          * uCorrect is account for the double-counting of the molecular energy
          */
         uCorrect = 0.0;
-        pairAB.atom0 = molecule0;
+        pairAB.mol0 = molecule0;
         for(int i=0; i<molIndex.length; i++){
         	if(i==13) continue;
-        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][randomMol0]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][randomMol0]);
         	uCorrect += potential.energy(pairAB);
         	
-        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][randomMol1]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][randomMol1]);
         	uCorrect += potential.energy(pairAB);
         }
-        pairAB.atom0 = molecule1;
+        pairAB.mol0 = molecule1;
         for(int i=0; i<molIndex.length; i++){
         	if(i==13) continue;
-        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][randomMol0]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][randomMol0]);
         	uCorrect += potential.energy(pairAB);
         	
-        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][randomMol1]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][randomMol1]);
         	uCorrect += potential.energy(pairAB);
         }
         
         energyMeter.setTarget(molecule1);
         uOld += energyMeter.getDataAsScalar();
         uOld -= 0.5*uCorrect;
-        pair.atom0 = molecule0;
-        pair.atom1 = molecule1;
+        pair.mol0 = molecule0;
+        pair.mol1 = molecule1;
         uOld -= potential.energy(pair);
         
         
@@ -202,33 +201,33 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
         groupTransVect.setRandomCube(random);
         groupTransVect.TE(stepSize);
         for(int i=0; i<molIndex.length; i++){
-        	moveMoleculeAction.actionPerformed(basisCell[0].molecules.getMolecule(molIndex[i][randomMol0]));
+        	moveMoleculeAction.actionPerformed(basisCell[0].molecules.get(molIndex[i][randomMol0]));
         }
         groupTransVect.TE(-1.0);
         for(int i=0; i<molIndex.length; i++){
-        	moveMoleculeAction.actionPerformed(basisCell[0].molecules.getMolecule(molIndex[i][randomMol1]));
+        	moveMoleculeAction.actionPerformed(basisCell[0].molecules.get(molIndex[i][randomMol1]));
         }
   
-        molecule0 = basisCell[0].molecules.getMolecule(molIndex[13][randomMol0]);
-        molecule1 = basisCell[0].molecules.getMolecule(molIndex[13][randomMol1]);
+        molecule0 = basisCell[0].molecules.get(molIndex[13][randomMol0]);
+        molecule1 = basisCell[0].molecules.get(molIndex[13][randomMol1]);
 
         uCorrect = 0.0;
-        pairAB.atom0 = molecule0;
+        pairAB.mol0 = molecule0;
         for(int i=0; i<molIndex.length; i++){
         	if(i==13) continue;
-        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][randomMol0]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][randomMol0]);
         	uCorrect += potential.energy(pairAB);
         	
-        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][randomMol1]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][randomMol1]);
         	uCorrect += potential.energy(pairAB);
         }
-        pairAB.atom0 = molecule1;
+        pairAB.mol0 = molecule1;
         for(int i=0; i<molIndex.length; i++){
         	if(i==13) continue;
-        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][randomMol0]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][randomMol0]);
         	uCorrect += potential.energy(pairAB);
         	
-        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][randomMol1]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][randomMol1]);
         	uCorrect += potential.energy(pairAB);
         }
         
@@ -254,12 +253,12 @@ public class MCMoveMoleculeCoupledSuperBox extends MCMoveBoxStep implements MCMo
 
     public void rejectNotify() {
         for(int i=0; i<molIndex.length; i++){
-        	moveMoleculeAction.actionPerformed(basisCell[0].molecules.getMolecule(molIndex[i][randomMol0]));
+        	moveMoleculeAction.actionPerformed(basisCell[0].molecules.get(molIndex[i][randomMol0]));
         }
         groupTransVect.TE(-1.0);
 
         for(int i=0; i<molIndex.length; i++){
-        	moveMoleculeAction.actionPerformed(basisCell[0].molecules.getMolecule(molIndex[i][randomMol1]));
+        	moveMoleculeAction.actionPerformed(basisCell[0].molecules.get(molIndex[i][randomMol1]));
         }
     }
     

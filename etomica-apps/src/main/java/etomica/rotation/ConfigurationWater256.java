@@ -791,9 +791,9 @@ public class ConfigurationWater256 implements Configuration, java.io.Serializabl
         vec[ 767 ] = new Vector3D( -8.135296096328844 , 6.323459201843109 , 9.319152844077655 );
 
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom a = leafList.getAtom(iLeaf);
+            IAtom a = leafList.get(iLeaf);
             a.getPosition().E(vec[iLeaf]);
         }
     }

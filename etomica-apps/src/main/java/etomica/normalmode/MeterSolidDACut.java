@@ -55,7 +55,7 @@ public class MeterSolidDACut implements IDataSource {
         if (false) System.out.print("Lattice energy: ");
         for (int i=0; i<cutoffs.length; i++) {
             latticeEnergy[i] = energy[i];
-            if (false) System.out.print(" "+latticeEnergy[i]/box.getMoleculeList().getMoleculeCount());
+            if (false) System.out.print(" "+latticeEnergy[i]/box.getMoleculeList().size());
             latticePressure[i] = -virial[i]/(box.getBoundary().volume()*dim);
         }
         if (false) System.out.print("\n");
@@ -93,7 +93,7 @@ public class MeterSolidDACut implements IDataSource {
         if (false) System.out.print("LJ Lattice energy: ");
         for (int i=0; i<energy.length; i++) {
             latticeEnergyDADv2[i] = energy[i];
-            if (false) System.out.print(" "+latticeEnergyDADv2[i]/box.getMoleculeList().getMoleculeCount());
+            if (false) System.out.print(" "+latticeEnergyDADv2[i]/box.getMoleculeList().size());
             latticePressureDADv2[i] = -virial[i]/(box.getBoundary().volume()*dim);
         }
         if (false) {
@@ -129,7 +129,7 @@ public class MeterSolidDACut implements IDataSource {
      */
     public IData getData() {
         double V = box.getBoundary().volume();
-        int N = box.getMoleculeList().getMoleculeCount();
+        int N = box.getMoleculeList().size();
         double rho = N/V;
     	pc.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, pc);

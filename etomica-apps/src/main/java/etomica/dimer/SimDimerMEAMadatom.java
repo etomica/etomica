@@ -47,6 +47,8 @@ import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 
+import java.awt.*;
+
 /**
  * Simulation using Henkelman's Dimer method to find a saddle point for
  * an adatom of Sn on a surface, modeled with MEAM.
@@ -80,18 +82,17 @@ public class SimDimerMEAMadatom extends Simulation{
     //public Boolean saddleFine, calcModes, minSearch, normalDir;
     
     public SimDimerMEAMadatom() {
-        super(Space3D.getInstance());    	
+        super(Space3D.getInstance());
         potentialMaster = new PotentialMasterList(this, space);
         potentialMasterD = new PotentialMasterListDimer(this, space);
-        
-      //SIMULATION BOX
-        box = new Box(new BoundaryRectangularSlit(0, 5, space), space);
-        addBox(box);
-     
-      //SPECIES
-        
+
+        //SIMULATION BOX
+        box = this.makeBox(new BoundaryRectangularSlit(0, 5, space));
+
+        //SPECIES
+
         //Sn
-        Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);  
+        Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);
         fixed = new SpeciesSpheresMono(space, tinFixed);
         fixed.setIsDynamic(true);
         movable = new SpeciesSpheresMono(space, Tin.INSTANCE);
@@ -102,118 +103,117 @@ public class SimDimerMEAMadatom extends Simulation{
         addSpecies(movable);
         addSpecies(potentialSpecies);
         box.setNMolecules(fixed, 180);
-        
+
         potential = new PotentialMEAM(space);
         potential.setParameters(fixed.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(potentialSpecies.getLeafType(), ParameterSetMEAM.Sn);
-        
-        
-        
+
+
         //Sn
         //beta-Sn box
-        
+
         //The dimensions of the simulation box must be proportional to those of
         //the unit cell to prevent distortion of the lattice.  The values for the 
         //lattice parameters for tin's beta box (a = 5.8314 angstroms, c = 3.1815 
         //angstroms) are taken from the ASM Handbook. 
-              
-        double a = 5.92; 
+
+        double a = 5.92;
         double c = 3.23;
-        box.getBoundary().setBoxSize(new Vector3D(a*3, a*3, c*5));
+        box.getBoundary().setBoxSize(new Vector3D(a * 3, a * 3, c * 5));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, a, c);
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
 
-                
+
         //Ag
         /**
-        Silver silverFixed = new Silver("AgFix", Double.POSITIVE_INFINITY);
-        fixed = new SpeciesSpheresMono(this, Silver.INSTANCE);
-        movable = new SpeciesSpheresMono(this, Silver.INSTANCE);
-        getSpeciesManager().addSpecies(fixed);
-        getSpeciesManager().addSpecies(movable);
-        ((AtomTypeSphere)fixed.getLeafType()).setDiameter(2.8895); 
-        ((AtomTypeSphere)movable.getLeafType()).setDiameter(2.8895);
-        potential = new PotentialMEAM(space);
-        potential.setParameters(agFix, ParameterSetMEAM.Ag);
-        potential.setParameters(ag, ParameterSetMEAM.Ag);
-        potential.setParameters(agAdatom, ParameterSetMEAM.Ag);
-        potential.setParameters(movable, ParameterSetMEAM.Ag);
-        
-        double a = 4.0863;
-        PrimitiveCubic primitive = new PrimitiveCubic(space, a);
-        BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
-        
-        */
-    
-        
+         Silver silverFixed = new Silver("AgFix", Double.POSITIVE_INFINITY);
+         fixed = new SpeciesSpheresMono(this, Silver.INSTANCE);
+         movable = new SpeciesSpheresMono(this, Silver.INSTANCE);
+         getSpeciesManager().addSpecies(fixed);
+         getSpeciesManager().addSpecies(movable);
+         ((AtomTypeSphere)fixed.getLeafType()).setDiameter(2.8895);
+         ((AtomTypeSphere)movable.getLeafType()).setDiameter(2.8895);
+         potential = new PotentialMEAM(space);
+         potential.setParameters(agFix, ParameterSetMEAM.Ag);
+         potential.setParameters(ag, ParameterSetMEAM.Ag);
+         potential.setParameters(agAdatom, ParameterSetMEAM.Ag);
+         potential.setParameters(movable, ParameterSetMEAM.Ag);
+
+         double a = 4.0863;
+         PrimitiveCubic primitive = new PrimitiveCubic(space, a);
+         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
+
+         */
+
+
         //Cu
         /**
-        //Copper copperFixed = new Copper("CuFix", Double.POSITIVE_INFINITY);
-        fixed = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
-        movable = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
-        dimer = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
-        getSpeciesManager().addSpecies(fixed);
-        getSpeciesManager().addSpecies(movable);
-        getSpeciesManager().addSpecies(dimer);
-        ((AtomTypeSphere)fixed.getLeafType()).setDiameter(2.5561); 
-        ((AtomTypeSphere)dimer.getLeafType()).setDiameter(2.5561); 
-        ((AtomTypeSphere)movable.getLeafType()).setDiameter(2.5561);
-        potential = new PotentialMEAM(space);
-        potential.setParameters(fixed.getLeafType(), ParameterSetMEAM.Cu);
-        potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Cu);
-        potential.setParameters(dimer.getLeafType(), ParameterSetMEAM.Cu);
-        
-        double a = 3.6148;
-        PrimitiveCubic primitive = new PrimitiveCubic(space, a);
-        BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
-        */
-        
+         //Copper copperFixed = new Copper("CuFix", Double.POSITIVE_INFINITY);
+         fixed = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
+         movable = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
+         dimer = new SpeciesSpheresMono(this, space, Copper.INSTANCE);
+         getSpeciesManager().addSpecies(fixed);
+         getSpeciesManager().addSpecies(movable);
+         getSpeciesManager().addSpecies(dimer);
+         ((AtomTypeSphere)fixed.getLeafType()).setDiameter(2.5561);
+         ((AtomTypeSphere)dimer.getLeafType()).setDiameter(2.5561);
+         ((AtomTypeSphere)movable.getLeafType()).setDiameter(2.5561);
+         potential = new PotentialMEAM(space);
+         potential.setParameters(fixed.getLeafType(), ParameterSetMEAM.Cu);
+         potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Cu);
+         potential.setParameters(dimer.getLeafType(), ParameterSetMEAM.Cu);
+
+         double a = 3.6148;
+         PrimitiveCubic primitive = new PrimitiveCubic(space, a);
+         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
+         */
+
         Configuration config = new ConfigurationLattice(crystal, space);
         config.initializeCoordinates(box);
 
         this.potentialMaster.addPotential(potential, new AtomType[]{movable.getLeafType(), potentialSpecies.getLeafType()});
-        potentialMaster.setRange(potential.getRange()*1.1);
-        CriterionSimple criteria = new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1);
+        potentialMaster.setRange(potential.getRange() * 1.1);
+        CriterionSimple criteria = new CriterionSimple(this, space, potential.getRange(), potential.getRange() * 1.1);
         potentialMaster.setCriterion(potential, new CriterionTypesCombination(criteria, new AtomType[]{movable.getLeafType(), potentialSpecies.getLeafType()}));
 
         this.potentialMasterD.addPotential(potential, new AtomType[]{movable.getLeafType(), potentialSpecies.getLeafType()});
-        potentialMasterD.setSpecies(new ISpecies []{potentialSpecies, movable});
-        potentialMasterD.setRange(potential.getRange()*1.1);
-        CriterionSimple criteria2 = new CriterionSimple(this, space, potential.getRange(), potential.getRange()*1.1);
+        potentialMasterD.setSpecies(new ISpecies[]{potentialSpecies, movable});
+        potentialMasterD.setRange(potential.getRange() * 1.1);
+        CriterionSimple criteria2 = new CriterionSimple(this, space, potential.getRange(), potential.getRange() * 1.1);
         potentialMasterD.setCriterion(potential, new CriterionTypesCombination(criteria2, new AtomType[]{movable.getLeafType(), potentialSpecies.getLeafType()}));
-        
-    //ADATOM CREATION AND PLACEMENT
+
+        //ADATOM CREATION AND PLACEMENT
         // Sn
-        
+
         IMolecule iMolecule = movable.makeMolecule();
         box.addMolecule(iMolecule);
-        adAtomPos = iMolecule.getChildList().getAtom(0).getPosition();
+        adAtomPos = iMolecule.getChildList().get(0).getPosition();
         //adAtomPos = getSpace().makeVector();
         adAtomPos.setX(0, 9.8);
         adAtomPos.setX(1, 0.2);
         adAtomPos.setX(2, -1.0);
         Vector newBoxLength = space.makeVector();
         newBoxLength.E(box.getBoundary().getBoxSize());
-        newBoxLength.setX(0, 2.0*adAtomPos.getX(0)+2.0);
+        newBoxLength.setX(0, 2.0 * adAtomPos.getX(0) + 2.0);
         box.getBoundary().setBoxSize(newBoxLength);
-        
+
         /**
-        //Ag
-        IAtom iAtom = agAdatom.getMoleculeFactory().makeAtom();
-        box.getAgent(agAdatom).addChildAtom(iAtom);
-        iAtom).getPosition().setX(0, 7.5);
-        iAtom).getPosition().setX(1, 0.9477016722828758);
-        iAtom).getPosition().setX(2, 1.0709520701043456);
-        */
+         //Ag
+         IAtom iAtom = agAdatom.getMoleculeFactory().makeAtom();
+         box.getAgent(agAdatom).addChildAtom(iAtom);
+         iAtom).getPosition().setX(0, 7.5);
+         iAtom).getPosition().setX(1, 0.9477016722828758);
+         iAtom).getPosition().setX(2, 1.0709520701043456);
+         */
         /**
-        //Cu
-        IAtom iAtom = cuAdatom.getMoleculeFactory().makeAtom();
-        box.getAgent(cuAdatom).addChildAtom(iAtom);
-        iAtom).getPosition().setX(0, 6.0);
-        iAtom).getPosition().setX(1, 0.9477016722828758);
-        iAtom).getPosition().setX(2, 1.0709520701043456);
-        */
+         //Cu
+         IAtom iAtom = cuAdatom.getMoleculeFactory().makeAtom();
+         box.getAgent(cuAdatom).addChildAtom(iAtom);
+         iAtom).getPosition().setX(0, 6.0);
+         iAtom).getPosition().setX(1, 0.9477016722828758);
+         iAtom).getPosition().setX(2, 1.0709520701043456);
+         */
     }
 
     public static void main(String[] args) {
@@ -251,8 +251,7 @@ public class SimDimerMEAMadatom extends Simulation{
         sim.integratorMD.addIntervalAction(poswriter);
         sim.integratorMD.setActionInterval(poswriter, 1);
         */
-        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMasterD);
-        energyMeter.setBox(sim.box);
+        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMasterD, sim.box);
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
         DataPump energyPump = new DataPump(energyMeter, accumulatorAveragePE);
@@ -273,9 +272,9 @@ public class SimDimerMEAMadatom extends Simulation{
 
         ColorSchemeByType colorScheme = ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList().getFirst()).getColorScheme());
 
-        colorScheme.setColor(sim.fixed.getLeafType(), java.awt.Color.gray);
-        colorScheme.setColor(sim.movable.getLeafType(), java.awt.Color.red);
-        colorScheme.setColor(sim.potentialSpecies.getLeafType(), java.awt.Color.PINK);
+        colorScheme.setColor(sim.fixed.getLeafType(), Color.gray);
+        colorScheme.setColor(sim.movable.getLeafType(), Color.red);
+        colorScheme.setColor(sim.potentialSpecies.getLeafType(), Color.PINK);
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
     }
@@ -285,19 +284,19 @@ public class SimDimerMEAMadatom extends Simulation{
         Vector rij = space.makeVector();
         MoleculeArrayList movableList = new MoleculeArrayList();
         IMoleculeList loopSet = box.getMoleculeList();
-        for (int i=0; i<loopSet.getMoleculeCount(); i++){
-            rij.Ev1Mv2(center,loopSet.getMolecule(i).getChildList().getAtom(0).getPosition());
+        for (int i = 0; i<loopSet.size(); i++){
+            rij.Ev1Mv2(center,loopSet.get(i).getChildList().get(0).getPosition());
             if(rij.getX(0) > (box.getBoundary().getBoxSize().getX(0) - 3.0)){continue;}
             //box.getBoundary().nearestImage(rij);
             if(rij.squared() < distance){
-               movableList.add(loopSet.getMolecule(i));
+               movableList.add(loopSet.get(i));
             }
         }
-        for (int i=0; i<movableList.getMoleculeCount(); i++){
+        for (int i = 0; i<movableList.size(); i++){
             IMolecule newMolecule = movable.makeMolecule();
             box.addMolecule(newMolecule);
-            newMolecule.getChildList().getAtom(0).getPosition().E(movableList.getMolecule(i).getChildList().getAtom(0).getPosition());
-            box.removeMolecule(movableList.getMolecule(i));
+            newMolecule.getChildList().get(0).getPosition().E(movableList.get(i).getChildList().get(0).getPosition());
+            box.removeMolecule(movableList.get(i));
         }
         movableSet = box.getMoleculeList(movable);
     }
@@ -306,38 +305,38 @@ public class SimDimerMEAMadatom extends Simulation{
         MoleculeArrayList neighborList = new MoleculeArrayList();
         MoleculeArrayList fixedList = new MoleculeArrayList();
         IMoleculeList loopSet = box.getMoleculeList();
-        for(int i=0; i<loopSet.getMoleculeCount(); i++){
-            if(loopSet.getMolecule(i).getType()==movable){
+        for(int i = 0; i<loopSet.size(); i++){
+            if(loopSet.get(i).getType()==movable){
                 continue;
             }
-            if(loopSet.getMolecule(i).getChildList().getAtom(0).getPosition().getX(0) < -4.0){continue;}
+            if(loopSet.get(i).getChildList().get(0).getPosition().getX(0) < -4.0){continue;}
             boolean fixedFlag = true;
-            for(int j=0; j<movableSet.getMoleculeCount(); j++){
+            for(int j = 0; j<movableSet.size(); j++){
                 Vector dist = space.makeVector();
-                dist.Ev1Mv2(loopSet.getMolecule(i).getChildList().getAtom(0).getPosition(),movableSet.getMolecule(j).getChildList().getAtom(0).getPosition());
+                dist.Ev1Mv2(loopSet.get(i).getChildList().get(0).getPosition(),movableSet.get(j).getChildList().get(0).getPosition());
                 box.getBoundary().nearestImage(dist);
                 if(Math.sqrt(dist.squared())<potentialMasterD.getMaxPotentialRange()+2.0){
-                    neighborList.add(loopSet.getMolecule(i));
+                    neighborList.add(loopSet.get(i));
                     fixedFlag = false;
                     break;
                 }
 
             }
             if(fixedFlag){
-                fixedList.add(loopSet.getMolecule(i));
+                fixedList.add(loopSet.get(i));
             }
         }
-        for (int i=0; i<neighborList.getMoleculeCount(); i++){
+        for (int i = 0; i<neighborList.size(); i++){
             IMolecule newMolecule = potentialSpecies.makeMolecule();
             box.addMolecule(newMolecule);
-            newMolecule.getChildList().getAtom(0).getPosition().E(neighborList.getMolecule(i).getChildList().getAtom(0).getPosition());
-            box.removeMolecule(neighborList.getMolecule(i));
+            newMolecule.getChildList().get(0).getPosition().E(neighborList.get(i).getChildList().get(0).getPosition());
+            box.removeMolecule(neighborList.get(i));
          }
-        for (int i=0; i<fixedList.getMoleculeCount(); i++){
+        for (int i = 0; i<fixedList.size(); i++){
             IMolecule newMolecule = fixed.makeMolecule();
             box.addMolecule(newMolecule);
-            newMolecule.getChildList().getAtom(0).getPosition().E(fixedList.getMolecule(i).getChildList().getAtom(0).getPosition());
-            box.removeMolecule(fixedList.getMolecule(i));
+            newMolecule.getChildList().get(0).getPosition().E(fixedList.get(i).getChildList().get(0).getPosition());
+            box.removeMolecule(fixedList.get(i));
          }
 
     }
@@ -348,11 +347,11 @@ public class SimDimerMEAMadatom extends Simulation{
         Vector rij = space.makeVector();
 
         IMoleculeList loopSet = box.getMoleculeList(movable);
-        for (int i=0; i<loopSet.getMoleculeCount(); i++){
-            rij.Ev1Mv2(center,loopSet.getMolecule(i).getChildList().getAtom(0).getPosition());
+        for (int i = 0; i<loopSet.size(); i++){
+            rij.Ev1Mv2(center,loopSet.get(i).getChildList().get(0).getPosition());
             box.getBoundary().nearestImage(rij);
             if(rij.squared() < distance){
-               box.removeMolecule(loopSet.getMolecule(i));
+               box.removeMolecule(loopSet.get(i));
             }
         }
     }
@@ -365,10 +364,10 @@ public class SimDimerMEAMadatom extends Simulation{
     public void generateConfigs(String fileName, double percentd) {
 
         Vector workVector = space.makeVector();
-        Vector[] currentPos = new Vector[movableSet.getMoleculeCount()];
+        Vector[] currentPos = new Vector[movableSet.size()];
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
-            currentPos[i].E(movableSet.getMolecule(i).getChildList().getAtom(0).getPosition());
+            currentPos[i].E(movableSet.get(i).getChildList().get(0).getPosition());
         }
 
         //Create multiple configurations
@@ -377,8 +376,8 @@ public class SimDimerMEAMadatom extends Simulation{
             genConfig.setBox(box);
             genConfig.setConfName(fileName+"_config_"+m);
             //Displaces atom's by at most +/-0.03 in each coordinate
-            for(int i=0; i<movableSet.getMoleculeCount(); i++){
-                Vector atomPosition = movableSet.getMolecule(i).getChildList().getAtom(0).getPosition();
+            for(int i = 0; i<movableSet.size(); i++){
+                Vector atomPosition = movableSet.get(i).getChildList().get(0).getPosition();
                 for(int j=0; j<3; j++){
                     workVector.setX(j,percentd*random.nextGaussian());
                 }
@@ -388,33 +387,31 @@ public class SimDimerMEAMadatom extends Simulation{
         }
     }
 
-    public void enableMolecularDynamics(long maxSteps){
-        integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space);
+    public void enableMolecularDynamics(long maxSteps) {
+        integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integratorMD.setTimeStep(0.001);
         integratorMD.setTemperature(Kelvin.UNIT.toSim(100));
         integratorMD.setThermostatInterval(100);
         integratorMD.setIsothermal(true);
-        integratorMD.setBox(box);
         integratorMD.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         activityIntegrateMD = new ActivityIntegrate(integratorMD);
         getController().addAction(activityIntegrateMD);
         activityIntegrateMD.setMaxSteps(maxSteps);
     }
 
-    public void enableDimerSearch(String fileName, long maxSteps, Boolean orthoSearch, Boolean fine){
+    public void enableDimerSearch(String fileName, long maxSteps, Boolean orthoSearch, Boolean fine) {
 
-        integratorDimer = new IntegratorDimerRT(this, potentialMasterD, new ISpecies[]{movable}, space);
-        integratorDimer.setBox(box);
+        integratorDimer = new IntegratorDimerRT(this, potentialMasterD, new ISpecies[]{movable}, box);
         integratorDimer.setOrtho(orthoSearch, false);
-        if(fine){
-            ConfigurationFile configFile = new ConfigurationFile(fileName+"_saddle");
+        if (fine) {
+            ConfigurationFile configFile = new ConfigurationFile(fileName + "_saddle");
             configFile.initializeCoordinates(box);
 
-            integratorDimer.setFileName(fileName+"_fine");
+            integratorDimer.setFileName(fileName + "_fine");
             integratorDimer.deltaR = 0.0005;
             integratorDimer.dXl = 10E-5;
             integratorDimer.deltaXmax = 0.005;
-            integratorDimer.dFsq = 0.0001*0.0001;
+            integratorDimer.dFsq = 0.0001 * 0.0001;
             integratorDimer.dFrot = 0.01;
         }
         integratorDimer.setFileName(fileName);
@@ -425,10 +422,9 @@ public class SimDimerMEAMadatom extends Simulation{
         activityIntegrateDimer.setMaxSteps(maxSteps);
     }
 
-    public void enableMinimumSearch(String fileName, Boolean normalDir){
+    public void enableMinimumSearch(String fileName, Boolean normalDir) {
 
-        integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{movable}, normalDir, space);
-        integratorDimerMin.setBox(box);
+        integratorDimerMin = new IntegratorDimerMin(this, potentialMasterD, new ISpecies[]{movable}, normalDir, box);
         integratorDimerMin.setFileName(fileName);
         integratorDimerMin.getEventManager().addListener(potentialMasterD.getNeighborManager(box));
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);

@@ -6,9 +6,8 @@ package etomica.integrator;
 
 import etomica.action.AtomAction;
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.util.random.IRandom;
 
 /**
@@ -24,23 +23,19 @@ public class IntegratorAnalytic extends IntegratorMD {
     
     private static final long serialVersionUID = 1L;
     private AtomTimeAction action;
-    
-    public IntegratorAnalytic(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-        this(potentialMaster, sim.getRandom(), 0.05, _space);
-    }
-    
+
     public IntegratorAnalytic(PotentialMaster potentialMaster, IRandom random,
-                              double timeStep, Space _space) {
-        super(potentialMaster,random,timeStep,0, _space);
+                              double timeStep, Box box) {
+        super(potentialMaster,random,timeStep,0, box);
     }
 
     protected void doStepInternal() {
         super.doStepInternal();
         action.setTime(currentTime);
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            action.actionPerformed(leafList.getAtom(iLeaf));
+            action.actionPerformed(leafList.get(iLeaf));
         }
     }
     

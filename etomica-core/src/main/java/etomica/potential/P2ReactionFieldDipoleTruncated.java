@@ -89,22 +89,22 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
     	cutoffRatio = newCutoffRatio;
     }
     public double energy(IMoleculeList atoms) {
-        dr.E(positionDefinition.position(atoms.getMolecule(1)));
-        dr.ME(positionDefinition.position(atoms.getMolecule(0)));
+        dr.E(positionDefinition.position(atoms.get(1)));
+        dr.ME(positionDefinition.position(atoms.get(0)));
         boundary.nearestImage(dr);
         if (dr.squared() > cutoff2) {
             return 0;
         }
-        iDipole.E(dipoleSource.getDipole(atoms.getMolecule(0)));
-        double idotj = iDipole.dot(dipoleSource.getDipole(atoms.getMolecule(1)));
+        iDipole.E(dipoleSource.getDipole(atoms.get(0)));
+        double idotj = iDipole.dot(dipoleSource.getDipole(atoms.get(1)));
 
         return -fac*idotj;
     }
     
     public Vector[][] gradientAndTorque(IMoleculeList atoms) {
-        iDipole.E(dipoleSource.getDipole(atoms.getMolecule(0)));
+        iDipole.E(dipoleSource.getDipole(atoms.get(0)));
 
-        iDipole.XE(dipoleSource.getDipole(atoms.getMolecule(1)));
+        iDipole.XE(dipoleSource.getDipole(atoms.get(1)));
         iDipole.TE(fac);
         gradientAndTorque[0][0].E(0);
         gradientAndTorque[0][1].E(0);
@@ -174,8 +174,8 @@ public class P2ReactionFieldDipoleTruncated extends PotentialMolecular implement
             }
             else {
                 IMoleculeList moleculeList = box.getMoleculeList();
-                for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
-                    Vector iDipole = dipoleSource.getDipole(moleculeList.getMolecule(i));
+                for (int i = 0; i<moleculeList.size(); i++) {
+                    Vector iDipole = dipoleSource.getDipole(moleculeList.get(i));
                     u += -0.5 * fac * iDipole.squared();
                 }
             }

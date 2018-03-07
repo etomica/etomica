@@ -5,7 +5,6 @@
 package etomica.normalmode;
 
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -13,7 +12,6 @@ import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -21,7 +19,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
-public class MeterDADB implements IDataSource, AgentSource<MyAgent> {
+public class MeterDADB implements IDataSource {
 
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
@@ -31,7 +29,7 @@ public class MeterDADB implements IDataSource, AgentSource<MyAgent> {
     protected final DataSourceScalar meterPE;
     protected final PotentialCalculationForceSum pcForceSum;
     protected final PotentialMaster potentialMaster;
-    protected final AtomLeafAgentManager<MyAgent> forceManager;
+    protected final AtomLeafAgentManager<Vector> forceManager;
     protected final IteratorDirective id;
     protected final Vector dr;
     protected double latticeEnergy;
@@ -51,11 +49,10 @@ public class MeterDADB implements IDataSource, AgentSource<MyAgent> {
         this.potentialMaster = potentialMaster;
         id = new IteratorDirective();
         pcForceSum = new PotentialCalculationForceSum();
-        forceManager = new AtomLeafAgentManager<MyAgent>(this, coordinateDefinition.getBox());
+        forceManager = new AtomLeafAgentManager<>(a -> space.makeVector(), coordinateDefinition.getBox());
         pcForceSum.setAgentManager(forceManager);
         dr = space.makeVector();
-        MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(potentialMaster);
-        meterPE2.setBox(coordinateDefinition.getBox());
+        MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(potentialMaster, coordinateDefinition.getBox());
         latticeEnergy = meterPE2.getDataAsScalar();
         this.temperature = temperature;
     }
@@ -74,17 +71,17 @@ public class MeterDADB implements IDataSource, AgentSource<MyAgent> {
         potentialMaster.calculate(box, id, pcForceSum);
         IAtomList atoms = box.getLeafList();
         double sum = 0;
-        for (int i=0; i<atoms.getAtomCount(); i++) {
-            IAtom atom = atoms.getAtom(i);
+        for (int i = 0; i<atoms.size(); i++) {
+            IAtom atom = atoms.get(i);
             Vector lPos = coordinateDefinition.getLatticePosition(atom);
             Vector pos = atom.getPosition();
             dr.Ev1Mv2(pos, lPos);
-            Vector force = forceManager.getAgent(atom).force;
+            Vector force = forceManager.getAgent(atom);
             sum += force.dot(dr);
         }
         if (justDADB) {
             if (justU) {
-                x[0] = (x0+latticeEnergy) + (atoms.getAtomCount()*1.5*temperature) + 0.5*sum;
+                x[0] = (x0+latticeEnergy) + (atoms.size()*1.5*temperature) + 0.5*sum;
             }
             else {
 //                System.out.println(x0+" "+(0.5*sum)+" "+(x0+0.5*sum)/atoms.getAtomCount());
@@ -137,10 +134,4 @@ public class MeterDADB implements IDataSource, AgentSource<MyAgent> {
     public IDataInfo getDataInfo() {
         return dataInfo;
     }
-
-    public final MyAgent makeAgent(IAtom a, Box agentBox) {
-        return new MyAgent(space);
-    }
-    
-    public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
 }

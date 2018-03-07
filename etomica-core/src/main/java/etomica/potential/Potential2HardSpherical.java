@@ -36,8 +36,8 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
      * be using.
      */
     public double energy(IAtomList pair) {
-        IAtom atom0 = pair.getAtom(0);
-        IAtom atom1 = pair.getAtom(1);
+        IAtom atom0 = pair.get(0);
+        IAtom atom1 = pair.get(1);
 
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         boundary.nearestImage(dr);

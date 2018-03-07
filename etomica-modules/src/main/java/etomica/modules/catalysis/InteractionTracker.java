@@ -46,8 +46,8 @@ public class InteractionTracker implements CollisionListener, AgentSource<Intera
     
     public void reset() {
         IAtomList list = agentManager.getBox().getLeafList();
-        for (int i=0; i<list.getAtomCount(); i++) {
-            CatalysisAgent agent = agentManager.getAgent(list.getAtom(i));
+        for (int i = 0; i<list.size(); i++) {
+            CatalysisAgent agent = agentManager.getAgent(list.get(i));
             if (agent == null) {
                 continue;
             }

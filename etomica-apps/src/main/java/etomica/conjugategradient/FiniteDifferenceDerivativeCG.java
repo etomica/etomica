@@ -17,6 +17,7 @@ import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 public class FiniteDifferenceDerivativeCG {
 	
@@ -35,7 +36,7 @@ public class FiniteDifferenceDerivativeCG {
 	protected PotentialMaster potentialMaster;
 	protected IteratorDirective allAtoms;
 	protected PotentialCalculationForceSum forceSum;
-	protected AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> agentManager;
+	protected AtomLeafAgentManager<Vector> agentManager;
 	protected Activity activity;
 	
 	protected AnalyticalDerivativeEnergyParacetamol derivativeFunction;
@@ -57,8 +58,7 @@ public class FiniteDifferenceDerivativeCG {
 		h = 0.00001;
 		hOptimizer = false;
 		
-		MyAgentSource source = new MyAgentSource(space);
-		agentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(source, box);
+		agentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
 		forceSum.setAgentManager(agentManager);
 	}
 	
@@ -126,19 +126,6 @@ public class FiniteDifferenceDerivativeCG {
 	}
 
 	
-	public static class MyAgentSource implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
-		public MyAgentSource(Space space){
-			this.space = space;
-		}
-		public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox){}
-
-		public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom atom, Box agentBox){
-			return new IntegratorVelocityVerlet.MyAgent(space);
-		}
-		protected Space space;
-	}
-
-
 	public double getH() {
 		return h;
 	}

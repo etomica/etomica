@@ -36,8 +36,8 @@ public class ConfigurationZero implements Configuration, java.io.Serializable {
         atomActionTranslateTo.setDestination(work);
 
         IAtomList leafList = box.getLeafList();
-        for (int i=0; i<leafList.getAtomCount(); i++) {
-            leafList.getAtom(i).getPosition().E(work);
+        for (int i = 0; i<leafList.size(); i++) {
+            leafList.get(i).getPosition().E(work);
         }
     }
 

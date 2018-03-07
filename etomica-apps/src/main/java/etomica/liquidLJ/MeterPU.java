@@ -89,7 +89,7 @@ public class MeterPU implements IDataSource {
         potentialMaster.calculate(box, iteratorDirective, virial);
         //System.out.println("fac="+(1/(box.getBoundary().volume()*box.getSpace().D())));
         double vol = box.getBoundary().volume();
-        int N = box.getMoleculeList().getMoleculeCount();
+        int N = box.getMoleculeList().size();
         double density = N / vol;
         
         double P = density*temperature - virial.getSum()/(vol*dim);

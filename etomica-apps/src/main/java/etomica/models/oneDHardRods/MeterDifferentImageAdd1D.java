@@ -60,11 +60,11 @@ public class MeterDifferentImageAdd1D extends DataSourceScalar {
     public MeterDifferentImageAdd1D(String string,
             int numSimAtoms, double density, Simulation sim,
             Primitive simPrimitive, Basis simBasis, CoordinateDefinition simCD,
-            NormalModes simNM, double temp){
+            NormalModes simNM, double temp) {
         super(string, Null.DIMENSION);
         this.random = sim.getRandom();
         this.temperature = temp;
-        
+
         simWaveVectors = simNM.getWaveVectorFactory().getWaveVectors();
         this.simCDef = simCD;
         simCDim = simCD.getCoordinateDim();
@@ -72,16 +72,14 @@ public class MeterDifferentImageAdd1D extends DataSourceScalar {
         simWVCoeff = simNM.getWaveVectorFactory().getCoefficients();
         simRealT = new double[simCDim];
         simImagT = new double[simCDim];
-        
+
         numAtoms = numSimAtoms + 1;
-        box = new Box(sim.getSpace());
-        sim.addBox(box);
+        bdry = new BoundaryRectangularPeriodic(sim.getSpace(), numAtoms / density);
+        box = sim.makeBox(bdry);
         box.setNMolecules(sim.getSpecies(0), numAtoms);
-        bdry = new BoundaryRectangularPeriodic(sim.getSpace(), numAtoms/density);
-        box.setBoundary(bdry);
-        
+
         int[] nCells = new int[]{numAtoms};
-        cDef = new CoordinateDefinitionLeaf(box, simPrimitive, 
+        cDef = new CoordinateDefinitionLeaf(box, simPrimitive,
                 simBasis, sim.getSpace());
         cDef.initializeCoordinates(nCells);
         cDim = cDef.getCoordinateDim();
@@ -96,26 +94,25 @@ public class MeterDifferentImageAdd1D extends DataSourceScalar {
         eigenVectors = nm.getEigenvectors();
         wvCoeff = nm.getWaveVectorFactory().getCoefficients();
         sqrtWVC = new double[wvCoeff.length];
-        for (int i =0; i < wvCoeff.length; i++){
-            sqrtWVC[i] = Math.sqrt(2*wvCoeff[i]);
+        for (int i = 0; i < wvCoeff.length; i++) {
+            sqrtWVC[i] = Math.sqrt(2 * wvCoeff[i]);
         }
-        
+
         setOmegaSquared(nm.getOmegaSquared());
-        
+
         PotentialMasterList potentialMaster = new PotentialMasterList(sim, sim.getSpace());
         Potential2 potential = new P2HardSphere(sim.getSpace(), 1.0, true);
-        potential = new P2XOrder(sim.getSpace(), (Potential2HardSpherical)potential);
+        potential = new P2XOrder(sim.getSpace(), (Potential2HardSpherical) potential);
         potential.setBox(box);
         potentialMaster.addPotential(potential, new AtomType[]{((SpeciesSpheresMono) sim.getSpecies(0)).getLeafType(), ((SpeciesSpheresMono) sim.getSpecies(0)).getLeafType()});
-        double neighborRange = 1.01/density;
+        double neighborRange = 1.01 / density;
         potentialMaster.setRange(neighborRange);
         //find neighbors now.  Don't hook up NeighborListManager since the
         //  neighbors won't change
         potentialMaster.getNeighborManager(box).reset();
-        
-        meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
-        
+
+        meterPE = new MeterPotentialEnergy(potentialMaster, box);
+
     }
     
     public double getDataAsScalar() {

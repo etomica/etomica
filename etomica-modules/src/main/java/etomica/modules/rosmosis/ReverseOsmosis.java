@@ -45,10 +45,11 @@ public class ReverseOsmosis extends Simulation {
     public ReverseOsmosis(Space _space) {
         super(_space);
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this); //List(this, 2.0);
-        
+
         //controller and integrator
-	    integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), 0.01, Kelvin.UNIT.toSim(125), space);
-	    integrator.setIsothermal(false);
+        box = this.makeBox();
+        integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), 0.01, Kelvin.UNIT.toSim(125), box);
+        integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
         integrator.setTimeStep(0.02);
@@ -59,82 +60,78 @@ public class ReverseOsmosis extends Simulation {
         //solute (1)
         speciesSolute = new SpeciesSpheresMono(this, space);
         speciesSolute.setIsDynamic(true);
-        ((ElementSimple)speciesSolute.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(40));
+        ((ElementSimple) speciesSolute.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(40));
         addSpecies(speciesSolute);
-        
+
         //solvent (2)
         speciesSolvent = new SpeciesSpheresMono(this, space);
         speciesSolvent.setIsDynamic(true);
-        ((ElementSimple)speciesSolvent.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(40));
+        ((ElementSimple) speciesSolvent.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(40));
         addSpecies(speciesSolvent);
 
         //membrane
         speciesMembrane = new SpeciesSpheresMono(this, space);
         speciesMembrane.setIsDynamic(true);
-        ((ElementSimple)speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
+        ((ElementSimple) speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
         addSpecies(speciesMembrane);
 
         double epsSolute = Kelvin.UNIT.toSim(125.0);
         double sigSolute = 3.5;
         double epsSolvent = Kelvin.UNIT.toSim(125.0);
-        double sigSolvent = 0.5*3.5;
+        double sigSolvent = 0.5 * 3.5;
         double epsMembrane = Kelvin.UNIT.toSim(12.5);
         double sigMembrane = 0.988 * 3.5; // ???
-        
-        double xSize = 66+2.0/3.0;// 80 originally
+
+        double xSize = 66 + 2.0 / 3.0;// 80 originally
         double yzSize = 21;       // 28 originally
-        double rCut = 0.5*yzSize;
-        
+        double rCut = 0.5 * yzSize;
+
         //instantiate several potentials for selection in combo-box
-	    potential11 = new P2LennardJones(space, sigSolute, epsSolute);
-	    P2SoftSphericalTruncatedShifted pTrunc = new P2SoftSphericalTruncatedShifted(space, potential11, rCut);
+        potential11 = new P2LennardJones(space, sigSolute, epsSolute);
+        P2SoftSphericalTruncatedShifted pTrunc = new P2SoftSphericalTruncatedShifted(space, potential11, rCut);
         potentialMaster.addPotential(pTrunc, new AtomType[]{speciesSolute.getLeafType(), speciesSolute.getLeafType()});
 
         potential22 = new P2LennardJones(space, sigSolvent, epsSolvent);
         pTrunc = new P2SoftSphericalTruncatedShifted(space, potential22, rCut);
         potentialMaster.addPotential(pTrunc, new AtomType[]{speciesSolvent.getLeafType(), speciesSolvent.getLeafType()});
-        
-        potential12 = new P2LennardJones(space, 0.5*(sigSolvent+sigSolute), Math.sqrt(epsSolvent*epsSolute));
+
+        potential12 = new P2LennardJones(space, 0.5 * (sigSolvent + sigSolute), Math.sqrt(epsSolvent * epsSolute));
         pTrunc = new P2SoftSphericalTruncatedShifted(space, potential12, rCut);
         potentialMaster.addPotential(pTrunc, new AtomType[]{speciesSolvent.getLeafType(), speciesSolute.getLeafType()});
-        
+
         potentialMM = new P2LennardJones(space, sigMembrane, epsMembrane);
         pTrunc = new P2SoftSphericalTruncatedShifted(space, potentialMM, rCut);
         potentialMaster.addPotential(pTrunc, new AtomType[]{speciesMembrane.getLeafType(), speciesMembrane.getLeafType()});
-        
-        potentialM1 = new P2LennardJones(space, 0.5*(sigMembrane+sigSolute), Math.sqrt(epsMembrane*epsSolute));
+
+        potentialM1 = new P2LennardJones(space, 0.5 * (sigMembrane + sigSolute), Math.sqrt(epsMembrane * epsSolute));
         pTrunc = new P2SoftSphericalTruncatedShifted(space, potentialM1, rCut);
         potentialMaster.addPotential(pTrunc, new AtomType[]{speciesMembrane.getLeafType(), speciesSolute.getLeafType()});
-        
-        potentialM2 = new P2LennardJones(space, 0.5*(sigMembrane+sigSolvent), Math.sqrt(epsMembrane*epsSolvent));
+
+        potentialM2 = new P2LennardJones(space, 0.5 * (sigMembrane + sigSolvent), Math.sqrt(epsMembrane * epsSolvent));
         pTrunc = new P2SoftSphericalTruncatedShifted(space, potentialM2, rCut);
         potentialMaster.addPotential(pTrunc, new AtomType[]{speciesMembrane.getLeafType(), speciesSolvent.getLeafType()});
 
 
         //construct box
-	    box = new Box(space);
-        addBox(box);
         Vector dim = space.makeVector();
         dim.E(new double[]{xSize, yzSize, yzSize});
         box.getBoundary().setBoxSize(dim);
         configMembrane = new ConfigurationMembrane(this, space);
         configMembrane.setMembraneDim(0);
-        configMembrane.setMembraneThicknessPerLayer(10.0/3.0);
+        configMembrane.setMembraneThicknessPerLayer(10.0 / 3.0);
         configMembrane.setNumMembraneLayers(2);
         configMembrane.setMembraneWidth(3);
-        double density = 0.525/Math.pow(sigSolute, 3);
+        double density = 0.525 / Math.pow(sigSolute, 3);
         configMembrane.setSolutionChamberDensity(density);
         configMembrane.setSolventChamberDensity(density);
         configMembrane.setSpeciesMembrane(speciesMembrane);
         configMembrane.setSpeciesSolute(speciesSolute);
         configMembrane.setSpeciesSolvent(speciesSolvent);
         configMembrane.initializeCoordinates(box);
-        
+
         potentialTether = new P1Tether(box, speciesMembrane, space);
         potentialTether.setEpsilon(20000);
         potentialMaster.addPotential(potentialTether, new AtomType[]{speciesMembrane.getLeafType()});
-        
-        integrator.setBox(box);
 
 //        integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
 //        integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));

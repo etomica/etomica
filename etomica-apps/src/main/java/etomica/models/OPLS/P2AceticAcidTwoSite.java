@@ -37,8 +37,8 @@ public class P2AceticAcidTwoSite extends PotentialGroup {
 	public double energy(IMoleculeList molecules){
 		boolean geometryAB = true;
 		boolean geometryBA = true;
-		IMolecule molecule1 = molecules.getMolecule(0);
-		IMolecule molecule2 = molecules.getMolecule(1);
+		IMolecule molecule1 = molecules.get(0);
+		IMolecule molecule2 = molecules.get(1);
 
 		if (bv != null){
 			geometryAB = bv.isAssociated(molecule1, molecule2);

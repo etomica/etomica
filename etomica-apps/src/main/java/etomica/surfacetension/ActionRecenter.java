@@ -26,11 +26,11 @@ public class ActionRecenter implements IAction {
         // concentration wave (delta rho (x)).
         
         IAtomList leafAtoms = sim.box.getLeafList();
-        int nTot = leafAtoms.getAtomCount();
+        int nTot = leafAtoms.size();
         double sumCos = 0, sumSin = 0;
         double q = 2*Math.PI/L;
         for (int i=0; i<nTot; i++) {
-            Vector pos = leafAtoms.getAtom(i).getPosition();
+            Vector pos = leafAtoms.get(i).getPosition();
             double qx = q*pos.getX(0);
             double sinx = Math.sin(qx);
             double cosx = Math.cos(qx);
@@ -54,7 +54,7 @@ public class ActionRecenter implements IAction {
             center = -1;
         }
         for (int i=0; i<nTot; i++) {
-            Vector pos = leafAtoms.getAtom(i).getPosition();
+            Vector pos = leafAtoms.get(i).getPosition();
             pos.setX(0, pos.getX(0) - center);
         }
         ((PotentialMasterCell)sim.integrator.getPotentialMaster()).getNbrCellManager(sim.box).assignCellAll();

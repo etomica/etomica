@@ -54,10 +54,10 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft 
     }
 
     public double energy(IAtomList atomSet) {
-        IAtom atom0 = atomSet.getAtom(0);
-        IAtom atom1 = atomSet.getAtom(1);
-        IAtom atom2 = atomSet.getAtom(2);
-        IAtom atom3 = atomSet.getAtom(3);
+        IAtom atom0 = atomSet.get(0);
+        IAtom atom1 = atomSet.get(1);
+        IAtom atom2 = atomSet.get(2);
+        IAtom atom3 = atomSet.get(3);
         dr21.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
         dr23.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
         dr34.Ev1Mv2(atom3.getPosition(), atom2.getPosition());
@@ -94,10 +94,10 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft 
     }
     
     public Vector[] gradient(IAtomList atoms) {
-        IAtom atom0 = atoms.getAtom(0);
-        IAtom atom1 = atoms.getAtom(1);
-        IAtom atom2 = atoms.getAtom(2);
-        IAtom atom3 = atoms.getAtom(3);
+        IAtom atom0 = atoms.get(0);
+        IAtom atom1 = atoms.get(1);
+        IAtom atom2 = atoms.get(2);
+        IAtom atom3 = atoms.get(3);
         dr21.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
         dr23.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
         dr34.Ev1Mv2(atom3.getPosition(), atom2.getPosition());
@@ -219,7 +219,7 @@ public class P4BondTorsionAlkaneXCCH extends Potential implements PotentialSoft 
             double U = potential.energy(atoms);
 
             int iRand = random.nextInt(4);
-            IAtom atom = atoms.getAtom(iRand);
+            IAtom atom = atoms.get(iRand);
             gradient.E(potential.gradient(atoms)[iRand]);
             
             dr.setRandomSphere(random);

@@ -50,126 +50,122 @@ import java.util.Arrays;
 public class MinimizationBetaNitrogenModel extends Simulation{
 
 	public MinimizationBetaNitrogenModel(Space space, int[] nC, double density) {
-		super(space);
-		this.space = space;
-		
-		BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
+        super(space);
+        this.space = space;
+
+        BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
         BoxAgentManager<NeighborCellManagerMolecular> boxAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, this);
 
         double ratio = 1.631;
-		double a = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
-		double c = a*ratio;
-		int numMolecule = nC[0]*nC[1]*nC[2]*2;
-		int nCa = (int)Math.pow(numMolecule/1.999999999, 1.0/3.0);
-		
-		Basis basisHCP = new BasisHcp();
-		Basis basis = new BasisBigCell(space, basisHCP, new int[]{nC[0], nC[1], nC[2]});
-		
-		species = new SpeciesN2(space);
-		addSpecies(species);
-		
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecule);		
-		int [] nCells = new int[]{1,1,1};
-		
-		Vector[] boxDim = new Vector[3];
-		boxDim[0] = space.makeVector(new double[]{nC[0]*a, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-nC[1]*a*Math.cos(Degree.UNIT.toSim(60)), nC[1]*a*Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, nC[2]*c});
-		
-		Boundary boundary = new BoundaryDeformablePeriodic(space,boxDim);
-		primitive = new PrimitiveHexagonal(space, (nC[0])*a, nC[2]*c);
-		
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsBeta();
-		coordinateDef.setOrientationVectorBeta(space);
-		coordinateDef.initializeCoordinates(nCells);
+        double a = Math.pow(4.0 / (Math.sqrt(3.0) * ratio * density), 1.0 / 3.0);
+        double c = a * ratio;
+        int numMolecule = nC[0] * nC[1] * nC[2] * 2;
+        int nCa = (int) Math.pow(numMolecule / 1.999999999, 1.0 / 3.0);
 
-		
-		double[] u = new double[20];
+        Basis basisHCP = new BasisHcp();
+        Basis basis = new BasisBigCell(space, basisHCP, new int[]{nC[0], nC[1], nC[2]});
 
-		if(true){
-			BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
-			double[][] param = parameters.getParameter(density);
-			
-			int kParam=0;
-			for (int i=0; i<param.length;i++){
-				for (int j=0; j<param[0].length;j++){
-					u[kParam]=param[i][j];
-					kParam++;
-				}	
-			}
-			
-			int numDOF = coordinateDef.getCoordinateDim();
-			double[] newU = new double[numDOF];
-			
+        species = new SpeciesN2(space);
+        addSpecies(species);
+
+        Vector[] boxDim = new Vector[3];
+        boxDim[0] = space.makeVector(new double[]{nC[0] * a, 0, 0});
+        boxDim[1] = space.makeVector(new double[]{-nC[1] * a * Math.cos(Degree.UNIT.toSim(60)), nC[1] * a * Math.sin(Degree.UNIT.toSim(60)), 0});
+        boxDim[2] = space.makeVector(new double[]{0, 0, nC[2] * c});
+        Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numMolecule);
+        int[] nCells = new int[]{1, 1, 1};
+
+        primitive = new PrimitiveHexagonal(space, (nC[0]) * a, nC[2] * c);
+
+        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        coordinateDef.setIsBeta();
+        coordinateDef.setOrientationVectorBeta(space);
+        coordinateDef.initializeCoordinates(nCells);
+
+
+        double[] u = new double[20];
+
+        if (true) {
+            BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
+            double[][] param = parameters.getParameter(density);
+
+            int kParam = 0;
+            for (int i = 0; i < param.length; i++) {
+                for (int j = 0; j < param[0].length; j++) {
+                    u[kParam] = param[i][j];
+                    kParam++;
+                }
+            }
+
+            int numDOF = coordinateDef.getCoordinateDim();
+            double[] newU = new double[numDOF];
+
 //			double[] deviation = new double[]{
-//					1.2780887459484802E-10, -7.492459985769528E-10, 1.4581758023268776E-10, 2.4394273825234006E-8, 8.42930716693827E-9, 
-//					-1.3034284762625248E-10, 7.715463823387836E-10, -1.397282289872237E-10, -2.4096713784662293E-8, -9.245658416530434E-9, 
-//					-1.4337864229219122E-10, -7.749569874704321E-10, -1.4337686593535182E-10, 3.1120726966510594E-8, -1.1904762815825307E-8, 
+//					1.2780887459484802E-10, -7.492459985769528E-10, 1.4581758023268776E-10, 2.4394273825234006E-8, 8.42930716693827E-9,
+//					-1.3034284762625248E-10, 7.715463823387836E-10, -1.397282289872237E-10, -2.4096713784662293E-8, -9.245658416530434E-9,
+//					-1.4337864229219122E-10, -7.749569874704321E-10, -1.4337686593535182E-10, 3.1120726966510594E-8, -1.1904762815825307E-8,
 //					1.4595613606616098E-10, 7.526033130034193E-10, 1.3732659454035456E-10, -0.0, 0.0
 //			};
-//			
+//
 //			for(int i=0; i<u.length; i++){
 //				u[i] += deviation[i];
 //				System.out.print(u[i]+", ");
 //				if(i%5==4) System.out.println();
 //			}
-//			
+//
 //			System.exit(1);
-			if(true){
-				for(int j=0; j<numDOF; j+=10){
-					if(j>0 && j%(nCa*10)==0){
-						j+=nCa*10;
-						if(j>=numDOF){
-							break;
-						}
-					}
-					for(int k=0; k<10;k++){
-						newU[j+k]= u[k];
-					}
-				}
-				
-				for(int j=nCa*10; j<numDOF; j+=10){
-					if(j>nCa*10 && j%(nCa*10)==0){
-						j+=nCa*10;
-						if(j>=numDOF){
-							break;
-						}
-					}
-					for(int k=0; k<10;k++){
-						newU[j+k]= u[k+10];
-					}
-				}
-			}
+            if (true) {
+                for (int j = 0; j < numDOF; j += 10) {
+                    if (j > 0 && j % (nCa * 10) == 0) {
+                        j += nCa * 10;
+                        if (j >= numDOF) {
+                            break;
+                        }
+                    }
+                    for (int k = 0; k < 10; k++) {
+                        newU[j + k] = u[k];
+                    }
+                }
 
-			coordinateDef.setToU(box.getMoleculeList(), newU);
-			coordinateDef.initNominalU(box.getMoleculeList());
-			
-		}
-		this.initialU = u;
-		
-		box.setBoundary(boundary);
-		double rC = a*nC[0]*0.475;
-		//System.out.println("Truncation Radius: " + rC);
-		potential = new P2Nitrogen(space, rC);
-		potential.setBox(box);
-		
-		potentialMaster = new PotentialMasterListMolecular(this, rC, boxAgentSource, boxAgentManager, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rC, space), space);
-	    potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-	    int cellRange = 6;
-	    potentialMaster.setRange(rC);
-	    potentialMaster.setCellRange(cellRange); 
-	    potentialMaster.getNeighborManager(box).reset();
-	      
-	    potential.setRange(Double.POSITIVE_INFINITY);
-	    int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-	    if (potentialCells < cellRange*2+1) {
-	    	throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-	    }
-		
-	}
+                for (int j = nCa * 10; j < numDOF; j += 10) {
+                    if (j > nCa * 10 && j % (nCa * 10) == 0) {
+                        j += nCa * 10;
+                        if (j >= numDOF) {
+                            break;
+                        }
+                    }
+                    for (int k = 0; k < 10; k++) {
+                        newU[j + k] = u[k + 10];
+                    }
+                }
+            }
+
+            coordinateDef.setToU(box.getMoleculeList(), newU);
+            coordinateDef.initNominalU(box.getMoleculeList());
+
+        }
+        this.initialU = u;
+        double rC = a * nC[0] * 0.475;
+        //System.out.println("Truncation Radius: " + rC);
+        potential = new P2Nitrogen(space, rC);
+        potential.setBox(box);
+
+        potentialMaster = new PotentialMasterListMolecular(this, rC, boxAgentSource, boxAgentManager, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rC, space), space);
+        potentialMaster.addPotential(potential, new ISpecies[]{species, species});
+        int cellRange = 6;
+        potentialMaster.setRange(rC);
+        potentialMaster.setCellRange(cellRange);
+        potentialMaster.getNeighborManager(box).reset();
+
+        potential.setRange(Double.POSITIVE_INFINITY);
+        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
+        if (potentialCells < cellRange * 2 + 1) {
+            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
+        }
+
+    }
 	
 	public static void main (String[] args){
 
@@ -182,8 +178,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		double density = 0.0210;
 		final MinimizationBetaNitrogenModel sim = new MinimizationBetaNitrogenModel(Space3D.getInstance(3), nC, density);
 	    
-		final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-		meterPotentialEnergy.setBox(sim.box);
+		final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
 		meterPotentialEnergy.setPotentialCalculation(new PotentialCalculationEnergySumBigDecimal(18));
 	
 		double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
@@ -233,7 +228,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		        double[] g = new double[12];
 		        double t = 0;
 		        for (int i=0; i<4; i++) {
-		            IMolecule iMol = sim.box.getMoleculeList().getMolecule(i<2 ? i : i+(nA-2));
+		            IMolecule iMol = sim.box.getMoleculeList().get(i<2 ? i : i+(nA-2));
 		            IteratorDirective id = new IteratorDirective(null, iMol);
 		            sim.potentialMaster.calculate(sim.box, id, pcForce);
 		            Vector f = ((IntegratorRigidIterative.MoleculeAgent)molAgentManager.getAgent(iMol)).force;
@@ -314,7 +309,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		                boolean isA = (k/nA)%2 == 0;
 		                if ((i<2 && !isA) || (i>1 && isA)) continue;
 		//                    System.out.println(i+" "+k);
-		                IMolecule iMol = sim.box.getMoleculeList().getMolecule(k);
+		                IMolecule iMol = sim.box.getMoleculeList().get(k);
 		                p.E(pos.position(iMol));
 		                for (int j=0; j<3; j++) {
 		                    if (x0[i*3+j] == 0) {
@@ -326,7 +321,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 		                translator.actionPerformed(iMol);
 		                
 		                if (orient0[i].isZero()) {
-	                        orient0[i].E(iMol.getChildList().getAtom(0).getPosition());
+	                        orient0[i].E(iMol.getChildList().get(0).getPosition());
 	                        orient0[i].ME(pos.position(iMol));
 	                        orient0[i].normalize();
 	                    }
@@ -358,7 +353,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
         double disp = 0.0;
         double angleDisp = 0.0;
         for (int i=0; i<4; i++) {
-            IMolecule iMol = sim.box.getMoleculeList().getMolecule(i<2 ? i : i+(nA-2));
+            IMolecule iMol = sim.box.getMoleculeList().get(i<2 ? i : i+(nA-2));
             p.E(pos.position(iMol));
             for (int j=0; j<3; j++) {
 //                System.out.println(x0[i*3+j]+" => "+p.getX(j)+"    "+(p.getX(j)-x0[i*3+j]));
@@ -367,7 +362,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
                 disp += dx*dx;
             }
             
-            orientf[i].E(iMol.getChildList().getAtom(0).getPosition());
+            orientf[i].E(iMol.getChildList().get(0).getPosition());
             orientf[i].ME(pos.position(iMol));
             orientf[i].normalize();
             angleDisp += orientf[i].Mv1Squared(orient0[i]);
@@ -397,7 +392,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
                 for (int k=i%2; k<numMolecule; k+=2) {
                     boolean isA = (k/nA)%2 == 0;
                     if ((i<2 && !isA) || (i>1 && isA)) continue;
-                    IMolecule iMol = sim.box.getMoleculeList().getMolecule(k);
+                    IMolecule iMol = sim.box.getMoleculeList().get(k);
                     p.E(pos.position(iMol));
                     for (int j=0; j<3; j++) {
                         if (l==0) {
@@ -416,7 +411,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
                 for (int k=(4*nA)+i%2; k<numMolecule; k+=2) {
                     boolean isA = (k/nA)%2 == 0;
                     if ((i<2 && !isA) || (i>1 && isA)) continue;
-                    IMolecule iMol = sim.box.getMoleculeList().getMolecule(k);
+                    IMolecule iMol = sim.box.getMoleculeList().get(k);
                     meterPotentialEnergy.setTarget(iMol);
                     u += meterPotentialEnergy.getDataAsScalar();
                     break;
@@ -433,8 +428,8 @@ public class MinimizationBetaNitrogenModel extends Simulation{
     protected static void doTransform(IMolecule molecule, IMoleculePositionDefinition posDef, Tensor rotationTensor) {
         IAtomList childList = molecule.getChildList();
         Vector com = posDef.position(molecule);
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.ME(com);
             rotationTensor.transform(r);

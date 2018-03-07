@@ -62,9 +62,9 @@ public class ConfigurationFileBinary implements Configuration {
         }
         
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom a = leafList.getAtom(iLeaf);
+            IAtom a = leafList.get(iLeaf);
             Vector p = a.getPosition();
             for (int i=0; i<x[iLeaf].length; i++) {
                 p.setX(i,x[iLeaf][i]);
@@ -80,12 +80,12 @@ public class ConfigurationFileBinary implements Configuration {
      */
     public static void replicate(Configuration config, Box box1, int[] reps, Space space) {
         Simulation sim = new Simulation(space);
-        Box box0 = new Box(space);
-        sim.addBox(box0);
         ISpecies species = new SpeciesSpheresMono(sim, space);
         sim.addSpecies(species);
-        
-        int numAtoms1 = box1.getLeafList().getAtomCount();
+        Box box0 = new Box(space);
+        sim.addBox(box0);
+
+        int numAtoms1 = box1.getLeafList().size();
         int numAtoms0 = numAtoms1;
         for (int i=0; i<reps.length; i++) {
             numAtoms0 /= reps[i];
@@ -109,8 +109,8 @@ public class ConfigurationFileBinary implements Configuration {
                     xyzShift[2] = box0.getBoundary().getBoxSize().getX(2)*(-0.5*(reps[2]-1) + k);
                     int start1 = numAtoms0*(i*reps[2]*reps[1] + j*reps[2] + k);
                     for (int iAtom = 0; iAtom<numAtoms0; iAtom++) {
-                        Vector p0 = leafList0.getAtom(iAtom).getPosition();
-                        Vector p1 = leafList1.getAtom(start1+iAtom).getPosition();
+                        Vector p0 = leafList0.get(iAtom).getPosition();
+                        Vector p1 = leafList1.get(start1+iAtom).getPosition();
                         for (int l=0; l<3; l++) {
                             p1.setX(l, p0.getX(l) + xyzShift[l]);
                         }
@@ -126,7 +126,7 @@ public class ConfigurationFileBinary implements Configuration {
         sim.addBox(box0);
         ISpecies species = new SpeciesSpheresMono(sim, space);
         sim.addSpecies(species);
-        box0.setNMolecules(species, box1.getLeafList().getAtomCount());
+        box0.setNMolecules(species, box1.getLeafList().size());
         BoxInflate inflater = new BoxInflate(box0, space);
         config.initializeCoordinates(box0);
         inflater.setTargetDensity(density1);
@@ -134,8 +134,8 @@ public class ConfigurationFileBinary implements Configuration {
         
         IAtomList atoms0 = box0.getLeafList();
         IAtomList atoms1 = box1.getLeafList();
-        for (int i=0; i<atoms0.getAtomCount(); i++) {
-            atoms1.getAtom(i).getPosition().E(atoms0.getAtom(i).getPosition());
+        for (int i = 0; i<atoms0.size(); i++) {
+            atoms1.get(i).getPosition().E(atoms0.get(i).getPosition());
         }
     }
 

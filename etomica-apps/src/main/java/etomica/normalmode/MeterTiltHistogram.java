@@ -54,13 +54,13 @@ public class MeterTiltHistogram implements IAction, IDataSource, DataSourceIndep
 
     public void actionPerformed() {
         IMoleculeList molecules = box.getMoleculeList(species);
-        int nMolecules = molecules.getMoleculeCount();
+        int nMolecules = molecules.size();
         for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+            IMolecule molecule = molecules.get(i);
             IAtomList atomList = molecule.getChildList();
-            int leafCount = atomList.getAtomCount();
-            dr.E(atomList.getAtom(leafCount-1).getPosition());
-            dr.ME(atomList.getAtom(0).getPosition());
+            int leafCount = atomList.size();
+            dr.E(atomList.get(leafCount-1).getPosition());
+            dr.ME(atomList.get(0).getPosition());
             dr.normalize();
             double sintheta = Math.sqrt(dr.getX(0)*dr.getX(0) + dr.getX(1)*dr.getX(1));
             double costheta = dr.getX(2);

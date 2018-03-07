@@ -53,22 +53,21 @@ public class LjMC3D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
 
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
-        
+
         potentialMasterCell = new PotentialMasterCell(this, rcShort, space);
         potentialMasterCell.setCellRange(2);
         double sigma = 1.0;
-        integrator = new IntegratorMC(this, potentialMasterCell);
+        integrator = new IntegratorMC(this, potentialMasterCell, box);
         integrator.setTemperature(temperature);
         mcMoveAtom = new MCMoveAtom(random, potentialMasterCell, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-        
+
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
 
@@ -78,10 +77,8 @@ public class LjMC3D extends Simulation {
 
         potentialMasterCell.addPotential(potentialTruncated, new AtomType[]{leafType, leafType});
 
-        integrator.setBox(box);
-
         integrator.getMoveEventManager().addListener(potentialMasterCell.getNbrCellManager(box).makeMCMoveListener());
-		
+
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
         potentialMasterCell.getNbrCellManager(box).assignCellAll();
@@ -161,8 +158,7 @@ public class LjMC3D extends Simulation {
             return;
         }
 
-        final MeterPotentialEnergy meterEnergyFast = new MeterPotentialEnergy(sim.potentialMasterCell);
-        meterEnergyFast.setBox(sim.box);
+        final MeterPotentialEnergy meterEnergyFast = new MeterPotentialEnergy(sim.potentialMasterCell, sim.box);
         long bs = steps/(longInterval*nAccBlocks);
 
         double rcMax = 0.494*L;
@@ -390,7 +386,7 @@ public class LjMC3D extends Simulation {
 
         if (nCutoffsLS > 0) {
             AtomPair selfPair = new AtomPair();
-            selfPair.atom0 = selfPair.atom1 = sim.box.getLeafList().getAtom(0);
+            selfPair.atom0 = selfPair.atom1 = sim.box.getLeafList().get(0);
             double[][] puSelfLRC = pLS.energyVirialCut(selfPair);
 
             dataPU = (DataGroup)accPULS.getData();

@@ -11,15 +11,17 @@ import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.util.Debug;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class MoleculeArrayListTest extends TestCase {
+class MoleculeArrayListTest {
 
     protected ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), new AtomType[0]);
     
 	/*
 	 * testTrimToSize()
 	 */
+	@Test
 	public void testTrimToSize() {
 		final int size = 40;
 		MoleculeArrayList arrayList = new MoleculeArrayList(size + 10);
@@ -30,28 +32,30 @@ public class MoleculeArrayListTest extends TestCase {
 		}
 
 		arrayList.trimToSize();
-		assertEquals(40, arrayList.sizeOfArray());
+		Assertions.assertEquals(40, arrayList.sizeOfArray());
 
 		for(int i = 0; i < size; i++) {
-			IMolecule atom = arrayList.getMolecule(i);
-			assertSame(listOfAtoms[i], atom);
+			IMolecule atom = arrayList.get(i);
+			Assertions.assertSame(listOfAtoms[i], atom);
 		}
 	}
 
 	/*
 	 * testSetGetTrimThreshold()
 	 */
+	@Test
 	public void testSetGetTrimThreshold() {
 		float trimThreshold = 0.43f;
 		MoleculeArrayList arrayList = new MoleculeArrayList();
 		arrayList.setTrimThreshold(trimThreshold);
 		float tT = arrayList.getTrimThreshold();
-		assertEquals(trimThreshold, tT, .006);
+		Assertions.assertEquals(trimThreshold, tT, .006);
 	}
 
 	/*
 	 * testMaybeTrimToSize()
 	 */
+	@Test
 	public void testMaybeTrimToSize() {
 
 		float trimThreshold = 0.5f;
@@ -64,7 +68,7 @@ public class MoleculeArrayListTest extends TestCase {
 			arrayList.add(new Molecule(species, 0));
 		}
         arrayList.maybeTrimToSize();
-        assertEquals(size, arrayList.sizeOfArray());
+        Assertions.assertEquals(size, arrayList.sizeOfArray());
 
         arrayList = null;
 
@@ -75,12 +79,13 @@ public class MoleculeArrayListTest extends TestCase {
 			arrayList.add(new Molecule(species, 0));
 		}
         arrayList.maybeTrimToSize();
-        assertEquals(size/2 - 1, arrayList.sizeOfArray());
+        Assertions.assertEquals(size / 2 - 1, arrayList.sizeOfArray());
 	}
 
 	/*
 	 * testEnsureCapacity()
 	 */
+	@Test
 	public void testEnsureCapacity() {
 
 		int size = 20;
@@ -94,9 +99,9 @@ public class MoleculeArrayListTest extends TestCase {
 			arrayList.add(atomList[i]);
 		}
 		arrayList.ensureCapacity(15);
-		assertEquals(size, arrayList.sizeOfArray());
+		Assertions.assertEquals(size, arrayList.sizeOfArray());
 		for(int i = 0; i < 5; i++) {
-			assertSame(atomList[i], arrayList.getMolecule(i));
+			Assertions.assertSame(atomList[i], arrayList.get(i));
 		}
 		arrayList = null;
 		atomList = null;
@@ -110,9 +115,9 @@ public class MoleculeArrayListTest extends TestCase {
 			arrayList.add(atomList[i]);
 		}
 		arrayList.ensureCapacity(21); 
-		assertEquals(21, arrayList.sizeOfArray());
+		Assertions.assertEquals(21, arrayList.sizeOfArray());
 		for(int i = 0; i < 5; i++) {
-			assertSame(atomList[i], arrayList.getMolecule(i));
+			Assertions.assertSame(atomList[i], arrayList.get(i));
 		}
 		
 	}
@@ -120,47 +125,50 @@ public class MoleculeArrayListTest extends TestCase {
 	/*
 	 * testIsEmpty()
 	 */
+	@Test
 	public void testIsEmpty() {
 		int size = 20;
 
 		MoleculeArrayList arrayList = new MoleculeArrayList(size);	
-		assertTrue(arrayList.isEmpty());
+		Assertions.assertTrue(arrayList.isEmpty());
 
 		arrayList.add(new Molecule(species, 0));
-		assertFalse(arrayList.isEmpty());
+		Assertions.assertFalse(arrayList.isEmpty());
 
 		arrayList.remove(0);		
-		assertTrue(arrayList.isEmpty());
+		Assertions.assertTrue(arrayList.isEmpty());
 	}
 
 	/*
 	 * testIndexOf()
 	 */
+	@Test
 	public void testIndexOf() {
 		int size = 20;
 
 		MoleculeArrayList arrayList = new MoleculeArrayList(size);
 		IMolecule notInList = new Molecule(species, 0);
-		assertEquals(-1, arrayList.indexOf(notInList));
+		Assertions.assertEquals(-1, arrayList.indexOf(notInList));
 		
 		IMolecule inList = new Molecule(species, 0);
 		arrayList.add(inList);
-		assertEquals(0, arrayList.indexOf(inList));
+		Assertions.assertEquals(0, arrayList.indexOf(inList));
 		
 		arrayList.remove(0);
-		assertEquals(-1, arrayList.indexOf(inList));
+		Assertions.assertEquals(-1, arrayList.indexOf(inList));
 	}
 
 	/*
 	 * testtoMoleculeArray()
 	 */
+	@Test
 	public void testtoMoleculeArray() {
 		int size = 20;
 		int numElems = 5;
 
 		MoleculeArrayList arrayList = new MoleculeArrayList(size);
 		
-		assertEquals(0, arrayList.toMoleculeArray().length);
+		Assertions.assertEquals(0, arrayList.toMoleculeArray().length);
 
 		IMolecule[] atomList = new IMolecule[numElems];
         for(int i = 0; i < numElems; i++) {
@@ -169,15 +177,16 @@ public class MoleculeArrayListTest extends TestCase {
         }
 
         IMolecule[] aList = arrayList.toMoleculeArray();
-        assertEquals(numElems, aList.length);
+        Assertions.assertEquals(numElems, aList.length);
         for(int i = 0; i < numElems; i++) {
-        	assertSame(atomList[i], aList[i]);
+        	Assertions.assertSame(atomList[i], aList[i]);
         }
 	}
 
 	/*
 	 * testSet()
 	 */
+	@Test
 	public void testSet() {
 		int size = 20;
 		int numElems = 5;
@@ -190,7 +199,7 @@ public class MoleculeArrayListTest extends TestCase {
 		    resultAtom = arrayList.set(10, newElem);
 		    // If the test is working properly, next line should never
 		    // be executed.
-		    assertNull(resultAtom);
+		    Assertions.assertNull(resultAtom);
 		}
 		catch (IndexOutOfBoundsException e) {
 		}
@@ -205,30 +214,30 @@ public class MoleculeArrayListTest extends TestCase {
         // Replace first element in list
 		try {
 			resultAtom = arrayList.set(0, newElem);
-			IMolecule a = arrayList.getMolecule(0);
-			assertSame(a, newElem);
+			IMolecule a = arrayList.get(0);
+			Assertions.assertSame(a, newElem);
 		}
 		catch (IndexOutOfBoundsException e) {
 			// Just need an assertion that will fail.
 			// The generation of the exception indicates test failure.
-			assertNotNull(null);
+			Assertions.assertNotNull(null);
 		}
 
         // Replace last element in list
 		try {
 			resultAtom = arrayList.set(4, newElem);
-			IMolecule a = arrayList.getMolecule(4);
-			assertSame(a, newElem);
+			IMolecule a = arrayList.get(4);
+			Assertions.assertSame(a, newElem);
 		}
 		catch (IndexOutOfBoundsException e) {
 			// Just need an assertion that will fail.
 			// The generation of the exception indicates test failure.
-			assertNotNull(null);
+			Assertions.assertNotNull(null);
 		}
 
 		try {
 			resultAtom = arrayList.set(10, newElem);
-			assertNull(resultAtom);
+			Assertions.assertNull(resultAtom);
 		}
 		catch (IndexOutOfBoundsException e) {
 		}
@@ -236,10 +245,10 @@ public class MoleculeArrayListTest extends TestCase {
 		try {
 			resultAtom = null;
 			resultAtom = arrayList.set(2, newElem);
-		    assertSame(atomList[2], resultAtom);
+		    Assertions.assertSame(atomList[2], resultAtom);
 		}
 		catch (IndexOutOfBoundsException e) {
-			assertNotNull(resultAtom);
+			Assertions.assertNotNull(resultAtom);
 		}
 
 	}
@@ -247,6 +256,7 @@ public class MoleculeArrayListTest extends TestCase {
 	/*
 	 * testAdd()
 	 */
+	@Test
 	public void testAdd() {
 		int size = 10;
         boolean addResult;
@@ -256,20 +266,20 @@ public class MoleculeArrayListTest extends TestCase {
 		for(int i = 0; i < size; i++) {
 			atomList[i] = new Molecule(species, 0);
 			addResult = arrayList.add(atomList[i]);
-			assertTrue(addResult);
+			Assertions.assertTrue(addResult);
 		}
 
 		for(int i = 0; i < size; i++) {
-			assertSame(atomList[i], arrayList.getMolecule(i));
+			Assertions.assertSame(atomList[i], arrayList.get(i));
 		}
 
 		// Storage array is now full (10).  Add another atom
 		IMolecule overTheTop = new Molecule(species, 0);
 		addResult = arrayList.add(overTheTop);
-		assertTrue(addResult);
-		assertSame(overTheTop, arrayList.getMolecule(size));
-		assertEquals((int)((float)size * (1.0f + MoleculeArrayList.getSizeIncreaseRatio()) + 1),
-				      arrayList.sizeOfArray());
+		Assertions.assertTrue(addResult);
+		Assertions.assertSame(overTheTop, arrayList.get(size));
+		Assertions.assertEquals((int) ((float) size * (1.0f + MoleculeArrayList.getSizeIncreaseRatio()) + 1),
+				arrayList.sizeOfArray());
 
 		try {
 		    arrayList = new MoleculeArrayList(0);
@@ -278,13 +288,14 @@ public class MoleculeArrayListTest extends TestCase {
 		catch(ArrayIndexOutOfBoundsException e) {
 			// Just need an assertion that will fail.
 			// The generation of the exception indicates test failure.
-			assertNotNull(null);
+			Assertions.assertNotNull(null);
 		}
 	}
 
 	/*
 	 * testAddAll()
 	 */
+	@Test
 	public void testAddAll() {
 		int size = 10;
         IMolecule[] atomList = new IMolecule[size];
@@ -304,17 +315,18 @@ public class MoleculeArrayListTest extends TestCase {
 		arrayList.addAll(atomSet);
 		
 		for(int i = 0; i < size; i++) {
-			assertSame(atomList[i], arrayList.getMolecule(i));
+			Assertions.assertSame(atomList[i], arrayList.get(i));
 		}
 		for(int i = 0; i < size; i++) {
-			assertSame(atomsetList[i], arrayList.getMolecule(size+i));
+			Assertions.assertSame(atomsetList[i], arrayList.get(size + i));
 		}
-		assertEquals(23, arrayList.sizeOfArray());
+		Assertions.assertEquals(23, arrayList.sizeOfArray());
 	}
 
 	/*
 	 * testRemove()
 	 */
+	@Test
 	public void testRemove() {
 		int size = 5;
         IMolecule[] atomList = new IMolecule[size];
@@ -333,21 +345,21 @@ public class MoleculeArrayListTest extends TestCase {
 			System.out.println(e);
 			// Exception thrown which indicates failure.
 			// Fail test with any assertion that will fail.
-			assertNotNull(null);
+			Assertions.assertNotNull(null);
 		}
 
-        IMolecule postRemove = arrayList.getMolecule(2);
+        IMolecule postRemove = arrayList.get(2);
 
-    	assertNotSame(preRemove, postRemove);
+    	Assertions.assertNotSame(preRemove, postRemove);
 
     	if (Debug.ON) {
     	    // MoleculeArrayList.getMolecule only does a range check if Debug is ON
         	try {
-        		arrayList.getMolecule(size-1);
+        		arrayList.get(size-1);
         		// If an exception is not thrown, then the test
         		// has failed.  Fail test with an assertion that
         		// will fail.
-                assertNotNull(null);
+                Assertions.assertNotNull(null);
     		}
         	catch (IndexOutOfBoundsException e) {
     			System.out.println(e);
@@ -359,6 +371,7 @@ public class MoleculeArrayListTest extends TestCase {
 	/*
 	 * testRemoveAndReplace()
 	 */
+	@Test
 	public void testRemoveAndReplace() {
 		int size = 5;
         IMolecule[] atomList = new IMolecule[size];
@@ -370,17 +383,17 @@ public class MoleculeArrayListTest extends TestCase {
 		}
 
         IMolecule removeAtom = arrayList.removeAndReplace(2);
-		assertSame(atomList[2], removeAtom);
-		assertSame(atomList[size-1], arrayList.getMolecule(2));
+		Assertions.assertSame(atomList[2], removeAtom);
+		Assertions.assertSame(atomList[size - 1], arrayList.get(2));
 
         if (Debug.ON) {
             // MoleculeArrayList.getMolecule only does a range check if Debug is ON
             try {
-                arrayList.getMolecule(size-1);
+                arrayList.get(size-1);
                 // If an exception is not thrown, then the test
                 // has failed.  Fail test with an assertion that
                 // will fail.
-                assertNotNull(null);
+                Assertions.assertNotNull(null);
             }
             catch (IndexOutOfBoundsException e) {
                 System.out.println(e);
@@ -394,15 +407,15 @@ public class MoleculeArrayListTest extends TestCase {
         // NOT return an atom.
 		 
 		removeAtom = arrayList.removeAndReplace(3);
-		assertSame(atomList[3], removeAtom);
+		Assertions.assertSame(atomList[3], removeAtom);
 
         if (Debug.ON) {
             // MoleculeArrayList.getMolecule only does a range check if Debug is ON
     		try {
-    			IMolecule atom = arrayList.getMolecule(3);
+    			IMolecule atom = arrayList.get(3);
     			// Exception not thrown which indicates failure.
     			// Fail test with any assertion that will fail.
-    			assertNotNull(null);
+    			Assertions.assertNotNull(null);
     		}
     		catch (IndexOutOfBoundsException e) {
     			System.out.println(e);
@@ -413,6 +426,7 @@ public class MoleculeArrayListTest extends TestCase {
 	/*
 	 * testClear()
 	 */
+	@Test
 	public void testClear() {
 		int size = 5;
         IMolecule[] atomList = new IMolecule[size];
@@ -422,19 +436,19 @@ public class MoleculeArrayListTest extends TestCase {
 			atomList[i] = new Molecule(species, 0);
 			arrayList.add(atomList[i]);
 		}
-		assertFalse(arrayList.isEmpty());
+		Assertions.assertFalse(arrayList.isEmpty());
 
 		arrayList.clear();
-		assertEquals(size, arrayList.sizeOfArray());
-		assertTrue(arrayList.isEmpty());
+		Assertions.assertEquals(size, arrayList.sizeOfArray());
+		Assertions.assertTrue(arrayList.isEmpty());
 		if (Debug.ON) {
             // MoleculeArrayList.getMolecule only does a range check if Debug is ON
     		try {
-    			IMolecule atom = arrayList.getMolecule(0);
+    			IMolecule atom = arrayList.get(0);
         		// If an exception is not thrown, then the test
         		// has failed.  Fail test with an assertion that
         		// will fail.
-                assertNotNull(null);
+                Assertions.assertNotNull(null);
     		}
         	catch (IndexOutOfBoundsException e) {
     			System.out.println(e);

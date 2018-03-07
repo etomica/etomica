@@ -29,8 +29,7 @@ public class MeterBoltzmannA implements IDataSource {
     
     public MeterBoltzmannA(IntegratorBox integratorA, PotentialMaster potentialMasterB) {
     	meterEnergyA = new MeterPotentialEnergyFromIntegrator(integratorA);
-    	meterEnergyB = new MeterPotentialEnergy(potentialMasterB);
-    	meterEnergyB.setBox(integratorA.getBox());
+    	meterEnergyB = new MeterPotentialEnergy(potentialMasterB, integratorA.getBox());
         data = new DataDoubleArray(2);
         dataInfo = new DataInfoDoubleArray("Scaled System A and System B Energies", Null.DIMENSION, new int[]{2});
     

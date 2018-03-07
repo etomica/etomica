@@ -13,11 +13,11 @@ import etomica.data.DataSplitter;
 import etomica.data.histogram.Histogram;
 import etomica.data.histogram.HistogramSimple;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.normalmode.*;
 import etomica.potential.P2HardSphere;
@@ -68,84 +68,81 @@ public class SimDegreeFreedom3D extends Simulation {
     
     public SimDegreeFreedom3D(Space _space, int numAtoms, double density, int blocksize, int nbs, String filename) {
         super(_space);
-        
-        
+
+
         System.out.println("THIS CODE IS NOT FINISHED!");
-        
+
 //        long seed = 3;
 //        System.out.println("Seed explicitly set to " + seed);
 //        IRandom rand = new RandomNumberGenerator(seed);
 //        this.setRandom(rand);
 
-        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
-        
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        
+
+        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
+
         basis = new BasisCubicFcc();
-        box = new Box(space);
-        addBox(box);
+        primitive = new PrimitiveCubic(space, 1.0);
+        double v = primitive.unitCell().getVolume();
+        primitive.scaleSize(Math.pow(v * density / 4, -1.0 / 3.0));
+        int numberOfCells = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        nCells = new int[]{numberOfCells, numberOfCells, numberOfCells};
+        boundary = new BoundaryDeformableLattice(primitive, nCells);
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
-       
+
         Potential2 potential = new P2HardSphere(space, 1.0, true);
         potential.setBox(box);
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
-        
-        primitive = new PrimitiveCubic(space, 1.0);
-        double v = primitive.unitCell().getVolume();
-        primitive.scaleSize(Math.pow(v*density/4, -1.0/3.0));
-        int numberOfCells = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-        nCells = new int[]{numberOfCells, numberOfCells, numberOfCells};
-        boundary = new BoundaryDeformableLattice(primitive, nCells);
-        box.setBoundary(boundary);
-        
+
+
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
         int coordinateDim = coordinateDefinition.getCoordinateDim();
-        
-        integrator = new IntegratorMC(this, potentialMaster);
-        integrator.setBox(box);
-        
+
+        integrator = new IntegratorMC(this, potentialMaster, box);
+
         nm = new NormalModesFromFile(filename, space.D());
         nm.setHarmonicFudge(1.0);
         nm.setTemperature(1.0);
-        
+
         //Set up skip-these-modes code
-        double[] wvc= nm.getWaveVectorFactory().getCoefficients();
+        double[] wvc = nm.getWaveVectorFactory().getCoefficients();
         double[][] omega = nm.getOmegaSquared();
         int jump = coordinateDim * nm.getWaveVectorFactory().getWaveVectors().length;
-        skipThisMode = new boolean[2*jump];
-        for(int i = 0; i < 2*jump; i++){
+        skipThisMode = new boolean[2 * jump];
+        for (int i = 0; i < 2 * jump; i++) {
             skipThisMode[i] = false;
         }
-        for(int wvCount = 0; wvCount < wvc.length; wvCount++){
+        for (int wvCount = 0; wvCount < wvc.length; wvCount++) {
             //Sets up the imaginary modes that should be skipped.
-            if(wvc[wvCount] == 0.5) {
-                for(int j = 0; j < coordinateDim; j++){
-                    skipThisMode[j + coordinateDim*wvCount + jump] = true;
+            if (wvc[wvCount] == 0.5) {
+                for (int j = 0; j < coordinateDim; j++) {
+                    skipThisMode[j + coordinateDim * wvCount + jump] = true;
                 }
             }
             //Sets up the modes that are center of mass motion to skip
-            for(int j = 0; j < omega[wvCount].length; j++){
-                if(Double.isInfinite(omega[wvCount][j])){
-                    skipThisMode[j + coordinateDim*wvCount] = true;
-                    skipThisMode[j + coordinateDim*wvCount + jump] = true;
+            for (int j = 0; j < omega[wvCount].length; j++) {
+                if (Double.isInfinite(omega[wvCount][j])) {
+                    skipThisMode[j + coordinateDim * wvCount] = true;
+                    skipThisMode[j + coordinateDim * wvCount + jump] = true;
                 }
             }
         }
-        
+
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
-        System.out.println("Number of wave vectors " + 
+        System.out.println("Number of wave vectors " +
                 waveVectorFactory.getWaveVectors().length);
-        
+
         mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), random, space);
         mcMoveAtom.setPotential(potential);
         mcMoveAtom.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         mcMoveAtom.setStepSizeMin(0.001);
         mcMoveAtom.setStepSize(0.01);
-        
+
         mcMoveMode = new MCMoveChangeMultipleWV(potentialMaster, random);
         mcMoveMode.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveMode);
@@ -154,33 +151,35 @@ public class SimDegreeFreedom3D extends Simulation {
         mcMoveMode.setOmegaSquared(nm.getOmegaSquared());
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
-        
+
         meternmc = new MeterNormalModeCoordinate(coordinateDefinition, nm.getWaveVectorFactory().getWaveVectors());
         meternmc.setEigenVectors(nm.getEigenvectors());
         meternmc.setOmegaSquared(nm.getOmegaSquared());
-        
-        int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim*2;
+
+        int coordNum = nm.getWaveVectorFactory().getWaveVectors().length * coordinateDim * 2;
         hists = new AccumulatorHistogram[coordNum];
         DataSplitter splitter = new DataSplitter();
         DataPump pumpFromMeter = new DataPump(meternmc, splitter);
-        
+
         DoubleRange range = new DoubleRange(-1.0, 1.0);
         Histogram template;
-        for(int i = 0; i < coordNum; i++){
-            if(skipThisMode[i]) {continue;}
+        for (int i = 0; i < coordNum; i++) {
+            if (skipThisMode[i]) {
+                continue;
+            }
             template = new HistogramSimple(nbs, range);
             hists[i] = new AccumulatorHistogram(template, nbs);
             splitter.setDataSink(i, hists[i]);
         }
-        
+
         IntegratorListenerAction pumpFromMeterListener = new IntegratorListenerAction(pumpFromMeter);
         pumpFromMeterListener.setInterval(blocksize);
         integrator.getEventManager().addListener(pumpFromMeterListener);
-        
+
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
-        
-        
+
+
 //        IAtomList leaflist = box.getLeafList();
 //        double[] locations = new double[numAtoms];
 //        System.out.println("starting positions:");

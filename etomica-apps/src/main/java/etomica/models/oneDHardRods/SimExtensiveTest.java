@@ -68,88 +68,85 @@ public class SimExtensiveTest extends Simulation {
 
     public SimExtensiveTest(Space _space, int numAtoms, double density, int blocksize, int nbs) {
         super(_space);
-        
+
         System.out.println("THIS CODE IS NOT FINISHED!");
         System.out.println("need to fix this setHarmonicWV");
-        
-        
+
+
 //        long seed = 3;
 //        System.out.println("Seed explicitly set to " + seed);
 //        IRandom rand = new RandomNumberGenerator(seed);
 //        this.setRandom(rand);
-        
+
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
-        
+
         basis = new BasisMonatomic(space);
-        box = new Box(space);
-        addBox(box);
+        bdry = new BoundaryRectangularPeriodic(space, numAtoms / density);
+        box = this.makeBox(bdry);
         box.setNMolecules(species, numAtoms);
-       
+
         Potential2 potential = new P2HardSphere(space, 1.0, true);
-        potential = new P2XOrder(space, (Potential2HardSpherical)potential);
+        potential = new P2XOrder(space, (Potential2HardSpherical) potential);
         potential.setBox(box);
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
-        primitive = new PrimitiveCubic(space, 1.0/density);
-        bdry = new BoundaryRectangularPeriodic(space, numAtoms/density);
+        primitive = new PrimitiveCubic(space, 1.0 / density);
         nCells = new int[]{numAtoms};
-        box.setBoundary(bdry);
-        
+
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
         int coordinateDim = coordinateDefinition.getCoordinateDim();
 
-        double neighborRange = 1.01/density;
+        double neighborRange = 1.01 / density;
         potentialMaster.setRange(neighborRange);
         //find neighbors now.  Don't hook up NeighborListManager since the
         //  neighbors won't change
         potentialMaster.getNeighborManager(box).reset();
-        
-        integrator = new IntegratorMC(this, potentialMaster);
-        integrator.setBox(box);
-        
+
+        integrator = new IntegratorMC(this, potentialMaster, box);
+
         nm = new NormalModes1DHR(box.getBoundary(), numAtoms);
         nm.setHarmonicFudge(1.0);
         nm.setTemperature(1.0);
         nm.getOmegaSquared();
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
-        
+
         //Set up skip-these-modes code
-        double[] wvc= nm.getWaveVectorFactory().getCoefficients();
+        double[] wvc = nm.getWaveVectorFactory().getCoefficients();
         double[][] omega = nm.getOmegaSquared();
         int jump = coordinateDim * nm.getWaveVectorFactory().getWaveVectors().length;
-        skipThisMode = new boolean[2*jump];
-        for(int i = 0; i < 2*jump; i++){
+        skipThisMode = new boolean[2 * jump];
+        for (int i = 0; i < 2 * jump; i++) {
             skipThisMode[i] = false;
         }
-        for(int wvCount = 0; wvCount < wvc.length; wvCount++){
+        for (int wvCount = 0; wvCount < wvc.length; wvCount++) {
             //Sets up the imaginary modes that should be skipped.
-            if(wvc[wvCount] == 0.5) {
-                for(int j = 0; j < coordinateDim; j++){
-                    skipThisMode[j + coordinateDim*wvCount + jump] = true;
+            if (wvc[wvCount] == 0.5) {
+                for (int j = 0; j < coordinateDim; j++) {
+                    skipThisMode[j + coordinateDim * wvCount + jump] = true;
                 }
             }
             //Sets up the modes that are center of mass motion to skip
-            for(int j = 0; j < omega[wvCount].length; j++){
-                if(Double.isInfinite(omega[wvCount][j])){
-                    skipThisMode[j + coordinateDim*wvCount] = true;
-                    skipThisMode[j + coordinateDim*wvCount + jump] = true;
+            for (int j = 0; j < omega[wvCount].length; j++) {
+                if (Double.isInfinite(omega[wvCount][j])) {
+                    skipThisMode[j + coordinateDim * wvCount] = true;
+                    skipThisMode[j + coordinateDim * wvCount + jump] = true;
                 }
             }
         }
-        
-        
+
+
 //        mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, random, space);
 //        mcMoveAtom.setPotential(potential);
 //        mcMoveAtom.setBox(box);
 //        integrator.getMoveManager().addMCMove(mcMoveAtom);
 //        mcMoveAtom.setStepSizeMin(0.001);
 //        mcMoveAtom.setStepSize(0.01);
-        
+
         mcMoveMode = new MCMoveChangeMultipleWV(potentialMaster, random);
         mcMoveMode.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveMode);
@@ -158,32 +155,32 @@ public class SimExtensiveTest extends Simulation {
         mcMoveMode.setOmegaSquared(nm.getOmegaSquared());
         mcMoveMode.setWaveVectorCoefficients(nm.getWaveVectorFactory().getCoefficients());
         mcMoveMode.setWaveVectors(nm.getWaveVectorFactory().getWaveVectors());
-        
+
         meternmc = new MeterNormalModeCoordinate(coordinateDefinition, nm.getWaveVectorFactory().getWaveVectors());
         meternmc.setEigenVectors(nm.getEigenvectors());
         meternmc.setOmegaSquared(nm.getOmegaSquared());
-        
-        int coordNum = nm.getWaveVectorFactory().getWaveVectors().length*coordinateDim*2;
+
+        int coordNum = nm.getWaveVectorFactory().getWaveVectors().length * coordinateDim * 2;
         hists = new AccumulatorHistogram[coordNum];
         DataSplitter splitter = new DataSplitter();
         DataPump pumpFromMeter = new DataPump(meternmc, splitter);
-        
+
         DoubleRange range = new DoubleRange(-1.0, 1.0);
         Histogram template;
-        for(int i = 0; i < coordNum; i++){
+        for (int i = 0; i < coordNum; i++) {
             template = new HistogramSimple(nbs, range);
             hists[i] = new AccumulatorHistogram(template, nbs);
             splitter.setDataSink(i, hists[i]);
         }
-        
+
         IntegratorListenerAction pumpFromMeterListener = new IntegratorListenerAction(pumpFromMeter);
         pumpFromMeterListener.setInterval(blocksize);
         integrator.getEventManager().addListener(pumpFromMeterListener);
-        
+
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
-        
-        
+
+
 //        IAtomList leaflist = box.getLeafList();
 //        double[] locations = new double[numAtoms];
 //        System.out.println("starting positions:");

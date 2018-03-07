@@ -32,8 +32,8 @@ public class CriterionTypePair extends CriterionAdapter {
      * the wrapped criterion also accepts the pair.
      */
     public boolean accept(IAtomList pair) {
-        AtomType atom0Type = pair.getAtom(0).getType();
-        AtomType atom1Type = pair.getAtom(1).getType();
+        AtomType atom0Type = pair.get(0).getType();
+        AtomType atom1Type = pair.get(1).getType();
         if ( (atom0Type == type0 && atom1Type == type1) ||
              (atom0Type == type1 && atom1Type == type0) ) {
             return subCriterion.accept(pair);

@@ -53,7 +53,7 @@ public class LjmdGraphic extends SimulationGraphic {
 
 	    //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
-        colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
+        colorScheme.setColor(sim.species.getLeafType(), Color.red);
         getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 //        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayBoxPaintAction(sim.box)));
 
@@ -156,8 +156,7 @@ public class LjmdGraphic extends SimulationGraphic {
         energyHistory.setPushInterval(5);
         dataStreamPumps.add(energyPump);
 
-		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
-        peMeter.setBox(sim.box);
+		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
         AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);
         final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
@@ -170,8 +169,7 @@ public class LjmdGraphic extends SimulationGraphic {
         peHistory.setPushInterval(5);
         dataStreamPumps.add(pePump);
 
-		MeterKineticEnergy keMeter = new MeterKineticEnergy();
-        keMeter.setBox(sim.box);
+		MeterKineticEnergy keMeter = new MeterKineticEnergy(sim.box);
         AccumulatorHistory keHistory = new AccumulatorHistory();
         keHistory.setTimeDataSource(timeCounter);
         DataFork keFork = new DataFork();
@@ -218,7 +216,7 @@ public class LjmdGraphic extends SimulationGraphic {
                     // in adiabatic mode, we want the average kinetic temperature, which we'll
                     // steal from our kinetic energy accumulator
                     double temp = keAvg.getData().getValue(keAvg.AVERAGE.index);
-                    temp *= 2.0 / (sim.box.getLeafList().getAtomCount() * space.D());
+                    temp *= 2.0 / (sim.box.getLeafList().size() * space.D());
                     mbDistribution.setTemperature(temp);
                     mbSource.update();
                 }
@@ -261,7 +259,7 @@ public class LjmdGraphic extends SimulationGraphic {
             }
 
             ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space);
-            int oldN = sim.box.getMoleculeList().getMoleculeCount();
+            int oldN = sim.box.getMoleculeList().size();
         });
 
         //************* Lay out components ****************//

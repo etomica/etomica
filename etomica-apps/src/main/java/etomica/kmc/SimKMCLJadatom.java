@@ -16,8 +16,8 @@ import etomica.dimer.IntegratorDimerRT;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
-import etomica.lattice.LatticeCubicFcc;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
@@ -55,23 +55,23 @@ public class SimKMCLJadatom extends Simulation{
     
 
     public SimKMCLJadatom() {
-    	super(Space3D.getInstance());
-    	potentialMaster = new PotentialMasterMonatomic(this);
-    	
-    //SIMULATION BOX
-        box = new Box(new BoundaryRectangularSlit(0, 5, space), space);
-        addBox(box);
-        
-    //SPECIES
-    	double sigma = 1.0;
-    	fixed = new SpeciesSpheresMono(space, new ElementSimple("A", Double.POSITIVE_INFINITY));
-        movable = new SpeciesSpheresMono(this, space);  
+        super(Space3D.getInstance());
+
+        //SPECIES
+        double sigma = 1.0;
+        fixed = new SpeciesSpheresMono(space, new ElementSimple("A", Double.POSITIVE_INFINITY));
+        movable = new SpeciesSpheresMono(this, space);
         addSpecies(fixed);
         addSpecies(movable);
-    	
+
+        potentialMaster = new PotentialMasterMonatomic(this);
+
+        //SIMULATION BOX
+        box = this.makeBox(new BoundaryRectangularSlit(0, 5, space));
+
         // Must be in same order as the respective species is added to SpeciesManager
-        box.setNMolecules(fixed, 256);    	
-    	
+        box.setNMolecules(fixed, 256);
+
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(1);
         inflater.actionPerformed();
@@ -79,23 +79,23 @@ public class SimKMCLJadatom extends Simulation{
         potentialMaster.addPotential(new P2LennardJones(space, sigma, 1.0), new AtomType[]{movable.getLeafType(), fixed.getLeafType()});
         potentialMaster.addPotential(new P2LennardJones(space, sigma, 1.0), new AtomType[]{movable.getLeafType(), movable.getLeafType()});
 
-		
-    //CRYSTAL
+
+        //CRYSTAL
         Configuration config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
-        config.initializeCoordinates(box); 
-       
+        config.initializeCoordinates(box);
+
         //ADATOM CREATION AND PLACEMENT
-        
+
         IMolecule iMolecule = movable.makeMolecule();
         box.addMolecule(iMolecule);
-        adAtomPos = iMolecule.getChildList().getAtom(0).getPosition();
+        adAtomPos = iMolecule.getChildList().get(0).getPosition();
         //adAtomPos = getSpace().makeVector();
         adAtomPos.setX(0, 3.5);
         adAtomPos.setX(1, -0.30);
         adAtomPos.setX(2, -0.30);
         Vector newBoxLength = space.makeVector();
         newBoxLength.E(box.getBoundary().getBoxSize());
-        newBoxLength.setX(0, 2.0*adAtomPos.getX(0)+2.0);
+        newBoxLength.setX(0, 2.0 * adAtomPos.getX(0) + 2.0);
         box.getBoundary().setBoxSize(newBoxLength);
 
     }
@@ -137,19 +137,19 @@ public class SimKMCLJadatom extends Simulation{
         Vector rij = space.makeVector();
         MoleculeArrayList movableList = new MoleculeArrayList();
         IMoleculeList loopSet = box.getMoleculeList();
-        for (int i=0; i<loopSet.getMoleculeCount(); i++){
-            rij.Ev1Mv2(center,loopSet.getMolecule(i).getChildList().getAtom(0).getPosition());
+        for (int i = 0; i<loopSet.size(); i++){
+            rij.Ev1Mv2(center,loopSet.get(i).getChildList().get(0).getPosition());
             if(rij.getX(0) > (box.getBoundary().getBoxSize().getX(0) - 3.0)){continue;}
             //box.getBoundary().nearestImage(rij);
             if(rij.getX(0)< distance){
-               movableList.add(loopSet.getMolecule(i));
+               movableList.add(loopSet.get(i));
             }
         }
-        for (int i=0; i<movableList.getMoleculeCount(); i++){
+        for (int i = 0; i<movableList.size(); i++){
             IMolecule newMolecule = movable.makeMolecule();
             box.addMolecule(newMolecule);
-            newMolecule.getChildList().getAtom(0).getPosition().E(movableList.getMolecule(i).getChildList().getAtom(0).getPosition());
-            box.removeMolecule(movableList.getMolecule(i));
+            newMolecule.getChildList().get(0).getPosition().E(movableList.get(i).getChildList().get(0).getPosition());
+            box.removeMolecule(movableList.get(i));
         }
         movableSet = box.getMoleculeList(movable);
     }
@@ -160,12 +160,12 @@ public class SimKMCLJadatom extends Simulation{
         Vector rij = space.makeVector();
 
         IMoleculeList loopSet = box.getMoleculeList(movable);
-        for (int i=0; i<loopSet.getMoleculeCount(); i++){
-            rij.Ev1Mv2(center,loopSet.getMolecule(i).getChildList().getAtom(0).getPosition());
+        for (int i = 0; i<loopSet.size(); i++){
+            rij.Ev1Mv2(center,loopSet.get(i).getChildList().get(0).getPosition());
             if(rij.getX(0) > (box.getBoundary().getBoxSize().getX(0) - 3.0)){continue;}
             box.getBoundary().nearestImage(rij);
             if(rij.squared() < distance){
-               box.removeMolecule(loopSet.getMolecule(i));
+               box.removeMolecule(loopSet.get(i));
             }
         }
     }
@@ -173,11 +173,11 @@ public class SimKMCLJadatom extends Simulation{
     public void randomizePositions(){
         Vector workVector = space.makeVector();
         IMoleculeList loopSet3 = box.getMoleculeList(movable);
-        Vector[] currentPos = new Vector[loopSet3.getMoleculeCount()];
+        Vector[] currentPos = new Vector[loopSet3.size()];
         double offset = 0;
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
-            currentPos[i] = (loopSet3.getMolecule(i).getChildList().getAtom(0).getPosition());
+            currentPos[i] = (loopSet3.get(i).getChildList().get(0).getPosition());
             for(int j=0; j<3; j++){
                 offset = random.nextGaussian()/10.0;
                 if(Math.abs(offset)>0.1){offset=0.1;}
@@ -192,25 +192,22 @@ public class SimKMCLJadatom extends Simulation{
         config.initializeCoordinates(box);
     }
     
-    public void integratorKMC(){
-        integratorKMC = new IntegratorKMC(this, potentialMaster, 0.7, this.getRandom(), new ISpecies[]{movable}, this.getSpace());
-        integratorKMC.setBox(box);
+    public void integratorKMC() {
+        integratorKMC = new IntegratorKMC(this, potentialMaster, 0.7, this.getRandom(), new ISpecies[]{movable}, box);
         activityIntegrateKMC = new ActivityIntegrate(integratorKMC);
         getController().addAction(activityIntegrateKMC);
     }
     
-    public void integratorKMCCluster(double temp, int steps, int totalSearch){
-        integratorKMCCluster = new IntegratorKMCCluster(this, potentialMaster, temp, totalSearch, this.getRandom(), new ISpecies[]{movable}, this.getSpace());
-        integratorKMCCluster.setBox(box);
+    public void integratorKMCCluster(double temp, int steps, int totalSearch) {
+        integratorKMCCluster = new IntegratorKMCCluster(this, potentialMaster, temp, totalSearch, this.getRandom(), new ISpecies[]{movable}, box);
         activityIntegrateKMCCluster = new ActivityIntegrate(integratorKMCCluster);
         activityIntegrateKMCCluster.setMaxSteps(steps);
         getController().addAction(activityIntegrateKMCCluster);
     }
 
-    public void enableDimerSearch(String fileName, long maxSteps){
+    public void enableDimerSearch(String fileName, long maxSteps) {
 
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, space);
-        integratorDimer.setBox(box);
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, box);
         integratorDimer.setOrtho(false, false);
         integratorDimer.setFileName(fileName);
 

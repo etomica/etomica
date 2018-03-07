@@ -47,16 +47,16 @@ public class MeterPlaneSlip implements IDataSource {
         int nPlanes = drSum.length;
         
         IMoleculeList molecules = box.getMoleculeList(species);
-        int nMolecules = molecules.getMoleculeCount();
+        int nMolecules = molecules.size();
         for (int i=0; i<nPlanes; i++) {
             drSum[i][0].E(0);
             drSum[i][1].E(0);
         }
         for (int i=0; i<nMolecules; i++) {
             int iPlane = (i/2)%nPlanes;
-            IAtomList atomList = molecules.getMolecule(i).getChildList();
-            drSum[iPlane][0].PE(atomList.getAtom(0).getPosition());
-            drSum[iPlane][1].PE(atomList.getAtom(1).getPosition());
+            IAtomList atomList = molecules.get(i).getChildList();
+            drSum[iPlane][0].PE(atomList.get(0).getPosition());
+            drSum[iPlane][1].PE(atomList.get(1).getPosition());
         }
         int nMoleculesPerPlane = nMolecules/nPlanes;
         Vector ba = box.getBoundary().getEdgeVector(0);
@@ -83,7 +83,7 @@ public class MeterPlaneSlip implements IDataSource {
 
     public IData getData() {
         IMoleculeList molecules = box.getMoleculeList(species);
-        int nMolecules = molecules.getMoleculeCount();
+        int nMolecules = molecules.size();
         int nPlanes = drSum.length;
         for (int i=0; i<nPlanes; i++) {
             drSum[i][0].E(0);
@@ -91,9 +91,9 @@ public class MeterPlaneSlip implements IDataSource {
         }
         for (int i=0; i<nMolecules; i++) {
             int iPlane = (i/2)%nPlanes;
-            IAtomList atomList = molecules.getMolecule(i).getChildList();
-            drSum[iPlane][0].PE(atomList.getAtom(0).getPosition());
-            drSum[iPlane][1].PE(atomList.getAtom(1).getPosition());
+            IAtomList atomList = molecules.get(i).getChildList();
+            drSum[iPlane][0].PE(atomList.get(0).getPosition());
+            drSum[iPlane][1].PE(atomList.get(1).getPosition());
         }
         int nMoleculesPerPlane = nMolecules/nPlanes;
         Vector ba = box.getBoundary().getEdgeVector(0);

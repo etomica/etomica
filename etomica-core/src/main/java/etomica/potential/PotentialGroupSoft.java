@@ -45,8 +45,8 @@ public class PotentialGroupSoft extends PotentialGroup implements PotentialMolec
 	}
 	public double energy(IMoleculeList pair) {
 		// TODO Auto-generated method stub
-		IMolecule molecule_a = pair.getMolecule(0);//1st molecule in the pair
-		IMolecule molecule_b = pair.getMolecule(1);//2nd molecule in the pair
+		IMolecule molecule_a = pair.get(0);//1st molecule in the pair
+		IMolecule molecule_b = pair.get(1);//2nd molecule in the pair
 		Vector r_a = space.makeVector();
 		Vector r_b = space.makeVector();
 		r_a.E(positionDefinition.position(molecule_a));
@@ -65,8 +65,8 @@ public class PotentialGroupSoft extends PotentialGroup implements PotentialMolec
 
 	public double virial(IMoleculeList pair) {//pass molecular pair
 		// COM from atompositiondefinition 
-		IMolecule molecule_a = pair.getMolecule(0);//1st molecule in the pair
-		IMolecule molecule_b = pair.getMolecule(1);//2nd molecule in the pair
+		IMolecule molecule_a = pair.get(0);//1st molecule in the pair
+		IMolecule molecule_b = pair.get(1);//2nd molecule in the pair
 		Vector r_a = space.makeVector();
 		Vector r_b = space.makeVector();
 		r_a.E(positionDefinition.position(molecule_a));
@@ -84,7 +84,7 @@ public class PotentialGroupSoft extends PotentialGroup implements PotentialMolec
 	}
 
 	public Vector[] gradient(IMoleculeList basisAtoms) {//pass molecular pair
-        if(basisAtoms.getMoleculeCount() != this.nBody()) {
+        if(basisAtoms.size() != this.nBody()) {
             throw new IllegalArgumentException("Error: number of atoms for energy calculation inconsistent with order of potential");
         }
         gradients[0].E(0.0);      

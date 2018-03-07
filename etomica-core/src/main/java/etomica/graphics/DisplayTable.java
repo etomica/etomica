@@ -525,8 +525,7 @@ public class DisplayTable extends Display implements DataTableListener {
         final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
         sim.integrator.setIsothermal(true);
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.getSpace());
-        pMeter.setIntegrator(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
         MeterNMolecules nMeter = new MeterNMolecules();
         nMeter.setBox(sim.box);
         DataTableAverages dataTable = new DataTableAverages(sim.integrator);

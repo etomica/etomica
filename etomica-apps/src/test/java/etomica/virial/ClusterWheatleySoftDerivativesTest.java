@@ -56,7 +56,7 @@ public class ClusterWheatleySoftDerivativesTest {
 
         IAtomList al = box.getLeafList();
         for(int i=0; i<npoints;i++){
-            al.getAtom(i).getPosition().setX(0,i/2.0);
+            al.get(i).getPosition().setX(0,i/2.0);
         }
         box.trialNotify();
         box.acceptNotify();
@@ -77,7 +77,7 @@ public class ClusterWheatleySoftDerivativesTest {
 
         IAtomList al = box.getLeafList();
         for(int i=0; i<npoints;i++){
-            al.getAtom(i).getPosition().setX(0,i/2.0);
+            al.get(i).getPosition().setX(0,i/2.0);
         }
         box.trialNotify();
         box.acceptNotify();

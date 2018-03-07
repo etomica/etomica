@@ -334,18 +334,18 @@ public class VirialB2WaterTIP4P_DHS_difference {
             boolean debug = false;
             if (debug && r2 > 40000) {
                 ///// ///////get O site position
-                IMolecule water1 = pair.getMolecule(0);
-                IMolecule water2 = pair.getMolecule(1);
+                IMolecule water1 = pair.get(0);
+                IMolecule water2 = pair.get(1);
                 IAtomList atomList1 = water1.getChildList();
                 IAtomList atomList2 = water2.getChildList();
-                Vector O1 = atomList1.getAtom(2).getPosition();
-                Vector O2 = atomList2.getAtom(2).getPosition();
+                Vector O1 = atomList1.get(2).getPosition();
+                Vector O2 = atomList2.get(2).getPosition();
                 groupTranslationVector.Ev1Mv2(O2, O1);
                 groupTranslationVector.normalize();
                 for (int m = 0; m < 200; m++) {
-                    double atomCount = atomList2.getAtomCount();
+                    double atomCount = atomList2.size();
                     for (int q = 0; q < atomCount; q++) {
-                        IAtom atom = atomList2.getAtom(q);
+                        IAtom atom = atomList2.get(q);
                         atom.getPosition().PE(groupTranslationVector);
                     }
                     O1O2.Ev1Mv2(O2, O1);
@@ -408,18 +408,18 @@ public class VirialB2WaterTIP4P_DHS_difference {
         }
 
         public double energy(IMoleculeList pair) {
-            IMolecule water1 = pair.getMolecule(0);
-            IMolecule water2 = pair.getMolecule(1);
+            IMolecule water1 = pair.get(0);
+            IMolecule water2 = pair.get(1);
 
-            Vector O1r = (water1.getChildList().getAtom(2)).getPosition();//H-H-O-M, so O is the third atom
-            Vector O2r = (water2.getChildList().getAtom(2)).getPosition();
-            Vector H11r = (water1.getChildList().getAtom(0)).getPosition();
-            Vector H12r = (water1.getChildList().getAtom(1)).getPosition();
-            Vector H21r = (water2.getChildList().getAtom(0)).getPosition();
-            Vector H22r = (water2.getChildList().getAtom(1)).getPosition();
+            Vector O1r = (water1.getChildList().get(2)).getPosition();//H-H-O-M, so O is the third atom
+            Vector O2r = (water2.getChildList().get(2)).getPosition();
+            Vector H11r = (water1.getChildList().get(0)).getPosition();
+            Vector H12r = (water1.getChildList().get(1)).getPosition();
+            Vector H21r = (water2.getChildList().get(0)).getPosition();
+            Vector H22r = (water2.getChildList().get(1)).getPosition();
 
-            Vector M1r = water1.getChildList().getAtom(3).getPosition();
-            Vector M2r = water2.getChildList().getAtom(3).getPosition();
+            Vector M1r = water1.getChildList().get(3).getPosition();
+            Vector M2r = water2.getChildList().get(3).getPosition();
 
             //get position of p1 and p2, the dipole position, also the HS center
             double offset = 0.36794113830914743;

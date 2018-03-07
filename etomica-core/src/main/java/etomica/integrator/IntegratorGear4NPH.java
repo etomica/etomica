@@ -47,19 +47,23 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     protected int D;
     protected MeterTemperature meterTemperature;
     
-    public IntegratorGear4NPH(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-        this(potentialMaster, sim.getRandom(),0.05, 1.0, _space);
+    public IntegratorGear4NPH(Simulation sim, PotentialMaster potentialMaster, Box box) {
+        this(potentialMaster, sim.getRandom(),0.05, 1.0, box);
     }
     
     public IntegratorGear4NPH(PotentialMaster potentialMaster, IRandom random,
-                              double timeStep, double temperature, Space _space) {
-        super(potentialMaster, random, timeStep, temperature, _space);
+                              double timeStep, double temperature, Box box) {
+        super(potentialMaster, random, timeStep, temperature, box);
         kp = 1.0/rrp/getTimeStep();
         kh = 1.0/rrh/getTimeStep();
         D = space.D();
         setIsothermal(true);
         forceSumNPH = new ForceSumNPH(space);
         inflate = new BoxInflate(space);
+        inflate.setBox(this.box);
+        meterTemperature = new MeterTemperature(this.box, D);
+        forceSumNPH.setBox(this.box);
+        forceSumNPH.setAgentManager(forces);
     }
 
     public void setTimeStep(double t) {
@@ -94,14 +98,6 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     public double getTargetT() {return targetT;}
     public Dimension getTargetTDimension() {return Temperature.DIMENSION;}
 
-    public void setBox(Box box) {
-        super.setBox(box);
-        inflate.setBox(this.box);
-        meterTemperature = new MeterTemperature(this.box, D);
-        forceSumNPH.setBox(this.box);
-        forceSumNPH.setAgentManager(agentManager);
-    }
-    
     
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
@@ -117,12 +113,12 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     
     public void drivePT() {
         double kineticT = meterTemperature.getDataAsScalar();
-        double mvsq = kineticT * D * box.getLeafList().getAtomCount();
+        double mvsq = kineticT * D * box.getLeafList().size();
         double volume = box.getBoundary().volume();
-        double density = box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume();
+        double density = box.getMoleculeList().size() / box.getBoundary().volume();
         double pCurrent = density*kineticT - forceSumNPH.w/(D*volume);
         double pDot = kp*(targetP - pCurrent);
-        double kDot = kp*(targetT - kineticT)*box.getLeafList().getAtomCount();
+        double kDot = kp*(targetT - kineticT)*box.getLeafList().size();
         chi = ( - forceSumNPH.rvx - D*pDot*volume)/
                     ( forceSumNPH.x + D*D*pCurrent*volume);
         zeta = (forceSumNPH.vf - kDot)/mvsq - chi;
@@ -130,9 +126,9 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     
     public void drivePH() {
         double kineticT = meterTemperature.getDataAsScalar();
-        double mvsq = kineticT * D * box.getLeafList().getAtomCount();
+        double mvsq = kineticT * D * box.getLeafList().size();
         double volume = box.getBoundary().volume();
-        double density = box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume();
+        double density = box.getMoleculeList().size() / box.getBoundary().volume();
         double pCurrent = density*kineticT - forceSumNPH.w/(D*volume);
         double hCurrent = 0.5*mvsq + forceSumNPH.u + pCurrent*volume;
         double pDot = kp*(targetP - pCurrent);
@@ -207,9 +203,9 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
                 integrator.calculateForces();
                 Box box = integrator.getBox();
                 double kineticT = integrator.getMeterTemperature().getDataAsScalar();
-                double mvsq = kineticT * dim * box.getLeafList().getAtomCount();
+                double mvsq = kineticT * dim * box.getLeafList().size();
                 double volume = box.getBoundary().volume();
-                double density = box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume();
+                double density = box.getMoleculeList().size() / box.getBoundary().volume();
                 double pCurrent = density*kineticT - integrator.forceSumNPH.w/(dim*volume);
                 double hCurrent = 0.5*mvsq + integrator.forceSumNPH.u + pCurrent*volume;
                 integrator.setTargetH(hCurrent);
@@ -245,12 +241,12 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         public IData getData() {
             Box box = integrator.getBox();
             double kineticT = integrator.getMeterTemperature().getDataAsScalar();
-            double mvsq = kineticT* dim * box.getLeafList().getAtomCount();
+            double mvsq = kineticT* dim * box.getLeafList().size();
             double volume = box.getBoundary().volume();
-            double density = box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume();
+            double density = box.getMoleculeList().size() / box.getBoundary().volume();
             double pCurrent = density*kineticT - integrator.forceSumNPH.w/(dim*volume);
             double hCurrent = 0.5*mvsq + integrator.forceSumNPH.u + pCurrent*volume;
-            data.x = hCurrent/box.getMoleculeList().getMoleculeCount();
+            data.x = hCurrent/box.getMoleculeList().size();
             return data;
         }
         
@@ -286,8 +282,8 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         //pair
         public void doCalculation(IAtomList pair, IPotential potential2) {
             Potential2Soft potentialSoft = (Potential2Soft)potential2;
-            IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
-            IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+            IAtomKinetic atom0 = (IAtomKinetic)pair.get(0);
+            IAtomKinetic atom1 = (IAtomKinetic)pair.get(1);
             dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
             
             dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
@@ -301,8 +297,8 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             rvx += hv * dr.dot(dv)/r2;
             Vector[] f = potentialSoft.gradient(pair);
             vf += dv.dot(f[0]); //maybe should be (-)?
-            integratorAgentManager.getAgent((IAtom)atom0).force().ME(f[0]);
-            integratorAgentManager.getAgent((IAtom)atom1).force().ME(f[1]);
+            integratorAgentManager.getAgent((IAtom)atom0).ME(f[0]);
+            integratorAgentManager.getAgent((IAtom)atom1).ME(f[1]);
         }
     }
 }

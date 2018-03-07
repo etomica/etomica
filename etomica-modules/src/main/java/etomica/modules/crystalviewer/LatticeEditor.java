@@ -16,6 +16,7 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.units.Degree;
 import etomica.units.dimensions.*;
@@ -44,6 +45,7 @@ public class LatticeEditor {
     protected BravaisLattice currentLattice;
     private JPanel panel;
     protected Box box;
+    private BoundaryDeformableLattice boundary;
     protected ISpecies species;
     private DeviceBox[] angleBoxes, sizeBoxes;
     public JPanel anglePanel, sizePanel;
@@ -80,6 +82,7 @@ public class LatticeEditor {
         this.viewer = viewer;
         this.space = _space;
         box = viewer.box;
+        boundary = viewer.boundary;
         species = viewer.species;
         latticeNameHash = new HashMap();
         for (int i=0; i<lattices.length; i++) {
@@ -279,11 +282,7 @@ public class LatticeEditor {
     }
 
     protected void update() {
-        double[]  boxSize = new double[] { size,size,size };
-
-        box.setBoundary(new BoundaryDeformableLattice
-                                             (currentLattice.getPrimitive(),
-                                              boxSize));
+        boundary.updateSize(currentLattice.getPrimitive(), new int[]{size, size, size});
 
         int numAtoms = size*size*size;
         if (currentLattice instanceof BravaisLatticeCrystal) {
@@ -296,18 +295,15 @@ public class LatticeEditor {
     }
 
     protected void changeBox() {
-    	
-    	Box oldBox = box;
-        double[]  boxSize = new double[] { 10.0, 10.0, 10.0 };
 
-    	box = new Box(new BoundaryDeformableLattice
-    			                             (currentLattice.getPrimitive(),
-    			    		                  boxSize), space);
-    	if(oldBox != null) {
-    	    viewer.sim.removeBox(oldBox);
-    	}
-    	viewer.sim.addBox(box);
-    	viewer.displayBox.setBox(box);
+        Box oldBox = box;
+        double[] boxSize = new double[]{10.0, 10.0, 10.0};
+        if (oldBox != null) {
+            viewer.sim.removeBox(oldBox);
+        }
+
+        box = viewer.sim.makeBox(new BoundaryDeformableLattice(currentLattice.getPrimitive(), boxSize));
+        viewer.displayBox.setBox(box);
     }
 
     public JPanel getPanel() {return panel;}

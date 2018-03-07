@@ -195,8 +195,7 @@ public class LjMd3Dv2y {
             return;
         }
         
-        final MeterPotentialEnergy meterEnergyFast = new MeterPotentialEnergy(sim.potentialMasterList);
-        meterEnergyFast.setBox(sim.box);
+        final MeterPotentialEnergy meterEnergyFast = new MeterPotentialEnergy(sim.potentialMasterList, sim.box);
         long bs = steps/(longInterval*nAccBlocks);
 
         double rcMax = 0.494*L;
@@ -457,7 +456,7 @@ public class LjMd3Dv2y {
 
         if (nCutoffsLS > 0) {
             AtomPair selfPair = new AtomPair();
-            selfPair.atom0 = selfPair.atom1 = sim.box.getLeafList().getAtom(0);
+            selfPair.atom0 = selfPair.atom1 = sim.box.getLeafList().get(0);
             double[][] puSelfLRC = pLS.energyVirialCut(selfPair);
             double[][] puSelfLJLRC = null;
             if (pLJLS!=null) puSelfLJLRC = pLJLS.energyVirialCut(selfPair);

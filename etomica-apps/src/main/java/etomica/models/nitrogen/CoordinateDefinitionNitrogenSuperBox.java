@@ -130,7 +130,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
         int counterSpeciesB = 0;
         IMolecule molecule;
         
-        for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
+        for (int iMolecule = 0; iMolecule<moleculeList.size(); iMolecule++) {
             
             int[] ii = indexIterator.next();
             // ii[0] and ii[1] = unit Cell number
@@ -148,11 +148,11 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
             }
             
          	if (inCenterCell) {
-        		molecule = box.getMoleculeList(speciesA).getMolecule(counterSpeciesA);
+        		molecule = box.getMoleculeList(speciesA).get(counterSpeciesA);
         		counterSpeciesA ++;
         		
         	} else {
-        		molecule = box.getMoleculeList(speciesB).getMolecule(counterSpeciesB);
+        		molecule = box.getMoleculeList(speciesB).get(counterSpeciesB);
         		counterSpeciesB ++;
         		
         	}
@@ -208,7 +208,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
                 // new cell
                 iCell++;
                 currentList = new MoleculeArrayList(basisSize);
-                cells[iCell] = new BasisCell(new MoleculeListWrapper(currentList), lattice.getSpace().makeVector());
+                cells[iCell] = new BasisCell(currentList, lattice.getSpace().makeVector());
                 cells[iCell].cellPosition.E(position);
             }
             currentList.add(molecule);
@@ -221,7 +221,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
     
     public void setGammaPositionAndOrientation(IMoleculeList molecules){
     	
-    	for (int i=0; i < molecules.getMoleculeCount() ; i++){
+    	for (int i = 0; i < molecules.size() ; i++){
     		
     		Vector[] orientation = new Vector[3];
     		Vector orientationMol2 = space.makeVector();
@@ -230,22 +230,22 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
     		orientation[1] = space.makeVector();
     		orientation[2] = space.makeVector();
     		
-    		IMolecule molecule = molecules.getMolecule(i);
+    		IMolecule molecule = molecules.get(i);
     		IMolecule molecule2;
     		
     		if(i%2 == 0){
-	    		molecule2 = molecules.getMolecule(i+1);
+	    		molecule2 = molecules.get(i+1);
     		
     		} else {
-    			molecule2 = molecules.getMolecule(i-1);
+    			molecule2 = molecules.get(i-1);
         			
     		}
     		
-    	   	Vector molleafPos0 = molecule.getChildList().getAtom(0).getPosition();
-    	   	Vector molleafPos1 = molecule.getChildList().getAtom(1).getPosition();
+    	   	Vector molleafPos0 = molecule.getChildList().get(0).getPosition();
+    	   	Vector molleafPos1 = molecule.getChildList().get(1).getPosition();
     	 
-    	  	Vector mol2leafPos0 = molecule2.getChildList().getAtom(0).getPosition();
-    	   	Vector mol2leafPos1 = molecule2.getChildList().getAtom(1).getPosition();
+    	  	Vector mol2leafPos0 = molecule2.getChildList().get(0).getPosition();
+    	   	Vector mol2leafPos1 = molecule2.getChildList().get(1).getPosition();
     	   	
     	   	orientation[0].Ev1Mv2(molleafPos1, molleafPos0);
     	    orientation[0].normalize();
@@ -342,16 +342,16 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
     	super.calcU(molecules);
         int j = 3;
         
-        for (int i=0; i < molecules.getMoleculeCount() ; i++){
-        	IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i < molecules.size() ; i++){
+        	IMolecule molecule = molecules.get(i);
         	Vector[] siteOrientation = (Vector[])orientationManager.getAgent(molecule);
         	
 	    	/*
 	    	 * Determine the Orientation of Each Molecule
 	    	 */
 	    	
-	    	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-	    	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+	    	Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+	    	Vector leafPos1 = molecule.getChildList().get(1).getPosition();
 	    	
 	    	/*
 	    	 * Determine u3 and u4 by using Vector Projection
@@ -410,7 +410,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
 			    	}
 		    	}
 	    	}
-	    	j += coordinateDim/molecules.getMoleculeCount();
+	    	j += coordinateDim/molecules.size();
         }
         return u;
      }
@@ -423,21 +423,21 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
      */
     public void initNominalU(IMoleculeList molecules) {
     	
-    	for (int i=0; i < molecules.getMoleculeCount() ; i++){
+    	for (int i = 0; i < molecules.size() ; i++){
     		
     		Vector[] orientation = new Vector[3];
     			
     		orientation[0] = space.makeVector();
     		orientation[1] = space.makeVector();
     		orientation[2] = space.makeVector();
-    		IMolecule molecule = molecules.getMolecule(i);
+    		IMolecule molecule = molecules.get(i);
     		
     	   	/*
     	   	 * Determine the Orientation of Each Molecule Within a basis cell
     	   	 */
     	    	
-    	   	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-    	   	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+    	   	Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+    	   	Vector leafPos1 = molecule.getChildList().get(1).getPosition();
     	 
     	   	orientation[0].Ev1Mv2(leafPos1, leafPos0);
     	    orientation[0].normalize();
@@ -518,9 +518,9 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
     	
         int j=3;
         
-        for (int i=0; i < molecules.getMoleculeCount() ; i++){
+        for (int i = 0; i < molecules.size() ; i++){
         	
-        	IMolecule molecule = molecules.getMolecule(i);
+        	IMolecule molecule = molecules.get(i);
             Vector[] siteOrientation = (Vector[])orientationManager.getAgent(molecule);
 	    	
             Vector rotationAxis = space.makeVector();
@@ -536,8 +536,8 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
 	    	 * c. Use RotationTensor3D to rotate the molecule back to its initial position
 	    	 */
          
-	    	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-	    	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+	    	Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+	    	Vector leafPos1 = molecule.getChildList().get(1).getPosition();
 	    	
 	        /*
 	         * a.
@@ -663,7 +663,7 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
 			        atomGroupAction.actionPerformed(molecule);
 		    	}
 	        }
-	    	j += coordinateDim/molecules.getMoleculeCount();
+	    	j += coordinateDim/molecules.size();
 	    	
         }
         super.setToU(molecules, newU);

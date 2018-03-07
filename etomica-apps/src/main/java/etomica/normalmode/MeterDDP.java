@@ -55,12 +55,11 @@ public class MeterDDP implements IDataSource {
         this.potentialMaster = potentialMaster;
         meterPotential = new MeterPotentialEnergy(potentialMaster);
         this.species = species;
-        pretendBox = new Box(space);
-        sim.addBox(pretendBox);
+        pretendBox = sim.makeBox();
         if (potentialMaster instanceof PotentialMasterList) {
-            pretendBox.getBoundary().getEventManager().removeListener(((PotentialMasterList)potentialMaster).getNbrCellManager(pretendBox));
+            pretendBox.getBoundary().getEventManager().removeListener(((PotentialMasterList) potentialMaster).getNbrCellManager(pretendBox));
         }
-        
+
         work = space.makeVector();
 
         tag = new DataTag();
@@ -95,7 +94,7 @@ public class MeterDDP implements IDataSource {
         meterPotential.setBox(realBox);
         double u = meterPotential.getDataAsScalar();
         
-        int nMolecules = realBox.getMoleculeList().getMoleculeCount();
+        int nMolecules = realBox.getMoleculeList().size();
         double rho = nMolecules / realBox.getBoundary().volume();
         int D = realBox.getBoundary().getBoxSize().getD();
         
@@ -103,7 +102,7 @@ public class MeterDDP implements IDataSource {
 
         IAtomList atoms = realBox.getLeafList();
         IAtomList pretendAtoms = pretendBox.getLeafList();
-        int numAtoms = atoms.getAtomCount();
+        int numAtoms = atoms.size();
         double uLatRho0 = numAtoms*uLatFunction.f(rho);
         double a0 = (u-uLatRho0)/temperature;
         if (a0<0) throw new RuntimeException("oops");
@@ -123,8 +122,8 @@ public class MeterDDP implements IDataSource {
                 if (fac > 2) continue;
 //                System.out.println(i+" "+k+" "+p[i][k]+" "+rScale+" "+fac+" "+((p[i][k]*(vi-v0) + (uLatRhoi-uLatRho0))/(numAtoms*temperature*D)));
                 for (int j=0; j<numAtoms; j++) {
-                    IAtom jRealAtom = atoms.getAtom(j);
-                    Vector pos = pretendAtoms.getAtom(j).getPosition();
+                    IAtom jRealAtom = atoms.get(j);
+                    Vector pos = pretendAtoms.get(j).getPosition();
 //                    if (j==25) System.out.println("hi "+coordinateDefinition.getLatticePosition(jRealAtom)+" "+jRealAtom.getPosition());
                     pos.Ea1Tv1(rScale-fac, coordinateDefinition.getLatticePosition(jRealAtom));
                     pos.PEa1Tv1(+fac, jRealAtom.getPosition());
@@ -165,8 +164,8 @@ public class MeterDDP implements IDataSource {
     protected double constraintEnergy(Box box) {
         p1.setBox(box);
         IAtomList atomList = box.getLeafList();
-        for (int i=0; i<atomList.getAtomCount(); i++) {
-            if (p1.energyi(atomList.getAtom(i)) == Double.POSITIVE_INFINITY) {
+        for (int i = 0; i<atomList.size(); i++) {
+            if (p1.energyi(atomList.get(i)) == Double.POSITIVE_INFINITY) {
                 return Double.POSITIVE_INFINITY;
             }
         }
@@ -259,9 +258,9 @@ public class MeterDDP implements IDataSource {
         pretendBox.setNMolecules(species, realBox.getNMolecules(species));
         IAtomList atoms = realBox.getLeafList();
         IAtomList pretendAtoms = pretendBox.getLeafList();
-        for (int j=0; j<atoms.getAtomCount(); j++) {
-            IAtom jRealAtom = atoms.getAtom(j);
-            Vector pos = pretendAtoms.getAtom(j).getPosition();
+        for (int j = 0; j<atoms.size(); j++) {
+            IAtom jRealAtom = atoms.get(j);
+            Vector pos = pretendAtoms.get(j).getPosition();
             pos.E(coordinateDefinition.getLatticePosition(jRealAtom));
         }
 

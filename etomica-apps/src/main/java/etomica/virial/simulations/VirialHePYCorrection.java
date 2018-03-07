@@ -173,7 +173,7 @@ public class VirialHePYCorrection {
         // Such configurations will not be visited later, precisely because pi is zero.
         double r = 4;
         for (int i=1; i<nPoints; i++) {
-            Vector v = sim.box[1].getLeafList().getAtom(i).getPosition();
+            Vector v = sim.box[1].getLeafList().get(i).getPosition();
             v.setX(0, r*Math.cos(2*(i-1)*Math.PI/(nPoints-1)));
             v.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
         }

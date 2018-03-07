@@ -34,27 +34,28 @@ public class Droplet extends Simulation {
 
     public Droplet(Space _space) {
         super(_space);
+        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         int numAtoms = 2000;
         PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
 
         //controller and integrator
-	    integrator = new IntegratorDroplet(this, potentialMaster, space);
+        integrator = new IntegratorDroplet(this, potentialMaster, box);
         activityIntegrate = new ActivityIntegrate(integrator);
 //        activityIntegrate.setMaxSteps(10);
         getController().addAction(activityIntegrate);
         integrator.setTimeStep(0.2);
         integrator.setTemperature(0);
 
-	    //species and potentials
-	    species = new SpeciesSpheresMono(this, space);
+        //species and potentials
+        species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
         AtomType leafType = species.getLeafType();
-        
+
         p2 = new P2Cohesion(space);
         p2.setEpsilon(1.0);
-        double vol = 4.0/3.0*Math.PI;
-        p2.setDv(vol/numAtoms);
+        double vol = 4.0 / 3.0 * Math.PI;
+        p2.setDv(vol / numAtoms);
         potentialMaster.addPotential(p2, new AtomType[]{leafType, leafType});
 
         p1Smash = new P1Smash(space);
@@ -62,23 +63,20 @@ public class Droplet extends Simulation {
         potentialMaster.addPotential(p1Smash, new AtomType[]{leafType});
 
         //construct box
-	    box = new Box(new BoundaryRectangularNonperiodic(space), space);
-        addBox(box);
         Vector dim = space.makeVector();
-        dim.E(new double[]{4,4,4});
+        dim.E(new double[]{4, 4, 4});
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, numAtoms);
-        integrator.setBox(box);
 
         config = new ConfigurationDroplet(random, space);
         config.initializeCoordinates(box);
-        
+
         meterDeformation = new MeterDeformation(space);
         meterDeformation.setBox(box);
 
         liquidFilter = new AtomFilterLiquid(space, meterDeformation);
         liquidFilter.setCutoff(0.9);
-        
+
         p2.setLiquidFilter(liquidFilter);
     }
     

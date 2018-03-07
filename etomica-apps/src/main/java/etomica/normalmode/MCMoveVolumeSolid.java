@@ -131,7 +131,7 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
         System.out.println(box.getBoundary().getBoxSize());
 
         IAtomList leafList = box.getLeafList();
-        int nAtoms = leafList.getAtomCount();
+        int nAtoms = leafList.size();
         double uLatOld = nAtoms*uLatFunction.f(nAtoms/vOld);
         double uLatNew = nAtoms*uLatFunction.f(nAtoms/vNew);
 
@@ -140,8 +140,8 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
 //        System.out.println("ls "+latticeScale);
 
         Vector boxSize = box.getBoundary().getBoxSize();
-        for (int i=0; i<leafList.getAtomCount(); i++) {
-            IAtom atomi = leafList.getAtom(i);
+        for (int i = 0; i<leafList.size(); i++) {
+            IAtom atomi = leafList.get(i);
             Vector site = coordinateDefinition.getLatticePosition(atomi);
 //            if (i==0) {
 //                System.out.println("lattice 0 "+site);
@@ -165,7 +165,7 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
     }
 
     public double getChi(double temperature) {
-        int nAtoms = box.getLeafList().getAtomCount();
+        int nAtoms = box.getLeafList().size();
         double uLatOld = nAtoms*uLatTruncFunction.f(nAtoms/vOld);
         double uLatNew = nAtoms*uLatTruncFunction.f(nAtoms/vNew);
 
@@ -180,8 +180,8 @@ public class MCMoveVolumeSolid extends MCMoveBoxStep {
         IAtomList leafList = box.getLeafList();
         Vector boxSize = box.getBoundary().getBoxSize();
         latticeScale = 1.0 / latticeScale;
-        for (int i=0; i<leafList.getAtomCount(); i++) {
-            IAtom atomi = leafList.getAtom(i);
+        for (int i = 0; i<leafList.size(); i++) {
+            IAtom atomi = leafList.get(i);
             Vector site = coordinateDefinition.getLatticePosition(atomi);
             dr.E(site);
             dr.TE(boxSize);

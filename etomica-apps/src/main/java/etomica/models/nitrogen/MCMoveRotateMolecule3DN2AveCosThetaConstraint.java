@@ -50,13 +50,13 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
         positionDefinition = new MoleculePositionGeometricCenter(space);
         
         IMoleculeList moleculeList = coordinateDef.getBox().getMoleculeList();
-        numMolecule = moleculeList.getMoleculeCount();
+        numMolecule = moleculeList.size();
         initMolecOrientation = new Vector[numMolecule];
         molAxis = space.makeVector();
         
         for (int i=0; i<numMolecule; i++){
 			initMolecOrientation[i] = space.makeVector();
-			initMolecOrientation[i] = coordinateDef.getMoleculeOrientation(moleculeList.getMolecule(i))[0];
+			initMolecOrientation[i] = coordinateDef.getMoleculeOrientation(moleculeList.get(i))[0];
 		}
         
     }
@@ -64,16 +64,16 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
     public boolean doTrial() {
 //        System.out.println("doTrial MCMoveRotateMolecule called");
         
-        if(box.getMoleculeList().getMoleculeCount()==0) {molecule = null; return false;}
+        if(box.getMoleculeList().size()==0) {molecule = null; return false;}
            
         int iMol = random.nextInt(numMolecule);
-        molecule = coordinateDef.getBox().getMoleculeList().getMolecule(iMol);
+        molecule = coordinateDef.getBox().getMoleculeList().get(iMol);
         
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
         
-        Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-    	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+        Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+    	Vector leafPos1 = molecule.getChildList().get(1).getPosition();
 
     	molAxis.Ev1Mv2(leafPos1, leafPos0);
        	molAxis.normalize();
@@ -121,8 +121,8 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
     
     protected void doTransform() {
         IAtomList childList = molecule.getChildList();
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);
@@ -143,10 +143,10 @@ public class MCMoveRotateMolecule3DN2AveCosThetaConstraint extends MCMoveMolecul
     public void calcAveCosThetaInitial(){
         double totalCosTheta = 0.0;
         for (int i=0; i<numMolecule; i++){
-		    IMolecule molec = coordinateDef.getBox().getMoleculeList().getMolecule(i);
+		    IMolecule molec = coordinateDef.getBox().getMoleculeList().get(i);
 		        
-		    Vector leafPos0 = molec.getChildList().getAtom(0).getPosition();
-		    Vector leafPos1 = molec.getChildList().getAtom(1).getPosition();
+		    Vector leafPos0 = molec.getChildList().get(0).getPosition();
+		    Vector leafPos1 = molec.getChildList().get(1).getPosition();
 
 		    molAxis.Ev1Mv2(leafPos1, leafPos0);
 		    molAxis.normalize();

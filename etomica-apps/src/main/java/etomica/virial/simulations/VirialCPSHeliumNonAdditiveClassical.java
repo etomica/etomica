@@ -184,31 +184,31 @@ public class VirialCPSHeliumNonAdditiveClassical {
         
         IAtomList atoms = sim.box[1].getLeafList();
         if (nPoints == 3) {
-	        for (int i=1;i<atoms.getAtomCount();i++) {
-	        	atoms.getAtom(i).getPosition().setX(0, i*sigmaHSRef);
+	        for (int i = 1; i<atoms.size(); i++) {
+	        	atoms.get(i).getPosition().setX(0, i*sigmaHSRef);
 	        }
         } else if (nPoints == 4) {
 	        
-	        atoms.getAtom(1).getPosition().setX(0, sigmaHSRef);
+	        atoms.get(1).getPosition().setX(0, sigmaHSRef);
 	        
-	        atoms.getAtom(2).getPosition().setX(0, sigmaHSRef);
-	        atoms.getAtom(2).getPosition().setX(1, sigmaHSRef);
+	        atoms.get(2).getPosition().setX(0, sigmaHSRef);
+	        atoms.get(2).getPosition().setX(1, sigmaHSRef);
 	        
-	        atoms.getAtom(3).getPosition().setX(1, sigmaHSRef);
+	        atoms.get(3).getPosition().setX(1, sigmaHSRef);
 	        
         } else if (nPoints == 5) {
         	
-        	atoms.getAtom(1).getPosition().setX(0, sigmaHSRef);
-        	atoms.getAtom(1).getPosition().setX(1, sigmaHSRef);
+        	atoms.get(1).getPosition().setX(0, sigmaHSRef);
+        	atoms.get(1).getPosition().setX(1, sigmaHSRef);
         	
-	        atoms.getAtom(2).getPosition().setX(0, sigmaHSRef);
-	        atoms.getAtom(2).getPosition().setX(1, -sigmaHSRef);
+	        atoms.get(2).getPosition().setX(0, sigmaHSRef);
+	        atoms.get(2).getPosition().setX(1, -sigmaHSRef);
 	        
-	        atoms.getAtom(3).getPosition().setX(0, -sigmaHSRef);
-	        atoms.getAtom(3).getPosition().setX(1, sigmaHSRef);
+	        atoms.get(3).getPosition().setX(0, -sigmaHSRef);
+	        atoms.get(3).getPosition().setX(1, sigmaHSRef);
 	        
-	        atoms.getAtom(4).getPosition().setX(0, -sigmaHSRef);
-	        atoms.getAtom(4).getPosition().setX(1, -sigmaHSRef);
+	        atoms.get(4).getPosition().setX(0, -sigmaHSRef);
+	        atoms.get(4).getPosition().setX(1, -sigmaHSRef);
 	        
         } else {
         	throw new RuntimeException("Wrong number of points");

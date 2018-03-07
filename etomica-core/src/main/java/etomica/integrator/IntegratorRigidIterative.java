@@ -9,14 +9,12 @@ import etomica.action.BoxImposePbc;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterKineticEnergyRigid;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.math.function.Function;
 import etomica.models.water.DipoleSourceWater;
@@ -44,7 +42,7 @@ import etomica.util.Debug;
 import java.awt.*;
 import java.io.Serializable;
 
-public class IntegratorRigidIterative extends IntegratorMD implements AgentSource<IntegratorVelocityVerlet.MyAgent>, SpeciesAgentManager.AgentSource, MoleculeAgentSource {
+public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAgentManager.AgentSource, MoleculeAgentSource {
 
     private static final long serialVersionUID = 2L;
     protected PotentialCalculationTorqueSum torqueSum;
@@ -66,16 +64,16 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
     protected final boolean storeAngularMomentum = false;
 
     protected final Simulation sim;
-    protected AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> leafAgentManager;
+    protected AtomLeafAgentManager<Vector> leafAgentManager;
     protected MoleculeAgentManager moleculeAgentManager;
 
-    public IntegratorRigidIterative(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-        this(sim, potentialMaster, 0.05, 1.0, _space);
+    public IntegratorRigidIterative(Simulation sim, PotentialMaster potentialMaster, Box box) {
+        this(sim, potentialMaster, 0.05, 1.0, box);
     }
     
     public IntegratorRigidIterative(Simulation sim, PotentialMaster potentialMaster,
-                                    double timeStep, double temperature, Space _space) {
-        super(potentialMaster,sim.getRandom(),timeStep,temperature, _space);
+                                    double timeStep, double temperature, Box box) {
+        super(potentialMaster,sim.getRandom(),timeStep,temperature, box);
         this.sim = sim;
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
@@ -99,18 +97,8 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         maxIterations = 20;
         omegaTolerance = 1.e-30;
         meterKE = new MeterKineticEnergyRigid(space, sim);
-    }
 
-    public void setBox(Box box) {
-        if (this.box != null) {
-            // allow agentManager to de-register itself as a BoxListener
-            leafAgentManager.dispose();
-            moleculeAgentManager.dispose();
-            leafAgentManager = null;
-            moleculeAgentManager = null;
-        }
-        super.setBox(box);
-        leafAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box);
+        leafAgentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
         moleculeAgentManager = new MoleculeAgentManager(sim, box, this);
         torqueSum.setAgentManager(leafAgentManager);
         torqueSum.setMoleculeAgentManager(moleculeAgentManager);
@@ -146,26 +134,26 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
                 Vector dr = space.makeVector();
-                dr.Ev1Mv2(pair.getAtom(1).getPosition(), pair.getAtom(0).getPosition());
+                dr.Ev1Mv2(pair.get(1).getPosition(), pair.get(0).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
         }
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             IAtomList children = molecule.getChildList();
             OrientationCalc calcer = (OrientationCalc)typeAgentManager.getAgent(molecule.getType());
             if (calcer == null) {
-                for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
-                    IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
-                    MyAgent agent = leafAgentManager.getAgent(a);
+                for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
+                    IAtomKinetic a = (IAtomKinetic)children.get(iLeaf);
+                    Vector force = leafAgentManager.getAgent(a);
                     Vector r = a.getPosition();
                     Vector v = a.getVelocity();
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                        System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
+                        System.out.println("first "+a+" r="+r+", v="+v+", f="+force);
                     }
-                    v.PEa1Tv1(0.5*timeStep* a.getType().rm(),agent.force);  // p += f(old)*dt/2
+                    v.PEa1Tv1(0.5*timeStep* a.getType().rm(),force);  // p += f(old)*dt/2
                     r.PEa1Tv1(timeStep,v);         // r += p*dt/m
                 }
                 continue;
@@ -271,22 +259,22 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         potentialMaster.calculate(box, allAtoms, torqueSum);
         
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             IAtomList children = molecule.getChildList();
             if (typeAgentManager.getAgent(molecule.getType()) == null) {
                 // unimolecular or at least not rigid
                 //Finish integration step
-                for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
-                    IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
+                for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
+                    IAtomKinetic a = (IAtomKinetic)children.get(iLeaf);
 //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
                     Vector velocity = a.getVelocity();
                     workTensor.Ev1v2(velocity,velocity);
                     workTensor.TE(a.getType().getMass());
                     pressureTensor.PE(workTensor);
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                        System.out.println("second "+a+" v="+velocity+", f="+leafAgentManager.getAgent(a).force);
+                        System.out.println("second "+a+" v="+velocity+", f="+leafAgentManager.getAgent(a));
                     }
-                    velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(),leafAgentManager.getAgent(a).force);  //p += f(new)*dt/2
+                    velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(),leafAgentManager.getAgent(a));  //p += f(new)*dt/2
                     currentKineticEnergy += velocity.squared()* a.getType().getMass();
                 }
                 // skip the rotational stuff
@@ -296,9 +284,9 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
             MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent(molecule);
             //calc torque and linear force
-            for (int i=0; i<children.getAtomCount(); i++) {
-                IAtom atom = children.getAtom(i);
-                Vector atomForce = leafAgentManager.getAgent(atom).force;
+            for (int i = 0; i<children.size(); i++) {
+                IAtom atom = children.get(i);
+                Vector atomForce = leafAgentManager.getAgent(atom);
                 if (atomForce.isZero()) {
                     continue;
                 }
@@ -344,7 +332,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         currentKineticEnergy *= 0.5;
         if (printInterval > 0 && stepCount%printInterval == 0) {
             double PE = meterPE.getDataAsScalar();
-            int moleculeCount = box.getMoleculeList().getMoleculeCount();
+            int moleculeCount = box.getMoleculeList().size();
             double fac = Joule.UNIT.fromSim(1.0/moleculeCount)*Constants.AVOGADRO;
             System.out.println(currentTime+" "+(iterationsTotal/(double)numRigid)+" "+Kelvin.UNIT.fromSim(currentKineticEnergy/moleculeCount/3)+" "
                               +fac*currentKineticEnergy+" "+fac*PE+" "+fac*(PE+currentKineticEnergy));
@@ -366,16 +354,16 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
     public void scaleMomenta() {
         double KE = 0;
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
         int D = 0;
         momentum.E(0);
         double totalMass = 0;
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             IAtomList children = molecule.getChildList();
             if (typeAgentManager.getAgent(molecule.getType()) == null) {
-                for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
-                    IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
+                for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
+                    IAtomKinetic a = (IAtomKinetic)children.get(iLeaf);
                     double mass = a.getType().getMass();
                     momentum.PEa1Tv1(mass, a.getVelocity());
                     totalMass += mass;
@@ -389,13 +377,13 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         }
         momentum.TE(1.0/totalMass);
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             IAtomList children = molecule.getChildList();
             if (typeAgentManager.getAgent(molecule.getType()) == null) {
                 // unimolecular or at least not rigid
                 //Finish integration step
-                for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
-                    IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
+                for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
+                    IAtomKinetic a = (IAtomKinetic)children.get(iLeaf);
 //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
                     Vector velocity = a.getVelocity();
                     velocity.ME(momentum);
@@ -427,13 +415,13 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         currentKineticEnergy = 0.5*KE*scale*scale;
 //        System.out.println("initial KE "+currentKineticEnergy);
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             IAtomList children = molecule.getChildList();
             if (typeAgentManager.getAgent(molecule.getType()) == null) {
                 // unimolecular or at least not rigid
                 //Finish integration step
-                for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
-                    IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
+                for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
+                    IAtomKinetic a = (IAtomKinetic)children.get(iLeaf);
 //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
                     a.getVelocity().TE(scale);
                 }
@@ -454,16 +442,16 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
     public void shiftMomenta() {
         momentum.E(0);
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
         if (nMolecules == 0) return;
         if (nMolecules > 1) {
             double totalMass = 0;
             for (int iLeaf = 0; iLeaf < nMolecules; iLeaf++) {
-                IMolecule m = moleculeList.getMolecule(iLeaf);
+                IMolecule m = moleculeList.get(iLeaf);
                 if (!(m instanceof IMoleculeKinetic)) {
                     IAtomList children = m.getChildList();
-                    for (int i = 0; i < children.getAtomCount(); i++) {
-                        IAtomKinetic a = (IAtomKinetic)children.getAtom(i);
+                    for (int i = 0; i < children.size(); i++) {
+                        IAtomKinetic a = (IAtomKinetic)children.get(i);
                         momentum.PEa1Tv1(a.getType().getMass(), a.getVelocity());
                         totalMass += a.getType().getMass();
                     }
@@ -480,11 +468,11 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             //momentum is now net velocity
             //set net momentum to 0
             for (int iLeaf = 0; iLeaf < nMolecules; iLeaf++) {
-                IMolecule m = moleculeList.getMolecule(iLeaf);
+                IMolecule m = moleculeList.get(iLeaf);
                 if (!(m instanceof IMoleculeKinetic)) {
                     IAtomList children = m.getChildList();
-                    for (int i = 0; i < children.getAtomCount(); i++) {
-                        IAtomKinetic a = (IAtomKinetic)children.getAtom(i);
+                    for (int i = 0; i < children.size(); i++) {
+                        IAtomKinetic a = (IAtomKinetic)children.get(i);
                         double rm = a.getType().rm();
                         if (rm != 0 && rm != Double.POSITIVE_INFINITY) {
                             a.getVelocity().ME(momentum);
@@ -500,11 +488,11 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             if (Debug.ON) {
                 momentum.E(0);
                 for (int iLeaf = 0; iLeaf < nMolecules; iLeaf++) {
-                    IMolecule m = moleculeList.getMolecule(iLeaf);
+                    IMolecule m = moleculeList.get(iLeaf);
                     if (!(m instanceof IMoleculeKinetic)) {
                         IAtomList children = m.getChildList();
-                        for (int i = 0; i < children.getAtomCount(); i++) {
-                            IAtomKinetic a = (IAtomKinetic)children.getAtom(i);
+                        for (int i = 0; i < children.size(); i++) {
+                            IAtomKinetic a = (IAtomKinetic)children.get(i);
                             momentum.PEa1Tv1(a.getType().getMass(), a.getVelocity());
                         }
                         continue;
@@ -526,15 +514,15 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
 
     public void randomizeMomenta() {
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
 //        System.out.println("rerandomize");
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             OrientationCalc calcer = (OrientationCalc)typeAgentManager.getAgent(molecule.getType());
             if (calcer == null) {
                 IAtomList children = molecule.getChildList();
-                for (int i=0; i<children.getAtomCount(); i++) {
-                    super.randomizeMomentum((IAtomKinetic)children.getAtom(i));
+                for (int i = 0; i<children.size(); i++) {
+                    super.randomizeMomentum((IAtomKinetic)children.get(i));
                 }
                 continue;
             }
@@ -622,16 +610,16 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
                 Vector dr = space.makeVector();
-                dr.Ev1Mv2(pair.getAtom(1).getPosition(), pair.getAtom(0).getPosition());
+                dr.Ev1Mv2(pair.get(1).getPosition(), pair.get(0).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
         }
         
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
 
         for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             OrientationCalc calcer = (OrientationCalc)typeAgentManager.getAgent(molecule.getType());
             if (calcer == null) {
                 continue;
@@ -647,7 +635,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         potentialMaster.calculate(box, allAtoms, torqueSum);
 
         for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             if (typeAgentManager.getAgent(molecule.getType()) == null) {
                 continue;
             }
@@ -656,9 +644,9 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
             IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
             //calc angular velocities
             IAtomList children = molecule.getChildList();
-            for (int i=0; i<children.getAtomCount(); i++) {
-                IAtom atom = children.getAtom(i);
-                Vector force = leafAgentManager.getAgent(atom).force;
+            for (int i = 0; i<children.size(); i++) {
+                IAtom atom = children.get(i);
+                Vector force = leafAgentManager.getAgent(atom);
                 if (force.isZero()) {
                     continue;
                 }
@@ -679,16 +667,6 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
     }
 
     public void releaseAgent(Object agent, IMolecule atom) {}
-
-    public Class getAgentClass() {
-        return MyAgent.class;
-    }
-
-    public final IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
-        return new MyAgent(space);
-    }
-
-    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {}
 
     public static class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible, Serializable {  //need public so to use with instanceof
         private static final long serialVersionUID = 1L;
@@ -737,10 +715,9 @@ public class IntegratorRigidIterative extends IntegratorMD implements AgentSourc
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.001;
         int maxIterations = 20;
-        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, space);
+        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, box);
         integrator.printInterval = 10;
         integrator.setMaxIterations(maxIterations);
-        integrator.setBox(box);
         OrientationCalcWater3P calcer = new OrientationCalcWater3P(sim.getSpace());
         integrator.setOrientationCalc(species, calcer);
         integrator.setTemperature(Kelvin.UNIT.toSim(298));

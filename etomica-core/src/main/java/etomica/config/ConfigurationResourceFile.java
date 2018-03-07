@@ -41,10 +41,10 @@ public class ConfigurationResourceFile implements Configuration {
     public void initializeCoordinates(Box box) {
         IAtomList leafList = box.getLeafList();
         try(BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(callingClass.getClassLoader().getResourceAsStream(fileName)))) {
+                    new BufferedReader(new InputStreamReader(callingClass.getResourceAsStream(fileName)))) {
 
-            for(int i = 0; i < leafList.getAtomCount(); i++) {
-                Vector pos = leafList.getAtom(i).getPosition();
+            for(int i = 0; i < leafList.size(); i++) {
+                Vector pos = leafList.get(i).getPosition();
                 pos.E(parseLine(reader.readLine()));
             }
         } catch(IOException e) {

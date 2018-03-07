@@ -43,8 +43,8 @@ public class MeterVirialExternalFieldConfined implements IDataSource, java.io.Se
         IAtomList atoms = box.getLeafList();
         double lowestatom = 0;
         double highestatom = 0;
-        for (int i=1; i<atoms.getAtomCount();i++){
-        	double z = atoms.getAtom(i).getPosition().getX(2);
+        for (int i = 1; i<atoms.size(); i++){
+        	double z = atoms.get(i).getPosition().getX(2);
         	if (z<lowestatom){
         		lowestatom = z;      		
         	}
@@ -77,7 +77,7 @@ public class MeterVirialExternalFieldConfined implements IDataSource, java.io.Se
         	x[n*wallPosition.length+j+1]=l<0 ? 0 : l*v;
 
         }
-        x[n*wallPosition.length]=(atoms.getAtomCount()-1+0.5*(lowestatom-highestatom))*v;
+        x[n*wallPosition.length]=(atoms.size()-1+0.5*(lowestatom-highestatom))*v;
         
         return data;
     }

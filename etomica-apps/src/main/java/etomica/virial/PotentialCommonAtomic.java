@@ -24,7 +24,7 @@ public class PotentialCommonAtomic implements IPotentialAtomic {
     public void setBox(Box box) {
         this.box1 = box;
         pot.setBox(box);
-        int nMolecules = box.getMoleculeList().getMoleculeCount();
+        int nMolecules = box.getMoleculeList().size();
         int nPairs = nMolecules*(nMolecules-1)/2;
         if (pairDone != null && pairDone.length == nPairs && tripletDone != null) return;
         pairDone = new boolean[nPairs];
@@ -43,9 +43,9 @@ public class PotentialCommonAtomic implements IPotentialAtomic {
     public double energy(IAtomList atoms) {
         CoordinatePairSet cPairs = ((BoxCluster)box1).getCPairSet();
         long thisCPairID = cPairs.getID();        
-        int aIndex0 = atoms.getAtom(0).getLeafIndex();
-        int aIndex1 = atoms.getAtom(1).getLeafIndex();
-        int nMolecules = box1.getLeafList().getAtomCount();        
+        int aIndex0 = atoms.get(0).getLeafIndex();
+        int aIndex1 = atoms.get(1).getLeafIndex();
+        int nMolecules = box1.getLeafList().size();
         int thisPairID = (2*nMolecules-aIndex0-1)*aIndex0/2 + (aIndex1-aIndex0-1);
         if (thisCPairID != lastPairID || box1.getIndex() != lastBoxIndex) {
             if (nBody == 2) {
@@ -70,7 +70,7 @@ public class PotentialCommonAtomic implements IPotentialAtomic {
             return uPair[thisPairID];
         }
         else if (nBody == 3) {
-            int aIndex2 = atoms.getAtom(2).getLeafIndex();
+            int aIndex2 = atoms.get(2).getLeafIndex();
             int tripletID = VirialDiagrams.tripletId(aIndex0, aIndex1, aIndex2, nMolecules);            
             if (!tripletDone[tripletID]) {
                 // we haven't seen this pair of molecules before

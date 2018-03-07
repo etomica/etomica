@@ -69,15 +69,15 @@ public class P3Induction implements IPotentialAtomic {
             
             int j = (i+1)%3;
             int k = (i+2)%3;
-            IAtomOriented atomi = (IAtomOriented)atoms.getAtom(i);
+            IAtomOriented atomi = (IAtomOriented)atoms.get(i);
             IOrientation ori = atomi.getOrientation();
-            IAtomOriented atomj = (IAtomOriented)atoms.getAtom(j);
+            IAtomOriented atomj = (IAtomOriented)atoms.get(j);
             IOrientation orj = atomj.getOrientation();
-            IAtomOriented atomk = (IAtomOriented)atoms.getAtom(k);
+            IAtomOriented atomk = (IAtomOriented)atoms.get(k);
             IOrientation ork = atomk.getOrientation();
-            MyAgent agi = paramsManager.get(atoms.getAtom(i).getType());
-            MyAgent agj = paramsManager.get(atoms.getAtom(j).getType());
-            MyAgent agk = paramsManager.get(atoms.getAtom(k).getType());
+            MyAgent agi = paramsManager.get(atoms.get(i).getType());
+            MyAgent agj = paramsManager.get(atoms.get(j).getType());
+            MyAgent agk = paramsManager.get(atoms.get(k).getType());
             for (int ip=0; ip<agi.alpha.length; ip++) {
                 ri.E(atomi.getPosition());
                 ri.PEa1Tv1(agi.polSite[ip].getX(0), ori.getDirection());
@@ -166,17 +166,17 @@ public class P3Induction implements IPotentialAtomic {
         box2.setNMolecules(water4P, 3);
         box2.getBoundary().setBoxSize(space.makeVector(new double[]{10000,10000,10000}));
         IAtomList triplet = box.getLeafList();
-        IAtomOriented atom1 = (IAtomOriented)triplet.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented)triplet.getAtom(1);
-        IAtomOriented atom3 = (IAtomOriented)triplet.getAtom(2);
+        IAtomOriented atom1 = (IAtomOriented)triplet.get(0);
+        IAtomOriented atom2 = (IAtomOriented)triplet.get(1);
+        IAtomOriented atom3 = (IAtomOriented)triplet.get(2);
         AtomPair pair12 = new AtomPair(atom1, atom2);
         AtomPair pair13 = new AtomPair(atom1, atom3);
         AtomPair pair23 = new AtomPair(atom2, atom3);
 
         IMoleculeList moleculeTriplet = box2.getMoleculeList();
-        IMolecule molecule1 = moleculeTriplet.getMolecule(0);
-        IMolecule molecule2 = moleculeTriplet.getMolecule(1);
-        IMolecule molecule3 = moleculeTriplet.getMolecule(2);
+        IMolecule molecule1 = moleculeTriplet.get(0);
+        IMolecule molecule2 = moleculeTriplet.get(1);
+        IMolecule molecule3 = moleculeTriplet.get(2);
         MoleculePair mPair12 = new MoleculePair(molecule1, molecule2);
         MoleculePair mPair13 = new MoleculePair(molecule1, molecule3);
         MoleculePair mPair23 = new MoleculePair(molecule2, molecule3);
@@ -217,8 +217,8 @@ public class P3Induction implements IPotentialAtomic {
             if (i==0) dr2.setX(0, 2*r);
             else dr2.setX(0, r);
             for (int j=0; j<4; j++) {
-                molecule2.getChildList().getAtom(j).getPosition().PE(dr1);
-                molecule3.getChildList().getAtom(j).getPosition().PE(dr2);
+                molecule2.getChildList().get(j).getPosition().PE(dr1);
+                molecule3.getChildList().get(j).getPosition().PE(dr2);
             }
             
             double u2sz = p2sz.energy(pair12) + p2sz.energy(pair13) + p2sz.energy(pair23);

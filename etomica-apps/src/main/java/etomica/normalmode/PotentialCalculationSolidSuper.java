@@ -60,8 +60,8 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
      * Implemented for only 1- and 2-body potentials.
      */
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-        IAtom atom0 = atoms.getAtom(0);
-        IAtom atom1 = atoms.getAtom(1);
+        IAtom atom0 = atoms.get(0);
+        IAtom atom1 = atoms.get(1);
 //        if (atom0.getLeafIndex() >0 || atom1.getLeafIndex() > 1) return;
         energySum += potential.energy(atoms);
 //        int i0 = atoms.getAtom(0).getLeafIndex();
@@ -177,7 +177,7 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
         int D = boundary.getBoxSize().getD();
         double vol = boundary.volume();
         fac1 = 1.0/(D*vol);
-        int N = box.getMoleculeList().getMoleculeCount();
+        int N = box.getMoleculeList().size();
         fac2 = (-1/vol + pHarmonic/temperature)/(D*N-D);
     }
     

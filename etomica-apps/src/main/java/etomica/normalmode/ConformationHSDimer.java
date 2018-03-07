@@ -30,10 +30,10 @@ public class ConformationHSDimer implements IConformationOriented, java.io.Seria
 
     public void initializePositions(IAtomList atomList, IOrientation orientation) {
         Vector orientationDir = orientation.getDirection();
-        IAtom n1 = atomList.getAtom(SpeciesHSDimer.indexAtom1);
+        IAtom n1 = atomList.get(SpeciesHSDimer.indexAtom1);
         n1.getPosition().Ea1Tv1(-0.5*L, orientationDir);
         
-        IAtom n2 = atomList.getAtom(SpeciesHSDimer.indexAtom2);
+        IAtom n2 = atomList.get(SpeciesHSDimer.indexAtom2);
         n2.getPosition().Ea1Tv1(+0.5*L, orientationDir);
     }
 

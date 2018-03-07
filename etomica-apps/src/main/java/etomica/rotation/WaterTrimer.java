@@ -42,18 +42,17 @@ public class WaterTrimer {
         SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
         sim.addSpecies(species);
         box.setNMolecules(species, 3);
-        box.setDensity(0.9/18.0*Constants.AVOGADRO/1E24);
+        box.setDensity(0.9 / 18.0 * Constants.AVOGADRO / 1E24);
         ConfigurationWater3_3P config = new ConfigurationWater3_3P();
 //        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(), space);
         config.initializeCoordinates(box);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{15,15,15}));
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{15, 15, 15}));
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.001;
         int maxIterations = 20;
-        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, space);
+        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, box);
         integrator.printInterval = 1000;
         integrator.setMaxIterations(maxIterations);
-        integrator.setBox(box);
 //        integrator.setIsothermal(true);
         OrientationCalcWater3P calcer = new OrientationCalcWater3P(sim.getSpace());
         integrator.setOrientationCalc(species, calcer);
@@ -66,7 +65,7 @@ public class WaterTrimer {
 
         P2WaterSPCSoft p2Water = new P2WaterSPCSoft(sim.getSpace());
 
-        potentialMaster.addPotential(p2Water, new ISpecies[]{species,species});
+        potentialMaster.addPotential(p2Water, new ISpecies[]{species, species});
 //        WriteConfiguration writeConfig = new WriteConfiguration(space);
 //        writeConfig.setBox(box);
 //        writeConfig.setConfName("water3_3P");
@@ -76,9 +75,9 @@ public class WaterTrimer {
         if (false) {
             ai.setSleepPeriod(2);
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rigid", 1);
-            ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
-            ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
-    
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
+
             MeterEnergy meterE = new MeterEnergy(potentialMaster, box);
             meterE.setKinetic(new MeterKineticEnergyFromIntegrator(integrator));
             meterE.setPotential(new MeterPotentialEnergyFromIntegrator(integrator));

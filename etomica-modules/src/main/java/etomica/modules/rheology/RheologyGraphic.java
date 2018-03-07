@@ -42,7 +42,7 @@ public class RheologyGraphic extends SimulationGraphic {
         final Object bondObject = new Object();
         final ArrayList<Figure> bondList = new ArrayList<Figure>();
         for (int i=0; i<9; i++) {
-            bondList.add((Figure)((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).makeBond(new AtomPair(sim.box.getLeafList().getAtom(i), sim.box.getLeafList().getAtom(i+1)), bondObject));
+            bondList.add((Figure)((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).makeBond(new AtomPair(sim.box.getLeafList().get(i), sim.box.getLeafList().get(i+1)), bondObject));
         }
         
         sliderA = new DeviceSlider(sim.getController());
@@ -102,8 +102,8 @@ public class RheologyGraphic extends SimulationGraphic {
         });
         sliderPolymerLength.setPostAction(new IAction() {
             public void actionPerformed() {
-                for (int i=0; i<sim.box.getLeafList().getAtomCount()-1; i++) {
-                    bondList.add((Figure)((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).makeBond(new AtomPair(sim.box.getLeafList().getAtom(i), sim.box.getLeafList().getAtom(i+1)), bondObject));
+                for (int i = 0; i<sim.box.getLeafList().size()-1; i++) {
+                    bondList.add((Figure)((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).makeBond(new AtomPair(sim.box.getLeafList().get(i), sim.box.getLeafList().get(i+1)), bondObject));
                 }
 
                 getPaintAction(sim.box).actionPerformed();

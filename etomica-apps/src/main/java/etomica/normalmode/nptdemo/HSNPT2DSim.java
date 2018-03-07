@@ -43,13 +43,14 @@ public class HSNPT2DSim extends Simulation {
         double sigma = 1;
 
         double neighborRangeFac = 1.4;
-        potentialMaster.setRange(neighborRangeFac*sigma);
+        potentialMaster.setRange(neighborRangeFac * sigma);
 
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        box = this.makeBox();
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.05);
 
-        potentialMaster.setRange(sigma*1.6);
+        potentialMaster.setRange(sigma * 1.6);
 
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
@@ -60,26 +61,22 @@ public class HSNPT2DSim extends Simulation {
         potential = new P2HardSphere(space, sigma, false);
 
         potentialMaster.addPotential(potential, new AtomType[]{leafType1, leafType1});
-
-        box = new Box(space);
-        addBox(box);
         int nx = 10;
         int ny = 6;
         double rho = 1.0;
-        box.setNMolecules(species1, nx*ny*2);
+        box.setNMolecules(species1, nx * ny * 2);
         double bx = 1;
         double by = Math.sqrt(3);
         double v1 = Math.sqrt(3);
-        double v2 = 2/rho;
-        bx *= nx*Math.sqrt(v2/v1);
-        by *= ny*Math.sqrt(v2/v1);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{bx,by}));
+        double v2 = 2 / rho;
+        bx *= nx * Math.sqrt(v2 / v1);
+        by *= ny * Math.sqrt(v2 / v1);
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{bx, by}));
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
-        
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, new PrimitiveOrthorhombicHexagonal(space, bx/nx), new BasisOrthorhombicHexagonal(), space);
+
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, new PrimitiveOrthorhombicHexagonal(space, bx / nx), new BasisOrthorhombicHexagonal(), space);
         coordinateDefinition.initializeCoordinates(new int[]{nx, ny});
-        integrator.setBox(box);
-        
+
         potentialMaster.getNeighborManager(box).reset();
         integrator.getEventManager().removeListener(potentialMaster.getNeighborManager(box));
     }

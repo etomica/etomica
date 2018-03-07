@@ -181,8 +181,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
         
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPE.setBox(sim.box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         DataProcessor foo = new DataProcessor() {
         
             protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
@@ -190,7 +189,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
             }
         
             protected IData processData(IData inputData) {
-                ((DataDouble)inputData).x /= sim.box.getMoleculeList().getMoleculeCount() * Kelvin.UNIT.toSim(118);
+                ((DataDouble)inputData).x /= sim.box.getMoleculeList().size() * Kelvin.UNIT.toSim(118);
                 return inputData;
             }
         };
@@ -359,7 +358,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
             Cell cell = (Cell)lattice.site(v);
             
             double[] size = lattice.getCellSize();
-            return cell.occupants().getAtomCount() / (size[0]*size[1]*size[2]);
+            return cell.occupants().size() / (size[0]*size[1]*size[2]);
         }
     }
 

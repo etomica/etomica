@@ -43,10 +43,10 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
     protected void neighborSetup() {
 
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nLeaf = moleculeList.getMoleculeCount();
+        int nLeaf = moleculeList.size();
         // reset criteria
         for (int j=0; j<nLeaf; j++) {
-            IMolecule molecule = moleculeList.getMolecule(j);
+            IMolecule molecule = moleculeList.get(j);
             final NeighborCriterionMolecular[] criterion = getCriterion(molecule.getType());
             ((MoleculeNeighborLists)agentManager2Body.getAgent(molecule)).clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
@@ -61,23 +61,23 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
                 if (potentials[i].nBody() != 1) {
                     continue;
                 }
-                moleculeSetSinglet.atom = molecule;
+                moleculeSetSinglet.mol = molecule;
                 ((MoleculePotentialList)agentManager1Body.getAgent(molecule)).setIsInteracting(criteria[i].accept(moleculeSetSinglet),i);
             }
         }
         
         moleculeList = box.getMoleculeList();
-        for (int iMolecule=0; iMolecule<moleculeList.getMoleculeCount()-1; iMolecule++) {
-            IMolecule molecule0 = moleculeList.getMolecule(iMolecule);
-            pair.atom0 = molecule0;
+        for (int iMolecule = 0; iMolecule<moleculeList.size()-1; iMolecule++) {
+            IMolecule molecule0 = moleculeList.get(iMolecule);
+            pair.mol0 = molecule0;
             PotentialArrayMolecular potentialArray = potentialMaster.getRangedPotentials(molecule0.getType());
             IPotentialMolecular[] potentials = potentialArray.getPotentials();
             NeighborCriterionMolecular[] criteria = potentialArray.getCriteria();
 
-            for (int jMolecule=iMolecule+1; jMolecule<moleculeList.getMoleculeCount(); jMolecule++) {
+            for (int jMolecule = iMolecule+1; jMolecule<moleculeList.size(); jMolecule++) {
         
-                IMolecule molecule1 = moleculeList.getMolecule(jMolecule);
-                pair.atom1 = molecule1;
+                IMolecule molecule1 = moleculeList.get(jMolecule);
+                pair.mol1 = molecule1;
                 for (int i = 0; i < potentials.length; i++) {
                     if (potentials[i].nBody() < 2) {
                         continue;
@@ -110,31 +110,31 @@ public class NeighborListManagerSlantyMolecular extends NeighborListManagerMolec
             // nulling out agents for removed atoms.
             agentManager2Body.setAgent(molecule, makeAgent(molecule));
         }
-        pair.atom0 = molecule;
+        pair.mol0 = molecule;
         IMoleculeList moleculeList = box.getMoleculeList();
         PotentialArrayMolecular potentialArray = potentialMaster.getRangedPotentials(molecule.getType());
         IPotentialMolecular[] potentials = potentialArray.getPotentials();
         NeighborCriterionMolecular[] criteria = potentialArray.getCriteria();
-        for (int jMolecule=0; jMolecule<moleculeList.getMoleculeCount(); jMolecule++) {
+        for (int jMolecule = 0; jMolecule<moleculeList.size(); jMolecule++) {
             if (jMolecule == molecule.getIndex()) {
                 continue;
             }
-            IMolecule molecule1 = moleculeList.getMolecule(jMolecule);
+            IMolecule molecule1 = moleculeList.get(jMolecule);
             if (jMolecule < molecule.getIndex()) {
-                pair.atom1 = molecule;
-                pair.atom0 = molecule1;
+                pair.mol1 = molecule;
+                pair.mol0 = molecule1;
             }
             else {
-                pair.atom0 = molecule;
-                pair.atom1 = molecule1;
+                pair.mol0 = molecule;
+                pair.mol1 = molecule1;
             }
             for (int i = 0; i < potentials.length; i++) {
                 if (potentials[i].nBody() < 2) {
                     continue;
                 }
                 if (criteria[i].accept(pair)) {
-                    ((MoleculeNeighborLists)agentManager2Body.getAgent(pair.atom0)).addUpNbr(pair.atom1,i);
-                    ((MoleculeNeighborLists)agentManager2Body.getAgent(pair.atom1)).addDownNbr(pair.atom0,
+                    ((MoleculeNeighborLists)agentManager2Body.getAgent(pair.mol0)).addUpNbr(pair.mol1,i);
+                    ((MoleculeNeighborLists)agentManager2Body.getAgent(pair.mol1)).addDownNbr(pair.mol0,
                             potentialMaster.getRangedPotentials(molecule1.getType()).getPotentialIndex(potentials[i]));
                 }
             }

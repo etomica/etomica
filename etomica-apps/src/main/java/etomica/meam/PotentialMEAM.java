@@ -299,10 +299,10 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		for (int i = 0; i < sum.length; i++) {
     		sum[i] = 0;
 		}
-        IAtom atom0 = atoms.getAtom(0);
+        IAtom atom0 = atoms.get(0);
 		int indexi = atom0.getType().getIndex(); pi = parameters[indexi];
-		for(int j = 1; j < atoms.getAtomCount(); j++) {
-            IAtom atomj = atoms.getAtom(j);
+		for(int j = 1; j < atoms.size(); j++) {
+            IAtom atomj = atoms.get(j);
 			rij.Ev1Mv2(atomj.getPosition(), atom0.getPosition());
 			boundary.nearestImage(rij);
             double r = Math.sqrt(rij.squared());
@@ -316,9 +316,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
              * by any atom k which may be between them.
 			*/
 			double Sij = 1.0;
-			for(int k = 1; k < atoms.getAtomCount(); k++) {
+			for(int k = 1; k < atoms.size(); k++) {
 				if (k == j) continue;
-                IAtom atomk = atoms.getAtom(k);
+                IAtom atomk = atoms.get(k);
 				rik.Ev1Mv2(atomk.getPosition(), atom0.getPosition());
 				boundary.nearestImage(rik);
                 double ik = Math.sqrt(rik.squared());
@@ -534,7 +534,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 
     protected double rhoi(IAtomList atoms) {
     	double rhoi0 = rhoi0(), gamma = gamma();
-		pi = parameters[atoms.getAtom(0).getType().getIndex()];
+		pi = parameters[atoms.get(0).getType().getIndex()];
     	if (pi == pSn) {
     		return (2.0 * rhoi0) / (1.0 + Math.exp(-gamma)); //Sn
     	}
@@ -547,7 +547,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	public double energy(IAtomList atoms) {
 		calcSums(atoms);
 		double rhoi = rhoi(atoms);
-		pi = parameters[atoms.getAtom(0).getType().getIndex()];
+		pi = parameters[atoms.get(0).getType().getIndex()];
 		double F = pi.A * pi.Ec * (rhoi/pi.Z) * Math.log(rhoi/pi.Z);
 		return F + (0.5*sum[PHI]);
 	}
@@ -584,27 +584,27 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	private double calcVirial(IAtomList atoms, Tensor pressureTensor) {
         double virial = 0;
 
-		if (atoms.getAtomCount() > gnEi.length) {
-			gnEi = new Vector[atoms.getAtomCount()];
-			for (int i = 0; i < atoms.getAtomCount(); i++) {
+		if (atoms.size() > gnEi.length) {
+			gnEi = new Vector[atoms.size()];
+			for (int i = 0; i < atoms.size(); i++) {
 				gnEi[i] = space.makeVector();
 			}
 		}
 		else {
-			for (int i = 0; i < atoms.getAtomCount(); i++) {
+			for (int i = 0; i < atoms.size(); i++) {
 			    gnEi[i].E(0);
 			}
 		}
 
 		//check to see if atoms is more than one atom
-		if(atoms.getAtomCount()==1){
+		if(atoms.size()==1){
 		    return 0;
 		}
 
         calcSums(atoms);
 
         if(sum[RHOj0]==0){
-            System.out.println("Returning zero for force: atom "+atoms.getAtom(0));
+            System.out.println("Returning zero for force: atom "+atoms.get(0));
             return 0;
         }
 
@@ -612,7 +612,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
                 rhoi3sq = rhoi3sq(), tav1 = tav1(), tav2 = tav2(), tav3 = tav3(),
                 gamma = gamma(), rhoi = rhoi(atoms);
 
-        IAtom atom0 = atoms.getAtom(0);
+        IAtom atom0 = atoms.get(0);
 		int indexi = atom0.getType().getIndex(); pi = parameters[indexi];
 
 		sumGiPhi.E(0); sumGiRhoj0.E(0); sumGiRhoj2.E(0);
@@ -638,8 +638,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         sumt3GiRhoj0.E(0);
 
 
-        for(int n = 1; n < atoms.getAtomCount(); n++) {
-            IAtom atomn = atoms.getAtom(n);
+        for(int n = 1; n < atoms.size(); n++) {
+            IAtom atomn = atoms.get(n);
             rin.Ev1Mv2(atomn.getPosition(), atom0.getPosition());
             boundary.nearestImage(rin);
             double in = Math.sqrt(rin.squared());
@@ -684,8 +684,8 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     			int indexj = atomn.getType().getIndex(); pj = parameters[indexj];
     			// to calculate Sij, giSij, gjSij
             	double Sij = 1.0; giSij.E(0); gjSij.E(0);
-            	for(int k = 1; k < atoms.getAtomCount(); k++) {
-                    IAtom atomk = atoms.getAtom(k);
+            	for(int k = 1; k < atoms.size(); k++) {
+                    IAtom atomk = atoms.get(k);
             		if (k == n) continue; // continue to next k atom
             		rik.Ev1Mv2(atomk.getPosition(), atom0.getPosition());
             		boundary.nearestImage(rik);
@@ -1143,10 +1143,10 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
              * again.
              */
 
-            for(int j = 1; j < atoms.getAtomCount(); j++) {
+            for(int j = 1; j < atoms.size(); j++) {
             	//The k atom, n, must not be treated as one of the other j atoms.
             	if (j == n) continue; // continue to next j atom
-                IAtom atomj = atoms.getAtom(j);
+                IAtom atomj = atoms.get(j);
         		rij.Ev1Mv2(atomj.getPosition(), atom0.getPosition());
         		boundary.nearestImage(rij);
         		double ij = Math.sqrt(rij.squared());
@@ -1205,9 +1205,9 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
                 // To calculate Sij. l is k != n.
 	        	// We can start Sij out with the value for Sijk (k = n).
 	        	double Sij = Sijk;
-	        	for(int l = 1; l < atoms.getAtomCount(); l++) {
+	        	for(int l = 1; l < atoms.size(); l++) {
 	        		if (l == j || l == n) continue; //already have Sijk for n = k
-                    IAtom atoml = atoms.getAtom(l);
+                    IAtom atoml = atoms.get(l);
 	    			ril.Ev1Mv2(atoml.getPosition(), atom0.getPosition());
 	    			boundary.nearestImage(ril);
 	    			double il = Math.sqrt(ril.squared());
@@ -1546,7 +1546,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		gnEi[0].PEa1Tv1(0.5, sumGiPhi);
 
         if(gnEi[0].isNaN()){
-            throw new RuntimeException("atom " + indexi + "    " + atoms.getAtom(indexi));
+            throw new RuntimeException("atom " + indexi + "    " + atoms.get(indexi));
         }
 
         return virial;

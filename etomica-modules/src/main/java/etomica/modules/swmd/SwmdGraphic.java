@@ -331,7 +331,7 @@ public class SwmdGraphic extends SimulationGraphic {
         IntegratorListenerAction kePumpListener = new IntegratorListenerAction(kePump);
         sim.integrator.getEventManager().addListener(kePumpListener);
         dataStreamPumps.add(kePump);
-        int numAtoms = sim.box.getLeafList().getAtomCount();
+        int numAtoms = sim.box.getLeafList().size();
         energyPumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);
         kePumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);
         pePumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);
@@ -350,8 +350,7 @@ public class SwmdGraphic extends SimulationGraphic {
 		ePlot.setUnit(eUnit);
 		ePlot.setXUnit(Picosecond.UNIT);
 		
-        MeterPressureHard pMeter = new MeterPressureHard(sim.getSpace());
-        pMeter.setIntegrator(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
         final DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator);
         sim.integrator.getEventManager().addListener(pPump);

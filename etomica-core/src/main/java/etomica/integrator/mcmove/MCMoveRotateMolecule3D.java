@@ -41,7 +41,7 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
 	public boolean doTrial() {
 //        System.out.println("doTrial MCMoveRotateMolecule called");
         
-        if(box.getMoleculeList().getMoleculeCount()==0) {molecule = null; return false;}
+        if(box.getMoleculeList().size()==0) {molecule = null; return false;}
             
         molecule = moleculeSource.getMolecule();
         energyMeter.setTarget(molecule);
@@ -62,8 +62,8 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
     
     protected void doTransform() {
         IAtomList childList = molecule.getChildList();
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);

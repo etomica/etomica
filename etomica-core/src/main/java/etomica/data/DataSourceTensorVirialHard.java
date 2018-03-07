@@ -70,7 +70,7 @@ public class DataSourceTensorVirialHard implements IDataSource, IntegratorHard.C
      */
     public Tensor collisionValue(IntegratorHard.Agent agent) {
         data.x.E(agent.collisionPotential.lastCollisionVirialTensor());
-        data.x.TE(1/(double)integratorHard.getBox().getLeafList().getAtomCount());
+        data.x.TE(1/(double)integratorHard.getBox().getLeafList().size());
         return data.x;
     }
 

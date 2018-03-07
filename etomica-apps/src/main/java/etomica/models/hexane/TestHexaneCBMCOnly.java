@@ -66,13 +66,12 @@ public class TestHexaneCBMCOnly extends Simulation {
 
         SpeciesHexane species = new SpeciesHexane(space);
         addSpecies(species);
-        bdry = new BoundaryDeformableLattice(primitive, new int[] {4, 6, 6 });
-        box = new Box(bdry, space);
-        addBox(box);
+        bdry = new BoundaryDeformableLattice(primitive, new int[]{4, 6, 6});
+        box = this.makeBox(bdry);
         box.setNMolecules(species, numMolecules);
         // config.initializeCoordinates(box);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, box);
 
         growMolecule = new CBMCGrowSolidHexane(potentialMaster,
                 getRandom(), space, integrator, box, species, 20);
@@ -165,8 +164,6 @@ public class TestHexaneCBMCOnly extends Simulation {
 
         // Initialize the positions of the atoms.
         config.initializeCoordinates(box);
-
-        integrator.setBox(box);
 
         // nan this will need to be changed
         // pri = new PairIndexerMolecule(box, new PrimitiveHexane(space));

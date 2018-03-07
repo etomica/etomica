@@ -117,7 +117,7 @@ public class HSNPT2DGraphic extends SimulationGraphic {
     }
     
     public void setDisplayDensity(double newDisplayDensity) {
-        double density = sim.box.getMoleculeList().getMoleculeCount() / sim.box.getBoundary().volume();
+        double density = sim.box.getMoleculeList().size() / sim.box.getBoundary().volume();
         double newScale = Math.sqrt(density/newDisplayDensity) * nominalScale;
         DisplayBox unscaledDisplayBox = getDisplayBox(sim.box);
         unscaledDisplayBox.setScale(newScale);
@@ -133,7 +133,7 @@ public class HSNPT2DGraphic extends SimulationGraphic {
     
     public double getDisplayDensity() {
         double scale = getDisplayBox(sim.box).getScale();
-        double density = sim.box.getMoleculeList().getMoleculeCount() / sim.box.getBoundary().volume();
+        double density = sim.box.getMoleculeList().size() / sim.box.getBoundary().volume();
         double s = scale/nominalScale;
         return density /(s*s); 
     }

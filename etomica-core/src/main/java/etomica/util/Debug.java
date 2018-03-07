@@ -109,8 +109,8 @@ public final class Debug {
      * @return true if any of the atoms in the atoms array should be debugged
      */
     public static boolean anyAtom(IAtomList atoms) {
-        for (int i=0; i<atoms.getAtomCount(); i++) {
-            IAtom atom = atoms.getAtom(i);
+        for (int i = 0; i<atoms.size(); i++) {
+            IAtom atom = atoms.get(i);
             if ((atom.getIndex() == ATOM1_INDEX || ATOM1_INDEX == -1) &&
                 atom.getParentGroup().getIndex() == MOLECULE1_INDEX &&
                 atom.getParentGroup().getType().getIndex() == SPECIES1_INDEX) {
@@ -132,8 +132,8 @@ public final class Debug {
      * @return true if any of the atoms in the atoms array should be debugged
      */
     public static boolean anyMolecule(IMoleculeList atoms) {
-        for (int i=0; i<atoms.getMoleculeCount(); i++) {
-            IMolecule molecule = atoms.getMolecule(i);
+        for (int i = 0; i<atoms.size(); i++) {
+            IMolecule molecule = atoms.get(i);
             if (molecule.getIndex() == MOLECULE1_INDEX &&
                 molecule.getType().getIndex() == SPECIES1_INDEX) {
                 return true;
@@ -153,8 +153,8 @@ public final class Debug {
      * @return true if all of the atoms in the atoms array should be debugged
      */
     public static boolean allAtoms(IAtomList atoms) {
-        for (int i=0; i<atoms.getAtomCount(); i++) {
-            IAtom atom = atoms.getAtom(i);
+        for (int i = 0; i<atoms.size(); i++) {
+            IAtom atom = atoms.get(i);
             if (((atom.getIndex() != ATOM1_INDEX && ATOM1_INDEX != -1) ||
                  atom.getParentGroup().getIndex() != MOLECULE1_INDEX ||
                  atom.getParentGroup().getType().getIndex() != SPECIES1_INDEX) &&
@@ -174,8 +174,8 @@ public final class Debug {
      * @return true if all of the atoms in the atoms array should be debugged
      */
     public static boolean allAtoms(IMoleculeList atoms) {
-        for (int i=0; i<atoms.getMoleculeCount(); i++) {
-            IMolecule molecule = atoms.getMolecule(i);
+        for (int i = 0; i<atoms.size(); i++) {
+            IMolecule molecule = atoms.get(i);
             if ((molecule.getIndex() != MOLECULE1_INDEX ||
                  molecule.getType().getIndex() != SPECIES1_INDEX) ||
                 (molecule.getIndex() != MOLECULE2_INDEX ||
@@ -207,13 +207,13 @@ public final class Debug {
         }
         if ((ATOM1_INDEX > -1 && MOLECULE1_INDEX > -1) || (ATOM2_INDEX > -1 && MOLECULE2_INDEX > -1)) {
             IMoleculeList moleculeList = box.getMoleculeList();
-            for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
-                IMolecule molecule = moleculeList.getMolecule(i);
+            for (int i = 0; i<moleculeList.size(); i++) {
+                IMolecule molecule = moleculeList.get(i);
                 if (molecule.getIndex() == MOLECULE1_INDEX && molecule.getType().getIndex() == SPECIES1_INDEX) {
-                    debugPair.atom0 = molecule.getChildList().getAtom(ATOM1_INDEX);
+                    debugPair.atom0 = molecule.getChildList().get(ATOM1_INDEX);
                 }
                 else if (molecule.getIndex() == MOLECULE2_INDEX && molecule.getType().getIndex() == SPECIES2_INDEX) {
-                    debugPair.atom1 = molecule.getChildList().getAtom(ATOM2_INDEX);
+                    debugPair.atom1 = molecule.getChildList().get(ATOM2_INDEX);
                 }
             }
         }
@@ -233,17 +233,17 @@ public final class Debug {
         }
         if (MOLECULE1_INDEX > -1 && MOLECULE2_INDEX > -1) {
             IMoleculeList moleculeList = box.getMoleculeList();
-            for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
-                IMolecule molecule = moleculeList.getMolecule(i);
+            for (int i = 0; i<moleculeList.size(); i++) {
+                IMolecule molecule = moleculeList.get(i);
                 if (molecule.getIndex() == MOLECULE1_INDEX && molecule.getType().getIndex() == SPECIES1_INDEX) {
-                    debugMoleculePair.atom0 = molecule;
+                    debugMoleculePair.mol0 = molecule;
                 }
                 else if (molecule.getIndex() == MOLECULE2_INDEX && molecule.getType().getIndex() == SPECIES2_INDEX) {
-                    debugMoleculePair.atom1 = molecule;
+                    debugMoleculePair.mol1 = molecule;
                 }
             }
         }
-        if (debugMoleculePair.atom0 == null || debugMoleculePair.atom1 == null) return null;
+        if (debugMoleculePair.mol0 == null || debugMoleculePair.mol1 == null) return null;
         return debugMoleculePair;
     }
     
@@ -254,8 +254,8 @@ public final class Debug {
      * with the proper global index.
      */
     public static IAtom getAtomLeaf1(Box box) {
-        if (ATOM1_INDEX > -1 && ATOM1_INDEX < box.getLeafList().getAtomCount()) {
-            return box.getLeafList().getAtom(ATOM1_INDEX);
+        if (ATOM1_INDEX > -1 && ATOM1_INDEX < box.getLeafList().size()) {
+            return box.getLeafList().get(ATOM1_INDEX);
         }
         return null;
     }

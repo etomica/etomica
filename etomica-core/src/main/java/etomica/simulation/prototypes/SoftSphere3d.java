@@ -17,10 +17,10 @@ import etomica.data.DataSourceCountSteps;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
@@ -50,8 +50,13 @@ public class SoftSphere3d extends Simulation {
 
     public SoftSphere3d(double density, int exponent, double temperature) {
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         potentialMaster = new PotentialMasterMonatomic(this);
-        integrator = new IntegratorMC(this, potentialMaster);
+        box = this.makeBox();
+        integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(temperature);
 
 
@@ -60,12 +65,6 @@ public class SoftSphere3d extends Simulation {
         activityIntegrate.setMaxSteps(10000000);
         getController().addAction(activityIntegrate);
 
-        species = new SpeciesSpheresMono(this, space);
-        //species2 = new SpeciesSpheresMono(this);
-        addSpecies(species);
-        //getSpeciesManager().addSpecies(species2);
-        box = new Box(space);
-        addBox(box);
         box.setNMolecules(species, 108);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
@@ -83,8 +82,6 @@ public class SoftSphere3d extends Simulation {
         //potentialMaster.addPotential(potential, new AtomType[] {type2, type2});
 
         meterCycles = new DataSourceCountSteps(integrator);
-
-        integrator.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
 

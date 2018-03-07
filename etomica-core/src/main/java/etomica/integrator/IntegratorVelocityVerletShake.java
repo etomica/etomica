@@ -6,7 +6,6 @@ package etomica.integrator;
 
 import etomica.atom.*;
 import etomica.box.Box;
-import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.IteratorDirective;
@@ -14,7 +13,6 @@ import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesAgentManager;
@@ -29,13 +27,13 @@ import etomica.util.random.IRandom;
  *
  * @author Andrew Schultz
  */
-public class IntegratorVelocityVerletShake extends IntegratorMD implements SpeciesAgentManager.AgentSource, AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> {
+public class IntegratorVelocityVerletShake extends IntegratorMD implements SpeciesAgentManager.AgentSource {
 
     private static final long serialVersionUID = 2L;
     protected PotentialCalculationForceSum forceSum;;
     protected final IteratorDirective allAtoms;
     protected final SpeciesAgentManager shakeAgentManager;
-    protected AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> agentManager;
+    protected AtomLeafAgentManager<Vector> agentManager;
     protected final Vector dr;
     protected double shakeTol;
     protected int maxIterations;
@@ -44,13 +42,13 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
     protected final Vector temp;
     public int printInterval = 0;
 
-    public IntegratorVelocityVerletShake(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-        this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
+    public IntegratorVelocityVerletShake(Simulation sim, PotentialMaster potentialMaster, Box box) {
+        this(sim, potentialMaster, sim.getRandom(), 0.05, 1.0, box);
     }
     
     public IntegratorVelocityVerletShake(Simulation sim, PotentialMaster potentialMaster, IRandom random,
-                                         double timeStep, double temperature, Space _space) {
-        super(potentialMaster,random,timeStep,temperature, _space);
+                                         double timeStep, double temperature, Box box) {
+        super(potentialMaster,random,timeStep,temperature, box);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
         forceSum = new PotentialCalculationForceSum();
@@ -61,13 +59,15 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         allAtoms.setIncludeLrc(true);
 
         
-        dr = _space.makeVector();
+        dr = space.makeVector();
         shakeAgentManager = new SpeciesAgentManager(this, sim);
         setShakeTolerance(1e-14);
         setMaxIterations(20);
         moved = new boolean[2][0];
         drOld = new Vector[0];
         temp = space.makeVector();
+        agentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
+        forceSum.setAgentManager(agentManager);
     }
     
     public void setForceSum(PotentialCalculationForceSum pc){
@@ -76,16 +76,6 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             forceSum.setAgentManager(agentManager);
         }
         
-    }
-    
-    public void setBox(Box box) {
-        if (this.box != null) {
-            // allow agentManager to de-register itself as a BoxListener
-            agentManager.dispose();
-        }
-        super.setBox(box);
-        agentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box);
-        forceSum.setAgentManager(agentManager);
     }
 
     public void setBondConstraints(ISpecies species, int[][] bondedAtoms, double[] bondLengths) {
@@ -122,8 +112,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         IMoleculeList molecules = box.getMoleculeList();
 
         // SHAKE
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints != null) {
                 IAtomList childList = molecule.getChildList();
@@ -139,25 +129,25 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
                 }
 
                 for (int j=0; j<bondConstraints.bondedAtoms.length; j++) {
-                    IAtom atom0 = childList.getAtom(bondConstraints.bondedAtoms[j][0]);
-                    IAtom atom1 = childList.getAtom(bondConstraints.bondedAtoms[j][1]);
+                    IAtom atom0 = childList.get(bondConstraints.bondedAtoms[j][0]);
+                    IAtom atom1 = childList.get(bondConstraints.bondedAtoms[j][1]);
                     drOld[j].Ev1Mv2(atom1.getPosition(), atom0.getPosition());
                     boundary.nearestImage(drOld[j]);
                 }
             }
             
             IAtomList leafList = molecule.getChildList();
-            int nLeaf = leafList.getAtomCount();
+            int nLeaf = leafList.size();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-                MyAgent agent = agentManager.getAgent(a);
+                IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+                Vector force = agentManager.getAgent(a);
                 Vector r = a.getPosition();
                 Vector v = a.getVelocity();
                 if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                    System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
+                    System.out.println("first "+a+" r="+r+", v="+v+", f="+force);
                 }
                 if (a.getType().getMass() != 0) {
-                    v.PEa1Tv1(0.5*timeStep*a.getType().rm(),agent.force);  // p += f(old)*dt/2
+                    v.PEa1Tv1(0.5*timeStep*a.getType().rm(),force);  // p += f(old)*dt/2
                 }
                 temp.E(r);
                 r.PEa1Tv1(timeStep,v);         // r += p*dt/m
@@ -171,16 +161,16 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             Boundary boundary = box.getBoundary();
             double[] bondLengths = bondConstraints.bondLengths;
 
-            if (childList.getAtomCount() > moved[0].length) {
-                moved = new boolean[2][childList.getAtomCount()];
+            if (childList.size() > moved[0].length) {
+                moved = new boolean[2][childList.size()];
             }
-            for (int j=0; j<childList.getAtomCount(); j++) {
+            for (int j = 0; j<childList.size(); j++) {
                 moved[1][j] = true;
             }
 
             for (int iter = 0; iter<maxIterations; iter++) {
                 boolean success = true;
-                for (int j=0; j<childList.getAtomCount(); j++) {
+                for (int j = 0; j<childList.size(); j++) {
                     moved[0][j] = moved[1][j];
                     moved[1][j] = false;
                 }
@@ -190,8 +180,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
                     if (!moved[0][iAtom1] && !moved[0][iAtom2]) {
                         continue;
                     }
-                    IAtom atom1 = childList.getAtom(iAtom1);
-                    IAtom atom2 = childList.getAtom(iAtom2);
+                    IAtom atom1 = childList.get(iAtom1);
+                    IAtom atom2 = childList.get(iAtom2);
                     dr.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
                     boundary.nearestImage(dr);
 //                    if (i==0) System.out.println(iter+" old dr "+Math.sqrt(dr.squared())+" vs "+bondLengths[j]);
@@ -228,8 +218,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             }
         }
 
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints == null) {
                 continue;
@@ -241,8 +231,8 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         //Compute forces on each atom
         potentialMaster.calculate(box, allAtoms, forceSum);
 
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             BondConstraints bondConstraints = (BondConstraints)shakeAgentManager.getAgent(molecule.getType());
             if (bondConstraints == null) {
                 continue;
@@ -253,9 +243,9 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         currentKineticEnergy = 0;
         //Finish integration step
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
 //            System.out.println("shook "+iLeaf+" "+a.getPosition());
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
             Vector velocity = a.getVelocity();
@@ -263,7 +253,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
             velocity.PE(a.getPosition());
             velocity.TE(1.0/timeStep);
             if (a.getType().getMass() != 0) {
-                velocity.PEa1Tv1(0.5*timeStep*a.getType().rm(),agentManager.getAgent(a).force);  //p += f(new)*dt/2
+                velocity.PEa1Tv1(0.5*timeStep*a.getType().rm(),agentManager.getAgent(a));  //p += f(new)*dt/2
             }
             currentKineticEnergy += a.getType().getMass() * velocity.squared();
         }
@@ -274,7 +264,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         }
         if (printInterval > 0 && stepCount%printInterval == 0) {
             double PE = meterPE.getDataAsScalar();
-            int moleculeCount = box.getMoleculeList().getMoleculeCount();
+            int moleculeCount = box.getMoleculeList().size();
             double fac = Joule.UNIT.fromSim(1.0/moleculeCount)*Constants.AVOGADRO;
             System.out.println(currentTime+" "+Kelvin.UNIT.fromSim(2*currentKineticEnergy/moleculeCount/6)+" "
                               +fac*currentKineticEnergy+" "+fac*PE+" "+fac*(PE+currentKineticEnergy));
@@ -287,12 +277,6 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
         forceSum.reset();
         potentialMaster.calculate(box, allAtoms, forceSum);
     }
-
-    public final IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
-        return new MyAgent(space);
-    }
-    
-    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {}
 
     public final Object makeAgent(ISpecies a) {
         return null;
@@ -313,7 +297,7 @@ public class IntegratorVelocityVerletShake extends IntegratorMD implements Speci
 
         // redistribute forces to constrained atoms
         // do nothing by default, allow subclasses to override
-        public void redistributeForces(IMolecule molecule, AtomLeafAgentManager<MyAgent> agentManager) {}
+        public void redistributeForces(IMolecule molecule, AtomLeafAgentManager<Vector> agentManager) {}
 
         // fix atom positions that may have been omitted from constraints
         // do nothing by default, allow subclasses to override

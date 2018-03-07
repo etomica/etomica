@@ -18,6 +18,7 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Null;
 
@@ -216,12 +217,11 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 	int [] nCells = new int[]{n,n,n};
                 	sim.nm.setNCellNum(n);
                 	
-                	Boundary boundary = new BoundaryRectangularPeriodic(sim.getSpace(), n*sim.L);
-                	sim.box.setBoundary(boundary);
+                	sim.box.getBoundary().setBoxSize(Vector.of(n * sim.L, n * sim.L, n * sim.L));
                 	sim.setNCells(nCells);
                 	sim.coordinateDefinition.initializeCoordinates(nCells);
                 	sim.waveVectorFactory.makeWaveVectors(sim.box);
-                	sim.truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
+                	sim.truncationRadius = sim.boundary.getBoxSize().getX(0) * 0.495;
                 	sim.pTruncated.setTruncationRadius(sim.truncationRadius);
                 	sim.latticeEnergy = sim.meterPE.getDataAsScalar();
                 	                	

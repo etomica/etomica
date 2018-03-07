@@ -58,34 +58,29 @@ public class MeterTargetRPMolecule implements IDataSource {
         this.potentialMaster = potentialMasterSampled;
         this.coordinateDefinition = coordinateDef;
         this.pRotConstraint = pRotConstraint;
-        
+
         meterPotential = new MeterPotentialEnergy(potentialMasterSampled);
         this.species = species;
-        pretendBox = new Box(space);
-        pretendBox.setBoundary(coordinateDef.getBox().getBoundary());
-        
-        sim.addBox(pretendBox);
+        pretendBox = sim.makeBox(coordinateDef.getBox().getBoundary());
         tag = new DataTag();
-        
+
         int numMolec = sim.getBox(0).getNMolecules(species);
-    	initMolecOrientation = new Vector[numMolec][3];
-    	/*
-		 * initializing the initial orientation of the molecule
-		 */
-		for (int i=0; i<numMolec; i++){
-			initMolecOrientation[i] = space.makeVectorArray(3);
-			initMolecOrientation[i] = coordinateDefinition.getMoleculeOrientation(sim.getBox(0).getMoleculeList().getMolecule(i));
-		}
-		
-		Box realBox = coordinateDef.getBox();
-		pretendBox.setBoundary(realBox.getBoundary());
-        pretendBox.setNMolecules(species, realBox.getNMolecules(species));
-        
+        initMolecOrientation = new Vector[numMolec][3];
+        /*
+         * initializing the initial orientation of the molecule
+         */
+        for (int i = 0; i < numMolec; i++) {
+            initMolecOrientation[i] = space.makeVectorArray(3);
+            initMolecOrientation[i] = coordinateDefinition.getMoleculeOrientation(sim.getBox(0).getMoleculeList().get(i));
+        }
+
+        pretendBox.setNMolecules(species, coordinateDef.getBox().getNMolecules(species));
+
         IMoleculeList pretendMolecule = pretendBox.getMoleculeList();
         double[] initU = new double[coordinateDef.getCoordinateDim()];
         coordinateDef.setToU(pretendMolecule, initU);
-        ((PotentialMasterListMolecular)potentialMasterSampled).getNeighborManager(pretendBox).reset();
-		
+        ((PotentialMasterListMolecular) potentialMasterSampled).getNeighborManager(pretendBox).reset();
+
     }
 
 	public IDataInfo getDataInfo() {
@@ -102,7 +97,6 @@ public class MeterTargetRPMolecule implements IDataSource {
         
         double energy = meterPotential.getDataAsScalar();
     
-        pretendBox.setBoundary(realBox.getBoundary());
         pretendBox.setNMolecules(species, realBox.getNMolecules(species));
         
         IMoleculeList molecules = realBox.getMoleculeList();
@@ -122,7 +116,7 @@ public class MeterTargetRPMolecule implements IDataSource {
         		/*
                  * Re-scaling the coordinate deviation
                  */
-          		for (int iMolecule=0; iMolecule<molecules.getMoleculeCount(); iMolecule++){
+          		for (int iMolecule = 0; iMolecule<molecules.size(); iMolecule++){
           			//NOT scaling the translational DOF
           			for(int k=0; k<3; k++){
           				newU[iMolecule*5+k] = u[iMolecule*5+k];

@@ -86,7 +86,7 @@ public class ConfigurationLammps implements Configuration {
             box.setNMolecules(species[i], coords[i].size());
             IMoleculeList m = box.getMoleculeList(species[i]);
             for (int j=0; j<coords[i].size(); j++) {
-                Vector p = m.getMolecule(j).getChildList().getAtom(0).getPosition();
+                Vector p = m.get(j).getChildList().get(0).getPosition();
                 p.Ev1Pv2(coords[i].get(j), shift);
             }
         }

@@ -54,34 +54,30 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
     protected double temperature = 0.0001;
     protected double latticeEnergy;
 
-    public NormalModeAnalysisDisplay3D(Space _space){
+    public NormalModeAnalysisDisplay3D(Space _space) {
         super(_space);
         this.space = _space;
 
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = new Box(space);
-        addBox(box);
-        box.setNMolecules(species, 4*n*n*n);
-
-        L = Math.pow(4.0/density, 1.0/3.0);
+        L = Math.pow(4.0 / density, 1.0 / 3.0);
+        boundary = new BoundaryRectangularPeriodic(space, n * L);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, 4 * n * n * n);
         primitive = new PrimitiveCubic(space, L);
 
         nCells = new int[]{n, n, n};
-        boundary = new BoundaryRectangularPeriodic(space, n*L);
         basis = new BasisCubicFcc();
-        box.setBoundary(boundary);
 
-        Potential2SoftSpherical potential= new P2SoftSphere(space, 1.0, 1.0, 12);
+        Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, 12);
         truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
         pTruncated = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
         AtomType sphereType = species.getLeafType();
 
         PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
         potentialMaster.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
-        meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        meterPE = new MeterPotentialEnergy(potentialMaster, box);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
@@ -95,8 +91,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
 
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
-
-        integrator = new IntegratorHarmonic(random, 0.0001, temperature, space);
+        integrator = new IntegratorHarmonic(random, 0.0001, temperature, box);
 
         integrator.setOmegaSquared(nm.getOmegaSquared(), waveVectorFactory.getCoefficients());
         integrator.setEigenVectors(nm.getEigenvectors());
@@ -114,7 +109,6 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         activityIntegrate.setSleepPeriod(0);
 
         getController().addAction(activityIntegrate);
-        integrator.setBox(box);
 
     }
 

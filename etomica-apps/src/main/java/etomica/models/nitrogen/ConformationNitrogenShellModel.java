@@ -29,19 +29,19 @@ public class ConformationNitrogenShellModel implements IConformation, java.io.Se
 
 	public void initializePositions(IAtomList atomList) {
 		
-		IAtom n1 = atomList.getAtom(SpeciesN2ShellModel.indexN1);
+		IAtom n1 = atomList.get(SpeciesN2ShellModel.indexN1);
 		n1.getPosition().E(new double[] {-bondOrigN, 0, 0});
 		
-		IAtom n2 = atomList.getAtom(SpeciesN2ShellModel.indexN2);
+		IAtom n2 = atomList.get(SpeciesN2ShellModel.indexN2);
 		n2.getPosition().E(new double[] {bondOrigN, 0, 0});
 			
-		IAtom center = atomList.getAtom(SpeciesN2ShellModel.indexCenter);
+		IAtom center = atomList.get(SpeciesN2ShellModel.indexCenter);
 		center.getPosition().E(new double[] {0, 0, 0});
 		
-		IAtom p1Left = atomList.getAtom(SpeciesN2ShellModel.indexP1left);
+		IAtom p1Left = atomList.get(SpeciesN2ShellModel.indexP1left);
 		p1Left.getPosition().E(new double[] {-bondOrigP, 0, 0});
 		
-		IAtom p1Right = atomList.getAtom(SpeciesN2ShellModel.indexP1right);
+		IAtom p1Right = atomList.get(SpeciesN2ShellModel.indexP1right);
 		p1Right.getPosition().E(new double[] {bondOrigP, 0, 0});
 		
 	}

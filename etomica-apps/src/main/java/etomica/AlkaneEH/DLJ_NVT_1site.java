@@ -73,65 +73,63 @@ public class DLJ_NVT_1site extends Simulation {
 
 	//************************************* constructor ********************************************//
     public DLJ_NVT_1site(Space space, int numberMolecules, final double sigmaLJ, double epsilonLJ, double mu,
-                         double dielectricOutside, double boxSize, double temperature, double truncation){
+                         double dielectricOutside, double boxSize, double temperature, double truncation) {
         super(space);
         //setRandom(new RandomNumberGenerator(1));
         species = new SpeciesSpheresRotating(space, new ElementSimple("A"));
         addSpecies(species);
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numberMolecules);
-		box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize,boxSize,boxSize}));
+        box = this.makeBox();
+        box.setNMolecules(species, numberMolecules);
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize, boxSize, boxSize}));
 
-		IMoleculePositionDefinition positionDefinition = new IMoleculePositionDefinition() {
-			public Vector position(IMolecule molecule) {
-				return molecule.getChildList().getAtom(0).getPosition();
-			}
-		};
+        IMoleculePositionDefinition positionDefinition = new IMoleculePositionDefinition() {
+            public Vector position(IMolecule molecule) {
+                return molecule.getChildList().get(0).getPosition();
+            }
+        };
 
-		// dipolar LJ potential
-		P2LJDipole pDLJ = new P2LJDipole(space,sigmaLJ,epsilonLJ,mu, truncation);
-		// add reaction field potential
-		DipoleSourceDLJ dipoleSourceDLJ = new DipoleSourceDLJ(space,mu);// add reaction field potential
+        // dipolar LJ potential
+        P2LJDipole pDLJ = new P2LJDipole(space, sigmaLJ, epsilonLJ, mu, truncation);
+        // add reaction field potential
+        DipoleSourceDLJ dipoleSourceDLJ = new DipoleSourceDLJ(space, mu);// add reaction field potential
         P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space, positionDefinition);
         pRF.setDipoleSource(dipoleSourceDLJ);
         pRF.setRange(truncation);
         pRF.setDielectric(dielectricOutside);
 
-    	potentialMaster = new PotentialMaster();
-    	//add truncated potential to potential master
-    	P2MoleculeTruncated p2TruncatedDLJ = new P2MoleculeTruncated(pDLJ, truncation, space, positionDefinition);/////???????????//
-    	P2MoleculeTruncated p2TruncatedRF = new P2MoleculeTruncated(pRF, truncation, space,positionDefinition);/////???????????//
+        potentialMaster = new PotentialMaster();
+        //add truncated potential to potential master
+        P2MoleculeTruncated p2TruncatedDLJ = new P2MoleculeTruncated(pDLJ, truncation, space, positionDefinition);/////???????????//
+        P2MoleculeTruncated p2TruncatedRF = new P2MoleculeTruncated(pRF, truncation, space, positionDefinition);/////???????????//
 
-    	potentialMaster.addPotential(p2TruncatedDLJ, new ISpecies[] {species,species});//u(LJ)+u(dd)
-        potentialMaster.addPotential(p2TruncatedRF, new ISpecies[] {species,species});
+        potentialMaster.addPotential(p2TruncatedDLJ, new ISpecies[]{species, species});//u(LJ)+u(dd)
+        potentialMaster.addPotential(p2TruncatedRF, new ISpecies[]{species, species});
         potentialMaster.lrcMaster().addPotential(pRF.makeP0());
 
         // integrator from potential master
-		integrator = new IntegratorMC(this, potentialMaster);
+        integrator = new IntegratorMC(this, potentialMaster, box);
         // add mc move
-        moveMolecule = new MCMoveMolecule(this, potentialMaster,space);//stepSize:1.0, stepSizeMax:15.0  ??????????????
-        rotateMolecule = new MCMoveRotate(potentialMaster,random,space);
+        moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0  ??????????????
+        rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
 
-		activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setMaxSteps(10000000);////???????????
-		getController().addAction(activityIntegrate);
+        getController().addAction(activityIntegrate);
 
-		//******************************** periodic boundary condition ******************************** //
-		BoxImposePbc imposePbc = new BoxImposePbc(box, space);
-		imposePbc.setApplyToMolecules(true);
-		//**************************** integrator ****************************** //
-		integrator.setTemperature(temperature);
-	    integrator.setBox(box);
+        //******************************** periodic boundary condition ******************************** //
+        BoxImposePbc imposePbc = new BoxImposePbc(box, space);
+        imposePbc.setApplyToMolecules(true);
+        //**************************** integrator ****************************** //
+        integrator.setTemperature(temperature);
         integrator.getMoveManager().addMCMove(moveMolecule);
         integrator.getMoveManager().addMCMove(rotateMolecule);
-		integrator.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
+        integrator.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
 
-		//******************************** initial configuration ******************************** //
-		LatticeCubicBcc lattice = new LatticeCubicBcc(space);
-		ConfigurationLattice configuration = new ConfigurationLattice(lattice, space);
-		configuration.initializeCoordinates(box);
-	}
+        //******************************** initial configuration ******************************** //
+        LatticeCubicBcc lattice = new LatticeCubicBcc(space);
+        ConfigurationLattice configuration = new ConfigurationLattice(lattice, space);
+        configuration.initializeCoordinates(box);
+    }
 
     // **************************** simulation part **************************** //
 	public static void main (String[] args){
@@ -284,10 +282,10 @@ public class DLJ_NVT_1site extends Simulation {
 //    	}
         public Vector getDipole(IMolecule molecule) {
             IAtomList atomList = molecule.getChildList();
-            if (atomList.getAtomCount() != 1) {
+            if (atomList.size() != 1) {
                 throw new RuntimeException("improper input of the molecule");
             }
-            IAtomOriented atom = (IAtomOriented) atomList.getAtom(0);
+            IAtomOriented atom = (IAtomOriented) atomList.get(0);
             dipoleVector.E(atom.getOrientation().getDirection());
             dipoleVector.TE(dipoleStrength);
             return dipoleVector;

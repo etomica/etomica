@@ -47,25 +47,23 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
     public FreeRadicalPolymerizationSim(Space space) {
         super(space);
         potentialMaster = new PotentialMasterList(this, 3, space);
-        ((PotentialMasterList)potentialMaster).setCellRange(1);
+        ((PotentialMasterList) potentialMaster).setCellRange(1);
 
         controller1 = getController();
 
         double diameter = 1.0;
         double lambda = 2.0;
 
-        integratorHard = new IntegratorHard(this, potentialMaster, space);
+        integratorHard = new IntegratorHard(this, potentialMaster, box);
         integratorHard.setIsothermal(true);
         integratorHard.setTemperature(Kelvin.UNIT.toSim(300));
         integratorHard.setTimeStep(0.002);
         integratorHard.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integratorHard.setThermostatInterval(1);
 
-        box = new Box(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20), space);
-        addBox(box);
-        integratorHard.setBox(box);
-        integratorHard.getEventManager().addListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
-        
+        box = this.makeBox(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20));
+        integratorHard.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box));
+
         speciesA = new SpeciesSpheresMono(this, space);
         speciesA.setIsDynamic(true);
         speciesB = new SpeciesSpheresMono(this, space);
@@ -78,36 +76,36 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         config.setSpecies(speciesA, speciesB);
         config.initializeCoordinates(box);
 
-        agentManager = new AtomLeafAgentManager<IAtom[]>(this,box);
+        agentManager = new AtomLeafAgentManager<IAtom[]>(this, box);
         resetBonds();
 
-		//potentials
+        //potentials
         p2AA = new P2SquareWellBonded(space, agentManager, diameter / lambda, lambda, 0);
-		p2AB = new P2SquareWellRadical(space, agentManager, diameter / lambda, lambda, 0.0, random);
+        p2AB = new P2SquareWellRadical(space, agentManager, diameter / lambda, lambda, 0.0, random);
         p2BB = new P2SquareWellRadical(space, agentManager, diameter / lambda, lambda, 0.0, random);
 
-		potentialMaster.addPotential(p2AA,
+        potentialMaster.addPotential(p2AA,
                 new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
         potentialMaster.addPotential(p2AB,
                 new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
         potentialMaster.addPotential(p2BB,
                 new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
 
-		// **** Setting Up the thermometer Meter *****
-		
-		activityIntegrate = new ActivityIntegrate(integratorHard, 1, true);
-		getController().addAction(activityIntegrate);
-	}
+        // **** Setting Up the thermometer Meter *****
+
+        activityIntegrate = new ActivityIntegrate(integratorHard, 1, true);
+        getController().addAction(activityIntegrate);
+    }
     
     public void resetBonds() {
         
         IMoleculeList initiators = box.getMoleculeList(speciesA);
-        for (int i=0; i<initiators.getMoleculeCount(); i++) {
-            IAtom initiator0 = initiators.getMolecule(i).getChildList().getAtom(0);
+        for (int i = 0; i<initiators.size(); i++) {
+            IAtom initiator0 = initiators.get(i).getChildList().get(0);
             IAtom[] bonds0 = agentManager.getAgent(initiator0);
-            if (i<initiators.getMoleculeCount()-1) {
+            if (i<initiators.size()-1) {
                 i++;
-                IAtom initiator1 = initiators.getMolecule(i).getChildList().getAtom(0);
+                IAtom initiator1 = initiators.get(i).getChildList().get(0);
                 IAtom[] bonds1 = agentManager.getAgent(initiator1);
                 bonds0[0] = initiator1;
                 bonds1[0] = initiator0;
@@ -118,8 +116,8 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         }
         
         IMoleculeList monomers = box.getMoleculeList(speciesB);
-        for (int i=0; i<monomers.getMoleculeCount(); i++) {
-            IAtom[] bonds = agentManager.getAgent(monomers.getMolecule(i).getChildList().getAtom(0));
+        for (int i = 0; i<monomers.size(); i++) {
+            IAtom[] bonds = agentManager.getAgent(monomers.get(i).getChildList().get(0));
             bonds[0] = null;
             bonds[1] = null;
         }

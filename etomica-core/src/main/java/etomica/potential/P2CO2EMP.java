@@ -46,12 +46,12 @@ public class P2CO2EMP extends PotentialMolecular {
 
     public double energy(IMoleculeList pair){
 
-		IMolecule m1 = pair.getMolecule(0);
-		IMolecule m2 = pair.getMolecule(1);
+		IMolecule m1 = pair.get(0);
+		IMolecule m2 = pair.get(1);
 		
 		//compute C-C distance to consider truncation	
-        Vector C1r = (m1.getChildList().getAtom(0)).getPosition();
-        Vector C2r = (m2.getChildList().getAtom(0)).getPosition();
+        Vector C1r = (m1.getChildList().get(0)).getPosition();
+        Vector C2r = (m2.getChildList().get(0)).getPosition();
 
 		work.Ev1Mv2(C1r, C2r);
         shift.Ea1Tv1(-1,work);
@@ -67,10 +67,10 @@ public class P2CO2EMP extends PotentialMolecular {
 		double s6 = s2*s2*s2;
 		sum += 4*epsilonC*s6*(s6 - 1.0);
 		
-        Vector O11r = (m1.getChildList().getAtom(1)).getPosition();
-        Vector O12r = (m1.getChildList().getAtom(2)).getPosition();
-        Vector O21r = (m2.getChildList().getAtom(1)).getPosition();
-        Vector O22r = (m2.getChildList().getAtom(2)).getPosition();
+        Vector O11r = (m1.getChildList().get(1)).getPosition();
+        Vector O12r = (m1.getChildList().get(2)).getPosition();
+        Vector O21r = (m2.getChildList().get(1)).getPosition();
+        Vector O22r = (m2.getChildList().get(2)).getPosition();
 
         if (zeroShift) {
             r2 = C1r.Mv1Squared(O21r);

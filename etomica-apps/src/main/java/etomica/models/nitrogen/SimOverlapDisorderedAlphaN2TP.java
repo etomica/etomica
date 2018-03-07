@@ -48,78 +48,72 @@ public class SimOverlapDisorderedAlphaN2TP extends Simulation {
     		double[] alpha, int numAlpha, double alphaSpan, long numSteps, boolean isBeta, boolean isBetaHCP, double rcScale) {
         super(space);
 
-        int nC = (int)Math.pow(numMolecules/3.999999999, 1.0/3.0);
-		double a = Math.pow(4.0/density, 1.0/3.0);
-		System.out.println("Unit Cell Length, a: " + a);
-        
-		Basis basisFCC = new BasisCubicFcc();
-		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nC, nC, nC});
-		
-		Species species = new SpeciesN2(space);
-		addSpecies(species);
+        int nC = (int) Math.pow(numMolecules / 3.999999999, 1.0 / 3.0);
+        double a = Math.pow(4.0 / density, 1.0 / 3.0);
+        System.out.println("Unit Cell Length, a: " + a);
 
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecules);
-        
-		int[] nCells = new int[]{1,1,1};
-		Boundary boundary = new BoundaryRectangularPeriodic(space, nC*a);
-		Primitive primitive = new PrimitiveCubic(space, nC*a);
-		
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsAlpha();
-		coordinateDef.setOrientationVectorAlpha(space);
-		coordinateDef.initializeCoordinates(nCells);
-		
-        box.setBoundary(boundary);
+        Basis basisFCC = new BasisCubicFcc();
+        Basis basis = new BasisBigCell(space, basisFCC, new int[]{nC, nC, nC});
 
-		double rc =box.getBoundary().getBoxSize().getX(0)*rcScale;
-		System.out.println("Truncation Radius (" + rcScale +" Box Length): " + rc);
-		P2Nitrogen potential = new P2Nitrogen(space, rc);
-		potential.setBox(box);
-			
-		//potentialMaster = new PotentialMaster();
-		potentialMaster = new PotentialMasterListMolecular(this, space);
-	    potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-	
-	    int cellRange = 6;
+        Species species = new SpeciesN2(space);
+        addSpecies(species);
+
+        Boundary boundary = new BoundaryRectangularPeriodic(space, nC * a);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numMolecules);
+
+        int[] nCells = new int[]{1, 1, 1};
+        Primitive primitive = new PrimitiveCubic(space, nC * a);
+
+        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        coordinateDef.setIsAlpha();
+        coordinateDef.setOrientationVectorAlpha(space);
+        coordinateDef.initializeCoordinates(nCells);
+
+        double rc = box.getBoundary().getBoxSize().getX(0) * rcScale;
+        System.out.println("Truncation Radius (" + rcScale + " Box Length): " + rc);
+        P2Nitrogen potential = new P2Nitrogen(space, rc);
+        potential.setBox(box);
+
+        //potentialMaster = new PotentialMaster();
+        potentialMaster = new PotentialMasterListMolecular(this, space);
+        potentialMaster.addPotential(potential, new ISpecies[]{species, species});
+
+        int cellRange = 6;
         potentialMaster.setRange(rc);
-        potentialMaster.setCellRange(cellRange); 
+        potentialMaster.setCellRange(cellRange);
         potentialMaster.getNeighborManager(box).reset();
         potential.setRange(Double.POSITIVE_INFINITY);
-        
+
 //        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
 //        if (potentialCells < cellRange*2+1) {
 //            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
 //        }
-        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
+        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().get(0))[0].size();
         System.out.println("numNeigh: " + numNeigh);
 
-		move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
-		move.setBox(box);
-		move.setPotential(potential);
-		move.setDoExcludeNonNeighbors(true);
-		//move.setStepSize(Kelvin.UNIT.toSim(temperature));
-		//((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
-		
-		integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature));
-		integrator.getMoveManager().addMCMove(move);
-		if(isBetaHCP){
-			rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
-			rotate.setBox(box);
-			integrator.getMoveManager().addMCMove(rotate);
-		}
-		integrator.setBox(box);
-		
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        move = new MCMoveMoleculeCoupled(potentialMaster, getRandom(), space);
+        move.setBox(box);
+        move.setPotential(potential);
+        move.setDoExcludeNonNeighbors(true);
+        //move.setStepSize(Kelvin.UNIT.toSim(temperature));
+        //((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
+
+        integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature), box);
+        integrator.getMoveManager().addMCMove(move);
+        if (isBetaHCP) {
+            rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
+            rotate.setBox(box);
+            integrator.getMoveManager().addMCMove(rotate);
+        }
+
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         latticeEnergy = meterPE.getDataAsScalar();
-        System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy/numMolecules);
+        System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy / numMolecules);
         System.out.println("lattice energy (sim unit): " + latticeEnergy);
 
-    	potential.setRange(rc);
-        meter = new MeterTargetTPMolecule(potentialMaster, species, space, this);
-        meter.setCoordinateDefinition(coordinateDef);
+        potential.setRange(rc);
+        meter = new MeterTargetTPMolecule(potentialMaster, species, this, coordinateDef);
         meter.setLatticeEnergy(latticeEnergy);
         meter.setBetaPhase(true);
         meter.setTemperature(Kelvin.UNIT.toSim(temperature));
@@ -128,24 +122,23 @@ public class SimOverlapDisorderedAlphaN2TP extends Simulation {
         meter.setAlphaSpan(alphaSpan);
         meter.setNumAlpha(numAlpha);
         potential.setRange(Double.POSITIVE_INFINITY);
-        
+
         int numBlocks = 100;
         int interval = numMolecules;
-        long blockSize = numSteps/(numBlocks*interval);
+        long blockSize = numSteps / (numBlocks * interval);
         if (blockSize == 0) blockSize = 1;
-        System.out.println("block size "+blockSize+" interval "+interval);
+        System.out.println("block size " + blockSize + " interval " + interval);
         if (otherTemperatures.length > 1) {
             accumulator = new AccumulatorAverageCovariance(blockSize);
-        }
-        else {
+        } else {
             accumulator = new AccumulatorAverageFixed(blockSize);
         }
         accumulatorPump = new DataPumpListener(meter, accumulator, numMolecules);
         integrator.getEventManager().addListener(accumulatorPump);
-       
+
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-     
+
     }
     
     public void initialize(long initSteps) {

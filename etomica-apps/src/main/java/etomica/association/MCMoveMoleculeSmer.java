@@ -61,7 +61,7 @@ public class MCMoveMoleculeSmer extends MCMoveMolecule {
         uOld = energyMeter.getDataAsScalar();
         if(uOld > 1e8) {
         	//PotentialCalculationEnergySum.dodebug = true;
-        	System.out.println("molecule "+molecule+" bondList "+bondList.getMolecule(0));
+        	System.out.println("molecule "+molecule+" bondList "+bondList.get(0));
         	energyMeter.getDataAsScalar();
             throw new RuntimeException("molecule "+molecule+" in box "+box+" has an overlap");
         }
@@ -76,14 +76,14 @@ public class MCMoveMoleculeSmer extends MCMoveMolecule {
     		return 0;
     	}
 		IMoleculeList newBondList = associationManager.getAssociatedMolecules(molecule);
-		if (bondList.getMoleculeCount() != newBondList.getMoleculeCount()){
+		if (bondList.size() != newBondList.size()){
 			return 0;
 		}
-		for (int i = 0; i < bondList.getMoleculeCount(); i+=1){
-			IMolecule b = bondList.getMolecule(i);
+		for (int i = 0; i < bondList.size(); i+=1){
+			IMolecule b = bondList.get(i);
 			boolean success = false;
-			for (int j = 0; j<newBondList.getMoleculeCount(); j+=1){
-				if (b == newBondList.getMolecule(j)){
+			for (int j = 0; j<newBondList.size(); j+=1){
+				if (b == newBondList.get(j)){
 					success = true;//to check all the atoms in the bondList are still associating
 					break;
 				}

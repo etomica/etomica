@@ -22,16 +22,16 @@ public class ConformationWater3P implements IConformation {
     
     public void initializePositions(IAtomList list){
         
-        IAtom o = list.getAtom(2);
+        IAtom o = list.get(2);
         o.getPosition().E(new double[] {0, 0, 0.0});
 
         double x = bondLengthOH*Math.sin(0.5*angleHOH);
         double y = bondLengthOH*Math.cos(0.5*angleHOH);
         
-        IAtom h1 = list.getAtom(0);
+        IAtom h1 = list.get(0);
         h1.getPosition().E(new double[] {-x, y, 0.0});
                 
-        IAtom h2 = list.getAtom(1);
+        IAtom h2 = list.get(1);
         h2.getPosition().E(new double[] {+x, y, 0.0});
     }
     

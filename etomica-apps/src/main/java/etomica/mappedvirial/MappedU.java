@@ -49,8 +49,7 @@ public class MappedU extends Simulation {
         addSpecies(species);
 
         //construct box
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
 
         BoxInflate inflater = new BoxInflate(box, space);
@@ -61,7 +60,7 @@ public class MappedU extends Simulation {
         potentialMaster.lrcMaster().setEnabled(false);
 
         //controller and integrator
-        integrator = new IntegratorMC(potentialMaster, random, temperature);
+        integrator = new IntegratorMC(potentialMaster, random, temperature, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         move = new MCMoveAtom(random, potentialMaster, space);
@@ -72,7 +71,6 @@ public class MappedU extends Simulation {
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
-        integrator.setBox(box);
         potentialMaster.setCellRange(2);
 
         potentialMaster.getNbrCellManager(box).assignCellAll();
@@ -186,8 +184,7 @@ public class MappedU extends Simulation {
 
 
         if (computeU){
-            final MeterPotentialEnergy meterU = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
-            meterU.setBox(sim.box);
+            final MeterPotentialEnergy meterU = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
             accU = new AccumulatorAverageFixed(samplesPerBlock);
             DataPumpListener pumpU = new DataPumpListener(meterU, accU, numAtoms);
             if (computeU) sim.integrator.getEventManager().addListener(pumpU);

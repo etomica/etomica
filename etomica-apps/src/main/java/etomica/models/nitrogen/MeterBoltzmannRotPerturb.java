@@ -29,22 +29,20 @@ public class MeterBoltzmannRotPerturb implements IDataSource {
     public MeterBoltzmannRotPerturb(IntegratorMC integrator, PotentialMaster potentialMaster, ISpecies species,
                                     Space space, Simulation sim, CoordinateDefinitionNitrogen coordinateDef) {
         this.primaryCoordDef = coordinateDef;
-        
+
         Box realBox = coordinateDef.getBox();
-        secondaryBox = new Box(space);
-        sim.addBox(secondaryBox);
-       
+        secondaryBox = sim.makeBox(realBox.getBoundary());
+
         secondaryBox.setNMolecules(species, realBox.getNMolecules(species));
-        secondaryBox.setBoundary(realBox.getBoundary());
-     
+
         secondaryCoordDef = new CoordinateDefinitionNitrogen(sim, secondaryBox, coordinateDef.getPrimitive(), coordinateDef.getBasis(), space);
         secondaryCoordDef.setIsBeta();
         secondaryCoordDef.setOrientationVectorBeta(space);
-        secondaryCoordDef.initializeCoordinates(new int[]{1,1,1});
-        
+        secondaryCoordDef.initializeCoordinates(new int[]{1, 1, 1});
+
         meterPotentialMeasured = new MeterPotentialEnergy(potentialMaster);
         meterPotentialSampled = new MeterPotentialEnergyFromIntegrator(integrator);
-      
+
         data = new DataDoubleArray(2);
         dataInfo = new DataInfoDoubleArray("Scaled Energies", Null.DIMENSION, new int[]{2});
         data.getData()[0] = 1.0;

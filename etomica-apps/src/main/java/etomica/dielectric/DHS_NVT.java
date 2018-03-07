@@ -76,73 +76,71 @@ protected final SpeciesSpheresRotating species;
 
 	//************************************* constructor ********************************************//
     public DHS_NVT(Space space, int numberMolecules, final double HSDiameter, double mu,
-                   double dielectricOutside, double boxSize, double temperature, double truncation){
+                   double dielectricOutside, double boxSize, double temperature, double truncation) {
         super(space);
 //		setRandom(new RandomNumberGenerator(1)); //debug only  TODO remember its still setrandom be to 1
 
 
         species = new SpeciesSpheresRotating(space, new ElementSimple("A"));
-		species.setAxisSymmetric(true);
-		addSpecies(species);
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numberMolecules);
-		box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize,boxSize,boxSize}));
+        species.setAxisSymmetric(true);
+        addSpecies(species);
+        box = this.makeBox();
+        box.setNMolecules(species, numberMolecules);
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize, boxSize, boxSize}));
 
-		IMoleculePositionDefinition positionDefinition = new IMoleculePositionDefinition() {
-			public Vector position(IMolecule molecule) {
-				return molecule.getChildList().getAtom(0).getPosition();
-			}
-		};
+        IMoleculePositionDefinition positionDefinition = new IMoleculePositionDefinition() {
+            public Vector position(IMolecule molecule) {
+                return molecule.getChildList().get(0).getPosition();
+            }
+        };
 
-		// potential part
+        // potential part
 //		boolean
 //		if(){
 //
 //		}
-		P2HSDipole pTarget = new P2HSDipole(space,HSDiameter, mu,truncation);
-		DipoleSourceDHS dipoleDHS = new DipoleSourceDHS(space,mu);// add reaction field potential
+        P2HSDipole pTarget = new P2HSDipole(space, HSDiameter, mu, truncation);
+        DipoleSourceDHS dipoleDHS = new DipoleSourceDHS(space, mu);// add reaction field potential
 //		System.out.println("in main class, magnitude of dipole:"+dipoleDHS.dipoleStrength);
         P2ReactionFieldDipole pRF = new P2ReactionFieldDipole(space, positionDefinition);
         pRF.setDipoleSource(dipoleDHS);
-		pRF.setRange(truncation);
-		pRF.setDielectric(dielectricOutside);
+        pRF.setRange(truncation);
+        pRF.setDielectric(dielectricOutside);
 
         potentialMaster = new PotentialMaster();
 
 
-		potentialMaster.addPotential(pRF, new ISpecies[]{species, species});
+        potentialMaster.addPotential(pRF, new ISpecies[]{species, species});
 //		add reaction filed potential  to potential masterm TODO
 
-		potentialMaster.lrcMaster().addPotential(pRF.makeP0());
-		// add P0ReactionField potential to potential master
-		// for u(HS)+u(dd)
-		potentialMaster.addPotential(pTarget, new ISpecies[]{species,species});
+        potentialMaster.lrcMaster().addPotential(pRF.makeP0());
+        // add P0ReactionField potential to potential master
+        // for u(HS)+u(dd)
+        potentialMaster.addPotential(pTarget, new ISpecies[]{species, species});
 
-		// integrator from potential master
-		integrator = new IntegratorMC(this,potentialMaster);
-		// add mc move
+        // integrator from potential master
+        integrator = new IntegratorMC(this, potentialMaster, box);
+// add mc move
         moveMolecule = new MCMoveMolecule(this, potentialMaster, space);        // stepSize:1.0, stepSizeMax:15.0
-        rotateMolecule = new MCMoveRotate(potentialMaster,random,space);
+        rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
 
-		activityIntegrate = new ActivityIntegrate(integrator);
-		getController().addAction(activityIntegrate);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
 
-		//******************************** periodic boundary condition ******************************** //
+        //******************************** periodic boundary condition ******************************** //
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);
         imposePbc.setApplyToMolecules(true);
-		//**************************** integrator ****************************** //
-		integrator.setTemperature(temperature);
-		integrator.setBox(box);
-		integrator.getMoveManager().addMCMove(moveMolecule);  //TODO
-		integrator.getMoveManager().addMCMove(rotateMolecule);
-		integrator.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
+        //**************************** integrator ****************************** //
+        integrator.setTemperature(temperature);
+        integrator.getMoveManager().addMCMove(moveMolecule);  //TODO
+        integrator.getMoveManager().addMCMove(rotateMolecule);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
 
-		//******************************** initial configuration ******************************** //
+        //******************************** initial configuration ******************************** //
         LatticeCubicFcc lattice = new LatticeCubicFcc(space);
         ConfigurationLattice configuration = new ConfigurationLattice(lattice, space);
-		configuration.initializeCoordinates(box);
-	}
+        configuration.initializeCoordinates(box);
+    }
 
 	// **************************** simulation part **************************** //
 	public static void main (String[] args){
@@ -324,11 +322,11 @@ protected final SpeciesSpheresRotating species;
         }
 
         public Vector getDipole(IMolecule molecule) {
-            if (molecule.getChildList().getAtomCount() != 1) {
+            if (molecule.getChildList().size() != 1) {
                 throw new RuntimeException("improper number of atom in the molecule");
             }
             IAtomList atomList = molecule.getChildList();
-            IAtomOriented atom = (IAtomOriented) atomList.getAtom(0);
+            IAtomOriented atom = (IAtomOriented) atomList.get(0);
             dipoleVector.E(atom.getOrientation().getDirection());
             dipoleVector.TE(dipoleStrength);
             return dipoleVector;

@@ -42,7 +42,7 @@ public class MCMoveSpinFlip extends MCMoveBox {
      */
     public boolean doTrial() {
         IAtomList leafList = box.getLeafList();
-        atom = leafList.getAtom(random.nextInt(leafList.getAtomCount()));
+        atom = leafList.get(random.nextInt(leafList.size()));
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
         atom.getPosition().TE(-1);

@@ -18,8 +18,8 @@ public class ConfigurationClusterChain extends ConfigurationCluster {
 		super.initializeCoordinates(box);
 		BoxCluster clusterBox =(BoxCluster) box;
 		IAtomList list = box.getLeafList();
-		for (int i=1;i<list.getAtomCount();i++){
-			list.getAtom(i).getPosition().setX(0, 0.9*i);
+		for (int i = 1; i<list.size(); i++){
+			list.get(i).getPosition().setX(0, 0.9*i);
 		 }
 		 clusterBox.trialNotify();
 		 clusterBox.acceptNotify();

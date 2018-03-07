@@ -7,7 +7,6 @@ package etomica.modules.pistoncylinder;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
-import etomica.space.Space;
 
 /**
  * data source front for virial sum from P1HardMovingBoundary
@@ -15,27 +14,27 @@ import etomica.space.Space;
  */
 public class DataSourceWallPressure extends MeterPressureHard {
 
-    public DataSourceWallPressure(Space _space, P1HardMovingBoundary pistonPotential) {
-        super(_space);
+    protected final P1HardMovingBoundary wallPotential;
+
+    public DataSourceWallPressure(P1HardMovingBoundary pistonPotential, IntegratorHard integrator) {
+        super(integrator);
         wallPotential = pistonPotential;
-        space = _space;
     }
-    
+
     /**
      * Implementation of CollisionListener interface
      * Adds collision virial (from potential) to accumulator
      */
     public void collisionAction(IntegratorHard.Agent agent) {
         if (agent.collisionPotential == wallPotential) {
-            if (space.D() == 2) {
+            if (dim == 2) {
                 virialSum += wallPotential.lastWallVirial();
-            }
-            else {
+            } else {
                 virialSum -= wallPotential.lastWallVirial();
             }
         }
     }
-    
+
     public double getDataAsScalar() {
         double currentTime = integratorHard.getCurrentTime();
         double value = virialSum / (currentTime - lastTime);
@@ -43,8 +42,4 @@ public class DataSourceWallPressure extends MeterPressureHard {
         virialSum = 0;
         return value;
     }
-    
-    private static final long serialVersionUID = 1L;
-    protected final P1HardMovingBoundary wallPotential;
-    private Space space;
 }

@@ -177,10 +177,10 @@ public class MeterVirialExternalFieldOverlapRho implements ClusterWeightSumWall.
     	    List<Byte> gList = cList.get(0);
 
     	    double lowestatom = 0.0;
-    	    double highestatom = 1-atoms.getAtomCount();
+    	    double highestatom = 1-atoms.size();
     	    for(byte g : gList){
-    	    	if (atoms.getAtom(g).getPosition().getX(2) < lowestatom){
-    	    		lowestatom = atoms.getAtom(g).getPosition().getX(2);	 
+    	    	if (atoms.get(g).getPosition().getX(2) < lowestatom){
+    	    		lowestatom = atoms.get(g).getPosition().getX(2);
     	    			
     	    	}    	    		
     	    }
@@ -190,8 +190,8 @@ public class MeterVirialExternalFieldOverlapRho implements ClusterWeightSumWall.
     	    	List<Byte> gm1List = cList.get(j);
     	    	double lowhigher = 0;
     	    	for(byte gm1 :gm1List){
-    	    		if (atoms.getAtom(gm1).getPosition().getX(2) < lowhigher){
-    	    			lowhigher = atoms.getAtom(gm1).getPosition().getX(2);
+    	    		if (atoms.get(gm1).getPosition().getX(2) < lowhigher){
+    	    			lowhigher = atoms.get(gm1).getPosition().getX(2);
     	    		}    	    			
     	    	}
     	    	v=-v;

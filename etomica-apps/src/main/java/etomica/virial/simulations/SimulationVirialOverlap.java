@@ -89,27 +89,25 @@ public class SimulationVirialOverlap extends Simulation {
             // integrator for iBox samples based on iBox cluster
             box[iBox] = new BoxCluster(sampleClusters[iBox], space);
             addBox(box[iBox]);
-            for (int i=0; i<species.length; i++) {
+            for (int i = 0; i < species.length; i++) {
                 box[iBox].setNMolecules(species[i], nMolecules[i]);
             }
-            
-            integrators[iBox] = new IntegratorMC(this, potentialMaster);
+
+            integrators[iBox] = new IntegratorMC(this, potentialMaster, box[iBox]);
             integrators[iBox].setTemperature(temperature);
-            integrators[iBox].setBox(box[iBox]);
             integrators[iBox].getMoveManager().setEquilibrating(false);
-            
+
             MCMoveManager moveManager = integrators[iBox].getMoveManager();
-            
+
             if (!multiAtomic) {
                 mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(random, space);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
-                
+
                 if (doRotate) {
                     mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, space);
                     moveManager.addMCMove(mcMoveRotate[iBox]);
                 }
-            }
-            else {
+            } else {
                 mcMoveRotate[iBox] = new MCMoveClusterRotateMoleculeMulti(getRandom(), space);
                 mcMoveRotate[iBox].setStepSize(Math.PI);
                 moveManager.addMCMove(mcMoveRotate[iBox]);
@@ -118,28 +116,27 @@ public class SimulationVirialOverlap extends Simulation {
                 if (doWiggle) {
                     // we can use the bending move if none of the molecules has more than 3 atoms
                     boolean doBend = true;
-                    for (int i=0; i<species.length; i++) {
-                        if (box[iBox].getMoleculeList(species[i]).getMolecule(0).getChildList().getAtomCount() > 3) {
+                    for (int i = 0; i < species.length; i++) {
+                        if (box[iBox].getMoleculeList(species[i]).get(0).getChildList().size() > 3) {
                             doBend = false;
                         }
                     }
                     if (doBend) {
                         mcMoveWiggle[iBox] = new MCMoveClusterAngleBend(potentialMaster, random, 0.5, space);
-                    }
-                    else {
+                    } else {
                         mcMoveWiggle[iBox] = new MCMoveClusterWiggleMulti(this, potentialMaster, aValueClusters[0].pointCount(), space);
                     }
                     moveManager.addMCMove(mcMoveWiggle[iBox]);
                 }
             }
-            
+
             ConfigurationCluster configuration = new ConfigurationCluster(space);
             configuration.initializeCoordinates(box[iBox]);
-            MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iBox],aSampleClusters[1-iBox].makeCopy()});
-            setMeter(meter,iBox);
-            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(11, iBox==0);
-            setAccumulator(acc,iBox);
-              
+            MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iBox], aSampleClusters[1 - iBox].makeCopy()});
+            setMeter(meter, iBox);
+            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(11, iBox == 0);
+            setAccumulator(acc, iBox);
+
         }
         
         setRefPref(1,5);

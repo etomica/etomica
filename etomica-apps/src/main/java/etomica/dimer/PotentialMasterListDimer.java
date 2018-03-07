@@ -46,9 +46,9 @@ public class PotentialMasterListDimer extends PotentialMasterList{
         //call calculate with each SpeciesAgent
         for(int j=0; j<species.length; j++){    
             IMoleculeList list = box.getMoleculeList(species[j]);
-            int size = list.getMoleculeCount();
+            int size = list.size();
             for (int i=0; i<size; i++) {
-                calculate(list.getMolecule(i), id.direction(), pc, neighborManager);//call calculate with the SpeciesAgent
+                calculate(list.get(i), id.direction(), pc, neighborManager);//call calculate with the SpeciesAgent
             }
         }
    }

@@ -94,10 +94,10 @@ public final class MpiInnerFixed implements MoleculesetIterator, java.io.Seriali
         }
 
         if (doSwap) {
-            pair.atom1 = nextOuter;
+            pair.mol1 = nextOuter;
         }
         else {
-            pair.atom0 = nextOuter;
+            pair.mol0 = nextOuter;
         }
     }
 
@@ -111,10 +111,10 @@ public final class MpiInnerFixed implements MoleculesetIterator, java.io.Seriali
         IMolecule nextInner = aiInner.nextMolecule();
         if (nextInner != null) {
             if (doSwap) {
-                pair.atom0 = nextInner;
+                pair.mol0 = nextInner;
             }
             else {
-                pair.atom1 = nextInner;
+                pair.mol1 = nextInner;
             }
         }
         //Advance the outer loop, if the inner loop has reached its end.
@@ -130,15 +130,15 @@ public final class MpiInnerFixed implements MoleculesetIterator, java.io.Seriali
             }
 
             if (doSwap) {
-                pair.atom1 = nextOuter;
-                pair.atom0 = nextInner;
+                pair.mol1 = nextOuter;
+                pair.mol0 = nextInner;
             }
             else {
-                pair.atom0 = nextOuter;
-                pair.atom1 = nextInner;
+                pair.mol0 = nextOuter;
+                pair.mol1 = nextInner;
             }
         }
-        if (pair.atom0 == pair.atom1) {
+        if (pair.mol0 == pair.mol1) {
             throw new RuntimeException("wow! "+pair);
         }
         return pair;

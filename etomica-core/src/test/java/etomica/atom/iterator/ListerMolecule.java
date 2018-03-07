@@ -49,8 +49,8 @@ class ListerMolecule implements MoleculeAction {
      * Performs action on each element of array.
      */
     public void addEachToList(IMoleculeList a) {
-        for(int i=0; i<a.getMoleculeCount(); i++) {
-            actionPerformed(new MoleculeSetSinglet(a.getMolecule(i)));
+        for(int i = 0; i<a.size(); i++) {
+            actionPerformed(new MoleculeSetSinglet(a.get(i)));
         }
     }
 

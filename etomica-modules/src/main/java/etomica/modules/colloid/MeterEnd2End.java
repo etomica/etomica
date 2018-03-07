@@ -41,14 +41,14 @@ public class MeterEnd2End extends DataSourceScalar {
 
     public double getDataAsScalar() {
         IAtomList list = box.getLeafList();
-        int nGraft = list.getAtomCount()/chainLength;
+        int nGraft = list.size()/chainLength;
         int iAtom = 0;
         double sum = 0;
         for (int i=0; i<nGraft; i++) {
             drTot.E(0);
-            dr.E(list.getAtom(0).getPosition());
+            dr.E(list.get(0).getPosition());
             for (int j=1; j<chainLength; j++) {
-                Vector p = list.getAtom(iAtom).getPosition();
+                Vector p = list.get(iAtom).getPosition();
                 dr.ME(p);
                 box.getBoundary().nearestImage(dr);
                 drTot.PE(dr);

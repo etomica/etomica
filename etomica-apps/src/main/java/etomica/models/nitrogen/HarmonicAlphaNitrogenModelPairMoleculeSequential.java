@@ -41,48 +41,46 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 	public HarmonicAlphaNitrogenModelPairMoleculeSequential(Space space, int numMolecule, double density) {
 		super(space);
 		this.space = space;
-		
-		int nCell = (int) Math.round(Math.pow((numMolecule/4), 1.0/3.0));
-		double unitCellLength = Math.pow(numMolecule/density, 1.0/3.0)/nCell;//5.661;
+
+		int nCell = (int) Math.round(Math.pow((numMolecule / 4), 1.0 / 3.0));
+		double unitCellLength = Math.pow(numMolecule / density, 1.0 / 3.0) / nCell;//5.661;
 //		System.out.println("a: " + unitCellLength);
 //		System.out.println("nCell: " + nCell);
-		
+
+		SpeciesN2 species = new SpeciesN2(space);
+		addSpecies(species);
+
 		potentialMaster = new PotentialMaster();
-				
+
 		Basis basisFCC = new BasisCubicFcc();
 		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
-		
+
 		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		SpeciesN2 species = new SpeciesN2(space);
 		species.setConformation(conformation);
-		addSpecies(species);
-		
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecule);		
-		
-		int [] nCells = new int[]{1,1,1};
-		Boundary boundary = new BoundaryRectangularPeriodic(space,nCell*unitCellLength);
-		Primitive primitive = new PrimitiveCubic(space, nCell*unitCellLength);
-	
+
+		Boundary boundary = new BoundaryRectangularPeriodic(space, nCell * unitCellLength);
+		box = this.makeBox(boundary);
+		box.setNMolecules(species, numMolecule);
+
+		int[] nCells = new int[]{1, 1, 1};
+		Primitive primitive = new PrimitiveCubic(space, nCell * unitCellLength);
+
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsAlpha();
 		coordinateDef.setOrientationVectorAlpha(space);
 		coordinateDef.initializeCoordinates(nCells);
-		
-		box.setBoundary(boundary);
 		double rCScale = 0.475;
-		double rC =box.getBoundary().getBoxSize().getX(0)*rCScale;
+		double rC = box.getBoundary().getBoxSize().getX(0) * rCScale;
 //		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
-		
+
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
 
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-		
-		int nSites = 2*nCell+1;
+
+		int nSites = 2 * nCell + 1;
 		pairMatrix = new double[nSites][nSites][nSites][4][4][5][5];
-		
+
 //		cm2ndD = new CalcNumerical2ndDerivativeNitrogen(box, potential, coordinateDef);cA2nD = new CalcAnalytical2ndDerivativeNitrogen(space, box, potential, coordinateDef);
 		cAN2nD = new CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen(space, box, potential, coordinateDef, true);
 		cA2nD = new CalcAnalytical2ndDerivativeNitrogen(space, box, potential, coordinateDef);
@@ -94,7 +92,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 		DataTensor transTensor = new DataTensor(space);
 		MoleculePair pair = new MoleculePair();
 	
-		int numMolecule = coordinateDef.getBox().getMoleculeList().getMoleculeCount();
+		int numMolecule = coordinateDef.getBox().getMoleculeList().size();
 		int dofPerMol = coordinateDef.getCoordinateDim()/numMolecule;
 		double[][] array = new double[dofPerMol][coordinateDef.getCoordinateDim()];
 			
@@ -102,8 +100,8 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 		 *	Constructing the upper diagonal of the matrix
 		 *	(Skipping the molec1 == molec2) 
 		 */
-		IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().getMolecule(molec0);
-		pair.atom0 = molecule0;
+		IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().get(molec0);
+		pair.mol0 = molecule0;
 			
 		boolean isReverseOrder = false;
 		for(int molec1=0; molec1<numMolecule; molec1++){
@@ -119,9 +117,9 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 				isReverseOrder = false;
 			}
 			
-			pair.atom1 = coordinateDef.getBox().getMoleculeList().getMolecule(molec1);
+			pair.mol1 = coordinateDef.getBox().getMoleculeList().get(molec1);
 		
-			int[] index = findPair.getPairMoleculesIndex(pair.atom0, pair.atom1, isReverseOrder);
+			int[] index = findPair.getPairMoleculesIndex(pair.mol0, pair.mol1, isReverseOrder);
 			boolean isNewPair = findPair.getIsNewPair(index);
 				
 			if(isNewPair){

@@ -50,15 +50,15 @@ public class MoleculeIteratorArrayListSimple implements MoleculeIterator, java.i
      * Puts iterator in state in which hasNext is false.
      */
  	public void unset() {
-        cursor = list.getMoleculeCount();
+        cursor = list.size();
     }
  
     /**
      * Returns the next iterate and advances the iterator.
      */
  	public IMolecule nextMolecule() {
-        if (cursor < list.getMoleculeCount()) {
-            return list.getMolecule(cursor++);
+        if (cursor < list.size()) {
+            return list.get(cursor++);
         }
         return null;
  	}
@@ -69,7 +69,7 @@ public class MoleculeIteratorArrayListSimple implements MoleculeIterator, java.i
  	public IMoleculeList next() {
         IMolecule atom = nextMolecule();
         if (atom == null) return null;
-        atomSetSinglet.atom = atom;
+        atomSetSinglet.mol = atom;
  		return atomSetSinglet;
  	}
  
@@ -78,7 +78,7 @@ public class MoleculeIteratorArrayListSimple implements MoleculeIterator, java.i
      * if reset with the current list.
      */
  	public int size() {
- 		return list.getMoleculeCount();
+ 		return list.size();
  	}
 
     /**

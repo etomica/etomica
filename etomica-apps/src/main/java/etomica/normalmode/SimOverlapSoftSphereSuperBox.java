@@ -16,10 +16,10 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.*;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
@@ -68,51 +68,48 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
     public SimOverlapSoftSphereSuperBox(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent) {
         super(_space);
         this.fname = filename;
+        SpeciesSpheresMono speciesA = new SpeciesSpheresMono(this, space);
+        SpeciesSpheresMono speciesB = new SpeciesSpheresMono(this, space);
+        addSpecies(speciesA);
+        addSpecies(speciesB);
+
         PotentialMasterMonatomic potentialMasterTarget = new PotentialMasterMonatomic(this);
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPumpListener[2];
         meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
-        SpeciesSpheresMono speciesA = new SpeciesSpheresMono(this, space);
-        SpeciesSpheresMono speciesB = new SpeciesSpheresMono(this, space);
-        addSpecies(speciesA);
-        addSpecies(speciesB);
-
         // TARGET
 
-        boxTarget = new Box(space);
-        addBox(boxTarget);
-        boxTarget.setNMolecules(speciesA, numAtoms/8);
-        boxTarget.setNMolecules(speciesB, numAtoms*7/8);
-
-
         if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
-            boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms/density);
+            primitive = new PrimitiveCubic(space, 1.0 / density);
+            boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms / density);
             nCells = new int[]{numAtoms};
             basis = new BasisMonatomic(space);
         } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
             primitive = new PrimitiveCubic(space, L);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            nCells = new int[]{n,n,n};
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            nCells = new int[]{n, n, n};
             boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
             basis = new BasisCubicFcc();
         }
-        boxTarget.setBoundary(boundaryTarget);
+        boxTarget = this.makeBox(boundaryTarget);
+        boxTarget.setNMolecules(speciesA, numAtoms / 8);
+        boxTarget.setNMolecules(speciesB, numAtoms * 7 / 8);
+
 
         CoordinateDefinitionLeafSuperBox coordinateDefinitionTarget = new CoordinateDefinitionLeafSuperBox(boxTarget, primitive, basis, space);
         coordinateDefinitionTarget.setSpecies(speciesA, speciesB);
         coordinateDefinitionTarget.setIs256();
         coordinateDefinitionTarget.initializeCoordinates(nCells);
 
-        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature);
+        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature, boxTarget);
         MCMoveAtomSuperBox atomMove = new MCMoveAtomSuperBox(potentialMasterTarget, getRandom(), space, coordinateDefinitionTarget);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
         integratorTarget.getMoveManager().addMCMove(atomMove);
-        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) atomMove.getTracker()).setNoisyAdjustment(true);
 
         integrators[1] = integratorTarget;
 
@@ -131,8 +128,6 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
 
         atomMove.setPotential(pTruncatedAA);
 
-        integratorTarget.setBox(boxTarget);
-
         /*
          *  1-body Potential to Constraint the atom from moving too far
          *  	away from its lattice-site
@@ -143,34 +138,29 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
         potentialMasterTarget.addPotential(p1Constraint, new AtomType[]{sphereTypeA});
 
         potentialMasterTarget.lrcMaster().setEnabled(false);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
-        meterPE.setBox(boxTarget);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget, boxTarget);
         double latticeEnergy = meterPE.getDataAsScalar();
 
 
         // HARMONIC
-        boundaryHarmonic = new BoundaryRectangularPeriodic(space);
-        boxHarmonic = new Box(space);
-        addBox(boxHarmonic);
-        System.out.println("numAtoms: "+ numAtoms);
-        boxHarmonic.setNMolecules(speciesA, numAtoms/8);
-        boxHarmonic.setNMolecules(speciesB, numAtoms*7/8);
+        if (space.D() == 1) {
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms / density);
+        } else {
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            nCells = new int[]{n, n, n};
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
+        }
+        boxHarmonic = this.makeBox(boundaryHarmonic);
+        System.out.println("numAtoms: " + numAtoms);
+        boxHarmonic.setNMolecules(speciesA, numAtoms / 8);
+        boxHarmonic.setNMolecules(speciesB, numAtoms * 7 / 8);
 
-        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, random, 1.0);
+        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, random, 1.0, boxHarmonic);
 
         MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(move);
         integrators[0] = integratorHarmonic;
-
-        if (space.D() == 1) {
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms/density);
-        } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            nCells = new int[]{n,n,n};
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
-        }
-        boxHarmonic.setBoundary(boundaryHarmonic);
 
         CoordinateDefinitionLeafSuperBox coordinateDefinitionHarmonic = new CoordinateDefinitionLeafSuperBox(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.setSpecies(speciesA, speciesB);
@@ -194,8 +184,6 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
         move.setTemperature(temperature);
 
         move.setBox(boxHarmonic);
-
-        integratorHarmonic.setBox(boxHarmonic);
 
         // OVERLAP
         integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorHarmonic, integratorTarget});
@@ -386,14 +374,14 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
             accumulatorPumps[iBox] = new DataPumpListener(meters[iBox],newAccumulator);
             integrators[iBox].getEventManager().addListener(accumulatorPumps[iBox]);
             if (iBox == 1) {
-            	if (boxTarget.getMoleculeList().getMoleculeCount()==32){
+            	if (boxTarget.getMoleculeList().size()==32){
             		accumulatorPumps[iBox].setInterval(100);
 
-                } else if (boxTarget.getMoleculeList().getMoleculeCount()==108){
+                } else if (boxTarget.getMoleculeList().size()==108){
 
                     accumulatorPumps[iBox].setInterval(300);
                 } else
-                    accumulatorPumps[iBox].setInterval(boxTarget.getMoleculeList().getMoleculeCount());
+                    accumulatorPumps[iBox].setInterval(boxTarget.getMoleculeList().size());
             }
         }
         else {

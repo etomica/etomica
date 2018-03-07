@@ -44,32 +44,32 @@ public class ChainHSMD3D extends Simulation {
 
     public ChainHSMD3D() {
         super(Space3D.getInstance());
+
+        int chainLength = 4;
+        model = new ModelChain(space, true);
+        model.setNumAtoms(chainLength);
+        model.setBondingPotential(new P2HardBond(space, 1.0, 0.15, true));
+        species = (SpeciesSpheres) model.makeSpecies(this);
+
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         int numAtoms = 108;
-        int chainLength = 4;
         double neighborRangeFac = 1.6;
         potentialMaster.setRange(neighborRangeFac);
 
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        box = this.makeBox();
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator, 1, true);
         getController().addAction(activityIntegrate);
 
-        model = new ModelChain(space, true);
-        model.setNumAtoms(chainLength);
-        model.setBondingPotential(new P2HardBond(space, 1.0, 0.15, true));
-
-        species = (SpeciesSpheres) model.makeSpecies(this);
         potentialMaster.addModel(model);
         ((ConformationLinear) model.getConformation()).setBondLength(1.0);
         ((ConformationLinear) model.getConformation()).setAngle(1, 0.35);
 
-        box = new Box(space);
         double l = 14.4573 * Math.pow((chainLength * numAtoms / 2020.0), 1.0 / 3.0);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
-        addBox(box);
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         box.setNMolecules(species, numAtoms);
         config.initializeCoordinates(box);
@@ -82,7 +82,6 @@ public class ChainHSMD3D extends Simulation {
         nonBondedCriterion.setBonded(false);
         ((CriterionInterMolecular) potentialMaster.getCriterion(potential)).setIntraMolecularCriterion(nonBondedCriterion);
 
-        integrator.setBox(box);
         MeterRadiusGyration meterRG = new MeterRadiusGyration(space);
         meterRG.setBox(box);
         histogramRG = new AccumulatorHistogram(new HistogramCollapsing(), 10);

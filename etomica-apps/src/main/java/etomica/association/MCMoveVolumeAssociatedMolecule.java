@@ -120,7 +120,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
         vScale = (2.*random.nextDouble()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
         double rScale = Math.exp(vScale/D);
-        numAssociatedMolecules = associationManager.getAssociatedMolecules().getMoleculeCount();
+        numAssociatedMolecules = associationManager.getAssociatedMolecules().size();
         if (dodebug){
         	WriteConfiguration writeConfiguration = new WriteConfiguration(Space3D.getInstance());
         	writeConfiguration.setBox(box);
@@ -151,12 +151,12 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
     	}
     	numMer = 0;
     	IMoleculeList moleculeList = box.getMoleculeList();// all atoms in the box
-    	for (int i=0; i< moleculeList.getMoleculeCount(); i++){
-        	IMolecule molecule = moleculeList.getMolecule(i);
+    	for (int i = 0; i< moleculeList.size(); i++){
+        	IMolecule molecule = moleculeList.get(i);
         	((Agent)moleculeAgentManager.getAgent(molecule)).nMolecules = 0;
     	}
-    	for (int i=0; i< moleculeList.getMoleculeCount(); i++){
-        	IMolecule molecule = moleculeList.getMolecule(i);
+    	for (int i = 0; i< moleculeList.size(); i++){
+        	IMolecule molecule = moleculeList.get(i);
         	if (((Agent)moleculeAgentManager.getAgent(molecule)).nMolecules!= 0){
         		continue;
         	}
@@ -170,30 +170,30 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
         			throw new RuntimeException(e);
     			}
         	}
-        	for (int j=0; j<smerList.getMoleculeCount(); j+=1){
-        		Agent jAgent = ((Agent)moleculeAgentManager.getAgent(smerList.getMolecule(j)));
-        		jAgent.nMolecules = smerList.getMoleculeCount();
-        		jAgent.nextMolecule = j<smerList.getMoleculeCount()-1 ? smerList.getMolecule(j+1) : null;
+        	for (int j = 0; j<smerList.size(); j+=1){
+        		Agent jAgent = ((Agent)moleculeAgentManager.getAgent(smerList.get(j)));
+        		jAgent.nMolecules = smerList.size();
+        		jAgent.nextMolecule = j<smerList.size()-1 ? smerList.get(j+1) : null;
         	}
-        	if (smerList.getMoleculeCount() == 1){
+        	if (smerList.size() == 1){
             	groupTranslationVector.Ea1Tv1(rScale-1.0, positionDefinition(molecule));
                 moveMoleculeAction.actionPerformed(molecule);
         		continue;
         	}
         	
         	r.E(0.0);
-            for (int j = 0; j<smerList.getMoleculeCount(); j+=1){
-            	dr.Ev1Mv2(positionDefinition(smerList.getMolecule(j)), r);//dr = distance from the atom to the center of the mass
+            for (int j = 0; j<smerList.size(); j+=1){
+            	dr.Ev1Mv2(positionDefinition(smerList.get(j)), r);//dr = distance from the atom to the center of the mass
             	box.getBoundary().nearestImage(dr);
             	groupTranslationVector.Ev1Pv2(r, dr);
-            	groupTranslationVector.ME(positionDefinition(smerList.getMolecule(j)));
-                moveMoleculeAction.actionPerformed(smerList.getMolecule(j));
+            	groupTranslationVector.ME(positionDefinition(smerList.get(j)));
+                moveMoleculeAction.actionPerformed(smerList.get(j));
             	r.PEa1Tv1(1.0/(j+1), dr);
             }
             r.TE(rScale-1.0);
             groupTranslationVector.E(r);
-            for (int j = 0; j<smerList.getMoleculeCount(); j+=1){
-                moveMoleculeAction.actionPerformed(smerList.getMolecule(j));
+            for (int j = 0; j<smerList.size(); j+=1){
+                moveMoleculeAction.actionPerformed(smerList.get(j));
             }
     	}
     	r.Ea1Tv1(rScale, box.getBoundary().getBoxSize());
@@ -210,21 +210,21 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
     protected void unscaleAtoms(double rScale) {
     	IMoleculeList moleculeList = box.getMoleculeList();
         
-        for (int i=0; i< moleculeList.getMoleculeCount(); i++){
-        	IMolecule molecule = moleculeList.getMolecule(i);
+        for (int i = 0; i< moleculeList.size(); i++){
+        	IMolecule molecule = moleculeList.get(i);
         	Agent iAgent = (Agent)moleculeAgentManager.getAgent(molecule);
         	if (iAgent.nMolecules == 0){
         		continue;
         	}
         	IMoleculeList bondedMolecules = associationManager.getAssociatedMolecules(molecule);
-        	if (bondedMolecules.getMoleculeCount() == 0) {
+        	if (bondedMolecules.size() == 0) {
         		groupTranslationVector.Ea1Tv1(rScale-1.0, positionDefinition(molecule));
                 moveMoleculeAction.actionPerformed(molecule);//scale the position directly
         		if (dodebug){
         			if (molecule.getIndex() == 19 || molecule.getIndex() == 76||molecule.getIndex() == 127 || molecule.getIndex() == 139||molecule.getIndex() == 196){
         				System.out.println("One of these is monomer:1st "+molecule);
-        				IAtomOriented atom19 = (IAtomOriented)box.getLeafList().getAtom(19);
-        				IAtomOriented atom139 = (IAtomOriented)box.getLeafList().getAtom(139);
+        				IAtomOriented atom19 = (IAtomOriented)box.getLeafList().get(19);
+        				IAtomOriented atom139 = (IAtomOriented)box.getLeafList().get(139);
         				System.out.println(" orientation of atom19: "+atom19.getOrientation().getDirection());
     					System.out.println(" orientation of atom139: "+atom139.getOrientation().getDirection());
         			}
@@ -285,15 +285,15 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
 
     public double getChi(double temperature) {
         IMoleculeList moleculeList = box.getMoleculeList();
-    	for (int i=0; i< moleculeList.getMoleculeCount(); i++){
-        	IMolecule molecule = moleculeList.getMolecule(i);
+    	for (int i = 0; i< moleculeList.size(); i++){
+        	IMolecule molecule = moleculeList.get(i);
         	if(associationHelper.populateList(smerList, molecule, true)){
         		return 0.0;//reject
         	}
         	
-        	for (int j=0; j<smerList.getMoleculeCount(); j+=1){
+        	for (int j = 0; j<smerList.size(); j+=1){
         		Agent jAgent = ((Agent)moleculeAgentManager.getAgent(molecule));
-        		if (jAgent.nMolecules != smerList.getMoleculeCount()){
+        		if (jAgent.nMolecules != smerList.size()){
         			return 0;
         		}
         	}
@@ -321,7 +321,7 @@ public class MCMoveVolumeAssociatedMolecule extends MCMoveBoxStep implements Mol
     }
     
     public Vector positionDefinition(IMolecule molecule){
-    	return molecule.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition();
+    	return molecule.getChildList().get(SpeciesAceticAcid.indexC).getPosition();
     }
 
     public void setPressure(double p) {pressure = p;}

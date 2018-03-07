@@ -6,11 +6,11 @@ package etomica.action;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
-import etomica.space.Space;
 import etomica.space.Vector;
 
 /*
@@ -24,18 +24,16 @@ import etomica.space.Vector;
 
 public class IntegratorDimerApproach extends IntegratorBox {
 	
-	public IntegratorDimerApproach(PotentialMaster potentialMaster, Space space) {
+	public IntegratorDimerApproach(PotentialMaster potentialMaster, Box box) {
 		
-		super(potentialMaster, 0);
+		super(potentialMaster, 0, box);
 		
-		this.space = space;
-		
-		atomActionTranslateBy = new AtomActionTranslateBy(space);
-		atomActionRotateBy = new AtomActionRotateBy(space);
+		atomActionTranslateBy = new AtomActionTranslateBy(this.space);
+		atomActionRotateBy = new AtomActionRotateBy(this.space);
 		
 		//The vectors are needed each step; might as well make them just once
-		newOriginB = space.makeVector();
-        translationVector = space.makeVector();
+		newOriginB = this.space.makeVector();
+        translationVector = this.space.makeVector();
 		
 	}
 
@@ -229,22 +227,22 @@ public class IntegratorDimerApproach extends IntegratorBox {
 	
 	public void setMolecules() {
 		moleculeList = box.getMoleculeList();
-		monomerA = moleculeList.getMolecule(0);
-		monomerB = moleculeList.getMolecule(1);
+		monomerA = moleculeList.get(0);
+		monomerB = moleculeList.get(1);
 	}
 	
 	public void setImportantAtoms() {
 		atomSetA = monomerA.getChildList();
 	    atomSetB = monomerB.getChildList();
 	    
-	    atom_O_A  = atomSetA.getAtom(0);
-	    atom_aC_A = atomSetA.getAtom(1);
-	    atom_aH_A = atomSetA.getAtom(2);
-	    atom_H1_A = atomSetA.getAtom(4);
+	    atom_O_A  = atomSetA.get(0);
+	    atom_aC_A = atomSetA.get(1);
+	    atom_aH_A = atomSetA.get(2);
+	    atom_H1_A = atomSetA.get(4);
 	    
-	    atom_O_B  = atomSetB.getAtom(0);
-	    atom_aC_B = atomSetB.getAtom(1);
-	    atom_aH_B = atomSetB.getAtom(2);
+	    atom_O_B  = atomSetB.get(0);
+	    atom_aC_B = atomSetB.get(1);
+	    atom_aH_B = atomSetB.get(2);
 	    
 	}
 	
@@ -293,8 +291,6 @@ public class IntegratorDimerApproach extends IntegratorBox {
         System.out.println();*/
 	}
 	
-	private final Space space;
-    
 	private static final long serialVersionUID = 1L;
     
     protected AtomActionTranslateBy atomActionTranslateBy;

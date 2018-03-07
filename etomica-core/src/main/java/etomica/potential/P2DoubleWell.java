@@ -57,8 +57,8 @@ public class P2DoubleWell extends Potential2HardSpherical {
      * both approaching and diverging
      */
     public void bump(IAtomList pair, double falseTime) {
-        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
-        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+        IAtomKinetic atom0 = (IAtomKinetic)pair.get(0);
+        IAtomKinetic atom1 = (IAtomKinetic)pair.get(1);
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
@@ -158,8 +158,8 @@ public class P2DoubleWell extends Potential2HardSpherical {
      * approach, or when they edge of the wells are reached as atoms diverge.
      */
     public double collisionTime(IAtomList pair, double falseTime) {
-        IAtomKinetic coord0 = (IAtomKinetic)pair.getAtom(0);
-        IAtomKinetic coord1 = (IAtomKinetic)pair.getAtom(1);
+        IAtomKinetic coord0 = (IAtomKinetic)pair.get(0);
+        IAtomKinetic coord1 = (IAtomKinetic)pair.get(1);
         if (coord0.getParentGroup().getType().getIndex()+coord0.getParentGroup().getType().getIndex()>0) {
             System.out.println("here we go");
         }

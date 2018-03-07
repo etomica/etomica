@@ -39,35 +39,32 @@ public class MaterialFracture extends Simulation {
     public MaterialFracture() {
         super(Space2D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster();
-        box = new Box(space);
-        box.setBoundary(new BoundaryRectangularSlit(0, space));
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{90,30}));
-        addBox(box);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
+        box = this.makeBox(new BoundaryRectangularSlit(0, space));
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{90, 30}));
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setIsothermal(true);
         integrator.setTemperature(300.0);
         integrator.setTimeStep(0.007);
         integrator.setThermostatInterval(100);
         integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN);
         integrator.setThermostatNoDrift(true);
-        integrator.setBox(box);
         pc = new PotentialCalculationForceStress(space);
         integrator.setForceSum(pc);
         getController().addAction(new ActivityIntegrate(integrator));
         p2LJ = new P2LennardJones(space, 3, 2000);
         pt = new P2SoftSphericalTruncatedForceShifted(space, p2LJ, 7);
 
-        p1Tension = new P1Tension(space); 
+        p1Tension = new P1Tension(space);
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
-        ((ElementSimple)species.getLeafType().getElement()).setMass(40);
+        ((ElementSimple) species.getLeafType().getElement()).setMass(40);
         addSpecies(species);
         box.setNMolecules(species, 198);
 
         potentialMaster.addPotential(pt, new AtomType[]{species.getLeafType(), species.getLeafType()});
         potentialMaster.addPotential(p1Tension, new AtomType[]{species.getLeafType()});
 
-        PrimitiveGeneral primitive = new PrimitiveGeneral(space, new Vector[]{space.makeVector(new double[]{Math.sqrt(3),0}), space.makeVector(new double[]{0,1})});
+        PrimitiveGeneral primitive = new PrimitiveGeneral(space, new Vector[]{space.makeVector(new double[]{Math.sqrt(3), 0}), space.makeVector(new double[]{0, 1})});
         config = new ConfigurationLattice(new BravaisLatticeCrystal(primitive, new BasisOrthorhombicHexagonal()), space) {
             public void initializeCoordinates(Box aBox) {
                 Vector d = space.makeVector();

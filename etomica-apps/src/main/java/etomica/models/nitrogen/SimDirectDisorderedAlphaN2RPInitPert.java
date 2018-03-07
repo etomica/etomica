@@ -40,73 +40,68 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
 
     public SimDirectDisorderedAlphaN2RPInitPert(Space space, int numMolecules, double density, double temperature, double angle, long numSteps) {
         super(space);
-    
-        int nC = (int)Math.pow(numMolecules/3.999999999, 1.0/3.0);
-		double a = Math.pow(4.0/density, 1.0/3.0);
-		System.out.println("Unit Cell Length, a: " + a);
-        
-		Basis basisFCC = new BasisCubicFcc();
-		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nC, nC, nC});
-		
-		Species species = new SpeciesN2(space);
-		addSpecies(species);
 
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecules);
-        
-		int[] nCells = new int[]{1,1,1};
-		Boundary boundary = new BoundaryRectangularPeriodic(space, nC*a);
-		Primitive primitive = new PrimitiveCubic(space, nC*a);
-		
-		CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsAlpha();
-		coordinateDef.setOrientationVectorAlpha(space);
-		coordinateDef.initializeCoordinates(nCells);
-		
-        box.setBoundary(boundary);
-        
+        int nC = (int) Math.pow(numMolecules / 3.999999999, 1.0 / 3.0);
+        double a = Math.pow(4.0 / density, 1.0 / 3.0);
+        System.out.println("Unit Cell Length, a: " + a);
+
+        Basis basisFCC = new BasisCubicFcc();
+        Basis basis = new BasisBigCell(space, basisFCC, new int[]{nC, nC, nC});
+
+        Species species = new SpeciesN2(space);
+        addSpecies(species);
+
+        Boundary boundary = new BoundaryRectangularPeriodic(space, nC * a);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numMolecules);
+
+        int[] nCells = new int[]{1, 1, 1};
+        Primitive primitive = new PrimitiveCubic(space, nC * a);
+
+        CoordinateDefinitionNitrogen coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        coordinateDef.setIsAlpha();
+        coordinateDef.setOrientationVectorAlpha(space);
+        coordinateDef.initializeCoordinates(nCells);
+
         double rcScale = 0.475;
-		double rC =box.getBoundary().getBoxSize().getX(0)*rcScale;
-		System.out.println("Truncation Radius (" + rcScale +" Box Length): " + rC);
-		P2Nitrogen potential = new P2Nitrogen(space, rC);
-		potential.setBox(box);
-		
-		PotentialMasterListMolecular potentialMaster = new PotentialMasterListMolecular(this, space);
-		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-		
-		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster, getRandom(),space);
-		move.setBox(box);
-		move.setPotential(potential);
-		move.setDoExcludeNonNeighbors(true);
-		
-        IntegratorMC integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
-        integrator.getMoveManager().addMCMove(move);
-		integrator.setBox(box);
+        double rC = box.getBoundary().getBoxSize().getX(0) * rcScale;
+        System.out.println("Truncation Radius (" + rcScale + " Box Length): " + rC);
+        P2Nitrogen potential = new P2Nitrogen(space, rC);
+        potential.setBox(box);
 
-		int cellRange = 6;
-	    potentialMaster.setRange(rC);
-	    potentialMaster.setCellRange(cellRange); 
-	    potentialMaster.getNeighborManager(box).reset();
-	    potential.setRange(Double.POSITIVE_INFINITY); 
-	    
-	    MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
-        
+        PotentialMasterListMolecular potentialMaster = new PotentialMasterListMolecular(this, space);
+        potentialMaster.addPotential(potential, new ISpecies[]{species, species});
+
+        MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster, getRandom(), space);
+        move.setBox(box);
+        move.setPotential(potential);
+        move.setDoExcludeNonNeighbors(true);
+
+        IntegratorMC integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
+        integrator.getMoveManager().addMCMove(move);
+
+        int cellRange = 6;
+        potentialMaster.setRange(rC);
+        potentialMaster.setCellRange(cellRange);
+        potentialMaster.getNeighborManager(box).reset();
+        potential.setRange(Double.POSITIVE_INFINITY);
+
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
+
         double latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("lattice energy (sim unit): " + latticeEnergy);
-		System.out.println("lattice energy per mol(sim unit): " + latticeEnergy/numMolecules);
-		
-		MeterDirectInitPert meterDirectInitPert = new MeterDirectInitPert(integrator, meterPE, coordinateDef, getRandom());
-		meterDirectInitPert.setConstraintAngle(angle);
-		
-		int numBlock = 100;
-		int interval = numMolecules;
-		long blockSize = numSteps/(numBlock*interval);
+        System.out.println("lattice energy per mol(sim unit): " + latticeEnergy / numMolecules);
+
+        MeterDirectInitPert meterDirectInitPert = new MeterDirectInitPert(integrator, meterPE, coordinateDef, getRandom());
+        meterDirectInitPert.setConstraintAngle(angle);
+
+        int numBlock = 100;
+        int interval = numMolecules;
+        long blockSize = numSteps / (numBlock * interval);
         if (blockSize == 0) blockSize = 1;
-        System.out.println("block size "+blockSize+" interval "+interval);
+        System.out.println("block size " + blockSize + " interval " + interval);
         boltzmannAverage = new AccumulatorAverageFixed(blockSize);
-        
+
         DataPump boltzmannPump = new DataPump(meterDirectInitPert, boltzmannAverage);
         IntegratorListenerAction boltzmannPumpListener = new IntegratorListenerAction(boltzmannPump, 100);
         integrator.getEventManager().addListener(boltzmannPumpListener);

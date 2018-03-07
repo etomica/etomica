@@ -116,9 +116,9 @@ public class VirialCO2H2OGCPMX {
         speciesCO2.setConformation(new IConformation() {
             
             public void initializePositions(IAtomList atomList) {
-                atomList.getAtom(0).getPosition().E(0);
-                atomList.getAtom(1).getPosition().setX(0,1.161);
-                atomList.getAtom(2).getPosition().setX(0,-1.161);
+                atomList.get(0).getPosition().E(0);
+                atomList.get(1).getPosition().setX(0,1.161);
+                atomList.get(2).getPosition().setX(0,-1.161);
             }
         });
 
@@ -201,7 +201,7 @@ public class VirialCO2H2OGCPMX {
             protected final Vector r = space.makeVector();
             public Vector getParallelAxis(IMolecule mol) {
                 IAtomList atoms = mol.getChildList();
-                r.Ev1Mv2(atoms.getAtom(2).getPosition(),atoms.getAtom(1).getPosition());
+                r.Ev1Mv2(atoms.get(2).getPosition(),atoms.get(1).getPosition());
                 r.normalize();
                 return r;
             }
@@ -218,7 +218,7 @@ public class VirialCO2H2OGCPMX {
                 pos.setX(0, r*(1-Math.cos(theta)));
                 pos.setX(1, r*Math.sin(theta));
                 act.setDestination(pos);
-                act.actionPerformed(sim.box[1].getMoleculeList().getMolecule(i));
+                act.actionPerformed(sim.box[1].getMoleculeList().get(i));
             }
             sim.box[1].trialNotify();
             sim.box[1].acceptNotify();

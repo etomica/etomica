@@ -1,16 +1,29 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.2'
+    }
+}
+
 apply plugin: 'eclipse'
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.3.1'
+    gradleVersion = '4.5'
 }
 
+tasks.withType(JavaCompile) {
+    options.fork = true
+    options.incremental = true
+}
 
 subprojects {
     apply plugin: 'java'
     apply plugin: 'eclipse'
     apply plugin: 'findbugs'
-
-    apply from: "${rootDir}/gradle/ColoredTestOutput.gradle"
+    apply plugin: 'org.junit.platform.gradle.plugin'
 
     if(rootProject.hasProperty("main")) {
         apply plugin: 'application'
@@ -27,6 +40,13 @@ subprojects {
 
     dependencies {
         testCompile 'junit:junit:4.12'
+        testRuntime 'org.junit.vintage:junit-vintage-engine:4.12.3'
+
+        testCompile 'org.junit.jupiter:junit-jupiter-api:5.0.3'
+        testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.0.3'
+
+        testCompile 'org.assertj:assertj-core:3.9.0'
+        testCompile 'org.assertj:assertj-swing-junit:3.8.0'
     }
 
 
@@ -48,15 +68,12 @@ subprojects {
         ignoreFailures = true
     }
 
-    test {
-        testLogging {
-            events 'standardOut'
-            showExceptions true
-            exceptionFormat 'full'
-            showCauses true
-            showStackTraces true
-        }
+    junitPlatform {
+        details 'tree'
 
+        filters {
+            excludeClassNamePattern 'etomica.graph.*'
+        }
     }
 
     task allDeps(type: DependencyReportTask) {}
@@ -107,11 +124,6 @@ project(':etomica-modules') {
 
 project(':etomica-graph') {
 
-    // etomica.graph tests are currently broken, so don't run them when building
-    test {
-        exclude 'etomica/graph/**'
-    }
-    
     dependencies {
         compile 'xml-apis:xml-apis-ext:1.3.04'
         compile 'org.apache.xmlgraphics:batik-swing:1.7'

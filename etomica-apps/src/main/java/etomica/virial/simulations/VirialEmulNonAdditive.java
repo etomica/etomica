@@ -173,7 +173,7 @@ public class VirialEmulNonAdditive {
         IAtomList atoms = sim.box[1].getLeafList();
         double r = 0.4f*sigmaHSRef/Math.sin(Math.PI/nPoints);
         for (int i=1; i<nPoints; i++) {
-            Vector v = atoms.getAtom(i).getPosition();
+            Vector v = atoms.get(i).getPosition();
             double t = 2*i*Math.PI/nPoints;
             v.setX(0, r*(Math.cos(t)-1));
             v.setX(1, r*Math.sin(t));

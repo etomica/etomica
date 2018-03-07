@@ -31,7 +31,7 @@ public class BoxInflateAnisotropic extends BoxInflate{
     public BoxInflateAnisotropic(Box box, Space space){
     	this(space);
     	setBox(box);
-    	deltaX = new double[box.getMoleculeList().getMoleculeCount()];
+    	deltaX = new double[box.getMoleculeList().size()];
     }
     
     /**
@@ -51,8 +51,8 @@ public class BoxInflateAnisotropic extends BoxInflate{
         
         IMoleculeList molecules = box.getMoleculeList();
         Vector comVector = Space3D.makeVector(3);
-        for(int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for(int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             comVector.E(moleculeCenter.position(molecule));
             
             // delta_x = slope * z
@@ -74,8 +74,8 @@ public class BoxInflateAnisotropic extends BoxInflate{
     public void undo(){
     	IMoleculeList molecules = box.getMoleculeList();
     	
-    	for(int i=0; i<molecules.getMoleculeCount(); i++) {
-    		IMolecule molecule = molecules.getMolecule(i);
+    	for(int i = 0; i<molecules.size(); i++) {
+    		IMolecule molecule = molecules.get(i);
     		translationVector.E(new double[]{-deltaX[i], 0.0, 0.0});
     		groupScaler.actionPerformed(molecule);
     	}

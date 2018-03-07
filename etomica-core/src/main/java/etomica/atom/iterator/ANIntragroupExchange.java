@@ -49,7 +49,7 @@ public class ANIntragroupExchange implements AtomsetIteratorBasisDependent {
         atoms.clear();
         for (int i=0; i<nBody; i++) {
         	int particle = particleCounters[i]*P;
-            atoms.add(atomList.getAtom(particle+counter));
+            atoms.add(atomList.get(particle+counter));
         }
         //System.out.println(atoms);
         counter++;
@@ -93,11 +93,11 @@ public class ANIntragroupExchange implements AtomsetIteratorBasisDependent {
      * iteration.
      */
     public void setBasis(IMoleculeList basisMolecule) {
-        if (basisMolecule.getMoleculeCount() != 1) {
+        if (basisMolecule.size() != 1) {
             throw new IllegalArgumentException();
         }
-        atomList = basisMolecule.getMolecule(0).getChildList();
-        particles = atomList.getAtomCount()/P;
+        atomList = basisMolecule.get(0).getChildList();
+        particles = atomList.size()/P;
         
     }
 

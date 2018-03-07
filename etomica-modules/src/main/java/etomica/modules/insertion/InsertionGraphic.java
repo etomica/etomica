@@ -414,7 +414,7 @@ public class InsertionGraphic extends SimulationGraphic {
         
         public void reset() {
             meterPE.setBox(sim.box);
-            meterPE.setTarget(sim.box.getMoleculeList(sim.getSpecies(1)).getMolecule(0).getChildList().getAtom(0));
+            meterPE.setTarget(sim.box.getMoleculeList(sim.getSpecies(1)).get(0).getChildList().get(0));
             sim.potentialGhost.setEpsilonWell(1.0);
             currentWells = -(int)Math.round(meterPE.getDataAsScalar());
             sim.potentialGhost.setEpsilonWell(0);

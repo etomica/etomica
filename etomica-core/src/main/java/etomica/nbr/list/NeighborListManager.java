@@ -55,9 +55,9 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
     /**
      * Configures instance for use by the given PotentialMaster.
      */
-    public NeighborListManager(PotentialMasterList potentialMasterList, double range,
-                               Box box, Space space) {
+    public NeighborListManager(PotentialMasterList potentialMasterList, double range, Box box) {
         setUpdateInterval(1);
+        Space space = box.getSpace();
         this.box = box;
         iieCount = updateInterval;
         pbcEnforcer = new BoxImposePbc(space);
@@ -86,9 +86,9 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
     
     public void updateLists() {
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int j=0; j<nLeaf; j++) {
-            IAtom atom = leafList.getAtom(j);
+            IAtom atom = leafList.get(j);
             IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
 
             agentManager2Body.getAgent(atom).setCapacity(potentials.length);
@@ -158,9 +158,9 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
         boolean needUpdate = false;
         boolean unsafe = false;
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int j=0; j<nLeaf; j++) {
-            IAtom atom = leafList.getAtom(j);
+            IAtom atom = leafList.get(j);
             final NeighborCriterion[] criterion = potentialMaster.getRangedPotentials(atom.getType()).getCriteria();
             for (int i = 0; i < criterion.length; i++) {
                 if (criterion[i].needUpdate(atom)) {
@@ -254,10 +254,10 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
     protected void neighborSetup() {
 
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         // reset criteria
         for (int j=0; j<nLeaf; j++) {
-            IAtom atom = leafList.getAtom(j);
+            IAtom atom = leafList.get(j);
             final NeighborCriterion[] criterion = getCriterion(atom.getType());
             agentManager2Body.getAgent(atom).clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
@@ -286,8 +286,8 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
         //consider doing this by introducing ApiNested interface, with hasNextInner and hasNextOuter methods
         for (IAtomList pair = cellNbrIterator.nextPair(); pair != null;
              pair = cellNbrIterator.nextPair()) {
-            IAtom atom0 = pair.getAtom(0);
-            IAtom atom1 = pair.getAtom(1);
+            IAtom atom0 = pair.get(0);
+            IAtom atom1 = pair.get(1);
             PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom0.getType());
             IPotential[] potentials = potentialArray.getPotentials();
             NeighborCriterion[] criteria = potentialArray.getCriteria();
@@ -343,8 +343,8 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
         cell1ANbrIterator.reset();
         for (IAtomList pair = cell1ANbrIterator.next(); pair != null;
              pair = cell1ANbrIterator.next()) {
-            IAtom atom1 = pair.getAtom(1);
-            if (atom1 == atom) atom1 = pair.getAtom(0);
+            IAtom atom1 = pair.get(1);
+            if (atom1 == atom) atom1 = pair.get(0);
             for (int i = 0; i < potentials.length; i++) {
                 if (potentials[i].nBody() < 2) {
                     continue;
@@ -433,9 +433,9 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
         AtomNeighborLists nbrLists = agent;
         IAtomList[] upDnLists = nbrLists.getUpList();
         for (int i=0; i<upDnLists.length; i++) {
-            int nNbrs = upDnLists[i].getAtomCount();
+            int nNbrs = upDnLists[i].size();
             for (int j=0; j<nNbrs; j++) {
-                IAtom jAtom = upDnLists[i].getAtom(j);
+                IAtom jAtom = upDnLists[i].get(j);
                 AtomNeighborLists jNbrLists = agentManager2Body.getAgent(jAtom);
                 AtomArrayList[] jDnLists = jNbrLists.downList;
                 for (int k=0; k<jDnLists.length; k++) {
@@ -448,9 +448,9 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
         }
         upDnLists = nbrLists.getDownList();
         for (int i=0; i<upDnLists.length; i++) {
-            int nNbrs = upDnLists[i].getAtomCount();
+            int nNbrs = upDnLists[i].size();
             for (int j=0; j<nNbrs; j++) {
-                IAtom jAtom = upDnLists[i].getAtom(j);
+                IAtom jAtom = upDnLists[i].get(j);
                 AtomNeighborLists jNbrLists = agentManager2Body.getAgent(jAtom);
                 AtomArrayList[] jUpLists = jNbrLists.upList;
                 for (int k=0; k<jUpLists.length; k++) {

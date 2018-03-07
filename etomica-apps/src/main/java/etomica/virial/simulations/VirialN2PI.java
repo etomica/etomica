@@ -235,7 +235,7 @@ public class VirialN2PI {
             for (int i=0; i<nBeads; i++) {
                 for (int j=0; j<3; j++) {
                     int k = j*nBeads + i;
-                    Vector p = tarList.getAtom(k).getPosition();
+                    Vector p = tarList.get(k).getPosition();
                     p.setX(j, 4.0);
                 }
             }

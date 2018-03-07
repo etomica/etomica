@@ -72,9 +72,9 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
 
     public void updateLists() {
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecule = moleculeList.getMoleculeCount();
+        int nMolecule = moleculeList.size();
         for (int j=0; j<nMolecule; j++) {
-            IMolecule molecule = moleculeList.getMolecule(j);
+            IMolecule molecule = moleculeList.get(j);
             IPotential[] potentials = potentialMaster.getRangedPotentials(molecule.getType()).getPotentials();
 
             ((MoleculeNeighborLists)agentManager2Body.getAgent(molecule)).setCapacity(potentials.length);
@@ -145,9 +145,9 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
         boolean needUpdate = false;
         boolean unsafe = false;
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecule = moleculeList.getMoleculeCount();
+        int nMolecule = moleculeList.size();
         for (int j=0; j<nMolecule; j++) {
-            IMolecule molecule = moleculeList.getMolecule(j);
+            IMolecule molecule = moleculeList.get(j);
             final NeighborCriterionMolecular[] criterion = potentialMaster.getRangedPotentials(molecule.getType()).getCriteria();
             for (int i = 0; i < criterion.length; i++) {
                 if (criterion[i].needUpdate(molecule)) {
@@ -226,10 +226,10 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
     protected void neighborSetup() {
 
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecule = moleculeList.getMoleculeCount();
+        int nMolecule = moleculeList.size();
         // reset criteria
         for (int j=0; j<nMolecule; j++) {
-            IMolecule molecule = moleculeList.getMolecule(j);
+            IMolecule molecule = moleculeList.get(j);
             final NeighborCriterionMolecular[] criterion = getCriterion(molecule.getType());
             ((MoleculeNeighborLists)agentManager2Body.getAgent(molecule)).clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
@@ -244,7 +244,7 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
                 if (potentials[i].nBody() != 1) {
                     continue;
                 }
-                moleculeSetSinglet.atom = molecule;
+                moleculeSetSinglet.mol = molecule;
                 ((MoleculePotentialList)agentManager1Body.getAgent(molecule)).setIsInteracting(criteria[i].accept(moleculeSetSinglet),i);
             }
         }
@@ -258,8 +258,8 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
         //consider doing this by introducing ApiNested interface, with hasNextInner and hasNextOuter methods
         for (IMoleculeList pair = cellNbrIterator.nextPair(); pair != null;
              pair = cellNbrIterator.nextPair()) {
-            IMolecule molecule0 = pair.getMolecule(0);
-            IMolecule molecule1 = pair.getMolecule(1);
+            IMolecule molecule0 = pair.get(0);
+            IMolecule molecule1 = pair.get(1);
             PotentialArrayMolecular potentialArray = potentialMaster.getRangedPotentials(molecule0.getType());
             IPotentialMolecular[] potentials = potentialArray.getPotentials();
             NeighborCriterionMolecular[] criteria = potentialArray.getCriteria();
@@ -300,8 +300,8 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
         cell1ANbrIterator.reset();
         for (IMoleculeList pair = cell1ANbrIterator.next(); pair != null;
              pair = cell1ANbrIterator.next()) {
-            IMolecule molecule0 = pair.getMolecule(0);
-            IMolecule molecule1 = pair.getMolecule(1);
+            IMolecule molecule0 = pair.get(0);
+            IMolecule molecule1 = pair.get(1);
             PotentialArrayMolecular potentialArray = potentialMaster.getRangedPotentials(molecule0.getType());
             IPotentialMolecular[] potentials = potentialArray.getPotentials();
             NeighborCriterionMolecular[] criteria = potentialArray.getCriteria();
@@ -410,9 +410,9 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
         MoleculeNeighborLists nbrLists = (MoleculeNeighborLists)agent;
         IMoleculeList[] upDnLists = nbrLists.getUpList();
         for (int i=0; i<upDnLists.length; i++) {
-            int nNbrs = upDnLists[i].getMoleculeCount();
+            int nNbrs = upDnLists[i].size();
             for (int j=0; j<nNbrs; j++) {
-                IMolecule jMolecule = upDnLists[i].getMolecule(j);
+                IMolecule jMolecule = upDnLists[i].get(j);
                 MoleculeNeighborLists jNbrLists = (MoleculeNeighborLists)agentManager2Body.getAgent(jMolecule);
                 MoleculeArrayList[] jDnLists = jNbrLists.downList;
                 for (int k=0; k<jDnLists.length; k++) {
@@ -425,9 +425,9 @@ public class NeighborListManagerMolecular implements IntegratorListener, Molecul
         }
         upDnLists = nbrLists.getDownList();
         for (int i=0; i<upDnLists.length; i++) {
-            int nNbrs = upDnLists[i].getMoleculeCount();
+            int nNbrs = upDnLists[i].size();
             for (int j=0; j<nNbrs; j++) {
-                IMolecule jMolecule = upDnLists[i].getMolecule(j);
+                IMolecule jMolecule = upDnLists[i].get(j);
                 MoleculeNeighborLists jNbrLists = (MoleculeNeighborLists)agentManager2Body.getAgent(jMolecule);
                 MoleculeArrayList[] jUpLists = jNbrLists.upList;
                 for (int k=0; k<jUpLists.length; k++) {

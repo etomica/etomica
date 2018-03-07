@@ -36,8 +36,8 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
     
     public double energy(IAtomList atomSet) {
     	
-        IAtom atom0 = atomSet.getAtom(0);
-        IAtom atom1 = atomSet.getAtom(1);
+        IAtom atom0 = atomSet.get(0);
+        IAtom atom1 = atomSet.get(1);
     	dr01.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
     	boundary.nearestImage(dr01);
         double r2 = dr01.squared();
@@ -55,8 +55,8 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
     
     public Vector[] gradient(IAtomList atomSet) {
     	
-        IAtom atom0 = atomSet.getAtom(0);
-        IAtom atom1 = atomSet.getAtom(1);
+        IAtom atom0 = atomSet.get(0);
+        IAtom atom1 = atomSet.get(1);
     	dr01.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
     	boundary.nearestImage(dr01);
         double r2 = dr01.squared();

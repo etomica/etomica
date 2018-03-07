@@ -40,13 +40,22 @@ public class HSMD2D extends Simulation {
 
     public HSMD2D() {
         super(Space2D.getInstance());
+
+        species1 = new SpeciesSpheresMono(this, space);
+        species1.setIsDynamic(true);
+        species2 = new SpeciesSpheresMono(this, space);
+        species2.setIsDynamic(true);
+        addSpecies(species1);
+        addSpecies(species2);
+
+        box = this.makeBox();
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         double sigma = 1;
 
         double neighborRangeFac = 1.6;
         potentialMaster.setRange(neighborRangeFac * sigma);
 
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
@@ -55,14 +64,8 @@ public class HSMD2D extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
-        species1 = new SpeciesSpheresMono(this, space);
-        species1.setIsDynamic(true);
-        species2 = new SpeciesSpheresMono(this, space);
-        species2.setIsDynamic(true);
         AtomType leafType1 = species1.getLeafType();
         AtomType leafType2 = species2.getLeafType();
-        addSpecies(species1);
-        addSpecies(species2);
         ((ElementSimple) leafType2.getElement()).setMass(10);
 
         potential11 = new P2HardSphere(space, sigma, false);
@@ -74,9 +77,6 @@ public class HSMD2D extends Simulation {
         potentialMaster.addPotential(potential12, new AtomType[]{leafType2, leafType2});
 
         potentialMaster.addPotential(potential22, new AtomType[]{leafType1, leafType2});
-
-        box = new Box(space);
-        addBox(box);
         box.setNMolecules(species1, 512);
         box.setNMolecules(species2, 5);
 
@@ -85,7 +85,6 @@ public class HSMD2D extends Simulation {
         bi.actionPerformed();
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
-        integrator.setBox(box);
     }
 
     /**

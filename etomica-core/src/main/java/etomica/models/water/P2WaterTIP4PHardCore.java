@@ -75,17 +75,17 @@ public class P2WaterTIP4PHardCore extends PotentialMolecular {
 
     public double energy(IMoleculeList pair) {
         double sum = 0.0;
-        IMolecule water1 = pair.getMolecule(0);
-        IMolecule water2 = pair.getMolecule(1);
+        IMolecule water1 = pair.get(0);
+        IMolecule water2 = pair.get(1);
 
-        Vector O1r = water1.getChildList().getAtom(2).getPosition();//H-H-O-M, so O is the third atom
-        Vector O2r = water2.getChildList().getAtom(2).getPosition();
-        Vector H11r = water1.getChildList().getAtom(0).getPosition();// 1st H on water 1
-        Vector H12r = water1.getChildList().getAtom(1).getPosition();// 2nd H on water 1
-        Vector H21r = water2.getChildList().getAtom(0).getPosition();// 1st H on water 2
-        Vector H22r = water2.getChildList().getAtom(1).getPosition();// 2nd H on water 2
-        Vector M1r = water1.getChildList().getAtom(3).getPosition();
-        Vector M2r = water2.getChildList().getAtom(3).getPosition();
+        Vector O1r = water1.getChildList().get(2).getPosition();//H-H-O-M, so O is the third atom
+        Vector O2r = water2.getChildList().get(2).getPosition();
+        Vector H11r = water1.getChildList().get(0).getPosition();// 1st H on water 1
+        Vector H12r = water1.getChildList().get(1).getPosition();// 2nd H on water 1
+        Vector H21r = water2.getChildList().get(0).getPosition();// 1st H on water 2
+        Vector H22r = water2.getChildList().get(1).getPosition();// 2nd H on water 2
+        Vector M1r = water1.getChildList().get(3).getPosition();
+        Vector M2r = water2.getChildList().get(3).getPosition();
         r.Ev1Mv2(O1r, O2r);//distance between lj sites
 
         O1P1r.Ev1Mv2(M1r, O1r);

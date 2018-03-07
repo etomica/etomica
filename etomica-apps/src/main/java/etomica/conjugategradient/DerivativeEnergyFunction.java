@@ -6,12 +6,9 @@ package etomica.conjugategradient;
 
 import etomica.action.Activity;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.math.function.FunctionMultiDimensionalDifferentiable;
 import etomica.molecule.IMoleculeList;
 import etomica.normalmode.CoordinateDefinition;
@@ -35,7 +32,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	protected PotentialMaster potentialMaster;
 	protected IteratorDirective allAtoms;
 	protected PotentialCalculationForceSum forceSum;
-	protected AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> agentManager;
+	protected AtomLeafAgentManager<Vector> agentManager;
 	protected Activity activity;
 	protected CoordinateDefinition coordinateDefinition;
 	protected double[] fPrime;
@@ -49,8 +46,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 		allAtoms = new IteratorDirective();
 		forceSum = new PotentialCalculationForceSum();
 		
-		MyAgentSource source = new MyAgentSource(space);
-		agentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(source, box);
+		agentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
 		forceSum.setAgentManager(agentManager);
 		moleculeForce = space.makeVector();
 		
@@ -120,7 +116,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 		
 		IMoleculeList molecules = coordinateDefinition.getBasisCells()[0].molecules;
 		
-		for (int m=0; m<molecules.getMoleculeCount(); m++){
+		for (int m = 0; m<molecules.size(); m++){
 				
 			if (m==0){
 				for (int k=0; k<3; k++){
@@ -133,12 +129,12 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 					
 			} else {
 				
-				IAtomList childList = molecules.getMolecule(m).getChildList();
+				IAtomList childList = molecules.get(m).getChildList();
 				
 				moleculeForce.E(0); //initialize moleculeForce to zero
 				
-				for (int r=0; r<childList.getAtomCount(); r++){
-					moleculeForce.PE(agentManager.getAgent(childList.getAtom(r)).force);
+				for (int r = 0; r<childList.size(); r++){
+					moleculeForce.PE(agentManager.getAgent(childList.get(r)));
 				}
 					
 				
@@ -150,7 +146,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 					}
 				}
 			}
-			j += coordinateDefinition.getCoordinateDim() /molecules.getMoleculeCount();
+			j += coordinateDefinition.getCoordinateDim() /molecules.size();
 		}
 		
 		return fPrime[index];
@@ -163,23 +159,6 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	public void getScalarEnergy(){
 		meterEnergy.setBox(box);
 		System.out.println("The energy of the system is: "+meterEnergy.getDataAsScalar());
-	}
-	
-	
-	
-	public static class MyAgentSource implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
-		
-		public MyAgentSource(Space space){
-			this.space = space;
-		}
-		
-		public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox){}
-
-		public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom atom, Box agentBox){
-			
-		    return new IntegratorVelocityVerlet.MyAgent(space);
-		}
-		protected Space space;
 	}
 
 }

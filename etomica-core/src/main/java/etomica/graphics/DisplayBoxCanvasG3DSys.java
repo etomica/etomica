@@ -199,9 +199,9 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
 		// Remove old box atoms
 		IAtomList leafList = p.getLeafList();
-		int nLeaf = leafList.getAtomCount();
+		int nLeaf = leafList.size();
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-			IAtom a = leafList.getAtom(iLeaf);
+			IAtom a = leafList.get(iLeaf);
 			if (a == null)
 				continue;
 			Ball ball = (Ball) aam.getAgent(a);
@@ -221,7 +221,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
 		// Set new atom manager
 		aam = new AtomLeafAgentManager<Figure>(this, displayBox.getBox());
-		aamOriented = new AtomLeafAgentManager<Ball[]>(null, displayBox.getBox());
+		aamOriented = new AtomLeafAgentManager<Ball[]>(a -> null, displayBox.getBox());
 		initialOrient = true;
 	}
 
@@ -271,13 +271,13 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		DiameterHash diameterHash = displayBox.getDiameterHash();
 
 		IAtomList leafList = displayBox.getBox().getLeafList();
-		int nLeaf = leafList.getAtomCount();
+		int nLeaf = leafList.size();
 
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
 		    IAtom a = null;
 		    Ball ball = null;
 		    try {
-		        a = leafList.getAtom(iLeaf);
+		        a = leafList.get(iLeaf);
 	            if (a == null)
 	                continue;
 	            ball = (Ball) aam.getAgent(a);
@@ -672,8 +672,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		 */
 		// bondType is a potential right now
 		// best to ignore it for now; all bonds are equal
-		Ball ball0 = (Ball) aam.getAgent(pair.getAtom(0));
-		Ball ball1 = (Ball) aam.getAgent(pair.getAtom(1));
+		Ball ball0 = (Ball) aam.getAgent(pair.get(0));
+		Ball ball1 = (Ball) aam.getAgent(pair.get(1));
 		if (ball0 == null || ball1 == null) {
 			System.out.println("NULL!!!");
 			pendingBonds.add(new Object[] { ball0, ball1, bondType });
@@ -696,10 +696,10 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     public void setOrientationSites(AtomTypeOriented atomType, OrientedSite[] sites) {
         atomTypeOrientedManager.put(atomType, sites);
 		IAtomList leafList = displayBox.getBox().getLeafList();
-		int nLeaf = leafList.getAtomCount();
+		int nLeaf = leafList.size();
 
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-			IAtom a = leafList.getAtom(iLeaf);
+			IAtom a = leafList.get(iLeaf);
 			if (a.getType() != atomType) continue;
 			Ball[] balls = aamOriented.getAgent(a);
 			if (balls == null) continue;

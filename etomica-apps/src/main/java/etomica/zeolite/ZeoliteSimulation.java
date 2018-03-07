@@ -97,10 +97,11 @@ public class ZeoliteSimulation extends Simulation {
         //Setting sizes of molecules
 
         double range = 8.035;
-        potentialMaster.setRange(3.214*neighborRangeFac*2.5);
+        potentialMaster.setRange(3.214 * neighborRangeFac * 2.5);
 
 
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
+        box = this.makeBox();
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(10);
         integrator.setTimeStep(0.00611);
@@ -110,22 +111,18 @@ public class ZeoliteSimulation extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator, 2, true);
         activityIntegrate.setMaxSteps(500);
         getController().addAction(activityIntegrate);
-
-        box = new Box(space);
-        addBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         species = new SpeciesSpheresMono[numAtoms.length];
-        for(int i=0;i<numAtoms.length;i++){
-        	species[i] = new SpeciesSpheresMono(this, space);
+        for (int i = 0; i < numAtoms.length; i++) {
+            species[i] = new SpeciesSpheresMono(this, space);
             species[i].setIsDynamic(true);
             addSpecies(species[i]);
-        	box.setNMolecules(species[i], numAtoms[i]);
-        	if (i!=(numAtoms.length-1)){
+            box.setNMolecules(species[i], numAtoms[i]);
+            if (i != (numAtoms.length - 1)) {
                 // all elements except the last (methane) are fixed
-        	    ((ElementSimple)(species[i].getLeafType()).getElement()).setMass(Double.POSITIVE_INFINITY);
-        	}
-            else {
-                ((ElementSimple)species[i].getLeafType().getElement()).setMass(16);
+                ((ElementSimple) (species[i].getLeafType()).getElement()).setMass(Double.POSITIVE_INFINITY);
+            } else {
+                ((ElementSimple) species[i].getLeafType().getElement()).setMass(16);
             }
         }
         //Setting up potential for Methane-Methane interactions
@@ -143,11 +140,11 @@ public class ZeoliteSimulation extends Simulation {
 
         //Setting up Methane - Silicon interactions
         //P2LennardJones potentialMS = potentialMO;
-        P2WCA potentialMS = new P2WCA(space,1.18,potentialMO.getEpsilon());
+        P2WCA potentialMS = new P2WCA(space, 1.18, potentialMO.getEpsilon());
 
         //Wrap LJ potentials to truncate
-        P2SoftSphericalTruncated MM = new P2SoftSphericalTruncated(space, potentialMM,2.5*potentialMM.getSigma());
-        P2SoftSphericalTruncated MO = new P2SoftSphericalTruncated(space, potentialMO,2.5*potentialMO.getSigma());
+        P2SoftSphericalTruncated MM = new P2SoftSphericalTruncated(space, potentialMM, 2.5 * potentialMM.getSigma());
+        P2SoftSphericalTruncated MO = new P2SoftSphericalTruncated(space, potentialMO, 2.5 * potentialMO.getSigma());
         //P2SoftSphericalTruncated MS = new P2SoftSphericalTruncated(potentialMS,2.5*potentialMS.getSigma());
 
 
@@ -158,7 +155,6 @@ public class ZeoliteSimulation extends Simulation {
         //Initializes the coordinates and positions
         config.initializeCoordinates(box);
         box.getBoundary().setBoxSize(config.getUpdatedDimensions());
-        integrator.setBox(box);
         //integrator.addListener(new BoxImposePbc(box));
 
         //PARAMETERS For Simulation Run
@@ -167,11 +163,11 @@ public class ZeoliteSimulation extends Simulation {
         double ts = 0.00611;
         integrator.setTimeStep(ts);
         interval = 2000;
-        integrator.setThermostatInterval(interval/1000);
+        integrator.setThermostatInterval(interval / 1000);
 
         //      Adding coordinate writer by Mike Sellars
 
-        filename = (numAtoms[2]+"_"+activityIntegrate.getMaxSteps()+"_"+ts+"_"+interval+"_WCA");
+        filename = (numAtoms[2] + "_" + activityIntegrate.getMaxSteps() + "_" + ts + "_" + interval + "_WCA");
         sp = species[2];
         /*
         MSDCoordWriter coordWriter = new MSDCoordWriter(this.space, filename,sp);

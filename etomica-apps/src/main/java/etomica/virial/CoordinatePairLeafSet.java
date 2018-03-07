@@ -27,8 +27,8 @@ public class CoordinatePairLeafSet implements CoordinatePairSet {
      * @param list The list of atoms for which the set of pairs is formed.
      */
     public CoordinatePairLeafSet(IAtomList list, Space space) {
-        positions = new Vector[list.getAtomCount()];
-        numAtoms = list.getAtomCount();
+        positions = new Vector[list.size()];
+        numAtoms = list.size();
         r2 = new double[numAtoms*numAtoms];
         setAtoms(list);
         dr = space.makeVector();
@@ -43,8 +43,8 @@ public class CoordinatePairLeafSet implements CoordinatePairSet {
     }
 
     private void setAtoms(IAtomList list) {
-        for (int i=0; i<list.getAtomCount(); i++) {
-            positions[i] = list.getAtom(i).getPosition();
+        for (int i = 0; i<list.size(); i++) {
+            positions[i] = list.get(i).getPosition();
         }
     }
     

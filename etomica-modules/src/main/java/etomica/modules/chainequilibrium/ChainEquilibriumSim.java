@@ -50,24 +50,22 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
     public ChainEquilibriumSim(Space space) {
         super(space);
         potentialMaster = new PotentialMasterList(this, 3, space);
-        ((PotentialMasterList)potentialMaster).setCellRange(1);
+        ((PotentialMasterList) potentialMaster).setCellRange(1);
 
         controller1 = getController();
 
         double diameter = 1.0;
         double lambda = 2.0;
 
-        integratorHard = new IntegratorHard(this, potentialMaster, space);
+        integratorHard = new IntegratorHard(this, potentialMaster, box);
         integratorHard.setIsothermal(true);
         integratorHard.setTemperature(Kelvin.UNIT.toSim(300));
         integratorHard.setTimeStep(0.002);
         integratorHard.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integratorHard.setThermostatInterval(1);
 
-        box = new Box(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20), space);
-        addBox(box);
-        integratorHard.setBox(box);
-        integratorHard.getEventManager().addListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
+        box = this.makeBox(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20));
+        integratorHard.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box));
 
         speciesA = new SpeciesSpheresMono(this, space);
         speciesA.setIsDynamic(true);
@@ -83,28 +81,28 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
         config = new ConfigurationLatticeRandom(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space, random);
         config.initializeCoordinates(box);
 
-        agentManager = new AtomLeafAgentManager<IAtom[]>(this,box);
+        agentManager = new AtomLeafAgentManager<IAtom[]>(this, box);
 
-		//potentials
+        //potentials
         p2AA = new P2HardSphere(space, diameter, true);
-		ABbonded = new P2SquareWellBonded(space, agentManager, diameter / lambda, lambda, 0.0);
+        ABbonded = new P2SquareWellBonded(space, agentManager, diameter / lambda, lambda, 0.0);
         p2BB = new P2HardSphere(space, diameter, true);
 
-		potentialMaster.addPotential(p2AA,
+        potentialMaster.addPotential(p2AA,
                 new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
         potentialMaster.addPotential(ABbonded,
                 new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
 
-		potentialMaster.addPotential(p2BB,
+        potentialMaster.addPotential(p2BB,
                 new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
 
-		// **** Setting Up the thermometer Meter *****
+        // **** Setting Up the thermometer Meter *****
 
         thermometer = new MeterTemperature(box, space.D());
 
-		activityIntegrate = new ActivityIntegrate(integratorHard, 1, true);
-		getController().addAction(activityIntegrate);
-	}
+        activityIntegrate = new ActivityIntegrate(integratorHard, 1, true);
+        getController().addAction(activityIntegrate);
+    }
 
     public int getNMonoOl() {
         return nMonoOl;
@@ -153,8 +151,8 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
     
     public void resetBonds() {
         IAtomList atoms = box.getLeafList();
-        for (int i=0; i<atoms.getAtomCount(); i++) {
-            IAtom a = atoms.getAtom(i);
+        for (int i = 0; i<atoms.size(); i++) {
+            IAtom a = atoms.get(i);
             agentManager.setAgent(a, makeAgent(a, box));
         }
     }

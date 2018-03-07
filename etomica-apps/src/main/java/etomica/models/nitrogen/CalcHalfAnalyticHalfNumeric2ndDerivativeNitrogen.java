@@ -89,9 +89,9 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 		double df = 0.0;
 		
 		IMoleculeList moleculeList = coordinateDefinition.getBox().getMoleculeList();
-		int numMolecule = moleculeList.getMoleculeCount();
+		int numMolecule = moleculeList.size();
 		
-		pair.atom0 = moleculeList.getMolecule(moleculei[0]);
+		pair.mol0 = moleculeList.get(moleculei[0]);
 		
 		IMolecule molecule1;
 		Vector[][] gradTorq;
@@ -101,8 +101,8 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 			
 			if(i==moleculei[0] && !doLatticeSum) continue;
 			
-			molecule1 = moleculeList.getMolecule(i); 
-			pair.atom1 = molecule1;
+			molecule1 = moleculeList.get(i);
+			pair.mol1 = molecule1;
 			
 			if(doLatticeSum){
 				
@@ -127,15 +127,15 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 						}
 					}
 					
-					molecule1 = moleculeList.getMolecule(molNum);
-					pair.atom1 = molecule1;
+					molecule1 = moleculeList.get(molNum);
+					pair.mol1 = molecule1;
 
 					//rotate the "borrowed" molecule 
 					coordinateDefinition.setToUMoleculei(molNum, u);
 					
-					destination.E(pos.position(pair.atom0));
+					destination.E(pos.position(pair.mol0));
 					translator.setDestination(destination);
-					translator.actionPerformed(pair.atom1); 
+					translator.actionPerformed(pair.mol1);
 				}
 				
 				if(isAlpha){
@@ -160,7 +160,7 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 									workVec.E(gradTorq[1][0]);
 									int rotAxisi = dxi==3 ? 2: 1;
 									
-									double dot = workVec.dot(coordinateDefinition.getMoleculeOrientation(pair.atom0)[rotAxisi]);
+									double dot = workVec.dot(coordinateDefinition.getMoleculeOrientation(pair.mol0)[rotAxisi]);
 									if(dxi==3) dot*= -1;
 									if(i==moleculei[0]) dot *= 2;
 									df += dot;
@@ -196,7 +196,7 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 									workVec.E(gradTorq[1][0]);
 									int rotAxisi = dxi==3 ? 2: 1;
 									
-									double dot = workVec.dot(coordinateDefinition.getMoleculeOrientation(pair.atom0)[rotAxisi]);
+									double dot = workVec.dot(coordinateDefinition.getMoleculeOrientation(pair.mol0)[rotAxisi]);
 									if(dxi==3) dot*= -1;
 									if(i==moleculei[0]) dot *= 2;
 									df += dot;
@@ -252,7 +252,7 @@ public class CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen{
 					workVec.E(gradTorq[1][0]);
 					int rotAxisi = dxi==3 ? 2: 1;
 					
-					double dot = workVec.dot(coordinateDefinition.getMoleculeOrientation(pair.atom0)[rotAxisi]);
+					double dot = workVec.dot(coordinateDefinition.getMoleculeOrientation(pair.mol0)[rotAxisi]);
 					if(dxi==3) dot*= -1;
 					df += dot;	
 				}

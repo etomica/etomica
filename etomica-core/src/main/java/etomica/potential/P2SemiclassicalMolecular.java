@@ -73,7 +73,7 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
         Vector[][] gradAndTorque = p2Classy.gradientAndTorque(molecules);
         double sum = 0;
         for (int i=0; i<2; i++) {
-            IMolecule iMol = molecules.getMolecule(i);
+            IMolecule iMol = molecules.get(i);
             MoleculeInfo molInfo = agents.get(iMol.getType());
             if (molInfo == null) {
                 molInfo = new MoleculeInfoBrute(space);
@@ -133,8 +133,8 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
             double m = 0;
             moment.E(0);
             IAtomList atoms = molecule.getChildList();
-            for (int j=0; j<atoms.getAtomCount(); j++) {
-                IAtom a = atoms.getAtom(j);
+            for (int j = 0; j<atoms.size(); j++) {
+                IAtom a = atoms.get(j);
                 double mj = a.getType().getMass();
                 m += mj;
             }
@@ -145,15 +145,15 @@ public class P2SemiclassicalMolecular implements IPotentialMolecular {
             double m = 0;
             moment.E(0);
             IAtomList atoms = molecule.getChildList();
-            for (int j=0; j<atoms.getAtomCount(); j++) {
-                IAtom a = atoms.getAtom(j);
+            for (int j = 0; j<atoms.size(); j++) {
+                IAtom a = atoms.get(j);
                 double mj = a.getType().getMass();
                 cm.PEa1Tv1(mj, a.getPosition());
                 m += mj;
             }
             cm.TE(1.0/m);
-            for (int j=0; j<atoms.getAtomCount(); j++) {
-                IAtom a = atoms.getAtom(j);
+            for (int j = 0; j<atoms.size(); j++) {
+                IAtom a = atoms.get(j);
                 double mj = a.getType().getMass();
                 rj.Ev1Mv2(a.getPosition(), cm);
                 momentj.E(id);

@@ -30,7 +30,6 @@ import etomica.virial.ClusterWeightAbs;
 import etomica.virial.ClusterWeightSumWall;
 import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.MeterVirialExternalFieldOverlapConfined;
 import etomica.virial.MeterVirialExternalFieldOverlapConfinedSW;
 import etomica.virial.cluster.ExternalVirialDiagrams;
 import etomica.virial.cluster.Standard;
@@ -117,7 +116,7 @@ public class VirialExternalFieldConfinedOverlapSW {
 		
         do {
 			for (int i = 1; i<nPoints; i++){
-				sim.box[1].getLeafList().getAtom(i).getPosition().setX(2, sim.getRandom().nextDouble()-0.5); 
+				sim.box[1].getLeafList().get(i).getPosition().setX(2, sim.getRandom().nextDouble()-0.5);
 			}
 			sim.box[1].trialNotify();
 		    sim.box[1].acceptNotify();

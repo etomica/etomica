@@ -33,11 +33,11 @@ public class PotentialCalculationEFSSP implements PotentialCalculation {
         this.box = box;
         this.coordinateDefinition = coordinateDefinition;
         volume = coordinateDefinition.getBox().getBoundary().volume();
-        nMol = coordinateDefinition.getBox().getLeafList().getAtomCount();
+        nMol = coordinateDefinition.getBox().getLeafList().size();
 	}
 
 	public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-        int nNbrAtoms = atoms.getAtomCount();
+        int nNbrAtoms = atoms.size();
 		Vector[] g = null;
 		if(isLS){
 			PotentialEAM_LS potentialSoft = (PotentialEAM_LS)potential;
@@ -56,13 +56,13 @@ public class PotentialCalculationEFSSP implements PotentialCalculation {
 	        }
 			
 		}
-		Vector ri = atoms.getAtom(0).getPosition();
-		Vector Ri = coordinateDefinition.getLatticePosition(atoms.getAtom(0));
+		Vector ri = atoms.get(0).getPosition();
+		Vector Ri = coordinateDefinition.getLatticePosition(atoms.get(0));
         dri.Ev1Mv2(ri, Ri);
 
         for (int j=0;j<nNbrAtoms;j++){//START from "1" NOT "0" because we need j != i
-        	Vector rj = atoms.getAtom(j).getPosition();
-        	Vector Rj = coordinateDefinition.getLatticePosition(atoms.getAtom(j));
+        	Vector rj = atoms.get(j).getPosition();
+        	Vector Rj = coordinateDefinition.getLatticePosition(atoms.get(j));
         	rij.Ev1Mv2(ri , rj);
         	box.getBoundary().nearestImage(rij);
         	Rij.Ev1Mv2(Ri , Rj);

@@ -56,7 +56,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         if (lattice instanceof BravaisLatticeCrystal) {
             basisSize = ((BravaisLatticeCrystal)lattice).getBasis().getScaledCoordinates().length;
         }
-        int nCells = (int)Math.ceil((double)spheresLists[0].getMoleculeCount()/(double)basisSize);
+        int nCells = (int)Math.ceil((double)spheresLists[0].size()/(double)basisSize);
         
         //determine scaled shape of simulation volume
         Vector shape = space.makeVector();
@@ -120,9 +120,9 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         indexIterator.reset();
         
         // first species (mono spheres)
-        int nSpheres = spheresLists[0].getMoleculeCount();
+        int nSpheres = spheresLists[0].size();
         for (int i=0; i<nSpheres; i++) {
-            IMolecule a = spheresLists[0].getMolecule(i);
+            IMolecule a = spheresLists[0].get(i);
             
             int[] ii = indexIterator.next();
             Vector site = (Vector) myLat.site(ii);
@@ -135,10 +135,10 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         myLat = new MyLattice(lattice, latticeScaling, offset);
         indexIterator.reset();
         
-        nSpheres = spheresLists[1].getMoleculeCount();
+        nSpheres = spheresLists[1].size();
         // second species (mono spheres)
         for (int i=0; i<nSpheres; i++) {
-            IMolecule a = spheresLists[1].getMolecule(i);
+            IMolecule a = spheresLists[1].get(i);
             
             int[] ii = indexIterator.next();
             Vector site = (Vector) myLat.site(ii);
@@ -148,12 +148,12 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         
         //loop for multiple tubes.
         IMoleculeList tubeList = box.getMoleculeList(speciesTube);
-        int nTubes = tubeList.getMoleculeCount();
+        int nTubes = tubeList.size();
         atomActionTranslateTo.setAtomPositionDefinition(new MoleculePositionGeometricCenter(space));
         // put them all at 0.  oops
         atomActionTranslateTo.setDestination(space.makeVector());
         for (int i=0; i<nTubes; i++) {
-            IMolecule a = tubeList.getMolecule(i);
+            IMolecule a = tubeList.get(i);
             a.getType().initializeConformation(a);
             atomActionTranslateTo.actionPerformed(a);
         }

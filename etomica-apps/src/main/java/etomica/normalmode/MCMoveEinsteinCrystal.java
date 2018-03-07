@@ -59,12 +59,12 @@ public class MCMoveEinsteinCrystal extends MCMoveBox {
     public boolean doTrial() {
         IAtomList atomList = box.getLeafList();
         double einFac = Math.sqrt(temperature/(2*alpha));
-        int end = atomList.getAtomCount();
+        int end = atomList.size();
         if (fixedCOM) {
             dr.E(0);
         }
         for (int i=0; i<end; i++) {
-            IAtom a = atomList.getAtom(i);
+            IAtom a = atomList.get(i);
             Vector p = a.getPosition();
             Vector site = coordinateDefinition.getLatticePosition(a);
             for (int k=0; k<p.getD(); k++) {
@@ -78,7 +78,7 @@ public class MCMoveEinsteinCrystal extends MCMoveBox {
         if (fixedCOM) {
             dr.TE(-1.0/end);
             for (int i=0; i<end; i++) {
-                IAtom a = atomList.getAtom(i);
+                IAtom a = atomList.get(i);
                 Vector p = a.getPosition();
                 p.PE(dr);
             }

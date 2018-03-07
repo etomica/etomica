@@ -88,31 +88,31 @@ public class MCMoveReptate extends MCMoveBoxStep {
        //Pick direction & set up list of atoms to iterate
        forward = random.nextInt(2) == 0;
        IAtomList childlist = atom.getChildList();
-       int numChildren = childlist.getAtomCount();
+       int numChildren = childlist.size();
        
        if(forward){
-           Vector position = childlist.getAtom(numChildren-1).getPosition();
+           Vector position = childlist.get(numChildren-1).getPosition();
            positionOld.E(position);
            for (int j = numChildren - 1; j > 0; j--) {
-               Vector position2 = childlist.getAtom(j-1).getPosition();
+               Vector position2 = childlist.get(j-1).getPosition();
                position.E(position2);
                position = position2;
            }
            tempV.setRandomSphere(random);
            tempV.TE(bondLength);
-           childlist.getAtom(0).getPosition().PE(tempV);
+           childlist.get(0).getPosition().PE(tempV);
        }
        else {
-           Vector position = childlist.getAtom(0).getPosition();
+           Vector position = childlist.get(0).getPosition();
            positionOld.E(position);
            for(int j = 0; j < numChildren-1; j++){
-               Vector position2 = childlist.getAtom(j+1).getPosition();
+               Vector position2 = childlist.get(j+1).getPosition();
                position.E(position2);
                position = position2;
            }
            tempV.setRandomSphere(random);
            tempV.TE(bondLength);
-           childlist.getAtom(numChildren - 1).getPosition().PE(tempV);
+           childlist.get(numChildren - 1).getPosition().PE(tempV);
            
        }
        
@@ -131,24 +131,24 @@ public class MCMoveReptate extends MCMoveBoxStep {
     
     public void rejectNotify(){
         IAtomList childlist = atom.getChildList();
-        int numChildren = childlist.getAtomCount();
+        int numChildren = childlist.size();
         if (!forward) {
-            Vector position = childlist.getAtom(numChildren-1).getPosition();
+            Vector position = childlist.get(numChildren-1).getPosition();
             for (int j=numChildren-1; j>0; j--) {
-                Vector position2 = childlist.getAtom(j-1).getPosition();
+                Vector position2 = childlist.get(j-1).getPosition();
                 position.E(position2);
                 position = position2;
             }
-            childlist.getAtom(0).getPosition().E(positionOld);
+            childlist.get(0).getPosition().E(positionOld);
         }
         else {
-            Vector position = childlist.getAtom(0).getPosition();
+            Vector position = childlist.get(0).getPosition();
             for (int j=0; j<numChildren-1; j++) {
-                Vector position2 = childlist.getAtom(j+1).getPosition();
+                Vector position2 = childlist.get(j+1).getPosition();
                 position.E(position2);
                 position = position2;
             }
-            childlist.getAtom(numChildren-1).getPosition().E(positionOld);
+            childlist.get(numChildren-1).getPosition().E(positionOld);
         }
         
         

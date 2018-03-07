@@ -12,7 +12,6 @@ import etomica.lattice.crystal.Primitive;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
-import etomica.molecule.MoleculeListWrapper;
 import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -36,7 +35,7 @@ public class CoordinateDefinitionLeafSuperBox extends CoordinateDefinitionLeaf {
     public void initializeCoordinates(int[] nCells) {
         MoleculeIteratorAllMolecules atomIterator = new MoleculeIteratorAllMolecules(box);
         IMoleculeList moleculeList = box.getMoleculeList();
-        if (moleculeList.getMoleculeCount() == 0) {
+        if (moleculeList.size() == 0) {
             throw new RuntimeException("There are no atoms yet!");
         }
 
@@ -96,11 +95,11 @@ public class CoordinateDefinitionLeafSuperBox extends CoordinateDefinitionLeaf {
         	
         	IMolecule molecule;
         	if (inCenterBox) {
-        		molecule = box.getMoleculeList(speciesA).getMolecule(counterSpeciesA);
+        		molecule = box.getMoleculeList(speciesA).get(counterSpeciesA);
         		counterSpeciesA ++;
         		
         	} else {
-        		molecule = box.getMoleculeList(speciesB).getMolecule(counterSpeciesB);
+        		molecule = box.getMoleculeList(speciesB).get(counterSpeciesB);
         		counterSpeciesB ++;
         		
         	}
@@ -121,7 +120,7 @@ public class CoordinateDefinitionLeafSuperBox extends CoordinateDefinitionLeaf {
                 // new cell
                 iCell++;
                 currentList = new MoleculeArrayList(basisSize);
-                cells[iCell] = new BasisCell(new MoleculeListWrapper(currentList), lattice.getSpace().makeVector());
+                cells[iCell] = new BasisCell(currentList, lattice.getSpace().makeVector());
                 cells[iCell].cellPosition.E(position);
             }
             currentList.add(molecule);

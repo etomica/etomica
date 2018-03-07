@@ -63,7 +63,7 @@ public class Box {
     private final BoxEventManager eventManager;
     private final Space space;
     protected MoleculeArrayList[] moleculeLists;
-    private Boundary boundary;
+    private final Boundary boundary;
     private int index;
 
     /**
@@ -85,7 +85,8 @@ public class Box {
     public Box(Boundary boundary, Space space) {
         this.space = space;
         eventManager = new BoxEventManager(this);
-        setBoundary(boundary);
+        this.boundary = boundary;
+        this.boundary.setBox(this);
 
         moleculeLists = new MoleculeArrayList[0];
         allMoleculeList = new AtomSetAllMolecules();
@@ -146,29 +147,29 @@ public class Box {
     public void addMolecule(IMolecule molecule) {
         int speciesIndex = molecule.getType().getIndex();
         if (Debug.ON) {
-            for (int i = 0; i < moleculeLists[speciesIndex].getMoleculeCount(); i++) {
-                if (moleculeLists[speciesIndex].getMolecule(i) == molecule) {
+            for (int i = 0; i < moleculeLists[speciesIndex].size(); i++) {
+                if (moleculeLists[speciesIndex].get(i) == molecule) {
                     throw new RuntimeException("you bastard!");
                 }
             }
         }
-        molecule.setIndex(moleculeLists[speciesIndex].getMoleculeCount());
+        molecule.setIndex(moleculeLists[speciesIndex].size());
         moleculeLists[speciesIndex].add(molecule);
         allMoleculeList.setMoleculeLists(moleculeLists);
 
         IAtomList childList = molecule.getChildList();
-        int nLeafAtoms = leafList.getAtomCount();
-        for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-            IAtom childAtom = childList.getAtom(iChild);
+        int nLeafAtoms = leafList.size();
+        for (int iChild = 0; iChild < childList.size(); iChild++) {
+            IAtom childAtom = childList.get(iChild);
             childAtom.setLeafIndex(nLeafAtoms++);
             leafList.add(childAtom);
         }
         eventManager.moleculeAdded(molecule);
 
         if (Debug.ON) {
-            for (int i = 0; i < moleculeLists[speciesIndex].getMoleculeCount(); i++) {
-                if (moleculeLists[speciesIndex].getMolecule(i).getIndex() != i) {
-                    throw new RuntimeException("oops " + molecule + " " + moleculeLists[speciesIndex].getMolecule(i) + " " + i);
+            for (int i = 0; i < moleculeLists[speciesIndex].size(); i++) {
+                if (moleculeLists[speciesIndex].get(i).getIndex() != i) {
+                    throw new RuntimeException("oops " + molecule + " " + moleculeLists[speciesIndex].get(i) + " " + i);
                 }
             }
         }
@@ -183,14 +184,14 @@ public class Box {
     public void removeMolecule(IMolecule molecule) {
         int moleculeIndex = molecule.getIndex();
         MoleculeArrayList moleculeList = moleculeLists[molecule.getType().getIndex()];
-        if (moleculeList.getMolecule(moleculeIndex) != molecule) {
+        if (moleculeList.get(moleculeIndex) != molecule) {
             throw new IllegalArgumentException("can't find " + molecule);
         }
-        if (moleculeIndex < moleculeList.getMoleculeCount() - 1) {
+        if (moleculeIndex < moleculeList.size() - 1) {
             moleculeList.removeAndReplace(moleculeIndex);
-            IMolecule replacingMolecule = moleculeList.getMolecule(moleculeIndex);
+            IMolecule replacingMolecule = moleculeList.get(moleculeIndex);
             replacingMolecule.setIndex(moleculeIndex);
-            eventManager.moleculeIndexChanged(replacingMolecule, moleculeList.getMoleculeCount());
+            eventManager.moleculeIndexChanged(replacingMolecule, moleculeList.size());
         } else {
             moleculeList.remove(moleculeIndex);
         }
@@ -198,12 +199,12 @@ public class Box {
 
         eventManager.moleculeRemoved(molecule);
         IAtomList childList = molecule.getChildList();
-        for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-            IAtom childAtom = childList.getAtom(iChild);
+        for (int iChild = 0; iChild < childList.size(); iChild++) {
+            IAtom childAtom = childList.get(iChild);
             int leafIndex = childAtom.getLeafIndex();
             leafList.removeAndReplace(leafIndex);
-            if (leafList.getAtomCount() > leafIndex) {
-                IAtom movedAtom = leafList.getAtom(leafIndex);
+            if (leafList.size() > leafIndex) {
+                IAtom movedAtom = leafList.get(leafIndex);
                 int movedLeafIndex = movedAtom.getLeafIndex();
                 movedAtom.setLeafIndex(leafIndex);
                 eventManager.atomLeafIndexChanged(movedAtom, movedLeafIndex);
@@ -224,14 +225,14 @@ public class Box {
     public void setNMolecules(ISpecies species, int n) {
         int speciesIndex = species.getIndex();
         MoleculeArrayList moleculeList = moleculeLists[speciesIndex];
-        int currentNMolecules = moleculeList.getMoleculeCount();
+        int currentNMolecules = moleculeList.size();
         int moleculeLeafAtoms = 0;
         IMolecule newMolecule0 = null;
         if (currentNMolecules > 0) {
-            moleculeLeafAtoms = moleculeList.getMolecule(0).getChildList().getAtomCount();
+            moleculeLeafAtoms = moleculeList.get(0).getChildList().size();
         } else if (n > currentNMolecules) {
             newMolecule0 = species.makeMolecule();
-            moleculeLeafAtoms = newMolecule0.getChildList().getAtomCount();
+            moleculeLeafAtoms = newMolecule0.getChildList().size();
         }
         notifyNewMolecules(species, (n - currentNMolecules), moleculeLeafAtoms);
         if (n < 0) {
@@ -239,7 +240,7 @@ public class Box {
         }
         if (n > currentNMolecules) {
             moleculeLists[species.getIndex()].ensureCapacity(n);
-            leafList.ensureCapacity(leafList.getAtomCount() + (n - currentNMolecules) * moleculeLeafAtoms);
+            leafList.ensureCapacity(leafList.size() + (n - currentNMolecules) * moleculeLeafAtoms);
             if (newMolecule0 != null) {
                 addMolecule(newMolecule0);
                 currentNMolecules++;
@@ -249,7 +250,7 @@ public class Box {
             }
         } else {
             for (int i = currentNMolecules; i > n; i--) {
-                removeMolecule(moleculeList.getMolecule(i - 1));
+                removeMolecule(moleculeList.get(i - 1));
             }
         }
     }
@@ -259,7 +260,7 @@ public class Box {
      */
     public int getNMolecules(ISpecies species) {
         int speciesIndex = species.getIndex();
-        return moleculeLists[speciesIndex].getMoleculeCount();
+        return moleculeLists[speciesIndex].size();
     }
 
     /**
@@ -287,16 +288,6 @@ public class Box {
     }
 
     /**
-     * Sets the box's boundary to the given Boundary.
-     *
-     * @param b the new boundary
-     */
-    public void setBoundary(Boundary b) {
-        boundary = b;
-        boundary.setBox(this);
-    }
-
-    /**
      * Uses BoxInflate to adjust the volume to the specified density.
      * New volume is set such that N/V = rho, where N is the number of
      * molecules in the box.
@@ -304,7 +295,7 @@ public class Box {
      * @param rho the specified density
      */
     public void setDensity(double rho) {
-        double vNew = getMoleculeList().getMoleculeCount() / rho;
+        double vNew = getMoleculeList().size() / rho;
         double scale = Math.pow(vNew / boundary.volume(), 1.0 / space.D());
         BoxInflate inflater = new BoxInflate(this, space);
         inflater.setScale(scale);
@@ -356,9 +347,9 @@ public class Box {
         // actual max index has already increased, there's no harm since
         // there's nothing that says the max index can't be too large.
         int numNewLeafAtoms = numNewMolecules * moleculeLeafAtoms;
-        eventManager.numberMolecules(species, moleculeLists[species.getIndex()].getMoleculeCount() + numNewMolecules);
+        eventManager.numberMolecules(species, moleculeLists[species.getIndex()].size() + numNewMolecules);
         if (numNewLeafAtoms > 1) {
-            eventManager.globalAtomLeafIndexChanged(leafList.getAtomCount() + numNewLeafAtoms);
+            eventManager.globalAtomLeafIndexChanged(leafList.size() + numNewLeafAtoms);
         }
     }
 }

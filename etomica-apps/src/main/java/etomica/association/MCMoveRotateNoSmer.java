@@ -20,7 +20,7 @@ public class MCMoveRotateNoSmer extends MCMoveRotate {
 	}
 
     public double getChi(double temperature) {
-        if (associationManager.getAssociatedAtoms(atom).getAtomCount() > 1) {
+        if (associationManager.getAssociatedAtoms(atom).size() > 1) {
         	return 0;
         }
         return super.getChi(temperature);

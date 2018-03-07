@@ -68,12 +68,12 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
     public MeterDifferentImageAdd(Simulation sim, Space space, double temp,
                                   CoordinateDefinition simCD, NormalModes simNM, CoordinateDefinition
             otherCD, PotentialMasterList potentialMaster, int[] otherNCells,
-                                  NormalModes otherNM, String otherFilename){
-        
+                                  NormalModes otherNM, String otherFilename) {
+
         super("MeterAdd", Null.DIMENSION);
         this.random = sim.getRandom();
         sqrtTemperature = Math.sqrt(temp);
-        
+
         simWaveVectors = simNM.getWaveVectorFactory().getWaveVectors();
         this.simCDef = simCD;
         simCDim = simCD.getCoordinateDim();
@@ -83,86 +83,83 @@ public class MeterDifferentImageAdd extends DataSourceScalar {
         simRealT = new double[simCDim];
         simImagT = new double[simCDim];
         double[][] omegaTemp = simNM.getOmegaSquared();
-        
+
         sqrtSimOmega2 = new double[omegaTemp.length][omegaTemp[0].length];
-        for(int i = 0; i < omegaTemp.length; i++){
-            for(int j = 0; j < omegaTemp[0].length; j++){
+        for (int i = 0; i < omegaTemp.length; i++) {
+            for (int j = 0; j < omegaTemp[0].length; j++) {
                 sqrtSimOmega2[i][j] = Math.sqrt(omegaTemp[i][j]);
             }
         }
-        
-        double density = simCDef.getBox().getLeafList().getAtomCount() / 
+
+        double density = simCDef.getBox().getLeafList().size() /
                 simCDef.getBox().getBoundary().volume();
-        numAtoms = otherCD.getBox().getLeafList().getAtomCount();
-        box = new Box(space);
-        sim.addBox(box);
-        //nan this will be an issue if we have more than one species.
-        box.setNMolecules(sim.getSpecies(0), numAtoms);
-        
+        numAtoms = otherCD.getBox().getLeafList().size();
+
         if (space.D() == 1) {
-            bdry = new BoundaryRectangularPeriodic(space, numAtoms/ density);
+            bdry = new BoundaryRectangularPeriodic(space, numAtoms / density);
         } else {
             bdry = new BoundaryRectangularPeriodic(space, 1.0);
             Vector edges = otherCD.getBox().getBoundary().getBoxSize();
             bdry.setBoxSize(edges);
         }
-        box.setBoundary(bdry);
-        
-        cDef = new CoordinateDefinitionLeaf(box, otherCD.getPrimitive(), 
+        box = sim.makeBox(bdry);
+        //nan this will be an issue if we have more than one species.
+        box.setNMolecules(sim.getSpecies(0), numAtoms);
+
+        cDef = new CoordinateDefinitionLeaf(box, otherCD.getPrimitive(),
                 otherCD.getBasis(), space);
         cDef.initializeCoordinates(otherNCells);
-        
+
         nm = otherNM;
 
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
         waveVectors = nm.getWaveVectorFactory().getWaveVectors();
         eigenVectors = nm.getEigenvectors();
-        
+
         wvCoeff = nm.getWaveVectorFactory().getCoefficients();
         sqrtWVC = new double[wvCoeff.length];
-        for (int i =0; i < wvCoeff.length; i++){
-            sqrtWVC[i] = Math.sqrt(2*wvCoeff[i]);
+        for (int i = 0; i < wvCoeff.length; i++) {
+            sqrtWVC[i] = Math.sqrt(2 * wvCoeff[i]);
         }
         omegaTemp = nm.getOmegaSquared();
         oneOverSqrtOmega2 = new double[omegaTemp.length][omegaTemp[0].length];
         for (int i = 0; i < oneOverSqrtOmega2.length; i++) {
             for (int j = 0; j < oneOverSqrtOmega2[i].length; j++) {
-                oneOverSqrtOmega2[i][j] = Math.sqrt(1.0/(omegaTemp[i][j]));
+                oneOverSqrtOmega2[i][j] = Math.sqrt(1.0 / (omegaTemp[i][j]));
             }
         }
-        
+
         //Create the scaling factor
         scaling = 0.0;
-        for(int iWV = 0; iWV < simWaveVectors.length; iWV++){
-            for(int iMode = 0; iMode < simCDim; iMode++){
-                if(!Double.isInfinite(sqrtSimOmega2[iWV][iMode])){
+        for (int iWV = 0; iWV < simWaveVectors.length; iWV++) {
+            for (int iMode = 0; iMode < simCDim; iMode++) {
+                if (!Double.isInfinite(sqrtSimOmega2[iWV][iMode])) {
                     scaling += Math.log(sqrtSimOmega2[iWV][iMode]);
-                    if(simWVCoeff[iWV] == 1.0){
+                    if (simWVCoeff[iWV] == 1.0) {
                         scaling += Math.log(sqrtSimOmega2[iWV][iMode]);
                     }
                 }
             }
         }
-        
-        for(int iWV = 0; iWV < waveVectors.length; iWV++){
-            for(int iMode = 0; iMode < cDim; iMode++){
-                if(!(oneOverSqrtOmega2[iWV][iMode] == 0.0)){
+
+        for (int iWV = 0; iWV < waveVectors.length; iWV++) {
+            for (int iMode = 0; iMode < cDim; iMode++) {
+                if (!(oneOverSqrtOmega2[iWV][iMode] == 0.0)) {
                     scaling += Math.log(oneOverSqrtOmega2[iWV][iMode]);
-                    if (wvCoeff[iWV] == 1.0){
+                    if (wvCoeff[iWV] == 1.0) {
                         scaling += Math.log(oneOverSqrtOmega2[iWV][iMode]);
-                   }
+                    }
                 }
             }
         }
-        
+
         potentialMaster.getNeighborManager(box).reset();  //this line sets up neighborlists
-        meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
-        
+        meterPE = new MeterPotentialEnergy(potentialMaster, box);
+
         etas = new double[space.D() * (numAtoms - 1)];
-        gaussCoord = new double[space.D() * (numAtoms - 
-                simCDef.getBox().getLeafList().getAtomCount())];
+        gaussCoord = new double[space.D() * (numAtoms -
+                simCDef.getBox().getLeafList().size())];
     }
     
     public double getDataAsScalar() {

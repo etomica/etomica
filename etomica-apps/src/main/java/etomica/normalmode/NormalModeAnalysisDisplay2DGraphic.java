@@ -222,10 +222,11 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
                     for (int i=0; i<sim.space.D(); i++){
                     	dimension[i].Ea1Tv1(nCells[i], sim.primitive.vectors()[i]);
                     }
-                	                	       	
-                	Boundary boundary = new BoundaryDeformablePeriodic(sim.getSpace(), dimension);
-                	sim.box.setBoundary(boundary);
-                	
+
+                    for (int i = 0; i < dimension.length; i++) {
+                        sim.boundary.setEdgeVector(i, dimension[i]);
+                    }
+
                 	sim.waveVectorFactory.makeWaveVectors(sim.box);
                 	sim.coordinateDefinition.initializeCoordinates(nCells);
                 	
@@ -323,9 +324,10 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
                     for (int i=0; i<sim.space.D(); i++){
                     	dimension[i].Ea1Tv1(nCells[i], sim.primitive.vectors()[i]);
                     }
-                	                	       	
-                	Boundary boundary = new BoundaryDeformablePeriodic(sim.getSpace(), dimension);
-                	sim.box.setBoundary(boundary);
+
+                    for (int i = 0; i < dimension.length; i++) {
+                        sim.boundary.setEdgeVector(i, dimension[i]);
+                    }
                 	sim.waveVectorFactory.makeWaveVectors(sim.box);
                 	sim.coordinateDefinition.initializeCoordinates(nCells);
                 	

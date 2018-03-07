@@ -57,11 +57,22 @@ public class SimHarmonic extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = new Box(space);
-        addBox(box);
+        if (space.D() == 1) {
+            primitive = new PrimitiveCubic(space, 1.0 / density);
+            boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
+            nCells = new int[]{numAtoms};
+        } else {
+            primitive = new PrimitiveFcc(space, 1);
+            double v = primitive.unitCell().getVolume();
+            primitive.scaleSize(Math.pow(v * density, -1.0 / 3.0));
+            int n = (int) Math.round(Math.pow(numAtoms, 1.0 / 3.0));
+            nCells = new int[]{n, n, n};
+            boundary = new BoundaryDeformableLattice(primitive, nCells);
+        }
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorMC(this, null);
+        integrator = new IntegratorMC(this, null, box);
 
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
@@ -69,24 +80,11 @@ public class SimHarmonic extends Simulation {
         MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
         integrator.getMoveManager().addMCMove(move);
 
-        if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
-            boundary = new BoundaryRectangularPeriodic(space, numAtoms/density);
-            nCells = new int[]{numAtoms};
-        } else {
-            primitive = new PrimitiveFcc(space, 1);
-            double v = primitive.unitCell().getVolume();
-            primitive.scaleSize(Math.pow(v*density,-1.0/3.0));
-            int n = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
-            nCells = new int[]{n,n,n};
-            boundary = new BoundaryDeformableLattice(primitive, nCells);
-        }
-        box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, space);
         coordinateDefinition.initializeCoordinates(nCells);
 
-        if(D == 1) {
+        if (D == 1) {
             normalModes = new NormalModes1DHR(boundary, numAtoms);
         } else {
             normalModes = new NormalModesFromFile(filename, D);
@@ -104,8 +102,6 @@ public class SimHarmonic extends Simulation {
         move.setTemperature(1.0);
 
         move.setBox(box);
-
-        integrator.setBox(box);
     }
 
     /**
@@ -172,8 +168,7 @@ public class SimHarmonic extends Simulation {
         }
 
         //meters for FEP calculations
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(sim.box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, sim.box);
         BoltzmannProcessor bp = new BoltzmannProcessor();
         bp.setTemperature(1);
         DataPump pump = new DataPump(meterPE,bp);

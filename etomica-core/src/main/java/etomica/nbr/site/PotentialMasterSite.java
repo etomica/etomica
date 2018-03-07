@@ -11,7 +11,6 @@ import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
-import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.box.BoxCellManager;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
@@ -154,16 +153,16 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             //call calculate with each molecule
             for (int j=0; j<simulation.getSpeciesCount(); j++) {
                 IMoleculeList moleculeList = box.getMoleculeList(simulation.getSpecies(j));
-                int size = moleculeList.getMoleculeCount();
+                int size = moleculeList.size();
                 PotentialArray intraPotentialArray = getIntraPotentials(simulation.getSpecies(j));
                 final IPotential[] intraPotentials = intraPotentialArray.getPotentials();
                 for (int i=0; i<size; i++) {
-                    IMolecule molecule = moleculeList.getMolecule(i);
+                    IMolecule molecule = moleculeList.get(i);
 
                     IAtomList atomList = molecule.getChildList();
-                    int numChildren = atomList.getAtomCount();
+                    int numChildren = atomList.size();
                     for (int k=0; k<numChildren; k++) {
-                        calculate(atomList.getAtom(k), pc);
+                        calculate(atomList.get(k), pc);
                     }
 
                     for(int k=0; k<intraPotentials.length; k++) {
@@ -198,9 +197,9 @@ public class PotentialMasterSite extends PotentialMasterNbr {
                 }
 
                 IAtomList atomList = (targetMolecule).getChildList();
-                int numChildren = atomList.getAtomCount();
+                int numChildren = atomList.size();
                 for (int k=0; k<numChildren; k++) {
-                    calculate(atomList.getAtom(k), pc);
+                    calculate(atomList.get(k), pc);
                 }
 
                 PotentialArray intraPotentialArray = getIntraPotentials(targetMolecule.getType());

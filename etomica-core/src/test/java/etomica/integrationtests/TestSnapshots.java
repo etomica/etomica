@@ -1,6 +1,5 @@
 package etomica.integrationtests;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import etomica.action.ActionIntegrate;
 import etomica.action.BoxInflate;
@@ -13,22 +12,16 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
-import etomica.simulation.prototypes.HSMD3D;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
-import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.util.random.RandomNumberGenerator;
 import org.junit.Test;
 
 import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +32,7 @@ public class TestSnapshots {
 
     @Test
     public void testHSMD3DNeighborListSnapshot() throws URISyntaxException, IOException {
-        String coordsStr = Files.lines(Paths.get(TestSnapshots.class.getResource("HSMD3DNeighborList_91ffd0d89.json").toURI()))
+        String coordsStr = Files.lines(Paths.get(TestSnapshots.class.getResource("HSMD3DNeighborList_021af6881.json").toURI()))
                 .findFirst().get();
 
         Simulation sim = new HSMD3DNeighborList();
@@ -55,17 +48,9 @@ public class TestSnapshots {
         public HSMD3DNeighborList() {
             super(Space3D.getInstance());
             this.setRandom(new RandomMersenneTwister(new int[]{1, 2, 3, 4}));
+            addBox(new Box(this.space));
 
             PotentialMasterList pm = new PotentialMasterList(this, 1.6, this.space);
-
-            IntegratorHard integrator = new IntegratorHard(this, pm, this.space);
-            integrator.setIsothermal(false);
-            integrator.setTimeStep(0.01);
-
-            ActionIntegrate ai = new ActionIntegrate(integrator);
-            ai.setMaxSteps(500);
-            getController().addAction(ai);
-
             SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
             species.setIsDynamic(true);
             addSpecies(species);
@@ -74,14 +59,20 @@ public class TestSnapshots {
 
             pm.addPotential(potential, new AtomType[]{leafType, leafType});
 
-            addBox(new Box(this.space));
             box().setNMolecules(species, 256);
             BoxInflate inflater = new BoxInflate(box(), space);
             inflater.setTargetDensity(.35 * 2 * space.D() / Math.PI);
             inflater.actionPerformed();
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box());
 
-            integrator.setBox(box());
+            IntegratorHard integrator = new IntegratorHard(this, pm, box());
+            integrator.setIsothermal(false);
+            integrator.setTimeStep(0.01);
+
+            ActionIntegrate ai = new ActionIntegrate(integrator);
+            ai.setMaxSteps(500);
+            getController().addAction(ai);
+
             integrator.getEventManager().addListener(pm.getNeighborManager(box()));
         }
 

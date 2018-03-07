@@ -5,13 +5,10 @@
 package etomica.normalmode;
 
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialMaster;
@@ -19,7 +16,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
-public class MeterSolidProps implements IDataSource, AgentSource<MyAgent> {
+public class MeterSolidProps implements IDataSource {
 
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
@@ -28,7 +25,7 @@ public class MeterSolidProps implements IDataSource, AgentSource<MyAgent> {
     protected final CoordinateDefinition coordinateDefinition;
     protected final DataSourceScalar meterPE;
     protected final PotentialMaster potentialMaster;
-    protected final AtomLeafAgentManager<MyAgent> forceManager;
+    protected final AtomLeafAgentManager<Vector> forceManager;
     protected final IteratorDirective id;
     protected final Vector dr;
     protected double ULat, PLat;
@@ -61,7 +58,7 @@ public class MeterSolidProps implements IDataSource, AgentSource<MyAgent> {
         this.ULat = ULat;
         this.PLat = PLat;
         volume = coordinateDefinition.getBox().getBoundary().volume();
-        nMol = coordinateDefinition.getBox().getLeafList().getAtomCount();
+        nMol = coordinateDefinition.getBox().getLeafList().size();
         density = nMol/volume;
     	f1 = (-1.0/volume + dP/temperature)/3.0/(nMol-1.0);
     	f2 = (1.0/volume/volume + ddP/temperature)/3.0/(nMol-1.0)  +  f1*f1;
@@ -72,7 +69,7 @@ public class MeterSolidProps implements IDataSource, AgentSource<MyAgent> {
     	}else{
     		pcSolidProps = new PotentialCalculationEFSSP(space,coordinateDefinition.getBox(),coordinateDefinition,temperature, f1, isLS);
     	}
-        forceManager = new AtomLeafAgentManager<MyAgent>(this, coordinateDefinition.getBox());
+        forceManager = new AtomLeafAgentManager<Vector>(a -> space.makeVector(), coordinateDefinition.getBox());
 //        pcUP.setAgentManager(forceManager);
 
 
@@ -128,10 +125,4 @@ public class MeterSolidProps implements IDataSource, AgentSource<MyAgent> {
     public IDataInfo getDataInfo() {
         return dataInfo;
     }
-
-    public final MyAgent makeAgent(IAtom a, Box oox) {
-        return new MyAgent(space);
-    }
-    
-    public void releaseAgent(MyAgent agent, IAtom atom, Box box) {}
 }

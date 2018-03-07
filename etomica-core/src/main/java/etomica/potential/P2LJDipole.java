@@ -74,13 +74,13 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
     
     public double virial(IMoleculeList atoms) {
         gradient(atoms);
-    	IMolecule molecule1 = atoms.getMolecule(0);
-		IMolecule molecule2 = atoms.getMolecule(1);
+    	IMolecule molecule1 = atoms.get(0);
+		IMolecule molecule2 = atoms.get(1);
 		IAtomList atomList1 = molecule1.getChildList();
 		IAtomList atomList2 = molecule2.getChildList();
 
-		IAtomOriented atom1 = (IAtomOriented)atomList1.getAtom(0);
-		IAtomOriented atom2 = (IAtomOriented)atomList2.getAtom(0);
+		IAtomOriented atom1 = (IAtomOriented)atomList1.get(0);
+		IAtomOriented atom2 = (IAtomOriented)atomList2.get(0);
 
         // LJ contributation
 
@@ -95,12 +95,12 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
     
 
     public double energy(IMoleculeList pair){
-    	IMolecule molecule1 = pair.getMolecule(0);
-		IMolecule molecule2 = pair.getMolecule(1);
+    	IMolecule molecule1 = pair.get(0);
+		IMolecule molecule2 = pair.get(1);
 		IAtomList atomList1 = molecule1.getChildList();
 		IAtomList atomList2 = molecule2.getChildList();
-        IAtomOriented atom1 = (IAtomOriented)atomList1.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented)atomList2.getAtom(0);
+        IAtomOriented atom1 = (IAtomOriented)atomList1.get(0);
+        IAtomOriented atom2 = (IAtomOriented)atomList2.get(0);
 
         // LJ contribution
         dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());//r1-r2
@@ -138,13 +138,13 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
     
 
 	public Vector[][] gradientAndTorque(IMoleculeList molecules) {
-    	IMolecule molecule1 = molecules.getMolecule(0);
-		IMolecule molecule2 = molecules.getMolecule(1);
+    	IMolecule molecule1 = molecules.get(0);
+		IMolecule molecule2 = molecules.get(1);
 		IAtomList atomList1 = molecule1.getChildList();
 		IAtomList atomList2 = molecule2.getChildList();
 
-		IAtomOriented atom1 = (IAtomOriented)atomList1.getAtom(0);
-		IAtomOriented atom2 = (IAtomOriented)atomList2.getAtom(0);
+		IAtomOriented atom1 = (IAtomOriented)atomList1.get(0);
+		IAtomOriented atom2 = (IAtomOriented)atomList2.get(0);
 
 		dr.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 		boundary.nearestImage(dr);
@@ -204,12 +204,12 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
 	}
 	
 	public Tensor[] secondDerivative(IMoleculeList molecules){
-		IMolecule molecule0 = molecules.getMolecule(0);
-		IMolecule molecule1 = molecules.getMolecule(1);
+		IMolecule molecule0 = molecules.get(0);
+		IMolecule molecule1 = molecules.get(1);
 		IAtomList atomList0 = molecule0.getChildList();
 		IAtomList atomList1 = molecule1.getChildList();
-		IAtomOriented atom0 = (IAtomOriented)atomList0.getAtom(0);
-		IAtomOriented atom1 = (IAtomOriented)atomList1.getAtom(0);
+		IAtomOriented atom0 = (IAtomOriented)atomList0.get(0);
+		IAtomOriented atom1 = (IAtomOriented)atomList1.get(0);
 		Vector pos0 = atom1.getPosition();
 		Vector pos1 = atom0.getPosition();
 		Vector ei =  atom0.getOrientation().getDirection();

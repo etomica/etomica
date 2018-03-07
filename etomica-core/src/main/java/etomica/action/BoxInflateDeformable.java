@@ -57,8 +57,8 @@ public class BoxInflateDeformable extends BoxInflate{
         scaleVector.PE(-1.0);
 
         IMoleculeList molecules = box.getMoleculeList();
-        for(int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for(int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             translationVector.E(moleculeCenter.position(molecule));
             tempTensInv.transform(translationVector);
             translationVector.TE(scaleVector);

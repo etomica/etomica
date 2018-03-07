@@ -32,9 +32,9 @@ public class ActionConfigWindow implements IAction {
         textArea.setEditable(false);
         textArea.setBackground(Color.white);
         textArea.setForeground(Color.black);
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom a = leafList.getAtom(iLeaf);
+            IAtom a = leafList.get(iLeaf);
             Vector pos = a.getPosition();
             String str = Double.toString(pos.getX(0));
             for (int i=1; i<pos.getD(); i++) {

@@ -34,8 +34,8 @@ public class BoxDeleteMolecules extends BoxActionAdapter {
      */
     public void actionPerformed() {
         IMoleculeList molecules = box.getMoleculeList();
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             if (!filter.test(molecule)) {
                 box.removeMolecule(molecule);
             }

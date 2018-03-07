@@ -62,31 +62,30 @@ public class LJMD extends Simulation {
         super(Space3D.getInstance());
         setRandom(new RandomNumberGenerator(2));
         BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(2, space);
-        box = new Box(boundary, space);
-        addBox(box);
-        
+        box = this.makeBox(boundary);
+
         speciesFluid = new SpeciesSpheresMono(space, new ElementSimple("F"));
         speciesFluid.setIsDynamic(true);
         addSpecies(speciesFluid);
-        speciesTopWall = new SpeciesSpheresMono(space, new ElementSimple("TW",fixedWall?Double.POSITIVE_INFINITY:1));
+        speciesTopWall = new SpeciesSpheresMono(space, new ElementSimple("TW", fixedWall ? Double.POSITIVE_INFINITY : 1));
         speciesTopWall.setIsDynamic(true);
         addSpecies(speciesTopWall);
-        speciesBottomWall = new SpeciesSpheresMono(space, new ElementSimple("BW",Double.POSITIVE_INFINITY));
+        speciesBottomWall = new SpeciesSpheresMono(space, new ElementSimple("BW", Double.POSITIVE_INFINITY));
         speciesBottomWall.setIsDynamic(true);
         addSpecies(speciesBottomWall);
-        
+
         config = new ConfigurationLammps(space, lammpsFile, speciesTopWall, speciesBottomWall, speciesFluid);
         config.setTopPadding(50);
         config.initializeCoordinates(box);
-        
-        potentialMaster = new PotentialMasterList(this, 1.2*5.49925, space);
+
+        potentialMaster = new PotentialMasterList(this, 1.2 * 5.49925, space);
         potentialMaster.setCellRange(2);
-        integrator = new IntegratorFixedWall(potentialMaster, random, tStep, temperature, space);
+        integrator = new IntegratorFixedWall(potentialMaster, random, tStep, temperature, box);
         integrator.setIsothermal(true);
         integrator.setTemperature(temperature);
         integrator.setThermostat(hybridInterval > 0 ? ThermostatType.HYBRID_MC : ThermostatType.ANDERSEN);
         integrator.setThermostatInterval(hybridInterval > 0 ? hybridInterval : 2000);
-        
+
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
 
@@ -96,39 +95,37 @@ public class LJMD extends Simulation {
 
         pBW = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.09985, 0.4), 5.49925);
         potentialMaster.addPotential(pBW, new AtomType[]{leafType, speciesBottomWall.getLeafType()});
-        
+
         pTW = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.5, 0.1), 1.68);
         potentialMaster.addPotential(pTW, new AtomType[]{leafType, speciesTopWall.getLeafType()});
 
-        integrator.setBox(box);
-        
         if (!fixedWall) {
             FixedWall fixedWallListener = new FixedWall(space, box, integrator.getAgentManager(), speciesTopWall);
             integrator.setFixedWall(fixedWallListener);
-            int nWall = box.getMoleculeList(speciesTopWall).getMoleculeCount();
+            int nWall = box.getMoleculeList(speciesTopWall).size();
             double Lxy = boundary.getBoxSize().getX(0);
-            P1Wall p1Wall = new P1Wall(space, spring/nWall, springPosition+config.getShift().getX(2), Psat*Lxy*Lxy/nWall);
+            P1Wall p1Wall = new P1Wall(space, spring / nWall, springPosition + config.getShift().getX(2), Psat * Lxy * Lxy / nWall);
             potentialMaster.addPotential(p1Wall, new AtomType[]{speciesTopWall.getLeafType()});
         }
-        
+
         if (mcSteps > 0 && hybridInterval > 0) {
-            IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster);
+            IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster, box);
             integratorMC.setTemperature(temperature);
             mcMove = new MCMoveAtomNbr(random, potentialMaster, space);
             mcMove.setAtomSource(new AtomSourceRandomSpecies(getRandom(), speciesFluid));
-            mcMove.setStepSize(0.5*config.getLxy());
-            ((MCMoveStepTracker)mcMove.getTracker()).setTunable(false);
-            
+            mcMove.setStepSize(0.5 * config.getLxy());
+            ((MCMoveStepTracker) mcMove.getTracker()).setTunable(false);
+
             integratorMC.getMoveManager().addMCMove(mcMove);
 
             integrator.setIntegratorMC(integratorMC, mcSteps);
-            
+
             Potential1 p1F = new Potential1(space) {
-                
+
                 public double energy(IAtomList atoms) {
-                    double pz = atoms.getAtom(0).getPosition().getX(2);
-                    double zMin = -0.5*boundary.getBoxSize().getX(2);
-                    double zMax = box.getMoleculeList(speciesTopWall).getMolecule(0).getChildList().getAtom(0).getPosition().getX(2);
+                    double pz = atoms.get(0).getPosition().getX(2);
+                    double zMin = -0.5 * boundary.getBoxSize().getX(2);
+                    double zMax = box.getMoleculeList(speciesTopWall).get(0).getChildList().get(0).getPosition().getX(2);
                     return (pz < zMin || pz > zMax) ? Double.POSITIVE_INFINITY : 0;
                 }
             };
@@ -178,8 +175,7 @@ public class LJMD extends Simulation {
         }
         final int dataInterval = foo;
         
-        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPE.setBox(sim.box);
+        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         DataFork forkPE = new DataFork();
         DataPumpListener pumpPE = new DataPumpListener(meterPE, forkPE, dataInterval);
         sim.integrator.getEventManager().addListener(pumpPE);

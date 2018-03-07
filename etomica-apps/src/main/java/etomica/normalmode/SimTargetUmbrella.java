@@ -60,22 +60,22 @@ public class SimTargetUmbrella extends Simulation {
     public SimTargetUmbrella(Space _space, int numAtoms, double density, double temperature, String filename, int exponent) {
         super(_space);
 
-        String refFileName = filename +"_ref";
+        String refFileName = filename + "_ref";
         FileReader refFileReader;
         try {
-        	refFileReader = new FileReader(refFileName);
-        } catch (IOException e){
-        	throw new RuntimeException ("Cannot find refPref file!! "+e.getMessage() );
+            refFileReader = new FileReader(refFileName);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot find refPref file!! " + e.getMessage());
         }
         try {
-        	BufferedReader bufReader = new BufferedReader(refFileReader);
-        	String line = bufReader.readLine();
+            BufferedReader bufReader = new BufferedReader(refFileReader);
+            String line = bufReader.readLine();
 
-        	refPref = Double.parseDouble(line);
-        	setRefPref(refPref);
+            refPref = Double.parseDouble(line);
+            setRefPref(refPref);
 
-        } catch (IOException e){
-        	throw new RuntimeException(" Cannot read from file "+ refFileName);
+        } catch (IOException e) {
+            throw new RuntimeException(" Cannot read from file " + refFileName);
         }
         //System.out.println("refPref is: "+ refPref);
 
@@ -83,27 +83,22 @@ public class SimTargetUmbrella extends Simulation {
         int D = space.D();
 
         potentialMasterMonatomic = new PotentialMasterMonatomic(this);
-        integrator = new IntegratorMC(potentialMasterMonatomic, getRandom(), temperature);
-
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        primitive = new PrimitiveCubic(space, L);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        box = this.makeBox(new BoundaryRectangularPeriodic(space, n * L));
+        integrator = new IntegratorMC(potentialMasterMonatomic, getRandom(), temperature, box);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
         //Target
-        box = new Box(space);
-        addBox(box);
         box.setNMolecules(species, numAtoms);
 
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-       	double L = Math.pow(4.0/density, 1.0/3.0);
-        primitive = new PrimitiveCubic(space, L);
-        int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-        nCells = new int[]{n,n,n};
-        boundary = new BoundaryRectangularPeriodic(space, n*L);
+        nCells = new int[]{n, n, n};
         basis = new BasisCubicFcc();
-
-        box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         normalModes = new NormalModesFromFile(filename, D);
@@ -119,11 +114,8 @@ public class SimTargetUmbrella extends Simulation {
         AtomType sphereType = species.getLeafType();
         potentialMasterMonatomic.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
 
-        integrator.setBox(box);
-
         potentialMasterMonatomic.lrcMaster().setEnabled(false);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterMonatomic);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterMonatomic, box);
         latticeEnergy = meterPE.getDataAsScalar();
 
         MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMasterMonatomic, new MeterPotentialEnergy(potentialMasterMonatomic), getRandom(), space);

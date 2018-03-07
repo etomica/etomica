@@ -31,14 +31,13 @@ public class BenchSimHSMD3D {
     public void setUp() {
 
         Configuration config = new ConfigurationResourceFile(
-                String.format("tests/HSMD3D%d.pos", numMolecules),
+                String.format("HSMD3D%d.pos", numMolecules),
                 TestHSMD3D.class
         );
 
         sim = new TestHSMD3D(Space3D.getInstance(), numMolecules, numSteps / numMolecules, config);
 
-        pMeter = new MeterPressureHard(sim.space);
-        pMeter.setIntegrator(sim.integrator);
+        pMeter = new MeterPressureHard(sim.integrator);
         sim.integrator.reset();
     }
 

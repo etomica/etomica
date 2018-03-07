@@ -75,11 +75,11 @@ public class VirialCO2 {
             public void initializePositions(IAtomList atomList) {
                 // atoms are C, O and O, so we arrange them as 1-0-2
                 double bondL = 1.1491;
-                atomList.getAtom(0).getPosition().E(0);
-                atomList.getAtom(1).getPosition().E(0);
-                atomList.getAtom(1).getPosition().setX(0, -bondL);
-                atomList.getAtom(2).getPosition().E(0);
-                atomList.getAtom(2).getPosition().setX(0, +bondL);
+                atomList.get(0).getPosition().E(0);
+                atomList.get(1).getPosition().E(0);
+                atomList.get(1).getPosition().setX(0, -bondL);
+                atomList.get(2).getPosition().E(0);
+                atomList.get(2).getPosition().setX(0, +bondL);
             }
         };
         SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});

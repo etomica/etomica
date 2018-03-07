@@ -23,13 +23,23 @@ import etomica.util.random.IRandom;
  */
 public class IntegratorHarmonic extends IntegratorMD {
 
-    public IntegratorHarmonic(IRandom random, double timeStep, double temperature, Space _space) {
-        super(null,random, timeStep, temperature, _space);
+    public IntegratorHarmonic(IRandom random, double timeStep, double temperature, Box box) {
+        super(null,random, timeStep, temperature, box);
         iterator = new MoleculeIteratorAllMolecules();
         // make IntergratorMD happy.
         meterKE = new DataSourceScalar("", Null.DIMENSION) {
             public double getDataAsScalar() {return 0;}
         };
+
+        iterator.setBox(box);
+
+        int coordinateDim = coordinateDefinition.getCoordinateDim();
+        u = new double[coordinateDim];
+
+        int totalWV = waveVectors.length;
+
+        Qr = new double[totalWV][coordinateDim];
+        Qi = new double[totalWV][coordinateDim];
     }
     
     public void doThermostat() {
@@ -74,19 +84,6 @@ public class IntegratorHarmonic extends IntegratorMD {
     
     public void setEigenVectors(double[][][] newEigenVectors) {
    		eigenVectors = newEigenVectors;
-    }
-    
-    public void setBox(Box box) {
-        super.setBox(box);
-        iterator.setBox(box);
-
-        int coordinateDim = coordinateDefinition.getCoordinateDim();
-        u = new double[coordinateDim];
-
-        int totalWV = waveVectors.length;
-        
-        Qr = new double[totalWV][coordinateDim];
-        Qi = new double[totalWV][coordinateDim];
     }
 
     protected void doStepInternal() {

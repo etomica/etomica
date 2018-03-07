@@ -36,45 +36,45 @@ public class ApiIntraArrayList implements AtomLeafsetIterator, java.io.Serializa
      * Sets iterator in condition to begin iteration.
      */
     public void reset() {
-        if (list.getAtomCount() < 2) {
+        if (list.size() < 2) {
             outerIndex = 2;
             innerIndex = 2;
             return;
         }
         outerIndex = 0;
         innerIndex = 0;
-        atoms.atom0 = list.getAtom(0);
+        atoms.atom0 = list.get(0);
     }
 
     /**
      * Sets iterator such that next is null.
      */
     public void unset() {
-        outerIndex = list.getAtomCount() - 2;
-        innerIndex = list.getAtomCount() - 1;
+        outerIndex = list.size() - 2;
+        innerIndex = list.size() - 1;
     }
 
     /**
      * Returns the number of iterates, which is list.size*(list.size-1)/2
      */
     public int size() {
-        return list.getAtomCount() * (list.getAtomCount() - 1) / 2;
+        return list.size() * (list.size() - 1) / 2;
     }
 
     /**
      * Returns the next iterate pair. Returns null if hasNext() is false.
      */
     public IAtomList next() {
-        if (innerIndex > list.getAtomCount() - 2) {
-            if (outerIndex > list.getAtomCount() - 3) {
+        if (innerIndex > list.size() - 2) {
+            if (outerIndex > list.size() - 3) {
                 return null;
             }
             outerIndex++;
-            atoms.atom0 = list.getAtom(outerIndex);
+            atoms.atom0 = list.get(outerIndex);
             innerIndex = outerIndex;
         }
         innerIndex++;
-        atoms.atom1 = list.getAtom(innerIndex);
+        atoms.atom1 = list.get(innerIndex);
         if (Debug.ON && atoms.atom0 == atoms.atom1) {
             throw new RuntimeException("oops");
         }
@@ -96,7 +96,7 @@ public class ApiIntraArrayList implements AtomLeafsetIterator, java.io.Serializa
      *            the new atom list for iteration
      */
     public void setList(IAtomList newList) {
-        if (newList.getAtomCount() > 1 && newList.getAtom(0) == newList.getAtom(1)) {
+        if (newList.size() > 1 && newList.get(0) == newList.get(1)) {
             throw new RuntimeException("oops");
         }
         list = newList;

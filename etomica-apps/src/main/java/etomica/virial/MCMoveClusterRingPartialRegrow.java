@@ -77,10 +77,10 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
     public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
-        int nMolecules = box.getMoleculeList().getMoleculeCount();
+        int nMolecules = box.getMoleculeList().size();
         hist = new HistogramExpanding[nMolecules][0];
         for (int i=0; i<nMolecules; i++) {
-            int nAtoms = box.getMoleculeList().getMolecule(i).getChildList().getAtomCount();
+            int nAtoms = box.getMoleculeList().get(i).getChildList().size();
             hist[i] = new HistogramExpanding[nAtoms];
             for (int j=0; j<nAtoms; j++) {
                 hist[i][j] = new HistogramExpanding(0.04);
@@ -101,7 +101,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
         double sigma = Math.sqrt(0.5/fac);
         numBeads = Math.round(random.nextInt((int)Math.round(maxNumBeads*0.9))+Math.round(maxNumBeads*0.1));
 
-            iMolecule = random.nextInt(molecules.getMoleculeCount());
+            iMolecule = random.nextInt(molecules.size());
             int i = iMolecule;
             atoms = null;
             int nAtoms = 0;
@@ -118,15 +118,15 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
                 }
             }
             if (single) {
-                atoms = molecules.getMolecule(i).getChildList();
-                nAtoms = atoms.getAtomCount();
+                atoms = molecules.get(i).getChildList();
+                nAtoms = atoms.size();
             }
             else {
                 myAtoms.clear();
                 for (int j=0; j<tangled.length; j++) {
-                    IAtomList jAtoms = molecules.getMolecule(tangled[j]).getChildList();
+                    IAtomList jAtoms = molecules.get(tangled[j]).getChildList();
                     myAtoms.addAll(jAtoms);
-                    nAtoms += jAtoms.getAtomCount();
+                    nAtoms += jAtoms.size();
                 }
                 atoms = myAtoms;
             }
@@ -134,10 +134,10 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
 
             kStart = random.nextInt(nAtoms);
 
-            IAtom atom0 = atoms.getAtom(kStart);
+            IAtom atom0 = atoms.get(kStart);
             Vector prevAtomPosition = atom0.getPosition();
             int kEnd = (kStart + numBeads + 1) % nAtoms;
-            IAtom atomN = atoms.getAtom(kEnd);
+            IAtom atomN = atoms.get(kEnd);
             Vector lastAtomPosition = atomN.getPosition();
 
             double pPrev = 1;
@@ -149,7 +149,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
                     if (k == nAtoms) {
                         k = 0;
                     }
-                    IAtom kAtom = atoms.getAtom(k);
+                    IAtom kAtom = atoms.get(k);
                     double pSum = 0;
                     for (int l=0; l<nTrial-1; l++) {
                         for (int j=0; j<3; j++) {
@@ -175,7 +175,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
                 if (k == nAtoms) {
                     k = 0;
                 }
-                IAtom kAtom = atoms.getAtom(k);
+                IAtom kAtom = atoms.get(k);
                 Vector kPosition = kAtom.getPosition();
                 dcom.ME(kPosition);
                 oldPositions[m].E(kPosition);
@@ -223,7 +223,7 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
             dcom.TE(-1.0/nAtoms);
 
             for (k=0; k<nAtoms; k++) {
-                atoms.getAtom(k).getPosition().PE(dcom);
+                atoms.get(k).getPosition().PE(dcom);
             }
 
         ((BoxCluster)box).trialNotify();
@@ -245,16 +245,16 @@ public class MCMoveClusterRingPartialRegrow extends MCMoveBox {
     }
     
     public void rejectNotify() {
-        int nAtoms = atoms.getAtomCount();
+        int nAtoms = atoms.size();
         for (int k=0; k<nAtoms; k++) {
-            atoms.getAtom(k).getPosition().ME(dcom);
+            atoms.get(k).getPosition().ME(dcom);
         }
         for (int k=kStart, m=0; m<numBeads; m++) {
             k++;
             if (k == nAtoms) {
                 k = 0;
             }
-            IAtom kAtom = atoms.getAtom(k);
+            IAtom kAtom = atoms.get(k);
             kAtom.getPosition().E(oldPositions[m]);
         }
     	((BoxCluster)box).rejectNotify();

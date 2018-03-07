@@ -58,9 +58,9 @@ public class P3HydrogenATM implements IPotential{
         }
         
         public double energy(IAtomList atoms) {
-            IAtom a0 = atoms.getAtom(0);
-            IAtom a1 = atoms.getAtom(1);        
-            IAtom a2 = atoms.getAtom(2);                    
+            IAtom a0 = atoms.get(0);
+            IAtom a1 = atoms.get(1);
+            IAtom a2 = atoms.get(2);
             Vector com0 = a0.getPosition();
             Vector com1 = a1.getPosition();
             Vector com2 = a2.getPosition();

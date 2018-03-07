@@ -14,6 +14,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorGEMC;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveManager;
@@ -21,7 +22,6 @@ import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2HardAssociationCone;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -50,6 +50,10 @@ public class GEMCWithRotation extends Simulation {
 
     public GEMCWithRotation(Space _space) {
         super(_space);
+
+        species = new SpeciesSpheresRotating(this, space);
+        addSpecies(species);
+
         double sigma = 1.2;
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         integrator = new IntegratorGEMC(getRandom(), space);
@@ -59,15 +63,10 @@ public class GEMCWithRotation extends Simulation {
         getController().addAction(activityIntegrate);
         activityIntegrate.setSleepPeriod(1);
 
-        species = new SpeciesSpheresRotating(this, space);
-        addSpecies(species);
-
-        box1 = new Box(space);
-        addBox(box1);
+        box1 = this.makeBox();
         box1.setNMolecules(species, 200);
 
-        IntegratorMC integratorMC1 = new IntegratorMC(this, potentialMaster);
-        integratorMC1.setBox(box1);
+        IntegratorMC integratorMC1 = new IntegratorMC(this, potentialMaster, box1);
         integratorMC1.setTemperature(0.420);
         MCMoveManager moveManager = integratorMC1.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom(), space));
@@ -75,11 +74,9 @@ public class GEMCWithRotation extends Simulation {
         integrator.addIntegrator(integratorMC1);
 
 
-        box2 = new Box(space);
-        addBox(box2);
+        box2 = this.makeBox();
         box2.setNMolecules(species, 200);
-        IntegratorMC integratorMC2 = new IntegratorMC(this, potentialMaster);
-        integratorMC2.setBox(box2);
+        IntegratorMC integratorMC2 = new IntegratorMC(this, potentialMaster, box2);
         integratorMC2.setTemperature(0.420);
         moveManager = integratorMC2.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom(), space));

@@ -57,12 +57,10 @@ public class Multiharmonic extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        box = new Box(new BoundaryRectangularNonperiodic(space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector1D(3.0));
         controller = getController();
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
-        integrator.setBox(box);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.02);
         integrator.setIsothermal(true);
         integrator.setTemperature(1.0);
@@ -78,14 +76,14 @@ public class Multiharmonic extends Simulation {
         iterator.reset();
         for (IAtom a = iterator.nextAtom(); a != null;
              a = iterator.nextAtom()) {
-            a.getPosition().setX(0,x0);
+            a.getPosition().setX(0, x0);
         }
         activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
 
         potentialB = new P1Harmonic(space);
-        potentialB.setX0(new Vector1D(x0+1));
+        potentialB.setX0(new Vector1D(x0 + 1));
         potentialB.setSpringConstant(10);
         meter = new MeterFreeEnergy(potentialA, potentialB);
         meter.setBox(box);

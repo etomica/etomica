@@ -49,45 +49,43 @@ public class SimCalcSLJ extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = new Box(space);
-        addBox(box);
+        if (space.D() == 1) {
+            primitive = new PrimitiveCubic(space, 1.0 / density);
+            boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
+            nCells = new int[]{numAtoms};
+            basis = new BasisMonatomic(space);
+        } else {
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            primitive = new PrimitiveCubic(space, n * L);
+            primitiveUnitCell = new PrimitiveCubic(space, L);
+
+            nCells = new int[]{n, n, n};
+            boundary = new BoundaryRectangularPeriodic(space, n * L);
+            Basis basisFCC = new BasisCubicFcc();
+            basis = new BasisBigCell(space, basisFCC, nCells);
+        }
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), getRandom(), space);
         move.setStepSize(0.1);
         move.setStepSizeMax(0.5);
         move.setDoExcludeNonNeighbors(true);
         integrator.getMoveManager().addMCMove(move);
-        ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
 
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-        if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
-            boundary = new BoundaryRectangularPeriodic(space, numAtoms/density);
-            nCells = new int[]{numAtoms};
-            basis = new BasisMonatomic(space);
-        } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            primitive = new PrimitiveCubic(space, n*L);
-            primitiveUnitCell = new PrimitiveCubic(space, L);
-
-            nCells = new int[]{n,n,n};
-            boundary = new BoundaryRectangularPeriodic(space, n * L);
-            Basis basisFCC = new BasisCubicFcc();
-            basis = new BasisBigCell(space, basisFCC, nCells);
-        }
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
         double truncationRadius = boundary.getBoxSize().getX(0) * 0.45;
         if (potentialMaster instanceof PotentialMasterList) {
             // with neighborlisting, we can use an unshifted potential
             potential = new P2SoftSphericalTruncated(space, potential, truncationRadius);
-        }
-        else {
+        } else {
             // without neighborlisting, we should use a shifted potential
             // it should provide a better approximation of the actual variation in
             // potential energy as atoms move in and out of the cutoff
@@ -97,37 +95,33 @@ public class SimCalcSLJ extends Simulation {
         potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
         move.setPotential(potential);
 
-        box.setBoundary(boundary);
-
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
 
-		/*
-		 * 1-body Potential to Constraint the atom from moving too far away from
-		 * its lattice-site
-		 */
-		p1Constraint = new P1Constraint(space, primitiveUnitCell.getSize()[0], box, coordinateDefinition);
+        /*
+         * 1-body Potential to Constraint the atom from moving too far away from
+         * its lattice-site
+         */
+        p1Constraint = new P1Constraint(space, primitiveUnitCell.getSize()[0], box, coordinateDefinition);
         potentialMaster.addPotential(p1Constraint, new AtomType[]{sphereType});
 
         if (potentialMaster instanceof PotentialMasterList) {
             double neighborRange = truncationRadius;
             int cellRange = 7;
-            ((PotentialMasterList)potentialMaster).setRange(neighborRange);
-            ((PotentialMasterList)potentialMaster).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+            ((PotentialMasterList) potentialMaster).setRange(neighborRange);
+            ((PotentialMasterList) potentialMaster).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMaster).getNeighborManager(box).reset();
-            int potentialCells = ((PotentialMasterList)potentialMaster).getNbrCellManager(box).getLattice().getSize()[0];
-            if (potentialCells < cellRange*2+1) {
-                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+            ((PotentialMasterList) potentialMaster).getNeighborManager(box).reset();
+            int potentialCells = ((PotentialMasterList) potentialMaster).getNbrCellManager(box).getLattice().getSize()[0];
+            if (potentialCells < cellRange * 2 + 1) {
+                throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
             }
-            if (potentialCells > cellRange*2+1) {
-                System.out.println("could probably use a larger truncation radius ("+potentialCells+" > "+(cellRange*2+1)+")");
+            if (potentialCells > cellRange * 2 + 1) {
+                System.out.println("could probably use a larger truncation radius (" + potentialCells + " > " + (cellRange * 2 + 1) + ")");
             }
-            ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
+            ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
         }
-
-        integrator.setBox(box);
     }
 
     /**
@@ -194,8 +188,7 @@ public class SimCalcSLJ extends Simulation {
         meterNormalModeListener.setInterval(nA);
         sim.integrator.getEventManager().addListener(meterNormalModeListener);
 
-    	MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-		meterEnergy.setBox(sim.box);
+    	MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
 		double latticeEnergy = meterEnergy.getDataAsScalar();
 		System.out.println("Lattice Energy per particle: " + (latticeEnergy /nA));
 		System.out.println(" ");

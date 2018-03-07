@@ -4,8 +4,7 @@
 
 package etomica.modules.render;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -85,7 +84,7 @@ public class RenderMDGraphic extends SimulationGraphic {
        
 	    //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
-        colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
+        colorScheme.setColor(sim.species.getLeafType(), Color.red);
         getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 //        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayBoxPaintAction(sim.box)));
 
@@ -142,8 +141,7 @@ public class RenderMDGraphic extends SimulationGraphic {
         energyHistory.setPushInterval(5);
         dataStreamPumps.add(energyPump);
 		
-		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
-        peMeter.setBox(sim.box);
+		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
         AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);
         final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
@@ -156,8 +154,7 @@ public class RenderMDGraphic extends SimulationGraphic {
         peHistory.setPushInterval(5);
         dataStreamPumps.add(pePump);
 		
-		MeterKineticEnergy keMeter = new MeterKineticEnergy();
-        keMeter.setBox(sim.box);
+		MeterKineticEnergy keMeter = new MeterKineticEnergy(sim.box);
         AccumulatorHistory keHistory = new AccumulatorHistory();
         keHistory.setTimeDataSource(timeCounter);
         DataFork keFork = new DataFork();
@@ -242,7 +239,7 @@ public class RenderMDGraphic extends SimulationGraphic {
         });
 
         // panel for lambda control / display
-        JPanel lambdaSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
+        JPanel lambdaSliderPanel = new JPanel(new GridLayout(0,1));
         lambdaSlider.setShowBorder(false);
         lambdaSliderPanel.add(lambdaSlider.graphic());
 
@@ -278,7 +275,7 @@ public class RenderMDGraphic extends SimulationGraphic {
         });
 
         // panel for epsilon control / display
-        JPanel epsilonSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
+        JPanel epsilonSliderPanel = new JPanel(new GridLayout(0,1));
         epsilonSlider.setShowBorder(false);
         epsilonSliderPanel.add(epsilonSlider.graphic());
  
@@ -346,14 +343,14 @@ public class RenderMDGraphic extends SimulationGraphic {
         	    public void actionPerformed() {
         	        IAtomList atoms = simulation.box.getLeafList();
         	        double lambda2 = sim.potentialBonded.getLambda()*sim.potentialBonded.getLambda();
-        	        int nAtoms = atoms.getAtomCount();
+        	        int nAtoms = atoms.size();
         	        int nBonds = allBonds.size();
         	        for(int i=0; i<nBonds; i++) {
         	            dis.releaseBond(allBonds.get(i));
         	        }
         	        allBonds.clear();
         	        for(int i=0; i<nAtoms; i++) {
-        	            pair.atom0 = atoms.getAtom(i);
+        	            pair.atom0 = atoms.get(i);
         	            Set<IAtom> aSet = bondedSet.get(pair.atom0);
         	            Iterator<IAtom> iterator = aSet.iterator();
         	            while(iterator.hasNext()) {
