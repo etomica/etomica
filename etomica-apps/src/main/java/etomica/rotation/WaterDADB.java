@@ -42,7 +42,6 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
 import etomica.units.Calorie;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
@@ -53,6 +52,7 @@ import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
+
 /**
  * @author Weisong Lin
  */
@@ -126,14 +126,15 @@ public class WaterDADB extends Simulation {
         double lMH = Math.sqrt(lOH * lOH + lOM * lOM - 2 * lOH * lOM * Math.cos(0.5 * ConformationWaterTIP4P.angleHOH));
         BondConstraints bondConstraints = new BondConstraints(new int[][]{{0, 2}, {1, 2}, {0, 1}}, new double[]{lOH, lOH, lHH}) {
 
-            Vector vectorsum = space.makeVector();
-            Vector ovector = space.makeVector();
-            Vector centermass = space.makeVector();
-            Vector h1vector = space.makeVector();
-            Vector h2vector = space.makeVector();
-            Vector mvector = space.makeVector();
-            Vector newforce = space.makeVector();
-            Vector newtorque = space.makeVector();
+            Vector vectorSum = space.makeVector();
+            Vector oVector = space.makeVector();
+            Vector centerMass = space.makeVector();
+            Vector h1Vector = space.makeVector();
+            Vector h2Vector = space.makeVector();
+            Vector mVector = space.makeVector();
+            Vector newForce = space.makeVector();
+            Vector newTorque = space.makeVector();
+            Vector dr = space.makeVector();
 
             public void redistributeForces(IMolecule molecule, AtomLeafAgentManager agentManager) {
                 IAtomList leafList = molecule.getChildList();
@@ -145,148 +146,245 @@ public class WaterDADB extends Simulation {
                 Vector h2torque = space.makeVector();
                 Vector h1h2 = space.makeVector();
                 Vector om = space.makeVector();
-                Vector otorque = space.makeVector();
-                Vector mtorque = space.makeVector();
-                Vector totaltorque = space.makeVector();
-                Vector totalforce = space.makeVector();
-                double hmass = leafList.getAtom(0).getType().getMass();
-                double omass = leafList.getAtom(2).getType().getMass();
-                double hmassPersent = hmass / (2 * hmass + omass);
-                double omassPersent = omass / (2 * hmass + omass);
-                centermass.Ea1Tv1(hmass, h1);
-                centermass.PEa1Tv1(hmass, h2);
-                centermass.PEa1Tv1(omass, o);
-                centermass.TE(1 / (2 * hmass + omass));
-                mvector.Ev1Mv2(m, centermass);
-                h1vector.Ev1Mv2(h1, centermass);
-                h2vector.Ev1Mv2(h2, centermass);
-                ovector.Ev1Mv2(o, centermass);
-                vectorsum.E(h1vector);
-                vectorsum.PE(h2vector);
-                vectorsum.PEa1Tv1(-2.0, ovector);
-                Vector h1force = ((MyAgent) agentManager.getAgent(leafList.getAtom(0))).force();
-                Vector h2force = ((MyAgent) agentManager.getAgent(leafList.getAtom(1))).force();
-                Vector oforce = ((MyAgent) agentManager.getAgent(leafList.getAtom(2))).force();
-                Vector mforce = ((MyAgent) agentManager.getAgent(leafList.getAtom(3))).force();
+                Vector oTorque = space.makeVector();
+                Vector mTorque = space.makeVector();
+                Vector totalTorque = space.makeVector();
+                Vector totalForce = space.makeVector();
+                double hMass = leafList.getAtom(0).getType().getMass();
+                double oMass = leafList.getAtom(2).getType().getMass();
+                double hMassPercent = hMass / (2 * hMass + oMass);
+                double oMassPercent = oMass / (2 * hMass + oMass);
+                centerMass.Ea1Tv1(hMass, h1);
+                centerMass.PEa1Tv1(hMass, h2);
+                centerMass.PEa1Tv1(oMass, o);
+                centerMass.TE(1 / (2 * hMass + oMass));
+                mVector.Ev1Mv2(m, centerMass);
+                h1Vector.Ev1Mv2(h1, centerMass);
+                h2Vector.Ev1Mv2(h2, centerMass);
+                oVector.Ev1Mv2(o, centerMass);
+                vectorSum.E(h1Vector);
+                vectorSum.PE(h2Vector);
+                vectorSum.PEa1Tv1(-2.0, oVector);
+                Vector h1Force = ((MyAgent) agentManager.getAgent(leafList.getAtom(0))).force();
+                Vector h2Force = ((MyAgent) agentManager.getAgent(leafList.getAtom(1))).force();
+                Vector oForce = ((MyAgent) agentManager.getAgent(leafList.getAtom(2))).force();
+                Vector mForce = ((MyAgent) agentManager.getAgent(leafList.getAtom(3))).force();
 
 
-                boolean testForceAndTorque = true;
-                Vector totaltorqueNew = space.makeVector();
-                Vector totalforceNew = space.makeVector();
+                boolean testForceAndTorque = false;
+                Vector totalTorqueNew = space.makeVector();
+                Vector totalForceNew = space.makeVector();
                 if (testForceAndTorque) {
-                    totalforce.E(h1force);
-                    totalforce.PE(h2force);
-                    totalforce.PE(mforce);
-                    totalforce.PE(oforce);// test for total force
+                    totalForce.E(h1Force);
+                    totalForce.PE(h2Force);
+                    totalForce.PE(mForce);
+                    totalForce.PE(oForce);// test for total force
 
-                    h1torque.E(h1force);
-                    h1torque.XE(h1vector);
-                    h2torque.E(h2force);
-                    h2torque.XE(h2vector);
-                    otorque.E(oforce);
-                    otorque.XE(ovector);
-                    mtorque.E(mforce);
-                    mtorque.XE(mvector);
-                    totaltorque.E(h1torque);
-                    totaltorque.PE(h2torque);
-                    totaltorque.PE(otorque);
-                    totaltorque.PE(mtorque);//test for total torque
+                    h1torque.E(h1Force);
+                    h1torque.XE(h1Vector);
+                    h2torque.E(h2Force);
+                    h2torque.XE(h2Vector);
+                    oTorque.E(oForce);
+                    oTorque.XE(oVector);
+                    mTorque.E(mForce);
+                    mTorque.XE(mVector);
+                    totalTorque.E(h1torque);
+                    totalTorque.PE(h2torque);
+                    totalTorque.PE(oTorque);
+                    totalTorque.PE(mTorque);//test for total torque
                 }
 
 
-                //distribute  translation and rotation caused by mforce to h1 h2 & o
-                newtorque.E(mforce);
-                newtorque.XE(mvector);
-                newforce.E(0);
-                if (Math.abs(vectorsum.getX(0)) > 0.1) {
-                    newforce.setX(1, -newtorque.getX(2) / vectorsum.getX(0));
-                    newforce.setX(2, newtorque.getX(1) / vectorsum.getX(0));
-                } else if (Math.abs(vectorsum.getX(1)) > 0.1) {
+                //distribute  translation and rotation caused by mForce to h1 h2 & o
+                //Note mForce has two parts: the translation force and the rotation force.
+                //The translation force is align with mVector
+                //The rotation force is perpendicular to mVector
+                //For translation force: It should be redistributed depend on the mass of o,h1 and h2.
+                //For rotation force: First of all, the summation of the redistributed m rotation force
+                // on o, h1, and h2 should be zero(no translation contribution)!
+                //Second, mTorque should also be distributed to o, h1 and h2.
+                //Third, the redistributed force on h1 and h2 should be the same.
+                //From three functions discussed above we could redistributed m rotation force.
+                //The concern is
+//                newTorque.E(mForce);
+//                newTorque.XE(mVector);
+//                newForce.E(0);
+//                if (Math.abs(vectorSum.getX(0)) > 0.1) {
+//                    newForce.setX(1, -newTorque.getX(2) / vectorSum.getX(0));
+//                    newForce.setX(2, newTorque.getX(1) / vectorSum.getX(0));
+//                } else if (Math.abs(vectorSum.getX(1)) > 0.1) {
+//
+//                    newForce.setX(0, newTorque.getX(2) / vectorSum.getX(1));
+//                    newForce.setX(2, -newTorque.getX(0) / vectorSum.getX(1));
+//                } else {
+//                    newForce.setX(0, -newTorque.getX(1) / vectorSum.getX(2));
+//                    newForce.setX(1, newTorque.getX(0) / vectorSum.getX(2));
+//                }
+//
+//                h1Force.PE(newForce);
+//                h2Force.PE(newForce);
+//                oForce.PEa1Tv1(-2.0, newForce);
+//                h1Force.PEa1Tv1(hMassPercent, mForce);
+//                h2Force.PEa1Tv1(hMassPercent, mForce);
+//                oForce.PEa1Tv1(oMassPercent, mForce);
+//                mForce.E(0);
 
-                    newforce.setX(0, newtorque.getX(2) / vectorsum.getX(1));
-                    newforce.setX(2, -newtorque.getX(0) / vectorsum.getX(1));
-                } else {
-                    newforce.setX(0, -newtorque.getX(1) / vectorsum.getX(2));
-                    newforce.setX(1, newtorque.getX(0) / vectorsum.getX(2));
+
+                h1h2.Ev1Mv2(h2, h1);
+                om.Ev1Mv2(m, o);
+                Vector a0 = space.makeVector();
+                Vector a1 = space.makeVector();
+                Vector a2 = space.makeVector();
+                a0.E(mVector);
+                a0.normalize();
+                a1.Ea1Tv1(-1, h1h2);
+                a1.normalize();
+                a2.E(a0);
+                a2.XE(a1);
+
+//                System.out.println(a0.squared() + " \n" + a1.squared() + " \n" + a2.squared());
+//                System.out.println(a0.dot(a1)+ " " + a1.dot(a2) + " " + a0.dot(a2) );
+                //separate mForce into 3 direction
+                Vector f0 = space.makeVector();
+                Vector f1 = space.makeVector();
+                Vector f2 = space.makeVector();
+                f0.Ea1Tv1(mForce.dot(a0), a0);
+                f1.Ea1Tv1(mForce.dot(a1), a1);
+                f2.Ea1Tv1(mForce.dot(a2), a2);
+
+//                System.out.println("o={"+o.getX(0)+","+o.getX(1)+","+o.getX(2)+"};" );
+//                System.out.println("m={"+m.getX(0)+","+m.getX(1)+","+m.getX(2)+"};" );
+//                System.out.println("h1={"+h1.getX(0)+","+h1.getX(1)+","+h1.getX(2)+"};" );
+//                System.out.println("h2={"+h2.getX(0)+","+h2.getX(1)+","+h2.getX(2)+"};" );
+//                System.out.println("a0={"+a0.getX(0)+","+a0.getX(1)+","+a0.getX(2)+"};" );
+//                System.out.println("a1={"+a1.getX(0)+","+a1.getX(1)+","+a1.getX(2)+"};" );
+//                System.out.println("a2={"+a2.getX(0)+","+a2.getX(1)+","+a2.getX(2)+"};" );
+//                System.out.println("cm={"+mVector.getX(0)+","+mVector.getX(1)+","+mVector.getX(2)+"};" );
+//                System.out.println("co={"+oVector.getX(0)+","+oVector.getX(1)+","+oVector.getX(2)+"};" );
+//                System.out.println("ch1={"+h1Vector.getX(0)+","+h1Vector.getX(1)+","+h1Vector.getX(2)+"};" );
+//                System.out.println("ch2={"+h2Vector.getX(0)+","+h2Vector.getX(1)+","+h2Vector.getX(2)+"};" );
+//                System.out.println("mForce={"+mForce.getX(0)+","+mForce.getX(1)+","+mForce.getX(2)+"};" );
+//                System.out.println("oForce={"+oForce.getX(0)+","+oForce.getX(1)+","+oForce.getX(2)+"};" );
+//                System.out.println("h1Force={"+h1Force.getX(0)+","+h1Force.getX(1)+","+h1Force.getX(2)+"};" );
+//                System.out.println("h2Force={"+h2Force.getX(0)+","+h2Force.getX(1)+","+h2Force.getX(2)+"};" );
+//                System.out.println("f0={"+f0.getX(0)+","+f0.getX(1)+","+f0.getX(2)+"};" );
+//                System.out.println("f1={"+f1.getX(0)+","+f1.getX(1)+","+f1.getX(2)+"};" );
+//                System.out.println("f2={"+f2.getX(0)+","+f2.getX(1)+","+f2.getX(2)+"};" );
+
+                //Translation part
+                h1Force.PEa1Tv1(hMassPercent, mForce);
+                h2Force.PEa1Tv1(hMassPercent, mForce);
+                oForce.PEa1Tv1(oMassPercent, mForce);
+
+                dr.Ea1Tv1(f1.dot(a1) * mVector.dot(a0) / (-2 * oVector.dot(a0) + 2 * h1Vector.dot(a0)), a1);
+//                System.out.println("part1="+ f1.dot(mVector)/(-2*oVector.dot(a0)+2*h1Vector.dot(a0)));
+//                System.out.println("part1Force={"+dr.getX(0)+","+dr.getX(1)+","+dr.getX(2)+"};" );
+                h1Force.PE(dr);
+                h2Force.PE(dr);
+                oForce.PEa1Tv1(-2, dr);
+
+                dr.Ea1Tv1(f2.dot(a2) * mVector.dot(a0) / (-2 * oVector.dot(a0) + 2 * h1Vector.dot(a0)), a2);
+//                System.out.println("part2="+f2.dot(mVector)/(-2*oVector.dot(a0)+2*h1Vector.dot(a0)));
+//                System.out.println("part2Force={"+dr.getX(0)+","+dr.getX(1)+","+dr.getX(2)+"};" );
+                h1Force.PE(dr);
+                h2Force.PE(dr);
+                oForce.PEa1Tv1(-2, dr);
+
+                mForce.E(0);//remove mForce at the end
+
+                if (testForceAndTorque) {
+                    //test for total force
+                    totalForceNew.E(h1Force);
+                    totalForceNew.PE(h2Force);
+                    totalForceNew.PE(mForce);
+                    totalForceNew.PE(oForce);//New total force
+
+                    System.out.println("totalForceOld ={ " + totalForce.getX(0) + "," + totalForce.getX(1) + "," + totalForce.getX(2) + "};");
+                    System.out.println("totalForceNew ={ " + totalForceNew.getX(0) + "," + totalForceNew.getX(1) + "," + totalForceNew.getX(2) + "};");
+
+
+//                    System.out.println("mForce = " + mForce);
+//                    System.out.println("totalForceOld = " + totalForce);
+//                    System.out.println("totalForceNew = " + totalForceNew);
+
+//                    totalForceNew.ME(totalForce);
+//                    if(totalForceNew.squared() > 1E-6){
+//                        System.out.println("The redistributed force is not correct. forceDifference = "  +  totalForceNew);
+//                    }
+
+                    //test for total torque
+                    h1torque.E(h1Force);
+                    h1torque.XE(h1Vector);
+                    h2torque.E(h2Force);
+                    h2torque.XE(h2Vector);
+                    oTorque.E(oForce);
+                    oTorque.XE(oVector);
+                    mTorque.E(mForce);
+                    mTorque.XE(mVector);
+                    totalTorqueNew.E(h1torque);
+                    totalTorqueNew.PE(h2torque);
+                    totalTorqueNew.PE(mTorque);
+                    totalTorqueNew.PE(oTorque);//New total torque
+
+
+                    System.out.println("totalTorqueOld ={ " + totalTorque.getX(0) + "," + totalTorque.getX(1) + "," + totalTorque.getX(2) + "};");
+                    System.out.println("totalTorqueNew ={ " + totalTorqueNew.getX(0) + "," + totalTorqueNew.getX(1) + "," + totalTorqueNew.getX(2) + "};");
+
+//                    totalTorqueNew.ME(totalTorque);
+//                    if(totalTorqueNew.squared() > 1E-6){
+//                        System.out.println("The redistributed torque is not correct.  "  );
+//                    }
+                    System.exit(2);
                 }
 
-                h1force.PE(newforce);
-                h2force.PE(newforce);
-                oforce.PEa1Tv1(-2.0, newforce);
-                h1force.PEa1Tv1(hmassPersent, mforce);
-                h2force.PEa1Tv1(hmassPersent, mforce);
-                oforce.PEa1Tv1(omassPersent, mforce);
-                mforce.ME(mforce);
+
 
 
                 //redistribute the forces s.t. only translation
                 if (!doRotation) {
-                    totalforce.E(h1force);
-                    totalforce.PE(h2force);
-                    totalforce.PE(mforce);
-                    totalforce.PE(oforce);
-                    h1force.E(0);
-                    h2force.E(0);
-                    oforce.E(0);
-                    mforce.E(0);
-                    h1force.PEa1Tv1(hmassPersent, totalforce);
-                    h2force.PEa1Tv1(hmassPersent, totalforce);
-                    oforce.PEa1Tv1(omassPersent, totalforce);
+                    totalForce.E(h1Force);
+                    totalForce.PE(h2Force);
+                    totalForce.PE(mForce);
+                    totalForce.PE(oForce);
+                    h1Force.E(0);
+                    h2Force.E(0);
+                    oForce.E(0);
+                    mForce.E(0);
+                    h1Force.PEa1Tv1(hMassPercent, totalForce);
+                    h2Force.PEa1Tv1(hMassPercent, totalForce);
+                    oForce.PEa1Tv1(oMassPercent, totalForce);
                 }
 
 
                 //redistribute s.t. only rotation
                 if (!doTranslation) {
-                    totalforce.E(h1force);
-                    totalforce.PE(h2force);
-                    totalforce.PE(mforce);
-                    totalforce.PE(oforce);
-                    h1force.PEa1Tv1(-1.0 * hmassPersent, totalforce);
-                    h2force.PEa1Tv1(-1.0 * hmassPersent, totalforce);
-                    oforce.PEa1Tv1(-1.0 * omassPersent, totalforce);
+                    totalForce.E(h1Force);
+                    totalForce.PE(h2Force);
+                    totalForce.PE(mForce);
+                    totalForce.PE(oForce);
+                    h1Force.PEa1Tv1(-1.0 * hMassPercent, totalForce);
+                    h2Force.PEa1Tv1(-1.0 * hMassPercent, totalForce);
+                    oForce.PEa1Tv1(-1.0 * oMassPercent, totalForce);
                 }
 
 
-                if (testForceAndTorque) {
-                    //test for total force
-                    totalforceNew.E(h1force);
-                    totalforceNew.PE(h2force);
-                    totalforceNew.PE(mforce);
-                    totalforceNew.PE(oforce);//New total force
-                    totalforceNew.ME(totalforce);
-                    System.out.println(" forceDifference = " + totalforceNew);
+//                System.exit(2);
 
-                    //test for total torque
-                    h1torque.E(h1force);
-                    h1torque.XE(h1vector);
-                    h2torque.E(h2force);
-                    h2torque.XE(h2vector);
-                    otorque.E(oforce);
-                    otorque.XE(ovector);
-                    mtorque.E(mforce);
-                    mtorque.XE(mvector);
-                    totaltorqueNew.E(h1torque);
-                    totaltorqueNew.PE(h2torque);
-                    totaltorqueNew.PE(mtorque);
-                    totaltorqueNew.PE(otorque);//New total torque
-                    totaltorqueNew.ME(totaltorque);
-                    System.out.println(" torqueDifference = " + totaltorqueNew);
-                }
 
                 //redistribute such that only K3 freedom
-//				oforce.E(0);
+//				oForce.E(0);
 //				h1h2.Ev1Mv2(h2, h1);
 //				om.Ev1Mv2(m, o);
 //				h1h2.normalize();
 //				om.normalize();
-//				h1force.PEa1Tv1(-1.0*h1force.dot(om),om);
-//				h1force.PEa1Tv1(-1.0*h1force.dot(h1h2), h1h2);
-//				h2force.PEa1Tv1(-1.0*h2force.dot(om),om);
-//				h2force.PEa1Tv1(-1.0*h2force.dot(h1h2), h1h2);
-//				totalforce.E(h1force);
-//				totalforce.PE(h2force);
-//				h1force.PEa1Tv1(-0.5, totalforce);
-//				h2force.PEa1Tv1(-0.5, totalforce);
+//				h1Force.PEa1Tv1(-1.0*h1Force.dot(om),om);
+//				h1Force.PEa1Tv1(-1.0*h1Force.dot(h1h2), h1h2);
+//				h2Force.PEa1Tv1(-1.0*h2Force.dot(om),om);
+//				h2Force.PEa1Tv1(-1.0*h2Force.dot(h1h2), h1h2);
+//				totalForce.E(h1Force);
+//				totalForce.PE(h2Force);
+//				h1Force.PEa1Tv1(-0.5, totalForce);
+//				h2Force.PEa1Tv1(-0.5, totalForce);
 
 
                 //redistribute s.t. only k1 freedom with only in h1h2 direction
@@ -294,18 +392,18 @@ public class WaterDADB extends Simulation {
 //				om.Ev1Mv2(m, o);
 //				h1h2.XE(om);
 //				h1h2.normalize();
-//				h1force.PEa1Tv1(-1.0*h1force.dot(h1h2),h1h2);
-//				h2force.PEa1Tv1(-1.0*h2force.dot(h1h2),h1h2);
-//				oforce.PEa1Tv1(-1.0*oforce.dot(h1h2), h1h2);
+//				h1Force.PEa1Tv1(-1.0*h1Force.dot(h1h2),h1h2);
+//				h2Force.PEa1Tv1(-1.0*h2Force.dot(h1h2),h1h2);
+//				oForce.PEa1Tv1(-1.0*oForce.dot(h1h2), h1h2);
 
                 //redistribute s.t. only k1&k2 freedom
 //				h1h2.Ev1Mv2(h2, h1);
 //				om.Ev1Mv2(m, o);
 //				h1h2.XE(om);
 //				h1h2.normalize();
-//				h1force.PEa1Tv1(-1.0*h1force.dot(h1h2),h1h2);
-//				h2force.PEa1Tv1(-1.0*h2force.dot(h1h2),h1h2);
-//				oforce.PEa1Tv1(-1.0*h2force.dot(h1h2), o);
+//				h1Force.PEa1Tv1(-1.0*h1Force.dot(h1h2),h1h2);
+//				h2Force.PEa1Tv1(-1.0*h2Force.dot(h1h2),h1h2);
+//				oForce.PEa1Tv1(-1.0*h2Force.dot(h1h2), o);
 //
 
 
@@ -367,7 +465,7 @@ public class WaterDADB extends Simulation {
         double kCut = waterDADBParam.kCut;
         double shakeTol = waterDADBParam.shakeTol;
         boolean uniteCells = waterDADBParam.unitCells;
-        boolean doTranslation = waterDADBParam.doTranlation;
+        boolean doTranslation = waterDADBParam.doTranslation;
         boolean doRotation = waterDADBParam.doRotation;
         boolean runGraphic = waterDADBParam.runGraphic;
         final WaterDADB sim = new WaterDADB(Space3D.getInstance(), temperature, numCells, rCutRealES, rCutLJ, isIce, kCut, shakeTol, uniteCells, doTranslation, doRotation);
@@ -669,7 +767,7 @@ public class WaterDADB extends Simulation {
 
     public static class WaterDADBParam extends ParameterBase {
         public int numCells = 1;
-        public int numSteps = 100000;
+        public int numSteps = 10000;
         public double temperature = 100;
         public double rCutLJ = 11;
         public double rCutRealES = 11;
@@ -678,7 +776,7 @@ public class WaterDADB extends Simulation {
         public double shakeTol = 1e-12;
         public boolean runGraphic = false;
         public boolean unitCells = false;
-        public boolean doRotation = true;
-        public boolean doTranlation = true;
+        public boolean doRotation = false;
+        public boolean doTranslation = true;
     }
 }

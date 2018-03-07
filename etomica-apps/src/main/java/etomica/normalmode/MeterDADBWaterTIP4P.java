@@ -217,7 +217,7 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
         
         //debug for rotation angle and axis
         double[] beta0 = new double[46];
-        for (int j = 99; j > 0; j--) {
+        for (int j = 99; j > 0 && false; j--) {
         	for (int i = 0; i<molecules.getMoleculeCount(); i++){
         		IMolecule molecule = molecules.getMolecule(i);
              	IAtomList leafList = molecule.getChildList();
