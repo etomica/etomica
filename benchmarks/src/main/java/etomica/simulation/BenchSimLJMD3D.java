@@ -4,6 +4,7 @@
 
 package etomica.simulation;
 
+import etomica.nbr.list.PotentialMasterListFast;
 import etomica.nbr.list.PotentialMasterListFaster;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
@@ -64,7 +65,7 @@ public class BenchSimLJMD3D {
     @Measurement(time = 3, iterations = 5)
     public long integratorStepFast() {
 //        simFast.integrator.doStep();
-        simFast.integrator.getPotentialMaster().calculate(simFast.box, id, pcFast);
+        ((PotentialMasterListFast) simFast.integrator.getPotentialMaster()).calculateFast(simFast.box, id, pcFast);
         return simFast.integrator.getStepCount();
     }
 
