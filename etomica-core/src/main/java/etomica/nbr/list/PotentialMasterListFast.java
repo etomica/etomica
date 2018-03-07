@@ -57,7 +57,7 @@ public class PotentialMasterListFast extends PotentialMasterList {
     }
 
     public PotentialMasterListFast(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, BoxAgentManager<? extends BoxCellManager> agentManager, Space _space) {
-        this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSource(range, _space), _space);
+        this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSource(range), _space);
     }
 
     public PotentialMasterListFast(Simulation sim, double range,
@@ -95,12 +95,12 @@ public class PotentialMasterListFast extends PotentialMasterList {
      */
     public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if (forces == null) {
-            forces = new Vector[box.getLeafList().getAtomCount()];
-            for (int i = 0; i < box.getLeafList().getAtomCount(); i++) {
+            forces = new Vector[box.getLeafList().size()];
+            for (int i = 0; i < box.getLeafList().size(); i++) {
                 forces[i] = space.makeVector();
             }
         } else {
-            for (int i = 0; i < box.getLeafList().getAtomCount(); i++) {
+            for (int i = 0; i < box.getLeafList().size(); i++) {
                 forces[i].E(0);
             }
         }
@@ -115,18 +115,18 @@ public class PotentialMasterListFast extends PotentialMasterList {
             }
 
             IAtomList atoms = box.getLeafList();
-            AtomLeafAgentManager<? extends Integrator.Forcible> agentManager = ((PotentialCalculationForceSum) pc).getAgentManager();
+            AtomLeafAgentManager<Vector> agentManager = ((PotentialCalculationForceSum) pc).getAgentManager();
             Boundary boundary = box.getBoundary();
-            for (int i = 0; i < atoms.getAtomCount(); i++) {
-                IAtom atom = atoms.getAtom(i);
+            for (int i = 0; i < atoms.size(); i++) {
+                IAtom atom = atoms.get(i);
                 pair.atom0 = atom;
                 Vector v = atom.getPosition();
                 IAtomList list = neighborManager.getUpList(atom)[0];
-                int nNeighbors = list.getAtomCount();
+                int nNeighbors = list.size();
                 Vector iForce = forces[i];
 
                 for (int j = 0; j < nNeighbors; j++) {
-                    IAtom jAtom = list.getAtom(j);
+                    IAtom jAtom = list.get(j);
                     pair.atom1 = jAtom;
 //                    pc.doCalculation(pair, p2);
                     ((PotentialCalculationForceSum) pc).doCalcFast(pair, p2, forces);
@@ -147,7 +147,7 @@ public class PotentialMasterListFast extends PotentialMasterList {
 
             }
             for (int i = 0; i < forces.length; i++) {
-                agentManager.getAgents().get(i).force().E(forces[i]);
+                agentManager.getAgents().get(i).E(forces[i]);
             }
         }
         else {
@@ -174,9 +174,9 @@ public class PotentialMasterListFast extends PotentialMasterList {
 
         //cannot use AtomIterator field because of recursive call
         IAtomList list = molecule.getChildList();
-        int size = list.getAtomCount();
+        int size = list.size();
         for (int i = 0; i < size; i++) {
-            calculate(list.getAtom(i), direction, pc, neighborManager);//recursive call
+            calculate(list.get(i), direction, pc, neighborManager);//recursive call
         }
     }
 
@@ -196,19 +196,19 @@ public class PotentialMasterListFast extends PotentialMasterList {
                 case 2:
                     if (direction != IteratorDirective.Direction.DOWN) {
                         IAtomList list = neighborManager.getUpList(atom)[i];
-                        int nNeighbors = list.getAtomCount();
+                        int nNeighbors = list.size();
                         atomPair.atom0 = atom;
                         for (int j = 0; j < nNeighbors; j++) {
-                            atomPair.atom1 = list.getAtom(j);
+                            atomPair.atom1 = list.get(j);
                             pc.doCalculation(atomPair, (IPotentialAtomic) potentials[i]);
                         }
                     }
                     if (direction != IteratorDirective.Direction.UP) {
                         IAtomList list = neighborManager.getDownList(atom)[i];
-                        int nNeighbors = list.getAtomCount();
+                        int nNeighbors = list.size();
                         atomPair.atom1 = atom;
                         for (int j = 0; j < nNeighbors; j++) {
-                            atomPair.atom0 = list.getAtom(j);
+                            atomPair.atom0 = list.get(j);
                             pc.doCalculation(atomPair, (IPotentialAtomic) potentials[i]);
                         }
                     }
@@ -225,13 +225,13 @@ public class PotentialMasterListFast extends PotentialMasterList {
                         // we have to do the calculation considering each of the
                         // target's neighbors
                         IAtomList list = neighborManager.getUpList(atom)[i];
-                        for (int j = 0; j < list.getAtomCount(); j++) {
-                            IAtom otherAtom = list.getAtom(j);
+                        for (int j = 0; j < list.size(); j++) {
+                            IAtom otherAtom = list.get(j);
                             doNBodyStuff(otherAtom, pc, i, (IPotentialAtomic) potentials[i], neighborManager);
                         }
                         list = neighborManager.getDownList(atom)[i];
-                        for (int j = 0; j < list.getAtomCount(); j++) {
-                            IAtom otherAtom = list.getAtom(j);
+                        for (int j = 0; j < list.size(); j++) {
+                            IAtom otherAtom = list.get(j);
                             doNBodyStuff(otherAtom, pc, i, (IPotentialAtomic) potentials[i], neighborManager);
                         }
                     }

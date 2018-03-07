@@ -43,17 +43,17 @@ public class LJMD3DFaster extends Simulation {
 
     public LJMD3DFaster() {
         super(Space3D.getInstance());
-        PotentialMasterListFaster potentialMaster = new PotentialMasterListFaster(this, 4, space);
-        potentialMaster.lrcMaster().setEnabled(false);
-        double sigma = 1.0;
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
-        integrator.setTimeStep(0.02);
-        integrator.setForceSum(new PotentialCalculationForceSum());
+        box = new Box(space);
+        addBox(box);
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        box = new Box(space);
-        addBox(box);
+        PotentialMasterListFaster potentialMaster = new PotentialMasterListFaster(this, 4, space);
+        potentialMaster.lrcMaster().setEnabled(false);
+        double sigma = 1.0;
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator.setTimeStep(0.02);
+        integrator.setForceSum(new PotentialCalculationForceSum());
         box.setNMolecules(species, 5000);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.8);
@@ -63,7 +63,6 @@ public class LJMD3DFaster extends Simulation {
         AtomType leafType = species.getLeafType();
 
         potentialMaster.addPotential(p2, new AtomType[]{leafType, leafType});
-        integrator.setBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
 

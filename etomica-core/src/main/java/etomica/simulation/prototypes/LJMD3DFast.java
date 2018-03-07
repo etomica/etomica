@@ -41,20 +41,20 @@ public class LJMD3DFast extends Simulation {
 
     public LJMD3DFast() {
         super(Space3D.getInstance());
-        PotentialMasterListFast potentialMaster = new PotentialMasterListFast(this, 4, space);
-        potentialMaster.lrcMaster().setEnabled(false);
-        double sigma = 1.0;
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
-        integrator.setTimeStep(0.02);
-        integrator.setForceSum(new PotentialCalculationForceSum());
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
-        getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
         box = new Box(space);
         addBox(box);
+        PotentialMasterListFast potentialMaster = new PotentialMasterListFast(this, 4, space);
+        potentialMaster.lrcMaster().setEnabled(false);
+        double sigma = 1.0;
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator.setTimeStep(0.02);
+        integrator.setForceSum(new PotentialCalculationForceSum());
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate.setSleepPeriod(1);
+        getController().addAction(activityIntegrate);
         box.setNMolecules(species, 5000);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.8);
@@ -64,7 +64,6 @@ public class LJMD3DFast extends Simulation {
         AtomType leafType = species.getLeafType();
 
         potentialMaster.addPotential(p2, new AtomType[]{leafType, leafType});
-        integrator.setBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
 

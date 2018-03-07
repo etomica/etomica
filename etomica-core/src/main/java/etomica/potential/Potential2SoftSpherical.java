@@ -91,7 +91,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     }
 
     public void gradientFast(IAtomList atoms, Vector f0, Vector f1) {
-        dr.Ev1Mv2(atoms.getAtom(1).getPosition(), atoms.getAtom(0).getPosition());
+        dr.Ev1Mv2(atoms.get(1).getPosition(), atoms.get(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         double du = du(r2);

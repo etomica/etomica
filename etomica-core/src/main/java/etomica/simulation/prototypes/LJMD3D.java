@@ -42,19 +42,21 @@ public class LJMD3D extends Simulation {
 
     public LJMD3D() {
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
+        box = this.makeBox();
+
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space);
         potentialMaster.lrcMaster().setEnabled(false);
         double sigma = 1.0;
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setForceSum(new PotentialCalculationForceSum());
         integrator.setTimeStep(0.02);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
-        box = new Box(space);
-        addBox(box);
         box.setNMolecules(species, 5000);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.8);
@@ -65,7 +67,6 @@ public class LJMD3D extends Simulation {
 
         potentialMaster.addPotential(p2, new AtomType[]{leafType, leafType});
 
-        integrator.setBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);

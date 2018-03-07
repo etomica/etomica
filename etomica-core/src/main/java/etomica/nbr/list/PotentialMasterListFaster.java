@@ -66,7 +66,7 @@ public class PotentialMasterListFaster extends PotentialMasterList {
     }
 
     public PotentialMasterListFaster(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, BoxAgentManager<? extends BoxCellManager> agentManager, Space _space) {
-        this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSource(range, _space), _space);
+        this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSource(range), _space);
     }
 
     public PotentialMasterListFaster(Simulation sim, double range,
@@ -96,15 +96,15 @@ public class PotentialMasterListFaster extends PotentialMasterList {
     public void doSetUp(Box box) {
         IAtomList atoms = box.getLeafList();
         if (positions == null) {
-            positions = new Vector[atoms.getAtomCount()];
-            neighbors = new int[atoms.getAtomCount()][];
+            positions = new Vector[atoms.size()];
+            neighbors = new int[atoms.size()][];
         }
-        for (int i = 0; i < atoms.getAtomCount(); i++) {
-            positions[i] = atoms.getAtom(i).getPosition();
-            IAtomList atomNeighbors = neighborListAgentManager.getAgent(box).getUpList(atoms.getAtom(i))[0];
-            neighbors[i] = new int[atomNeighbors.getAtomCount()];
+        for (int i = 0; i < atoms.size(); i++) {
+            positions[i] = atoms.get(i).getPosition();
+            IAtomList atomNeighbors = neighborListAgentManager.getAgent(box).getUpList(atoms.get(i))[0];
+            neighbors[i] = new int[atomNeighbors.size()];
             for (int j = 0; j < neighbors[i].length; j++) {
-                neighbors[i][j] = atomNeighbors.getAtom(j).getLeafIndex();
+                neighbors[i][j] = atomNeighbors.get(j).getLeafIndex();
             }
         }
     }
@@ -123,12 +123,12 @@ public class PotentialMasterListFaster extends PotentialMasterList {
             doSetUp(box);
         }
         if (forces == null) {
-            forces = new Vector[box.getLeafList().getAtomCount()];
-            for (int i = 0; i < box.getLeafList().getAtomCount(); i++) {
+            forces = new Vector[box.getLeafList().size()];
+            for (int i = 0; i < box.getLeafList().size(); i++) {
                 forces[i] = space.makeVector();
             }
         } else {
-            for (int i = 0; i < box.getLeafList().getAtomCount(); i++) {
+            for (int i = 0; i < box.getLeafList().size(); i++) {
                 forces[i].E(0);
             }
         }
@@ -141,7 +141,7 @@ public class PotentialMasterListFaster extends PotentialMasterList {
                 throw new IllegalArgumentException("When there is no target, iterator directive must be up");
             }
 
-            AtomLeafAgentManager<? extends Integrator.Forcible> agentManager = ((PotentialCalculationForceSum) pc).getAgentManager();
+            AtomLeafAgentManager<Vector> agentManager = ((PotentialCalculationForceSum) pc).getAgentManager();
 //            Boundary boundary = box.getBoundary();
 
             IntStream.range(0, positions.length).parallel().forEach(i -> {
@@ -186,7 +186,7 @@ public class PotentialMasterListFaster extends PotentialMasterList {
 //
 //            }
             for (int i = 0; i < forces.length; i++) {
-                agentManager.getAgents().get(i).force().E(forces[i]);
+                agentManager.getAgents().get(i).E(forces[i]);
             }
         }
         else {
@@ -213,9 +213,9 @@ public class PotentialMasterListFaster extends PotentialMasterList {
 
         //cannot use AtomIterator field because of recursive call
         IAtomList list = molecule.getChildList();
-        int size = list.getAtomCount();
+        int size = list.size();
         for (int i = 0; i < size; i++) {
-            calculate(list.getAtom(i), direction, pc, neighborManager);//recursive call
+            calculate(list.get(i), direction, pc, neighborManager);//recursive call
         }
     }
 
@@ -235,19 +235,19 @@ public class PotentialMasterListFaster extends PotentialMasterList {
                 case 2:
                     if (direction != IteratorDirective.Direction.DOWN) {
                         IAtomList list = neighborManager.getUpList(atom)[i];
-                        int nNeighbors = list.getAtomCount();
+                        int nNeighbors = list.size();
                         atomPair.atom0 = atom;
                         for (int j = 0; j < nNeighbors; j++) {
-                            atomPair.atom1 = list.getAtom(j);
+                            atomPair.atom1 = list.get(j);
                             pc.doCalculation(atomPair, (IPotentialAtomic) potentials[i]);
                         }
                     }
                     if (direction != IteratorDirective.Direction.UP) {
                         IAtomList list = neighborManager.getDownList(atom)[i];
-                        int nNeighbors = list.getAtomCount();
+                        int nNeighbors = list.size();
                         atomPair.atom1 = atom;
                         for (int j = 0; j < nNeighbors; j++) {
-                            atomPair.atom0 = list.getAtom(j);
+                            atomPair.atom0 = list.get(j);
                             pc.doCalculation(atomPair, (IPotentialAtomic) potentials[i]);
                         }
                     }
@@ -264,13 +264,13 @@ public class PotentialMasterListFaster extends PotentialMasterList {
                         // we have to do the calculation considering each of the
                         // target's neighbors
                         IAtomList list = neighborManager.getUpList(atom)[i];
-                        for (int j = 0; j < list.getAtomCount(); j++) {
-                            IAtom otherAtom = list.getAtom(j);
+                        for (int j = 0; j < list.size(); j++) {
+                            IAtom otherAtom = list.get(j);
                             doNBodyStuff(otherAtom, pc, i, (IPotentialAtomic) potentials[i], neighborManager);
                         }
                         list = neighborManager.getDownList(atom)[i];
-                        for (int j = 0; j < list.getAtomCount(); j++) {
-                            IAtom otherAtom = list.getAtom(j);
+                        for (int j = 0; j < list.size(); j++) {
+                            IAtom otherAtom = list.get(j);
                             doNBodyStuff(otherAtom, pc, i, (IPotentialAtomic) potentials[i], neighborManager);
                         }
                     }

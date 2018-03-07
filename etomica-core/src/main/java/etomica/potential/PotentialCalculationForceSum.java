@@ -20,7 +20,7 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
         integratorAgentManager = agentManager;
     }
 
-    public AtomLeafAgentManager<? extends IntegratorBox.Forcible> getAgentManager() {
+    public AtomLeafAgentManager<Vector> getAgentManager() {
         return integratorAgentManager;
     }
 
@@ -34,7 +34,7 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
 
     public void doCalcFast(IAtomList atoms, IPotentialAtomic potential, final Vector[] forces) {
         Potential2SoftSpherical potentialSoft = (Potential2SoftSpherical) potential;
-        potentialSoft.gradientFast(atoms, forces[atoms.getAtom(0).getLeafIndex()], forces[atoms.getAtom(1).getLeafIndex()]);
+        potentialSoft.gradientFast(atoms, forces[atoms.get(0).getLeafIndex()], forces[atoms.get(1).getLeafIndex()]);
 
     }
     /**
@@ -43,8 +43,8 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
      */
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         Potential2SoftSpherical potentialSoft = (Potential2SoftSpherical) potential;
-        potentialSoft.gradientFast(atoms, integratorAgentManager.getAgent(atoms.getAtom(0)).force(),
-                integratorAgentManager.getAgent(atoms.getAtom(1)).force());
+        potentialSoft.gradientFast(atoms, integratorAgentManager.getAgent(atoms.get(0)),
+                integratorAgentManager.getAgent(atoms.get(1)));
         if (true) return;
         int nBody = potential.nBody();
         Vector[] f = potentialSoft.gradient(atoms);
