@@ -15,6 +15,7 @@ import etomica.data.meter.MeterPressure;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveVolume;
@@ -22,7 +23,6 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicBcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.potential.PotentialMaster;
@@ -65,13 +65,13 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		double a = 3.8778; //minimizer.getA();
 		double c = 5.3198; //minimizer.getC();
 
-		potentialMaster = new PotentialMaster();
-
 		Basis basisBCC = new BasisCubicBcc();
 		Basis basis = new BasisBigCell(space, basisBCC, new int[]{nCell, nCell, nCell});
 
 		species = new SpeciesN2ShellModel(space);
 		addSpecies(species);
+
+        potentialMaster = new PotentialMaster();
 
 		Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell * a, nCell * a, nCell * c});
 		box = this.makeBox(boundary);

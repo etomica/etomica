@@ -64,6 +64,10 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
     
     public TestLJAssociationMC3D_NPT_DoubleSites(int numAtoms, double pressure, double density, double wellConstant, double temperature,double truncationRadius,int maxChainLength, boolean useUB, long numSteps) {
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresRotating(this, space);//Species in which molecules are made of a single atom of type OrientedSphere
+        addSpecies(species);
+
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
 
         double sigma = 1.0;
@@ -76,8 +80,6 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         System.out.println("temperature = " + temperature);
         System.out.println("numSteps = " + numSteps);
         System.out.println("maximum chain length= " + maxChainLength);
-        species = new SpeciesSpheresRotating(this, space);//Species in which molecules are made of a single atom of type OrientedSphere
-        addSpecies(species);
         box = this.makeBox();
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(temperature);

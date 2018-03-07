@@ -17,13 +17,13 @@ import etomica.data.meter.MeterPressureMolecular;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
@@ -59,14 +59,13 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		double a = Math.pow(4.0 / density, 1.0 / 3.0);
 		System.out.println("Unit Cell Length, a: " + a);
 
-		//potentialMaster = new PotentialMaster();
-		potentialMaster = new PotentialMasterListMolecular(this, space);
-
 		Basis basisFCC = new BasisCubicFcc();
 		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nC[0], nC[1], nC[2]});
 
 		species = new SpeciesN2(space);
 		addSpecies(species);
+
+        potentialMaster = new PotentialMasterListMolecular(this, space);
 
 		int numMolecule = 4 * nC[0] * nC[1] * nC[2];
 		double[] boxSize = new double[]{nC[0] * a, nC[1] * a, nC[2] * a};

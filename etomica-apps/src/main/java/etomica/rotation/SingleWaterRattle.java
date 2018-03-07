@@ -11,9 +11,9 @@ import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerletRattle;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.models.water.ConformationWater3P;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.SpeciesWater3P;
@@ -39,10 +39,10 @@ public class SingleWaterRattle {
     public static SimulationGraphic makeSingleWater() {
         final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        final Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
-        sim.addBox(box);
         SpeciesWater3P species = new SpeciesWater3P(sim.getSpace(), true);
         sim.addSpecies(species);
+        final Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
+        sim.addBox(box);
         box.setNMolecules(species, 1);
         box.setDensity(0.01 / 18.0 * Constants.AVOGADRO / 1E24);
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);

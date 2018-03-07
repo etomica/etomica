@@ -9,8 +9,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorRigidIterative;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorRigidIterative;
 import etomica.models.water.DipoleSourceWater;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
@@ -35,10 +35,10 @@ public class WaterBox {
     public static SimulationGraphic makeWaterBox() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(Space3D.getInstance());
-        Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
-        sim.addBox(box);
         SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
         sim.addSpecies(species);
+        Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
+        sim.addBox(box);
         box.setNMolecules(species, 256);
         box.setDensity(1 / 18.0 * Constants.AVOGADRO / 1E24);
         ConfigurationWater256 configFile = new ConfigurationWater256();

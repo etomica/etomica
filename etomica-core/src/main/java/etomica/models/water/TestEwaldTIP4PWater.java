@@ -17,20 +17,19 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.CriterionAll;
 import etomica.potential.EwaldSummation;
 import etomica.potential.EwaldSummation.MyCharge;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Bar;
@@ -52,7 +51,6 @@ public class TestEwaldTIP4PWater extends Simulation {
 
     TestEwaldTIP4PWater(Space space) {
         super(space);
-        potentialMaster = new PotentialMaster();
 
         LatticeCubicFcc lattice = new LatticeCubicFcc(space);
         ConfigurationLattice configuration = new ConfigurationLattice(lattice, space);
@@ -61,6 +59,8 @@ public class TestEwaldTIP4PWater extends Simulation {
         species = new SpeciesWater4P(space);
         species.setConformation(config);
         addSpecies(species);
+
+        potentialMaster = new PotentialMaster();
 
         box = this.makeBox();
         box.getBoundary().setBoxSize(space.makeVector(new double[]{25, 25, 25}));

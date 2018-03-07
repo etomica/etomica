@@ -44,6 +44,11 @@ public class TestYukawaMD3D extends Simulation{
 	
 	public TestYukawaMD3D() {
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 1.6, space);
 
         int numAtoms = 256;
@@ -63,9 +68,6 @@ public class TestYukawaMD3D extends Simulation{
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
         box.setNMolecules(species, numAtoms);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));

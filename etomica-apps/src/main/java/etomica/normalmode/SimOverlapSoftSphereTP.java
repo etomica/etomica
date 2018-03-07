@@ -65,6 +65,9 @@ public class SimOverlapSoftSphereTP extends Simulation {
     public SimOverlapSoftSphereTP(Space _space, int numAtoms, boolean slanty, boolean flex, double density, double temperature, double[] otherTemperatures, double[] alpha, int exponent, int numAlpha, double alphaSpan, long numSteps, double rc) {
         super(_space);
 
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         if (slanty) {
             BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
             BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
@@ -72,9 +75,6 @@ public class SimOverlapSoftSphereTP extends Simulation {
         } else {
             potentialMaster = new PotentialMasterList(this, space);
         }
-
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
 
         // TARGET
         double nbrDistance = 0;

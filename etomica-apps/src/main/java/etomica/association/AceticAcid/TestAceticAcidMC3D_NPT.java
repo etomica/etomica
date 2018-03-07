@@ -27,12 +27,12 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.integrator.mcmove.MCMoveTorsionAceticAcid;
 import etomica.integrator.mcmove.MCMoveWiggleAceticAcid;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.models.OPLS.AceticAcidPotentialHelper;
 import etomica.models.OPLS.DipoleSourceAceticAcid;
 import etomica.models.OPLS.SpeciesAceticAcid;
@@ -81,6 +81,10 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         
     public TestAceticAcidMC3D_NPT(int numAtoms, double pressureBar, double densityMolLiter, double temperatureK, long numSteps) {
         super(Space3D.getInstance());
+
+        species = new SpeciesAceticAcid(space);
+        addSpecies(species);
+
         PotentialMaster potentialMaster = new PotentialMaster();
         //setRandom(new RandomNumberGenerator(3));
         IMoleculePositionDefinition positionDefinition = new IMoleculePositionDefinition() {//anonymous class
@@ -144,8 +148,6 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         //actionIntegrate.setSleepPeriod(1);
         actionIntegrator.setMaxSteps(numSteps);
         getController().addAction(actionIntegrator);
-        species = new SpeciesAceticAcid(space);
-        addSpecies(species);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);

@@ -16,10 +16,10 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.*;
 import etomica.potential.P2HardSphere;
@@ -51,7 +51,6 @@ public class SimHarmonicHexane extends Simulation {
     public SimHarmonicHexane(Space _space, double dens, int xCells, int yCells, 
             int zCells, String filename, double harmonicFudge) {
         super(_space);
-        PotentialMaster potentialMaster = new PotentialMaster();
         int chainLength = 6;
         //One molecule per cell
         int numAtoms = xCells * yCells * zCells * chainLength;

@@ -9,8 +9,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConformationLinear;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorVelocityVerletShake;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorVelocityVerletShake;
 import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -26,13 +26,13 @@ public class SingleDumbellShake {
     public static SimulationGraphic makeSingleWater() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
-        sim.addBox(box);
         SpeciesSpheres species = new SpeciesSpheres(sim, space, 2);
         ((ConformationLinear) species.getConformation()).setAngle(0, 0);
         ((ConformationLinear) species.getConformation()).setAngle(1, 0.5 * Math.PI);
         ((ConformationLinear) species.getConformation()).setBondLength(2);
         sim.addSpecies(species);
+        Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
+        sim.addBox(box);
         box.setNMolecules(species, 1);
         box.setDensity(0.01 / 18.0 * Constants.AVOGADRO / 1E24);
 //        new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);

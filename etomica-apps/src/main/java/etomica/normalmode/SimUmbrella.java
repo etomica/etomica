@@ -11,12 +11,12 @@ import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.histogram.HistogramExpanding;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
@@ -80,6 +80,8 @@ public class SimUmbrella extends Simulation {
         }
         //System.out.println("refPref is: "+ refPref);
 
+        species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
 
         int D = space.D();
 
@@ -90,8 +92,6 @@ public class SimUmbrella extends Simulation {
         boundary = new BoundaryRectangularPeriodic(space,n * L);
         box = this.makeBox(boundary);
         integrator = new IntegratorMC(potentialMasterMonatomic, getRandom(), temperature, box);
-        species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
 
         //Target
         box.setNMolecules(species, numAtoms);

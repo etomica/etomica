@@ -15,13 +15,13 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.*;
@@ -72,8 +72,6 @@ public class SimOverlapSoftSphere extends Simulation {
         super(_space);
         this.fname = filename;
 
-        potentialMasterTarget = new PotentialMasterList(this, space);
-
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
         meters = new IDataSource[2];
@@ -81,6 +79,8 @@ public class SimOverlapSoftSphere extends Simulation {
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
+
+        potentialMasterTarget = new PotentialMasterList(this, space);
 
         // TARGET
         double L = Math.pow(4.0 / density, 1.0 / 3.0);

@@ -16,12 +16,12 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.normalmode.*;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
@@ -56,6 +56,10 @@ public class TestHexaneHarmonic extends Simulation {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
         super(_space);
+
+        SpeciesHexane species = new SpeciesHexane(space);
+        addSpecies(species);
+
         PotentialMaster potentialMaster = new PotentialMaster();
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
@@ -73,8 +77,6 @@ public class TestHexaneHarmonic extends Simulation {
 
         double bondFactor = 0.4;
 
-        SpeciesHexane species = new SpeciesHexane(space);
-        addSpecies(species);
         int[] nCells = new int[]{4, 6, 6};
         bdry = new BoundaryDeformableLattice(primitive, nCells);
         box = this.makeBox(bdry);

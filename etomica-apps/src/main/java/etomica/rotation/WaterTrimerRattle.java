@@ -18,8 +18,8 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorVelocityVerletRattle;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorVelocityVerletRattle;
 import etomica.models.water.ConformationWater3P;
 import etomica.models.water.P2WaterSPC;
 import etomica.models.water.SpeciesWater3P;
@@ -43,10 +43,10 @@ public class WaterTrimerRattle {
     public static SimulationGraphic makeWaterDroplet() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
-        sim.addBox(box);
         SpeciesWater3P species = new SpeciesWater3P(sim.getSpace(), true);
         sim.addSpecies(species);
+        Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
+        sim.addBox(box);
         box.setNMolecules(species, 3);
         box.setDensity(0.9 / 18.0 * Constants.AVOGADRO / 1E24);
         ConfigurationWater3_3P config = new ConfigurationWater3_3P();

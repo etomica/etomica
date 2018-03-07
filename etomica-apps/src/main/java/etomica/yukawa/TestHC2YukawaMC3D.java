@@ -19,10 +19,10 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -50,6 +50,10 @@ public class TestHC2YukawaMC3D extends Simulation{
 	
 	public TestHC2YukawaMC3D(int numAtoms) {
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
 
         box = this.makeBox();
@@ -60,8 +64,6 @@ public class TestHC2YukawaMC3D extends Simulation{
         integrator.getMoveManager().setEquilibrating(false);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.65);

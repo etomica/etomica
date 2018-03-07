@@ -6,11 +6,11 @@ package etomica.modules.rheology;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.graphics.SimulationGraphic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
 
@@ -29,13 +29,13 @@ public class SimulationRheology extends Simulation {
     
     public SimulationRheology(Space space) {
         super(space);
+        species = new SpeciesSpheres(this, space, 2);
+        species.setIsDynamic(true);
+        addSpecies(species);
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         Vector d = space.makeVector();
         d.E(20);
         box.getBoundary().setBoxSize(d);
-        species = new SpeciesSpheres(this, space, 2);
-        species.setIsDynamic(true);
-        addSpecies(species);
         box.setNMolecules(species, 1);
         conformation = new ConformationPolymer(space, random);
         conformation.initializePositions(box.getMoleculeList().get(0).getChildList());

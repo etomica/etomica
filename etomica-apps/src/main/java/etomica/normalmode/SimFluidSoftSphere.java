@@ -17,11 +17,11 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
@@ -51,10 +51,10 @@ public class SimFluidSoftSphere extends Simulation {
     public SimFluidSoftSphere(Space _space, int numAtoms, double density, double temperature, int exponent) {
         super(_space);
 
-        potentialMaster = new PotentialMaster();
-
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
+
+        potentialMaster = new PotentialMaster();
 
         box = this.makeBox();
         box.setNMolecules(species, numAtoms);

@@ -50,6 +50,10 @@ public class TestHexaneCBMCOnly extends Simulation {
         // super(space, false, new PotentialMasterNbr(space, 12.0));
         // super(space, true, new PotentialMasterList(space, 12.0));
         super(_space);
+
+        SpeciesHexane species = new SpeciesHexane(space);
+        addSpecies(species);
+
         PotentialMaster potentialMaster = new PotentialMaster();
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
@@ -63,9 +67,6 @@ public class TestHexaneCBMCOnly extends Simulation {
         lattice = new BravaisLattice(primitive);
         ConfigurationLattice config = new ConfigurationLattice(lattice, space);
 
-
-        SpeciesHexane species = new SpeciesHexane(space);
-        addSpecies(species);
         bdry = new BoundaryDeformableLattice(primitive, new int[]{4, 6, 6});
         box = this.makeBox(bdry);
         box.setNMolecules(species, numMolecules);

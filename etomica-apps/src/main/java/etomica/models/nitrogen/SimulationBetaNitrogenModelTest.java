@@ -13,6 +13,7 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveVolume;
@@ -20,7 +21,6 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.IMoleculeList;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
@@ -57,12 +57,12 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
         double c = 6.263463;//6.284;
         int numMolecule = nC[0] * nC[1] * nC[2] * 2;
 
+        species = new SpeciesN2(space);
+        addSpecies(species);
+
         potentialMaster = new PotentialMaster();
         Basis basisHCP = new BasisHcp();
         Basis basis = new BasisBigCell(space, basisHCP, new int[]{nC[0], nC[1], nC[2]});
-
-        species = new SpeciesN2(space);
-        addSpecies(species);
 
         Vector[] boxDim = new Vector[3];
         boxDim[0] = space.makeVector(new double[]{nC[0] * a, 0, 0});

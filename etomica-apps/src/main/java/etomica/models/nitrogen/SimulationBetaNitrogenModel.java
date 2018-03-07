@@ -18,13 +18,13 @@ import etomica.data.meter.MeterPressureMolecular;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
 import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
@@ -61,9 +61,11 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		super(space);
 		this.space = space;
 
+        species = new SpeciesN2(space);
+        addSpecies(species);
+
 		BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
 		BoxAgentManager<NeighborCellManagerMolecular> boxAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, this);
-
 
 		double ratio = 1.631;
 		double a = Math.pow(4.0 / (Math.sqrt(3.0) * ratio * density), 1.0 / 3.0);
@@ -74,9 +76,6 @@ public class SimulationBetaNitrogenModel extends Simulation{
 
 		Basis basisHCP = new BasisHcp();
 		Basis basis = new BasisBigCell(space, basisHCP, new int[]{nC, nC, nC});
-
-		species = new SpeciesN2(space);
-		addSpecies(species);
 
 		Vector[] boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC * a, 0, 0});

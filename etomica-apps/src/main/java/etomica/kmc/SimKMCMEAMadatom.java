@@ -17,10 +17,10 @@ import etomica.dimer.PotentialMasterListDimer;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.math.numerical.CalcGradientDifferentiable;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
@@ -70,13 +70,7 @@ public class SimKMCMEAMadatom extends Simulation{
     public SimKMCMEAMadatom() {
         super(Space3D.getInstance());
 
-        potentialMasterD = new PotentialMasterListDimer(this, space);
-
-        //SIMULATION BOX
-        box = this.makeBox(new BoundaryRectangularSlit(0, 5, space));
-
         //SPECIES
-
         //Sn
         Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);
         fixed = new SpeciesSpheresMono(space, tinFixed);
@@ -85,6 +79,11 @@ public class SimKMCMEAMadatom extends Simulation{
         addSpecies(fixed);
         addSpecies(movable);
         addSpecies(potentialSpecies);
+
+        potentialMasterD = new PotentialMasterListDimer(this, space);
+
+        //SIMULATION BOX
+        box = this.makeBox(new BoundaryRectangularSlit(0, 5, space));
         box.setNMolecules(fixed, 180);
 
         potential = new PotentialMEAM(space);

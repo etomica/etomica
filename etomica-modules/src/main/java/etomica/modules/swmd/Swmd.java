@@ -11,10 +11,10 @@ import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardWrapper;
 import etomica.potential.P2SquareWell;
@@ -37,6 +37,13 @@ public class Swmd extends Simulation {
     
     public Swmd(Space _space) {
         super(_space);
+
+        //species
+        species = new SpeciesSpheresMono(this, space);//index 1
+        species.setIsDynamic(true);
+        ((ElementSimple) species.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(space.D() == 3 ? 131 : 40));
+        addSpecies(species);
+
         PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this); //List(this, 2.0);
 
         int N = space.D() == 3 ? 256 : 100;  //number of atoms
@@ -56,11 +63,6 @@ public class Swmd extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-        //species and potentials
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
-        ((ElementSimple) species.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(space.D() == 3 ? 131 : 40));
-        addSpecies(species);
         integrator.setNullPotential(nullPotential, species.getLeafType());
 
         //instantiate several potentials for selection in combo-box

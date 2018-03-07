@@ -20,10 +20,10 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2HardAssociationConeSW;
 import etomica.simulation.Simulation;
@@ -61,6 +61,10 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
     
     public TestIGAssociationMC3D_NPT_DoubleSites(int numAtoms, double pressure, double density, double wellConstant, double temperature,double truncationRadius,int maxChainLength, boolean useUB, long numSteps) {
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresRotating(this, space);//Species in which molecules are made of a single atom of type OrientedSphere
+        addSpecies(species);
+
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
 
         double sigma = 1.0;
@@ -115,8 +119,6 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         //actionIntegrate.setSleepPeriod(1);
         actionIntegrator.setMaxSteps(numSteps);
         getController().addAction(actionIntegrator);
-        species = new SpeciesSpheresRotating(this, space);//Species in which molecules are made of a single atom of type OrientedSphere
-        addSpecies(species);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);

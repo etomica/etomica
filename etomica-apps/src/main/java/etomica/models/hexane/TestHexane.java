@@ -11,14 +11,14 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerGroupSeries;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
-import etomica.integrator.IntegratorListenerAction;
-import etomica.integrator.IntegratorListenerGroupSeries;
 import etomica.normalmode.*;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
@@ -71,6 +71,9 @@ public class TestHexane extends Simulation {
 //        super(space, true, new PotentialMasterList(space, 12.0));
         super(_space);
 
+        SpeciesHexane species = new SpeciesHexane(space);
+        addSpecies(species);
+
         PotentialMaster potentialMaster = new PotentialMaster();
         int chainLength = 6;
         //One molecule per cell
@@ -89,8 +92,6 @@ public class TestHexane extends Simulation {
 
         double bondFactor = 0.4;
 
-        SpeciesHexane species = new SpeciesHexane(space);
-        addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(primitive, nCells);
         box = this.makeBox(bdry);

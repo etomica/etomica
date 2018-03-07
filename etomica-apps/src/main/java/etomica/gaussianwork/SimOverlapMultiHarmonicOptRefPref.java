@@ -13,8 +13,8 @@ import etomica.data.histogram.HistogramSimple;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorMC;
 import etomica.math.DoubleRange;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P1Harmonic;
@@ -65,6 +65,9 @@ public class SimOverlapMultiHarmonicOptRefPref extends Simulation{
     public SimOverlapMultiHarmonicOptRefPref(int numAtoms, double wA, double wB, double x0, double temperature) {
         super(Space1D.getInstance());
 
+        species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         potentialMasterB = new PotentialMasterMonatomic(this);
         potentialMasterA = new PotentialMasterMonatomic(this);
 
@@ -72,9 +75,6 @@ public class SimOverlapMultiHarmonicOptRefPref extends Simulation{
         accumulatorPumps = new DataPump[2];
         meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
-
-        species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
 
         //System B
         boxB = this.makeBox(new BoundaryRectangularNonperiodic(space));

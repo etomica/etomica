@@ -16,8 +16,8 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorRigidMatrixIterative;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorRigidMatrixIterative;
 import etomica.models.water.OrientationCalcWater4P;
 import etomica.models.water.P2WaterTIP4PSoft;
 import etomica.models.water.SpeciesWater4POriented;
@@ -38,10 +38,10 @@ public class WaterDropletMatrix {
     public static SimulationGraphic makeWaterDroplet() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
-        sim.addBox(box);
         SpeciesWater4POriented species = new SpeciesWater4POriented(sim.getSpace(), true);
         sim.addSpecies(species);
+        Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
+        sim.addBox(box);
         box.setNMolecules(species, 108);
         box.setDensity(0.7 / 18.0 * Constants.AVOGADRO / 1E24);
         ConfigurationWater108TIP4P config = new ConfigurationWater108TIP4P();

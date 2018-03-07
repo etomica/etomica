@@ -12,13 +12,13 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.overlap.IntegratorOverlap;
@@ -47,6 +47,9 @@ public class SimOverlapBetaN2RP extends Simulation {
     		double[] angle, double alpha, double alphaSpan, int numAlpha) {
         super(space);
 
+        SpeciesN2 species = new SpeciesN2(space);
+        addSpecies(species);
+
         potentialMasterTarg = new PotentialMaster();
         potentialMasterRef = new PotentialMaster();
 
@@ -54,9 +57,6 @@ public class SimOverlapBetaN2RP extends Simulation {
         accumulatorPumps = new DataPump[2];
         meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
-
-        SpeciesN2 species = new SpeciesN2(space);
-        addSpecies(species);
 
         // TARGET
         double ratio = 1.631;

@@ -35,10 +35,10 @@ public class WaterDropletShake {
     public static SimulationGraphic makeWaterDroplet() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesWater3P species = new SpeciesWater3P(sim.getSpace(), true);
-        sim.addSpecies(species);
         Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
         sim.addBox(box);
+        SpeciesWater3P species = new SpeciesWater3P(sim.getSpace(), true);
+        sim.addSpecies(species);
         box.setNMolecules(species, 108);
         box.setDensity(1 / 18.0 * Constants.AVOGADRO / 1E24);
         ConfigurationWater108 configFile = new ConfigurationWater108();

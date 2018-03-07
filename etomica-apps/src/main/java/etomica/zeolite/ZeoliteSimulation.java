@@ -15,8 +15,8 @@ import etomica.data.meter.MeterEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DisplayPlot;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -83,7 +83,6 @@ public class ZeoliteSimulation extends Simulation {
         // the PotentialMaster is selected such as to implement neighbor listing
         super(Space3D.getInstance());
 
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, 1.6, space);
         //Additions for Zeolite Calculations
         //Start by reading the first line, which is number of Atoms
         String fileName = "2unitcell";
@@ -91,11 +90,25 @@ public class ZeoliteSimulation extends Simulation {
         ConfigurationFileXYZ config = new ConfigurationFileXYZ(fileName, space);
         int[] numAtoms = config.getNumAtoms();
 
+        species = new SpeciesSpheresMono[numAtoms.length];
+        for (int i = 0; i < numAtoms.length; i++) {
+            species[i] = new SpeciesSpheresMono(this, space);
+            species[i].setIsDynamic(true);
+            addSpecies(species[i]);
+            if (i != (numAtoms.length - 1)) {
+                // all elements except the last (methane) are fixed
+                ((ElementSimple) (species[i].getLeafType()).getElement()).setMass(Double.POSITIVE_INFINITY);
+            } else {
+                ((ElementSimple) species[i].getLeafType().getElement()).setMass(16);
+            }
+        }
+
         nAtomsMeth = numAtoms[numAtoms.length - 1];
         double neighborRangeFac = 1.2;
         //defaults.makeLJDefaults();
         //Setting sizes of molecules
 
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, 1.6, space);
         double range = 8.035;
         potentialMaster.setRange(3.214 * neighborRangeFac * 2.5);
 
@@ -112,18 +125,8 @@ public class ZeoliteSimulation extends Simulation {
         activityIntegrate.setMaxSteps(500);
         getController().addAction(activityIntegrate);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
-        species = new SpeciesSpheresMono[numAtoms.length];
         for (int i = 0; i < numAtoms.length; i++) {
-            species[i] = new SpeciesSpheresMono(this, space);
-            species[i].setIsDynamic(true);
-            addSpecies(species[i]);
             box.setNMolecules(species[i], numAtoms[i]);
-            if (i != (numAtoms.length - 1)) {
-                // all elements except the last (methane) are fixed
-                ((ElementSimple) (species[i].getLeafType()).getElement()).setMass(Double.POSITIVE_INFINITY);
-            } else {
-                ((ElementSimple) species[i].getLeafType().getElement()).setMass(16);
-            }
         }
         //Setting up potential for Methane-Methane interactions
         potentialMM = new P2LennardJones(space);

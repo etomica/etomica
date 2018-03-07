@@ -149,12 +149,12 @@ outer:              for (int i=0; i<2; i++){
         int [] nCells = new int []{2,2};
         Space sp = Space2D.getInstance();
         Simulation sim = new Simulation(sp);
+        ISpecies species = new SpeciesSpheresMono(sim, sp);
+        sim.addSpecies(species);
         Box box = new Box(sp);
         sim.addBox(box);
         Primitive primitive = new PrimitiveOrthorhombicHexagonal(sim.getSpace(), 1);
         box.getBoundary().setBoxSize(new Vector2D(primitive.getSize()[0]*nCells[0], primitive.getSize()[1]*nCells[1]));
-        ISpecies species = new SpeciesSpheresMono(sim, sp);
-        sim.addSpecies(species);
         box.setNMolecules(species, nCells[0]*nCells[1]);
        
         

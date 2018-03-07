@@ -90,11 +90,12 @@ public class SimOverlapLJModule {
         //instantiate simulation
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        PotentialMaster potentialMasterTarget = new PotentialMasterMonatomic(sim);
-        IntegratorBox[] integrators = new IntegratorBox[2];
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim, space);
         sim.addSpecies(species);
+
+        PotentialMaster potentialMasterTarget = new PotentialMasterMonatomic(sim);
+        IntegratorBox[] integrators = new IntegratorBox[2];
 
         NormalModes normalModes = new NormalModesFromFile(filename, space.D());
         normalModes.setTemperature(temperature);

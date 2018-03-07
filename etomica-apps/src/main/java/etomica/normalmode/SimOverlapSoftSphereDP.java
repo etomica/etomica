@@ -59,6 +59,9 @@ public class SimOverlapSoftSphereDP extends Simulation {
     public SimOverlapSoftSphereDP(Space _space, int numAtoms, boolean slanty, final double rho, double temperature, double[] otherRho, double[] P, final int exponent, int numP, double pSpan, long numSteps, double rc) {
         super(_space);
 
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         // rc is the cutoff at unit density
         rc *= Math.pow(rho, -1.0 / 3.0);
         if (slanty) {
@@ -68,9 +71,6 @@ public class SimOverlapSoftSphereDP extends Simulation {
         } else {
             potentialMaster = new PotentialMasterList(this, space);
         }
-
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
 
         // TARGET
         double nbrDistance = 0;

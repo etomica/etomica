@@ -13,13 +13,13 @@ import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.IDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
@@ -86,14 +86,15 @@ public class SimUmbrellaSoftSphere extends Simulation {
         }
         int D = space.D();
 
+        species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         potentialMaster = new PotentialMasterList(this, space);
         double L = Math.pow(4.0 / density, 1.0 / 3.0);
         int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         boundary = new BoundaryRectangularPeriodic(space,n * L);
         box = this.makeBox(boundary);
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
-        species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
 
         //Target
         box.setNMolecules(species, numAtoms);

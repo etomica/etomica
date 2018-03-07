@@ -9,9 +9,9 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorRigidIterative;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.OrientationCalcAtom;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -25,10 +25,10 @@ public class SingleDipole {
     public static SimulationGraphic makeDipole() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
-        sim.addBox(box);
         SpeciesSpheresRotatingMolecule species = new SpeciesSpheresRotatingMolecule(sim, space);
         sim.addSpecies(species);
+        Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
+        sim.addBox(box);
         box.setNMolecules(species, 1);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{10, 10, 10}));
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
