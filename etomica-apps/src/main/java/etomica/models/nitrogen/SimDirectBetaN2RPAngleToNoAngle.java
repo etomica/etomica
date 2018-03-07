@@ -12,12 +12,12 @@ import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
 import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
@@ -44,14 +44,14 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
     public SimDirectBetaN2RPAngleToNoAngle(Space space, int numMolecules, double density, double temperature, double angle, long numSteps) {
         super(space);
 
+        SpeciesN2 species = new SpeciesN2(space);
+        addSpecies(species);
+
         BoxAgentSourceCellManagerListMolecular boxAgentSourceTarg = new BoxAgentSourceCellManagerListMolecular(this, null, space);
         BoxAgentManager<NeighborCellManagerMolecular> boxAgentManagerTarg = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSourceTarg, this);
 
         BoxAgentSourceCellManagerListMolecular boxAgentSourceRef = new BoxAgentSourceCellManagerListMolecular(this, null, space);
         BoxAgentManager<NeighborCellManagerMolecular> boxAgentManagerRef = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSourceRef, this);
-
-        SpeciesN2 species = new SpeciesN2(space);
-        addSpecies(species);
 
         // TARGET
         double ratio = 1.631;

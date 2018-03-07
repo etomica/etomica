@@ -61,12 +61,12 @@ public class SimEinStep2HCP extends Simulation {
     public SimEinStep2HCP(Space _space, int numAtoms, double density, double temperature, double lambda, int exponent, double rc, double coa) {
         super(_space);
 
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
         BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
         potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
-
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
 
         // TARGET
         int n = (int) Math.round(Math.pow(numAtoms / 8, 1.0 / 3.0));

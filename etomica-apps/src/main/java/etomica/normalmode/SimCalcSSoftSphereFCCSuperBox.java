@@ -12,10 +12,10 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.*;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -52,13 +52,12 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
     public SimCalcSSoftSphereFCCSuperBox(Space _space, int numAtoms, double density, double temperature, int exponent) {
         super(_space);
 
-
-        potentialMaster = new PotentialMasterMonatomic(this);
-
         speciesA = new SpeciesSpheresMono(this, space);
         speciesB = new SpeciesSpheresMono(this, space);
         addSpecies(speciesA);
         addSpecies(speciesB);
+
+        potentialMaster = new PotentialMasterMonatomic(this);
 
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0 / density);

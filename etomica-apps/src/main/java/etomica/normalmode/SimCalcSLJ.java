@@ -11,10 +11,10 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.*;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
@@ -43,11 +43,11 @@ public class SimCalcSLJ extends Simulation {
     public SimCalcSLJ(Space _space, int numAtoms, double density, double temperature) {
         super(_space);
 
-        potentialMaster = new PotentialMasterMonatomic(this);
-        potentialMaster.lrcMaster().setEnabled(false);
-
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
+
+        potentialMaster = new PotentialMasterMonatomic(this);
+        potentialMaster.lrcMaster().setEnabled(false);
 
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0 / density);

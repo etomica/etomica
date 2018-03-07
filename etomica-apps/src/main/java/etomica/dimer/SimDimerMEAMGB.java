@@ -24,11 +24,11 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.math.numerical.CalcGradientDifferentiable;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
@@ -88,13 +88,6 @@ public class SimDimerMEAMGB extends Simulation{
     public SimDimerMEAMGB(int[] amillerPlane, int[] boxSize) {
         super(Space3D.getInstance());
 
-        this.millerPlane = amillerPlane;
-        potentialMaster = new PotentialMasterList(this, space);
-        potentialMasterD = new PotentialMasterListDimer(this, space);
-
-        //SIMULATION BOX
-        box = this.makeBox(new BoundaryRectangularSlit(2, 5, space));
-
         //SPECIES
 
         //Sn
@@ -109,6 +102,13 @@ public class SimDimerMEAMGB extends Simulation{
         addSpecies(fixed);
         addSpecies(movable);
         addSpecies(dimer);
+
+        this.millerPlane = amillerPlane;
+        potentialMaster = new PotentialMasterList(this, space);
+        potentialMasterD = new PotentialMasterListDimer(this, space);
+
+        //SIMULATION BOX
+        box = this.makeBox(new BoundaryRectangularSlit(2, 5, space));
         potential = new PotentialMEAM(space);
         potential.setParameters(fixed.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);

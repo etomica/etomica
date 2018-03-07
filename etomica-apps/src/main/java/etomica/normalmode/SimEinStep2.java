@@ -59,6 +59,9 @@ public class SimEinStep2 extends Simulation {
     public SimEinStep2(Space _space, int numAtoms, double density, double temperature, double lambda, int exponent, double rc, boolean slanty) {
         super(_space);
 
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         if (slanty) {
             BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
             BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
@@ -66,9 +69,6 @@ public class SimEinStep2 extends Simulation {
         } else {
             potentialMaster = new PotentialMasterList(this, space);
         }
-
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
 
         // TARGET
         if (slanty) {

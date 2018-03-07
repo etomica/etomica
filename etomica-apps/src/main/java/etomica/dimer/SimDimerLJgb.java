@@ -21,11 +21,11 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -64,6 +64,17 @@ public class SimDimerLJgb extends Simulation{
     
     public SimDimerLJgb() {
         super(Space3D.getInstance());
+
+        //SPECIES
+        double sigma = 1.0;
+        Tin tinFixed = new Tin("SnFixed", Double.POSITIVE_INFINITY);
+        fixed = new SpeciesSpheresMono(space, tinFixed);
+        fixed.setIsDynamic(true);
+        movable = new SpeciesSpheresMono(this, space);
+        movable.setIsDynamic(true);
+        addSpecies(fixed);
+        addSpecies(movable);
+
         potentialMaster = new PotentialMasterMonatomic(this);
 
         //SIMULATION BOX
@@ -79,16 +90,6 @@ public class SimDimerLJgb extends Simulation{
         integratorMD.setIsothermal(true);
         activityIntegrateMD = new ActivityIntegrate(integratorMD);
         integratorMD.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
-
-        //SPECIES
-        double sigma = 1.0;
-        Tin tinFixed = new Tin("SnFixed", Double.POSITIVE_INFINITY);
-        fixed = new SpeciesSpheresMono(space, tinFixed);
-        fixed.setIsDynamic(true);
-        movable = new SpeciesSpheresMono(this, space);
-        movable.setIsDynamic(true);
-        addSpecies(fixed);
-        addSpecies(movable);
 
         // Must be in same order as the respective species is added to SpeciesManager
         //box.setNMolecules(fixed, 256);    	

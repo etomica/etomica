@@ -8,9 +8,9 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD;
 import etomica.lattice.crystal.*;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -34,10 +34,12 @@ public class SimCalcS extends Simulation {
     public CoordinateDefinition coordinateDefinition;
     public SimCalcS(Space _space, int numAtoms, double density) {
         super(_space);
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
+
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+
 
         Potential potential = new P2HardSphere(space, 1.0, false);
         AtomType sphereType = species.getLeafType();

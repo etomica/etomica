@@ -18,9 +18,9 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.math.numerical.CalcGradientDifferentiable;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
@@ -69,13 +69,8 @@ public class SimDimerLJadatom extends Simulation{
 
     public SimDimerLJadatom() {
         super(Space3D.getInstance());
-        potentialMaster = new PotentialMasterMonatomic(this);
-
-        //SIMULATION BOX
-        box = this.makeBox(new BoundaryRectangularSlit(0, 5, space));
 
         //SPECIES
-        double sigma = 1.0;
         fixed = new SpeciesSpheresMono(space, new ElementSimple("A", Double.POSITIVE_INFINITY));
         fixed.setIsDynamic(true);
         movable = new SpeciesSpheresMono(this, space);
@@ -83,6 +78,12 @@ public class SimDimerLJadatom extends Simulation{
         addSpecies(fixed);
         addSpecies(movable);
 
+        potentialMaster = new PotentialMasterMonatomic(this);
+
+        //SIMULATION BOX
+        box = this.makeBox(new BoundaryRectangularSlit(0, 5, space));
+
+        double sigma = 1.0;
         // Must be in same order as the respective species is added to SpeciesManager
         box.setNMolecules(fixed, 256);
 
