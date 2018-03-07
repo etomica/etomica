@@ -34,6 +34,12 @@ public class Droplet extends Simulation {
 
     public Droplet(Space _space) {
         super(_space);
+
+        //species
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         int numAtoms = 2000;
         PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
@@ -46,10 +52,7 @@ public class Droplet extends Simulation {
         integrator.setTimeStep(0.2);
         integrator.setTemperature(0);
 
-        //species and potentials
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
+        //potentials
         AtomType leafType = species.getLeafType();
 
         p2 = new P2Cohesion(space);

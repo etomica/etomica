@@ -54,6 +54,15 @@ public class ColloidSim extends Simulation {
     public ColloidSim(Space _space) {
         super(_space);
         setRandom(new RandomNumberGenerator(1));
+
+        //species
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+        speciesColloid = new SpeciesSpheresMono(this, space);
+        speciesColloid.setIsDynamic(true);
+        addSpecies(speciesColloid);
+
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, _space);
         potentialMaster = new PotentialMasterList(this, 6, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, this),
                 new NeighborListManagerColloid.NeighborListAgentSourceColloid(6), _space);
@@ -79,13 +88,7 @@ public class ColloidSim extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator, 0, true);
         getController().addAction(activityIntegrate);
 
-        //species and potentials
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
-        speciesColloid = new SpeciesSpheresMono(this, space);
-        speciesColloid.setIsDynamic(true);
-        addSpecies(speciesColloid);
+        //potentials
         ((NeighborListManagerColloid) potentialMaster.getNeighborManager(box)).setSpeciesColloid(speciesColloid);
         ((NeighborListManagerColloid) potentialMaster.getNeighborManager(box)).setSpeciesMonomer(species);
         Vector dim = space.makeVector();

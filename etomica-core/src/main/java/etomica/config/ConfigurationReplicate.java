@@ -21,10 +21,10 @@ public class ConfigurationReplicate {
      */
     public static void replicate(Configuration config, Box boxBig, int[] reps, Space space) {
         Simulation sim = new Simulation(space);
-        Box box0 = new Box(space);
-        sim.addBox(box0);
         ISpecies species = new SpeciesSpheresMono(sim, space);
         sim.addSpecies(species);
+        Box box0 = new Box(space);
+        sim.addBox(box0);
 
         int numAtoms1 = boxBig.getLeafList().size();
         int numAtoms0 = numAtoms1;

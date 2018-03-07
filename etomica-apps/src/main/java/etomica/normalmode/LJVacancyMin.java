@@ -40,10 +40,10 @@ public class LJVacancyMin extends Simulation {
     public LJVacancyMin(Space _space, int numAtoms, double density, double rc, boolean ss) {
         super(_space);
 
-        potentialMaster = new PotentialMasterList(this, space);
-
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
+
+        potentialMaster = new PotentialMasterList(this, space);
 
         // TARGET
         double L = Math.pow(4.0 / density, 1.0 / 3.0);

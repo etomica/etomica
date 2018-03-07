@@ -9,7 +9,6 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.integrator.Integrator;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -18,10 +17,11 @@ import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
@@ -49,6 +49,10 @@ public class LjMc3D extends Simulation {
 
     public LjMc3D() {
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double sigma = 1.0;
         box = this.makeBox();
@@ -58,8 +62,6 @@ public class LjMc3D extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
         box.setNMolecules(species, 50);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.05);

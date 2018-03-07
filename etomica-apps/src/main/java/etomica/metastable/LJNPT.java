@@ -58,6 +58,12 @@ public class LJNPT extends Simulation {
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
         }
+
+        //species
+        species = new SpeciesSpheresMono(this, space);//index 1
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         potentialMaster = new PotentialMasterCell(this, rc, space);
         potentialMaster.setCellRange(2);
         potentialMaster.lrcMaster().setEnabled(false);
@@ -67,11 +73,6 @@ public class LJNPT extends Simulation {
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-
-        //species and potentials
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
-        addSpecies(species);
 
         //instantiate several potentials for selection in combo-box
         P2LennardJones potential = new P2LennardJones(space);

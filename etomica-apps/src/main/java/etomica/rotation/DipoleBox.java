@@ -10,9 +10,9 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorRigidIterative;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.*;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -32,10 +32,10 @@ public class DipoleBox extends Simulation {
     
     public DipoleBox(Space space, int nAtoms, double dt) {
         super(space);
-        box = this.makeBox(new BoundaryRectangularPeriodic(getSpace(), 10));
         SpeciesSpheresRotatingMolecule species = new SpeciesSpheresRotatingMolecule(this, space, space.makeVector(new double[]{0.025, 0.025, 0.025}));
         species.setIsDynamic(true);
         addSpecies(species);
+        box = this.makeBox(new BoundaryRectangularPeriodic(getSpace(), 10));
         box.setNMolecules(species, nAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.5);

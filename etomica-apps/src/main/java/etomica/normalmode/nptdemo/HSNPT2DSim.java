@@ -38,8 +38,12 @@ public class HSNPT2DSim extends Simulation {
 
     public HSNPT2DSim() {
         super(Space2D.getInstance());
+
+        species1 = new SpeciesSpheresMono(this, space);
+        species1.setIsDynamic(true);
+        addSpecies(species1);
+
         potentialMaster = new PotentialMasterList(this, space);
-//        super(space, new PotentialMaster(space));//,IteratorFactoryCell.instance));
         double sigma = 1;
 
         double neighborRangeFac = 1.4;
@@ -54,10 +58,7 @@ public class HSNPT2DSim extends Simulation {
 
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
-        species1 = new SpeciesSpheresMono(this, space);
-        species1.setIsDynamic(true);
         AtomType leafType1 = species1.getLeafType();
-        addSpecies(species1);
         potential = new P2HardSphere(space, sigma, false);
 
         potentialMaster.addPotential(potential, new AtomType[]{leafType1, leafType1});

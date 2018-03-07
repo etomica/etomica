@@ -32,6 +32,12 @@ public class Ljmd extends Simulation {
     
     public Ljmd(Space _space) {
         super(_space);
+
+        //species
+        species = new SpeciesSpheresMono(this, space);//index 1
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.99, space);
 
         int N = 182;  //number of atoms
@@ -46,11 +52,6 @@ public class Ljmd extends Simulation {
         getController().addAction(activityIntegrate);
         integrator.setTimeStep(0.01);
         //   integrator.setDoSleep(false);
-
-        //species and potentials
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
-        addSpecies(species);
 
         //instantiate several potentials for selection in combo-box
         P2LennardJones potential = new P2LennardJones(space);

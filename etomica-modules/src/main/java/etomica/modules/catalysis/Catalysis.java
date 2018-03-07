@@ -49,6 +49,17 @@ public class Catalysis extends Simulation {
     
     public Catalysis(Space _space, int nCellsZ) {
         super(_space);
+        //species
+        speciesO = new SpeciesSpheresMono(space, Oxygen.INSTANCE);
+        speciesO.setIsDynamic(true);
+        addSpecies(speciesO);
+        speciesC = new SpeciesSpheresMono(space, Carbon.INSTANCE);
+        speciesC.setIsDynamic(true);
+        addSpecies(speciesC);
+        speciesSurface = new SpeciesSpheresMono(space, new ElementSimple("Surface", Double.POSITIVE_INFINITY));
+        speciesSurface.setIsDynamic(true);
+        addSpecies(speciesSurface);
+
         //construct box
         box = this.makeBox(new BoundaryRectangularSlit(1, 20.0, space));
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 9, space); //List(this, 2.0);
@@ -71,17 +82,7 @@ public class Catalysis extends Simulation {
         double epsilonOS = Kelvin.UNIT.toSim(500);
         double epsilonCS = Kelvin.UNIT.toSim(2000);
 
-        //species and potentials
-        speciesO = new SpeciesSpheresMono(space, Oxygen.INSTANCE);
-        speciesO.setIsDynamic(true);
-        addSpecies(speciesO);
-        speciesC = new SpeciesSpheresMono(space, Carbon.INSTANCE);
-        speciesC.setIsDynamic(true);
-        addSpecies(speciesC);
-        speciesSurface = new SpeciesSpheresMono(space, new ElementSimple("Surface", Double.POSITIVE_INFINITY));
-        speciesSurface.setIsDynamic(true);
-        addSpecies(speciesSurface);
-
+        //potentials
         interactionTracker = new InteractionTracker(box, speciesSurface);
 
         int minOSites = 2, minCSites = 2;

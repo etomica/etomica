@@ -37,9 +37,9 @@ public class ClusterWheatleySoftDerivativesTest {
 
         Simulation sim = new Simulation(space);
 
-        box = new BoxCluster(cl, space);
-
         sim.addSpecies(species);
+
+        box = new BoxCluster(cl, space);
         sim.addBox(box);
 
         box.setNMolecules(species, npoints);

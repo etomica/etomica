@@ -13,8 +13,8 @@ import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.graphics.*;
-import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorMC;
 import etomica.nbr.site.NeighborSiteManager;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.simulation.Simulation;
@@ -52,11 +52,11 @@ public class Heisenberg extends Simulation {
      */
     public Heisenberg(Space _space, int nCells) {
         super(_space);
+        spins = new SpeciesSpheresMono(this, space);
+        addSpecies(spins);
         potentialMaster = new PotentialMasterSite(this, nCells, space);
         box = this.makeBox();
         int numAtoms = space.powerD(nCells);
-        spins = new SpeciesSpheresMono(this, space);
-        addSpecies(spins);
         box.setNMolecules(spins, numAtoms);
         new ConfigurationAligned().initializeCoordinates(box);
 

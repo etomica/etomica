@@ -72,21 +72,30 @@ public class DimerApproach extends Simulation {
 
         super(Space3D.getInstance());
 
-        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
-
-        // *************************
-        // The Species & Potential
-        // *************************
-
-        PotentialGroup U_a_b = new PotentialGroup(2);
+        // *************
+        // The Species
+        // *************
         if (ethanol) {
             species = new SpeciesEthanol(space, pointCharges);
             speciesEthanol = (SpeciesEthanol) species;
-            EthanolPotentialHelper.initPotential(space, speciesEthanol, U_a_b, pointCharges);
 
         } else {
             species = new SpeciesMethanol(space, pointCharges);
             speciesMethanol = (SpeciesMethanol) species;
+        }
+        addSpecies(species);
+
+        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
+
+        // ***************
+        // The Potential
+        // ***************
+
+        PotentialGroup U_a_b = new PotentialGroup(2);
+        if (ethanol) {
+            EthanolPotentialHelper.initPotential(space, speciesEthanol, U_a_b, pointCharges);
+
+        } else {
             double sigmaOC = 0.00001;
             double sigmaOH = 0.05;
             MethanolPotentialHelper.initPotential(space, speciesMethanol, U_a_b, pointCharges, sigmaOC, sigmaOH);

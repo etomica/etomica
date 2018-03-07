@@ -55,12 +55,12 @@ class EwaldSummationTest {
         double rCutRealES = 10;
         Space space = Space.getInstance(3);
         Simulation sim = new Simulation(space);
-        Box box = sim.makeBox();
         SpeciesWater3P species = new SpeciesWater3P(space, false);
+        sim.addSpecies(species);
+        Box box = sim.makeBox();
         ChargeAgentSourceSPCE agentSource = new ChargeAgentSourceSPCE(species);
         AtomLeafAgentManager<EwaldSummation.MyCharge> atomAgentManager = new AtomLeafAgentManager<EwaldSummation.MyCharge>(agentSource, box);
 
-        sim.addSpecies(species);
         box.setNMolecules(species, numofmolecules);
         box.getBoundary().setBoxSize(new Vector3D(boxlength, boxlength, boxlength));
 

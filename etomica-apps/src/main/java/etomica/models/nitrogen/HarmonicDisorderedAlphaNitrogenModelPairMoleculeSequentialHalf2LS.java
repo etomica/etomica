@@ -49,6 +49,9 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS e
 		super(space);
 		this.space = space;
 
+		species = new SpeciesN2(space);
+		addSpecies(species);
+
 		int nCell = (int) Math.round(Math.pow((numMolecule / 4), 1.0 / 3.0));
 		double unitCellLength = Math.pow(numMolecule / density, 1.0 / 3.0) / nCell;//5.661;
 //		System.out.println("a: " + unitCellLength);
@@ -61,9 +64,7 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS e
 		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell / division, nCell / division, nCell / division});
 
 		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		species = new SpeciesN2(space);
 		species.setConformation(conformation);
-		addSpecies(species);
 
 		Boundary boundary = new BoundaryRectangularPeriodic(space);
 		box = this.makeBox(boundary);

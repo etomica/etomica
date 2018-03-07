@@ -14,10 +14,10 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
 import etomica.molecule.IMolecule;
@@ -52,8 +52,6 @@ public class EnergyMap extends Simulation{
     public EnergyMap(double height, String fileTail) {
         super(Space3D.getInstance());
 
-        potentialMaster = new PotentialMaster();
-
         // Sn
         Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);
 
@@ -86,6 +84,8 @@ public class EnergyMap extends Simulation{
          getSpeciesManager().addSpecies(movable);
 
          */
+
+        potentialMaster = new PotentialMaster();
 
         box = this.makeBox(new BoundaryRectangularSlit(0, 5, space));
 

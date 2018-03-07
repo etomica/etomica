@@ -5,8 +5,6 @@
 package etomica.interfacial;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.integrator.IntegratorListener;
-import etomica.integrator.IntegratorEvent;
 import etomica.atom.AtomSourceRandomSpecies;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -23,6 +21,8 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.integrator.mcmove.MCMoveStepTracker;
@@ -61,8 +61,6 @@ public class LJMD extends Simulation {
     public LJMD(double temperature, double tStep, boolean fixedWall, double spring, double springPosition, double Psat, int hybridInterval, int mcSteps, String lammpsFile) {
         super(Space3D.getInstance());
         setRandom(new RandomNumberGenerator(2));
-        BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(2, space);
-        box = this.makeBox(boundary);
 
         speciesFluid = new SpeciesSpheresMono(space, new ElementSimple("F"));
         speciesFluid.setIsDynamic(true);
@@ -73,6 +71,9 @@ public class LJMD extends Simulation {
         speciesBottomWall = new SpeciesSpheresMono(space, new ElementSimple("BW", Double.POSITIVE_INFINITY));
         speciesBottomWall.setIsDynamic(true);
         addSpecies(speciesBottomWall);
+
+        BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(2, space);
+        box = this.makeBox(boundary);
 
         config = new ConfigurationLammps(space, lammpsFile, speciesTopWall, speciesBottomWall, speciesFluid);
         config.setTopPadding(50);

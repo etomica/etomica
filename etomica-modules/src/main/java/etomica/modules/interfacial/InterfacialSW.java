@@ -49,6 +49,17 @@ public class InterfacialSW extends Simulation {
 
     public InterfacialSW(Space _space) {
         super(_space);
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+        surfactant = new SpeciesSpheresHetero(this, space, 2);
+        surfactant.setIsDynamic(true);
+        surfactant.setChildCount(new int[]{1, 1});
+        surfactant.setTotalChildren(2);
+        ((ConformationLinear) surfactant.getConformation()).setBondLength(0.9);
+        addSpecies(surfactant);
+
         double pRange = 2.0;
         PotentialMasterList potentialMaster = new PotentialMasterList(this, pRange, space);
 
@@ -69,15 +80,6 @@ public class InterfacialSW extends Simulation {
         integrator.setTimeStep(0.01);
 
         //species and potentials
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
-        surfactant = new SpeciesSpheresHetero(this, space, 2);
-        surfactant.setIsDynamic(true);
-        surfactant.setChildCount(new int[]{1, 1});
-        surfactant.setTotalChildren(2);
-        ((ConformationLinear) surfactant.getConformation()).setBondLength(0.9);
-        addSpecies(surfactant);
         leafType = species.getLeafType();
         headType = surfactant.getAtomType(0); // head likes the monatomic species
         tailType = surfactant.getAtomType(1);

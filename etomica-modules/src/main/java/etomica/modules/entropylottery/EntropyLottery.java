@@ -5,13 +5,13 @@
 package etomica.modules.entropylottery;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space1d.Space1D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -25,6 +25,10 @@ public class EntropyLottery extends Simulation {
     
     public EntropyLottery(Space _space) {
         super(_space);
+
+        species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         PotentialMaster potentialMaster = new PotentialMaster();
 
         final int N = 30;  //number of atoms
@@ -35,9 +39,6 @@ public class EntropyLottery extends Simulation {
         integrator.getMoveManager().addMCMove(move);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-
-        species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
 
         //construct box
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));

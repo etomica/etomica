@@ -51,6 +51,9 @@ public class HarmonicBetaNitrogenModelDecomposed extends Simulation{
 		super(space);
 		this.space = space;
 
+        SpeciesN2 species = new SpeciesN2(space);
+        addSpecies(species);
+
 		potentialMaster = new PotentialMaster();
 
 		double ratio = 1.631;
@@ -71,8 +74,6 @@ public class HarmonicBetaNitrogenModelDecomposed extends Simulation{
 		Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
 		Primitive primitive = new PrimitiveHexagonal(space, nC * aDim, nC * cDim);
 
-		SpeciesN2 species = new SpeciesN2(space);
-		addSpecies(species);
 		box = this.makeBox(boundary);
 		box.setNMolecules(species, numMolecule);
 

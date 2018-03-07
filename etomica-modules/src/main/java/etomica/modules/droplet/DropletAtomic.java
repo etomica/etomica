@@ -50,6 +50,11 @@ public class DropletAtomic extends Simulation {
 
     public DropletAtomic(Space _space) {
         super(_space);
+        //species
+        species = new SpeciesSpheresMono(space, Argon.INSTANCE);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         //construct box
         box = this.makeBox(new BoundaryRectangularPeriodic(space));
         double pRange = 3;
@@ -70,10 +75,7 @@ public class DropletAtomic extends Simulation {
         getController().addAction(activityIntegrate);
         integrator.setTemperature(Kelvin.UNIT.toSim(118));
 
-        //species and potentials
-        species = new SpeciesSpheresMono(space, Argon.INSTANCE);
-        species.setIsDynamic(true);
-        addSpecies(species);
+        //potentials
         AtomType leafType = species.getLeafType();
 
         p2LJ = new P2LennardJones(space);

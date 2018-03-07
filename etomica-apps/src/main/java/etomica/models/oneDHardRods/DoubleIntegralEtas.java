@@ -4,21 +4,21 @@
 
 package etomica.models.oneDHardRods;
 
-import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.normalmode.CoordinateDefinition;
+import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModes1DHR;
-import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -106,8 +106,6 @@ public class DoubleIntegralEtas extends Simulation{
 
         //REFERENCE
         nAtomsR = nAtomsT - 1;
-        species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
         basis = new BasisMonatomic(space);
 
         Boundary bdryR = new BoundaryRectangularPeriodic(space, nAtomsR / density);

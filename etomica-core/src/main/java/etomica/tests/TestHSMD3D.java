@@ -38,10 +38,6 @@ public class TestHSMD3D extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        removeSpecies(species);
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
         species2 = new SpeciesSpheresMono(this, space);
         species2.setIsDynamic(true);
         addSpecies(species2);

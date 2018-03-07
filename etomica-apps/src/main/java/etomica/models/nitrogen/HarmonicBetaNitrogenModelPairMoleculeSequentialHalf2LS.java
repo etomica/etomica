@@ -42,6 +42,9 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS extends Simu
 		super(space);
 		this.space = space;
 
+		SpeciesN2 species = new SpeciesN2(space);
+		addSpecies(species);
+
 		potentialMaster = new PotentialMaster();
 
 		int division = 2;
@@ -63,8 +66,6 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequentialHalf2LS extends Simu
 		Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
 		Primitive primitive = new PrimitiveHexagonal(space, (nCell / division) * aDim, (nCell / division) * cDim);
 
-		SpeciesN2 species = new SpeciesN2(space);
-		addSpecies(species);
 		box = this.makeBox(boundary);
 		box.setNMolecules(species, numMolecule);
 

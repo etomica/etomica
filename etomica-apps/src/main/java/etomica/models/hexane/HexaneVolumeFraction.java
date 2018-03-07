@@ -7,13 +7,13 @@ package etomica.models.hexane;
 /**
  * Class to calculate the volume of a single hexane molecule
  */
+
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.Atom;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
-import etomica.box.Box;
-import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.graphics.SimulationGraphic;
@@ -23,6 +23,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 
 public class HexaneVolumeFraction extends Simulation {
@@ -38,14 +39,14 @@ public class HexaneVolumeFraction extends Simulation {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
         super(_space);
+
+        SpeciesHexane species = new SpeciesHexane(_space);
+        addSpecies(species);
+
         PotentialMaster potentialMaster = new PotentialMaster();
         int chainLength = 6;
         //One molecule per cell
         int numAtoms = 6;
-
-
-        SpeciesHexane species = new SpeciesHexane(_space);
-        addSpecies(species);
 
         bdry = new BoundaryRectangularPeriodic(_space);
         box = this.makeBox(bdry);

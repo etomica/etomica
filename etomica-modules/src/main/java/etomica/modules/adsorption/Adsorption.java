@@ -43,6 +43,15 @@ public class Adsorption extends Simulation {
     
     public Adsorption(Space _space) {
         super(_space);
+
+        //species
+        speciesA = new SpeciesSpheresMono(space, new ElementSimple(this));
+        speciesA.setIsDynamic(true);
+        addSpecies(speciesA);
+        speciesB = new SpeciesSpheresMono(space, new ElementSimple(this));
+        speciesB.setIsDynamic(true);
+        addSpecies(speciesB);
+
         //construct box
         box = this.makeBox(new BoundaryRectangularSlit(1, 20.0, space));
         PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 2, space); //List(this, 2.0);
@@ -66,15 +75,7 @@ public class Adsorption extends Simulation {
         double epsilon = 1.0;
         double epsilonWF = 5.0;
 
-        //species and potentials
-        speciesA = new SpeciesSpheresMono(space, new ElementSimple(this));
-        speciesA.setIsDynamic(true);
-        addSpecies(speciesA);
-        speciesB = new SpeciesSpheresMono(space, new ElementSimple(this));
-        speciesB.setIsDynamic(true);
-        addSpecies(speciesB);
-
-
+        //potentials
         mcMoveIDA = new MyMCMove(integratorMC, random, space, 0.9, sigma, 1);
         mcMoveIDA.setMu(-12);
         integratorMC.getMoveManager().addMCMove(mcMoveIDA);

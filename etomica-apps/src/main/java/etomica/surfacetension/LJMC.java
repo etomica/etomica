@@ -18,11 +18,11 @@ import etomica.data.meter.MeterProfileByVolume;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtomInRegion;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -47,6 +47,12 @@ public class LJMC extends Simulation {
 
     public LJMC(Space _space, int numAtoms, double temperature, double aspectRatio) {
         super(_space);
+
+        //species
+        species = new SpeciesSpheresMono(this, space);//index 1
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         double rc = 4.0;
         potentialMaster = new PotentialMasterCell(this, rc, space);
         potentialMaster.setCellRange(2);
@@ -57,11 +63,6 @@ public class LJMC extends Simulation {
         integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-
-        //species and potentials
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
-        addSpecies(species);
 
         //instantiate several potentials for selection in combo-box
         P2LennardJones potential = new P2LennardJones(space);

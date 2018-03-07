@@ -19,10 +19,10 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterProfileByVolume;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
@@ -54,8 +54,6 @@ public class LJMC extends Simulation {
 
     public LJMC(double temperature, String lammpsFile) {
         super(Space3D.getInstance());
-        BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(2, space);
-        box = this.makeBox(boundary);
 
         speciesFluid = new SpeciesSpheresMono(space, new ElementSimple("F"));
         addSpecies(speciesFluid);
@@ -63,6 +61,9 @@ public class LJMC extends Simulation {
         addSpecies(speciesTopWall);
         speciesBottomWall = new SpeciesSpheresMono(space, new ElementSimple("BW"));
         addSpecies(speciesBottomWall);
+
+        BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(2, space);
+        box = this.makeBox(boundary);
 
         config = new ConfigurationLammps(space, lammpsFile, speciesTopWall, speciesBottomWall, speciesFluid);
         config.setTopPadding(10);

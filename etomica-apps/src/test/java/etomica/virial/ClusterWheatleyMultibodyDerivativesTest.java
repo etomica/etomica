@@ -45,9 +45,9 @@ public class ClusterWheatleyMultibodyDerivativesTest {
 
         Simulation sim = new Simulation(space);
 
-        box = new BoxCluster(cl, space);
-
         sim.addSpecies(speciesWater);
+
+        box = new BoxCluster(cl, space);
         sim.addBox(box);
 
         box.setNMolecules(speciesWater, npoints);

@@ -46,6 +46,14 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
     
     public FreeRadicalPolymerizationSim(Space space) {
         super(space);
+
+        speciesA = new SpeciesSpheresMono(this, space);
+        speciesA.setIsDynamic(true);
+        speciesB = new SpeciesSpheresMono(this, space);
+        speciesB.setIsDynamic(true);
+        addSpecies(speciesA);
+        addSpecies(speciesB);
+
         potentialMaster = new PotentialMasterList(this, 3, space);
         ((PotentialMasterList) potentialMaster).setCellRange(1);
 
@@ -64,12 +72,6 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         box = this.makeBox(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20));
         integratorHard.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box));
 
-        speciesA = new SpeciesSpheresMono(this, space);
-        speciesA.setIsDynamic(true);
-        speciesB = new SpeciesSpheresMono(this, space);
-        speciesB.setIsDynamic(true);
-        addSpecies(speciesA);
-        addSpecies(speciesB);
         box.setNMolecules(speciesA, 50);
         box.setNMolecules(speciesB, 100);
         config = new ConfigurationLatticeFreeRadical(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space, random);

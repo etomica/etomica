@@ -691,6 +691,8 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
+        SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
+        sim.addSpecies(species);
         boolean periodic = true;
         Box box;
         if (periodic) {
@@ -700,8 +702,6 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
             box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
         }
         sim.addBox(box);
-        SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
-        sim.addSpecies(species);
         int numMolecules = 256;
         box.setNMolecules(species, numMolecules);
         box.setDensity(1/18.0*Constants.AVOGADRO/1E24);

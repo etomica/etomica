@@ -67,6 +67,11 @@ public class LjMd3D extends Simulation {
 
     public LjMd3D(int numAtoms, double temperature, double density, double pressure, double tStep, double rcShort, double rcLong, int hybridInterval, IFunction vBias, boolean ss) {
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         double nbrRange = rcShort * 1.6;
         potentialMasterList = new PotentialMasterList(this, nbrRange, space);
         potentialMasterList.setCellRange(2);
@@ -77,9 +82,6 @@ public class LjMd3D extends Simulation {
         integrator.setTemperature(temperature);
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
         box.setNMolecules(species, numAtoms);
 
         double L = Math.pow(numAtoms / density, 1.0 / 3.0);

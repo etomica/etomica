@@ -60,6 +60,9 @@ public class HessianDB extends Simulation {
     public HessianDB(Space _space, int numAtoms, double density, double temperature, int exponent, String filename) {
         super(_space);
 
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         /*
          * Creating new basis
          */
@@ -70,8 +73,6 @@ public class HessianDB extends Simulation {
         boundary = new BoundaryRectangularPeriodic(space, n * L);
         box = this.makeBox(boundary);
         integrator = new IntegratorMC(this, potentialMaster, box);
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
         box.setNMolecules(species, numAtoms);
 
         primitive = new PrimitiveCubic(space, n * L);

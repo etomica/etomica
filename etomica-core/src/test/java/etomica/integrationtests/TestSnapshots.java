@@ -18,7 +18,7 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.util.random.RandomMersenneTwister;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -48,12 +48,14 @@ public class TestSnapshots {
         public HSMD3DNeighborList() {
             super(Space3D.getInstance());
             this.setRandom(new RandomMersenneTwister(new int[]{1, 2, 3, 4}));
-            addBox(new Box(this.space));
 
-            PotentialMasterList pm = new PotentialMasterList(this, 1.6, this.space);
             SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
             species.setIsDynamic(true);
             addSpecies(species);
+
+            addBox(new Box(this.space));
+
+            PotentialMasterList pm = new PotentialMasterList(this, 1.6, this.space);
             P2HardSphere potential = new P2HardSphere(space, 1.0, true);
             AtomType leafType = species.getLeafType();
 

@@ -15,10 +15,10 @@ import etomica.data.DataSourceGroup;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.meter.MeterTemperature;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.CriterionPositionWall;
 import etomica.nbr.CriterionType;
 import etomica.nbr.PotentialMasterHybrid;
@@ -75,6 +75,15 @@ public class DCVGCMD extends Simulation {
         //Instantiate classes
         super(_space);
 
+        species1 = new SpeciesSpheresMono(this, space);
+        species1.setIsDynamic(true);
+        species2 = new SpeciesSpheresMono(this, space);
+        species2.setIsDynamic(true);
+        speciesTube = new SpeciesTube(20, 40, space);
+        addSpecies(species1);
+        addSpecies(species2);
+        addSpecies(speciesTube);
+
         box = this.makeBox(new BoundaryRectangularSlit(2, space));
         box.getBoundary().setBoxSize(new Vector3D(40, 40, 80));
 
@@ -85,14 +94,6 @@ public class DCVGCMD extends Simulation {
         //Default.makeLJDefaults();
         //Default.BOX_SIZE = 14.0;
 
-        species1 = new SpeciesSpheresMono(this, space);
-        species1.setIsDynamic(true);
-        species2 = new SpeciesSpheresMono(this, space);
-        species2.setIsDynamic(true);
-        speciesTube = new SpeciesTube(20, 40, space);
-        addSpecies(species1);
-        addSpecies(species2);
-        addSpecies(speciesTube);
         AtomType tubetype = speciesTube.getLeafType();
         AtomType speciestype = species1.getLeafType();
         AtomType speciestype1 = species2.getLeafType();

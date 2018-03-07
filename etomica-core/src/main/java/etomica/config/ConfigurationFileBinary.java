@@ -122,10 +122,10 @@ public class ConfigurationFileBinary implements Configuration {
 
     public static void rescale(Configuration config, Box box1, double density1, Space space) {
         Simulation sim = new Simulation(space);
-        Box box0 = new Box(space);
-        sim.addBox(box0);
         ISpecies species = new SpeciesSpheresMono(sim, space);
         sim.addSpecies(species);
+        Box box0 = new Box(space);
+        sim.addBox(box0);
         box0.setNMolecules(species, box1.getLeafList().size());
         BoxInflate inflater = new BoxInflate(box0, space);
         config.initializeCoordinates(box0);
