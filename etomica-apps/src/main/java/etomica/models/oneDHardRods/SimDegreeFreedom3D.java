@@ -13,11 +13,11 @@ import etomica.data.DataSplitter;
 import etomica.data.histogram.Histogram;
 import etomica.data.histogram.HistogramSimple;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.normalmode.*;
 import etomica.potential.P2HardSphere;
@@ -77,10 +77,10 @@ public class SimDegreeFreedom3D extends Simulation {
 //        IRandom rand = new RandomNumberGenerator(seed);
 //        this.setRandom(rand);
 
-        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
-
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
+
+        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
 
         basis = new BasisCubicFcc();
         primitive = new PrimitiveCubic(space, 1.0);

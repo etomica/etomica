@@ -11,10 +11,10 @@ import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeRandom;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.*;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
@@ -47,11 +47,11 @@ public class SimCalcSSoftSphereFCC extends Simulation {
     public SimCalcSSoftSphereFCC(Space _space, int numAtoms, double density, double temperature, int exponent) {
         super(_space);
 
-        potentialMaster = new PotentialMasterList(this, space);
-        //potentialMaster = new PotentialMasterMonatomic(this);
-
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
+
+        potentialMaster = new PotentialMasterList(this, space);
+        //potentialMaster = new PotentialMasterMonatomic(this);
 
 		if (space.D() == 1) {
 			primitive = new PrimitiveCubic(space, 1.0 / density);

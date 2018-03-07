@@ -37,6 +37,11 @@ public class LJMC extends Simulation {
 
     public LJMC(Space _space) {
         super(_space);
+        //species
+        species = new SpeciesSpheresMono(this, space);//index 1
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, 2.5, space);
         potentialMaster.setCellRange(2);
         int N = 200;  //number of atoms
@@ -46,11 +51,6 @@ public class LJMC extends Simulation {
         integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-
-        //species and potentials
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
-        addSpecies(species);
 
         //instantiate several potentials for selection in combo-box
         P2LennardJones potential = new P2LennardJones(space);

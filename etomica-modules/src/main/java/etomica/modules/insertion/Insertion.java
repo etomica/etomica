@@ -11,10 +11,10 @@ import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -35,6 +35,16 @@ public class Insertion extends Simulation {
     public Insertion(Space _space) {
         super(_space);
         setRandom(new RandomMersenneTwister(2));
+
+        // species
+        species = new SpeciesSpheresMono(this, space);//index 1
+        species.setIsDynamic(true);
+        addSpecies(species);
+        speciesGhost = new SpeciesSpheresMono(this, space);
+        speciesGhost.setIsDynamic(true);
+        ((ElementSimple) speciesGhost.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
+        addSpecies(speciesGhost);
+
         PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this); //List(this, 2.0);
 
         int N = space.D() == 3 ? 256 : 100;  //number of atoms
@@ -55,15 +65,8 @@ public class Insertion extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-        //species and potentials
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
-        addSpecies(species);
+        //potentials
         integrator.setNullPotential(nullPotential, species.getLeafType());
-        speciesGhost = new SpeciesSpheresMono(this, space);
-        speciesGhost.setIsDynamic(true);
-        ((ElementSimple) speciesGhost.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
-        addSpecies(speciesGhost);
 
         //instantiate several potentials for selection in combo-box
         P2SquareWell potentialSW = new P2SquareWell(space, sigma, lambda, 1.0, true);

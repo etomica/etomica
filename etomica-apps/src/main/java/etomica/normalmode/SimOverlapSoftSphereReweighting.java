@@ -71,14 +71,14 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
     public SimOverlapSoftSphereReweighting(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent) {
         super(_space);
         this.fname = filename;
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         potentialMasterTarget = new PotentialMasterMonatomic(this);
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPumpListener[2];
         meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
-
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
 
         // TARGET
 

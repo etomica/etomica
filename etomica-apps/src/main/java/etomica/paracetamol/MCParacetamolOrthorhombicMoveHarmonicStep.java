@@ -10,12 +10,12 @@ import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.normalmode.MCMoveHarmonicStep;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
@@ -53,12 +53,16 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
     public BravaisLattice lattice;
     public BoundaryRectangularPeriodic bdry;
     public ActivityIntegrate actionIntegrate;
+
     public MCParacetamolOrthorhombicMoveHarmonicStep() {
         this(192);
     }
-    private MCParacetamolOrthorhombicMoveHarmonicStep(int numMolecules) {
 
+    private MCParacetamolOrthorhombicMoveHarmonicStep(int numMolecules) {
         super(Space3D.getInstance());
+
+        species = new SpeciesParacetamol(space, false);
+        addSpecies(species);
 
         potentialMaster = new PotentialMaster();
 
@@ -89,9 +93,7 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
         normalModes.setTemperature(Kelvin.UNIT.toSim(100));
 
         ConformationParacetamolOrthorhombic conformation = new ConformationParacetamolOrthorhombic(space);
-        species = new SpeciesParacetamol(space, false);
         species.setConformation(conformation);
-        addSpecies(species);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{25, 25, 25}));
         box.setNMolecules(species, numMolecules);
 

@@ -260,10 +260,10 @@ public class PotentialNonAdditive implements IPotentialMolecular {
         PotentialEmulCached p3 = new PotentialEmulCached(space, "3body_template.in", 3);
         PotentialEmulCached p2 = new PotentialEmulCached(space, "2body_template.in", 3);
         Simulation sim = new Simulation(space);
-        BoxCluster box = new BoxCluster(null, space);
-        sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(space, Argon.INSTANCE);
         sim.addSpecies(species);
+        BoxCluster box = new BoxCluster(null, space);
+        sim.addBox(box);
         box.setNMolecules(species, 3);
         p2.setBox(box);
         p3.setBox(box);

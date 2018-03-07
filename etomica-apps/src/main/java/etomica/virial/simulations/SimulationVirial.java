@@ -102,13 +102,16 @@ public class SimulationVirial extends Simulation {
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
         }
+        for (int i = 0; i < species.length; i++) {
+            addSpecies(species[i]);
+        }
+
         PotentialMaster potentialMaster = new PotentialMaster();
         int nMolecules = sampleCluster.pointCount();
         box = new BoxCluster(sampleCluster, space);
         addBox(box);
 
         for (int i = 0; i < species.length; i++) {
-            addSpecies(species[i]);
             box.setNMolecules(species[i], numMolecules[i]);
         }
 

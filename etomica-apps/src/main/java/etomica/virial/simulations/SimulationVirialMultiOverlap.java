@@ -51,7 +51,6 @@ public class SimulationVirialMultiOverlap extends Simulation {
 	public SimulationVirialMultiOverlap(Space aSpace, SpeciesFactory[] speciesFactory, 
             double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters, boolean doWiggle, int[] nTypes) {
 		super(aSpace);
-		PotentialMaster potentialMaster = new PotentialMaster();
         sampleClusters = aSampleClusters;
         int nMolecules = sampleClusters[0].pointCount();
         species = new ISpecies[speciesFactory.length];
@@ -59,6 +58,7 @@ public class SimulationVirialMultiOverlap extends Simulation {
             species[i] = speciesFactory[i].makeSpecies(space);
             addSpecies(species[i]);
         }
+        PotentialMaster potentialMaster = new PotentialMaster();
         accumulators = new AccumulatorVirialOverlapSingleAverage[sampleClusters.length];
         accumulatorPumps = new DataPumpListener[sampleClusters.length];
         box = new BoxCluster[sampleClusters.length];

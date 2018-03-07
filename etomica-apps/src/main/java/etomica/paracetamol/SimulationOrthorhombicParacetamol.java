@@ -27,15 +27,17 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
     public CoordinateDefinitionParacetamol coordinateDefinition;
     public SimulationOrthorhombicParacetamol(Space _space, int numAtoms, double temperature) {
         super(_space);
+
+        SpeciesParacetamol species = new SpeciesParacetamol(space, false);
+        addSpecies(species);
+
         potentialMaster = new PotentialMaster();
 
         BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();
         primitive = new PrimitiveOrthorhombic(space, 17.248, 12.086, 7.382);
 
         ConformationParacetamolOrthorhombic conformation = new ConformationParacetamolOrthorhombic(space);
-        SpeciesParacetamol species = new SpeciesParacetamol(space, false);
         species.setConformation(conformation);
-        addSpecies(species);
 
         boundary = new BoundaryRectangularPeriodic(space, 1);
         boundary.setBoxSize(space.makeVector(new double[]{2 * 17.248, 3 * 12.086, 4 * 7.382}));

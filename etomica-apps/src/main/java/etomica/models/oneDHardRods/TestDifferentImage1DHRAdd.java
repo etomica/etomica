@@ -14,11 +14,11 @@ import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.*;
@@ -81,10 +81,10 @@ public class TestDifferentImage1DHRAdd extends Simulation {
 //        IRandom rand = new RandomNumberGenerator(seed);
 //        this.setRandom(rand);
 
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
-
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
+
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
 
         basis = new BasisMonatomic(space);
         bdry = new BoundaryRectangularPeriodic(space, numAtoms / density);

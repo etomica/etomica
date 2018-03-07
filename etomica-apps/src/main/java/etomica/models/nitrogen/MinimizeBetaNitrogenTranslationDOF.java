@@ -56,12 +56,12 @@ public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
 		cDim = aDim * ratio;
 		numMolecule = nC[0] * nC[1] * nC[2] * 2;
 
+        species = new SpeciesN2(space);
+        addSpecies(species);
+
 		potentialMaster = new PotentialMaster();
 		Basis basisHCP = new BasisHcp();
 		BasisBigCell basis = new BasisBigCell(space, basisHCP, nC);
-
-		species = new SpeciesN2(space);
-		addSpecies(species);
 
 		boxDim = new Vector[3];
 		boxDim[0] = space.makeVector(new double[]{nC[0] * aDim, 0, 0});

@@ -57,10 +57,10 @@ public class SimLJHTTISuper extends Simulation {
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
         }
-        potentialMaster = new PotentialMasterList(this, space);
-
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
+
+        potentialMaster = new PotentialMasterList(this, space);
 
         // TARGET
         double L = Math.pow(4.0 / density, 1.0 / 3.0);

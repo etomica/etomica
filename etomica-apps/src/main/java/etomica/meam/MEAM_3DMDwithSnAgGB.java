@@ -18,13 +18,13 @@ import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
@@ -81,16 +81,8 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
     public IDataInfo info2;
 
     public MEAM_3DMDwithSnAgGB() {
-        super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
-        potentialMaster = new PotentialMasterList(this, space);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
-        integrator.setTimeStep(0.001);
-        integrator.setTemperature(Kelvin.UNIT.toSim(295));
-        integrator.setThermostatInterval(100);
-        integrator.setIsothermal(true);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(2);
-        getController().addAction(activityIntegrate);
+        super(Space3D.getInstance());
+
         Tin SnF = new Tin("SnF", Double.POSITIVE_INFINITY);
         snFixedA = new SpeciesSpheresMono(space, SnF);
         snFixedA.setIsDynamic(true);
@@ -114,6 +106,15 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         addSpecies(agB);
 //        addSpecies(cuB);
 
+        potentialMaster = new PotentialMasterList(this, space);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator.setTimeStep(0.001);
+        integrator.setTemperature(Kelvin.UNIT.toSim(295));
+        integrator.setThermostatInterval(100);
+        integrator.setIsothermal(true);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate.setSleepPeriod(2);
+        getController().addAction(activityIntegrate);
         double aA, bA, cA, aB, bB, cB;
 
         int nCellsAx, nCellsAy, nCellsAz, nAMobile, nAFixed, basisA,

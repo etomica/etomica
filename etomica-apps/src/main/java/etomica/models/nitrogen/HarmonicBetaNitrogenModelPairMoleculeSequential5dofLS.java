@@ -37,7 +37,9 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential5dofLS extends Simul
 	
 	public HarmonicBetaNitrogenModelPairMoleculeSequential5dofLS(Space space, int numMolecule, double density, double rC) {
         super(space);
-        this.space = space;
+
+        SpeciesN2 species = new SpeciesN2(space);
+        addSpecies(species);
 
         potentialMaster = new PotentialMaster();
 
@@ -58,9 +60,6 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential5dofLS extends Simul
         int[] nCells = new int[]{1, 1, 1};
         Boundary boundary = new BoundaryDeformablePeriodicSwitch(space, boxDim);
         Primitive primitive = new PrimitiveHexagonal(space, nCell * aDim, nCell * cDim);
-
-        SpeciesN2 species = new SpeciesN2(space);
-        addSpecies(species);
 
         box = this.makeBox(boundary);
         box.setNMolecules(species, numMolecule);

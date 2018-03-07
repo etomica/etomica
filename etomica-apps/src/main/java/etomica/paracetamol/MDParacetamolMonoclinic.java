@@ -20,11 +20,11 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.CriterionNone;
 import etomica.nbr.list.PotentialMasterList;
@@ -99,6 +99,9 @@ public class MDParacetamolMonoclinic extends Simulation {
          */
         super(Space3D.getInstance());
 
+        species = new SpeciesParacetamol(space, true);
+        addSpecies(species);
+
         potentialMaster = new PotentialMasterList(this, 1.6, space);
 
         /*
@@ -126,8 +129,6 @@ public class MDParacetamolMonoclinic extends Simulation {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         box.getBoundary().setBoxSize(space.makeVector(new double[]{25, 25, 25}));
-        species = new SpeciesParacetamol(space, true);
-        addSpecies(species);
         box.setNMolecules(species, 96);
 
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));

@@ -16,10 +16,10 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.*;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
@@ -68,16 +68,16 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
     public SimOverlapSoftSphereSuperBox(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent) {
         super(_space);
         this.fname = filename;
+        SpeciesSpheresMono speciesA = new SpeciesSpheresMono(this, space);
+        SpeciesSpheresMono speciesB = new SpeciesSpheresMono(this, space);
+        addSpecies(speciesA);
+        addSpecies(speciesB);
+
         PotentialMasterMonatomic potentialMasterTarget = new PotentialMasterMonatomic(this);
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPumpListener[2];
         meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
-
-        SpeciesSpheresMono speciesA = new SpeciesSpheresMono(this, space);
-        SpeciesSpheresMono speciesB = new SpeciesSpheresMono(this, space);
-        addSpecies(speciesA);
-        addSpecies(speciesB);
 
         // TARGET
 

@@ -55,6 +55,9 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
     		double[] alpha, int numAlpha, double alphaSpan, long numSteps, double angle, boolean doScaling) {
         super(space);
 
+        species = new SpeciesN2(space);
+        addSpecies(species);
+
         BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
         BoxAgentManager<NeighborCellManagerMolecular> boxAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, this);
 
@@ -66,9 +69,6 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
 
         Basis basisHCP = new BasisHcp();
         BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC, nC, nC});
-
-        species = new SpeciesN2(space);
-        addSpecies(species);
 
         Vector[] boxDim = new Vector[3];
         boxDim[0] = space.makeVector(new double[]{nC * aDim, 0, 0});

@@ -9,13 +9,13 @@ import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.potential.PotentialMaster;
@@ -40,11 +40,11 @@ public class SimDirectBetaN2RP extends Simulation {
     public SimDirectBetaN2RP(Space space, int numMolecules, double density, double temperature, double[] angle) {
         super(space);
 
-        PotentialMaster potentialMasterTarg = new PotentialMaster();
-        PotentialMaster potentialMasterRef = new PotentialMaster();
-
         species = new SpeciesN2(space);
         addSpecies(species);
+
+        PotentialMaster potentialMasterTarg = new PotentialMaster();
+        PotentialMaster potentialMasterRef = new PotentialMaster();
 
         // TARGET
         double ratio = 1.631;

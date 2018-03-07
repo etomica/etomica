@@ -23,10 +23,10 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2HardAssociationConeDoubleSites;
 import etomica.simulation.Simulation;
@@ -76,6 +76,8 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         System.out.println("temperature = " + temperature);
         System.out.println("numSteps = " + numSteps);
         System.out.println("maximum chain length= " + maxChainLength);
+        species = new SpeciesSpheresRotating(this, space);//Species in which molecules are made of a single atom of type OrientedSphere
+        addSpecies(species);
         box = this.makeBox();
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(temperature);
@@ -118,8 +120,6 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         //actionIntegrate.setSleepPeriod(1);
         actionIntegrator.setMaxSteps(numSteps);
         getController().addAction(actionIntegrator);
-        species = new SpeciesSpheresRotating(this, space);//Species in which molecules are made of a single atom of type OrientedSphere
-        addSpecies(species);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);

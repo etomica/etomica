@@ -14,8 +14,8 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorMC;
 import etomica.math.DoubleRange;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P1Harmonic;
@@ -64,6 +64,9 @@ public class SimOverlapMultiHarmonic extends Simulation{
     public SimOverlapMultiHarmonic(int numAtoms, double wA, double wB, double temperature) {
         super(Space1D.getInstance());
 
+        species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         refPref = (wA / wB); // the analytic solution for free energy difference
 
         potentialMasterA = new PotentialMasterMonatomic(this);
@@ -73,9 +76,6 @@ public class SimOverlapMultiHarmonic extends Simulation{
         accumulatorPumps = new DataPump[2];
         meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
-
-        species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
 
         //System A
         boxA = this.makeBox(new BoundaryRectangularNonperiodic(space));

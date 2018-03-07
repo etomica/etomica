@@ -14,12 +14,12 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorGear4NPH;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -45,6 +45,13 @@ public class JouleThomsonSim extends Simulation {
     public JouleThomsonSim() {this(Space2D.getInstance());}
     public JouleThomsonSim(Space space) {
         super(space);
+
+        //species
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        ((ElementSimple) species.getLeafType().getElement()).setMass(40);
+        addSpecies(species);
+
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         int nAtoms = (space.D() < 3) ? 50 : 64;
         double sigma = 3.0;
@@ -67,12 +74,7 @@ public class JouleThomsonSim extends Simulation {
         }
         integrator.setTargetP(pUnit.toSim(100.0));
 
-        //species and potential
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-
-        ((ElementSimple) species.getLeafType().getElement()).setMass(40);
-        addSpecies(species);
+        //potential
         potential = new P2LennardJones(space, sigma, Kelvin.UNIT.toSim(300));
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
         box.setNMolecules(species, nAtoms);

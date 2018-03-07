@@ -14,10 +14,10 @@ import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorRigidMatrixIterative.BoxImposePbcMolecule;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.math.function.Function;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.SpeciesWater3POriented;
@@ -96,10 +96,10 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
-        sim.addBox(box);
         SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
         sim.addSpecies(species);
+        Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
+        sim.addBox(box);
         box.setNMolecules(species, 108);
         box.setDensity(1 / 18.0 * Constants.AVOGADRO / 1E24);
         double timeInterval = 0.001;

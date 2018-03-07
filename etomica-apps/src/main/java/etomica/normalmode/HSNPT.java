@@ -15,6 +15,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterVolume;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveStepTracker;
@@ -23,7 +24,6 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveOrthorhombicHexagonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
@@ -59,10 +59,22 @@ public class HSNPT extends Simulation {
 
     public HSNPT(Space _space, int numAtoms, double rho, boolean nvt, boolean fancyMove, double sigma2) {
         super(_space);
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
+        double sigma = 1.0;
+        SpeciesSpheresMono species2 = null;
+        if (sigma2 != sigma) {
+            species2 = new SpeciesSpheresMono(this, space);
+            species.setIsDynamic(true);
+            addSpecies(species2);
+        }
+
         potentialMaster = new PotentialMasterList(this, space);
 
         double neighborRangeFac = 1.4;
-        double sigma = 1.0;
         double l = Math.pow(numAtoms / rho, 1.0 / 3.0);
         if (_space.D() == 2) {
             int nx = 10;
@@ -80,18 +92,12 @@ public class HSNPT extends Simulation {
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
         AtomType type1 = species.getLeafType();
 
         P2HardSphere p2 = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(p2, new AtomType[]{type1, type1});
         box.setNMolecules(species, numAtoms);
         if (sigma2 != sigma) {
-            SpeciesSpheresMono species2 = new SpeciesSpheresMono(this, space);
-            species.setIsDynamic(true);
-            addSpecies(species2);
             AtomType type2 = species2.getLeafType();
             pCross = new P2HardSphere(space, (sigma + sigma2) / 2.0, false);
             potentialMaster.addPotential(pCross, new AtomType[]{type1, type2});

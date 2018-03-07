@@ -16,8 +16,8 @@ import etomica.dimer.IntegratorDimerRT;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
-import etomica.lattice.LatticeCubicFcc;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.lattice.LatticeCubicFcc;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
@@ -56,10 +56,6 @@ public class SimKMCLJadatom extends Simulation{
 
     public SimKMCLJadatom() {
         super(Space3D.getInstance());
-        potentialMaster = new PotentialMasterMonatomic(this);
-
-        //SIMULATION BOX
-        box = this.makeBox(new BoundaryRectangularSlit(0, 5, space));
 
         //SPECIES
         double sigma = 1.0;
@@ -67,6 +63,11 @@ public class SimKMCLJadatom extends Simulation{
         movable = new SpeciesSpheresMono(this, space);
         addSpecies(fixed);
         addSpecies(movable);
+
+        potentialMaster = new PotentialMasterMonatomic(this);
+
+        //SIMULATION BOX
+        box = this.makeBox(new BoundaryRectangularSlit(0, 5, space));
 
         // Must be in same order as the respective species is added to SpeciesManager
         box.setNMolecules(fixed, 256);

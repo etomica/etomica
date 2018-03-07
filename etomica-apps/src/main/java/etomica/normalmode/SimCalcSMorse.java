@@ -9,10 +9,10 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.*;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -40,10 +40,10 @@ public class SimCalcSMorse extends Simulation {
     public SimCalcSMorse(Space _space, int numAtoms, double density, double temperature) {
         super(_space);
 
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
+
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
 
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0 / density);

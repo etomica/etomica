@@ -79,6 +79,11 @@ public class EFSTungsten extends Simulation {
 
     public EFSTungsten(int numatoms, double density, double temperature) {
         super(Space3D.getInstance());
+
+        w = new SpeciesSpheresMono(space, Tungsten.INSTANCE);
+        w.setIsDynamic(true);
+        addSpecies(w);
+
         potentialMaster = new PotentialMasterList(this, space);
         box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
@@ -89,12 +94,7 @@ public class EFSTungsten extends Simulation {
         integrator.setThermostatNoDrift(true);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        w = new SpeciesSpheresMono(space, Tungsten.INSTANCE);
-        w.setIsDynamic(true);
-
-        addSpecies(w);
         box.setNMolecules(w, numatoms);
-
 
         //BCC W
 

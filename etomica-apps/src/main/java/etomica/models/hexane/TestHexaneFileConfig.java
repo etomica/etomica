@@ -17,13 +17,13 @@ import etomica.data.meter.MeterPressureByVolumeChange;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.normalmode.MeterNormalMode;
@@ -78,6 +78,10 @@ public class TestHexaneFileConfig extends Simulation {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
         super(_space);
+
+        SpeciesHexane species = new SpeciesHexane(space);
+        addSpecies(species);
+
         PotentialMaster potentialMaster = new PotentialMaster();
         int chainLength = 6;
         //One molecule per cell
@@ -88,8 +92,6 @@ public class TestHexaneFileConfig extends Simulation {
         primitive.scaleSize(Math.pow(0.4165783882178116 / dens, 1.0 / 3.0));
         lattice = new BravaisLattice(primitive);
 
-        SpeciesHexane species = new SpeciesHexane(space);
-        addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(primitive, nCells);
         box = this.makeBox(bdry);

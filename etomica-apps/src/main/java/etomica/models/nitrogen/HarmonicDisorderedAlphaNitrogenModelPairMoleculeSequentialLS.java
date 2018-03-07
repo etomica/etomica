@@ -46,20 +46,21 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialLS extend
 		super(space);
 		this.space = space;
 
+        SpeciesN2 species = new SpeciesN2(space);
+        addSpecies(species);
+
+        potentialMaster = new PotentialMaster();
+
 		int nCell = (int) Math.round(Math.pow((numMolecule / 4), 1.0 / 3.0));
 		double unitCellLength = Math.pow(numMolecule / density, 1.0 / 3.0) / nCell;//5.661;
 //		System.out.println("a: " + unitCellLength);
 //		System.out.println("nCell: " + nCell);
 
-		potentialMaster = new PotentialMaster();
-
 		Basis basisFCC = new BasisCubicFcc();
 		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
 
 		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		SpeciesN2 species = new SpeciesN2(space);
 		species.setConformation(conformation);
-		addSpecies(species);
 
 		Boundary boundary = new BoundaryRectangularPeriodic(space);
 		box = this.makeBox(boundary);

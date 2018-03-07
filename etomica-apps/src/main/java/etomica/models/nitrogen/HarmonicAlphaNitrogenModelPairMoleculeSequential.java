@@ -47,15 +47,16 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequential extends Simulation
 //		System.out.println("a: " + unitCellLength);
 //		System.out.println("nCell: " + nCell);
 
+		SpeciesN2 species = new SpeciesN2(space);
+		addSpecies(species);
+
 		potentialMaster = new PotentialMaster();
 
 		Basis basisFCC = new BasisCubicFcc();
 		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
 
 		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		SpeciesN2 species = new SpeciesN2(space);
 		species.setConformation(conformation);
-		addSpecies(species);
 
 		Boundary boundary = new BoundaryRectangularPeriodic(space, nCell * unitCellLength);
 		box = this.makeBox(boundary);
