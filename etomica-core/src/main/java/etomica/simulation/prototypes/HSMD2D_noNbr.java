@@ -56,12 +56,13 @@ public class HSMD2D_noNbr extends Simulation {
         addSpecies(species);
 
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+
+        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
+        box.getBoundary().setBoxSize(space.makeVector(new double[]{10, 10}));
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{10, 10}));
         box.setNMolecules(species, 64);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         P2HardSphere potential = new P2HardSphere(space);
