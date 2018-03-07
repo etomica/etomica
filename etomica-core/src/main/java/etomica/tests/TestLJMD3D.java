@@ -43,6 +43,11 @@ public class TestLJMD3D extends Simulation {
 
     public TestLJMD3D(int numAtoms, int numSteps, Configuration config) {
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space);
         double sigma = 1.0;
         box = this.makeBox();
@@ -51,9 +56,6 @@ public class TestLJMD3D extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setMaxSteps(numSteps);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.65);

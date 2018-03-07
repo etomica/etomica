@@ -20,11 +20,11 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressure;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -51,6 +51,10 @@ public class TestLJGCMC3D extends Simulation {
 
     public TestLJGCMC3D(int numAtoms, int numSteps, Configuration config) {
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         double sigma = 1.0;
         box = this.makeBox();
@@ -67,8 +71,6 @@ public class TestLJGCMC3D extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setMaxSteps(numSteps);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
         mcMoveID.setSpecies(species);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);

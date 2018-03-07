@@ -34,6 +34,18 @@ public class TestHSMD3D extends Simulation {
 
     public TestHSMD3D(Space _space, int numAtoms, int numSteps, Configuration config) {
         super(_space);
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+        removeSpecies(species);
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+        species2 = new SpeciesSpheresMono(this, space);
+        species2.setIsDynamic(true);
+        addSpecies(species2);
+
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
 
         double neighborRangeFac = 1.6;
@@ -49,16 +61,6 @@ public class TestHSMD3D extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         activityIntegrate.setMaxSteps(numSteps);
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
-        removeSpecies(species);
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
-        species2 = new SpeciesSpheresMono(this, space);
-        species2.setIsDynamic(true);
-        addSpecies(species2);
         AtomType type1 = species.getLeafType();
         AtomType type2 = species2.getLeafType();
 
