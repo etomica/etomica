@@ -93,7 +93,7 @@ public class PotentialMasterListFast extends PotentialMasterList {
      * down species hierarchy from it; if two or more atoms are specified,
      * superclass method is invoked.
      */
-    public <T> void calculateFast(Box box, IteratorDirective id, PotentialCalculation<T> pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
 //        if (forces == null) {
 //            forces = new Vector[box.getLeafList().size()];
 //            for (int i = 0; i < box.getLeafList().size(); i++) {
@@ -108,8 +108,6 @@ public class PotentialMasterListFast extends PotentialMasterList {
         IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
         p2.setBox(box);
-//        AtomLeafAgentManager<Vector> data = ((PotentialCalculationForceSum) pc).getLoopStuff(); // <---
-        T data = pc.getLoopStuff();                                                           // <---
         NeighborListManager neighborManager = neighborListAgentManager.getAgent(box);
         if (targetAtom == null && targetMolecule == null) {
             if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
@@ -130,14 +128,9 @@ public class PotentialMasterListFast extends PotentialMasterList {
                 for (int j = 0; j < nNeighbors; j++) {
                     IAtom jAtom = list.get(j);
                     pair.atom1 = jAtom;
-//                    pc.doCalculation(pair, p2);
+                    pc.doCalculation(pair, p2);
 //                    ((PotentialCalculationForceSum) pc).doCalcFast(pair, p2, forces);
-                    if (data != null) {
-                        pc.doCalculation(pair, p2, data);
-//                        ((PotentialCalculationForceSum) pc).doCalculation(pair, p2, data);
-                    } else {
-                        ((PotentialCalculationForceSum) pc).doCalcFast2(pair, p2, agentManager);
-                    }
+//                    ((PotentialCalculationForceSum) pc).doCalcFast2(pair, p2, agentManager);
 //                    p2.gradientFast(pair, agentManager.getAgentUnsafe(i), agentManager.getAgentUnsafe(jAtom.getLeafIndex()));
 //                    dr.Ev1Mv2(v, jAtom.getPosition());
 //                    boundary.nearestImage(dr);

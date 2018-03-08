@@ -17,9 +17,7 @@ import etomica.atom.IAtomList;
  * @see PotentialMaster
  * @see PotentialGroup
  */
-public interface PotentialCalculation<T> {
-
-	default T getLoopStuff() { return null; }
+public interface PotentialCalculation {
  	
 	/**
 	 * Method giving the specific calculation performed by this class.
@@ -27,7 +25,5 @@ public interface PotentialCalculation<T> {
 	 * @param potential The potential used to apply the action defined by this class.
 	 */
 	public void doCalculation(IAtomList atoms, IPotentialAtomic potential);
-
-	default void doCalculation(IAtomList atoms, IPotentialAtomic potential, T data) {}
 	
 }

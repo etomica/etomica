@@ -12,7 +12,7 @@ import etomica.space.Vector;
  * Sums the force on each iterated atom and adds it to the integrator agent
  * associated with the atom.
  */
-public class PotentialCalculationForceSum implements PotentialCalculation<AtomLeafAgentManager<Vector>> {
+public class PotentialCalculationForceSum implements PotentialCalculation {
         
     protected AtomLeafAgentManager<Vector> integratorAgentManager;
 
@@ -21,11 +21,6 @@ public class PotentialCalculationForceSum implements PotentialCalculation<AtomLe
     }
 
     public AtomLeafAgentManager<Vector> getAgentManager() {
-        return integratorAgentManager;
-    }
-
-    @Override
-    public AtomLeafAgentManager<Vector> getLoopStuff() {
         return integratorAgentManager;
     }
 
@@ -46,12 +41,6 @@ public class PotentialCalculationForceSum implements PotentialCalculation<AtomLe
     public void doCalcFast2(IAtomList atoms, IPotentialAtomic potential, AtomLeafAgentManager<Vector> forces) {
         Potential2SoftSpherical potentialSoft = (Potential2SoftSpherical) potential;
         potentialSoft.gradientFast(atoms, forces.getAgentUnsafe(atoms.get(0).getLeafIndex()), forces.getAgentUnsafe(atoms.get(1).getLeafIndex()));
-    }
-
-    @Override
-    public void doCalculation(IAtomList atoms, IPotentialAtomic potential, AtomLeafAgentManager<Vector> data) {
-        Potential2SoftSpherical potentialSoft = (Potential2SoftSpherical) potential;
-        potentialSoft.gradientFast(atoms, data.getAgentUnsafe(atoms.get(0).getLeafIndex()), data.getAgentUnsafe(atoms.get(1).getLeafIndex()));
     }
 
     /**
