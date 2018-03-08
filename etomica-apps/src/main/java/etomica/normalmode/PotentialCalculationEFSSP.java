@@ -6,10 +6,10 @@ package etomica.normalmode;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.meam.PotentialCuLREP;
-import etomica.meam.PotentialEAM;
-import etomica.meam.PotentialEAM_LS;
-import etomica.meam.PotentialEFS;
+import etomica.eam.PotentialCuLREP;
+import etomica.eam.PotentialEAM;
+import etomica.eam.PotentialEAM_LS;
+import etomica.eam.PotentialEFS;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Space;

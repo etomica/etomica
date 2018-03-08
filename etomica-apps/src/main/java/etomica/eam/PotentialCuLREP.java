@@ -2,42 +2,47 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.meam;
+package etomica.eam;
 
 import etomica.atom.IAtomList;
+import etomica.space.Boundary;
 import etomica.box.Box;
+import etomica.space.Vector;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
-import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.units.ElectronVolt;
 
-/**
- * EAM (Embedded Atom Method) potential
- * 
- * @author Joe Kromph
- * @author Sabry Moustafa
- */
-public class PotentialEAM extends PotentialN implements PotentialSoft{
+public class PotentialCuLREP extends PotentialN implements PotentialSoft{
 
-    protected double n , m , eps , a , C , rC1, rC2;
+    protected double c0, c1, c2, c3, c4, mLREP, nLREP;
+    protected double A, rC1, rC2, B, r0;
+    protected Vector dr, drij, drik, drjk;
     protected Boundary boundary;
-    protected final Vector dr, drij, drik, drjk;
     protected Vector[] gradient;
     protected Vector[] rhograd;
     protected double [][] secondder;
+    protected int test = 1;
     
-    public PotentialEAM(Space space, double n , double  m , double  eps , double  a , double  C, double rC) {
+    public PotentialCuLREP(Space space) {
         super(space);
         
-        this.n=n;
-        this.m=m;
-        this.eps = eps;
-        this.a = a;
-        this.C = C;
-        rC1 = rC;
-        rC2 = rC1;
+                this.mLREP   = 4.0;
+                this.nLREP   = 6.0;
+                this.rC1 = 6.1;
+                this.rC2 = 7.8;
+                this.c0  = ElectronVolt.UNIT.toSim(0.123554);
+                this.c1  = ElectronVolt.UNIT.toSim(-0.134361);
+                this.c2  = ElectronVolt.UNIT.toSim(0.0543818);
+                this.c3  = ElectronVolt.UNIT.toSim(-0.981194E-2);
+                this.c4  = ElectronVolt.UNIT.toSim(0.675816E-3);
+                this.A   = ElectronVolt.UNIT.toSim(Math.sqrt(0.656618E-4));
+                this.A = A*A;
+                this.B   = 1.836569;
+                this.r0  = 2.552655;
+                System.out.println(" LREP parameters: A: "+A+" B: "+B+" rC1: "+rC1+" rC2: "+rC2+" c0: "+c0+" c1: "+c1+" c2: "+c2+" c3: "+c3+" c4: "+c4 + " A: " + A + " B: " + B + " r0: " + r0);
+
         dr=space.makeVector();
         drij=space.makeVector();
         drik=space.makeVector();
@@ -47,35 +52,44 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
     }
     
     public double getRange() {
-        return rC1;
+        return rC2; // rC2=7.8>rC1=6.1
     }
-    public void setRange(double rC) {
-        rC1 = rC;
-        rC2 = rC1;
+    public void setRange(double rC1, double rC2) {
+    	this.rC1 = rC1; //d>c
+    	this.rC2 = rC2; //d>c
     }
+
     
     public double energy(IAtomList atoms) {
         double sumV=0;
         double rhoi=0;
-        Vector ipos=atoms.get(0).getPosition();
-        
-        for(int j = 1; j<atoms.size(); j++){
-            Vector jpos=atoms.get(j).getPosition();
-            dr.Ev1Mv2(ipos, jpos);
-            boundary.nearestImage(dr);
-            double rij=Math.sqrt(dr.squared());
-            if(rij<=rC1 && atoms.get(0).getLeafIndex() < atoms.get(j).getLeafIndex()){
-              sumV += eps*Math.pow(a/rij , n);            		
-            }
-        	if(rij<=rC2){
-       			rhoi += Math.pow(a/rij , m);
-            }
+        double rij_c, rij_d , v1, v2;
+        int ng = atoms.size();
+        if(test==1){
+        	System.out.println(" ng: " + ng);
+        	test = 0;
         }
-        double frho = -eps*C*Math.sqrt(rhoi);
+        Vector ipos=atoms.get(0).getPosition();
+        for(int j=1;j<ng;j++){
+          Vector jpos=atoms.get(j).getPosition();
+          dr.Ev1Mv2(ipos, jpos);
+          boundary.nearestImage(dr);
+          double rij=Math.sqrt(dr.squared());
+          if(rij<=rC1 && atoms.get(0).getLeafIndex() < atoms.get(j).getLeafIndex()){
+            rij_c = rij - rC1 ;
+            v1  = Math.pow(rij_c, mLREP);
+            v2  = c0 + rij*(c1 + rij*(c2 + rij*(c3 + c4*rij))) ;
+            sumV += v1*v2 ;
+       	  }
+    	  if(rij<=rC2){
+   		    rij_d=rij-rC2;
+		    rhoi += Math.pow(rij_d, nLREP)*Math.exp(-B*(rij/r0-1.0));
+   		  }
+        }//j
+        rhoi = A*rhoi;
         
-        
-        return sumV + frho;
-        
+        double Utot=sumV-Math.sqrt(rhoi);
+        return Utot;//getLeafIndex
         
     }
     
@@ -85,58 +99,68 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
 
     public double virial(IAtomList atoms) {
         double virial=0;
+        int ng = atoms.size();
         gradient(atoms);
         Vector ipos=atoms.get(0).getPosition();
-        for(int j = 1; j<atoms.size(); j++){
+        for(int j=1;j<ng;j++){
             Vector jpos=atoms.get(j).getPosition();
-            dr.Ev1Mv2(jpos,ipos);
+            dr.Ev1Mv2(ipos, jpos);
             boundary.nearestImage(dr);
-            virial += gradient[j].dot(dr);
+            virial -= gradient[j].dot(dr);
         }
         return virial;
     }
 
     public Vector[] gradient(IAtomList atoms) {
-        
-        if(gradient.length<atoms.size()){
-            rhograd=new Vector[atoms.size()];
-            gradient=new Vector[atoms.size()];
+        double v1, v2, dv1, dv2, dvdr, drhodr, dudrho, rij, rij_c, rij_d;
+        int ng = atoms.size();
+        if(gradient.length<ng){
+            rhograd=new Vector[ng];
+            gradient=new Vector[ng];
             
-            for(int j = 0; j<atoms.size(); j++){
-                rhograd[j] = space.makeVector();
-                gradient[j]= space.makeVector();
+            for(int j=0;j<ng;j++){
+                gradient[j]=space.makeVector();
+                rhograd[j]=space.makeVector();
             }
         }
         
+        Vector ipos= atoms.get(0).getPosition();
+        int iAtom   = atoms.get(0).getLeafIndex();
+        double rhoi = 0;
         gradient[0].E(0);
-        Vector ipos=atoms.get(0).getPosition();
-        
-        double rhoi=0;
-    	double dvdr;
-
         //S: Does NOT start from 0 as it will be -SUM(j>0); see below
-        for(int j = 1; j<atoms.size(); j++){
+        for(int j=1;j<ng;j++){
             gradient[j].E(0);
             rhograd[j].E(0);
             Vector jpos=atoms.get(j).getPosition();
             dr.Ev1Mv2(ipos, jpos);
             boundary.nearestImage(dr);
-            double rij=Math.sqrt(dr.squared());
-            if(rij<=rC1 && atoms.get(0).getLeafIndex() < atoms.get(j).getLeafIndex()){
-	            dvdr =  -eps*n/a*Math.pow(a/rij , n+1) ;
-	            gradient[j].Ea1Tv1(-dvdr/rij, dr);//fji <= -fij
+            rij=Math.sqrt(dr.squared());
+            //2-body
+            if(rij<=rC1 && iAtom < atoms.get(j).getLeafIndex()){
+                rij_c = rij - rC1 ;
+                v1  = Math.pow(rij_c, mLREP);
+                dv1 =   mLREP*v1/rij_c;
+                v2  = c0 + rij*(c1 + rij*(c2 + rij*(c3 + c4*rij))) ;
+                dv2 = c1 + rij*(2*c2 + rij*(3*c3 + 4*c4*rij)) ;
+                dvdr = dv1*v2 + v1*dv2 ; 
+                gradient[j].Ea1Tv1(-dvdr/rij, dr);
             }
+            //n-body
             if(rij<=rC2){
-                double drhodr;
-                rhoi += Math.pow(a/rij , m);
-                drhodr = -m/a*Math.pow(a/rij, m+1);
-                rhograd[j].Ea1Tv1(-drhodr/rij, dr);//fji <= -fij
-            }          
-        }
-        double f=Math.sqrt(rhoi);
-        for (int j = 1; j<atoms.size(); j++){
-            gradient[j].PEa1Tv1(-eps*C/2.0/f,rhograd[j]);//Adds the n-body to the 2-body for j
-            gradient[0].ME(gradient[j]);
+                rij_d  = rij - rC2;
+                double expB = Math.exp(-B*(rij/r0-1.0));
+                double rij_d_n = Math.pow(rij_d, nLREP);
+		        rhoi  += rij_d_n*expB;
+                drhodr = expB*rij_d_n/rij_d * (nLREP - B/r0*rij_d);
+                rhograd[j].Ea1Tv1(drhodr/rij, dr);
+            }
+        }//end j loop
+        //ui = -sqrt(rhoi)
+        dudrho = -1.0/2.0/Math.sqrt(A*rhoi);
+        for (int j=1; j<ng; j++){
+          gradient[j].PEa1Tv1(-dudrho * A , rhograd[j]);//-ve because we need Fj, not Fi.
+          gradient[0].ME(gradient[j]);
         }
         return gradient;
     }
@@ -147,33 +171,37 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
     
     
     
-    
     public double [][] secondder(IAtomList atoms){
 		int ng = atoms.size();
     	secondder = new double[3*ng][3*ng];
         Vector ipos=atoms.get(0).getPosition();
-        double rhoi=0;
+        double v1, v2, dv1, dv2, d2v1, d2v2;
     	double dvdr, d2vdr2, g1, g2;
-        double rij, rij2 , rij3 , rij4, sij;
-        double rik, sik;
+        double rij, rij2 , rij3 , rij4;
+        double rik;
         double dphidrij=0,d2phidrij2=0, dudrho, d2udrho2;
         double dphidrik;
         double tmpD, tmpD1;
-		
-		//Get rhoi
+        double rij_d, rij_c;
+		double phi1, dphi1, d2phi1;
+		double phi2, dphi2, d2phi2;
+		//rhoi
+        double rhoi = 0;
         for(int j=1;j<ng;j++){
             Vector jpos=atoms.get(j).getPosition();
             drij.Ev1Mv2(ipos, jpos);
             boundary.nearestImage(drij);
             rij=Math.sqrt(drij.squared());
-            sij=a/rij;
             if(rij<=rC2){
-                rhoi += Math.pow(sij , m);
+       		    rij_d=rij-rC2;
+		        rhoi += Math.pow(rij_d, nLREP)*Math.exp(-B*(rij/r0-1.0));
             }
         }
-        dudrho   = -eps*C/2.0/Math.pow(rhoi, 0.5);
-        d2udrho2 =  eps*C/4.0/Math.pow(rhoi, 1.5);
+        rhoi     = A*rhoi;
+        dudrho   = -1.0/2.0/Math.pow(rhoi, 0.5);
+        d2udrho2 =  1.0/4.0/Math.pow(rhoi, 1.5);
         
+        int iAtom = atoms.get(0).getLeafIndex();
         
         for(int j=1;j<ng;j++){
           Vector jpos=atoms.get(j).getPosition();
@@ -181,15 +209,28 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
           boundary.nearestImage(drij);
 
           rij=Math.sqrt(drij.squared()); 
-          sij=a/rij;
+          
           rij2 = rij*rij;   rij3 = rij*rij2;   rij4 = rij2*rij2;
+
           
           /**pairwise*/
-          if(rij<=rC1 && atoms.get(0).getLeafIndex() < atoms.get(j).getLeafIndex()){
-            dvdr =  -eps*n/a*Math.pow(sij , n+1) ;
+          if(rij<=rC1 && iAtom < atoms.get(j).getLeafIndex()){
+            rij_c = rij - rC1;
+            
+            v1  = Math.pow(rij_c, mLREP);
+            dv1 =   mLREP*v1/rij_c;
+            d2v1 = (mLREP-1)*dv1/rij_c;
+            
+            v2   = c0 + c1*rij +   c2*rij2 +   c3*rij3 +    c4*rij4; 
+            dv2  =      c1     + 2*c2*rij  + 3*c3*rij2 +  4*c4*rij3; 
+            d2v2 =               2*c2      + 6*c3*rij  + 12*c4*rij2; 
+            
+            dvdr = dv1*v2 + v1*dv2 ; 
             g1 = rij*dvdr;
-            d2vdr2 =  eps*n*(n+1.0)/a/a*Math.pow(sij , n+2) ;
+            
+            d2vdr2 =  2*dv1*dv2 + v1*d2v2 + d2v1*v2;
             g2 = rij2*d2vdr2;
+            
             for (int c=0; c<3; c++){
               tmpD = -g1/rij2 + (g1-g2)/rij4*drij.getX(c)*drij.getX(c);
               secondder[c][3*j+c] += tmpD;//ij: xx
@@ -203,12 +244,27 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
             	secondder[3*j+c][r] += tmpD;//ji: yx
               }
             }
-          }
+          }//if rij<rC1
+          
            /**EAM: 1st derivative terms*/
-           if(rij>rC2) continue;
-            
-           dphidrij   =        -m/a*Math.pow(sij, m+1);
-           d2phidrij2 = m*(m+1)/a/a*Math.pow(sij, m+2);
+          
+           if(rij > rC2) continue;
+           
+           rij_d   = rij-rC2;
+           
+           phi1   = Math.pow(rij_d, nLREP);
+           dphi1  = nLREP*phi1/rij_d;
+           d2phi1 = (nLREP-1)*dphi1/rij_d;
+           
+           phi2   = Math.exp(-B*(rij/r0-1.0));
+           dphi2  = -B/r0*phi2; 
+           d2phi2 = -B/r0*dphi2; 
+           
+	       dphidrij = phi1*dphi2 + dphi1*phi2;
+	       dphidrij = A*dphidrij;
+           
+           d2phidrij2 = 2*dphi1*dphi2 + d2phi1*phi2 + phi1*d2phi2;
+           d2phidrij2 = A*d2phidrij2;
            for (int c=0; c<3; c++){
              tmpD = -1/rij*dudrho*dphidrij + 1/rij3*dudrho*dphidrij*drij.getX(c)*drij.getX(c);
              secondder[c][3*j+c] += tmpD; // ij delta_ab: xx
@@ -232,10 +288,22 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
               drik.Ev1Mv2(ipos, kpos);
               boundary.nearestImage(drik);
               rik=Math.sqrt(drik.squared());
-              sik=a/rik;
 
               if(rik<=rC2){
-                dphidrik   = -m/a*Math.pow(sik, m+1);
+              	double rik_d = rik - rC2;
+            	
+                phi1   = Math.pow(rik_d, nLREP);
+                dphi1  = nLREP*phi1/rik_d;
+                d2phi1 = (nLREP-1)*dphi1/rik_d;
+                
+                phi2   = Math.exp(-B*(rik/r0-1.0));
+                dphi2  = -B/r0*phi2; 
+                d2phi2 = -B/r0*dphi2; 
+                
+                dphidrik = phi1*dphi2 + dphi1*phi2;
+     	        dphidrik = A*dphidrik;
+
+            	
                 for (int c=0; c<3; c++){
                 //xx
                   //ij
@@ -251,8 +319,6 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
                   if(j != k){
                   	tmpD = d2udrho2*dphidrij*dphidrik*drij.getX(c)*drik.getX(c)/rij/rik;
                     secondder[3*j+c][3*k+c] =  tmpD; // jk Indirect
-                    /**No need to do ji as we have jk and kj*/
-//                  secondder[3*k+c][3*j+c] =  tmpD; // kj Indirect
                   }
                   
                   
@@ -281,9 +347,6 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
                      tmpD1 = d2udrho2*dphidrij*dphidrik*drij.getX(c)*drik.getX(r)/rij/rik;
                       secondder[3*j+r][3*k+c] =  tmpD;  // jk Indirect: xy
                       secondder[3*j+c][3*k+r] =  tmpD1; // jk Indirect: yx
-                      /**No need to do ji as we have jk and kj*/
-//                    secondder[3*k+r][3*j+c] =  tmpD1; // kj Indirect: xy
-//                    secondder[3*k+c][3*j+r] =  tmpD;  // kj Indirect: yx
                     }
                   }
                 }
@@ -305,49 +368,6 @@ public class PotentialEAM extends PotentialN implements PotentialSoft{
           	}
           }//j
         }//i
-        
-        
-/**DEBUG: F.D.*/   
-//      System.out.println();
-//      System.out.println();
-//      System.out.println();
-//      System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++");
-//
-//      int i = 11, j = 0;
-//      for(int r=0;r<3;r++){
-//        for(int c=0;c<3;c++){
-//          System.out.print(secondder[3*i+r][3*j+c] + "  ");
-//        }
-//        System.out.println();
-//      }
-//
-//      double U0 = energy(atoms);
-//      IVectorMutable dx = space.makeVector();
-//      IVectorMutable dy = space.makeVector();
-//      double d = 0.001;
-//      dx.setX(0, d);        dx.setX(1, 0);        dx.setX(2, 0);
-//      dy.setX(0, 0);        dy.setX(1, d);        dy.setX(2, 0);
-//      atoms.getAtom(i).getPosition().PE(dx);
-//      atoms.getAtom(j).getPosition().PE(dy);
-//      double Uipjp = energy(atoms);
-//      atoms.getAtom(i).getPosition().ME(dx);
-//      atoms.getAtom(i).getPosition().ME(dx);
-//      double Uimjp = energy(atoms);
-//      atoms.getAtom(j).getPosition().ME(dy);
-//      atoms.getAtom(j).getPosition().ME(dy);
-//      double Uimjm = energy(atoms);
-//      atoms.getAtom(i).getPosition().PE(dx);
-//      atoms.getAtom(i).getPosition().PE(dx);
-//      double Uipjm = energy(atoms);
-//      atoms.getAtom(i).getPosition().ME(dx);
-//      atoms.getAtom(j).getPosition().PE(dy);
-//      double Dij = 1/4.0/d/d*(Uipjp-Uipjm-Uimjp+Uimjm);
-//      System.out.println(Dij);
-//      System.out.println(secondder[3*i+0][3*j+1] - Dij);
-//      System.out.println((secondder[3*i+0][3*j+1] - Dij)/Dij);
-//      System.exit(0);
-
-    return secondder;
+                return secondder;
     }
 }
-

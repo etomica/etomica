@@ -11,7 +11,7 @@ import etomica.data.IData;
 import etomica.data.IDataSource;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
-import etomica.meam.P2EAM;
+import etomica.eam.P2EAM;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationEnergySum;
