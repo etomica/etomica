@@ -82,6 +82,7 @@ public class Sam extends Simulation {
         super(Space.getInstance(3));
 
         //species and potentials
+        chainLength = 16;
         species = new SpeciesAlkaneThiol(space, chainLength - 1);
         species.setIsDynamic(true);
         addSpecies(species);
@@ -100,7 +101,6 @@ public class Sam extends Simulation {
         // gold has FCC unit cell, a=4.0782A
         sizeCellZ = 4.0782 / Math.sqrt(2) * 3; //Math.sqrt(3)*sizeCellX;
         sizeCellX = sizeCellZ / Math.sqrt(3);
-        chainLength = 16;
 
         //construct box
         box = this.makeBox(new BoundaryRectangularSlit(1, space));
