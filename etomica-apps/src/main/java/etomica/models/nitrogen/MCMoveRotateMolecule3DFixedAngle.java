@@ -11,7 +11,7 @@ import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.molecule.MoleculePositionGeometricCenter;
-import etomica.paracetamol.AtomActionTransformed;
+import etomica.action.AtomActionTransformed;
 import etomica.potential.PotentialMaster;
 import etomica.space.RotationTensor;
 import etomica.space.Space;

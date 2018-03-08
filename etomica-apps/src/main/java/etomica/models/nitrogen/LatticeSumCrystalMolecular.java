@@ -15,7 +15,7 @@ import etomica.data.types.DataGroup;
 import etomica.lattice.*;
 import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculePair;
-import etomica.paracetamol.AtomActionTransformed;
+import etomica.action.AtomActionTransformed;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 

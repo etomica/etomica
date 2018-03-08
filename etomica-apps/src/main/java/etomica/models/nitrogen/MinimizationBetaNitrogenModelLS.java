@@ -23,7 +23,7 @@ import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.models.nitrogen.LatticeSumCrystalMolecular.DataGroupLSC;
 import etomica.molecule.*;
 import etomica.normalmode.BasisBigCell;
-import etomica.paracetamol.AtomActionTransformed;
+import etomica.action.AtomActionTransformed;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;

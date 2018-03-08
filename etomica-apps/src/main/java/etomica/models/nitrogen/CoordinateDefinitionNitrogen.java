@@ -15,7 +15,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.molecule.*;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.normalmode.CoordinateDefinitionMolecule;
-import etomica.paracetamol.AtomActionTransformed;
+import etomica.action.AtomActionTransformed;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
