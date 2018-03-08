@@ -65,23 +65,22 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
         double diameter = 1.0;
         double lambda = 2.0;
 
+
+        box = this.makeBox(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20));
+        box.setNMolecules(speciesA, 50);
+        nDiol = 50;
+        box.setNMolecules(speciesB, 100);
+        nDiAcid = 100;
+        config = new ConfigurationLatticeRandom(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space, random);
+        config.initializeCoordinates(box);
+
         integratorHard = new IntegratorHard(this, potentialMaster, box);
         integratorHard.setIsothermal(true);
         integratorHard.setTemperature(Kelvin.UNIT.toSim(300));
         integratorHard.setTimeStep(0.002);
         integratorHard.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integratorHard.setThermostatInterval(1);
-
-        box = this.makeBox(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20));
         integratorHard.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box));
-
-        box.setNMolecules(speciesA, 50);
-        nDiol = 50;
-        box.setNMolecules(speciesB, 100);
-        nDiAcid = 100;
-
-        config = new ConfigurationLatticeRandom(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space, random);
-        config.initializeCoordinates(box);
 
         agentManager = new AtomLeafAgentManager<IAtom[]>(this, box);
 

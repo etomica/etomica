@@ -62,21 +62,21 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
         double diameter = 1.0;
         double lambda = 2.0;
 
-        integratorHard = new IntegratorHard(this, potentialMaster, box);
-        integratorHard.setIsothermal(true);
-        integratorHard.setTemperature(Kelvin.UNIT.toSim(300));
-        integratorHard.setTimeStep(0.002);
-        integratorHard.setThermostat(ThermostatType.ANDERSEN_SINGLE);
-        integratorHard.setThermostatInterval(1);
-
         box = this.makeBox(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20));
-        integratorHard.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box));
 
         box.setNMolecules(speciesA, 50);
         box.setNMolecules(speciesB, 100);
         config = new ConfigurationLatticeFreeRadical(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space, random);
         config.setSpecies(speciesA, speciesB);
         config.initializeCoordinates(box);
+
+        integratorHard = new IntegratorHard(this, potentialMaster, box);
+        integratorHard.setIsothermal(true);
+        integratorHard.setTemperature(Kelvin.UNIT.toSim(300));
+        integratorHard.setTimeStep(0.002);
+        integratorHard.setThermostat(ThermostatType.ANDERSEN_SINGLE);
+        integratorHard.setThermostatInterval(1);
+        integratorHard.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box));
 
         agentManager = new AtomLeafAgentManager<IAtom[]>(this, box);
         resetBonds();
