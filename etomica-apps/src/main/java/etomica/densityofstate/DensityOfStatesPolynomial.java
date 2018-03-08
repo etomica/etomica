@@ -30,7 +30,7 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.yukawa.P2Yukawa;
+import etomica.potential.P2Yukawa;
 
 /**
  * A Yukawa Monte-Carlo simulation in 3D
