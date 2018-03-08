@@ -6,7 +6,7 @@
 package etomica.nbr;
 
 import etomica.atom.AtomType;
-import etomica.atom.IAtomList;
+import etomica.atom.IAtom;
 
 /**
  * Filters AtomSets to match a given set of AtomTypes.  CriterionType and
@@ -29,21 +29,17 @@ public class CriterionTypesCombination extends CriterionAdapter {
      * Returns true if the AtomTypes for the pair of atoms match the AtomTypes
      * given at construction (without regard to the order of the AtomSet), and
      * if the wrapped criterion also accepts the AtomSet.
+     * @param atom1
+     * @param atom2
      */
-    public boolean accept(IAtomList atoms) {
-        final int nAtoms = atoms.size();
-        for (int i=0; i<nAtoms; i++) {
-            boolean accepted = false;
-            for (int j=0; j<types.length; j++) {
-                if (atoms.get(i).getType() == types[j]) {
-                    accepted = true;
-                }
-            }
-            if (!accepted) {
-                return false;
-            }
+    public boolean accept(IAtom atom1, IAtom atom2) {
+        boolean accepted1 = false;
+        boolean accepted2 = false;
+        for (AtomType type : types) {
+            accepted1 = accepted1 || (atom1.getType() == type);
+            accepted2 = accepted2 || (atom2.getType() == type);
         }
-        return subCriterion.accept(atoms);
+        return accepted1 && accepted2 && subCriterion.accept(atom1, atom2);
     }
 
     /**

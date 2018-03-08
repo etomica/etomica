@@ -6,7 +6,7 @@
 package etomica.nbr;
 
 import etomica.atom.AtomType;
-import etomica.atom.IAtomList;
+import etomica.atom.IAtom;
 
 /**
  * Filters atoms pairs to match a given pair of AtomTypes.
@@ -30,13 +30,15 @@ public class CriterionTypePair extends CriterionAdapter {
      * Returns true if the AtomTypes for the pair of atoms match the AtomTypes
      * given at construction (without regard to the order of the pair), and if
      * the wrapped criterion also accepts the pair.
+     * @param atom1
+     * @param atom2
      */
-    public boolean accept(IAtomList pair) {
-        AtomType atom0Type = pair.get(0).getType();
-        AtomType atom1Type = pair.get(1).getType();
+    public boolean accept(IAtom atom1, IAtom atom2) {
+        AtomType atom0Type = atom1.getType();
+        AtomType atom1Type = atom2.getType();
         if ( (atom0Type == type0 && atom1Type == type1) ||
              (atom0Type == type1 && atom1Type == type0) ) {
-            return subCriterion.accept(pair);
+            return subCriterion.accept(atom1, atom2);
         }
         return false;
     }

@@ -4,7 +4,7 @@
 
 package etomica.nbr;
 
-import etomica.atom.IAtomList;
+import etomica.atom.IAtom;
 
 /**
  * Pair criterion that judges whether two atoms are or are not in the same 
@@ -35,13 +35,13 @@ public class CriterionInterMolecular extends CriterionAdapter {
         return intraCriterion;
     }
     
-    public boolean accept(IAtomList pair) {
+    public boolean accept(IAtom atom1, IAtom atom2) {
         // Only ask the intracriterion if it exists and the pair is intramolecular. 
-        if ((pair.get(0).getParentGroup() == pair.get(1).getParentGroup()) && (intraCriterion == null ||
-                !intraCriterion.accept(pair))) {
+        if ((atom1.getParentGroup() == atom2.getParentGroup()) && (intraCriterion == null ||
+                !intraCriterion.accept(atom1, atom2))) {
             return false;
         }
-        return subCriterion.accept(pair);
+        return subCriterion.accept(atom1, atom2);
     }
     
     private static final long serialVersionUID = 1L;

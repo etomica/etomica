@@ -260,6 +260,6 @@ public class ColloidSim extends Simulation {
         public void setBox(Box box) {}
         public void reset(IAtom atom) {}
         public boolean needUpdate(IAtom atom) {return false;}
-        public boolean accept(IAtomList pair) {return false;}
+        public boolean accept(IAtom atom1, IAtom atom2) {return false;}
     }
 }

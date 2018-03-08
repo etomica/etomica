@@ -14,7 +14,6 @@ import etomica.lattice.CellLattice;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.*;
 import etomica.potential.IPotential;
-import etomica.potential.Potential;
 import etomica.potential.PotentialArray;
 import etomica.space.Space;
 import etomica.util.Debug;
@@ -35,7 +34,6 @@ import java.util.stream.IntStream;
  */
 public class NeighborListManager implements IntegratorListener, AgentSource<AtomNeighborLists> {
 
-    protected final AtomSetSinglet atomSetSinglet;
     protected final PotentialMasterList potentialMaster;
     protected final AtomLeafAgentManager<AtomNeighborLists> agentManager2Body;
     protected final AtomLeafAgentManager<AtomPotentialList> agentManager1Body;
@@ -54,7 +52,6 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
     private boolean downListsOutOfDate = false;
 
     private CellLattice lattice;
-    private static final ThreadLocal<AtomPair> threadPair = ThreadLocal.withInitial(AtomPair::new);
 
     /**
      * Configures instance for use by the given PotentialMaster.
@@ -75,7 +72,6 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
         source1.setAgentManager(agentManager1Body);
         initialized = false;
         doApplyPBC = true;
-        atomSetSinglet = new AtomSetSinglet();
         eventManager = new NeighborListEventManager();
     }
 
@@ -275,8 +271,7 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
                 if (potentials[i].nBody() != 1) {
                     continue;
                 }
-                atomSetSinglet.atom = atom;
-                agentManager1Body.getAgent(atom).setIsInteracting(criteria[i].accept(atomSetSinglet),i);
+                agentManager1Body.getAgent(atom).setIsInteracting(criteria[i].accept(atom, null),i);
             }
         }
 
@@ -325,16 +320,13 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
         PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom1.getType());
         IPotential[] potentials = potentialArray.getPotentials();
         NeighborCriterion[] criteria = potentialArray.getCriteria();
-        AtomPair pair = threadPair.get();
         for (int i = 0; i < potentials.length; i++) {
             IPotential potential = potentials[i];
             if (potential.nBody() < 2) {
                 continue;
             }
 
-            pair.atom0 = atom1;
-            pair.atom1 = atom2;
-            if (criteria[i].accept(pair)) {
+            if (criteria[i].accept(atom1, atom2)) {
                 AtomNeighborLists atom1Nbrs = agentManager2Body.getAgent(atom1);
                 AtomNeighborLists atom2Nbrs = agentManager2Body.getAgent(atom2);
 //                synchronized (atom1Nbrs) {
@@ -401,8 +393,7 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
             if (potentials[i].nBody() != 1) {
                 continue;
             }
-            atomSetSinglet.atom = atom;
-            agentManager1Body.getAgent(atom).setIsInteracting(criteria[i].accept(atomSetSinglet),i);
+            agentManager1Body.getAgent(atom).setIsInteracting(criteria[i].accept(atom, null),i);
         }
 
         if (agentManager2Body.getAgent(atom) == null) {
@@ -423,7 +414,7 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
                 if (potentials[i].nBody() < 2) {
                     continue;
                 }
-                if (criteria[i].accept(pair)) {
+                if (criteria[i].accept(pair.get(0), pair.get(1))) {
                     agentManager2Body.getAgent(atom).addUpNbr(atom1,i);
                     agentManager2Body.getAgent(atom1).addDownNbr(atom,
                             potentialMaster.getRangedPotentials(atom1.getType()).getPotentialIndex(potentials[i]));

@@ -12,6 +12,9 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Class holding static fields that determine whether debugging is on, how
  * much, what types and what (if anything) should be looked at specifically.
@@ -108,7 +111,7 @@ public final class Debug {
      * @param atoms array of atoms to be checked for debugging status
      * @return true if any of the atoms in the atoms array should be debugged
      */
-    public static boolean anyAtom(IAtomList atoms) {
+    public static boolean anyAtom(List<IAtom> atoms) {
         for (int i = 0; i<atoms.size(); i++) {
             IAtom atom = atoms.get(i);
             if ((atom.getIndex() == ATOM1_INDEX || ATOM1_INDEX == -1) &&
@@ -123,6 +126,10 @@ public final class Debug {
             }
         }
         return false;
+    }
+
+    public static boolean anyAtom(IAtom... atoms) {
+        return anyAtom(Arrays.asList(atoms));
     }
 
     /**

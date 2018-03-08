@@ -5,19 +5,13 @@
 package etomica.nbr;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 
 /**
  * Specifies that all atoms pairs are to be considered neighbors.  Should
  * not be used for species in which atoms are being added/removed by integrator.
  */
-public class CriterionAll implements NeighborCriterion, java.io.Serializable {
-
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+public class CriterionAll implements NeighborCriterion {
 
     /**
      * Always returns false, indicating that neighbor list never needs updating.
@@ -51,9 +45,12 @@ public class CriterionAll implements NeighborCriterion, java.io.Serializable {
 
     /**
      * Always returns true, indicating that all atoms pairs are neighbors.
+     *
+     * @param atom1
+     * @param atom2
      */
-    public boolean accept(IAtomList pair) {
+    public boolean accept(IAtom atom1, IAtom atom2) {
         return true;
     }
-    
+
 }

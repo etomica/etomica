@@ -4,8 +4,8 @@
 
 package etomica.nbr;
 
+import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.space.Boundary;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
@@ -110,17 +110,17 @@ public class CriterionSimple implements NeighborCriterion, AgentSource<Vector> {
 		return r2 > r2MaxSafe;
 	}
 
-	public boolean accept(IAtomList pair) {
+	public boolean accept(IAtom atom1, IAtom atom2) {
 	    Vector dr = space.makeVector();
-        dr.Ev1Mv2(pair.get(1).getPosition(),pair.get(0).getPosition());
+        dr.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
         boundary.nearestImage(dr);
         if (Debug.ON && neighborRadius2 < interactionRange*interactionRange) {
             throw new IllegalStateException("neighbor radius "+Math.sqrt(neighborRadius2)+" is less than interaction range "+interactionRange);
         }
-		if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.anyAtom(pair)) || (Debug.LEVEL == 1 && Debug.allAtoms(pair)))) {
+		if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.anyAtom(atom1, atom2)) || (Debug.LEVEL == 1 && Debug.allAtoms(new AtomPair(atom1, atom2))))) {
             double r2l = dr.squared(); 
-			if (r2l < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(pair))) {
-				System.out.println("Atom "+pair.get(0)+" and "+pair.get(1)+" are "+(r2l < neighborRadius2 ? "" : "not ")+"neighbors, r2="+r2l);
+			if (r2l < neighborRadius2 || (Debug.LEVEL > 1 && Debug.allAtoms(new AtomPair(atom1, atom2)))) {
+				System.out.println("Atom "+atom1+" and "+atom2+" are "+(r2l < neighborRadius2 ? "" : "not ")+"neighbors, r2="+r2l);
             }
 		}
 		return dr.squared() < neighborRadius2;

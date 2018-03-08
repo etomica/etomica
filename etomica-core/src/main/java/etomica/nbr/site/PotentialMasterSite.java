@@ -238,7 +238,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
                 neighborIterator.reset();
                 for (IAtomList pair = neighborIterator.next(); pair != null;
                      pair = neighborIterator.next()) {
-                    if (nbrCriterion.accept(pair)) {
+                    if (nbrCriterion.accept(, pair, )) {
                         pc.doCalculation(pair, p2);
                     }
                 }
