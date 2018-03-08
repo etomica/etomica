@@ -67,7 +67,6 @@ public class ReverseOsmosisWater extends Simulation {
         //solvent (2)
         speciesSolvent = new SpeciesWater3POriented(space, true);
         addSpecies(speciesSolvent);
-        integrator.setOrientationCalc(speciesSolvent, new OrientationCalcWater3P(space));
 
         //membrane
         speciesMembrane = new SpeciesSpheresMono(this, space);
@@ -76,14 +75,6 @@ public class ReverseOsmosisWater extends Simulation {
         addSpecies(speciesMembrane);
 
         PotentialMaster potentialMaster = new PotentialMaster(); //List(this, 2.0);
-
-        //controller and integrator
-        integrator = new IntegratorRigidIterative(this, potentialMaster, 0.01, Kelvin.UNIT.toSim(298), box);
-        integrator.setIsothermal(true);
-        integrator.setThermostatInterval(100);
-        integrator.setTimeStep(0.004);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
 
         /*
          * Sodium and chloride potential parameters from
@@ -232,6 +223,15 @@ public class ReverseOsmosisWater extends Simulation {
         configMembrane.setSpeciesSolute2(speciesChlorine);
         configMembrane.setSpeciesSolvent(speciesSolvent);
         configMembrane.initializeCoordinates(box);
+
+        //controller and integrator
+        integrator = new IntegratorRigidIterative(this, potentialMaster, 0.01, Kelvin.UNIT.toSim(298), box);
+        integrator.setIsothermal(true);
+        integrator.setThermostatInterval(100);
+        integrator.setTimeStep(0.002);
+        integrator.setOrientationCalc(speciesSolvent, new OrientationCalcWater3P(space));
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
 
         potentialTether = new P1Tether(box, speciesMembrane, space);
         potentialTether.setEpsilon(20000 * 298 / 125);
