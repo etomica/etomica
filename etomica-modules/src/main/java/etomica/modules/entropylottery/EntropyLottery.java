@@ -33,6 +33,10 @@ public class EntropyLottery extends Simulation {
 
         final int N = 30;  //number of atoms
 
+        //construct box
+        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
+        box.setNMolecules(species, N);
+
         //controller and integrator
         integrator = new IntegratorMC(this, potentialMaster, box);
         MCMoveAtomAdjacent move = new MCMoveAtomAdjacent(getRandom(), space);
@@ -40,9 +44,6 @@ public class EntropyLottery extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-        //construct box
-        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
-        box.setNMolecules(species, N);
         Vector dimensions = space.makeVector();
         dimensions.E(10);
         box.getBoundary().setBoxSize(dimensions);
