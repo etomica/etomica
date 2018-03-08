@@ -82,8 +82,8 @@ public class SimEinStep2HCP extends Simulation {
 
         primitive = new PrimitiveHexagonal(space, a, c);
         nCells = new int[]{2 * n, 2 * n, n};
-        boundary.setTruncationRadius(rc);
         boundary = new BoundaryDeformableLattice(primitive, nCells);
+        boundary.setTruncationRadius(rc);
         box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 

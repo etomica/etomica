@@ -78,9 +78,9 @@ public class SimEinStep1HCP extends Simulation {
         boxDim[0] = space.makeVector(new double[]{2 * n * a, 0, 0});
         boxDim[1] = space.makeVector(new double[]{-2 * n * a * Math.cos(Degree.UNIT.toSim(60)), 2 * n * a * Math.sin(Degree.UNIT.toSim(60)), 0});
         boxDim[2] = space.makeVector(new double[]{0, 0, n * c});
-        boundary = new BoundaryDeformableLattice(primitive, nCells);
         primitive = new PrimitiveHexagonal(space, a, c);
         nCells = new int[]{2 * n, 2 * n, n};
+        boundary = new BoundaryDeformableLattice(primitive, nCells);
         boundary.setTruncationRadius(rc);
         box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
