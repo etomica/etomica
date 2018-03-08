@@ -13,6 +13,8 @@ public class Main {
 
         Options opts = new OptionsBuilder()
                 .include("BenchSimLJMD3D")
+                .jvmArgsAppend("-XX:+UnlockDiagnosticVMOptions", "-XX:+TraceClassLoading", "-XX:+LogCompilation", "-XX:+PrintAssembly")
+//                .jvmArgsAppend("-XX:InlineSmallCode=2500")
                 .build();
 
         new Runner(opts).run();
