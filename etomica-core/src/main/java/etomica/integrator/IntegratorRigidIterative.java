@@ -42,9 +42,8 @@ import etomica.util.Debug;
 import java.awt.*;
 import java.io.Serializable;
 
-public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAgentManager.AgentSource, MoleculeAgentSource {
+public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAgentManager.AgentSource, MoleculeAgentSource, AtomLeafAgentManager.AgentSource<IntegratorRigidIterative.AtomForceAgent> {
 
-    private static final long serialVersionUID = 2L;
     protected PotentialCalculationTorqueSum torqueSum;
     private final IteratorDirective allAtoms;
     protected final Tensor pressureTensor;
@@ -64,7 +63,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
     protected final boolean storeAngularMomentum = false;
 
     protected final Simulation sim;
-    protected AtomLeafAgentManager<Vector> leafAgentManager;
+    protected AtomLeafAgentManager<AtomForceAgent> leafAgentManager;
     protected MoleculeAgentManager moleculeAgentManager;
 
     public IntegratorRigidIterative(Simulation sim, PotentialMaster potentialMaster, Box box) {
@@ -94,11 +93,11 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         atomPositionCOM = new MoleculePositionCOM(space);
         translateBy = new AtomActionTranslateBy(space);
         translator = new MoleculeChildAtomAction(translateBy);
-        maxIterations = 20;
+        maxIterations = 40;
         omegaTolerance = 1.e-30;
         meterKE = new MeterKineticEnergyRigid(space, sim);
 
-        leafAgentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
+        leafAgentManager = new AtomLeafAgentManager<>(this, box);
         moleculeAgentManager = new MoleculeAgentManager(sim, box, this);
         torqueSum.setAgentManager(leafAgentManager);
         torqueSum.setMoleculeAgentManager(moleculeAgentManager);
@@ -147,7 +146,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
             if (calcer == null) {
                 for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)children.get(iLeaf);
-                    Vector force = leafAgentManager.getAgent(a);
+                    Vector force = leafAgentManager.getAgent(a).force();
                     Vector r = a.getPosition();
                     Vector v = a.getVelocity();
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
@@ -274,7 +273,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                         System.out.println("second "+a+" v="+velocity+", f="+leafAgentManager.getAgent(a));
                     }
-                    velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(),leafAgentManager.getAgent(a));  //p += f(new)*dt/2
+                    velocity.PEa1Tv1(0.5 * timeStep * a.getType().rm(), leafAgentManager.getAgent(a).force());  //p += f(new)*dt/2
                     currentKineticEnergy += velocity.squared()* a.getType().getMass();
                 }
                 // skip the rotational stuff
@@ -286,7 +285,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
             //calc torque and linear force
             for (int i = 0; i<children.size(); i++) {
                 IAtom atom = children.get(i);
-                Vector atomForce = leafAgentManager.getAgent(atom);
+                Vector atomForce = leafAgentManager.getAgent(atom).force();
                 if (atomForce.isZero()) {
                     continue;
                 }
@@ -646,7 +645,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
             IAtomList children = molecule.getChildList();
             for (int i = 0; i<children.size(); i++) {
                 IAtom atom = children.get(i);
-                Vector force = leafAgentManager.getAgent(atom);
+                Vector force = leafAgentManager.getAgent(atom).force();
                 if (force.isZero()) {
                     continue;
                 }
@@ -668,8 +667,28 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
 
     public void releaseAgent(Object agent, IMolecule atom) {}
 
+    @Override
+    public AtomForceAgent makeAgent(IAtom a, Box agentBox) {
+        return new AtomForceAgent(space);
+    }
+
+    @Override
+    public void releaseAgent(AtomForceAgent agent, IAtom atom, Box agentBox) {
+    }
+
+    public static class AtomForceAgent implements Integrator.Forcible, Serializable {  //need public so to use with instanceof
+        public final Vector force;
+
+        public AtomForceAgent(Space space) {
+            force = space.makeVector();
+        }
+
+        public Vector force() {
+            return force;
+        }
+    }
+
     public static class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible, Serializable {  //need public so to use with instanceof
-        private static final long serialVersionUID = 1L;
         public final Vector torque;
         public final Vector force;
 

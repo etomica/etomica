@@ -32,8 +32,6 @@ import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.Debug;
 
-import java.io.Serializable;
-
 /**
  * Integrator implementation of Omelyan's leapfrog integrator for rotational
  * motion.  Molecular Simulation, 22 (1999) 213-236.
@@ -151,8 +149,8 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
                 }
                 continue;
             }
-            
-            MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent(molecule);
+
+            IntegratorRigidIterative.MoleculeAgent agent = (IntegratorRigidIterative.MoleculeAgent) moleculeAgentManager.getAgent(molecule);
             IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
             Vector moment = ((ISpeciesOriented)molecule.getType()).getMomentOfInertia();
             double mass = ((ISpeciesOriented)molecule.getType()).getMass();
@@ -294,7 +292,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
             }
             
             IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
-            MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent(molecule);
+            IntegratorRigidIterative.MoleculeAgent agent = (IntegratorRigidIterative.MoleculeAgent) moleculeAgentManager.getAgent(molecule);
             Vector moment = ((ISpeciesOriented)molecule.getType()).getMomentOfInertia();
             double mass = ((ISpeciesOriented)molecule.getType()).getMass();
             //calc torque and linear force
@@ -648,7 +646,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
                 continue;
             }
 
-            MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent(molecule);
+            IntegratorRigidIterative.MoleculeAgent agent = (IntegratorRigidIterative.MoleculeAgent) moleculeAgentManager.getAgent(molecule);
             MoleculeOrientedDynamic orientedMolecule = (MoleculeOrientedDynamic)molecule;
             //calc angular velocities
             IAtomList children = molecule.getChildList();
@@ -671,24 +669,10 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
 //--------------------------------------------------------------
 
     public final Object makeAgent(IMolecule a) {
-        return new MoleculeAgent(space);
+        return new IntegratorRigidIterative.MoleculeAgent(space);
     }
     
     public void releaseAgent(Object agent, IMolecule molecule) {}
-
-    public static class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible, Serializable {  //need public so to use with instanceof
-        private static final long serialVersionUID = 1L;
-        public final Vector torque;
-        public final Vector force;
-
-        public MoleculeAgent(Space space) {
-            torque = space.makeVector();
-            force = space.makeVector();
-        }
-        
-        public Vector torque() {return torque;}
-        public Vector force() {return force;}
-    }
 
     public Object makeAgent(ISpecies type) {
         return null;
