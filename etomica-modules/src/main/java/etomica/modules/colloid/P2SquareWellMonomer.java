@@ -4,10 +4,10 @@
 
 package etomica.modules.colloid;
 
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
 import etomica.util.Debug;
@@ -138,6 +138,87 @@ public class P2SquareWellMonomer extends P2SquareWell {
             System.out.println(pair+" r2 "+r2+" bij "+bij+" time "+(time+falseTime));
         }
         return time + falseTime;
+    }
+
+    public void bump(IAtomList pair, double falseTime) {
+        IAtomKinetic atom0 = (IAtomKinetic) pair.get(0);
+        IAtomKinetic atom1 = (IAtomKinetic) pair.get(1);
+        dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
+
+        dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
+        dr.PEa1Tv1(falseTime, dv);
+        boundary.nearestImage(dr);
+
+        double r2 = dr.squared();
+        double bij = dr.dot(dv);
+        double eps = 1.0e-10;
+        double rm0 = atom0.getType().rm();
+        double rm1 = atom1.getType().rm();
+        double reduced_m = 1.0 / (rm0 + rm1);
+        double nudge = 0;
+        if (2 * r2 < (coreDiameterSquared + wellDiameterSquared) || lambda == 1) {   // Hard-core collision
+            if (Debug.ON && !ignoreOverlap && Math.abs(r2 - coreDiameterSquared) / coreDiameterSquared > 1.e-9) {
+                throw new RuntimeException("atoms " + pair + " not at the right distance " + r2 + " " + coreDiameterSquared);
+            }
+            // check for bonding
+            IAtomList bondList = (IAtomList) bondManager.getAgent(pair.get(0));
+            boolean bonded = false;
+            for (int i = 0; !bonded && i < bondList.size(); i++) {
+                bonded = bondList.get(i) == pair.get(1);
+            }
+            if (bonded) {
+                // bonded
+                lastCollisionVirial = 2.0 * reduced_m * bij;
+            } else {
+                // unbonded
+                if (bij > 0) {
+                    lastCollisionVirial = 0;
+                    nudge = eps;
+                } else {
+                    lastCollisionVirial = 2.0 * reduced_m * bij;
+                }
+            }
+            lastEnergyChange = 0.0;
+        } else {    // Well collision
+            if (Debug.ON && Math.abs(r2 - wellDiameterSquared) / wellDiameterSquared > 1.e-9) {
+                throw new RuntimeException("atoms " + pair + " not at the right distance " + r2 + " " + wellDiameterSquared);
+            }
+            // ke is kinetic energy due to components of velocity
+            double ke = bij * bij * reduced_m / (2.0 * r2);
+            if (bij > 0.0) {         // Separating
+                if (ke < epsilon) {     // Not enough kinetic energy to escape
+                    lastCollisionVirial = 2.0 * reduced_m * bij;
+                    nudge = -eps;
+                    lastEnergyChange = 0.0;
+                } else {                 // Escape
+                    lastCollisionVirial = reduced_m * (bij - Math.sqrt(bij * bij - 2.0 * r2 * epsilon / reduced_m));
+                    nudge = eps;
+                    lastEnergyChange = epsilon;
+                }
+            } else if (ke > -epsilon) {   // Approach/capture
+                lastCollisionVirial = reduced_m * (bij + Math.sqrt(bij * bij + 2.0 * r2 * epsilon / reduced_m));
+                nudge = -eps;
+                lastEnergyChange = -epsilon;
+            } else {                     // Not enough kinetic energy to overcome square-shoulder
+                lastCollisionVirial = 2.0 * reduced_m * bij;
+                nudge = eps;
+                lastEnergyChange = 0.0;
+            }
+        }
+        lastCollisionVirialr2 = lastCollisionVirial / r2;
+        dv.Ea1Tv1(lastCollisionVirialr2, dr);
+        atom0.getVelocity().PEa1Tv1(rm0, dv);
+        atom1.getVelocity().PEa1Tv1(-rm1, dv);
+        atom0.getPosition().PEa1Tv1(-falseTime * rm0, dv);
+        atom1.getPosition().PEa1Tv1(falseTime * rm1, dv);
+        if (nudge != 0) {
+            if (rm0 > 0) {
+                atom0.getPosition().PEa1Tv1(-nudge, dr);
+            }
+            if (rm1 > 0) {
+                atom1.getPosition().PEa1Tv1(nudge, dr);
+            }
+        }
     }
 
     public void setBondFac(double newBondFac) {
