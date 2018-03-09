@@ -242,8 +242,7 @@ public class WaterDADB extends Simulation {
                 a2.E(a0);
                 a2.XE(a1);
 
-//                System.out.println(a0.squared() + " \n" + a1.squared() + " \n" + a2.squared());
-//                System.out.println(a0.dot(a1)+ " " + a1.dot(a2) + " " + a0.dot(a2) );
+
                 //separate mForce into 3 direction
                 Vector f0 = space.makeVector();
                 Vector f1 = space.makeVector();
@@ -252,6 +251,8 @@ public class WaterDADB extends Simulation {
                 f1.Ea1Tv1(mForce.dot(a1), a1);
                 f2.Ea1Tv1(mForce.dot(a2), a2);
 
+//                System.out.println(a0.squared() + " \n" + a1.squared() + " \n" + a2.squared());
+//                System.out.println(a0.dot(a1)+ " " + a1.dot(a2) + " " + a0.dot(a2) );
 //                System.out.println("o={"+o.getX(0)+","+o.getX(1)+","+o.getX(2)+"};" );
 //                System.out.println("m={"+m.getX(0)+","+m.getX(1)+","+m.getX(2)+"};" );
 //                System.out.println("h1={"+h1.getX(0)+","+h1.getX(1)+","+h1.getX(2)+"};" );
@@ -639,10 +640,10 @@ public class WaterDADB extends Simulation {
         meterDADB.doRotation = doRotation;
         MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
 
-        MeterPressure meterPressure = new MeterPressure(sim.space);
-        meterPressure.setBox(sim.box);
-        meterPressure.setPotentialMaster(sim.potentialMaster);
-        meterPressure.setTemperature(temperature);
+//        MeterPressure meterPressure = new MeterPressure(sim.space);
+//        meterPressure.setBox(sim.box);
+//        meterPressure.setPotentialMaster(sim.potentialMaster);
+//        meterPressure.setTemperature(temperature);
 
 
         meterPotentialEnergy.setBox(sim.box);
@@ -767,7 +768,7 @@ public class WaterDADB extends Simulation {
 
     public static class WaterDADBParam extends ParameterBase {
         public int numCells = 1;
-        public int numSteps = 10000;
+        public int numSteps = 1000;
         public double temperature = 100;
         public double rCutLJ = 11;
         public double rCutRealES = 11;
@@ -776,7 +777,7 @@ public class WaterDADB extends Simulation {
         public double shakeTol = 1e-12;
         public boolean runGraphic = false;
         public boolean unitCells = false;
-        public boolean doRotation = false;
+        public boolean doRotation = true;
         public boolean doTranslation = true;
     }
 }

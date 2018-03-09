@@ -54,7 +54,6 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
     public boolean doRotation;
 	
 	protected final Vector torque;
-    //TODO  I use different MoleculeAgentManager
     public MeterDADBWaterTIP4P(Space space, DataSourceScalar meterPE, PotentialMaster potentialMaster, double temperature, MoleculeAgentManager latticeCoordinates ) {
         int nData = justDADB ? 1 : 9;
         //default is 1?
@@ -591,19 +590,17 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
             System.out.println(j * 0.01 + " " + u + " " + orientationSum + " " + DUDTsum);
         }
         
-//        System.exit(2);
-        
         for (int i = 0; i<molecules.getMoleculeCount(); i++){
             IMolecule molecule = molecules.getMolecule(i);
         	IAtomList leafList = molecule.getChildList();
-            Vector h1force = forceManager.getAgent(leafList.getAtom(0)).force();
-            Vector h2force = forceManager.getAgent(leafList.getAtom(1)).force();
-            Vector oforce = forceManager.getAgent(leafList.getAtom(2)).force();
-            Vector mforce = forceManager.getAgent(leafList.getAtom(3)).force();
-			totalforce.E(h1force);
-			totalforce.PE(h2force);
-			totalforce.PE(mforce);
-			totalforce.PE(oforce);
+            Vector h1Force = forceManager.getAgent(leafList.getAtom(0)).force();
+            Vector h2Force = forceManager.getAgent(leafList.getAtom(1)).force();
+            Vector oForce = forceManager.getAgent(leafList.getAtom(2)).force();
+            Vector mForce = forceManager.getAgent(leafList.getAtom(3)).force();
+            totalforce.E(h1Force);
+            totalforce.PE(h2Force);
+            totalforce.PE(mForce);
+            totalforce.PE(oForce);
 			Vector h1 = leafList.getAtom(0).getPosition();
         	Vector h2 = leafList.getAtom(1).getPosition();
         	Vector o = leafList.getAtom(2).getPosition();
@@ -617,19 +614,19 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
             centerMass.TE(1 / (2 * hmass + omass));
 
             dr.Ev1Mv2(m, centerMass);
-			torque.E(mforce);
+            torque.E(mForce);
 			torque.XE(dr);
 			q.E(torque);
             dr.Ev1Mv2(h1, centerMass);
-			torque.E(h1force);
+            torque.E(h1Force);
 			torque.XE(dr);
 			q.PE(torque);
             dr.Ev1Mv2(h2, centerMass);
-			torque.E(h2force);
+            torque.E(h2Force);
 			torque.XE(dr);
 			q.PE(torque);
             dr.Ev1Mv2(o, centerMass);
-			torque.E(oforce);
+            torque.E(oForce);
 			torque.XE(dr);
 			q.PE(torque);
 			//for the total torque q
