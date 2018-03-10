@@ -627,7 +627,9 @@ public class WaterDADB extends Simulation {
             }
 
             return;
-        }
+        }//Graphic!!
+
+
         final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
         meterPE.setBox(sim.box);
 
@@ -649,15 +651,15 @@ public class WaterDADB extends Simulation {
         meterPotentialEnergy.setBox(sim.box);
 
 
-        AccumulatorAverageFixed accumulatorAverageFixed4 = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener dataPumpListener4 = new DataPumpListener(meterPotentialEnergy, accumulatorAverageFixed4, 10);
+//        AccumulatorAverageFixed accumulatorAverageFixed4 = new AccumulatorAverageFixed(blockSize);
+//        DataPumpListener dataPumpListener4 = new DataPumpListener(meterPotentialEnergy, accumulatorAverageFixed4, 10);
 
         AccumulatorAverageFixed accumulatorAverageFixed2 = new AccumulatorAverageFixed(blockSize);
         DataPumpListener dataPumpListener2 = new DataPumpListener(meterPotentialEnergy, accumulatorAverageFixed2, 10);
-        MeterKineticEnergy meterKineticEnergy = new MeterKineticEnergy();
-        meterKineticEnergy.setBox(sim.box);
-        AccumulatorAverageFixed accumulatorAverageFixed3 = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener dataPumpListener3 = new DataPumpListener(meterKineticEnergy, accumulatorAverageFixed3, 10);
+//        MeterKineticEnergy meterKineticEnergy = new MeterKineticEnergy();
+//        meterKineticEnergy.setBox(sim.box);
+//        AccumulatorAverageFixed accumulatorAverageFixed3 = new AccumulatorAverageFixed(blockSize);
+//        DataPumpListener dataPumpListener3 = new DataPumpListener(meterKineticEnergy, accumulatorAverageFixed3, 10);
         AccumulatorAverageFixed accumulatorAverageFixed = new AccumulatorAverageFixed(blockSize);
         DataPumpListener dataPumpListener = new DataPumpListener(meterDADB, accumulatorAverageFixed, 10);
 

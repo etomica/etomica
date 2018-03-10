@@ -169,14 +169,13 @@ public class MeterDADBNitrogen implements IDataSource, AgentSource<MyAgent> {
             //TODO define vetor NN for melucle orientation
 
 
-            double beta = Math.acos(Math.abs(nn.dot(a0)));//TODO
-
+            double theta = Math.acos(Math.abs(nn.dot(a0)));
 
             axis.E(a0);
             axis.ME(nn);
             double DUDT = q.dot(axis);
 
-            orientationSum -= 1.5 * (beta - Math.sin(beta)) / (1 - Math.cos(beta)) * DUDT;//TODO
+            orientationSum += Math.sin(theta) * DUDT;//TODO careful about the sign
 
         }
 
@@ -195,21 +194,6 @@ public class MeterDADBNitrogen implements IDataSource, AgentSource<MyAgent> {
 //                x[0] = x0 + orientationSum;//only rotation
             }
 
-//            if (Math.random() < 0.01) {
-//                System.out.println(0+" "+(x0+latticeEnergy));
-//                for (int j=0; j<99; j++) {
-//                    for (int i=0; i<atoms.getAtomCount(); i++) {
-//                        IAtom atom = atoms.getAtom(i);
-//                        IVector lPos = coordinateDefinition.getLatticePosition(atom);
-//                        Vector pos = atom.getPosition();
-//                        dr.Ev1Mv2(pos, lPos);
-//                        pos.PEa1Tv1(-1.0/(100-j), dr);
-//                    }
-//                    double u = meterPE.getDataAsScalar();
-//                    System.out.println(j+1+" "+(u-latticeEnergy));
-//                }
-//                System.exit(1);
-//            }
             if (data.isNaN()) {
                 throw new RuntimeException();
             }
