@@ -24,6 +24,11 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
         zero = space.makeVector();
     }
 
+    public BoundaryRectangularNonperiodic(Space space, double size) {
+        super(space, size);
+        zero = space.makeVector();
+    }
+
     /**
      * Returns a vector with all elements zero.
      */
