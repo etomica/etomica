@@ -11,6 +11,8 @@ import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorRigidIterative;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
@@ -19,7 +21,9 @@ import etomica.normalmode.MoleculeSiteSource;
 import etomica.normalmode.MoleculeSiteSourceNitrogen;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
+import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Orientation3D;
@@ -40,9 +44,9 @@ public class MeterDADBNitrogen implements IDataSource, AgentSource<MyAgent> {
     protected final Space space;
     protected final MoleculeAgentManager latticeCoordinates;
     protected final DataSourceScalar meterPE;
-    protected final PotentialCalculationForceSum pcForceSum;
+    protected final PotentialCalculationTorqueSum pcTorqueSum;
     protected final PotentialMaster potentialMaster;
-    protected final AtomLeafAgentManager<MyAgent> forceManager;
+    protected final MoleculeAgentManager forceManager;
     protected final IteratorDirective id;
     protected final Vector dr;
     protected double latticeEnergy;
@@ -58,21 +62,34 @@ public class MeterDADBNitrogen implements IDataSource, AgentSource<MyAgent> {
 
     protected final Vector torque;
 
-    public MeterDADBNitrogen(Space space, DataSourceScalar meterPE, PotentialMaster potentialMaster, double temperature, MoleculeAgentManager latticeCoordinates) {
+    public MeterDADBNitrogen(Simulation sim, DataSourceScalar meterPE, PotentialMaster potentialMaster, double temperature, MoleculeAgentManager latticeCoordinates) {
         int nData = justDADB ? 1 : 9;
         //default is 1?
         data = new DataDoubleArray(nData);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
         dataInfo.addTag(tag);
-        this.space = space;
+        this.space = sim.getSpace();
         this.latticeCoordinates = latticeCoordinates;
         this.meterPE = meterPE;
         this.potentialMaster = potentialMaster;
         id = new IteratorDirective();
-        pcForceSum = new PotentialCalculationForceSum();
-        forceManager = new AtomLeafAgentManager<MyAgent>(this, latticeCoordinates.getBox(), MyAgent.class);
-        pcForceSum.setAgentManager(forceManager);
+        pcTorqueSum = new PotentialCalculationTorqueSum();
+        MoleculeAgentManager.MoleculeAgentSource molAgentSource = new MoleculeAgentManager.MoleculeAgentSource() {
+
+            public void releaseAgent(Object agent, IMolecule molecule) {
+            }
+
+            public Object makeAgent(IMolecule mol) {
+                return new IntegratorRigidIterative.MoleculeAgent(space);
+            }
+
+            public Class getMoleculeAgentClass() {
+                return IntegratorRigidIterative.MoleculeAgent.class;
+            }
+        };
+        forceManager = new MoleculeAgentManager(sim, latticeCoordinates.getBox(), molAgentSource);
+        pcTorqueSum.setMoleculeAgentManager(forceManager);
         dr = space.makeVector();
         MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(potentialMaster);
         meterPE2.setBox(latticeCoordinates.getBox());
@@ -93,8 +110,8 @@ public class MeterDADBNitrogen implements IDataSource, AgentSource<MyAgent> {
         Box box = latticeCoordinates.getBox();
         double[] x = data.getData();
         double x0 = meterPE.getDataAsScalar() - latticeEnergy;
-        pcForceSum.reset();
-        potentialMaster.calculate(box, id, pcForceSum);
+        pcTorqueSum.reset();
+        potentialMaster.calculate(box, id, pcTorqueSum);
         IMoleculeList molecules = box.getMoleculeList();
         double ForceSum = 0;
         double orientationSum = 0;
@@ -102,62 +119,41 @@ public class MeterDADBNitrogen implements IDataSource, AgentSource<MyAgent> {
 
         for (int i = 0; i < molecules.getMoleculeCount(); i++) {
             IMolecule molecule = molecules.getMolecule(i);
-            IAtomList leafList = molecule.getChildList();
-            Vector n1Force = forceManager.getAgent(leafList.getAtom(0)).force();
-            Vector n2Force = forceManager.getAgent(leafList.getAtom(1)).force();
-            Vector p1lForce = forceManager.getAgent(leafList.getAtom(2)).force();
-            Vector p2lForce = forceManager.getAgent(leafList.getAtom(3)).force();
-            Vector p1rForce = forceManager.getAgent(leafList.getAtom(4)).force();
-            Vector p2rForce = forceManager.getAgent(leafList.getAtom(5)).force();
-            totalforce.E(n1Force);
-            totalforce.PE(n2Force);
-            totalforce.PE(p1lForce);
-            totalforce.PE(p2lForce);
-            totalforce.PE(p1rForce);
-            totalforce.PE(p2rForce);
-            Vector n1 = leafList.getAtom(0).getPosition();
-            Vector n2 = leafList.getAtom(1).getPosition();
-            Vector p1l = leafList.getAtom(2).getPosition();
-            Vector p2l = leafList.getAtom(3).getPosition();
-            Vector p1r = leafList.getAtom(4).getPosition();
-            Vector p2r = leafList.getAtom(5).getPosition();
+
+//            Vector n1Force = forceManager.getAgent(leafList.getAtom(0)).force();
+//            Vector n2Force = forceManager.getAgent(leafList.getAtom(1)).force();
+//            Vector p1lForce = forceManager.getAgent(leafList.getAtom(2)).force();
+//            Vector p2lForce = forceManager.getAgent(leafList.getAtom(3)).force();
+//            Vector p1rForce = forceManager.getAgent(leafList.getAtom(4)).force();
+//            Vector p2rForce = forceManager.getAgent(leafList.getAtom(5)).force();
+//            totalforce.E(n1Force);
+//            totalforce.PE(n2Force);
+//            totalforce.PE(p1lForce);
+//            totalforce.PE(p2lForce);
+//            totalforce.PE(p1rForce);
+//            totalforce.PE(p2rForce);
+
+            totalforce.E(((Integrator.Forcible) forceManager.getAgent(molecule)).force());
+            Vector n1 = molecule.getChildList().getAtom(0).getPosition();
+
+            Vector n2 = molecule.getChildList().getAtom(1).getPosition();
+
+            centerMass.E(n1);
+            centerMass.PE(n2);
+            centerMass.TE(0.5);
+
 
             Vector axis = space.makeVector();
             Vector nn = space.makeVector();
             nn.E(n1);
             nn.ME(n2);
 
-            centerMass.E(n1);
-            centerMass.PE(n2);
-            centerMass.TE(0.5);
 
-            dr.Ev1Mv2(n1, centerMass);
-            torque.E(n1Force);
-            torque.XE(dr);
-            q.E(torque);
-            dr.Ev1Mv2(n2, centerMass);
-            torque.E(n2Force);
-            torque.XE(dr);
-            q.PE(torque);
-            dr.Ev1Mv2(p1l, centerMass);
-            torque.E(p1lForce);
-            torque.XE(dr);
-            q.PE(torque);
-            dr.Ev1Mv2(p2l, centerMass);
-            torque.E(p2lForce);
-            torque.XE(dr);
-            q.PE(torque);
-            dr.Ev1Mv2(p1r, centerMass);
-            torque.E(p1rForce);
-            torque.XE(dr);
-            q.PE(torque);
-            dr.Ev1Mv2(p2r, centerMass);
-            torque.E(p2rForce);
-            torque.XE(dr);
-            q.PE(torque);
+            q.E(((Integrator.Torquable) forceManager.getAgent(molecule)).torque());
+
             //for the total torque q
 
-            Vector lPos = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).position;
+            Vector lPos = ((MoleculeSiteSourceNitrogen.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).position;
             dr.Ev1Mv2(centerMass, lPos);
             ForceSum += totalforce.dot(dr);
             //get the forcesum!!
@@ -166,16 +162,14 @@ public class MeterDADBNitrogen implements IDataSource, AgentSource<MyAgent> {
             Orientation3D or = ((MoleculeSiteSourceNitrogen.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).orientation;
             Vector a0 = or.getDirection();//NN
 
-            //TODO define vetor NN for melucle orientation
-
-
             double theta = Math.acos(Math.abs(nn.dot(a0)));
 
             axis.E(a0);
-            axis.ME(nn);
+            axis.XE(nn);
+            axis.normalize();
             double DUDT = q.dot(axis);
 
-            orientationSum += Math.sin(theta) * DUDT;//TODO careful about the sign
+            orientationSum += (1 - Math.cos(theta)) / Math.sin(theta) * DUDT;
 
         }
 

@@ -31,7 +31,7 @@ import etomica.molecule.MoleculePositionCOM;
 import etomica.nbr.list.molecule.PotentialMasterListMolecular;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
-import etomica.normalmode.MoleculeSiteSource;
+import etomica.normalmode.MoleculeSiteSourceNitrogen;
 import etomica.simulation.Simulation;
 import etomica.space.*;
 import etomica.space3d.Orientation3D;
@@ -58,9 +58,6 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public Box box;
     public Primitive primitive;
-    public AccumulatorAverageFixed accumulator;
-    public DataPumpListener accumulatorPump;
-    public MeterTargetTPMolecule meter;
     protected PotentialMasterListMolecular potentialMaster;
     protected double latticeEnergy;
     protected SpeciesN2 species;
@@ -93,7 +90,7 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         Boundary boundary = new BoundaryRectangularPeriodic(space, boxSize);
         primitive = new PrimitiveTetragonal(space, nC[0] * a, nC[2] * a);
 
-        latticeCoordinates = new MoleculeAgentManager(this, box, new MoleculeSiteSource(space, new MoleculePositionCOM(space), new NitrogenOrientationDefinition(space)));
+        latticeCoordinates = new MoleculeAgentManager(this, box, new MoleculeSiteSourceNitrogen(space, new MoleculePositionCOM(space), new NitrogenOrientationDefinition(space)));
 
         coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
         coordinateDef.setIsAlpha();
@@ -153,11 +150,6 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         potential.setRange(rC);
         potential.setRange(Double.POSITIVE_INFINITY);
 
-        if (noRotScale) {
-            System.out.println("**** NOT SCALING THE ROTATION!");
-            meter.setBetaPhase(true);
-        }
-
 
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
@@ -210,7 +202,6 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         if (configFile.exists()) {
             System.out.println("\n***initialize coordinate from " + configFile);
             sim.initializeConfigFromFile(configFileName);
-            sim.rotate.calcAveCosThetaInitial();
         } else {
             long initStep = (1 + (numMolecules / 500)) * 100 * numMolecules;
             sim.initialize(initStep);
@@ -254,13 +245,11 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
 
 
         final long startTime = System.currentTimeMillis();
-        //TODO replace data collection
 
         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
 
-        int blockSize = numSteps >= 1000 ? (numSteps / 1000) : 1;//TODO same at water????
-        MeterDADBNitrogen meterDADB = new MeterDADBNitrogen(sim.space, meterPE, sim.potentialMaster, Kelvin.UNIT.toSim(temperature), sim.latticeCoordinates);
-       //TODO Should I add setbox as well??
+        int blockSize = numSteps >= 1000 ? (numSteps / 1000) : 1;
+        MeterDADBNitrogen meterDADB = new MeterDADBNitrogen(sim, meterPE, sim.potentialMaster, Kelvin.UNIT.toSim(temperature), sim.latticeCoordinates);
 
         MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
         meterPotentialEnergy.setBox(sim.box);
@@ -275,7 +264,6 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
 
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
-        //TODO agian should I add  sim.ai.setMaxSteps(numSteps);?
 
         sim.integrator.getEventManager().addListener(dataPumpListenerDADB);
         sim.integrator.getEventManager().addListener(dataPumpListenerPE);
@@ -307,7 +295,7 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         double PECor = accumulatorAverageFixedPE.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
         System.out.println("PE full = " + PEAverage);
         int N = sim.box.getMoleculeList().getMoleculeCount();
-        System.out.println("PEAverage = " + (PEAverage - latticeEnergy - 1.5*(2*N-1) * Kelvin.UNIT.toSim(temperature)));
+        System.out.println("PEAverage = " + (PEAverage - latticeEnergy - (2.5 * N - 1.5) * Kelvin.UNIT.toSim(temperature)));
         System.out.println("PEErr = " + PEErr);
         System.out.println("PECor = " + PECor);
 
@@ -321,9 +309,6 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         activityIntegrate.setMaxSteps(initSteps);
         getController().actionPerformed();
         getController().reset();
-
-        accumulator.reset();
-
     }
 
     public void initializeConfigFromFile(String fname) {
@@ -341,7 +326,7 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
     }
 
     //Copy from water class and adjust to nitrogen
-    public static class NitrogenOrientationDefinition implements etomica.normalmode.MoleculeSiteSource.MoleculeOrientationDefinition {
+    public static class NitrogenOrientationDefinition implements etomica.normalmode.MoleculeSiteSourceNitrogen.MoleculeOrientationDefinition {
         protected final Orientation3D or;
         protected final Vector v1;
 
