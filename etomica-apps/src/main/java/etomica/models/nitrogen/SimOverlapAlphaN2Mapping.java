@@ -204,12 +204,12 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
             sim.initializeConfigFromFile(configFileName);
         } else {
             long initStep = (1 + (numMolecules / 500)) * 100 * numMolecules;
-            sim.initialize(initStep);
+//            sim.initialize(initStep); //TODO
         }
         System.out.flush();
 
 
-        if (false) {
+        if (true) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
