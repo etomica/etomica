@@ -48,11 +48,11 @@ public class RotationTensor3D extends Tensor3D implements etomica.space.Rotation
      * Sets the tensor for rotation about the axis v by an angle theta.
      */
     public void setRotationAxis(Vector v, double theta) {
-        setRotationAxisCT(v, Math.cos(theta));
+        setRotationAxisCT(v, Math.cos(theta), theta);
     }
-    
-    public void setRotationAxisCT(Vector v, double costheta) {
-        double st = Math.sqrt(1-costheta*costheta);
+
+    public void setRotationAxisCT(Vector v, double costheta, double theta) {
+        double st = Math.sqrt(1 - costheta * costheta) * Math.signum(theta);
         double ct = costheta;
         double vx = v.getX(0);
         double vy = v.getX(1);

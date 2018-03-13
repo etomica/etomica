@@ -161,7 +161,7 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
      * @see SimOverlapAlphaN2Mapping.SimOverlapParam
      */
     public static void main(String[] args) {
-
+        final long startTime = System.currentTimeMillis();
         //set up simulation parameters
         SimOverlapParam params = new SimOverlapParam();
         String inputFilename = null;
@@ -204,12 +204,12 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
             sim.initializeConfigFromFile(configFileName);
         } else {
             long initStep = (1 + (numMolecules / 500)) * 100 * numMolecules;
-//            sim.initialize(initStep); //TODO
+            sim.initialize(initStep);
         }
         System.out.flush();
 
 
-        if (true) {
+        if (false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
@@ -244,21 +244,19 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         }
 
 
-        final long startTime = System.currentTimeMillis();
+
 
         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
 
         int blockSize = numSteps >= 1000 ? (numSteps / 1000) : 1;
         MeterDADBNitrogen meterDADB = new MeterDADBNitrogen(sim, meterPE, sim.potentialMaster, Kelvin.UNIT.toSim(temperature), sim.latticeCoordinates);
 
-        MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPotentialEnergy.setBox(sim.box);
 
         AccumulatorAverageFixed accumulatorAverageFixedDADB = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener dataPumpListenerDADB = new DataPumpListener(meterDADB, accumulatorAverageFixedDADB, 10);
+        DataPumpListener dataPumpListenerDADB = new DataPumpListener(meterDADB, accumulatorAverageFixedDADB, numMolecules * 4);
 
         AccumulatorAverageFixed accumulatorAverageFixedPE = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener dataPumpListenerPE = new DataPumpListener(meterPotentialEnergy, accumulatorAverageFixedPE, 10);
+        DataPumpListener dataPumpListenerPE = new DataPumpListener(meterPE, accumulatorAverageFixedPE, 10);
 
 
 
@@ -356,8 +354,8 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         public int numMolecules = 864;
         public int[] nC = new int[]{6, 6, 6};
         public double density = 0.023; //0.02204857502170207 (intial from literature with a = 5.661)
-        public int numSteps = 100000;
-        public double temperature = 0.01; // in unit Kelvin
+        public int numSteps = 2000000;
+        public double temperature = 10; // in unit Kelvin
         public double rcScale = 0.475;
         public double constraintAngle = 70;
         public boolean noRotScale = false;
