@@ -93,32 +93,37 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         double t2 = Math.atan2(ej.getX(1), ej.getX(0));
 
 
-        double I0bJ = besselI(0, bJ);
-        double I1bJ = besselI(1, bJ);
-        double I2bJ = besselI(2, bJ);
-
-
 //TODO
 //        count += 1;
 //        System.out.println(count + "th term");
 //        if (count == 20) {
 //            System.exit(2);
 //        }
-//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
-//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
-//        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
-//        System.out.println("nMax= " + nMax + ";");
-//        System.out.println("bJ= " + bJ + ";");
-//        System.out.println("ei={" + ei.getX(0) + "," + ei.getX(1) + "};");
-//        System.out.println("ej={" + ej.getX(0) + "," + ej.getX(1) + "};");
-//        System.out.println("theta1 = " + t1 + ";");
-//        System.out.println("theta2 = " + t2 + ";");
-//        System.out.println("bt = bJ/J;");
-//        System.out.println("bmu = bt*mu;");
+        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("~~~~~~~~~~~~~~~Debug only ~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("nMax= " + nMax + ";");
+        System.out.println("bJ= " + bJ + ";");
+        System.out.println("ei={" + ei.getX(0) + "," + ei.getX(1) + "};");
+        System.out.println("ej={" + ej.getX(0) + "," + ej.getX(1) + "};");
+        System.out.println("theta1 = " + t1 + ";");
+        System.out.println("theta2 = " + t2 + ";");
+        System.out.println("bt = bJ/J;");
+        System.out.println("bmu = bt*mu;");
 
 //        System.out.println("t1 = " + t1 + " c1=" + c1);
 
 //System.out.println("Acos eix = " + Math.acos(ei.getX(0)));
+
+        double cost1 = Math.cos(t1);
+        double sint1 = Math.sin(t1);
+        double sint1p2 = sint1 * sint1;
+        double bJ2 = bJ * bJ;
+        double bmu2 = bmu * bmu;
+        double I0bJ = besselI(0, bJ);
+        double I1bJ = besselI(1, bJ);
+        double I2bJ = besselI(2, bJ);
+
 
         for (int n = 0; n <= nMax; n++) {
             if (n == 0) {
@@ -137,6 +142,24 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
                 d3Axs0[n] = 0;
                 d2Axc1[n] = -0.5 * bmu * bmu * Math.cos(2 * t1) * (I0bJ + 2 * I1bJ + I2bJ);
                 d2Axs1[n] = 0;
+
+                //passed the test
+//                double Axc00 = bmu * (I0bJ + I1bJ) * (-1 + cost1);
+//                System.out.println(Axc00 - Axc0[n]);
+//                double dAxc00 = -(bmu * (I0bJ + I1bJ) * sint1);
+//                System.out.println(dAxc00 - dAxc0[n]);
+//                double Axc10 = -(bmu2 * (I0bJ + 2 * I1bJ + I2bJ) * sint1p2) / 4;
+//                System.out.println(Axc10 - Axc1[n]);
+//                double dAxc10 = -(bmu2 * (I0bJ + 2 * I1bJ + besselI(2, bJ)) * Math.sin(2 * t1)) / 4;
+//                System.out.println(dAxc10 - dAxc1[n]);
+//                double d2Axc00 = -(bmu * (I0bJ + I1bJ) * cost1);
+//                System.out.println(d2Axc00 - d2Axc0[n]);
+//                double d3Axc00 = bmu * (I0bJ + I1bJ) * sint1;
+//                System.out.println(d3Axc00 - d3Axc0[n]);
+//                double d2Axc10 = -(bmu2 * (I0bJ + 2 * I1bJ + I2bJ) * Math.cos(2 * t1)) / 2;
+//                System.out.println(d2Axc10 - d2Axc1[n]);
+//                System.exit(2);
+
             }
 
 
@@ -145,10 +168,19 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
                 int n2 = n * n;
                 int n3 = n2 * n;
                 int n4 = n2 * n2;
+                double np1p3 = (n + 1) * (n + 1) * (n + 1);
+                double np1p2 = (n + 1) * (n + 1);
+                double nm2p2 = (n - 2) * (n - 2);
                 double InbJ = besselI(n, bJ);
                 double Inm1bJ = besselI(n - 1, bJ);//TODO
                 double Inm2bJ = besselI(n - 2, bJ);
                 double Inp1bJ = besselI(n + 1, bJ);
+                double sinnt1 = Math.sin(n * t1);
+                double cosnt1 = Math.cos(n * t2);
+                double sinnm1t1 = Math.sin((n - 1) * t1);
+                double sinnp1t1 = Math.sin((n + 1) * t1);
+                double coshnt1 = Math.cosh(n * t1);
+
                 Axc0[n] = 2 * bmu * (((bJ + 2 * bJ * n2) * Inm1bJ + (bJ - n + 2 * (1 + bJ) * n2 - 2 * n3) * InbJ) * Math.cos(t1) * Math.cos(n * t1)
                         + (2 * bJ * Inm1bJ + (1 + 2 * bJ - 2 * n + 2 * n2) * InbJ) * n * Math.sin(t1) * Math.sin(n * t1))
                         / (bJ + 4 * bJ * n4);
@@ -227,6 +259,46 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
                         - 2 * n * (n + 2) * (4 - 2 * n + n3) * I0bJ * Math.sin((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
                 ) / (bJ * bJ * n * (4 + n4) * I0bJ)
                 );
+
+
+                double Axc0test = (2 * bmu * (((bJ + 2 * bJ * n2) * Inm1bJ + (bJ - n + 2 * (1 + bJ) * n2 - 2 * n3) * InbJ) * cost1 * cosnt1 + n * (2 * bJ * Inm1bJ + (1 + 2 * bJ + 2 * (-1 + n) * n) * InbJ) * sint1 * sinnt1)) / (bJ + 4 * bJ * n4);
+                System.out.println(Axc0test - Axc0[n]);
+
+
+                double dAxc0test = (bmu * (2 * InbJ * (-(cosnt1 * sint1) + n * (1 - 2 * n2) * cost1 * sinnt1) + Inm1bJ * ((1 + n) * sinnm1t1 + 2 * n3 * sinnm1t1 + (-1 + n - 2 * n3) * Inp1bJ * sinnp1t1))) / (1 + 4 * n4);
+                System.out.println(dAxc0test - dAxc0[n]);
+
+
+                double dAxc1test = (bmu2 * (-(((-2 + n) * besselI(-2 + n, bJ) * Math.sin((-2 + n) * t1)) / (2 + (-2 + n) * n)) + (bJ * (-(bJ * n * (-4 - 2 * n + n3) * I0bJ * (2 * Inm1bJ + InbJ) * Math.sin((-2 + n) * t1)) + 4 * (4 + n4) * (bJ * I1bJ * InbJ + I0bJ * (-(bJ * Inm1bJ) + n * InbJ)) * sinnt1) - 2 * n * (4 - 2 * n + n3) * I0bJ * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ2 - 2 * bJ * n + 2 * n * (1 + n)) * InbJ) * Math.sin((2 + n) * t1)) / (bJ2 * n * (4 + n4) * I0bJ))) / 4;
+                System.out.println(dAxc1test - dAxc1[n]);
+
+
+                double Axs1test = (bmu2 * ((n2 * besselI(-2 + n, bJ) * Math.sin((-2 + n) * t1)) / (2 + (-2 + n) * n) + (bJ * (bJ * n2 * (2 + n * (2 + n)) * I0bJ * (2 * Inm1bJ + InbJ) * Math.sin((-2 + n) * t1) - 4 * (4 + n4) * (bJ * I1bJ * InbJ + I0bJ * (-(bJ * Inm1bJ) + n * InbJ)) * sinnt1) + 2 * n2 * (2 + (-2 + n) * n) * I0bJ * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ2 - 2 * bJ * n + 2 * n * (1 + n)) * InbJ) * Math.sin((2 + n) * t1)) / (bJ2 * (4 + n4) * I0bJ))) / (4 * n2);
+                System.out.println(Axs1test - Axs1[n]);
+
+
+                double dAxs1test = (bmu2 * (((-2 + n) * besselI(-2 + n, bJ) * Math.cos((-2 + n) * t1)) / (2 + (-2 + n) * n) + (bJ * (bJ * n * (-4 - 2 * n + n3) * I0bJ * (2 * Inm1bJ + InbJ) * Math.cos((-2 + n) * t1) - 4 * (4 + n4) * (bJ * I1bJ * InbJ + I0bJ * (-(bJ * Inm1bJ) + n * InbJ)) * cosnt1) + 2 * n * (4 - 2 * n + n3) * I0bJ * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ2 - 2 * bJ * n + 2 * n * (1 + n)) * InbJ) * Math.cos((2 + n) * t1)) / (bJ2 * n * (4 + n4) * I0bJ))) / 4;
+                System.out.println(dAxs1test - dAxs1[n]);
+
+
+                double d2Axc0test = (bmu * (-(np1p2 * (1 - 2 * n + 2 * n2) * Inp1bJ * Math.cos((1 + n) * t1)) + (-1 + n) * Inm1bJ * ((1 + n) * Math.cos((-1 + n) * t1) - 2 * n3 * Math.cos(t1 - n * t1)) + InbJ * (-2 * (1 - n2 + 2 * n4) * cost1 * cosnt1 + 4 * n3 * sint1 * sinnt1))) / (1 + 4 * n4);
+                System.out.println(d2Axc0test - d2Axc0[n]);
+
+
+                double d2Axs0test = (-2 * bJ * bmu * Inm1bJ * (2 * n3 * cosnt1 * sint1 + (1 - n2 + 2 * n4) * cost1 * sinnt1) + 2 * bmu * InbJ * (n * (1 - (1 + 2 * bJ) * n2 + 2 * n3 + 2 * n4) * cosnt1 * sint1 + (n * np1p2 * (1 - 2 * n + 2 * n2) + bJ * (-1 + n2 - 2 * n4)) * cost1 * sinnt1)) / (bJ + 4 * bJ * n4);
+                System.out.println(d2Axs0test - d2Axs0[n]);
+
+
+                double d2Axc1test = (bmu2 * (-((nm2p2 * besselI(-2 + n, bJ) * Math.cos((-2 + n) * t1)) / (2 + (-2 + n) * n)) + (bJ * (-(bJ * nm2p2 * n * (2 + 2 * n + n2) * I0bJ * (2 * Inm1bJ + InbJ) * Math.cos((-2 + n) * t1)) + 4 * n * (4 + n4) * (bJ * I1bJ * InbJ + I0bJ * (-(bJ * Inm1bJ) + n * InbJ)) * cosnt1) - 2 * n * (2 + n) * (4 - 2 * n + n3) * I0bJ * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ2 - 2 * bJ * n + 2 * n * (1 + n)) * InbJ) * Math.cos((2 + n) * t1)) / (bJ2 * n * (4 + n4) * I0bJ))) / 4;
+                System.out.println(d2Axc1test - d2Axc1[n]);
+
+
+                double d2Axs1test = (bmu2 * (-((nm2p2 * besselI(-2 + n, bJ) * Math.sin((-2 + n) * t1)) / (2 + (-2 + n) * n)) + (bJ * (-(bJ * nm2p2 * n * (2 + 2 * n + n2) * I0bJ * (2 * Inm1bJ + InbJ) * Math.sin((-2 + n) * t1)) + 4 * n * (4 + n4) * (bJ * I1bJ * InbJ + I0bJ * (-(bJ * Inm1bJ) + n * InbJ)) * sinnt1) - 2 * n * (2 + n) * (4 - 2 * n + n3) * I0bJ * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ2 - 2 * bJ * n + 2 * n * (1 + n)) * InbJ) * Math.sin((2 + n) * t1)) / (bJ2 * n * (4 + n4) * I0bJ))) / 4;
+                System.out.println(d2Axs1test - d2Axs1[n]);
+
+                System.exit(2);
+
+
 
 
             }
