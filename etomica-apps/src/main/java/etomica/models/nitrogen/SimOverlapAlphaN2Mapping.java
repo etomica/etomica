@@ -38,6 +38,7 @@ import etomica.space3d.Orientation3D;
 import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
+import etomica.util.ParseArgs;
 import etomica.util.ReadParameters;
 
 import java.awt.*;
@@ -49,7 +50,7 @@ import java.util.Calendar;
 /**
  * Temperature-perturbation simulation for alpha-phase Nitrogen
  *
- * @author Tai Boon Tan
+ * @author Weisong Lin
  */
 public class SimOverlapAlphaN2Mapping extends Simulation {
 
@@ -164,14 +165,7 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         final long startTime = System.currentTimeMillis();
         //set up simulation parameters
         SimOverlapParam params = new SimOverlapParam();
-        String inputFilename = null;
-        if (args.length > 0) {
-            inputFilename = args[0];
-        }
-        if (inputFilename != null) {
-            ReadParameters readParameters = new ReadParameters(inputFilename, params);
-            readParameters.readParameters();
-        }
+        ParseArgs.doParseArgs(params, args);
         double density = params.density;
         int numSteps = params.numSteps;
         final int numMolecules = params.numMolecules;
@@ -248,20 +242,23 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
 
         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
 
-        int blockSize = numSteps >= 1000 ? (numSteps / 1000) : 1;
+
         MeterDADBNitrogen meterDADB = new MeterDADBNitrogen(sim, meterPE, sim.potentialMaster, Kelvin.UNIT.toSim(temperature), sim.latticeCoordinates);
 
-
-        AccumulatorAverageFixed accumulatorAverageFixedDADB = new AccumulatorAverageFixed(blockSize);
+        int DADBBlockSize = numSteps / (4 * numMolecules * 100);
+        if (DADBBlockSize == 0) DADBBlockSize = 1;
+        int PEBlockSize = numSteps / (10 * 100);
+        if (PEBlockSize == 0) PEBlockSize = 1;
+        AccumulatorAverageFixed accumulatorAverageFixedDADB = new AccumulatorAverageFixed(DADBBlockSize);
         DataPumpListener dataPumpListenerDADB = new DataPumpListener(meterDADB, accumulatorAverageFixedDADB, numMolecules * 4);
 
-        AccumulatorAverageFixed accumulatorAverageFixedPE = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener dataPumpListenerPE = new DataPumpListener(meterPE, accumulatorAverageFixedPE, 10);
+        AccumulatorAverageFixed accumulatorAverageFixedPE = new AccumulatorAverageFixed(PEBlockSize);
+        DataPumpListener dataPumpListenerPE = new DataPumpListener(meterPE, accumulatorAverageFixedPE, 1);
 
-
+        sim.activityIntegrate.setMaxSteps(numSteps / 10);
+        sim.getController().actionPerformed();
 
         sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
 
         sim.integrator.getEventManager().addListener(dataPumpListenerDADB);
         sim.integrator.getEventManager().addListener(dataPumpListenerPE);
@@ -354,8 +351,8 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         public int numMolecules = 864;
         public int[] nC = new int[]{6, 6, 6};
         public double density = 0.023; //0.02204857502170207 (intial from literature with a = 5.661)
-        public int numSteps = 2000000;
-        public double temperature = 10; // in unit Kelvin
+        public int numSteps = 10000000;
+        public double temperature = 20; // in unit Kelvin
         public double rcScale = 0.475;
         public double constraintAngle = 70;
         public boolean noRotScale = false;
