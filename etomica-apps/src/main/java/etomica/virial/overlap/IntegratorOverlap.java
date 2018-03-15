@@ -13,7 +13,11 @@ import etomica.util.Debug;
 /**
  * This integrator class manages (2) sub-integrators for an overlap
  * sampling simulation. Used for computing virial coefficients with overlap sampling.
+ *
+ * @Deprecated virial uses the standard overlap integrator now
+ * @see etomica.overlap.IntegratorOverlap
  */
+@Deprecated
 public class IntegratorOverlap extends IntegratorManagerMC {
 
     public IntegratorOverlap(Integrator[] aIntegrators) {
@@ -202,8 +206,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
     public double getActualStepFreq0() {
         return totNumSubSteps[0]/(double)(totNumSubSteps[0]+totNumSubSteps[1]);
     }
-    
-    private static final long serialVersionUID = 1L;
+
     private final double[] stepFreq;
     private long numSubSteps;
     private long[] totNumSubSteps;
