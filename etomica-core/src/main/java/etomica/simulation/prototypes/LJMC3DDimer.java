@@ -4,22 +4,25 @@
 
 package etomica.simulation.prototypes;
 
+import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationLinear;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataPumpListener;
+import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterPressureMolecular;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
+import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.potential.P22CLJmuQ;
 import etomica.potential.PotentialMaster;
@@ -27,6 +30,9 @@ import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
+import etomica.units.Bar;
+import etomica.units.Debye;
+import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -72,17 +78,30 @@ public class LJMC3DDimer extends Simulation {
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
 
-        P22CLJmuQ p2 = new P22CLJmuQ(space, 3.0058, 3.56379, 51.8037, 31.5550, 0.11, -2, 0.4847 / (0.4847 + 0.6461));
+        double Q = Debye.UNIT.toSim(-2);
+        double mu = Debye.UNIT.toSim(.11);
+
+        P22CLJmuQ p2 = new P22CLJmuQ(space, 3.0058, 3.56379, 51.8037, 31.5550, mu, Q, 0.4847 / (0.4847 + 0.6461));
         potentialMaster.addPotential(p2, new ISpecies[]{species, species});
 
         integrator = new IntegratorMC(this, potentialMaster, box);
-        integrator.setTemperature(params.temperature);
+        integrator.setTemperature(Kelvin.UNIT.toSim(params.temperatureK));
 
         MCMoveMolecule mcMoveMolecule = new MCMoveMolecule(potentialMaster, random, space, 1, 1);
         integrator.getMoveManager().addMCMove(mcMoveMolecule);
 
+        MCMoveRotateMolecule3D mcMoveRotate = new MCMoveRotateMolecule3D(potentialMaster, random, space);
+        integrator.getMoveManager().addMCMove(mcMoveRotate);
+
+        BoxImposePbc bip = new BoxImposePbc(space);
+        bip.setBox(box);
+        bip.setApplyToMolecules(true);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(bip,params.numAtoms));
+
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
+
+
     }
 
     public static void main(String[] args) {
@@ -103,7 +122,7 @@ public class LJMC3DDimer extends Simulation {
 
         System.out.println("Lennard-Jones Monte Carlo simulation");
         System.out.println("N: " + params.numAtoms);
-        System.out.println("T: " + params.temperature);
+        System.out.println("T: " + params.temperatureK);
         System.out.println("density: " + params.density);
         System.out.println("steps: " + params.steps);
 
@@ -118,6 +137,11 @@ public class LJMC3DDimer extends Simulation {
         AccumulatorAverageFixed acc = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pump = new DataPumpListener(meterPE, acc, interval);
         sim.getIntegrator().getEventManager().addListener(pump);
+
+        MeterPressureMolecular meterPM = new MeterPressureMolecular(sim.space);
+        AccumulatorAverageFixed accp = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener pumpP = new DataPumpListener(meterPM, accp, params.numAtoms);
+        sim.getIntegrator().getEventManager().addListener(pumpP);
 
         sim.activityIntegrate.setMaxSteps(steps);
         sim.getIntegrator().resetStepCount();
@@ -143,7 +167,7 @@ public class LJMC3DDimer extends Simulation {
                 ParseArgs.doParseArgs(params, args);
             }
             else {
-                params.density = 0.01;
+                params.density = 0.001;
                 // modify parameters here for interactive testing
             }
 
@@ -157,10 +181,33 @@ public class LJMC3DDimer extends Simulation {
             DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, 10);
             sim.getIntegrator().getEventManager().addListener(pumpPE);
 
+            MeterPressureMolecular meterPM = new MeterPressureMolecular(sim.space);
+            meterPM.setIntegrator(sim.integrator);
+            AccumulatorAverageCollapsing accp = new AccumulatorAverageCollapsing();
+            AccumulatorHistory accph = new AccumulatorHistory(new HistoryCollapsingAverage());
+            DataFork df = new DataFork();
+            df.addDataSink(accp);
+            df.addDataSink(accph);
+            DataPumpListener pumpP = new DataPumpListener(meterPM, df, params.numAtoms);
+            sim.getIntegrator().getEventManager().addListener(pumpP);
+
+            DisplayPlot historyPressure = new DisplayPlot();
+            accph.setDataSink(historyPressure.getDataSet().makeDataSink());
+            historyPressure.setLabel("Pressure");
+            historyPressure.getPlot().setYLabel("Pressure (bar)");
+            historyPressure.setUnit(Bar.UNIT);
+            graphic.add(historyPressure);
+
             DisplayPlot historyPE = new DisplayPlot();
             accPE.setDataSink(historyPE.getDataSet().makeDataSink());
             historyPE.setLabel("PE");
             graphic.add(historyPE);
+
+            DisplayTextBoxesCAE displayP = new DisplayTextBoxesCAE();
+            displayP.setAccumulator(accp);
+            displayP.setUnit(Bar.UNIT);
+            displayP.setLabel("Pressure (bar)");
+            graphic.add(displayP);
 
             graphic.makeAndDisplayFrame();
 
@@ -169,8 +216,8 @@ public class LJMC3DDimer extends Simulation {
 
     public static class SimParams extends ParameterBase {
         public long steps = 1000000;
-        public double density = 0.01;
-        public double temperature = 100;
-        public int numAtoms = 1000;
+        public double density = 0.001;
+        public double temperatureK = 300;
+        public int numAtoms = 50;
     }
 }
