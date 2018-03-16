@@ -238,8 +238,6 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         }
 
 
-
-
         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
 
 
@@ -279,7 +277,7 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         double MappingCor = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
 
         IMoleculeList molecules = sim.box.getMoleculeList();
-        System.out.println("1.5*nkT = " + Kelvin.UNIT.toSim((molecules.getMoleculeCount() * 1.5 * temperature)));
+        System.out.println("1.5*nkT = " + Kelvin.UNIT.toSim(((2.5 * molecules.getMoleculeCount() - 1.5) * temperature)));
         System.out.println("MappingAverage = " + MappingAverage);
         System.out.println("MappingErr = " + MappingErr);
         System.out.println("MappingCor = " + MappingCor);
@@ -348,10 +346,10 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 864;
-        public int[] nC = new int[]{6, 6, 6};
+        public int numMolecules = 256;
+        public int[] nC = new int[]{4, 4, 4};
         public double density = 0.023; //0.02204857502170207 (intial from literature with a = 5.661)
-        public int numSteps = 10000000;
+        public int numSteps = 100000;
         public double temperature = 20; // in unit Kelvin
         public double rcScale = 0.475;
         public double constraintAngle = 70;

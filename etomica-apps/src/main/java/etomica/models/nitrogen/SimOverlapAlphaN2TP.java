@@ -373,15 +373,15 @@ public class SimOverlapAlphaN2TP extends Simulation {
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
-        public int numMolecules = 864;
-        public int[] nC = new int[]{6,6,6};
+        public int numMolecules = 256;
+        public int[] nC = new int[]{4, 4, 4};
         public double density = 0.023; //0.02204857502170207 (intial from literature with a = 5.661)
         public long numSteps = 100000;
-        public double temperature = 0.01; // in unit Kelvin
+        public double temperature = 0.02; // in unit Kelvin
         public double[] alpha = new double[]{1.0};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherTemperatures = new double[]{0.02};
+        public double[] otherTemperatures = new double[]{0.01};
         public double rcScale = 0.475;
         public double constraintAngle = 70;
         public boolean noRotScale = false;
