@@ -31,6 +31,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         this.boxAgentManager = boxAgentManager;
         rangedPotentials = sim.getSpeciesList().stream()
                 .flatMap(species -> species.getAtomTypes().stream())
+                .map(atomType -> new PotentialArray())
                 .toArray(PotentialArray[]::new);
 
         intraPotentials = new PotentialArray[sim.getSpeciesList().size()];
