@@ -10,15 +10,4 @@ public interface SimulationListener {
 
     default void simulationBoxRemoved(SimulationBoxEvent e) {}
 
-    default void simulationSpeciesAdded(SimulationSpeciesEvent e) {}
-
-    default void simulationSpeciesRemoved(SimulationSpeciesEvent e) {}
-
-    default void simulationSpeciesIndexChanged(SimulationSpeciesIndexEvent e) {}
-
-    default void simulationSpeciesMaxIndexChanged(SimulationIndexEvent e) {}
-
-    default void simulationAtomTypeIndexChanged(SimulationAtomTypeIndexEvent e) {}
-
-    default void simulationAtomTypeMaxIndexChanged(SimulationIndexEvent e) {}
 }

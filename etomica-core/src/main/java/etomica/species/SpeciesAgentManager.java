@@ -5,13 +5,8 @@
 package etomica.species;
 
 import etomica.simulation.Simulation;
-import etomica.simulation.SimulationListener;
-import etomica.simulation.SimulationSpeciesEvent;
-import etomica.simulation.SimulationSpeciesIndexEvent;
 import etomica.util.collections.IndexMap;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -29,29 +24,10 @@ public final class SpeciesAgentManager<E> {
     private final AgentSource<E> agentSource;
     private final Simulation sim;
     private final IndexMap<E> agents;
-    private final SimulationListener simulationListener = new SimulationListener() {
-        public void simulationSpeciesAdded(SimulationSpeciesEvent e) {
-            SpeciesAgentManager.this.agents.put(e.getSpecies().getIndex(), SpeciesAgentManager.this.agentSource.makeAgent(e.getSpecies()));
-        }
-
-        public void simulationSpeciesRemoved(SimulationSpeciesEvent e) {
-            SpeciesAgentManager.this.releaseAgents(e.getSpecies());
-        }
-
-        @Override
-        public void simulationSpeciesIndexChanged(SimulationSpeciesIndexEvent e) {
-            E agent = agents.remove(e.getIndex());
-            if (agent != null) {
-                agents.put(e.getSpecies().getIndex(), agent);
-            }
-        }
-    };
 
     public SpeciesAgentManager(AgentSource<E> source, Simulation sim) {
         this.agentSource = Objects.requireNonNull(source);
         this.sim = Objects.requireNonNull(sim);
-
-        sim.getEventManager().addListener(simulationListener);
 
         agents = new IndexMap<>();
         sim.getSpeciesList().forEach(species -> agents.put(species.getIndex(), agentSource.makeAgent(species)));
@@ -94,8 +70,6 @@ public final class SpeciesAgentManager<E> {
      * releases its agents.
      */
     public void dispose() {
-        // remove ourselves as a listener to the old box
-        sim.getEventManager().removeListener(simulationListener);
         sim.getSpeciesList().forEach(this::releaseAgents);
     }
 

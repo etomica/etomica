@@ -5,14 +5,9 @@
 package etomica.atom;
 
 import etomica.simulation.Simulation;
-import etomica.simulation.SimulationAtomTypeIndexEvent;
-import etomica.simulation.SimulationListener;
-import etomica.simulation.SimulationSpeciesEvent;
 import etomica.species.ISpecies;
 import etomica.util.collections.IndexMap;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -25,7 +20,7 @@ import java.util.Objects;
  *
  * @author andrew
  */
-public final class AtomTypeAgentManager<E> implements SimulationListener {
+public final class AtomTypeAgentManager<E> {
 
     private final AgentSource<E> agentSource;
     private final IndexMap<E> agents;
@@ -36,7 +31,6 @@ public final class AtomTypeAgentManager<E> implements SimulationListener {
         this.sim = Objects.requireNonNull(sim);
         this.agents = new IndexMap<>();
 
-        sim.getEventManager().addListener(this);
         for (ISpecies species : sim.getSpeciesList()) {
             for (AtomType atomType : species.getAtomTypes()) {
                 this.agents.put(atomType.getIndex(), agentSource.makeAgent(atomType));
@@ -78,32 +72,11 @@ public final class AtomTypeAgentManager<E> implements SimulationListener {
     }
 
     /**
-     * Unregisters this class as a listener for AtomType-related events and releases its agents.
+     * Releases its agents.
      */
     public void dispose() {
-        sim.getEventManager().removeListener(this);
         for (int i = 0; i < sim.getSpeciesCount(); i++) {
             releaseAgents(sim.getSpecies(i));
-        }
-    }
-
-    public void simulationSpeciesAdded(SimulationSpeciesEvent e) {
-        ISpecies species = e.getSpecies();
-        for (AtomType newType : species.getAtomTypes()) {
-            if (!this.agents.containsKey(newType.getIndex())) {
-                this.agents.put(newType.getIndex(), this.agentSource.makeAgent(newType));
-            }
-        }
-    }
-
-    public void simulationSpeciesRemoved(SimulationSpeciesEvent e) {
-        releaseAgents(e.getSpecies());
-    }
-
-    public void simulationAtomTypeIndexChanged(SimulationAtomTypeIndexEvent e) {
-        E agent = this.agents.remove(e.getIndex());
-        if (agent != null) {
-            this.agents.put(e.getAtomType().getIndex(), agent);
         }
     }
 
