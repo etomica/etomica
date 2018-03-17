@@ -19,17 +19,7 @@ import java.util.List;
 
 public abstract class PotentialMasterNbr extends PotentialMaster {
 
-    private static final AtomTypeAgentManager.AgentSource<PotentialArray> atomTypeAgentSource = new AtomTypeAgentManager.AgentSource<PotentialArray>() {
-        @Override
-        public PotentialArray makeAgent(AtomType type) {
-            return new PotentialArray();
-        }
-
-        @Override
-        public void releaseAgent(PotentialArray agent, AtomType type) {}
-    };
-
-    protected final AtomTypeAgentManager<PotentialArray> rangedAgentManager;
+    private final PotentialArray[] rangedPotentials;
     private final PotentialArray[] intraPotentials;
     protected final Simulation simulation;
     protected IPotential[] allPotentials = new IPotential[0];
@@ -39,7 +29,10 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         super();
         simulation = sim;
         this.boxAgentManager = boxAgentManager;
-        rangedAgentManager = new AtomTypeAgentManager<>(atomTypeAgentSource, this.simulation);
+        rangedPotentials = sim.getSpeciesList().stream()
+                .flatMap(species -> species.getAtomTypes().stream())
+                .toArray(PotentialArray[]::new);
+
         intraPotentials = new PotentialArray[sim.getSpeciesList().size()];
         for (int i = 0; i < intraPotentials.length; i++) {
             intraPotentials[i] = new PotentialArray();
@@ -95,7 +88,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
 
     protected void addRangedPotential(IPotentialAtomic potential, AtomType atomType) {
 
-        PotentialArray potentialAtomType = rangedAgentManager.getAgent(atomType);
+        PotentialArray potentialAtomType = rangedPotentials[atomType.getIndex()];
         potentialAtomType.addPotential(potential);
         boolean found = false;
         for (int i=0; i<allPotentials.length; i++) {
@@ -111,7 +104,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
     public void removePotential(IPotentialAtomic potential) {
         super.removePotential(potential);
         if (potential.getRange() < Double.POSITIVE_INFINITY) {
-            for (PotentialArray potentialArray : this.rangedAgentManager.getAgents().values()) {
+            for (PotentialArray potentialArray : this.rangedPotentials) {
                 potentialArray.removePotential(potential);
             }
         }
@@ -123,11 +116,15 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         allPotentials = Arrays.removeObject(allPotentials,potential);
     }
 
-    public PotentialArray getRangedPotentials(AtomType atomType) {
-        return rangedAgentManager.getAgent(atomType);
+    public final PotentialArray[] getRangedPotentials() {
+        return rangedPotentials;
     }
 
-    public PotentialArray getIntraPotentials(ISpecies species) {
+    public final PotentialArray getRangedPotentials(AtomType atomType) {
+        return rangedPotentials[atomType.getIndex()];
+    }
+
+    public final PotentialArray getIntraPotentials(ISpecies species) {
         return intraPotentials[species.getIndex()];
     }
 
