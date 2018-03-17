@@ -4,10 +4,12 @@
 
 package etomica.simulation;
 
+import etomica.box.Box;
+
 public interface SimulationListener {
 
-    default void simulationBoxAdded(SimulationBoxEvent e) {}
+    default void simulationBoxAdded(Simulation sim, Box box) {}
 
-    default void simulationBoxRemoved(SimulationBoxEvent e) {}
+    default void simulationBoxRemoved(Simulation sim, Box box) {}
 
 }

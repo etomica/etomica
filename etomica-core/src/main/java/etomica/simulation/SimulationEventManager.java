@@ -32,16 +32,14 @@ public class SimulationEventManager {
     }
 
     public void boxAdded(Box box) {
-        SimulationBoxEvent e = new SimulationBoxEvent(simulation, box);
         for (SimulationListener listener : listeners) {
-            listener.simulationBoxAdded(e);
+            listener.simulationBoxAdded(simulation, box);
         }
     }
 
     public void boxRemoved(Box box) {
-        SimulationBoxEvent e = new SimulationBoxEvent(simulation, box);
         for (SimulationListener listener : listeners) {
-            listener.simulationBoxRemoved(e);
+            listener.simulationBoxRemoved(simulation, box);
         }
     }
 }
