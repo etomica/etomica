@@ -8,11 +8,14 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 import org.openjdk.jmh.annotations.*;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 @State(Scope.Benchmark)
 @Fork(1)
@@ -25,15 +28,16 @@ public class BenchBox {
     double[][] coords = new double[1000][3];
     double[] coords1d = new double[3 * 1000];
     double[] coords1dColMajor = new double[3 * 1000];
+    IVecSys vecSys;
     int off = coords1dColMajor.length / 3;
 
     @Setup(Level.Trial)
     public void setUp() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        box = sim.makeBox();
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim, sim.getSpace());
         sim.addSpecies(species);
+        box = sim.makeBox();
         box.setNMolecules(species, 1000);
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
@@ -51,6 +55,7 @@ public class BenchBox {
             coords1dColMajor[len + i] = pos.getX(1);
             coords1dColMajor[2 * len + i] = pos.getX(2);
         }
+        vecSys = new VectorSystem(coords1d);
 
     }
 
@@ -121,7 +126,7 @@ public class BenchBox {
         return sum;
     }
 
-    @Benchmark
+//    @Benchmark
     public double benchCoords1dColMajor() {
         double sum = 0;
         for (int i = 0; i < coords.length; i++) {
@@ -136,5 +141,59 @@ public class BenchBox {
             }
         }
         return sum;
+    }
+
+//    @Benchmark
+    public double benchCoordsParallel() {
+        return IntStream.range(0, coords.length).parallel().mapToDouble(i -> {
+            double sum = 0;
+            for (int j = 0; j < coords.length; j++) {
+                double dx = coords[i][0] - coords[j][0];
+                double dy = coords[i][1] - coords[j][1];
+                double dz = coords[i][2] - coords[j][2];
+                sum += dx * dx + dy * dy + dz * dz;
+            }
+            return sum;
+        }).sum();
+    }
+
+    @Benchmark
+    public double benchVecSys() {
+        double sum = 0;
+        for (int i = 0; i < vecSys.rows(); i++) {
+            for (int j = 0; j < vecSys.rows(); j++) {
+                Vector v = vecSys.diff(i, j);
+                sum += v.squared();
+            }
+        }
+        return sum;
+    }
+
+    public interface IVecSys {
+        Vector diff(int v1, int v2);
+
+        int rows();
+    }
+
+    public static final class VectorSystem implements IVecSys {
+        private final double[] coords1d;
+        private final int rows;
+
+        public VectorSystem(double[] coords) {
+            coords1d = coords.clone();
+            rows = coords1d.length / 3;
+        }
+
+        public Vector diff(int v1, int v2) {
+            double dx = coords1d[3 * v1] - coords1d[3 * v2];
+            double dy = coords1d[3 * v1 + 1] - coords1d[3 * v2 + 1];
+            double dz = coords1d[3 * v1 + 2] - coords1d[3 * v2 + 2];
+            return new Vector3D(dx, dy, dz);
+        }
+
+        public int rows() {
+            return rows;
+        }
+
     }
 }
