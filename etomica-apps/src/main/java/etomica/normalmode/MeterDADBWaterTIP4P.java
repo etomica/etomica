@@ -48,7 +48,7 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
     public static boolean justU = false;
 	protected final Vector ph1h2;
 	protected final Vector q;
-	protected final Vector totalforce;
+    protected final Vector totalForce;
     private final Vector centerMass;
     public boolean doTranslation;
     public boolean doRotation;
@@ -76,7 +76,7 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
         this.temperature = temperature;
 		ph1h2 = space.makeVector();
 		q = space.makeVector();
-		totalforce = space.makeVector();
+        totalForce = space.makeVector();
         centerMass = space.makeVector();
 		torque = space.makeVector();
     }
@@ -198,13 +198,13 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
                 Vector h2force = forceManager.getAgent(leafList.getAtom(1)).force();
                 Vector oforce = forceManager.getAgent(leafList.getAtom(2)).force();
                 Vector mforce = forceManager.getAgent(leafList.getAtom(3)).force();
-                totalforce.E(h1force);
-                totalforce.PE(h2force);
-                totalforce.PE(mforce);
-                totalforce.PE(oforce);
-                fdr += totalforce.dot(dr);
+                totalForce.E(h1force);
+                totalForce.PE(h2force);
+                totalForce.PE(mforce);
+                totalForce.PE(oforce);
+                fdr += totalForce.dot(dr);
                 dr.normalize();
-                fdr2 += totalforce.dot(dr);
+                fdr2 += totalForce.dot(dr);
             }
             System.out.println(j * 0.01 + " " + u + " " + fdr + " " + fdr2);
 
@@ -386,10 +386,10 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
                 Vector h2force = forceManager.getAgent(leafList.getAtom(1)).force();
                 Vector oforce = forceManager.getAgent(leafList.getAtom(2)).force();
                 Vector mforce = forceManager.getAgent(leafList.getAtom(3)).force();
-                totalforce.E(h1force);
-                totalforce.PE(h2force);
-                totalforce.PE(mforce);
-                totalforce.PE(oforce);
+                totalForce.E(h1force);
+                totalForce.PE(h2force);
+                totalForce.PE(mforce);
+                totalForce.PE(oforce);
                 Vector h1 = leafList.getAtom(0).getPosition();
                 Vector h2 = leafList.getAtom(1).getPosition();
                 Vector o = leafList.getAtom(2).getPosition();
@@ -422,7 +422,7 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 
                 Vector lPos = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).position;
                 dr.Ev1Mv2(centerMass, lPos);
-                ForceSum += totalforce.dot(dr);
+                ForceSum += totalForce.dot(dr);
                 //get the forcesum!!
 
 
@@ -597,10 +597,10 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
             Vector h2Force = forceManager.getAgent(leafList.getAtom(1)).force();
             Vector oForce = forceManager.getAgent(leafList.getAtom(2)).force();
             Vector mForce = forceManager.getAgent(leafList.getAtom(3)).force();
-            totalforce.E(h1Force);
-            totalforce.PE(h2Force);
-            totalforce.PE(mForce);
-            totalforce.PE(oForce);
+            totalForce.E(h1Force);
+            totalForce.PE(h2Force);
+            totalForce.PE(mForce);
+            totalForce.PE(oForce);
 			Vector h1 = leafList.getAtom(0).getPosition();
         	Vector h2 = leafList.getAtom(1).getPosition();
         	Vector o = leafList.getAtom(2).getPosition();
@@ -633,7 +633,7 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 
             Vector lPos = ((MoleculeSiteSource.LatticeCoordinate)latticeCoordinates.getAgent(molecule)).position;
             dr.Ev1Mv2(centerMass, lPos);
-            ForceSum += totalforce.dot(dr);
+            ForceSum += totalForce.dot(dr);
             //get the forcesum!!
             
             

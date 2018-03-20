@@ -68,7 +68,7 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
     protected MCMoveRotateMolecule3DN2AveCosThetaConstraint rotate;
 
     public SimOverlapAlphaN2Mapping(Space space, int[] nC, double density, double temperature,
-                                    long numSteps, double rcScale, double constraintAngle, boolean noRotScale) {
+                                    long numSteps, double rcScale, double constraintAngle, boolean noRotScale, boolean doRotation, boolean doTranslation) {
         super(space);
 
         int numMolecules = nC[0] * nC[1] * nC[2] * 4;
@@ -137,8 +137,8 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         rotate.setBox(box);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature));
-        integrator.getMoveManager().addMCMove(move);
-        integrator.getMoveManager().addMCMove(rotate);
+        if (doTranslation) integrator.getMoveManager().addMCMove(move);
+        if (doRotation) integrator.getMoveManager().addMCMove(rotate);
         integrator.setBox(box);
 
         potential.setRange(Double.POSITIVE_INFINITY);
@@ -174,6 +174,8 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         double rcScale = params.rcScale;
         double constraintAngle = params.constraintAngle;
         boolean noRotScale = params.noRotScale;
+        boolean doTranslation = params.doTranslation;
+        boolean doRotation = params.doRotation;
         String configFileName = "configT" + temperature;
         String filename = "alphaN2d" + density + "_T" + temperature + "Cons0.8";
 
@@ -184,7 +186,7 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
 
         //instantiate simulation
         final SimOverlapAlphaN2Mapping sim = new SimOverlapAlphaN2Mapping(Space.getInstance(3), nC, density, temperature,
-                numSteps, rcScale, constraintAngle, noRotScale);//TODO do I need to change this sim
+                numSteps, rcScale, constraintAngle, noRotScale, doRotation, doTranslation);//TODO do I need to change this sim
 
         MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(sim.potentialMaster);
         meterPE2.setBox(sim.box);
@@ -242,6 +244,9 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
 
 
         MeterDADBNitrogen meterDADB = new MeterDADBNitrogen(sim, meterPE, sim.potentialMaster, Kelvin.UNIT.toSim(temperature), sim.latticeCoordinates);
+        meterDADB.doTranslation = doTranslation;
+        meterDADB.doRotation = doRotation;
+
 
         int DADBBlockSize = numSteps / (4 * numMolecules * 100);
         if (DADBBlockSize == 0) DADBBlockSize = 1;
@@ -276,22 +281,23 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         double MappingErr = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(0);
         double MappingCor = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
 
-        IMoleculeList molecules = sim.box.getMoleculeList();
-        System.out.println("1.5*nkT = " + Kelvin.UNIT.toSim(((2.5 * molecules.getMoleculeCount() - 1.5) * temperature)));
-        System.out.println("MappingAverage = " + MappingAverage);
-        System.out.println("MappingErr = " + MappingErr);
-        System.out.println("MappingCor = " + MappingCor);
+        int N = sim.box.getMoleculeList().getMoleculeCount();
+        double fac = (doRotation ? 1.0 : 0) * N + (doTranslation ? 1.5 : 0) * (N - 1);
+        double harmonicEnergy = fac * Kelvin.UNIT.toSim((temperature));
+        System.out.println("doRotation:" + doRotation + " doTranslation:" + doTranslation);
+
+        System.out.println("MappingAverage= " + MappingAverage + "\tMappingErr= " + MappingErr + "\tMappingCor= " + MappingCor);
 
 
         double PEAverage = accumulatorAverageFixedPE.getData(AccumulatorAverage.AVERAGE).getValue(0);
         double PEErr = accumulatorAverageFixedPE.getData(AccumulatorAverage.ERROR).getValue(0);
         double PECor = accumulatorAverageFixedPE.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
-        System.out.println("PE full = " + PEAverage);
-        int N = sim.box.getMoleculeList().getMoleculeCount();
-        System.out.println("PEAverage = " + (PEAverage - latticeEnergy - (2.5 * N - 1.5) * Kelvin.UNIT.toSim(temperature)));
-        System.out.println("PEErr = " + PEErr);
-        System.out.println("PECor = " + PECor);
 
+        System.out.println("PEAverage= " + (PEAverage - latticeEnergy - harmonicEnergy)
+                + "\tPEErr= " + PEErr + "\tPECor= " + PECor);
+
+        System.out.println("PE full = " + PEAverage);
+        System.out.println("Harmonic = " + harmonicEnergy);
         final double endLatticeEnergy = meterPE2.getDataAsScalar();
         System.out.println("endLE = " + endLatticeEnergy);
     }
@@ -350,9 +356,11 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         public int[] nC = new int[]{4, 4, 4};
         public double density = 0.023; //0.02204857502170207 (intial from literature with a = 5.661)
         public int numSteps = 100000;
-        public double temperature = 20; // in unit Kelvin
+        public double temperature = 10; // in unit Kelvin
         public double rcScale = 0.475;
         public double constraintAngle = 70;
         public boolean noRotScale = false;
+        public boolean doRotation = true;
+        public boolean doTranslation = true;
     }
 }
