@@ -55,7 +55,6 @@ public class ActivityIntegrate extends Activity {
         for (stepCount = 0; stepCount < maxSteps; stepCount++) {
             if (LOG.isDebugEnabled()) {
                 startTime = System.nanoTime();
-                LOG.debug("Beginning step {}", stepCount);
             }
             if (Debug.ON) {
                 if (stepCount == Debug.START) Debug.DEBUG_NOW = true;

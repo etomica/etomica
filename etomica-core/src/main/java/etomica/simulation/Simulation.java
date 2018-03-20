@@ -16,11 +16,10 @@ import etomica.meta.javadoc.KeepSimJavadoc;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.species.ISpecies;
+import etomica.util.logging.SimLogger;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGeneratorUnix;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -31,7 +30,7 @@ import java.util.*;
  */
 @KeepSimJavadoc
 public class Simulation {
-    protected final Logger LOG = LogManager.getLogger(this.getClass());
+    protected final SimLogger LOG = SimLogger.create();
 
     protected final Space space;
     protected final SimulationEventManager eventManager;
