@@ -9,8 +9,6 @@ import etomica.box.BoxEventListener;
 import etomica.box.BoxMoleculeEvent;
 import etomica.box.BoxMoleculeIndexEvent;
 import etomica.simulation.Simulation;
-import etomica.simulation.SimulationListener;
-import etomica.simulation.SimulationSpeciesEvent;
 import etomica.species.ISpecies;
 import etomica.util.collections.IndexMap;
 
@@ -28,7 +26,7 @@ import java.util.stream.Stream;
  * @param <E> molecule agent class
  * @author Andrew Schultz
  */
-public final class MoleculeAgentManager<E> implements BoxEventListener, SimulationListener {
+public final class MoleculeAgentManager<E> implements BoxEventListener {
     private static final BiConsumer<Object, IMolecule> NULL_RELEASER = (o, m) -> {};
 
     private final Box box;
@@ -52,7 +50,6 @@ public final class MoleculeAgentManager<E> implements BoxEventListener, Simulati
         this.onRelease = onRelease;
         this.agents = new HashMap<>();
 
-        sim.getEventManager().addListener(this);
         box.getEventManager().addListener(this);
 
         // Initialize each species with a map of molecule index to agent
@@ -147,16 +144,6 @@ public final class MoleculeAgentManager<E> implements BoxEventListener, Simulati
         IndexMap<E> speciesAgents = this.agents.get(mole.getType());
         E agent = speciesAgents.remove(oldIndex);
         speciesAgents.put(mole.getIndex(), agent);
-    }
-
-    public void simulationSpeciesAdded(SimulationSpeciesEvent e) {
-        agents.put(e.getSpecies(), new IndexMap<>());
-    }
-
-    public void simulationSpeciesRemoved(SimulationSpeciesEvent e) {
-        // don't need to call onRelease since boxMoleculeRemoved will also be called
-        // (before this method, so it's safe to delete the map)
-        this.agents.remove(e.getSpecies());
     }
 
     /**

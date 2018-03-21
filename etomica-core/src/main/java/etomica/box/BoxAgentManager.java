@@ -5,13 +5,10 @@
 package etomica.box;
 
 import etomica.simulation.Simulation;
-import etomica.simulation.SimulationBoxEvent;
 import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SimulationListener;
 import etomica.util.collections.IndexMap;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -89,13 +86,12 @@ public final class BoxAgentManager<E> implements SimulationListener {
         this.agents.values().forEach(agentReleaser);
     }
 
-    public void simulationBoxAdded(SimulationBoxEvent e) {
-        Box box = e.getBox();
+    public void simulationBoxAdded(Simulation sim, Box box) {
         this.agents.put(box.getIndex(), agentSource.apply(box));
     }
 
-    public void simulationBoxRemoved(SimulationBoxEvent e) {
-        E agent = this.agents.remove(e.getBox().getIndex());
+    public void simulationBoxRemoved(Simulation sim, Box box) {
+        E agent = this.agents.remove(box.getIndex());
         agentReleaser.accept(agent);
     }
 

@@ -21,6 +21,7 @@ import etomica.space.Vector;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.*;
 import etomica.util.Constants;
@@ -68,6 +69,16 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         {-1.48,  0.26,  -0.62}, //! N5
         { 1.48, -0.26,  -0.62}, //! N5
         {-1.48, -0.26,  -0.62} };  //   ! N5
+    protected final static double mass, cmzFix;
+
+    static {
+        mass = Oxygen.INSTANCE.getMass() + 2 * Hydrogen.INSTANCE.getMass();
+        // why not put the center of mass at 0?
+        cmzFix = Oxygen.INSTANCE.getMass() * siteDoubles[0][2] + 2 * Hydrogen.INSTANCE.getMass() * siteDoubles[1][2];
+        for (int i = 0; i < siteDoubles.length; i++) {
+            siteDoubles[i][2] -= cmzFix;
+        }
+    }
     protected static final Vector[] sites;
     static {
         sites = new Vector[siteDoubles.length];
@@ -252,16 +263,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
     protected static final int[][] ind_C10 = new int[][]{{89,90,90},
                 {90,91,91},
                 {90,91,91}};
-    protected final static double mass, cmzFix;
-    static {
-        mass = Oxygen.INSTANCE.getMass() + 2*Hydrogen.INSTANCE.getMass();
-        // why not put the center of mass at 0?
-        cmzFix = Oxygen.INSTANCE.getMass()*siteDoubles[0][2] + 2*Hydrogen.INSTANCE.getMass()*siteDoubles[1][2];
-        for (int i=0; i<siteDoubles.length; i++) {
-            siteDoubles[i][2] -= cmzFix;
-        }
-    }
-    
+
     public static Vector[] getSites(Space space) {
         Vector[] siteV = new Vector[siteDoubles.length];
         double bohrConv = BohrRadius.UNIT.toSim(1);
@@ -473,7 +475,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
             // according to our atomic masses, the COM is not at 0,0,0
             // we shifted the positions from siteDoubles to sitePos so that the COM is at 0,0,0
             // however, the original COM is used for 3-body interactions.  compute that now
-            com0[i].PEa1Tv1(cmzFix, allOr[2]);
+            com0[i].PEa1Tv1(-cmzFix, allOr[2]);
         }
 
         double u0 = 0;
@@ -590,6 +592,42 @@ public class P2WaterSzalewicz implements IPotentialTorque {
             }
         }
         return Hartree.UNIT.toSim(u0 + uInd + u3);
+    }
+
+    /**
+     * Prints atom coordinates and euler angles in a format compatible with the CCpol fortran program
+     * The orientations are taken from the given atoms.  The com0 array is assumed to be set up.  Call
+     * this method after calling energy or from within the energy method itself.
+     */
+    public void printFortranInput(IAtomList atoms) {
+        for (int i = 0; i < atoms.size(); i++) {
+            OrientationFull3D o = (OrientationFull3D) ((IAtomOriented) atoms.get(i)).getOrientation();
+            double[] euler = eulerFromOrientation(o);
+            System.out.println(com0[i].getX(0) + " " + com0[i].getX(1) + " " + com0[i].getX(2) + " " + euler[0] / Math.PI * 180 + " " + euler[1] / Math.PI * 180 + " " + euler[2] / Math.PI * 180);
+        }
+    }
+
+    protected double[] eulerFromOrientation(OrientationFull3D or) {
+        Vector3D or1 = (Vector3D) or.getDirection();
+        Vector3D or2 = (Vector3D) or.getSecondaryDirection();
+        Vector3D or3 = new Vector3D();
+        or3.E(or1);
+        or3.XE(or2);
+        double beta = -Math.acos(or3.getX(2));
+        double alpha = Math.atan2(or3.getX(1), or3.getX(0));
+        double o30 = Math.sin(beta) * Math.cos(alpha);
+        if (o30 * or3.getX(0) < 0) {
+            // wrong sign
+            alpha += Math.PI;
+            // or beta = -beta
+        }
+        double gamma = Math.atan2(-or2.getX(2), or1.getX(2));
+        double o22 = Math.sin(beta) * Math.sin(gamma);
+        if (o22 * or2.getX(2) < 0) {
+            // wrong sign
+            gamma += Math.PI;
+        }
+        return new double[]{alpha, beta, gamma};
     }
     
     protected double damp(int n, double beta, double r) {
@@ -784,7 +822,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
                 sitePos3[0][0].Mv1Squared(sitePos3[2][0]) > rc2 ||
                 sitePos3[1][0].Mv1Squared(sitePos3[2][0]) > rc2)) return 0;
 
-        
+
         double AOOex = params3[36];
         double AHHex = params3[37];
         double AOHex = params3[38];
@@ -923,7 +961,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
             double dC3H2 = 1/Math.sqrt(C3.Mv1Squared(sitePos3[ii][2]));
             double dC3B7 = 1/Math.sqrt(C3.Mv1Squared(sitePos3[ii][3]));
             double dC3B8 = 1/Math.sqrt(C3.Mv1Squared(sitePos3[ii][4]));
-            
+
             double term = qind*(chrg3[0]*(dC2O + dC3O - dS2O - dS3O)
                                +chrg3[1]*(dC2H1 + dC2H2 + dC3H1 + dC3H2 - dS2H1 - dS2H2 - dS3H1 - dS3H2)
                                +chrg3[2]*(dC2B7 + dC2B8 + dC3B7 + dC3B8 - dS2B7 - dS2B8 - dS3B7 - dS3B8));

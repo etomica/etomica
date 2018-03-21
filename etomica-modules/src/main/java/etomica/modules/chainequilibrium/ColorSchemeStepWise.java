@@ -6,13 +6,12 @@ package etomica.modules.chainequilibrium;
 
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.IAtom;
 import etomica.graphics.ColorScheme;
 import etomica.simulation.Simulation;
+import etomica.species.ISpecies;
 
 import java.awt.*;
-import java.util.Arrays;
 
 /**
  * Color scheme for stepwise growth, based on the AtomType (alcohol vs. acid) and the number of bonds the atom can
@@ -20,23 +19,25 @@ import java.util.Arrays;
  *
  * @author Andrew Schultz
  */
-public class ColorSchemeStepWise extends ColorScheme implements AtomTypeAgentManager.AgentSource {
+public class ColorSchemeStepWise extends ColorScheme {
 
     protected final AtomLeafAgentManager<IAtom[]> bondingAgentManager;
     protected final Simulation simulation;
-    protected AtomTypeAgentManager[] colorMaps;
+    protected Color[][] colorMaps;
 
     public ColorSchemeStepWise(Simulation sim, AtomLeafAgentManager<IAtom[]> bondingAgentManager) {
         super();
         simulation = sim;
-        colorMaps = new AtomTypeAgentManager[0];
+        ISpecies lastSpecies = sim.getSpecies(sim.getSpeciesCount() - 1);
+        AtomType lastAtomType = lastSpecies.getAtomType(lastSpecies.getAtomTypeCount() - 1);
+        colorMaps = new Color[lastAtomType.getIndex() + 1][4];
         this.bondingAgentManager = bondingAgentManager;
     }
 
     public Color getAtomColor(IAtom atom) {
         IAtom[] nbrs = bondingAgentManager.getAgent(atom);
-        if (nbrs != null && colorMaps.length > nbrs.length) {
-            return (Color) colorMaps[nbrs.length].getAgent(atom.getType());
+        if (nbrs != null) {
+            return colorMaps[atom.getType().getIndex()][nbrs.length];
         }
         // we weren't told how to deal with any atom type with this many bonds.
         return ColorScheme.DEFAULT_ATOM_COLOR;
@@ -46,20 +47,6 @@ public class ColorSchemeStepWise extends ColorScheme implements AtomTypeAgentMan
      * Sets atoms of the given type and number of bonds to be the given color.
      */
     public void setColor(AtomType type, int nBonds, Color color) {
-        if (nBonds >= colorMaps.length) {
-            int oldLength = colorMaps.length;
-            colorMaps = Arrays.copyOf(colorMaps, nBonds + 1);
-            for (int i = oldLength; i < colorMaps.length; i++) {
-                colorMaps[i] = new AtomTypeAgentManager(this, simulation);
-            }
-        }
-        colorMaps[nBonds].setAgent(type, color);
-    }
-
-    public Object makeAgent(AtomType type) {
-        return ColorScheme.DEFAULT_ATOM_COLOR;
-    }
-
-    public void releaseAgent(Object agent, AtomType type) {
+        colorMaps[type.getIndex()][nBonds] = color;
     }
 }

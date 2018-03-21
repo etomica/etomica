@@ -4,14 +4,11 @@
 
 package etomica.simulation;
 
-import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.species.ISpecies;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SimulationEventManager {
 
@@ -35,58 +32,14 @@ public class SimulationEventManager {
     }
 
     public void boxAdded(Box box) {
-        SimulationBoxEvent e = new SimulationBoxEvent(simulation, box);
         for (SimulationListener listener : listeners) {
-            listener.simulationBoxAdded(e);
+            listener.simulationBoxAdded(simulation, box);
         }
     }
 
     public void boxRemoved(Box box) {
-        SimulationBoxEvent e = new SimulationBoxEvent(simulation, box);
         for (SimulationListener listener : listeners) {
-            listener.simulationBoxRemoved(e);
-        }
-    }
-
-    public void speciesAdded(ISpecies species) {
-        SimulationSpeciesEvent e = new SimulationSpeciesEvent(simulation, species);
-        for (SimulationListener listener : listeners) {
-            listener.simulationSpeciesAdded(e);
-        }
-    }
-
-    public void speciesRemoved(ISpecies species) {
-        SimulationSpeciesEvent e = new SimulationSpeciesEvent(simulation, species);
-        for (SimulationListener listener : listeners) {
-            listener.simulationSpeciesRemoved(e);
-        }
-    }
-
-    public void speciesIndexChanged(ISpecies species, int index) {
-        SimulationSpeciesIndexEvent e = new SimulationSpeciesIndexEvent(simulation, species, index);
-        for (SimulationListener listener : listeners) {
-            listener.simulationSpeciesIndexChanged(e);
-        }
-    }
-
-    public void speciesMaxIndexChanged(int index) {
-        SimulationIndexEvent e = new SimulationIndexEvent(simulation, index);
-        for (SimulationListener listener : listeners) {
-            listener.simulationSpeciesMaxIndexChanged(e);
-        }
-    }
-
-    public void atomTypeIndexChanged(AtomType atomType, int index) {
-        SimulationAtomTypeIndexEvent e = new SimulationAtomTypeIndexEvent(simulation, atomType, index);
-        for (SimulationListener listener : listeners) {
-            listener.simulationAtomTypeIndexChanged(e);
-        }
-    }
-
-    public void atomTypeMaxIndexChanged(int index) {
-        SimulationIndexEvent e = new SimulationIndexEvent(simulation, index);
-        for (SimulationListener listener : listeners) {
-            listener.simulationAtomTypeMaxIndexChanged(e);
+            listener.simulationBoxRemoved(simulation, box);
         }
     }
 }

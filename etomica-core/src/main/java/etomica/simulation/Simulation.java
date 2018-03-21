@@ -251,9 +251,6 @@ public class Simulation {
         for(Box box : boxes) {
             box.addSpeciesNotify(species);
         }
-
-        // this just fires an event for listeners to receive
-        eventManager.speciesAdded(species);
     }
 
     /**
