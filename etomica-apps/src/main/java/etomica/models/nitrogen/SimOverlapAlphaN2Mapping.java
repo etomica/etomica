@@ -91,14 +91,13 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         Boundary boundary = new BoundaryRectangularPeriodic(space, boxSize);
         primitive = new PrimitiveTetragonal(space, nC[0] * a, nC[2] * a);
 
-        latticeCoordinates = new MoleculeAgentManager(this, box, new MoleculeSiteSourceNitrogen(space, new MoleculePositionCOM(space), new NitrogenOrientationDefinition(space)));
-
         coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
         coordinateDef.setIsAlpha();
         coordinateDef.setOrientationVectorAlpha(space);
         coordinateDef.initializeCoordinates(nCells);
-
         box.setBoundary(boundary);
+
+        latticeCoordinates = new MoleculeAgentManager(this, box, new MoleculeSiteSourceNitrogen(space, new MoleculePositionCOM(space), new NitrogenOrientationDefinition(space)));
         double rC = box.getBoundary().getBoxSize().getX(0) * rcScale;
         System.out.println("Truncation Radius (" + rcScale + " Box Length): " + rC);
         potential = new P2Nitrogen(space, rC);
@@ -356,7 +355,7 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         public int[] nC = new int[]{4, 4, 4};
         public double density = 0.023; //0.02204857502170207 (intial from literature with a = 5.661)
         public int numSteps = 100000;
-        public double temperature = 10; // in unit Kelvin
+        public double temperature = 20; // in unit Kelvin
         public double rcScale = 0.475;
         public double constraintAngle = 70;
         public boolean noRotScale = false;

@@ -129,6 +129,7 @@ public class MeterDADBNitrogen implements IDataSource, AgentSource<MyAgent> {
             Vector nn = space.makeVector();
             nn.E(n1);
             nn.ME(n2);
+            nn.normalize();
 
             if (doTranslation) {
                 q.E(((Integrator.Torquable) forceManager.getAgent(molecule)).torque());
