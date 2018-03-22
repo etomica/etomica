@@ -21,7 +21,10 @@ import etomica.util.TreeLinker;
 import etomica.util.TreeList;
 import etomica.util.random.IRandom;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Integrator for hard potentials.
@@ -137,6 +140,9 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
             colliderAgent.collisionPotential.bump(atoms,collisionTimeStep);
             double dE = colliderAgent.collisionPotential.energyChange();
             currentPotentialEnergy += dE;
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1) {
+                System.out.println("dE: " + dE + " PE => " + currentPotentialEnergy);
+            }
             currentKineticEnergy -= dE;
             
             for(CollisionListener listener : this.collisionListeners) {
@@ -378,6 +384,9 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
 	}
 
     public void reset() {
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 0) {
+            System.out.println("resetting integratorHard");
+        }
         ConfigurationOverlapException overlapException = null;
         try {
             super.reset();
