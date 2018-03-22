@@ -80,7 +80,7 @@ public class ChainHSMD3D extends Simulation {
         potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
         nonBondedCriterion.setBonded(false);
-        ((CriterionInterMolecular) potentialMaster.getCriterion(potential)).setIntraMolecularCriterion(nonBondedCriterion);
+        ((CriterionInterMolecular) potentialMaster.getCriterion(leafType, leafType)).setIntraMolecularCriterion(nonBondedCriterion);
 
         MeterRadiusGyration meterRG = new MeterRadiusGyration(space);
         meterRG.setBox(box);

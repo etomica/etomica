@@ -27,10 +27,7 @@ import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
-import etomica.space.BoundaryRectangularSlit;
-import etomica.space.Space;
-import etomica.space.Vector;
+import etomica.space.*;
 import etomica.space3d.IOrientation3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
@@ -165,16 +162,17 @@ public class Sam extends Simulation {
         double epsilonCH2CH3 = Math.sqrt(epsilonCH2 * epsilonCH3);
         double epsilonCH2Sulfur = Math.sqrt(epsilonCH2 * epsilonSulfur);
         // sulfur and CH3 will never be close
-        double rCut = 2.5 * sigmaCH2;
+        double rc = 2.5 * sigmaCH2;
         double nbrCut = 2.8 * sigmaCH2;
-        if (0.495 * box.getBoundary().getBoxSize().getX(0) < rCut) {
-            rCut = 0.495 * box.getBoundary().getBoxSize().getX(0);
+        if (0.495 * box.getBoundary().getBoxSize().getX(0) < rc) {
+            rc = 0.495 * box.getBoundary().getBoxSize().getX(0);
             nbrCut = 0.5 * box.getBoundary().getBoxSize().getX(0);
         }
-        if (0.495 * box.getBoundary().getBoxSize().getX(2) < rCut) {
-            rCut = 0.495 * box.getBoundary().getBoxSize().getX(2);
+        if (0.495 * box.getBoundary().getBoxSize().getX(2) < rc) {
+            rc = 0.495 * box.getBoundary().getBoxSize().getX(2);
             nbrCut = 0.5 * box.getBoundary().getBoxSize().getX(2);
         }
+        final double rCut = rc;
         potentialMaster.setRange(nbrCut);
         p2CH2 = new P2LennardJones(space, sigmaCH2, epsilonCH2);
         p2CH3 = new P2LennardJones(space, sigmaCH3, epsilonCH3);
@@ -210,13 +208,13 @@ public class Sam extends Simulation {
             }
         };
         potentialMaster.addPotential(p2CH2t, new AtomType[]{typeCH2, typeCH2});
-        ((CriterionInterMolecular) potentialMaster.getCriterion(p2CH2t)).setIntraMolecularCriterion(nonBondedCriterion);
+        ((CriterionInterMolecular) potentialMaster.getCriterion(typeCH2, typeCH2)).setIntraMolecularCriterion(nonBondedCriterion);
         potentialMaster.addPotential(p2CH3t, new AtomType[]{typeCH3, typeCH3});
         potentialMaster.addPotential(p2St, new AtomType[]{typeS, typeS});
         potentialMaster.addPotential(p2SCH2t, new AtomType[]{typeS, typeCH2});
-        ((CriterionInterMolecular) potentialMaster.getCriterion(p2SCH2t)).setIntraMolecularCriterion(nonBondedCriterion);
+        ((CriterionInterMolecular) potentialMaster.getCriterion(typeS, typeCH2)).setIntraMolecularCriterion(nonBondedCriterion);
         potentialMaster.addPotential(p2CH2CH3t, new AtomType[]{typeCH2, typeCH3});
-        ((CriterionInterMolecular) potentialMaster.getCriterion(p2CH2CH3t)).setIntraMolecularCriterion(nonBondedCriterion);
+        ((CriterionInterMolecular) potentialMaster.getCriterion(typeCH2, typeCH3)).setIntraMolecularCriterion(nonBondedCriterion);
         p1Intra = potentialMaster.makePotentialGroup(1);
         potentialMaster.addPotential(p1Intra, new ISpecies[]{species});
 
@@ -230,35 +228,6 @@ public class Sam extends Simulation {
         p4BondCCCS = new P4BondTorsion(space, Kelvin.UNIT.toSim(-251.06), Kelvin.UNIT.toSim(428.73), Kelvin.UNIT.toSim(-111.85), Kelvin.UNIT.toSim(441.27));
         setChainLength(chainLength);
 //        updateConformation(0);
-
-        harmonicStrength = 10000;
-        p2SurfaceBond = new P2Harmonic(space, harmonicStrength, 2.5);
-        Potential2SoftSpherical p2SurfaceTrunc = new Potential2SoftSpherical(space) {
-            public double getRange() {
-                return 3;
-            }
-
-            public double d2u(double r2) {
-                return 0;
-            }
-
-            public double du(double r2) {
-                return p2SurfaceBond.du(r2);
-            }
-
-            public double uInt(double rc) {
-                return 0;
-            }
-
-            public double u(double r2) {
-                return p2SurfaceBond.u(r2);
-            }
-        };
-        potentialMaster.addPotential(p2SurfaceTrunc, new AtomType[]{speciesSurface.getLeafType(), species.getSulfurType()});
-        criterion3 = new CriterionTether3(this, species, speciesSurface.getLeafType());
-        criterion3.setBox(box);
-        potentialMaster.setCriterion(p2SurfaceTrunc, criterion3);
-        findTetherBonds();
 
         sinusoidalB = Calorie.UNIT.toSim(2000) / Constants.AVOGADRO;
         p1SurfaceBond = new P1Sinusoidal(space);
@@ -276,12 +245,21 @@ public class Sam extends Simulation {
         integrator.setForceSum(forceSum);
 
         P2LennardJones p2Surface = new P2LennardJones(space, 3.0, Kelvin.UNIT.toSim(50));
-        p2SulfurSurfaceLJ = new P2SoftSphericalTruncatedSwitched(space, p2Surface, rCut);
         p2CH2Surface = new P2SoftSphericalTruncatedSwitched(space, p2Surface, rCut);
         potentialMaster.addPotential(p2CH2Surface, new AtomType[]{speciesSurface.getLeafType(), species.getCH2Type()});
-        potentialMaster.addPotential(p2SulfurSurfaceLJ, new AtomType[]{speciesSurface.getLeafType(), species.getSulfurType()});
         potentialMaster.getNeighborManager(box).setDoApplyPBC(false);
         potentialMaster.getNbrCellManager(box).setDoApplyPBC(true);
+
+        harmonicStrength = 10000;
+        p2SurfaceBond = new P2Harmonic(space, harmonicStrength, 2.5);
+        p2SulfurSurfaceLJ = new P2SoftSphericalTruncatedSwitched(space, p2Surface, rCut);
+        potentialMaster.addPotential(p2SulfurSurfaceLJ, new AtomType[]{speciesSurface.getLeafType(), species.getSulfurType()});
+        criterion3 = new CriterionTether3(this, species, speciesSurface.getLeafType());
+        criterion3.setBox(box);
+        P2Surface p2SurfaceTrunc = new P2Surface(space, p2SulfurSurfaceLJ, p2SurfaceBond, criterion3);
+        potentialMaster.addPotential(p2SurfaceTrunc, new AtomType[]{speciesSurface.getLeafType(), species.getSulfurType()});
+        findTetherBonds();
+
 
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
@@ -570,5 +548,55 @@ public class Sam extends Simulation {
             quads[i][3] = i+3;
         }
         p1Intra.addPotential(p4BondCCCC, new Atomset4IteratorIndexList(quads));
+    }
+
+    /**
+     * Potential class that behaves like switched LJ except for the specific pair
+     * of sulfur/surface atoms that are tethered.
+     */
+    private static class P2Surface extends Potential2 implements PotentialSoft {
+        protected final PotentialSoft p2lj;
+        protected final P2Harmonic p2Bond;
+        protected final Vector dr;
+        protected Boundary boundary;
+        protected final NeighborCriterion bondCriterion;
+
+        public P2Surface(Space space, PotentialSoft p2lj, P2Harmonic p2Bond, NeighborCriterion bondCriterion) {
+            super(space);
+            dr = space.makeVector();
+            this.p2lj = p2lj;
+            this.p2Bond = p2Bond;
+            this.bondCriterion = bondCriterion;
+        }
+
+        public double getRange() {
+            return p2lj.getRange();
+        }
+
+        @Override
+        public double energy(IAtomList atoms) {
+            return bondCriterion.accept(atoms) ? p2Bond.energy(atoms) : p2lj.energy(atoms);
+        }
+
+        @Override
+        public void setBox(Box box) {
+            p2lj.setBox(box);
+            p2Bond.setBox(box);
+        }
+
+        @Override
+        public double virial(IAtomList atoms) {
+            return bondCriterion.accept(atoms) ? p2Bond.virial(atoms) : p2lj.virial(atoms);
+        }
+
+        @Override
+        public Vector[] gradient(IAtomList atoms) {
+            return bondCriterion.accept(atoms) ? p2Bond.gradient(atoms) : p2lj.gradient(atoms);
+        }
+
+        @Override
+        public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+            return bondCriterion.accept(atoms) ? p2Bond.gradient(atoms, pressureTensor) : p2lj.gradient(atoms, pressureTensor);
+        }
     }
 }

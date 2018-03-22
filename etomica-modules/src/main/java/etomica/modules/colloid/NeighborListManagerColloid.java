@@ -43,27 +43,26 @@ public class NeighborListManagerColloid extends NeighborListManager {
         super.neighborSetup();
         
         IAtom colloidAtom = box.getMoleculeList(speciesColloid).get(0).getChildList().get(0);
-        int p2idx = potentialMaster.getRangedPotentials(colloidAtom.getType()).getPotentialIndex(p2mc);
         IMoleculeList monomers = box.getMoleculeList(speciesMonomer);
         if (monomers.size() == 0) {
             return;
         }
-        int p2idx2 = potentialMaster.getRangedPotentials(monomers.get(0).getChildList().get(0).getType()).getPotentialIndex(p2mc);
 
+        int colloidTypeIndex = colloidAtom.getType().getIndex();
+        int monomerTypeIndex = monomers.get(0).getChildList().get(0).getType().getIndex();
         for (int i = 0; i<monomers.size(); i++) {
             IAtom atom = monomers.get(i).getChildList().get(0);
-            agentManager2Body.getAgent(colloidAtom).addUpNbr(atom,p2idx);
-            agentManager2Body.getAgent(atom).addDownNbr(colloidAtom,p2idx2);
+            agentManager2Body.getAgent(colloidAtom).addUpNbr(atom, colloidTypeIndex);
+            agentManager2Body.getAgent(atom).addDownNbr(colloidAtom, monomerTypeIndex);
         }
         
-        p2idx = potentialMaster.getRangedPotentials(monomers.get(0).getChildList().get(0).getType()).getPotentialIndex(p2pseudo);
         for (int i = 0; i<monomers.size(); i+=chainLength) {
             IAtom iAtom = monomers.get(i).getChildList().get(0);
             for (int j = i+chainLength; j<monomers.size(); j+=chainLength) {
                 IAtom jAtom = monomers.get(j).getChildList().get(0);
                 // iAtom and jAtom are both bonded to the colloid.  we need to keep them apart with p2seudo
-                agentManager2Body.getAgent(iAtom).addUpNbr(jAtom,p2idx);
-                agentManager2Body.getAgent(jAtom).addDownNbr(iAtom,p2idx2);
+                agentManager2Body.getAgent(iAtom).addUpNbr(jAtom, monomerTypeIndex);
+                agentManager2Body.getAgent(jAtom).addDownNbr(iAtom, monomerTypeIndex);
             }
         }
     }

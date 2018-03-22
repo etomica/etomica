@@ -13,9 +13,21 @@ import etomica.space.Space;
 import etomica.util.Debug;
 
 public class P2SquareWellMonomer extends P2SquareWell {
+
+    protected int chainLength;
+    protected double rGraftMin2;
+
     public P2SquareWellMonomer(Space space, AtomLeafAgentManager bondManager) {
         super(space, 1.0, 2.0, 1.0, true);
         this.bondManager = bondManager;
+    }
+
+    public void setRGraftMin(double rGraftMin) {
+        rGraftMin2 = rGraftMin * rGraftMin;
+    }
+
+    public void setChainLength(int newChainLength) {
+        chainLength = newChainLength;
     }
     
     public double energy(IAtomList pair) {
@@ -25,16 +37,24 @@ public class P2SquareWellMonomer extends P2SquareWell {
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
-        if (r2 < coreDiameterSquared*(1+1e-9)) {
-            IAtomList bondList = (IAtomList)bondManager.getAgent(pair.get(0));
-            boolean bonded = false;
-            for (int i = 0; !bonded && i<bondList.size(); i++) {
-                bonded = bondList.get(i) == pair.get(1);
-            }
-            if (bonded) {
-                return 0;
-            }
+
+        int idx0 = atom0.getParentGroup().getIndex();
+        int idx1 = atom1.getParentGroup().getIndex();
+        int chainIdx0 = idx0 / chainLength;
+        int chainIdx1 = idx1 / chainLength;
+        int childIdx0 = idx0 % chainLength;
+        int childIdx1 = idx1 % chainLength;
+
+        if (childIdx0 + childIdx1 == 0) {
+            // both bonded to colloid.  use rMinGraft
+            return r2 < rGraftMin2 ? 0 : Double.POSITIVE_INFINITY;
         }
+
+        if (chainIdx0 == chainIdx1 && Math.abs(childIdx0 - childIdx1) == 1) {
+            // monomers are bonded to each other
+            return 0;
+        }
+
         return u(r2);
     }
 
@@ -58,6 +78,30 @@ public class P2SquareWellMonomer extends P2SquareWell {
 //        System.out.println("in CT "+r2+" "+bij);
         double time = Double.POSITIVE_INFINITY;
 
+        int idx0 = pair.get(0).getParentGroup().getIndex();
+        int idx1 = pair.get(1).getParentGroup().getIndex();
+        int chainIdx0 = idx0 / chainLength;
+        int chainIdx1 = idx1 / chainLength;
+        int childIdx0 = idx0 % chainLength;
+        int childIdx1 = idx1 % chainLength;
+        boolean grafted = childIdx0 + childIdx1 == 0;
+        boolean bonded = (chainIdx0 == chainIdx1) && Math.abs(childIdx0 - childIdx1) == 1;
+
+        if (grafted) {
+            if (bij < 0.0) {    // Check for hard-core collision
+                double discr = bij * bij - v2 * (r2 - coreDiameterSquared);
+                if (discr > 0) {  // Hard cores collide next
+                    if (ignoreOverlap && dr.squared() < coreDiameterSquared)
+                        return falseTime + 0.001 * Math.sqrt(dr.squared()) / Math.sqrt(v2);
+                    double discriminant = bij * bij - v2 * (dr.squared() - coreDiameterSquared);
+                    if (discriminant > 0) {
+                        time = (-bij - Math.sqrt(discriminant)) / v2;
+                    }
+                }
+            }
+            return falseTime + time;
+        }
+
         if(r2 < wellDiameterSquared) {  // Already inside wells
 
             if(bij < 0.0) {    // Check for hard-core collision
@@ -66,11 +110,6 @@ public class P2SquareWellMonomer extends P2SquareWell {
                 if(discr > 0) {  // Hard cores collide next
                     if (r2 < coreDiameterSquared+1e-9) {
                         // check for bonding
-                        IAtomList bondList = (IAtomList)bondManager.getAgent(pair.get(0));
-                        boolean bonded = false;
-                        for (int i = 0; !bonded && i<bondList.size(); i++) {
-                            bonded = bondList.get(i) == pair.get(1);
-                        }
                         if (bonded) {
                             double discrBonding = discr + v2 * coreDiameterSquared*(bondFac*bondFac-1);
                             if (discrBonding > 0) {
@@ -104,11 +143,6 @@ public class P2SquareWellMonomer extends P2SquareWell {
             else {           // Moving away from each other, wells collide next
                 if (r2 < coreDiameterSquared+1e-9) {
                     // check for bonding
-                    IAtomList bondList = (IAtomList)bondManager.getAgent(pair.get(0));
-                    boolean bonded = false;
-                    for (int i = 0; !bonded && i<bondList.size(); i++) {
-                        bonded = bondList.get(i) == pair.get(1);
-                    }
                     if (bonded) {
                         // take bond stretch time
                         double discr = bij*bij - v2 * ( r2 - coreDiameterSquared );
