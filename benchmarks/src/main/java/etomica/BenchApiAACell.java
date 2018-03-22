@@ -21,7 +21,10 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.stream.IntStream;
 
 @State(Scope.Benchmark)
 @Fork(1)
@@ -29,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.SECONDS)
 @Warmup(time = 1, iterations = 5)
 @Measurement(time = 5, timeUnit = TimeUnit.SECONDS, iterations = 5)
+@SuppressWarnings("ALL") // duplicated code
 public class BenchApiAACell {
 
     @Param("32000")
@@ -37,6 +41,7 @@ public class BenchApiAACell {
     private ApiAACell pairIterator;
     private ApiAACellFast pairIteratorFast;
     private CellLattice lattice;
+    private ExecutorService pool;
 
     @Setup
     public void setUp() {
@@ -55,7 +60,12 @@ public class BenchApiAACell {
         pairIteratorFast = new ApiAACellFast(box);
         pairIteratorFast.setLattice(ncm.getLattice());
         lattice = ncm.getLattice();
+        pool = Executors.newFixedThreadPool(4);
+    }
 
+    @TearDown
+    public void tearDown() {
+        pool.shutdownNow();
     }
 
     @Benchmark
@@ -102,6 +112,165 @@ public class BenchApiAACell {
             }
         }
         return sum;
+    }
+
+    @Benchmark
+    public double benchParallelStreams() {
+        int[][] nbrCells = lattice.getUpNeighbors();
+        Object[] sites = lattice.sites();
+        return IntStream.range(0, sites.length).parallel().mapToDouble(centralCellIdx -> {
+            double sum = 0;
+            Cell centralCell = (Cell) sites[centralCellIdx];
+            IAtomList centralCellAtoms = centralCell.occupants();
+
+            if (!centralCellAtoms.isEmpty()) {
+
+                // loop over pairs within the cell
+                for (int i = 0; i < centralCellAtoms.size(); i++) {
+                    for (int j = i + 1; j < centralCellAtoms.size(); j++) {
+                        sum += centralCellAtoms.get(i).getPosition().getX(0);
+                        sum += centralCellAtoms.get(j).getPosition().getX(0);
+                    }
+                }
+
+                for (int nbrCellIdx : nbrCells[centralCellIdx]) {
+                    Cell nbrCell = (Cell) lattice.sites()[nbrCellIdx];
+                    IAtomList nbrCellAtoms = nbrCell.occupants();
+
+                    for (int i = 0; i < centralCellAtoms.size(); i++) {
+                        for (int j = 0; j < nbrCellAtoms.size(); j++) {
+                            sum += centralCellAtoms.get(i).getPosition().getX(0);
+                            sum += nbrCellAtoms.get(j).getPosition().getX(0);
+                        }
+                    }
+                }
+            }
+            return sum;
+        }).sum();
+    }
+
+    @Benchmark
+    public double benchExecutorService() throws InterruptedException, ExecutionException {
+        List<Callable<Double>> tasks = new ArrayList<>();
+        int partitionSize = lattice.sites().length / 4;
+        for (int i = 0; i < lattice.sites().length; i+=partitionSize) {
+            tasks.add(new NeighborUpdater(i, Math.min(i + partitionSize, lattice.sites().length), lattice));
+        }
+        List<Future<Double>> results = pool.invokeAll(tasks);
+        double sum = 0;
+        for (Future<Double> result : results) {
+            sum += result.get();
+        }
+        return sum;
+    }
+
+    @Benchmark
+    public double benchCustomFJTask() {
+        FJNeighborUpdater f = new FJNeighborUpdater(0, lattice.sites().length, lattice);
+        return ForkJoinPool.commonPool().invoke(f);
+    }
+
+    private static class NeighborUpdater implements Callable<Double> {
+        private final int from, to;
+        private final CellLattice lattice;
+        public NeighborUpdater(int from, int to, CellLattice lattice) {
+            this.from = from;
+            this.to = to;
+            this.lattice = lattice;
+        }
+
+        @Override
+        public Double call() throws Exception {
+            double sum = 0;
+            int[][] nbrCells = lattice.getUpNeighbors();
+            Object[] sites = lattice.sites();
+            for (int centralCellIdx = from; centralCellIdx < to; centralCellIdx++) {
+                Cell centralCell = (Cell) sites[centralCellIdx];
+                IAtomList centralCellAtoms = centralCell.occupants();
+
+                if (!centralCellAtoms.isEmpty()) {
+
+                    // loop over pairs within the cell
+                    for (int i = 0; i < centralCellAtoms.size(); i++) {
+                        for (int j = i + 1; j < centralCellAtoms.size(); j++) {
+                            sum += centralCellAtoms.get(i).getPosition().getX(0);
+                            sum += centralCellAtoms.get(j).getPosition().getX(0);
+                        }
+                    }
+
+                    for (int nbrCellIdx : nbrCells[centralCellIdx]) {
+                        Cell nbrCell = (Cell) lattice.sites()[nbrCellIdx];
+                        IAtomList nbrCellAtoms = nbrCell.occupants();
+
+                        for (int i = 0; i < centralCellAtoms.size(); i++) {
+                            for (int j = 0; j < nbrCellAtoms.size(); j++) {
+                                sum += centralCellAtoms.get(i).getPosition().getX(0);
+                                sum += nbrCellAtoms.get(j).getPosition().getX(0);
+                            }
+                        }
+                    }
+                }
+            }
+            return sum;
+        }
+    }
+
+    private static class FJNeighborUpdater extends RecursiveTask<Double> {
+        private static final int SEQ_CUTOFF = 1000;
+        private final int from, to;
+        private final CellLattice lattice;
+        public FJNeighborUpdater(int from, int to, CellLattice lattice) {
+            this.from = from;
+            this.to = to;
+            this.lattice = lattice;
+        }
+
+        @Override
+        protected Double compute() {
+            if(to - from < SEQ_CUTOFF) {
+                return computeDirectly();
+            } else {
+                FJNeighborUpdater f1 = new FJNeighborUpdater(from, from + ((to - from) / 2), lattice);
+                f1.fork();
+
+                FJNeighborUpdater f2 = new FJNeighborUpdater(from + ((to - from) / 2), to, lattice);
+                return f2.compute() + f1.join();
+            }
+        }
+
+        private double computeDirectly() {
+            double sum = 0;
+            int[][] nbrCells = lattice.getUpNeighbors();
+            Object[] sites = lattice.sites();
+            for (int centralCellIdx = from; centralCellIdx < to; centralCellIdx++) {
+                Cell centralCell = (Cell) sites[centralCellIdx];
+                IAtomList centralCellAtoms = centralCell.occupants();
+
+                if (!centralCellAtoms.isEmpty()) {
+
+                    // loop over pairs within the cell
+                    for (int i = 0; i < centralCellAtoms.size(); i++) {
+                        for (int j = i + 1; j < centralCellAtoms.size(); j++) {
+                            sum += centralCellAtoms.get(i).getPosition().getX(0);
+                            sum += centralCellAtoms.get(j).getPosition().getX(0);
+                        }
+                    }
+
+                    for (int nbrCellIdx : nbrCells[centralCellIdx]) {
+                        Cell nbrCell = (Cell) lattice.sites()[nbrCellIdx];
+                        IAtomList nbrCellAtoms = nbrCell.occupants();
+
+                        for (int i = 0; i < centralCellAtoms.size(); i++) {
+                            for (int j = 0; j < nbrCellAtoms.size(); j++) {
+                                sum += centralCellAtoms.get(i).getPosition().getX(0);
+                                sum += nbrCellAtoms.get(j).getPosition().getX(0);
+                            }
+                        }
+                    }
+                }
+            }
+            return sum;
+        }
     }
 
     public static void main(String[] args) throws RunnerException {
