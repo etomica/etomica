@@ -53,7 +53,6 @@ public class OsmosisSim extends Simulation {
     public OsmosisSim(Space _space) {
 
         super(_space);
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
 
         final double sigma = 1.0;
 
@@ -64,6 +63,7 @@ public class OsmosisSim extends Simulation {
         speciesSolute.setIsDynamic(true);
         addSpecies(speciesSolute);
 
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         potentialAA = new P2HardSphere(space, sigma, true);
         potentialMaster.addPotential(potentialAA, new AtomType[]{speciesSolvent.getLeafType(), speciesSolvent.getLeafType()});
         potentialBB = new P2HardSphere(space, sigma, true);
