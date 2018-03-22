@@ -111,8 +111,12 @@ public class SimOverlapAlphaN2TP extends Simulation {
 		rotate.setBox(box);
 			
 		integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature));
+
+        //TODO
 		integrator.getMoveManager().addMCMove(move);
 		integrator.getMoveManager().addMCMove(rotate);
+        //TODO
+
 		integrator.setBox(box);
 		
 	   	potential.setRange(Double.POSITIVE_INFINITY);
@@ -243,6 +247,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
 	
 		
         if (false) {
+            sim.activityIntegrate.setMaxSteps(Long.MAX_VALUE);
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
@@ -353,7 +358,6 @@ public class SimOverlapAlphaN2TP extends Simulation {
         System.out.println("Time taken(s): " + (endTime - startTime)/1000.0);
     }
 
-    private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
     public Box box;
@@ -377,11 +381,11 @@ public class SimOverlapAlphaN2TP extends Simulation {
         public int[] nC = new int[]{4, 4, 4};
         public double density = 0.023; //0.02204857502170207 (intial from literature with a = 5.661)
         public long numSteps = 100000;
-        public double temperature = 0.02; // in unit Kelvin
+        public double temperature = 10.5; // in unit Kelvin
         public double[] alpha = new double[]{1.0};
         public int numAlpha = 11;
         public double alphaSpan = 1;
-        public double[] otherTemperatures = new double[]{0.01};
+        public double[] otherTemperatures = new double[]{10};
         public double rcScale = 0.475;
         public double constraintAngle = 70;
         public boolean noRotScale = false;

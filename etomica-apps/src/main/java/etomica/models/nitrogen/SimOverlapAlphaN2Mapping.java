@@ -175,6 +175,7 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         boolean noRotScale = params.noRotScale;
         boolean doTranslation = params.doTranslation;
         boolean doRotation = params.doRotation;
+        boolean runGraphic = params.runGraphic;
         String configFileName = "configT" + temperature;
         String filename = "alphaN2d" + density + "_T" + temperature + "Cons0.8";
 
@@ -185,12 +186,15 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
 
         //instantiate simulation
         final SimOverlapAlphaN2Mapping sim = new SimOverlapAlphaN2Mapping(Space.getInstance(3), nC, density, temperature,
-                numSteps, rcScale, constraintAngle, noRotScale, doRotation, doTranslation);//TODO do I need to change this sim
+                numSteps, rcScale, constraintAngle, noRotScale, doRotation, doTranslation);
 
         MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(sim.potentialMaster);
         meterPE2.setBox(sim.box);
         final double latticeEnergy = meterPE2.getDataAsScalar();
         System.out.println("latticeEnergy = " + latticeEnergy);
+
+        MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+        MeterDADBNitrogen meterDADB = new MeterDADBNitrogen(sim, meterPE, sim.potentialMaster, Kelvin.UNIT.toSim(temperature), sim.latticeCoordinates);
 
         //start simulation
         File configFile = new File(configFileName + ".pos");
@@ -204,7 +208,8 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         System.out.flush();
 
 
-        if (false) {
+        if (runGraphic) {
+            sim.activityIntegrate.setMaxSteps(Long.MAX_VALUE);
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
@@ -239,10 +244,7 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         }
 
 
-        MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
 
-
-        MeterDADBNitrogen meterDADB = new MeterDADBNitrogen(sim, meterPE, sim.potentialMaster, Kelvin.UNIT.toSim(temperature), sim.latticeCoordinates);
         meterDADB.doTranslation = doTranslation;
         meterDADB.doRotation = doRotation;
 
@@ -359,6 +361,7 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         public double rcScale = 0.475;
         public double constraintAngle = 70;
         public boolean noRotScale = false;
+        public boolean runGraphic = false;
         public boolean doRotation = true;
         public boolean doTranslation = true;
     }

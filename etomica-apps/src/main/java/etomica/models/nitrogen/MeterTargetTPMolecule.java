@@ -168,6 +168,9 @@ public class MeterTargetTPMolecule implements IDataSource {
                     x[i*numAlpha+j] = 1.0/(1+alpha[i][j]*Math.exp(ai-a0));
                 }
             }
+
+            x[0] = Math.exp(ai - a0);
+
         }
         if (fw != null) {
             try {

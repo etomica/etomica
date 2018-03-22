@@ -132,14 +132,16 @@ public class MeterDADBNitrogen implements IDataSource, AgentSource<MyAgent> {
             nn.normalize();
 
             if (doTranslation) {
-                q.E(((Integrator.Torquable) forceManager.getAgent(molecule)).torque());
+
                 Vector lPos = ((MoleculeSiteSourceNitrogen.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).position;
                 dr.Ev1Mv2(centerMass, lPos);
                 ForceSum += totalForce.dot(dr);
-//                System.out.println("doTranslation");
+//                System.out.println(molecule.getIndex()+  " "+totalForce.dot(dr));
                 //get the forcesum!!
             }
+
             if (doRotation) {
+                q.E(((Integrator.Torquable) forceManager.getAgent(molecule)).torque());
                 Orientation3D or = ((MoleculeSiteSourceNitrogen.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).orientation;
                 Vector a0 = or.getDirection();//NN
                 double theta = Math.acos(Math.abs(nn.dot(a0)));
