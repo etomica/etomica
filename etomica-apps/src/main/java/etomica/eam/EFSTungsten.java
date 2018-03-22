@@ -118,7 +118,7 @@ public class EFSTungsten extends Simulation {
         d = 4.41;
         B = 0;
 
-        potentialN = new PotentialEFS(space, c, c0, c1, c2, c3, c4, A, d, B);
+        potentialN = new PotentialEFS(space, A, B, c, d, c0, c1, c2, c3, c4);
 
         this.potentialMaster.addPotential(potentialN, new AtomType[]{w.getLeafType()});
         potentialMaster.setRange(potentialN.getRange() * 1.3);
