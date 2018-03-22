@@ -18,6 +18,8 @@ import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.history.HistoryScrolling;
 import etomica.data.meter.*;
+import etomica.eam.P2EAM;
+import etomica.eam.PotentialCalculationEnergySumEAM;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
@@ -32,8 +34,6 @@ import etomica.lattice.SpaceLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveHCP4;
-import etomica.eam.P2EAM;
-import etomica.eam.PotentialCalculationEnergySumEAM;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
@@ -124,7 +124,7 @@ public class SimFe extends Simulation {
         } else {
             integrator = new IntegratorVelocityVerlet(potentialMaster, random, timeStep, temperature, box);
         }
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         meterPE.setPotentialCalculation(new PotentialCalculationEnergySumEAM(potential));
         integrator.setMeterPotentialEnergy(meterPE);
         integrator.setIsothermal(true);
