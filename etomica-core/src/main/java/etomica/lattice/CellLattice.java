@@ -4,8 +4,9 @@
 
 package etomica.lattice;
 
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.util.Debug;
 
 /**
  * A lattice of arbitrarily-sized rectangular cells, such that a point in space can be 
@@ -45,6 +46,9 @@ public class CellLattice extends RectangularLattice {
     public Object site(Vector r) {
         int idx1D = 0;
         for(int i=0; i<D; i++) {
+            if (Debug.ON && 2 * Math.abs(r.getX(i)) > dimensions.getX(i)) {
+                throw new RuntimeException("vector " + r + " is outside the boundary " + dimensions);
+            }
             int j = ((int)(size[i]*(r.getX(i)/dimensions.getX(i)+0.5)));
             if (j == -1) j = 0;
             else if (j == size[i]) j = size[i]-1;
