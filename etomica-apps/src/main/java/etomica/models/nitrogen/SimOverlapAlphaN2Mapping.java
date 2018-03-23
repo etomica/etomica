@@ -363,6 +363,6 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         public boolean noRotScale = false;
         public boolean runGraphic = false;
         public boolean doRotation = true;
-        public boolean doTranslation = true;
+        public boolean doTranslation = false;
     }
 }

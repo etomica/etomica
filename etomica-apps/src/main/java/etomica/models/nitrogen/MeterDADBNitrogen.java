@@ -90,6 +90,7 @@ public class MeterDADBNitrogen implements IDataSource, AgentSource<MyAgent> {
         MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(potentialMaster);
         meterPE2.setBox(latticeCoordinates.getBox());
         latticeEnergy = meterPE2.getDataAsScalar();
+//        System.out.println("latticeEnergy in meter:"+ " " + latticeEnergy);
         this.temperature = temperature;
         ph1h2 = space.makeVector();
         q = space.makeVector();
@@ -106,6 +107,7 @@ public class MeterDADBNitrogen implements IDataSource, AgentSource<MyAgent> {
         Box box = latticeCoordinates.getBox();
         double[] x = data.getData();
         double x0 = meterPE.getDataAsScalar() - latticeEnergy;
+//        System.out.println("latticeEnergy in meter:"+ " " + latticeEnergy);
         pcTorqueSum.reset();
         potentialMaster.calculate(box, id, pcTorqueSum);
         IMoleculeList molecules = box.getMoleculeList();
@@ -132,7 +134,6 @@ public class MeterDADBNitrogen implements IDataSource, AgentSource<MyAgent> {
             nn.normalize();
 
             if (doTranslation) {
-
                 Vector lPos = ((MoleculeSiteSourceNitrogen.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).position;
                 dr.Ev1Mv2(centerMass, lPos);
                 ForceSum += totalForce.dot(dr);
@@ -148,9 +149,9 @@ public class MeterDADBNitrogen implements IDataSource, AgentSource<MyAgent> {
                 axis.E(a0);
                 axis.XE(nn);
                 axis.normalize();
-                double DUDT = q.dot(axis);
+                double DUDT = -q.dot(axis);
                 orientationSum += (1 - Math.cos(theta)) / Math.sin(theta) * DUDT;//OrientationSum
-//                System.out.println("doRotation");
+//                System.out.println("theta=" + theta);
             }
         }
 
@@ -164,6 +165,8 @@ public class MeterDADBNitrogen implements IDataSource, AgentSource<MyAgent> {
                 x[0] = (x0 + latticeEnergy) + (fac * temperature) + 0.5 * ForceSum + orientationSum;
             } else {
                 x[0] = x0 + 0.5 * ForceSum + orientationSum;
+
+//                System.out.println( " x0Ave:" + x0/256 +" ForceSumAve: "+ 0.5*ForceSum/256 + " OrientationSumAve:  " + orientationSum/256);
             }
 
             if (data.isNaN()) {
