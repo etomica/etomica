@@ -74,7 +74,7 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         int numMolecules = nC[0] * nC[1] * nC[2] * 4;
 
         double a = Math.pow(4.0 / density, 1.0 / 3.0);
-        System.out.println("Unit Cell Length, a: " + a);
+//        System.out.println("Unit Cell Length, a: " + a);
 
         Basis basisFCC = new BasisCubicFcc();
         Basis basis = new BasisBigCell(space, basisFCC, new int[]{nC[0], nC[1], nC[2]});
@@ -99,7 +99,7 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
 
         latticeCoordinates = new MoleculeAgentManager(this, box, new MoleculeSiteSourceNitrogen(space, new MoleculePositionCOM(space), new NitrogenOrientationDefinition(space)));
         double rC = box.getBoundary().getBoxSize().getX(0) * rcScale;
-        System.out.println("Truncation Radius (" + rcScale + " Box Length): " + rC);
+//        System.out.println("Truncation Radius (" + rcScale + " Box Length): " + rC);
         potential = new P2Nitrogen(space, rC);
         potential.setBox(box);
 
@@ -110,7 +110,7 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         potentialMaster = new PotentialMasterListMolecular(this, space);
         potentialMaster.addPotential(potential, new ISpecies[]{species, species});
         if (!noRotScale) {
-            System.out.println("set constraint angle to = " + constraintAngle);
+//            System.out.println("set constraint angle to = " + constraintAngle);
             potentialMaster.addPotential(pRotConstraint, new ISpecies[]{species});
         }
 
@@ -124,8 +124,8 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
             throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
 
-        int numNeigh = potentialMaster.getNeighborManager(box).getDownList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
-        System.out.println("numNeigh: " + numNeigh);
+//        int numNeigh = potentialMaster.getNeighborManager(box).getDownList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
+//        System.out.println("numNeigh: " + numNeigh);
 
         MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster, getRandom(), space);
         move.setBox(box);
@@ -145,7 +145,7 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setBox(box);
         latticeEnergy = meterPE.getDataAsScalar();
-        System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy / numMolecules);
+//        System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy / numMolecules);
 
         potential.setRange(rC);
         potential.setRange(Double.POSITIVE_INFINITY);
@@ -176,13 +176,11 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         boolean doTranslation = params.doTranslation;
         boolean doRotation = params.doRotation;
         boolean runGraphic = params.runGraphic;
+        boolean doMapping = params.doMapping;
+        boolean doConventional = params.doConventional;
         String configFileName = "configT" + temperature;
         String filename = "alphaN2d" + density + "_T" + temperature + "Cons0.8";
 
-        System.out.println("Running alpha-phase Nitrogen TP overlap simulation");
-        System.out.println(numMolecules + " molecules at density " + density + " and temperature " + temperature + " K");
-        System.out.print("perturbing into: ");
-        System.out.println("\n" + numSteps + " steps");
 
         //instantiate simulation
         final SimOverlapAlphaN2Mapping sim = new SimOverlapAlphaN2Mapping(Space.getInstance(3), nC, density, temperature,
@@ -194,17 +192,22 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         System.out.println("latticeEnergy = " + latticeEnergy);
 
         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-        MeterDADBNitrogen meterDADB = new MeterDADBNitrogen(sim, meterPE, sim.potentialMaster, Kelvin.UNIT.toSim(temperature), sim.latticeCoordinates);
 
-        //start simulation
-        File configFile = new File(configFileName + ".pos");
-        if (configFile.exists()) {
-            System.out.println("\n***initialize coordinate from " + configFile);
-            sim.initializeConfigFromFile(configFileName);
-        } else {
-            long initStep = (1 + (numMolecules / 500)) * 100 * numMolecules;
-            sim.initialize(initStep);
+        MeterDADBNitrogen meterDADB = null;
+        if (doMapping) {
+            meterDADB = new MeterDADBNitrogen(sim, meterPE, sim.potentialMaster, Kelvin.UNIT.toSim(temperature), sim.latticeCoordinates);
         }
+        //start simulation  TODO
+//        File configFile = new File(configFileName + ".pos");
+//        if (configFile.exists()) {
+//            System.out.println("\n***initialize coordinate from " + configFile);
+//            sim.initializeConfigFromFile(configFileName);
+//        } else {
+//            long initStep = (1 + (numMolecules / 500)) * 100 * numMolecules;
+//            sim.initialize(initStep);
+//        }
+        long initStep = (1 + (numMolecules / 500)) * 100 * numMolecules;
+        sim.initialize(initStep);
         System.out.flush();
 
 
@@ -244,28 +247,36 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         }
 
 
+        if (doMapping) {
+            meterDADB.doTranslation = doTranslation;
+            meterDADB.doRotation = doRotation;
+        }
 
-        meterDADB.doTranslation = doTranslation;
-        meterDADB.doRotation = doRotation;
 
+        AccumulatorAverageFixed accumulatorAverageFixedDADB = null;
+        DataPumpListener dataPumpListenerDADB = null;
+        if (doMapping) {
+            int DADBBlockSize = numSteps / (4 * numMolecules * 100);
+            if (DADBBlockSize == 0) DADBBlockSize = 1;
+            accumulatorAverageFixedDADB = new AccumulatorAverageFixed(DADBBlockSize);
+            dataPumpListenerDADB = new DataPumpListener(meterDADB, accumulatorAverageFixedDADB, numMolecules * 4);
+        }
 
-        int DADBBlockSize = numSteps / (4 * numMolecules * 100);
-        if (DADBBlockSize == 0) DADBBlockSize = 1;
-        int PEBlockSize = numSteps / (10 * 100);
-        if (PEBlockSize == 0) PEBlockSize = 1;
-        AccumulatorAverageFixed accumulatorAverageFixedDADB = new AccumulatorAverageFixed(DADBBlockSize);
-        DataPumpListener dataPumpListenerDADB = new DataPumpListener(meterDADB, accumulatorAverageFixedDADB, numMolecules * 4);
-
-        AccumulatorAverageFixed accumulatorAverageFixedPE = new AccumulatorAverageFixed(PEBlockSize);
-        DataPumpListener dataPumpListenerPE = new DataPumpListener(meterPE, accumulatorAverageFixedPE, 1);
-
+        AccumulatorAverageFixed accumulatorAverageFixedPE = null;
+        DataPumpListener dataPumpListenerPE = null;
+        if (doConventional) {
+            int PEBlockSize = numSteps / (10 * 100);
+            if (PEBlockSize == 0) PEBlockSize = 1;
+            accumulatorAverageFixedPE = new AccumulatorAverageFixed(PEBlockSize);
+            dataPumpListenerPE = new DataPumpListener(meterPE, accumulatorAverageFixedPE, 1);
+        }
         sim.activityIntegrate.setMaxSteps(numSteps / 10);
         sim.getController().actionPerformed();
 
         sim.activityIntegrate.setMaxSteps(numSteps);
 
-        sim.integrator.getEventManager().addListener(dataPumpListenerDADB);
-        sim.integrator.getEventManager().addListener(dataPumpListenerPE);
+        if (doMapping) sim.integrator.getEventManager().addListener(dataPumpListenerDADB);
+        if (doConventional) sim.integrator.getEventManager().addListener(dataPumpListenerPE);
         sim.getController().reset();
         sim.getController().actionPerformed();
 
@@ -274,38 +285,41 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         DateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Calendar cal = Calendar.getInstance();
         System.out.println(date.format(cal.getTime()));
-        System.out.println("Time taken (in mins): " + (endTime - startTime) / (1000.0 * 60.0));
+        double totalTime = (endTime - startTime) / (1000.0 * 60.0);
+        System.out.println("Time taken (in mins): " + totalTime);
         System.out.println("numSteps = " + numSteps);
         System.out.println("temperature = " + temperature);
 
-        double MappingAverage = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(0);
-        double MappingErr = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(0);
-        double MappingCor = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
+        if (doMapping) {
+            double MappingAverage = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(0);
+            double MappingErr = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(0);
+            double MappingCor = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
+            System.out.println("MappingAverage= " + MappingAverage + "\tMappingErr= "
+                    + MappingErr + "\tMappingCor= " + MappingCor + "\ttotalTime= " + totalTime);
+        }
 
         int N = sim.box.getMoleculeList().getMoleculeCount();
         double fac = (doRotation ? 1.0 : 0) * N + (doTranslation ? 1.5 : 0) * (N - 1);
         double harmonicEnergy = fac * Kelvin.UNIT.toSim((temperature));
-        System.out.println("doRotation:" + doRotation + " doTranslation:" + doTranslation);
-
-        System.out.println("MappingAverage= " + MappingAverage + "\tMappingErr= " + MappingErr + "\tMappingCor= " + MappingCor);
+//        System.out.println("doRotation:" + doRotation + " doTranslation:" + doTranslation);
 
 
-        double PEAverage = accumulatorAverageFixedPE.getData(AccumulatorAverage.AVERAGE).getValue(0);
-        double PEErr = accumulatorAverageFixedPE.getData(AccumulatorAverage.ERROR).getValue(0);
-        double PECor = accumulatorAverageFixedPE.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
-
-        System.out.println("PEAverage= " + (PEAverage - latticeEnergy - harmonicEnergy)
-                + "\tPEErr= " + PEErr + "\tPECor= " + PECor);
-
-        System.out.println("PE full = " + PEAverage);
-        System.out.println("Harmonic = " + harmonicEnergy);
+        if (doConventional) {
+            double PEAverage = accumulatorAverageFixedPE.getData(AccumulatorAverage.AVERAGE).getValue(0);
+            double PEErr = accumulatorAverageFixedPE.getData(AccumulatorAverage.ERROR).getValue(0);
+            double PECor = accumulatorAverageFixedPE.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
+            System.out.println("PEAverage= " + (PEAverage - latticeEnergy - harmonicEnergy)
+                    + "\tPEErr= " + PEErr + "\tPECor= " + PECor + "\ttotalTime= " + totalTime);
+        }
+//        System.out.println("PE full = " + PEAverage);
+//        System.out.println("Harmonic = " + harmonicEnergy);
         final double endLatticeEnergy = meterPE2.getDataAsScalar();
         System.out.println("endLE = " + endLatticeEnergy);
     }
 
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
-        System.out.println("\nEquilibration Steps: " + initSteps);
+        System.out.println("\nEquilibration Steps: " + initSteps + " + numSteps/10");
         activityIntegrate.setMaxSteps(initSteps);
         getController().actionPerformed();
         getController().reset();
@@ -363,6 +377,8 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         public boolean noRotScale = false;
         public boolean runGraphic = false;
         public boolean doRotation = true;
-        public boolean doTranslation = false;
+        public boolean doTranslation = true;
+        public boolean doMapping = true;
+        public boolean doConventional = false;
     }
 }
