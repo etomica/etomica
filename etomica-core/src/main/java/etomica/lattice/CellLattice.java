@@ -15,7 +15,6 @@ import etomica.space.Vector;
 public class CellLattice extends RectangularLattice {
     private final double[] cellSize;
     private final Vector dimensions;
-    private double neighborRange;
 
     /**
      * @param dimVector   the spatial dimensions of the lattice, such that the total
@@ -34,40 +33,6 @@ public class CellLattice extends RectangularLattice {
         cellSize = new double[D()];
         this.dimensions = space.makeVector();
         dimensions.E(dimVector);
-    }
-
-    /**
-     * Defines neighbors to be all cells that are within the given distance
-     * from a central cell.  Specifically, the integer range in direction
-     * j is 1 + (int)(neighborDistance/cellSize[j]).
-     *
-     * @param range the new neighbor range, in simulation distance units.
-     */
-    public void setNeighborRange(double range) {
-        this.neighborRange = range;
-        int[] idx = new int[d];
-        for (int i = 0; i < d; i++) {
-            double boundaryLength = this.getDimensions().getX(i);
-            if (boundaryLength == 0) {
-                return;
-            }
-            idx[i] = (int) (this.getSize()[i] * range / boundaryLength);
-            if (idx[i] < (this.getSize()[i] * range / boundaryLength)) {
-                // if we rounded down, increment by 1 so we round up.
-                idx[i]++;
-            }
-            if (idx[i] * 2 + 1 > this.getSize()[i]) {
-                // this can happen if the box is big enough for the potential cutoff,
-                // but not big enough to hold a lattice of cells of size
-                // neighborDistance/cellRange
-                if (this.getSize()[i] % 2 == 0) {
-                    throw new RuntimeException("I really don't mind cheating a bit, but I need an odd number of cells.");
-                }
-                idx[i] = (this.getSize()[i] - 1) / 2;
-            }
-        }
-        if (idx[0] == 0) throw new RuntimeException("not very nice");
-        super.setNeighborDistance(idx);
     }
 
     /**
@@ -97,7 +62,6 @@ public class CellLattice extends RectangularLattice {
 
     public void setDimensions(Vector d) {
         dimensions.E(d);
-        this.setNeighborRange(this.neighborRange); // need to re-calculate neighbor cell distances
     }
 
     /**

@@ -18,9 +18,12 @@ import java.awt.*;
  * those sites lying in a rectangular region centered on the site.
  *
  * @author David Kofke
+ *
  */
-public class RectangularLatticeNbrIteratorSquare extends RectangularLatticeNbrIterator {
+public class RectangularLatticeNbrIteratorSquare extends
+        RectangularLatticeNbrIterator {
 
+    private static final long serialVersionUID = 1L;
     protected final int[] range;
     protected int furthestNeighborDelta;
     protected int halfNeighborCount;
@@ -153,13 +156,13 @@ public class RectangularLatticeNbrIteratorSquare extends RectangularLatticeNbrIt
         neighborCount = 0; //(direction == null) ? 2*halfNeighborCount : halfNeighborCount;
         int centralSiteIndex = lattice.arrayIndex(centralSite);
         cursor = 0;
-        if (doDown) gatherDownNeighbors(0, centralSiteIndex - furthestNeighborDelta);
-        if (doUp) gatherUpNeighbors(0, centralSiteIndex + 1);
+        if(doDown) gatherDownNeighbors(0, centralSiteIndex - furthestNeighborDelta);
+        if(doUp) gatherUpNeighbors(0, centralSiteIndex+1);
         needNeighborUpdate = false;
         if (Debug.ON && neighborCount == 0) {
             cursor = 0;
-            if (doDown) gatherDownNeighbors(0, centralSiteIndex - furthestNeighborDelta);
-            if (doUp) gatherUpNeighbors(0, centralSiteIndex + 1);
+            if(doDown) gatherDownNeighbors(0, centralSiteIndex - furthestNeighborDelta);
+            if(doUp) gatherUpNeighbors(0, centralSiteIndex+1);
             throw new RuntimeException("that doesn't seem right!");
         }
     }
@@ -169,9 +172,9 @@ public class RectangularLatticeNbrIteratorSquare extends RectangularLatticeNbrIt
      */
     public void setLattice(FiniteLattice newLattice) {
         super.setLattice(newLattice);
-        for (int i = 0; i < D; i++) {
-            if (2 * range[i] + 1 > lattice.getSize()[i])
-                System.err.println("Neighbor range exceeds lattice size");
+        for(int i=0; i<D; i++) {
+            if(2*range[i]+1 > lattice.getSize()[i])
+                 System.err.println("Neighbor range exceeds lattice size");
         }
     }
 
@@ -185,21 +188,21 @@ public class RectangularLatticeNbrIteratorSquare extends RectangularLatticeNbrIt
      */
     private void gatherDownNeighbors(int d, int startIndex) {
         int centralIndex = centralSite[d];
-        int iMin = centralIndex - range[d];
+        int iMin = centralIndex-range[d];
         int dim = lattice.size[d];
 
         //this block gathers all neighbors in the dimension d,
         //up to but not including the row where the central site is located
-        if (iMin < 0) {//need to implement periodic boundaries
+        if(iMin < 0) {//need to implement periodic boundaries
             if (isPeriodic[d]) {
-                gatherNeighbors(d, -iMin, startIndex + dim * lattice.jumpCount[d]);
+                gatherNeighbors(d, -iMin, startIndex+dim*lattice.jumpCount[d]);
             }
-            gatherNeighbors(d, centralIndex, startIndex - iMin * lattice.jumpCount[d]);//note that iMin<0
+            gatherNeighbors(d, centralIndex, startIndex-iMin*lattice.jumpCount[d]);//note that iMin<0
         } else {//no concern for PBC; gather all neighbors in plane
             gatherNeighbors(d, range[d], startIndex);
         }
         //handle row containing central site
-        if (d < D - 1) gatherDownNeighbors(d + 1, startIndex + range[d] * lattice.jumpCount[d]);
+        if(d < D-1) gatherDownNeighbors(d+1, startIndex+range[d]*lattice.jumpCount[d]);
     }
 
     /**
@@ -207,19 +210,19 @@ public class RectangularLatticeNbrIteratorSquare extends RectangularLatticeNbrIt
      */
     private int gatherUpNeighbors(int d, int startIndex) {
         int centralIndex = centralSite[d];
-        int iMax = centralIndex + range[d];
+        int iMax = centralIndex+range[d];
         int dim = lattice.size[d];
 
         //handle central-site row
-        if (d < D - 1) {
-            startIndex = gatherUpNeighbors(d + 1, startIndex);
-            startIndex += lattice.jumpCount[d] - (range[d + 1] + 1) * lattice.jumpCount[d + 1];
+        if(d < D-1) {
+            startIndex = gatherUpNeighbors(d+1, startIndex);
+            startIndex += lattice.jumpCount[d] - (range[d+1]+1)*lattice.jumpCount[d+1];
         }
         //advance through other rows
-        if (iMax >= dim) {
-            gatherNeighbors(d, dim - centralIndex - 1, startIndex);
+        if(iMax >= dim) {
+            gatherNeighbors(d, dim-centralIndex-1, startIndex);
             if (isPeriodic[d]) {
-                gatherNeighbors(d, iMax - dim + 1, startIndex - (centralIndex + 1) * lattice.jumpCount[d]);
+                gatherNeighbors(d, iMax-dim+1, startIndex-(centralIndex+1)*lattice.jumpCount[d]);
             }
         } else {
             gatherNeighbors(d, range[d], startIndex);
@@ -228,41 +231,41 @@ public class RectangularLatticeNbrIteratorSquare extends RectangularLatticeNbrIt
     }
 
     /**
-     * @param d          specifies row, plane, block, etc. of neighbors gathered
-     * @param nSteps     number of steps to take in row
+     * @param d specifies row, plane, block, etc. of neighbors gathered
+     * @param nSteps number of steps to take in row
      * @param startIndex array of site index for first neighbor
      */
     private void gatherNeighbors(int d, int nSteps, int startIndex) {
-        if (d == D - 1) {//end of recursion -- here's where the actual gathering is done
-            for (int i = 0; i < nSteps; i++) {
+        if(d == D-1) {//end of recursion -- here's where the actual gathering is done
+            for(int i=0; i<nSteps; i++) {
                 neighborCount++;
                 neighbors[cursor++] = startIndex++;
             }
         } else {//step from one row to the next and gather neighbors in each row
-            int d1 = d + 1;
+            int d1 = d+1;
             int centralIndex = centralSite[d1];
-            int iMin = centralIndex - range[d1];
-            int iMax = centralIndex + range[d1];
+            int iMin = centralIndex-range[d1];
+            int iMax = centralIndex+range[d1];
             int dim = lattice.size[d1];
-            if (iMin < 0) {//need to consider PBC below
-                for (int i = 0; i < nSteps; i++) {
-                    int startIndex1 = startIndex + i * lattice.jumpCount[d];
+            if(iMin < 0) {//need to consider PBC below
+                for(int i=0; i<nSteps; i++) {
+                    int startIndex1 = startIndex+i*lattice.jumpCount[d];
                     if (isPeriodic[d1]) {
-                        gatherNeighbors(d1, -iMin, startIndex1 + dim * lattice.jumpCount[d1]);
+                        gatherNeighbors(d1, -iMin, startIndex1+dim*lattice.jumpCount[d1]);
                     }
-                    gatherNeighbors(d1, iMax + 1, startIndex1 - iMin * lattice.jumpCount[d1]);//note that iMin<0
+                    gatherNeighbors(d1, iMax+1, startIndex1-iMin*lattice.jumpCount[d1]);//note that iMin<0
                 }
-            } else if (iMax >= dim) {//need to consider PBC above
-                for (int i = 0; i < nSteps; i++) {
-                    int startIndex1 = startIndex + i * lattice.jumpCount[d];
-                    gatherNeighbors(d1, dim - iMin, startIndex1);
+            } else if(iMax >= dim) {//need to consider PBC above
+                for(int i=0; i<nSteps; i++) {
+                    int startIndex1 = startIndex+i*lattice.jumpCount[d];
+                    gatherNeighbors(d1, dim-iMin, startIndex1);
                     if (isPeriodic[d1]) {
-                        gatherNeighbors(d1, iMax - dim + 1, startIndex1 - iMin * lattice.jumpCount[d1]);
+                        gatherNeighbors(d1, iMax-dim+1, startIndex1-iMin*lattice.jumpCount[d1]);
                     }
                 }
             } else {//no need to consider PBC
-                for (int i = 0; i < nSteps; i++) {
-                    gatherNeighbors(d1, 2 * range[d1] + 1, startIndex + i * lattice.jumpCount[d]);
+                for(int i=0; i<nSteps; i++) {
+                    gatherNeighbors(d1, 2*range[d1]+1, startIndex+i*lattice.jumpCount[d]);
                 }
             }
         }

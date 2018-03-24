@@ -434,7 +434,7 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
      */
     public void setRange(double d) {
         cell1ANbrIterator.getNbrCellIterator().setNeighborDistance(d);
-        lattice.setNeighborRange(d);
+//        cellNbrIterator.getNbrCellIterator().setNeighborDistance(d);
     }
 
     /**
