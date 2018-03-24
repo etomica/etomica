@@ -7,7 +7,7 @@ package etomica.lattice;
 import etomica.potential.IteratorDirective;
 
 /**
- * An abstract iterator that generates the neighboring sites of a given site.  
+ * An abstract iterator that generates the neighboring sites of a given site.
  * Subclasses provide the specification of the "neighbors" of a site by a suitable
  * implementation of the updateNeighborList method.
  * <p>
@@ -20,13 +20,19 @@ import etomica.potential.IteratorDirective;
  * <p>
  * The central site is not included among the iterates (not a self-neighbor).
  */
+public abstract class RectangularLatticeNbrIterator implements SiteIterator {
 
-/*
- * History
- * Created on May 26, 2005 by kofke
- */
-
-public abstract class RectangularLatticeNbrIterator implements SiteIterator, java.io.Serializable {
+    protected final int D;
+    protected final boolean[] isPeriodic;
+    final int[] centralSite;
+    private final int[] latticeIndex;
+    protected boolean needNeighborUpdate = true;
+    protected int[] neighbors;
+    protected RectangularLattice lattice;
+    protected int cursor;
+    protected int neighborCount;
+    protected boolean doUp, doDown;
+    private IteratorDirective.Direction direction;
 
     /**
      * Constructs iterator that needs to be configured before use.  Must specify
@@ -38,37 +44,38 @@ public abstract class RectangularLatticeNbrIterator implements SiteIterator, jav
         centralSite = new int[D];
         cursor = Integer.MAX_VALUE;
         isPeriodic = new boolean[D];
-        for (int i=0; i<D; i++) {
+        for (int i = 0; i < D; i++) {
             isPeriodic[i] = true;
         }
         latticeIndex = new int[D];
     }
-    
+
     protected abstract void updateNeighborList();
-    
+
     public final int D() {
         return D;
     }
-    
+
     /**
      * Identifies the site whose neighbors will be given on iteration.
      * Requires subsequent call to reset before iteration.
+     *
      * @param index the coordinate of the central site
      */
     public void setSite(int[] index) {
-        if(index.length != D) throw new IllegalArgumentException("Incorrect length of array passed to setSite");
-        for(int i=D-1; i>=0; i--) centralSite[i] = index[i];
+        if (index.length != D) throw new IllegalArgumentException("Incorrect length of array passed to setSite");
+        for (int i = D - 1; i >= 0; i--) centralSite[i] = index[i];
         needNeighborUpdate = true;
         unset();
     }
-    
+
     /**
      * Indicates whether the iterator has another site.
      */
     public final boolean hasNext() {
         return cursor < neighborCount;
     }
-    
+
     /**
      * Resets the iterator to loop through its iterates again.  This
      * must be done after any call to setRange, setDirection, or setSite.
@@ -80,17 +87,17 @@ public abstract class RectangularLatticeNbrIterator implements SiteIterator, jav
             neighborCount = 0;
             return;
         }
-        if(needNeighborUpdate) updateNeighborList();
+        if (needNeighborUpdate) updateNeighborList();
         cursor = 0;
     }
-    
+
     /**
      * Puts iterator in a state in which hasNext() returns false.
      */
     public void unset() {
         cursor = neighborCount;
     }
-    
+
     /**
      * Returns the index of the next iterate while advancing the
      * iterator.
@@ -99,28 +106,28 @@ public abstract class RectangularLatticeNbrIterator implements SiteIterator, jav
         if (!hasNext()) {
             return null;
         }
-        lattice.latticeIndex(neighbors[cursor++],latticeIndex);
+        lattice.latticeIndex(neighbors[cursor++], latticeIndex);
         return latticeIndex;
     }
-    
+
     /**
      * Returns the next site in the iteration sequence, or null
      * if hasNext is false.
      */
     public Object next() {
 //            if(!hasNext()) return null;
- //           currentPbc = pbc[cursor];
+        //           currentPbc = pbc[cursor];
 //            return lattice.sites[neighbors[cursor++]];
         return hasNext() ? lattice.sites()[neighbors[cursor++]] : null;
     }
-    
+
     /**
      * Returns the next iterate without advancing the iterator.
      */
     public Object peek() {
         return hasNext() ? lattice.sites()[neighbors[cursor]] : null;
     }
-    
+
     /**
      * The number of iterates returned by this iterator in its current state.
      */
@@ -135,6 +142,7 @@ public abstract class RectangularLatticeNbrIterator implements SiteIterator, jav
     public IteratorDirective.Direction getDirection() {
         return direction;
     }
+
     /**
      * Sets the iterator to return only up-list neighbors or down-list neighbors.
      * A null value indicates that all neighbors are to be returned.
@@ -146,39 +154,29 @@ public abstract class RectangularLatticeNbrIterator implements SiteIterator, jav
         needNeighborUpdate = true;
         unset();
     }
-    
+
     /**
      * Returns the lattice from which the iterates are given.
      */
     public RectangularLattice getLattice() {
         return lattice;
     }
-    
+
     /**
      * Sets the lattice from which the iterates are given.  Dimension
      * of lattice must be the same as that specified to constructor. Also,
      * size of lattice must be compatible with range of neighbor interactions.
      */
     public void setLattice(FiniteLattice lattice) {
-        this.lattice = (RectangularLattice)lattice;
-        if(lattice != null && lattice.D() != D) throw new IllegalArgumentException("Iterator given lattice with incompatible dimension");
+        this.lattice = (RectangularLattice) lattice;
+        if (lattice != null && lattice.D() != D)
+            throw new IllegalArgumentException("Iterator given lattice with incompatible dimension");
         needNeighborUpdate = true;
     }
+
     public void setPeriodicity(boolean[] periodicity) {
-        for (int i=0; i<D; i++) {
+        for (int i = 0; i < D; i++) {
             isPeriodic[i] = periodicity[i];
         }
     }
-    
-    protected final int D;
-    protected boolean needNeighborUpdate = true;
-    protected int[] neighbors;
-    final int[] centralSite;
-    protected RectangularLattice lattice;
-    protected int cursor;
-    protected int neighborCount;
-    protected boolean doUp, doDown;
-    private IteratorDirective.Direction direction;
-    protected final boolean[] isPeriodic;
-    private final int[] latticeIndex;
 }

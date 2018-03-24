@@ -8,6 +8,7 @@ package etomica.lattice;
 import etomica.potential.IteratorDirective;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -39,7 +40,7 @@ public class RectangularLattice implements FiniteLattice {
     protected Object[] sites;
     protected SiteFactory siteFactory;
 
-    private double neighborRange = 1.0;
+    private final int[] neighborDistance;
     private int[][] upNeighbors;
 
     /**
@@ -49,6 +50,8 @@ public class RectangularLattice implements FiniteLattice {
      */
     public RectangularLattice(int D, SiteFactory siteFactory) {
         this.d = D;
+        this.neighborDistance = new int[d];
+        Arrays.fill(neighborDistance, 1);
         jumpCount = new int[D];
         jumpCount[D - 1] = 1;
         size = new int[D];
@@ -57,11 +60,11 @@ public class RectangularLattice implements FiniteLattice {
     }
 
     private void computeUpNeighbors() {
-        System.out.println("Computing up neighbors");
         this.upNeighbors = new int[sites.length][];
-        CellLattice.NeighborIterator iter = new CellLattice.NeighborIterator(d, neighborRange);
+        RectangularLatticeNbrIteratorSquare iter = new RectangularLatticeNbrIteratorSquare(d);
         iter.setLattice(this);
         iter.setDirection(IteratorDirective.Direction.UP);
+        iter.setRange(this.neighborDistance);
         for (int i = 0; i < sites().length; i++) {
             iter.setSite(this.latticeIndex(i));
             iter.reset();
@@ -173,8 +176,8 @@ public class RectangularLattice implements FiniteLattice {
         }
     }
 
-    public void setNeighborRange(double neighborRange) {
-        this.neighborRange = neighborRange;
+    public void setNeighborDistance(int[] neighborDistance) {
+        System.arraycopy(neighborDistance, 0, this.neighborDistance, 0, this.neighborDistance.length);
         this.computeUpNeighbors();
     }
 
