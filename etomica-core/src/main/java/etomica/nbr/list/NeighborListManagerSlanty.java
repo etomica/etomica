@@ -45,7 +45,7 @@ public class NeighborListManagerSlanty extends NeighborListManager {
         // reset criteria
         for (int j=0; j<nLeaf; j++) {
             IAtom atom = leafList.get(j);
-            final NeighborCriterion[] criterion = getCriteria(atom.getType());
+            final NeighborCriterion[] criterion = potentialMaster.getCriteria(atom.getType());
             agentManager2Body.getAgent(atom).clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
                 criterion[i].reset(atom);

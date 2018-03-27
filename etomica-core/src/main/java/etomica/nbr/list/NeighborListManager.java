@@ -196,10 +196,6 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
         return numUpdates;
     }
 
-    public NeighborCriterion[] getCriteria(AtomType atomType) {
-        return potentialMaster.getCriteria(atomType);
-    }
-
     /**
      * @return Returns the pbcEnforcer.
      */
