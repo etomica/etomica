@@ -49,7 +49,6 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
     private BoxImposePbc pbcEnforcer;
     private boolean quiet;
     private NeighborListEventManager eventManager;
-    private NeighborCriterion[] oldCriteria;
     private boolean downListsOutOfDate = false;
 
     private CellLattice lattice;
