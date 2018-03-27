@@ -359,8 +359,8 @@ public class MinimizationTIP4P extends Simulation{
         WriteConfiguration writeConfig = new WriteConfiguration(sim.space);
         writeConfig.setBox(sim.box);
         writeConfig.setDoApplyPBC(false);//false ... ok
-        
-        writeConfig.setFileName("finalPos.pos");
+
+        writeConfig.setFileName("1ncFinalPos.pos");
         writeConfig.actionPerformed();
         
 		if(isGraphics){
@@ -428,10 +428,10 @@ public class MinimizationTIP4P extends Simulation{
 		public String configFile = "config_sI"; 
 		public int nBasis = 46;//sI
 		public double[] a0 = new double[]{12.03, 12.03, 12.03};//sI
-		public double rCutLJ = 1.0;
-		public double rCutRealES = 1.724496;
-		public double kCut = 0.1103499;
-		public int nOuter = 0;
+        public double rCutLJ = 11;
+        public double rCutRealES = 11;
+        public double kCut = 1.5;
+        public int nOuter = 100;
 		public int nInner = 3;
 		public boolean isIce =  false, isGraphics = !false;
 		public boolean includeM =  false;

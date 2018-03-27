@@ -13,10 +13,7 @@ import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationFileBinary;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
-import etomica.data.meter.MeterEnergy;
-import etomica.data.meter.MeterKineticEnergy;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterPressure;
+import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.exception.ConfigurationOverlapException;
@@ -277,6 +274,7 @@ public class WaterDADB extends Simulation {
                 h2Force.PEa1Tv1(hMassPercent, mForce);
                 oForce.PEa1Tv1(oMassPercent, mForce);
 
+                //Rotation part
                 dr.Ea1Tv1(f1.dot(a1) * mVector.dot(a0) / (-2 * oVector.dot(a0) + 2 * h1Vector.dot(a0)), a1);
 //                System.out.println("part1="+ f1.dot(mVector)/(-2*oVector.dot(a0)+2*h1Vector.dot(a0)));
 //                System.out.println("part1Force={"+dr.getX(0)+","+dr.getX(1)+","+dr.getX(2)+"};" );
@@ -326,19 +324,10 @@ public class WaterDADB extends Simulation {
                     totalTorqueNew.PE(h2torque);
                     totalTorqueNew.PE(mTorque);
                     totalTorqueNew.PE(oTorque);//New total torque
-
-
                     System.out.println("totalTorqueOld ={ " + totalTorque.getX(0) + "," + totalTorque.getX(1) + "," + totalTorque.getX(2) + "};");
                     System.out.println("totalTorqueNew ={ " + totalTorqueNew.getX(0) + "," + totalTorqueNew.getX(1) + "," + totalTorqueNew.getX(2) + "};");
-
-//                    totalTorqueNew.ME(totalTorque);
-//                    if(totalTorqueNew.squared() > 1E-6){
-//                        System.out.println("The redistributed torque is not correct.  "  );
-//                    }
                     System.exit(2);
                 }
-
-
 
 
                 //redistribute the forces s.t. only translation
@@ -369,25 +358,54 @@ public class WaterDADB extends Simulation {
                 }
 
 
-//                System.exit(2);
+                h1torque.E(h1Force);
+                h1torque.XE(h1Vector);
+                h2torque.E(h2Force);
+                h2torque.XE(h2Vector);
+                oTorque.E(oForce);
+                oTorque.XE(oVector);
+                mTorque.E(mForce);
+                mTorque.XE(mVector);
+                totalTorque.E(h1torque);
+                totalTorque.PE(h2torque);
+                totalTorque.PE(mTorque);
+                totalTorque.PE(oTorque);//New total torque
 
 
-                //redistribute such that only K3 freedom
-//				oForce.E(0);
-//				h1h2.Ev1Mv2(h2, h1);
-//				om.Ev1Mv2(m, o);
-//				h1h2.normalize();
-//				om.normalize();
-//				h1Force.PEa1Tv1(-1.0*h1Force.dot(om),om);
-//				h1Force.PEa1Tv1(-1.0*h1Force.dot(h1h2), h1h2);
-//				h2Force.PEa1Tv1(-1.0*h2Force.dot(om),om);
-//				h2Force.PEa1Tv1(-1.0*h2Force.dot(h1h2), h1h2);
-//				totalForce.E(h1Force);
-//				totalForce.PE(h2Force);
-//				h1Force.PEa1Tv1(-0.5, totalForce);
-//				h2Force.PEa1Tv1(-0.5, totalForce);
+//                System.out.println("mForce: "+ mForce);
+                //redistribute such that only K3 freedom: h1 and h2 rotate around om
+                //Need to remove force on oxygen, and remove force component on hydrogen that align with h1h2 and om
+                oForce.E(0);
+                h1h2.Ev1Mv2(h2, h1);
+                om.Ev1Mv2(m, o);
+                h1h2.normalize();
+                om.normalize();
+                h1Force.PEa1Tv1(-1.0 * h1Force.dot(om), om);
+                h1Force.PEa1Tv1(-1.0 * h1Force.dot(h1h2), h1h2);
+                h2Force.PEa1Tv1(-1.0 * h2Force.dot(om), om);
+                h2Force.PEa1Tv1(-1.0 * h2Force.dot(h1h2), h1h2);
+                totalForce.E(h1Force);
+                totalForce.PE(h2Force);
+                h1Force.PEa1Tv1(-0.5, totalForce);
+                h2Force.PEa1Tv1(-0.5, totalForce);
 
-
+                h1torque.E(h1Force);
+                h1torque.XE(h1Vector);
+                h2torque.E(h2Force);
+                h2torque.XE(h2Vector);
+                oTorque.E(oForce);
+                oTorque.XE(oVector);
+                mTorque.E(mForce);
+                mTorque.XE(mVector);
+                totalTorqueNew.E(h1torque);
+                totalTorqueNew.PE(h2torque);
+                totalTorqueNew.PE(mTorque);
+                totalTorqueNew.PE(oTorque);//New total torque
+                double x0 = om.dot(totalTorqueNew) / Math.sqrt(totalTorqueNew.squared());
+                double x1 = om.dot(totalTorque) / Math.sqrt(totalTorqueNew.squared());
+                if ((Math.abs(x0) - 1) > 1E-8 || (Math.abs(x1 - x0)) > 1E-8) {
+                    System.out.println(molecule + " normTotalTorqueNew " + Math.sqrt(totalTorqueNew.squared()) + " totalTorqueNew: " + om.dot(totalTorqueNew) + " omdottotaltorque" + om.dot(totalTorque));
+                }
                 //redistribute s.t. only k1 freedom with only in h1h2 direction
 //				h1h2.Ev1Mv2(h2, h1);
 //				om.Ev1Mv2(m, o);
@@ -640,59 +658,25 @@ public class WaterDADB extends Simulation {
 //        MeterDADB.justU = true;
         meterDADB.doTranslation = doTranslation;
         meterDADB.doRotation = doRotation;
-        MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
 
-//        MeterPressure meterPressure = new MeterPressure(sim.space);
-//        meterPressure.setBox(sim.box);
-//        meterPressure.setPotentialMaster(sim.potentialMaster);
-//        meterPressure.setTemperature(temperature);
+        AccumulatorAverageFixed accumulatorAverageFixedDADB = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener dataPumpListenerDADB = new DataPumpListener(meterDADB, accumulatorAverageFixedDADB, 10);
 
+        AccumulatorAverageFixed accumulatorAverageFixedPE = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener dataPumpListenerPE = new DataPumpListener(meterPE, accumulatorAverageFixedPE, 10);
 
-        meterPotentialEnergy.setBox(sim.box);
-
-
-//        AccumulatorAverageFixed accumulatorAverageFixed4 = new AccumulatorAverageFixed(blockSize);
-//        DataPumpListener dataPumpListener4 = new DataPumpListener(meterPotentialEnergy, accumulatorAverageFixed4, 10);
-
-        AccumulatorAverageFixed accumulatorAverageFixed2 = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener dataPumpListener2 = new DataPumpListener(meterPotentialEnergy, accumulatorAverageFixed2, 10);
-//        MeterKineticEnergy meterKineticEnergy = new MeterKineticEnergy();
-//        meterKineticEnergy.setBox(sim.box);
-//        AccumulatorAverageFixed accumulatorAverageFixed3 = new AccumulatorAverageFixed(blockSize);
-//        DataPumpListener dataPumpListener3 = new DataPumpListener(meterKineticEnergy, accumulatorAverageFixed3, 10);
-        AccumulatorAverageFixed accumulatorAverageFixed = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener dataPumpListener = new DataPumpListener(meterDADB, accumulatorAverageFixed, 10);
 
         sim.ai.setMaxSteps(numSteps / 10);
         sim.getController().actionPerformed();
 //        meterDADB.debug();
+        //System.out.println("Do debug in meterDADB")
 //        System.exit(2);
 
         sim.ai.setMaxSteps(numSteps);
-
-
-        sim.integrator.getEventManager().addListener(dataPumpListener);
-        sim.integrator.getEventManager().addListener(dataPumpListener2);
-//        sim.integrator.getEventManager().addListener(dataPumpListener3);
-
-
-//        sim.integrator.getEventManager().addListener(dataPumpListener4);
-
-
+        sim.integrator.getEventManager().addListener(dataPumpListenerDADB);
+        sim.integrator.getEventManager().addListener(dataPumpListenerPE);
         sim.getController().reset();
         sim.getController().actionPerformed();
-//        double KEaverage = accumulatorAverageFixed3.getData(accumulatorAverageFixed3.AVERAGE).getValue(0);
-//        double KEerror = accumulatorAverageFixed3.getData(accumulatorAverageFixed3.ERROR).getValue(0);
-//        double KEcorrelation = accumulatorAverageFixed3.getData(accumulatorAverageFixed3.BLOCK_CORRELATION).getValue(0);
-//        System.out.println("KEaverage =" +  KEaverage);
-//        System.out.println("KEerror =" + KEerror);
-//        System.out.println("KEcorrelation = " + KEcorrelation);
-
-
-//        double Paverage = accumulatorAverageFixed4.getData(accumulatorAverageFixed4.AVERAGE).getValue(0);
-//        double Perror = accumulatorAverageFixed4.getData(accumulatorAverageFixed4.ERROR).getValue(0);
-//        double Pcorrelation = accumulatorAverageFixed4.getData(accumulatorAverageFixed4.BLOCK_CORRELATION).getValue(0);
-
 
         long endTime = System.currentTimeMillis();
         DateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -701,38 +685,32 @@ public class WaterDADB extends Simulation {
         System.out.println("Time taken (in mins): " + (endTime - startTime) / (1000.0 * 60.0));
         System.out.println("numSteps = " + numSteps);
 
-//
-//        System.out.println("Paverage =" +  Paverage);
-//        System.out.println("Perror =" + Perror);
-//        System.out.println("Pcorrelation = " + Pcorrelation);
+        double mappingAverage = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(0);
+        double mappingError = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(0);
+        double mappingCor = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
 
-
-        double average = accumulatorAverageFixed.getData(AccumulatorAverage.AVERAGE).getValue(0);
-        double error = accumulatorAverageFixed.getData(AccumulatorAverage.ERROR).getValue(0);
-        double correlation = accumulatorAverageFixed.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
-
-//        System.out.println("rCutLJ = "  + rCutLJ);
-//        System.out.println("rCutRealES = " + rCutRealES);
+        System.out.println("rCutLJ = " + rCutLJ);
+        System.out.println("rCutRealES = " + rCutRealES);
         System.out.println("temperature = " + temperature);
-//        System.out.println("hh and om are made perpendicular" );
-//        System.out.println("shakeTol = " + shakeTol);
+        System.out.println("shakeTol = " + shakeTol);
         IMoleculeList molecules = sim.box.getMoleculeList();
-//        System.out.println("for only translation case");
         System.out.println("beginLE = " + latticeEnergy);
-        System.out.println("1.5*nkT = " + Kelvin.UNIT.toSim((molecules.getMoleculeCount() * 1.5 * temperature)));
-        System.out.println("average = " + average);
-        System.out.println("error = " + error);
-        System.out.println("correlation = " + correlation);
-        double PEAverage = accumulatorAverageFixed2.getData(AccumulatorAverage.AVERAGE).getValue(0);
-        double PEArror = accumulatorAverageFixed2.getData(AccumulatorAverage.ERROR).getValue(0);
-        double PECorrelation = accumulatorAverageFixed2.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
-        System.out.println("PE full = " + PEAverage);
         int N = sim.box.getMoleculeList().getMoleculeCount();
         double fac = (doRotation ? 1.5 : 0) * N + (doTranslation ? 1.5 : 0) * (N - 1);
-        System.out.println("PEaverage = " + (PEAverage - latticeEnergy - fac * Kelvin.UNIT.toSim(temperature)));
-        System.out.println("PEerror = " + PEArror);
-        System.out.println("PEcorrelation = " + PECorrelation);
+        System.out.println("harmonicE = " + fac * Kelvin.UNIT.toSim((molecules.getMoleculeCount() * temperature)));
+        System.out.println("main:doTranslation:   " + doTranslation + "  doRotation:  " + doRotation);
 
+        System.out.println("mappingAverage= " + mappingAverage + "   mappingError= " + mappingError + " mappingCor= " + mappingCor);
+
+        double PEAverage = accumulatorAverageFixedPE.getData(AccumulatorAverage.AVERAGE).getValue(0);
+        double PEAError = accumulatorAverageFixedPE.getData(AccumulatorAverage.ERROR).getValue(0);
+        double PECor = accumulatorAverageFixedPE.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
+
+
+        System.out.println("PEAverage= " + (PEAverage - latticeEnergy - fac * Kelvin.UNIT.toSim(temperature)) +
+                "  PEeError = " + PEAError + "  PECor= " + PECor);
+
+        System.out.println("PE-lattice = " + (PEAverage - latticeEnergy));
         ConfigurationFile config = new ConfigurationFile(numCells + "ncFinalPos");
         config.initializeCoordinates(sim.box);
         final double endLatticeEnergy = meterPE2.getDataAsScalar();
@@ -770,16 +748,16 @@ public class WaterDADB extends Simulation {
 
     public static class WaterDADBParam extends ParameterBase {
         public int numCells = 1;
-        public int numSteps = 1000;
+        public int numSteps = 10000;
         public double temperature = 100;
         public double rCutLJ = 11;
         public double rCutRealES = 11;
         public double kCut = 1.5;
         public boolean isIce = false;
         public double shakeTol = 1e-12;
-        public boolean runGraphic = false;
+        public boolean runGraphic = true;
         public boolean unitCells = false;
         public boolean doRotation = true;
-        public boolean doTranslation = true;
+        public boolean doTranslation = false;
     }
 }

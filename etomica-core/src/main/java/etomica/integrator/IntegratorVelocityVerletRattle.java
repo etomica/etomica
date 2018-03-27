@@ -41,7 +41,8 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
 
 	protected void randomizeMomenta() {
 		super.randomizeMomenta();
-
+//        System.out.println("doTranslation and doRotation in Rattle: "+ doTranslation+ " " + doRotation);
+//        System.exit(2);
         if (doRotation && doTranslation) return;//make the initial translation or rotation velocity zero
 		IMoleculeList molecules = box.getMoleculeList();
 		  for (int i = 0; i<molecules.getMoleculeCount(); i++){
@@ -50,71 +51,6 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
 	        	Vector totalMom =  space.makeVector();
 	        	Vector totalV = space.makeVector();
 	        	double totalMass = 0.0;
-//	        	if (!doTranslation) {
-//                    for (int j = 0; j < leafList.getAtomCount() - 1; j++) {
-//                        IAtomKinetic a = (IAtomKinetic) leafList.getAtom(j);
-//                        Vector v = a.getVelocity();
-//                        double mass = a.getType().getMass();
-//                        totalMass += mass;
-//                        totalMom.PEa1Tv1(mass, v);
-//                    }
-//                    totalV.E(totalMom);
-//                    double totalMassInverse = 1.0 / totalMass;
-//                    totalV.TE(totalMassInverse);
-//                    for (int j = 0; j < leafList.getAtomCount() - 1; j++) {
-//                        IAtomKinetic a = (IAtomKinetic) leafList.getAtom(j);
-//                        a.getVelocity().ME(totalV);//make it with no translation velocity, only rotation velocity
-//                    }
-//                }
-	           
-	           //make the initial only two hydrogen have the initial rotation velocity
-//	           ((IAtomKinetic)leafList.getAtom(2)).getVelocity().E(0);
-//	           ((IAtomKinetic)leafList.getAtom(3)).getVelocity().E(0);
-//	            IVectorMutable h1 = leafList.getAtom(0).getPosition();
-//           		IVectorMutable h2 = leafList.getAtom(1).getPosition();
-//           		IVectorMutable o = leafList.getAtom(2).getPosition();
-//				IVectorMutable m = leafList.getAtom(3).getPosition();
-//				IVectorMutable h1velocity = ((IAtomKinetic)leafList.getAtom(0)).getVelocity();
-//				IVectorMutable h2velocity = ((IAtomKinetic)leafList.getAtom(1)).getVelocity();
-//				IVectorMutable h1h2 = space.makeVector();
-//	        	IVectorMutable om = space.makeVector();
-//				h1h2.Ev1Mv2(h2, h1);
-//				om.Ev1Mv2(m, o);
-//				h1h2.normalize();
-//				om.normalize();
-//				h1velocity.PEa1Tv1(-1.0*h1velocity.dot(om),om);
-//				h1velocity.PEa1Tv1(-1.0*h1velocity.dot(h1h2), h1h2);
-//				h2velocity.PEa1Tv1(-1.0*h2velocity.dot(om),om);
-//				h2velocity.PEa1Tv1(-1.0*h2velocity.dot(h1h2), h1h2);
-//				totalV.E(h1velocity);
-//				totalV.PE(h2velocity);
-//				h1velocity.PEa1Tv1(-0.5, totalV);
-//				h2velocity.PEa1Tv1(-0.5, totalV);
-//				System.out.println("h1velocity = " + h1velocity );
-//				System.out.println("h2velocity = " + h2velocity );
-	           
-	           //make the initial velocity only in oh1h2 plane
-//	            IVectorMutable h1 = leafList.getAtom(0).getPosition();
-//           		IVectorMutable h2 = leafList.getAtom(1).getPosition();
-//           		IVectorMutable o = leafList.getAtom(2).getPosition();
-//				IVectorMutable m = leafList.getAtom(3).getPosition();
-//				IVectorMutable h1velocity = ((IAtomKinetic)leafList.getAtom(0)).getVelocity();
-//				IVectorMutable h2velocity = ((IAtomKinetic)leafList.getAtom(1)).getVelocity();
-//				IVectorMutable ovelocity = ((IAtomKinetic)leafList.getAtom(2)).getVelocity();
-//				IVectorMutable mvelocity = ((IAtomKinetic)leafList.getAtom(3)).getVelocity();
-//				IVectorMutable h1h2 = space.makeVector();
-//	        	IVectorMutable om = space.makeVector();
-//	        	h1h2.Ev1Mv2(h2,h1);
-//	        	om.Ev1Mv2(m, o);
-//	        	IVectorMutable ph1h2 = space.makeVector();//ph1h2 is the vector perpendicular to oh1h2 plane
-//	        	ph1h2.E(h1h2);
-//	        	ph1h2.XE(om);
-//	        	ph1h2.normalize();
-//	        	h1velocity.PEa1Tv1(-1.0*h1velocity.dot(ph1h2),ph1h2);
-//	        	h2velocity.PEa1Tv1(-1.0*h2velocity.dot(ph1h2),ph1h2);
-//	        	ovelocity.PEa1Tv1(-1.0*ovelocity.dot(ph1h2),ph1h2);
-//	        	mvelocity.PEa1Tv1(-1.0*mvelocity.dot(ph1h2),ph1h2);
-	        	
 	        	for(int j = 0; j < leafList.getAtomCount() -1; j++){
 	        		IAtomKinetic a = (IAtomKinetic)leafList.getAtom(j);
 	        		Vector v = a.getVelocity();

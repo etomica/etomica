@@ -197,15 +197,6 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         if (doMapping) {
             meterDADB = new MeterDADBNitrogen(sim, meterPE, sim.potentialMaster, Kelvin.UNIT.toSim(temperature), sim.latticeCoordinates);
         }
-        //start simulation  TODO
-//        File configFile = new File(configFileName + ".pos");
-//        if (configFile.exists()) {
-//            System.out.println("\n***initialize coordinate from " + configFile);
-//            sim.initializeConfigFromFile(configFileName);
-//        } else {
-//            long initStep = (1 + (numMolecules / 500)) * 100 * numMolecules;
-//            sim.initialize(initStep);
-//        }
         long initStep = (1 + (numMolecules / 500)) * 100 * numMolecules;
         sim.initialize(initStep);
         System.out.flush();
@@ -325,21 +316,8 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         getController().reset();
     }
 
-    public void initializeConfigFromFile(String fname) {
-        ConfigurationFile config = new ConfigurationFile(fname);
-        config.initializeCoordinates(box);
-    }
 
-    public void writeConfiguration(String fname) {
-        WriteConfiguration writeConfig = new WriteConfiguration(space);
-        writeConfig.setBox(box);
-        writeConfig.setDoApplyPBC(false);
-        writeConfig.setConfName(fname);
-        writeConfig.actionPerformed();
-        System.out.println("\n***output configFile: " + fname);
-    }
 
-    //Copy from water class and adjust to nitrogen
     public static class NitrogenOrientationDefinition implements etomica.normalmode.MoleculeSiteSourceNitrogen.MoleculeOrientationDefinition {
         protected final Orientation3D or;
         protected final Vector v1;
@@ -352,10 +330,8 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
 
         public IOrientation getOrientation(IMolecule molecule) {
             IAtomList leafList = molecule.getChildList();
-
             Vector n1 = leafList.getAtom(0).getPosition();
             Vector n2 = leafList.getAtom(1).getPosition();
-
             v1.Ev1Mv2(n2, n1);
             v1.normalize();
             or.setDirection(v1);
@@ -363,9 +339,6 @@ public class SimOverlapAlphaN2Mapping extends Simulation {
         }
     }
 
-    /**
-     * Inner class for parameters understood by the HSMD3D constructor
-     */
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 256;
         public int[] nC = new int[]{4, 4, 4};
