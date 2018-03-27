@@ -301,8 +301,10 @@ public class P2SquareWellRobust extends Potential2HardSpherical implements AtomL
         if (iList == null) {
             iList = agentManager.getAgent(a);
         }
-        PotentialArray potentialArray = potentialMaster.getRangedPotentials(a.getType());
-        IPotential[] potentials = potentialArray.getPotentials();
+        // we just need to know what atom types we handle
+        // u = type index of the other atom type
+        // but this works
+        IPotential[] potentials = potentialMaster.getRangedPotentials(a.getType());
         int u;
         for (u=0; u<potentials.length; u++) {
             if (potentials[u] == this) break;

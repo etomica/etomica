@@ -4,54 +4,34 @@
 
 package etomica.modules.colloid;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
-import etomica.space.Vector;
 import etomica.atom.DiameterHashByType;
-import etomica.data.AccumulatorAverage;
+import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataProcessorFunction;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataTag;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceSelector;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.math.function.Function;
 import etomica.math.geometry.Plane;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.CriterionPositionWall;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.units.Pixel;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
-import etomica.units.Pixel;
 import etomica.units.dimensions.Quantity;
-import etomica.math.function.Function;
-import etomica.data.history.HistoryCollapsingDiscard;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Colloid module app.  Design by Alberto Striolo.
@@ -121,10 +101,13 @@ public class ColloidGraphic extends SimulationGraphic {
                 if (newValue > 2*(sim.box.getBoundary().getBoxSize().getX(1) - sim.getColloidSigma())) {
                     throw new IllegalArgumentException("too large for box size");
                 }
-                sim.setChainLength((int)newValue);
-                meterE2E.setChainLength((int)newValue);
+                int chainLength = (int) newValue;
+                sim.setChainLength(chainLength);
+                meterE2E.setChainLength(chainLength);
                 int n = sim.box.getLeafList().size();
                 sim.integrator.setThermostatInterval((1000+(n-1))/n);
+                sim.p2mm.setChainLength(chainLength);
+                sim.p2mc.setChainLength(chainLength);
             }
             public double getValue() {
                 return sim.getChainLength();

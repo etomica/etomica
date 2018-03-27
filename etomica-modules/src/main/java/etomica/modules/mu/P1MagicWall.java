@@ -11,7 +11,6 @@ import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.IPotential;
 import etomica.potential.Potential1;
-import etomica.potential.PotentialArray;
 import etomica.potential.PotentialHard;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -122,8 +121,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
         Vector p = atom.getPosition();
         IAtomList[] upList = neighborManager.getUpList(atom);
         IAtomList[] downList = neighborManager.getDownList(atom);
-        PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom.getType());
-        IPotential[] potentials = potentialArray.getPotentials();
+        IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType());
         double de = 0;
         for (int ip=0; ip<upList.length; ip++) {
             if (potentials[ip].nBody() != 2) continue;

@@ -84,7 +84,7 @@ public class TestSWChain extends Simulation {
 
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
-        CriterionInterMolecular sqwCriterion = (CriterionInterMolecular) potentialMaster.getCriterion(potential);
+        CriterionInterMolecular sqwCriterion = (CriterionInterMolecular) potentialMaster.getCriterion(sphereType, sphereType);
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
         nonBondedCriterion.setBonded(false);
         sqwCriterion.setIntraMolecularCriterion(nonBondedCriterion);

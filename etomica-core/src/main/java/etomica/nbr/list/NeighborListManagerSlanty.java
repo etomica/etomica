@@ -10,8 +10,8 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterList.NeighborListAgentSource;
-import etomica.potential.IPotential;
-import etomica.potential.PotentialArray;
+
+import java.util.List;
 
 /**
  * Implements neighbor listing for a slanty box.  Because using slanty cells
@@ -45,43 +45,34 @@ public class NeighborListManagerSlanty extends NeighborListManager {
         // reset criteria
         for (int j=0; j<nLeaf; j++) {
             IAtom atom = leafList.get(j);
-            final NeighborCriterion[] criterion = getCriterion(atom.getType());
+            final NeighborCriterion[] criterion = getCriteria(atom.getType());
             agentManager2Body.getAgent(atom).clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
                 criterion[i].reset(atom);
             }
 
-            PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom.getType());
-            IPotential[] potentials = potentialArray.getPotentials();
-            NeighborCriterion[] criteria = potentialArray.getCriteria();
+            List<NeighborCriterion> criteria = potentialMaster.getCriteria1Body(atom.getType());
 
-            for (int i = 0; i < potentials.length; i++) {
-                if (potentials[i].nBody() != 1) {
-                    continue;
-                }
-                agentManager1Body.getAgent(atom).setIsInteracting(criteria[i].accept(atom, null),i);
+            for (int i = 0; i < criteria.size(); i++) {
+                agentManager1Body.getAgent(atom).setIsInteracting(criteria.get(i).accept(atom, null), i);
             }
         }
         
         IAtomList atomList = box.getLeafList();
         for (int iAtom = 0; iAtom<atomList.size()-1; iAtom++) {
             IAtom atom0 = atomList.get(iAtom);
-            PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom0.getType());
-            IPotential[] potentials = potentialArray.getPotentials();
-            NeighborCriterion[] criteria = potentialArray.getCriteria();
+            pair.atom0 = atom0;
+            NeighborCriterion[] criteria = potentialMaster.getCriteria(atom0.getType());
 
             for (int jAtom = iAtom+1; jAtom<atomList.size(); jAtom++) {
         
                 IAtom atom1 = atomList.get(jAtom);
-                for (int i = 0; i < potentials.length; i++) {
-                    if (potentials[i].nBody() < 2) {
-                        continue;
-                    }
-                    if (criteria[i].accept(atom0, atom1)) {
-                        agentManager2Body.getAgent(atom0).addUpNbr(atom1,i);
-                        agentManager2Body.getAgent(atom1).addDownNbr(atom0,
-                                potentialMaster.getRangedPotentials(atom1.getType()).getPotentialIndex(potentials[i]));
-                    }
+                NeighborCriterion c = criteria[atom1.getType().getIndex()];
+                if (c == null) continue;
+                pair.atom1 = atom1;
+                if (c.accept(atom0, atom1)) {
+                    agentManager2Body.getAgent(atom0).addUpNbr(atom1, atom0.getType().getIndex());
+                    agentManager2Body.getAgent(atom1).addDownNbr(atom0, atom1.getType().getIndex());
                 }
             }
         }
@@ -107,15 +98,15 @@ public class NeighborListManagerSlanty extends NeighborListManager {
         }
         pair.atom0 = atom;
         IAtomList atomList = box.getLeafList();
-        PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom.getType());
-        IPotential[] potentials = potentialArray.getPotentials();
-        NeighborCriterion[] criteria = potentialArray.getCriteria();
+        NeighborCriterion[] criteria = potentialMaster.getCriteria(atom.getType());
         IAtom firstAtom, secondAtom;
         for (int jAtom = 0; jAtom<atomList.size(); jAtom++) {
             if (jAtom == atom.getLeafIndex()) {
                 continue;
             }
             IAtom atom1 = atomList.get(jAtom);
+            NeighborCriterion c = criteria[atom1.getType().getIndex()];
+            if (c == null) continue;
             if (jAtom < atom.getLeafIndex()) {
                 firstAtom = atom;
                 secondAtom = atom1;
@@ -124,19 +115,13 @@ public class NeighborListManagerSlanty extends NeighborListManager {
                 firstAtom = atom;
                 secondAtom = atom1;
             }
-            for (int i = 0; i < potentials.length; i++) {
-                if (potentials[i].nBody() < 2) {
-                    continue;
-                }
-                if (criteria[i].accept(firstAtom, secondAtom)) {
-                    agentManager2Body.getAgent(firstAtom).addUpNbr(secondAtom,i);
-                    agentManager2Body.getAgent(secondAtom).addDownNbr(firstAtom,
-                            potentialMaster.getRangedPotentials(atom1.getType()).getPotentialIndex(potentials[i]));
-                }
+
+            if (c.accept(firstAtom, secondAtom)) {
+                agentManager2Body.getAgent(firstAtom).addUpNbr(secondAtom, pair.atom0.getType().getIndex());
+                agentManager2Body.getAgent(secondAtom).addDownNbr(firstAtom, pair.atom1.getType().getIndex());
             }
         }
     }
-    private static final long serialVersionUID = 1L;
     protected final AtomPair pair;
 
     /**

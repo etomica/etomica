@@ -12,9 +12,9 @@ import etomica.box.BoxAgentManager;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.nbr.CriterionAll;
 import etomica.nbr.CriterionPositionWall;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
@@ -64,8 +64,7 @@ public class ColloidSim extends Simulation {
         addSpecies(speciesColloid);
 
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(null);
-        potentialMaster = new PotentialMasterList(this, 6, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, this),
-                new NeighborListManagerColloid.NeighborListAgentSourceColloid(6), _space);
+        potentialMaster = new PotentialMasterList(this, 6, boxAgentSource, new BoxAgentManager<>(boxAgentSource, this), _space);
 
         int nColloid = 1;
         chainLength = 50;
@@ -89,8 +88,6 @@ public class ColloidSim extends Simulation {
         getController().addAction(activityIntegrate);
 
         //potentials
-        ((NeighborListManagerColloid) potentialMaster.getNeighborManager(box)).setSpeciesColloid(speciesColloid);
-        ((NeighborListManagerColloid) potentialMaster.getNeighborManager(box)).setSpeciesMonomer(species);
         Vector dim = space.makeVector();
         dim.E(boxSize);
         box.getBoundary().setBoxSize(dim);
@@ -104,8 +101,8 @@ public class ColloidSim extends Simulation {
                 return new AtomArrayList();
             }
         };
-        colloidMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box);
-        monomerMonomerBondManager = new AtomLeafAgentManager<AtomArrayList>(bondAgentSource, box);
+        colloidMonomerBondManager = new AtomLeafAgentManager<>(bondAgentSource, box);
+        monomerMonomerBondManager = new AtomLeafAgentManager<>(bondAgentSource, box);
 
         //instantiate several potentials for selection in combo-box
         p2mm = new P2SquareWellMonomer(space, monomerMonomerBondManager);
@@ -113,18 +110,19 @@ public class ColloidSim extends Simulation {
         p2mm.setLambda(lambda);
         p2mm.setBondFac(0.85);
         p2mm.setEpsilon(epsMM);
+        p2mm.setChainLength(chainLength);
         potentialMaster.addPotential(p2mm, new AtomType[]{species.getLeafType(), species.getLeafType()});
-        p2mc = new P2HardSphereMC(space, colloidMonomerBondManager);
+        p2mc = new P2HardSphereMC(space, colloidMonomerBondManager, species);
         p2mc.setCollisionDiameter(0.5 * (sigma + sigmaColloid));
         p2mc.setBondFac(0.9);
+        p2mc.setChainLength(chainLength);
         potentialMaster.addPotential(p2mc, new AtomType[]{species.getLeafType(), speciesColloid.getLeafType()});
-        potentialMaster.setCriterion(p2mc, new CriterionNone() {
+        potentialMaster.setCriterion(species.getLeafType(), speciesColloid.getLeafType(), new CriterionAll() {
             public boolean needUpdate(IAtom atom) {
+                // just do this to force PBC to be applied
                 return integrator.getStepCount() % 100 == 0;
             }
         });
-
-        ((NeighborListManagerColloid) potentialMaster.getNeighborManager(box)).setPotentialMC(p2mc);
 
         p1WallMonomer = new P1Wall(space, monomerMonomerBondManager);
         p1WallMonomer.setBox(box);
@@ -136,7 +134,7 @@ public class ColloidSim extends Simulation {
         criterionWallMonomer.setBoundaryWall(true);
         criterionWallMonomer.setNeighborRange(3);
         criterionWallMonomer.setWallDim(1);
-        potentialMaster.setCriterion(p1WallMonomer, criterionWallMonomer);
+        potentialMaster.setCriterion1Body(p1WallMonomer, species.getLeafType(), criterionWallMonomer);
 
         p1WallColloid = new P1Wall(space, null);
         p1WallColloid.setBox(box);
@@ -155,8 +153,9 @@ public class ColloidSim extends Simulation {
         configuration.setColloidMonomerBondManager(colloidMonomerBondManager);
         configuration.initializeCoordinates(box);
 
-        p2pseudo = new P2HardSphere(space, 1, true);
         if (nGraft > 1) {
+            // the whole point here is to keep the chains reasonably distributed on the surface of the colloid
+            // we add here an HS potential between the monomers that are grafted
             IAtom atom1 = box.getMoleculeList(species).get(0).getChildList().get(0);
             double minr2 = Double.POSITIVE_INFINITY;
             for (int j = chainLength; j < box.getMoleculeList(species).size(); j += chainLength) {
@@ -169,14 +168,8 @@ public class ColloidSim extends Simulation {
                     minr2 = r2;
                 }
             }
-            p2pseudo.setCollisionDiameter(0.9 * Math.sqrt(minr2));
+            p2mm.setRGraftMin(0.9 * Math.sqrt(minr2));
         }
-
-        potentialMaster.addPotential(p2pseudo, new AtomType[]{species.getLeafType(), species.getLeafType()});
-        potentialMaster.setCriterion(p2pseudo, new CriterionNone());
-
-        ((NeighborListManagerColloid) potentialMaster.getNeighborManager(box)).setPotentialPseudo(p2pseudo);
-        ((NeighborListManagerColloid) potentialMaster.getNeighborManager(box)).setChainLength(chainLength);
 
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
