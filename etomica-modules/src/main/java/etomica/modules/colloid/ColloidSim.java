@@ -12,13 +12,9 @@ import etomica.box.BoxAgentManager;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
-import etomica.nbr.CriterionAll;
-import etomica.nbr.CriterionPositionWall;
-import etomica.nbr.NeighborCriterion;
+import etomica.nbr.*;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.P2HardSphere;
-import etomica.potential.P2HardWrapper;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -37,14 +33,12 @@ public class ColloidSim extends Simulation {
     public SpeciesSpheresMono species, speciesColloid;
     public Box box;
     public IntegratorHard integrator;
-    public P2HardWrapper potentialWrapper;
     public ActivityIntegrate activityIntegrate;
     public ConfigurationColloid configuration;
     public AtomLeafAgentManager<AtomArrayList> colloidMonomerBondManager;
     public AtomLeafAgentManager<AtomArrayList> monomerMonomerBondManager;
     public P2SquareWellMonomer p2mm;
     public P2HardSphereMC p2mc;
-    public P2HardSphere p2pseudo;
     public int nGraft;
     public int chainLength;
     public P1Wall p1WallMonomer, p1WallColloid;
@@ -112,6 +106,16 @@ public class ColloidSim extends Simulation {
         p2mm.setEpsilon(epsMM);
         p2mm.setChainLength(chainLength);
         potentialMaster.addPotential(p2mm, new AtomType[]{species.getLeafType(), species.getLeafType()});
+        NeighborCriterion c = new CriterionSimple(this, space, 5, 6);
+        potentialMaster.setCriterion(species.getLeafType(), species.getLeafType(), new CriterionAdapter(c) {
+            @Override
+            public boolean accept(IAtomList pair) {
+                int idx0 = pair.get(0).getParentGroup().getIndex() % chainLength;
+                int idx1 = pair.get(1).getParentGroup().getIndex() % chainLength;
+                if (idx0 + idx1 == 0) return true;
+                return c.accept(pair);
+            }
+        });
         p2mc = new P2HardSphereMC(space, colloidMonomerBondManager, species);
         p2mc.setCollisionDiameter(0.5 * (sigma + sigmaColloid));
         p2mc.setBondFac(0.9);
@@ -168,7 +172,8 @@ public class ColloidSim extends Simulation {
                     minr2 = r2;
                 }
             }
-            p2mm.setRGraftMin(0.9 * Math.sqrt(minr2));
+            double rMin = 0.9 * Math.sqrt(minr2);
+            p2mm.setRGraftMin(rMin);
         }
 
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
@@ -201,7 +206,7 @@ public class ColloidSim extends Simulation {
                     minr2 = r2;
                 }
             }
-            p2pseudo.setCollisionDiameter(0.9*Math.sqrt(minr2));
+            p2mm.setRGraftMin(0.9 * Math.sqrt(minr2));
         }
         try {
             integrator.reset();

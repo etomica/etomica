@@ -19,7 +19,9 @@ import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.util.Debug;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * PotentialMaster used to implement neighbor listing.  Instance of this
@@ -194,9 +196,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
         if (potential.getRange() == Double.POSITIVE_INFINITY) {
             throw new RuntimeException("not the method you wanted to call");
         }
-        for (int i=0; i<atomTypes.length; i++) {
-            addRangedPotential(potential, atomTypes[i]);
-        }
 
         int type1 = atomTypes[0].getIndex();
         int type2 = atomTypes[1].getIndex();
@@ -219,34 +218,38 @@ public class PotentialMasterList extends PotentialMasterNbr {
         // 0 guarantees the simulation to be hosed if our range is less than the potential range
         // (since recomputeCriteriaRange will bail in that case)
         NeighborCriterion criterion;
-        if (atomType.length == 2) {
+        if (potential.nBody() >= 2) {
             NeighborCriterion rangedCriterion;
             if (potential.getRange() < Double.POSITIVE_INFINITY) {
                 rangedCriterion = new CriterionSimple(simulation, space, potential.getRange(), 0.0);
             }
             else {
-                rangedCriterion = new CriterionAll();
+                // ????? how can this work?
+                System.err.println("you have a 'ranged' potential with infinite range.  good luck with that!");
+                rangedCriterion = null;
             }
-            criterion = new CriterionTypePair(rangedCriterion, atomType[0], atomType[1]);
-            ISpecies moleculeType0 = atomType[0].getSpecies();
-            ISpecies moleculeType1 = atomType[1].getSpecies();
-            if (moleculeType0 == moleculeType1) {
-                criterion = new CriterionInterMolecular(criterion);
-            }
-            setCriterion(atomType[0], atomType[1], criterion);
-        } else if (atomType.length == 1 && potential.nBody() == 1) {
-            criterion = new CriterionType(new CriterionAll(), atomType[0]);
-            setCriterion1Body(potential, atomType[0], criterion);
-        }
-        else {
-            criterion = new CriterionTypesMulti(new CriterionAll(), atomType);
+            criterion = rangedCriterion;
+            Set<ISpecies> allMySpecies = new HashSet<>();
+            allMySpecies.add(atomType[0].getSpecies());
+            // if any of our types are in the same species, then enforce inter-molecular
             for (int i = 0; i < atomType.length; i++) {
-                int ti = atomType[i].getIndex();
-                for (int j = i; j < atomType.length; j++) {
-                    int tj = atomType[j].getIndex();
-                    criteria[ti][tj] = criteria[tj][ti] = criterion;
+                if (allMySpecies.contains(atomType[i].getSpecies())) {
+                    criterion = new CriterionInterMolecular(criterion);
+                    break;
                 }
             }
+            if (potential.nBody() == 2) {
+                setCriterion(atomType[0], atomType[1], criterion);
+            } else {
+                // n-body, so add criterion for all i-j and also i-i
+                for (int i = 0; i < atomType.length; i++) {
+                    for (int j = i; j < atomType.length; j++) {
+                        setCriterion(atomType[i], atomType[j], criterion);
+                    }
+                }
+            }
+        } else {
+            setCriterion1Body(potential, atomType[0], new CriterionAll());
         }
 
         if (potential.getRange() > maxPotentialRange && potential.getRange() < Double.POSITIVE_INFINITY) {
@@ -307,23 +310,20 @@ public class PotentialMasterList extends PotentialMasterNbr {
     public void removePotential(IPotentialAtomic potential) {
         super.removePotential(potential);
 
+        maxPotentialRange = 0;
         for (int i = 0; i < rangedPotentials.length; i++) {
             for (int j = 0; j < rangedPotentials.length; j++) {
                 if (rangedPotentials[i][j] == null) criteria[i][j] = null;
+                double pRange = rangedPotentials[i][j].getRange();
+                if (pRange == Double.POSITIVE_INFINITY) {
+                    continue;
+                }
+                if (pRange > maxPotentialRange) {
+                    maxPotentialRange = pRange;
+                }
             }
         }
 
-
-        maxPotentialRange = 0;
-        for (int i=0; i<allPotentials.length; i++) {
-            double pRange = allPotentials[i].getRange();
-            if (pRange == Double.POSITIVE_INFINITY) {
-                continue;
-            }
-            if (pRange > maxPotentialRange) {
-                maxPotentialRange = pRange;
-            }
-        }
         recomputeCriteriaRanges();
     }
 
@@ -346,12 +346,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 throw new IllegalArgumentException("When there is no target, iterator directive must be up");
             }
             // invoke setBox on all potentials
-            for (int i=0; i<allPotentials.length; i++) {
-                allPotentials[i].setBox(box);
-                if(allPotentials[i].nBody() == 0){
-                	((PotentialGroup)allPotentials[i]).calculate(new MoleculeIterator0(), id.direction(), null, pc);
-                }
-            }
+            setBoxForPotentials(box);
 
             //no target atoms specified
             //call calculate with each SpeciesAgent
@@ -363,10 +358,9 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
         else {
             if (targetAtom != null) {
-                for (int i = 0; i < rangedPotentials.length; i++) {
-                    for (int j = 0; j < rangedPotentials.length; j++) {
-                        if (rangedPotentials[i][j] != null) rangedPotentials[i][j].setBox(box);
-                    }
+                int targetTypeIdx = targetAtom.getType().getIndex();
+                for (int j = 0; j < rangedPotentials[targetTypeIdx].length; j++) {
+                    if (rangedPotentials[targetTypeIdx][j] != null) rangedPotentials[targetTypeIdx][j].setBox(box);
                 }
 
                 //first walk up the tree looking for 1-body range-independent potentials that apply to parents
