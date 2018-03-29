@@ -375,37 +375,40 @@ public class WaterDADB extends Simulation {
 //                System.out.println("mForce: "+ mForce);
                 //redistribute such that only K3 freedom: h1 and h2 rotate around om
                 //Need to remove force on oxygen, and remove force component on hydrogen that align with h1h2 and om
-                oForce.E(0);
-                h1h2.Ev1Mv2(h2, h1);
-                om.Ev1Mv2(m, o);
-                h1h2.normalize();
-                om.normalize();
-                h1Force.PEa1Tv1(-1.0 * h1Force.dot(om), om);
-                h1Force.PEa1Tv1(-1.0 * h1Force.dot(h1h2), h1h2);
-                h2Force.PEa1Tv1(-1.0 * h2Force.dot(om), om);
-                h2Force.PEa1Tv1(-1.0 * h2Force.dot(h1h2), h1h2);
-                totalForce.E(h1Force);
-                totalForce.PE(h2Force);
-                h1Force.PEa1Tv1(-0.5, totalForce);
-                h2Force.PEa1Tv1(-0.5, totalForce);
+                //TODO
+//                oForce.E(0);
+//                h1h2.Ev1Mv2(h2, h1);
+//                om.Ev1Mv2(m, o);
+//                h1h2.normalize();
+//                om.normalize();
+//                h1Force.PEa1Tv1(-1.0 * h1Force.dot(om), om);
+//                h1Force.PEa1Tv1(-1.0 * h1Force.dot(h1h2), h1h2);
+//                h2Force.PEa1Tv1(-1.0 * h2Force.dot(om), om);
+//                h2Force.PEa1Tv1(-1.0 * h2Force.dot(h1h2), h1h2);
+//                totalForce.E(h1Force);
+//                totalForce.PE(h2Force);
+//                h1Force.PEa1Tv1(-0.5, totalForce);
+//                h2Force.PEa1Tv1(-0.5, totalForce);
+//
+//                h1torque.E(h1Force);
+//                h1torque.XE(h1Vector);
+//                h2torque.E(h2Force);
+//                h2torque.XE(h2Vector);
+//                oTorque.E(oForce);
+//                oTorque.XE(oVector);
+//                mTorque.E(mForce);
+//                mTorque.XE(mVector);
+//                totalTorqueNew.E(h1torque);
+//                totalTorqueNew.PE(h2torque);
+//                totalTorqueNew.PE(mTorque);
+//                totalTorqueNew.PE(oTorque);//New total torque
+//                double x0 = om.dot(totalTorqueNew) / Math.sqrt(totalTorqueNew.squared());
+//                double x1 = om.dot(totalTorque) / Math.sqrt(totalTorqueNew.squared());
+//                if ((Math.abs(x0) - 1) > 1E-8 || (Math.abs(x1 - x0)) > 1E-8) {
+//                    System.out.println(molecule + " normTotalTorqueNew " + Math.sqrt(totalTorqueNew.squared()) + " totalTorqueNew: " + om.dot(totalTorqueNew) + " omdottotaltorque" + om.dot(totalTorque));
+//                }
 
-                h1torque.E(h1Force);
-                h1torque.XE(h1Vector);
-                h2torque.E(h2Force);
-                h2torque.XE(h2Vector);
-                oTorque.E(oForce);
-                oTorque.XE(oVector);
-                mTorque.E(mForce);
-                mTorque.XE(mVector);
-                totalTorqueNew.E(h1torque);
-                totalTorqueNew.PE(h2torque);
-                totalTorqueNew.PE(mTorque);
-                totalTorqueNew.PE(oTorque);//New total torque
-                double x0 = om.dot(totalTorqueNew) / Math.sqrt(totalTorqueNew.squared());
-                double x1 = om.dot(totalTorque) / Math.sqrt(totalTorqueNew.squared());
-                if ((Math.abs(x0) - 1) > 1E-8 || (Math.abs(x1 - x0)) > 1E-8) {
-                    System.out.println(molecule + " normTotalTorqueNew " + Math.sqrt(totalTorqueNew.squared()) + " totalTorqueNew: " + om.dot(totalTorqueNew) + " omdottotaltorque" + om.dot(totalTorque));
-                }
+
                 //redistribute s.t. only k1 freedom with only in h1h2 direction
 //				h1h2.Ev1Mv2(h2, h1);
 //				om.Ev1Mv2(m, o);
@@ -748,14 +751,14 @@ public class WaterDADB extends Simulation {
 
     public static class WaterDADBParam extends ParameterBase {
         public int numCells = 1;
-        public int numSteps = 10000;
+        public int numSteps = 1000;
         public double temperature = 100;
         public double rCutLJ = 11;
         public double rCutRealES = 11;
         public double kCut = 1.5;
         public boolean isIce = false;
         public double shakeTol = 1e-12;
-        public boolean runGraphic = true;
+        public boolean runGraphic = false;
         public boolean unitCells = false;
         public boolean doRotation = true;
         public boolean doTranslation = false;
