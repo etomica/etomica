@@ -11,7 +11,6 @@ import etomica.box.BoxCellManager;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.species.ISpecies;
-import etomica.util.Arrays;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +19,11 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
 
     protected final IPotentialAtomic[][] rangedPotentials;
     protected final List<IPotentialAtomic>[] rangedPotentials1Body;
+    protected final List<IPotentialAtomic> potentials0body;
     protected final NeighborCriterion[][] criteria;
     protected final List<NeighborCriterion>[] criteria1Body;
     private final PotentialArray[] intraPotentials;
     protected final Simulation simulation;
-    protected IPotential[] allPotentials = new IPotential[0];
     protected BoxAgentManager<? extends BoxCellManager> boxAgentManager;
 
     public PotentialMasterNbr(Simulation sim, BoxAgentManager<? extends BoxCellManager> boxAgentManager) {
@@ -45,6 +44,8 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
             rangedPotentials1Body[i] = new ArrayList<>();
             criteria1Body[i] = new ArrayList<>();
         }
+
+        potentials0body = new ArrayList<IPotentialAtomic>();
 
         intraPotentials = new PotentialArray[sim.getSpeciesList().size()];
         for (int i = 0; i < intraPotentials.length; i++) {
@@ -69,18 +70,10 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         if (atomTypes == null) {
             //change
             if (pGroup.nBody() < 2 && subPotential.getRange() == Double.POSITIVE_INFINITY) {
-                boolean found = false;
-                for (int i = 0; i < allPotentials.length; i++) {
-                    if (allPotentials[i] == pGroup) {
-                        found = true;
-                    }
-                }
-                if (!found) {
-                    allPotentials = Arrays.addObject(allPotentials, pGroup);
-                }
                 //pGroup is PotentialGroupNbr
-                //ADDED S
-                if (pGroup.nBody() == 1) {
+                if (subPotential.nBody() == 0) {
+                    potentials0body.add(subPotential);
+                } else if (pGroup.nBody() == 1) {
                     ISpecies[] parentType = getSpecies(pGroup);
                     intraPotentials[parentType[0].getIndex()].addPotential(pGroup);
                 }
@@ -89,9 +82,6 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
                 System.err.println("You have a child-potential of a 2-body PotentialGroup or range-dependent potential, but it's not type-based.  Enjoy crashing or fix bug 85");
             }
             return;
-        }
-        for (int i = 0; i < atomTypes.length; i++) {
-            addRangedPotential(subPotential, atomTypes[i]);
         }
         addRangedPotentialForTypes(subPotential, atomTypes);
     }
@@ -114,19 +104,6 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         }
     }
 
-    protected void addRangedPotential(IPotentialAtomic potential, AtomType atomType) {
-
-        boolean found = false;
-        for (int i = 0; i < allPotentials.length; i++) {
-            if (allPotentials[i] == potential) {
-                found = true;
-            }
-        }
-        if (!found) {
-            allPotentials = Arrays.addObject(allPotentials, potential);
-        }
-    }
-
     public void removePotential(IPotentialAtomic potential) {
         super.removePotential(potential);
         if (potential.getRange() < Double.POSITIVE_INFINITY) {
@@ -146,7 +123,6 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
                 potentialArray.removePotential(potential);
             }
         }
-        allPotentials = Arrays.removeObject(allPotentials, potential);
     }
 
     public final IPotentialAtomic[][] getRangedPotentials() {
@@ -239,6 +215,33 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         for (int i = 0; i < criteria1Body.length; i++) {
             for (NeighborCriterion c : criteria1Body[i]) {
                 c.setBox(box);
+            }
+        }
+    }
+
+    /**
+     * Sets the box for all ranged potentials
+     *
+     * @param box the box!
+     */
+    protected void setBoxForPotentials(Box box) {
+        for (int i = 0; i < rangedPotentials.length; i++) {
+            for (int j = 0; j <= i; j++) {
+                if (rangedPotentials[i][j] != null) rangedPotentials[i][j].setBox(box);
+            }
+        }
+        for (int i = 0; i < rangedPotentials1Body.length; i++) {
+            for (IPotentialAtomic p : rangedPotentials1Body[i]) {
+                p.setBox(box);
+            }
+        }
+        for (IPotentialAtomic p : potentials0body) {
+            p.setBox(box);
+        }
+        for (PotentialArray pa : intraPotentials) {
+            IPotential[] allp = pa.getPotentials();
+            for (IPotential p : allp) {
+                p.setBox(box);
             }
         }
     }

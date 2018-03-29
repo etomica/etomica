@@ -20,7 +20,6 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.CriterionPositionWall;
-import etomica.nbr.CriterionType;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.potential.P2WCA;
 import etomica.simulation.Simulation;
@@ -128,7 +127,7 @@ public class DCVGCMD extends Simulation {
         criterionWall.setNeighborRange(neighborRangeFacHalf * potentialwall.getRange());
         criterionWall.setWallDim(2);
         potentialMaster.addPotential(potentialwall, new AtomType[]{species1.getLeafType()});
-        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwall, species1.getLeafType(), new CriterionType(criterionWall, speciestype));
+        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwall, species1.getLeafType(), criterionWall);
 
         potentialwall1 = new P1WCAWall(space, 2, sigma, epsilon);
         CriterionPositionWall criterionWall1 = new CriterionPositionWall(this);
@@ -136,7 +135,7 @@ public class DCVGCMD extends Simulation {
         criterionWall1.setNeighborRange(neighborRangeFacHalf * potentialwall1.getRange());
         criterionWall1.setWallDim(2);
         potentialMaster.addPotential(potentialwall1, new AtomType[]{species2.getLeafType()});
-        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwall1, species2.getLeafType(), new CriterionType(criterionWall1, speciestype1));
+        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwall1, species2.getLeafType(), criterionWall1);
 
         potentialwallPorousA = new P1WCAPorousWall(space, sigma, epsilon);
         CriterionPositionWall criterionWallA = new CriterionPositionWall(this);
@@ -144,7 +143,7 @@ public class DCVGCMD extends Simulation {
         criterionWallA.setNeighborRange(neighborRangeFacHalf * potentialwallPorousA.getRange());
         criterionWallA.setWallDim(2);
         potentialMaster.addPotential(potentialwallPorousA, new AtomType[]{species1.getLeafType()});
-        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwallPorousA, species1.getLeafType(), new CriterionType(criterionWallA, speciestype));
+        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwallPorousA, species1.getLeafType(), criterionWallA);
 
         potentialwallPorousA1 = new P1WCAPorousWall(space, sigma, epsilon);
         CriterionPositionWall criterionWallA1 = new CriterionPositionWall(this);
@@ -152,7 +151,7 @@ public class DCVGCMD extends Simulation {
         criterionWallA1.setNeighborRange(neighborRangeFacHalf * potentialwallPorousA1.getRange());
         criterionWallA1.setWallDim(2);
         potentialMaster.addPotential(potentialwallPorousA1, new AtomType[]{species2.getLeafType()});
-        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwallPorousA1, species2.getLeafType(), new CriterionType(criterionWallA1, speciestype1));
+        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwallPorousA1, species2.getLeafType(), criterionWallA1);
 
         potentialwallPorousB = new P1WCAPorousWall(space, sigma, epsilon);
         CriterionPositionWall criterionWallB = new CriterionPositionWall(this);
@@ -160,7 +159,7 @@ public class DCVGCMD extends Simulation {
         criterionWallB.setNeighborRange(neighborRangeFacHalf * potentialwallPorousB.getRange());
         criterionWallB.setWallDim(2);
         potentialMaster.addPotential(potentialwallPorousB, new AtomType[]{species1.getLeafType()});
-        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwallPorousB, species1.getLeafType(), new CriterionType(criterionWallB, speciestype));
+        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwallPorousB, species1.getLeafType(), criterionWallB);
 
         potentialwallPorousB1 = new P1WCAPorousWall(space, sigma, epsilon);
         CriterionPositionWall criterionWallB1 = new CriterionPositionWall(this);
@@ -168,7 +167,7 @@ public class DCVGCMD extends Simulation {
         criterionWallB1.setNeighborRange(neighborRangeFacHalf * potentialwallPorousB.getRange());
         criterionWallB1.setWallDim(2);
         potentialMaster.addPotential(potentialwallPorousB1, new AtomType[]{species2.getLeafType()});
-        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwallPorousB1, species2.getLeafType(), new CriterionType(criterionWallB1, speciestype1));
+        potentialMaster.getPotentialMasterList().setCriterion1Body(potentialwallPorousB1, species2.getLeafType(), criterionWallB1);
 
 
         box.setNMolecules(species1, 20);

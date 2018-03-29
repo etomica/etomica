@@ -67,7 +67,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         super.addRangedPotentialForTypes(potential, atomType);
         NeighborCriterion criterion;
         if (atomType.length == 2) {
-            criterion = new CriterionTypePair(new CriterionAll(), atomType[0], atomType[1]);
+            criterion = new CriterionAll();
             ISpecies moleculeType0 = atomType[0].getSpecies();
             ISpecies moleculeType1 = atomType[1].getSpecies();
             if (moleculeType0 == moleculeType1) {
@@ -76,11 +76,10 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             setCriterion(atomType[0], atomType[1], criterion);
         }
         else if (atomType.length == 1) {
-            criterion = new CriterionType(new CriterionAll(), atomType[0]);
-            setCriterion1Body(potential, atomType[0], criterion);
+            setCriterion1Body(potential, atomType[0], new CriterionAll());
         }
         else {
-            criterion = new CriterionTypesMulti(new CriterionAll(), atomType);
+            criterion = new CriterionAll();
             for (int i = 0; i < atomType.length; i++) {
                 for (int j = 0; j <= i; j++) {
                     setCriterion(atomType[i], atomType[j], criterion);
@@ -101,7 +100,6 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if (!enabled)
             return;
-        setBoxForCriteria(box);
         IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
         neighborIterator.setBox(box);
@@ -110,10 +108,9 @@ public class PotentialMasterSite extends PotentialMasterNbr {
                 throw new IllegalArgumentException("When there is no target, iterator directive must be up");
             }
             neighborIterator.setDirection(IteratorDirective.Direction.UP);
-            // invoke setBox on all potentials
-            for (IPotential allPotential : allPotentials) {
-                allPotential.setBox(box);
-            }
+            // invoke setBox on all criteria and potentials
+            setBoxForCriteria(box);
+            setBoxForPotentials(box);
 
             //no target atoms specified
             //call calculate with each molecule
@@ -153,9 +150,6 @@ public class PotentialMasterSite extends PotentialMasterNbr {
                 calculate(targetAtom, pc);
             }
             else {
-                for (IPotential allPotential : allPotentials) {
-                    allPotential.setBox(box);
-                }
 
                 IAtomList atomList = (targetMolecule).getChildList();
                 for (IAtom anAtomList : atomList) {

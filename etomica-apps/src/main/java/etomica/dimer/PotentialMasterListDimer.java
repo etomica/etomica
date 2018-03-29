@@ -37,10 +37,7 @@ public class PotentialMasterListDimer extends PotentialMasterList{
         if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
             throw new IllegalArgumentException("When there is no target, iterator directive must be up");
         }
-        // invoke setBox on all potentials
-        for (int i=0; i<allPotentials.length; i++) {
-            allPotentials[i].setBox(box);
-        }
+       setBoxForPotentials(box);
 
         //no target atoms specified
         //call calculate with each SpeciesAgent

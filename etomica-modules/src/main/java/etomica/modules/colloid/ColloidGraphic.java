@@ -79,11 +79,6 @@ public class ColloidGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
         displayCycles.setLabel("Simulation time");
         
-        //display of box, timer
-        ColorSchemeByType colorScheme = new ColorSchemeByType();
-        colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
-        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
-
         DeviceSelector graftSelector = new DeviceSelector(sim.getController());
         graftSelector.addOption("1", new GraftAction(1));
         graftSelector.addOption("2", new GraftAction(2));
@@ -94,7 +89,7 @@ public class ColloidGraphic extends SimulationGraphic {
         graftSelector.setSelected(5);
         graftSelector.setLabel("# of grafted chains");
         add(graftSelector);
-        
+
         DeviceSlider chainLengthSlider = new DeviceSlider(sim.getController());
         chainLengthSlider.setModifier(new Modifier() {
             public void setValue(double newValue) {
@@ -126,7 +121,8 @@ public class ColloidGraphic extends SimulationGraphic {
         chainLengthSlider.setPostAction(getPaintAction(sim.box));
         chainLengthSlider.setShowValues(true);
         add(chainLengthSlider);
-        
+
+        //display of box, timer
         MeterTemperature meterTemperature = new MeterTemperature(sim.box, 3);
         DisplayTextBox displayTemperature = new DisplayTextBox();
         DataPumpListener tempPump = new DataPumpListener(meterTemperature, displayTemperature);

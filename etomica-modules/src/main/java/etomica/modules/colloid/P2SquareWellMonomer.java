@@ -47,7 +47,7 @@ public class P2SquareWellMonomer extends P2SquareWell {
 
         if (childIdx0 + childIdx1 == 0) {
             // both bonded to colloid.  use rMinGraft
-            return r2 < rGraftMin2 ? 0 : Double.POSITIVE_INFINITY;
+            return r2 > rGraftMin2 ? 0 : Double.POSITIVE_INFINITY;
         }
 
         if (chainIdx0 == chainIdx1 && Math.abs(childIdx0 - childIdx1) == 1) {
@@ -89,11 +89,11 @@ public class P2SquareWellMonomer extends P2SquareWell {
 
         if (grafted) {
             if (bij < 0.0) {    // Check for hard-core collision
-                double discr = bij * bij - v2 * (r2 - coreDiameterSquared);
+                double discr = bij * bij - v2 * (r2 - rGraftMin2);
                 if (discr > 0) {  // Hard cores collide next
-                    if (ignoreOverlap && dr.squared() < coreDiameterSquared)
+                    if (ignoreOverlap && dr.squared() < rGraftMin2)
                         return falseTime + 0.001 * Math.sqrt(dr.squared()) / Math.sqrt(v2);
-                    double discriminant = bij * bij - v2 * (dr.squared() - coreDiameterSquared);
+                    double discriminant = bij * bij - v2 * (dr.squared() - rGraftMin2);
                     if (discriminant > 0) {
                         time = (-bij - Math.sqrt(discriminant)) / v2;
                     }
@@ -190,53 +190,62 @@ public class P2SquareWellMonomer extends P2SquareWell {
         double rm1 = atom1.getType().rm();
         double reduced_m = 1.0 / (rm0 + rm1);
         double nudge = 0;
-        if (2 * r2 < (coreDiameterSquared + wellDiameterSquared) || lambda == 1) {   // Hard-core collision
-            if (Debug.ON && !ignoreOverlap && Math.abs(r2 - coreDiameterSquared) / coreDiameterSquared > 1.e-9) {
-                throw new RuntimeException("atoms " + pair + " not at the right distance " + r2 + " " + coreDiameterSquared);
-            }
-            // check for bonding
-            IAtomList bondList = (IAtomList) bondManager.getAgent(pair.get(0));
-            boolean bonded = false;
-            for (int i = 0; !bonded && i < bondList.size(); i++) {
-                bonded = bondList.get(i) == pair.get(1);
-            }
-            if (bonded) {
-                // bonded
-                lastCollisionVirial = 2.0 * reduced_m * bij;
-            } else {
-                // unbonded
-                if (bij > 0) {
-                    lastCollisionVirial = 0;
-                    nudge = eps;
+
+        int idx0 = pair.get(0).getParentGroup().getIndex();
+        int idx1 = pair.get(1).getParentGroup().getIndex();
+        int chainIdx0 = idx0 / chainLength;
+        int chainIdx1 = idx1 / chainLength;
+        int childIdx0 = idx0 % chainLength;
+        int childIdx1 = idx1 % chainLength;
+        boolean grafted = childIdx0 + childIdx1 == 0;
+        if (grafted) {
+            lastCollisionVirial = 2.0 * reduced_m * bij;
+        } else {
+            boolean bonded = (chainIdx0 == chainIdx1) && Math.abs(childIdx0 - childIdx1) == 1;
+
+            if (2 * r2 < (coreDiameterSquared + wellDiameterSquared) || lambda == 1) {   // Hard-core collision
+                if (Debug.ON && !ignoreOverlap && Math.abs(r2 - coreDiameterSquared) / coreDiameterSquared > 1.e-9) {
+                    throw new RuntimeException("atoms " + pair + " not at the right distance " + r2 + " " + coreDiameterSquared);
+                }
+                // check for bonding
+                if (bonded) {
+                    // bonded
+                    lastCollisionVirial = 2.0 * reduced_m * bij;
                 } else {
-                    lastCollisionVirial = 2.0 * reduced_m * bij;
+                    // unbonded
+                    if (bij > 0) {
+                        lastCollisionVirial = 0;
+                        nudge = eps;
+                    } else {
+                        lastCollisionVirial = 2.0 * reduced_m * bij;
+                    }
                 }
-            }
-            lastEnergyChange = 0.0;
-        } else {    // Well collision
-            if (Debug.ON && Math.abs(r2 - wellDiameterSquared) / wellDiameterSquared > 1.e-9) {
-                throw new RuntimeException("atoms " + pair + " not at the right distance " + r2 + " " + wellDiameterSquared);
-            }
-            // ke is kinetic energy due to components of velocity
-            double ke = bij * bij * reduced_m / (2.0 * r2);
-            if (bij > 0.0) {         // Separating
-                if (ke < epsilon) {     // Not enough kinetic energy to escape
-                    lastCollisionVirial = 2.0 * reduced_m * bij;
-                    nudge = -eps;
-                    lastEnergyChange = 0.0;
-                } else {                 // Escape
-                    lastCollisionVirial = reduced_m * (bij - Math.sqrt(bij * bij - 2.0 * r2 * epsilon / reduced_m));
-                    nudge = eps;
-                    lastEnergyChange = epsilon;
-                }
-            } else if (ke > -epsilon) {   // Approach/capture
-                lastCollisionVirial = reduced_m * (bij + Math.sqrt(bij * bij + 2.0 * r2 * epsilon / reduced_m));
-                nudge = -eps;
-                lastEnergyChange = -epsilon;
-            } else {                     // Not enough kinetic energy to overcome square-shoulder
-                lastCollisionVirial = 2.0 * reduced_m * bij;
-                nudge = eps;
                 lastEnergyChange = 0.0;
+            } else {    // Well collision
+                if (Debug.ON && Math.abs(r2 - wellDiameterSquared) / wellDiameterSquared > 1.e-9) {
+                    throw new RuntimeException("atoms " + pair + " not at the right distance " + r2 + " " + wellDiameterSquared);
+                }
+                // ke is kinetic energy due to components of velocity
+                double ke = bij * bij * reduced_m / (2.0 * r2);
+                if (bij > 0.0) {         // Separating
+                    if (ke < epsilon) {     // Not enough kinetic energy to escape
+                        lastCollisionVirial = 2.0 * reduced_m * bij;
+                        nudge = -eps;
+                        lastEnergyChange = 0.0;
+                    } else {                 // Escape
+                        lastCollisionVirial = reduced_m * (bij - Math.sqrt(bij * bij - 2.0 * r2 * epsilon / reduced_m));
+                        nudge = eps;
+                        lastEnergyChange = epsilon;
+                    }
+                } else if (ke > -epsilon) {   // Approach/capture
+                    lastCollisionVirial = reduced_m * (bij + Math.sqrt(bij * bij + 2.0 * r2 * epsilon / reduced_m));
+                    nudge = -eps;
+                    lastEnergyChange = -epsilon;
+                } else {                     // Not enough kinetic energy to overcome square-shoulder
+                    lastCollisionVirial = 2.0 * reduced_m * bij;
+                    nudge = eps;
+                    lastEnergyChange = 0.0;
+                }
             }
         }
         lastCollisionVirialr2 = lastCollisionVirial / r2;
