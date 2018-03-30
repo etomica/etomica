@@ -83,7 +83,9 @@ public class WaterDADB extends Simulation {
         if (unitCells) {
             numCells = 1;
         }
-        ConfigurationFile config = new ConfigurationFile(numCells + "ncFinalPos");
+        //TODO need to reverse back
+//        ConfigurationFile config = new ConfigurationFile(numCells + "ncFinalPos");
+        ConfigurationFile config = new ConfigurationFile(numCells + "ncReducedRCut");
 
         if (unitCells) {
             ConfigurationFileBinary.replicate(config, box, nC, space);
@@ -358,38 +360,38 @@ public class WaterDADB extends Simulation {
                 }
 
 
-                h1torque.E(h1Force);
-                h1torque.XE(h1Vector);
-                h2torque.E(h2Force);
-                h2torque.XE(h2Vector);
-                oTorque.E(oForce);
-                oTorque.XE(oVector);
-                mTorque.E(mForce);
-                mTorque.XE(mVector);
-                totalTorque.E(h1torque);
-                totalTorque.PE(h2torque);
-                totalTorque.PE(mTorque);
-                totalTorque.PE(oTorque);//New total torque
+//                h1torque.E(h1Force);
+//                h1torque.XE(h1Vector);
+//                h2torque.E(h2Force);
+//                h2torque.XE(h2Vector);
+//                oTorque.E(oForce);
+//                oTorque.XE(oVector);
+//                mTorque.E(mForce);
+//                mTorque.XE(mVector);
+//                totalTorque.E(h1torque);
+//                totalTorque.PE(h2torque);
+//                totalTorque.PE(mTorque);
+//                totalTorque.PE(oTorque);//New total torque
 
 
-//                System.out.println("mForce: "+ mForce);
                 //redistribute such that only K3 freedom: h1 and h2 rotate around om
                 //Need to remove force on oxygen, and remove force component on hydrogen that align with h1h2 and om
-                //TODO
-//                oForce.E(0);
-//                h1h2.Ev1Mv2(h2, h1);
-//                om.Ev1Mv2(m, o);
-//                h1h2.normalize();
-//                om.normalize();
-//                h1Force.PEa1Tv1(-1.0 * h1Force.dot(om), om);
-//                h1Force.PEa1Tv1(-1.0 * h1Force.dot(h1h2), h1h2);
-//                h2Force.PEa1Tv1(-1.0 * h2Force.dot(om), om);
-//                h2Force.PEa1Tv1(-1.0 * h2Force.dot(h1h2), h1h2);
-//                totalForce.E(h1Force);
-//                totalForce.PE(h2Force);
-//                h1Force.PEa1Tv1(-0.5, totalForce);
-//                h2Force.PEa1Tv1(-0.5, totalForce);
-//
+                boolean onlyKappa3 = false;
+                if (onlyKappa3) {
+                    oForce.E(0);
+                    h1h2.Ev1Mv2(h2, h1);
+                    om.Ev1Mv2(m, o);
+                    h1h2.normalize();
+                    om.normalize();
+                    h1Force.PEa1Tv1(-1.0 * h1Force.dot(om), om);
+                    h1Force.PEa1Tv1(-1.0 * h1Force.dot(h1h2), h1h2);
+                    h2Force.PEa1Tv1(-1.0 * h2Force.dot(om), om);
+                    h2Force.PEa1Tv1(-1.0 * h2Force.dot(h1h2), h1h2);
+                    totalForce.E(h1Force);
+                    totalForce.PE(h2Force);
+                    h1Force.PEa1Tv1(-0.5, totalForce);
+                    h2Force.PEa1Tv1(-0.5, totalForce);
+                }
 //                h1torque.E(h1Force);
 //                h1torque.XE(h1Vector);
 //                h2torque.E(h2Force);
@@ -751,16 +753,16 @@ public class WaterDADB extends Simulation {
 
     public static class WaterDADBParam extends ParameterBase {
         public int numCells = 1;
-        public int numSteps = 1000;
+        public int numSteps = 10000;
         public double temperature = 100;
-        public double rCutLJ = 11;
-        public double rCutRealES = 11;
-        public double kCut = 1.5;
+        public double rCutLJ = 11 / 2.0;
+        public double rCutRealES = 11 / 2.0;
+        public double kCut = 1.5 / 2;
         public boolean isIce = false;
         public double shakeTol = 1e-12;
         public boolean runGraphic = false;
         public boolean unitCells = false;
-        public boolean doRotation = true;
-        public boolean doTranslation = false;
+        public boolean doRotation = false;
+        public boolean doTranslation = true;
     }
 }

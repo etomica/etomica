@@ -5,6 +5,7 @@
 package etomica.integrator;
 
 import etomica.box.Box;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.*;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -25,7 +26,7 @@ import etomica.util.random.IRandom;
 
 public class IntegratorMC extends IntegratorBox {
 
-    public static boolean dodebug;
+    public static boolean dodebug = false;
     protected final IRandom random;
     protected final IEventManager moveEventManager;
     private final IEvent trialEvent, trialFailedEvent;
@@ -120,6 +121,14 @@ public class IntegratorMC extends IntegratorBox {
             currentPotentialEnergy += move.energyChange();
             //notify listeners of outcome
             moveEventManager.fireEvent(acceptedEvent);
+        }
+        if (dodebug) {
+            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
+            meterPE.setBox(box);
+            double u = meterPE.getDataAsScalar();
+            if (Math.abs(u - currentPotentialEnergy) > 1e-5) {
+                throw new RuntimeException("energy wrong " + u + " " + currentPotentialEnergy);
+            }
         }
     }
 
