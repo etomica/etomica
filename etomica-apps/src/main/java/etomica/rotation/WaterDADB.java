@@ -66,6 +66,8 @@ public class WaterDADB extends Simulation {
     public WaterDADB(final Space space, double temperature, int numCells, double rCutRealES, double rCutLJ, boolean isIce, double kCut, double shakeTol, boolean unitCells, final boolean doTranslation, final boolean doRotation) {
         super(space);
         setRandom(new RandomMersenneTwister(2));
+        //TODO remember to comment out this part if you want to collect your data.
+
 //		if (precision ==1.0e-5 ){
 //			precision_s = 3.047059472445871 ;
 //		}	else if (precision == 5.0e-5){
@@ -83,9 +85,7 @@ public class WaterDADB extends Simulation {
         if (unitCells) {
             numCells = 1;
         }
-        //TODO need to reverse back
-//        ConfigurationFile config = new ConfigurationFile(numCells + "ncFinalPos");
-        ConfigurationFile config = new ConfigurationFile(numCells + "ncReducedRCut");
+        ConfigurationFile config = new ConfigurationFile(numCells + "ncFinalPos");
 
         if (unitCells) {
             ConfigurationFileBinary.replicate(config, box, nC, space);
@@ -376,22 +376,23 @@ public class WaterDADB extends Simulation {
 
                 //redistribute such that only K3 freedom: h1 and h2 rotate around om
                 //Need to remove force on oxygen, and remove force component on hydrogen that align with h1h2 and om
-                boolean onlyKappa3 = false;
-                if (onlyKappa3) {
-                    oForce.E(0);
-                    h1h2.Ev1Mv2(h2, h1);
-                    om.Ev1Mv2(m, o);
-                    h1h2.normalize();
-                    om.normalize();
-                    h1Force.PEa1Tv1(-1.0 * h1Force.dot(om), om);
-                    h1Force.PEa1Tv1(-1.0 * h1Force.dot(h1h2), h1h2);
-                    h2Force.PEa1Tv1(-1.0 * h2Force.dot(om), om);
-                    h2Force.PEa1Tv1(-1.0 * h2Force.dot(h1h2), h1h2);
-                    totalForce.E(h1Force);
-                    totalForce.PE(h2Force);
-                    h1Force.PEa1Tv1(-0.5, totalForce);
-                    h2Force.PEa1Tv1(-0.5, totalForce);
-                }
+//                boolean onlyKappa3 = false;
+//                if (onlyKappa3) {
+//                    oForce.E(0);
+//                    h1h2.Ev1Mv2(h2, h1);
+//                    om.Ev1Mv2(m, o);
+//                    h1h2.normalize();
+//                    om.normalize();
+//                    h1Force.PEa1Tv1(-1.0 * h1Force.dot(om), om);
+//                    h1Force.PEa1Tv1(-1.0 * h1Force.dot(h1h2), h1h2);
+//                    h2Force.PEa1Tv1(-1.0 * h2Force.dot(om), om);
+//                    h2Force.PEa1Tv1(-1.0 * h2Force.dot(h1h2), h1h2);
+//                    totalForce.E(h1Force);
+//                    totalForce.PE(h2Force);
+//                    h1Force.PEa1Tv1(-0.5, totalForce);
+//                    h2Force.PEa1Tv1(-0.5, totalForce);
+//                }
+
 //                h1torque.E(h1Force);
 //                h1torque.XE(h1Vector);
 //                h2torque.E(h2Force);
@@ -716,10 +717,10 @@ public class WaterDADB extends Simulation {
                 "  PEeError = " + PEAError + "  PECor= " + PECor);
 
         System.out.println("PE-lattice = " + (PEAverage - latticeEnergy));
-        ConfigurationFile config = new ConfigurationFile(numCells + "ncFinalPos");
-        config.initializeCoordinates(sim.box);
-        final double endLatticeEnergy = meterPE2.getDataAsScalar();
-        System.out.println("endLE = " + endLatticeEnergy);
+//        ConfigurationFile config = new ConfigurationFile(numCells + "ncFinalPos");
+//        config.initializeCoordinates(sim.box);
+//        final double endLatticeEnergy = meterPE2.getDataAsScalar();
+//        System.out.println("endLE = " + endLatticeEnergy);
 
 
     }
@@ -753,16 +754,16 @@ public class WaterDADB extends Simulation {
 
     public static class WaterDADBParam extends ParameterBase {
         public int numCells = 1;
-        public int numSteps = 10000;
-        public double temperature = 100;
-        public double rCutLJ = 11 / 2.0;
-        public double rCutRealES = 11 / 2.0;
-        public double kCut = 1.5 / 2;
+        public int numSteps = 1000;
+        public double temperature = 50;
+        public double rCutLJ = 11;
+        public double rCutRealES = 11;
+        public double kCut = 1.5;
         public boolean isIce = false;
         public double shakeTol = 1e-12;
         public boolean runGraphic = false;
         public boolean unitCells = false;
-        public boolean doRotation = false;
-        public boolean doTranslation = true;
+        public boolean doRotation = true;
+        public boolean doTranslation = false;
     }
 }

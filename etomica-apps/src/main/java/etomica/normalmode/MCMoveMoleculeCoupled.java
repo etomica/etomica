@@ -102,8 +102,8 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
         pair.atom1 = molecule1;
         energyMeter.setTarget(molecule0);
         uOld = energyMeter.getDataAsScalar();
-        energyMeter.setTarget(molecule1);
-        uOld += energyMeter.getDataAsScalar();
+//        energyMeter.setTarget(molecule1);
+//        uOld += energyMeter.getDataAsScalar();
         
         doIncludePair = pairPotential != null;
         
@@ -146,8 +146,8 @@ public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
 
     public double getChi(double temperature) {
         uNew = energyMeter.getDataAsScalar();
-        energyMeter.setTarget(molecule0);
-        uNew += energyMeter.getDataAsScalar();
+//        energyMeter.setTarget(molecule0);
+//        uNew += energyMeter.getDataAsScalar();
         if(!Double.isInfinite(uNew) && doIncludePair){
             uNew -= pairPotential.energy(pair);
         }

@@ -431,8 +431,8 @@ public class MinimizationTIP4P extends Simulation{
         public double rCutLJ = 11;
         public double rCutRealES = 11;
         public double kCut = 1.5;
-        public int nOuter = 100;
-		public int nInner = 3;
+        public int nOuter = 200;
+        public int nInner = 5;
 		public boolean isIce =  false, isGraphics = !false;
 		public boolean includeM =  false;
         int nX = 1;

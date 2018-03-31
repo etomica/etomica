@@ -309,16 +309,9 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
             double DUDT = -q.dot(axisNew);
             double denominator = 1 - Math.cos(betaNew);
             if (denominator == 0) continue;
-            orientationSum += 1.5 * (betaNew - Math.sin(betaNew)) / denominator * DUDT;
+//            orientationSum += 1.5 * (betaNew - Math.sin(betaNew)) / denominator * DUDT;
 //            orientationSum += 0.5*betaNew* DUDT;
-
-//           if(theta-betaNew>1E-10) System.out.println(theta+ " beta:  "+ betaNew);
-
-//            double test1 = 1.5 * (betaNew - Math.sin(betaNew)) / (1 - Math.cos(betaNew)) * q.dot(axisNew);
-//            double test2 = 1.5 * (beta - Math.sin(beta)) / (1 - Math.cos(beta)) * q.dot(axis);
-//            if ((test1 - test2) > 1E-8) System.out.println(test1 + " " + test2);
-
-
+            orientationSum += 0.75 * (betaNew / Math.sin(betaNew) - Math.cos(betaNew)) / Math.sin(betaNew) * DUDT;
             // find kapa33
 //			dr.Ev1Mv2(h2, h1);
 //			dr.normalize();
