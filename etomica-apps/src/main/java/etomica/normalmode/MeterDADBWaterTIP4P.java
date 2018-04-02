@@ -97,48 +97,48 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
         double orientationSum = 0;
 
 //TODO
-        for (int j = 99; j >= 0 && false; j--) {
-            for (int i = 0; i < molecules.getMoleculeCount(); i++) {
-                IMolecule molecule = molecules.getMolecule(i);
-                IAtomList leafList = molecule.getChildList();
-                Vector h1 = leafList.getAtom(0).getPosition();
-                Vector h2 = leafList.getAtom(1).getPosition();
-                Vector o = leafList.getAtom(2).getPosition();
-                Vector m = leafList.getAtom(3).getPosition();
-                OrientationFull3D or = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).orientation;
-                Vector a0 = or.getDirection();//om
-                Vector a1 = or.getSecondaryDirection();//h1h2
-                dr.Ev1Mv2(h2, h1);
-                dr.normalize();
-                double acos = a1.dot(dr);
-                if (acos > 1) acos = 1;
-                if (acos < -1) acos = -1;
-                dr.XE(a1);
-                double beta = -Math.signum(dr.dot(a0)) * Math.acos(acos);
-
-                h1.ME(o);
-                double lenth = Math.sqrt(h1.squared());
-                h1.normalize();
-                Orientation3D orientation = new Orientation3D(space);
-                orientation.setDirection(h1);
-                orientation.rotateBy(-beta / (j + 1), a0);
-                h1.Ea1Tv1(lenth, orientation.getDirection());
-                h1.PE(o);
-                h2.ME(o);
-                h2.normalize();
-                orientation.setDirection(h2);
-                orientation.rotateBy(-beta / (j + 1), a0);
-                h2.Ea1Tv1(lenth, orientation.getDirection());
-                h2.PE(o);
-//    			if(i == 0){
-//    				System.out.println(kappa);
-//    			}
-            }
-            double u = meterPE.getDataAsScalar() - latticeEnergy;
-            System.out.println(j * 0.01 + " " + u);
-        }
+//        for (int j = 99; j >= 0 && false; j--) {
+//            for (int i = 0; i < molecules.getMoleculeCount(); i++) {
+//                IMolecule molecule = molecules.getMolecule(i);
+//                IAtomList leafList = molecule.getChildList();
+//                Vector h1 = leafList.getAtom(0).getPosition();
+//                Vector h2 = leafList.getAtom(1).getPosition();
+//                Vector o = leafList.getAtom(2).getPosition();
+//                Vector m = leafList.getAtom(3).getPosition();
+//                OrientationFull3D or = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).orientation;
+//                Vector a0 = or.getDirection();//om
+//                Vector a1 = or.getSecondaryDirection();//h1h2
+//                dr.Ev1Mv2(h2, h1);
+//                dr.normalize();
+//                double acos = a1.dot(dr);
+//                if (acos > 1) acos = 1;
+//                if (acos < -1) acos = -1;
+//                dr.XE(a1);
+//                double beta = -Math.signum(dr.dot(a0)) * Math.acos(acos);
+//
+//                h1.ME(o);
+//                double lenth = Math.sqrt(h1.squared());
+//                h1.normalize();
+//                Orientation3D orientation = new Orientation3D(space);
+//                orientation.setDirection(h1);
+//                orientation.rotateBy(-beta / (j + 1), a0);
+//                h1.Ea1Tv1(lenth, orientation.getDirection());
+//                h1.PE(o);
+//                h2.ME(o);
+//                h2.normalize();
+//                orientation.setDirection(h2);
+//                orientation.rotateBy(-beta / (j + 1), a0);
+//                h2.Ea1Tv1(lenth, orientation.getDirection());
+//                h2.PE(o);
+////    			if(i == 0){
+////    				System.out.println(kappa);
+////    			}
+//            }
+//            double u = meterPE.getDataAsScalar() - latticeEnergy;
+//            System.out.println(j * 0.01 + " " + u);
+//        }
 //        System.exit(2);
-        //TODO
+
 
         for (int i = 0; i < molecules.getMoleculeCount(); i++) {
             IMolecule molecule = molecules.getMolecule(i);
@@ -305,13 +305,11 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 //            System.exit(2);
 
 
-            //TODO need to change back if for all rotation
             double DUDT = -q.dot(axisNew);
             double denominator = 1 - Math.cos(betaNew);
             if (denominator == 0) continue;
-//            orientationSum += 1.5 * (betaNew - Math.sin(betaNew)) / denominator * DUDT;
-//            orientationSum += 0.5*betaNew* DUDT;
-            orientationSum += 0.75 * (betaNew / Math.sin(betaNew) - Math.cos(betaNew)) / Math.sin(betaNew) * DUDT;
+            orientationSum += 1.5 * (betaNew - Math.sin(betaNew)) / denominator * DUDT;
+
             // find kapa33
 //			dr.Ev1Mv2(h2, h1);
 //			dr.normalize();
@@ -404,7 +402,7 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
             } else {
                 x[0] = x0 + 0.5 * ForceSum + orientationSum; //translation and rotation
 //                System.out.println(orientationSum/46);
-                System.out.println(x[0] + " " + x0 + " " + 0.5 * ForceSum + " " + orientationSum);
+//                System.out.println(x[0] + " " + x0 + " " + 0.5 * ForceSum + " " + orientationSum);
             }
 
 //            if (Math.random() < 0.01) {

@@ -69,7 +69,9 @@ public class WaterDADBMC extends Simulation {
 
     public WaterDADBMC(final Space space, double temperature, int numCells, double rCutRealES, double rCutLJ, boolean isIce, double kCut, boolean unitCells, final boolean doTranslation, final boolean doRotation) {
         super(space);
-        setRandom(new RandomMersenneTwister(2));
+//        setRandom(new RandomMersenneTwister(2));
+        //System.out.println("The random seed is set to be fixed");
+
         box = new Box(space);
         addBox(box);
         species = new SpeciesWater4P(getSpace(), false);
@@ -331,7 +333,7 @@ public class WaterDADBMC extends Simulation {
         System.out.println("beginLE = " + latticeEnergy);
         int N = sim.box.getMoleculeList().getMoleculeCount();
         double fac = (doRotation ? 1.5 : 0) * N + (doTranslation ? 1.5 : 0) * (N - 1);
-        System.out.println("harmonicE = " + fac * Kelvin.UNIT.toSim((molecules.getMoleculeCount() * temperature)));
+        System.out.println("harmonicE = " + fac * Kelvin.UNIT.toSim(temperature));
         System.out.println("main:doTranslation:   " + doTranslation + "  doRotation:  " + doRotation);
 
         System.out.println("mappingAverage= " + mappingAverage + "   mappingError= " + mappingError + " mappingCor= " + mappingCor);
@@ -345,10 +347,10 @@ public class WaterDADBMC extends Simulation {
                 "  PEeError = " + PEAError + "  PECor= " + PECor);
 
         System.out.println("PE-lattice = " + (PEAverage - latticeEnergy));
-        ConfigurationFile config = new ConfigurationFile(numCells + "ncFinalPos");
-        config.initializeCoordinates(sim.box);
-        final double endLatticeEnergy = meterPE2.getDataAsScalar();
-        System.out.println("endLE = " + endLatticeEnergy);
+//        ConfigurationFile config = new ConfigurationFile(numCells + "ncFinalPos");
+//        config.initializeCoordinates(sim.box);
+//        final double endLatticeEnergy = meterPE2.getDataAsScalar();
+//        System.out.println("endLE = " + endLatticeEnergy);
 
 
     }

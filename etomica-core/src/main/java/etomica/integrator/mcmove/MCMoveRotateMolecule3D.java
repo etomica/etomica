@@ -6,6 +6,7 @@ package etomica.integrator.mcmove;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.molecule.IMoleculeList;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.potential.PotentialMaster;
@@ -42,7 +43,7 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
 //        System.out.println("doTrial MCMoveRotateMolecule called");
         
         if(box.getMoleculeList().getMoleculeCount()==0) {molecule = null; return false;}
-            
+
         molecule = moleculeSource.getMolecule();
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
