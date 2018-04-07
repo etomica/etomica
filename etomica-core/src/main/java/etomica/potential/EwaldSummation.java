@@ -368,19 +368,18 @@ public class EwaldSummation implements PotentialSoft{
                     for (int j=0; j< nAtoms ; j++){ // Loop over atoms (4*nBasis)
                         IAtom atom = box.getLeafList().get(j);
                         Vector position = atom.getPosition();
-                        sinkrj[j] = Math.sin(position.dot(kVector));
-                        coskrj[j] = Math.cos(position.dot(kVector));
                         double chargej = atomAgentManager.getAgent(atom).charge;
+                        double kr = position.dot(kVector);
+                        sinkrj[j] = chargej * Math.sin(kr);
+                        coskrj[j] = chargej * Math.cos(kr);
 
-                        sCoskr += chargej*coskrj[j];
-                        sSinkr += chargej*sinkrj[j]; 
+                        sCoskr += coskrj[j];
+                        sSinkr += sinkrj[j];
                     }//End loop over j
 
                     double coeffk = coeff / kSquared * Math.exp(-kSquared/4.0/alpha2);
                     for(int i=0; i<nAtoms; i++){
-                        IAtom atom = box.getLeafList().get(i);
-                        double chargei = atomAgentManager.getAgent(atom).charge;
-                        double coeffki = coeffk * chargei * (sinkrj[i] * sCoskr - coskrj[i] * sSinkr); 
+                        double coeffki = coeffk * (sinkrj[i] * sCoskr - coskrj[i] * sSinkr);
                         gradient[i].PEa1Tv1(-coeffki , kVector);  // gradU = -F
                     }
                 }//end of storing Sin and Cos
