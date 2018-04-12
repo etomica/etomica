@@ -307,6 +307,9 @@ public class PotentialMasterList extends PotentialMasterNbr {
         IAtom targetAtom = id.getTargetAtom();
         IMolecule targetMolecule = id.getTargetMolecule();
         NeighborListManager neighborManager = neighborListAgentManager.getAgent(box);
+        if (id.direction() != IteratorDirective.Direction.UP) {
+            neighborManager.ensureDownLists();
+        }
         if (targetAtom == null && targetMolecule == null) {
             if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
                 throw new IllegalArgumentException("When there is no target, iterator directive must be up");
@@ -403,7 +406,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     }
                 }
                 if (direction != IteratorDirective.Direction.UP) {
-                    neighborManager.ensureDownLists();
                     IAtomList list = neighborManager.getDownList(atom)[i];
                     int nNeighbors = list.size();
                     atomPair.atom1 = atom;
