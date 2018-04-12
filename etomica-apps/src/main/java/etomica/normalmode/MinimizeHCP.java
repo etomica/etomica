@@ -6,7 +6,6 @@ package etomica.normalmode;
 
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.box.BoxAgentManager;
 import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -14,8 +13,6 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.nbr.cell.NeighborCellManager;
-import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SoftSphere;
@@ -23,7 +20,6 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -67,9 +63,7 @@ public class MinimizeHCP extends Simulation {
             rc = box.getBoundary().getBoxSize().getX(0) * 0.495;
         }
 
-        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(null);
-        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
-        potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
+        potentialMaster = new PotentialMasterList(this, rc, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         potential = new P2SoftSphericalTruncated(space, potential, rc);

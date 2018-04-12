@@ -40,7 +40,6 @@ public class MCMoveDimer extends MCMoveBoxStep {
     protected final IRandom random;
     protected Space space;
     protected final PotentialMasterCell potentialMaster;
-    protected final Api1ACell neighborIterator;
     protected final Vector dr;
     protected final IPotentialAtomic dimerPotential;
     protected IAtom atom1;
@@ -57,7 +56,6 @@ public class MCMoveDimer extends MCMoveBoxStep {
         this.affectedAtoms = new AtomArrayList(2);
         this.affectedAtomIterator = new AtomIteratorArrayListSimple(affectedAtoms);
         this.potentialMaster = potentialMaster;
-        this.neighborIterator = new Api1ACell(3,1.0,potentialMaster.getCellAgentManager());
         this.dr = _space.makeVector();
         this.random = random;
         this.space = _space;

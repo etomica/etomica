@@ -8,6 +8,8 @@ import etomica.action.BoxImposePbc;
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
+import etomica.box.BoxEventListener;
+import etomica.box.BoxMoleculeEvent;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.lattice.CellLattice;
@@ -17,6 +19,7 @@ import etomica.potential.IPotentialAtomic;
 import etomica.space.Space;
 import etomica.util.Debug;
 
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import java.util.List;
@@ -38,7 +41,6 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
     protected final PotentialMasterList potentialMaster;
     protected final AtomLeafAgentManager<AtomNeighborLists> agentManager2Body;
     protected final AtomLeafAgentManager<AtomPotentialList> agentManager1Body;
-    private final Api1ACell cell1ANbrIterator;
     protected long numUnsafe;
     protected Box box;
     protected boolean initialized;
@@ -46,33 +48,54 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
     protected int numUpdates;
     private int updateInterval;
     private int iieCount;
-    private BoxImposePbc pbcEnforcer;
+    private final BoxImposePbc pbcEnforcer;
     private boolean quiet;
-    private NeighborListEventManager eventManager;
+    private final NeighborListEventManager eventManager;
     private boolean downListsOutOfDate = false;
 
-    private CellLattice lattice;
+    private final CellLattice lattice;
+    private final NeighborCellManager cellManager;
 
+    public NeighborListManager(PotentialMasterList potentialMasterList, double range, Box box) {
+        this(potentialMasterList, new NeighborCellManager(box, range), range, box);
+    }
     /**
      * Configures instance for use by the given PotentialMaster.
      */
-    public NeighborListManager(PotentialMasterList potentialMasterList, double range, Box box) {
+    public NeighborListManager(PotentialMasterList potentialMasterList, NeighborCellManager neighborCellManager, double range, Box box) {
         setUpdateInterval(1);
         Space space = box.getSpace();
+        potentialMaster = potentialMasterList;
         this.box = box;
-        iieCount = updateInterval;
+        this.cellManager = neighborCellManager;
+        this.lattice = cellManager.getLattice();
+        this.lattice.setPeriodicity(box.getBoundary().getPeriodicity());
+
+        box.getEventManager().addListener(new BoxEventListener() {
+            @Override
+            public void boxMoleculeAdded(BoxMoleculeEvent e) {
+                for (IAtom atom : e.getMolecule().getChildList()) {
+                    addAtomNotify(atom);
+                }
+            }
+        });
+
         pbcEnforcer = new BoxImposePbc(space);
         pbcEnforcer.setBox(box);
         pbcEnforcer.setApplyToMolecules(false);
-        potentialMaster = potentialMasterList;
-        cell1ANbrIterator = new Api1ACell(space.D(), range, potentialMasterList.getCellAgentManager());
+
         agentManager2Body = new AtomLeafAgentManager<AtomNeighborLists>(this, box);
         AtomPotential1ListSource source1 = new AtomPotential1ListSource(potentialMasterList);
         agentManager1Body = new AtomLeafAgentManager<AtomPotentialList>(source1, box);
         source1.setAgentManager(agentManager1Body);
+
         initialized = false;
         doApplyPBC = true;
         eventManager = new NeighborListEventManager();
+    }
+
+    public NeighborCellManager getNeighborCellManager() {
+        return cellManager;
     }
 
     public boolean getDoApplyPBC() {
@@ -102,10 +125,6 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
      * lists.
      */
     public void reset() {
-        // the NeighborCellManager might not have existed during construction
-        // so we couldn't set the lattice.  It better exist now.
-        this.lattice = potentialMaster.getNbrCellManager(box).getLattice();
-
         potentialMaster.setBoxForCriteria(box);
         if (doApplyPBC) {
             pbcEnforcer.actionPerformed();
@@ -200,14 +219,6 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
      */
     public BoxImposePbc getPbcEnforcer() {
         return pbcEnforcer;
-    }
-
-    /**
-     * @param pbcEnforcer
-     *            The pbcEnforcer to set.
-     */
-    public void setPbcEnforcer(BoxImposePbc pbcEnforcer) {
-        this.pbcEnforcer = pbcEnforcer;
     }
 
     /**
@@ -356,23 +367,56 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
             // nulling out agents for removed atoms.
             agentManager2Body.setAgent(atom, makeAgent(atom, box));
         }
-        cell1ANbrIterator.setBox(box);
-        cell1ANbrIterator.setTarget(atom);
-        cell1ANbrIterator.reset();
-        for (IAtomList pair = cell1ANbrIterator.next(); pair != null;
-             pair = cell1ANbrIterator.next()) {
-            IAtom atom1 = pair.get(1);
-            if (atom1 == atom) atom1 = pair.get(0);
-            NeighborCriterion criterion = criteria[atom1.getType().getIndex()];
-            if (criterion.accept(pair.get(0), pair.get(1))) {
-                agentManager2Body.getAgent(atom).addUpNbr(atom1, atom1.getType().getIndex());
-                agentManager2Body.getAgent(atom1).addDownNbr(atom, atom.getType().getIndex());
+
+        Cell atomCell = (Cell) lattice.site(atom.getPosition());
+        Object[] sites = lattice.sites();
+        IAtomList cellAtoms = atomCell.occupants();
+        int[] upNbrCells = lattice.getUpNeighbors()[atomCell.getLatticeArrayIndex()];
+        int[] downNbrCells = lattice.getDownNeighbors()[atomCell.getLatticeArrayIndex()];
+        boolean doUpNeighbors = false;
+        for (int i = 0; i < cellAtoms.size(); i++) {
+            IAtom otherAtom = cellAtoms.get(i);
+            if(otherAtom != atom) {
+                if (criteria[otherAtom.getType().getIndex()].accept(atom, otherAtom)) {
+                    if (doUpNeighbors) {
+                        agentManager2Body.getAgent(atom).addUpNbr(otherAtom, otherAtom.getType().getIndex());
+                        agentManager2Body.getAgent(otherAtom).addDownNbr(atom, atom.getType().getIndex());
+                    } else {
+                        agentManager2Body.getAgent(atom).addDownNbr(otherAtom, otherAtom.getType().getIndex());
+                        agentManager2Body.getAgent(otherAtom).addUpNbr(atom, atom.getType().getIndex());
+                    }
+                }
+            } else {
+                doUpNeighbors = true;
             }
         }
+
+        for (int upNbrCell : upNbrCells) {
+            Cell upCell = (Cell) sites[upNbrCell];
+            for (int i = 0; i < upCell.occupants().size(); i++) {
+                IAtom otherAtom = upCell.occupants().get(i);
+                if (criteria[otherAtom.getType().getIndex()].accept(atom, otherAtom)) {
+                    agentManager2Body.getAgent(atom).addUpNbr(otherAtom, otherAtom.getType().getIndex());
+                    agentManager2Body.getAgent(otherAtom).addDownNbr(atom, atom.getType().getIndex());
+                }
+            }
+        }
+
+        for (int downNbrCell : downNbrCells) {
+            Cell downCell = (Cell) sites[downNbrCell];
+            for (int i = 0; i < downCell.occupants().size(); i++) {
+                IAtom otherAtom = downCell.occupants().get(i);
+                if (criteria[otherAtom.getType().getIndex()].accept(atom, otherAtom)) {
+                    agentManager2Body.getAgent(atom).addDownNbr(otherAtom, otherAtom.getType().getIndex());
+                    agentManager2Body.getAgent(otherAtom).addUpNbr(atom, atom.getType().getIndex());
+                }
+            }
+        }
+
     }
 
     public double getRange() {
-//        return cellNbrIterator.getNbrCellIterator().getNeighborDistance();
+        // TODO
         return 0;
     }
 
@@ -381,8 +425,8 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
      * used to generate candidate neighbors for neighbor listing.
      */
     public void setRange(double d) {
-        cell1ANbrIterator.getNbrCellIterator().setNeighborDistance(d);
-//        cellNbrIterator.getNbrCellIterator().setNeighborDistance(d);
+        //TODO
+        this.cellManager.setPotentialRange(d);
     }
 
     /**

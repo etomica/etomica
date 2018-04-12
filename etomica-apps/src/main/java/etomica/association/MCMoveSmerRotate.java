@@ -37,7 +37,6 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
     protected final IRandom random;
     protected Space space;
     protected final PotentialMasterCell potentialMaster;
-    protected final Api1ACell neighborIterator;
     protected final Vector dr, dr2;
     protected final IPotentialAtomic trimerPotential;
     protected final AtomArrayList smerList;
@@ -58,7 +57,6 @@ public class MCMoveSmerRotate extends MCMoveBoxStep {
         this.newSmerList = new AtomArrayList();
         this.affectedAtomIterator = new AtomIteratorArrayListSimple(smerList);
         this.potentialMaster = potentialMaster;
-        this.neighborIterator = new Api1ACell(3,1.0,potentialMaster.getCellAgentManager());
         this.dr = _space.makeVector();
         this.dr2 = _space.makeVector();
         rotationTensor = _space.makeRotationTensor();

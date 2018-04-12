@@ -7,7 +7,6 @@ package etomica.normalmode;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.IDataSource;
@@ -24,8 +23,6 @@ import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.nbr.cell.NeighborCellManager;
-import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.overlap.IntegratorOverlap;
@@ -97,9 +94,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
         double rc = nC * a * 0.495;
 
         System.out.println("rc: " + rc);
-        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(null);
-        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
-        potentialMasterTarget = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
+        potentialMasterTarget = new PotentialMasterList(this, rc, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
 
         Vector[] boxDim = new Vector[3];
         boxDim[0] = space.makeVector(new double[]{nC * a, 0, 0});

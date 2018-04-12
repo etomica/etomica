@@ -177,4 +177,12 @@ public abstract class Boundary {
      */
     @IgnoreProperty
     public abstract boolean getPeriodicity(int d);
+
+    public boolean[] getPeriodicity() {
+        boolean[] p = new boolean[this.space.D()];
+        for (int i = 0; i < this.space.getD(); i++) {
+            p[i] = this.getPeriodicity(i);
+        }
+        return p;
+    }
 }

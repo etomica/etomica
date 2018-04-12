@@ -8,9 +8,12 @@ import etomica.atom.*;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;
+import etomica.box.BoxAgentManager;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.nbr.cell.Api1ACell;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
+import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.potential.IPotentialAtomic;
 import etomica.simulation.Simulation;
 import etomica.space.RotationTensor;
@@ -38,25 +41,25 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
     protected final IRandom random;
     protected Space space;
     protected final PotentialMasterCell potentialMaster;
-    protected final Api1ACell neighborIterator;
     protected final Vector dr;
     protected final IPotentialAtomic dimerPotential;
     protected IAtom atom1;
     protected transient RotationTensor rotationTensor;
     protected final Vector r0;
+    private final BoxAgentManager<Api1ACell> neighborIterators;
 
     public MCMoveDimerRotate(Simulation sim, PotentialMasterCell potentialMaster, Space _space, IPotentialAtomic dimerPotential) {
-        this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false, dimerPotential);
+        this(sim, potentialMaster, sim.getRandom(), _space, 1.0, 15.0, false, dimerPotential);
     }
     
-    public MCMoveDimerRotate(PotentialMasterCell potentialMaster, IRandom random,
+    public MCMoveDimerRotate(Simulation sim, PotentialMasterCell potentialMaster, IRandom random,
                              Space _space, double stepSize, double stepSizeMax,
                              boolean fixOverlap, IPotentialAtomic dimerPotential) {
         super(potentialMaster);
         this.affectedAtoms = new AtomArrayList(2);
         this.affectedAtomIterator = new AtomIteratorArrayListSimple(affectedAtoms);
         this.potentialMaster = potentialMaster;
-        this.neighborIterator = new Api1ACell(3,1.0,potentialMaster.getCellAgentManager());
+        this.neighborIterators = new BoxAgentManager<>(sim, aBox -> new Api1ACell(1.0, aBox, ((NeighborCellManager) potentialMaster.getBoxCellManager(box))));
         this.dr = _space.makeVector();
         rotationTensor = _space.makeRotationTensor();
         this.r0= _space.makeVector();
@@ -81,7 +84,7 @@ public class MCMoveDimerRotate extends MCMoveBoxStep {
     public boolean doTrial() {
         atom = atomSource.getAtom();
         if (atom == null) return false;
-        neighborIterator.setBox(box);
+        Api1ACell neighborIterator = neighborIterators.getAgent(this.box);
         neighborIterator.setTarget(atom);
         neighborIterator.reset();
         IAtom atom0 = atom;

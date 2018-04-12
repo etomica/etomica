@@ -73,6 +73,7 @@ public class NeighborCellManager implements BoxCellManager, BoundaryEventListene
         v = space.makeVector();
         agentManager = new AtomLeafAgentManager<Cell>(this,box);
         doApplyPBC = false;
+        box.getBoundary().getEventManager().addListener(this);
     }
 
     /**

@@ -8,7 +8,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.box.BoxAgentManager;
 import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
@@ -20,8 +19,6 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBoxSize;
 import etomica.lattice.crystal.*;
 import etomica.math.function.Function;
-import etomica.nbr.cell.NeighborCellManager;
-import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
@@ -69,9 +66,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
         addSpecies(species);
 
         if (slanty) {
-            BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(null);
-            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
-            potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
+            potentialMaster = new PotentialMasterList(this, rc, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
         } else {
             potentialMaster = new PotentialMasterList(this, space);
         }

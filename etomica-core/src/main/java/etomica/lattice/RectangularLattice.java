@@ -8,6 +8,7 @@ package etomica.lattice;
 import etomica.potential.IteratorDirective;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -39,8 +40,12 @@ public class RectangularLattice implements FiniteLattice {
     protected Object[] sites;
     protected SiteFactory siteFactory;
 
+
+    private boolean[] periodicity;
+
     private double neighborRange = 1.0;
     private int[][] upNeighbors;
+    private int[][] downNeighbors;
 
     /**
      * Constructs a lattice of the given dimension (D) with sites
@@ -53,12 +58,15 @@ public class RectangularLattice implements FiniteLattice {
         jumpCount[D - 1] = 1;
         size = new int[D];
         this.siteFactory = siteFactory;
+        this.periodicity = new boolean[D];
+        Arrays.fill(periodicity, true);
         //do not create lattice with default size because siteFactory  might not yet be ready
     }
 
-    private void computeUpNeighbors() {
-        System.out.println("Computing up neighbors");
+    private void computeNeighbors() {
+        System.out.println("Computing neighbors");
         this.upNeighbors = new int[sites.length][];
+        this.downNeighbors = new int[sites.length][];
         CellLattice.NeighborIterator iter = new CellLattice.NeighborIterator(d, neighborRange);
         iter.setLattice(this);
         iter.setDirection(IteratorDirective.Direction.UP);
@@ -75,10 +83,33 @@ public class RectangularLattice implements FiniteLattice {
                 upNeighbors[i][j] = nbrIndices.get(j);
             }
         }
+
+        iter.setDirection(IteratorDirective.Direction.DOWN);
+        for (int i = 0; i < sites().length; i++) {
+            iter.setSite(this.latticeIndex(i));
+            iter.reset();
+            List<Integer> nbrIndices = new ArrayList<>();
+            while(iter.hasNext()) {
+                nbrIndices.add(this.arrayIndex(iter.nextIndex()));
+            }
+
+            downNeighbors[i] = new int[nbrIndices.size()];
+            for (int j = 0; j < nbrIndices.size(); j++) {
+                downNeighbors[i][j] = nbrIndices.get(j);
+            }
+        }
+    }
+
+    public void setPeriodicity(boolean[] periodicity) {
+        System.arraycopy(periodicity, 0, this.periodicity, 0, periodicity.length);
     }
 
     public int[][] getUpNeighbors() {
         return upNeighbors;
+    }
+
+    public int[][] getDownNeighbors() {
+        return downNeighbors;
     }
 
     @Override
@@ -160,7 +191,7 @@ public class RectangularLattice implements FiniteLattice {
             sites[i] = siteFactory.makeSite(this, idx);
         }
 
-        this.computeUpNeighbors();
+        this.computeNeighbors();
     }
 
     //method used by setDimensions method to cycle the index array through its values
@@ -175,7 +206,7 @@ public class RectangularLattice implements FiniteLattice {
 
     public void setNeighborRange(double neighborRange) {
         this.neighborRange = neighborRange;
-        this.computeUpNeighbors();
+        this.computeNeighbors();
     }
 
     /**

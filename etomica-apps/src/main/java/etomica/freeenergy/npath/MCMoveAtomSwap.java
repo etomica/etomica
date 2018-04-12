@@ -12,6 +12,7 @@ import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveInsertDeleteLatticeVacancy;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialMaster;
@@ -143,7 +144,7 @@ public class MCMoveAtomSwap extends MCMoveBox {
             atomIterator = new MCMoveInsertDeleteLatticeVacancy.AtomIteratorNbr(((PotentialMasterList)potential).getNeighborManager(box));
         }
         else if (potential instanceof PotentialMasterCell) {
-            atomIterator = new MCMoveInsertDeleteLatticeVacancy.AtomIteratorNbrCell(nbrDistance, ((PotentialMasterCell)potential).getCellAgentManager(), box);
+            atomIterator = new MCMoveInsertDeleteLatticeVacancy.AtomIteratorNbrCell(nbrDistance, (NeighborCellManager) ((PotentialMasterCell)potential).getBoxCellManager(box), box);
         }
         else {
             // brute force!

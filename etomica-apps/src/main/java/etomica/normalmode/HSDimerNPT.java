@@ -11,7 +11,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
-import etomica.box.BoxAgentManager;
 import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.histogram.HistogramExpanding;
@@ -29,8 +28,6 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcpBaseCentered;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
-import etomica.nbr.cell.NeighborCellManager;
-import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinitionHSDimer.IntegerFunction;
@@ -76,9 +73,7 @@ public class HSDimerNPT extends Simulation {
         species = new SpeciesHSDimer(space, true, L);
         addSpecies(species);
 
-        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(null);
-        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
-        potentialMaster = new PotentialMasterList(this, 2, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(2), space);
+        potentialMaster = new PotentialMasterList(this, 2, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(2), space);
 
         double tol = 1e-8;
         double a = Math.sqrt(3.0) + tol;

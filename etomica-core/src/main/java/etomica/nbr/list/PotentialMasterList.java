@@ -10,7 +10,6 @@ import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.*;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.*;
@@ -34,7 +33,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
     protected final AtomPair atomPair;
     protected final NeighborListAgentSource neighborListAgentSource;
     protected final BoxAgentManager<NeighborListManager> neighborListAgentManager;
-    private final BoxAgentSourceCellManagerList boxAgentSource;
     protected double range;
     private int cellRange;
     private double maxPotentialRange = 0;
@@ -48,38 +46,13 @@ public class PotentialMasterList extends PotentialMasterNbr {
     public PotentialMasterList(Simulation sim, Space _space) {
         this(sim,1.0, _space);
     }
-    
-    /**
-     * Constructor specifying space and range for neighbor listing; uses null AtomPositionDefinition.
-     */
-    public PotentialMasterList(Simulation sim, double range, Space _space) {
-        this(sim, range, (IMoleculePositionDefinition)null, _space);
-    }
-    
-    /**
-     * Constructs class using given position definition for all atom cell
-     * assignments.
-     *
-     * @param positionDefinition
-     *            if null, specifies use of atom type's position definition
-     */
-    public PotentialMasterList(Simulation sim, double range, IMoleculePositionDefinition positionDefinition, Space _space) {
-        this(sim, range, new BoxAgentSourceCellManagerList(positionDefinition), _space);
+
+    public PotentialMasterList(Simulation sim, double range, Space _space){
+        this(sim, range, new NeighborListAgentSource(range), _space);
     }
 
-    public PotentialMasterList(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, Space _space) {
-        this(sim, range, boxAgentSource, new BoxAgentManager<>(boxAgentSource, sim), _space);
-    }
-
-    public PotentialMasterList(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, BoxAgentManager<? extends BoxCellManager> agentManager, Space _space){
-        this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSource(range), _space);
-    }
-
-    public PotentialMasterList(Simulation sim, double range,
-                               BoxAgentSourceCellManagerList boxAgentSource,
-                               BoxAgentManager<? extends BoxCellManager> agentManager,
-                               NeighborListAgentSource neighborListAgentSource, Space _space) {
-        super(sim, agentManager);
+    public PotentialMasterList(Simulation sim, double range, NeighborListAgentSource neighborListAgentSource, Space _space) {
+        super(sim);
         space = _space;
         this.neighborListAgentSource = neighborListAgentSource;
         neighborListAgentSource.setPotentialMaster(this);
@@ -87,13 +60,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
         atomSetSinglet = new AtomSetSinglet();
         atomPair = new AtomPair();
         cellRange = 2;
-        this.boxAgentSource = boxAgentSource;
-
-        for (BoxCellManager boxCellManager : boxAgentManager.getAgents().values()) {
-            ((NeighborCellManagerList) boxCellManager).setPotentialMaster(this);
-        }
-
-        boxAgentSource.setPotentialMaster(this);
 
         // setRange last.  that should always be OK since anyone can call
         // setRange later. if we call it early, member fields won't exist,
@@ -132,12 +98,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
             throw new IllegalArgumentException("Range must be greater than 0");
         }
         range = newRange;
-        boxAgentSource.setRange(range);
         recomputeCriteriaRanges();
-
-        for (BoxCellManager boxCellManager : boxAgentManager.getAgents().values()) {
-            ((NeighborCellManager) boxCellManager).setPotentialRange(range);
-        }
 
         neighborListAgentSource.setRange(newRange);
 
@@ -327,6 +288,11 @@ public class PotentialMasterList extends PotentialMasterNbr {
         recomputeCriteriaRanges();
     }
 
+    @Override
+    public BoxCellManager getBoxCellManager(Box box) {
+        return neighborListAgentManager.getAgent(box).getNeighborCellManager();
+    }
+
     /**
      * Overrides superclass method to enable direct neighbor-list iteration
      * instead of iteration via species/potential hierarchy. If no target atoms are
@@ -500,7 +466,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     }
 
     public NeighborCellManager getNbrCellManager(Box box) {
-        return (NeighborCellManager)boxAgentManager.getAgent(box);
+        return neighborListAgentManager.getAgent(box).getNeighborCellManager();
     }
 
     public int getCellRange() {
@@ -510,8 +476,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
     public void setCellRange(int newCellRange) {
         cellRange = newCellRange;
 
-        for (BoxCellManager boxCellManager : boxAgentManager.getAgents().values()) {
-            ((NeighborCellManager) boxCellManager).setCellRange(cellRange);
+        for (NeighborListManager neighborListManager : neighborListAgentManager.getAgents().values()) {
+            neighborListManager.getNeighborCellManager().setCellRange(cellRange);
         }
     }
 

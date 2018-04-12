@@ -19,8 +19,7 @@ public class ColorSchemeCell extends ColorScheme {
     
     public ColorSchemeCell(PotentialMasterNbr potentialMaster, IRandom random, Box box) {
     	super();
-        BoxAgentManager cellAgentManager = potentialMaster.getCellAgentManager();
-        cellManager = (NeighborCellManager)cellAgentManager.getAgent(box);
+        cellManager = (NeighborCellManager)potentialMaster.getBoxCellManager(box);
         this.random = random;
     }
     

@@ -31,6 +31,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.nbr.cell.Api1ACell;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.normalmode.DataSourceMuRoot.DataSourceMuRootVacancyConcentration;
 import etomica.potential.*;
@@ -349,12 +350,11 @@ public class SimLJVacancy extends Simulation {
                 double rMax = sim.mcMoveID.getMaxDistance();
                 double rc2 = rMax*rMax;
                 int nmax = 12;
-                Api1ACell iter = new Api1ACell(3, rMax, sim.potentialMaster.getCellAgentManager());
+                Api1ACell iter = new Api1ACell(rMax, sim.box, (NeighborCellManager) sim.potentialMaster.getBoxCellManager(sim.box));
                 public Color getAtomColor(IAtom a) {
                     if (!sim.integrator.getEventManager().firingEvent() && !sim.ai.isPaused()) return new Color(1.0f, 1.0f, 1.0f);
 
                     Vector pi = a.getPosition();
-                    iter.setBox(sim.box);
                     iter.setDirection(null);
                     iter.setTarget(a);
                     iter.reset();
@@ -936,12 +936,11 @@ public class SimLJVacancy extends Simulation {
                 double rMax = sim.mcMoveID.getMaxDistance();
                 double rc2 = rMax*rMax;
                 int nmax = 12;
-                Api1ACell iter = new Api1ACell(3, rMax, sim.potentialMaster.getCellAgentManager());
+                Api1ACell iter = new Api1ACell(rMax, sim.box, (NeighborCellManager) sim.potentialMaster.getBoxCellManager(sim.box));
                 public Color getAtomColor(IAtom a) {
                     if (!sim.integrator.getEventManager().firingEvent() && !sim.ai.isPaused()) return new Color(1.0f, 1.0f, 1.0f);
 
                     Vector pi = a.getPosition();
-                    iter.setBox(sim.box);
                     iter.setDirection(null);
                     iter.setTarget(a);
                     iter.reset();

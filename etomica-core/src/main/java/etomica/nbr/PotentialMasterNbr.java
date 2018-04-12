@@ -24,12 +24,10 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
     protected final List<NeighborCriterion>[] criteria1Body;
     private final PotentialArray[] intraPotentials;
     protected final Simulation simulation;
-    protected BoxAgentManager<? extends BoxCellManager> boxAgentManager;
 
-    public PotentialMasterNbr(Simulation sim, BoxAgentManager<? extends BoxCellManager> boxAgentManager) {
+    public PotentialMasterNbr(Simulation sim) {
         super();
         simulation = sim;
-        this.boxAgentManager = boxAgentManager;
         int numAtomTypes = 0;
         if (sim.getSpeciesCount() > 0) {
             ISpecies lastSpecies = sim.getSpecies(sim.getSpeciesCount() - 1);
@@ -246,7 +244,5 @@ public abstract class PotentialMasterNbr extends PotentialMaster {
         }
     }
 
-    public final BoxAgentManager<? extends BoxCellManager> getCellAgentManager() {
-        return boxAgentManager;
-    }
+    public abstract BoxCellManager getBoxCellManager(Box box);
 }
