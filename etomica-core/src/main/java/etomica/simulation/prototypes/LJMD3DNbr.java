@@ -46,16 +46,18 @@ public class LJMD3DNbr extends Simulation {
 
     public LJMD3DNbr() {
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space);
         double sigma = 1.0;
         box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.02);
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
 
-        box.setNMolecules(species, 10000);
+        box.setNMolecules(species, 30000);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.8);
         inflater.actionPerformed();
@@ -76,7 +78,7 @@ public class LJMD3DNbr extends Simulation {
         final LJMD3DNbr sim = new LJMD3DNbr();
 
         ActionIntegrate ai = new ActionIntegrate(sim.integrator);
-        ai.setMaxSteps(500);
+        ai.setMaxSteps(300);
         sim.getController().addAction(ai);
         sim.getController().actionPerformed();
 
