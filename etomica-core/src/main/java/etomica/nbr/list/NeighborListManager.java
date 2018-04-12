@@ -245,7 +245,6 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
             }
         }
 
-        NeighborCellManager cellManager = potentialMaster.getNbrCellManager(box);
         cellManager.setDoApplyPBC(!doApplyPBC);
         cellManager.assignCellAll();
 
@@ -417,7 +416,7 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
 
     public double getRange() {
         // TODO
-        return 0;
+        return cellManager.getPotentialRange();
     }
 
     /**
