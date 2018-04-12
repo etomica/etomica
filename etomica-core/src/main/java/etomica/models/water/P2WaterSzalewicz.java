@@ -70,19 +70,16 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         { 1.48, -0.26,  -0.62}, //! N5
         {-1.48, -0.26,  -0.62} };  //   ! N5
     protected final static double mass, cmzFix;
+    protected static final Vector[] sites;
 
     static {
         mass = Oxygen.INSTANCE.getMass() + 2 * Hydrogen.INSTANCE.getMass();
         // why not put the center of mass at 0?
         cmzFix = Oxygen.INSTANCE.getMass() * siteDoubles[0][2] + 2 * Hydrogen.INSTANCE.getMass() * siteDoubles[1][2];
-        for (int i = 0; i < siteDoubles.length; i++) {
-            siteDoubles[i][2] -= cmzFix;
-        }
-    }
-    protected static final Vector[] sites;
-    static {
+
         sites = new Vector[siteDoubles.length];
         for (int i=0; i<sites.length; i++) {
+            siteDoubles[i][2] -= cmzFix;
             sites[i] = Space3D.getInstance().makeVector(siteDoubles[i]);
         }
     }
