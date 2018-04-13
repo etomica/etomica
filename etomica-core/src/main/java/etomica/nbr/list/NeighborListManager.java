@@ -324,7 +324,7 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
                     for (int j = 0; j < upNbrs.size(); j++) {
                         AtomNeighborLists atom2Nbrs = agentManager2Body.getAgent(upNbrs.get(j));
                         synchronized (atom2Nbrs) {
-                            atom2Nbrs.addDownNbr(atom, upNbrs.get(j).getType().getIndex());
+                            atom2Nbrs.addDownNbr(atom, atom.getType().getIndex());
                         }
                     }
                 }
