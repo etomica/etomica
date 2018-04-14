@@ -301,7 +301,7 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
             IAtom atom1 = pair.get(1);
             if (atom1 == atom) atom1 = pair.get(0);
             NeighborCriterion criterion = criteria[atom1.getType().getIndex()];
-            if (criterion.accept(pair)) {
+            if (criterion != null && criterion.accept(pair)) {
                 agentManager2Body.getAgent(atom).addUpNbr(atom1, atom1.getType().getIndex());
                 agentManager2Body.getAgent(atom1).addDownNbr(atom, atom.getType().getIndex());
             }
