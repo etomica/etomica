@@ -374,7 +374,8 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
         for (int i = 0; i < cellAtoms.size(); i++) {
             IAtom otherAtom = cellAtoms.get(i);
             if (otherAtom != atom) {
-                if (criteria[otherAtom.getType().getIndex()].accept(atom, otherAtom)) {
+                int otherTypeIdx = otherAtom.getType().getIndex();
+                if (criteria[otherTypeIdx] != null && criteria[otherTypeIdx].accept(atom, otherAtom)) {
                     if (doUpNeighbors) {
                         agentManager2Body.getAgent(atom).addUpNbr(otherAtom, otherAtom.getType().getIndex());
                         agentManager2Body.getAgent(otherAtom).addDownNbr(atom, atom.getType().getIndex());
@@ -392,7 +393,8 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
             Cell upCell = (Cell) sites[upNbrCell];
             for (int i = 0; i < upCell.occupants().size(); i++) {
                 IAtom otherAtom = upCell.occupants().get(i);
-                if (criteria[otherAtom.getType().getIndex()].accept(atom, otherAtom)) {
+                int otherTypeIdx = otherAtom.getType().getIndex();
+                if (criteria[otherTypeIdx] != null && criteria[otherTypeIdx].accept(atom, otherAtom)) {
                     agentManager2Body.getAgent(atom).addUpNbr(otherAtom, otherAtom.getType().getIndex());
                     agentManager2Body.getAgent(otherAtom).addDownNbr(atom, atom.getType().getIndex());
                 }
@@ -403,7 +405,8 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
             Cell downCell = (Cell) sites[downNbrCell];
             for (int i = 0; i < downCell.occupants().size(); i++) {
                 IAtom otherAtom = downCell.occupants().get(i);
-                if (criteria[otherAtom.getType().getIndex()].accept(atom, otherAtom)) {
+                int otherTypeIdx = otherAtom.getType().getIndex();
+                if (criteria[otherTypeIdx] != null && criteria[otherTypeIdx].accept(atom, otherAtom)) {
                     agentManager2Body.getAgent(atom).addDownNbr(otherAtom, otherAtom.getType().getIndex());
                     agentManager2Body.getAgent(otherAtom).addUpNbr(atom, atom.getType().getIndex());
                 }
