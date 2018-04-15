@@ -486,35 +486,36 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
         return lists;
     }
 
-    public void releaseAgent(AtomNeighborLists agent, IAtom atom, Box agentBox) {
+    public void releaseAgent(AtomNeighborLists nbrLists, IAtom atom, Box agentBox) {
         // we need to remove this atom from the neighbor lists of its neighbors.
-        AtomNeighborLists nbrLists = agent;
         IAtomList[] upDnLists = nbrLists.getUpList();
         for (int i = 0; i < upDnLists.length; i++) {
-            int nNbrs = upDnLists[i].size();
-            for (int j = 0; j < nNbrs; j++) {
+            for (int j = 0; j < upDnLists[i].size(); j++) {
                 IAtom jAtom = upDnLists[i].get(j);
                 AtomNeighborLists jNbrLists = agentManager2Body.getAgent(jAtom);
-                AtomArrayList[] jDnLists = jNbrLists.downList;
-                for (int k = 0; k < jDnLists.length; k++) {
-                    int idx = jDnLists[k].indexOf(atom);
-                    if (idx > -1) {
-                        jDnLists[k].removeAndReplace(idx);
+                if (jNbrLists != null) {
+                    AtomArrayList[] jDnLists = jNbrLists.downList;
+                    for (int k = 0; k < jDnLists.length; k++) {
+                        int idx = jDnLists[k].indexOf(atom);
+                        if (idx > -1) {
+                            jDnLists[k].removeAndReplace(idx);
+                        }
                     }
                 }
             }
         }
         upDnLists = nbrLists.getDownList();
         for (int i = 0; i < upDnLists.length; i++) {
-            int nNbrs = upDnLists[i].size();
-            for (int j = 0; j < nNbrs; j++) {
+            for (int j = 0; j < upDnLists[i].size(); j++) {
                 IAtom jAtom = upDnLists[i].get(j);
                 AtomNeighborLists jNbrLists = agentManager2Body.getAgent(jAtom);
-                AtomArrayList[] jUpLists = jNbrLists.upList;
-                for (int k = 0; k < jUpLists.length; k++) {
-                    int idx = jUpLists[k].indexOf(atom);
-                    if (idx > -1) {
-                        jUpLists[k].removeAndReplace(idx);
+                if (jNbrLists != null) {
+                    AtomArrayList[] jUpLists = jNbrLists.upList;
+                    for (int k = 0; k < jUpLists.length; k++) {
+                        int idx = jUpLists[k].indexOf(atom);
+                        if (idx > -1) {
+                            jUpLists[k].removeAndReplace(idx);
+                        }
                     }
                 }
             }
