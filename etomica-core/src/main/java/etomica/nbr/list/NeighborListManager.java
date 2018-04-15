@@ -66,6 +66,12 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
         Space space = box.getSpace();
         potentialMaster = potentialMasterList;
         this.box = box;
+
+        agentManager2Body = new AtomLeafAgentManager<AtomNeighborLists>(this, box);
+        AtomPotential1ListSource source1 = new AtomPotential1ListSource(potentialMasterList);
+        agentManager1Body = new AtomLeafAgentManager<AtomPotentialList>(source1, box);
+        source1.setAgentManager(agentManager1Body);
+
         this.cellManager = neighborCellManager;
         this.lattice = cellManager.getLattice();
         this.lattice.setPeriodicity(box.getBoundary().getPeriodicity());
@@ -82,11 +88,6 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
         pbcEnforcer = new BoxImposePbc(space);
         pbcEnforcer.setBox(box);
         pbcEnforcer.setApplyToMolecules(false);
-
-        agentManager2Body = new AtomLeafAgentManager<AtomNeighborLists>(this, box);
-        AtomPotential1ListSource source1 = new AtomPotential1ListSource(potentialMasterList);
-        agentManager1Body = new AtomLeafAgentManager<AtomPotentialList>(source1, box);
-        source1.setAgentManager(agentManager1Body);
 
         initialized = false;
         doApplyPBC = true;
