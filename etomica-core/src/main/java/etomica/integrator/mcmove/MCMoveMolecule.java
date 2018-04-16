@@ -11,6 +11,7 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.molecule.IMolecule;
+import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeSource;
 import etomica.molecule.MoleculeSourceRandomMolecule;
 import etomica.molecule.iterator.MoleculeIterator;
@@ -80,6 +81,11 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
         
         molecule = moleculeSource.getMolecule();
         if (molecule == null) return false;
+
+        //TODO  only rotate first molecule
+//        IMoleculeList molecules = box.getMoleculeList();
+//        molecule = molecules.getMolecule(0);
+
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
         if(Double.isInfinite(uOld)) {

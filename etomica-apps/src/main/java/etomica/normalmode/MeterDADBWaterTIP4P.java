@@ -96,8 +96,10 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
         double ForceSum = 0;
         double orientationSum = 0;
 
-//TODO
-//        for (int j = 99; j >= 0 && false; j--) {
+
+//        double[] beta0 = new double[46];
+//        double forceSum = 0;
+//        for (int j = 99; j > 0 && true ; j--) {
 //            for (int i = 0; i < molecules.getMoleculeCount(); i++) {
 //                IMolecule molecule = molecules.getMolecule(i);
 //                IAtomList leafList = molecule.getChildList();
@@ -108,37 +110,128 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 //                OrientationFull3D or = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).orientation;
 //                Vector a0 = or.getDirection();//om
 //                Vector a1 = or.getSecondaryDirection();//h1h2
-//                dr.Ev1Mv2(h2, h1);
-//                dr.normalize();
-//                double acos = a1.dot(dr);
-//                if (acos > 1) acos = 1;
-//                if (acos < -1) acos = -1;
-//                dr.XE(a1);
-//                double beta = -Math.signum(dr.dot(a0)) * Math.acos(acos);
+//                Vector om = space.makeVector();
+//                Vector hh = space.makeVector();
+//                Vector axis = space.makeVector();
+//                Vector a2 = space.makeVector();
 //
-//                h1.ME(o);
-//                double lenth = Math.sqrt(h1.squared());
+//                a2.E(a0);
+//                a2.XE(a1);
+//                a2.normalize();
+//                double[][] array = new double[3][3];
+//                a0.assignTo(array[0]);
+//                a1.assignTo(array[1]);
+//                a2.assignTo(array[2]);
+//                Matrix a = new Matrix(array).transpose();
+//                om.Ev1Mv2(m, o);
+//                om.normalize();
+//                hh.Ev1Mv2(h2, h1);
+//
+//                Vector p = space.makeVector();
+//                p.E(om);
+//                p.TE(hh.dot(om));
+//                hh.ME(p);
+//
+//                hh.normalize();
+//                a2.E(om);
+//                a2.XE(hh);
+//                a2.normalize();
+//
+//                double[][] array1 = new double[3][3];
+//                om.assignTo(array1[0]);
+//                hh.assignTo(array1[1]);
+//                a2.assignTo(array1[2]);
+//                Matrix newa = new Matrix(array1).transpose();
+//                a = a.inverse();
+//                Matrix matrix = newa.times(a);
+//
+//            double beta = 0;
+//            EigenvalueDecomposition eigenvalueDecomposition = matrix.eig();
+//            Matrix eigenVectorMatrix = eigenvalueDecomposition.getV();
+//            double[] eigenValueArray = eigenvalueDecomposition.getRealEigenvalues();
+//            double[][] eigenVectors = eigenVectorMatrix.transpose().getArrayCopy();
+//            int best = 0;
+//            double value = Math.abs(eigenValueArray[0] - 1);
+//            if (value > Math.abs(eigenValueArray[1] - 1)) {
+//                best = 1;
+//                value = Math.abs(eigenValueArray[1] - 1);
+//            }
+//            if (value > Math.abs(eigenValueArray[2] - 1)) {
+//                best = 2;
+//                value = Math.abs(eigenValueArray[2] - 1);
+//            }
+//            axis.E(eigenVectors[best]);
+//            if (value > 1e-12) {
+//                System.out.println(Arrays.toString(eigenValueArray));
+//                System.out.println("non of the eigenvalue is close to one, use the closest one instead");
+//            }
+//            om.Ev1Mv2(m, o);
+//            hh.Ev1Mv2(h2, h1);
+//            om.normalize();
+//            hh.normalize();
+//            if (Math.abs(om.dot(a0)) < Math.abs(hh.dot(a1))) {
+//                dr.E(om);
+//                dr.XE(a0);
+//            } else {
+//                dr.E(hh);
+//                dr.XE(a1);
+//            }
+//            beta = -1.0 * Math.signum(axis.dot(dr)) * Math.acos((matrix.trace() - 1) / 2.0);
+//
+//
+//
+//                if (j == 99) beta0[i] = beta;
+//                double hMass = leafList.getAtom(0).getType().getMass();
+//                double oMass = leafList.getAtom(2).getType().getMass();
+//                centerMass.Ea1Tv1(hMass, h1);
+//                centerMass.PEa1Tv1(hMass, h2);
+//                centerMass.PEa1Tv1(oMass, o);
+//                centerMass.TE(1 / (2 * hMass + oMass));
+//
+//                h1.ME(centerMass);
+//                h2.ME(centerMass);
+//                o.ME(centerMass);
+//                m.ME(centerMass);
+//                double hLength = Math.sqrt(h1.squared());
+//                double oLength = Math.sqrt(o.squared());
+//                double mLength = Math.sqrt(m.squared());
 //                h1.normalize();
+//                h2.normalize();
+//                o.normalize();
+//                m.normalize();
 //                Orientation3D orientation = new Orientation3D(space);
 //                orientation.setDirection(h1);
-//                orientation.rotateBy(-beta / (j + 1), a0);
-//                h1.Ea1Tv1(lenth, orientation.getDirection());
-//                h1.PE(o);
-//                h2.ME(o);
-//                h2.normalize();
+//                orientation.rotateBy(beta / (j + 1), axis);
+//                h1.Ea1Tv1(hLength, orientation.getDirection());
+//                h1.PE(centerMass);
 //                orientation.setDirection(h2);
-//                orientation.rotateBy(-beta / (j + 1), a0);
-//                h2.Ea1Tv1(lenth, orientation.getDirection());
-//                h2.PE(o);
-////    			if(i == 0){
-////    				System.out.println(kappa);
-////    			}
+//                orientation.rotateBy(beta / (j + 1), axis);
+//                h2.Ea1Tv1(hLength, orientation.getDirection());
+//                h2.PE(centerMass);
+//                orientation.setDirection(o);
+//                orientation.rotateBy(beta / (j + 1), axis);
+//                o.Ea1Tv1(oLength, orientation.getDirection());
+//                o.PE(centerMass);
+//                orientation.setDirection(m);
+//                orientation.rotateBy(beta / (j + 1), axis);
+//                m.Ea1Tv1(mLength, orientation.getDirection());
+//                m.PE(centerMass);
+//
+////    			dr.Ev1Mv2(m, o);
+////    			ph1h2.Ev1Mv2(h2, h1);
+////    			System.out.println("new =" +dr.dot(ph1h2));
+//
+//
+//                if (i == 0) {
+//                    System.out.println("i" + i + " " + beta);
+//                }
 //            }
+//
+//
 //            double u = meterPE.getDataAsScalar() - latticeEnergy;
+//
 //            System.out.println(j * 0.01 + " " + u);
 //        }
-//        System.exit(2);
-
 
         for (int i = 0; i < molecules.getMoleculeCount(); i++) {
             IMolecule molecule = molecules.getMolecule(i);
@@ -275,6 +368,7 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
             if (betaNew == 0) continue;
             axisNew.normalize();
 
+//            System.out.println("beta " + beta+ " betaNew " + betaNew + " diff"+ (beta-betaNew));
 
             //Reconstruct rotation matrix base on rotation axis and angle to test which one is correct
 //            RotationTensor3D RT3D = new RotationTensor3D();
@@ -282,8 +376,6 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 //            System.out.println("Debug for rotation matrix");
 //            System.out.println("New Angle"  +betaNew +"axis"+ axisNew );
 //            System.out.println("Old Angle"  +beta +"axis"+ axis );
-//            System.out.println(matrix.get(0, 0) + " " + matrix.get(0, 1) + " " + matrix.get(0, 2));
-//            System.out.println(RT3D.component(0, 0) + " " + RT3D.component(0, 1) + " " + RT3D.component(0, 2));
 //            double diff = 0;
 //            for (int j = 0; j < 3; j++) {
 //                for (int k = 0; k < 3; k++) {
@@ -292,6 +384,8 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 //            }
 //            if (diff > 1E-9) {
 //                System.out.println("diff in old= " + diff);
+//                System.out.println("Matrix:"+ matrix.get(0, 0) + " " + matrix.get(0, 1) + " " + matrix.get(0, 2));
+//                System.out.println("OldM:" + RT3D.component(0, 0) + " " + RT3D.component(0, 1) + " " + RT3D.component(0, 2));
 //            }
 //            RT3D.setRotationAxis(axisNew, betaNew);
 //            diff = 0;
@@ -300,8 +394,11 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 //                    diff += Math.abs(RT3D.component(j, k) - matrix.get(j, k));
 //                }
 //            }
-//            if (diff > 1E-9) System.out.println("diff in new= " + diff);
-//            System.out.println(RT3D.component(0, 0) + " " + RT3D.component(0, 1) + " " + RT3D.component(0, 2));
+//            if (diff > 1E-9) {
+//                System.out.println("diff in new= " + diff);
+//                System.out.println("Matrix:"+ matrix.get(0, 0) + " " + matrix.get(0, 1) + " " + matrix.get(0, 2));
+//                System.out.println("NewMatrix:"+ RT3D.component(0, 0) + " " + RT3D.component(0, 1) + " " + RT3D.component(0, 2));
+//            }
 //            System.exit(2);
 
 
@@ -309,6 +406,7 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
             double denominator = 1 - Math.cos(betaNew);
             if (denominator == 0) continue;
             orientationSum += 1.5 * (betaNew - Math.sin(betaNew)) / denominator * DUDT;
+//            orientationSum += 0.5 * betaNew * DUDT;  //Only kappa3
 
             // find kapa33
 //			dr.Ev1Mv2(h2, h1);
@@ -455,7 +553,11 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
         IMoleculeList molecules = box.getMoleculeList();
         //test make k3 rotate back to its nominal orientation
 
-        for (int j = 99; j > 0 && false; j--) {
+        System.out.println("You're doing the bebug in MeterDADBWaterTIP4P");
+        boolean doKappa3 = false;
+        boolean onlyTranslation = false;
+        if (doKappa3) System.out.println("You're doing kappa3");
+        for (int j = 99; j >= 0 && doKappa3; j--) {
             for (int i = 0; i < molecules.getMoleculeCount(); i++) {
                 IMolecule molecule = molecules.getMolecule(i);
                 IAtomList leafList = molecule.getChildList();
@@ -468,42 +570,40 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
                 Vector a1 = or.getSecondaryDirection();//h1h2
                 dr.Ev1Mv2(h2, h1);
                 dr.normalize();
-                ph1h2.Ea1Tv1((dr.dot(a0)), a0);//ph1h2 is the vector perpendicular to oh1h2 plane
-                ph1h2.ME(dr);
-                ph1h2.normalize();
-                double acos = -a1.dot(ph1h2);
+                double acos = a1.dot(dr);
                 if (acos > 1) acos = 1;
                 if (acos < -1) acos = -1;
-                ph1h2.XE(a1);
-                double kappa = Math.signum(ph1h2.dot(a0)) * Math.acos(acos);
+                dr.XE(a1);
+                double beta = -Math.signum(dr.dot(a0)) * Math.acos(acos);
+
                 h1.ME(o);
-                double lenth = Math.sqrt(h1.squared());
+                double length = Math.sqrt(h1.squared());
                 h1.normalize();
                 Orientation3D orientation = new Orientation3D(space);
                 orientation.setDirection(h1);
-                orientation.rotateBy(-kappa / (j + 1), a0);
-                h1.Ea1Tv1(lenth, orientation.getDirection());
+                orientation.rotateBy(-beta / (j + 1), a0);
+                h1.Ea1Tv1(length, orientation.getDirection());
                 h1.PE(o);
                 h2.ME(o);
                 h2.normalize();
                 orientation.setDirection(h2);
-                orientation.rotateBy(-kappa / (j + 1), a0);
-                h2.Ea1Tv1(lenth, orientation.getDirection());
+                orientation.rotateBy(-beta / (j + 1), a0);
+                h2.Ea1Tv1(length, orientation.getDirection());
                 h2.PE(o);
 //    			if(i == 0){
 //    				System.out.println(kappa);
 //    			}
             }
-//        	double u = meterPE.getDataAsScalar() - latticeEnergy;
-//        	System.out.println( j*0.01+ " " + u );
+            double u = meterPE.getDataAsScalar() - latticeEnergy;
+            System.out.println(j * 0.01 + " " + u);
         }
-//        System.exit(2);
+        if (doKappa3) System.exit(2);
 
 
         //test make configuration translate back to its nominal position
-        for (int j = 99; j > 0 && false; j--) {
+        if (onlyTranslation) System.out.println("You're doing only translation");
+        for (int j = 99; j > 0 && onlyTranslation; j--) {
             for (int i = 0; i < molecules.getMoleculeCount(); i++) {
-
                 IMolecule molecule = molecules.getMolecule(i);
                 IAtomList leafList = molecule.getChildList();
                 Vector h1 = leafList.getAtom(0).getPosition();
@@ -567,14 +667,15 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
 
         }
 
-//        System.out.println(latticeEnergy);
-//        System.exit(2);
+        if (onlyTranslation) System.exit(2);
 
 
 //debug for rotation angle and axis
+        boolean allKappa = false;
+        if (allKappa) System.out.println("You're doing all kappa");
         double[] beta0 = new double[46];
         double forceSum = 0;
-        for (int j = 99; j > 0 && false; j--) {
+        for (int j = 99; j > 0 && allKappa; j--) {
             for (int i = 0; i < molecules.getMoleculeCount(); i++) {
                 IMolecule molecule = molecules.getMolecule(i);
                 IAtomList leafList = molecule.getChildList();
@@ -585,13 +686,6 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
                 OrientationFull3D or = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).orientation;
                 Vector a0 = or.getDirection();//om
                 Vector a1 = or.getSecondaryDirection();//h1h2
-//                dr.Ev1Mv2(m, o);
-//                dr.normalize();
-//                System.out.println("om = " + dr);
-//                System.out.println("a0 =  " + a0);
-//                System.out.println("a1 = " + a1);
-//                if(i == 3){System.exit(2);}
-
                 Vector om = space.makeVector();
                 Vector hh = space.makeVector();
                 Vector axis = space.makeVector();
@@ -608,18 +702,11 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
                 om.Ev1Mv2(m, o);
                 om.normalize();
                 hh.Ev1Mv2(h2, h1);
-                //try to test shake tolerance effect the purpendicular or not
-//                Vector p = space.makeVector();
-//                p.E(om);
-//                p.TE(hh.dot(om));
-//                hh.ME(p);
-
 
                 Vector p = space.makeVector();
                 p.E(om);
                 p.TE(hh.dot(om));
                 hh.ME(p);
-
 
                 hh.normalize();
                 a2.E(om);
@@ -633,43 +720,22 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
                 Matrix newa = new Matrix(array1).transpose();
                 a = a.inverse();
                 Matrix matrix = newa.times(a);
-                double beta = 0;
 
-                EigenvalueDecomposition eigenvalueDecomposition = matrix.eig();
-                Matrix eigenVMatrix = eigenvalueDecomposition.getV();
-                double[] eigenValueArray = eigenvalueDecomposition.getRealEigenvalues();
-                double[][] eigenVectors = eigenVMatrix.transpose().getArrayCopy();
-
-                int best = 0;
-                double value = Math.abs(eigenValueArray[0] - 1);
-                if (value > Math.abs(eigenValueArray[1] - 1)) {
-                    best = 1;
-                    value = Math.abs(eigenValueArray[1] - 1);
-                }
-                if (value > Math.abs(eigenValueArray[2] - 1)) {
-                    best = 2;
-                    value = Math.abs(eigenValueArray[2] - 1);
-                }
-
-
-                axis.E(eigenVectors[best]);
-
-
-                om.Ev1Mv2(m, o);
-                hh.Ev1Mv2(h2, h1);
-                if (om.dot(a0) > hh.dot(a0)) {
-                    dr.E(om);
-                    dr.XE(a0);
-                } else {
-                    dr.E(hh);
-                    dr.XE(a1);
-                }
-                beta = Math.signum(axis.dot(dr)) * Math.acos((matrix.trace() - 1) / 2.0);//rotation angle
+                double d, b, c, g, h, f;
+                b = matrix.get(0, 1);
+                c = matrix.get(0, 2);
+                d = matrix.get(1, 0);
+                f = matrix.get(1, 2);
+                g = matrix.get(2, 0);
+                h = matrix.get(2, 1);
+                axis.setX(0, h - f);
+                axis.setX(1, c - g);
+                axis.setX(2, d - b);
+                double beta = Math.asin(0.5 * Math.sqrt(axis.squared()));
+                if (beta == 0) continue;
+                axis.normalize();
 
                 if (j == 99) beta0[i] = beta;
-//                dr.Ev1Mv2(m, o);
-//    			ph1h2.Ev1Mv2(h2, h1);
-//    			System.out.println("old  =" + dr.dot(ph1h2));
                 double hMass = leafList.getAtom(0).getType().getMass();
                 double oMass = leafList.getAtom(2).getType().getMass();
                 centerMass.Ea1Tv1(hMass, h1);
@@ -677,20 +743,6 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
                 centerMass.PEa1Tv1(oMass, o);
                 centerMass.TE(1 / (2 * hMass + oMass));
 
-//              h1.ME(o);
-//    			double lenth = Math.sqrt(h1.squared());
-//    			h1.normalize();
-//    			Orientation3D orientation = new Orientation3D(space);
-//    			orientation.setDirection(h1);
-//    			orientation.rotateBy(-beta/(j+1), a0);
-//    			h1.Ea1Tv1(lenth, orientation.getDirection());
-//    			h1.PE(o);
-//    			h2.ME(o);
-//    		    h2.normalize();
-//    		    orientation.setDirection(h2);
-//    			orientation.rotateBy(-beta/(j+1), a0);
-//    			h2.Ea1Tv1(lenth, orientation.getDirection());
-//    			h2.PE(o);
                 h1.ME(centerMass);
                 h2.ME(centerMass);
                 o.ME(centerMass);
@@ -719,60 +771,65 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
                 orientation.rotateBy(beta / (j + 1), axis);
                 m.Ea1Tv1(mLength, orientation.getDirection());
                 m.PE(centerMass);
-//
+
 //    			dr.Ev1Mv2(m, o);
 //    			ph1h2.Ev1Mv2(h2, h1);
 //    			System.out.println("new =" +dr.dot(ph1h2));
 
 
-//    			if(i == 0){
-//    				System.out.println(beta);
-//    			}
+                if (i == 0) {
+                    System.out.println("i" + i + " " + beta);
+                }
             }
 
+
             double u = meterPE.getDataAsScalar() - latticeEnergy;
+
+            System.out.println(j * 0.01 + " " + u);
+
             pcForceSum.reset();
             potentialMaster.calculate(box, id, pcForceSum);
 
             double orientationSum = 0;
             double DUDTsum = 0, fooSum = 0;
             for (int i = 0; i < molecules.getMoleculeCount(); i++) {
+
                 IMolecule molecule = molecules.getMolecule(i);
                 IAtomList leafList = molecule.getChildList();
-                Vector h1force = forceManager.getAgent(leafList.getAtom(0)).force();
-                Vector h2force = forceManager.getAgent(leafList.getAtom(1)).force();
-                Vector oforce = forceManager.getAgent(leafList.getAtom(2)).force();
-                Vector mforce = forceManager.getAgent(leafList.getAtom(3)).force();
-                totalForce.E(h1force);
-                totalForce.PE(h2force);
-                totalForce.PE(mforce);
-                totalForce.PE(oforce);
+                Vector h1Force = forceManager.getAgent(leafList.getAtom(0)).force();
+                Vector h2Force = forceManager.getAgent(leafList.getAtom(1)).force();
+                Vector oForce = forceManager.getAgent(leafList.getAtom(2)).force();
+                Vector mForce = forceManager.getAgent(leafList.getAtom(3)).force();
+                totalForce.E(h1Force);
+                totalForce.PE(h2Force);
+                totalForce.PE(mForce);
+                totalForce.PE(oForce);
                 Vector h1 = leafList.getAtom(0).getPosition();
                 Vector h2 = leafList.getAtom(1).getPosition();
                 Vector o = leafList.getAtom(2).getPosition();
                 Vector m = leafList.getAtom(3).getPosition();
-                double hmass = leafList.getAtom(0).getType().getMass();
-                double omass = leafList.getAtom(2).getType().getMass();
+                double hMass = leafList.getAtom(0).getType().getMass();
+                double oMass = leafList.getAtom(2).getType().getMass();
 
-                centerMass.Ea1Tv1(hmass, h1);
-                centerMass.PEa1Tv1(hmass, h2);
-                centerMass.PEa1Tv1(omass, o);
-                centerMass.TE(1 / (2 * hmass + omass));
+                centerMass.Ea1Tv1(hMass, h1);
+                centerMass.PEa1Tv1(hMass, h2);
+                centerMass.PEa1Tv1(oMass, o);
+                centerMass.TE(1 / (2 * hMass + oMass));
 
                 dr.Ev1Mv2(m, centerMass);
-                torque.E(mforce);
+                torque.E(mForce);
                 torque.XE(dr);
                 q.E(torque);
                 dr.Ev1Mv2(h1, centerMass);
-                torque.E(h1force);
+                torque.E(h1Force);
                 torque.XE(dr);
                 q.PE(torque);
                 dr.Ev1Mv2(h2, centerMass);
-                torque.E(h2force);
+                torque.E(h2Force);
                 torque.XE(dr);
                 q.PE(torque);
                 dr.Ev1Mv2(o, centerMass);
-                torque.E(oforce);
+                torque.E(oForce);
                 torque.XE(dr);
                 q.PE(torque);
                 //for the total torque q
@@ -780,12 +837,9 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
                 Vector lPos = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).position;
                 dr.Ev1Mv2(centerMass, lPos);
                 forceSum += totalForce.dot(dr);
-                //get the forcesum!!
 
 
                 OrientationFull3D or = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).orientation;
-//            OrientationFull3D newor = new OrientationFull3D(space);
-//            newor.E(or);
                 Vector a0 = or.getDirection();//om
                 Vector a1 = or.getSecondaryDirection();//h1h2
 
@@ -793,66 +847,10 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
                 dr.normalize();
 
                 Vector axis = space.makeVector();
-                Vector oh1 = space.makeVector();
-                Vector oh2 = space.makeVector();
-                Vector h1lpos = space.makeVector();
-                Vector h2lpos = space.makeVector();
                 Vector om = space.makeVector();
                 Vector hh = space.makeVector();
-
-
-//        	  Vector p1 = space.makeVector();
-//            Vector p2 = space.makeVector();
-//            p1.Ev1Mv2(dr, a1);
-//            dr.Ev1Mv2(m, o);meterPE.getDataAsScalar() - latticeEnergy
-//            dr.normalize();
-//            p2.Ev1Mv2(dr, a0);
-//            axis.E(p1);
-//            axis.XE(p2);
-//            double alpha = -1.0*Math.signum(p1.dot(p2))*Math.atan(Math.sqrt(p1.squared()/p2.squared()));
-//            if(axis.squared() < 1e-14){
-//            	axis.Ea1Tv1(Math.cos(alpha), a1);
-//            	axis.PEa1Tv1(Math.sin(alpha), a0);
-//            }
-//            else{
-//            	axis.normalize();
-//            }
-//            om.Ev1Mv2(m, o);
-//            hh.Ev1Mv2(h2,h1);
-//            om.normalize();
-//            hh.normalize();
-//            System.out.println("om = " + om);
-//            System.out.println("hh =  " + hh);
-//            double rotationAngle = 0;
-//            double omAngle = 0;
-//            double hhAngle = 0;
-//            double distance = 0;
-//            omAngle = Math.acos(om.dot(axis));
-//            hhAngle = Math.acos(hh.dot(axis));
-//
-//            if(omAngle > hhAngle){
-//            	distance = Math.sqrt(om.squared())*Math.sin(omAngle);
-//            	om.ME(a0);
-//            	rotationAngle = 2.0*Math.asin(Math.sqrt(om.squared()/2/distance));
-//
-//            }
-//            else{
-//            	distance = Math.sqrt(hh.squared())*Math.sin(hhAngle);
-//            	hh.ME(a1);
-//            	rotationAngle = 2.0*Math.asin(Math.sqrt(hh.squared()/2/distance));
-//            }
-////            System.out.println("axis = " + axis);
-//
-//            double DUDT = q.dot(axis);
-//            orientationSum -= 0.5*rotationAngle*DUDT;
-//            newor.rotateBy(-1.0*rotationAngle, axis);
-//            System.out.println("a0 = " + a0);
-//            System.out.println("a1 = " + a1);
-//            System.out.println(newor.getDirection());
-//            System.out.println(newor.getSecondaryDirection());
-
-
                 Vector a2 = space.makeVector();
+
                 a2.E(a0);
                 a2.XE(a1);
                 a2.normalize();
@@ -865,86 +863,50 @@ public class MeterDADBWaterTIP4P implements IDataSource, AgentSource<MyAgent> {
                 om.Ev1Mv2(m, o);
                 om.normalize();
                 hh.Ev1Mv2(h2, h1);
-
-
-                //try to test shake tolerance effect the purpendicular or not
-                Vector p = space.makeVector();
-                p.E(om);
-                p.TE(hh.dot(om));
-                hh.ME(p);
                 hh.normalize();
-
                 a2.E(om);
                 a2.XE(hh);
                 a2.normalize();
-
                 double[][] array1 = new double[3][3];
                 om.assignTo(array1[0]);
                 hh.assignTo(array1[1]);
                 a2.assignTo(array1[2]);
                 Matrix newa = new Matrix(array1).transpose();
 
-
+                // newa = rotationMatrix * a so rotationMatrix = newa * a^-1
                 a = a.inverse();
                 Matrix matrix = newa.times(a);
-                double beta = 0;
-                EigenvalueDecomposition eigenvalueDecomposition = matrix.eig();
-                Matrix eigenvectormatrix = eigenvalueDecomposition.getV();
-                double[] eigenValueArray = eigenvalueDecomposition.getRealEigenvalues();
-                double[][] eigenVectors = eigenvectormatrix.transpose().getArrayCopy();
 
-                int best = 0;
-                double value = Math.abs(eigenValueArray[0] - 1);
-                if (value > Math.abs(eigenValueArray[1] - 1)) {
-                    best = 1;
-                    value = Math.abs(eigenValueArray[1] - 1);
-                }
-                if (value > Math.abs(eigenValueArray[2] - 1)) {
-                    best = 2;
-                    value = Math.abs(eigenValueArray[2] - 1);
-                }
-                axis.E(eigenVectors[best]);
+                //https://en.wikipedia.org/wiki/Rotation_matrix#Determining_the_axis
+                //get axis in a newer and cleaner way.
+                double d, b, c, g, h, f;
+                b = matrix.get(0, 1);
+                c = matrix.get(0, 2);
+                d = matrix.get(1, 0);
+                f = matrix.get(1, 2);
+                g = matrix.get(2, 0);
+                h = matrix.get(2, 1);
+                axis.setX(0, h - f);
+                axis.setX(1, c - g);
+                axis.setX(2, d - b);
+                double beta = Math.asin(0.5 * Math.sqrt(axis.squared()));
+                if (beta == 0) continue;
+                axis.normalize();
 
 
-                if (value > 1e-12) {
-                    System.out.println(Arrays.toString(eigenValueArray));
-                    System.out.println("non of the eigenvalue is close to one, use the closest one instead");
-                }
-                om.Ev1Mv2(m, o);
-                hh.Ev1Mv2(h2, h1);
-                if (om.dot(a0) > hh.dot(a0)) {
-                    dr.E(om);
-                    dr.XE(a0);
-                } else {
-                    dr.E(hh);
-                    dr.XE(a1);
-                }
-                beta = -1.0 * Math.signum(axis.dot(dr)) * Math.acos((matrix.trace() - 1) / 2.0);
+//                System.out.println(beta);
+//                System.exit(2);
 
-//            newor.rotateBy(-1.0*beta, axis);
-//            System.out.println("a0 = " + a0);
-//            System.out.println("a1 = " + a1);
-                om.Ev1Mv2(m, o);
-                hh.Ev1Mv2(h2, h1);
-                om.normalize();
-                hh.normalize();
-//            System.out.println("om = " + om);
-//            System.out.println("hh =  " + hh);
-//            System.out.println(newor.getDirection());
-//            System.out.println(newor.getSecondaryDirection());
-                double DUDT = q.dot(axis);
-//                System.out.println(i+" "+q+" "+DUDT);
-//            if(i == 2){
-////            	System.out.println(axis + " " + beta + " " + DUDT);
-////            	System.out.println(Math.sqrt(q.squared()));
-//            	System.out.println(" " + DUDT);
-//            }
-                orientationSum -= 1.5 * (beta - Math.sin(beta)) / (1 - Math.cos(beta)) * DUDT;
+                double DUDT = -q.dot(axis);
+                double denominator = 1 - Math.cos(beta);
+                if (denominator == 0) continue;
+                orientationSum += 1.5 * (beta - Math.sin(beta)) / denominator * DUDT;
                 fooSum += (beta - Math.sin(beta)) / (1 - Math.cos(beta));
                 DUDTsum += DUDT * beta0[i];
             }
-            System.out.println(j * 0.01 + " " + u + " " + orientationSum + " " + DUDTsum);
+//            System.out.println(j * 0.01 + " " + u + " " + orientationSum + " " + DUDTsum);
         }
+        if (allKappa) System.exit(2);
 
 
     }

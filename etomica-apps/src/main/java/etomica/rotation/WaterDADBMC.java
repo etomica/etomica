@@ -69,8 +69,8 @@ public class WaterDADBMC extends Simulation {
 
     public WaterDADBMC(final Space space, double temperature, int numCells, double rCutRealES, double rCutLJ, boolean isIce, double kCut, boolean unitCells, final boolean doTranslation, final boolean doRotation) {
         super(space);
-//        setRandom(new RandomMersenneTwister(2));
-        //System.out.println("The random seed is set to be fixed");
+        setRandom(new RandomMersenneTwister(2));
+        System.out.println("The random seed is set to be fixed");
 
         box = new Box(space);
         addBox(box);
@@ -305,9 +305,10 @@ public class WaterDADBMC extends Simulation {
 
         sim.ai.setMaxSteps(numSteps / 10);
         sim.getController().actionPerformed();
+
+        //TODO
 //        meterDADB.debug();
-        //System.out.println("Do debug in meterDADB")
-//        System.exit(2);
+//        System.out.println("Do debug in meterDADB");
 
         sim.ai.setMaxSteps(numSteps);
         sim.integrator.getEventManager().addListener(dataPumpListenerDADB);
@@ -344,7 +345,7 @@ public class WaterDADBMC extends Simulation {
 
 
         System.out.println("PEAverage= " + (PEAverage - latticeEnergy - fac * Kelvin.UNIT.toSim(temperature)) +
-                "  PEeError = " + PEAError + "  PECor= " + PECor);
+                "  PEeError= " + PEAError + "  PECor= " + PECor);
 
         System.out.println("PE-lattice = " + (PEAverage - latticeEnergy));
 //        ConfigurationFile config = new ConfigurationFile(numCells + "ncFinalPos");
@@ -385,14 +386,14 @@ public class WaterDADBMC extends Simulation {
     public static class WaterDADBParam extends ParameterBase {
         public int numCells = 1;
         public int numSteps = 1000;
-        public double temperature = 100;
+        public double temperature = 10;
         public double rCutLJ = 11;
         public double rCutRealES = 11;
         public double kCut = 1.5;
         public boolean isIce = false;
         public boolean runGraphic = false;
         public boolean unitCells = false;
-        public boolean doRotation = false;
-        public boolean doTranslation = true;
+        public boolean doRotation = true;
+        public boolean doTranslation = false;
     }
 }

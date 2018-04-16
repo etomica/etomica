@@ -66,13 +66,9 @@ public class WaterDADB extends Simulation {
     public WaterDADB(final Space space, double temperature, int numCells, double rCutRealES, double rCutLJ, boolean isIce, double kCut, double shakeTol, boolean unitCells, final boolean doTranslation, final boolean doRotation) {
         super(space);
         setRandom(new RandomMersenneTwister(2));
-        //TODO remember to comment out this part if you want to collect your data.
+        System.out.println("The randomSeed is fixed");
 
-//		if (precision ==1.0e-5 ){
-//			precision_s = 3.047059472445871 ;
-//		}	else if (precision == 5.0e-5){
-//			precision_s = 2.800672811371045;}
-//		else {throw new RuntimeException("improper precision value!");}
+
         box = new Box(space);
         addBox(box);
         species = new SpeciesWater4P(getSpace(), true);
@@ -114,8 +110,9 @@ public class WaterDADB extends Simulation {
         potentialMaster.addPotential(potentialES, new AtomType[0]);
         potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
 
-
+        //TODO
         double timeInterval = 0.002;
+
         int maxIterations = 100;
         integrator = new IntegratorVelocityVerletRattle(this, potentialMaster, space);
         integrator.setShakeTolerance(shakeTol);
@@ -674,9 +671,11 @@ public class WaterDADB extends Simulation {
 
         sim.ai.setMaxSteps(numSteps / 10);
         sim.getController().actionPerformed();
+
 //        meterDADB.debug();
-        //System.out.println("Do debug in meterDADB")
+//        System.out.println("Do debug in meterDADB");
 //        System.exit(2);
+
 
         sim.ai.setMaxSteps(numSteps);
         sim.integrator.getEventManager().addListener(dataPumpListenerDADB);
@@ -714,7 +713,7 @@ public class WaterDADB extends Simulation {
 
 
         System.out.println("PEAverage= " + (PEAverage - latticeEnergy - fac * Kelvin.UNIT.toSim(temperature)) +
-                "  PEeError = " + PEAError + "  PECor= " + PECor);
+                "  PEeError= " + PEAError + "  PECor= " + PECor);
 
         System.out.println("PE-lattice = " + (PEAverage - latticeEnergy));
 //        ConfigurationFile config = new ConfigurationFile(numCells + "ncFinalPos");
@@ -764,6 +763,6 @@ public class WaterDADB extends Simulation {
         public boolean runGraphic = false;
         public boolean unitCells = false;
         public boolean doRotation = true;
-        public boolean doTranslation = false;
+        public boolean doTranslation = true;
     }
 }
