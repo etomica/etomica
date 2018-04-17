@@ -187,7 +187,6 @@ public class WaterDADB extends Simulation {
                 }
 
 
-
                 h1h2.Ev1Mv2(h2, h1);
                 om.Ev1Mv2(m, o);
                 Vector a0 = space.makeVector();
@@ -240,7 +239,6 @@ public class WaterDADB extends Simulation {
 
                     System.out.println("totalForceOld ={ " + totalForce.getX(0) + "," + totalForce.getX(1) + "," + totalForce.getX(2) + "};");
                     System.out.println("totalForceNew ={ " + totalForceNew.getX(0) + "," + totalForceNew.getX(1) + "," + totalForceNew.getX(2) + "};");
-
 
 
                     //test for total torque
@@ -424,6 +422,8 @@ public class WaterDADB extends Simulation {
         boolean doRotation = waterDADBParam.doRotation;
         boolean runGraphic = waterDADBParam.runGraphic;
         double timeInterval = waterDADBParam.timeInterval;
+        boolean doMapping = waterDADBParam.doMapping;
+        boolean doConventional = waterDADBParam.doConventional;
         final WaterDADB sim = new WaterDADB(Space3D.getInstance(), temperature, numCells, rCutRealES, rCutLJ, isIce, kCut, shakeTol, uniteCells, doTranslation, doRotation, timeInterval);
         MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(sim.potentialMaster);
         meterPE2.setBox(sim.box);
@@ -571,24 +571,30 @@ public class WaterDADB extends Simulation {
             return;
         }//Graphic!!
 
+        int blockSize = numSteps >= 1000 ? (numSteps / 1000) : 1;
 
         final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
         meterPE.setBox(sim.box);
 
-        int blockSize = numSteps >= 1000 ? (numSteps / 1000) : 1;
+        MeterDADBWaterTIP4P meterDADB ;
+        AccumulatorAverageFixed accumulatorAverageFixedDADB = null;
+        DataPumpListener dataPumpListenerDADB = null;
+        if (doMapping) {
+            meterDADB = new MeterDADBWaterTIP4P(sim.space, meterPE, sim.potentialMaster, Kelvin.UNIT.toSim(temperature), sim.latticeCoordinates);
+            meterDADB.doTranslation = doTranslation;
+            meterDADB.doRotation = doRotation;
+            accumulatorAverageFixedDADB = new AccumulatorAverageFixed(blockSize);
+            dataPumpListenerDADB = new DataPumpListener(meterDADB, accumulatorAverageFixedDADB, 10);
+            //        MeterDADB.justU = true;
+        }
+        //TODO try lower interval 5-10
 
-        MeterDADBWaterTIP4P meterDADB = new MeterDADBWaterTIP4P(sim.space, meterPE, sim.potentialMaster, Kelvin.UNIT.toSim(temperature), sim.latticeCoordinates);
-        meterDADB.doTranslation = doTranslation;
-        meterDADB.doRotation = doRotation;
-//        meterDADB.getData();
-//        MeterDADB.justU = true;
-
-        AccumulatorAverageFixed accumulatorAverageFixedDADB = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener dataPumpListenerDADB = new DataPumpListener(meterDADB, accumulatorAverageFixedDADB, 10);
-
-        AccumulatorAverageFixed accumulatorAverageFixedPE = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener dataPumpListenerPE = new DataPumpListener(meterPE, accumulatorAverageFixedPE, 10);
-
+        AccumulatorAverageFixed accumulatorAverageFixedPE = null;
+        DataPumpListener dataPumpListenerPE = null;
+        if (doConventional) {
+            accumulatorAverageFixedPE = new AccumulatorAverageFixed(blockSize);
+            dataPumpListenerPE = new DataPumpListener(meterPE, accumulatorAverageFixedPE, 10);
+        }
 
         sim.ai.setMaxSteps(numSteps / 10);
         sim.getController().actionPerformed();
@@ -599,8 +605,8 @@ public class WaterDADB extends Simulation {
 
 
         sim.ai.setMaxSteps(numSteps);
-        sim.integrator.getEventManager().addListener(dataPumpListenerDADB);
-        sim.integrator.getEventManager().addListener(dataPumpListenerPE);
+        if (doMapping) sim.integrator.getEventManager().addListener(dataPumpListenerDADB);
+        if (doConventional) sim.integrator.getEventManager().addListener(dataPumpListenerPE);
         sim.getController().reset();
         sim.getController().actionPerformed();
 
@@ -617,18 +623,20 @@ public class WaterDADB extends Simulation {
         System.out.println("main:doTranslation:   " + doTranslation + "  doRotation:  " + doRotation);
         System.out.println("timeInterval= " + timeInterval);
 
+        if (doMapping) {
+            double mappingAverage = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(0);
+            double mappingError = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(0);
+            double mappingCor = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
+            System.out.println("mappingAverage=\t" + mappingAverage + "   mappingError=\t" + mappingError + " mappingCor=\t" + mappingCor);
+        }
 
-        double mappingAverage = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(0);
-        double mappingError = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(0);
-        double mappingCor = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
-        System.out.println("mappingAverage=\t" + mappingAverage + "   mappingError=\t" + mappingError + " mappingCor=\t" + mappingCor);
-
-        double PEAverage = accumulatorAverageFixedPE.getData(AccumulatorAverage.AVERAGE).getValue(0);
-        double PEAError = accumulatorAverageFixedPE.getData(AccumulatorAverage.ERROR).getValue(0);
-        double PECor = accumulatorAverageFixedPE.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
-        System.out.println("PEAverage=\t" + (PEAverage - latticeEnergy - fac * Kelvin.UNIT.toSim(temperature)) +
-                "  PEeError=\t" + PEAError + "  PECor=\t" + PECor);
-
+        if (doConventional) {
+            double PEAverage = accumulatorAverageFixedPE.getData(AccumulatorAverage.AVERAGE).getValue(0);
+            double PEAError = accumulatorAverageFixedPE.getData(AccumulatorAverage.ERROR).getValue(0);
+            double PECor = accumulatorAverageFixedPE.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
+            System.out.println("PEAverage=\t" + (PEAverage - latticeEnergy - fac * Kelvin.UNIT.toSim(temperature)) +
+                    "  PEeError=\t" + PEAError + "  PECor=\t" + PECor);
+        }
 //        System.out.println("PE-lattice= " + (PEAverage - latticeEnergy));
 //        ConfigurationFile config = new ConfigurationFile(numCells + "ncFinalPos");
 //        config.initializeCoordinates(sim.box);
@@ -673,7 +681,8 @@ public class WaterDADB extends Simulation {
 
     public static class WaterDADBParam extends ParameterBase {
         public int numCells = 1;
-        public int numSteps = 100;
+        public int numSteps = 100000;
+        public double timeInterval = 0.002;
         public double temperature = 50;
         public double rCutLJ = 11;
         public double rCutRealES = 11;
@@ -684,6 +693,7 @@ public class WaterDADB extends Simulation {
         public boolean unitCells = false;
         public boolean doRotation = true;
         public boolean doTranslation = true;
-        public double timeInterval = 0.002;
+        public boolean doMapping = true;
+        public boolean doConventional = false;
     }
 }
