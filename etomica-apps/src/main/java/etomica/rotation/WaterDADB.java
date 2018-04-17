@@ -63,11 +63,10 @@ public class WaterDADB extends Simulation {
     protected Potential2SoftSphericalLS potentialLJLS;
     protected final MoleculeAgentManager latticeCoordinates;
 
-    public WaterDADB(final Space space, double temperature, int numCells, double rCutRealES, double rCutLJ, boolean isIce, double kCut, double shakeTol, boolean unitCells, final boolean doTranslation, final boolean doRotation) {
+    public WaterDADB(final Space space, double temperature, int numCells, double rCutRealES, double rCutLJ, boolean isIce, double kCut, double shakeTol, boolean unitCells, final boolean doTranslation, final boolean doRotation, double timeInterval) {
         super(space);
-        setRandom(new RandomMersenneTwister(2));
-        System.out.println("The randomSeed is fixed");
-
+//        setRandom(new RandomMersenneTwister(2));
+//        System.out.println("The randomSeed is fixed");
 
         box = new Box(space);
         addBox(box);
@@ -109,9 +108,6 @@ public class WaterDADB extends Simulation {
         potentialMaster = new PotentialMaster();
         potentialMaster.addPotential(potentialES, new AtomType[0]);
         potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
-
-        //TODO
-        double timeInterval = 0.002;
 
         int maxIterations = 100;
         integrator = new IntegratorVelocityVerletRattle(this, potentialMaster, space);
@@ -191,40 +187,6 @@ public class WaterDADB extends Simulation {
                 }
 
 
-                //distribute  translation and rotation caused by mForce to h1 h2 & o
-                //Note mForce has two parts: the translation force and the rotation force.
-                //The translation force is align with mVector
-                //The rotation force is perpendicular to mVector
-                //For translation force: It should be redistributed depend on the mass of o,h1 and h2.
-                //For rotation force: First of all, the summation of the redistributed m rotation force
-                // on o, h1, and h2 should be zero(no translation contribution)!
-                //Second, mTorque should also be distributed to o, h1 and h2.
-                //Third, the redistributed force on h1 and h2 should be the same.
-                //From three functions discussed above we could redistributed m rotation force.
-                //The concern is
-//                newTorque.E(mForce);
-//                newTorque.XE(mVector);
-//                newForce.E(0);
-//                if (Math.abs(vectorSum.getX(0)) > 0.1) {
-//                    newForce.setX(1, -newTorque.getX(2) / vectorSum.getX(0));
-//                    newForce.setX(2, newTorque.getX(1) / vectorSum.getX(0));
-//                } else if (Math.abs(vectorSum.getX(1)) > 0.1) {
-//
-//                    newForce.setX(0, newTorque.getX(2) / vectorSum.getX(1));
-//                    newForce.setX(2, -newTorque.getX(0) / vectorSum.getX(1));
-//                } else {
-//                    newForce.setX(0, -newTorque.getX(1) / vectorSum.getX(2));
-//                    newForce.setX(1, newTorque.getX(0) / vectorSum.getX(2));
-//                }
-//
-//                h1Force.PE(newForce);
-//                h2Force.PE(newForce);
-//                oForce.PEa1Tv1(-2.0, newForce);
-//                h1Force.PEa1Tv1(hMassPercent, mForce);
-//                h2Force.PEa1Tv1(hMassPercent, mForce);
-//                oForce.PEa1Tv1(oMassPercent, mForce);
-//                mForce.E(0);
-
 
                 h1h2.Ev1Mv2(h2, h1);
                 om.Ev1Mv2(m, o);
@@ -246,27 +208,6 @@ public class WaterDADB extends Simulation {
                 f0.Ea1Tv1(mForce.dot(a0), a0);
                 f1.Ea1Tv1(mForce.dot(a1), a1);
                 f2.Ea1Tv1(mForce.dot(a2), a2);
-
-//                System.out.println(a0.squared() + " \n" + a1.squared() + " \n" + a2.squared());
-//                System.out.println(a0.dot(a1)+ " " + a1.dot(a2) + " " + a0.dot(a2) );
-//                System.out.println("o={"+o.getX(0)+","+o.getX(1)+","+o.getX(2)+"};" );
-//                System.out.println("m={"+m.getX(0)+","+m.getX(1)+","+m.getX(2)+"};" );
-//                System.out.println("h1={"+h1.getX(0)+","+h1.getX(1)+","+h1.getX(2)+"};" );
-//                System.out.println("h2={"+h2.getX(0)+","+h2.getX(1)+","+h2.getX(2)+"};" );
-//                System.out.println("a0={"+a0.getX(0)+","+a0.getX(1)+","+a0.getX(2)+"};" );
-//                System.out.println("a1={"+a1.getX(0)+","+a1.getX(1)+","+a1.getX(2)+"};" );
-//                System.out.println("a2={"+a2.getX(0)+","+a2.getX(1)+","+a2.getX(2)+"};" );
-//                System.out.println("cm={"+mVector.getX(0)+","+mVector.getX(1)+","+mVector.getX(2)+"};" );
-//                System.out.println("co={"+oVector.getX(0)+","+oVector.getX(1)+","+oVector.getX(2)+"};" );
-//                System.out.println("ch1={"+h1Vector.getX(0)+","+h1Vector.getX(1)+","+h1Vector.getX(2)+"};" );
-//                System.out.println("ch2={"+h2Vector.getX(0)+","+h2Vector.getX(1)+","+h2Vector.getX(2)+"};" );
-//                System.out.println("mForce={"+mForce.getX(0)+","+mForce.getX(1)+","+mForce.getX(2)+"};" );
-//                System.out.println("oForce={"+oForce.getX(0)+","+oForce.getX(1)+","+oForce.getX(2)+"};" );
-//                System.out.println("h1Force={"+h1Force.getX(0)+","+h1Force.getX(1)+","+h1Force.getX(2)+"};" );
-//                System.out.println("h2Force={"+h2Force.getX(0)+","+h2Force.getX(1)+","+h2Force.getX(2)+"};" );
-//                System.out.println("f0={"+f0.getX(0)+","+f0.getX(1)+","+f0.getX(2)+"};" );
-//                System.out.println("f1={"+f1.getX(0)+","+f1.getX(1)+","+f1.getX(2)+"};" );
-//                System.out.println("f2={"+f2.getX(0)+","+f2.getX(1)+","+f2.getX(2)+"};" );
 
                 //Translation part
                 h1Force.PEa1Tv1(hMassPercent, mForce);
@@ -301,14 +242,6 @@ public class WaterDADB extends Simulation {
                     System.out.println("totalForceNew ={ " + totalForceNew.getX(0) + "," + totalForceNew.getX(1) + "," + totalForceNew.getX(2) + "};");
 
 
-//                    System.out.println("mForce = " + mForce);
-//                    System.out.println("totalForceOld = " + totalForce);
-//                    System.out.println("totalForceNew = " + totalForceNew);
-
-//                    totalForceNew.ME(totalForce);
-//                    if(totalForceNew.squared() > 1E-6){
-//                        System.out.println("The redistributed force is not correct. forceDifference = "  +  totalForceNew);
-//                    }
 
                     //test for total torque
                     h1torque.E(h1Force);
@@ -490,7 +423,8 @@ public class WaterDADB extends Simulation {
         boolean doTranslation = waterDADBParam.doTranslation;
         boolean doRotation = waterDADBParam.doRotation;
         boolean runGraphic = waterDADBParam.runGraphic;
-        final WaterDADB sim = new WaterDADB(Space3D.getInstance(), temperature, numCells, rCutRealES, rCutLJ, isIce, kCut, shakeTol, uniteCells, doTranslation, doRotation);
+        double timeInterval = waterDADBParam.timeInterval;
+        final WaterDADB sim = new WaterDADB(Space3D.getInstance(), temperature, numCells, rCutRealES, rCutLJ, isIce, kCut, shakeTol, uniteCells, doTranslation, doRotation, timeInterval);
         MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(sim.potentialMaster);
         meterPE2.setBox(sim.box);
         final double latticeEnergy = meterPE2.getDataAsScalar();
@@ -506,19 +440,6 @@ public class WaterDADB extends Simulation {
 
 
         if (runGraphic) {
-//			SpeciesSpheresMono guestSpecies = new SpeciesSpheresMono(sim,sim.space);
-//			sim.addSpecies(guestSpecies);
-//			sim.box.setNMolecules(guestSpecies, 8);
-//        	sim.box.getMoleculeList(guestSpecies).getMolecule(0).getChildList().getAtom(0).getPosition().E(new double [] {6, 6, 6});
-//        	sim.box.getMoleculeList(guestSpecies).getMolecule(1).getChildList().getAtom(0).getPosition().E(new double [] {6, -6, -6});
-//        	sim.box.getMoleculeList(guestSpecies).getMolecule(2).getChildList().getAtom(0).getPosition().E(new double [] {6, -6, 6});
-//        	sim.box.getMoleculeList(guestSpecies).getMolecule(3).getChildList().getAtom(0).getPosition().E(new double [] {6, 6, -6});
-//        	sim.box.getMoleculeList(guestSpecies).getMolecule(4).getChildList().getAtom(0).getPosition().E(new double [] {-6, 6, 6});
-//        	sim.box.getMoleculeList(guestSpecies).getMolecule(5).getChildList().getAtom(0).getPosition().E(new double [] {-6, -6, -6});
-//        	sim.box.getMoleculeList(guestSpecies).getMolecule(6).getChildList().getAtom(0).getPosition().E(new double [] {-6, 6, -6});
-//        	sim.box.getMoleculeList(guestSpecies).getMolecule(7).getChildList().getAtom(0).getPosition().E(new double [] {-6, -6, 6});
-//			sim.box.getMoleculeList(guestSpecies).getMolecule(0).getChildList().getAtom(0).getPosition().E(new double [] {0, 0, 0});
-
 //			sim.ai.setSleepPeriod(2);
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rattle", 1, sim.space, sim.getController());
             ((ColorSchemeByType) graphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getHydrogenType(), Color.WHITE);
@@ -657,10 +578,10 @@ public class WaterDADB extends Simulation {
         int blockSize = numSteps >= 1000 ? (numSteps / 1000) : 1;
 
         MeterDADBWaterTIP4P meterDADB = new MeterDADBWaterTIP4P(sim.space, meterPE, sim.potentialMaster, Kelvin.UNIT.toSim(temperature), sim.latticeCoordinates);
-//        meterDADB.getData();
-//        MeterDADB.justU = true;
         meterDADB.doTranslation = doTranslation;
         meterDADB.doRotation = doRotation;
+//        meterDADB.getData();
+//        MeterDADB.justU = true;
 
         AccumulatorAverageFixed accumulatorAverageFixedDADB = new AccumulatorAverageFixed(blockSize);
         DataPumpListener dataPumpListenerDADB = new DataPumpListener(meterDADB, accumulatorAverageFixedDADB, 10);
@@ -683,45 +604,44 @@ public class WaterDADB extends Simulation {
         sim.getController().reset();
         sim.getController().actionPerformed();
 
-        long endTime = System.currentTimeMillis();
-        DateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        Calendar cal = Calendar.getInstance();
-        System.out.println(date.format(cal.getTime()));
-        System.out.println("Time taken (in mins): " + (endTime - startTime) / (1000.0 * 60.0));
-        System.out.println("numSteps = " + numSteps);
-
-        double mappingAverage = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(0);
-        double mappingError = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(0);
-        double mappingCor = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
-
-        System.out.println("rCutLJ = " + rCutLJ);
-        System.out.println("rCutRealES = " + rCutRealES);
-        System.out.println("temperature = " + temperature);
-        System.out.println("shakeTol = " + shakeTol);
+        System.out.println("numSteps= " + numSteps);
+        System.out.println("temperature= " + temperature);
+//        System.out.println("rCutLJ = " + rCutLJ);
+//        System.out.println("rCutRealES = " + rCutRealES);
+//        System.out.println("shakeTol= " + shakeTol);
         IMoleculeList molecules = sim.box.getMoleculeList();
         System.out.println("beginLE = " + latticeEnergy);
         int N = sim.box.getMoleculeList().getMoleculeCount();
         double fac = (doRotation ? 1.5 : 0) * N + (doTranslation ? 1.5 : 0) * (N - 1);
-        System.out.println("harmonicE = " + fac * Kelvin.UNIT.toSim((molecules.getMoleculeCount() * temperature)));
+        System.out.println("harmonicE= " + fac * Kelvin.UNIT.toSim((molecules.getMoleculeCount() * temperature)));
         System.out.println("main:doTranslation:   " + doTranslation + "  doRotation:  " + doRotation);
+        System.out.println("timeInterval= " + timeInterval);
 
-        System.out.println("mappingAverage= " + mappingAverage + "   mappingError= " + mappingError + " mappingCor= " + mappingCor);
+
+        double mappingAverage = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(0);
+        double mappingError = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(0);
+        double mappingCor = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
+        System.out.println("mappingAverage=\t" + mappingAverage + "   mappingError=\t" + mappingError + " mappingCor=\t" + mappingCor);
 
         double PEAverage = accumulatorAverageFixedPE.getData(AccumulatorAverage.AVERAGE).getValue(0);
         double PEAError = accumulatorAverageFixedPE.getData(AccumulatorAverage.ERROR).getValue(0);
         double PECor = accumulatorAverageFixedPE.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
+        System.out.println("PEAverage=\t" + (PEAverage - latticeEnergy - fac * Kelvin.UNIT.toSim(temperature)) +
+                "  PEeError=\t" + PEAError + "  PECor=\t" + PECor);
 
-
-        System.out.println("PEAverage= " + (PEAverage - latticeEnergy - fac * Kelvin.UNIT.toSim(temperature)) +
-                "  PEeError= " + PEAError + "  PECor= " + PECor);
-
-        System.out.println("PE-lattice = " + (PEAverage - latticeEnergy));
+//        System.out.println("PE-lattice= " + (PEAverage - latticeEnergy));
 //        ConfigurationFile config = new ConfigurationFile(numCells + "ncFinalPos");
 //        config.initializeCoordinates(sim.box);
 //        final double endLatticeEnergy = meterPE2.getDataAsScalar();
 //        System.out.println("endLE = " + endLatticeEnergy);
 
 
+        long endTime = System.currentTimeMillis();
+        DateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Calendar cal = Calendar.getInstance();
+        System.out.println(date.format(cal.getTime()));
+        double totalTime = (endTime - startTime) / (1000.0 * 60.0);
+        System.out.println("totalTime= " + totalTime + " mins");
     }
 
     public static class WaterOrientationDefinition implements etomica.normalmode.MoleculeSiteSource.MoleculeOrientationDefinition {
@@ -746,14 +666,14 @@ public class WaterDADB extends Simulation {
             v2.Ev1Mv2(h2, h1);
             v2.normalize();
             or.setDirections(v1, v2);
-            //v1 is a0 and v2 is a
+            //v1 is a0 and v2 is a1
             return or;
         }
     }
 
     public static class WaterDADBParam extends ParameterBase {
         public int numCells = 1;
-        public int numSteps = 1000;
+        public int numSteps = 100;
         public double temperature = 50;
         public double rCutLJ = 11;
         public double rCutRealES = 11;
@@ -764,5 +684,6 @@ public class WaterDADB extends Simulation {
         public boolean unitCells = false;
         public boolean doRotation = true;
         public boolean doTranslation = true;
+        public double timeInterval = 0.002;
     }
 }
