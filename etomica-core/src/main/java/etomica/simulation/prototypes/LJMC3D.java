@@ -12,6 +12,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPumpListener;
+import etomica.data.DataSourceCountSteps;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataGroup;
@@ -151,8 +152,10 @@ public class LJMC3D extends Simulation {
             LJMC3D sim = new LJMC3D(params);
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 
+            DataSourceCountSteps timeSource = new DataSourceCountSteps(sim.integrator);
             MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
             AccumulatorHistory accPE = new AccumulatorHistory(new HistoryCollapsingAverage());
+            accPE.setTimeDataSource(timeSource);
             DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, 10);
             sim.getIntegrator().getEventManager().addListener(pumpPE);
 
