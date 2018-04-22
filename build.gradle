@@ -82,10 +82,8 @@ project(':etomica-core') {
 }
 
 project(':etomica-apps') {
-    
-    dependencies {
-        compile 'com.googlecode.json-simple:json-simple:1.1'
 
+    dependencies {
         compile project(':etomica-core')
         compile project(':etomica-graph')
     }

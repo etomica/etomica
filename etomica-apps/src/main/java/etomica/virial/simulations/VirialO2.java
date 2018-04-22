@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorRatioAverageCovarianceFull;
-import org.json.simple.JSONObject;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.chem.elements.ElementSimple;
@@ -123,7 +123,7 @@ public class VirialO2 {
             refFileName = "refpref"+nPoints;
             refFileName += pairOnly ? "_2b" : "_3b";
             refFileName += "_"+tempString+"_";
-            if (pLevel == level.classical) refFileName += "C";            
+            if (pLevel == level.classical) refFileName += "C";
         }
         long t1 = System.currentTimeMillis();
         // if using 3-body potential for B3, we must select initial configuration
@@ -287,7 +287,8 @@ public class VirialO2 {
 
             try {
                 FileWriter jsonFile = new FileWriter(params.jsonOutputFileName);
-                jsonFile.write(JSONObject.toJSONString(resultsMap));
+                ObjectMapper om = new ObjectMapper();
+                jsonFile.write(om.writeValueAsString(resultsMap));
                 jsonFile.write("\n");
                 jsonFile.close();
             } catch (IOException e) {
