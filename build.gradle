@@ -39,11 +39,10 @@ subprojects {
     targetCompatibility = 1.8
 
     dependencies {
-        testCompile 'junit:junit:4.12'
-        testRuntime 'org.junit.vintage:junit-vintage-engine:4.12.3'
+        testRuntime 'org.junit.vintage:junit-vintage-engine:5.2.0-M1'
 
-        testCompile 'org.junit.jupiter:junit-jupiter-api:5.0.3'
-        testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.0.3'
+        testCompile 'org.junit.jupiter:junit-jupiter-api:5.2.0-M1'
+        testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.2.0-M1'
 
         testCompile 'org.assertj:assertj-core:3.9.0'
         testCompile 'org.assertj:assertj-swing-junit:3.8.0'
