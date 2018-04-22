@@ -4,8 +4,6 @@
 
 package etomica.graph;
 
-import junit.framework.TestCase;
-
 public class CustomTestCase {
 
   private Runtime rt = Runtime.getRuntime();

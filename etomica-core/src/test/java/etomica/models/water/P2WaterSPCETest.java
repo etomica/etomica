@@ -11,10 +11,9 @@ import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by akshara on 05-10-2017.
@@ -22,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 public class P2WaterSPCETest {
     private IMoleculeList molecules;
     private static final double EPSILON = 4e-7;
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         IMolecule mol1 = new SpeciesWater3P(Space3D.getInstance()).makeMolecule();
         IMolecule mol2 = new SpeciesWater3P(Space3D.getInstance()).makeMolecule();
@@ -39,7 +38,7 @@ public class P2WaterSPCETest {
     public void testEnergy() throws Exception {
         P2WaterSPCE potential = new P2WaterSPCE(Space3D.getInstance());
         potential.setBox(new Box(Space3D.getInstance()));
-        assertEquals(-9.308531528185995, potential.energy(molecules), EPSILON);
+        Assertions.assertEquals(-9.308531528185995, potential.energy(molecules), EPSILON);
     }
 
 }

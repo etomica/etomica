@@ -1,19 +1,19 @@
 package etomica.util.collections;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class IndexMapTest {
     public IndexMap<String> map;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         this.map = new IndexMap<>();
     }
@@ -120,9 +120,9 @@ public class IndexMapTest {
         assertEquals(0, map.size());
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testKeySet() {
-        map.keySet();
+        assertThrows(UnsupportedOperationException.class, () -> map.keySet());
     }
 
     @Test()
@@ -144,8 +144,8 @@ public class IndexMapTest {
         assertTrue(c.containsAll(Arrays.asList("0", "5", "100")));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testEntrySet() {
-        map.entrySet();
+        assertThrows(UnsupportedOperationException.class, () -> map.entrySet());
     }
 }

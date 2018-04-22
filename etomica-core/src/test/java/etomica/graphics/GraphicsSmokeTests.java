@@ -2,15 +2,15 @@ package etomica.graphics;
 
 import etomica.action.SimulationRestart;
 import etomica.simulation.prototypes.HSMD3D;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
 
 public class GraphicsSmokeTests {
     private JFrame frame;
 
-    @After
+    @AfterEach
     public void tearDown() {
         if(frame != null) {
             frame.dispose();

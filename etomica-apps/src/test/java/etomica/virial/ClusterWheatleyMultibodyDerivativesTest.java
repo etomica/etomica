@@ -12,10 +12,10 @@ import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialNonAdditiveDifference;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Created by Navneeth on 6/12/2017.
@@ -28,7 +28,7 @@ public class ClusterWheatleyMultibodyDerivativesTest {
     ClusterWheatleyMultibodyDerivatives cwmd;
     Space space = Space.getInstance(3);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         SpeciesWater4PCOM speciesWater = new SpeciesWater4PCOM(space);
         final PNWaterGCPM pTarget = new PNWaterGCPM(space);
@@ -62,7 +62,7 @@ public class ClusterWheatleyMultibodyDerivativesTest {
         double[] shouldbe = new double[nder+1];
         shouldbe[0] = 0.2;
 
-        assertArrayEquals(shouldbe,testvalue,1e-12);
+        Assertions.assertArrayEquals(shouldbe,testvalue,1e-12);
 
         IMoleculeList al = box.getMoleculeList();
         AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
@@ -79,7 +79,7 @@ public class ClusterWheatleyMultibodyDerivativesTest {
 
 //        System.out.println(Arrays.toString(testvalue));
 
-        assertArrayEquals(shouldbe,testvalue,1e-12);
+        Assertions.assertArrayEquals(shouldbe,testvalue,1e-12);
 
     }
 

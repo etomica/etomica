@@ -1,16 +1,16 @@
 package etomica.space;
 
 import etomica.space3d.Space3D;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static etomica.UnitTestUtil.DELTA;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class BoundaryRectangularPeriodicTest {
     Boundary b;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         b = new BoundaryRectangularPeriodic(Space3D.getInstance(), 30);
     }
