@@ -170,7 +170,12 @@ public class GCRestrictedGibbsHS extends Simulation {
         // set the global move interval.  GMIfac yields a simulation that spends roughly equal
         // CPU time doing global and not-global moves.  Set GMIfac to achieve desired result.
         double n = (box1.getNMolecules(species2) + box2.getNMolecules(species2)) / 2.0;
-        integrator.setGlobalMoveInterval(n / GMIfac);
+        if(n==0){
+            integrator.setGlobalMoveInterval(1);
+        }
+        else {
+            integrator.setGlobalMoveInterval(n / GMIfac);
+        }
 
         if (pmc != null) {
             // we have cell listing.  initialize all that.
