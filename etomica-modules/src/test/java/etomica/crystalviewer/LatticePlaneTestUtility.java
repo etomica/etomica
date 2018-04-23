@@ -4,16 +4,17 @@
 
 package etomica.crystalviewer;
 
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.*;
 import etomica.lattice.crystal.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
-import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
+import org.junit.jupiter.api.Assertions;
 
 public class LatticePlaneTestUtility {
 
@@ -146,5 +147,13 @@ public class LatticePlaneTestUtility {
 
 	public LatticePlane getLatticePlane() {
 		return latticePlane;
+	}
+
+	public void assertInPlane(IAtom a) {
+		Assertions.assertTrue(this.getLatticePlane().inPlane(a.getPosition()), "Atom position " + a.getPosition() + " should be in plane but is not");
+	}
+
+	public void assertNotInPlane(IAtom a) {
+		Assertions.assertFalse(this.getLatticePlane().inPlane(a.getPosition()), "Atom position " + a.getPosition() + " should not be in plane but is");
 	}
 }

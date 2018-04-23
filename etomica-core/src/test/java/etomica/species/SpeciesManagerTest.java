@@ -8,14 +8,17 @@ import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.IElement;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class SpeciesManagerTest extends TestCase {
+public class SpeciesManagerTest {
 
 	Simulation simulation;
 	Space space;
 	IElement element;
 	
+	@BeforeEach
 	public void setUp() {
 		space = Space.getInstance(3);
 		simulation = new Simulation(space);
@@ -25,6 +28,7 @@ public class SpeciesManagerTest extends TestCase {
 	/*
 	 * testAddSpecies
 	 */
+	@Test
 	public void testAddSpecies() {
 		final int numSpecies = 5;
 		ISpecies species[] = new ISpecies[numSpecies];
@@ -34,14 +38,14 @@ public class SpeciesManagerTest extends TestCase {
 		    simulation.addSpecies(species[i]);
 		}
 
-		assertEquals(numSpecies, simulation.getSpeciesCount());
+		Assertions.assertEquals(numSpecies, simulation.getSpeciesCount());
 		
 		int expectedChildIndex = 0;
 		for(int i = 0; i < simulation.getSpeciesCount(); i++) {
-			assertSame(species[i], simulation.getSpecies(i));
-			assertSame(i, species[i].getIndex());
+			Assertions.assertSame(species[i], simulation.getSpecies(i));
+			Assertions.assertSame(i, species[i].getIndex());
 			for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
-			    assertSame(expectedChildIndex, species[i].getAtomType(j).getIndex());
+			    Assertions.assertSame(expectedChildIndex, species[i].getAtomType(j).getIndex());
 			    expectedChildIndex++;
 			}
 		}

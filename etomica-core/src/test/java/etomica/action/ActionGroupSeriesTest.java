@@ -1,28 +1,28 @@
 package etomica.action;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by kofke on 11/11/17.
  */
-public class ActionGroupSeriesTest {
+class ActionGroupSeriesTest {
 
-    protected ActionGroupSeries ags = new ActionGroupSeries();
-    protected int sum = 0;
-    protected IAction a1, a2, zero;
+    private ActionGroupSeries ags = new ActionGroupSeries();
+    private int sum = 0;
+    private IAction a1, a2, zero;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         a1 = new Add1();
         a2 = new Add2();
         zero = new Zero();
     }
 
     @Test
-    public void testActionPerformed() throws Exception {
+    void testActionPerformed() {
         ags.actionPerformed();
         assertEquals(0, sum);
 

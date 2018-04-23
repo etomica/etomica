@@ -4,19 +4,17 @@
 
 package etomica.math;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 /**
  * Created by alex on 4/24/17.
  */
 public class SpecialFunctionsTest {
     private static final double EPSILON = 1e-10;
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     private double epislon = 1E-7;
 
     @Test
@@ -857,8 +855,7 @@ public class SpecialFunctionsTest {
     @Test
     public void testFactorialException() {
         // this asserts that an exception will be thrown for -1!
-        thrown.expect(IllegalArgumentException.class);
-        SpecialFunctions.factorial(-1);
+        assertThrows(IllegalArgumentException.class, () -> SpecialFunctions.factorial(-1));
     }
 
     @Test

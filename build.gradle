@@ -1,17 +1,7 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.2'
-    }
-}
-
 apply plugin: 'eclipse'
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.5'
+    gradleVersion = '4.7'
 }
 
 tasks.withType(JavaCompile) {
@@ -23,7 +13,6 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'eclipse'
     apply plugin: 'findbugs'
-    apply plugin: 'org.junit.platform.gradle.plugin'
 
     if(rootProject.hasProperty("main")) {
         apply plugin: 'application'
@@ -39,14 +28,8 @@ subprojects {
     targetCompatibility = 1.8
 
     dependencies {
-        testCompile 'junit:junit:4.12'
-        testRuntime 'org.junit.vintage:junit-vintage-engine:4.12.3'
-
-        testCompile 'org.junit.jupiter:junit-jupiter-api:5.0.3'
-        testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.0.3'
-
-        testCompile 'org.assertj:assertj-core:3.9.0'
-        testCompile 'org.assertj:assertj-swing-junit:3.8.0'
+        testCompile 'org.junit.jupiter:junit-jupiter-api:5.2.0-M1'
+        testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.2.0-M1'
     }
 
 
@@ -68,11 +51,11 @@ subprojects {
         ignoreFailures = true
     }
 
-    junitPlatform {
-        details 'tree'
-
-        filters {
-            excludeClassNamePattern 'etomica.graph.*'
+    test {
+        useJUnitPlatform()
+        testLogging.showStandardStreams = true
+        testLogging {
+            exceptionFormat "full"
         }
     }
 
@@ -96,20 +79,11 @@ project(':etomica-core') {
 
     processResources.dependsOn ':setupPython'
     clean.dependsOn ':cleanPython'
-
-    test {
-        // don't run tests that depend on python if it hasn't been setup
-        if(!rootProject.hasProperty('buildPython')) {
-            exclude 'etomica/parser/**'
-        }
-    }
 }
 
 project(':etomica-apps') {
-    
-    dependencies {
-        compile 'com.googlecode.json-simple:json-simple:1.1'
 
+    dependencies {
         compile project(':etomica-core')
         compile project(':etomica-graph')
     }
