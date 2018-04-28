@@ -25,6 +25,9 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.units.Calorie;
 import etomica.units.Kelvin;
 import etomica.units.Mole;
+import etomica.util.random.IRandom;
+import etomica.util.random.RandomMersenneTwister;
+import etomica.util.random.RandomNumberGeneratorUnix;
 
 /**
  * Simulation for Catalysis module.
@@ -46,9 +49,14 @@ public class Catalysis extends Simulation {
     public final ConfigurationCatalysis config;
     public final InteractionTracker interactionTracker;
     public final ReactionManagerCO reactionManagerCO;
-    
-    public Catalysis(Space _space, int nCellsZ) {
+
+    public Catalysis(Space space, int nCellsZ) {
+        this(space, nCellsZ, new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray()));
+    }
+
+    public Catalysis(Space _space, int nCellsZ, IRandom random) {
         super(_space);
+        this.setRandom(random);
         //species
         speciesO = new SpeciesSpheresMono(space, Oxygen.INSTANCE);
         speciesO.setIsDynamic(true);
