@@ -100,7 +100,6 @@ public class DimerApproach extends Simulation {
             double sigmaOH = 0.05;
             MethanolPotentialHelper.initPotential(space, speciesMethanol, U_a_b, pointCharges, sigmaOC, sigmaOH);
         }
-        addSpecies(species);
         box.setNMolecules(species, 2); // 2 molecules in box...
         U_a_b.setBox(box);
         potentialMaster = new PotentialMaster();
