@@ -200,6 +200,7 @@ public class P2SquareWellMonomer extends P2SquareWell {
         boolean grafted = childIdx0 + childIdx1 == 0;
         if (grafted) {
             lastCollisionVirial = 2.0 * reduced_m * bij;
+            lastEnergyChange = 0.0;
         } else {
             boolean bonded = (chainIdx0 == chainIdx1) && Math.abs(childIdx0 - childIdx1) == 1;
 
