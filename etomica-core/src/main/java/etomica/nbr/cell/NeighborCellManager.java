@@ -63,17 +63,17 @@ public class NeighborCellManager implements BoxCellManager, BoundaryEventListene
      * declared final.
      */
     public NeighborCellManager(Box box, double potentialRange, IMoleculePositionDefinition positionDefinition) {
+        Space space = box.getSpace();
         this.positionDefinition = positionDefinition;
         this.box = box;
-        Space space = box.getSpace();
         numCells = new int[space.D()];
-
-        lattice = new CellLattice(space, box.getBoundary().getBoxSize(), Cell.FACTORY);
-        setPotentialRange(potentialRange);
         v = space.makeVector();
-        agentManager = new AtomLeafAgentManager<Cell>(this,box);
+        lattice = new CellLattice(space, box.getBoundary().getBoxSize(), Cell.FACTORY);
         doApplyPBC = false;
+        agentManager = new AtomLeafAgentManager<Cell>(this,box);
         box.getBoundary().getEventManager().addListener(this);
+
+        setPotentialRange(potentialRange);
     }
 
     /**
@@ -238,6 +238,9 @@ public class NeighborCellManager implements BoxCellManager, BoundaryEventListene
         }
         else {
             atomCell = (Cell)lattice.site(atom.getPosition());
+        }
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom))) {
+            System.out.println("assigning "+atom+" at "+atom.getPosition()+" to "+atomCell);
         }
         atomCell.addAtom(atom);
         agentManager.setAgent(atom, atomCell);
