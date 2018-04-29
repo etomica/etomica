@@ -1,11 +1,13 @@
 package etomica;
 
+import etomica.normalmode.NormalModeAnalysisDisplay3D;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -54,6 +56,9 @@ public class TestSimConstructors {
     @ParameterizedTest
     @MethodSource("getConstructors")
     public void testNullaryConstructors(Constructor<?> constructor) {
+        // Special case to skip this class. It requires files that don't exists. TODO delete if we can't find them
+        Assumptions.assumeFalse(constructor.getDeclaringClass() == NormalModeAnalysisDisplay3D.class);
+
         assertDoesNotThrow(() -> {
             Simulation sim = (Simulation) constructor.newInstance();
         });

@@ -21,6 +21,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
 
@@ -45,7 +46,6 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
     protected WaveVectorFactory waveVectorFactory;
     protected CoordinateDefinitionLeaf coordinateDefinition;
     protected MeterPotentialEnergy meterPE;
-    protected Space space;
     protected double L;
     protected int n = 3;
     protected P2SoftSphericalTruncatedShifted pTruncated;
@@ -54,9 +54,8 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
     protected double temperature = 0.0001;
     protected double latticeEnergy;
 
-    public NormalModeAnalysisDisplay3D(Space _space) {
-        super(_space);
-        this.space = _space;
+    public NormalModeAnalysisDisplay3D() {
+        super(Space3D.getInstance());
 
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
@@ -116,7 +115,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
     public static void main(String[] args) {
 
         //instantiate simulation
-        NormalModeAnalysisDisplay3D sim = new NormalModeAnalysisDisplay3D(Space.getInstance(3));
+        NormalModeAnalysisDisplay3D sim = new NormalModeAnalysisDisplay3D();
 
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
