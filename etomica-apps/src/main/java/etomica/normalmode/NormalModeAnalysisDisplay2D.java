@@ -140,8 +140,7 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
 	protected NormalModes nm;
 	protected CoordinateDefinitionLeaf coordinateDefinition;
 	protected WaveVectorFactory waveVectorFactory;
-	protected Space space;
-	
+
 	protected int dimx = 20;
 	protected int dimy = 10;
 	protected double temperature = 0.1;

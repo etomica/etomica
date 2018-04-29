@@ -216,8 +216,8 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
                 if (oldNx != nx ) {
                 	int[] nCells = new int[]{nx, (int)cellSlider.getYCellNum()};
                 	
-                	Vector[] dimension = sim.space.makeVectorArray(sim.space.D());
-                    for (int i=0; i<sim.space.D(); i++){
+                	Vector[] dimension = sim.getSpace().makeVectorArray(sim.getSpace().D());
+                    for (int i = 0; i< sim.getSpace().D(); i++){
                     	dimension[i].Ea1Tv1(nCells[i], sim.primitive.vectors()[i]);
                     }
 
@@ -318,8 +318,8 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
                 if (oldNy != ny ) {
                 	int[] nCells = new int[]{(int)cellSlider.getXCellNum(), ny};
                 	
-                	Vector[] dimension = sim.space.makeVectorArray(sim.space.D());
-                    for (int i=0; i<sim.space.D(); i++){
+                	Vector[] dimension = sim.getSpace().makeVectorArray(sim.getSpace().D());
+                    for (int i = 0; i< sim.getSpace().D(); i++){
                     	dimension[i].Ea1Tv1(nCells[i], sim.primitive.vectors()[i]);
                     }
 
