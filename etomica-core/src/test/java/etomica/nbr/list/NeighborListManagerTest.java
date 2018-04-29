@@ -94,8 +94,33 @@ class NeighborListManagerTest {
                 return 2;
             }
         };
+
+        IPotentialAtomic mockPotentialBB = new IPotentialAtomic() {
+            @Override
+            public double energy(IAtomList atoms) {
+                assertEquals(atoms.get(0).getType(), speciesB.getLeafType());
+                assertEquals(atoms.get(1).getType(), speciesB.getLeafType());
+                return 0;
+            }
+
+            @Override
+            public double getRange() {
+                return 5;
+            }
+
+            @Override
+            public void setBox(Box box) {
+
+            }
+
+            @Override
+            public int nBody() {
+                return 2;
+            }
+        };
         pm.addPotential(mockPotentialAA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
         pm.addPotential(mockPotentialAB, new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
+        pm.addPotential(mockPotentialBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
         nlm = pm.getNeighborManager(box);
         nlm.reset();
     }
