@@ -48,8 +48,8 @@ public class DropletAtomic extends Simulation {
     protected double density;
     protected double sigma;
 
-    public DropletAtomic(Space _space) {
-        super(_space);
+    public DropletAtomic() {
+        super(Space3D.getInstance());
         //species
         species = new SpeciesSpheresMono(space, Argon.INSTANCE);
         species.setIsDynamic(true);
@@ -97,7 +97,7 @@ public class DropletAtomic extends Simulation {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
 
-        DropletAtomic sim = new DropletAtomic(space);
+        DropletAtomic sim = new DropletAtomic();
         sim.getController().actionPerformed();
     }//end of main
     

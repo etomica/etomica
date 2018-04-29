@@ -363,7 +363,7 @@ public class DeviceCellNumXYSlider extends Device {
 
        
         etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
-        NormalModeAnalysisDisplay2D sim = new NormalModeAnalysisDisplay2D(sp);
+        NormalModeAnalysisDisplay2D sim = new NormalModeAnalysisDisplay2D();
         
         DeviceCellNumXYSlider device = new DeviceCellNumXYSlider(new Controller());
         device.setMinimum(1);

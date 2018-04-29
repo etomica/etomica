@@ -647,7 +647,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
             } catch(NumberFormatException e) {}
         }
 
-        ReverseOsmosisGraphic reverseOsmosisGraphic = new ReverseOsmosisGraphic(new ReverseOsmosis(sp), sp);
+        ReverseOsmosisGraphic reverseOsmosisGraphic = new ReverseOsmosisGraphic(new ReverseOsmosis(), sp);
 		SimulationGraphic.makeAndDisplayFrame
 		        (reverseOsmosisGraphic.getPanel(), APP_NAME);
     }
@@ -658,7 +658,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
 	        Space3D sp = Space3D.getInstance();
-            ReverseOsmosisGraphic reverseOsmosisGraphic = new ReverseOsmosisGraphic(new ReverseOsmosis(sp), sp);
+            ReverseOsmosisGraphic reverseOsmosisGraphic = new ReverseOsmosisGraphic(new ReverseOsmosis(), sp);
 
 		    getContentPane().add(reverseOsmosisGraphic.getPanel());
 	    }

@@ -52,8 +52,8 @@ public class ReverseOsmosisWater extends Simulation {
     public P1Tether potentialTether;
     public PotentialCalculationTorqueSumWallForce torqueSum;
     
-    public ReverseOsmosisWater(Space space) {
-        super(space);
+    public ReverseOsmosisWater() {
+        super(Space3D.getInstance());
 
         //solute (1)
         speciesSodium = new SpeciesSpheresMono(space, Sodium.INSTANCE);
@@ -256,7 +256,7 @@ public class ReverseOsmosisWater extends Simulation {
             } catch(NumberFormatException e) {}
         }
             
-        ReverseOsmosisWater sim = new ReverseOsmosisWater(space);
+        ReverseOsmosisWater sim = new ReverseOsmosisWater();
         sim.getController().actionPerformed();
     }//end of main
     

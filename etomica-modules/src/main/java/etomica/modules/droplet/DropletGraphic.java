@@ -257,7 +257,7 @@ public class DropletGraphic extends SimulationGraphic {
         	sp = Space3D.getInstance();
         }
 
-        Droplet sim = new Droplet(sp);
+        Droplet sim = new Droplet();
         DropletGraphic simGraphic = new DropletGraphic(sim, sp);
 		SimulationGraphic.makeAndDisplayFrame
 		        (simGraphic.getPanel(), APP_NAME);
@@ -269,7 +269,7 @@ public class DropletGraphic extends SimulationGraphic {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
 	        Space sp = Space3D.getInstance();
-	        Droplet sim = new Droplet(sp);
+	        Droplet sim = new Droplet();
             DropletGraphic simGraphic = new DropletGraphic(sim, sp);
             simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(15));
 

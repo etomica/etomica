@@ -392,7 +392,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
         Space space = Space3D.getInstance();
 
 
-        AdsorptionGraphic adsGraphic = new AdsorptionGraphic(new Adsorption(space), space);
+        AdsorptionGraphic adsGraphic = new AdsorptionGraphic(new Adsorption(), space);
 		SimulationGraphic.makeAndDisplayFrame
 		        (adsGraphic.getPanel(), APP_NAME);
     }
@@ -403,7 +403,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
             Space sp = Space3D.getInstance();
-            AdsorptionGraphic swmdGraphic = new AdsorptionGraphic(new Adsorption(sp), sp);
+            AdsorptionGraphic swmdGraphic = new AdsorptionGraphic(new Adsorption(), sp);
 
 		    getContentPane().add(swmdGraphic.getPanel());
 	    }

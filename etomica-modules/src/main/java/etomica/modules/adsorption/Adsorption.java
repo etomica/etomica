@@ -42,8 +42,8 @@ public class Adsorption extends Simulation {
     public final MyMCMove mcMoveIDA, mcMoveIDB;
     public final ConfigurationLattice config;
     
-    public Adsorption(Space _space) {
-        super(_space);
+    public Adsorption() {
+        super(Space3D.getInstance());
 
         //species
         speciesA = new SpeciesSpheresMono(space, new ElementSimple(this));
@@ -130,7 +130,7 @@ public class Adsorption extends Simulation {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         
-        Adsorption sim = new Adsorption(space);
+        Adsorption sim = new Adsorption();
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, "Catalysis", 1);
         simGraphic.makeAndDisplayFrame();
     }

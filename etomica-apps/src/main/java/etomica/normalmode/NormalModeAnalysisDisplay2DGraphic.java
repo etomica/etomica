@@ -15,8 +15,6 @@ import etomica.data.types.DataTable.DataInfoTable;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.space.Boundary;
-import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Energy;
@@ -537,7 +535,7 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
 	
 	public static void main(String[] args){
 		Space sp = Space.getInstance(2);
-		NormalModeAnalysisDisplay2DGraphic simGraphic = new NormalModeAnalysisDisplay2DGraphic(new NormalModeAnalysisDisplay2D(sp), sp);
+		NormalModeAnalysisDisplay2DGraphic simGraphic = new NormalModeAnalysisDisplay2DGraphic(new NormalModeAnalysisDisplay2D(), sp);
 		SimulationGraphic.makeAndDisplayFrame(simGraphic.getPanel(), APP_NAME);
 		
 	}
@@ -551,7 +549,7 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
 		public void init(){
 			getRootPane().putClientProperty(APP_NAME, Boolean.TRUE);
 			Space sp = Space.getInstance(2);
-			NormalModeAnalysisDisplay2DGraphic nm2Dgraphic = new NormalModeAnalysisDisplay2DGraphic(new NormalModeAnalysisDisplay2D(sp), sp);
+			NormalModeAnalysisDisplay2DGraphic nm2Dgraphic = new NormalModeAnalysisDisplay2DGraphic(new NormalModeAnalysisDisplay2D(), sp);
 			getContentPane().add(nm2Dgraphic.getPanel());
 		}
 	}

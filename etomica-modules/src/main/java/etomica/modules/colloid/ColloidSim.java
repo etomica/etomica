@@ -44,8 +44,8 @@ public class ColloidSim extends Simulation {
     public double epsWallWall = 0.25;
     public CriterionPositionWall criterionWallMonomer;
     
-    public ColloidSim(Space _space) {
-        super(_space);
+    public ColloidSim() {
+        super(Space3D.getInstance());
 
         //species
         species = new SpeciesSpheresMono(this, space);
@@ -55,8 +55,8 @@ public class ColloidSim extends Simulation {
         speciesColloid.setIsDynamic(true);
         addSpecies(speciesColloid);
 
-        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, _space);
-        potentialMaster = new PotentialMasterList(this, 6, boxAgentSource, new BoxAgentManager<>(boxAgentSource, this), _space);
+        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
+        potentialMaster = new PotentialMasterList(this, 6, boxAgentSource, new BoxAgentManager<>(boxAgentSource, this), space);
 
         int nColloid = 1;
         chainLength = 50;
@@ -180,7 +180,7 @@ public class ColloidSim extends Simulation {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
 
-        ColloidSim sim = new ColloidSim(space);
+        ColloidSim sim = new ColloidSim();
         sim.getController().actionPerformed();
     }
     

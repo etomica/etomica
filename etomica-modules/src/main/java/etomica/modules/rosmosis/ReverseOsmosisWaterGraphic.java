@@ -713,7 +713,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
 
-        ReverseOsmosisWaterGraphic reverseOsmosisGraphic = new ReverseOsmosisWaterGraphic(new ReverseOsmosisWater(space));
+        ReverseOsmosisWaterGraphic reverseOsmosisGraphic = new ReverseOsmosisWaterGraphic(new ReverseOsmosisWater());
 		SimulationGraphic.makeAndDisplayFrame
 		        (reverseOsmosisGraphic.getPanel(), APP_NAME);
     }
@@ -723,7 +723,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-            ReverseOsmosisWaterGraphic reverseOsmosisGraphic = new ReverseOsmosisWaterGraphic(new ReverseOsmosisWater(Space3D.getInstance()));
+            ReverseOsmosisWaterGraphic reverseOsmosisGraphic = new ReverseOsmosisWaterGraphic(new ReverseOsmosisWater());
 
 		    getContentPane().add(reverseOsmosisGraphic.getPanel());
 	    }
