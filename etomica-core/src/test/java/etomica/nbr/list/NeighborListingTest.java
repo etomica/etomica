@@ -18,16 +18,21 @@ import etomica.species.SpeciesSpheresMono;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class NeighborListManagerTest {
+class NeighborListingTest {
     private NeighborListManager nlm;
     private PotentialMasterList pm;
     private Box box;
+
+    private Map<IAtom, Set<IAtom>> pmNbrsSame;
+    private Map<IAtom, Set<IAtom>> pmNbrsAB;
 
     @BeforeEach
     void setup() {
@@ -44,11 +49,16 @@ class NeighborListManagerTest {
         Configuration config = new ConfigurationLattice(new LatticeCubicFcc(sim.getSpace()), sim.getSpace());
         config.initializeCoordinates(box);
         pm = new PotentialMasterList(sim, 5, sim.getSpace());
+
+        pmNbrsSame = new HashMap<>();
+        pmNbrsAB = new HashMap<>();
+
         IPotentialAtomic mockPotentialAA = new IPotentialAtomic() {
             @Override
             public double energy(IAtomList atoms) {
                 assertEquals(atoms.get(0).getType(), speciesA.getLeafType());
                 assertEquals(atoms.get(1).getType(), speciesA.getLeafType());
+                pmNbrsSame.computeIfAbsent(atoms.get(0), a -> new HashSet<>()).add(atoms.get(1));
                 return 0;
             }
 
@@ -76,6 +86,7 @@ class NeighborListManagerTest {
                 } else {
                     assertEquals(atoms.get(1).getType(), speciesA.getLeafType());
                 }
+                pmNbrsAB.computeIfAbsent(atoms.get(0), a -> new HashSet<>()).add(atoms.get(1));
                 return 0;
             }
 
@@ -100,6 +111,7 @@ class NeighborListManagerTest {
             public double energy(IAtomList atoms) {
                 assertEquals(atoms.get(0).getType(), speciesB.getLeafType());
                 assertEquals(atoms.get(1).getType(), speciesB.getLeafType());
+                pmNbrsSame.computeIfAbsent(atoms.get(0), a -> new HashSet<>()).add(atoms.get(1));
                 return 0;
             }
 
@@ -162,7 +174,7 @@ class NeighborListManagerTest {
     }
 
     @Test
-    void testNeighborTypes() {
+    void testPotentialMasterNbrs() {
 
         pm.calculate(box, new IteratorDirective(null), new PotentialCalculation() {
             @Override
@@ -170,6 +182,29 @@ class NeighborListManagerTest {
                 potential.energy(atoms);
             }
         });
+
+        for (IAtom atom : box.getLeafList()) {
+            Set<IAtom> sameTypeNbrs = box.getLeafList().stream()
+                    .filter(a -> a.getType() == atom.getType() && a != atom)
+                    .filter(a -> {
+                        Vector dr = box.getSpace().makeVector();
+                        dr.Ev1Mv2(a.getPosition(), atom.getPosition());
+                        box.getBoundary().nearestImage(dr);
+                        return dr.squared() < 25;
+                    }).collect(Collectors.toSet());
+
+            Set<IAtom> otherTypeNbrs = box.getLeafList().stream()
+                    .filter(a -> a.getType() != atom.getType())
+                    .filter(a -> {
+                        Vector dr = box.getSpace().makeVector();
+                        dr.Ev1Mv2(a.getPosition(), atom.getPosition());
+                        box.getBoundary().nearestImage(dr);
+                        return dr.squared() < 25;
+                    }).collect(Collectors.toSet());
+
+            assertEquals(sameTypeNbrs, pmNbrsSame.get(atom), atom + " same-type neighbors");
+            assertEquals(otherTypeNbrs, pmNbrsAB.get(atom), atom + " other-type neighbors");
+        }
     }
 
 }
