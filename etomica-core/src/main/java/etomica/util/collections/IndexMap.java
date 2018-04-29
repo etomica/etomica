@@ -129,9 +129,17 @@ public final class IndexMap<V> implements Map<Integer, V> {
         return new IndexMapValuesCollection();
     }
 
+    /**
+     * Do NOT use this. It is intended for the IDE debugger only. This will create a new HashMap for
+     * each invocation and add all values.
+     */
     @Override
     public Set<Entry<Integer, V>> entrySet() {
-        throw new UnsupportedOperationException();
+        Map<Integer, V> map = new HashMap<>();
+        for (int i = 0; i < values.length; i++) {
+            map.put(i, values[i]);
+        }
+        return map.entrySet();
     }
 
     public boolean containsKey(int key) {
