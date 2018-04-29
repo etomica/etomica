@@ -69,9 +69,7 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
 		//}
 
 
-		integrator = new IntegratorHarmonic(random, 0.0005, temperature, box);
-		integrator.setCoordinateDefinition(coordinateDefinition);
-		integrator.setWaveVectors(waveVectorFactory.getWaveVectors());
+		integrator = new IntegratorHarmonic(random, 0.0005, temperature, box, coordinateDefinition, waveVectorFactory.getWaveVectors());
 		integrator.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
 		integrator.setOmegaSquared(nm.getOmegaSquared(), waveVectorFactory.getCoefficients());
 		integrator.setEigenVectors(nm.getEigenvectors());
