@@ -58,7 +58,8 @@ class NeighborListingTest {
             public double energy(IAtomList atoms) {
                 assertEquals(atoms.get(0).getType(), speciesA.getLeafType());
                 assertEquals(atoms.get(1).getType(), speciesA.getLeafType());
-                pmNbrsSame.computeIfAbsent(atoms.get(0), a -> new HashSet<>()).add(atoms.get(1));
+                assertTrue(pmNbrsSame.computeIfAbsent(atoms.get(0), a -> new HashSet<>()).add(atoms.get(1)));
+                assertTrue(pmNbrsSame.computeIfAbsent(atoms.get(1), a -> new HashSet<>()).add(atoms.get(0)));
                 return 0;
             }
 
@@ -86,7 +87,8 @@ class NeighborListingTest {
                 } else {
                     assertEquals(atoms.get(1).getType(), speciesA.getLeafType());
                 }
-                pmNbrsAB.computeIfAbsent(atoms.get(0), a -> new HashSet<>()).add(atoms.get(1));
+                assertTrue(pmNbrsAB.computeIfAbsent(atoms.get(0), a -> new HashSet<>()).add(atoms.get(1)));
+                assertTrue(pmNbrsAB.computeIfAbsent(atoms.get(1), a -> new HashSet<>()).add(atoms.get(0)));
                 return 0;
             }
 
@@ -111,7 +113,8 @@ class NeighborListingTest {
             public double energy(IAtomList atoms) {
                 assertEquals(atoms.get(0).getType(), speciesB.getLeafType());
                 assertEquals(atoms.get(1).getType(), speciesB.getLeafType());
-                pmNbrsSame.computeIfAbsent(atoms.get(0), a -> new HashSet<>()).add(atoms.get(1));
+                assertTrue(pmNbrsSame.computeIfAbsent(atoms.get(0), a -> new HashSet<>()).add(atoms.get(1)));
+                assertTrue(pmNbrsSame.computeIfAbsent(atoms.get(1), a -> new HashSet<>()).add(atoms.get(0)));
                 return 0;
             }
 
@@ -176,7 +179,7 @@ class NeighborListingTest {
     @Test
     void testPotentialMasterNbrs() {
 
-        pm.calculate(box, new IteratorDirective(null), new PotentialCalculation() {
+        pm.calculate(box, new IteratorDirective(), new PotentialCalculation() {
             @Override
             public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
                 potential.energy(atoms);
