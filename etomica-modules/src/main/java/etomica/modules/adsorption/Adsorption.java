@@ -123,7 +123,7 @@ public class Adsorption extends Simulation {
         box.setNMolecules(speciesA, 40);
 
         config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
-        config.setBoundaryPadding(3.2345);
+        config.setBoundaryPadding(1.2345);
         config.initializeCoordinates(box);
     }
     
