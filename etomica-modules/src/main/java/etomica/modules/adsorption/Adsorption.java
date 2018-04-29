@@ -40,6 +40,7 @@ public class Adsorption extends Simulation {
     public final P2SquareWell p2AA, p2AB, p2BB;
     public final P1Wall p1WallA, p1WallB;
     public final MyMCMove mcMoveIDA, mcMoveIDB;
+    public final ConfigurationLattice config;
     
     public Adsorption(Space _space) {
         super(_space);
@@ -121,7 +122,8 @@ public class Adsorption extends Simulation {
 
         box.setNMolecules(speciesA, 40);
 
-        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
+        config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
+        config.setBoundaryPadding(3.2345);
         config.initializeCoordinates(box);
     }
     
