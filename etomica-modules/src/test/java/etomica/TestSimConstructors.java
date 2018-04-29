@@ -20,7 +20,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class TestSimConstructors {
-    private static final ScanResult SCAN = new FastClasspathScanner("etomica").scan();
+    public static final ScanResult SCAN = new FastClasspathScanner("etomica").scan();
     private static final List<Constructor<?>> constructors = new ArrayList<>();
     private static final List<Constructor<?>> spaceConstructors = new ArrayList<>();
 

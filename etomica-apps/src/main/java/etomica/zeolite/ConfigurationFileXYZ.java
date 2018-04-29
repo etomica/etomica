@@ -27,7 +27,7 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
             min = space.makeVector();
             max = space.makeVector();
             dim = space.makeVector();
-	        String fileName = confName+".xyz";
+	        String fileName = confName;
 	        FileReader fileReader;
 	        try {
 	            fileReader = new FileReader(fileName);
@@ -76,7 +76,7 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
 		}
         
 		public int[] getNumAtoms(){
-			String fileName = confName+".xyz";
+			String fileName = confName;
 	        FileReader fileReader;
 	        try {
 	            fileReader = new FileReader(fileName);
@@ -101,8 +101,8 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
 		}
 		
 		public Vector getUpdatedDimensions(){
-			updatedDimensions = Space.makeVector(dim.getD());
-			
+			updatedDimensions = space.makeVector();
+			updatedDimensions.E(dim);
 			updatedDimensions.TE(1.01);
 			return updatedDimensions;
 		}
