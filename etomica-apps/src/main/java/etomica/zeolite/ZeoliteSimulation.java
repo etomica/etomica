@@ -77,9 +77,8 @@ public class ZeoliteSimulation extends Simulation {
 
         //Additions for Zeolite Calculations
         //Start by reading the first line, which is number of Atoms
-        String fileName = this.getClass().getResource("2unitcell.xyz").getPath();
         //String fileName = "pbu2";
-        ConfigurationFileXYZ config = new ConfigurationFileXYZ(fileName, space);
+        ConfigurationFileXYZ config = new ConfigurationFileXYZ("2unitcell.xyz", space);
         int[] numAtoms = config.getNumAtoms();
 
         species = new SpeciesSpheresMono[numAtoms.length];
