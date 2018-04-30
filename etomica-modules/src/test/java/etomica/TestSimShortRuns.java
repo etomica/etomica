@@ -1,7 +1,6 @@
 package etomica;
 
 import etomica.integrator.Integrator;
-import etomica.modules.osmosis.OsmosisSim;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -26,10 +25,8 @@ public class TestSimShortRuns {
 
     /**
      * Sim classes that are excluded for various reasons causing them not to work with the reflection hacks here.
-     * Currently these just don't initialize box coordinates in the constructor causing a ConfigurationOverlapException
      */
     private static final Set<Class<?>> EXCLUDED = new HashSet<>(Arrays.asList(
-            OsmosisSim.class
     ));
 
     static List<Arguments> getIntegrators() throws IllegalAccessException, InstantiationException, InvocationTargetException {

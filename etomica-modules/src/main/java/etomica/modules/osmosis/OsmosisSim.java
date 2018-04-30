@@ -102,6 +102,9 @@ public class OsmosisSim extends Simulation {
 
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
+
+        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(space, 1.0), space);
+        config.initializeCoordinates(box);
     }
 
     public static void main(String[] args) {
