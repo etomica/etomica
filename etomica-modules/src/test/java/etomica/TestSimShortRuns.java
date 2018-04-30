@@ -8,6 +8,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -65,16 +66,18 @@ public class TestSimShortRuns {
 
     @ParameterizedTest
     @MethodSource("getIntegrators")
-    void testShortRuns(Class<?> simClass, Integrator simIntegrator) {
+    void testShortRuns(Class<?> simClass, Integrator simIntegrator, TestReporter reporter) {
         Assertions.assertDoesNotThrow(() -> {
             simIntegrator.reset();
             Future future = exec.submit(() -> {
-                while (true) {
+                while (!Thread.interrupted()) {
                     simIntegrator.doStep();
                 }
             });
-            Thread.sleep(1000);
+            Thread.sleep(400);
+            reporter.publishEntry(simClass + " steps", Long.toString(simIntegrator.getStepCount()));
             future.cancel(true);
         });
+
     }
 }
