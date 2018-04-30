@@ -28,12 +28,12 @@ import java.util.Set;
  */
 public class PotentialMasterList extends PotentialMasterNbr {
 
-    protected final Space space;
-    protected final AtomSetSinglet atomSetSinglet;
-    protected final AtomPair atomPair;
-    protected final NeighborListAgentSource neighborListAgentSource;
-    protected final BoxAgentManager<NeighborListManager> neighborListAgentManager;
-    protected double range;
+    private final Space space;
+    private final AtomSetSinglet atomSetSinglet;
+    private final AtomPair atomPair;
+    private final NeighborListAgentSource neighborListAgentSource;
+    private final BoxAgentManager<NeighborListManager> neighborListAgentManager;
+    private double range;
     private int cellRange;
     private double maxPotentialRange = 0;
     private double safetyFactor = 0.4;
@@ -244,7 +244,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * displacement.  Our nominal neighbor range is used for the criterion
      * with the longest potential range.
      */
-    public void recomputeCriteriaRanges() {
+    private void recomputeCriteriaRanges() {
         double maxDisplacement = (getRange() - maxPotentialRange) * safetyFactor;
         if (maxDisplacement < 0) {
             // someone probably added a long ranged potential and hasn't updated the PotentialMaster's range
@@ -363,7 +363,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * child atoms is performed and process is repeated (recursively) with each on down
      * the hierarchy until leaf atoms are reached.
      */
-    protected void calculate(IMolecule molecule, IteratorDirective.Direction direction, PotentialCalculation pc, NeighborListManager neighborManager) {
+    private void calculate(IMolecule molecule, IteratorDirective.Direction direction, PotentialCalculation pc, NeighborListManager neighborManager) {
         PotentialArray potentialArray = getIntraPotentials(molecule.getType());
         IPotential[] potentials = potentialArray.getPotentials();
         for(int i=0; i<potentials.length; i++) {
@@ -378,7 +378,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
     }
 
-    protected void calculate(IAtom atom, IteratorDirective.Direction direction, PotentialCalculation pc, NeighborListManager neighborManager) {
+    private void calculate(IAtom atom, IteratorDirective.Direction direction, PotentialCalculation pc, NeighborListManager neighborManager) {
         List<IPotentialAtomic> potentials1 = rangedPotentials1Body[atom.getType().getIndex()];
         if (potentials1.size() > 0) {
             boolean[] potential1BodyArray = neighborManager.getPotential1BodyList(atom).getInteractingList();
@@ -446,8 +446,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * Invokes the PotentialCalculation for the given Atom with its up and down
      * neighbors as a single AtomSet.
      */
-    protected void doNBodyStuff(IAtom atom, PotentialCalculation pc, int potentialIndex,
-                                IPotentialAtomic potential, NeighborListManager neighborManager) {
+    private void doNBodyStuff(IAtom atom, PotentialCalculation pc, int potentialIndex,
+                              IPotentialAtomic potential, NeighborListManager neighborManager) {
         atomArrayList.add(atom);
         IAtomList[] list = neighborManager.getUpList(atom);
         if (potentialIndex < list.length) {
