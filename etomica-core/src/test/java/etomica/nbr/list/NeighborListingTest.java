@@ -128,6 +128,7 @@ class NeighborListingTest {
         pm.addPotential(mockPotentialBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
         nlm = pm.getNeighborManager(box);
         nlm.reset();
+        nlm.ensureDownLists();
     }
 
     @Test
