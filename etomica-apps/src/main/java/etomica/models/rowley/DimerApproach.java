@@ -20,6 +20,7 @@ import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.units.*;
@@ -235,7 +236,7 @@ public class DimerApproach extends Simulation {
 
         if (true) { 
             
-            sim.box.getBoundary().setBoxSize(sim.space.makeVector(new double[]{40,40,40}));
+            sim.box.getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             
             // *********************
             // The Title

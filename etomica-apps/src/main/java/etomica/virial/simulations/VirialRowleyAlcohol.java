@@ -24,6 +24,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
@@ -343,8 +344,8 @@ public class VirialRowleyAlcohol {
 
         if (graphics) {
 
-            referenceBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            targetBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
+            referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            targetBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(referenceBox).setShowBoundary(false);
             simGraphic.getDisplayBox(targetBox).setShowBoundary(false);

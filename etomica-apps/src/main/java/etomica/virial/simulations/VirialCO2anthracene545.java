@@ -17,6 +17,7 @@ import etomica.integrator.IntegratorListener;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
@@ -180,8 +181,8 @@ public class VirialCO2anthracene545 {
         //graphic part
         if (false) {
             double size = 10;
-            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setPixelUnit(new Pixel(300.0/size));
             simGraphic.getDisplayBox(sim.box[1]).setPixelUnit(new Pixel(300.0/size));

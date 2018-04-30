@@ -12,18 +12,11 @@ import etomica.graph.model.Graph;
 import etomica.graph.model.GraphList;
 import etomica.graph.model.Metadata;
 import etomica.graph.model.Node;
-import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.model.impl.MetadataImpl;
 import etomica.graph.operations.GraphOp;
 import etomica.graph.operations.IsoFree;
 import etomica.graph.operations.MaxIsomorph;
-import etomica.graph.operations.MulFlexible;
-import etomica.graph.operations.MulScalar;
-import etomica.graph.operations.MulScalarParameters;
-import etomica.graph.operations.Relabel;
-import etomica.graph.operations.RelabelParameters;
 import etomica.graph.operations.MaxIsomorph.MaxIsomorphParameters;
-import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.property.IsBiconnected;
 import etomica.graph.viewer.ClusterViewer;
@@ -31,7 +24,6 @@ import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
 import etomica.virial.ClusterSumExternalField;
 import etomica.virial.MayerFunction;
-import etomica.virial.cluster.VirialDiagrams.ArticulatedAt0;
 
 public class ExternalVirialDiagrams extends VirialDiagrams{
 
@@ -77,7 +69,7 @@ public class ExternalVirialDiagrams extends VirialDiagrams{
 	        if (rho == null) {
 	            makeRhoDiagrams();
 	        }
-	        GraphList<Graph> rhon = makeGraphList();
+	        GraphList rhon = makeGraphList();
 	       
 	        for (Graph g : rho) {
 	            
@@ -156,7 +148,7 @@ public class ExternalVirialDiagrams extends VirialDiagrams{
 	        	
 	        }
 	        if (isInteractive) {
-	        	GraphList<Graph> topSet = makeGraphList();
+	        	GraphList topSet = makeGraphList();
 	            System.out.println("\nsurface tension");
 	            topSet.clear();
 	            topSet.addAll(rho);
@@ -180,7 +172,7 @@ public class ExternalVirialDiagrams extends VirialDiagrams{
             }
 	        rho = rhoNew;
 	        if (isInteractive) {
-	        	GraphList<Graph> topSet = makeGraphList();
+	        	GraphList topSet = makeGraphList();
 	            System.out.println("\nExpDensityprofile");
 	            topSet.clear();
 	            topSet.addAll(rho);

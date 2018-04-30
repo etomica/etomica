@@ -71,9 +71,9 @@ public class SimEinStep2HCP extends Simulation {
         double a = Math.pow(4 / (Math.sqrt(3) * density * coa), 1.0 / 3.0);
         double c = coa * a;  // sqrt(8/3)
         Vector[] boxDim = new Vector[3];
-        boxDim[0] = space.makeVector(new double[]{2 * n * a, 0, 0});
-        boxDim[1] = space.makeVector(new double[]{-2 * n * a * Math.cos(Degree.UNIT.toSim(60)), 2 * n * a * Math.sin(Degree.UNIT.toSim(60)), 0});
-        boxDim[2] = space.makeVector(new double[]{0, 0, n * c});
+        boxDim[0] = Vector.of(new double[]{2 * n * a, 0, 0});
+        boxDim[1] = Vector.of(new double[]{-2 * n * a * Math.cos(Degree.UNIT.toSim(60)), 2 * n * a * Math.sin(Degree.UNIT.toSim(60)), 0});
+        boxDim[2] = Vector.of(new double[]{0, 0, n * c});
 
         primitive = new PrimitiveHexagonal(space, a, c);
         nCells = new int[]{2 * n, 2 * n, n};

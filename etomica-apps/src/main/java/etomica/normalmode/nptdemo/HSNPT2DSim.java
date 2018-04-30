@@ -15,6 +15,7 @@ import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -72,7 +73,7 @@ public class HSNPT2DSim extends Simulation {
         double v2 = 2 / rho;
         bx *= nx * Math.sqrt(v2 / v1);
         by *= ny * Math.sqrt(v2 / v1);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{bx, by}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{bx, by}));
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, new PrimitiveOrthorhombicHexagonal(space, bx / nx), new BasisOrthorhombicHexagonal(), space);

@@ -31,6 +31,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.Bar;
 import etomica.units.Kelvin;
@@ -63,7 +64,7 @@ public class TestEwaldTIP4PWater extends Simulation {
         potentialMaster = new PotentialMaster();
 
         box = this.makeBox();
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{25, 25, 25}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{25, 25, 25}));
         box.setNMolecules(species, 125);
 
         integrator = new IntegratorMC(this, potentialMaster, box);

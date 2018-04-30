@@ -64,9 +64,9 @@ public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
 		BasisBigCell basis = new BasisBigCell(space, basisHCP, nC);
 
 		boxDim = new Vector[3];
-		boxDim[0] = space.makeVector(new double[]{nC[0] * aDim, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-nC[1] * aDim * Math.cos(Degree.UNIT.toSim(60)), nC[1] * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, nC[2] * cDim});
+		boxDim[0] = Vector.of(new double[]{nC[0] * aDim, 0, 0});
+		boxDim[1] = Vector.of(new double[]{-nC[1] * aDim * Math.cos(Degree.UNIT.toSim(60)), nC[1] * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
+		boxDim[2] = Vector.of(new double[]{0, 0, nC[2] * cDim});
 		boundary = new BoundaryDeformablePeriodic(space, boxDim);
 		box = this.makeBox(boundary);
 		box.setNMolecules(species, numMolecule);

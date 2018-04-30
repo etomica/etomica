@@ -49,7 +49,7 @@ public class Unfactor implements Unary {
     while (true) {
       success = false;
       for (Graph f : splitted) {
-        GraphList<Graph> set1 = new GraphList<Graph>();
+        GraphList set1 = new GraphList();
         set1.add(f);
         if (result == null) {
           result = set1;
@@ -80,7 +80,7 @@ public class Unfactor implements Unary {
         // we we not able to superimpose any pair
         // force multiplication and bail
         for (Graph f : unhappy) {
-          GraphList<Graph> set1 = new GraphList<Graph>();
+          GraphList set1 = new GraphList();
           set1.add(f);
           result = mulFlex.apply(result, set1, params);
         }

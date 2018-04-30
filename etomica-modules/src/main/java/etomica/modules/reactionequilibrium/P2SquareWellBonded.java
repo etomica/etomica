@@ -35,7 +35,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 
     private static final long serialVersionUID = 1L;
 	private double barrier;
-    protected AtomLeafAgentManager agentManager;
+    protected AtomLeafAgentManager<IAtom> agentManager;
 
 	// *** Below are different types of constructor functions that Make P2SqaredWells ***	
 
@@ -45,7 +45,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 		// bondchange event
 //	}
 
-	public P2SquareWellBonded(Space space, AtomLeafAgentManager aam, double coreDiameter, double lambda, double epsilon, boolean ignoreOverlap) {
+	public P2SquareWellBonded(Space space, AtomLeafAgentManager<IAtom> aam, double coreDiameter, double lambda, double epsilon, boolean ignoreOverlap) {
 		super(space, coreDiameter, lambda, epsilon, ignoreOverlap);
         agentManager = aam;
 	}

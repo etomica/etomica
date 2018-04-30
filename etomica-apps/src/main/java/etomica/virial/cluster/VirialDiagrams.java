@@ -312,7 +312,7 @@ public class VirialDiagrams {
         if (p == null) {
             makeVirialDiagrams();
         }
-        GraphList<Graph> allP = makeGraphList();
+        GraphList allP = makeGraphList();
         if (getMultiGraphs) {
             if (!multibody) throw new RuntimeException("oops");
             if (doMinimalMulti) {
@@ -353,7 +353,7 @@ public class VirialDiagrams {
                 }
             }
         }
-        GraphList<Graph> pn = makeGraphList();
+        GraphList pn = makeGraphList();
         for (Graph g : allP) {
             int fieldCount = 0;
             for (Node node : g.nodes()) {
@@ -927,7 +927,7 @@ public class VirialDiagrams {
         if (p == null) {
             makeVirialDiagrams();
         }
-        GraphList<Graph> dpn = makeGraphList();
+        GraphList dpn = makeGraphList();
         for (Graph g : disconnectedP) {
             if (NumFieldNodes.value(g) == n) {
                 dpn.add(g);
@@ -955,7 +955,7 @@ public class VirialDiagrams {
         Property happyArticulation = new ArticulatedAt0(doExchange, multibody ? mmBond : '0');
         MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOp.GraphOpNull(), happyArticulation);
         // we want gSplit unsorted
-        Set<Graph> gSplit = new GraphList<Graph>(null);
+        Set<Graph> gSplit = new GraphList(null);
         Set<Graph> gSplit1 = splitGraph.apply(g);
         for (Graph gs : gSplit1) {
             // the graph we get from splitting might not be in our preferred bonding arrangement
@@ -965,13 +965,13 @@ public class VirialDiagrams {
         return gSplit;
     }
 
-    public static GraphList<Graph> makeGraphList() {
+    public static GraphList makeGraphList() {
         ComparatorChain comp = new ComparatorChain();
         comp.addComparator(new ComparatorNumFieldNodesExchange());
         comp.addComparator(new ComparatorBiConnected());
         comp.addComparator(new ComparatorNumEdges());
         comp.addComparator(new ComparatorNumNodes());
-        GraphList<Graph> graphList = new GraphList<Graph>(comp);
+        GraphList graphList = new GraphList(comp);
         return graphList;
     }
 
@@ -1026,7 +1026,7 @@ public class VirialDiagrams {
 
         final HashMap<Character,Integer> colorOrderMap = initMetaDataComparator();
 
-        GraphList<Graph> topSet = makeGraphList();
+        GraphList topSet = makeGraphList();
 
         char oneBond = 'o';
         Metadata.COLOR_MAP.put(eBond, "red");
@@ -1341,7 +1341,7 @@ public class VirialDiagrams {
             }
         };
 
-        GraphList<Graph> topSet = makeGraphList();
+        GraphList topSet = makeGraphList();
 
         char oneBond = 'o';
         IsoFree isoFree = new IsoFree();
@@ -2299,10 +2299,10 @@ outer:                      for (int i=1; i<biComp.size(); i++) {
         }
 
 
-        GraphList<Graph> pFinal = makeGraphList();
+        GraphList pFinal = makeGraphList();
         pFinal.addAll(p);
         p = pFinal;
-        GraphList<Graph> disconnectedPFinal = makeGraphList();
+        GraphList disconnectedPFinal = makeGraphList();
         disconnectedPFinal.addAll(disconnectedP);
         disconnectedP = disconnectedPFinal;
 

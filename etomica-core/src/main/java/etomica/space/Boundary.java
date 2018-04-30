@@ -39,7 +39,7 @@ public abstract class Boundary {
         this.shape = shape;
         double zip[] = new double[space.D()];
         for (int i = 0; i < space.D(); i++) zip[i] = 0.0;
-        center = space.makeVector(zip);
+        center = Vector.of(zip);
         eventManager = new BoundaryEventManager();
     }
 

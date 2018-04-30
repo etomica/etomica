@@ -28,6 +28,7 @@ import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
@@ -88,7 +89,7 @@ public class TestSWChain extends Simulation {
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
         nonBondedCriterion.setBonded(false);
         sqwCriterion.setIntraMolecularCriterion(nonBondedCriterion);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
+        box.getBoundary().setBoxSize(Vector.of(l, l, l));
         box.setNMolecules(species, numMolecules);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         config.initializeCoordinates(box);

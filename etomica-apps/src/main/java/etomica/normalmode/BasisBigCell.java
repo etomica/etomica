@@ -42,7 +42,7 @@ public class BasisBigCell extends Basis {
         
         Box box = new Box(boundary, space);
         sim.addBox(box);
-        Vector vector = space.makeVector(nSubCells);
+        Vector vector = Vector.of(nSubCells);
         box.getBoundary().setBoxSize(vector);
         int numMolecules = subBasis.getScaledCoordinates().length;
         for (int i=0; i<nSubCells.length; i++) {

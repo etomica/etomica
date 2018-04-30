@@ -172,9 +172,9 @@ public class BoundaryTruncatedOctahedron extends Boundary {
         double x = dimensions.getX(0)*.5;
         if(vecs == null || vecs[0].getX(0) == 0) {
           vecs = new Vector[] {
-              space.makeVector(new double[]{-x,x,x}),
-              space.makeVector(new double[]{x,-x,x}),
-              space.makeVector(new double[]{x,x,-x}) };
+                  Vector.of(-x, x, x),
+                  Vector.of(x, -x, x),
+                  Vector.of(x, x, -x)};
         }
         else if(vecs[1].getX(0) != x) {
           double ratio = x/vecs[1].getX(0);

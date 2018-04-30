@@ -25,6 +25,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.units.Kelvin;
@@ -46,7 +47,7 @@ public class WaterTrimer {
         ConfigurationWater3_3P config = new ConfigurationWater3_3P();
 //        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(), space);
         config.initializeCoordinates(box);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{15, 15, 15}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{15, 15, 15}));
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.001;
         int maxIterations = 20;

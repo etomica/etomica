@@ -46,7 +46,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     
     public void initializeCoordinates(int[] nCells) {
         super.initializeCoordinates(nCells);
-        moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
+        moleculeSiteManager = new MoleculeAgentManager<>(sim, box, new MoleculeSiteSource(space, positionDefinition));
     }
 
     public double[] calcU(IMoleculeList molecules) {
@@ -100,7 +100,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     }
     
     public Vector getLatticePosition(IMolecule molecule) {
-        return (Vector)moleculeSiteManager.getAgent(molecule);
+        return moleculeSiteManager.getAgent(molecule);
     }
     
     public void setPositionDefinition(IMoleculePositionDefinition positionDefinition) {
@@ -118,7 +118,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     
     private static final long serialVersionUID = 1L;
     protected final Simulation sim;
-    protected MoleculeAgentManager moleculeSiteManager;
+    protected MoleculeAgentManager<Vector> moleculeSiteManager;
     protected final Vector work1;
     protected final double[] u;
     protected IMoleculePositionDefinition positionDefinition;
@@ -126,19 +126,19 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     protected Vector initVolume;
     protected final BoxInflate inflate;
 
-    protected static class MoleculeSiteSource implements MoleculeAgentSource, Serializable {
+    protected static class MoleculeSiteSource implements MoleculeAgentSource<Vector>, Serializable {
         
         public MoleculeSiteSource(Space space, IMoleculePositionDefinition positionDefinition) {
             this.space = space;
             this.positionDefinition = positionDefinition;
         }
 
-        public Object makeAgent(IMolecule molecule) {
+        public Vector makeAgent(IMolecule molecule) {
             Vector vector = space.makeVector();
             vector.E(positionDefinition.position(molecule));
             return vector;
         }
-        public void releaseAgent(Object agent, IMolecule molecule) {
+        public void releaseAgent(Vector agent, IMolecule molecule) {
             //nothing to do
         }
 

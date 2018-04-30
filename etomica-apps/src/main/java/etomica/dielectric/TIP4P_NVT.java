@@ -108,7 +108,7 @@ public class TIP4P_NVT extends Simulation {
          addSpecies(species);
          box = this.makeBox();
          box.setNMolecules(species, numberMolecules);
-         box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize, boxSize, boxSize}));
+         box.getBoundary().setBoxSize(Vector.of(new double[]{boxSize, boxSize, boxSize}));
          //	 double mu=168.96979945736229;//in simulation unit
 
          //for potential truncated

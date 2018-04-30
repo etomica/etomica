@@ -34,7 +34,7 @@ public class OrientationCalcWater3P extends ConformationWater3P implements
         double hMass = 1.0079;
         double oMass = 15.9994;
         com0.E(new double[] {hMass*bondLengthOH, 0, 0.0});
-        com0.PEa1Tv1(hMass, space.makeVector(new double[] {bondLengthOH*Math.cos(angleHOH), bondLengthOH*Math.sin(angleHOH), 0.0}));
+        com0.PEa1Tv1(hMass, Vector.of(new double[]{bondLengthOH * Math.cos(angleHOH), bondLengthOH * Math.sin(angleHOH), 0.0}));
         com0.TE(1.0/(hMass*2+oMass));
     }
 

@@ -110,7 +110,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         Vector shape = space.makeVector();
         shape.E(dim);
         shape.PE(-boundaryPadding);
-        Vector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        Vector latticeConstantV = Vector.of(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -138,7 +138,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
             latticeScaling.E(dim);
             latticeScaling.PE(-boundaryPadding);
             latticeScaling.DE(latticeConstantV);
-            latticeScaling.DE(space.makeVector(latticeDimensions));
+            latticeScaling.DE(Vector.of(latticeDimensions));
         } else {
             latticeScaling.E(1.0);
         }

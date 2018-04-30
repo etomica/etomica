@@ -25,6 +25,7 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -58,7 +59,7 @@ public class HSMD2D_noNbr extends Simulation {
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
 
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{10, 10}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10}));
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(integrator);

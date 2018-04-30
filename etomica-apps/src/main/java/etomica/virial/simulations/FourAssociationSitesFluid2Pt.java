@@ -19,6 +19,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.*;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.util.Arrays;
@@ -150,8 +151,8 @@ public class FourAssociationSitesFluid2Pt {
 		
 		
 		if (true) {
-            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             Species species = (Species)sim.getSpecies(0);
             AtomType typeLJ = species.getAtomType(0);
@@ -161,12 +162,12 @@ public class FourAssociationSitesFluid2Pt {
             diameterManager.setDiameter(typeLJ, 0.7*sigma);
             displayBox1.setDiameterHash(diameterManager);
             OrientedFullSite[] sites = new OrientedFullSite[4];
-            sites[0] = new OrientedFullSite(space.makeVector(new double[]{0.5,0,0}), Color.BLUE, 0.2);
-            sites[1] = new OrientedFullSite(space.makeVector(new double[]{-1.0/6.0,Math.sqrt(2.0/9.0),0}), Color.BLUE, 0.2);
+            sites[0] = new OrientedFullSite(Vector.of(new double[]{0.5, 0, 0}), Color.BLUE, 0.2);
+            sites[1] = new OrientedFullSite(Vector.of(new double[]{-1.0 / 6.0, Math.sqrt(2.0 / 9.0), 0}), Color.BLUE, 0.2);
             double y23 = -1.0/(3.0*Math.sqrt(2.0));
             double z23 = -0.5*Math.sqrt(2.0/3.0);
-            sites[2] = new OrientedFullSite(space.makeVector(new double[]{-1.0/6.0,y23,z23}), Color.GREEN, 0.2);
-            sites[3] = new OrientedFullSite(space.makeVector(new double[]{-1.0/6.0,y23,-z23}), Color.GREEN, 0.2);
+            sites[2] = new OrientedFullSite(Vector.of(new double[]{-1.0 / 6.0, y23, z23}), Color.GREEN, 0.2);
+            sites[3] = new OrientedFullSite(Vector.of(new double[]{-1.0 / 6.0, y23, -z23}), Color.GREEN, 0.2);
             ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setOrientationSites(
                     (AtomTypeOriented) typeLJ, sites);
             ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setOrientationSites(

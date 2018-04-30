@@ -107,16 +107,16 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 2);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100, 100, 100}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
         IMolecule mol0 = box.getMoleculeList().get(0);
         IMolecule mol1 = box.getMoleculeList().get(1);
 
-        mol0.getChildList().get(0).getPosition().E(space.makeVector(new double[]{0.000000, 0, 0.000000}));
-        mol0.getChildList().get(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, 0}));
-        mol0.getChildList().get(2).getPosition().E(space.makeVector(new double[]{1.161, 0, 0}));
-        mol1.getChildList().get(0).getPosition().E(space.makeVector(new double[]{0, 0, z}));
-        mol1.getChildList().get(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, z}));
-        mol1.getChildList().get(2).getPosition().E(space.makeVector(new double[]{1.161, 0, z}));
+        mol0.getChildList().get(0).getPosition().E(Vector.of(0.000000, 0, 0.000000));
+        mol0.getChildList().get(1).getPosition().E(Vector.of(-1.161, 0, 0));
+        mol0.getChildList().get(2).getPosition().E(Vector.of(1.161, 0, 0));
+        mol1.getChildList().get(0).getPosition().E(Vector.of(0, 0, z));
+        mol1.getChildList().get(1).getPosition().E(Vector.of(-1.161, 0, z));
+        mol1.getChildList().get(2).getPosition().E(Vector.of(1.161, 0, z));
 
 //        space.makeVector(new double[]{ 1.000000,-11.000000,-5.000000 })
 //        space.makeVector(new double[]{ 0.732908,-10.699688,-3.910782 })
@@ -174,20 +174,20 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 3);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100, 100, 100}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
         IMolecule mol0 = box.getMoleculeList().get(0);
         IMolecule mol1 = box.getMoleculeList().get(1);
         IMolecule mol2 = box.getMoleculeList().get(2);
 
-        mol0.getChildList().get(0).getPosition().E(space.makeVector(new double[]{0.000000, 0, 0.000000}));
-        mol0.getChildList().get(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, 0}));
-        mol0.getChildList().get(2).getPosition().E(space.makeVector(new double[]{1.161, 0, 0}));
-        mol1.getChildList().get(0).getPosition().E(space.makeVector(new double[]{0, 0, z1}));
-        mol1.getChildList().get(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, z1}));
-        mol1.getChildList().get(2).getPosition().E(space.makeVector(new double[]{1.161, 0, z1}));
-        mol2.getChildList().get(0).getPosition().E(space.makeVector(new double[]{0, y2, 0}));
-        mol2.getChildList().get(1).getPosition().E(space.makeVector(new double[]{-1.161, y2, 0}));
-        mol2.getChildList().get(2).getPosition().E(space.makeVector(new double[]{1.161, y2, 0}));
+        mol0.getChildList().get(0).getPosition().E(Vector.of(0.000000, 0, 0.000000));
+        mol0.getChildList().get(1).getPosition().E(Vector.of(-1.161, 0, 0));
+        mol0.getChildList().get(2).getPosition().E(Vector.of(1.161, 0, 0));
+        mol1.getChildList().get(0).getPosition().E(Vector.of(0, 0, z1));
+        mol1.getChildList().get(1).getPosition().E(Vector.of(-1.161, 0, z1));
+        mol1.getChildList().get(2).getPosition().E(Vector.of(1.161, 0, z1));
+        mol2.getChildList().get(0).getPosition().E(Vector.of(0, y2, 0));
+        mol2.getChildList().get(1).getPosition().E(Vector.of(-1.161, y2, 0));
+        mol2.getChildList().get(2).getPosition().E(Vector.of(1.161, y2, 0));
 
         Map<AtomType, GCPMAgent> typeManager = new HashMap<>();
         double qC = Electron.UNIT.toSim(0.6642);
@@ -229,15 +229,15 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         Box box = new Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesWaterCOM, 3);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100, 100, 100}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
         IMolecule mol0 = box.getMoleculeList().get(0);
         IMolecule mol1 = box.getMoleculeList().get(1);
         IMolecule mol2 = box.getMoleculeList().get(2);
 
         MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(space);
-        translator.setDestination(space.makeVector(new double[]{0, 0, z1}));
+        translator.setDestination(Vector.of(0, 0, z1));
         translator.actionPerformed(mol1);
-        translator.setDestination(space.makeVector(new double[]{0, y2, 0}));
+        translator.setDestination(Vector.of(0, y2, 0));
         translator.actionPerformed(mol2);
 
         Map<AtomType, GCPMAgent> typeManager = new HashMap<>();
@@ -258,14 +258,14 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         sim.addSpecies(speciesWater);
         box = sim.makeBox();
         box.setNMolecules(speciesWater, 3);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100, 100, 100}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
         mol0 = box.getMoleculeList().get(0);
         mol1 = box.getMoleculeList().get(1);
         mol2 = box.getMoleculeList().get(2);
 
-        translator.setDestination(space.makeVector(new double[]{0, 0, z1}));
+        translator.setDestination(Vector.of(0, 0, z1));
         translator.actionPerformed(mol1);
-        translator.setDestination(space.makeVector(new double[]{0, y2, 0}));
+        translator.setDestination(Vector.of(0, y2, 0));
         translator.actionPerformed(mol2);
 
         PNWaterGCPM p2c = new PNWaterGCPM(space);

@@ -67,7 +67,7 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialLS extend
 		box.setNMolecules(species, numMolecule);
 
 		int[] nCells = new int[]{1, 1, 1};
-		boundary.setBoxSize(space.makeVector(new double[]{nCell * unitCellLength, nCell * unitCellLength, nCell * unitCellLength}));
+		boundary.setBoxSize(Vector.of(new double[]{nCell * unitCellLength, nCell * unitCellLength, nCell * unitCellLength}));
 		Primitive primitive = new PrimitiveCubic(space, nCell * unitCellLength);
 
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);

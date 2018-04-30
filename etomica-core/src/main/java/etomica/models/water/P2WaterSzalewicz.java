@@ -80,7 +80,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         sites = new Vector[siteDoubles.length];
         for (int i=0; i<sites.length; i++) {
             siteDoubles[i][2] -= cmzFix;
-            sites[i] = Space3D.getInstance().makeVector(siteDoubles[i]);
+            sites[i] = Vector.of(siteDoubles[i]);
         }
     }
 
@@ -265,7 +265,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         Vector[] siteV = new Vector[siteDoubles.length];
         double bohrConv = BohrRadius.UNIT.toSim(1);
         for (int i=0; i<siteV.length; i++) {
-            siteV[i] = space.makeVector(siteDoubles[i]);
+            siteV[i] = Vector.of(siteDoubles[i]);
             siteV[i].TE(bohrConv);
         }
         return siteV;
@@ -1408,7 +1408,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(species, 2);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
         IAtomList pair = box.getLeafList();
         IAtomOriented atom1 = (IAtomOriented)pair.get(0);
         IAtomOriented atom2 = (IAtomOriented)pair.get(1);
@@ -1422,8 +1422,8 @@ public class P2WaterSzalewicz implements IPotentialTorque {
 
         System.out.println("or0: "+((IAtomOriented)pair.get(0)).getOrientation().getDirection()+" "+((OrientationFull3D)((IAtomOriented)pair.get(0)).getOrientation()).getSecondaryDirection());
         System.out.println("or1: "+atom1.getOrientation().getDirection()+" "+((OrientationFull3D)atom1.getOrientation()).getSecondaryDirection());
-        Vector d1 = space.makeVector(new double[]{2.9073039245633998, 0.0000000000000000, 0.0000000000000000});
-        Vector d2 = space.makeVector(new double[]{0.0000000000000000, 0.41344259999999999, 0.0000000000000000});
+        Vector d1 = Vector.of(new double[]{2.9073039245633998, 0.0000000000000000, 0.0000000000000000});
+        Vector d2 = Vector.of(new double[]{0.0000000000000000, 0.41344259999999999, 0.0000000000000000});
         d1.normalize();
         d2.normalize();
         d1.E(new double[]{1.1732683191861213, 2.4157477549321920, -1.1135620079348942});
@@ -1457,7 +1457,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(species, 3);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{1000,1000,1000}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{1000, 1000, 1000}));
         IAtomList triplet = box.getLeafList();
         IAtomOriented atom1 = (IAtomOriented)triplet.get(0);
         IAtomOriented atom2 = (IAtomOriented)triplet.get(1);
@@ -1517,12 +1517,12 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesH2O, 2);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
         IAtomList pair = box.getLeafList();
         IAtomOriented atom0 = (IAtomOriented)pair.get(0);
         IAtomOriented atom1 = (IAtomOriented)pair.get(1);
 //        ((IAtomOriented)pair.getAtom(0)).getOrientation().setDirection(space.makeVector(new double[]{Math.cos(22.5/180.0*Math.PI), Math.sin(22.5/180.0*Math.PI),0}));
-        Vector o1 = space.makeVector(new double[]{-1,0,0});
+        Vector o1 = Vector.of(new double[]{-1, 0, 0});
         atom0.getOrientation().setDirection(o1);
         atom1.getOrientation().setDirection(o1);
         P2WaterSzalewicz p2 = new P2WaterSzalewicz(space, 2);
@@ -1533,7 +1533,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         double dx = 0.0001;
         Vector x = null;
         Vector y = null;
-        Vector z = space.makeVector(new double[]{0,0,1});
+        Vector z = Vector.of(new double[]{0, 0, 1});
         atom1.getPosition().setX(0, 5);
 //        ((OrientationFull3D)atom1.getOrientation()).rotateBy(-Math.atan2(p2.sitesHH*0.5,p2.sitesOH-cmx), z);
 //        ((OrientationFull3D)atom1.getOrientation()).rotateBy(Math.PI/2, y);
@@ -1633,7 +1633,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         Box box = new etomica.box.Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesH2O, 2);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
         IAtomList pair = box.getLeafList();
         IAtomOriented atom0 = (IAtomOriented)pair.get(0);
         IAtomOriented atom1 = (IAtomOriented)pair.get(1);
@@ -1663,7 +1663,7 @@ public class P2WaterSzalewicz implements IPotentialTorque {
         p1.setX(0, BohrRadius.UNIT.toSim(6));
         p1.setX(1, BohrRadius.UNIT.toSim(6));
         p1.setX(2, BohrRadius.UNIT.toSim(0));
-        or1.setDirections(space.makeVector(new double[]{0,0,1}),space.makeVector(new double[]{1,0,0}));
+        or1.setDirections(Vector.of(new double[]{0, 0, 1}),Vector.of(new double[]{1, 0, 0}));
         uc = p2.energy(pair);
         usc = p2SC.energy(pair);
         ucsc = p2CSC.energy(pair);

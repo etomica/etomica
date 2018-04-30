@@ -20,6 +20,7 @@ import etomica.math.function.IFunction;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotential;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.dimensions.Null;
@@ -322,7 +323,7 @@ public class VirialHS {
         }
 
         if (false) {
-            sim.box.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
+            sim.box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box); 
 //            displayBox0.setPixelUnit(new Pixel(300.0/size));

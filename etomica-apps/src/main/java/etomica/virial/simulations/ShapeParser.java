@@ -36,7 +36,7 @@ public class ShapeParser {
                 for (int i=0; i<3; i++) {
                     xyz[i] = Double.parseDouble(spl[i]);
                 }
-                shape.vertices.add(space.makeVector(xyz));
+                shape.vertices.add(Vector.of(xyz));
             }
             bufReader.close();
             shape.B2 = 4*shape.volume*shape.vEHS;

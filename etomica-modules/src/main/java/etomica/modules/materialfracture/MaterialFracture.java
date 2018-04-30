@@ -46,7 +46,7 @@ public class MaterialFracture extends Simulation {
 
         PotentialMaster potentialMaster = new PotentialMaster();
         box = this.makeBox(new BoundaryRectangularSlit(0, space));
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{90, 30}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{90, 30}));
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setIsothermal(true);
         integrator.setTemperature(300.0);
@@ -66,7 +66,7 @@ public class MaterialFracture extends Simulation {
         potentialMaster.addPotential(pt, new AtomType[]{species.getLeafType(), species.getLeafType()});
         potentialMaster.addPotential(p1Tension, new AtomType[]{species.getLeafType()});
 
-        PrimitiveGeneral primitive = new PrimitiveGeneral(space, new Vector[]{space.makeVector(new double[]{Math.sqrt(3), 0}), space.makeVector(new double[]{0, 1})});
+        PrimitiveGeneral primitive = new PrimitiveGeneral(space, new Vector[]{Vector.of(new double[]{Math.sqrt(3), 0}), Vector.of(new double[]{0, 1})});
         config = new ConfigurationLattice(new BravaisLatticeCrystal(primitive, new BasisOrthorhombicHexagonal()), space) {
             public void initializeCoordinates(Box aBox) {
                 Vector d = space.makeVector();

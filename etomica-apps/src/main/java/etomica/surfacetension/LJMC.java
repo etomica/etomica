@@ -116,14 +116,14 @@ public class LJMC extends Simulation {
         //initialize box to just liquid size, put atoms on FCC lattice
         int nL = (int) ((Lx * xL * Lyz * Lyz) * rhoL);
         box.setNMolecules(species, nL);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{Lx * xL, Lyz, Lyz}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{Lx * xL, Lyz, Lyz}));
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         // then expand box size
 
         Box boxV = new Box(space);
         addBox(boxV);
         boxV.setNMolecules(species, numAtoms - nL);
-        boxV.getBoundary().setBoxSize(space.makeVector(new double[]{Lx * (1 - xL), Lyz, Lyz}));
+        boxV.getBoundary().setBoxSize(Vector.of(new double[]{Lx * (1 - xL), Lyz, Lyz}));
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(boxV);
 
         box.setNMolecules(species, numAtoms);
@@ -139,7 +139,7 @@ public class LJMC extends Simulation {
             }
         }
 
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{Lx, Lyz, Lyz}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{Lx, Lyz, Lyz}));
 
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
     }

@@ -39,7 +39,8 @@ public class Factor implements Unary {
     }
     return result;
   }
-    
+
+  @SuppressWarnings("unchecked")
   public Graph apply(Graph g, MulFlexibleParameters mfp) {
     if (!hap.check(g)) {
       return g.copy();

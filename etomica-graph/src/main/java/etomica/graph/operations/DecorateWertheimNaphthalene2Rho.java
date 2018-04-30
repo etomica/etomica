@@ -15,14 +15,7 @@ import etomica.graph.model.GraphFactory;
 import etomica.graph.model.GraphList;
 import etomica.graph.model.Metadata;
 import etomica.graph.model.Node;
-import etomica.graph.model.comparators.ComparatorBiConnected;
-import etomica.graph.model.comparators.ComparatorChain;
-import etomica.graph.model.comparators.ComparatorNumEdges;
-import etomica.graph.model.comparators.ComparatorNumFieldNodes;
-import etomica.graph.model.comparators.ComparatorNumNodes;
-import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
-import etomica.graph.viewer.ClusterViewer;
 
 /**
  * modified from Hye Min's DecorateWertheim2SiteRho class
@@ -124,7 +117,7 @@ public class DecorateWertheimNaphthalene2Rho implements Unary {
        
       Set<Graph> result = new HashSet<Graph>();    
       ArrayList<Graph> pool = new ArrayList<Graph>();
-      Set<Graph> product = new GraphList<Graph>();
+      Set<Graph> product = new GraphList();
       pool.addAll(argument);
       
       while (!pool.isEmpty()){
@@ -214,7 +207,7 @@ public class DecorateWertheimNaphthalene2Rho implements Unary {
           }
           if ((foundSigmaPoint & maskB) != 0){
         	  Set<Graph> g1 = new HashSet<Graph>();//single diagram
-              Set<Graph> product1 = new GraphList<Graph>();
+              Set<Graph> product1 = new GraphList();
               for (Graph gP:product){
             	  g1.clear();
             	  g1.add(gP);
@@ -235,7 +228,7 @@ public class DecorateWertheimNaphthalene2Rho implements Unary {
           }
           if ((foundSigmaPoint & maskAB) != 0){
         	  Set<Graph> g1 = new HashSet<Graph>();//single diagram
-              Set<Graph> product1 = new GraphList<Graph>();
+              Set<Graph> product1 = new GraphList();
               for (Graph gP:product){
             	  g1.clear();
             	  g1.add(gP);

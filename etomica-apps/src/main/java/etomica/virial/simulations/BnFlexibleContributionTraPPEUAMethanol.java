@@ -15,6 +15,7 @@ import etomica.models.traPPE.SpeciesMethanol;
 import etomica.potential.P3BondAngle;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.units.Kelvin;
@@ -299,8 +300,8 @@ public class BnFlexibleContributionTraPPEUAMethanol {
 
         if (graphics) {
 
-            referenceBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            targetBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
+            referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            targetBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(referenceBox).setShowBoundary(false);
             simGraphic.getDisplayBox(targetBox).setShowBoundary(false);

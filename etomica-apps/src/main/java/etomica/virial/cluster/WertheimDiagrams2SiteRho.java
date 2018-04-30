@@ -144,8 +144,8 @@ public class WertheimDiagrams2SiteRho {
         if (p == null) {
             makeWertheimDiagrams();
         }
-        GraphList<Graph> pn = makeGraphList();
-        GraphList<Graph> allP = makeGraphList();
+        GraphList pn = makeGraphList();
+        GraphList allP = makeGraphList();
         allP.addAll(p);
         if (!connectedOnly) {
             allP.addAll(cancelP);
@@ -299,7 +299,7 @@ public class WertheimDiagrams2SiteRho {
         if (p == null) {
             makeWertheimDiagrams();
         }
-        GraphList<Graph> dpn = makeGraphList();
+        GraphList dpn = makeGraphList();
         for (Graph g : disconnectedP) {
             int fieldCount = 0;
             for (Node node : g.nodes()) {
@@ -348,13 +348,13 @@ public class WertheimDiagrams2SiteRho {
         return map;
     }
 
-    public static GraphList<Graph> makeGraphList() {
+    public static GraphList makeGraphList() {
         ComparatorChain comp = new ComparatorChain();
         comp.addComparator(new ComparatorNumFieldNodes());
         comp.addComparator(new ComparatorBiConnected());
         comp.addComparator(new ComparatorNumEdges());
         comp.addComparator(new ComparatorNumNodes());
-        GraphList<Graph> graphList = new GraphList<Graph>(comp);
+        GraphList graphList = new GraphList(comp);
         return graphList;
     }        
     
@@ -389,7 +389,7 @@ public class WertheimDiagrams2SiteRho {
                 }
             };
 
-        GraphList<Graph> topSet = makeGraphList();
+        GraphList topSet = makeGraphList();
 
         char oneBond = 'o';
         mBond = 'm';  // multi-body
@@ -689,7 +689,7 @@ public class WertheimDiagrams2SiteRho {
             }
         };
 
-        GraphList<Graph> topSet = makeGraphList();
+        GraphList topSet = makeGraphList();
 
         char oneBond = 'o';
         mBond = 'm';  // multi-body
@@ -1088,7 +1088,7 @@ public class WertheimDiagrams2SiteRho {
 
         // attempt to factor any graphs with an articulation point
         cancelMap = new HashMap<Graph,Set<Graph>>();
-        cancelP = new GraphList<Graph>();
+        cancelP = new GraphList();
         disconnectedP = new HashSet<Graph>();
         if (!flex) {
             HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
@@ -1193,17 +1193,17 @@ public class WertheimDiagrams2SiteRho {
             PCopy pcopy = new PCopy();
             IteratorWrapper wrapper = new IteratorWrapper(pcopy.apply(cancelP, null).iterator());
             GraphIterator isomorphs = new IdenticalGraphFilter(wrapper);
-            cancelP = new GraphList<Graph>();
+            cancelP = new GraphList();
             while (isomorphs.hasNext()) {
                 cancelP.add(isomorphs.next());
             }
         }
 
 
-        GraphList<Graph> pFinal = makeGraphList();
+        GraphList pFinal = makeGraphList();
         pFinal.addAll(p);
         p = pFinal;
-        GraphList<Graph> disconnectedPFinal = makeGraphList();
+        GraphList disconnectedPFinal = makeGraphList();
         disconnectedPFinal.addAll(disconnectedP);
         disconnectedP = disconnectedPFinal;
 

@@ -132,8 +132,8 @@ public class VirialB3C2TIP4Pwater {
         }
         if (false) {
             double size = 20;
-            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size, size, size}));
-            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size, size, size}));
+            sim.box[0].getBoundary().setBoxSize(Vector.of(size, size, size));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(size, size, size));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setPixelUnit(new Pixel(300.0 / size));
             simGraphic.getDisplayBox(sim.box[1]).setPixelUnit(new Pixel(300.0 / size));

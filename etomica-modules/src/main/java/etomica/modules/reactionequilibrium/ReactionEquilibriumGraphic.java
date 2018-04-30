@@ -10,15 +10,12 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.config.Configuration;
-import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.types.DataTable;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.graphics.DisplayTextBox.LabelType;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2SquareWell;
@@ -63,9 +60,6 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         getDisplayBox(sim.box).setPixelUnit(new Pixel(5));
-
-        Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space);
-        config.initializeCoordinates(sim.box);
 
 		temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integratorHard1);
         sim.integratorHard1.getEventManager().addListener(new IntegratorListenerAction(this.getPaintAction(sim.box)));

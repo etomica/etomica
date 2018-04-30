@@ -272,7 +272,7 @@ public class VirialPolyhedra2 {
         if (doHist) sim.integrator.getEventManager().addListener(histListenerRingy);
 
         if (false) {
-            sim.box.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
+            sim.box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box); 
 //            displayBox0.setPixelUnit(new Pixel(300.0/size));

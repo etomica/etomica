@@ -16,6 +16,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
@@ -68,7 +69,7 @@ public class TestHSMD3D extends Simulation {
         potentialMaster.addPotential(new P2HardSphere(space, sigma, false), new AtomType[]{type2, type2});
         box.setNMolecules(species, numAtoms);
         box.setNMolecules(species2, numAtoms / 100);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
+        box.getBoundary().setBoxSize(Vector.of(l, l, l));
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         config.initializeCoordinates(box);
 

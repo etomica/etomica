@@ -146,8 +146,8 @@ public class VirialB2WaterTIP4P_DHS_difference {
 
         if (false) {
             double size = 20;
-            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size, size, size}));
-            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size, size, size}));
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setPixelUnit(new Pixel(300.0 / size));
             simGraphic.getDisplayBox(sim.box[1]).setPixelUnit(new Pixel(300.0 / size));

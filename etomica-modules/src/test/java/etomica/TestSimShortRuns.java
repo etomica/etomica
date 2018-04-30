@@ -1,21 +1,15 @@
 package etomica;
 
 import etomica.integrator.Integrator;
-import etomica.modules.osmosis.OsmosisSim;
-import etomica.modules.reactionequilibrium.ReactionEquilibrium;
-import etomica.normalmode.NormalModeAnalysisDisplay2D;
-import etomica.normalmode.NormalModeAnalysisDisplay3D;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -23,7 +17,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static etomica.TestSimConstructors.SCAN;
 
@@ -32,11 +25,8 @@ public class TestSimShortRuns {
 
     /**
      * Sim classes that are excluded for various reasons causing them not to work with the reflection hacks here.
-     * Currently these just don't initialize box coordinates in the constructor causing a ConfigurationOverlapException
      */
     private static final Set<Class<?>> EXCLUDED = new HashSet<>(Arrays.asList(
-            OsmosisSim.class,
-            ReactionEquilibrium.class
     ));
 
     static List<Arguments> getIntegrators() throws IllegalAccessException, InstantiationException, InvocationTargetException {
@@ -69,11 +59,10 @@ public class TestSimShortRuns {
                 }
 
                 integratorFields.get(0).setAccessible(true);
-                args.add(Arguments.of(cl, (Integrator)integratorFields.get(0).get(sim)));
+                args.add(Arguments.of(cl, integratorFields.get(0).get(sim)));
             }
         }
 
-        System.out.println(args);
         return args;
     }
 
@@ -88,9 +77,8 @@ public class TestSimShortRuns {
                 }
             });
             Thread.sleep(400);
-            reporter.publishEntry(simClass + " steps", Long.toString(simIntegrator.getStepCount()));
             future.cancel(true);
         });
-
+        reporter.publishEntry(simClass + " steps", Long.toString(simIntegrator.getStepCount()));
     }
 }

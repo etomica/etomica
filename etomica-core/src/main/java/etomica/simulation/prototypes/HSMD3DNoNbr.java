@@ -19,6 +19,7 @@ import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -59,7 +60,7 @@ public class HSMD3DNoNbr extends Simulation {
         potential = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
         box.setNMolecules(species, numAtoms);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{l, l, l}));
 //        box.setBoundary(new BoundaryTruncatedOctahedron(space));
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);

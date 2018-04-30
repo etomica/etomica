@@ -29,6 +29,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
@@ -89,7 +90,7 @@ public class LJNPT extends Simulation {
         integrator.getMoveManager().setFrequency(mcMoveVolume, 5);
 
         double L = Math.pow(numAtoms / density, 1.0 / 3.0);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{L, L, L}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{L, L, L}));
         box.setNMolecules(species, numAtoms);
 
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);

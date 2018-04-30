@@ -53,9 +53,9 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential5dofLS extends Simul
         BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nCell, nCell, nCell});
 
         Vector[] boxDim = new Vector[3];
-        boxDim[0] = space.makeVector(new double[]{nCell * aDim, 0, 0});
-        boxDim[1] = space.makeVector(new double[]{-nCell * aDim * Math.cos(Degree.UNIT.toSim(60)), nCell * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
-        boxDim[2] = space.makeVector(new double[]{0, 0, nCell * cDim});
+        boxDim[0] = Vector.of(new double[]{nCell * aDim, 0, 0});
+        boxDim[1] = Vector.of(new double[]{-nCell * aDim * Math.cos(Degree.UNIT.toSim(60)), nCell * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
+        boxDim[2] = Vector.of(new double[]{0, 0, nCell * cDim});
 
         int[] nCells = new int[]{1, 1, 1};
         Boundary boundary = new BoundaryDeformablePeriodicSwitch(space, boxDim);
