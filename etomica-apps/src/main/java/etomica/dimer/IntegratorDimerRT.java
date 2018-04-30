@@ -297,7 +297,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 		box1 = sim.makeBox(box.getBoundary());
 		box2 = sim.makeBox(box.getBoundary());
 
-		if (potentialMaster instanceof PotentialMasterListDimer) {
+		if (potentialMaster instanceof PotentialMasterList) {
 			this.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box1));
 		}
 

@@ -14,7 +14,6 @@ import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterMeanSquareDisplacement;
 import etomica.dimer.IntegratorDimerMin;
-import etomica.dimer.PotentialMasterListDimer;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
@@ -386,7 +385,7 @@ public class IntegratorKMCCluster extends IntegratorBox{
         integratorMin1 = new IntegratorDimerMin(sim, potentialMaster, species, true, box);
         integratorMin2 = new IntegratorDimerMin(sim, potentialMaster, species, false, box);
 
-        if (potentialMaster instanceof PotentialMasterListDimer) {
+        if (potentialMaster instanceof PotentialMasterList) {
             integratorMin2.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box));
         }
 

@@ -209,7 +209,7 @@ public class IntegratorDimerMin extends IntegratorBox {
 
 		boxMin = sim.makeBox(box.getBoundary());
 
-		if (potentialMaster instanceof PotentialMasterListDimer) {
+		if (potentialMaster instanceof PotentialMasterList) {
 			getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(boxMin));
 		}
 
