@@ -339,7 +339,7 @@ public class CalcFFT {
 		comp.addComparator(new ComparatorBiConnected());
 		comp.addComparator(new ComparatorNumEdges());
 		comp.addComparator(new ComparatorNumNodes());
-	    GraphList<Graph> graphList = new GraphList<Graph>(comp);
+	    GraphList graphList = new GraphList(comp);
 		MaxIsomorph maxIso = new MaxIsomorph();
 		MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOp.GraphOpNull(), MaxIsomorph.PROPERTY_ALL);
 		
@@ -348,8 +348,8 @@ public class CalcFFT {
 		}
 		long t1 = System.currentTimeMillis();
 		FFTDecomposition isFFT = new FFTDecomposition();
-		Set<Graph> fftSet = new GraphList<Graph>(comp);
-        Set<Graph> notfftSet = new GraphList<Graph>(comp);
+		Set<Graph> fftSet = new GraphList(comp);
+        Set<Graph> notfftSet = new GraphList(comp);
 		//    System.out.println("FFT");
 		
         double BnValue = 0;

@@ -5,7 +5,6 @@
 package etomica.graph.operations;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -24,7 +23,7 @@ public class Split implements Unary {
   public Set<Graph> apply(Set<Graph> argument, Parameters params) {
 
     assert (params instanceof SplitParameters);
-    Set<Graph> result = new GraphList<Graph>(null);
+    Set<Graph> result = new GraphList(null);
     int count = 0;
     long t1 = System.currentTimeMillis();
     int interval = 10000;
@@ -66,7 +65,7 @@ public class Split implements Unary {
       }
     }
 
-    Set<Graph> result = new GraphList<Graph>(null);
+    Set<Graph> result = new GraphList(null);
     // compute all possible permutations of length |edges| consisting of two colors
     // such that each of the colors can appear any number of times from 0 to |edges|
     Permutator permutations = new RangePermutator(edges.size(), 0, edges.size());

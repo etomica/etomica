@@ -10,13 +10,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import etomica.graph.iterators.IteratorWrapper;
 import etomica.graph.iterators.StoredIterator;
-import etomica.graph.iterators.filters.IdenticalGraphFilter;
 import etomica.graph.iterators.filters.PropertyFilter;
 import etomica.graph.model.BitmapFactory;
 import etomica.graph.model.Edge;
@@ -34,37 +31,24 @@ import etomica.graph.model.comparators.ComparatorNumNodes;
 import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.model.impl.GraphImpl;
 import etomica.graph.model.impl.MetadataImpl;
-import etomica.graph.operations.CombineABSite.CombineABSiteParameters;
 import etomica.graph.operations.Decorate;
 import etomica.graph.operations.Decorate.DecorateParameters;
-import etomica.graph.operations.DecorateWertheimNaphthalene2Rho;
-import etomica.graph.operations.DecorateWertheimNaphthalene2Rho.DecorateNaphthalene2Site;
 import etomica.graph.operations.DeleteEdge;
 import etomica.graph.operations.DeleteEdgeParameters;
 import etomica.graph.operations.DifByNode;
 import etomica.graph.operations.DifParameters;
 import etomica.graph.operations.Factor;
-import etomica.graph.operations.FactorOnce;
-import etomica.graph.operations.MaxIsomorphWertheim;
 import etomica.graph.operations.Unfactor;
-import etomica.graph.operations.FactorOnce.FactorOnceParameters;
 import etomica.graph.operations.IsoFree;
 import etomica.graph.operations.MaxIsomorph;
-import etomica.graph.operations.MaxIsomorphWertheim.MaxIsomorphWertheimParameters;
 import etomica.graph.operations.MulFlexible;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
 import etomica.graph.operations.MulScalar;
 import etomica.graph.operations.MulScalarParameters;
-import etomica.graph.operations.PCopy;
-import etomica.graph.operations.ReeHoover;
-import etomica.graph.operations.ReeHoover.ReeHooverParameters;
 import etomica.graph.operations.Relabel;
 import etomica.graph.operations.RelabelParameters;
-import etomica.graph.operations.RelabelWertheim;
 import etomica.graph.operations.Split;
 import etomica.graph.operations.SplitGraph;
-import etomica.graph.operations.SplitOne;
-import etomica.graph.operations.SplitOne.SplitOneParameters;
 import etomica.graph.operations.SplitParameters;
 import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.property.IsBiconnected;
@@ -76,8 +60,6 @@ import etomica.virial.ClusterSum;
 import etomica.virial.ClusterSumEF;
 import etomica.virial.ClusterSumShell;
 import etomica.virial.MayerFunction;
-import etomica.virial.cluster.BondConnectedSubstitutionNaphthalene.BondConnectedSubstitutionParameters2SiteNa;
-import etomica.virial.cluster.VirialDiagrams.ComparatorNumFieldNodesExchange;
 
 /**
  * cluster diagrams generator for ionic solutions, based on Mayer's theory
@@ -169,8 +151,8 @@ public class MayerIonicDiagram4qbonds {
         if (p == null) {
             makeVirialDiagrams();
         }
-        GraphList<Graph> pn = makeGraphList();
-        GraphList<Graph> allP = makeGraphList();
+        GraphList pn = makeGraphList();
+        GraphList allP = makeGraphList();
         allP.addAll(p);
         if (!connectedOnly) {
             allP.addAll(cancelP);
@@ -373,7 +355,7 @@ public class MayerIonicDiagram4qbonds {
         if (p == null) {
             makeVirialDiagrams();
         }
-        GraphList<Graph> dpn = makeGraphList();
+        GraphList dpn = makeGraphList();
         for (Graph g : disconnectedP) {
             int fieldCount = 0;
             for (Node node : g.nodes()) {
@@ -422,13 +404,13 @@ public class MayerIonicDiagram4qbonds {
         return map;
     }
 
-    public static GraphList<Graph> makeGraphList() {
+    public static GraphList makeGraphList() {
         ComparatorChain comp = new ComparatorChain();
         comp.addComparator(new ComparatorNumFieldNodes());// sort according to number of nodes
         comp.addComparator(new ComparatorBiConnected());// bi-connected diagrams first
         comp.addComparator(new ComparatorNumEdges());
         comp.addComparator(new ComparatorNumNodes());
-        GraphList<Graph> graphList = new GraphList<Graph>(comp);
+        GraphList graphList = new GraphList(comp);
         return graphList;
     }        
     
@@ -463,7 +445,7 @@ public class MayerIonicDiagram4qbonds {
                 }
             };
 
-        GraphList<Graph> topSet = makeGraphList();
+        GraphList topSet = makeGraphList();
         char oneBond = 'o';
         mBond = 'm';  // multi-body
         lnfXi = new HashSet<Graph>();
@@ -726,7 +708,7 @@ public class MayerIonicDiagram4qbonds {
             }
         };
 
-        GraphList<Graph> topSet = makeGraphList();
+        GraphList topSet = makeGraphList();
 
         char oneBond = 'o';
         mBond = 'm';  // multi-body

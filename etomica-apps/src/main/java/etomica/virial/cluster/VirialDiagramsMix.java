@@ -133,7 +133,7 @@ public class VirialDiagramsMix {
         comp.addComparator(new ComparatorNodeColors(nodeColors));
         comp.addComparator(new ComparatorNumEdges());
         comp.addComparator(new ComparatorNumNodes());
-        return new GraphList<Graph>(comp);
+        return new GraphList(comp);
     }
     
     public void makeRhoDiagrams() {

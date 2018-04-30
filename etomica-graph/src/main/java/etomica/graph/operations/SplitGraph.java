@@ -24,7 +24,7 @@ public class SplitGraph {
   protected IsConnected isCon = new IsConnected();
     
   public Set<Graph> apply(Graph g) {
-    Set<Graph> result = new GraphList<Graph>(null); // we want to return these in order
+    Set<Graph> result = new GraphList(null); // we want to return these in order
     if (isCon.check(g)) {
       result.add(g.copy());
       return result;

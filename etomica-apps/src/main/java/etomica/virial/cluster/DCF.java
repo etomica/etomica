@@ -37,7 +37,7 @@ public class DCF {
         comp.addComparator(new ComparatorBiConnected());
         comp.addComparator(new ComparatorNumEdges());
         comp.addComparator(new ComparatorNumNodes());
-        GraphList<Graph> graphList = new GraphList<Graph>(comp);
+        GraphList graphList = new GraphList(comp);
         for (int i=2; i<6; i++) {
             GraphIterator iter = new PropertyFilter(new DefaultIterator((byte)i, (byte)2), isBi);
             while (iter.hasNext()) {

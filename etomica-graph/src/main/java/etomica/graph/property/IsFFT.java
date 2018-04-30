@@ -266,7 +266,7 @@ public class IsFFT implements Property {
     comp.addComparator(new ComparatorBiConnected());
     comp.addComparator(new ComparatorNumEdges());
     comp.addComparator(new ComparatorNumNodes());
-    GraphList<Graph> graphList = new GraphList<Graph>(comp);
+    GraphList graphList = new GraphList(comp);
     MaxIsomorph maxIso = new MaxIsomorph();
     MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOp.GraphOpNull(), MaxIsomorph.PROPERTY_ALL);
     while (iter.hasNext()) {
@@ -274,7 +274,7 @@ public class IsFFT implements Property {
     }
     
     IsFFT isFFT = new IsFFT();
-    Set<Graph> fftSet = new GraphList<Graph>(comp);
+    Set<Graph> fftSet = new GraphList(comp);
     System.out.println("FFT");
     for (Graph g : graphList) {
       if (isFFT.check(g)) {
@@ -288,7 +288,7 @@ public class IsFFT implements Property {
 
     System.out.println("not FFT");
     iter = new PropertyFilter(new StoredIterator((byte)n), isBi);
-    Set<Graph> notFftSet = new GraphList<Graph>(comp);
+    Set<Graph> notFftSet = new GraphList(comp);
     while (iter.hasNext()) {
       Graph g = maxIso.apply(iter.next(), mip);
       if (!isFFT.check(g)) {

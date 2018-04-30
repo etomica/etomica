@@ -49,7 +49,7 @@ public class BiComponentSubst implements Unary {
   public Set<Graph> apply(Graph g, BiComponentSubstParameters params) {
     byte n = params.gComp.nodeCount();
     if (g.nodeCount() < n) {
-      GraphList<Graph> result = new GraphList<Graph>();
+      GraphList result = new GraphList();
       result.add(g.copy());
       return result;
     }
