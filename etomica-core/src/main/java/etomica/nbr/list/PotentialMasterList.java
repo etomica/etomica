@@ -37,8 +37,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
     private int cellRange;
     private double maxPotentialRange = 0;
     private double safetyFactor = 0.4;
-    // things needed for N-body potentials
-    private AtomArrayList atomArrayList;
 
     /**
      * Default constructor uses range of 1.0.
@@ -437,22 +435,19 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 case Integer.MAX_VALUE: //N-body
                     // do the calculation considering the current Atom as the
                     // "central" Atom.
-                    if (atomArrayList == null) {
-                        atomArrayList = new AtomArrayList();
-                    }
                     doNBodyStuff(atom, pc, i, potentials[i], neighborManager);
                     if (direction != IteratorDirective.Direction.UP) {
                         // must have a target and be doing "both"
                         // we have to do the calculation considering each of the
                         // target's neighbors
-                        IAtomList list = neighborManager.getUpList(atom)[i];
-                        for (int j = 0; j < list.size(); j++) {
-                            IAtom otherAtom = list.get(j);
+                        IAtomList upList = neighborManager.getUpList(atom)[i];
+                        for (int j = 0; j < upList.size(); j++) {
+                            IAtom otherAtom = upList.get(j);
                             doNBodyStuff(otherAtom, pc, i, potentials[i], neighborManager);
                         }
-                        list = neighborManager.getDownList(atom)[i];
-                        for (int j = 0; j < list.size(); j++) {
-                            IAtom otherAtom = list.get(j);
+                        IAtomList downList = neighborManager.getDownList(atom)[i];
+                        for (int j = 0; j < downList.size(); j++) {
+                            IAtom otherAtom = downList.get(j);
                             doNBodyStuff(otherAtom, pc, i, potentials[i], neighborManager);
                         }
                     }
@@ -465,19 +460,17 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * Invokes the PotentialCalculation for the given Atom with its up and down
      * neighbors as a single AtomSet.
      */
-    private void doNBodyStuff(IAtom atom, PotentialCalculation pc, int potentialIndex,
+    private static void doNBodyStuff(IAtom atom, PotentialCalculation pc, int potentialIndex,
                               IPotentialAtomic potential, NeighborListManager neighborManager) {
-        atomArrayList.add(atom);
-        IAtomList[] list = neighborManager.getUpList(atom);
-        if (potentialIndex < list.length) {
-            atomArrayList.addAll(list[potentialIndex]);
-        }
-        list = neighborManager.getDownList(atom);
-        if (potentialIndex < list.length) {
-            atomArrayList.addAll(list[potentialIndex]);
-        }
-        pc.doCalculation(atomArrayList, potential);
-        atomArrayList.clear();
+        IAtomList upList = neighborManager.getUpList(atom)[potentialIndex];
+        IAtomList downList = neighborManager.getDownList(atom)[potentialIndex];
+
+        // Pre-sizing avoids array reallocs in addAll, it can simply do System.arrayCopy each time
+        AtomArrayList atomList = new AtomArrayList(upList.size() + downList.size() + 1);
+        atomList.add(atom);
+        atomList.addAll(upList);
+        atomList.addAll(downList);
+        pc.doCalculation(atomList, potential);
     }
 
 }
