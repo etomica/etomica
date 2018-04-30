@@ -40,9 +40,10 @@ public class Adsorption extends Simulation {
     public final P2SquareWell p2AA, p2AB, p2BB;
     public final P1Wall p1WallA, p1WallB;
     public final MyMCMove mcMoveIDA, mcMoveIDB;
+    public final ConfigurationLattice config;
     
-    public Adsorption(Space _space) {
-        super(_space);
+    public Adsorption() {
+        super(Space3D.getInstance());
 
         //species
         speciesA = new SpeciesSpheresMono(space, new ElementSimple(this));
@@ -121,14 +122,15 @@ public class Adsorption extends Simulation {
 
         box.setNMolecules(speciesA, 40);
 
-        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
+        config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
+        config.setBoundaryPadding(1.2345);
         config.initializeCoordinates(box);
     }
     
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         
-        Adsorption sim = new Adsorption(space);
+        Adsorption sim = new Adsorption();
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, "Catalysis", 1);
         simGraphic.makeAndDisplayFrame();
     }

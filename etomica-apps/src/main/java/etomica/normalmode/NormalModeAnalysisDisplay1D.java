@@ -14,6 +14,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space1d.Space1D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -26,8 +27,8 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
     private static final long serialVersionUID = 1L;
 	private static final String APP_NAME = "1-D Harmonic Oscillator";
 
-	public NormalModeAnalysisDisplay1D(Space space) {
-        super(space);
+	public NormalModeAnalysisDisplay1D() {
+        super(Space1D.getInstance());
 
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
@@ -47,9 +48,7 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
 
         waveVectorFactory = nm.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(box);
-        integrator = new IntegratorHarmonic(random, 0.01, temperature, box);
-        integrator.setCoordinateDefinition(coordinateDefinition);
-        integrator.setWaveVectors(waveVectorFactory.getWaveVectors());
+        integrator = new IntegratorHarmonic(random, 0.01, temperature, box, coordinateDefinition, waveVectorFactory.getWaveVectors());
         integrator.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         integrator.setOmegaSquared(nm.getOmegaSquared(), waveVectorFactory.getCoefficients());
         integrator.setEigenVectors(nm.getEigenvectors());
@@ -70,7 +69,7 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
  
         //instantiate simulation
 		Space sp = Space.getInstance(1);
-        NormalModeAnalysisDisplay1D sim = new NormalModeAnalysisDisplay1D(sp);
+        NormalModeAnalysisDisplay1D sim = new NormalModeAnalysisDisplay1D();
         
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
         simGraphic.makeAndDisplayFrame(APP_NAME);

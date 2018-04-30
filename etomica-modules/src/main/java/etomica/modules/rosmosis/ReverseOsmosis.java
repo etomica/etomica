@@ -42,8 +42,8 @@ public class ReverseOsmosis extends Simulation {
     public P1Tether potentialTether;
     public PotentialCalculationForceSumWallForce forceSum;
     
-    public ReverseOsmosis(Space _space) {
-        super(_space);
+    public ReverseOsmosis() {
+        super(Space3D.getInstance());
 
         //solute (1)
         speciesSolute = new SpeciesSpheresMono(this, space);
@@ -152,7 +152,7 @@ public class ReverseOsmosis extends Simulation {
             } catch(NumberFormatException e) {}
         }
             
-        ReverseOsmosis sim = new ReverseOsmosis(space);
+        ReverseOsmosis sim = new ReverseOsmosis();
         sim.getController().actionPerformed();
     }//end of main
     

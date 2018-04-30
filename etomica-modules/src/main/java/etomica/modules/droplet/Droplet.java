@@ -32,8 +32,8 @@ public class Droplet extends Simulation {
     public final AtomFilterLiquid liquidFilter;
     public final MeterDeformation meterDeformation;
 
-    public Droplet(Space _space) {
-        super(_space);
+    public Droplet() {
+        super(Space3D.getInstance());
 
         //species
         species = new SpeciesSpheresMono(this, space);
@@ -86,7 +86,7 @@ public class Droplet extends Simulation {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
 
-        Droplet sim = new Droplet(space);
+        Droplet sim = new Droplet();
         sim.getController().actionPerformed();
     }//end of main
 }

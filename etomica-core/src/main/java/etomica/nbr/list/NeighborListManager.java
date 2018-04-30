@@ -140,7 +140,7 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
      * neighbor lists.  Performs this action on all boxs acted on
      * by given integrator.
      */
-    private void updateNbrsIfNeeded() {
+    public void updateNbrsIfNeeded() {
 
         potentialMaster.setBoxForCriteria(box);
 

@@ -15,8 +15,6 @@ import etomica.data.types.DataTable;
 import etomica.data.types.DataTable.DataInfoTable;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.space.Boundary;
-import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Energy;
@@ -754,7 +752,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 	
 	public static void main(String[] args){
 		Space sp = Space.getInstance(3);
-		NormalModeAnalysisDisplay3DGraphic simGraphic = new NormalModeAnalysisDisplay3DGraphic(new NormalModeAnalysisDisplay3D(sp), sp);
+		NormalModeAnalysisDisplay3DGraphic simGraphic = new NormalModeAnalysisDisplay3DGraphic(new NormalModeAnalysisDisplay3D(), sp);
 		SimulationGraphic.makeAndDisplayFrame(simGraphic.getPanel(), APP_NAME);
 		
 	}
@@ -768,7 +766,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 		public void init(){
 			getRootPane().putClientProperty(APP_NAME, Boolean.TRUE);
 			Space sp = Space.getInstance(3);
-			NormalModeAnalysisDisplay3DGraphic nm3Dgraphic = new NormalModeAnalysisDisplay3DGraphic(new NormalModeAnalysisDisplay3D(sp), sp);
+			NormalModeAnalysisDisplay3DGraphic nm3Dgraphic = new NormalModeAnalysisDisplay3DGraphic(new NormalModeAnalysisDisplay3D(), sp);
 			getContentPane().add(nm3Dgraphic.getPanel());
 		}
 	}

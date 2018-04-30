@@ -18,7 +18,6 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.random.RandomNumberGenerator;
 
 /**
  * Colloid simulation.  Design by Alberto Striolo.
@@ -43,9 +42,8 @@ public class ColloidSim extends Simulation {
     public double epsWallWall = 0.25;
     public CriterionPositionWall criterionWallMonomer;
     
-    public ColloidSim(Space _space) {
-        super(_space);
-        setRandom(new RandomNumberGenerator(1));
+    public ColloidSim() {
+        super(Space3D.getInstance());
 
         //species
         species = new SpeciesSpheresMono(this, space);
@@ -55,7 +53,7 @@ public class ColloidSim extends Simulation {
         speciesColloid.setIsDynamic(true);
         addSpecies(speciesColloid);
 
-        potentialMaster = new PotentialMasterList(this, 6, _space);
+        potentialMaster = new PotentialMasterList(this, 6, space);
 
         int nColloid = 1;
         chainLength = 50;
@@ -179,7 +177,7 @@ public class ColloidSim extends Simulation {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
 
-        ColloidSim sim = new ColloidSim(space);
+        ColloidSim sim = new ColloidSim();
         sim.getController().actionPerformed();
     }
     

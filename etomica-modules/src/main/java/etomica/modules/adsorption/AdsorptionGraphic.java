@@ -4,46 +4,29 @@
 
 package etomica.modules.adsorption;
 
- import java.awt.GridBagLayout;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.border.TitledBorder;
-
 import etomica.action.IAction;
-import etomica.space.Vector;
 import etomica.atom.DiameterHashByType;
-import etomica.data.AccumulatorAverage;
+import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataTag;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.math.geometry.Plane;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
- import etomica.space3d.Space3D;
-import etomica.units.dimensions.Null;
+import etomica.space.Vector;
+import etomica.space3d.Space3D;
 import etomica.units.Pixel;
 import etomica.units.Unit;
-import etomica.data.history.HistoryCollapsingAverage;
+import etomica.units.dimensions.Null;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Catalysis graphical app.
@@ -92,6 +75,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
         rMax.Ea1Tv1(0.5, sim.box.getBoundary().getBoxSize());
         rMax.setX(1, yMax);
         ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).setBoundingBox(rMin, rMax);
+        getController().getSimRestart().setConfiguration(sim.config);
         
         // Simulation Time
         final DisplayTextBox displayCycles = new DisplayTextBox();
@@ -408,7 +392,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
         Space space = Space3D.getInstance();
 
 
-        AdsorptionGraphic adsGraphic = new AdsorptionGraphic(new Adsorption(space), space);
+        AdsorptionGraphic adsGraphic = new AdsorptionGraphic(new Adsorption(), space);
 		SimulationGraphic.makeAndDisplayFrame
 		        (adsGraphic.getPanel(), APP_NAME);
     }
@@ -419,7 +403,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
             Space sp = Space3D.getInstance();
-            AdsorptionGraphic swmdGraphic = new AdsorptionGraphic(new Adsorption(sp), sp);
+            AdsorptionGraphic swmdGraphic = new AdsorptionGraphic(new Adsorption(), sp);
 
 		    getContentPane().add(swmdGraphic.getPanel());
 	    }

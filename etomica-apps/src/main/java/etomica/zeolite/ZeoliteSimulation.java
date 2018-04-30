@@ -70,24 +70,15 @@ public class ZeoliteSimulation extends Simulation {
     private int interval;
     private SpeciesSpheresMono sp;
     private String filename;
-    /**
-     * Sole public constructor, makes a simulation using a 3D space.
-     */
-    //we use a second, private constructor to permit the space to
-    //appear twice in the call to the superclass constructor; alternatively
-    //we could have passed Space3D.getInstance() twice
-    private ZeoliteSimulation() {
 
-        // invoke the superclass constructor
-        // "true" is indicating to the superclass that this is a dynamic simulation
-        // the PotentialMaster is selected such as to implement neighbor listing
+    public ZeoliteSimulation() {
+
         super(Space3D.getInstance());
 
         //Additions for Zeolite Calculations
         //Start by reading the first line, which is number of Atoms
-        String fileName = "2unitcell";
         //String fileName = "pbu2";
-        ConfigurationFileXYZ config = new ConfigurationFileXYZ(fileName, space);
+        ConfigurationFileXYZ config = new ConfigurationFileXYZ("2unitcell.xyz", space);
         int[] numAtoms = config.getNumAtoms();
 
         species = new SpeciesSpheresMono[numAtoms.length];

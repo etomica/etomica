@@ -14,6 +14,7 @@ import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.Configuration;
 import etomica.space.Space;
+import etomica.util.Resources;
 
 public class ConfigurationFileXYZ implements Configuration, java.io.Serializable {
 
@@ -27,28 +28,20 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
             min = space.makeVector();
             max = space.makeVector();
             dim = space.makeVector();
-	        String fileName = confName+".xyz";
-	        FileReader fileReader;
-	        try {
-	            fileReader = new FileReader(fileName);
-	        }catch(IOException e) {
-	            throw new RuntimeException("Cannot open "+fileName+", caught IOException: " + e.getMessage());
-	        }
+	        String fileName = confName;
             AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms(box);
-	        try {
-	            BufferedReader bufReader = new BufferedReader(fileReader);
-	            atomIterator.reset();
-	            //Skips the first line, which contains numAtoms
-	            bufReader.readLine();
-	            for (IAtom atom = atomIterator.nextAtom();
-                     atom != null; atom = atomIterator.nextAtom()) {
-	                setPosition(atom,bufReader.readLine());
-	            }
-	            fileReader.close();
-	        } catch(IOException e) {
-	            throw new RuntimeException("Problem writing to "+fileName+", caught IOException: " + e.getMessage());
-	        }
-	        atomIterator.reset();
+			try (BufferedReader bufReader = Resources.openResourceFile(confName, this.getClass())) {
+				atomIterator.reset();
+				//Skips the first line, which contains numAtoms
+				bufReader.readLine();
+				for (IAtom atom = atomIterator.nextAtom();
+					 atom != null; atom = atomIterator.nextAtom()) {
+					setPosition(atom, bufReader.readLine());
+				}
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			atomIterator.reset();
 	        
             for (IAtom atom = atomIterator.nextAtom();
                  atom != null; atom = atomIterator.nextAtom()) {
@@ -76,22 +69,13 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
 		}
         
 		public int[] getNumAtoms(){
-			String fileName = confName+".xyz";
-	        FileReader fileReader;
-	        try {
-	            fileReader = new FileReader(fileName);
-	        }catch(IOException e) {
-	            throw new RuntimeException("Cannot open "+fileName+", caught IOException: " + e.getMessage());
-	        }
-	        BufferedReader bufReader = new BufferedReader(fileReader);
-	        String numLine;
-	        try{
-	        	numLine = bufReader.readLine();
-	        }
-	        catch(IOException e) {
-	            throw new RuntimeException("Problem writing to "+fileName+", caught IOException: " + e.getMessage());
-	        }
-	        String[] coordStr = numLine.split(" +");
+			String numLine;
+			try (BufferedReader bufReader = Resources.openResourceFile(confName, this.getClass())) {
+				numLine = bufReader.readLine();
+			} catch (IOException e) {
+			    throw new RuntimeException(e);
+			}
+			String[] coordStr = numLine.split(" +");
 	        double[] coord = new double[coordStr.length];
 	        nAtomsList = new int[coordStr.length];
 	        for (int i=0; i<coord.length; i++) {
@@ -101,8 +85,8 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
 		}
 		
 		public Vector getUpdatedDimensions(){
-			updatedDimensions = Space.makeVector(dim.getD());
-			
+			updatedDimensions = space.makeVector();
+			updatedDimensions.E(dim);
 			updatedDimensions.TE(1.01);
 			return updatedDimensions;
 		}

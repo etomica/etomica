@@ -374,7 +374,7 @@ public class ColloidGraphic extends SimulationGraphic {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
 
-        ColloidGraphic swmdGraphic = new ColloidGraphic(new ColloidSim(space), space);
+        ColloidGraphic swmdGraphic = new ColloidGraphic(new ColloidSim(), space);
 		SimulationGraphic.makeAndDisplayFrame
 		        (swmdGraphic.getPanel(), APP_NAME);
     }
@@ -399,7 +399,7 @@ public class ColloidGraphic extends SimulationGraphic {
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
             int dim = 3;
             Space sp = Space.getInstance(dim);
-            ColloidGraphic swmdGraphic = new ColloidGraphic(new ColloidSim(sp), sp);
+            ColloidGraphic swmdGraphic = new ColloidGraphic(new ColloidSim(), sp);
 
 		    getContentPane().add(swmdGraphic.getPanel());
 	    }

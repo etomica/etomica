@@ -177,7 +177,7 @@ public class DeviceCellNum3DSlider extends Device {
 
        
         etomica.space.Space sp = etomica.space3d.Space3D.getInstance();
-        NormalModeAnalysisDisplay3D sim = new NormalModeAnalysisDisplay3D(sp);
+        NormalModeAnalysisDisplay3D sim = new NormalModeAnalysisDisplay3D();
         
         DeviceCellNum3DSlider device = new DeviceCellNum3DSlider(new Controller());
         device.setMinimum(1);
