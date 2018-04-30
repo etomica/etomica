@@ -1,6 +1,8 @@
 package etomica;
 
 import etomica.integrator.Integrator;
+import etomica.modules.osmosis.OsmosisSim;
+import etomica.modules.reactionequilibrium.ReactionEquilibrium;
 import etomica.normalmode.NormalModeAnalysisDisplay2D;
 import etomica.normalmode.NormalModeAnalysisDisplay3D;
 import etomica.simulation.Simulation;
@@ -16,9 +18,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -30,6 +30,15 @@ import static etomica.TestSimConstructors.SCAN;
 public class TestSimShortRuns {
     private static final ExecutorService exec = Executors.newSingleThreadExecutor();
 
+    /**
+     * Sim classes that are excluded for various reasons causing them not to work with the reflection hacks here.
+     * Currently these just don't initialize box coordinates in the constructor causing a ConfigurationOverlapException
+     */
+    private static final Set<Class<?>> EXCLUDED = new HashSet<>(Arrays.asList(
+            OsmosisSim.class,
+            ReactionEquilibrium.class
+    ));
+
     static List<Arguments> getIntegrators() throws IllegalAccessException, InstantiationException, InvocationTargetException {
         // This beautiful method will search through constructible simulations looking for ones
         // with one and only one field of type Integrator (getIntegrator isn't reliable, and with
@@ -38,6 +47,10 @@ public class TestSimShortRuns {
         List<Arguments> args = new ArrayList<>();
 
         for (Class<?> cl : classes) {
+            if (EXCLUDED.contains(cl)) {
+                continue;
+            }
+
             Field[] fields = cl.getDeclaredFields();
             List<Field> integratorFields = Arrays.stream(fields)
                     .filter(f -> Integrator.class.isAssignableFrom(f.getType()))
