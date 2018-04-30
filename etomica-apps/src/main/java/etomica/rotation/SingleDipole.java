@@ -17,6 +17,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotatingMolecule;
 
@@ -30,7 +31,7 @@ public class SingleDipole {
         Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
         sim.addBox(box);
         box.setNMolecules(species, 1);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{10, 10, 10}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.002;

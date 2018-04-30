@@ -100,9 +100,9 @@ public class HSDimerNPT extends Simulation {
 
         Basis unitBasis;
         if (cp == 1 || cp == 2) {
-            boxDim[0] = space.makeVector(new double[]{nC[0] * a, 0.0, 0.0});
-            boxDim[1] = space.makeVector(new double[]{0.0, nC[1] * b, 0.0});
-            boxDim[2] = space.makeVector(new double[]{nC[2] * cx, 0.0, nC[2] * cz});
+            boxDim[0] = Vector.of(new double[]{nC[0] * a, 0.0, 0.0});
+            boxDim[1] = Vector.of(new double[]{0.0, nC[1] * b, 0.0});
+            boxDim[2] = Vector.of(new double[]{nC[2] * cx, 0.0, nC[2] * cz});
             unitBasis = new BasisHcpBaseCentered();
         } else {
             throw new RuntimeException("not yet");

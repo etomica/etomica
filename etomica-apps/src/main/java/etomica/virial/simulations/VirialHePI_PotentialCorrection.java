@@ -378,8 +378,8 @@ public class VirialHePI_PotentialCorrection {
 
         if (false) {
             double vSize = 5;
-            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{vSize,vSize,vSize}));
-            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{vSize,vSize,vSize}));
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{vSize, vSize, vSize}));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{vSize, vSize, vSize}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);

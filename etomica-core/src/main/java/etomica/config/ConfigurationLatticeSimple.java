@@ -90,7 +90,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         }
         Vector shape = space.makeVector();
         shape.E(dim);
-        Vector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        Vector latticeConstantV = Vector.of(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction

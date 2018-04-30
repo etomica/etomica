@@ -56,13 +56,13 @@ public class ConformationLinear implements IConformation, java.io.Serializable {
             case 1:
                 return;
             case 2:
-                setOrientation(space.makeVector(new double[]{Math.cos(angle[0]),Math.sin(angle[0])}));
+                setOrientation(Vector.of(new double[]{Math.cos(angle[0]), Math.sin(angle[0])}));
                 return;
             case 3:
             	double[] ang = { Math.sin(angle[1])*Math.cos(angle[0]),
    			                     Math.sin(angle[1])*Math.sin(angle[0]),
    			                     Math.cos(angle[1]) };
-                setOrientation(space.makeVector(ang));
+                setOrientation(Vector.of(ang));
                 return;
         }
     }

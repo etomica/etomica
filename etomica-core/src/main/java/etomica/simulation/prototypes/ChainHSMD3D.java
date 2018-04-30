@@ -24,6 +24,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
 
@@ -69,7 +70,7 @@ public class ChainHSMD3D extends Simulation {
         ((ConformationLinear) model.getConformation()).setAngle(1, 0.35);
 
         double l = 14.4573 * Math.pow((chainLength * numAtoms / 2020.0), 1.0 / 3.0);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{l, l, l}));
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         box.setNMolecules(species, numAtoms);
         config.initializeCoordinates(box);

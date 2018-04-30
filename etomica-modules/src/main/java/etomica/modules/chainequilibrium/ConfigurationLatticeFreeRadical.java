@@ -54,7 +54,7 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
         Vector shape = space.makeVector();
         shape.E(box.getBoundary().getBoxSize());
         shape.PE(-boundaryPadding);
-        Vector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        Vector latticeConstantV = Vector.of(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -82,7 +82,7 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
             latticeScaling.E(box.getBoundary().getBoxSize());
             latticeScaling.PE(-boundaryPadding);
             latticeScaling.DE(latticeConstantV);
-            latticeScaling.DE(space.makeVector(latticeDimensions));
+            latticeScaling.DE(Vector.of(latticeDimensions));
         } else {
             latticeScaling.E(1.0);
         }

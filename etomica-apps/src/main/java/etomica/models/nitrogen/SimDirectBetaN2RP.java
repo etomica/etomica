@@ -57,9 +57,9 @@ public class SimDirectBetaN2RP extends Simulation {
         BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC, nC, nC});
 
         Vector[] boxDim = new Vector[3];
-        boxDim[0] = space.makeVector(new double[]{nC * aDim, 0, 0});
-        boxDim[1] = space.makeVector(new double[]{-nC * aDim * Math.cos(Degree.UNIT.toSim(60)), nC * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
-        boxDim[2] = space.makeVector(new double[]{0, 0, nC * cDim});
+        boxDim[0] = Vector.of(nC * aDim, 0, 0);
+        boxDim[1] = Vector.of(-nC * aDim * Math.cos(Degree.UNIT.toSim(60)), nC * aDim * Math.sin(Degree.UNIT.toSim(60)), 0);
+        boxDim[2] = Vector.of(0, 0, nC * cDim);
         Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
         boxTarg = this.makeBox(boundary);
         boxTarg.setNMolecules(species, numMolecules);

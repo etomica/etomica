@@ -67,7 +67,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 		box.setNMolecules(species, numMolecule);
 
 		int[] nCells = new int[]{division, division, division};
-		boundary.setBoxSize(space.makeVector(new double[]{nCell * unitCellLength, nCell * unitCellLength, nCell * unitCellLength}));
+		boundary.setBoxSize(Vector.of(new double[]{nCell * unitCellLength, nCell * unitCellLength, nCell * unitCellLength}));
 		Primitive primitive = new PrimitiveCubic(space, (nCell / division) * unitCellLength);
 
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);

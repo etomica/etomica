@@ -79,7 +79,7 @@ public class DLJ_NVT_1site extends Simulation {
         addSpecies(species);
         box = this.makeBox();
         box.setNMolecules(species, numberMolecules);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize, boxSize, boxSize}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{boxSize, boxSize, boxSize}));
 
         IMoleculePositionDefinition positionDefinition = new IMoleculePositionDefinition() {
             public Vector position(IMolecule molecule) {

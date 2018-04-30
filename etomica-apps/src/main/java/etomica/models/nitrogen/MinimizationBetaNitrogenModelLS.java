@@ -72,9 +72,9 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 
         int numMolecule = 4;
 		Vector[] boxDim = new Vector[3];
-		boxDim[0] = space.makeVector(new double[]{aDim, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-2 * aDim * Math.cos(Degree.UNIT.toSim(60)), 2 * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, cDim});
+		boxDim[0] = Vector.of(new double[]{aDim, 0, 0});
+		boxDim[1] = Vector.of(new double[]{-2 * aDim * Math.cos(Degree.UNIT.toSim(60)), 2 * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
+		boxDim[2] = Vector.of(new double[]{0, 0, cDim});
 
 		BoundaryDeformablePeriodicSwitch boundary = new BoundaryDeformablePeriodicSwitch(space, boxDim);
 		boundary.setDoPBC(false);

@@ -115,14 +115,14 @@ public class Sam extends Simulation {
         chainPhi = new double[4];
 
         config = new ConfigurationSAM(this, space, species, speciesSurface, potentialMaster);
-        Basis alkaneBasis = new Basis(new Vector[]{space.makeVector(new double[]{1.0 / 6.0, 0, 1.0 / 6.0}), space.makeVector(new double[]{2.0 / 3.0, 0, 2.0 / 3.0})});
+        Basis alkaneBasis = new Basis(new Vector[]{Vector.of(new double[]{1.0 / 6.0, 0, 1.0 / 6.0}), Vector.of(new double[]{2.0 / 3.0, 0, 2.0 / 3.0})});
         Basis surfaceBasis = new Basis(new Vector[]{
-                space.makeVector(new double[]{2.0 / 6.0, 0, 0}),
-                space.makeVector(new double[]{5.0 / 6.0, 0, 1.0 / 6.0}),
-                space.makeVector(new double[]{2.0 / 6.0, 0, 2.0 / 6.0}),
-                space.makeVector(new double[]{5.0 / 6.0, 0, 3.0 / 6.0}),
-                space.makeVector(new double[]{2.0 / 6.0, 0, 4.0 / 6.0}),
-                space.makeVector(new double[]{5.0 / 6.0, 0, 5.0 / 6.0})});
+                Vector.of(new double[]{2.0 / 6.0, 0, 0}),
+                Vector.of(new double[]{5.0 / 6.0, 0, 1.0 / 6.0}),
+                Vector.of(new double[]{2.0 / 6.0, 0, 2.0 / 6.0}),
+                Vector.of(new double[]{5.0 / 6.0, 0, 3.0 / 6.0}),
+                Vector.of(new double[]{2.0 / 6.0, 0, 4.0 / 6.0}),
+                Vector.of(new double[]{5.0 / 6.0, 0, 5.0 / 6.0})});
         config.setBasisMolecules(alkaneBasis);
         config.setBasisSurface(surfaceBasis);
         config.setCellSizeX(sizeCellX);
@@ -233,7 +233,7 @@ public class Sam extends Simulation {
         p1SurfaceBond = new P1Sinusoidal(space);
         p1SurfaceBond.setB(0); // initially disabled
         p1SurfaceBond.setCellSize(sizeCellX, sizeCellZ);
-        p1SurfaceBond.setOffset(space.makeVector(new double[]{sizeCellX / 6.0, 0, sizeCellZ / 6.0}));
+        p1SurfaceBond.setOffset(Vector.of(new double[]{sizeCellX / 6.0, 0, sizeCellZ / 6.0}));
         potentialMaster.addPotential(p1SurfaceBond, new AtomType[]{species.getSulfurType()});
 
         wallPotential = new P1WCAWall(space, 1, 4, 1000);
@@ -441,10 +441,10 @@ public class Sam extends Simulation {
         box.getBoundary().setBoxSize(dim);
         config.setNCellsX(numXCells);
         if (numXCells == 2) {
-            p1SurfaceBond.setOffset(space.makeVector(new double[]{4*sizeCellX/6.0, 0, sizeCellZ/6.0}));
+            p1SurfaceBond.setOffset(Vector.of(new double[]{4 * sizeCellX / 6.0, 0, sizeCellZ / 6.0}));
         }
         else {
-            p1SurfaceBond.setOffset(space.makeVector(new double[]{sizeCellX/6.0, 0, sizeCellZ/6.0}));
+            p1SurfaceBond.setOffset(Vector.of(new double[]{sizeCellX / 6.0, 0, sizeCellZ / 6.0}));
         }
         if (numXCells < oldNumXCells || oldNumXCells*2 != numXCells) {
             config.initializeCoordinates(box);

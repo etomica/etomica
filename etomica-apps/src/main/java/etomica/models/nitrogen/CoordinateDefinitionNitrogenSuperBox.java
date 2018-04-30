@@ -287,10 +287,10 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
     	/*
     	 * Reference : R.L. Mills and A.F. Schuch, PRL 23(20) 1969 pg.1154 Fig1
     	 */
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), Math.toRadians(45));
+    	rotationTensor.setRotationAxis(Vector.of(0.0, 0.0, 1.0), Math.toRadians(45));
     	yOrientationTensor[0].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 0.0, 1.0}), Math.toRadians(-45));
+    	rotationTensor.setRotationAxis(Vector.of(0.0, 0.0, 1.0), Math.toRadians(-45));
     	yOrientationTensor[1].E(rotationTensor);
   	
     }
@@ -300,35 +300,35 @@ public class CoordinateDefinitionNitrogenSuperBox extends CoordinateDefinitionMo
     	/*
     	 * Reference : A. Di Nola et al Acta Cryst. (1970) A26, 144 Fig1
     	 */
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), Math.toRadians(-45));
+    	rotationTensor.setRotationAxis(Vector.of(0.0, 1.0, 0.0), Math.toRadians(-45));
     	yOrientationTensor[0].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), Math.toRadians(-45));
+    	rotationTensor.setRotationAxis(Vector.of(0.0, 1.0, 0.0), Math.toRadians(-45));
     	yOrientationTensor[1].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), Math.toRadians(45));
+    	rotationTensor.setRotationAxis(Vector.of(0.0, 1.0, 0.0), Math.toRadians(45));
     	yOrientationTensor[2].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{0.0, 1.0, 0.0}), Math.toRadians(45));
+    	rotationTensor.setRotationAxis(Vector.of(0.0, 1.0, 0.0), Math.toRadians(45));
     	yOrientationTensor[3].E(rotationTensor);
     	
     	/*
     	 * rotation Axis about (-x, 0, z)
     	 * ROTATION ANGLE: arctan(1/sqrt(2)) = 35.26438968deg
     	 */
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, 1.0/Math.sqrt(2)}), Math.toRadians(-35.26438968));
+    	rotationTensor.setRotationAxis(Vector.of(-1.0 / Math.sqrt(2), 0.0, 1.0 / Math.sqrt(2)), Math.toRadians(-35.26438968));
     	xzOrientationTensor[0].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, 1.0/Math.sqrt(2)}), Math.toRadians(35.26438968));
+    	rotationTensor.setRotationAxis(Vector.of(-1.0 / Math.sqrt(2), 0.0, 1.0 / Math.sqrt(2)), Math.toRadians(35.26438968));
     	xzOrientationTensor[1].E(rotationTensor);
     
     	/*
     	 * rotation Axis about (-x, 0, -z)
     	 */
-       	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(-35.26438968));
+       	rotationTensor.setRotationAxis(Vector.of(-1.0 / Math.sqrt(2), 0.0, -1.0 / Math.sqrt(2)),  Math.toRadians(-35.26438968));
     	xzOrientationTensor[2].E(rotationTensor);
     	
-    	rotationTensor.setRotationAxis(space.makeVector(new double[]{-1.0/Math.sqrt(2), 0.0, -1.0/Math.sqrt(2)}),  Math.toRadians(35.26438968));
+    	rotationTensor.setRotationAxis(Vector.of(-1.0 / Math.sqrt(2), 0.0, -1.0 / Math.sqrt(2)),  Math.toRadians(35.26438968));
     	xzOrientationTensor[3].E(rotationTensor);
     	
     }

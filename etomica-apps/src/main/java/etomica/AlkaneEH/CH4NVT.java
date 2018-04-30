@@ -31,6 +31,7 @@ import etomica.potential.PotentialGroupSoft;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.units.Kelvin;
@@ -69,7 +70,7 @@ public class CH4NVT extends Simulation {
         addSpecies(speciesCH4);
         box = this.makeBox();
         box.setNMolecules(speciesCH4, numberMolecules);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{boxSize, boxSize, boxSize}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{boxSize, boxSize, boxSize}));
         potentialMaster = new PotentialMaster();
         integrator = new IntegratorMC(this, potentialMaster, box);
 

@@ -158,13 +158,13 @@ public class P3Induction implements IPotentialAtomic {
         Box box2 = new Box(space);
         sim.addBox(box);
         box.setNMolecules(species, 3);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{10000,10000,10000}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{10000, 10000, 10000}));
         SpeciesWater4P water4P = new SpeciesWater4P(space);
         water4P.setConformation(new ConformationWaterGCPM(space));
         sim.addSpecies(water4P);
         sim.addBox(box2);
         box2.setNMolecules(water4P, 3);
-        box2.getBoundary().setBoxSize(space.makeVector(new double[]{10000,10000,10000}));
+        box2.getBoundary().setBoxSize(Vector.of(new double[]{10000, 10000, 10000}));
         IAtomList triplet = box.getLeafList();
         IAtomOriented atom1 = (IAtomOriented)triplet.get(0);
         IAtomOriented atom2 = (IAtomOriented)triplet.get(1);

@@ -56,7 +56,7 @@ public class ArrayReader1D {
                 }
                 if (useVectors) {
                 	Space space = Space.getInstance(thisQ.length);
-                    allQ.add(space.makeVector(thisQ));
+                    allQ.add(Vector.of(thisQ));
                 }
                 else {
                     allQ.add(thisQ);

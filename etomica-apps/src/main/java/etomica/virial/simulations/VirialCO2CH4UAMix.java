@@ -19,6 +19,7 @@ import etomica.potential.P2CO2TraPPE;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
@@ -152,8 +153,8 @@ public class VirialCO2CH4UAMix {
         
         if (false) {
         	  double size = 10;
-              sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-              sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
+              sim.box[0].getBoundary().setBoxSize(Vector.of(size, size, size));
+              sim.box[1].getBoundary().setBoxSize(Vector.of(size, size, size));
               SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
               DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
               DisplayBox dBox1 = simGraphic.getDisplayBox(sim.box[1]);

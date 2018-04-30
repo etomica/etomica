@@ -18,6 +18,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
@@ -32,7 +33,7 @@ public class DipoleBox extends Simulation {
     
     public DipoleBox(Space space, int nAtoms, double dt) {
         super(space);
-        SpeciesSpheresRotatingMolecule species = new SpeciesSpheresRotatingMolecule(this, space, space.makeVector(new double[]{0.025, 0.025, 0.025}));
+        SpeciesSpheresRotatingMolecule species = new SpeciesSpheresRotatingMolecule(this, space, Vector.of(new double[]{0.025, 0.025, 0.025}));
         species.setIsDynamic(true);
         addSpecies(species);
         box = this.makeBox(new BoundaryRectangularPeriodic(getSpace(), 10));

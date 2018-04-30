@@ -131,9 +131,9 @@ public static void main(String[] args) {
 					
 					double integrand = 0;
 								
-					Vector r1 = space.makeVector(new double[] {-r02,  0,  0});
-			        Vector r2 = space.makeVector(new double[] { r02,  0,  0});
-			        Vector r3 = space.makeVector(new double[] { x13,y13,  0});
+					Vector r1 = Vector.of(new double[]{-r02, 0, 0});
+			        Vector r2 = Vector.of(new double[]{r02, 0, 0});
+			        Vector r3 = Vector.of(new double[]{x13, y13, 0});
 			        
 			        atom1.getPosition().E(r1);
 			        atom2.getPosition().E(r2);

@@ -173,7 +173,7 @@ public class DHS_NVT extends Simulation {
             colorScheme.setColor(sim.getSpecies(0).getAtomType(0), Color.red);
             OrientedFullSite[] sites = new OrientedFullSite[2];
             sites[0] = new OrientedFullSite(space.makeVector(new double[]{0.5,0,0}), Color.BLUE, 0.2);
-            sites[1] = new OrientedFullSite(space.makeVector(new double[]{-0.5,0,0}), Color.YELLOW, 0.2);
+            sites[1] = new OrientedFullSite(Vector.of(new double[]{-0.5, 0, 0}), Color.YELLOW, 0.2);
             ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas).setOrientationSites(
                     (AtomTypeOriented) sim.getSpecies(0).getAtomType(0), sites);
             ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas).setOrientationSites(

@@ -78,9 +78,9 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		Basis basis = new BasisBigCell(space, basisHCP, new int[]{nC, nC, nC});
 
 		Vector[] boxDim = new Vector[3];
-		boxDim[0] = space.makeVector(new double[]{nC * a, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-nC * a * Math.cos(Degree.UNIT.toSim(60)), nC * a * Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, nC * c});
+		boxDim[0] = Vector.of(new double[]{nC * a, 0, 0});
+		boxDim[1] = Vector.of(new double[]{-nC * a * Math.cos(Degree.UNIT.toSim(60)), nC * a * Math.sin(Degree.UNIT.toSim(60)), 0});
+		boxDim[2] = Vector.of(new double[]{0, 0, nC * c});
 		Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
 		box = this.makeBox(boundary);
 		box.setNMolecules(species, numMolecule);

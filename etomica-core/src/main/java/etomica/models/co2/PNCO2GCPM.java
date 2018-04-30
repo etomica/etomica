@@ -733,16 +733,16 @@ for (int iter=0; iter<maxIter; iter++) {
         Box box = new Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 2);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100, 100, 100}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
         IMolecule mol0 = box.getMoleculeList().get(0);
         IMolecule mol1 = box.getMoleculeList().get(1);
 
-        mol0.getChildList().get(0).getPosition().E(space.makeVector(new double[]{0.000000, 0, 0.000000}));
-        mol0.getChildList().get(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, 0}));
-        mol0.getChildList().get(2).getPosition().E(space.makeVector(new double[]{1.161, 0, 0}));
-        mol1.getChildList().get(0).getPosition().E(space.makeVector(new double[]{0, 0, z}));
-        mol1.getChildList().get(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, z}));
-        mol1.getChildList().get(2).getPosition().E(space.makeVector(new double[]{1.161, 0, z}));
+        mol0.getChildList().get(0).getPosition().E(Vector.of(new double[]{0.000000, 0, 0.000000}));
+        mol0.getChildList().get(1).getPosition().E(Vector.of(new double[]{-1.161, 0, 0}));
+        mol0.getChildList().get(2).getPosition().E(Vector.of(new double[]{1.161, 0, 0}));
+        mol1.getChildList().get(0).getPosition().E(Vector.of(new double[]{0, 0, z}));
+        mol1.getChildList().get(1).getPosition().E(Vector.of(new double[]{-1.161, 0, z}));
+        mol1.getChildList().get(2).getPosition().E(Vector.of(new double[]{1.161, 0, z}));
 
 //        space.makeVector(new double[]{ 1.000000,-11.000000,-5.000000 }) 
 //        space.makeVector(new double[]{ 0.732908,-10.699688,-3.910782 }) 
@@ -762,11 +762,11 @@ for (int iter=0; iter<maxIter; iter++) {
         sim.addSpecies(species2CO2);
         box = sim.makeBox();
         box.setNMolecules(species2CO2, 2);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100, 100, 100}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
         IAtomList pair = box.getLeafList();
         IAtomOriented atom0 = (IAtomOriented) pair.get(0);
         IAtomOriented atom1 = (IAtomOriented) pair.get(1);
-        atom1.getPosition().E(space.makeVector(new double[]{x, 0, z}));
+        atom1.getPosition().E(Vector.of(new double[]{x, 0, z}));
 //        ((IAtomOriented)pair.getAtom(0)).getOrientation().setDirection(space.makeVector(new double[]{Math.cos(22.5/180.0*Math.PI), Math.sin(22.5/180.0*Math.PI),0}));
 //        IVectorMutable o1 = space.makeVector(new double[]{-1,0,0});
 //        atom1.getOrientation().setDirection(o1);
@@ -800,20 +800,20 @@ for (int iter=0; iter<maxIter; iter++) {
         Box box = new Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 3);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100, 100, 100}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
         IMolecule mol0 = box.getMoleculeList().get(0);
         IMolecule mol1 = box.getMoleculeList().get(1);
         IMolecule mol2 = box.getMoleculeList().get(2);
 
-        mol0.getChildList().get(0).getPosition().E(space.makeVector(new double[]{0.000000, 0, 0.000000}));
-        mol0.getChildList().get(1).getPosition().E(space.makeVector(new double[]{-1.161, 0, 0}));
-        mol0.getChildList().get(2).getPosition().E(space.makeVector(new double[]{1.161, 0, 0}));
-        mol1.getChildList().get(0).getPosition().E(space.makeVector(new double[]{x1, 0, z1}));
-        mol1.getChildList().get(1).getPosition().E(space.makeVector(new double[]{x1, 0, z1 - 1.161}));
-        mol1.getChildList().get(2).getPosition().E(space.makeVector(new double[]{x1, 0, z1 + 1.161}));
-        mol2.getChildList().get(0).getPosition().E(space.makeVector(new double[]{0, y2, z2}));
-        mol2.getChildList().get(1).getPosition().E(space.makeVector(new double[]{0, y2 - 1.161, z2}));
-        mol2.getChildList().get(2).getPosition().E(space.makeVector(new double[]{0, y2 + 1.161, z2}));
+        mol0.getChildList().get(0).getPosition().E(Vector.of(new double[]{0.000000, 0, 0.000000}));
+        mol0.getChildList().get(1).getPosition().E(Vector.of(new double[]{-1.161, 0, 0}));
+        mol0.getChildList().get(2).getPosition().E(Vector.of(new double[]{1.161, 0, 0}));
+        mol1.getChildList().get(0).getPosition().E(Vector.of(new double[]{x1, 0, z1}));
+        mol1.getChildList().get(1).getPosition().E(Vector.of(new double[]{x1, 0, z1 - 1.161}));
+        mol1.getChildList().get(2).getPosition().E(Vector.of(new double[]{x1, 0, z1 + 1.161}));
+        mol2.getChildList().get(0).getPosition().E(Vector.of(new double[]{0, y2, z2}));
+        mol2.getChildList().get(1).getPosition().E(Vector.of(new double[]{0, y2 - 1.161, z2}));
+        mol2.getChildList().get(2).getPosition().E(Vector.of(new double[]{0, y2 + 1.161, z2}));
 
 //        MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(space);
 //        translator.setDestination(space.makeVector(new double[]{x,0,z}));
@@ -832,13 +832,13 @@ for (int iter=0; iter<maxIter; iter++) {
         sim.addSpecies(species2CO2);
         box = sim.makeBox();
         box.setNMolecules(species2CO2, 3);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100, 100, 100}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
         IAtomList pair = box.getLeafList();
         IAtomOriented atom0 = (IAtomOriented) pair.get(0);
         IAtomOriented atom1 = (IAtomOriented) pair.get(1);
         IAtomOriented atom2 = (IAtomOriented) pair.get(2);
-        atom1.getPosition().E(space.makeVector(new double[]{0, 0, z1}));
-        atom2.getPosition().E(space.makeVector(new double[]{0, y2, 0}));
+        atom1.getPosition().E(Vector.of(new double[]{0, 0, z1}));
+        atom2.getPosition().E(Vector.of(new double[]{0, y2, 0}));
 //        ((IAtomOriented)pair.getAtom(0)).getOrientation().setDirection(space.makeVector(new double[]{Math.cos(22.5/180.0*Math.PI), Math.sin(22.5/180.0*Math.PI),0}));
 //        IVectorMutable o1 = space.makeVector(new double[]{-1,0,0});
 //        atom1.getOrientation().setDirection(o1);

@@ -108,9 +108,9 @@ public class HSNPT extends Simulation {
         }
 
         if (_space.D() == 3) {
-            box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
+            box.getBoundary().setBoxSize(Vector.of(new double[]{l, l, l}));
         } else {
-            box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l * Math.sqrt(3) * 6 / 10}));
+            box.getBoundary().setBoxSize(Vector.of(new double[]{l, l * Math.sqrt(3) * 6 / 10}));
         }
         if (_space.D() == 3) {
             int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));

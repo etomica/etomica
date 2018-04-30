@@ -541,9 +541,9 @@ public class P3CPSNonAdditiveHeLessSimplified extends Potential implements Poten
 	        System.out.println();
 	        System.out.println("Equilateral triangle 1, rij = 4 a0");  
 	        a = BohrRadius.UNIT.toSim(4.0);
-	        r0 = space.makeVector(new double[] {0,0,0});
-	        r1 = space.makeVector(new double[] {a,0,0});
-	        r2 = space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+	        r0 = Vector.of(new double[]{0, 0, 0});
+	        r1 = Vector.of(a, 0, 0);
+	        r2 = Vector.of(a / 2.0, a / 2.0 * Math.sqrt(3), 0);
         
 	        atom0.getPosition().E(r0);
 	        atom1.getPosition().E(r1);
@@ -561,9 +561,9 @@ public class P3CPSNonAdditiveHeLessSimplified extends Potential implements Poten
         
 	        System.out.println("Equilateral triangle 2, rij = 5.6 a0"); 
 	        a = BohrRadius.UNIT.toSim(5.6);
-	        r0 = space.makeVector(new double[] {0,0,0});
-	        r1 = space.makeVector(new double[] {a,0,0});
-	        r2 = space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+	        r0 = Vector.of(new double[]{0, 0, 0});
+	        r1 = Vector.of(a, 0, 0);
+	        r2 = Vector.of(a / 2.0, a / 2.0 * Math.sqrt(3), 0);
 	        
 	        atom0.getPosition().E(r0);
 	        atom1.getPosition().E(r1);
@@ -580,9 +580,9 @@ public class P3CPSNonAdditiveHeLessSimplified extends Potential implements Poten
 	        
 	        System.out.println("Equilateral triangle 3, rij = 7 a0"); 
 	        a = BohrRadius.UNIT.toSim(7.0);
-	        r0 = space.makeVector(new double[] {0,0,0});
-	        r1 = space.makeVector(new double[] {a,0,0});
-	        r2 = space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+	        r0 = Vector.of(new double[]{0, 0, 0});
+	        r1 = Vector.of(a, 0, 0);
+	        r2 = Vector.of(a / 2.0, a / 2.0 * Math.sqrt(3), 0);
 	        
 	        atom0.getPosition().E(r0);
 	        atom1.getPosition().E(r1);
@@ -597,9 +597,9 @@ public class P3CPSNonAdditiveHeLessSimplified extends Potential implements Poten
 	        
 	        System.out.println("Line 1, r12 = 5.6 a0, r13 = 11.2 a0, r23 = 5.6 a0");
 	        a = BohrRadius.UNIT.toSim(5.6);
-	        r0 = space.makeVector(new double[] {0,0,0});
-	        r1 = space.makeVector(new double[] {a,0,0});
-	        r2 = space.makeVector(new double[] {2*a,0,0});
+	        r0 = Vector.of(new double[]{0, 0, 0});
+	        r1 = Vector.of(a, 0, 0);
+	        r2 = Vector.of(2 * a, 0, 0);
 	       
 	        
 	        atom0.getPosition().E(r0);
@@ -618,9 +618,9 @@ public class P3CPSNonAdditiveHeLessSimplified extends Potential implements Poten
         
 	        System.out.println("r12=3.0a0, r23=5.0a0, r13=4.0a0");
 	        a = BohrRadius.UNIT.toSim(1.0);
-	        r0 = space.makeVector(new double[] {0,0,0});
-	        r1 = space.makeVector(new double[] {3*a,0,0});
-	        r2 = space.makeVector(new double[] {0,4*a,0});
+	        r0 = Vector.of(new double[]{0, 0, 0});
+	        r1 = Vector.of(3 * a, 0, 0);
+	        r2 = Vector.of(0, 4 * a, 0);
 	             
 	        atom0.getPosition().E(r0);
 	        atom1.getPosition().E(r1);
@@ -634,9 +634,9 @@ public class P3CPSNonAdditiveHeLessSimplified extends Potential implements Poten
 	        System.out.println();
 	        
 	        System.out.println("r12=6.0a0, r23=5.0a0; r13=5.0a0");
-	        r0 = space.makeVector(new double[] {0,0,0});
-	        r1 = space.makeVector(new double[] {6*a,0,0});
-	        r2 = space.makeVector(new double[] {3*a,4*a,0});
+	        r0 = Vector.of(new double[]{0, 0, 0});
+	        r1 = Vector.of(6 * a, 0, 0);
+	        r2 = Vector.of(3 * a, 4 * a, 0);
 	          
 	        atom0.getPosition().E(r0);
 	        atom1.getPosition().E(r1);
@@ -653,9 +653,9 @@ public class P3CPSNonAdditiveHeLessSimplified extends Potential implements Poten
 		       for (int i=0;i<1000000;i++) {
 		            double b = 1+i*0.1;
 		            a = BohrRadius.UNIT.toSim(b);
-		            r0 = space.makeVector(new double[] {0,0,0});
-		            r1 = space.makeVector(new double[] {a,0,0});
-		            r2 = space.makeVector(new double[] {2*a,0,0});
+		            r0 = Vector.of(new double[]{0, 0, 0});
+		            r1 = Vector.of(a, 0, 0);
+		            r2 = Vector.of(2 * a, 0, 0);
 	           
 	            
 		            atom0.getPosition().E(r0);
@@ -672,14 +672,14 @@ public class P3CPSNonAdditiveHeLessSimplified extends Potential implements Poten
 		       System.out.println(tElapsed+"  milliseconds for 1000000 configurations"+"  "+t0+" "+tf);
         } else {
         	
-        	r0 = space.makeVector(new double[] {0,0,0});
+        	r0 = Vector.of(new double[]{0, 0, 0});
         	atom0.getPosition().E(r0);
         	
         	P2HePCKLJS p2 = new P2HePCKLJS(space);
         	for (int i=1;i<=5;i++) {
 
             	double r01 = 1.5*i;
-        		r1 = space.makeVector(new double[] {r01,0,0});
+        		r1 = Vector.of(r01, 0, 0);
         		atom1.getPosition().E(r1);
     		
     	    for (int j=1;j<=5;j++) {
@@ -691,7 +691,7 @@ public class P3CPSNonAdditiveHeLessSimplified extends Potential implements Poten
     	    		 double theta = Math.PI/5*k;
     	    		 double x2 = r02*Math.cos(theta);
     	    		 double y2 = r02*Math.sin(theta);
-    	    		 r2 = space.makeVector(new double[] {x2,y2,0});
+    	    		 r2 = Vector.of(x2, y2, 0);
     	    		 atom2.getPosition().E(r2);
     	    		 
     	    		 double r12 = Math.sqrt((x2-r01)*(x2-r01)+y2*y2);
