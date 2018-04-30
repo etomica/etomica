@@ -301,7 +301,7 @@ public class BnFlexibleContributionTraPPEUAMethanol {
         if (graphics) {
 
             referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
-            targetBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
+            targetBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(referenceBox).setShowBoundary(false);
             simGraphic.getDisplayBox(targetBox).setShowBoundary(false);

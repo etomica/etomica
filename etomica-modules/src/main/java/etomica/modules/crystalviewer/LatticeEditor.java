@@ -24,6 +24,7 @@ import etomica.util.Arrays;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -51,7 +52,7 @@ public class LatticeEditor {
     public JPanel anglePanel, sizePanel;
     public JPanel boxPanel;
     protected CrystalViewer viewer;
-    protected final HashMap latticeNameHash;
+    protected final HashMap<BravaisLattice, String> latticeNameHash;
     protected LatticeEditorBoxPropertyArray pvBox = null; 
     private final Space space;
     
@@ -76,6 +77,7 @@ public class LatticeEditor {
     private static final int ANGLE_START_INDEX = 3;
     private static final int ANGLE_END_INDEX = 5;
 
+    @SuppressWarnings("unchecked")
     public LatticeEditor(CrystalViewer viewer, BravaisLattice[] lattices,
     		             String[] latticeNames, Space _space) {
     
@@ -84,7 +86,7 @@ public class LatticeEditor {
         box = viewer.box;
         boundary = viewer.boundary;
         species = viewer.species;
-        latticeNameHash = new HashMap();
+        latticeNameHash = new HashMap<>();
         for (int i=0; i<lattices.length; i++) {
             latticeNameHash.put(lattices[i], latticeNames[i]);
         }
