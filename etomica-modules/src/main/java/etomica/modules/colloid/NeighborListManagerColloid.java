@@ -7,6 +7,7 @@ package etomica.modules.colloid;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
+import etomica.nbr.list.NeighborListAgentSource;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.IPotentialAtomic;
@@ -71,7 +72,7 @@ public class NeighborListManagerColloid extends NeighborListManager {
     protected IPotentialAtomic p2mc, p2pseudo;
     protected int chainLength;
 
-    public static class NeighborListAgentSourceColloid extends PotentialMasterList.NeighborListAgentSource {
+    public static class NeighborListAgentSourceColloid extends NeighborListAgentSource {
         public NeighborListAgentSourceColloid(double range) {
             super(range);
         }

@@ -9,7 +9,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.list.PotentialMasterList.NeighborListAgentSource;
 
 import java.util.List;
 
