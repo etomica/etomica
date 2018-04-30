@@ -37,7 +37,6 @@ public class TestSimShortRuns {
         List<Arguments> args = new ArrayList<>();
 
         for (Class<?> cl : classes) {
-            if (cl == NormalModeAnalysisDisplay3D.class) continue;
             Field[] fields = cl.getDeclaredFields();
             List<Field> integratorFields = Arrays.stream(fields)
                     .filter(f -> Integrator.class.isAssignableFrom(f.getType()))

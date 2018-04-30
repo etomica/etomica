@@ -56,9 +56,6 @@ public class TestSimConstructors {
     @ParameterizedTest
     @MethodSource("getConstructors")
     public void testNullaryConstructors(Constructor<?> constructor) {
-        // Special case to skip this class. It requires files that don't exists. TODO delete if we can't find them
-        Assumptions.assumeFalse(constructor.getDeclaringClass() == NormalModeAnalysisDisplay3D.class);
-
         assertDoesNotThrow(() -> {
             Simulation sim = (Simulation) constructor.newInstance();
         });

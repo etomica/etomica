@@ -47,7 +47,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
     protected CoordinateDefinitionLeaf coordinateDefinition;
     protected MeterPotentialEnergy meterPE;
     protected double L;
-    protected int n = 3;
+    protected int n = 2;
     protected P2SoftSphericalTruncatedShifted pTruncated;
     protected double truncationRadius;
     protected double density = 1.256;
