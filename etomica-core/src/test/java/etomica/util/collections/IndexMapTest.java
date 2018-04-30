@@ -143,9 +143,4 @@ public class IndexMapTest {
         map.put(100, "100");
         assertTrue(c.containsAll(Arrays.asList("0", "5", "100")));
     }
-
-    @Test
-    public void testEntrySet() {
-        assertThrows(UnsupportedOperationException.class, () -> map.entrySet());
-    }
 }
