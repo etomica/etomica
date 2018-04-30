@@ -42,7 +42,7 @@ public class IsFFT implements Property {
   protected final MaxIsomorph maxIsomorph;
   protected final MaxIsomorphParameters mip;
   protected final Relabel relabel;
-  protected List strands;
+  protected List<Integer> strands;
 
   public IsFFT() {
     isBi = new IsBiconnected();
@@ -84,7 +84,7 @@ public class IsFFT implements Property {
     }
   }
 
-  protected boolean testPair(Graph g, byte start, byte end, List myStrands) {
+  protected boolean testPair(Graph g, byte start, byte end, List<Integer> myStrands) {
     g = g.copy();
     if (start != 0 || end != 1) {
       byte[] relabels = new byte[g.nodeCount()];
@@ -182,7 +182,7 @@ public class IsFFT implements Property {
       hap.check(gk);
       List<Byte> aps = hap.getArticulationPoints();
       List<List<Byte>> biComponents = BCVisitor.getBiComponents(gk);
-      List segments = new ArrayList();
+      List<Integer> segments = new ArrayList<>();
       
       for (List<Byte> lBiComponent : biComponents) {
         // each component should contain 2 points of interest,
@@ -198,13 +198,13 @@ public class IsFFT implements Property {
             else lEnd = i;
           }
         }
-        List lStrands = new ArrayList();
+        List<Integer> lStrands = new ArrayList<>();
         if (!testPair(gk, lStart, lEnd, lStrands)) {
           return false;
         }
-        segments.add(lStrands);
+        segments.addAll(lStrands);
       }
-      myStrands.add(segments);
+      myStrands.addAll(segments);
     }  
     return true;
   }
@@ -222,7 +222,7 @@ public class IsFFT implements Property {
     }
     
     byte nodeCount = graph.nodeCount();
-    strands = new ArrayList();
+    strands = new ArrayList<>();
     for (byte i=0; i<nodeCount; i++) {
       for (byte j=(byte)(i+1); j<nodeCount; j++) {
         boolean success = testPair(graph, i, j, strands);
