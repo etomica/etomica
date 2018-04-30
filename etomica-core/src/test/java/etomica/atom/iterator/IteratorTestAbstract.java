@@ -51,7 +51,7 @@ public abstract class IteratorTestAbstract {
      *            will be performed repeatedly on the iterator
      * @return a list of Lister instances for the atoms given by the iterator
      */
-    protected static LinkedList generalIteratorMethodTests(
+    protected static LinkedList<String> generalIteratorMethodTests(
             AtomLeafsetIterator iterator) {
         Lister[] lister = Lister.listerArray(2);
 

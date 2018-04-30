@@ -4,7 +4,9 @@
 
 package etomica.math.geometry;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import etomica.meta.annotations.IgnoreProperty;
@@ -168,7 +170,7 @@ public abstract class Polytope implements Shape, java.io.Serializable {
      * by constructor.
      */
     private static Vector[] allVertices(Polytope[] hyperPlanes) {
-        LinkedList list = new LinkedList();
+        List<Vector> list = new ArrayList<>();
         for (int i = 0; i < hyperPlanes.length; i++) {
             Vector[] vertices = hyperPlanes[i].vertices;
             for (int j = 0; j < vertices.length; j++) {
@@ -177,13 +179,13 @@ public abstract class Polytope implements Shape, java.io.Serializable {
                 }
             }
         }
-        return (Vector[]) list.toArray(new Vector[0]);
+        return list.toArray(new Vector[0]);
     }
     
     public abstract LineSegment[] getEdges();
     
     public String toString() {
-        StringBuffer str = new StringBuffer();
+        StringBuilder str = new StringBuilder();
         str.append("{");
         for(int i=0; i<hyperPlanes.length; i++) {
             str.append(hyperPlanes[i].toString());
