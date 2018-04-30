@@ -186,8 +186,8 @@ class NeighborListingTest {
             for (IAtom atom : box.getLeafList()) {
                 int typeIdx = atom.getType().getIndex();
                 int otherTypeIdx = typeIdx == 1 ? 0 : 1;
-                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, 5);
-                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, 5);
+                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE);
+                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE);
 
                 Set<IAtom> sameTypeNbrList = new HashSet<>();
                 sameTypeNbrList.addAll(nlm.getUpList(atom)[atom.getType().getIndex()]);
@@ -213,8 +213,8 @@ class NeighborListingTest {
             });
 
             for (IAtom atom : box.getLeafList()) {
-                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, 5);
-                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, 5);
+                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE);
+                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE);
 
                 assertEquals(sameTypeNbrs, pmNbrsSame.computeIfAbsent(atom, a -> new HashSet<>()), atom + " same-type neighbors");
                 assertEquals(otherTypeNbrs, pmNbrsAB.computeIfAbsent(atom, a -> new HashSet<>()), atom + " other-type neighbors");
@@ -240,8 +240,8 @@ class NeighborListingTest {
             for (IAtom atom : box.getLeafList()) {
                 int typeIdx = atom.getType().getIndex();
                 int otherTypeIdx = typeIdx == 1 ? 0 : 1;
-                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, 5);
-                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, 5);
+                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE);
+                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE);
 
                 Set<IAtom> sameTypeNbrList = new HashSet<>();
                 sameTypeNbrList.addAll(nlm.getUpList(atom)[atom.getType().getIndex()]);
@@ -267,8 +267,8 @@ class NeighborListingTest {
             });
 
             for (IAtom atom : box.getLeafList()) {
-                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, 5);
-                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, 5);
+                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE);
+                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE);
 
                 assertEquals(sameTypeNbrs, pmNbrsSame.computeIfAbsent(atom, a -> new HashSet<>()), atom + " same-type neighbors");
                 assertEquals(otherTypeNbrs, pmNbrsAB.computeIfAbsent(atom, a -> new HashSet<>()), atom + " other-type neighbors");
