@@ -59,11 +59,10 @@ public class TestSimShortRuns {
                 }
 
                 integratorFields.get(0).setAccessible(true);
-                args.add(Arguments.of(cl, (Integrator)integratorFields.get(0).get(sim)));
+                args.add(Arguments.of(cl, integratorFields.get(0).get(sim)));
             }
         }
 
-        System.out.println(args);
         return args;
     }
 
@@ -78,9 +77,8 @@ public class TestSimShortRuns {
                 }
             });
             Thread.sleep(400);
-            reporter.publishEntry(simClass + " steps", Long.toString(simIntegrator.getStepCount()));
             future.cancel(true);
         });
-
+        reporter.publishEntry(simClass + " steps", Long.toString(simIntegrator.getStepCount()));
     }
 }
