@@ -6,6 +6,7 @@ package etomica.lattice;
 
 
 import etomica.potential.IteratorDirective;
+import etomica.util.Debug;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,7 +65,9 @@ public class RectangularLattice implements FiniteLattice {
     }
 
     private void computeNeighbors() {
-        System.out.println("Computing neighbors");
+        if (Debug.ON) {
+            System.out.println("Computing lattice cell neighbors");
+        }
         this.upNeighbors = new int[sites.length][];
         this.downNeighbors = new int[sites.length][];
         CellLattice.NeighborIterator iter = new CellLattice.NeighborIterator(d, neighborRange);

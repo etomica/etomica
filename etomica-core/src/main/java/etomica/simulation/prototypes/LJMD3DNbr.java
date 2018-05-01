@@ -57,7 +57,7 @@ public class LJMD3DNbr extends Simulation {
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.02);
 
-        box.setNMolecules(species, 30000);
+        box.setNMolecules(species, 5000);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.8);
         inflater.actionPerformed();
