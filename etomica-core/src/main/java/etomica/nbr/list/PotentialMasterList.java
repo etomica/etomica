@@ -312,6 +312,29 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
     }
 
+    public void calculate(Box box, PotentialCalculation pc, boolean includeLrc) {
+        // invoke setBox on all potentials
+        setBoxForPotentials(box);
+        NeighborListManager nbrManager = neighborListAgentManager.getAgent(box);
+        IAtomList atoms = box.getLeafList();
+        for (int i = 0; i < atoms.size(); i++) {
+            calculate(atoms.get(i), IteratorDirective.Direction.UP, pc, nbrManager);
+        }
+
+        for (int i = 0; i < simulation.getSpeciesCount(); i++) {
+            PotentialArray intraPotentialArray = getIntraPotentials(simulation.getSpecies(i));
+            IPotential[] intraPotentials = intraPotentialArray.getPotentials();
+            if (intraPotentials.length > 0) {
+                IMoleculeList moleculeList = box.getMoleculeList(simulation.getSpecies(i));
+                for (int j = 0; j < moleculeList.size(); j++) {
+                    for (IPotential intraPotential : intraPotentials) {
+                        ((PotentialGroupNbr) intraPotential).calculateRangeIndependent(moleculeList.get(i), IteratorDirective.Direction.UP, null, pc);
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Overrides superclass method to enable direct neighbor-list iteration
      * instead of iteration via species/potential hierarchy. If no target atoms are
@@ -333,16 +356,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
             if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
                 throw new IllegalArgumentException("When there is no target, iterator directive must be up");
             }
-            // invoke setBox on all potentials
-            setBoxForPotentials(box);
 
-            //no target atoms specified
-            //call calculate with each SpeciesAgent
-            IMoleculeList list = box.getMoleculeList();
-            int size = list.size();
-            for (int i = 0; i < size; i++) {
-                calculate(list.get(i), id.direction(), pc, neighborManager);//call calculate with the SpeciesAgent
-            }
+            calculate(box, pc, id.includeLrc);
         } else {
             if (targetAtom != null) {
                 int targetTypeIdx = targetAtom.getType().getIndex();
@@ -397,7 +412,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
 
     private void calculate(IAtom atom, IteratorDirective.Direction direction, PotentialCalculation pc, NeighborListManager neighborManager) {
         List<IPotentialAtomic> potentials1 = rangedPotentials1Body[atom.getType().getIndex()];
-        if (potentials1.size() > 0) {
+        if (!potentials1.isEmpty()) {
             boolean[] potential1BodyArray = neighborManager.getPotential1BodyList(atom).getInteractingList();
             atomSetSinglet.atom = atom;
             for (int i = 0; i < potentials1.size(); i++) {
@@ -433,27 +448,32 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     }
                     break;//switch
                 case Integer.MAX_VALUE: //N-body
-                    // do the calculation considering the current Atom as the
-                    // "central" Atom.
-                    doNBodyStuff(atom, pc, i, potentials[i], neighborManager);
-                    if (direction != IteratorDirective.Direction.UP) {
-                        // must have a target and be doing "both"
-                        // we have to do the calculation considering each of the
-                        // target's neighbors
-                        IAtomList upList = neighborManager.getUpList(atom)[i];
-                        for (int j = 0; j < upList.size(); j++) {
-                            IAtom otherAtom = upList.get(j);
-                            doNBodyStuff(otherAtom, pc, i, potentials[i], neighborManager);
-                        }
-                        IAtomList downList = neighborManager.getDownList(atom)[i];
-                        for (int j = 0; j < downList.size(); j++) {
-                            IAtom otherAtom = downList.get(j);
-                            doNBodyStuff(otherAtom, pc, i, potentials[i], neighborManager);
-                        }
-                    }
+                    calculateNBody(atom, direction, pc, neighborManager, potentials[i], i);
 
-            }//end of switch
-        }//end of for
+
+            }
+        }
+    }
+
+    private static void calculateNBody(IAtom atom, IteratorDirective.Direction direction, PotentialCalculation pc, NeighborListManager neighborManager, IPotentialAtomic potential, int i) {
+        // do the calculation considering the current Atom as the
+        // "central" Atom.
+        doNBodyStuff(atom, pc, i, potential, neighborManager);
+        if (direction != IteratorDirective.Direction.UP) {
+            // must have a target and be doing "both"
+            // we have to do the calculation considering each of the
+            // target's neighbors
+            IAtomList upList = neighborManager.getUpList(atom)[i];
+            for (int j = 0; j < upList.size(); j++) {
+                IAtom otherAtom = upList.get(j);
+                doNBodyStuff(otherAtom, pc, i, potential, neighborManager);
+            }
+            IAtomList downList = neighborManager.getDownList(atom)[i];
+            for (int j = 0; j < downList.size(); j++) {
+                IAtom otherAtom = downList.get(j);
+                doNBodyStuff(otherAtom, pc, i, potential, neighborManager);
+            }
+        }
     }
 
     /**
