@@ -142,12 +142,14 @@ public class PotentialMasterCell extends PotentialMasterNbr {
             calculate(atoms.get(i), nbrIterator, pc, IteratorDirective.Direction.UP);
         }
         for (int i = 0; i < simulation.getSpeciesCount(); i++) {
-            IMoleculeList moleculeList = box.getMoleculeList(simulation.getSpecies(i));
             PotentialArray intraPotentialArray = getIntraPotentials(simulation.getSpecies(i));
             IPotential[] intraPotentials = intraPotentialArray.getPotentials();
-            for (int j = 0; j < moleculeList.size(); j++) {
-                for (IPotential intraPotential : intraPotentials) {
-                    ((PotentialGroupNbr) intraPotential).calculateRangeIndependent(moleculeList.get(i), IteratorDirective.Direction.UP, null, pc);
+            if (intraPotentials.length > 0) {
+                IMoleculeList moleculeList = box.getMoleculeList(simulation.getSpecies(i));
+                for (int j = 0; j < moleculeList.size(); j++) {
+                    for (IPotential intraPotential : intraPotentials) {
+                        ((PotentialGroupNbr) intraPotential).calculateRangeIndependent(moleculeList.get(i), IteratorDirective.Direction.UP, null, pc);
+                    }
                 }
             }
         }
