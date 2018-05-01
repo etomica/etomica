@@ -49,7 +49,6 @@ public class ActivityIntegrate extends Activity {
         }
         integrator.resetStepCount();
         for (stepCount = 0; stepCount < maxSteps; stepCount++) {
-        	long t0 = System.nanoTime();
             if (Debug.ON) {
                 if (stepCount == Debug.START) Debug.DEBUG_NOW = true;
                 if (stepCount == Debug.STOP) break;
@@ -62,7 +61,6 @@ public class ActivityIntegrate extends Activity {
                 try { Thread.sleep(sleepPeriod); }
                 catch (InterruptedException e) { }
             }
-			System.out.printf("Step %d done in %dms%n", stepCount, (System.nanoTime() - t0) / 1_000_000);
         }
 	}
 
