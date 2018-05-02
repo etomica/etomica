@@ -57,6 +57,8 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
     private boolean quiet;
     private boolean maintainDownLists = false;
 
+    private static final boolean isParallel = Boolean.parseBoolean(System.getProperty("etomica.nbr.parallel"));
+
     public NeighborListManager(PotentialMasterList potentialMasterList, double range, Box box) {
         this(potentialMasterList, new NeighborCellManager(box, range), range, box);
     }
@@ -256,7 +258,8 @@ public class NeighborListManager implements IntegratorListener, AgentSource<Atom
     private void updateNeighbors() {
         int[][] nbrCells = lattice.getUpNeighbors();
         Object[] sites = lattice.sites();
-        IntStream.range(0, sites.length).parallel().forEach(centralCellIdx -> {
+        IntStream range = isParallel ? IntStream.range(0, sites.length).parallel() : IntStream.range(0, sites.length);
+        range.forEach(centralCellIdx -> {
             Cell centralCell = (Cell) sites[centralCellIdx];
             IAtomList centralCellAtoms = centralCell.occupants();
 
