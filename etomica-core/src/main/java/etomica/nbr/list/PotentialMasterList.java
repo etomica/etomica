@@ -328,7 +328,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 IMoleculeList moleculeList = box.getMoleculeList(simulation.getSpecies(i));
                 for (int j = 0; j < moleculeList.size(); j++) {
                     for (IPotential intraPotential : intraPotentials) {
-                        ((PotentialGroupNbr) intraPotential).calculateRangeIndependent(moleculeList.get(i), IteratorDirective.Direction.UP, null, pc);
+                        ((PotentialGroupNbr) intraPotential).calculateRangeIndependent(moleculeList.get(j), IteratorDirective.Direction.UP, null, pc);
                     }
                 }
             }
