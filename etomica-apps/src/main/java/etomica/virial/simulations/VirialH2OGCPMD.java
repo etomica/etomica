@@ -91,6 +91,8 @@ public class VirialH2OGCPMD {
         double temperature = Kelvin.UNIT.toSim(temperatureK);
 
         final int precision = -3*(int)Math.log10(tol);
+
+        final double BDAccFrac = 0.001;
         
         System.out.println("Reference diagram: B"+nPoints+" for hard spheres with diameter " + sigmaHSRef + " Angstroms");
         
@@ -147,6 +149,9 @@ public class VirialH2OGCPMD {
  		
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesWater, nPoints, temperature, refCluster, targetCluster);
         if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
+        if(targetCluster instanceof ClusterCoupledFlippedMultivalue) {
+            ((ClusterCoupledFlippedMultivalue) targetCluster).setBDAccFrac(BDAccFrac,sim.getRandom());
+        }
         sim.setExtraTargetClusters(primes);
 
         //No weighting for BD flipping
@@ -166,6 +171,7 @@ public class VirialH2OGCPMD {
 
         System.out.println("random seeds: "+Arrays.toString(seed==null?sim.getRandomSeeds():seed));
         System.out.println("Big Decimal Tolerance: " + tol);
+        System.out.println("Big Decimal Acceptance Fraction: " + BDAccFrac);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         
         if (nonAdditive != Nonadditive.NONE) {
