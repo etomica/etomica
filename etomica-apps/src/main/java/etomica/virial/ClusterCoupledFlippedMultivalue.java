@@ -15,6 +15,7 @@ import etomica.molecule.IMoleculePositionDefinition;
 import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalue {
 
@@ -37,6 +38,9 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
     public HistogramExpanding histe;
     protected boolean[][] printed = new boolean[100][2];
     public boolean doPrint = false;
+    public IRandom random;
+    public double BDAccFrac = 1;
+    public double FlipAccFrac;
     
     /**
      * cluster must have caching disabled
@@ -56,6 +60,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
         this.nDer = nDer;
         this.tol = tol;
         histe = new HistogramExpanding(1.0,new DoubleRange(-40,0));
+        FlipAccFrac= 1/Math.sqrt(Math.pow(2, wrappedCluster.pointCount()));
     }
 
     public ClusterAbstract makeCopy() {
@@ -74,6 +79,8 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
     public ClusterAbstract getSubCluster() {
         return wrappedCluster;
     }
+
+    public void setBDAccFrac(double p, IRandom rng ){ BDAccFrac = p; random = rng;}
 
     public double value(BoxCluster box) {
         CoordinatePairSet cPairs = box.getCPairSet();
@@ -131,6 +138,14 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
         int printIdx = (int)(Math.sqrt(maxR2)/10);
 
         double[] varr = new double[(1<<n)+1];
+        varr[1] = Double.NaN;
+        boolean doBD = random == null|| random.nextDouble()<BDAccFrac;
+        boolean doFLip = random == null || random.nextDouble()<FlipAccFrac;
+
+        if ( flipit && !doFLip){
+            value[0]=0;
+            return value[0];
+        }
 
         for (int pass=0; pass<2; pass++){
             if(pass==1){
@@ -154,6 +169,10 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
 
             if (!flipit) {
                 if (Math.abs(value[0]/bfac)<tol && pass==0 && value[0]!=0){
+                    if(!doBD){
+                        value[0]=0;
+                        return value[0];
+                    }
                     BDcount++;
                     if (doPrint && !printed[printIdx][1] ) {
                         varr[1]=Double.NaN;
@@ -223,21 +242,29 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
 
             if(false&&pushme&&pass==1)System.out.println(Math.sqrt(maxR2)+" "+ doubleval+" "+value[0]);
 
-            if ( Math.abs(value[0]/bfac)>tol || value[0] ==0) {
+            if ( Math.abs(value[0]/bfac)>tol || value[0]==0) {
                 if(doPrint && pass==0 && !printed[printIdx][0]){
                     printConfig(box,varr);
                     printed[printIdx][0]=true;
                 }
                 break;
             }
-            if(pass==0){
+            if(pass==0 ){
+                if(!doBD){
+                    value[0]=0;
+                    return value[0];
+                }
                 BDcount+=1<<pointCount;
                 if(doPrint && !printed[printIdx][1]) {
                     printConfig(box, varr);
                 }
             }
         }
+        double a = (flipit ? FlipAccFrac : 1) * (currentcluster==wrappedClusterBD ? BDAccFrac : 1);
 
+        for (int m = 0; m < value.length; m++) {
+            value[m] /= a;
+        }
         return value[0];
     }
 
