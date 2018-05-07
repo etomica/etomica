@@ -103,7 +103,8 @@ public class WaterDADBMC extends Simulation {
             epsilon = Mole.UNIT.fromSim(Calorie.UNIT.toSim(C / s6 * 1000)) / 4.0;
         }
         latticeCoordinates = new MoleculeAgentManager(this, box, new MoleculeSiteSource(space, new MoleculePositionCOM(space), new WaterOrientationDefinition(space)));
-        EwaldSummationLattice potentialES = new EwaldSummationLattice(box, atomAgentManager, space, kCut, rCutRealES, latticeCoordinates);
+        AtomLeafAgentManager<Vector> atomLatticeCoordinates = new AtomLeafAgentManager<>(new AtomSiteSource(space), box, Vector.class);
+        EwaldSummationLattice potentialES = new EwaldSummationLattice(box, atomAgentManager, space, kCut, rCutRealES, atomLatticeCoordinates);
         P2LennardJones potentialLJ = new P2LennardJones(space, sigma, epsilon);
         potentialLJLS = new Potential2SoftSphericalLS(space, rCutLJ, rC, potentialLJ, latticeCoordinates);
 //		potentialLJ =  new P2SoftSphericalTruncated(space, potentialLJ, rC);

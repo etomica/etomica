@@ -288,21 +288,65 @@ public class EwaldSummation implements PotentialSoft{
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
     //////////////////////////////////////////// begin calculating gradient //////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    protected void realGradient(IAtomList atoms) {
+        int nAtoms = box.getLeafList().getAtomCount();
+        //Real gradient  //Cross Interaction
+        for (int i = 0; i < nAtoms; i++) {
+            IAtom atomA = box.getLeafList().getAtom(i);
+            double chargeA = atomAgentManager.getAgent(atomA).charge;
+            if (chargeA == 0) continue;
+            int aIndex = atomA.getParentGroup().getIndex(); // molecule a
+            Vector positionA = atomA.getPosition();
+            for (int j = i + 1; j < nAtoms; j++) {
+                IAtom atomB = box.getLeafList().getAtom(j);
+                int bIndex = atomB.getParentGroup().getIndex(); // molecule b
+
+                if (nRealShells[0] == 0 && nRealShells[1] == 0 && nRealShells[2] == 0 && aIndex == bIndex)
+                    continue;//Skip same molecules!
+
+                double chargeB = atomAgentManager.getAgent(atomB).charge;
+                if (chargeB == 0) continue;
+                Vector positionB = atomB.getPosition();
+                rAB.Ev1Mv2(positionA, positionB); //rAB == rA - rB
+                box.getBoundary().nearestImage(rAB);
+                for (int nx = -nRealShells[0]; nx <= nRealShells[0]; nx++) {
+                    Lxyz.setX(0, nx * boxSize[0]);
+                    for (int ny = -nRealShells[1]; ny <= nRealShells[1]; ny++) {
+                        Lxyz.setX(1, ny * boxSize[1]);
+                        for (int nz = -nRealShells[2]; nz <= nRealShells[2]; nz++) {
+                            if (aIndex == bIndex && nx * nx + ny * ny + nz * nz == 0) continue;
+                            Lxyz.setX(2, nz * boxSize[2]);
+                            drTmp.Ev1Pv2(rAB, Lxyz);
+
+                            double rAB2 = drTmp.squared();
+                            if (rAB2 > rCutSquared) continue;
+                            double rABMagnitude = Math.sqrt(rAB2);
+                            double rAB3 = rABMagnitude * rAB2;
+                            double B = Erf.erfc(alpha * rABMagnitude) + 2.0 * alpha * rABMagnitude / sqrtPI * Math.exp(-alpha2 * rAB2);
+                            double realCoeff = -chargeA * chargeB * B / rAB3; // gradU = -F
+                            gradient[i].PEa1Tv1(realCoeff, drTmp);
+                            gradient[j].PEa1Tv1(-realCoeff, drTmp);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     public Vector[] gradient(IAtomList atoms) {
         int nAtoms = box.getLeafList().getAtomCount();
-        double coeff = 4.0*Math.PI/volume;
+        double coeff = 4.0 * Math.PI / volume;
         double kCutSquared = kCut * kCut; // criteria for spherical cutoff in fourier space
 
-        if(gradient.length < nAtoms){
+        if (gradient.length < nAtoms) {
             gradient = new Vector[nAtoms];
             sinkrj = new double[nAtoms];
             coskrj = new double[nAtoms];
-            for(int i=0; i < nAtoms; i++){
+            for (int i = 0; i < nAtoms; i++) {
                 gradient[i] = space.makeVector();
             }
-        }else{
-            for(int i=0; i < nAtoms; i++){
+        } else {
+            for (int i = 0; i < nAtoms; i++) {
                 gradient[i].E(0); //for Vecors and scalar
                 sinkrj[i] = 0;
                 coskrj[i] = 0;
@@ -310,46 +354,7 @@ public class EwaldSummation implements PotentialSoft{
         }
 
         if (doRealSum) {
-            //Real gradient  //Cross Interaction
-            for (int i=0; i < nAtoms; i++){
-                IAtom atomA = box.getLeafList().getAtom(i);
-                double chargeA = atomAgentManager.getAgent(atomA).charge;
-                if (chargeA==0) continue;
-                int aIndex = atomA.getParentGroup().getIndex(); // molecule a
-                Vector positionA = atomA.getPosition();
-                for (int j=i+1; j < nAtoms; j++){
-                    IAtom atomB = box.getLeafList().getAtom(j);
-                    int bIndex = atomB.getParentGroup().getIndex(); // molecule b
-    
-                    if(nRealShells[0] == 0 && nRealShells[1] == 0 && nRealShells[2] == 0 && aIndex == bIndex) continue;//Skip same molecules!
-    
-                    double chargeB = atomAgentManager.getAgent(atomB).charge;
-                    if (chargeB==0) continue;
-                    Vector positionB = atomB.getPosition();
-                    rAB.Ev1Mv2(positionA, positionB); //rAB == rA - rB
-                    box.getBoundary().nearestImage(rAB);
-                    for (int nx = -nRealShells[0]; nx <= nRealShells[0]; nx++) {
-                        Lxyz.setX(0, nx*boxSize[0]); 
-                        for (int ny = -nRealShells[1]; ny <= nRealShells[1]; ny++) {
-                            Lxyz.setX(1, ny*boxSize[1]);
-                            for (int nz = -nRealShells[2]; nz <= nRealShells[2]; nz++) {
-                                if (aIndex==bIndex && nx*nx+ny*ny+nz*nz == 0) continue;
-                                Lxyz.setX(2, nz*boxSize[2]);
-                                drTmp.Ev1Pv2(rAB, Lxyz);
-    
-                                double rAB2 = drTmp.squared();
-                                if (rAB2 > rCutSquared) continue; 
-                                double rABMagnitude = Math.sqrt(rAB2);
-                                double rAB3 = rABMagnitude*rAB2;
-                                double B = Erf.erfc(alpha*rABMagnitude) + 2.0*alpha*rABMagnitude/sqrtPI * Math.exp(-alpha2*rAB2) ;
-                                double realCoeff = - chargeA*chargeB * B / rAB3; // gradU = -F
-                                gradient[i].PEa1Tv1(realCoeff, drTmp);
-                                gradient[j].PEa1Tv1(-realCoeff, drTmp);
-                            }
-                        }
-                    }
-                }
-            }
+            realGradient(atoms);
         }
 
         //Fourier gradient Part		
@@ -373,14 +378,14 @@ public class EwaldSummation implements PotentialSoft{
                         double chargej = atomAgentManager.getAgent(atom).charge;
 
                         sCoskr += chargej*coskrj[j];
-                        sSinkr += chargej*sinkrj[j]; 
+                        sSinkr += chargej*sinkrj[j];
                     }//End loop over j
 
                     double coeffk = coeff / kSquared * Math.exp(-kSquared/4.0/alpha2);
                     for(int i=0; i<nAtoms; i++){
                         IAtom atom = box.getLeafList().getAtom(i);
                         double chargei = atomAgentManager.getAgent(atom).charge;
-                        double coeffki = coeffk * chargei * (sinkrj[i] * sCoskr - coskrj[i] * sSinkr); 
+                        double coeffki = coeffk * chargei * (sinkrj[i] * sCoskr - coskrj[i] * sSinkr);
                         gradient[i].PEa1Tv1(-coeffki , kVector);  // gradU = -F
                     }
                 }//end of storing Sin and Cos
@@ -389,7 +394,7 @@ public class EwaldSummation implements PotentialSoft{
 
         //Intra-Molecular  gradient:
         for (int i=0; i< moleculeList.getMoleculeCount(); i++){
-            IMolecule molecule = moleculeList.getMolecule(i);	
+            IMolecule molecule = moleculeList.getMolecule(i);
             int numSites = molecule.getChildList().getAtomCount();
             for (int siteA=0; siteA<numSites; siteA++){
                 IAtom atomA = molecule.getChildList().getAtom(siteA); // index = 0, 1, 2, 3|||leafIndex=0...184
@@ -406,7 +411,7 @@ public class EwaldSummation implements PotentialSoft{
                     box.getBoundary().nearestImage(rAB);
                     double rAB2 = rAB.squared();
                     double rABMagnitude = Math.sqrt(rAB2);
-                    double B = 2*alpha/sqrtPI * Math.exp(-alpha2*rAB2)-Erf.erf(alpha*rABMagnitude)/rABMagnitude; 
+                    double B = 2*alpha/sqrtPI * Math.exp(-alpha2*rAB2)-Erf.erf(alpha*rABMagnitude)/rABMagnitude;
                     double coeffAB = - chargeA*chargeB * B / rAB2; // gradU = -F
                     gradient[atomA.getLeafIndex()].PEa1Tv1(coeffAB, rAB);
                     gradient[atomB.getLeafIndex()].PEa1Tv1(-coeffAB, rAB);

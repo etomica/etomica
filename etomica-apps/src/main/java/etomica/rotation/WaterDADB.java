@@ -101,7 +101,10 @@ public class WaterDADB extends Simulation {
             epsilon = Mole.UNIT.fromSim(Calorie.UNIT.toSim(C / s6 * 1000)) / 4.0;
         }
         latticeCoordinates = new MoleculeAgentManager(this, box, new MoleculeSiteSource(space, new MoleculePositionCOM(space), new WaterOrientationDefinition(space)));
-        EwaldSummationLattice potentialES = new EwaldSummationLattice(box, atomAgentManager, space, kCut, rCutRealES, latticeCoordinates);
+        AtomLeafAgentManager<Vector> atomLatticeCoordinates = new AtomLeafAgentManager<>(new AtomSiteSource(space), box, Vector.class);
+
+        EwaldSummationLattice potentialES = new EwaldSummationLattice(box, atomAgentManager, space, kCut, rCutRealES, atomLatticeCoordinates);
+
         P2LennardJones potentialLJ = new P2LennardJones(space, sigma, epsilon);
         potentialLJLS = new Potential2SoftSphericalLS(space, rCutLJ, rC, potentialLJ, latticeCoordinates);
 //		potentialLJ =  new P2SoftSphericalTruncated(space, potentialLJ, rC);
@@ -115,7 +118,7 @@ public class WaterDADB extends Simulation {
         double lOH = ConformationWaterTIP4P.bondLengthOH;
         double lHH = Math.sqrt(2 * lOH * lOH * (1 - Math.cos(ConformationWaterTIP4P.angleHOH)));
         double lOM = ConformationWaterTIP4P.rOM;
-        double lMH = Math.sqrt(lOH * lOH + lOM * lOM - 2 * lOH * lOM * Math.cos(0.5 * ConformationWaterTIP4P.angleHOH));
+//        double lMH = Math.sqrt(lOH * lOH + lOM * lOM - 2 * lOH * lOM * Math.cos(0.5 * ConformationWaterTIP4P.angleHOH));
         BondConstraints bondConstraints = new BondConstraints(new int[][]{{0, 2}, {1, 2}, {0, 1}}, new double[]{lOH, lOH, lHH}) {
 
             Vector vectorSum = space.makeVector();
@@ -124,8 +127,8 @@ public class WaterDADB extends Simulation {
             Vector h1Vector = space.makeVector();
             Vector h2Vector = space.makeVector();
             Vector mVector = space.makeVector();
-            Vector newForce = space.makeVector();
-            Vector newTorque = space.makeVector();
+            //            Vector newForce = space.makeVector();
+//            Vector newTorque = space.makeVector();
             Vector dr = space.makeVector();
 
             public void redistributeForces(IMolecule molecule, AtomLeafAgentManager agentManager) {
@@ -623,11 +626,20 @@ public class WaterDADB extends Simulation {
         System.out.println("main:doTranslation:   " + doTranslation + "  doRotation:  " + doRotation);
         System.out.println("timeInterval= " + timeInterval);
 
+
+        long endTime = System.currentTimeMillis();
+        DateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Calendar cal = Calendar.getInstance();
+        System.out.println(date.format(cal.getTime()));
+        double totalTime = (endTime - startTime) / (1000.0 * 60.0);
+        System.out.println("totalTime= " + totalTime + " mins");
+
         if (doMapping) {
             double mappingAverage = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(0);
             double mappingError = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(0);
             double mappingCor = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
-            System.out.println("mappingAverage=\t" + mappingAverage + "   mappingError=\t" + mappingError + " mappingCor=\t" + mappingCor);
+            System.out.println("mappingAverage=\t" + mappingAverage +
+                    "   mappingError=\t" + mappingError + " mappingCor=\t" + mappingCor + " time= " + totalTime);
         }
 
         if (doConventional) {
@@ -635,7 +647,7 @@ public class WaterDADB extends Simulation {
             double PEAError = accumulatorAverageFixedPE.getData(AccumulatorAverage.ERROR).getValue(0);
             double PECor = accumulatorAverageFixedPE.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
             System.out.println("PEAverage=\t" + (PEAverage - latticeEnergy - fac * Kelvin.UNIT.toSim(temperature)) +
-                    "  PEeError=\t" + PEAError + "  PECor=\t" + PECor);
+                    "  PEeError=\t" + PEAError + "  PECor=\t" + PECor + " time= " + totalTime);
         }
 //        System.out.println("PE-lattice= " + (PEAverage - latticeEnergy));
 //        ConfigurationFile config = new ConfigurationFile(numCells + "ncFinalPos");
@@ -644,12 +656,7 @@ public class WaterDADB extends Simulation {
 //        System.out.println("endLE = " + endLatticeEnergy);
 
 
-        long endTime = System.currentTimeMillis();
-        DateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        Calendar cal = Calendar.getInstance();
-        System.out.println(date.format(cal.getTime()));
-        double totalTime = (endTime - startTime) / (1000.0 * 60.0);
-        System.out.println("totalTime= " + totalTime + " mins");
+
     }
 
     public static class WaterOrientationDefinition implements etomica.normalmode.MoleculeSiteSource.MoleculeOrientationDefinition {
@@ -681,7 +688,7 @@ public class WaterDADB extends Simulation {
 
     public static class WaterDADBParam extends ParameterBase {
         public int numCells = 1;
-        public int numSteps = 100000;
+        public int numSteps = 1000;
         public double timeInterval = 0.002;
         public double temperature = 50;
         public double rCutLJ = 11;
@@ -694,6 +701,6 @@ public class WaterDADB extends Simulation {
         public boolean doRotation = true;
         public boolean doTranslation = true;
         public boolean doMapping = true;
-        public boolean doConventional = false;
+        public boolean doConventional = true;
     }
 }
