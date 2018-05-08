@@ -45,7 +45,7 @@ public class BenchSimHSMD3D {
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
-    @Measurement(time = 5, timeUnit = TimeUnit.SECONDS, iterations = 5)
+    @Measurement(time = 3, timeUnit = TimeUnit.SECONDS, iterations = 5)
     public double integratorStep() {
         sim.integrator.doStep();
         return pMeter.getDataAsScalar();

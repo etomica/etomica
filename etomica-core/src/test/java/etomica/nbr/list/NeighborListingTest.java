@@ -277,6 +277,55 @@ class NeighborListingTest {
         }
     }
 
+    @Nested
+    class AfterSetRange {
+        @BeforeEach
+        void setRange() {
+            pm.setRange(NBR_RANGE + 1);
+            nlm.updateNbrsIfNeeded();
+        }
+
+        @Test
+        void testNbrDistance() {
+            for (IAtom atom : box.getLeafList()) {
+                int typeIdx = atom.getType().getIndex();
+                int otherTypeIdx = typeIdx == 1 ? 0 : 1;
+                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE);
+                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE);
+
+                Set<IAtom> sameTypeNbrList = new HashSet<>();
+                sameTypeNbrList.addAll(nlm.getUpList(atom)[atom.getType().getIndex()]);
+                sameTypeNbrList.addAll(nlm.getDownList(atom)[atom.getType().getIndex()]);
+
+                Set<IAtom> otherTypeNbrList = new HashSet<>();
+                otherTypeNbrList.addAll(nlm.getUpList(atom)[otherTypeIdx]);
+                otherTypeNbrList.addAll(nlm.getDownList(atom)[otherTypeIdx]);
+
+                assertEquals(sameTypeNbrs, sameTypeNbrList, atom + " same-type neighbors");
+                assertEquals(otherTypeNbrs, otherTypeNbrList, atom + " other-type neighbors");
+            }
+        }
+
+        @Test
+        void testPotentialMasterNbrs() {
+
+            pm.calculate(box, new IteratorDirective(), new PotentialCalculation() {
+                @Override
+                public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
+                    potential.energy(atoms);
+                }
+            });
+
+            for (IAtom atom : box.getLeafList()) {
+                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE);
+                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE);
+
+                assertEquals(sameTypeNbrs, pmNbrsSame.computeIfAbsent(atom, a -> new HashSet<>()), atom + " same-type neighbors");
+                assertEquals(otherTypeNbrs, pmNbrsAB.computeIfAbsent(atom, a -> new HashSet<>()), atom + " other-type neighbors");
+            }
+        }
+    }
+
     private static abstract class MockPotential implements IPotentialAtomic {
         private final int nBody;
         private final double range;
