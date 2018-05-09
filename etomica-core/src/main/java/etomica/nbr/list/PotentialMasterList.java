@@ -318,7 +318,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         NeighborListManager nbrManager = neighborListAgentManager.getAgent(box);
         IAtomList atoms = box.getLeafList();
         for (int i = 0; i < atoms.size(); i++) {
-            calculate(atoms.get(i), IteratorDirective.Direction.UP, pc, nbrManager);
+            calculateUp(atoms.get(i), pc, nbrManager);
         }
 
         for (int i = 0; i < simulation.getSpeciesCount(); i++) {
@@ -411,7 +411,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
     }
 
-    private void calculate(IAtom atom, IteratorDirective.Direction direction, PotentialCalculation pc, NeighborListManager neighborManager) {
+    private void calculate1Body(IAtom atom, PotentialCalculation pc, NeighborListManager neighborManager) {
         List<IPotentialAtomic> potentials1 = rangedPotentials1Body[atom.getType().getIndex()];
         if (!potentials1.isEmpty()) {
             boolean[] potential1BodyArray = neighborManager.getPotential1BodyList(atom).getInteractingList();
@@ -423,6 +423,26 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 }
             }
         }
+    }
+
+    private void calculateUp(IAtom atom, PotentialCalculation pc, NeighborListManager neighborManager) {
+        calculate1Body(atom, pc, neighborManager);
+
+        IPotentialAtomic[] potentials = rangedPotentials[atom.getType().getIndex()];
+        for (int i = 0; i < potentials.length; i++) {
+            if (potentials[i] == null) continue;
+            IAtomList list = neighborManager.getUpList(atom)[i];
+            int nNeighbors = list.size();
+            atomPair.atom0 = atom;
+            for (int j = 0; j < nNeighbors; j++) {
+                atomPair.atom1 = list.get(j);
+                pc.doCalculation(atomPair, potentials[i]);
+            }
+        }
+    }
+
+    private void calculate(IAtom atom, IteratorDirective.Direction direction, PotentialCalculation pc, NeighborListManager neighborManager) {
+        calculate1Body(atom, pc, neighborManager);
 
         IPotentialAtomic[] potentials = rangedPotentials[atom.getType().getIndex()];
         for (int i = 0; i < potentials.length; i++) {
