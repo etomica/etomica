@@ -185,20 +185,17 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             }
         }
 
-        IPotentialAtomic[] potentials = rangedPotentials[atom.getType().getIndex()];
-        NeighborCriterion[] myCriteria = criteria[atom.getType().getIndex()];
-
-        for (int i = 0; i < potentials.length; i++) {
-            if (potentials[i] == null) continue;
-            IPotentialAtomic p2 = potentials[i];
-            NeighborCriterion nbrCriterion = myCriteria[i];
-            neighborIterator.setTarget(atom);
-            neighborIterator.reset();
-            for (IAtomList pair = neighborIterator.next(); pair != null;
-                 pair = neighborIterator.next()) {
-                if (nbrCriterion.accept(pair)) {
-                    pc.doCalculation(pair, p2);
-                }
+        neighborIterator.setTarget(atom);
+        neighborIterator.reset();
+        for (IAtomList pair = neighborIterator.next(); pair != null;
+             pair = neighborIterator.next()) {
+            IAtom atom0 = pair.get(0);
+            IAtom atom1 = pair.get(1);
+            IPotentialAtomic p2 = rangedPotentials[atom0.getType().getIndex()][atom1.getType().getIndex()];
+            if (p2 == null) continue;
+            NeighborCriterion nbrCriterion = criteria[atom0.getType().getIndex()][atom1.getType().getIndex()];
+            if (nbrCriterion.accept(pair)) {
+                pc.doCalculation(pair, p2);
             }
         }
     }
