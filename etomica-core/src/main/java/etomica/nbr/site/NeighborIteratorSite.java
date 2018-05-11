@@ -21,7 +21,7 @@ public class NeighborIteratorSite implements NeighborIterator {
     }
 
     @Override
-    public void forEachNeighbor(IAtom targetAtom, IteratorDirective.Direction direction, AtomPairConsumer action) {
-
+    public void forEachNeighbor(IAtom targetAtom, IteratorDirective.Direction direction, AtomPairConsumer upAction, AtomPairConsumer downAction) {
+        // TODO
     }
 }

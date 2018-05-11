@@ -165,23 +165,23 @@ public class PotentialMasterSite extends PotentialMasterNbr {
 
     private void calculate(IAtom atom, NeighborIterator neighborIterator, PotentialCalculation pc, IteratorDirective.Direction direction) {
         calculate1Body(atom, pc);
-
-        IPotentialAtomic[] potentials = rangedPotentials[atom.getType().getIndex()];
         NeighborCriterion[] myCriteria = criteria[atom.getType().getIndex()];
+        IPotentialAtomic[] potentials = rangedPotentials[atom.getType().getIndex()];
 
-        neighborIterator.forEachNeighbor(atom, direction, (atom1, atom2) -> {
-            for (int i = 0; i < potentials.length; i++) {
-                if (potentials[i] == null) {
-                    continue;
+        neighborIterator.forEachNeighbor(atom, direction,
+                (targetAtom, otherAtom) -> {
+                    NeighborCriterion criterion = myCriteria[otherAtom.getType().getIndex()];
+                    if (criterion.accept(targetAtom, otherAtom)) {
+                        pc.doCalculation(new AtomPair(targetAtom, otherAtom), potentials[otherAtom.getType().getIndex()]);
+                    }
+                },
+                (otherAtom, targetAtom) -> {
+                    NeighborCriterion criterion = myCriteria[otherAtom.getType().getIndex()];
+                    if (criterion.accept(otherAtom, targetAtom)) {
+                        pc.doCalculation(new AtomPair(otherAtom, targetAtom), potentials[otherAtom.getType().getIndex()]);
+                    }
                 }
-
-                IPotentialAtomic p2 = potentials[i];
-                NeighborCriterion nbrCriterion = myCriteria[i];
-                if (nbrCriterion.accept(atom1, atom2)) {
-                    pc.doCalculation(new AtomPair(atom1, atom2), p2);
-                }
-            }
-        });
+        );
 
     }
 

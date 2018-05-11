@@ -17,7 +17,7 @@ public class NeighborIteratorCell implements NeighborIterator {
     }
 
     @Override
-    public void forEachNeighbor(IAtom targetAtom, IteratorDirective.Direction direction, AtomPairConsumer action) {
+    public void forEachNeighbor(IAtom targetAtom, IteratorDirective.Direction direction, AtomPairConsumer upAction, AtomPairConsumer downAction) {
 
         Cell targetCell = neighborCellManager.getCell(targetAtom);
         Object[] sites = lattice.sites();
@@ -34,9 +34,9 @@ public class NeighborIteratorCell implements NeighborIterator {
                 upListNow = true;
             } else {
                 if(upListNow && doUp) {
-                    action.accept(targetAtom, otherAtom);
+                    upAction.accept(targetAtom, otherAtom);
                 } else if (doDown) {
-                    action.accept(otherAtom, targetAtom);
+                    downAction.accept(otherAtom, targetAtom);
                 }
             }
         }
@@ -45,7 +45,7 @@ public class NeighborIteratorCell implements NeighborIterator {
             for (int nbrIdx : upNbrCells) {
                 Cell nbrCell = (Cell) sites[nbrIdx];
                 for (int i = 0; i < nbrCell.occupants().size(); i++) {
-                    action.accept(targetAtom, nbrCell.occupants().get(i));
+                    upAction.accept(targetAtom, nbrCell.occupants().get(i));
                 }
             }
         }
@@ -54,7 +54,7 @@ public class NeighborIteratorCell implements NeighborIterator {
             for (int nbrIdx : downNbrCells) {
                 Cell nbrCell = (Cell) sites[nbrIdx];
                 for (int i = 0; i < nbrCell.occupants().size(); i++) {
-                    action.accept(nbrCell.occupants().get(i), targetAtom);
+                    downAction.accept(nbrCell.occupants().get(i), targetAtom);
                 }
             }
         }

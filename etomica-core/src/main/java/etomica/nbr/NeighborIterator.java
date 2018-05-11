@@ -8,7 +8,11 @@ import java.util.function.Consumer;
 
 public interface NeighborIterator {
 
-    void forEachNeighbor(IAtom targetAtom, IteratorDirective.Direction direction, AtomPairConsumer action);
+    void forEachNeighbor(IAtom targetAtom, IteratorDirective.Direction direction, AtomPairConsumer upAction, AtomPairConsumer downAction);
+
+    default void forEachNeighbor(IAtom targetAtom, IteratorDirective.Direction direction, AtomPairConsumer action) {
+        forEachNeighbor(targetAtom, direction, action, action);
+    }
 
     @FunctionalInterface
     interface AtomPairConsumer extends BiConsumer<IAtom, IAtom> {
