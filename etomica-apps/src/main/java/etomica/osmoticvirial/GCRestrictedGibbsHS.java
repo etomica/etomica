@@ -170,7 +170,10 @@ public class GCRestrictedGibbsHS extends Simulation {
         // set the global move interval.  GMIfac yields a simulation that spends roughly equal
         // CPU time doing global and not-global moves.  Set GMIfac to achieve desired result.
         double n = (box1.getNMolecules(species2) + box2.getNMolecules(species2)) / 2.0;
-        integrator.setGlobalMoveInterval(n / GMIfac);
+        if(n==0) integrator.setGlobalMoveInterval(1);
+        else{
+            integrator.setGlobalMoveInterval(n / GMIfac);
+        }
 
         if (pmc != null) {
             // we have cell listing.  initialize all that.
@@ -192,16 +195,16 @@ public class GCRestrictedGibbsHS extends Simulation {
         }
         else {
             params.numAtoms = 2;
-            params.numSteps = 500000;
-            params.vf = 0.05;
-            params.q = 0.33;
+            params.numSteps = 5000000000L;
+            params.vf = 0.23;
+            params.q = 0.2;
             params.computeAO = false;
             params.L = 3;
             params.GMIfac = 3;
         }
 
         int numAtoms = params.numAtoms;
-        int numSteps = params.numSteps;
+        long numSteps = params.numSteps;
         double vf = params.vf;
         double q = params.q;
         boolean graphics = false;
@@ -210,7 +213,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         double GMIfac = params.GMIfac;
 
         System.out.println("Hard Sphere OV FEP GC");
-        System.out.println(numSteps+" steps");
+        System.out.println(numSteps+" steps long");
         System.out.println("vol fraction: "+vf);
         System.out.println("q: "+q);
         System.out.println("total no of solutes " + numAtoms);
@@ -287,7 +290,7 @@ public class GCRestrictedGibbsHS extends Simulation {
 
     public static class simParams extends ParameterBase {
         public int numAtoms = 3;
-        public int numSteps = 200000;
+        public long numSteps = 5000000000L;
         public double vf = 0.2;
         public double q = 0.2;
         public boolean computeAO = false;

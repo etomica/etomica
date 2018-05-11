@@ -52,7 +52,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
      * @param q size of solvent divided by size of solute
      * @param computeIdeal whether to compute histograms for ideal gas
      */
-    public AshtonWildingOsmoticVirial(int numAtoms, double vf, double q, boolean computeIdeal){
+    public AshtonWildingOsmoticVirial(int numAtoms, double vf, double q, boolean computeIdeal, double L){
 
         super(Space3D.getInstance());
         setRandom(new RandomMersenneTwister(1));
@@ -77,7 +77,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         addSpecies(species2);
         box = new Box(space);
         addBox(box);
-        box.setBoundary(new BoundaryRectangularPeriodic(space, 4*sigma1));
+        box.setBoundary(new BoundaryRectangularPeriodic(space, L*sigma1));
         System.out.println("vol: "+box.getBoundary().volume());
 
         mcMoveInsertDelete.setSpecies(species2);
@@ -136,6 +136,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
             params.vf = 0.1;
             params.computeIdeal = false;
             params.sizeRatio = 0.2;
+            params.L = 3;
         }
         int numAtoms = params.numAtoms;
         long numSteps = params.numSteps;
@@ -143,6 +144,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         double vf = params.vf;
         double q = params.sizeRatio;
         boolean computeIdeal = params.computeIdeal;
+        double L = params.L;
         boolean graphics = false;
         AccumulatorAverageFixed accNm = null;
 
@@ -154,10 +156,11 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         System.out.println("Volume fraction: "+ vf);
         System.out.println("Size ratio: "+ q);
         System.out.println("nBlocks "+ nBlocks);
+        System.out.println("system size: "+L+" sigma" );
 
         long t1 = System.currentTimeMillis();
 
-        AshtonWildingOsmoticVirial sim = new AshtonWildingOsmoticVirial(numAtoms, vf, q, computeIdeal);
+        AshtonWildingOsmoticVirial sim = new AshtonWildingOsmoticVirial(numAtoms, vf, q, computeIdeal, L);
 
         if(graphics){
             final String appName = "Ashton-Wilding";
@@ -175,7 +178,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         sim.integrator.getMoveManager().setEquilibrating(false);
 
         MeterRminSpecies meterRmin = new MeterRminSpecies(sim.space, sim.box, sim.species1);
-        AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, 4*sim.potential1.getRange())));
+        AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, L*sim.potential1.getRange())));
         DataPumpListener pumpRmin = new DataPumpListener(meterRmin,accRmin,numAtoms);
         sim.integrator.getEventManager().addListener(pumpRmin);
 
@@ -216,6 +219,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         public double vf = 0.2;
         public double sizeRatio = 0.2;
         public boolean computeIdeal = false;
+        public double L = 2.5;
 
     }
 }
