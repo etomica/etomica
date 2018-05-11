@@ -134,13 +134,12 @@ public class PotentialMasterCell extends PotentialMasterNbr {
 
     public void calculate(Box box, PotentialCalculation pc, boolean includeLrc) {
 
-        NeighborIterator nbrIterator = neighborIterators.getAgent(box);
         setBoxForCriteria(box);
         setBoxForPotentials(box);
 
         IAtomList atoms = box.getLeafList();
         for (int i = 0; i < atoms.size(); i++) {
-            calculate(atoms.get(i), neighborCellManagers.getAgent(box), pc, IteratorDirective.Direction.UP);
+            calculate(atoms.get(i), neighborIterators.getAgent(box), pc, IteratorDirective.Direction.UP);
         }
         for (int i = 0; i < simulation.getSpeciesCount(); i++) {
             PotentialArray intraPotentialArray = getIntraPotentials(simulation.getSpecies(i));
@@ -188,10 +187,10 @@ public class PotentialMasterCell extends PotentialMasterNbr {
                     intraPotential.setBox(box);
                     ((PotentialGroupNbr) intraPotential).calculateRangeIndependent(parentMolecule, id.direction(), targetAtom, pc);
                 }
-                calculate(targetAtom, neighborCellManagers.getAgent(box), pc, id.direction());
+                calculate(targetAtom, neighborIterators.getAgent(box), pc, id.direction());
             } else {
                 for (int i = 0; i < targetMolecule.getChildList().size(); i++) {
-                    calculate(targetMolecule.getChildList().get(i), neighborCellManagers.getAgent(box), pc, id.direction());
+                    calculate(targetMolecule.getChildList().get(i), neighborIterators.getAgent(box), pc, id.direction());
                 }
 
                 PotentialArray intraPotentialArray = getIntraPotentials(targetMolecule.getType());
@@ -227,70 +226,6 @@ public class PotentialMasterCell extends PotentialMasterNbr {
                 }
         );
 
-    }
-
-    private void calculate(IAtom targetAtom, NeighborCellManager neighborCellManager, PotentialCalculation pc, IteratorDirective.Direction direction) {
-        CellLattice lattice = neighborCellManager.getLattice();
-
-        NeighborCriterion[] myCriteria = criteria[targetAtom.getType().getIndex()];
-        IPotentialAtomic[] potentials = rangedPotentials[targetAtom.getType().getIndex()];
-
-        Cell targetCell = neighborCellManager.getCell(targetAtom);
-        Object[] sites = lattice.sites();
-        IAtomList cellAtoms = targetCell.occupants();
-        int[] upNbrCells = lattice.getUpNeighbors()[targetCell.getLatticeArrayIndex()];
-        int[] downNbrCells = lattice.getDownNeighbors()[targetCell.getLatticeArrayIndex()];
-        boolean doUp = direction != IteratorDirective.Direction.DOWN;
-        boolean doDown = direction != IteratorDirective.Direction.UP;
-        boolean upListNow = false;
-
-        for (int i = 0; i < cellAtoms.size(); i++) {
-            IAtom otherAtom = cellAtoms.get(i);
-            if(otherAtom == targetAtom) {
-                upListNow = true;
-            } else {
-                NeighborCriterion criterion = myCriteria[otherAtom.getType().getIndex()];
-                if(upListNow && doUp) {
-                    if (criterion.accept(targetAtom, otherAtom)) {
-                        IPotentialAtomic potential = potentials[otherAtom.getType().getIndex()];
-                        pc.doCalculation(new AtomPair(targetAtom, otherAtom), potential);
-                    }
-                } else if (doDown) {
-                    if (criterion.accept(otherAtom, targetAtom)) {
-                        IPotentialAtomic potential = potentials[otherAtom.getType().getIndex()];
-                        pc.doCalculation(new AtomPair(otherAtom, targetAtom), potential);
-                    }
-                }
-            }
-        }
-
-        if (doUp) {
-            for (int nbrIdx : upNbrCells) {
-                Cell nbrCell = (Cell) sites[nbrIdx];
-                for (int i = 0; i < nbrCell.occupants().size(); i++) {
-                    IAtom otherAtom = nbrCell.occupants().get(i);
-                    NeighborCriterion criterion = myCriteria[otherAtom.getType().getIndex()];
-                    if (criterion.accept(targetAtom, otherAtom)) {
-                        IPotentialAtomic potential = potentials[otherAtom.getType().getIndex()];
-                        pc.doCalculation(new AtomPair(targetAtom, otherAtom), potential);
-                    }
-                }
-            }
-        }
-
-        if (doDown) {
-            for (int nbrIdx : downNbrCells) {
-                Cell nbrCell = (Cell) sites[nbrIdx];
-                for (int i = 0; i < nbrCell.occupants().size(); i++) {
-                    IAtom otherAtom = nbrCell.occupants().get(i);
-                    NeighborCriterion criterion = myCriteria[otherAtom.getType().getIndex()];
-                    if (criterion.accept(otherAtom, targetAtom)) {
-                        IPotentialAtomic potential = potentials[otherAtom.getType().getIndex()];
-                        pc.doCalculation(new AtomPair(otherAtom, targetAtom), potential);
-                    }
-                }
-            }
-        }
     }
 
     private void calculate1Body(IAtom atom, PotentialCalculation pc) {
