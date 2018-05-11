@@ -27,6 +27,7 @@ public class P22CLJmuQ extends PotentialMolecular implements PotentialMolecularS
     private double epsilon1, epsilon2, epsilon12;
     private double hsdiasq = 1.0 / Math.sqrt(2);
     private double Q2, mu2;
+    private double Q, mu;
     private Boundary boundary;
     private double siteFraction;
 
@@ -49,7 +50,9 @@ public class P22CLJmuQ extends PotentialMolecular implements PotentialMolecularS
         this.epsilon2 = epsilon2;
         epsilon12 = Math.sqrt(epsilon1 * epsilon2);
         this.mu2 = mu*mu;
+        this.mu = mu;
         this.Q2 = Q*Q;
+        this.Q = Q;
         this.siteFraction = siteFraction;
         com1 = space.makeVector();
         com2 = space.makeVector();
@@ -153,6 +156,12 @@ public class P22CLJmuQ extends PotentialMolecular implements PotentialMolecularS
             uDipole  = mu2 * uDipole / (r*r*r) ;
             ener += uDipole;
 
+            double temp2 = cos1 * (3 * cos2 * cos2 - 1) - 2 * cos2 * (v1.dot(v2) - cos1 * cos2);
+            double temp3 = cos2 * (3 * cos1 * cos1 - 1) - 2 * cos1 * (v1.dot(v2) - cos1 * cos2);
+            double uDipoleQual =(3 / (r2 * r2)) * (mu * Q * temp2 - mu * Q * temp3);
+            ener += uDipoleQual;
+
+
 
         }
         return ener;
@@ -198,19 +207,19 @@ public class P22CLJmuQ extends PotentialMolecular implements PotentialMolecularS
 
         dr.Ev1Mv2(bead11.getPosition(), bead21.getPosition());
         boundary.nearestImage(dr);
-        double vir = epsilon1 * calculateDU(dr.squared() / sigma1Sq) * dr.dot(v12);
+        double vir = epsilon1 * calculateDU(dr.squared() / sigma1Sq) * dr.dot(v12) / sigma1Sq;
 
         dr.Ev1Mv2(bead11.getPosition(), bead22.getPosition());
         boundary.nearestImage(dr);
-        vir += epsilon12 * calculateDU(dr.squared() / sigma12Sq) * dr.dot(v12);
+        vir += epsilon12 * calculateDU(dr.squared() / sigma12Sq) * dr.dot(v12) / sigma12Sq;
 
         dr.Ev1Mv2(bead12.getPosition(), bead21.getPosition());
         boundary.nearestImage(dr);
-        vir += epsilon12 * calculateDU(dr.squared() / sigma12Sq) * dr.dot(v12);
+        vir += epsilon12 * calculateDU(dr.squared() / sigma12Sq) * dr.dot(v12) /sigma12Sq;
 
         dr.Ev1Mv2(bead12.getPosition(), bead22.getPosition());
         boundary.nearestImage(dr);
-        vir +=  epsilon2 * calculateDU(dr.squared() / sigma2Sq) * dr.dot(v12);
+        vir +=  epsilon2 * calculateDU(dr.squared() / sigma2Sq) * dr.dot(v12) / sigma2Sq;
 
         if (Q2 != 0.0) {
 
@@ -257,6 +266,11 @@ public class P22CLJmuQ extends PotentialMolecular implements PotentialMolecularS
             double uDipole = (v1.dot(v2) - 3.0 * v1.dot(v12) * v2.dot(v12));
             double vDipole  = -3*mu2 * uDipole / (r*r2) ;
             vir += vDipole;
+
+            double temp2 = cos1 * (3 * cos2 * cos2 - 1) - 2 * cos2 * (v1.dot(v2) - cos1 * cos2);
+            double temp3 = cos2 * (3 * cos1 * cos1 - 1) - 2 * cos1 * (v1.dot(v2) - cos1 * cos2);
+            double uDipoleQual =-4*(3 / (r2 * r2)) * (mu * Q * temp2 - mu * Q * temp3);
+            vir += uDipoleQual;
         }
         return vir;
     }
