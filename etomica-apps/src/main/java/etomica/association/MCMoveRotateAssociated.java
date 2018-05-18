@@ -8,31 +8,31 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.potential.PotentialMaster;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.space3d.Orientation3D;
 import etomica.util.random.IRandom;
 
 /**
  * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.
  */
 public class MCMoveRotateAssociated extends MCMoveAtom {
-    
-    private static final long serialVersionUID = 2L;
-    private final IOrientation oldOrientation;
+
+    private IOrientation oldOrientation;
     protected AssociationManager associationManager;
     protected final AtomArrayList smerList;
     protected final Vector dr;
 	protected int maxLength = Integer.MAX_VALUE;
 
-    private transient IOrientation iOrientation;
+    private IOrientation iOrientation;
 
     public MCMoveRotateAssociated(PotentialMaster potentialMaster, IRandom random,
                                   Space _space) {
         super(random, potentialMaster, _space, Math.PI/2, Math.PI, false);
-        oldOrientation = _space.makeOrientation();
         this.smerList = new AtomArrayList();
         this.dr = _space.makeVector();
     }
@@ -40,7 +40,20 @@ public class MCMoveRotateAssociated extends MCMoveAtom {
     public void setAssociationManager(AssociationManager associationManager){
 		this.associationManager = associationManager;
     }
-    
+
+    public void setBox(Box box) {
+        super.setBox(box);
+        if (oldOrientation != null) return;
+        IAtomList atoms = box.getLeafList();
+        if (atoms.size() == 0) return;
+        IAtomOriented atom0 = (IAtomOriented) atoms.get(0);
+        if (atom0.getOrientation() instanceof Orientation3D) {
+            oldOrientation = new Orientation3D(space);
+        } else {
+            oldOrientation = space.makeOrientation();
+        }
+    }
+
     public boolean doTrial() {//rotate any atom
         if(box.getMoleculeList().size()==0) {return false;}
         atom = atomSource.getAtom();

@@ -40,7 +40,6 @@ import etomica.util.ParameterBase;
  */
 public class TestLJAssociationMC3D_NVTOld extends Simulation {
     
-    private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public MCMoveAtomNoSmer mcMoveAtom;
     //public MCMoveAtomDimer mcMoveAtomDimer;
@@ -84,6 +83,7 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
         bvso.setTheta(Degree.UNIT.toSim(27.0));
         bvso.setBiasSphereInnerRadius(0.0);
         bvso.setBox(box);
+        box.setNMolecules(species, numAtoms);
         associationManagerOriented = new AssociationManager(box, potentialMaster, bvso);
         associationHelper = new AssociationHelperSingle(associationManagerOriented);
         //mcMoveBiasUB = new MCMoveBiasUB(potentialMaster, bvso, random, space);
@@ -106,7 +106,6 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
         //actionIntegrate.setSleepPeriod(1);
         actionIntegrator.setMaxSteps(numSteps);
         getController().addAction(actionIntegrator);
-        box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);
         inflater.actionPerformed();

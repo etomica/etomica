@@ -30,7 +30,6 @@ import java.io.IOException;
  */
 public class MCMoveVolumeAssociated extends MCMoveBoxStep implements AtomLeafAgentManager.AgentSource<MCMoveVolumeAssociated.Agent> {
     
-    private static final long serialVersionUID = 2L;
     protected double pressure;
     private MeterPotentialEnergy energyMeter;
     private final int D;
