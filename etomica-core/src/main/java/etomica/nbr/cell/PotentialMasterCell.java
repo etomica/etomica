@@ -214,13 +214,13 @@ public class PotentialMasterCell extends PotentialMasterNbr {
         neighborIterator.forEachNeighbor(atom, direction,
                 (targetAtom, otherAtom) -> {
                     NeighborCriterion criterion = myCriteria[otherAtom.getType().getIndex()];
-                    if (criterion.accept(targetAtom, otherAtom)) {
+                    if (criterion != null && criterion.accept(targetAtom, otherAtom)) {
                         pc.doCalculation(new AtomPair(targetAtom, otherAtom), potentials[otherAtom.getType().getIndex()]);
                     }
                 },
                 (otherAtom, targetAtom) -> {
                     NeighborCriterion criterion = myCriteria[otherAtom.getType().getIndex()];
-                    if (criterion.accept(otherAtom, targetAtom)) {
+                    if (criterion != null && criterion.accept(otherAtom, targetAtom)) {
                         pc.doCalculation(new AtomPair(otherAtom, targetAtom), potentials[otherAtom.getType().getIndex()]);
                     }
                 }
