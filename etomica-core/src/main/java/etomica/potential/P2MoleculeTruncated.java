@@ -58,8 +58,8 @@ public class P2MoleculeTruncated extends PotentialMolecular {
     
     public double energy(IMoleculeList atoms) {
     	
-        dr.E(positionDefinition.position(atoms.getMolecule(1)));
-        dr.ME(positionDefinition.position(atoms.getMolecule(0)));
+        dr.E(positionDefinition.position(atoms.get(1)));
+        dr.ME(positionDefinition.position(atoms.get(0)));
  //       System.out.println("in P2MoleculeTruncated,before nearest image, distance between two molecules: "+Math.sqrt(dr.squared()));
         boundary.nearestImage(dr);
         

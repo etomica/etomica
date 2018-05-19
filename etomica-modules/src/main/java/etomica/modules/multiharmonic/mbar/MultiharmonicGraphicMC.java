@@ -39,7 +39,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
      * 
      */
     public MultiharmonicGraphicMC(MultiharmonicMC simulation, Space _space) {
-        super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+        super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
         final DisplayBox displayBoxA = getDisplayBox(sim.boxA);
         remove(displayBoxA);
@@ -210,7 +210,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 
         DataSourceScalar delta = new DataSourceScalar("exact",Energy.DIMENSION) {
             public double getDataAsScalar() {
-                return 0.5*sim.boxA.getLeafList().getAtomCount() * Math.log(omegaBSlider.getValue()/omegaASlider.getValue());
+                return 0.5*sim.boxA.getLeafList().size() * Math.log(omegaBSlider.getValue()/omegaASlider.getValue());
             }
         };
         

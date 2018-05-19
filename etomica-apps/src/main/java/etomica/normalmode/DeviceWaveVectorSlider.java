@@ -18,7 +18,6 @@ import javax.swing.event.ChangeListener;
 
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
-import etomica.action.activity.IController;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.SimulationGraphic;
@@ -42,7 +41,7 @@ public class DeviceWaveVectorSlider extends Device {
 	private final int DEFAULT_MIN_nWAVEVECTORS = 0;
 	private final int DEFAULT_MAX_nWAVEVECTORS = 100;
 
-	public DeviceWaveVectorSlider(IController cont) {
+	public DeviceWaveVectorSlider(Controller cont) {
 		
         //using all wave vectors or individual radio button
         ButtonGroup waveVectorGroup = new ButtonGroup();
@@ -232,7 +231,7 @@ public class DeviceWaveVectorSlider extends Device {
 	 * Set the wavevector # slider controller.
 	 */
    
-    public void setController(IController cont) {
+    public void setController(Controller cont) {
     	super.setController(cont);
     	waveVectorNumSlider.setController(cont);
         
@@ -315,7 +314,7 @@ public class DeviceWaveVectorSlider extends Device {
         device.setWaveVectorNum(0);
         
         
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
         graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
         graphic.add(device);
         graphic.makeAndDisplayFrame(APP_NAME);

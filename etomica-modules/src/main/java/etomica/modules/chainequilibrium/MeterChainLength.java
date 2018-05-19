@@ -92,14 +92,14 @@ public class MeterChainLength implements IDataSource, Serializable, AgentSource<
 
         // untag all the Atoms
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int i=0; i<nLeaf; i++) {
-            tagManager.getAgent(leafList.getAtom(i)).tagged = false;
+            tagManager.getAgent(leafList.get(i)).tagged = false;
         }
 
         int totalAtoms = 0;
         for (int i=0; i<nLeaf; i++) {
-            IAtom a = leafList.getAtom(i);
+            IAtom a = leafList.get(i);
             if (a.getType() == ignoredAtomType) continue;
             // if an Atom is tagged, it was already counted as part of
             // another chain
@@ -175,7 +175,7 @@ public class MeterChainLength implements IDataSource, Serializable, AgentSource<
             // allow old agentManager to de-register itself as a BoxListener
             tagManager.dispose();
         }
-        tagManager = new AtomLeafAgentManager<AtomTag>(this,box,AtomTag.class);
+        tagManager = new AtomLeafAgentManager<AtomTag>(this,box);
     }
 
     public IDataInfo getDataInfo() {

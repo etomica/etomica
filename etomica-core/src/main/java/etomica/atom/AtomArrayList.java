@@ -6,13 +6,17 @@ package etomica.atom;
 
 import etomica.util.Debug;
 
-public class AtomArrayList implements IAtomList {
+import java.util.AbstractList;
+import java.util.Arrays;
+import java.util.RandomAccess;
 
-    protected float trimThreshold = 0.8f;
-    protected IAtom[] atomList;
-    protected static int DEFAULT_INIT_SIZE = 20;
-    protected static float SIZE_INCREASE_RATIO = 0.3f;
-    protected int itemsInList = 0;
+public final class AtomArrayList extends AbstractList<IAtom> implements IAtomList, RandomAccess {
+
+    private float trimThreshold = 0.8f;
+    private IAtom[] atomList;
+    private static final int DEFAULT_INIT_SIZE = 20;
+    private static final float SIZE_INCREASE_RATIO = 0.3f;
+    private int itemsInList = 0;
 
     public AtomArrayList() {
         atomList = new IAtom[DEFAULT_INIT_SIZE];
@@ -20,6 +24,11 @@ public class AtomArrayList implements IAtomList {
 
     public AtomArrayList(int initialSize) {
         atomList = new IAtom[initialSize];
+    }
+
+    public AtomArrayList(IAtomList list) {
+        this(list.size());
+        this.addAll(list);
     }
 
     public static float getSizeIncreaseRatio() {
@@ -52,12 +61,7 @@ public class AtomArrayList implements IAtomList {
 
     public void ensureCapacity(int minCapacity) {
         if(minCapacity > atomList.length) {
-            IAtom[] tempList = new IAtom[minCapacity];
-            for(int i = 0; i < itemsInList; i++) {
-                tempList[i] = atomList[i];
-            }
-            atomList = null;
-            atomList = tempList;
+            atomList = Arrays.copyOf(atomList, minCapacity);
         }
     }
 
@@ -65,12 +69,10 @@ public class AtomArrayList implements IAtomList {
         return itemsInList == 0;
     }
 
-    protected IAtom[] toArray() {
+    public IAtom[] toArray() {
         IAtom[] tempList = new IAtom[itemsInList];
 
-        for(int i = 0; i < itemsInList; i++) {
-            tempList[i] = atomList[i];
-        }
+        System.arraycopy(atomList, 0, tempList, 0, itemsInList);
         return tempList;
     }
 
@@ -93,7 +95,7 @@ public class AtomArrayList implements IAtomList {
         }
         return -1;
     }
-    
+
     /**
      * Returns true if the given atom is in the list, false otherwise
      */
@@ -104,9 +106,7 @@ public class AtomArrayList implements IAtomList {
     public IAtom[] toAtomLeafArray() {
         IAtom[] tempList = new IAtom[itemsInList];
 
-        for(int i = 0; i < itemsInList; i++) {
-            tempList[i] = atomList[i];
-        }
+        System.arraycopy(atomList, 0, tempList, 0, itemsInList);
         return tempList;
     }
 
@@ -123,33 +123,30 @@ public class AtomArrayList implements IAtomList {
     }
 
     public boolean add(IAtom atom) {
-
         if(itemsInList == atomList.length) {
-            IAtom[] tempList = new IAtom[(int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)+1)];
-
-            for(int i = 0; i < atomList.length; i++) {
-                tempList[i] = atomList[i];
-            }
-            atomList = tempList;
+            atomList = Arrays.copyOf(atomList, (int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)+1));
         }
-        atomList[itemsInList] = atom; 
+        atomList[itemsInList] = atom;
         itemsInList++;
 
         return true;
     }
 
     public void addAll(IAtomList atoms) {
-        if((itemsInList + atoms.getAtomCount()) > atomList.length) {
-            IAtom[] tempList = new IAtom[(int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)) +
-                                         atoms.getAtomCount()];
-            for(int i = 0; i < atomList.length; i++) {
-                tempList[i] = atomList[i];
-            }
-            atomList = tempList;
+        if((itemsInList + atoms.size()) > atomList.length) {
+            atomList = Arrays.copyOf(
+                    atomList,
+                    (int)((float)itemsInList * (1.0f + SIZE_INCREASE_RATIO)) + atoms.size()
+            );
         }
-        for(int i = 0; i < atoms.getAtomCount(); i++) {
-            atomList[itemsInList] = atoms.getAtom(i);
-            itemsInList++;
+        if (atoms instanceof AtomArrayList) {
+            System.arraycopy(((AtomArrayList) atoms).atomList, 0, this.atomList, itemsInList, atoms.size());
+            itemsInList += atoms.size();
+        } else {
+            for(int i = 0; i < atoms.size(); i++) {
+                atomList[itemsInList] = atoms.get(i);
+                itemsInList++;
+            }
         }
     }
 
@@ -165,9 +162,7 @@ public class AtomArrayList implements IAtomList {
         }
 
         atom = atomList[index];
-        for(int i = index; i < itemsInList-1; i++) {
-            atomList[i] = atomList[i+1];
-        }
+        System.arraycopy(atomList, index + 1, atomList, index, itemsInList - 1 - index);
         atomList[itemsInList-1] = null;
         itemsInList--;
 
@@ -198,11 +193,11 @@ public class AtomArrayList implements IAtomList {
         return atom;
     }
 
-    public int getAtomCount() {
+    public int size() {
         return itemsInList;
     }
-    
-    public IAtom getAtom(int index) {
+
+    public IAtom get(int index) {
         if (Debug.ON && (index < 0 || index >= itemsInList)) {
             throw new IndexOutOfBoundsException("AtomLeafArrayList.remove invalid index");
         }

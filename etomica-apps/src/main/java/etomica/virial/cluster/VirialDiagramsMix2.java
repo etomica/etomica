@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.management.RuntimeErrorException;
-
 import etomica.graph.model.BitmapFactory;
 import etomica.graph.model.Edge;
 import etomica.graph.model.Graph;
@@ -38,7 +36,6 @@ import etomica.graph.operations.DifByNode;
 import etomica.graph.operations.DifParameters;
 import etomica.graph.operations.Factor;
 import etomica.graph.operations.FactorOnce;
-import etomica.graph.operations.GraphOp;
 import etomica.graph.operations.SplitGraph;
 import etomica.graph.operations.FactorOnce.FactorOnceParameters;
 import etomica.graph.operations.GraphOpMaxRoot;
@@ -52,8 +49,6 @@ import etomica.graph.operations.MulScalarParameters;
 import etomica.graph.operations.Split;
 import etomica.graph.operations.SplitParameters;
 import etomica.graph.property.HasSimpleArticulationPoint;
-import etomica.graph.property.NumFieldNodes;
-import etomica.graph.property.NumRootNodes;
 import etomica.graph.property.Property;
 import etomica.graph.viewer.ClusterViewer;
 import etomica.math.SpecialFunctions;
@@ -61,7 +56,6 @@ import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
 import etomica.virial.ClusterSumShell;
 import etomica.virial.MayerFunction;
-import etomica.virial.cluster.VirialDiagrams.ArticulatedAt0;
 
 public class VirialDiagramsMix2 {
 
@@ -137,7 +131,7 @@ public class VirialDiagramsMix2 {
         if (p == null) {
             makeVirialDiagrams();
         }
-        GraphList<Graph> dpn = makeGraphList();
+        GraphList dpn = makeGraphList();
         MaxIsomorph maxIsomorph = new MaxIsomorph();
         Property mic = new MaxIsomorphCriteriaMixture();
         MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOpMaxRoot(), mic);
@@ -165,7 +159,7 @@ public class VirialDiagramsMix2 {
         Property mic = new MaxIsomorphCriteriaMixture();
         MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOpMaxRoot(), mic);
         // we want gSplit unsorted
-        Set<Graph> gSplit = new GraphList<Graph>(null);
+        Set<Graph> gSplit = new GraphList(null);
         Set<Graph> gSplit1 = splitGraph.apply(g);
         for (Graph gs : gSplit1) {
             // the graph we get from splitting might not be in our preferred bonding arrangement
@@ -175,7 +169,7 @@ public class VirialDiagramsMix2 {
         return gSplit;
     }
 
-    public GraphList<Graph> makeGraphList() {
+    public GraphList makeGraphList() {
     	   	
         ComparatorChain comp = new ComparatorChain();
         comp.addComparator(new ComparatorNumFieldNodes());
@@ -183,7 +177,7 @@ public class VirialDiagramsMix2 {
         comp.addComparator(new ComparatorNodeColors(nodeColors));
         comp.addComparator(new ComparatorNumEdges());
         comp.addComparator(new ComparatorNumNodes());
-        return new GraphList<Graph>(comp);
+        return new GraphList(comp);
     }
     
     public static boolean graphHasEdgeColor(Graph g, char color) {
@@ -727,7 +721,7 @@ public class VirialDiagramsMix2 {
     	if (p == null) {
     		makeVirialDiagrams();
     	}
-    	GraphList<Graph> allP = makeGraphList();
+    	GraphList allP = makeGraphList();
         Set<Graph> topSet = makeGraphList();
 
     	for (Graph g : p) {
@@ -759,8 +753,8 @@ public class VirialDiagramsMix2 {
         	ClusterViewer.createView("allP,getMSMC,B"+numPoints[0]+numPoints[1]+" "+connectedOnly + " "+flexID, topSet);
         }
         // ==============================================================================================================//
-        GraphList<Graph> pn = makeGraphList();// add graph to pn based on flexID 
-        GraphList<Graph> pnTemp = makeGraphList();
+        GraphList pn = makeGraphList();// add graph to pn based on flexID
+        GraphList pnTemp = makeGraphList();
         HasSimpleArticulationPoint hap = new HasSimpleArticulationPoint();
         for (Graph g : allP) {
         	boolean ap = hap.check(g);

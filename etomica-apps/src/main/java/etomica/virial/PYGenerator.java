@@ -50,9 +50,9 @@ public class PYGenerator extends IEGenerator {
      */
     public static List<Set<Graph>> PYGenerate(int n, char fBond){
         
-        Set<Graph> c0 = new GraphList<Graph>();
-        Set<Graph> t0 = new GraphList<Graph>();
-        Set<Graph> h0 = new GraphList<Graph>();
+        Set<Graph> c0 = new GraphList();
+        Set<Graph> t0 = new GraphList();
+        Set<Graph> h0 = new GraphList();
         //create a Map
         ArrayList<Set<Graph>> cList = new ArrayList<Set<Graph>>();
         ArrayList<Set<Graph>> tList = new ArrayList<Set<Graph>>();
@@ -269,7 +269,7 @@ public class PYGenerator extends IEGenerator {
         final char eBond = 'e';
         SplitOneParametersBC splitOneParameters = new SplitOneParametersBC(fBond, eBond, nfBond);
         SplitOneBiconnected splitOneBC = new SplitOneBiconnected();
-        Set<Graph> newB = new GraphList<Graph>();
+        Set<Graph> newB = new GraphList();
         for (Graph g : bPYC) {
             Set<Graph> gSet = splitOneBC.apply(g, splitOneParameters);
             for (Graph g2 : gSet) {

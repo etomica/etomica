@@ -48,74 +48,72 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS e
 	public HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS(Space space, int numMolecule, double density, double rC) {
 		super(space);
 		this.space = space;
-		
-		int nCell = (int) Math.round(Math.pow((numMolecule/4), 1.0/3.0));
-		double unitCellLength = Math.pow(numMolecule/density, 1.0/3.0)/nCell;//5.661;
+
+		species = new SpeciesN2(space);
+		addSpecies(species);
+
+		int nCell = (int) Math.round(Math.pow((numMolecule / 4), 1.0 / 3.0));
+		double unitCellLength = Math.pow(numMolecule / density, 1.0 / 3.0) / nCell;//5.661;
 //		System.out.println("a: " + unitCellLength);
 //		System.out.println("nCell: " + nCell);
-		
+
 		potentialMaster = new PotentialMaster();
-				
+
 		int division = 2;
 		Basis basisFCC = new BasisCubicFcc();
-		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell/division, nCell/division, nCell/division});
-		
+		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell / division, nCell / division, nCell / division});
+
 		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		species = new SpeciesN2(space);
 		species.setConformation(conformation);
-		addSpecies(species);
-		
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecule);		
-		
-		int [] nCells = new int[]{division,division,division};
+
 		Boundary boundary = new BoundaryRectangularPeriodic(space);
-		boundary.setBoxSize(space.makeVector(new double[]{nCell*unitCellLength,nCell*unitCellLength,nCell*unitCellLength}));
-		Primitive primitive = new PrimitiveCubic(space, (nCell/division)*unitCellLength);
-	
+		box = this.makeBox(boundary);
+		box.setNMolecules(species, numMolecule);
+
+		int[] nCells = new int[]{division, division, division};
+		boundary.setBoxSize(Vector.of(new double[]{nCell * unitCellLength, nCell * unitCellLength, nCell * unitCellLength}));
+		Primitive primitive = new PrimitiveCubic(space, (nCell / division) * unitCellLength);
+
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsAlpha();
 		coordinateDef.setOrientationVectorAlpha(space);
 		coordinateDef.initializeCoordinates(nCells);
-		
-		box.setBoundary(boundary);
 //		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
-		
+
 		potential = new P2Nitrogen(space, rC);
 		potential.setEnablePBC(false);
 		potential.setBox(box);
 
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-		
-		int nSites = 2*nCell+1;
+
+		int nSites = 2 * nCell + 1;
 		pairMatrix = new double[nSites][nSites][nSites][4][4][3][3];
 		isFoundReverse = new boolean[nSites][nSites][nSites][4][4]; //default to false
 
 		findPair = new FindPairMoleculeIndex(space, coordinateDef);
-		
+
 		translateBy = new AtomActionTranslateBy(coordinateDef.getPrimitive().getSpace());
-        atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy); 
+		atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy);
 		lsPosition = coordinateDef.getPrimitive().getSpace().makeVector();
-        
+
 		xVecBox = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
 		yVecBox = coordinateDef.getBox().getBoundary().getBoxSize().getX(1);
-		zVecBox = coordinateDef.getBox().getBoundary().getBoxSize().getX(2); 
-		
+		zVecBox = coordinateDef.getBox().getBoundary().getBoxSize().getX(2);
+
 		double rX = coordinateDef.getBox().getBoundary().getBoxSize().getX(0);
-		this.nLayer = (int)Math.round(rC/rX + 0.5);
-		if (this.nLayer < 1){
-			throw new RuntimeException("<HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS> nLayer is "+ this.nLayer);
+		this.nLayer = (int) Math.round(rC / rX + 0.5);
+		if (this.nLayer < 1) {
+			throw new RuntimeException("<HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS> nLayer is " + this.nLayer);
 		}
-		
-		workArray = new double[3][3*numMolecule];
+
+		workArray = new double[3][3 * numMolecule];
 //		System.out.println("rX: " + rX);
 //		System.out.println("nLayer: " + nLayer);
 	}
 	
 	public double[][] get2ndDerivative(int molec0){
 	
-		int numMolecule = box.getMoleculeList().getMoleculeCount();
+		int numMolecule = box.getMoleculeList().size();
 		int dofTrans = 3;	
 //		workArray = new double[3][3*numMolecule];
 		
@@ -136,8 +134,8 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS e
 		 *	Constructing the upper diagonal of the matrix
 		 *	(Skipping the molec1 == molec2) 
 		 */
-		IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().getMolecule(molec0);
-		pair.atom0 = molecule0;
+		IMolecule molecule0 = coordinateDef.getBox().getMoleculeList().get(molec0);
+		pair.mol0 = molecule0;
 		
 		boolean isReverseOrder = false;
 		for(int molec1=0; molec1<numMolecule; molec1++){
@@ -151,10 +149,10 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialHalf2LS e
 			
 			
 			// Analytical calculation for 3x3 Translational second Derivative
-			IMolecule molecule1 = coordinateDef.getBox().getMoleculeList().getMolecule(molec1);
-			pair.atom1 = molecule1;
+			IMolecule molecule1 = coordinateDef.getBox().getMoleculeList().get(molec1);
+			pair.mol1 = molecule1;
 			
-			int[] index = findPair.getPairMoleculesIndex(pair.atom0, pair.atom1, isReverseOrder);
+			int[] index = findPair.getPairMoleculesIndex(pair.mol0, pair.mol1, isReverseOrder);
 			boolean isNewPair = findPair.getIsNewPair(index);
 			
 			if(isReverseOrder && isNewPair){

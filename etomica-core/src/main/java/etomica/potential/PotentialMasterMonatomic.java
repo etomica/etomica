@@ -22,18 +22,16 @@ import etomica.util.Arrays;
  * 
  * @author Andrew Schultz
  */
-public class PotentialMasterMonatomic extends PotentialMaster implements AtomTypeAgentManager.AgentSource {
+public class PotentialMasterMonatomic extends PotentialMaster implements AtomTypeAgentManager.AgentSource<PotentialArrayByType> {
 
-    protected final AtomTypeAgentManager.AgentIterator potentialIterator;
-    protected final AtomTypeAgentManager potentialAgentManager;
+    protected final AtomTypeAgentManager<PotentialArrayByType> potentialAgentManager;
     protected final AtomSetSinglet atomSetSinglet;
     protected final AtomPair atomPair;
     protected IPotential[] allPotentials = new IPotential[0];
     
     public PotentialMasterMonatomic(Simulation sim) {
         super();
-        potentialAgentManager = new AtomTypeAgentManager(this, sim);
-        potentialIterator = potentialAgentManager.makeIterator();
+        potentialAgentManager = new AtomTypeAgentManager<>(this, sim);
         atomSetSinglet = new AtomSetSinglet();
         atomPair = new AtomPair();
     }
@@ -46,7 +44,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
         if (potential.nBody() > 2) {
             throw new RuntimeException("I only understand 1 and 2-body potentials");
         }
-        allPotentials = (IPotential[])etomica.util.Arrays.addObject(allPotentials, potential);
+        allPotentials = Arrays.addObject(allPotentials, potential);
         for (int i=0; i<atomTypes.length; i++) {
             boolean alreadyDone = false;
             for (int j=0; j<i; j++) {
@@ -58,7 +56,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
             if (alreadyDone) {
                 continue;
             }
-            PotentialArrayByType potentialArray = (PotentialArrayByType)potentialAgentManager.getAgent(atomTypes[i]);
+            PotentialArrayByType potentialArray = potentialAgentManager.getAgent(atomTypes[i]);
             AtomType otherType = null;
             if (potential.nBody() == 2) {
                 otherType = atomTypes[1-i];
@@ -75,11 +73,10 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
 
     public void removePotential(IPotentialAtomic potential) {
         super.removePotential(potential);
-        potentialIterator.reset();
-        while (potentialIterator.hasNext()) {
-            ((PotentialArrayByType)potentialIterator.next()).removePotential(potential);
+        for (PotentialArrayByType potentialArray : this.potentialAgentManager.getAgents().values()) {
+            potentialArray.removePotential(potential);
         }
-        allPotentials = (IPotential[])Arrays.removeObject(allPotentials,potential);
+        allPotentials = Arrays.removeObject(allPotentials,potential);
     }
 
     public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
@@ -91,10 +88,10 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
         if (targetAtom != null || targetMolecule != null) {
             IAtom leafAtom = targetAtom;
             if (leafAtom == null) {
-                leafAtom = targetMolecule.getChildList().getAtom(0);
+                leafAtom = targetMolecule.getChildList().get(0);
             }
             final int targetIndex = leafAtom.getLeafIndex();
-            final PotentialArrayByType potentialArray = (PotentialArrayByType)potentialAgentManager.getAgent(leafAtom.getType());
+            final PotentialArrayByType potentialArray = potentialAgentManager.getAgent(leafAtom.getType());
             IPotential[] potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
                 potentials[i].setBox(box);
@@ -106,9 +103,9 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
             for (int i=0; i<allPotentials.length; i++) {
                 allPotentials[i].setBox(box);
             }
-            for (int i=0; i<leafList.getAtomCount(); i++) {
-                IAtom atom = leafList.getAtom(i);
-                PotentialArrayByType potentialArray = (PotentialArrayByType)potentialAgentManager.getAgent(atom.getType());
+            for (int i = 0; i<leafList.size(); i++) {
+                IAtom atom = leafList.get(i);
+                PotentialArrayByType potentialArray = potentialAgentManager.getAgent(atom.getType());
                 calculate(atom, leafList, i, potentialArray, IteratorDirective.Direction.UP, pc);
             }
         }
@@ -120,7 +117,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
     protected void calculate(IAtom leafAtom, IAtomList leafList, int leafIndex, PotentialArrayByType potentialArray, IteratorDirective.Direction direction, PotentialCalculation pc) {
 
         IPotential[] potentials = potentialArray.getPotentials();
-        int leafCount = leafList.getAtomCount();
+        int leafCount = leafList.size();
         for(int i=0; i<potentials.length; i++) {
             if (potentials[i].nBody() == 1) {
                 atomSetSinglet.atom = leafAtom;
@@ -132,7 +129,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
         if (direction != IteratorDirective.Direction.DOWN) {
             atomPair.atom0 = leafAtom;
             for (int j=leafIndex+1; j<leafCount; j++) {
-                atomPair.atom1 = leafList.getAtom(j);
+                atomPair.atom1 = leafList.get(j);
                 AtomType type1 = atomPair.atom1.getType();
                 for (int i=0; i<types.length; i++) {
                     if (types[i] == type1) {
@@ -145,7 +142,7 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
         if (direction != IteratorDirective.Direction.UP) {
             atomPair.atom1 = leafAtom;
             for (int j=0; j<leafIndex; j++) {
-                atomPair.atom0 = leafList.getAtom(j);
+                atomPair.atom0 = leafList.get(j);
                 AtomType type0 = atomPair.atom0.getType();
                 for (int i=0; i<types.length; i++) {
                     if (types[i] == type0) {
@@ -157,14 +154,10 @@ public class PotentialMasterMonatomic extends PotentialMaster implements AtomTyp
         }
     }
 
-    public Class getSpeciesAgentClass() {
-        return PotentialArrayByType.class;
-    }
-
-    public Object makeAgent(AtomType type) {
+    public PotentialArrayByType makeAgent(AtomType type) {
         return new PotentialArrayByType();
     }
 
-    public void releaseAgent(Object agent, AtomType type) {
+    public void releaseAgent(PotentialArrayByType agent, AtomType type) {
     }
 }

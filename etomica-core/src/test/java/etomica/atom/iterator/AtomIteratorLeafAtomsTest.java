@@ -4,12 +4,16 @@
 
 package etomica.atom.iterator;
 
-import java.util.LinkedList;
+import java.util.List;
 
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomArrayList;
 import etomica.UnitTestUtil;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import static etomica.atom.iterator.IteratorTestAbstract.*;
 
 /**
  * Unit test for AtomIteratorLeafAtoms
@@ -17,8 +21,9 @@ import etomica.UnitTestUtil;
  * @author David Kofke
  *  
  */
-public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
+class AtomIteratorLeafAtomsTest {
 
+    @Test
     public void testIterator() {
 
         int[] n0 = new int[] { 10, 1, 0 };
@@ -46,9 +51,9 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
         	Box box = sim.getBox(i);
             iterator.setBox(box);
             int count = nA0 * n0[i] + n1[i];
-            LinkedList list = testIterates(iterator, ((AtomArrayList)box.getLeafList()).toAtomLeafArray());
-            assertEquals(list.size(), box.getLeafList().getAtomCount());
-            assertEquals(list.size(), count);
+            List<String> list = testIterates(iterator, ((AtomArrayList)box.getLeafList()).toAtomLeafArray());
+            Assertions.assertEquals(list.size(), box.getLeafList().size());
+            Assertions.assertEquals(list.size(), count);
         }
 
         //test null box throws an exception
@@ -59,6 +64,6 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
         catch (RuntimeException e) {
             exceptionThrown = true;
         }
-        assertTrue(exceptionThrown);
+        Assertions.assertTrue(exceptionThrown);
     }
 }

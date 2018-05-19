@@ -7,10 +7,10 @@ package etomica.freeenergy.npath;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
@@ -27,8 +27,8 @@ public class IntegratorImageMultistepMD extends IntegratorVelocityVerlet {
     protected P1ImageHarmonic p1;
     protected int numInnerSteps;
 
-    public IntegratorImageMultistepMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Space space) {
-        super(potentialMaster, random, timeStep, temperature, space);
+    public IntegratorImageMultistepMD(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Box box) {
+        super(potentialMaster, random, timeStep, temperature, box);
         atomSetSinglet = new AtomSetSinglet();
         setForceSum(new PotentialCalculationForceSum());
     }
@@ -46,16 +46,16 @@ public class IntegratorImageMultistepMD extends IntegratorVelocityVerlet {
         currentTime += timeStep;
         // IntegratorVelocityVerlet code
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic) leafList.getAtom(iLeaf);
-            MyAgent agent = agentManager.getAgent(a);
+            IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
+            Vector force = agentManager.getAgent(a);
             Vector r = a.getPosition();
             Vector v = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                System.out.println("first " + a + " r=" + r + ", v=" + v + ", f=" + agent.force);
+                System.out.println("first " + a + " r=" + r + ", v=" + v + ", f=" + force);
             }
-            v.PEa1Tv1(0.5 * timeStep * a.getType().rm(), agent.force);  // p += f(old)*dt/2
+            v.PEa1Tv1(0.5 * timeStep * a.getType().rm(), force);  // p += f(old)*dt/2
         }
 
         double tStepShort = timeStep / numInnerSteps;
@@ -65,8 +65,8 @@ public class IntegratorImageMultistepMD extends IntegratorVelocityVerlet {
             if (iLeaf1 < iLeaf) {
                 continue;
             }
-            IAtomKinetic atom0 = (IAtomKinetic) leafList.getAtom(iLeaf);
-            IAtomKinetic atom1 = (IAtomKinetic) leafList.getAtom(iLeaf1);
+            IAtomKinetic atom0 = (IAtomKinetic) leafList.get(iLeaf);
+            IAtomKinetic atom1 = (IAtomKinetic) leafList.get(iLeaf1);
             Vector r0 = atom0.getPosition();
             Vector r1 = atom1.getPosition();
             Vector v0 = atom0.getVelocity();
@@ -101,13 +101,13 @@ public class IntegratorImageMultistepMD extends IntegratorVelocityVerlet {
 
         //Finish integration step
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic) leafList.getAtom(iLeaf);
+            IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
             Vector velocity = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                System.out.println("second " + a + " v=" + velocity + ", f=" + agentManager.getAgent(a).force);
+                System.out.println("second " + a + " v=" + velocity + ", f=" + agentManager.getAgent(a));
             }
-            velocity.PEa1Tv1(0.5 * timeStep * a.getType().rm(), agentManager.getAgent(a).force);  //p += f(new)*dt/2
+            velocity.PEa1Tv1(0.5 * timeStep * a.getType().rm(), agentManager.getAgent(a));  //p += f(new)*dt/2
         }
 
         if (isothermal) {

@@ -27,9 +27,9 @@ public class MoleculePositionGeometricCenter implements IMoleculePositionDefinit
     public Vector position(IMolecule molecule) {
         center.E(0.0);
         IAtomList children = molecule.getChildList();
-        int nAtoms = children.getAtomCount();
+        int nAtoms = children.size();
         for (int i=0; i<nAtoms; i++) {
-            center.PE(children.getAtom(i).getPosition());
+            center.PE(children.get(i).getPosition());
         }
         center.TE(1.0 / nAtoms);
         return center;

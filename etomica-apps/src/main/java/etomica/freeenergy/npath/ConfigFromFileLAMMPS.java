@@ -18,7 +18,6 @@ import etomica.graphics.*;
 import etomica.math.numerical.ArrayReader1D;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
-import etomica.molecule.IMolecule;
 import etomica.simulation.Simulation;
 import etomica.space.*;
 import etomica.space3d.Space3D;
@@ -65,8 +64,7 @@ public class ConfigFromFileLAMMPS {
         Simulation sim = new Simulation(space);
         Species species = new SpeciesSpheresRotating(sim, space);
         sim.addSpecies(species);
-        Box box = new Box(space);
-        sim.addBox(box);
+        Box box = null;
         int config = 0;
         List<Vector[]> allCoords = new ArrayList<>();
         Vector[] iCoords = null;
@@ -74,7 +72,7 @@ public class ConfigFromFileLAMMPS {
         List<DataFunction> sfacData = new ArrayList<>();
         List<DataFunction.DataInfoFunction> sfacDataInfo = new ArrayList<>();
         DataTag sfacTag = new DataTag();
-        ModifierConfiguration modifierConfig = new ModifierConfiguration(box, allCoords, allEdges, sfacData, sfacDataInfo, sfacTag);
+        ModifierConfiguration modifierConfig =  null;
         while ((line = reader.readLine()) != null) {
             if (line.matches("ITEM:.*")) {
                 read = "";
@@ -89,7 +87,9 @@ public class ConfigFromFileLAMMPS {
                     allEdges.add(edges);
                     if (config == 0) {
                         Boundary boundary = new BoundaryDeformablePeriodic(space, edges);
-                        box.setBoundary(boundary);
+                        box = sim.makeBox(boundary);
+                        box.setNMolecules(species, numAtoms);
+                        modifierConfig = new ModifierConfiguration(box, allCoords, allEdges, sfacData, sfacDataInfo, sfacTag);
                     }
                     iCoords = new Vector[numAtoms];
                 }
@@ -99,7 +99,6 @@ public class ConfigFromFileLAMMPS {
             if (read.equals("numAtoms")) {
                 numAtoms = Integer.parseInt(line);
                 System.out.println("numAtoms: " + numAtoms);
-                box.setNMolecules(species, numAtoms);
             } else if (read.equals("boundary")) {
                 String[] bits = line.split("[ \t]+");
                 if (bits.length == 2) {
@@ -155,8 +154,8 @@ public class ConfigFromFileLAMMPS {
             }
         }
         if (!GUI) return;
-        SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
-        final DisplayBox display = new DisplayBox(sim, box, space, sim.getController());
+        SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
+        final DisplayBox display = new DisplayBox(sim, box);
         final DisplayBoxCanvasG3DSys.OrientedSite site = new DisplayBoxCanvasG3DSys.OrientedSite(0.5, Color.WHITE, 0.5);
         ((DisplayBoxCanvasG3DSys) display.canvas).setOrientationSites((AtomTypeOriented) species.getAtomType(0), new DisplayBoxCanvasG3DSys.OrientedSite[]{site});
         graphic.add(display);
@@ -192,13 +191,8 @@ public class ConfigFromFileLAMMPS {
         filterSlider.setMaximum(2);
         filterSlider.setPrecision(2);
         filterSlider.setNMajor(4);
-        filterSlider.setPostAction(new IAction() {
-
-            @Override
-            public void actionPerformed() {
-                graphic.getDisplayBox(box).repaint();
-            }
-        });
+        Box finalBox = box;
+        filterSlider.setPostAction(() -> graphic.getDisplayBox(finalBox).repaint());
         graphic.add(filterSlider);
         DeviceSlider configSlider = new DeviceSlider(sim.getController(), modifierConfig);
         configSlider.setMaximum(config - 1);
@@ -209,7 +203,7 @@ public class ConfigFromFileLAMMPS {
 
             @Override
             public void actionPerformed() {
-                graphic.getDisplayBox(box).repaint();
+                graphic.getDisplayBox(finalBox).repaint();
             }
         });
         graphic.add(configSlider);
@@ -254,15 +248,16 @@ public class ConfigFromFileLAMMPS {
         }
 
         modifierConfig.setValue(0);
+        ModifierConfiguration finalModifierConfig = modifierConfig;
         DeviceToggleRadioButtons deviceDoPrevious = new DeviceToggleRadioButtons(new ModifierBoolean() {
             @Override
             public void setBoolean(boolean b) {
-                modifierConfig.setDoPrevious(b);
+                finalModifierConfig.setDoPrevious(b);
             }
     
             @Override
             public boolean getBoolean() {
-                return modifierConfig.getDoPrevious();
+                return finalModifierConfig.getDoPrevious();
             }
         },"Deviation from","previous","original");
         graphic.add(deviceDoPrevious);
@@ -335,7 +330,7 @@ public class ConfigFromFileLAMMPS {
             for (int i = 0; i < 3; i++) {
                 edges[i] = box.getBoundary().getEdgeVector(i);
             }
-            int numAtoms = box.getLeafList().getAtomCount();
+            int numAtoms = box.getLeafList().size();
             t = space.makeTensor();
             scaledCoords0 = space.makeVectorArray(numAtoms);
             rescaledCoords0 = space.makeVectorArray(numAtoms);
@@ -355,7 +350,7 @@ public class ConfigFromFileLAMMPS {
         public void colorAllAtoms() {
             IAtomList atoms = box.getLeafList();
 
-            double vol = box.getBoundary().volume() / atoms.getAtomCount();
+            double vol = box.getBoundary().volume() / atoms.size();
             double a = Math.cbrt(vol);
             rNbr = a * Math.sqrt(3) / 2;
 
@@ -365,11 +360,11 @@ public class ConfigFromFileLAMMPS {
             }
             t.E(edges);
 
-            for (int i = 0; i < atoms.getAtomCount(); i++) {
+            for (int i = 0; i < atoms.size(); i++) {
                 r0.E(scaledCoords0[i]);
                 t.transform(r0);
                 rescaledCoords0[i].E(r0);
-                dr.Ev1Mv2(atoms.getAtom(i).getPosition(), r0);
+                dr.Ev1Mv2(atoms.get(i).getPosition(), r0);
                 boundary.nearestImage(dr);
                 double r2 = dr.squared();
             }
@@ -463,8 +458,8 @@ public class ConfigFromFileLAMMPS {
             }
             IAtomList atoms = box.getLeafList();
             Vector[] myCoords = allCoords.get(configIndex);
-            for (int i = 0; i < atoms.getAtomCount(); i++) {
-                IAtom a = atoms.getAtom(i);
+            for (int i = 0; i < atoms.size(); i++) {
+                IAtom a = atoms.get(i);
                 a.getPosition().E(myCoords[i]);
                 if (colorScheme != null) {
                     Vector orientation = colorScheme.getDisplacement(a);
@@ -523,14 +518,9 @@ public class ConfigFromFileLAMMPS {
         }
 
         @Override
-        public boolean accept(IAtom a) {
+        public boolean test(IAtom a) {
             double x = colorScheme.getRelativeDisplacement(a);
             return x >= threshold;
-        }
-
-        @Override
-        public boolean accept(IMolecule mole) {
-            return false;
         }
     }
 

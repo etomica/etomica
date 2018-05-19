@@ -37,10 +37,10 @@ public class MeterDipoleSumSquared1site extends DataSourceScalar {
 		dipoleSum = new Vector3D();
 		if (box == null) throw new IllegalStateException("no box");
 		IMoleculeList moleculeList = box.getMoleculeList();
-		int numMolecule = moleculeList.getMoleculeCount();
+		int numMolecule = moleculeList.size();
 		for (int i=0;i<numMolecule; i++){
-			IAtomList atomList = moleculeList.getMolecule(i).getChildList();
-			IAtomOriented atom = (IAtomOriented) atomList.getAtom(0);
+			IAtomList atomList = moleculeList.get(i).getChildList();
+			IAtomOriented atom = (IAtomOriented) atomList.get(0);
 	        Vector v = atom.getOrientation().getDirection();
 			dipoleSum.PE(v);
         }

@@ -43,17 +43,17 @@ public class MeterTiltRotation implements IDataSource {
 
     public IData getData() {
         IMoleculeList molecules = box.getMoleculeList(species);
-        int nMolecules = molecules.getMoleculeCount();
+        int nMolecules = molecules.size();
         drSum.E(0);
         for (int i=0; i<drSumPlane.length; i++) {
             drSumPlane[i].E(0);
         }
         for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+            IMolecule molecule = molecules.get(i);
             IAtomList atomList = molecule.getChildList();
-            int leafCount = atomList.getAtomCount();
-            dr.E(atomList.getAtom(leafCount-1).getPosition());
-            dr.ME(atomList.getAtom(0).getPosition());
+            int leafCount = atomList.size();
+            dr.E(atomList.get(leafCount-1).getPosition());
+            dr.ME(atomList.get(0).getPosition());
             drSum.PE(dr);
             int iPlane = (i/2)%drSumPlane.length;
             drSumPlane[iPlane].PE(dr);

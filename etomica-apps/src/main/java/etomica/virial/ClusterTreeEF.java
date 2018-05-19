@@ -10,8 +10,9 @@
  */
 package etomica.virial;
 
-import etomica.util.Arrays;
 import etomica.virial.cluster.ClusterDiagramTree;
+
+import java.util.Arrays;
 
 /**
  * @author andrew
@@ -26,7 +27,7 @@ public class ClusterTreeEF extends ClusterTree {
      * @param eArray
      */
     public ClusterTreeEF(ClusterDiagramTree bonds, MayerFunction[] eArray) {
-        super(bonds, (MayerFunction[])Arrays.resizeArray(eArray,eArray.length*2));
+        super(bonds, Arrays.copyOf(eArray, eArray.length * 2));
         numF = f.length/2;
     }
 

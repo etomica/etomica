@@ -5,7 +5,7 @@
 package etomica.graphics;
 
 import etomica.action.IAction;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.units.dimensions.Dimension;
 import etomica.units.Unit;
 
@@ -19,14 +19,14 @@ import java.awt.*;
 public abstract class Device implements GraphicalElement {
     
     protected Unit unit;
-    protected IController controller;
+    protected Controller controller;
     private final ActionSet actionSet = new ActionSet();
     
     public Device() {
         this(null);
     }
     
-    public Device(IController controller) {
+    public Device(Controller controller) {
         this.controller = controller;
     }
     
@@ -83,13 +83,13 @@ public abstract class Device implements GraphicalElement {
     /**
      * @return Returns the controller.
      */
-    public IController getController() {
+    public Controller getController() {
         return controller;
     }
     /**
      * @param controller The controller to set.
      */
-    public void setController(IController controller) {
+    public void setController(Controller controller) {
         this.controller = controller;
     }
     

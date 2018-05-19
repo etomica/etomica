@@ -15,6 +15,7 @@ import etomica.data.meter.MeterPressure;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveVolume;
@@ -22,7 +23,6 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicBcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveTetragonal;
-import etomica.listener.IntegratorListenerAction;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.potential.PotentialMaster;
@@ -54,92 +54,86 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		this.space = space;
 		double inita = 3.957;
 		double initc = 5.109;
-		double ratio = initc/inita; 
-		int nCell = (int)Math.round(Math.pow((numMolecule/2), 1.0/3.0));
-	
-		double density = numMolecule/(nCell*nCell*nCell*inita*inita*initc)*1.1;
-		
+		double ratio = initc / inita;
+		int nCell = (int) Math.round(Math.pow((numMolecule / 2), 1.0 / 3.0));
+
+		double density = numMolecule / (nCell * nCell * nCell * inita * inita * initc) * 1.1;
+
 		//MinimizeGammaNitrogenLatticeParameter minimizer = new MinimizeGammaNitrogenLatticeParameter
 		//	(space, numMolecule, density, ratio);
-		
+
 		double a = 3.8778; //minimizer.getA();
 		double c = 5.3198; //minimizer.getC();
-		
-		potentialMaster = new PotentialMaster();
-				
+
 		Basis basisBCC = new BasisCubicBcc();
 		Basis basis = new BasisBigCell(space, basisBCC, new int[]{nCell, nCell, nCell});
-		
+
 		species = new SpeciesN2ShellModel(space);
 		addSpecies(species);
-		
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecule);		
-		int [] nCells = new int[]{1,1,1};
-				
-		Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell*a, nCell*a, nCell*c});
-		primitive = new PrimitiveTetragonal(space, nCell*a, nCell*c);
-		
-		double volume = nCell*a*nCell*a*nCell*c;
-		System.out.println("density: " + numMolecule/volume);
+
+        potentialMaster = new PotentialMaster();
+
+		Boundary boundary = new BoundaryRectangularPeriodic(space, new double[]{nCell * a, nCell * a, nCell * c});
+		box = this.makeBox(boundary);
+		box.setNMolecules(species, numMolecule);
+		int[] nCells = new int[]{1, 1, 1};
+		primitive = new PrimitiveTetragonal(space, nCell * a, nCell * c);
+
+		double volume = nCell * a * nCell * a * nCell * c;
+		System.out.println("density: " + numMolecule / volume);
 		//System.exit(1);
-		
+
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsGamma();
 		coordinateDef.setOrientationVectorGamma(space);
 		coordinateDef.initializeCoordinates(nCells);
-		
-		double [] u = new double[coordinateDef.getCoordinateDim()];
-		for (int i=3; i<coordinateDef.getCoordinateDim(); i+=5){
+
+		double[] u = new double[coordinateDef.getCoordinateDim()];
+		for (int i = 3; i < coordinateDef.getCoordinateDim(); i += 5) {
 			u[i] = 0.00001;
-			u[i+1] = 0.0;
+			u[i + 1] = 0.0;
 		}
 		coordinateDef.setToU(coordinateDef.getBox().getMoleculeList(), u);
-		
+
 		double[] devi = coordinateDef.calcU(coordinateDef.getBox().getMoleculeList());
-		for (int i = 0; i<devi.length; i++){
-			System.out.println("devi[" +i +"]: " + devi[i] );
-			
+		for (int i = 0; i < devi.length; i++) {
+			System.out.println("devi[" + i + "]: " + devi[i]);
+
 		}
-		
-		
+
+
 		System.exit(1);
-		
-		
-		box.setBoundary(boundary);
 		double rCScale = 0.45;
-		double rC = box.getBoundary().getBoxSize().getX(0)*rCScale;
-		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
+		double rC = box.getBoundary().getBoxSize().getX(0) * rCScale;
+		System.out.println("Truncation Radius (" + rCScale + " Box Length): " + rC);
 		potential = new P2NitrogenShellModel(space, rC);
 		potential.setBox(box);
-		
+
 		PRotConstraint pRotConstraint = new PRotConstraint(space, coordinateDef, box);
 		pRotConstraint.setConstraintAngle(90);
-		
+
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
 		//potentialMaster.addPotential(pRotConstraint, new ISpecies[]{species});
-		
-		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
+
+		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMaster, getRandom(), space);
 		move.setBox(box);
 		move.setPotential(potential);
-		
+
 		MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
 		rotate.setBox(box);
-		
+
 		MCMoveVolume mcMoveVolume = new MCMoveVolume(this, potentialMaster, space);
 		mcMoveVolume.setBox(box);
 		pressure *= 1e9;
 		mcMoveVolume.setPressure(Pascal.UNIT.toSim(pressure));
-		
-		integrator = new IntegratorMC(this, potentialMaster);
+
+		integrator = new IntegratorMC(this, potentialMaster, box);
 		integrator.getMoveManager().addMCMove(move);
 		integrator.getMoveManager().addMCMove(rotate);
 		//integrator.getMoveManager().addMCMove(mcMoveVolume);
-		integrator.setBox(box);
-		
+
 		integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
-		
+
 		activityIntegrate = new ActivityIntegrate(integrator);
 		getController().addAction(activityIntegrate);
 	}
@@ -177,10 +171,10 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		SimulationGammaNitrogenModel sim = new SimulationGammaNitrogenModel(Space3D.getInstance(3), numMolecule, temperature, pressure);
 
 		if(true){
-			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+			SimulationGraphic simGraphic = new SimulationGraphic(sim);
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
 		    
-			DiameterHashByType diameter = new DiameterHashByType(sim);
+			DiameterHashByType diameter = new DiameterHashByType();
 			diameter.setDiameter(sim.species.getNitrogenType(), 3.1);
 			diameter.setDiameter(sim.species.getPType(), 0.0);
 			
@@ -202,8 +196,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 	    
 
 	    	    
-		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-		meterPotentialEnergy.setBox(sim.box);
+		MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
 		double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
 		System.out.println("Lattice Energy (per molecule) in K: "+ Kelvin.UNIT.fromSim(latticeEnergy)/numMolecule);
 		

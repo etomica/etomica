@@ -23,7 +23,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;
@@ -90,53 +90,50 @@ public class SimOverlapSoftSphereHCP extends Simulation {
 
         // TARGET
 
-        double a = Math.pow(Math.sqrt(2)/density, 1.0/3.0);
-        double c = Math.sqrt(8.0/3.0)*a;
-        int nC = (int)Math.ceil(Math.pow(numAtoms/2, 1.0/3.0));
+        double a = Math.pow(Math.sqrt(2) / density, 1.0 / 3.0);
+        double c = Math.sqrt(8.0 / 3.0) * a;
+        int nC = (int) Math.ceil(Math.pow(numAtoms / 2, 1.0 / 3.0));
 
-        double rc =nC*a*0.495;
+        double rc = nC * a * 0.495;
 
-        System.out.println("rc: " +rc);
+        System.out.println("rc: " + rc);
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, _space);
-        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class);
-        potentialMasterTarget = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
+        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
+        potentialMasterTarget = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
 
-        boxTarget = new Box(space);
-        addBox(boxTarget);
+        Vector[] boxDim = new Vector[3];
+        boxDim[0] = Vector.of(new double[]{nC * a, 0, 0});
+        boxDim[1] = Vector.of(new double[]{-nC * a * Math.cos(Degree.UNIT.toSim(60)), nC * a * Math.sin(Degree.UNIT.toSim(60)), 0});
+        boxDim[2] = Vector.of(new double[]{0, 0, nC * c});
+        boundaryTarget = new BoundaryDeformablePeriodic(space, boxDim);
+        boxTarget = this.makeBox();
         boxTarget.setNMolecules(species, numAtoms);
 
-        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature);
+        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature, boxTarget);
         atomMove = new MCMoveAtomCoupled(potentialMasterTarget, new MeterPotentialEnergy(potentialMasterTarget), getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
         atomMove.setDoExcludeNonNeighbors(true);
         integratorTarget.getMoveManager().addMCMove(atomMove);
-        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) atomMove.getTracker()).setNoisyAdjustment(true);
 
         integrators[1] = integratorTarget;
 
-        Vector[] boxDim = new Vector[3];
-		boxDim[0] = space.makeVector(new double[]{nC*a, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-nC*a*Math.cos(Degree.UNIT.toSim(60)), nC*a*Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, nC*c});
 
-        primitive = new PrimitiveHexagonal(space, nC*a, nC*c);
-        nCells = new int[]{nC,nC,nC};
-        boundaryTarget = new BoundaryDeformablePeriodic(space, boxDim);
+        primitive = new PrimitiveHexagonal(space, nC * a, nC * c);
+        nCells = new int[]{nC, nC, nC};
         Basis basisHCP = new BasisHcp();
         basis = new BasisBigCell(space, basisHCP, nCells);
 
-        boxTarget.setBoundary(boundaryTarget);
-
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
-        coordinateDefinitionTarget.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinitionTarget.initializeCoordinates(new int[]{1, 1, 1});
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
-        if(potentialMasterTarget instanceof PotentialMasterList){
-			potential = new P2SoftSphericalTruncated(space, potential, rc);
+        if (potentialMasterTarget instanceof PotentialMasterList) {
+            potential = new P2SoftSphericalTruncated(space, potential, rc);
 
         } else {
-			potential = new P2SoftSphericalTruncatedShifted(space, potential, rc);
+            potential = new P2SoftSphericalTruncatedShifted(space, potential, rc);
 
         }
         atomMove.setPotential(potential);
@@ -154,38 +151,32 @@ public class SimOverlapSoftSphereHCP extends Simulation {
         potentialMasterTarget.addPotential(p1Constraint, new AtomType[]{sphereType});
         potentialMasterTarget.lrcMaster().setEnabled(false);
 
-        integratorTarget.setBox(boxTarget);
-
-    	if (potentialMasterTarget instanceof PotentialMasterList) {
-            ((PotentialMasterList)potentialMasterTarget).setRange(rc);
-           // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMasterTarget).getNeighborManager(boxTarget).reset();
+        if (potentialMasterTarget instanceof PotentialMasterList) {
+            ((PotentialMasterList) potentialMasterTarget).setRange(rc);
+            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
+            ((PotentialMasterList) potentialMasterTarget).getNeighborManager(boxTarget).reset();
 
         }
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
-        meterPE.setBox(boxTarget);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget, boxTarget);
         latticeEnergy = meterPE.getDataAsScalar();
-        System.out.println("lattice energy: " + latticeEnergy/numAtoms);
+        System.out.println("lattice energy: " + latticeEnergy / numAtoms);
 
         // HARMONIC
         boundaryHarmonic = new BoundaryDeformablePeriodic(space, boxDim);
-        boxHarmonic = new Box(boundaryHarmonic, space);
-        addBox(boxHarmonic);
+        boxHarmonic = this.makeBox(boundaryHarmonic);
         boxHarmonic.setNMolecules(species, numAtoms);
 
-        IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0); //null changed on 11/20/2009
+        IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0, boxHarmonic); //null changed on 11/20/2009
 
         move = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(move);
         integrators[0] = integratorHarmonic;
 
-        boxHarmonic.setBoundary(boundaryHarmonic);
-
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
-        coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1, 1, 1});
 
-        String inFile = "inputSSDB"+numAtoms;
+        String inFile = "inputSSDB" + numAtoms;
         normalModes = new NormalModesFromFile(inFile, space.D());
         normalModes.setHarmonicFudge(harmonicFudge);
 
@@ -205,11 +196,9 @@ public class SimOverlapSoftSphereHCP extends Simulation {
 
         move.setBox(boxHarmonic);
 
-        integratorHarmonic.setBox(boxHarmonic);
-
         if (potentialMasterTarget instanceof PotentialMasterList) {
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMasterTarget).getNeighborManager(boxHarmonic).reset();
+            ((PotentialMasterList) potentialMasterTarget).getNeighborManager(boxHarmonic).reset();
         }
 
         // OVERLAP
@@ -236,7 +225,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
         if (potentialMasterTarget instanceof PotentialMasterList) {
             // extend potential range, so that atoms that move outside the truncation range will still interact
             // atoms that move in will not interact since they won't be neighbors
-            ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundaryTarget.getBoxSize().getX(0));
+            ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundaryTarget.getBoxSize().getX(0));
         }
     }
 
@@ -281,7 +270,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
         final SimOverlapSoftSphereHCP sim = new SimOverlapSoftSphereHCP(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge, exponentN);
 
         if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.makeAndDisplayFrame();
             return;
         }
@@ -360,19 +349,19 @@ public class SimOverlapSoftSphereHCP extends Simulation {
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
             integrators[iBox].getEventManager().addListener(pumpListener);
             if (iBox == 1) {
-            	if (boxTarget.getMoleculeList().getMoleculeCount()==54){
+            	if (boxTarget.getMoleculeList().size()==54){
 
                     pumpListener.setInterval(100);
 
-                } else if (boxTarget.getMoleculeList().getMoleculeCount()==128){
+                } else if (boxTarget.getMoleculeList().size()==128){
             	    pumpListener.setInterval(300);
 
-                } else if (boxTarget.getMoleculeList().getMoleculeCount()==250){
+                } else if (boxTarget.getMoleculeList().size()==250){
             	    pumpListener.setInterval(500);
 
                 } else
 
-            	    pumpListener.setInterval(boxTarget.getMoleculeList().getMoleculeCount());
+            	    pumpListener.setInterval(boxTarget.getMoleculeList().size());
             }
         }
         else {

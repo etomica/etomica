@@ -25,12 +25,14 @@ import org.jmol.util.Colix;
 import org.jmol.util.Point3f;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		AgentSource<Figure>, BondManager {
 
 
-    protected final AtomTypeAgentManager atomTypeOrientedManager;
+    protected final Map<AtomType, OrientedSite[]> atomTypeOrientedManager;
     private final double[] coords;
     private final Space space;
     protected AtomLeafAgentManager<Figure> aam;
@@ -80,10 +82,10 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         setPlaneColor(Color.YELLOW);
         // init AtomAgentManager, to sync G3DSys and Etomica models
         // this automatically adds the atoms
-        aam = new AtomLeafAgentManager<Figure>(this, displayBox.getBox(), Figure.class);
+        aam = new AtomLeafAgentManager<Figure>(this, displayBox.getBox());
 		OrientedAgentSource oas = new OrientedAgentSource();
-		aamOriented = new AtomLeafAgentManager<Ball[]>(oas, displayBox.getBox(), Ball[].class);
-		atomTypeOrientedManager = new AtomTypeAgentManager(null, sim);
+		aamOriented = new AtomLeafAgentManager<Ball[]>(oas, displayBox.getBox());
+		atomTypeOrientedManager = new HashMap<>();
 
         planes = new Plane[0];
         planeTriangles = new Triangle[0][0];
@@ -197,9 +199,9 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 
 		// Remove old box atoms
 		IAtomList leafList = p.getLeafList();
-		int nLeaf = leafList.getAtomCount();
+		int nLeaf = leafList.size();
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-			IAtom a = leafList.getAtom(iLeaf);
+			IAtom a = leafList.get(iLeaf);
 			if (a == null)
 				continue;
 			Ball ball = (Ball) aam.getAgent(a);
@@ -218,8 +220,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	public void refreshAtomAgentMgr() {
 
 		// Set new atom manager
-		aam = new AtomLeafAgentManager<Figure>(this, displayBox.getBox(), Figure.class);
-		aamOriented = new AtomLeafAgentManager<Ball[]>(null, displayBox.getBox(), Ball[].class);
+		aam = new AtomLeafAgentManager<Figure>(this, displayBox.getBox());
+		aamOriented = new AtomLeafAgentManager<Ball[]>(a -> null, displayBox.getBox());
 		initialOrient = true;
 	}
 
@@ -269,13 +271,13 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		DiameterHash diameterHash = displayBox.getDiameterHash();
 
 		IAtomList leafList = displayBox.getBox().getLeafList();
-		int nLeaf = leafList.getAtomCount();
+		int nLeaf = leafList.size();
 
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
 		    IAtom a = null;
 		    Ball ball = null;
 		    try {
-		        a = leafList.getAtom(iLeaf);
+		        a = leafList.get(iLeaf);
 	            if (a == null)
 	                continue;
 	            ball = (Ball) aam.getAgent(a);
@@ -300,7 +302,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			 * drawable flag. This makes it possible to filter bonds in
 			 * wireframe mode as well.
 			 */
-            boolean drawable = atomFilter == null || atomFilter.accept(a);
+            boolean drawable = atomFilter == null || atomFilter.test(a);
             if (drawable && rMin != null) {
 			    for (int i=0; i<rMin.getD(); i++) {
 			        double x = a.getPosition().getX(i);
@@ -323,7 +325,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 				ball.setZ((float) coords[2]);
 			}
 
-			OrientedSite[] sites = (OrientedSite[])atomTypeOrientedManager.getAgent(a.getType());
+			OrientedSite[] sites = atomTypeOrientedManager.get(a.getType());
 			if (sites != null) {
 			    Ball[] ballSites = aamOriented.getAgent(a);
 			    if (ballSites == null) {
@@ -670,8 +672,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		 */
 		// bondType is a potential right now
 		// best to ignore it for now; all bonds are equal
-		Ball ball0 = (Ball) aam.getAgent(pair.getAtom(0));
-		Ball ball1 = (Ball) aam.getAgent(pair.getAtom(1));
+		Ball ball0 = (Ball) aam.getAgent(pair.get(0));
+		Ball ball1 = (Ball) aam.getAgent(pair.get(1));
 		if (ball0 == null || ball1 == null) {
 			System.out.println("NULL!!!");
 			pendingBonds.add(new Object[] { ball0, ball1, bondType });
@@ -692,12 +694,12 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     }
 
     public void setOrientationSites(AtomTypeOriented atomType, OrientedSite[] sites) {
-        atomTypeOrientedManager.setAgent(atomType, sites);
+        atomTypeOrientedManager.put(atomType, sites);
 		IAtomList leafList = displayBox.getBox().getLeafList();
-		int nLeaf = leafList.getAtomCount();
+		int nLeaf = leafList.size();
 
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-			IAtom a = leafList.getAtom(iLeaf);
+			IAtom a = leafList.get(iLeaf);
 			if (a.getType() != atomType) continue;
 			Ball[] balls = aamOriented.getAgent(a);
 			if (balls == null) continue;
@@ -737,7 +739,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         if (atomFilter instanceof AtomFilterCollective) {
             ((AtomFilterCollective)atomFilter).resetFilter();
         }
-        boolean drawable = atomFilter == null || atomFilter.accept(a);
+        boolean drawable = atomFilter == null || atomFilter.test(a);
         if (drawable && rMin != null) {
             for (int i=0; i<rMin.getD(); i++) {
                 double x = a.getPosition().getX(i);

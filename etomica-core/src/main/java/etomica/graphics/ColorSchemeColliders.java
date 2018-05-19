@@ -33,7 +33,7 @@ public class ColorSchemeColliders extends ColorScheme {
      * Applies the special colors to the colliding pair while coloring all other atoms with baseColor.
      */ 
     public Color getAtomColor(IAtom a) {
-        IntegratorHard.Agent colliderAgent = integrator.colliderAgent();
+        IntegratorHard.Agent colliderAgent = integrator.getLastColliderAgent();
         if(colliderAgent == null) return defaultColor;
         else if(a == colliderAgent.atom) return colliderColor;
         else if(a == colliderAgent.collisionPartner) return partnerColor;

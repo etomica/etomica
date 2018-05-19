@@ -4,12 +4,12 @@
 
 package etomica.tests;
 
-import etomica.action.ActionIntegrate;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
 import etomica.config.Configuration;
-import etomica.config.ConfigurationFile;
+import etomica.config.Configurations;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
@@ -28,6 +28,7 @@ import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
@@ -46,8 +47,13 @@ public class TestSWChain extends Simulation {
 
     public TestSWChain(Space _space, int numMolecules, double simTime, Configuration config) {
         super(_space);
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
+
         int chainLength = 10;
+        SpeciesSpheres species = new SpeciesSpheres(this, _space, chainLength);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         int numAtoms = numMolecules * chainLength;
         double sigma = 1.0;
         double sqwLambda = 1.5;
@@ -55,45 +61,37 @@ public class TestSWChain extends Simulation {
         double bondFactor = 0.15;
         double timeStep = 0.005;
         simTime /= chainLength;
-        int nSteps = (int)(simTime / timeStep);
+        int nSteps = (int) (simTime / timeStep);
 
         // makes eta = 0.35
-        double l = 14.4094*Math.pow((numAtoms/2000.0),1.0/3.0);
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        double l = 14.4094 * Math.pow((numAtoms / 2000.0), 1.0 / 3.0);
+        box = this.makeBox();
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
-        ActionIntegrate actionIntegrate = new ActionIntegrate(integrator,false);
-        getController().addAction(actionIntegrate);
-        actionIntegrate.setMaxSteps(nSteps);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+        activityIntegrate.setMaxSteps(nSteps);
         potentialMaster.setCellRange(2);
-        potentialMaster.setRange(neighborRangeFac*sqwLambda*sigma);
-
-        SpeciesSpheres species = new SpeciesSpheres(this,_space,chainLength);
-        species.setIsDynamic(true);
-        addSpecies(species);
+        potentialMaster.setRange(neighborRangeFac * sqwLambda * sigma);
         P2HardBond bonded = new P2HardBond(space, sigma, bondFactor, false);
         PotentialGroup potentialChainIntra = potentialMaster.makePotentialGroup(1);
         potentialChainIntra.addPotential(bonded, ApiBuilder.makeAdjacentPairIterator());
 
-        potentialMaster.addPotential(potentialChainIntra, new ISpecies[] {species});
-        ((ConformationLinear)species.getConformation()).setBondLength(sigma);
+        potentialMaster.addPotential(potentialChainIntra, new ISpecies[]{species});
+        ((ConformationLinear) species.getConformation()).setBondLength(sigma);
 
-        P2SquareWell potential = new P2SquareWell(space,sigma,sqwLambda,0.5,false);
+        P2SquareWell potential = new P2SquareWell(space, sigma, sqwLambda, 0.5, false);
 
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
-        CriterionInterMolecular sqwCriterion = (CriterionInterMolecular)potentialMaster.getCriterion(potential);
+        CriterionInterMolecular sqwCriterion = (CriterionInterMolecular) potentialMaster.getCriterion(sphereType, sphereType);
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
         nonBondedCriterion.setBonded(false);
         sqwCriterion.setIntraMolecularCriterion(nonBondedCriterion);
-
-        box = new Box(space);
-        addBox(box);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{l,l,l}));
+        box.getBoundary().setBoxSize(Vector.of(l, l, l));
         box.setNMolecules(species, numMolecules);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
-
-        integrator.setBox(box);
         config.initializeCoordinates(box);
     }
     
@@ -102,13 +100,12 @@ public class TestSWChain extends Simulation {
         ParseArgs.doParseArgs(params, args);
         int numMolecules = params.numAtoms;
         double simTime = params.numSteps/numMolecules;
-        ConfigurationFile config = new ConfigurationFile("SWChain"+Integer.toString(numMolecules));
+        Configuration config = Configurations.fromResourceFile(String.format("SWChain%d.pos", numMolecules), TestSWChain.class);
 
         Space sp = Space3D.getInstance();
         TestSWChain sim = new TestSWChain(sp, numMolecules, simTime, config);
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.space);
-        pMeter.setIntegrator(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed();
         DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator);
@@ -117,7 +114,7 @@ public class TestSWChain extends Simulation {
         
         sim.getController().actionPerformed();
         
-        double Z = pMeter.getDataAsScalar()*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().getMoleculeCount()*sim.integrator.getTemperature());
+        double Z = pMeter.getDataAsScalar()*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().size()*sim.integrator.getTemperature());
         double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         avgPE /= numMolecules;
         System.out.println("Z="+Z);

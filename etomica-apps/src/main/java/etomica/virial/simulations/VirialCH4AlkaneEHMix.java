@@ -31,6 +31,7 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.molecule.MoleculePositionGeometricCenterAlkaneEH;
 import etomica.potential.*;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.units.Kelvin;
@@ -695,9 +696,9 @@ public class VirialCH4AlkaneEHMix {
         
         if (false) {
         	  double size = 10;
-              sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-              sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-              SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+              sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+              sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+              SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
               DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
               DisplayBox dBox1 = simGraphic.getDisplayBox(sim.box[1]);
               dBox0.setPixelUnit(new Pixel(300.0/size));
@@ -706,7 +707,7 @@ public class VirialCH4AlkaneEHMix {
               dBox1.setShowBoundary(false);
               
               //set diameters
-              DiameterHashByType diameter = new DiameterHashByType(sim); 
+              DiameterHashByType diameter = new DiameterHashByType();
               diameter.setDiameter(speciesCH4.getAtomType(0),0.2);
               diameter.setDiameter(speciesCH4.getAtomType(1),0.3);
               diameter.setDiameter(speciesAlkaneEH.getC_2Type(), 0.3);

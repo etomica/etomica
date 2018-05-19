@@ -72,8 +72,8 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
      * Implemented for only 1- and 2-body potentials.
      */
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-        IAtom atom0 = atoms.getAtom(0);
-        IAtom atom1 = atoms.getAtom(1);
+        IAtom atom0 = atoms.get(0);
+        IAtom atom1 = atoms.get(1);
         Vector site0 = coordinateDefinition.getLatticePosition(atom0);
         Vector site1 = coordinateDefinition.getLatticePosition(atom1);
 

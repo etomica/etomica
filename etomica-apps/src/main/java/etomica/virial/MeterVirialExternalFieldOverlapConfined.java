@@ -161,11 +161,11 @@ public class MeterVirialExternalFieldOverlapConfined implements ClusterWeightSum
     	    DoubleRange [] gm1lowhigh = new DoubleRange [cList.size()-1];
     	    	    	
     	    for(byte g : gList){
-    	    	if (atoms.getAtom(g).getPosition().getX(2) < glowestatom){
-    	    		glowestatom = atoms.getAtom(g).getPosition().getX(2);    	    			
+    	    	if (atoms.get(g).getPosition().getX(2) < glowestatom){
+    	    		glowestatom = atoms.get(g).getPosition().getX(2);
     	    	}    	 
-    	    	else if (atoms.getAtom(g).getPosition().getX(2) > ghighestatom){
-    	    		ghighestatom = atoms.getAtom(g).getPosition().getX(2);
+    	    	else if (atoms.get(g).getPosition().getX(2) > ghighestatom){
+    	    		ghighestatom = atoms.get(g).getPosition().getX(2);
     	    	}
     	    }    	  
     	    
@@ -174,11 +174,11 @@ public class MeterVirialExternalFieldOverlapConfined implements ClusterWeightSum
     	    	double gm1low0 = nPoints - 0.5;
     	    	double gm1high0 = 0.5 - nPoints; 
     	    	for(byte gm1 :gm1List){    	    		
-    	    		if (atoms.getAtom(gm1).getPosition().getX(2) <  gm1low0){
-    	    			gm1low0 = atoms.getAtom(gm1).getPosition().getX(2);    	    			
+    	    		if (atoms.get(gm1).getPosition().getX(2) <  gm1low0){
+    	    			gm1low0 = atoms.get(gm1).getPosition().getX(2);
     	    		}
-    	    		if (atoms.getAtom(gm1).getPosition().getX(2) > gm1high0){
-    	    			gm1high0 = atoms.getAtom(gm1).getPosition().getX(2);    	    				    			
+    	    		if (atoms.get(gm1).getPosition().getX(2) > gm1high0){
+    	    			gm1high0 = atoms.get(gm1).getPosition().getX(2);
     	    		}    	    		
     	    	}     	    	
     	    	v=-v;

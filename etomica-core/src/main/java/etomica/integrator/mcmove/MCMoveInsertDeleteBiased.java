@@ -7,8 +7,9 @@ package etomica.integrator.mcmove;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.util.Arrays;
 import etomica.util.random.IRandom;
+
+import java.util.Arrays;
 
 /**
  * Biased MCMove for insertion and deletion.  The bias can be set by setting
@@ -49,7 +50,7 @@ public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
     public void setLnBias(int n, double nBias) {
         if (lnbias.length < n+1) {
             int oldSize = lnbias.length;
-            lnbias = Arrays.resizeArray(lnbias, n+1);
+            lnbias = Arrays.copyOf(lnbias, n + 1);
             for (int i=oldSize; i<lnbias.length; i++) {
                 if (i==0) lnbias[0] = 0;
                 else lnbias[i] = lnbias[i-1] + mu;
@@ -84,10 +85,10 @@ public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
     }
     
     public double getLnBiasDiff() {
-        int numAtoms = box.getLeafList().getAtomCount();
+        int numAtoms = box.getLeafList().size();
         if (lnbias != null && lnbias.length < numAtoms+1) {
             int oldSize = lnbias.length;
-            lnbias = Arrays.resizeArray(lnbias, numAtoms+1);
+            lnbias = Arrays.copyOf(lnbias, numAtoms+1);
             for (int i=oldSize; i<lnbias.length; i++) {
                 if (i==0) lnbias[0] = 0;
                 //should be beta*mu here!!!
@@ -111,7 +112,7 @@ public class MCMoveInsertDeleteBiased extends MCMoveInsertDelete {
     }
     
     public void acceptNotify() {
-        int numAtoms = box.getLeafList().getAtomCount();
+        int numAtoms = box.getLeafList().size();
         if ((numAtoms <= minN && !insert) || (numAtoms > maxN && insert)) {
             myRejectNotify();
         }

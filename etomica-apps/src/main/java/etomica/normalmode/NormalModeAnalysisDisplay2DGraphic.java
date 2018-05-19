@@ -14,9 +14,7 @@ import etomica.data.types.DataTable;
 import etomica.data.types.DataTable.DataInfoTable;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
-import etomica.space.Boundary;
-import etomica.space.BoundaryDeformablePeriodic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Energy;
@@ -34,7 +32,7 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
 
 	public NormalModeAnalysisDisplay2DGraphic(final NormalModeAnalysisDisplay2D simulation, Space space) {
 		
-		super(simulation, TABBED_PANE, APP_NAME,REPAINT_INTERVAL, space, simulation.getController());
+		super(simulation, TABBED_PANE, APP_NAME,REPAINT_INTERVAL);
 		this.sim = simulation;
 		
 		DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
@@ -218,14 +216,15 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
                 if (oldNx != nx ) {
                 	int[] nCells = new int[]{nx, (int)cellSlider.getYCellNum()};
                 	
-                	Vector[] dimension = sim.space.makeVectorArray(sim.space.D());
-                    for (int i=0; i<sim.space.D(); i++){
+                	Vector[] dimension = sim.getSpace().makeVectorArray(sim.getSpace().D());
+                    for (int i = 0; i< sim.getSpace().D(); i++){
                     	dimension[i].Ea1Tv1(nCells[i], sim.primitive.vectors()[i]);
                     }
-                	                	       	
-                	Boundary boundary = new BoundaryDeformablePeriodic(sim.getSpace(), dimension);
-                	sim.box.setBoundary(boundary);
-                	
+
+                    for (int i = 0; i < dimension.length; i++) {
+                        sim.boundary.setEdgeVector(i, dimension[i]);
+                    }
+
                 	sim.waveVectorFactory.makeWaveVectors(sim.box);
                 	sim.coordinateDefinition.initializeCoordinates(nCells);
                 	
@@ -319,13 +318,14 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
                 if (oldNy != ny ) {
                 	int[] nCells = new int[]{(int)cellSlider.getXCellNum(), ny};
                 	
-                	Vector[] dimension = sim.space.makeVectorArray(sim.space.D());
-                    for (int i=0; i<sim.space.D(); i++){
+                	Vector[] dimension = sim.getSpace().makeVectorArray(sim.getSpace().D());
+                    for (int i = 0; i< sim.getSpace().D(); i++){
                     	dimension[i].Ea1Tv1(nCells[i], sim.primitive.vectors()[i]);
                     }
-                	                	       	
-                	Boundary boundary = new BoundaryDeformablePeriodic(sim.getSpace(), dimension);
-                	sim.box.setBoundary(boundary);
+
+                    for (int i = 0; i < dimension.length; i++) {
+                        sim.boundary.setEdgeVector(i, dimension[i]);
+                    }
                 	sim.waveVectorFactory.makeWaveVectors(sim.box);
                 	sim.coordinateDefinition.initializeCoordinates(nCells);
                 	
@@ -535,7 +535,7 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
 	
 	public static void main(String[] args){
 		Space sp = Space.getInstance(2);
-		NormalModeAnalysisDisplay2DGraphic simGraphic = new NormalModeAnalysisDisplay2DGraphic(new NormalModeAnalysisDisplay2D(sp), sp);
+		NormalModeAnalysisDisplay2DGraphic simGraphic = new NormalModeAnalysisDisplay2DGraphic(new NormalModeAnalysisDisplay2D(), sp);
 		SimulationGraphic.makeAndDisplayFrame(simGraphic.getPanel(), APP_NAME);
 		
 	}
@@ -549,7 +549,7 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
 		public void init(){
 			getRootPane().putClientProperty(APP_NAME, Boolean.TRUE);
 			Space sp = Space.getInstance(2);
-			NormalModeAnalysisDisplay2DGraphic nm2Dgraphic = new NormalModeAnalysisDisplay2DGraphic(new NormalModeAnalysisDisplay2D(sp), sp);
+			NormalModeAnalysisDisplay2DGraphic nm2Dgraphic = new NormalModeAnalysisDisplay2DGraphic(new NormalModeAnalysisDisplay2D(), sp);
 			getContentPane().add(nm2Dgraphic.getPanel());
 		}
 	}

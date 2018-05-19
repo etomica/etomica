@@ -43,15 +43,15 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
         //We're using the instantaneous velocity tensor with the average virial tensor
         //not quite right, but works out in the end.
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             v.Ev1v2(a.getVelocity(), a.getVelocity());
             v.TE((a.getType().rm()));
             data.x.PE(v);
         }
 
-        data.x.TE(1.0/box.getLeafList().getAtomCount());
+        data.x.TE(1.0/box.getLeafList().size());
     
         return data;
     }

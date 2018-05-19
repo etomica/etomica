@@ -118,7 +118,7 @@ public class IEGenerator {
 
 	public static Set<Graph> Multiply(Set<Graph> a,Set<Graph> b){ // Adds the bonds.. no "multiplication"
 		
-		Set<Graph> product = new GraphList<Graph>();
+		Set<Graph> product = new GraphList();
 				
 		for(Graph g : a){
 			for(Graph h : b){

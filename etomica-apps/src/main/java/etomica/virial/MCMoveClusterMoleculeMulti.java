@@ -38,12 +38,12 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
 
     public void setBox(Box p) {
         super.setBox(p);
-        translationVectors = new Vector[box.getMoleculeList().getMoleculeCount()];
-        for (int i=0; i<box.getMoleculeList().getMoleculeCount(); i++) {
+        translationVectors = new Vector[box.getMoleculeList().size()];
+        for (int i = 0; i<box.getMoleculeList().size(); i++) {
             translationVectors[i] = space.makeVector();
         }
         if (constraintMap == null) {
-            constraintMap = new int[box.getMoleculeList().getMoleculeCount()];
+            constraintMap = new int[box.getMoleculeList().size()];
             for (int i=0; i<constraintMap.length; i++) {
                 constraintMap[i] = i;
             }
@@ -65,14 +65,14 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
 //            throw new RuntimeException("oops, initial configuration unhappy");
 //        }
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i=startMolecule; i<moleculeList.getMoleculeCount(); i++) {
+        for(int i = startMolecule; i<moleculeList.size(); i++) {
             int tv = constraintMap[i];
             if (tv == i) {
                 translationVectors[tv].setRandomCube(random);
                 translationVectors[tv].TE(stepSize);
             }
             groupTranslationVector.E(translationVectors[tv]);
-            moveMoleculeAction.actionPerformed(moleculeList.getMolecule(i));
+            moveMoleculeAction.actionPerformed(moleculeList.get(i));
         }
         ((BoxCluster)box).trialNotify();
         uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
@@ -81,9 +81,9 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
 	
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i=startMolecule; i<moleculeList.getMoleculeCount(); i++) {
+        for(int i = startMolecule; i<moleculeList.size(); i++) {
             groupTranslationVector.Ea1Tv1(-1,translationVectors[constraintMap[i]]);
-            moveMoleculeAction.actionPerformed(moleculeList.getMolecule(i));
+            moveMoleculeAction.actionPerformed(moleculeList.get(i));
         }
         ((BoxCluster)box).rejectNotify();
         if (((BoxCluster)box).getSampleCluster().value((BoxCluster)box) == 0) {

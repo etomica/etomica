@@ -39,8 +39,8 @@ public class MeterOrientation implements DataSourceMolecular {
     
     public IData getData(IMolecule atom) {
         IAtomList children = atom.getChildList();
-        dr.Ev1Mv2(children.getAtom(children.getAtomCount()-1).getPosition(),
-                  children.getAtom(0).getPosition());
+        dr.Ev1Mv2(children.get(children.size()-1).getPosition(),
+                  children.get(0).getPosition());
         boundary.nearestImage(dr);
         data.x= dr.getX(0) / Math.sqrt(dr.squared());
         return data;

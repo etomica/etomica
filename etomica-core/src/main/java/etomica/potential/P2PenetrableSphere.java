@@ -52,8 +52,8 @@ public class P2PenetrableSphere extends Potential2HardSpherical {
      * Implements collision dynamics between two penetrable-sphere atoms.
      */
     public void bump(IAtomList pair, double falseTime) {
-        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
-        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+        IAtomKinetic atom0 = (IAtomKinetic)pair.get(0);
+        IAtomKinetic atom1 = (IAtomKinetic)pair.get(1);
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
@@ -122,8 +122,8 @@ public class P2PenetrableSphere extends Potential2HardSpherical {
      * approach, or when they edge of the wells are reached as atoms diverge.
      */
     public double collisionTime(IAtomList pair, double falseTime) {
-        IAtomKinetic coord0 = (IAtomKinetic)pair.getAtom(0);
-        IAtomKinetic coord1 = (IAtomKinetic)pair.getAtom(1);
+        IAtomKinetic coord0 = (IAtomKinetic)pair.get(0);
+        IAtomKinetic coord1 = (IAtomKinetic)pair.get(1);
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
         
         dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());

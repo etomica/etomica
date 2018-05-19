@@ -31,7 +31,7 @@ import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
@@ -73,62 +73,58 @@ public class SimHSMDVacancy extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        box = new Box(space);
-        addBox(box);
+
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        Boundary boundary = new BoundaryRectangularPeriodic(space, n * L);
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
-        double L = Math.pow(4.0/density, 1.0/3.0);
-        int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-        PrimitiveCubic primitive = new PrimitiveCubic(space, n*L);
-        int[] nCells = new int[]{n,n,n};
-        Boundary boundary = new BoundaryRectangularPeriodic(space, n * L);
+        PrimitiveCubic primitive = new PrimitiveCubic(space, n * L);
+        int[] nCells = new int[]{n, n, n};
         Basis basisFCC = new BasisCubicFcc();
         BasisBigCell basis = new BasisBigCell(space, basisFCC, nCells);
-        
-        box.setBoundary(boundary);
 
-        
+
         double nbrRange = 1.7;
         potentialMasterList = new PotentialMasterList(this, nbrRange, space);
         potentialMasterList.setCellRange(2);
         double sigma = 1.0;
-        integrator = new IntegratorHardMDMC(this, potentialMasterList, space);
+        integrator = new IntegratorHardMDMC(this, potentialMasterList, box);
         integrator.setTimeStep(tStep);
         integrator.setIsothermal(true);
         integrator.setTemperature(1);
         integrator.setThermostatNoDrift(true);
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
-        
+
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
-        
-        if (nbrRange > 0.5*box.getBoundary().getBoxSize().getX(0)) {
+
+        if (nbrRange > 0.5 * box.getBoundary().getBoxSize().getX(0)) {
             throw new RuntimeException("rcShort is too large");
         }
 
-        double nbr1 = L/Math.sqrt(2);
-        double y = 1.25*nbr1; //nbr1+(L-nbr1)*0.6+0.06;
+        double nbr1 = L / Math.sqrt(2);
+        double y = 1.25 * nbr1; //nbr1+(L-nbr1)*0.6+0.06;
 
         potential = new P2HardSphere(space, y, false);
         AtomType leafType = species.getLeafType();
 
         potentialMasterList.addPotential(potential, new AtomType[]{leafType, leafType});
-
-        integrator.setBox(box);
         integrator.setThermostat(ThermostatType.HYBRID_MC);
         integrator.setThermostatInterval(hybridInterval);
-        
+
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
         // we just needed this to initial coordinates, to keep track of lattice positions of atoms
         coordinateDefinition = null;
-        
+
         integrator.getEventManager().addListener(potentialMasterList.getNeighborManager(box));
         //potentialMasterList.reset();
-        
-        integratorMC = new IntegratorMC(potentialMasterList, random, 1);
+
+        integratorMC = new IntegratorMC(potentialMasterList, random, 1, box);
 //        mcMoveID = new MCMoveInsertDelete1(potentialMasterList, random, space, fixedN, maxDN);
 //        mcMoveID = new MCMoveInsertDelete2(potentialMasterList, random, space, integrator, potentialTruncatedForceShifted, maxDN);
 //        mcMoveID = new MCMoveInsertDelete3(potentialMasterList, random, space, integrator, L*Math.sqrt(0.9), fixedN, maxDN);
@@ -136,7 +132,7 @@ public class SimHSMDVacancy extends Simulation {
         mcMoveID = new MCMoveInsertDeleteLatticeVacancy(potentialMasterList, random, space, integrator, y, numAtoms, numV);
 //        integrator.setMCMoveID(mcMoveID);
 //        integratorMC.getMoveEventManager().addListener(integrator);
-        double x = (nbr1-1)/4.0;
+        double x = (nbr1 - 1) / 4.0;
         mcMoveID.setMaxInsertDistance(x);
         mcMoveID.makeFccVectors(nbr1);
         mcMoveID.setMu(mu);
@@ -248,8 +244,7 @@ public class SimHSMDVacancy extends Simulation {
         mcMoveOverlapMeter.setTemperature(1);
         sim.integratorMC.getMoveEventManager().addListener(mcMoveOverlapMeter);
 
-        final MeterPressureHard meterP = new MeterPressureHard(sim.getSpace());
-        meterP.setIntegrator(sim.integrator);
+        final MeterPressureHard meterP = new MeterPressureHard(sim.integrator);
         DataDistributer.Indexer indexer = new DataDistributer.Indexer() {
             public int getIndex() {
                 return numAtoms-sim.box.getNMolecules(sim.species);
@@ -294,7 +289,7 @@ public class SimHSMDVacancy extends Simulation {
             sim.integrator.getEventManager().addListener(nPump);
             
             final String APP_NAME = "HSMD Vacancy";
-        	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.space, sim.getController());
+        	final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
         	final int nc = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             ColorScheme colorScheme = new ColorScheme() {
                 public Color getAtomColor(IAtom a) {
@@ -346,8 +341,8 @@ public class SimHSMDVacancy extends Simulation {
                     }
                     if (nbrs==null) return Color.RED;
                     int n = 0;
-                    for (int j=0; j<nbrs.getAtomCount(); j++) {
-                        IAtom nbrj = nbrs.getAtom(j);
+                    for (int j = 0; j<nbrs.size(); j++) {
+                        IAtom nbrj = nbrs.get(j);
                         if (nbrj == null) break;
                         dr.Ev1Mv2(pi, nbrj.getPosition());
                         boundary.nearestImage(dr);
@@ -357,8 +352,8 @@ public class SimHSMDVacancy extends Simulation {
                         }
                     }
                     nbrs = nbrManager.getDownList(a)[0];
-                    for (int j=0; j<nbrs.getAtomCount(); j++) {
-                        IAtom nbrj = nbrs.getAtom(j);
+                    for (int j = 0; j<nbrs.size(); j++) {
+                        IAtom nbrj = nbrs.get(j);
                         if (nbrj == null) break;
                         dr.Ev1Mv2(pi, nbrj.getPosition());
                         boundary.nearestImage(dr);
@@ -396,8 +391,8 @@ public class SimHSMDVacancy extends Simulation {
                     }
                     if (nbrs==null) return 0;
                     int n = 0;
-                    for (int j=0; j<nbrs.getAtomCount(); j++) {
-                        IAtom nbrj = nbrs.getAtom(j);
+                    for (int j = 0; j<nbrs.size(); j++) {
+                        IAtom nbrj = nbrs.get(j);
                         if (nbrj == null) break;
                         dr.Ev1Mv2(pi, nbrj.getPosition());
                         boundary.nearestImage(dr);
@@ -407,8 +402,8 @@ public class SimHSMDVacancy extends Simulation {
                         }
                     }
                     nbrs = nbrManager.getDownList(a)[0];
-                    for (int j=0; j<nbrs.getAtomCount(); j++) {
-                        IAtom nbrj = nbrs.getAtom(j);
+                    for (int j = 0; j<nbrs.size(); j++) {
+                        IAtom nbrj = nbrs.get(j);
                         if (nbrj == null) break;
                         dr.Ev1Mv2(pi, nbrj.getPosition());
                         boundary.nearestImage(dr);

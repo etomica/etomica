@@ -7,12 +7,12 @@ package etomica.modules.pistoncylinder;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
@@ -25,9 +25,9 @@ public class IntegratorHardPiston extends IntegratorHard {
      * @param potentialMaster Potential between piston and every atom in the box
      */
     public IntegratorHardPiston(Simulation sim,
-    		           PotentialMaster potentialMaster,
-    		           P1HardMovingBoundary potentialWrapper, Space _space) {
-        super(sim, potentialMaster, _space);
+                                PotentialMaster potentialMaster,
+                                P1HardMovingBoundary potentialWrapper, Box box) {
+        super(sim, potentialMaster, box);
         setTimeStep(1.0);
         pistonPotential = potentialWrapper;
         atomSetSinglet = new AtomSetSinglet();
@@ -51,8 +51,7 @@ public class IntegratorHardPiston extends IntegratorHard {
     }
     
     public void updateAtom(IAtom a) {
-        boolean isPistonPotential = colliderAgent == null ? false : 
-                           (colliderAgent.collisionPotential == pistonPotential);
+        boolean isPistonPotential = agentManager.getAgent(a).collisionPotential == pistonPotential;
         // actually updates the atom
         super.updateAtom(a);
         // check if the atom hit the piston.  if so, then update every atom with the piston
@@ -73,9 +72,9 @@ public class IntegratorHardPiston extends IntegratorHard {
         listToUpdate.clear();
         // look for atoms that wanted to collide with the wall and queue up an uplist recalculation for them.
         IAtomList leafList = box.getLeafList();
-        int nAtoms = leafList.getAtomCount();
+        int nAtoms = leafList.size();
         for (int iLeaf=0; iLeaf<nAtoms; iLeaf++) {
-            IAtom atom1 = leafList.getAtom(iLeaf);
+            IAtom atom1 = leafList.get(iLeaf);
             atomSetSinglet.atom = atom1;
             PotentialHard atom1Potential = agentManager.getAgent(atom1).collisionPotential;
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(atomSetSinglet) && Debug.LEVEL > 1) || (Debug.anyAtom(atomSetSinglet) && Debug.LEVEL > 2))) {

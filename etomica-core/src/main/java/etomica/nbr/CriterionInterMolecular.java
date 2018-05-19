@@ -37,7 +37,7 @@ public class CriterionInterMolecular extends CriterionAdapter {
     
     public boolean accept(IAtomList pair) {
         // Only ask the intracriterion if it exists and the pair is intramolecular. 
-        if ((pair.getAtom(0).getParentGroup() == pair.getAtom(1).getParentGroup()) && (intraCriterion == null ||
+        if ((pair.get(0).getParentGroup() == pair.get(1).getParentGroup()) && (intraCriterion == null ||
                 !intraCriterion.accept(pair))) {
             return false;
         }

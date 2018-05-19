@@ -38,8 +38,7 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
      */
     public void setIntegrator(IntegratorBox newIntegrator) {
         integrator = newIntegrator;
-        energyMeter = new MeterPotentialEnergy(integrator.getPotentialMaster());
-        energyMeter.setBox(integrator.getBox());
+        energyMeter = new MeterPotentialEnergy(integrator.getPotentialMaster(), integrator.getBox());
     }
 
     /**

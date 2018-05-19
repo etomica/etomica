@@ -43,16 +43,16 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
     }
     
     public void setCellSize(double xSize, double zSize) {
-        waveVectors[0] = space.makeVector(new double[]{ 1/xSize, 0, -1/zSize});
-        waveVectors[1] = space.makeVector(new double[]{-1/xSize, 0, -1/zSize});
-        waveVectors[2] = space.makeVector(new double[]{0, 0, 2.0/zSize});
+        waveVectors[0] = Vector.of(new double[]{1 / xSize, 0, -1 / zSize});
+        waveVectors[1] = Vector.of(new double[]{-1 / xSize, 0, -1 / zSize});
+        waveVectors[2] = Vector.of(new double[]{0, 0, 2.0 / zSize});
         waveVectors[0].TE(2.0*Math.PI);
         waveVectors[1].TE(2.0*Math.PI);
         waveVectors[2].TE(2.0*Math.PI);
     }
     
     public double energy(IAtomList atoms) {
-        IAtom a = atoms.getAtom(0);
+        IAtom a = atoms.get(0);
         r.Ev1Mv2(a.getPosition(), offset);
         double sum = 0;
         for (int i=0; i<3; i++) {
@@ -62,7 +62,7 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
     }
 
     public Vector[] gradient(IAtomList atoms) {
-        IAtom a = atoms.getAtom(0);
+        IAtom a = atoms.get(0);
         r.Ev1Mv2(a.getPosition(), offset);
         gradient[0].E(0);
         for (int i=0; i<3; i++) {

@@ -29,7 +29,6 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     ISpecies [] species;
     Vector shiftVector;
     double cutoff;
-    double xboxshift, yboxshift;
     double phi, theta;
     double dist;
     double spacing;
@@ -170,23 +169,19 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     			plane[i].setX(i,0);
     		}
     	}
-    	
-    	xboxshift = 0;
-    	yboxshift =	0;
+
     	//Find X periodicity - magnitude of Miller plane intersection of X and Y axis.
     	Vector xaxisperiod = space.makeVector();
     	xaxisperiod.Ev1Mv2(plane[0], plane[1]);
     	double xaxispbc = Math.sqrt(xaxisperiod.squared());
-    	xboxshift = (xaxispbc/2.0) - Math.sin((Math.PI/2.0) - theta)*plane[0].getX(0);
-    	
+
     	//Find Y periodicity - magnitude of vector formed by Miler plane intersections of Z axis and XY plane.
     	double yaxispbc = 2.0*plane[2].getX(2)/Math.cos((Math.PI/2.0)-phi);
     	//double yaxispbc = Math.sqrt(Math.pow(2.0*plane[2].x(2),2) + Math.pow(plane[0].x(0),2) + Math.pow(plane[1].x(1),2) );
     	
     	//If plane does not intersect X axis
     	if(millerPlane[0]==0){
-    		xboxshift = 0;
-    		xaxispbc=latticeTOP.getLatticeConstants()[0];
+            xaxispbc=latticeTOP.getLatticeConstants()[0];
     	}
     	
     	//If plane does not intersect Y axis
@@ -200,10 +195,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         	}        	
         	xaxisperiod.Ev1Mv2(plane[0], plane[2]);
         	yaxispbc = Math.sqrt(xaxisperiod.squared());
-            yboxshift = (yaxispbc/2.0) - Math.sin((Math.PI/2.0) - phi)*plane[0].getX(0);
-        	
-            xboxshift = 0;
-        	xaxispbc = latticeTOP.getLatticeConstants()[1];
+
+            xaxispbc = latticeTOP.getLatticeConstants()[1];
         }
     	
     	//If plane does not intersect Z axis
@@ -286,7 +279,6 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             if(!((Boundary)box.getBoundary()).getShape().contains(transformedPosition)||transformedPosition.getX(2)<-0.0001){
                continue;            
             }
-            transformedPosition.PE(shiftVector);
             // Check to see if this atom needs to be fixed.
             IMolecule a = null;
             if(transformedPosition.getX(2)>(box.getBoundary().getBoxSize().getX(2)/2.0 - cutoff)){
@@ -296,7 +288,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
                 a = mobileSpecies.makeMolecule();
             }
             box.addMolecule(a);
-            a.getChildList().getAtom(0).getPosition().E(transformedPosition);
+            a.getChildList().get(0).getPosition().E(transformedPosition);
             
         }
         
@@ -369,7 +361,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
                 a = mobileSpecies.makeMolecule();
             }
             box.addMolecule(a);
-            a.getChildList().getAtom(0).getPosition().E(transformedPosition);
+            a.getChildList().get(0).getPosition().E(transformedPosition);
             
         }      
       
@@ -383,16 +375,16 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         
         
         double range = 0.0;
-        for(int i=0; i<box.getLeafList().getAtomCount()-1; i++){
-            for(int j=i+1; j<box.getLeafList().getAtomCount(); j++){
+        for(int i = 0; i<box.getLeafList().size()-1; i++){
+            for(int j = i+1; j<box.getLeafList().size(); j++){
                 
-                rij.E(box.getLeafList().getAtom(i).getPosition());
-                rij.ME(box.getLeafList().getAtom(j).getPosition());
+                rij.E(box.getLeafList().get(i).getPosition());
+                rij.ME(box.getLeafList().get(j).getPosition());
                 box.getBoundary().nearestImage(rij);
                 range = rij.squared();
                 
                 if(range<dist){
-                    box.removeMolecule(box.getLeafList().getAtom(j).getParentGroup());
+                    box.removeMolecule(box.getLeafList().get(j).getParentGroup());
                     removeCount++;
                }
             }

@@ -52,9 +52,9 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 		int [] nCells = new int[]{1,1,1};
 		
 		Vector[] boxDim = new Vector[3];
-		boxDim[0] = space.makeVector(new double[]{nC*a, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-nC*a*Math.cos(Degree.UNIT.toSim(60)), nC*a*Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, nC*c});
+		boxDim[0] = Vector.of(new double[]{nC * a, 0, 0});
+		boxDim[1] = Vector.of(new double[]{-nC * a * Math.cos(Degree.UNIT.toSim(60)), nC * a * Math.sin(Degree.UNIT.toSim(60)), 0});
+		boxDim[2] = Vector.of(new double[]{0, 0, nC * c});
 		
 		Primitive primitive = new PrimitiveHexagonal(space, (nC)*a, nC*c);
 		
@@ -110,7 +110,7 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 		
 		Vector temp1 = space.makeVector();
 		Vector temp2 = space.makeVector();
-		Vector bVector = space.makeVector(new double[]{0.0, 0.0, 1.0});
+		Vector bVector = Vector.of(new double[]{0.0, 0.0, 1.0});
 		
 		for (int i=0; i<aVector.length; i++){
 			aVector[i] = space.makeVector();
@@ -130,9 +130,9 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 				j=i+2;
 			}
 			
-			IMolecule molecule = coordinateDef.getBox().getMoleculeList().getMolecule(j);
-		  	Vector molleafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		   	Vector molleafPos1 = molecule.getChildList().getAtom(1).getPosition();
+			IMolecule molecule = coordinateDef.getBox().getMoleculeList().get(j);
+		  	Vector molleafPos0 = molecule.getChildList().get(0).getPosition();
+		   	Vector molleafPos1 = molecule.getChildList().get(1).getPosition();
 		   	
 			aVector[i].Ev1Mv2(molleafPos1, molleafPos0);
 		    aVector[i].normalize();

@@ -6,7 +6,7 @@ package etomica.virial.simulations;
 
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotential;

@@ -6,8 +6,9 @@ package etomica.virial;
 
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
-import etomica.util.Arrays;
 import etomica.virial.cluster.VirialDiagrams;
+
+import java.util.Arrays;
 
 
 /**
@@ -40,7 +41,7 @@ public class ClusterSumMultibody extends ClusterSum {
                     }
                     if (!has0) {
                         // force f-bond to be calculated (we need it to get e)
-                        fullBondIndexArray[i][j] = Arrays.resizeArray(ff, ff.length+1);
+                        fullBondIndexArray[i][j] = Arrays.copyOf(ff, ff.length + 1);
                         fullBondIndexArray[i][j][ff.length] = 0;
                     }
                 }
@@ -155,9 +156,9 @@ public class ClusterSumMultibody extends ClusterSum {
     }
 
     public static String m2s(IMoleculeList list) {
-        String s = ""+list.getMolecule(0).getIndex();
-        for (int i=1; i<list.getMoleculeCount(); i++) {
-            s += " "+list.getMolecule(i).getIndex();
+        String s = ""+list.get(0).getIndex();
+        for (int i = 1; i<list.size(); i++) {
+            s += " "+list.get(i).getIndex();
         }
         return s;
     }
@@ -183,14 +184,14 @@ public class ClusterSumMultibody extends ClusterSum {
         for(int i=0; i<nPoints-2; i++) {
             if (nextNeeded == -1) return;
             moleculeList.clear();
-            moleculeList.add(molecules.getMolecule(i));
+            moleculeList.add(molecules.get(i));
             for(int j=i+1; j<nPoints-1; j++) {
                 r2[0] = cPairs.getr2(i,j);
-                moleculeList.add(molecules.getMolecule(j));
+                moleculeList.add(molecules.get(j));
                 for (int k=j+1; k<nPoints; k++) {
                     r2[1] = cPairs.getr2(i,k);
                     r2[2] = cPairs.getr2(j,k);
-                    moleculeList.add(molecules.getMolecule(k));
+                    moleculeList.add(molecules.get(k));
                     double eProduct3 = (fValues[i][j][0]+1)*(fValues[i][k][0]+1)*(fValues[j][k][0]+1);
                     if (size==3) {
                         if (groupID == nextNeeded) {
@@ -215,7 +216,7 @@ public class ClusterSumMultibody extends ClusterSum {
                         r2[3] = cPairs.getr2(i,l);
                         r2[4] = cPairs.getr2(j,l);
                         r2[5] = cPairs.getr2(k,l);
-                        moleculeList.add(molecules.getMolecule(l));
+                        moleculeList.add(molecules.get(l));
                         double eProduct4 = eProduct3 * (fValues[i][l][0]+1)*(fValues[j][l][0]+1)*(fValues[k][l][0]+1);
                         if (size==4) {
                             if (groupID == nextNeeded) {
@@ -241,7 +242,7 @@ public class ClusterSumMultibody extends ClusterSum {
                             r2[7] = cPairs.getr2(j,m);
                             r2[8] = cPairs.getr2(k,m);
                             r2[9] = cPairs.getr2(l,m);
-                            moleculeList.add(molecules.getMolecule(m));
+                            moleculeList.add(molecules.get(m));
                             double eProduct5 = eProduct4 * (fValues[i][m][0]+1)*(fValues[j][m][0]+1)*(fValues[k][m][0]+1)*(fValues[l][m][0]+1);
                             if (size==5) {
                                 if (groupID == nextNeeded) {
@@ -268,7 +269,7 @@ public class ClusterSumMultibody extends ClusterSum {
                                 r2[12] = cPairs.getr2(k,mm);
                                 r2[13] = cPairs.getr2(l,mm);
                                 r2[14] = cPairs.getr2(m,mm);
-                                moleculeList.add(molecules.getMolecule(mm));
+                                moleculeList.add(molecules.get(mm));
                                 double eProduct6 = eProduct5 * (fValues[i][mm][0]+1)*(fValues[j][mm][0]+1)*(fValues[k][mm][0]+1)*
                                                                (fValues[l][mm][0]+1)*(fValues[m][mm][0]+1);
                                 if (size==6) {

@@ -152,7 +152,7 @@ public class WriteConfigurationDLPOLY implements IAction {
             
             for (int flipIndex=0; flipIndex<2; flipIndex++){
             	
-	            for (int iMolec=0; iMolec<box.getMoleculeList().getMoleculeCount(); iMolec++) {
+	            for (int iMolec = 0; iMolec<box.getMoleculeList().size(); iMolec++) {
 	            	
 	            	//for Orthorhombic Paracetamol
 	            	if(boundaryType==2){
@@ -167,9 +167,9 @@ public class WriteConfigurationDLPOLY implements IAction {
 		            		continue;
 		            	}
 	            	}
-	            	IMolecule molecule = box.getMoleculeList().getMolecule(iMolec);
-	                for (int iLeaf=0; iLeaf<molecule.getChildList().getAtomCount(); iLeaf++){
-	                	IAtom atom = molecule.getChildList().getAtom(iLeaf);
+	            	IMolecule molecule = box.getMoleculeList().get(iMolec);
+	                for (int iLeaf = 0; iLeaf<molecule.getChildList().size(); iLeaf++){
+	                	IAtom atom = molecule.getChildList().get(iLeaf);
 	                	String atomName = elementHash.get(atom.getType().getElement());
 	       
 	                	formatter.format("%8s%10d\n", new Object[]{atomName, atomCount});

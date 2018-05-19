@@ -4,49 +4,54 @@
 
 package etomica.potential;
 
-import etomica.atom.*;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.Constants;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Effective semiclassical molecular potential using the approach of
- * Takahashi and Imada
- * 
+ * Effective semiclassical molecular potential using the approach of Takahashi and Imada
+ * <p>
  * http://dx.doi.org/10.1143/JPSJ.53.3765
- * 
+ * <p>
  * as described by Schenter
- * 
+ * <p>
  * http://dx.doi.org/10.1063/1.1505441
- * 
+ *
  * @author Andrew Schultz
  */
 public class P2SemiclassicalAtomic implements IPotentialAtomic {
 
     protected final IPotentialTorque p2Classy;
-    protected final AtomTypeAgentManager agents;
+    protected final Map<AtomType, AtomInfo> agents;
     protected final Space space;
     protected double temperature, fac;
-    
+
     public P2SemiclassicalAtomic(Space space, IPotentialTorque p2Classy, double temperature) {
         this.space = space;
         this.p2Classy = p2Classy;
         if (p2Classy.nBody() != 2) throw new RuntimeException("I would really rather have a 2-body potential");
-        agents = new AtomTypeAgentManager(null);
+        agents = new HashMap<>();
         setTemperature(temperature);
     }
 
     public void setAtomInfo(AtomType species, AtomInfo moleculeInfo) {
-        agents.setAgent(species, moleculeInfo);
+        agents.put(species, moleculeInfo);
     }
-    
+
     public void setTemperature(double newTemperature) {
         temperature = newTemperature;
-        double hbar = Constants.PLANCK_H/(2*Math.PI);
-        fac = hbar*hbar/(24*temperature*temperature);
+        double hbar = Constants.PLANCK_H / (2 * Math.PI);
+        fac = hbar * hbar / (24 * temperature * temperature);
     }
-    
+
     public double getRange() {
         return p2Classy.getRange();
     }
@@ -61,39 +66,38 @@ public class P2SemiclassicalAtomic implements IPotentialAtomic {
 
     public double energy(IAtomList molecules) {
         double uC = p2Classy.energy(molecules);
-        if (uC/temperature > 100) return Double.POSITIVE_INFINITY;
+        if (uC / temperature > 100) return Double.POSITIVE_INFINITY;
         Vector[][] gradAndTorque = p2Classy.gradientAndTorque(molecules);
         double sum = 0;
-        for (int i=0; i<2; i++) {
-            IAtom iMol = molecules.getAtom(i);
+        for (int i = 0; i < 2; i++) {
+            IAtom iMol = molecules.get(i);
             double mi = iMol.getType().getMass();
-            sum += gradAndTorque[0][i].squared()/mi;
+            sum += gradAndTorque[0][i].squared() / mi;
             if (iMol instanceof IAtomOriented) {
-                AtomInfo atomInfo = (AtomInfo)agents.getAgent(iMol.getType());
+                AtomInfo atomInfo = agents.get(iMol.getType());
                 if (atomInfo == null) {
                     throw new RuntimeException("You must provide AtomInfo for oriented atoms");
                 }
-                Vector[] momentAndAxes = atomInfo.getMomentAndAxes((IAtomOriented)iMol);
+                Vector[] momentAndAxes = atomInfo.getMomentAndAxes((IAtomOriented) iMol);
                 Vector moment = momentAndAxes[0];
-                for (int j=0; j<3; j++) {
+                for (int j = 0; j < 3; j++) {
                     if (moment.getX(j) < 1e-10) continue;
-                    Vector axis = momentAndAxes[j+1];
+                    Vector axis = momentAndAxes[j + 1];
                     double torque = gradAndTorque[1][i].dot(axis);
-                    sum += torque*torque/moment.getX(j);
+                    sum += torque * torque / moment.getX(j);
                 }
             }
         }
-        double uFull = uC + fac*sum;
+        double uFull = uC + fac * sum;
 //        System.out.println(uC+" "+uFull);
         return uFull;
     }
 
     public interface AtomInfo {
-        
+
         /**
-         * Returns the moment of inertia as a vector containing Ix, Iy, Iz
-         * and also the principle axes.  The 0 element is the moment of inertia
-         * vector while elements 1, 2 and 3 are the principle axes.
+         * Returns the moment of inertia as a vector containing Ix, Iy, Iz and also the principle axes.  The 0 element
+         * is the moment of inertia vector while elements 1, 2 and 3 are the principle axes.
          */
         Vector[] getMomentAndAxes(IAtomOriented molecule);
     }

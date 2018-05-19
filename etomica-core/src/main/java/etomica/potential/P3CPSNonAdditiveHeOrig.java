@@ -59,9 +59,9 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         
         IAtomList atomSet2 = atomSet;
         
-        IAtom atomA = atomSet2.getAtom(0);
-        IAtom atomB = atomSet2.getAtom(1);
-        IAtom atomC = atomSet2.getAtom(2);
+        IAtom atomA = atomSet2.get(0);
+        IAtom atomB = atomSet2.get(1);
+        IAtom atomC = atomSet2.get(2);
         
        
         drAB.Ev1Mv2(atomA.getPosition(),atomB.getPosition());
@@ -756,9 +756,9 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         System.out.println();
         System.out.println("Equilateral triangle 1, rij = 4 a0");  
         a = 4.0*AngstromPerBohrRadius;
-        r0 = space.makeVector(new double[] {0,0,0});
-        r1 = space.makeVector(new double[] {a,0,0});
-        r2 = space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+        r0 = Vector.of(new double[]{0, 0, 0});
+        r1 = Vector.of(new double[]{a, 0, 0});
+        r2 = Vector.of(new double[]{a / 2.0, a / 2.0 * Math.sqrt(3), 0});
         
         atom0.getPosition().E(r0);
         atom1.getPosition().E(r1);
@@ -774,9 +774,9 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         
         System.out.println("Equilateral triangle 2, rij = 5.6 a0"); 
         a = 5.6*AngstromPerBohrRadius;
-        r0 = space.makeVector(new double[] {0,0,0});
-        r1 = space.makeVector(new double[] {a,0,0});
-        r2 = space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+        r0 = Vector.of(new double[]{0, 0, 0});
+        r1 = Vector.of(new double[]{a, 0, 0});
+        r2 = Vector.of(new double[]{a / 2.0, a / 2.0 * Math.sqrt(3), 0});
         
         atom0.getPosition().E(r0);
         atom1.getPosition().E(r1);
@@ -792,9 +792,9 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         
         System.out.println("Equilateral triangle 3, rij = 7 a0"); 
         a = 7.0*AngstromPerBohrRadius;
-        r0 = space.makeVector(new double[] {0,0,0});
-        r1 = space.makeVector(new double[] {a,0,0});
-        r2 = space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+        r0 = Vector.of(new double[]{0, 0, 0});
+        r1 = Vector.of(new double[]{a, 0, 0});
+        r2 = Vector.of(new double[]{a / 2.0, a / 2.0 * Math.sqrt(3), 0});
         
         atom0.getPosition().E(r0);
         atom1.getPosition().E(r1);
@@ -810,9 +810,9 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         
         System.out.println("Line 1, r12 = 5.6 a0, r13 = 11.2 a0, r23 = 5.6 a0");
         a = 5.6*AngstromPerBohrRadius;
-        r0 = space.makeVector(new double[] {0,0,0});
-        r1 = space.makeVector(new double[] {a,0,0});
-        r2 = space.makeVector(new double[] {2*a,0,0});
+        r0 = Vector.of(new double[]{0, 0, 0});
+        r1 = Vector.of(new double[]{a, 0, 0});
+        r2 = Vector.of(new double[]{2 * a, 0, 0});
        
         
         atom0.getPosition().E(r0);
@@ -831,9 +831,9 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         
         System.out.println("r12=3.0a0, r23=5.0a0, r13=4.0a0");
         a = AngstromPerBohrRadius;
-        r0 = space.makeVector(new double[] {0,0,0});
-        r1 = space.makeVector(new double[] {3*a,0,0});
-        r2 = space.makeVector(new double[] {0,4*a,0});
+        r0 = Vector.of(new double[]{0, 0, 0});
+        r1 = Vector.of(new double[]{3 * a, 0, 0});
+        r2 = Vector.of(new double[]{0, 4 * a, 0});
              
         atom0.getPosition().E(r0);
         atom1.getPosition().E(r1);
@@ -846,9 +846,9 @@ public class P3CPSNonAdditiveHeOrig extends Potential implements PotentialSoft {
         System.out.println();
         
         System.out.println("r12=6.0a0, r23=5.0a0; r13=5.0a0");
-        r0 = space.makeVector(new double[] {0,0,0});
-        r1 = space.makeVector(new double[] {6*a,0,0});
-        r2 = space.makeVector(new double[] {3*a,4*a,0});
+        r0 = Vector.of(new double[]{0, 0, 0});
+        r1 = Vector.of(new double[]{6 * a, 0, 0});
+        r2 = Vector.of(new double[]{3 * a, 4 * a, 0});
           
         atom0.getPosition().E(r0);
         atom1.getPosition().E(r1);

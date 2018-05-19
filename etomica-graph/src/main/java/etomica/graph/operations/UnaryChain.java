@@ -25,7 +25,7 @@ public class UnaryChain implements Unary {
   public UnaryChain(Unary op, Unary nextOp) {
     this.op = op;
     this.nextOp = nextOp;
-    gSet1 = new GraphList<Graph>();
+    gSet1 = new GraphList();
   }
   
   public Set<Graph> apply(Set<Graph> argument, Parameters chainParams) {

@@ -6,7 +6,6 @@
 
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
-import etomica.action.activity.IController;
 import etomica.box.Box;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
@@ -41,7 +40,7 @@ public class DeviceCellNumXYSlider extends Device {
     protected Box box;
     
 	
-	public DeviceCellNumXYSlider(IController cont) {
+	public DeviceCellNumXYSlider(Controller cont) {
 		
         //using x-axis or y-axis radio button
         ButtonGroup numCellGroup = new ButtonGroup();
@@ -272,7 +271,7 @@ public class DeviceCellNumXYSlider extends Device {
 	/**
 	 * Set the x- and y- Cell # slider controller.
 	 */
-    public void setController(IController cont) {
+    public void setController(Controller cont) {
     	super.setController(cont);
     	xCellNumSlider.setController(cont);
         yCellNumSlider.setController(cont);
@@ -364,7 +363,7 @@ public class DeviceCellNumXYSlider extends Device {
 
        
         etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
-        NormalModeAnalysisDisplay2D sim = new NormalModeAnalysisDisplay2D(sp);
+        NormalModeAnalysisDisplay2D sim = new NormalModeAnalysisDisplay2D();
         
         DeviceCellNumXYSlider device = new DeviceCellNumXYSlider(new Controller());
         device.setMinimum(1);
@@ -372,7 +371,7 @@ public class DeviceCellNumXYSlider extends Device {
         //device.setWaveVectorNum(0);
         
         
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
         graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
         graphic.add(device);
         graphic.makeAndDisplayFrame(APP_NAME);

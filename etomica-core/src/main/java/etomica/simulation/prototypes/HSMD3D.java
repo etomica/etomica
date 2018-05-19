@@ -16,9 +16,9 @@ import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
@@ -76,13 +76,19 @@ public class HSMD3D extends Simulation {
 
         super(Space3D.getInstance());
 
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
+        box = this.makeBox();
+
         double neighborRangeFac = 1.6;
         double sigma = 1.0;
         potentialMaster = params.useNeighborLists ? new PotentialMasterList(this, sigma * neighborRangeFac, space) : new PotentialMasterMonatomic(this);
 
         int numAtoms = params.nAtoms;
 
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
@@ -90,16 +96,11 @@ public class HSMD3D extends Simulation {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
         potential = new P2HardSphere(space, sigma, true);
         AtomType leafType = species.getLeafType();
 
         potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
 
-        box = new Box(space);
-        addBox(box);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(params.eta * 2 * space.D() / Math.PI);
@@ -109,7 +110,6 @@ public class HSMD3D extends Simulation {
         } else {
             new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         }
-        integrator.setBox(box);
 
         if (params.useNeighborLists) {
             NeighborListManager nbrManager = ((PotentialMasterList) potentialMaster).getNeighborManager(box);
@@ -127,7 +127,7 @@ public class HSMD3D extends Simulation {
 
         HSMD3DParam params = new HSMD3DParam();
         final HSMD3D sim = new HSMD3D(params);
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpecies(sim.species);

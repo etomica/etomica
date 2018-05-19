@@ -33,7 +33,7 @@ public class MoleculeIteratorArrayList extends MoleculeIteratorArrayListSimple i
      */
  	public IMolecule nextMolecule() {
         if (upListNow) {
-            if (cursor > list.getMoleculeCount()-2) {
+            if (cursor > list.size()-2) {
                 return null;
             }
             cursor++;
@@ -44,7 +44,7 @@ public class MoleculeIteratorArrayList extends MoleculeIteratorArrayListSimple i
             }
             cursor--;
         }
- 		return list.getMolecule(cursor);
+ 		return list.get(cursor);
  	}
  	
     /**
@@ -78,7 +78,7 @@ public class MoleculeIteratorArrayList extends MoleculeIteratorArrayListSimple i
     
     public void unset() {
         if (upListNow) {
-            cursor = list.getMoleculeCount();
+            cursor = list.size();
         }
         else {
             cursor = -1;

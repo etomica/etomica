@@ -49,7 +49,7 @@ public class ConformationTube implements IConformation {
 
 	public void initializePositions(IAtomList atomList) {
 
-		int size = atomList.getAtomCount();
+		int size = atomList.size();
 		if (size == 0)
 			return;
 
@@ -66,9 +66,9 @@ public class ConformationTube implements IConformation {
 		theta0 = 0;
 		ctr = 0;
 
-        int nLeaf = atomList.getAtomCount();
+        int nLeaf = atomList.size();
         for (int i=0; i<nLeaf; i++) {
-            IAtom a = atomList.getAtom(i);
+            IAtom a = atomList.get(i);
 
 			a.getPosition().setX(0, x);
 			a.getPosition().setX(1, y);

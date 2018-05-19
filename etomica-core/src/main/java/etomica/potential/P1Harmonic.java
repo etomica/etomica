@@ -59,7 +59,7 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     }
 
     public double energy(IAtomList a) {
-        return 0.5*w*a.getAtom(0).getPosition().Mv1Squared(x0);
+        return 0.5*w*a.get(0).getPosition().Mv1Squared(x0);
     }
     
     public double virial(IAtomList a) {
@@ -67,7 +67,7 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     }
 
     public Vector[] gradient(IAtomList a){
-        Vector r = a.getAtom(0).getPosition();
+        Vector r = a.get(0).getPosition();
         force[0].Ev1Mv2(r,x0);
         force[0].TE(w);
             

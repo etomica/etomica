@@ -41,7 +41,7 @@ public class P2Spin extends Potential2 {
      */
     public double energy(IAtomList atoms) {
         return -coupling
-                * atoms.getAtom(0).getPosition().dot(atoms.getAtom(1).getPosition());
+                * atoms.get(0).getPosition().dot(atoms.get(1).getPosition());
     }
 
     /**

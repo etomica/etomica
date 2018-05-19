@@ -41,8 +41,8 @@ public class MeterVirialExternalField implements IDataSource, java.io.Serializab
         double x[] = data.getData();
         IAtomList atoms = box.getLeafList();
         double lowestatom = 0;
-        for (int i=1; i<atoms.getAtomCount();i++){
-        	double z = atoms.getAtom(i).getPosition().getX(2);
+        for (int i = 1; i<atoms.size(); i++){
+        	double z = atoms.get(i).getPosition().getX(2);
         	if (z<lowestatom){
         		lowestatom = z;
         		
@@ -55,7 +55,7 @@ public class MeterVirialExternalField implements IDataSource, java.io.Serializab
             }
             else x[i]=v;
         }
-        x[x.length-1]=(atoms.getAtomCount()-1+lowestatom)*v;
+        x[x.length-1]=(atoms.size()-1+lowestatom)*v;
         return data;
     }
     

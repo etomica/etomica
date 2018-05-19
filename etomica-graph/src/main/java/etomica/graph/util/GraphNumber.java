@@ -9,7 +9,6 @@ import etomica.graph.model.BitmapFactory;
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphFactory;
 import etomica.graph.model.GraphList;
-import etomica.graph.model.Node;
 import etomica.graph.viewer.ClusterViewer;
 
 
@@ -32,7 +31,7 @@ public class GraphNumber {
     if ((!display && args.length == 2) || (display && args.length == 3)) {
       nodeCount = Byte.parseByte(display ? args[2] : args[1]);
     }
-    GraphList<Graph> list = display ? new GraphList<Graph>(null) : null;
+    GraphList list = display ? new GraphList(null) : null;
     if (graphNumStr.contains(",")) {
       String[] graphNumArray = graphNumStr.split(",");
       for (int i=0; i<graphNumArray.length; i++) {
@@ -47,7 +46,7 @@ public class GraphNumber {
     }
   }
   
-  public static void handleGraph(String graphStr, byte nodeCount, GraphList<Graph> list) {
+  public static void handleGraph(String graphStr, byte nodeCount, GraphList list) {
 
 	  String graphNumStr=graphStr.replaceAll("[A-Za-z]", "");
 	  String graphLetterStr=graphStr.replaceAll("[0-9]", "");

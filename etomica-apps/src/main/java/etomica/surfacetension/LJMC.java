@@ -18,11 +18,11 @@ import etomica.data.meter.MeterProfileByVolume;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtomInRegion;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -47,33 +47,32 @@ public class LJMC extends Simulation {
 
     public LJMC(Space _space, int numAtoms, double temperature, double aspectRatio) {
         super(_space);
+
+        //species
+        species = new SpeciesSpheresMono(this, space);//index 1
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         double rc = 4.0;
         potentialMaster = new PotentialMasterCell(this, rc, space);
         potentialMaster.setCellRange(2);
         potentialMaster.lrcMaster().setEnabled(false);
-        
+
         //controller and integrator
-	    integrator = new IntegratorMC(potentialMaster, random, 1.0);
+        box = this.makeBox();
+        integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-	    //species and potentials
-	    species = new SpeciesSpheresMono(this, space);//index 1
-	    species.setIsDynamic(true);
-        addSpecies(species);
-        
         //instantiate several potentials for selection in combo-box
-	    P2LennardJones potential = new P2LennardJones(space);
+        P2LennardJones potential = new P2LennardJones(space);
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         //construct box
-	    box = new Box(space);
-        addBox(box);
         Vector dim = space.makeVector();
         box.getBoundary().setBoxSize(dim);
-        integrator.setBox(box);
-        
+
         mcMoveAtom = new MCMoveAtomInRegion(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         mcMoveAtomBigStep = new MCMoveAtomInRegion(random, potentialMaster, space);
@@ -81,67 +80,66 @@ public class LJMC extends Simulation {
 //        mcMoveAtomBigStep.setStepSizeMin(5);
         integrator.getMoveManager().addMCMove(mcMoveAtomBigStep);
         integrator.getMoveManager().setFrequency(mcMoveAtomBigStep, 0.2);
-        
+
         //new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         double Tc = 1.31;
         double rhoc = 0.314;
         double T = temperature;
-        double rhoV = rhoc - 0.477*Math.pow(Tc-T,1.0/3.0) + 0.05333*(Tc-T) + 0.1261*Math.pow(Tc-T, 1.5);
-        double rhoL = rhoc + 0.477*Math.pow(Tc-T,1.0/3.0) + 0.2124*(Tc-T) - 0.01151*Math.pow(Tc-T, 1.5);
-        double xL = 1.0/(1.0 + Math.pow(rhoL/rhoV,1.0/3.0));
+        double rhoV = rhoc - 0.477 * Math.pow(Tc - T, 1.0 / 3.0) + 0.05333 * (Tc - T) + 0.1261 * Math.pow(Tc - T, 1.5);
+        double rhoL = rhoc + 0.477 * Math.pow(Tc - T, 1.0 / 3.0) + 0.2124 * (Tc - T) - 0.01151 * Math.pow(Tc - T, 1.5);
+        double xL = 1.0 / (1.0 + Math.pow(rhoL / rhoV, 1.0 / 3.0));
         // V = NV/rhoV + NL/rhoL
         // rho = 0.75 rhoV + 0.25 rhoL
-        double rho = (1-xL)*rhoV + xL*rhoL;
+        double rho = (1 - xL) * rhoV + xL * rhoL;
         double V = numAtoms / rho;
 
         // Lx * Lyz * Lyz = V
         // Lx = Lyz * 4
         // 4 * Lyz^3 = V
         // Lyz = (V/4)^(1/3)
-        
-        double Lyz = Math.pow(V/aspectRatio, 1.0/3.0);
-        if (Lyz < 2*rc) {
-            throw new RuntimeException("cutoff("+rc+") too large for box size ("+Lyz+")");
+
+        double Lyz = Math.pow(V / aspectRatio, 1.0 / 3.0);
+        if (Lyz < 2 * rc) {
+            throw new RuntimeException("cutoff(" + rc + ") too large for box size (" + Lyz + ")");
         }
-        double Lx = Lyz*aspectRatio;
-        
-        mcMoveAtom.setXRange(-0.6*Lx*xL, 0.6*Lx*xL, 5);
-        mcMoveAtomBigStep.setXRange(0.4*Lx*xL, -0.4*Lx*xL, 50);
+        double Lx = Lyz * aspectRatio;
+
+        mcMoveAtom.setXRange(-0.6 * Lx * xL, 0.6 * Lx * xL, 5);
+        mcMoveAtomBigStep.setXRange(0.4 * Lx * xL, -0.4 * Lx * xL, 50);
         mcMoveAtomBigStep.setStepSize(6);
         mcMoveAtomBigStep.setStepSizeMin(5);
-        ((MCMoveStepTracker)mcMoveAtomBigStep.getTracker()).setAcceptanceTarget(0.2);
+        ((MCMoveStepTracker) mcMoveAtomBigStep.getTracker()).setAcceptanceTarget(0.2);
 //        ((MCMoveStepTracker)mcMoveAtom.getTracker()).setNoisyAdjustment(true);
 //        ((MCMoveStepTracker)mcMoveAtomBigStep.getTracker()).setNoisyAdjustment(true);
 
-        
+
         //initialize box to just liquid size, put atoms on FCC lattice
-        int nL = (int)((Lx*xL*Lyz*Lyz)*rhoL);
+        int nL = (int) ((Lx * xL * Lyz * Lyz) * rhoL);
         box.setNMolecules(species, nL);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{Lx*xL,Lyz,Lyz}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{Lx * xL, Lyz, Lyz}));
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         // then expand box size
-        
+
         Box boxV = new Box(space);
         addBox(boxV);
-        boxV.setNMolecules(species, numAtoms-nL);
-        boxV.getBoundary().setBoxSize(space.makeVector(new double[]{Lx*(1-xL),Lyz,Lyz}));
+        boxV.setNMolecules(species, numAtoms - nL);
+        boxV.getBoundary().setBoxSize(Vector.of(new double[]{Lx * (1 - xL), Lyz, Lyz}));
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(boxV);
-        
+
         box.setNMolecules(species, numAtoms);
         IAtomList atoms = box.getLeafList();
-        for (int i=0; i<numAtoms-nL; i++) {
-            Vector vx = boxV.getLeafList().getAtom(i).getPosition();
-            Vector x = atoms.getAtom(nL+i).getPosition();
+        for (int i = 0; i < numAtoms - nL; i++) {
+            Vector vx = boxV.getLeafList().get(i).getPosition();
+            Vector x = atoms.get(nL + i).getPosition();
             x.E(vx);
             if (vx.getX(0) > 0) {
-                x.setX(0, vx.getX(0) + 0.5*Lx*xL);
-            }
-            else {
-                x.setX(0, vx.getX(0) - 0.5*Lx*xL);
+                x.setX(0, vx.getX(0) + 0.5 * Lx * xL);
+            } else {
+                x.setX(0, vx.getX(0) - 0.5 * Lx * xL);
             }
         }
-        
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{Lx,Lyz,Lyz}));
+
+        box.getBoundary().setBoxSize(Vector.of(new double[]{Lx, Lyz, Lyz}));
 
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
     }
@@ -166,7 +164,7 @@ public class LJMC extends Simulation {
         meterPTensor.setTemperature(temperature);
         
         if (true) {
-            SimulationGraphic ljmcGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic ljmcGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             SimulationGraphic.makeAndDisplayFrame(ljmcGraphic.getPanel(), "LJ surface tension");
             
             IAction recenterAction = new ActionRecenter(sim);

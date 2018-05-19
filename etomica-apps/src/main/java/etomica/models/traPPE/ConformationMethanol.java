@@ -28,14 +28,14 @@ public class ConformationMethanol implements IConformation {
     	double bondOH = 0.945; // Angstroms  (Chen et al report 0.945 Angstroms..., the website says 0.95 Angstroms)
     	double angleEq = 108.50*Math.PI/180; // equilibrium bond angle in radians (mcWiggle will change this appropriately)
     	
-    	IAtom cH3 = list.getAtom(SpeciesMethanol.indexCH3);
+    	IAtom cH3 = list.get(SpeciesMethanol.indexCH3);
         cH3.getPosition().E(new double[] {bondCH3O, 0.0, 0.0});
         
-        IAtom oxygen = list.getAtom(SpeciesMethanol.indexO);
+        IAtom oxygen = list.get(SpeciesMethanol.indexO);
         oxygen.getPosition().E(new double[] {0.0, 0.0, 0.0});
         
     	// hydrogen attached to oxygen
-        IAtom hydrogen = list.getAtom(SpeciesMethanol.indexH);
+        IAtom hydrogen = list.get(SpeciesMethanol.indexH);
         hydrogen.getPosition().E(new double[] {bondOH*Math.cos(angleEq), bondOH*Math.sin(angleEq), 0.0});
    
         

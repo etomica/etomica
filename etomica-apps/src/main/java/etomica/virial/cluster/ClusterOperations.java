@@ -5,12 +5,12 @@
 package etomica.virial.cluster;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 
 import etomica.math.SpecialFunctions;
 import etomica.math.discrete.FixedSumIterator;
-import etomica.util.Arrays;
 import etomica.math.Rational;
 
 public class ClusterOperations {
@@ -417,7 +417,7 @@ public class ClusterOperations {
             return h[n];
         }
         if(n >= h.length) {
-            h = (ClusterDiagram[][])Arrays.resizeArray(h, n+1);
+            h = Arrays.copyOf(h, n + 1);
         }
         ArrayList<ClusterDiagram> list = new ArrayList<ClusterDiagram>();
         if(approx == PY) {
@@ -463,7 +463,7 @@ public class ClusterOperations {
             return c[n];
         }
         if(n >= c.length) {
-            c = (ClusterDiagram[][])Arrays.resizeArray(c, n+1);
+            c = Arrays.copyOf(c, n+1);
         }
         c[n] = difference(getH(n), getEta(n));
         return c[n];
@@ -489,7 +489,7 @@ public class ClusterOperations {
             return eta[n];
         }
         if(n >= eta.length) {
-            eta = (ClusterDiagram[][])Arrays.resizeArray(eta, n+1);
+            eta = Arrays.copyOf(eta, n+1);
         }
         LinkedList<ClusterDiagram> clusterList = new LinkedList<ClusterDiagram>();
         for(int i=0; i<n; i++) {
@@ -515,7 +515,7 @@ public class ClusterOperations {
             return w[n];
         }
         if(n >= w.length) {
-            w = (ClusterDiagram[][])Arrays.resizeArray(w, n+1);
+            w = Arrays.copyOf(w, n+1);
         }
         w[n] = sum(getEta(n), getB(n));
         return w[n];

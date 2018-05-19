@@ -1,10 +1,9 @@
 package etomica.meta;
 
-import org.reflections.Reflections;
-
+import java.util.List;
 import java.util.Set;
 
-import static etomica.meta.Common.REFLECTIONS;
+import static etomica.meta.Common.*;
 
 public class ComponentIndex<T> {
     private final Class<T> componentClass;
@@ -14,7 +13,12 @@ public class ComponentIndex<T> {
         this.componentClass = componentClass;
     }
 
-    public Set<Class<? extends T>> getComponentSet() {
-        return REFLECTIONS.getSubTypesOf(componentClass);
+    public List<Class<?>> getComponentSet() {
+        if (componentClass.isInterface()) {
+            return CLASSPATH_SCAN.classNamesToClassRefs(CLASSPATH_SCAN.getNamesOfClassesImplementing(componentClass));
+        } else {
+            return CLASSPATH_SCAN.classNamesToClassRefs(CLASSPATH_SCAN.getNamesOfSubclassesOf(componentClass));
+        }
+
     }
 }

@@ -48,7 +48,7 @@ public class DisplayBoxCanvas2DNpTScaling extends DisplayBoxCanvas2D {
 
         Box box = displayBox.getBox();
         double vOld = box.getBoundary().volume();
-        int nAtoms = box.getLeafList().getAtomCount();
+        int nAtoms = box.getLeafList().size();
         double vNew = nAtoms/displayDensity;
         double rScale = Math.sqrt(vNew/vOld);
         double latticeScale = Math.exp((pressure*(vNew-vOld))/((nAtoms-1)*1*2))/rScale;

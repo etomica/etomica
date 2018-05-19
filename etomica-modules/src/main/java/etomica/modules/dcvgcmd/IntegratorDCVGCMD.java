@@ -11,6 +11,7 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
@@ -18,7 +19,6 @@ import etomica.integrator.mcmove.MCMoveManager;
 import etomica.modifier.Modifier;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.potential.PotentialMaster;
-import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
@@ -41,15 +41,12 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 	private ISpecies speciesA, speciesB;
     private final PotentialMasterHybrid potentialMasterHybrid;
 	private int MDStepCount, MDStepRepetitions;
-	private Space space;
-    
+
 	public IntegratorDCVGCMD(PotentialMaster parent, double temperature,
-                             Space _space,
-                             ISpecies species1, ISpecies species2) {
-		super(parent, temperature);
+							 ISpecies species1, ISpecies species2, Box box) {
+		super(parent, temperature, box);
 		this.speciesA = species1;
 		this.speciesB = species2;
-		this.space = _space;
 		potentialMasterHybrid = (parent instanceof PotentialMasterHybrid)
                         ? (PotentialMasterHybrid)parent : null;
         setMDStepRepetitions(50);
@@ -97,9 +94,9 @@ public class IntegratorDCVGCMD extends IntegratorBox {
                 integratormc.doStep();
             }
 			IAtomList allAtoms = box.getLeafList();
-			for (int i=0; i<allAtoms.getAtomCount(); i++) {
-			    if (allAtoms.getAtom(i).getPosition().getX(2) < -40) {
-			        throw new RuntimeException(i+" "+allAtoms.getAtom(i)+" "+allAtoms.getAtom(i).getPosition());
+			for (int i = 0; i<allAtoms.size(); i++) {
+			    if (allAtoms.get(i).getPosition().getX(2) < -40) {
+			        throw new RuntimeException(i+" "+allAtoms.get(i)+" "+allAtoms.get(i).getPosition());
 			    }
 			}
             potentialMasterHybrid.setUseNbrLists(true);
@@ -109,9 +106,9 @@ public class IntegratorDCVGCMD extends IntegratorBox {
             MDStepCount--;
 	 		integratormd.doStep();
             IAtomList allAtoms = box.getLeafList();
-            for (int i=0; i<allAtoms.getAtomCount(); i++) {
-                if (allAtoms.getAtom(i).getPosition().getX(2) < -40) {
-                    throw new RuntimeException(i+" "+allAtoms.getAtom(i)+" "+allAtoms.getAtom(i).getPosition());
+            for (int i = 0; i<allAtoms.size(); i++) {
+                if (allAtoms.get(i).getPosition().getX(2) < -40) {
+                    throw new RuntimeException(i+" "+allAtoms.get(i)+" "+allAtoms.get(i).getPosition());
                 }
             }
 		} 
@@ -141,26 +138,24 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 	}
 	
 	public void setIntegrators(IntegratorMC intmc, IntegratorMD intmd, IRandom random) {
-		integratormc = intmc;
-		integratormd = intmd;
+        integratormc = intmc;
+        integratormd = intmd;
         integratormc.setTemperature(temperature);
         integratormd.setTemperature(temperature);
-		integratormd.setBox(box);
-		integratormc.setBox(box);
-		mcMove1 = new MyMCMove(this, random, space, -zFraction);
-		mcMove2 = new MyMCMove(this, random, space, +zFraction);
+        mcMove1 = new MyMCMove(this, random, space, -zFraction);
+        mcMove2 = new MyMCMove(this, random, space, +zFraction);
         MCMoveManager moveManager = integratormc.getMoveManager();
-		moveManager.addMCMove (mcMove1);
-		moveManager.addMCMove (mcMove2);
-		mcMove1.setSpecies(speciesA);
-		mcMove2.setSpecies(speciesA);
-		mcMove3 = new MyMCMove(this, random, space, -zFraction);
-		mcMove4 = new MyMCMove(this, random, space, +zFraction);
-		moveManager.addMCMove (mcMove3);
-		moveManager.addMCMove (mcMove4);
-		mcMove3.setSpecies(speciesB);
-		mcMove4.setSpecies(speciesB);
-	}
+        moveManager.addMCMove(mcMove1);
+        moveManager.addMCMove(mcMove2);
+        mcMove1.setSpecies(speciesA);
+        mcMove2.setSpecies(speciesA);
+        mcMove3 = new MyMCMove(this, random, space, -zFraction);
+        mcMove4 = new MyMCMove(this, random, space, +zFraction);
+        moveManager.addMCMove(mcMove3);
+        moveManager.addMCMove(mcMove4);
+        mcMove3.setSpecies(speciesB);
+        mcMove4.setSpecies(speciesB);
+    }
 	
 	public void setMu(double mu1, double mu2) {
 		mcMove1.setMu(mu1);

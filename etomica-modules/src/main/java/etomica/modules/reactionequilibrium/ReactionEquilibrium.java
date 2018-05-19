@@ -6,15 +6,17 @@ package etomica.modules.reactionequilibrium;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.IController;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
+import etomica.config.Configuration;
+import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -27,7 +29,6 @@ import javax.swing.*;
 
 public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom> {
 
-    public IController controller1;
     public JPanel panel = new JPanel(new java.awt.BorderLayout());
     public IntegratorHard integratorHard1;
     public java.awt.Component display;
@@ -47,33 +48,30 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
     
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-        controller1 = getController();
 
-        double diameter = 1.0;
-
-        //controller and integrator
-        integratorHard1 = new IntegratorHard(this, potentialMaster, space);
-        integratorHard1.setIsothermal(true);
-
-        //construct box
-        box = new Box(space);
-        addBox(box);
-        box.setBoundary(new BoundaryRectangularPeriodic(space, 30.0));
-        integratorHard1.setBox(box);
         speciesA = new SpeciesSpheresMono(this, space);
         speciesA.setIsDynamic(true);
         speciesB = new SpeciesSpheresMono(this, space);
         speciesB.setIsDynamic(true);
         addSpecies(speciesA);
         addSpecies(speciesB);
+
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+
+        double diameter = 1.0;
+
+        //controller and integrator
+        box = this.makeBox(new BoundaryRectangularPeriodic(space, 30.0));
+        integratorHard1 = new IntegratorHard(this, potentialMaster, box);
+        integratorHard1.setIsothermal(true);
+
         box.setNMolecules(speciesA, 30);
         box.setNMolecules(speciesB, 30);
         P1HardPeriodic nullPotential = new P1HardPeriodic(space, diameter);
         integratorHard1.setNullPotential(nullPotential, speciesA.getLeafType());
         integratorHard1.setNullPotential(nullPotential, speciesB.getLeafType());
 
-        agentManager = new AtomLeafAgentManager<IAtom>(this,box,IAtom.class);
+        agentManager = new AtomLeafAgentManager<IAtom>(this, box);
 
         //potentials
         AAbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, //core
@@ -96,12 +94,15 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
         meterDimerFraction.setSpeciesA(speciesA);
         meterDimerFraction.setBox(box);
         thermometer = new MeterTemperature(box, space.D());
-        
+
         activityIntegrate = new ActivityIntegrate(integratorHard1);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         integratorHard1.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
-	}
+
+        Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space);
+        config.initializeCoordinates(box);
+    }
 
     public AtomLeafAgentManager<IAtom> getAgentManager() {
     	return agentManager;

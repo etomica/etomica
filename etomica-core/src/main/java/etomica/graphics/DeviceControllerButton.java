@@ -5,7 +5,6 @@
 package etomica.graphics;
 
 import etomica.action.activity.Controller;
-import etomica.action.activity.IController;
 
 /**
  * Button that attaches to a controller to toggle its pause/resume state.
@@ -26,7 +25,7 @@ public class DeviceControllerButton extends DeviceButton {
         setAction(toggleAction);
         setLabel("  Start  ");
     }
-    public IController getController() {
+    public Controller getController() {
     	return toggleAction.getController();
     }
     

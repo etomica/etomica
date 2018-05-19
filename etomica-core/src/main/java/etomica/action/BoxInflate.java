@@ -19,8 +19,8 @@ import etomica.space.Vector;
 public class BoxInflate extends BoxActionAdapter implements Undoable {
 
     /**
-     * Constructs action with a default scale of 1.0.  Requires call
-     * to setBox before action can have any effect.
+     * Constructs BoxInflate action without a box or directive to actually change
+     * the box size.
      */
     public BoxInflate(Space space) {
 
@@ -33,11 +33,25 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
     }
 
     /**
-     * Constructs action ready to be performed on the given box. 
+     * Constructs BoxInflate action with the given box, but no directive to
+     * actually change the box size.
      */
     public BoxInflate(Box box, Space space) {
         this(space);
         setBox(box);
+    }
+
+    /**
+     * Constructs BoxInflate action set to change the given box's density to
+     * the given value.
+     *
+     * @param box           the box
+     * @param space         the space
+     * @param targetDensity the target density
+     */
+    public BoxInflate(Box box, Space space, double targetDensity) {
+        this(box, space);
+        setTargetDensity(targetDensity);
     }
 
     /**
@@ -85,7 +99,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
      * the given density.
      */
     public void setTargetDensity(double newTargetDensity) {
-        double vNew = box.getMoleculeList().getMoleculeCount()/newTargetDensity;
+        double vNew = box.getMoleculeList().size()/newTargetDensity;
         double scale = Math.pow(vNew/box.getBoundary().volume(), 1.0/scaleVector.getD());
         setScale(scale);
     }
@@ -94,7 +108,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
      * Returns the target density of the action.
      */
     public double getTargetDensity() {
-        double rho = box.getMoleculeList().getMoleculeCount()/box.getBoundary().volume();
+        double rho = box.getMoleculeList().size()/box.getBoundary().volume();
         for (int i=0; i<scaleVector.getD(); i++) {
             rho *= scaleVector.getX(i);
         }
@@ -112,8 +126,8 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
         Vector translationVector = translator.getTranslationVector();
 
         IMoleculeList molecules = box.getMoleculeList();
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             translationVector.E(moleculeCenter.position(molecule));
             translationVector.TE(scaleVector);
             groupScaler.actionPerformed(molecule);

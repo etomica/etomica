@@ -182,14 +182,14 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             ((ColorSchemeCollective)displayBox.getColorScheme()).colorAllAtoms();
         }
         IAtomList leafList = displayBox.getBox().getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         AtomFilter atomFilter = displayBox.getAtomFilter();
         if (atomFilter instanceof AtomFilterCollective) {
             ((AtomFilterCollective)atomFilter).resetFilter();
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom a = leafList.getAtom(iLeaf);
-            if(atomFilter != null && atomFilter.accept(a)) continue;
+            IAtom a = leafList.get(iLeaf);
+            if(atomFilter != null && atomFilter.test(a)) continue;
             if(this instanceof DisplayBoxSpin2D) {
             	drawAtom(g, origin, a);
             }
@@ -202,7 +202,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         if(displayBox.getDrawOverflow()) {
             Boundary boundary = displayBox.getBox().getBoundary();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtom a = leafList.getAtom(iLeaf);
+                IAtom a = leafList.get(iLeaf);
                 OverflowShift overflow = new OverflowShift(space);
                 double sigma = displayBox.getDiameterHash().getDiameter(a);
                 if (sigma == -1) sigma = 1;

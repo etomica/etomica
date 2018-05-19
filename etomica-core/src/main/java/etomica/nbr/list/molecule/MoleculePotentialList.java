@@ -5,8 +5,8 @@
 package etomica.nbr.list.molecule;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
-import etomica.util.Arrays;
 
 /**
  * Class used to maintain list of whether each 1-body potential that
@@ -33,7 +33,7 @@ public class MoleculePotentialList implements Serializable {
      */
     public void setIsInteracting(boolean flag, int index) {
         if (!(index < isInteractingList.length)) {
-            isInteractingList = Arrays.resizeArray(isInteractingList,index+1);
+            isInteractingList = Arrays.copyOf(isInteractingList,index+1);
         }
         isInteractingList[index] = flag;
     }
@@ -47,7 +47,7 @@ public class MoleculePotentialList implements Serializable {
     }
 	
     protected void setCapacity(int index) {
-        isInteractingList = Arrays.resizeArray(isInteractingList, index);
+        isInteractingList = Arrays.copyOf(isInteractingList, index);
     }
 	
     /**

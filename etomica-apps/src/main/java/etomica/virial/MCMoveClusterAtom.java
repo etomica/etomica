@@ -26,7 +26,7 @@ public class MCMoveClusterAtom extends MCMoveAtom {
     
 	public boolean doTrial() {
         IAtomList leafList = box.getLeafList();
-		atom = leafList.getAtom(random.nextInt(1+leafList.getAtomCount()-1));
+		atom = leafList.get(random.nextInt(1+leafList.size()-1));
         uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);

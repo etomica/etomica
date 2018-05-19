@@ -45,7 +45,7 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
      */
  	public IAtom nextAtom() {
         if (upListNow) {
-            if (cursor > list.getAtomCount()-2) {
+            if (cursor > list.size()-2) {
                 return null;
             }
             cursor++;
@@ -56,7 +56,7 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
             }
             cursor--;
         }
- 		return list.getAtom(cursor);
+ 		return list.get(cursor);
  	}
  	
     /**
@@ -90,7 +90,7 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
     
     public void unset() {
         if (upListNow) {
-            cursor = list.getAtomCount();
+            cursor = list.size();
         }
         else {
             cursor = -1;

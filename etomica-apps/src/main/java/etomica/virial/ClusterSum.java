@@ -4,8 +4,8 @@
 
 package etomica.virial;
 
-import etomica.util.Arrays;
 
+import java.util.Arrays;
 
 public class ClusterSum implements ClusterAbstract, java.io.Serializable {
 
@@ -54,7 +54,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
                             }
                             if (newF) {
                                 if (kf > maxF) maxF = kf;
-                                fullBondIndexArray[i][j] = Arrays.resizeArray(ff, ff.length+1);
+                                fullBondIndexArray[i][j] = Arrays.copyOf(ff, ff.length + 1);
                                 fullBondIndexArray[i][j][ff.length] = kf;
                             }
                             // we had an e-bond.  we need to remember to also calculate the f-bond

@@ -28,8 +28,8 @@ public class CriterionSpeciesPair extends CriterionAdapterMolecular {
      * the wrapped criterion also accepts the pair.
      */
     public boolean accept(IMoleculeList pair) {
-        ISpecies molecule0Species = pair.getMolecule(0).getType();
-        ISpecies molecule1Species = pair.getMolecule(1).getType();
+        ISpecies molecule0Species = pair.get(0).getType();
+        ISpecies molecule1Species = pair.get(1).getType();
         if ( (molecule0Species == species0 && molecule1Species == species1) ||
              (molecule0Species == species1 && molecule1Species == species0) ) {
             return subCriterion.accept(pair);

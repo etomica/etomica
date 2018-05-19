@@ -33,25 +33,23 @@ public class MeterRotPerturbMolecule extends DataSourceScalar {
     protected CoordinateDefinitionNitrogen primaryCoordDef, secondaryCoordDef;
     
     public MeterRotPerturbMolecule(IntegratorMC integrator, PotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim, CoordinateDefinitionNitrogen coordinateDef) {
-        super("Scaled Energy unit", Null.DIMENSION);
-        this.primaryCoordDef = coordinateDef;
-        
-        Box realBox = coordinateDef.getBox();
-        secondaryBox = new Box(space);
-        sim.addBox(secondaryBox);
-       
-        secondaryBox.setNMolecules(species, realBox.getNMolecules(species));
-        secondaryBox.setBoundary(realBox.getBoundary());
-     
-        secondaryCoordDef = new CoordinateDefinitionNitrogen(sim, secondaryBox, coordinateDef.getPrimitive(), coordinateDef.getBasis(), space);
-        secondaryCoordDef.setIsBeta();
-        secondaryCoordDef.setOrientationVectorBeta(space);
-        secondaryCoordDef.initializeCoordinates(new int[]{1,1,1});
-        
-        meterPotentialMeasured = new MeterPotentialEnergy(potentialMaster);
-        meterPotentialSampled = new MeterPotentialEnergyFromIntegrator(integrator);
-        
-    }
+		super("Scaled Energy unit", Null.DIMENSION);
+		this.primaryCoordDef = coordinateDef;
+
+		Box realBox = coordinateDef.getBox();
+		secondaryBox = sim.makeBox(realBox.getBoundary());
+
+		secondaryBox.setNMolecules(species, realBox.getNMolecules(species));
+
+		secondaryCoordDef = new CoordinateDefinitionNitrogen(sim, secondaryBox, coordinateDef.getPrimitive(), coordinateDef.getBasis(), space);
+		secondaryCoordDef.setIsBeta();
+		secondaryCoordDef.setOrientationVectorBeta(space);
+		secondaryCoordDef.initializeCoordinates(new int[]{1, 1, 1});
+
+		meterPotentialMeasured = new MeterPotentialEnergy(potentialMaster);
+		meterPotentialSampled = new MeterPotentialEnergyFromIntegrator(integrator);
+
+	}
 
 	public double getDataAsScalar() {
 		

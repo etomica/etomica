@@ -7,7 +7,6 @@ package etomica.nbr;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
-import etomica.box.BoxCellManager;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
@@ -51,12 +50,12 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
     }
     
     private PotentialMasterHybrid(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, Space space) {
-        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, BoxCellManager.class), space);
+        this(sim, range, boxAgentSource, new BoxAgentManager<>(boxAgentSource, sim), space);
     }
     
     private PotentialMasterHybrid(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource,
                                   BoxAgentManager<NeighborCellManager> agentManager, Space _space) {
-        super(sim, boxAgentSource, agentManager);
+        super(sim, agentManager);
         potentialMasterList = new PotentialMasterList(sim, range, boxAgentSource, agentManager, _space);
         potentialMasterCell = new PotentialMasterCell(sim, range, boxAgentSource, agentManager, _space);
 	}

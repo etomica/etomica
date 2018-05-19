@@ -27,11 +27,11 @@ public class ConformationMethane implements IConformation {
     	double alpha = 30.0 * Math.PI/ 180;
     	double a = bond * Math.sin(Math.PI - angleEq ) * 2 * Math.cos(alpha) ;
     	// put H1 in the origin, H2 and H3 on the xy plane. C and H4 are located based on H1,H2 and H3
-    	IAtom carbon = list.getAtom(SpeciesMethane.indexC);
-    	IAtom h1 = list.getAtom(SpeciesMethane.indexH1);
-    	IAtom h2 = list.getAtom(SpeciesMethane.indexH2);
-    	IAtom h3 = list.getAtom(SpeciesMethane.indexH3);
-    	IAtom h4 = list.getAtom(SpeciesMethane.indexH4);
+    	IAtom carbon = list.get(SpeciesMethane.indexC);
+    	IAtom h1 = list.get(SpeciesMethane.indexH1);
+    	IAtom h2 = list.get(SpeciesMethane.indexH2);
+    	IAtom h3 = list.get(SpeciesMethane.indexH3);
+    	IAtom h4 = list.get(SpeciesMethane.indexH4);
     	double h1XAxis = -a * Math.sin(alpha) ; 
     	double h1YAxis = -a * Math.cos(alpha) ;
     	h1.getPosition().E(new double[] { 0.0 , 0.0 , 0.0 } ); 

@@ -19,7 +19,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.PotentialGroup;
@@ -154,16 +154,16 @@ public class VirialHePIXC {
         
         double r = 2;
         IAtomList leafList = sim.box.getLeafList();
-        for (int i=0; i<leafList.getAtomCount(); i++) {
-            Vector p = leafList.getAtom(i).getPosition();
-            p.setX(0, r*Math.cos((2*Math.PI*i)/leafList.getAtomCount()));
-            p.setX(1, r*Math.sin((2*Math.PI*i)/leafList.getAtomCount()));
+        for (int i = 0; i<leafList.size(); i++) {
+            Vector p = leafList.get(i).getPosition();
+            p.setX(0, r*Math.cos((2*Math.PI*i)/leafList.size()));
+            p.setX(1, r*Math.sin((2*Math.PI*i)/leafList.size()));
         }
 
         if (false) {
             double vSize = 10;
-            sim.box.getBoundary().setBoxSize(space.makeVector(new double[]{vSize,vSize,vSize}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            sim.box.getBoundary().setBoxSize(Vector.of(new double[]{vSize, vSize, vSize}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox = simGraphic.getDisplayBox(sim.box); 
             displayBox.setPixelUnit(new Pixel(300.0/vSize));
             displayBox.setShowBoundary(false);

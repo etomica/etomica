@@ -4,7 +4,7 @@
 
 package etomica.lattice;
 
-import etomica.util.Arrays;
+import java.util.Arrays;
 
 /**
  * Iterates arrays of int, such that 0 <= a[0] <= size[0], 0 <= a[1] <= size[1], etc., 

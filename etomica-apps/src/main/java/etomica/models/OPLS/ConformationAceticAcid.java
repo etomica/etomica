@@ -34,19 +34,19 @@ public class ConformationAceticAcid implements IConformation {
     	double angleCCSBO =111*Math.PI/180;//C-C-O
     	double angleCCH =140.37995*Math.PI/180;//C-C-H
     	
-    	IAtom cH3 = list.getAtom(SpeciesAceticAcid.indexCH3);
+    	IAtom cH3 = list.get(SpeciesAceticAcid.indexCH3);
         cH3.getPosition().E(new double[] {bondCH3C, 0.0, 0.0});
         
-        IAtom c = list.getAtom(SpeciesAceticAcid.indexC);
+        IAtom c = list.get(SpeciesAceticAcid.indexC);
         c.getPosition().E(new double[] {0.0, 0.0, 0.0});
         
-        IAtom dBO = list.getAtom(SpeciesAceticAcid.indexDBO);
+        IAtom dBO = list.get(SpeciesAceticAcid.indexDBO);
         dBO.getPosition().E(new double[] {bondCDBO*Math.cos(angleCCDBO), bondCDBO*Math.sin(angleCCDBO), 0.0});
         
-        IAtom sBO = list.getAtom(SpeciesAceticAcid.indexSBO);
+        IAtom sBO = list.get(SpeciesAceticAcid.indexSBO);
         sBO.getPosition().E(new double[] {bondCSBO*Math.cos(-angleCCSBO), bondCSBO*Math.sin(-angleCCSBO), 0.0});//opposite direction
         
-        IAtom hydrogen = list.getAtom(SpeciesAceticAcid.indexH);
+        IAtom hydrogen = list.get(SpeciesAceticAcid.indexH);
         hydrogen.getPosition().E(new double[] {bondCH*Math.cos(-angleCCH), bondCH*Math.sin(-angleCCH), 0.0});//opposite direction       
     }
     

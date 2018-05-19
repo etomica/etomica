@@ -60,11 +60,11 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
 		Vector rij = space.makeVector();
 		switch(nBody) {
 			case 1:
-				integratorAgentManager.getAgent(atoms.getAtom(0)).force().ME(f[0]);
+				integratorAgentManager.getAgent(atoms.get(0)).ME(f[0]);
 				break;
 			case 2:
-                integratorAgentManager.getAgent(atoms.getAtom(0)).force().ME(f[0]);
-                integratorAgentManager.getAgent(atoms.getAtom(1)).force().ME(f[1]);
+                integratorAgentManager.getAgent(atoms.get(0)).ME(f[0]);
+                integratorAgentManager.getAgent(atoms.get(1)).ME(f[1]);
 		 		break;
             default:
                 //XXX atoms.count might not equal f.length.  The potential might size its 
@@ -72,8 +72,8 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
                 //back down for another AtomSet with fewer atoms.
                 
                 //Find average force in Z-direction and assign to all atoms.
-                for (int i=0; i<atoms.getAtomCount(); i++){
-                    rij.E(atoms.getAtom(i).getPosition());      
+                for (int i = 0; i<atoms.size(); i++){
+                    rij.E(atoms.get(i).getPosition());
                         if(rij.getX(2)>0){
                             forceTop.PE(f[i]);        
                         }
@@ -82,18 +82,18 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
                         }
                 }
                 //Averages force over all atoms, and subtracts amount from each atom's force.
-		        forceTop.TE(2.0/box.getLeafList().getAtomCount());
-		        forceBottom.TE(2.0/box.getLeafList().getAtomCount());
-		        for (int i=0; i<box.getLeafList().getAtomCount(); i++){
-                    rij.E(box.getLeafList().getAtom(i).getPosition());
+		        forceTop.TE(2.0/box.getLeafList().size());
+		        forceBottom.TE(2.0/box.getLeafList().size());
+		        for (int i = 0; i<box.getLeafList().size(); i++){
+                    rij.E(box.getLeafList().get(i).getPosition());
                     
                     if(rij.getX(2)>0){
                         
-                        integratorAgentManager.getAgent(box.getLeafList().getAtom(i)).force().ME(forceTop);
+                        integratorAgentManager.getAgent(box.getLeafList().get(i)).ME(forceTop);
                     }
                     else{
                         
-                        integratorAgentManager.getAgent(box.getLeafList().getAtom(i)).force().ME(forceBottom);
+                        integratorAgentManager.getAgent(box.getLeafList().get(i)).ME(forceBottom);
                     }
                 }
 		}

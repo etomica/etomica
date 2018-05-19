@@ -52,7 +52,7 @@ public class MuGraphic extends SimulationGraphic {
 
     public MuGraphic(final Mu simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         this.sim = simulation;
 
@@ -184,9 +184,9 @@ public class MuGraphic extends SimulationGraphic {
         lamBBox.setController(sim.getController());
 
         //display of box, timer
-        ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
+        ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.speciesA.getLeafType(),java.awt.Color.red);
-        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType(sim));
+        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 
 		// Number density box
 
@@ -424,7 +424,7 @@ public class MuGraphic extends SimulationGraphic {
                 else {
                     for (int i=0; i<(d-oldValue); i++) {
                         IMolecule m = species.makeMolecule();
-                        Vector p = m.getChildList().getAtom(0).getPosition();
+                        Vector p = m.getChildList().get(0).getPosition();
                         p.setX(0, -7.5);
                         box.addMolecule(m);
                     }
@@ -459,7 +459,7 @@ public class MuGraphic extends SimulationGraphic {
                 else {
                     for (int i=0; i<(d-oldValue); i++) {
                         IMolecule m = species.makeMolecule();
-                        Vector p = m.getChildList().getAtom(0).getPosition();
+                        Vector p = m.getChildList().get(0).getPosition();
                         p.setX(0, -7.5);
                         box.addMolecule(m);
                     }
@@ -705,7 +705,7 @@ public class MuGraphic extends SimulationGraphic {
                 return null;
             }
             myData.E(data);
-            int numAtoms = box.getLeafList().getAtomCount();
+            int numAtoms = box.getLeafList().size();
             myData.TE(1.0/numAtoms);
             return myData;
         }

@@ -51,8 +51,8 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
     }
 
     public double energy(IAtomList pair){
-        IAtomOriented atom1 = (IAtomOriented)pair.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented)pair.getAtom(1);
+        IAtomOriented atom1 = (IAtomOriented)pair.get(0);
+        IAtomOriented atom2 = (IAtomOriented)pair.get(1);
 
         // LJ contributation
 
@@ -127,8 +127,8 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
     }
 
     public Vector[] gradient(IAtomList pair) {
-        IAtomOriented atom1 = (IAtomOriented)pair.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented)pair.getAtom(1);
+        IAtomOriented atom1 = (IAtomOriented)pair.get(0);
+        IAtomOriented atom2 = (IAtomOriented)pair.get(1);
 
         // LJ contributation
 
@@ -199,8 +199,8 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
 
     public double virial(IAtomList atoms) {
         gradient(atoms);
-        IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented)atoms.getAtom(1);
+        IAtomOriented atom1 = (IAtomOriented)atoms.get(0);
+        IAtomOriented atom2 = (IAtomOriented)atoms.get(1);
 
         // LJ contributation
 

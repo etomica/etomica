@@ -9,14 +9,15 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorRigidIterative;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
 import etomica.molecule.OrientationCalcAtom;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotatingMolecule;
 
@@ -25,20 +26,19 @@ public class SingleDipole {
     public static SimulationGraphic makeDipole() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
-        sim.addBox(box);
         SpeciesSpheresRotatingMolecule species = new SpeciesSpheresRotatingMolecule(sim, space);
         sim.addSpecies(species);
+        Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
+        sim.addBox(box);
         box.setNMolecules(species, 1);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.002;
         int maxIterations = 20;
-        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, space);
+        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, box);
 //        integrator.printInterval = 10;
         integrator.setMaxIterations(maxIterations);
-        integrator.setBox(box);
         OrientationCalcAtom calcer = new OrientationCalcAtom();
         integrator.setOrientationCalc(species, calcer);
         integrator.setTemperature(1);
@@ -50,8 +50,8 @@ public class SingleDipole {
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
         ai.setSleepPeriod(10);
-        SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1, space, sim.getController());
-        
+        SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
+
         return graphic;
     }
     

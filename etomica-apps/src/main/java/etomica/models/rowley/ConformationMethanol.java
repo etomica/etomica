@@ -26,25 +26,25 @@ public class ConformationMethanol implements IConformation {
     public void initializePositions(IAtomList list){
         
     	// hydrogen attached to oxygen
-        IAtom alpha_hydrogen = list.getAtom(SpeciesMethanol.indexaH);
+        IAtom alpha_hydrogen = list.get(SpeciesMethanol.indexaH);
         alpha_hydrogen.getPosition().E(new double[] {0.9114, 0.0, 1.7172});
         
-        IAtom oxygen = list.getAtom(SpeciesMethanol.indexO);
+        IAtom oxygen = list.get(SpeciesMethanol.indexO);
         oxygen.getPosition().E(new double[] {0.0, 0.0, 1.4202});
                 
-        IAtom carbon = list.getAtom(SpeciesMethanol.indexaC);
+        IAtom carbon = list.get(SpeciesMethanol.indexaC);
         carbon.getPosition().E(new double[] {0.0, 0.0, 0.0});
         
         // hydrogen on opposite of molecule from alpha hydrogen
-        IAtom hydrogen_1 = list.getAtom(SpeciesMethanol.indexH1);
+        IAtom hydrogen_1 = list.get(SpeciesMethanol.indexH1);
         hydrogen_1.getPosition().E(new double[] {-1.0393, 0.0, -0.3115});
         
         // hydrogen closer to alpha hydrogen
-        IAtom hydrogen_2a = list.getAtom(SpeciesMethanol.indexH2a);
+        IAtom hydrogen_2a = list.get(SpeciesMethanol.indexH2a);
         hydrogen_2a.getPosition().E(new double[] {0.4850, -0.8920, -0.4101});
         
         // hydrogen closer to alpha hydrogen
-        IAtom hydrogen_2b = list.getAtom(SpeciesMethanol.indexH2b);
+        IAtom hydrogen_2b = list.get(SpeciesMethanol.indexH2b);
         hydrogen_2b.getPosition().E(new double[] {0.4850,  0.8920, -0.4101});
         
         // The satellite site, X, is closer to the oxygen atom in the model with point charges.
@@ -53,14 +53,14 @@ public class ConformationMethanol implements IConformation {
         	// Methanol model with point charges at O, aC, aH
         	
         	// satellite site to model location of high electron density for oxygen
-        	IAtom x = list.getAtom(SpeciesMethanol.indexX);
+        	IAtom x = list.get(SpeciesMethanol.indexX);
         	x.getPosition().E(new double[] {-0.0753, 0.0, 1.4749});	
         } else {
 
         	// Methanol model without point charges
         	
         	// satellite site to model location of high electron density for oxygen
-        	IAtom x = list.getAtom(SpeciesMethanol.indexX);
+        	IAtom x = list.get(SpeciesMethanol.indexX);
         	x.getPosition().E(new double[] {-0.7774, 0.0, 1.9845});
         }
        

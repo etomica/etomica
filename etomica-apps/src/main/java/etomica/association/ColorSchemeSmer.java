@@ -27,15 +27,15 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
         super();
         setMonomerColor(DEFAULT_ATOM_COLOR);
         this.associationHelper = associationHelper;
-        dimerColorManager = new AtomLeafAgentManager<ColorAgent>(this, box, ColorAgent.class);
+        dimerColorManager = new AtomLeafAgentManager<ColorAgent>(this, box);
         this.random = random;
         oldColors = new HashMap<Color,Integer>();
         smerList = new AtomArrayList();
     }
     
     protected boolean equalLists(AtomArrayList list1, AtomArrayList list2) {
-        for (int i=0; i<list1.getAtomCount(); i++) {
-            if (list1.indexOf(list2.getAtom(i)) == -1) {
+        for (int i = 0; i<list1.size(); i++) {
+            if (list1.indexOf(list2.get(i)) == -1) {
                 return false;
             }
         }
@@ -51,9 +51,9 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
 //            System.out.println("returning "+colorAgent.color+" to the hash");
             oldColors.put(colorAgent.color, 1);
         }
-        for (int i=0; i<colorAgent.smerList.getAtomCount(); i++) {
-            if (colorAgent.smerList.getAtom(i) == atom) continue;
-            reclaim(colorAgent.smerList.getAtom(i));
+        for (int i = 0; i<colorAgent.smerList.size(); i++) {
+            if (colorAgent.smerList.get(i) == atom) continue;
+            reclaim(colorAgent.smerList.get(i));
         }
     }
     
@@ -61,8 +61,8 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
         ColorAgent colorAgent = dimerColorManager.getAgent(a);
         associationHelper.populateList(smerList, a, false);
         if (colorAgent != null) {
-            if (smerList.getAtomCount() > 1) {
-                if (smerList.getAtomCount() != colorAgent.smerList.getAtomCount() || !equalLists(smerList, colorAgent.smerList)) {
+            if (smerList.size() > 1) {
+                if (smerList.size() != colorAgent.smerList.size() || !equalLists(smerList, colorAgent.smerList)) {
                     // atom was in an smer, and is now in a different smer (perhaps shrunk, grown, combined, etc)
                     // discard info for old smer
 //                    System.out.println("smer gone "+colorAgent.smerList);
@@ -71,16 +71,16 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
                     
 //                    System.out.println(" => new smer "+smerList+"  reusing "+colorAgent.color);
                     // use colorAgent for new smer.  keep the old color
-                    for (int i=1; i<smerList.getAtomCount(); i++) {
-                        reclaim(smerList.getAtom(i));
+                    for (int i = 1; i<smerList.size(); i++) {
+                        reclaim(smerList.get(i));
                     }
                     colorAgent.smerList.clear();
                     colorAgent.smerList.addAll(smerList);
                     // the act of reclaiming returned our color to the hash.  retrieve a new one
                     colorAgent.color = (Color)oldColors.keySet().toArray()[0];
                     oldColors.remove(colorAgent.color);
-                    for (int i=1; i<smerList.getAtomCount(); i++) {
-                        dimerColorManager.setAgent(colorAgent.smerList.getAtom(i), colorAgent);
+                    for (int i = 1; i<smerList.size(); i++) {
+                        dimerColorManager.setAgent(colorAgent.smerList.get(i), colorAgent);
                     }
                         
                     return colorAgent.color;
@@ -96,14 +96,14 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
             return monomerColor;
         }
         // atom was a monomer
-        if (smerList.getAtomCount() == 1) {
+        if (smerList.size() == 1) {
             // atom is still a monomer
             return monomerColor;
         }
         // atom is in an smer.  see if any of the atoms were in an smer
         ColorAgent iColorAgent = null;
-        for (int i=1; i<smerList.getAtomCount(); i++) {
-            iColorAgent = dimerColorManager.getAgent(smerList.getAtom(i));
+        for (int i = 1; i<smerList.size(); i++) {
+            iColorAgent = dimerColorManager.getAgent(smerList.get(i));
             if (iColorAgent != null) {
                 colorAgent = iColorAgent;
                 break;
@@ -112,8 +112,8 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
         if (colorAgent != null) {
             // discard info for old smer
 //            System.out.println("smer gone "+colorAgent.smerList);
-            for (int i=0; i<colorAgent.smerList.getAtomCount(); i++) {
-                reclaim(colorAgent.smerList.getAtom(i));
+            for (int i = 0; i<colorAgent.smerList.size(); i++) {
+                reclaim(colorAgent.smerList.get(i));
             }
             
             // use colorAgent for new smer.  keep the old color
@@ -123,8 +123,8 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
             // the act of reclaiming returned our color to the hash.  retrieve a new one
             colorAgent.color = (Color)oldColors.keySet().toArray()[0];
             oldColors.remove(colorAgent.color);
-            for (int i=0; i<smerList.getAtomCount(); i++) {
-                dimerColorManager.setAgent(colorAgent.smerList.getAtom(i), colorAgent);
+            for (int i = 0; i<smerList.size(); i++) {
+                dimerColorManager.setAgent(colorAgent.smerList.get(i), colorAgent);
             }
 
             return colorAgent.color;
@@ -149,8 +149,8 @@ public class ColorSchemeSmer extends ColorScheme implements AtomLeafAgentManager
         colorAgent.smerList.addAll(smerList);
 
         // use colorAgent for new smer.
-        for (int i=0; i<smerList.getAtomCount(); i++) {
-            dimerColorManager.setAgent(colorAgent.smerList.getAtom(i), colorAgent);
+        for (int i = 0; i<smerList.size(); i++) {
+            dimerColorManager.setAgent(colorAgent.smerList.get(i), colorAgent);
         }
 
         return colorAgent.color;

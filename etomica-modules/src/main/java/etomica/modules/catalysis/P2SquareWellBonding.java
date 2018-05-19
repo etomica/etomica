@@ -3,14 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.catalysis;
+
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
-import etomica.atom.AtomLeafAgentManager;
+import etomica.box.Box;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
-import etomica.potential.Potential2HardSpherical;
+import etomica.potential.IPotentialAtomic;
+import etomica.potential.Potential2;
+import etomica.potential.PotentialHard;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
@@ -23,7 +29,7 @@ import etomica.units.dimensions.Null;
  * Suitable for use in space of any dimension.
  * Can be used with negative value for epsilon to produce square-shoulder potential. 
  */
-public class P2SquareWellBonding extends Potential2HardSpherical {
+public class P2SquareWellBonding extends Potential2 implements PotentialHard, IPotentialAtomic {
 
     private static final long serialVersionUID = 1L;
     protected double coreDiameter, coreDiameterSquared;
@@ -35,6 +41,8 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
     protected double lastEnergyChange;
     protected Vector dv;
     protected final AtomLeafAgentManager agentManager;
+    protected final Vector dr;
+    protected Boundary boundary;
 
     protected int nSurfaceSites;
     protected double epsilonBarrier;
@@ -52,6 +60,7 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
         this.epsilonBarrier = epsilonBarrier;
         this.epsilonBonding = epsilonBonding;
         minOCOr2 = minOCOr*minOCOr;
+        dr = space.makeVector();
         dv = space.makeVector();
         lastCollisionVirialTensor = space.makeTensor();
     }
@@ -66,8 +75,8 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
      * both approaching and diverging
      */
     public void bump(IAtomList pair, double falseTime) {
-        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
-        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+        IAtomKinetic atom0 = (IAtomKinetic)pair.get(0);
+        IAtomKinetic atom1 = (IAtomKinetic)pair.get(1);
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
@@ -210,8 +219,8 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
      * approach, or when they edge of the wells are reached as atoms diverge.
      */
     public double collisionTime(IAtomList pair, double falseTime) {
-        IAtomKinetic coord0 = (IAtomKinetic)pair.getAtom(0);
-        IAtomKinetic coord1 = (IAtomKinetic)pair.getAtom(1);
+        IAtomKinetic coord0 = (IAtomKinetic)pair.get(0);
+        IAtomKinetic coord1 = (IAtomKinetic)pair.get(1);
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
         
         dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
@@ -242,8 +251,8 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
         }
         else if(bij < 0.0) {
             double collisionR2 = wellDiameterSquared;
-            CatalysisAgent agent0 = (CatalysisAgent)agentManager.getAgent(pair.getAtom(0));
-            CatalysisAgent agent1 = (CatalysisAgent)agentManager.getAgent(pair.getAtom(1));
+            CatalysisAgent agent0 = (CatalysisAgent)agentManager.getAgent(pair.get(0));
+            CatalysisAgent agent1 = (CatalysisAgent)agentManager.getAgent(pair.get(1));
             if (!agent0.isRadical && !agent1.isRadical && agent0.bondedAtom1 == agent1.bondedAtom1) {
                 //OCO
                 collisionR2 = minOCOr2;
@@ -257,13 +266,17 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
         return time + falseTime;
     }
 
-  /**
-   * Returns infinity if overlapping, -epsilon if otherwise less than well diameter, or zero if neither.
-   */
-    public double u(double r2) {
+    public double energy(IAtomList pair) {
+        IAtom atom0 = pair.get(0);
+        IAtom atom1 = pair.get(1);
+
+        dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
+        boundary.nearestImage(dr);
+        double r2 = dr.squared();
         if (r2 > wellDiameterSquared) return 0.0;
-        if (r2 > coreDiameterSquared) return -epsilon;
-        return Double.POSITIVE_INFINITY;
+        if (r2 < coreDiameterSquared) return Double.POSITIVE_INFINITY;
+        CatalysisAgent agent0 = (CatalysisAgent) agentManager.getAgent(atom0);
+        return agent0.bondedAtom1 == atom1 || agent0.bondedAtom2 == atom1 ? -epsilonBonding : -epsilon;
     }
 
     public double energyChange() {return lastEnergyChange;}
@@ -347,6 +360,10 @@ public class P2SquareWellBonding extends Potential2HardSpherical {
             throw new RuntimeException("Must not be negative");
         }
         epsilonBonding = newEpsilonBonding;
+    }
+
+    public void setBox(Box box) {
+        boundary = box.getBoundary();
     }
 }
   

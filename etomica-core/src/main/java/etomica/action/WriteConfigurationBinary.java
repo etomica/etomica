@@ -82,11 +82,11 @@ public class WriteConfigurationBinary implements IAction {
     public void actionPerformed() {
         IAtomList leafList = box.getLeafList();
         int dim = 0;
-        int nLeaf = leafList.getAtomCount();
-        if (nLeaf > 0) dim = leafList.getAtom(0).getPosition().getD();
+        int nLeaf = leafList.size();
+        if (nLeaf > 0) dim = leafList.get(0).getPosition().getD();
         double[][] x = new double[nLeaf][dim];
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom a = leafList.getAtom(iLeaf);
+            IAtom a = leafList.get(iLeaf);
             writePosition.E(a.getPosition());
             if (doApplyPBC) {
                 Vector shift = box.getBoundary().centralImage(writePosition);

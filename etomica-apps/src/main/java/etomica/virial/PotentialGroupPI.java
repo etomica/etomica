@@ -27,7 +27,7 @@ public class PotentialGroupPI extends PotentialGroup {
 
     public void setBox(Box box) {
         super.setBox(box);
-        int nMolecules = box.getMoleculeList().getMoleculeCount();
+        int nMolecules = box.getMoleculeList().size();
         int nPairs = nMolecules*(nMolecules-1)/2;
         if (pairDone != null && pairDone.length == nPairs) return;
         pairDone = new boolean[nPairs];
@@ -40,9 +40,9 @@ public class PotentialGroupPI extends PotentialGroup {
         CoordinatePairSet cPairs = ((BoxCluster)box).getCPairSet();
         long thisCPairID = cPairs.getID();
         int beadFac = uBeads.length;
-        int mIndex0 = molecules.getMolecule(0).getIndex();
-        int mIndex1 = molecules.getMolecule(1).getIndex();
-        int nMolecules = box.getMoleculeList().getMoleculeCount();
+        int mIndex0 = molecules.get(0).getIndex();
+        int mIndex1 = molecules.get(1).getIndex();
+        int nMolecules = box.getMoleculeList().size();
         int thisPairID = (2*nMolecules-mIndex0-1)*mIndex0/2 + (mIndex1-mIndex0-1);
         if (thisCPairID != lastPairID || box.getIndex() != lastBoxIndex) {
             for (int i=0; i<pairDone.length; i++) {
@@ -101,9 +101,9 @@ public class PotentialGroupPI extends PotentialGroup {
             // recomputing anything.  if not, it will compute the contributions
             // from all beads
             PotentialGroupPI.this.energy(molecules);
-            int mIndex0 = molecules.getMolecule(0).getIndex();
-            int mIndex1 = molecules.getMolecule(1).getIndex();
-            int nMolecules = box.getMoleculeList().getMoleculeCount();
+            int mIndex0 = molecules.get(0).getIndex();
+            int mIndex1 = molecules.get(1).getIndex();
+            int nMolecules = box.getMoleculeList().size();
             int thisPairID = (2*nMolecules-mIndex0-1)*mIndex0/2 + (mIndex1-mIndex0-1);
             // now grab the contribution we care about.
             return PotentialGroupPI.this.uBeads[offset][thisPairID];

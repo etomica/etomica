@@ -43,7 +43,7 @@ public class FindPairMoleculeIndexBetaN2 {
 		molAVec = space.makeVector();
 		molBVec = space.makeVector();
 		
-		int numMolecule = coordinateDefination.getBox().getMoleculeList().getMoleculeCount();
+		int numMolecule = coordinateDefination.getBox().getMoleculeList().size();
 		nCell = (int) Math.round(Math.pow((numMolecule/1.999999999), 1.0/3.0));
 		if(nCell > 20){
 			throw new RuntimeException("<FindPairMoleculeIndexBetaNitrogen> nCell is greater than 20!!! " +
@@ -56,8 +56,8 @@ public class FindPairMoleculeIndexBetaN2 {
 		latticeOffset = coordinateDefination.positionVector;
 		
 		//get shortest displacement vector
-		molAVec.E(positionDefinition.position(coordinateDefination.getBox().getMoleculeList().getMolecule(0)));
-		molBVec.E(positionDefinition.position(coordinateDefination.getBox().getMoleculeList().getMolecule(1)));
+		molAVec.E(positionDefinition.position(coordinateDefination.getBox().getMoleculeList().get(0)));
+		molBVec.E(positionDefinition.position(coordinateDefination.getBox().getMoleculeList().get(1)));
 		
 		molAVec.ME(latticeOffset[0]);
 		molBVec.ME(latticeOffset[1]);
@@ -101,8 +101,8 @@ public class FindPairMoleculeIndexBetaN2 {
 		// Molecule A
 		molAVec.E(positionDefinition.position(moleculeA));
 			
-		Vector molAleafPos0 = moleculeA.getChildList().getAtom(0).getPosition();
-    	Vector molAleafPos1 = moleculeA.getChildList().getAtom(1).getPosition();
+		Vector molAleafPos0 = moleculeA.getChildList().get(0).getPosition();
+    	Vector molAleafPos1 = moleculeA.getChildList().get(1).getPosition();
     	 
 		tempOrientA.Ev1Mv2(molAleafPos1, molAleafPos0);
 		tempOrientA.normalize();
@@ -112,8 +112,8 @@ public class FindPairMoleculeIndexBetaN2 {
 		// Molecule B
 		molBVec.E(positionDefinition.position(moleculeB));
 
-		Vector molBleafPos0 = moleculeB.getChildList().getAtom(0).getPosition();
-	    Vector molBleafPos1 = moleculeB.getChildList().getAtom(1).getPosition();
+		Vector molBleafPos0 = moleculeB.getChildList().get(0).getPosition();
+	    Vector molBleafPos1 = moleculeB.getChildList().get(1).getPosition();
 	    	 
 		tempOrientB. Ev1Mv2(molBleafPos1, molBleafPos0);
 		tempOrientB.normalize();		

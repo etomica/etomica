@@ -6,6 +6,10 @@ package etomica.atom.iterator;
 
 import etomica.simulation.Simulation;
 import etomica.UnitTestUtil;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import static etomica.atom.iterator.IteratorTestAbstract.*;
 
 
 /**
@@ -14,8 +18,9 @@ import etomica.UnitTestUtil;
  * @author David Kofke
  *
  */
-public class ApiLeafAtomsTest extends IteratorTestAbstract {
+public class ApiLeafAtomsTest {
 
+    @Test
     public void testIterator() {
         
         int[] n0 = new int[] {10, 1, 0};
@@ -43,7 +48,7 @@ public class ApiLeafAtomsTest extends IteratorTestAbstract {
         catch (RuntimeException e) {
             exceptionThrown = true;
         }
-        assertTrue(exceptionThrown);
+        Assertions.assertTrue(exceptionThrown);
 
 //        //test documented exceptions
 //        boolean exceptionThrown = false;

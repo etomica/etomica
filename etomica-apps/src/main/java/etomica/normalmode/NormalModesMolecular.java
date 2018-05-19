@@ -67,19 +67,19 @@ public class NormalModesMolecular implements NormalModes {
         Tensor identity = new Tensor3D(new double[][] {{1.0,0.0,0.0}, {0.0,1.0,0.0}, {0.0,0.0,1.0}});
 
         for(int i=0; i<basisDim; i++) {
-        	IMolecule moleculei = molList.getMolecule(i);
+        	IMolecule moleculei = molList.get(i);
         	for(int j=0;j<space.D();j++){ // 4 NOT 3 but that is fine as the mass of M = 0
             	Inertia[i][i].setComponent(j, j,massH2O);        		
         	}
         	Vector comPos = comi.position(moleculei);
         	inertiaTensor.E(0);
-        	for(int j=0; j<moleculei.getChildList().getAtomCount(); j++){
-        		drk.Ev1Mv2(moleculei.getChildList().getAtom(j).getPosition(),comPos);
+        	for(int j = 0; j<moleculei.getChildList().size(); j++){
+        		drk.Ev1Mv2(moleculei.getChildList().get(j).getPosition(),comPos);
         		//System.out.println(drk.dot(drk));
         		tempTensor.Ev1v2(drk, drk);
         		tempTensor.TE(-1);
         		tempTensor.PEa1Tt1(drk.dot(drk), identity);
-        		tempTensor.TE(moleculei.getChildList().getAtom(j).getType().getMass());
+        		tempTensor.TE(moleculei.getChildList().get(j).getType().getMass());
         		inertiaTensor.PE(tempTensor);
         	}
     		for(int m=0;m<space.D();m++){

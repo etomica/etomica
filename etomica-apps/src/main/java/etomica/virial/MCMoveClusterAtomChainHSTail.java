@@ -28,10 +28,10 @@ public class MCMoveClusterAtomChainHSTail extends MCMoveAtom {
     public boolean doTrial() {
         
         IAtomList leafAtoms = box.getLeafList();
-        int n = leafAtoms.getAtomCount();
+        int n = leafAtoms.size();
 
         for (int i=1; i<n; i++) {
-            Vector pos = leafAtoms.getAtom(i).getPosition();
+            Vector pos = leafAtoms.get(i).getPosition();
             double rand = random.nextDouble();
             if (rand < totPCore) {
                 pos.setRandomInSphere(random);
@@ -42,7 +42,7 @@ public class MCMoveClusterAtomChainHSTail extends MCMoveAtom {
                 pos.setRandomSphere(random);
                 pos.TE(r);
             }
-            pos.PE(leafAtoms.getAtom(i-1).getPosition());
+            pos.PE(leafAtoms.get(i-1).getPosition());
         }
 
 		((BoxCluster)box).trialNotify();

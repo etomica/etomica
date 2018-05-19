@@ -183,16 +183,16 @@ public class VirialH2OGCPMD {
                 pos.setX(0, r*(1-Math.cos(theta)));
                 pos.setX(1, r*Math.sin(theta));
                 act.setDestination(pos);
-                act.actionPerformed(sim.box[1].getMoleculeList().getMolecule(i));
+                act.actionPerformed(sim.box[1].getMoleculeList().get(i));
             }
             sim.box[1].trialNotify();
             sim.box[1].acceptNotify();
         }
         
         if (false) {
-            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{40,40,40}));
-            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{40,40,40}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
             ((ColorSchemeByType)displayBox1.getColorScheme()).setColor(sim.species[0].getAtomType(0), Color.WHITE);

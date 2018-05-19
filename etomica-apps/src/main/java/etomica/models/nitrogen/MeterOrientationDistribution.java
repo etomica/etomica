@@ -87,13 +87,13 @@ public class MeterOrientationDistribution implements IDataSource, IAction, Seria
       
             BasisCell cell = cells[iCell];
             IMoleculeList molecules = cell.molecules;
-            int numMolecules = molecules.getMoleculeCount();
+            int numMolecules = molecules.size();
             
             for (int iMol=0; iMol<numMolecules; iMol++){
             	
-	          	IMolecule molecule = molecules.getMolecule(iMol);
-	          	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-		    	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+	          	IMolecule molecule = molecules.get(iMol);
+	          	Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+		    	Vector leafPos1 = molecule.getChildList().get(1).getPosition();
 		
 		    	molAxis.Ev1Mv2(leafPos1, leafPos0);
 		       	molAxis.normalize();

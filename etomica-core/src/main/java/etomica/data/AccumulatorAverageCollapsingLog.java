@@ -12,13 +12,13 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Quantity;
-import etomica.util.Arrays;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGenerator;
 import etomica.util.random.RandomNumberGeneratorUnix;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 /**
@@ -227,10 +227,10 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
     }
 
     protected void resizeData(int newSize) {
-        blockSums = Arrays.resizeArray(blockSums, newSize+1);
-        sums = (double[][])Arrays.resizeArray(sums, newSize);
+        blockSums = Arrays.copyOf(blockSums, newSize + 1);
+        sums = Arrays.copyOf(sums, newSize);
         sums[newSize-1] = new double[nMoments];
-        lSums = (double[][])Arrays.resizeArray(lSums, newSize);
+        lSums = Arrays.copyOf(lSums, newSize);
         lSums[newSize-1] = new double[nMoments];
         averages = new DataFunction(new int[]{newSize});
         stdev = new DataFunction(new int[]{newSize});

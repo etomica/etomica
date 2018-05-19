@@ -24,6 +24,7 @@ import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.potential.*;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
@@ -133,11 +134,11 @@ public class VirialN2AlkaneUARigid {
             public void initializePositions(IAtomList atomList) {
                 // atoms are C, O and O, so we arrange them as 1-0-2
                 double bondL = 1.10;
-                atomList.getAtom(0).getPosition().E(0);
-                atomList.getAtom(1).getPosition().E(0);
-                atomList.getAtom(1).getPosition().setX(0, -0.5 * bondL);
-                atomList.getAtom(2).getPosition().E(0);
-                atomList.getAtom(2).getPosition().setX(0, + 0.5 * bondL);
+                atomList.get(0).getPosition().E(0);
+                atomList.get(1).getPosition().E(0);
+                atomList.get(1).getPosition().setX(0, -0.5 * bondL);
+                atomList.get(2).getPosition().E(0);
+                atomList.get(2).getPosition().setX(0, + 0.5 * bondL);
                 
    /*             atomList.getAtom(0).getPosition().E(0);
                 atomList.getAtom(1).getPosition().E(0);// @ the origin
@@ -274,9 +275,9 @@ public class VirialN2AlkaneUARigid {
 
         if (false) {
         	  double size = 10;
-              sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-              sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-              SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+              sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+              sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+              SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
               DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
               DisplayBox dBox1 = simGraphic.getDisplayBox(sim.box[1]);
               dBox0.setPixelUnit(new Pixel(300.0/size));
@@ -285,7 +286,7 @@ public class VirialN2AlkaneUARigid {
               dBox1.setShowBoundary(false);
               
               //set diameters
-              DiameterHashByType diameter = new DiameterHashByType(sim); 
+              DiameterHashByType diameter = new DiameterHashByType();
               diameter.setDiameter(speciesN2.getAtomType(0),0.2);
               diameter.setDiameter(speciesN2.getAtomType(1),0.3);
               diameter.setDiameter(speciesAlkane.getCH2Type(), 0.3);

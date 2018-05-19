@@ -41,11 +41,11 @@ public class BoxScaleMomenta implements IAction {
     public void actionPerformed() {
         momentum.E(0);
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         if (nLeaf == 0) return;
         if (nLeaf > 1) {
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtom a = leafList.getAtom(iLeaf);
+                IAtom a = leafList.get(iLeaf);
                 double mass = a.getType().getMass();
                 if (mass != Double.POSITIVE_INFINITY) {
                     momentum.PEa1Tv1(mass,((IAtomKinetic)a).getVelocity());
@@ -54,7 +54,7 @@ public class BoxScaleMomenta implements IAction {
             momentum.TE(1.0/nLeaf);
             //set net momentum to 0
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+                IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
                 double rm = a.getType().rm();
                 if (rm != 0) {
                     a.getVelocity().PEa1Tv1(-rm,momentum);
@@ -63,7 +63,7 @@ public class BoxScaleMomenta implements IAction {
             if (Debug.ON) {
                 momentum.E(0);
                 for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                    IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+                    IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
                     double mass = a.getType().getMass();
                     if (mass != Double.POSITIVE_INFINITY) {
                         momentum.PEa1Tv1(mass,a.getVelocity());
@@ -82,7 +82,7 @@ public class BoxScaleMomenta implements IAction {
             // scale independently in each dimension
             double sum = 0.0;
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
-                IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
+                IAtomKinetic atom = (IAtomKinetic)leafList.get(iAtom);
                 double mass = atom.getType().getMass();
                 if(mass == Double.POSITIVE_INFINITY) continue;
                 double v = atom.getVelocity().getX(i);
@@ -97,7 +97,7 @@ public class BoxScaleMomenta implements IAction {
             double s = Math.sqrt(temperature / (sum / nLeaf));
             if (s == 1) continue;
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
-                IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
+                IAtomKinetic atom = (IAtomKinetic)leafList.get(iAtom);
                 Vector vel = atom.getVelocity();
                 vel.setX(i, vel.getX(i)*s); //scale momentum
             }

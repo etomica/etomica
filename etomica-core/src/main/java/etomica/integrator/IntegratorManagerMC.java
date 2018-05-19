@@ -7,9 +7,12 @@ package etomica.integrator;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.*;
 import etomica.util.Arrays;
+import etomica.util.EventManager;
 import etomica.util.IEvent;
-import etomica.util.IEventManager;
 import etomica.util.random.IRandom;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Integrator manages other Integrators which either act on a Box, or manage
@@ -21,25 +24,23 @@ import etomica.util.random.IRandom;
 
 public class IntegratorManagerMC extends Integrator {
 
-    private static final long serialVersionUID = 2L;
-    protected final IEventManager eventManager;
+    protected final EventManager<IEvent> eventManager;
     protected final IRandom random;
     private final IEvent trialEvent;
     private final IEvent acceptedEvent, rejectedEvent;
     protected double globalMoveProbability;
     protected MCMoveManager moveManager;
-    protected Integrator[] integrators;
-    protected int nIntegrators;
+    protected final List<Integrator> integrators;
     protected double temperature;
     private double globalMoveInterval;
     
     public IntegratorManagerMC(IRandom random) {
         super();
         this.random = random;
-        integrators = new Integrator[0];
+        integrators = new ArrayList<>();
         setGlobalMoveInterval(2);
         moveManager = new MCMoveManager(random);
-        eventManager = new MCMoveEventManager();
+        eventManager = new EventManager<>();
         trialEvent = new MCMoveTrialInitiatedEvent(moveManager);
         acceptedEvent = new MCMoveTrialCompletedEvent(moveManager, true);
         rejectedEvent = new MCMoveTrialCompletedEvent(moveManager, false);
@@ -47,9 +48,9 @@ public class IntegratorManagerMC extends Integrator {
 
     protected void setup() {
         ConfigurationOverlapException overlapException = null;
-        for(int i=0; i<nIntegrators; i++) {
+        for(Integrator integrator : this.integrators) {
             try {
-                integrators[i].reset();
+                integrator.reset();
             }
             catch (ConfigurationOverlapException e) {
                 if (overlapException == null) {
@@ -72,9 +73,9 @@ public class IntegratorManagerMC extends Integrator {
 
         moveManager.recomputeMoveFrequencies();
         ConfigurationOverlapException overlapException = null;
-        for(int i=0; i<integrators.length; i++) {
+        for(Integrator integrator : this.integrators) {
             try {
-                integrators[i].reset();
+                integrator.reset();
             }
             catch (ConfigurationOverlapException e) {
                 if (overlapException == null) {
@@ -88,8 +89,7 @@ public class IntegratorManagerMC extends Integrator {
     }
 
     public void addIntegrator(Integrator integrator){
-        integrators = (Integrator[])Arrays.addObject(integrators,integrator);
-        nIntegrators++;
+        integrators.add(integrator);
     }
 
     /**
@@ -97,16 +97,11 @@ public class IntegratorManagerMC extends Integrator {
      * false if the given integrator was not handled by this integrator.
      */
     public boolean removeIntegrator(Integrator integrator) {
-        integrators = (Integrator[])Arrays.removeObject(integrators,integrator);
-        if (nIntegrators == integrators.length) {
-            return false;
-        }
-        nIntegrators--;
-        return true;
+        return this.integrators.remove(integrator);
     }
 
     public Integrator[] getIntegrators() {
-        return integrators.clone();
+        return integrators.toArray(new Integrator[integrators.size()]);
     }
 
     /**
@@ -132,8 +127,8 @@ public class IntegratorManagerMC extends Integrator {
         if(random.nextDouble() < globalMoveProbability) {
             doGlobalMoves();
         } else {
-            for(int i=0; i<nIntegrators; i++) {
-                integrators[i].doStep();
+            for (Integrator integrator : this.integrators) {
+                integrator.doStep();
             }
         }
     }
@@ -178,7 +173,7 @@ public class IntegratorManagerMC extends Integrator {
         }
     }
 
-    public IEventManager getMoveEventManager() {
+    public EventManager<IEvent> getMoveEventManager() {
         return eventManager;
     }
 

@@ -21,7 +21,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import etomica.action.IAction;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifyAction;
@@ -97,7 +97,7 @@ public class DeviceSlider extends Device {
     protected IAction targetAction;
     protected boolean suppressAction = false;
 
-    public DeviceSlider(IController controller) {
+    public DeviceSlider(Controller controller) {
         super(controller);
         init();
     }
@@ -105,7 +105,7 @@ public class DeviceSlider extends Device {
     /**
      * Constructs a slider connected to the given property of the given object
      */
-    public DeviceSlider(IController controller, Object object, String property) {
+    public DeviceSlider(Controller controller, Object object, String property) {
         this(controller, new ModifierGeneral(object, property));
         component = object;
         this.property = property;
@@ -113,7 +113,7 @@ public class DeviceSlider extends Device {
     /**
      * Constructs a slider connected to the get/set Value methods of the given Modifier
      */
-    public DeviceSlider(IController controller, Modifier m) {
+    public DeviceSlider(Controller controller, Modifier m) {
         this(controller);
         //set component and property in some way
         setModifier(m);

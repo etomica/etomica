@@ -73,12 +73,12 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
     }
 
     public Vector[][] gradientAndTorque(IMoleculeList pair){
-        IMolecule water1 = pair.getMolecule(0);
-        IMolecule water2 = pair.getMolecule(1);
+        IMolecule water1 = pair.get(0);
+        IMolecule water2 = pair.get(1);
 
         //compute O-O distance to consider truncation	
-        Vector O1r = (water1.getChildList().getAtom(2)).getPosition();
-        Vector O2r = (water2.getChildList().getAtom(2)).getPosition();
+        Vector O1r = (water1.getChildList().get(2)).getPosition();
+        Vector O2r = (water2.getChildList().get(2)).getPosition();
 
         work.Ev1Mv2(O1r, O2r);
         shift.Ea1Tv1(-1,work);
@@ -115,12 +115,12 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
         work.XE(gradient[0]);
         torque[0].E(work);
         
-		Vector H11r = water1.getChildList().getAtom(0).getPosition();
-		Vector H12r = water1.getChildList().getAtom(1).getPosition();
-		Vector H21r = water2.getChildList().getAtom(0).getPosition();
-		Vector H22r = water2.getChildList().getAtom(1).getPosition();
-        Vector M1r = water1.getChildList().getAtom(3).getPosition();
-        Vector M2r = water2.getChildList().getAtom(3).getPosition();
+		Vector H11r = water1.getChildList().get(0).getPosition();
+		Vector H12r = water1.getChildList().get(1).getPosition();
+		Vector H21r = water2.getChildList().get(0).getPosition();
+		Vector H22r = water2.getChildList().get(1).getPosition();
+        Vector M1r = water1.getChildList().get(3).getPosition();
+        Vector M2r = water2.getChildList().get(3).getPosition();
         
         // M1-M2
         work.Ev1Mv2(M1r, M2r);
@@ -248,10 +248,10 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   secondDerivative[0].E(0);
 	   secondDerivative[1].E(0);
 	   secondDerivative[2].E(0);
-	   IMolecule water1 = pair.getMolecule(0);
-	   IMolecule water2 = pair.getMolecule(1);
-	   Vector O1 = water1.getChildList().getAtom(2).getPosition();
-	   Vector O2 = water2.getChildList().getAtom(2).getPosition();
+	   IMolecule water1 = pair.get(0);
+	   IMolecule water2 = pair.get(1);
+	   Vector O1 = water1.getChildList().get(2).getPosition();
+	   Vector O2 = water2.getChildList().get(2).getPosition();
 	   
 	   work.Ev1Mv2(O1, O2);
 	   shift.Ea1Tv1(-1,work);
@@ -346,8 +346,8 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   Vector comk = com_0.position(mol0);
 	   MoleculePositionCOM com_1 = new MoleculePositionCOM(space);
 	   Vector comkp = com_1.position(mol1);
-	   int numSites0 = mol0.getChildList().getAtomCount();
-	   int numSites1 = mol1.getChildList().getAtomCount();
+	   int numSites0 = mol0.getChildList().size();
+	   int numSites1 = mol1.getChildList().size();
 	   Vector f0 = space.makeVector();
 	   Vector f1 = space.makeVector();
 //	   IVectorMutable torque0 = space.makeVector();
@@ -364,7 +364,7 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	   
 	   for (int atomk=0; atomk < numSites0; atomk++){ 
 		   fk.E(0);//force on atomk
-		   IAtom atom0 = mol0.getChildList().getAtom(atomk);
+		   IAtom atom0 = mol0.getChildList().get(atomk);
 		   Vector posk = atom0.getPosition();
 		   Xk.Ev1Mv2(posk, comk);
 		   boundary.nearestImage(Xk);
@@ -374,7 +374,7 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 		   Rk.setComponent(1,2, Xk.getX(0));  Rk.setComponent(2,1,-Xk.getX(0));
 		   
    			for (int atomkp=0; atomkp < numSites1; atomkp++){  
-   			IAtom atom1 = mol1.getChildList().getAtom(atomkp);
+   			IAtom atom1 = mol1.getChildList().get(atomkp);
    			Vector poskp = atom1.getPosition();
    			Xkp.Ev1Mv2(poskp, comkp);
    			boundary.nearestImage(Xkp);
@@ -457,8 +457,8 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
   			D3ES.E(0);
   			IMolecule water1 = atom0.getParentGroup();
   			IMolecule water2 = atom1.getParentGroup();
-  			Vector O1 = (water1.getChildList().getAtom(2)).getPosition();
-  			Vector O2 = (water2.getChildList().getAtom(2)).getPosition();
+  			Vector O1 = (water1.getChildList().get(2)).getPosition();
+  			Vector O2 = (water2.getChildList().get(2)).getPosition();
 
   			work.Ev1Mv2(O1, O2);
   			shift.Ea1Tv1(-1,work);
@@ -519,8 +519,8 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
   		fWork.E(0);
   		IMolecule water1 = atom0.getParentGroup();
   		IMolecule water2 = atom1.getParentGroup();
-  		Vector O1 = (water1.getChildList().getAtom(2)).getPosition();
-  		Vector O2 = (water2.getChildList().getAtom(2)).getPosition();
+  		Vector O1 = (water1.getChildList().get(2)).getPosition();
+  		Vector O2 = (water2.getChildList().get(2)).getPosition();
 
   		work.Ev1Mv2(O1, O2);
   		shift.Ea1Tv1(-1,work);
@@ -591,8 +591,8 @@ public class P2Water4PSoft extends P2Water4P implements IPotentialMolecularSecon
 	//TODO debug only
     protected void doTransform(IMolecule molecule) {
     	IAtomList childList =  molecule.getChildList();
-            for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-                IAtom atom = childList.getAtom(iChild);
+            for (int iChild = 0; iChild<childList.size(); iChild++) {
+                IAtom atom = childList.get(iChild);
                 Vector r = atom.getPosition();
                 r.ME(centerMass);
                 boundary.nearestImage(r);

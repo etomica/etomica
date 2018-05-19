@@ -4,21 +4,12 @@
 
 package etomica.simulation;
 
+import etomica.box.Box;
+
 public interface SimulationListener {
 
-    void simulationBoxAdded(SimulationBoxEvent e);
+    default void simulationBoxAdded(Simulation sim, Box box) {}
 
-    void simulationBoxRemoved(SimulationBoxEvent e);
+    default void simulationBoxRemoved(Simulation sim, Box box) {}
 
-    void simulationSpeciesAdded(SimulationSpeciesEvent e);
-
-    void simulationSpeciesRemoved(SimulationSpeciesEvent e);
-
-    void simulationSpeciesIndexChanged(SimulationSpeciesIndexEvent e);
-
-    void simulationSpeciesMaxIndexChanged(SimulationIndexEvent e);
-
-    void simulationAtomTypeIndexChanged(SimulationAtomTypeIndexEvent e);
-
-    void simulationAtomTypeMaxIndexChanged(SimulationIndexEvent e);
 }

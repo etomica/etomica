@@ -34,8 +34,8 @@ public class MeterDimerMoleFraction extends DataSourceScalar {
      */
     public double getDataAsScalar() {
         if (box == null) throw new IllegalStateException("must call setBox before using meter");        
-        double ni = associationManager.getAssociatedAtoms().getAtomCount();
-        return ni/box.getMoleculeList().getMoleculeCount();
+        double ni = associationManager.getAssociatedAtoms().size();
+        return ni/box.getMoleculeList().size();
     }
     
     /**

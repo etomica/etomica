@@ -26,7 +26,7 @@ import etomica.graph.property.NumRootNodes;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.models.co2.P2CO2Hellmann;
 import etomica.molecule.IMoleculeList;
@@ -423,9 +423,9 @@ public class VirialCO2PI {
             for (int i=1; i<nPoints; i++) {
                 groupTranslationVector.setX(0, r*Math.cos(2*(i-1)*Math.PI/(nPoints-1)));
                 groupTranslationVector.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
-                moveMoleculeAction.actionPerformed(molecules.getMolecule(i));
+                moveMoleculeAction.actionPerformed(molecules.get(i));
                 if (nBeads>1) {
-                    Vector v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
+                    Vector v = molecules.get(i).getChildList().get(1).getPosition();
                     v.TE(0.95);
                 }
             }
@@ -461,9 +461,9 @@ public class VirialCO2PI {
 
         if (false) {
             double vSize = 5;
-            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{vSize,vSize,vSize}));
-            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{vSize,vSize,vSize}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{vSize, vSize, vSize}));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{vSize, vSize, vSize}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
             displayBox0.setPixelUnit(new Pixel(300.0/vSize));
@@ -595,17 +595,17 @@ public class VirialCO2PI {
                 IMoleculeList mols = sim.box[0].getMoleculeList();
                 double sum = 0;
                 int n = 0;
-                for (int i=0; i<mols.getMoleculeCount(); i++) {
-                    IAtomList atoms = mols.getMolecule(i).getChildList();
+                for (int i = 0; i<mols.size(); i++) {
+                    IAtomList atoms = mols.get(i).getChildList();
                     r.E(0);
-                    for (int j=0; j<atoms.getAtomCount(); j++) {
-                        r.PE(atoms.getAtom(j).getPosition());
+                    for (int j = 0; j<atoms.size(); j++) {
+                        r.PE(atoms.get(j).getPosition());
                     }
-                    r.TE(1.0/atoms.getAtomCount());
-                    for (int j=0; j<atoms.getAtomCount(); j++) {
-                        sum += r.Mv1Squared(atoms.getAtom(j).getPosition());
+                    r.TE(1.0/atoms.size());
+                    for (int j = 0; j<atoms.size(); j++) {
+                        sum += r.Mv1Squared(atoms.get(j).getPosition());
                     }
-                    n += atoms.getAtomCount();
+                    n += atoms.size();
                 }
                 sum /= n;
                 return sum;

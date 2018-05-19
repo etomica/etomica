@@ -42,7 +42,7 @@ public abstract class ConformationChain implements IConformation, java.io.Serial
 	public void initializePositions(IAtomList atomlist){
 		
 		//First, check that we actually have some atoms
-		int size = atomlist.getAtomCount();
+		int size = atomlist.size();
     	if(size == 0) return;
     
     	reset();
@@ -51,10 +51,10 @@ public abstract class ConformationChain implements IConformation, java.io.Serial
     	Vector currentPosition = space.makeVector();
     
     	//Zero the first atom.
-        atomlist.getAtom(0).getPosition().E(0);
+        atomlist.get(0).getPosition().E(0);
     	
         for (int iLeaf=1; iLeaf<size; iLeaf++) {
-            IAtom a = atomlist.getAtom(iLeaf);
+            IAtom a = atomlist.get(iLeaf);
     		//TODO someday, we might want a to be a chunk-of-atoms
     		currentPosition.PE(nextVector());
     		a.getPosition().E(currentPosition);

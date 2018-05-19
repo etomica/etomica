@@ -7,37 +7,34 @@ package etomica.data;
 import etomica.data.types.DataDouble;
 import etomica.units.dimensions.Null;
 import etomica.util.random.RandomMersenneTwister;
-import junit.framework.TestCase;
 
-public abstract class AccumulatorAverageTestBase extends TestCase {
+import static org.junit.jupiter.api.Assertions.*;
 
-    public AccumulatorAverageTestBase(AccumulatorAverage accumulator) {
-        this.accumulator = accumulator;
-    }
+public abstract class AccumulatorAverageTestBase {
 
-    public void testSimple() {
+    public static void testSimple(AccumulatorAverage accumulator) {
         accumulator.putDataInfo(new DataDouble.DataInfoDouble("test", Null.DIMENSION));
 
         assertTrue(accumulator.getData().isNaN());
         assertEquals(accumulator.getBlockCount(), 0);
 
-        simpleTest();
+        simpleTest(accumulator);
 
         accumulator.reset();
         assertTrue(accumulator.getData().isNaN());
         assertEquals(accumulator.getBlockCount(), 0);
 
-        simpleTest();
+        simpleTest(accumulator);
 
         accumulator.putDataInfo(new DataDouble.DataInfoDouble("test", Null.DIMENSION));
         assertTrue(accumulator.getData().isNaN());
         assertEquals(accumulator.getBlockCount(), 0);
 
-        simpleTest();
+        simpleTest(accumulator);
     }
 
     // test accumulator on simple uncorrelated data
-    public void simpleTest() {
+    public static void simpleTest(AccumulatorAverage accumulator) {
         DataDouble rawData = new DataDouble();
         RandomMersenneTwister rng = new RandomMersenneTwister(4);
 
@@ -48,20 +45,20 @@ public abstract class AccumulatorAverageTestBase extends TestCase {
 
         IData accData = accumulator.getData();
         double avg = accData.getValue(accumulator.AVERAGE.index);
-        assertTrue("average "+avg, Math.abs(avg-0.5) < 0.01);
+        assertTrue(Math.abs(avg-0.5) < 0.01, "average "+avg);
 
         double blockCorrelation = accData.getValue(accumulator.BLOCK_CORRELATION.index);
         // block correlation should be ~0, but actual value will depend on # of blocks
-        assertTrue("block correlation "+blockCorrelation, Math.abs(blockCorrelation) < 4.0/Math.sqrt(accumulator.getBlockCount()));
+        assertTrue(Math.abs(blockCorrelation) < 4.0/Math.sqrt(accumulator.getBlockCount()), "block correlation "+blockCorrelation);
 
         double stdev = accData.getValue(accumulator.STANDARD_DEVIATION.index);
-        assertTrue("standard devation "+stdev, Math.abs(stdev-Math.sqrt(1.0/12.0)) < 5.e-4);
+        assertTrue(Math.abs(stdev-Math.sqrt(1.0/12.0)) < 5.e-4, "standard devation "+stdev);
 
         double error = accData.getValue(accumulator.ERROR.index);
-        assertTrue("error "+error, error/2.9e-4 + 2.9e-4/error - 2 < 0.02);
+        assertTrue(error/2.9e-4 + 2.9e-4/error - 2 < 0.02, "error "+error);
     }
 
-    public void testSingleValue() {
+    public static void testSingleValue(AccumulatorAverage accumulator) {
         accumulator.putDataInfo(new DataDouble.DataInfoDouble("test", Null.DIMENSION));
 
         DataDouble rawData = new DataDouble();
@@ -72,17 +69,15 @@ public abstract class AccumulatorAverageTestBase extends TestCase {
         
         IData accData = accumulator.getData();
         double avg = accData.getValue(accumulator.AVERAGE.index);
-        assertTrue("average "+avg, Math.abs(avg-rawData.x) < 1.e-10);
+        assertTrue(Math.abs(avg-rawData.x) < 1.e-10, "average "+avg);
 
         //double blockCorrelation = accData.getValue(AccumulatorAverage.StatType.BLOCK_CORRELATION.index);
         // block correlation should be 0/0, actual value might be 0, some number, Infinity or NaN 
         
         double stdev = accData.getValue(accumulator.STANDARD_DEVIATION.index);
-        assertTrue("standard deviation ", stdev < 1.e-7);
+        assertTrue(stdev < 1.e-7, "standard deviation ");
 
         double error = accData.getValue(accumulator.ERROR.index);
-        assertTrue("error ", error < 1.e-6);
+        assertTrue(error < 1.e-6, "error ");
     }
-
-    protected final AccumulatorAverage accumulator;
 }

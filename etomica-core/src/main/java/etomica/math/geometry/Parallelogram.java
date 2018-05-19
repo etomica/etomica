@@ -24,7 +24,7 @@ public class Parallelogram extends Polygon implements Parallelotope {
      * Default constructor makes a square of unit size
      */
     public Parallelogram(Space embeddedSpace) {
-        this(embeddedSpace, embeddedSpace.makeVector(new double[]{1,0}), embeddedSpace.makeVector(new double[]{0,1}));
+        this(embeddedSpace, Vector.of(new double[]{1, 0}), Vector.of(new double[]{0, 1}));
     }
 
     /**

@@ -74,8 +74,8 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
     	
         
     	int j = 0;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             Vector pos = positionDefinition.position(molecule);
             Vector site = getLatticePosition(molecule);
             
@@ -89,7 +89,7 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
             for (int k = 0; k < pos.getD(); k++) {
                 u[j+k] = work1.getX(k);
             }
-               j += (coordinateDim-1)/molecules.getMoleculeCount();
+               j += (coordinateDim-1)/molecules.size();
 
         }
         
@@ -110,8 +110,8 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
 
     	
         int j = 0;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             Vector site = getLatticePosition(molecule);
             for (int k = 0; k < site.getD(); k++) {
                 work1.setX(k, site.getX(k) + newU[j+k]);
@@ -120,7 +120,7 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
             atomActionTranslateTo.setDestination(work1);
             atomActionTranslateTo.actionPerformed(molecule);
             
-            j += coordinateDim/molecules.getMoleculeCount();
+            j += coordinateDim/molecules.size();
 
         }
     	
@@ -164,9 +164,7 @@ public class CoordinateDefinitionMoleculeVolumeFluctuation extends CoordinateDef
             this.space = space;
             this.positionDefinition = positionDefinition;
         }
-        public Class getMoleculeAgentClass() {
-            return Vector.class;
-        }
+
         public Object makeAgent(IMolecule molecule) {
             Vector vector = space.makeVector();
             vector.E(positionDefinition.position(molecule));

@@ -97,7 +97,7 @@ public class WriteS implements IAction {
         
         NormalModeEigenGetter.doit(thisFilename, space.D());
 
-        int numMolecules = meterNormalMode.getBox().getMoleculeList().getMoleculeCount();
+        int numMolecules = meterNormalMode.getBox().getMoleculeList().size();
         NormalModesFromFile normalModes = new NormalModesFromFile(thisFilename, space.D());
         normalModes.setTemperature(temperature);
         lastA = CalcHarmonicA.doit(normalModes, space.D(), temperature, numMolecules);

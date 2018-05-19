@@ -4,20 +4,16 @@
 
 package etomica.virial.simulations;
 
-import junit.framework.TestCase;
 import etomica.chem.elements.ElementSimple;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerESpherical;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
-import etomica.virial.simulations.SimulationVirialOverlap2;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Virial junit test.  This just runs a simple simulation and checks that the
@@ -26,13 +22,10 @@ import etomica.virial.simulations.SimulationVirialOverlap2;
  *
  * @author Andrew Schultz
  */
-public class VirialLJTest extends TestCase {
+public class VirialLJTest {
 
-    public static void main(String[] args) {
-        testVirialLJ();
-    }
-    
-    public static void testVirialLJ() {
+    @Test
+    public void testVirialLJ() {
         final int nPoints = 3;
         double temperature = 1;
         long steps = 1000;
@@ -58,7 +51,7 @@ public class VirialLJTest extends TestCase {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(null, steps/40);
-        assertTrue("Ref pref (alpha) within expected limits: "+sim.refPref, Math.abs(sim.refPref - 1.34) < 0.12);
+        Assertions.assertTrue(Math.abs(sim.refPref - 1.34) < 0.12, "Ref pref (alpha) within expected limits: "+sim.refPref);
         
         sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
@@ -69,9 +62,9 @@ public class VirialLJTest extends TestCase {
         System.out.println("ratio: "+ratioAndError[0]+" "+ratioAndError[1]);
 
         // check against expected values, 0.0604 +/- 0.0036
-        assertTrue("Final ratio within expected limits: "+ratio, Math.abs(ratio - 0.0604) < 0.011);
+        Assertions.assertTrue(Math.abs(ratio - 0.0604) < 0.011, "Final ratio within expected limits: "+ratio);
         // improvements to the algorithm might lower this.  be wary of changes that raise it.
         // improvements to uncertainty estimation might alter this up or down, but it shouldn't change by much.
-        assertTrue("Ratio uncertainty within expected limits: "+error, Math.abs(error - 0.0034) < 0.0003);
+        Assertions.assertTrue(Math.abs(error - 0.0034) < 0.0003, "Ratio uncertainty within expected limits: "+error);
     }
 }

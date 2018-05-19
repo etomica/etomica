@@ -33,7 +33,7 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
         
         //box agent manager is used to handle multiple bonded-atoms lists across boxes
         MyBoxAgentSource bas = new MyBoxAgentSource(this);
-        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<BondArrayList>>(bas, AtomLeafAgentManager.class, sim);
+        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<BondArrayList>>(bas, sim);
     }
 
     public double getRange() {
@@ -91,11 +91,11 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
         return getBondedList(atom0).contains(atom1);
     }
     public boolean isBonded(IAtomList pair) {
-        return isBonded(pair.getAtom(0), pair.getAtom(1));
+        return isBonded(pair.get(0), pair.get(1));
     }
     
     private MyBond getBond(IAtomList pair) {
-        return getBondedList(pair.getAtom(0)).getBond(pair.getAtom(1));
+        return getBondedList(pair.get(0)).getBond(pair.get(1));
     }
     
     /**
@@ -151,7 +151,7 @@ public class P2HardBondedList extends Potential2 implements PotentialHard, Agent
         }
 
         public AtomLeafAgentManager<BondArrayList> makeAgent(Box box) {
-            return new AtomLeafAgentManager<BondArrayList>(as, box, BondArrayList.class);
+            return new AtomLeafAgentManager<BondArrayList>(as, box);
         }
 
         public void releaseAgent(AtomLeafAgentManager<BondArrayList> agent) {

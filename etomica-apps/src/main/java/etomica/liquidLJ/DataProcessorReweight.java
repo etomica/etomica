@@ -50,7 +50,7 @@ public class DataProcessorReweight extends DataProcessor {
         double[] x = data.getData();
         int j = 0;
         int nData = inputData.getLength()/nCutoffs;
-        int n = box.getMoleculeList().getMoleculeCount();
+        int n = box.getMoleculeList().size();
         for (int i=0; i<nCutoffs; i++) {
             double dx = n*inputData.getValue(j) - (uFast+uFac[i]);
 //            System.out.println(i+" "+n*inputData.getValue(j)+" "+uFast+" "+uFac[i]);

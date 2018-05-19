@@ -9,7 +9,6 @@ import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -27,7 +26,7 @@ public class PotentialCalculationMappedVirialV implements PotentialCalculation {
 
     protected final Box box;
     protected final IteratorDirective allAtoms;
-    protected final AtomLeafAgentManager<MyAgent> forceManager;
+    protected final AtomLeafAgentManager<Vector> forceManager;
     protected final Space space;
     protected double beta;
     protected final Vector dr;
@@ -44,7 +43,7 @@ public class PotentialCalculationMappedVirialV implements PotentialCalculation {
     protected VFunc vf;
     protected boolean customVF;
 
-    public PotentialCalculationMappedVirialV(Space space, Box box, int nbins, AtomLeafAgentManager<MyAgent> forceManager) {
+    public PotentialCalculationMappedVirialV(Space space, Box box, int nbins, AtomLeafAgentManager<Vector> forceManager) {
         this.space = space;
         this.box = box;
         this.nbins = nbins;
@@ -164,8 +163,8 @@ public class PotentialCalculationMappedVirialV implements PotentialCalculation {
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         if (!(potential instanceof Potential2SoftSpherical)) return;
         Potential2SoftSpherical p2 = (Potential2SoftSpherical)potential;
-        IAtom a = atoms.getAtom(0);
-        IAtom b = atoms.getAtom(1);
+        IAtom a = atoms.get(0);
+        IAtom b = atoms.get(1);
 
         dr.Ev1Mv2(b.getPosition(),a.getPosition());
         box.getBoundary().nearestImage(dr);
@@ -177,8 +176,8 @@ public class PotentialCalculationMappedVirialV implements PotentialCalculation {
         double vp = vf.vp(r2,r);
         sum += r*(vp-up);
         if (r<x0) {
-            Vector fi = forceManager.getAgent(a).force;
-            Vector fj = forceManager.getAgent(b).force;
+            Vector fi = forceManager.getAgent(a);
+            Vector fj = forceManager.getAgent(b);
             double fifj = (fi.dot(dr) - fj.dot(dr))/r;
             double xs = calcXs(r);
             double wp = 0.5*fifj;

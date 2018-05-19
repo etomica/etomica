@@ -26,10 +26,10 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     public void setBox(Box p) {
         super.setBox(p);
         IMoleculeList moleculeList = box.getMoleculeList();
-        rotationAxis = new int[moleculeList.getMoleculeCount()];
+        rotationAxis = new int[moleculeList.size()];
         theta = new double[rotationAxis.length];
         if (constraintMap == null) {
-            constraintMap = new int[box.getMoleculeList().getMoleculeCount()];
+            constraintMap = new int[box.getMoleculeList().size()];
             for (int i=0; i<constraintMap.length; i++) {
                 constraintMap[i] = i;
             }
@@ -51,8 +51,8 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             trialCount = relaxInterval;
         }
         IMoleculeList moleculeList = box.getMoleculeList();
-        for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            molecule = moleculeList.getMolecule(i);
+        for (int i = 0; i<moleculeList.size(); i++) {
+            molecule = moleculeList.get(i);
             r0.E(positionDefinition.position(molecule));
 
             int j = constraintMap[i];
@@ -89,8 +89,8 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
-        for (int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            molecule = moleculeList.getMolecule(i);
+        for (int i = 0; i<moleculeList.size(); i++) {
+            molecule = moleculeList.get(i);
             r0.E(positionDefinition.position(molecule));
             int j = constraintMap[i];
             rotationTensor.setAxial(rotationAxis[j],-theta[j]);

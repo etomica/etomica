@@ -121,7 +121,7 @@ public class LineSegment extends Polytope implements Rectangular {
 
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
-        LineSegment segment = new LineSegment(space, space.makeVector(new double[]{1,4}), space.makeVector(new double[]{2,8}));
+        LineSegment segment = new LineSegment(space, Vector.of(new double[]{1, 4}), Vector.of(new double[]{2, 8}));
         Vector p1 = space.makeVector();
         p1.setX(0, 1.5);
         p1.setX(1, 6.0);

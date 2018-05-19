@@ -9,6 +9,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import etomica.math.function.IFunction;
 import etomica.meta.annotations.IgnoreProperty;
 import etomica.meta.serializers.VectorSerializer;
+import etomica.space1d.Vector1D;
+import etomica.space2d.Vector2D;
+import etomica.space3d.Vector3D;
+import etomica.spaceNd.VectorND;
 import etomica.util.random.IRandom;
 
 /**
@@ -198,4 +202,65 @@ public interface Vector {
      * @param random the random number generator used to perform the operation
      */
     void setRandomInSphere(IRandom random);
+
+    void nearestImage(Vector dimensions);
+
+
+    /**
+     * Returns a Vector initialized to the given set of values.
+     * Spatial dimension of the Vector is determined by the number of components.
+     *
+     * @throws IllegalArgumentException if number of components is not greater than 0
+     */
+    static Vector of(double... components) {
+        switch (components.length) {
+            case 0:
+                throw new IllegalArgumentException("Number of vector components must be greater than 0");
+            case 1:
+                return new Vector1D(components);
+            case 2:
+                return new Vector2D(components);
+            case 3:
+                return new Vector3D(components);
+            default:
+                return new VectorND(components);
+
+        }
+    }
+
+    /**
+     * Returns a Vector initialized to the given set of values (cast to double).
+     * Spatial dimension of the Vector is determined by the number of components.
+     */
+    static Vector of(int... components) {
+        double[] a = new double[components.length];
+        for (int i = 0; i < components.length; i++) {
+            a[i] = (double) components[i];
+        }
+        return Vector.of(a);
+    }
+
+    /**
+     * Creates a Vector of the given dimension. Uses specific vector types for dimensions 1, 2, and 3, and VectorND for
+     * any higher dimension.
+     *
+     * @param dimension greater than 0
+     * @return a Vector of the given dimension.
+     */
+    static Vector d(int dimension) {
+        if (dimension <= 0) {
+            throw new IllegalArgumentException("Vector dimension must be greater than 0");
+        }
+        switch (dimension) {
+            case 1:
+                return new Vector1D();
+            case 2:
+                return new Vector2D();
+            case 3:
+                return new Vector3D();
+            default:
+                return new VectorND(dimension);
+        }
+
+    }
 }

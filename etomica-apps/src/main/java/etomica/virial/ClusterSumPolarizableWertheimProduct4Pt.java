@@ -7,7 +7,8 @@ package etomica.virial;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
 import etomica.potential.PotentialPolarizable;
-import etomica.util.Arrays;
+
+import java.util.Arrays;
 
 
 public class ClusterSumPolarizableWertheimProduct4Pt implements ClusterAbstract, java.io.Serializable {
@@ -50,7 +51,7 @@ public class ClusterSumPolarizableWertheimProduct4Pt implements ClusterAbstract,
                             }
                         }
                         if (newF) {
-                            fullBondIndexArray[i][j] = Arrays.resizeArray(ff, ff.length+1);
+                            fullBondIndexArray[i][j] = Arrays.copyOf(ff, ff.length + 1);
                             fullBondIndexArray[i][j][ff.length] = kf;
                         }
                     }
@@ -59,7 +60,7 @@ public class ClusterSumPolarizableWertheimProduct4Pt implements ClusterAbstract,
             for (int i=0; i<pointCount-1; i++) {
                 for (int j=i+1; j<pointCount; j++) {
                 	int[] ff = fullBondIndexArray[i][j];
-		            fullBondIndexArray[i][j] = Arrays.resizeArray(ff, ff.length+1);
+		            fullBondIndexArray[i][j] = Arrays.copyOf(ff, ff.length+1);
 		            fullBondIndexArray[i][j][ff.length] = fArray.length-1;//e
                 }
             }
@@ -154,9 +155,9 @@ public class ClusterSumPolarizableWertheimProduct4Pt implements ClusterAbstract,
         
         if (nPoints == 3) {
         	scfAtoms.clear();
-            scfAtoms.add(atomSet.getMolecule(0));
-            scfAtoms.add(atomSet.getMolecule(1));
-            scfAtoms.add(atomSet.getMolecule(2));
+            scfAtoms.add(atomSet.get(0));
+            scfAtoms.add(atomSet.get(1));
+            scfAtoms.add(atomSet.get(2));
             double u123Pol = scfPotential.getPolarizationEnergy(scfAtoms);
             double deltau123 = u123Pol-(uijPol[0][1] + uijPol[0][2] + uijPol[1][2]);
             double betaU123 = beta*deltau123;
@@ -184,10 +185,10 @@ public class ClusterSumPolarizableWertheimProduct4Pt implements ClusterAbstract,
         	double g34 = fValues[2][3][f.length-1];//e34
         	
         	scfAtoms.clear();
-            scfAtoms.add(atomSet.getMolecule(0));
-            scfAtoms.add(atomSet.getMolecule(1));
-            scfAtoms.add(atomSet.getMolecule(2));
-            scfAtoms.add(atomSet.getMolecule(3));
+            scfAtoms.add(atomSet.get(0));
+            scfAtoms.add(atomSet.get(1));
+            scfAtoms.add(atomSet.get(2));
+            scfAtoms.add(atomSet.get(3));
             
             if (g12*g13*g14*g23*g24*g34 != 0)
         		{
@@ -207,7 +208,7 @@ public class ClusterSumPolarizableWertheimProduct4Pt implements ClusterAbstract,
 	                    expBetaU123 = Math.exp(-beta123) - 1;
 	                }
 	                scfAtoms.remove(2);
-	                scfAtoms.add(atomSet.getMolecule(3));//013
+	                scfAtoms.add(atomSet.get(3));//013
 	                double u124Pol = scfPotential.getPolarizationEnergy(scfAtoms);
 	                double deltaU124 = u124Pol-(uijPol[0][1]+uijPol[0][3]+uijPol[1][3]);
 	                double beta124 = beta*deltaU124;
@@ -216,7 +217,7 @@ public class ClusterSumPolarizableWertheimProduct4Pt implements ClusterAbstract,
 	                    expBetaU124 = Math.exp(-beta124) - 1;
 	                }
 	                scfAtoms.remove(1);
-	                scfAtoms.add(atomSet.getMolecule(2));//032
+	                scfAtoms.add(atomSet.get(2));//032
 	                double u134Pol = scfPotential.getPolarizationEnergy(scfAtoms);
 	                double deltaU134 = u134Pol-(uijPol[0][2]+uijPol[0][3]+uijPol[2][3]);
 	                double beta134 = beta*deltaU134;
@@ -225,7 +226,7 @@ public class ClusterSumPolarizableWertheimProduct4Pt implements ClusterAbstract,
 	                    expBetaU134 = Math.exp(-beta134) - 1;
 	                }
 	                scfAtoms.remove(0);
-	                scfAtoms.add(atomSet.getMolecule(1));//321
+	                scfAtoms.add(atomSet.get(1));//321
 	                double u234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
 	                double deltaU234 = u234Pol-(uijPol[1][2]+uijPol[1][3]+uijPol[2][3]);
 	                double beta234 = beta*deltaU234;

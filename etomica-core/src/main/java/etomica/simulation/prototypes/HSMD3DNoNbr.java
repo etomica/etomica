@@ -13,12 +13,13 @@ import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -37,38 +38,37 @@ public class HSMD3DNoNbr extends Simulation {
 
     public HSMD3DNoNbr() {
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
 
         int numAtoms = 256;
         double sigma = 1.0;
         double l = 14.4573 * Math.pow((numAtoms / 2020.0), 1.0 / 3.0);
 
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        box = this.makeBox();
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
         potential = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
-
-        box = new Box(space);
-        addBox(box);
         box.setNMolecules(species, numAtoms);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{l, l, l}));
 //        box.setBoundary(new BoundaryTruncatedOctahedron(space));
-        integrator.setBox(box);
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
     }
 
     public static void main(String[] args) {
         HSMD3DNoNbr simulation = new HSMD3DNoNbr();
-        SimulationGraphic simGraphic = new SimulationGraphic(simulation, SimulationGraphic.TABBED_PANE, simulation.getSpace(), simulation.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(simulation, SimulationGraphic.TABBED_PANE);
         simGraphic.makeAndDisplayFrame();
     }
 }//end of class

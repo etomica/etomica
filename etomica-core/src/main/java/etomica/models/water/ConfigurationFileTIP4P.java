@@ -40,11 +40,11 @@ public class ConfigurationFileTIP4P extends ConfigurationFile {
         }
         try {
             BufferedReader bufReader = new BufferedReader(fileReader);
-            int nLeaf = leafList.getAtomCount();
+            int nLeaf = leafList.size();
             Vector tmp = space.makeVector();
             Vector tmp2 = space.makeVector();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtom a = leafList.getAtom(iLeaf);
+                IAtom a = leafList.get(iLeaf);
                 if(a.getLeafIndex() % 4 != 3 ){// skip M (order is HHOM)
                 	
                     //~ Ignore M positions
@@ -53,9 +53,9 @@ public class ConfigurationFileTIP4P extends ConfigurationFile {
 //                	a.getPosition().PE(0.001);
                 }else{ // =3
                     //~ Define M positions
-                	Vector h1 = leafList.getAtom(iLeaf - 3).getPosition();//0 H1
-                	Vector h2 = leafList.getAtom(iLeaf - 2).getPosition();//1 H2
-                	Vector o = leafList.getAtom(iLeaf - 1).getPosition();//2 O
+                	Vector h1 = leafList.get(iLeaf - 3).getPosition();//0 H1
+                	Vector h2 = leafList.get(iLeaf - 2).getPosition();//1 H2
+                	Vector o = leafList.get(iLeaf - 1).getPosition();//2 O
                 	
 					if(true){
 	                	//Sice I/P xyz has ONLY 6 digits we do this reconstruction :)

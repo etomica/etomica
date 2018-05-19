@@ -14,7 +14,6 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.space3d.Space3D;
 import etomica.tests.TestSWChain;
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -39,14 +38,13 @@ public class BenchSimSWChain {
     public void setUp() {
         double simTime = numSteps / numMolecules;
         Configuration config = new ConfigurationResourceFile(
-                String.format("tests/SWChain%d.pos", numMolecules),
+                String.format("SWChain%d.pos", numMolecules),
                 TestSWChain.class
         );
 
         sim = new TestSWChain(Space3D.getInstance(), numMolecules, simTime, config);
 
-        pMeter = new MeterPressureHard(sim.getSpace());
-        pMeter.setIntegrator(sim.integrator);
+        pMeter = new MeterPressureHard(sim.integrator);
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed();
         DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator);
@@ -58,8 +56,8 @@ public class BenchSimSWChain {
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
-    @Warmup(time = 1, iterations = 5)
-    @Measurement(time = 1, timeUnit = TimeUnit.SECONDS)
+    @Warmup(time = 3, iterations = 3)
+    @Measurement(iterations = 5, time = 5, timeUnit = TimeUnit.SECONDS)
     public long integratorStep() {
         sim.integrator.doStep();
         return sim.integrator.getStepCount();
@@ -68,7 +66,6 @@ public class BenchSimSWChain {
     public static void main(String[] args) throws RunnerException {
         Options opts = new OptionsBuilder()
                 .include(BenchSimSWChain.class.getSimpleName())
-                .addProfiler(GCProfiler.class)
                 .build();
 
         new Runner(opts).run();

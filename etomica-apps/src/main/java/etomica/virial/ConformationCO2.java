@@ -27,13 +27,13 @@ public class ConformationCO2 implements IConformation, java.io.Serializable{
 
 	public void initializePositions(IAtomList atomList) {
 			
-		IAtom n1 = atomList.getAtom(SpeciesTraPPECO2.indexC);
+		IAtom n1 = atomList.get(SpeciesTraPPECO2.indexC);
 		n1.getPosition().E(new double[] {0, 0, 0});
 		
-		IAtom n2 = atomList.getAtom(SpeciesTraPPECO2.indexOleft);
+		IAtom n2 = atomList.get(SpeciesTraPPECO2.indexOleft);
 		n2.getPosition().E(new double[] {-bondlength, 0, 0});
 		
-		IAtom n3 = atomList.getAtom(SpeciesTraPPECO2.indexOright);
+		IAtom n3 = atomList.get(SpeciesTraPPECO2.indexOright);
 		n3.getPosition().E(new double[] {bondlength, 0, 0});
 		
 		

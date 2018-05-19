@@ -5,7 +5,7 @@
 package etomica.lattice;
 
 import etomica.math.discrete.PermutationDegenerateIterator;
-import etomica.util.Arrays;
+import java.util.Arrays;
 
 /**
  * Generates all unique iterates formed as permutations of iterates given by IndexIteratorTriangular with

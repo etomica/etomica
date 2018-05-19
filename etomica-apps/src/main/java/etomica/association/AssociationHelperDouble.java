@@ -52,10 +52,10 @@ public class AssociationHelperDouble implements IAssociationHelper {
         if (!validateBondList(atom, bondList, mightBeBroken)) {
             return true;
         }
-        if (bondList.getAtomCount() == 0){
+        if (bondList.size() == 0){
             return false;
         }
-        int rv = populate(smerList, atom, bondList.getAtom(0), mightBeBroken);
+        int rv = populate(smerList, atom, bondList.get(0), mightBeBroken);
         if (rv == 1) {
             // inappropriate bonding
             return true;
@@ -64,9 +64,9 @@ public class AssociationHelperDouble implements IAssociationHelper {
             // ring
             return false;
         }
-        if (rv == 1 && bondList.getAtomCount() == 2) {
+        if (rv == 1 && bondList.size() == 2) {
             // need to handle the other atom bonded to "atom"
-            if (populate(smerList, atom, bondList.getAtom(1), mightBeBroken) == 1) {
+            if (populate(smerList, atom, bondList.get(1), mightBeBroken) == 1) {
                 // inappropriate bonding
                 return true;
             }
@@ -85,8 +85,8 @@ public class AssociationHelperDouble implements IAssociationHelper {
         while (true) {
             smerList.add(nextAtom);
             IAtomList bondList = associationManager.getAssociatedAtoms(nextAtom);
-            if (bondList.getAtomCount() == 1) {
-                if (bondList.getAtom(0) != previousAtom) {
+            if (bondList.size() == 1) {
+                if (bondList.get(0) != previousAtom) {
                     System.out.println("invalid bonding");
                     System.out.println(previousAtom+" bonded to "+nextAtom);
                     System.out.println(nextAtom+" bonded to "+bondList);
@@ -94,7 +94,7 @@ public class AssociationHelperDouble implements IAssociationHelper {
                 }
                 return 0;
             }
-            if (bondList.getAtomCount() == 0) {
+            if (bondList.size() == 0) {
                 System.out.println("invalid bonding");
                 System.out.println(previousAtom+" bonded to "+nextAtom);
                 System.out.println(nextAtom+" bonded to nothing");
@@ -105,13 +105,13 @@ public class AssociationHelperDouble implements IAssociationHelper {
             }
             IAtom previousPreviousAtom = previousAtom;
             previousAtom = nextAtom;
-            nextAtom = bondList.getAtom(0);
+            nextAtom = bondList.get(0);
             if (nextAtom == previousPreviousAtom){
                 // this is the atom we just encountered (going backwards).
                 // go forwards instead
-                nextAtom = bondList.getAtom(1);
+                nextAtom = bondList.get(1);
             } 
-            else if (bondList.getAtom(1) != previousPreviousAtom) {
+            else if (bondList.get(1) != previousPreviousAtom) {
                 // our next atom was bonded to 2 atoms, but neither were the previous atom
                 System.out.println("invalid bonding");
                 System.out.println(previousPreviousAtom+" bonded to "+previousAtom);
@@ -127,7 +127,7 @@ public class AssociationHelperDouble implements IAssociationHelper {
     }
 
     protected boolean validateBondList(IAtom atom, IAtomList bondList, boolean mightBeBroken) {
-        if (bondList.getAtomCount() > 2){
+        if (bondList.size() > 2){
             if (mightBeBroken) {
                 return false;
             }
@@ -135,11 +135,11 @@ public class AssociationHelperDouble implements IAssociationHelper {
             System.out.println(bondList);
             throw new RuntimeException();
         }
-        if (minR2 > 0 && bondList.getAtomCount() > 1){
-            for (int i=0; i<bondList.getAtomCount()-1; i++) {
-                IAtom atomi = bondList.getAtom(i);
-                for (int j=i+1; j<bondList.getAtomCount(); j++) {
-                    IAtom atomj = bondList.getAtom(j);
+        if (minR2 > 0 && bondList.size() > 1){
+            for (int i = 0; i<bondList.size()-1; i++) {
+                IAtom atomi = bondList.get(i);
+                for (int j = i+1; j<bondList.size(); j++) {
+                    IAtom atomj = bondList.get(j);
                     dr.Ev1Mv2(atomi.getPosition(), atomj.getPosition());
                     boundary.nearestImage(dr);
                     if (dr.squared() < minR2) {

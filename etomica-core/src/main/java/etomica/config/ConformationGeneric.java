@@ -16,8 +16,8 @@ public class ConformationGeneric implements IConformation {
 	}
 	
 	public void initializePositions(IAtomList atomList) {
-		for (int i=0; i<atomList.getAtomCount(); i++) {
-			atomList.getAtom(i).getPosition().E(coords[i]);
+		for (int i = 0; i<atomList.size(); i++) {
+			atomList.get(i).getPosition().E(coords[i]);
 		}
 	}
 

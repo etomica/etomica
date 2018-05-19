@@ -28,7 +28,7 @@ public class ConfigurationLatticeRandom extends ConfigurationLattice {
 
     public void initializeCoordinates(Box box) {
         IMoleculeList moleculeList = box.getMoleculeList();
-        int sumOfMolecules = moleculeList.getMoleculeCount();
+        int sumOfMolecules = moleculeList.size();
         if (sumOfMolecules == 0) {
             return;
         }
@@ -43,7 +43,7 @@ public class ConfigurationLatticeRandom extends ConfigurationLattice {
         Vector shape = space.makeVector();
         shape.E(box.getBoundary().getBoxSize());
         shape.PE(-boundaryPadding);
-        Vector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        Vector latticeConstantV = Vector.of(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -71,7 +71,7 @@ public class ConfigurationLatticeRandom extends ConfigurationLattice {
             latticeScaling.E(box.getBoundary().getBoxSize());
             latticeScaling.PE(-boundaryPadding);
             latticeScaling.DE(latticeConstantV);
-            latticeScaling.DE(space.makeVector(latticeDimensions));
+            latticeScaling.DE(Vector.of(latticeDimensions));
         } else {
             latticeScaling.E(1.0);
         }
@@ -114,7 +114,7 @@ public class ConfigurationLatticeRandom extends ConfigurationLattice {
             }
             while (done[i]);
             done[i] = true;
-            IMolecule a = moleculeList.getMolecule(i);
+            IMolecule a = moleculeList.get(i);
             int[] ii = indexIterator.next();
             siteCount++;
             // add voidFrac for each /site/ (not molecule)

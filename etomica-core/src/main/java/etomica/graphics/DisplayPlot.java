@@ -11,7 +11,6 @@ import etomica.units.Unit;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
 import etomica.units.systems.UnitSystem;
-import etomica.util.Arrays;
 
 import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
@@ -23,6 +22,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 /**
@@ -145,7 +145,7 @@ public class DisplayPlot extends Display implements DataSetListener {
         int oldColumnCount = units.length;
         int newDataCount = dataSet.getDataCount();
         if(newDataCount > oldColumnCount) {
-            units = (Unit[])Arrays.resizeArray(units, newDataCount);
+            units = (Unit[]) Arrays.copyOf(units, newDataCount);
             Dimension xDimension = null;
             if (units.length > 0) {
                 IDataInfo xDataInfo = ((DataInfoFunction)dataSet.getDataInfo(0)).getXDataSource().getIndependentDataInfo(0);
@@ -178,7 +178,7 @@ public class DisplayPlot extends Display implements DataSetListener {
                 units[i] = dataUnit;
             }
         } else {
-            units = (Unit[])Arrays.resizeArray(units, newDataCount);
+            units = Arrays.copyOf(units, newDataCount);
 
             // whack them all!
             for(int i=0; i<units.length; i++) {

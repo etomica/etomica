@@ -19,7 +19,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.graphics.DeviceBox.LabelType;
 import etomica.integrator.IntegratorMD;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.function.Function;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
@@ -100,7 +100,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
      * this can be used.
      */
     public PistonCylinderGraphic(PistonCylinder sim, Space _space) {
-    	super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, sim.getController());
+    	super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
     	pc = sim;
     }
 
@@ -153,7 +153,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         };
 
         displayBox = getDisplayBox(pc.box);
-        displayBox.setColorScheme(new ColorSchemeByType(simulation));
+        displayBox.setColorScheme(new ColorSchemeByType());
         final P1HardMovingBoundary pistonPotential = pc.pistonPotential;
         if (pc.getSpace().D() == 3) {
             setPaintInterval(pc.box, 1);
@@ -647,8 +647,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         plotT.setLegend(new DataTag[]{targetTemperatureDataSource.getTag()}, "target");
         dataStreamPumps.add(targetTemperatureDataPump);
 
-        pressureMeter = new DataSourceWallPressure(pc.getSpace(),pc.pistonPotential);
-        pressureMeter.setIntegrator(pc.integrator);
+        pressureMeter = new DataSourceWallPressure(pc.pistonPotential, pc.integrator);
         final AccumulatorHistory pressureHistory = new AccumulatorHistory();
         pressureHistory.setTimeDataSource(meterCycles);
         pressureHistory.getHistory().setHistoryLength(historyLength);
@@ -871,11 +870,11 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         }
 
         public double getValue() {
-            return pc.box.getMoleculeList().getMoleculeCount() / pc.box.getBoundary().volume();
+            return pc.box.getMoleculeList().size() / pc.box.getBoundary().volume();
         }
 
         public void setValue(double newValue) {
-            double oldDensity = pc.box.getMoleculeList().getMoleculeCount() / pc.box.getBoundary().volume();
+            double oldDensity = pc.box.getMoleculeList().size() / pc.box.getBoundary().volume();
             double maxDensity;
             int D = pc.getSpace().D();
             if (D == 2) {
@@ -898,8 +897,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             }
             if (newValue > oldDensity) {
                 // scale atom positions
-                for (int i=0; i<leafList.getAtomCount(); i++) {
-                    Vector pos = leafList.getAtom(i).getPosition();
+                for (int i = 0; i<leafList.size(); i++) {
+                    Vector pos = leafList.get(i).getPosition();
                     double y = (pos.getX(1)+yShift) * (oldDensity / newValue) - yShift;
                     pos.setX(1, y);
                 }

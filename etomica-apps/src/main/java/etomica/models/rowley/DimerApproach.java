@@ -15,11 +15,12 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.units.*;
@@ -68,79 +69,85 @@ public class DimerApproach extends Simulation {
     
 
 	public DimerApproach() {
-		
-	
-		super(Space3D.getInstance());
-		
-		box = new Box(new BoundaryRectangularNonperiodic(space), space);
-		addBox(box);
-		
-		// *************************
-		// The Species & Potential
-		// *************************
-		
-		PotentialGroup U_a_b = new PotentialGroup(2);
-		if (ethanol) {
-			species = new SpeciesEthanol(space, pointCharges);
-			speciesEthanol = (SpeciesEthanol) species;
-			EthanolPotentialHelper.initPotential(space, speciesEthanol, U_a_b, pointCharges);
-			
-		} else {
-			species = new SpeciesMethanol(space, pointCharges);
-			speciesMethanol = (SpeciesMethanol) species;
-			double sigmaOC = 0.00001;
-			double sigmaOH = 0.05;
-			MethanolPotentialHelper.initPotential(space, speciesMethanol, U_a_b, pointCharges, sigmaOC, sigmaOH);
-		}
-		addSpecies(species);
-		box.setNMolecules(species, 2); // 2 molecules in box...
-		U_a_b.setBox(box);
-		potentialMaster = new PotentialMaster();
-		potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
-		
-		// *********************
-		// The Integrator
-		// *********************
-		
-		dimerApproach = new IntegratorDimerApproach(potentialMaster, space);
-		dimerApproach.setBox(box);
-		
-		// Methods in dimerApproach that must be called
-		dimerApproach.setMolecules();
+
+
+        super(Space3D.getInstance());
+
+        // *************
+        // The Species
+        // *************
+        if (ethanol) {
+            species = new SpeciesEthanol(space, pointCharges);
+            speciesEthanol = (SpeciesEthanol) species;
+
+        } else {
+            species = new SpeciesMethanol(space, pointCharges);
+            speciesMethanol = (SpeciesMethanol) species;
+        }
+        addSpecies(species);
+
+        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
+
+        // ***************
+        // The Potential
+        // ***************
+
+        PotentialGroup U_a_b = new PotentialGroup(2);
+        if (ethanol) {
+            EthanolPotentialHelper.initPotential(space, speciesEthanol, U_a_b, pointCharges);
+
+        } else {
+            double sigmaOC = 0.00001;
+            double sigmaOH = 0.05;
+            MethanolPotentialHelper.initPotential(space, speciesMethanol, U_a_b, pointCharges, sigmaOC, sigmaOH);
+        }
+        box.setNMolecules(species, 2); // 2 molecules in box...
+        U_a_b.setBox(box);
+        potentialMaster = new PotentialMaster();
+        potentialMaster.addPotential(U_a_b, new ISpecies[]{species, species});
+
+        // *********************
+        // The Integrator
+        // *********************
+
+        dimerApproach = new IntegratorDimerApproach(potentialMaster, box);
+
+        // Methods in dimerApproach that must be called
+        dimerApproach.setMolecules();
         dimerApproach.setImportantAtoms();
         dimerApproach.setRoute(route);
-        
-        double [][] params;
-        if (ethanol) { 
-        	params = EthanolRouteParams.setEthanolParams(route); 
-        } else {         
-        	params = MethanolRouteParams.setMethanolParams(route); 
+
+        double[][] params;
+        if (ethanol) {
+            params = EthanolRouteParams.setEthanolParams(route);
+        } else {
+            params = MethanolRouteParams.setMethanolParams(route);
         }
-        
+
         dimerApproach.setRouteParams(params);
-        
+
         // The following is required for dataDistances:
-        atom_O_A  =  dimerApproach.getAtom_O_A(); 
-		atom_aC_A =  dimerApproach.getAtom_aC_A();
-		atom_aH_A =  dimerApproach.getAtom_aH_A();
-		atom_H1_A =  dimerApproach.getAtom_H1_A();
-		
-		atom_O_B  =  dimerApproach.getAtom_O_B();
-		atom_aC_B =  dimerApproach.getAtom_aC_B();
-		atom_aH_B =  dimerApproach.getAtom_aH_B();
-		
-       
+        atom_O_A = dimerApproach.getAtom_O_A();
+        atom_aC_A = dimerApproach.getAtom_aC_A();
+        atom_aH_A = dimerApproach.getAtom_aH_A();
+        atom_H1_A = dimerApproach.getAtom_H1_A();
+
+        atom_O_B = dimerApproach.getAtom_O_B();
+        atom_aC_B = dimerApproach.getAtom_aC_B();
+        atom_aH_B = dimerApproach.getAtom_aH_B();
+
+
         // This may be called here or in the main method
-		// Must be called after above set methods
-		dimerApproach.initializeCoordinates();
-		
-		ActivityIntegrate activityIntegrate = new ActivityIntegrate(dimerApproach);	
-		activityIntegrate.setMaxSteps(75);
-		activityIntegrate.setSleepPeriod(100);
-	
-		getController().addAction(activityIntegrate);	
-		
-	}
+        // Must be called after above set methods
+        dimerApproach.initializeCoordinates();
+
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(dimerApproach);
+        activityIntegrate.setMaxSteps(75);
+        activityIntegrate.setSleepPeriod(100);
+
+        getController().addAction(activityIntegrate);
+
+    }
 
 	public static void main(String[] string)  {
 		
@@ -154,9 +161,7 @@ public class DimerApproach extends Simulation {
 	     ****************************************************************************
 	     */
 
-		meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-
-		meterPE.setBox(sim.box);
+		meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
 		
 		DataLogger dataLoggerPE = new DataLogger();
 		
@@ -231,7 +236,7 @@ public class DimerApproach extends Simulation {
 
         if (true) { 
             
-            sim.box.getBoundary().setBoxSize(sim.space.makeVector(new double[]{40,40,40}));
+            sim.box.getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             
             // *********************
             // The Title
@@ -258,7 +263,7 @@ public class DimerApproach extends Simulation {
             // Things that matter more than the title
             // ****************************************
             
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, appName, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, appName);
             // The default Paint Interval is too infrequent
             simGraphic.setPaintInterval(sim.box, 1);
             //simGraphic.getDisplayBox(sim.box).setShowBoundary(false);

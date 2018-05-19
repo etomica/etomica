@@ -7,6 +7,7 @@ package etomica.kmc;
 import etomica.action.BoxImposePbc;
 import etomica.action.WriteConfiguration;
 import etomica.action.XYZWriter;
+import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.dimer.IntegratorDimerMin;
 import etomica.dimer.IntegratorDimerRT;
@@ -16,7 +17,6 @@ import etomica.integrator.IntegratorBox;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.units.Joule;
@@ -29,7 +29,6 @@ public class IntegratorKMC extends IntegratorBox{
     IntegratorDimerMin integratorMin1, integratorMin2;
     PotentialMaster potentialMaster;
     double temperature;
-    private final Space space;
     IRandom random;
     Simulation sim;
     ISpecies [] species;
@@ -51,11 +50,10 @@ public class IntegratorKMC extends IntegratorBox{
     XYZWriter xyzfile;
     BoxImposePbc imposePbc;
     
-    public IntegratorKMC(Simulation _sim, PotentialMaster _potentialMaster, double _temperature, IRandom _random, ISpecies [] _species, Space _space){
-        super(_potentialMaster, _temperature);
+    public IntegratorKMC(Simulation _sim, PotentialMaster _potentialMaster, double _temperature, IRandom _random, ISpecies[] _species, Box box){
+        super(_potentialMaster, _temperature, box);
         this.potentialMaster = _potentialMaster;
         this.temperature = _temperature;
-        this.space = _space;
         this.random = _random;
         this.sim = _sim;
         this.species = _species;
@@ -165,8 +163,8 @@ public class IntegratorKMC extends IntegratorBox{
         beta = 1.0/(temperature*1.3806503E-023);
         stepCounter = 0;     
         imposePbc = new BoxImposePbc(box, space);
-        currentSaddle = new Vector[box.getMoleculeList().getMoleculeCount()];
-        previousSaddle = new Vector[box.getMoleculeList().getMoleculeCount()];
+        currentSaddle = new Vector[box.getMoleculeList().size()];
+        previousSaddle = new Vector[box.getMoleculeList().size()];
         for(int i=0; i<currentSaddle.length; i++){
             currentSaddle[i] = space.makeVector();
             previousSaddle[i] = space.makeVector();
@@ -185,13 +183,13 @@ public class IntegratorKMC extends IntegratorBox{
         minVib = vibFreq;
         
         IMoleculeList loopSet2 = box.getMoleculeList();
-        minPosition = new Vector[loopSet2.getMoleculeCount()];
+        minPosition = new Vector[loopSet2.size()];
         for(int i=0; i<minPosition.length; i++){
             minPosition[i] = space.makeVector();
         }
         
-        for(int i=0; i<loopSet2.getMoleculeCount(); i++){
-            minPosition[i].E(loopSet2.getMolecule(i).getChildList().getAtom(0).getPosition());
+        for(int i = 0; i<loopSet2.size(); i++){
+            minPosition[i].E(loopSet2.get(i).getChildList().get(0).getPosition());
         }  
     }
     
@@ -202,11 +200,11 @@ public class IntegratorKMC extends IntegratorBox{
     public void randomizePositions(){
         Vector workVector = space.makeVector();
         IMoleculeList loopSet3 = box.getMoleculeList(species[0]);
-        Vector[] currentPos = new Vector[loopSet3.getMoleculeCount()];
+        Vector[] currentPos = new Vector[loopSet3.size()];
         double offset = 0;
         for(int i=0; i<currentPos.length; i++){
             currentPos[i] = space.makeVector();
-            currentPos[i] = (loopSet3.getMolecule(i).getChildList().getAtom(0).getPosition());
+            currentPos[i] = (loopSet3.get(i).getChildList().get(0).getPosition());
             for(int j=0; j<3; j++){
                 offset = random.nextGaussian()/10.0;
                 if(Math.abs(offset)>0.1){offset=0.1;}
@@ -257,14 +255,14 @@ public class IntegratorKMC extends IntegratorBox{
     }
     
     private boolean checkUniqueSaddle(){    
-        for(int p=0; p<box.getMoleculeList().getMoleculeCount(); p++){
-            currentSaddle[p].E(box.getMoleculeList().getMolecule(p).getChildList().getAtom(0).getPosition());
+        for(int p = 0; p<box.getMoleculeList().size(); p++){
+            currentSaddle[p].E(box.getMoleculeList().get(p).getChildList().get(0).getPosition());
         }
         for(int i=0; i<goodSearch; i++){
             double positionDiff = 0;
             loadConfiguration("s_"+i+"_saddle");
-            for(int j=0; j<box.getMoleculeList().getMoleculeCount(); j++){
-                previousSaddle[j].E(box.getMoleculeList().getMolecule(j).getChildList().getAtom(0).getPosition());
+            for(int j = 0; j<box.getMoleculeList().size(); j++){
+                previousSaddle[j].E(box.getMoleculeList().get(j).getChildList().get(0).getPosition());
                 previousSaddle[j].ME(currentSaddle[j]);
                 positionDiff += previousSaddle[j].squared();
             }
@@ -286,8 +284,8 @@ public class IntegratorKMC extends IntegratorBox{
     public boolean checkMin(){
         Vector workVector = space.makeVector();
         double positionDiff=0;
-        for(int i=0; i<box.getMoleculeList().getMoleculeCount(); i++){
-            workVector.Ev1Mv2(minPosition[i],box.getMoleculeList().getMolecule(i).getChildList().getAtom(0).getPosition());
+        for(int i = 0; i<box.getMoleculeList().size(); i++){
+            workVector.Ev1Mv2(minPosition[i],box.getMoleculeList().get(i).getChildList().get(0).getPosition());
             positionDiff += workVector.squared();
         }
         if(positionDiff > 0.5){return true;}
@@ -306,17 +304,13 @@ public class IntegratorKMC extends IntegratorBox{
         config.initializeCoordinates(box);
     }
 
-    public void createIntegrators(){
-        integratorMin1 = new IntegratorDimerMin(sim, potentialMaster, species, true, space);
-        integratorMin2= new IntegratorDimerMin(sim, potentialMaster, species, false, space);
-        integratorDimer = new IntegratorDimerRT(sim, potentialMaster, species, space);
-        
-        integratorMin1.setBox(box);
-        integratorMin2.setBox(box);
-        integratorDimer.setBox(box);
+    public void createIntegrators() {
+        integratorMin1 = new IntegratorDimerMin(sim, potentialMaster, species, true, box);
+        integratorMin2 = new IntegratorDimerMin(sim, potentialMaster, species, false, box);
+        integratorDimer = new IntegratorDimerRT(sim, potentialMaster, species, box);
         integratorDimer.setRotNum(0);
         integratorDimer.setOrtho(false, false);
-                
+
         xyzfile = new XYZWriter(box);
         xyzfile.setIsAppend(true);
         xyzfile.setFileName("kmc-lj-3.xyz");

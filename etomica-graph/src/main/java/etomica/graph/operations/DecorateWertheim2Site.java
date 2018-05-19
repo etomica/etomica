@@ -61,7 +61,7 @@ public class DecorateWertheim2Site implements Unary {
       comp.addComparator(new ComparatorBiConnected());
       comp.addComparator(new ComparatorNumEdges());
       comp.addComparator(new ComparatorNumNodes());
-      GraphList<Graph> graphList = new GraphList<Graph>(comp);
+      GraphList graphList = new GraphList(comp);
       graphList.addAll(rho0CAB);
       
   	char sigmaAB = 'a';//color of node
@@ -132,7 +132,7 @@ public class DecorateWertheim2Site implements Unary {
        
       Set<Graph> result = new HashSet<Graph>();    
       ArrayList<Graph> pool = new ArrayList<Graph>();
-      Set<Graph> product = new GraphList<Graph>();
+      Set<Graph> product = new GraphList();
       pool.addAll(argument);
       CoefficientImpl coefficient = new CoefficientImpl(0);
       
@@ -237,7 +237,7 @@ public class DecorateWertheim2Site implements Unary {
           }
           if ((foundSigmaPoint & maskB) != 0){
         	  Set<Graph> g1 = new HashSet<Graph>();//single diagram
-              Set<Graph> product1 = new GraphList<Graph>();
+              Set<Graph> product1 = new GraphList();
               for (Graph gP:product){
             	  g1.clear();
             	  g1.add(gP);
@@ -258,7 +258,7 @@ public class DecorateWertheim2Site implements Unary {
           }
           if ((foundSigmaPoint & maskAB) != 0){
         	  Set<Graph> g1 = new HashSet<Graph>();//single diagram
-              Set<Graph> product1 = new GraphList<Graph>();
+              Set<Graph> product1 = new GraphList();
               for (Graph gP:product){
             	  g1.clear();
             	  g1.add(gP);

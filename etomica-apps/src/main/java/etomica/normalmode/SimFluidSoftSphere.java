@@ -17,11 +17,11 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
@@ -51,30 +51,29 @@ public class SimFluidSoftSphere extends Simulation {
     public SimFluidSoftSphere(Space _space, int numAtoms, double density, double temperature, int exponent) {
         super(_space);
 
-        potentialMaster = new PotentialMaster();
-
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = new Box(space);
-        addBox(box);
+        potentialMaster = new PotentialMaster();
+
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
 
         rescaleBox(density);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         MCMoveAtom move = new MCMoveAtom(random, potentialMaster, space);
         move.setStepSize(0.2);
-       // move.setStepSizeMax(0.5);
+        // move.setStepSizeMax(0.5);
         integrator.getMoveManager().addMCMove(move);
-        ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
-        ((MCMoveStepTracker)move.getTracker()).setAdjustInterval(10);
+        ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) move.getTracker()).setAdjustInterval(10);
 
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-       	ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
-       	config.initializeCoordinates(box);
+        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
+        config.initializeCoordinates(box);
 
         Potential2SoftSpherical potential = new P2SoftSphere(space);
 
@@ -84,8 +83,6 @@ public class SimFluidSoftSphere extends Simulation {
 
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
-
-        integrator.setBox(box);
     }
 
     /**
@@ -226,8 +223,7 @@ public class SimFluidSoftSphere extends Simulation {
         simgraphic.makeAndDisplayFrame(APP_NAME);
         */
 
-        MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-        meterEnergy.setBox(sim.box);
+        MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
 
         AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
         DataPump energyPump = new DataPump(meterEnergy, energyAverage);

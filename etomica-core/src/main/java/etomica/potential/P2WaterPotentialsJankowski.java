@@ -4,10 +4,7 @@
 
 package etomica.potential;
 
-import etomica.atom.AtomType;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.atom.IAtomOriented;
+import etomica.atom.*;
 import etomica.box.Box;
 import etomica.math.numerical.AkimaSpline;
 import etomica.molecule.IMolecule;
@@ -2108,18 +2105,7 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
             }
         };
 
-        IAtomList atoms = new IAtomList() {
-
-            public int getAtomCount() {
-                return 2;
-            }
-
-            public IAtom getAtom(int i) {
-                if (i == 0) return atom0;
-                return atom1;
-            }
-        };
-        return atoms;
+        return new AtomPair(atom0, atom1);
     }
     
     public static void atomToPosVec(IAtom atomi) {
@@ -2159,12 +2145,12 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
     public static void processAtoms (IAtomList atomL) {
         Space space = Space3D.getInstance();
         Vector[] carta = space.makeVectorArray(3), cartb = space.makeVectorArray(3);
-        atomToPosVec(atomL.getAtom(0));
+        atomToPosVec(atomL.get(0));
         for (int i=0; i<3; i++) {
             carta[i].E(posVec[i]);
         }
 
-        atomToPosVec(atomL.getAtom(1));
+        atomToPosVec(atomL.get(1));
         for (int i=0; i<3; i++) {
             cartb[i].E(posVec[i]);
         }

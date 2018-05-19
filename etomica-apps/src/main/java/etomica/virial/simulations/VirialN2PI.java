@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.virial.simulations;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import etomica.atom.*;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.ElementSimple;
@@ -29,7 +30,6 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
-import org.json.simple.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -235,7 +235,7 @@ public class VirialN2PI {
             for (int i=0; i<nBeads; i++) {
                 for (int j=0; j<3; j++) {
                     int k = j*nBeads + i;
-                    Vector p = tarList.getAtom(k).getPosition();
+                    Vector p = tarList.get(k).getPosition();
                     p.setX(j, 4.0);
                 }
             }
@@ -395,7 +395,8 @@ public class VirialN2PI {
 
             try {
                 FileWriter jsonFile = new FileWriter(params.jsonOutputFileName);
-                jsonFile.write(JSONObject.toJSONString(resultsMap));
+                ObjectMapper om = new ObjectMapper();
+                jsonFile.write(om.writeValueAsString(resultsMap));
                 jsonFile.write("\n");
                 jsonFile.close();
             } catch (IOException e) {

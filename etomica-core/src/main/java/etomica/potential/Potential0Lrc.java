@@ -96,8 +96,8 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft,
             }
             IMolecule mol = types[i].getSpecies().makeMolecule();
             IAtomList childList = mol.getChildList();
-            for (int j=0; j<childList.getAtomCount(); j++) {
-                if (childList.getAtom(j).getType() == types[i]) {
+            for (int j = 0; j<childList.size(); j++) {
+                if (childList.get(j).getType() == types[i]) {
                     lrcAtomsPerMolecule[i]++;
                 }
             }

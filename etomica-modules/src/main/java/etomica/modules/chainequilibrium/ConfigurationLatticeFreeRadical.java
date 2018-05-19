@@ -42,7 +42,7 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
         IMoleculeList moleculeList = box.getMoleculeList();
         IMoleculeList initiatorList = box.getMoleculeList(speciesInitiator);
         IMoleculeList monomerList = box.getMoleculeList(speciesMonomer);
-        int sumOfMolecules = (initiatorList.getMoleculeCount()+1) / 2 + monomerList.getMoleculeCount();
+        int sumOfMolecules = (initiatorList.size()+1) / 2 + monomerList.size();
         int basisSize = 1;
         if (lattice instanceof BravaisLatticeCrystal) {
             basisSize = ((BravaisLatticeCrystal)lattice).getBasis().getScaledCoordinates().length;
@@ -54,7 +54,7 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
         Vector shape = space.makeVector();
         shape.E(box.getBoundary().getBoxSize());
         shape.PE(-boundaryPadding);
-        Vector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        Vector latticeConstantV = Vector.of(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -82,7 +82,7 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
             latticeScaling.E(box.getBoundary().getBoxSize());
             latticeScaling.PE(-boundaryPadding);
             latticeScaling.DE(latticeConstantV);
-            latticeScaling.DE(space.makeVector(latticeDimensions));
+            latticeScaling.DE(Vector.of(latticeDimensions));
         } else {
             latticeScaling.E(1.0);
         }
@@ -125,11 +125,11 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
             }
             while (done[i]);
             done[i] = true;
-            if (i < (initiatorList.getMoleculeCount()+1)/2) {
+            if (i < (initiatorList.size()+1)/2) {
                 i *= 2;
             }
             else {
-                i += initiatorList.getMoleculeCount()/2;
+                i += initiatorList.size()/2;
             }
             int[] ii = indexIterator.next();
             siteCount++;
@@ -144,7 +144,7 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
                 siteCount++;
             }
             // initialize coordinates of child atoms
-            IMolecule a = moleculeList.getMolecule(i);
+            IMolecule a = moleculeList.get(i);
             a.getType().initializeConformation(a);
 
             atomActionTranslateTo.setDestination((Vector)myLat.site(ii));
@@ -153,9 +153,9 @@ public class ConfigurationLatticeFreeRadical extends ConfigurationLattice {
                 dest.setX(0, dest.getX(0)-0.4);
             }
             atomActionTranslateTo.actionPerformed(a);
-            if (a.getType() == speciesInitiator && i<initiatorList.getMoleculeCount()-1) {
+            if (a.getType() == speciesInitiator && i<initiatorList.size()-1) {
                 i++;
-                a = moleculeList.getMolecule(i);
+                a = moleculeList.get(i);
                 Vector dest = atomActionTranslateTo.getDestination();
                 dest.setX(0, dest.getX(0)+0.8);
                 atomActionTranslateTo.actionPerformed(a);

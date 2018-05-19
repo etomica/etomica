@@ -27,12 +27,8 @@ import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
-import etomica.space.BoundaryRectangularSlit;
-import etomica.space.Space;
-import etomica.space.Vector;
+import etomica.space.*;
 import etomica.space3d.IOrientation3D;
-import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Calorie;
@@ -81,39 +77,37 @@ public class Sam extends Simulation {
 
     public Sam() {
         super(Space.getInstance(3));
+
+        //species and potentials
+        chainLength = 16;
+        species = new SpeciesAlkaneThiol(space, chainLength - 1);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
+        speciesSurface = new SpeciesSpheresMono(this, space);
+        speciesSurface.setIsDynamic(true);
+        ((ElementSimple) speciesSurface.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
+        addSpecies(speciesSurface);
+
         positionDefinition = new MoleculePositionGeometricCenter(space);
         sigmaCH2 = 3.95;
-        potentialMaster = new PotentialMasterList(this,2.8*sigmaCH2, space); //List(this, 2.0);
+        potentialMaster = new PotentialMasterList(this, 2.8 * sigmaCH2, space); //List(this, 2.0);
 
         numXCells = 4;
         numZCells = 2;
         // gold has FCC unit cell, a=4.0782A
-        sizeCellZ = 4.0782/Math.sqrt(2)*3; //Math.sqrt(3)*sizeCellX;
-        sizeCellX = sizeCellZ/Math.sqrt(3);
-        chainLength = 16;
-
-        //controller and integrator
-
-	    //species and potentials
-        species = new SpeciesAlkaneThiol(space, chainLength-1);
-        species.setIsDynamic(true);
-        addSpecies(species);
+        sizeCellZ = 4.0782 / Math.sqrt(2) * 3; //Math.sqrt(3)*sizeCellX;
+        sizeCellX = sizeCellZ / Math.sqrt(3);
 
         //construct box
-	    box = new Box(new BoundaryRectangularSlit(1, space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularSlit(1, space));
         Vector dim = space.makeVector();
-        dim.E(new double[]{sizeCellX*numXCells, chainLength*2.4, sizeCellZ*numZCells});
+        dim.E(new double[]{sizeCellX * numXCells, chainLength * 2.4, sizeCellZ * numZCells});
         box.getBoundary().setBoxSize(dim);
-
-        speciesSurface = new SpeciesSpheresMono(this, space);
-        speciesSurface.setIsDynamic(true);
-        ((ElementSimple)speciesSurface.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
-        addSpecies(speciesSurface);
 
         bondL_CC = 1.54;
         double bondL_CS = 1.82;
-        bondTheta = Math.PI*114/180;
+        bondTheta = Math.PI * 114 / 180;
         ConformationChainZigZag conformation = new ConformationChainZigZag(space);
         species.setConformation(conformation);
         chainTheta = 0;
@@ -121,14 +115,14 @@ public class Sam extends Simulation {
         chainPhi = new double[4];
 
         config = new ConfigurationSAM(this, space, species, speciesSurface, potentialMaster);
-        Basis alkaneBasis = new Basis(new Vector[]{space.makeVector(new double[]{1.0/6.0,0,1.0/6.0}), space.makeVector(new double[]{2.0/3.0, 0, 2.0/3.0})});
+        Basis alkaneBasis = new Basis(new Vector[]{Vector.of(new double[]{1.0 / 6.0, 0, 1.0 / 6.0}), Vector.of(new double[]{2.0 / 3.0, 0, 2.0 / 3.0})});
         Basis surfaceBasis = new Basis(new Vector[]{
-                space.makeVector(new double[]{2.0/6.0, 0, 0}),
-                space.makeVector(new double[]{5.0/6.0, 0, 1.0/6.0}),
-                space.makeVector(new double[]{2.0/6.0, 0, 2.0/6.0}),
-                space.makeVector(new double[]{5.0/6.0, 0, 3.0/6.0}),
-                space.makeVector(new double[]{2.0/6.0, 0, 4.0/6.0}),
-                space.makeVector(new double[]{5.0/6.0, 0, 5.0/6.0})});
+                Vector.of(new double[]{2.0 / 6.0, 0, 0}),
+                Vector.of(new double[]{5.0 / 6.0, 0, 1.0 / 6.0}),
+                Vector.of(new double[]{2.0 / 6.0, 0, 2.0 / 6.0}),
+                Vector.of(new double[]{5.0 / 6.0, 0, 3.0 / 6.0}),
+                Vector.of(new double[]{2.0 / 6.0, 0, 4.0 / 6.0}),
+                Vector.of(new double[]{5.0 / 6.0, 0, 5.0 / 6.0})});
         config.setBasisMolecules(alkaneBasis);
         config.setBasisSurface(surfaceBasis);
         config.setCellSizeX(sizeCellX);
@@ -137,7 +131,7 @@ public class Sam extends Simulation {
         config.setNCellsZ(numZCells);
         config.setSurfaceYOffset(2);
 
-        config.setConformation(0, (ConformationChainZigZag)species.getConformation());
+        config.setConformation(0, (ConformationChainZigZag) species.getConformation());
         config.setConformation(1, new ConformationChainZigZag(space));
         config.setConformation(2, new ConformationChainZigZag(space));
         config.setConformation(3, new ConformationChainZigZag(space));
@@ -148,17 +142,16 @@ public class Sam extends Simulation {
 
         config.initializeCoordinates(box);
 
-        integrator = new IntegratorVelocityVerletSAM(potentialMaster, random, 0.002, Kelvin.UNIT.toSim(300), space);
+        integrator = new IntegratorVelocityVerletSAM(potentialMaster, random, 0.002, Kelvin.UNIT.toSim(300), box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(500);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        integrator.setBox(box);
 
         AtomType typeCH2 = species.getCH2Type();
         AtomType typeCH3 = species.getCH3Type();
         AtomType typeS = species.getSulfurType();
-        
+
         double sigmaCH3 = 3.75;
         double sigmaSulfur = 3.62;
 
@@ -166,25 +159,26 @@ public class Sam extends Simulation {
         double epsilonCH2 = Kelvin.UNIT.toSim(46);
         double epsilonCH3 = Kelvin.UNIT.toSim(98);
         double epsilonSulfur = Kelvin.UNIT.toSim(232);
-        double epsilonCH2CH3 = Math.sqrt(epsilonCH2*epsilonCH3);
-        double epsilonCH2Sulfur = Math.sqrt(epsilonCH2*epsilonSulfur);
+        double epsilonCH2CH3 = Math.sqrt(epsilonCH2 * epsilonCH3);
+        double epsilonCH2Sulfur = Math.sqrt(epsilonCH2 * epsilonSulfur);
         // sulfur and CH3 will never be close
-        double rCut = 2.5*sigmaCH2;
-        double nbrCut = 2.8*sigmaCH2;
-        if (0.495*box.getBoundary().getBoxSize().getX(0) < rCut) {
-            rCut = 0.495*box.getBoundary().getBoxSize().getX(0);
-            nbrCut = 0.5*box.getBoundary().getBoxSize().getX(0);
+        double rc = 2.5 * sigmaCH2;
+        double nbrCut = 2.8 * sigmaCH2;
+        if (0.495 * box.getBoundary().getBoxSize().getX(0) < rc) {
+            rc = 0.495 * box.getBoundary().getBoxSize().getX(0);
+            nbrCut = 0.5 * box.getBoundary().getBoxSize().getX(0);
         }
-        if (0.495*box.getBoundary().getBoxSize().getX(2) < rCut) {
-            rCut = 0.495*box.getBoundary().getBoxSize().getX(2);
-            nbrCut = 0.5*box.getBoundary().getBoxSize().getX(2);
+        if (0.495 * box.getBoundary().getBoxSize().getX(2) < rc) {
+            rc = 0.495 * box.getBoundary().getBoxSize().getX(2);
+            nbrCut = 0.5 * box.getBoundary().getBoxSize().getX(2);
         }
+        final double rCut = rc;
         potentialMaster.setRange(nbrCut);
         p2CH2 = new P2LennardJones(space, sigmaCH2, epsilonCH2);
         p2CH3 = new P2LennardJones(space, sigmaCH3, epsilonCH3);
         p2S = new P2LennardJones(space, sigmaSulfur, epsilonSulfur);
-        p2CH2CH3 = new P2LennardJones(space, 0.5*(sigmaCH2+sigmaCH3), epsilonCH2CH3);
-        p2SCH2 = new P2LennardJones(space, 0.5*(sigmaSulfur+sigmaCH2), epsilonCH2Sulfur);
+        p2CH2CH3 = new P2LennardJones(space, 0.5 * (sigmaCH2 + sigmaCH3), epsilonCH2CH3);
+        p2SCH2 = new P2LennardJones(space, 0.5 * (sigmaSulfur + sigmaCH2), epsilonCH2Sulfur);
         p2CH2t = new P2SoftSphericalTruncatedSwitched(space, p2CH2, rCut);
         p2CH3t = new P2SoftSphericalTruncatedSwitched(space, p2CH2, rCut);
         p2CH2CH3t = new P2SoftSphericalTruncatedSwitched(space, p2CH2, rCut);
@@ -193,24 +187,34 @@ public class Sam extends Simulation {
 
         NeighborCriterion nonBondedCriterion = new NeighborCriterion() {
             public boolean accept(IAtomList pair) {
-                int idx0 = pair.getAtom(0).getIndex();
-                int idx1 = pair.getAtom(1).getIndex();
+                int idx0 = pair.get(0).getIndex();
+                int idx1 = pair.get(1).getIndex();
                 int idxDiff = idx0 - idx1;
                 return idxDiff > 3 || idxDiff < -3;
             }
-            public boolean needUpdate(IAtom atom) {return false;}
-            public void reset(IAtom atom) {}
-            public void setBox(Box box) {}
-            public boolean unsafe() {return false;}
+
+            public boolean needUpdate(IAtom atom) {
+                return false;
+            }
+
+            public void reset(IAtom atom) {
+            }
+
+            public void setBox(Box box) {
+            }
+
+            public boolean unsafe() {
+                return false;
+            }
         };
         potentialMaster.addPotential(p2CH2t, new AtomType[]{typeCH2, typeCH2});
-        ((CriterionInterMolecular)potentialMaster.getCriterion(p2CH2t)).setIntraMolecularCriterion(nonBondedCriterion);
+        ((CriterionInterMolecular) potentialMaster.getCriterion(typeCH2, typeCH2)).setIntraMolecularCriterion(nonBondedCriterion);
         potentialMaster.addPotential(p2CH3t, new AtomType[]{typeCH3, typeCH3});
         potentialMaster.addPotential(p2St, new AtomType[]{typeS, typeS});
         potentialMaster.addPotential(p2SCH2t, new AtomType[]{typeS, typeCH2});
-        ((CriterionInterMolecular)potentialMaster.getCriterion(p2SCH2t)).setIntraMolecularCriterion(nonBondedCriterion);
+        ((CriterionInterMolecular) potentialMaster.getCriterion(typeS, typeCH2)).setIntraMolecularCriterion(nonBondedCriterion);
         potentialMaster.addPotential(p2CH2CH3t, new AtomType[]{typeCH2, typeCH3});
-        ((CriterionInterMolecular)potentialMaster.getCriterion(p2CH2CH3t)).setIntraMolecularCriterion(nonBondedCriterion);
+        ((CriterionInterMolecular) potentialMaster.getCriterion(typeCH2, typeCH3)).setIntraMolecularCriterion(nonBondedCriterion);
         p1Intra = potentialMaster.makePotentialGroup(1);
         potentialMaster.addPotential(p1Intra, new ISpecies[]{species});
 
@@ -218,37 +222,22 @@ public class Sam extends Simulation {
         p2BondCS = new P2Harmonic(space, 10000, bondL_CS);
         // bond angle potential is the same for CCC and CCS
         p3Bond = new P3BondAngle(space);
-        p3Bond.setAngle(Math.PI*114.0/180.0);
+        p3Bond.setAngle(Math.PI * 114.0 / 180.0);
         p3Bond.setEpsilon(Kelvin.UNIT.toSim(62500));
         p4BondCCCC = new P4BondTorsion(space, 0, Kelvin.UNIT.toSim(355.03), Kelvin.UNIT.toSim(-68.19), Kelvin.UNIT.toSim(791.32));
         p4BondCCCS = new P4BondTorsion(space, Kelvin.UNIT.toSim(-251.06), Kelvin.UNIT.toSim(428.73), Kelvin.UNIT.toSim(-111.85), Kelvin.UNIT.toSim(441.27));
         setChainLength(chainLength);
 //        updateConformation(0);
 
-        harmonicStrength = 10000;
-        p2SurfaceBond = new P2Harmonic(space, harmonicStrength, 2.5);
-        Potential2SoftSpherical p2SurfaceTrunc = new Potential2SoftSpherical(space) {
-            public double getRange() { return 3; }
-            public double d2u(double r2) { return 0; }
-            public double du(double r2) { return p2SurfaceBond.du(r2); }
-            public double uInt(double rc) { return 0; }
-            public double u(double r2) { return p2SurfaceBond.u(r2); }
-        };
-        potentialMaster.addPotential(p2SurfaceTrunc, new AtomType[]{speciesSurface.getLeafType(), species.getSulfurType()});
-        criterion3 = new CriterionTether3(this, species, speciesSurface.getLeafType());
-        criterion3.setBox(box);
-        potentialMaster.setCriterion(p2SurfaceTrunc, criterion3);
-        findTetherBonds();
-
-        sinusoidalB = Calorie.UNIT.toSim(2000)/Constants.AVOGADRO;
+        sinusoidalB = Calorie.UNIT.toSim(2000) / Constants.AVOGADRO;
         p1SurfaceBond = new P1Sinusoidal(space);
         p1SurfaceBond.setB(0); // initially disabled
         p1SurfaceBond.setCellSize(sizeCellX, sizeCellZ);
-        p1SurfaceBond.setOffset(space.makeVector(new double[]{sizeCellX/6.0, 0, sizeCellZ/6.0}));
+        p1SurfaceBond.setOffset(Vector.of(new double[]{sizeCellX / 6.0, 0, sizeCellZ / 6.0}));
         potentialMaster.addPotential(p1SurfaceBond, new AtomType[]{species.getSulfurType()});
-        
+
         wallPotential = new P1WCAWall(space, 1, 4, 1000);
-        wallPotential.setWallPosition(box.getBoundary().getBoxSize().getX(1)*0.5);
+        wallPotential.setWallPosition(box.getBoundary().getBoxSize().getX(1) * 0.5);
         potentialMaster.addPotential(wallPotential, new AtomType[]{species.getCH2Type()});
         potentialMaster.addPotential(wallPotential, new AtomType[]{species.getCH3Type()});
 
@@ -256,12 +245,21 @@ public class Sam extends Simulation {
         integrator.setForceSum(forceSum);
 
         P2LennardJones p2Surface = new P2LennardJones(space, 3.0, Kelvin.UNIT.toSim(50));
-        p2SulfurSurfaceLJ = new P2SoftSphericalTruncatedSwitched(space, p2Surface, rCut);
         p2CH2Surface = new P2SoftSphericalTruncatedSwitched(space, p2Surface, rCut);
         potentialMaster.addPotential(p2CH2Surface, new AtomType[]{speciesSurface.getLeafType(), species.getCH2Type()});
-        potentialMaster.addPotential(p2SulfurSurfaceLJ, new AtomType[]{speciesSurface.getLeafType(), species.getSulfurType()});
         potentialMaster.getNeighborManager(box).setDoApplyPBC(false);
         potentialMaster.getNbrCellManager(box).setDoApplyPBC(true);
+
+        harmonicStrength = 10000;
+        p2SurfaceBond = new P2Harmonic(space, harmonicStrength, 2.5);
+        p2SulfurSurfaceLJ = new P2SoftSphericalTruncatedSwitched(space, p2Surface, rCut);
+        potentialMaster.addPotential(p2SulfurSurfaceLJ, new AtomType[]{speciesSurface.getLeafType(), species.getSulfurType()});
+        criterion3 = new CriterionTether3(this, species, speciesSurface.getLeafType());
+        criterion3.setBox(box);
+        P2Surface p2SurfaceTrunc = new P2Surface(space, p2SulfurSurfaceLJ, p2SurfaceBond, criterion3);
+        potentialMaster.addPotential(p2SurfaceTrunc, new AtomType[]{speciesSurface.getLeafType(), species.getSulfurType()});
+        findTetherBonds();
+
 
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
@@ -270,7 +268,7 @@ public class Sam extends Simulation {
 
     public static void main(String[] args) {
         Sam sim = new Sam();
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, Space3D.getInstance(), sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim);
         simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(15));
 //        sim.integrator.setActionInterval(simGraphic.getPaintAction(sim.box), 10);
         simGraphic.getDisplayBox(sim.box).canvas.setDrawBoundary(DisplayCanvas.DRAW_BOUNDARY_NONE);
@@ -303,7 +301,7 @@ public class Sam extends Simulation {
             IMolecule molecule = species.makeMolecule();
             Vector moleculePos = space.makeVector();
             moleculePos.E(positionDefinition.position(molecule));
-            Vector sulfurPosition = molecule.getChildList().getAtom(0).getPosition();
+            Vector sulfurPosition = molecule.getChildList().get(0).getPosition();
             sulfurPosition.ME(moleculePos);
             molecule = null;
             sulfurPosition.TE(-1);
@@ -349,25 +347,25 @@ public class Sam extends Simulation {
     public void findTetherBonds() {
         IMoleculeList polymerMolecules = box.getMoleculeList(species);
         IMoleculeList surfaceMolecules = box.getMoleculeList(speciesSurface);
-        int nMolecules = polymerMolecules.getMoleculeCount();
+        int nMolecules = polymerMolecules.size();
         double maxDistance = 3.5*3.5;
         Vector dr = space.makeVector();
         Boundary boundary = box.getBoundary();
         for (int i=0; i<nMolecules; i++) {
             AtomArrayList bondedSurfaceAtoms = new AtomArrayList(3);
-            IAtom sulfur = polymerMolecules.getMolecule(i).getChildList().getAtom(0);
-            for (int j=0; j<surfaceMolecules.getMoleculeCount(); j++) {
-                IAtom gold = surfaceMolecules.getMolecule(j).getChildList().getAtom(0);
+            IAtom sulfur = polymerMolecules.get(i).getChildList().get(0);
+            for (int j = 0; j<surfaceMolecules.size(); j++) {
+                IAtom gold = surfaceMolecules.get(j).getChildList().get(0);
                 dr.Ev1Mv2(sulfur.getPosition(), gold.getPosition());
                 boundary.nearestImage(dr);
                 if (dr.squared() < maxDistance) {
                     bondedSurfaceAtoms.add(gold);
                 }
             }
-            if (bondedSurfaceAtoms.getAtomCount() != 3) {
-                throw new RuntimeException("only found "+bondedSurfaceAtoms.getAtomCount()+" bonded atoms");
+            if (bondedSurfaceAtoms.size() != 3) {
+                throw new RuntimeException("only found "+bondedSurfaceAtoms.size()+" bonded atoms");
             }
-            criterion3.setBondedSurfaceAtoms(polymerMolecules.getMolecule(i), bondedSurfaceAtoms);
+            criterion3.setBondedSurfaceAtoms(polymerMolecules.get(i), bondedSurfaceAtoms);
         }
     }
 
@@ -391,31 +389,31 @@ public class Sam extends Simulation {
         }
         else {
             IAtomList leafList = box.getLeafList();
-            for (int i=0; i<leafList.getAtomCount(); i++) {
-                IAtom a = leafList.getAtom(i);
+            for (int i = 0; i<leafList.size(); i++) {
+                IAtom a = leafList.get(i);
                 a.getPosition().setX(2, a.getPosition().getX(2) - 0.5*zShift);
             }
 
             box.setNMolecules(species, 2*numXCells*numZCells);
             box.setNMolecules(speciesSurface, 6*numXCells*numZCells);
             IMoleculeList molecules = box.getMoleculeList(species);
-            for (int i=0; i<molecules.getMoleculeCount()/2; i++) {
-                IAtomList childList0 = molecules.getMolecule(i).getChildList();
-                IAtomList childList = molecules.getMolecule(i+molecules.getMoleculeCount()/2).getChildList();
-                for (int j=0; j<childList.getAtomCount(); j++) {
-                    IAtom atom0 = childList0.getAtom(j);
-                    IAtom atom = childList.getAtom(j);
+            for (int i = 0; i<molecules.size()/2; i++) {
+                IAtomList childList0 = molecules.get(i).getChildList();
+                IAtomList childList = molecules.get(i+molecules.size()/2).getChildList();
+                for (int j = 0; j<childList.size(); j++) {
+                    IAtom atom0 = childList0.get(j);
+                    IAtom atom = childList.get(j);
                     atom.getPosition().E(atom0.getPosition());
                     atom.getPosition().setX(2, atom.getPosition().getX(2) + zShift);
                 }
             }
 
             molecules = box.getMoleculeList(speciesSurface);
-            for (int i=0; i<molecules.getMoleculeCount()/2; i++) {
-                IAtomList childList0 = molecules.getMolecule(i).getChildList();
-                IAtom atom0 = childList0.getAtom(0);
-                IAtomList childList = molecules.getMolecule(i+molecules.getMoleculeCount()/2).getChildList();
-                IAtom atom = childList.getAtom(0);
+            for (int i = 0; i<molecules.size()/2; i++) {
+                IAtomList childList0 = molecules.get(i).getChildList();
+                IAtom atom0 = childList0.get(0);
+                IAtomList childList = molecules.get(i+molecules.size()/2).getChildList();
+                IAtom atom = childList.get(0);
                 atom.getPosition().E(atom0.getPosition());
                 atom.getPosition().setX(2, atom.getPosition().getX(2) + zShift);
             }
@@ -443,41 +441,41 @@ public class Sam extends Simulation {
         box.getBoundary().setBoxSize(dim);
         config.setNCellsX(numXCells);
         if (numXCells == 2) {
-            p1SurfaceBond.setOffset(space.makeVector(new double[]{4*sizeCellX/6.0, 0, sizeCellZ/6.0}));
+            p1SurfaceBond.setOffset(Vector.of(new double[]{4 * sizeCellX / 6.0, 0, sizeCellZ / 6.0}));
         }
         else {
-            p1SurfaceBond.setOffset(space.makeVector(new double[]{sizeCellX/6.0, 0, sizeCellZ/6.0}));
+            p1SurfaceBond.setOffset(Vector.of(new double[]{sizeCellX / 6.0, 0, sizeCellZ / 6.0}));
         }
         if (numXCells < oldNumXCells || oldNumXCells*2 != numXCells) {
             config.initializeCoordinates(box);
         }
         else {
             IAtomList leafList = box.getLeafList();
-            for (int i=0; i<leafList.getAtomCount(); i++) {
-                IAtom a = leafList.getAtom(i);
+            for (int i = 0; i<leafList.size(); i++) {
+                IAtom a = leafList.get(i);
                 a.getPosition().setX(0, a.getPosition().getX(0) - 0.5*xShift);
             }
 
             box.setNMolecules(species, 2*numXCells*numZCells);
             box.setNMolecules(speciesSurface, 6*numXCells*numZCells);
             IMoleculeList molecules = box.getMoleculeList(species);
-            for (int i=0; i<molecules.getMoleculeCount()/2; i++) {
-                IAtomList childList0 = molecules.getMolecule(i).getChildList();
-                IAtomList childList = molecules.getMolecule(i+molecules.getMoleculeCount()/2).getChildList();
-                for (int j=0; j<childList.getAtomCount(); j++) {
-                    IAtom atom0 = childList0.getAtom(j);
-                    IAtom atom = childList.getAtom(j);
+            for (int i = 0; i<molecules.size()/2; i++) {
+                IAtomList childList0 = molecules.get(i).getChildList();
+                IAtomList childList = molecules.get(i+molecules.size()/2).getChildList();
+                for (int j = 0; j<childList.size(); j++) {
+                    IAtom atom0 = childList0.get(j);
+                    IAtom atom = childList.get(j);
                     atom.getPosition().E(atom0.getPosition());
                     atom.getPosition().setX(0, atom.getPosition().getX(0) + xShift);
                 }
             }
 
             molecules = box.getMoleculeList(speciesSurface);
-            for (int i=0; i<molecules.getMoleculeCount()/2; i++) {
-                IAtomList childList0 = molecules.getMolecule(i).getChildList();
-                IAtom atom0 = childList0.getAtom(0);
-                IAtomList childList = molecules.getMolecule(i+molecules.getMoleculeCount()/2).getChildList();
-                IAtom atom = childList.getAtom(0);
+            for (int i = 0; i<molecules.size()/2; i++) {
+                IAtomList childList0 = molecules.get(i).getChildList();
+                IAtom atom0 = childList0.get(0);
+                IAtomList childList = molecules.get(i+molecules.size()/2).getChildList();
+                IAtom atom = childList.get(0);
                 atom.getPosition().E(atom0.getPosition());
                 atom.getPosition().setX(0, atom.getPosition().getX(0) + xShift);
             }
@@ -550,5 +548,55 @@ public class Sam extends Simulation {
             quads[i][3] = i+3;
         }
         p1Intra.addPotential(p4BondCCCC, new Atomset4IteratorIndexList(quads));
+    }
+
+    /**
+     * Potential class that behaves like switched LJ except for the specific pair
+     * of sulfur/surface atoms that are tethered.
+     */
+    private static class P2Surface extends Potential2 implements PotentialSoft {
+        protected final PotentialSoft p2lj;
+        protected final P2Harmonic p2Bond;
+        protected final Vector dr;
+        protected Boundary boundary;
+        protected final NeighborCriterion bondCriterion;
+
+        public P2Surface(Space space, PotentialSoft p2lj, P2Harmonic p2Bond, NeighborCriterion bondCriterion) {
+            super(space);
+            dr = space.makeVector();
+            this.p2lj = p2lj;
+            this.p2Bond = p2Bond;
+            this.bondCriterion = bondCriterion;
+        }
+
+        public double getRange() {
+            return p2lj.getRange();
+        }
+
+        @Override
+        public double energy(IAtomList atoms) {
+            return bondCriterion.accept(atoms) ? p2Bond.energy(atoms) : p2lj.energy(atoms);
+        }
+
+        @Override
+        public void setBox(Box box) {
+            p2lj.setBox(box);
+            p2Bond.setBox(box);
+        }
+
+        @Override
+        public double virial(IAtomList atoms) {
+            return bondCriterion.accept(atoms) ? p2Bond.virial(atoms) : p2lj.virial(atoms);
+        }
+
+        @Override
+        public Vector[] gradient(IAtomList atoms) {
+            return bondCriterion.accept(atoms) ? p2Bond.gradient(atoms) : p2lj.gradient(atoms);
+        }
+
+        @Override
+        public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
+            return bondCriterion.accept(atoms) ? p2Bond.gradient(atoms, pressureTensor) : p2lj.gradient(atoms, pressureTensor);
+        }
     }
 }

@@ -173,7 +173,7 @@ public class VirialEmulNonAdditive {
         IAtomList atoms = sim.box[1].getLeafList();
         double r = 0.4f*sigmaHSRef/Math.sin(Math.PI/nPoints);
         for (int i=1; i<nPoints; i++) {
-            Vector v = atoms.getAtom(i).getPosition();
+            Vector v = atoms.get(i).getPosition();
             double t = 2*i*Math.PI/nPoints;
             v.setX(0, r*(Math.cos(t)-1));
             v.setX(1, r*Math.sin(t));
@@ -190,9 +190,9 @@ public class VirialEmulNonAdditive {
         } */ 
         
         if (false) {
-            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{30,30,30}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{30, 30, 30}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             SpeciesSpheresMono species = (SpeciesSpheresMono)sim.getSpecies(0);

@@ -12,7 +12,7 @@ import etomica.data.meter.MeterEnergy;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.species.SpeciesSpheresMono;
 import etomica.data.history.HistoryCollapsingDiscard;
 

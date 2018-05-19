@@ -11,10 +11,10 @@ import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeRandom;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.*;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
@@ -45,24 +45,18 @@ public class SimCalcSSoftSphereFCC extends Simulation {
     public PotentialMaster potentialMaster;
 
     public SimCalcSSoftSphereFCC(Space _space, int numAtoms, double density, double temperature, int exponent) {
-		super(_space);
+        super(_space);
 
-		potentialMaster = new PotentialMasterList(this, space);
-		//potentialMaster = new PotentialMasterMonatomic(this);
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
 
-		SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-		addSpecies(species);
-
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numAtoms);
-
-		integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
+        potentialMaster = new PotentialMasterList(this, space);
+        //potentialMaster = new PotentialMasterMonatomic(this);
 
 		if (space.D() == 1) {
 			primitive = new PrimitiveCubic(space, 1.0 / density);
-			boundary = new BoundaryRectangularPeriodic(space, numAtoms/ density);
-			nCells = new int[] { numAtoms };
+			boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
+			nCells = new int[]{numAtoms};
 			basis = new BasisMonatomic(space);
 		} else {
 			double L = Math.pow(4.0 / density, 1.0 / 3.0);
@@ -70,78 +64,80 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 			primitive = new PrimitiveCubic(space, n * L);
 			primitiveUnitCell = new PrimitiveCubic(space, L);
 
-			nCells = new int[] {n, n, n};
+			nCells = new int[]{n, n, n};
 			boundary = new BoundaryRectangularPeriodic(space, n * L);
 			Basis basisFCC = new BasisCubicFcc();
 			basis = new BasisBigCell(space, basisFCC, nCells);
 		}
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numAtoms);
 
-		Potential2SoftSpherical potential = new P2SoftSphere(space);
-		double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
 
-		/*
-		 * When we consider the interaction of the neighborlist, we are safe to use <P2SoftSphereTruncated>;
-		 * if not, we will have to use <P2SoftSphereTruncatedShifted>
-		 * This is because the possible occurrence of atom "jumping" in and out of the truncation radius
-		 * 	might potentially causes our energy average to be off
-		 */
-		if(potentialMaster instanceof PotentialMasterList){
-			potential = new P2SoftSphericalTruncated(space, potential, truncationRadius);
+
+        Potential2SoftSpherical potential = new P2SoftSphere(space);
+        double truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
+
+        /*
+         * When we consider the interaction of the neighborlist, we are safe to use <P2SoftSphereTruncated>;
+         * if not, we will have to use <P2SoftSphereTruncatedShifted>
+         * This is because the possible occurrence of atom "jumping" in and out of the truncation radius
+         * 	might potentially causes our energy average to be off
+         */
+        if (potentialMaster instanceof PotentialMasterList) {
+            potential = new P2SoftSphericalTruncated(space, potential, truncationRadius);
 
         } else {
-			potential = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
+            potential = new P2SoftSphericalTruncatedShifted(space, potential, truncationRadius);
 
         }
-		/*
-		 * this is to make sure we don't include the long-tailed correction to
-		 * our solid calculation; and it is only important for fluid simulation
-		 */
+        /*
+         * this is to make sure we don't include the long-tailed correction to
+         * our solid calculation; and it is only important for fluid simulation
+         */
         potentialMaster.lrcMaster().setEnabled(false);
 
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
-        box.setBoundary(boundary);
 
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-		coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
         MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), getRandom(), space);
         move.setPotential(potential);
-		move.setDoExcludeNonNeighbors(true);
+        move.setDoExcludeNonNeighbors(true);
 
         integrator.getMoveManager().addMCMove(move);
-		((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
 
         activityIntegrate = new ActivityIntegrate(integrator);
 
-		/*
-		 * 1-body Potential to Constraint the atom from moving too far away from
-		 * its lattice-site
-		 */
-		p1Constraint = new P1Constraint(space, primitiveUnitCell.getSize()[0], box, coordinateDefinition);
+        /*
+         * 1-body Potential to Constraint the atom from moving too far away from
+         * its lattice-site
+         */
+        p1Constraint = new P1Constraint(space, primitiveUnitCell.getSize()[0], box, coordinateDefinition);
         potentialMaster.addPotential(p1Constraint, new AtomType[]{sphereType});
 
-		if (potentialMaster instanceof PotentialMasterList) {
+        if (potentialMaster instanceof PotentialMasterList) {
             double neighborRange = truncationRadius;
             int cellRange = 7;
-            ((PotentialMasterList)potentialMaster).setRange(neighborRange);
-            ((PotentialMasterList)potentialMaster).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+            ((PotentialMasterList) potentialMaster).setRange(neighborRange);
+            ((PotentialMasterList) potentialMaster).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMaster).getNeighborManager(box).reset();
-            int potentialCells = ((PotentialMasterList)potentialMaster).getNbrCellManager(box).getLattice().getSize()[0];
-            if (potentialCells < cellRange*2+1) {
-                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+            ((PotentialMasterList) potentialMaster).getNeighborManager(box).reset();
+            int potentialCells = ((PotentialMasterList) potentialMaster).getNbrCellManager(box).getLattice().getSize()[0];
+            if (potentialCells < cellRange * 2 + 1) {
+                throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
             }
-            if (potentialCells > cellRange*2+1) {
-                System.out.println("could probably use a larger truncation radius ("+potentialCells+" > "+(cellRange*2+1)+")");
+            if (potentialCells > cellRange * 2 + 1) {
+                System.out.println("could probably use a larger truncation radius (" + potentialCells + " > " + (cellRange * 2 + 1) + ")");
             }
-            ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
-		}
-
-        integrator.setBox(box);
-		getController().addAction(activityIntegrate);
-	}
+            ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
+        }
+        getController().addAction(activityIntegrate);
+    }
 
 	/**
 	 * @param args
@@ -197,7 +193,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
          * Graphical Simulation
 		 */
 		if(false){
-			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+			SimulationGraphic simGraphic = new SimulationGraphic(sim);
 			simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
 			ColorSchemeRandom colorRandom = new ColorSchemeRandom(sim.box, sim.random);
 			simGraphic.getDisplayBox(sim.box).setColorScheme(colorRandom);
@@ -250,8 +246,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		meterNormalModeListener.setInterval(nA);
 		sim.integrator.getEventManager().addListener(meterNormalModeListener);
 
-        MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-		meterEnergy.setBox(sim.box);
+        MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
 		double latticeEnergy = meterEnergy.getDataAsScalar();
 		System.out.println("Lattice Energy per particle: " + (latticeEnergy /nA));
 		System.out.println(" ");

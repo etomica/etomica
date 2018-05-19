@@ -44,22 +44,39 @@ public class MeterBoltzmannHTTP implements IDataSource {
     protected DataTag tag;
     
     protected final Box pretendBox;
-    protected CoordinateDefinition coordinateDefinition;
+    protected final CoordinateDefinition coordinateDefinition;
     protected final ISpecies species;
     protected P1ConstraintNbr p1;
     protected HistogramCollapsing[] histogram;
     
-    public MeterBoltzmannHTTP(PotentialMaster potentialMaster, ISpecies species, Space space, Simulation sim) {
+    public MeterBoltzmannHTTP(PotentialMaster potentialMaster, ISpecies species, Simulation sim, CoordinateDefinition coordinateDefinition) {
         this.potentialMaster = potentialMaster;
         meterPotential = new MeterPotentialEnergy(potentialMaster);
+        this.coordinateDefinition = coordinateDefinition;
         this.species = species;
-        pretendBox = new Box(space);
-        sim.addBox(pretendBox);
-        
+        pretendBox = sim.makeBox(coordinateDefinition.getBox().getBoundary());
+
         data = new DataDoubleArray(5);
         dataInfo = new DataInfoDoubleArray("Reduced Energy", Null.DIMENSION, new int[]{5});
-   
+
         tag = new DataTag();
+
+        // insert atoms into the box at their lattice sites.
+        // we do this because want to find neighbors now (and then never again)
+        Box realBox = coordinateDefinition.getBox();
+        pretendBox.setNMolecules(species, realBox.getNMolecules(species));
+        IAtomList atoms = realBox.getLeafList();
+        IAtomList pretendAtoms = pretendBox.getLeafList();
+        for (int j = 0; j<atoms.size(); j++) {
+            IAtom jRealAtom = atoms.get(j);
+            Vector pos = pretendAtoms.get(j).getPosition();
+            pos.E(coordinateDefinition.getLatticePosition(jRealAtom));
+        }
+
+        if (potentialMaster instanceof PotentialMasterList) {
+            // find neighbors now.
+            ((PotentialMasterList)potentialMaster).getNeighborManager(pretendBox).reset();
+        }
     }
     
     public IDataInfo getDataInfo() {
@@ -76,7 +93,6 @@ public class MeterBoltzmannHTTP implements IDataSource {
         double u = meterPotential.getDataAsScalar();
         meterPotential.setBox(pretendBox);
 
-        pretendBox.setBoundary(realBox.getBoundary());
         IAtomList atoms = realBox.getLeafList();
         IAtomList pretendAtoms = pretendBox.getLeafList();
         double a0 = (u-latticeEnergy)/temperature;
@@ -86,9 +102,9 @@ public class MeterBoltzmannHTTP implements IDataSource {
 
         double fac = Math.sqrt(otherTemperature/temperature);
         
-        for (int j=0; j<atoms.getAtomCount(); j++) {
-            IAtom jRealAtom = atoms.getAtom(j);
-            Vector pos = pretendAtoms.getAtom(j).getPosition();
+        for (int j = 0; j<atoms.size(); j++) {
+            IAtom jRealAtom = atoms.get(j);
+            Vector pos = pretendAtoms.get(j).getPosition();
             pos.Ea1Tv1(1-fac, coordinateDefinition.getLatticePosition(jRealAtom));
             pos.PEa1Tv1(+fac, jRealAtom.getPosition());
         }
@@ -123,8 +139,8 @@ public class MeterBoltzmannHTTP implements IDataSource {
     protected double constraintEnergy(Box box) {
         p1.setBox(box);
         IAtomList atomList = box.getLeafList();
-        for (int i=0; i<atomList.getAtomCount(); i++) {
-            if (p1.energyi(atomList.getAtom(i)) == Double.POSITIVE_INFINITY) {
+        for (int i = 0; i<atomList.size(); i++) {
+            if (p1.energyi(atomList.get(i)) == Double.POSITIVE_INFINITY) {
                 return Double.POSITIVE_INFINITY;
             }
         }
@@ -158,28 +174,6 @@ public class MeterBoltzmannHTTP implements IDataSource {
     
     public CoordinateDefinition getCoordinateDefinition() {
         return coordinateDefinition;
-    }
-
-    public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
-        this.coordinateDefinition = newCoordinateDefinition;
-
-        // insert atoms into the box at their lattice sites.
-        // we do this because want to find neighbors now (and then never again)
-        Box realBox = coordinateDefinition.getBox();
-        pretendBox.setBoundary(realBox.getBoundary());
-        pretendBox.setNMolecules(species, realBox.getNMolecules(species));
-        IAtomList atoms = realBox.getLeafList();
-        IAtomList pretendAtoms = pretendBox.getLeafList();
-        for (int j=0; j<atoms.getAtomCount(); j++) {
-            IAtom jRealAtom = atoms.getAtom(j);
-            Vector pos = pretendAtoms.getAtom(j).getPosition();
-            pos.E(coordinateDefinition.getLatticePosition(jRealAtom));
-        }
-
-        if (potentialMaster instanceof PotentialMasterList) {
-            // find neighbors now.
-            ((PotentialMasterList)potentialMaster).getNeighborManager(pretendBox).reset();
-        }
     }
 
     public void setConstraint(P1ConstraintNbr p1) {

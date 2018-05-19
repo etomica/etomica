@@ -36,21 +36,21 @@ public class PotentialCalculationLJSP implements PotentialCalculation {
         this.box = box;
         this.coordinateDefinition = coordinateDefinition;
         volume = coordinateDefinition.getBox().getBoundary().volume();
-        nMol = coordinateDefinition.getBox().getLeafList().getAtomCount();
+        nMol = coordinateDefinition.getBox().getLeafList().size();
 	}
 	public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
 		Potential2SoftSpherical potentialSoft = (Potential2SoftSpherical)potential;
         Vector[] g = potentialSoft.gradient(atoms);// gradient do nearestImage() !!!
-        int nNbrAtoms = atoms.getAtomCount();
-        Vector ri = atoms.getAtom(0).getPosition();
-        Vector Ri = coordinateDefinition.getLatticePosition(atoms.getAtom(0));
+        int nNbrAtoms = atoms.size();
+        Vector ri = atoms.get(0).getPosition();
+        Vector Ri = coordinateDefinition.getLatticePosition(atoms.get(0));
         dri.Ev1Mv2(ri, Ri);
         Vector rj;
 
         
         for (int j=1;j<nNbrAtoms;j++){//START from "1" NOT "0" because we need j != i
-        	rj = atoms.getAtom(j).getPosition();
-        	Vector Rj = coordinateDefinition.getLatticePosition(atoms.getAtom(j));
+        	rj = atoms.get(j).getPosition();
+        	Vector Rj = coordinateDefinition.getLatticePosition(atoms.get(j));
         	Rij.Ev1Mv2(Ri , Rj);
         	Vector shift_Rij = box.getBoundary().centralImage(Rij);
         	box.getBoundary().nearestImage(Rij);

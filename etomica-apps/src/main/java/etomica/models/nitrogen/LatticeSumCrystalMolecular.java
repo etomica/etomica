@@ -15,7 +15,7 @@ import etomica.data.types.DataGroup;
 import etomica.lattice.*;
 import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculePair;
-import etomica.paracetamol.AtomActionTransformed;
+import etomica.action.AtomActionTransformed;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
@@ -65,7 +65,7 @@ public class LatticeSumCrystalMolecular{
             siteIndex[spaceDim] = j;
             basis0[j] = lattice.getSpace().makeVector();
             basis0[j].E((Vector)lattice.site(siteIndex));
-            moleculeCell0[j] = coordinateDef.getBasisCells()[0].molecules.getMolecule(j);
+            moleculeCell0[j] = coordinateDef.getBasisCells()[0].molecules.get(j);
    
         }
         
@@ -113,7 +113,7 @@ public class LatticeSumCrystalMolecular{
                 for(int jp=0; jp<basisDim; jp++) {
                     siteIndex[spaceDim] = jp;
                     
-                    IMolecule ghostMol = ghostBox.getMoleculeList(ghostBox.getMoleculeList().getMolecule(0).getType()).getMolecule(0);
+                    IMolecule ghostMol = ghostBox.getMoleculeList(ghostBox.getMoleculeList().get(0).getType()).get(0);
                     ghostMol.getType().initializeConformation(ghostMol);
                     
                     int rotationNum = jp%4;

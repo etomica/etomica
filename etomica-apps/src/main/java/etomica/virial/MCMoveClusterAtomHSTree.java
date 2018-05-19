@@ -28,7 +28,7 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
 
     public void setBox(Box box) {
         super.setBox(box);
-        int n = box.getLeafList().getAtomCount();
+        int n = box.getLeafList().size();
         degree = new int[n];
         a = new int[n-2];
         inserted = new int[n];
@@ -38,7 +38,7 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
     public boolean doTrial() {
 
         IAtomList leafAtoms = box.getLeafList();
-        int n = leafAtoms.getAtomCount();
+        int n = leafAtoms.size();
         for (int i=0; i<n; i++) {
             degree[i] = 1;
         }
@@ -75,7 +75,7 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
         bonds[numBonds][1] = v;
         numBonds++;
 
-        leafAtoms.getAtom(0).getPosition().E(0);
+        leafAtoms.get(0).getPosition().E(0);
         inserted[0] = 0;
         int numInserted = 1;
         // inserted is a list of points that have inserted, but not coordinated
@@ -100,7 +100,7 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
                     continue;
                 }
                 // insert nbr2 around nbr
-                Vector pos = leafAtoms.getAtom(nbr2).getPosition();
+                Vector pos = leafAtoms.get(nbr2).getPosition();
 
                 pos.setRandomInSphere(random);
                 double sig = getSigma(nbr, nbr2);
@@ -112,7 +112,7 @@ public class MCMoveClusterAtomHSTree extends MCMoveAtom {
                     }
                 }
                 pos.TE(sig);
-                pos.PE(leafAtoms.getAtom(nbr).getPosition());
+                pos.PE(leafAtoms.get(nbr).getPosition());
                 inserted[numInserted] = nbr2;
                 numInserted++;
             }

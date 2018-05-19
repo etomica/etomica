@@ -19,7 +19,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modules.interfacial.DataSourceTensorVirialHardProfile.DataSourceVirialProfile;
 import etomica.molecule.IMolecule;
@@ -63,7 +63,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
 
     public InterfacialSWGraphic(final InterfacialSW simulation, Space _space) {
 
-        super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10 * REPAINT_INTERVAL : REPAINT_INTERVAL, _space, simulation.getController());
+        super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10 * REPAINT_INTERVAL : REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
@@ -96,14 +96,14 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 configLattice.initializeCoordinates(pretendBox);
                 IMoleculeList surfactants = pretendBox.getMoleculeList(sim.surfactant);
                 for (int i=0; i<numSurfactants; i++) {
-                    IMolecule surfactant = surfactants.getMolecule(0);
+                    IMolecule surfactant = surfactants.get(0);
                     pretendBox.removeMolecule(surfactant);
                     double deltaX = 0.55 * dim.getX(0);
-                    if (surfactant.getChildList().getAtom(0).getPosition().getX(0) < 0) {
+                    if (surfactant.getChildList().get(0).getPosition().getX(0) < 0) {
                         deltaX = -deltaX;
                     }
                     for (int j=0; j<2; j++) {
-                        Vector pos = surfactant.getChildList().getAtom(j).getPosition();
+                        Vector pos = surfactant.getChildList().get(j).getPosition();
                         pos.setX(0, pos.getX(0) + deltaX);
                     }
                     sim.box.addMolecule(surfactant);
@@ -186,11 +186,11 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 // concentration wave (delta rho (x)).
                 
                 IAtomList leafAtoms = sim.box.getLeafList();
-                int nTot = leafAtoms.getAtomCount();
+                int nTot = leafAtoms.size();
                 double sumCos = 0, sumSin = 0;
                 double q = 2*Math.PI/L;
                 for (int i=0; i<nTot; i++) {
-                    Vector pos = leafAtoms.getAtom(i).getPosition();
+                    Vector pos = leafAtoms.get(i).getPosition();
                     double sinx = Math.sin(q*pos.getX(0));
                     double cosx = Math.cos(q*pos.getX(0));
                     sumCos += cosx;
@@ -213,7 +213,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                     center = -1;
                 }
                 for (int i=0; i<nTot; i++) {
-                    Vector pos = leafAtoms.getAtom(i).getPosition();
+                    Vector pos = leafAtoms.get(i).getPosition();
                     pos.setX(0, pos.getX(0) - center);
                 }
                 ((PotentialMasterList)sim.integrator.getPotentialMaster()).getNeighborManager(sim.box).reset();
@@ -503,7 +503,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         // don't need as much thermostating.
         final ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space);
         nSlider.setPostAction(new IAction() {
-            int oldN = sim.box.getMoleculeList().getMoleculeCount();
+            int oldN = sim.box.getMoleculeList().size();
 
             public void actionPerformed() {
                 int n = sim.box.getNMolecules(sim.species);

@@ -26,10 +26,11 @@ import etomica.graphics.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.MoleculePositionGeometricCenterAlkaneEH;
 import etomica.potential.*;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.units.*;
@@ -604,9 +605,9 @@ public class VirialAlkaneEHTest {
         if (false) {
         	
         	   double size = (nSpheres+5)*1.5;
-               sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-               sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-               SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+               sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+               sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+               SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
                DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
                DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
                displayBox0.setPixelUnit(new Pixel(300.0/size));

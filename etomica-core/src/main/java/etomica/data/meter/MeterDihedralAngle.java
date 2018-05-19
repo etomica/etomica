@@ -86,29 +86,29 @@ public class MeterDihedralAngle implements IAction, IDataSource, DataSourceIndep
             data.getLength() != phiData.getLength()) {
             reset();
         }
-        int atomCount = box.getLeafList().getAtomCount();
+        int atomCount = box.getLeafList().size();
         
         double rMaxSquared = rMax*rMax;
         System.out.println(rMax);
         // iterate over all tetra's
         for (int i=0; i<atomCount; i++) {
-        	IAtom atom0 = box.getLeafList().getAtom(i);
+        	IAtom atom0 = box.getLeafList().get(i);
         	
         	for (int j=0; j<atomCount; j++){
-        		IAtom atom1 = box.getLeafList().getAtom(j);
+        		IAtom atom1 = box.getLeafList().get(j);
         		if(atom1==atom0){continue;}
         		dr1.Ev1Mv2(atom0.getPosition(),atom1.getPosition());
         		boundary.nearestImage(dr1);
         		if(dr1.squared()>rMaxSquared){continue;}
         		for (int k=0; k<atomCount; k++){
 
-        			IAtom atom2 = box.getLeafList().getAtom(k);
+        			IAtom atom2 = box.getLeafList().get(k);
         			if(atom2==atom1 || atom2==atom0){continue;}
             		dr2.Ev1Mv2(atom1.getPosition(),atom2.getPosition());
             		boundary.nearestImage(dr2);
             		if(dr2.squared()>rMaxSquared){;continue;}
             		for (int l=0; l<atomCount; l++){
-               			IAtom atom3 = box.getLeafList().getAtom(l);
+               			IAtom atom3 = box.getLeafList().get(l);
                			if(atom3==atom2 || atom3==atom1 || atom3==atom0){continue;}
                 		dr3.Ev1Mv2(atom2.getPosition(),atom3.getPosition());
                 		boundary.nearestImage(dr3);

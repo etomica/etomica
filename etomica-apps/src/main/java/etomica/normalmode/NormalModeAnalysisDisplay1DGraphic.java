@@ -13,9 +13,7 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataTable;
 import etomica.data.types.DataTable.DataInfoTable;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
-import etomica.space.Boundary;
-import etomica.space.BoundaryRectangularPeriodic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Energy;
@@ -34,7 +32,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 
 	public NormalModeAnalysisDisplay1DGraphic(final NormalModeAnalysisDisplay1D simulation, Space space) {
 		
-		super(simulation, TABBED_PANE, APP_NAME,REPAINT_INTERVAL, space, simulation.getController());
+		super(simulation, TABBED_PANE, APP_NAME,REPAINT_INTERVAL);
 		this.sim = simulation;
 		
 		DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
@@ -195,8 +193,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
        	  		int n = (int)nSlider.getValue();                 
        	  	
                 if (oldN != n) {
-                	Boundary boundary = new BoundaryRectangularPeriodic(sim.getSpace(), n/sim.density);
-                	sim.box.setBoundary(boundary);
+                    sim.box.getBoundary().setBoxSize(Vector.of(n / sim.density));
                 	sim.waveVectorFactory.makeWaveVectors(sim.box);
                 	sim.coordinateDefinition.initializeCoordinates(new int[]{(int)nSlider.getValue()});
                 	
@@ -275,7 +272,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
                 getController().getSimRestart().getDataResetAction().actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
-       	  	int oldN = sim.box.getMoleculeList().getMoleculeCount();
+       	  	int oldN = sim.box.getMoleculeList().size();
         });
         
         //end of N Slider
@@ -426,7 +423,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 	
 	public static void main(String[] args){
 		Space sp = Space.getInstance(1);
-		NormalModeAnalysisDisplay1DGraphic simGraphic = new NormalModeAnalysisDisplay1DGraphic(new NormalModeAnalysisDisplay1D(sp), sp);
+		NormalModeAnalysisDisplay1DGraphic simGraphic = new NormalModeAnalysisDisplay1DGraphic(new NormalModeAnalysisDisplay1D(), sp);
 		SimulationGraphic.makeAndDisplayFrame(simGraphic.getPanel(), APP_NAME);
 		
 	}
@@ -440,7 +437,7 @@ public class NormalModeAnalysisDisplay1DGraphic extends SimulationGraphic {
 		public void init(){
 			getRootPane().putClientProperty(APP_NAME, Boolean.TRUE);
 			Space sp = Space.getInstance(1);
-			NormalModeAnalysisDisplay1DGraphic nm1Dgraphic = new NormalModeAnalysisDisplay1DGraphic(new NormalModeAnalysisDisplay1D(sp), sp);
+			NormalModeAnalysisDisplay1DGraphic nm1Dgraphic = new NormalModeAnalysisDisplay1DGraphic(new NormalModeAnalysisDisplay1D(), sp);
 		
 			DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
 			nm1Dgraphic.add(display);

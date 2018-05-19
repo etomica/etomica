@@ -129,6 +129,17 @@ public final class Vector1D implements Vector, java.io.Serializable {
         x = random.nextFixedDouble() - 0.5;
     }
 
+    @Override
+    public void nearestImage(Vector dimensions) {
+        Vector1D dimensions1D = ((Vector1D) dimensions);
+        final double halfX = dimensions1D.x / 2;
+
+        while (x > halfX)
+            x -= dimensions1D.x;
+        while (x < -halfX)
+            x += dimensions1D.x;
+    }
+
     public void setRandomSphere(IRandom random) {
         randomDirection(random);
     }

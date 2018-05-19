@@ -37,8 +37,8 @@ public class P2TriangleWell extends Potential2 {
     }
 
     public double energy(IAtomList pair) {
-        IAtom atom0 = pair.getAtom(0);
-        IAtom atom1 = pair.getAtom(1);
+        IAtom atom0 = pair.get(0);
+        IAtom atom1 = pair.get(1);
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         boundary.nearestImage(dr);
@@ -60,8 +60,8 @@ public class P2TriangleWell extends Potential2 {
     // what could call this?
     public Vector force(IAtomList pair){
         
-        IAtom atom0 = pair.getAtom(0);
-        IAtom atom1 = pair.getAtom(1);
+        IAtom atom0 = pair.get(0);
+        IAtom atom1 = pair.get(1);
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         boundary.nearestImage(dr);

@@ -6,6 +6,7 @@ package etomica.normalmode;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
@@ -24,7 +25,6 @@ import etomica.potential.Potential2SoftSpherical;
 import etomica.space.*;
 import etomica.space3d.Tensor3D;
 import etomica.units.dimensions.Dimension;
-import etomica.util.Arrays;
 import etomica.math.function.Function;
 import etomica.data.FunctionData;
 
@@ -57,7 +57,7 @@ public class NormalModesPotential implements NormalModes {
         for(int i=0; i<kFactory.getWaveVectors().length; i++) {
             sum += kFactory.getCoefficients()[i];
         }
-        System.out.println("nCells: "+Arrays.toString(nCells));
+        System.out.println("nCells: "+ Arrays.toString(nCells));
         System.out.println("Number of wave vectors represented: "+2.0*sum);
     }
     

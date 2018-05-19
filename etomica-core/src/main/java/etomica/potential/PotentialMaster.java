@@ -89,14 +89,14 @@ public class PotentialMaster {
             potential.setBox(box);
             atomIterator.setTarget(targetMolecule);
             atomIterator.setDirection(id.direction());
-            if (pc instanceof PotentialCalculationMolecular) {
+            if (potential instanceof PotentialGroup) {
+                ((PotentialGroup) potential).calculate(atomIterator, id.direction(), targetAtomLeaf, pc);
+            } else if (pc instanceof PotentialCalculationMolecular) {
                 atomIterator.reset();
                 for (IMoleculeList atoms = atomIterator.next(); atoms != null;
                      atoms = atomIterator.next()) {
                     ((PotentialCalculationMolecular) pc).doCalculation(atoms, potential);
                 }
-            } else if (potential instanceof PotentialGroup) {
-                ((PotentialGroup) potential).calculate(atomIterator, id.direction(), targetAtomLeaf, pc);
             }
         }
 

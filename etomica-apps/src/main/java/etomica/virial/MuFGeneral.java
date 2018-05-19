@@ -30,12 +30,12 @@ public class MuFGeneral implements MayerFunction, java.io.Serializable {
 	public double f(IMoleculeList pair, double r2, double beta) {
 	    double x = -beta*potential.energy(pair);//-betaU
 
-		IMolecule molecule1 = pair.getMolecule(0);
-		IMolecule molecule2 = pair.getMolecule(1);
+		IMolecule molecule1 = pair.get(0);
+		IMolecule molecule2 = pair.get(1);
 		IAtomList atomList1 = molecule1.getChildList();
 		IAtomList atomList2 = molecule2.getChildList();
-        IAtomOriented atom1 = (IAtomOriented)atomList1.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented)atomList2.getAtom(0);
+        IAtomOriented atom1 = (IAtomOriented)atomList1.get(0);
+        IAtomOriented atom2 = (IAtomOriented)atomList2.get(0);
 		// should have a loop to loop over all the atoms in the molecules 
         Vector v1 = atom1.getOrientation().getDirection();//dipole1
         Vector v2 = atom2.getOrientation().getDirection();//dipole2

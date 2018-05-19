@@ -7,7 +7,7 @@ package etomica.graphics;
 import etomica.action.ActionGroupSeries;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.box.Box;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierNMolecule;
@@ -25,7 +25,7 @@ public class DeviceNSelector extends DeviceSlider {
         this(null);
     }
     
-    public DeviceNSelector(IController controller) {
+    public DeviceNSelector(Controller controller) {
         super(controller);
     }
 
@@ -102,7 +102,7 @@ public class DeviceNSelector extends DeviceSlider {
 
         etomica.space.Space space = etomica.space2d.Space2D.getInstance();
         final HSMD2D sim = new HSMD2D();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, space, sim.getController());
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
         
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));

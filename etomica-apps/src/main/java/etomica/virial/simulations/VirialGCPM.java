@@ -13,6 +13,7 @@ import etomica.models.water.PNWaterGCPM;
 import etomica.models.water.SpeciesWater4P;
 import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
@@ -103,9 +104,9 @@ public class VirialGCPM {
         }
         
         if (false) {
-            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);

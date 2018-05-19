@@ -56,13 +56,13 @@ public class ConformationLinear implements IConformation, java.io.Serializable {
             case 1:
                 return;
             case 2:
-                setOrientation(space.makeVector(new double[]{Math.cos(angle[0]),Math.sin(angle[0])}));
+                setOrientation(Vector.of(new double[]{Math.cos(angle[0]), Math.sin(angle[0])}));
                 return;
             case 3:
             	double[] ang = { Math.sin(angle[1])*Math.cos(angle[0]),
    			                     Math.sin(angle[1])*Math.sin(angle[0]),
    			                     Math.cos(angle[1]) };
-                setOrientation(space.makeVector(ang));
+                setOrientation(Vector.of(ang));
                 return;
         }
     }
@@ -76,13 +76,13 @@ public class ConformationLinear implements IConformation, java.io.Serializable {
     }
 
     public void initializePositions(IAtomList atomList) {
-        int size = atomList.getAtomCount();
+        int size = atomList.size();
         if(size == 0) return;
 
         double xNext = -bondLength*0.5*(size-1);
-        int nLeaf = atomList.getAtomCount();
+        int nLeaf = atomList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom a = atomList.getAtom(iLeaf);
+            IAtom a = atomList.get(iLeaf);
             a.getPosition().Ea1Tv1(xNext, orientation);
             xNext += bondLength;
         }

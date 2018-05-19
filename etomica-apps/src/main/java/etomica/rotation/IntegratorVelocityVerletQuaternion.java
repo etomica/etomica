@@ -8,18 +8,16 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorRigidMatrixIterative.BoxImposePbcMolecule;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
 import etomica.math.function.Function;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.SpeciesWater3POriented;
@@ -35,6 +33,7 @@ import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.ISpeciesOriented;
+import etomica.species.SpeciesAgentManager;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -43,7 +42,7 @@ import etomica.util.Debug;
 import java.awt.*;
 import java.io.Serializable;
 
-public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements AgentSource<IntegratorVelocityVerletQuaternion.AtomAgent>, SpeciesAgentManager.AgentSource, MoleculeAgentSource {
+public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements SpeciesAgentManager.AgentSource, MoleculeAgentSource {
 
     private static final long serialVersionUID = 2L;
     protected final Tensor pressureTensor;
@@ -60,44 +59,47 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
     private final IteratorDirective allAtoms;
     public int printInterval;
     protected PotentialCalculationForceSum forceSum;
-    protected AtomLeafAgentManager<AtomAgent> leafAgentManager;
+    protected AtomLeafAgentManager<Vector> leafAgentManager;
     protected MoleculeAgentManager moleculeAgentManager;
 
-    public IntegratorVelocityVerletQuaternion(Simulation sim, PotentialMaster potentialMaster, Space space) {
-        this(sim, potentialMaster, 0.05, 1.0, space);
+    public IntegratorVelocityVerletQuaternion(Simulation sim, PotentialMaster potentialMaster, Box box) {
+        this(sim, potentialMaster, 0.05, 1.0, box);
     }
     
     public IntegratorVelocityVerletQuaternion(Simulation sim, PotentialMaster potentialMaster,
-                                              double timeStep, double temperature, Space space) {
-        super(potentialMaster,sim.getRandom(),timeStep,temperature, space);
+                                              double timeStep, double temperature, Box box) {
+        super(potentialMaster,sim.getRandom(),timeStep,temperature, box);
         this.sim = sim;
-        forceSum = new PotentialCalculationForcePressureSum(space);
+        forceSum = new PotentialCalculationForcePressureSum(this.space);
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         // but we're also calculating the pressure tensor, which does have LRC.
         // things deal with this OK.
         allAtoms.setIncludeLrc(true);
-        pressureTensor = space.makeTensor();
-        workTensor = space.makeTensor();
-        rotationTensor = (RotationTensor3D)space.makeRotationTensor();
-        xWork = space.makeVector();
+        pressureTensor = this.space.makeTensor();
+        workTensor = this.space.makeTensor();
+        rotationTensor = (RotationTensor3D)this.space.makeRotationTensor();
+        xWork = this.space.makeVector();
         typeAgentManager = new SpeciesAgentManager(this, sim);
-        angularVelocity = space.makeVector();
+        angularVelocity = this.space.makeVector();
         quatVelocity = new double[4];
         tempQuat = new double[4];
-        atomPositionCOM = new MoleculePositionCOM(space);
-        translateBy = new AtomActionTranslateBy(space);
+        atomPositionCOM = new MoleculePositionCOM(this.space);
+        translateBy = new AtomActionTranslateBy(this.space);
         translator = new MoleculeChildAtomAction(translateBy);
         printInterval = 10;
+        leafAgentManager = new AtomLeafAgentManager<>(a -> this.space.makeVector(), box);
+        moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
+        forceSum.setAgentManager(leafAgentManager);
     }
 
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
-        sim.addBox(box);
         SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
         sim.addSpecies(species);
+        Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
+        sim.addBox(box);
         box.setNMolecules(species, 108);
         box.setDensity(1 / 18.0 * Constants.AVOGADRO / 1E24);
         double timeInterval = 0.001;
@@ -109,8 +111,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             configFile.initializeCoordinates(box);
         }
         PotentialMaster potentialMaster = new PotentialMaster();
-        IntegratorVelocityVerletQuaternion integrator = new IntegratorVelocityVerletQuaternion(sim, potentialMaster, timeInterval / interval, 1, space);
-        integrator.setBox(box);
+        IntegratorVelocityVerletQuaternion integrator = new IntegratorVelocityVerletQuaternion(sim, potentialMaster, timeInterval / interval, 1, box);
         integrator.printInterval = interval;
         integrator.setOrientationCalc(species, new OrientationCalcWater3P(sim.getSpace()));
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
@@ -146,7 +147,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
         if (false) {
             // ai.setSleepPeriod(10);
-            SimulationGraphic graphic = new SimulationGraphic(sim, "Quat", 1, space, sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim, "Quat", 1);
             ColorSchemeByType colorScheme = (ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme();
             colorScheme.setColor(oType, Color.RED);
             colorScheme.setColor(hType, Color.WHITE);
@@ -173,18 +174,6 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         }
     }
 
-    public void setBox(Box box) {
-        if (this.box != null) {
-            // allow agentManager to de-register itself as a BoxListener
-            leafAgentManager.dispose();
-            moleculeAgentManager.dispose();
-        }
-        super.setBox(box);
-        leafAgentManager = new AtomLeafAgentManager<AtomAgent>(this, box,AtomAgent.class);
-        moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
-        forceSum.setAgentManager(leafAgentManager);
-    }
-
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 
@@ -203,27 +192,27 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
                 Vector dr = space.makeVector();
-                dr.Ev1Mv2(pair.getAtom(1).getPosition(), pair.getAtom(0).getPosition());
+                dr.Ev1Mv2(pair.get(1).getPosition(), pair.get(0).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
         }
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             MyTypeAgent typeAgent = (MyTypeAgent)typeAgentManager.getAgent(molecule.getType());
             IAtomList children = molecule.getChildList();
             if (typeAgent == null) {
-                for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
-                    IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
-                    AtomAgent agent = leafAgentManager.getAgent(a);
+                for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
+                    IAtomKinetic a = (IAtomKinetic)children.get(iLeaf);
+                    Vector force = leafAgentManager.getAgent(a);
                     Vector r = a.getPosition();
                     Vector v = a.getVelocity();
                     KE += v.squared()* a.getType().getMass();
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                        System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
+                        System.out.println("first "+a+" r="+r+", v="+v+", f="+force);
                     }
-                    v.PEa1Tv1(0.5*timeStep* a.getType().rm(),agent.force);  // p += f(old)*dt/2
+                    v.PEa1Tv1(0.5*timeStep* a.getType().rm(),force);  // p += f(old)*dt/2
                     r.PEa1Tv1(timeStep,v);         // r += p*dt/m
                 }
                 continue;
@@ -357,23 +346,23 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         }
 
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             IAtomList children = molecule.getChildList();
             MyTypeAgent typeAgent = (MyTypeAgent)typeAgentManager.getAgent(molecule.getType());
             if (typeAgent == null) {
                 // unimolecular or at least not rigid
                 //Finish integration step
-                for (int iLeaf=0; iLeaf<children.getAtomCount(); iLeaf++) {
-                    IAtomKinetic a = (IAtomKinetic)children.getAtom(iLeaf);
+                for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
+                    IAtomKinetic a = (IAtomKinetic)children.get(iLeaf);
 //                    System.out.println("force: "+((MyAgent)a.ia).force.toString());
                     Vector velocity = a.getVelocity();
                     workTensor.Ev1v2(velocity,velocity);
                     workTensor.TE(a.getType().getMass());
                     pressureTensor.PE(workTensor);
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                        System.out.println("second "+a+" v="+velocity+", f="+ leafAgentManager.getAgent(a).force);
+                        System.out.println("second "+a+" v="+velocity+", f="+ leafAgentManager.getAgent(a));
                     }
-                    velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(), leafAgentManager.getAgent(a).force);  //p += f(new)*dt/2
+                    velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(), leafAgentManager.getAgent(a));  //p += f(new)*dt/2
                 }
 
                 continue;
@@ -384,9 +373,9 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             agent.torque.E(0);
             agent.force.E(0);
             Vector moleculePosition = ((IMoleculePositioned)molecule).getPosition();
-            for (int i=0; i<children.getAtomCount(); i++) {
-                IAtomKinetic atom = (IAtomKinetic)children.getAtom(i);
-                Vector atomForce = leafAgentManager.getAgent(atom).force;
+            for (int i = 0; i<children.size(); i++) {
+                IAtomKinetic atom = (IAtomKinetic)children.get(i);
+                Vector atomForce = leafAgentManager.getAgent(atom);
                 agent.force.PE(atomForce);
 
                 xWork.Ev1Mv2(atom.getPosition(), moleculePosition);
@@ -422,12 +411,12 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
 
     public void randomizeMomenta() {
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
         for (int iMolecule = 0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             MyTypeAgent typeAgent = (MyTypeAgent)typeAgentManager.getAgent(molecule.getType());
             if (typeAgent == null) {
-                super.randomizeMomentum((IAtomKinetic)molecule.getChildList().getAtom(0));
+                super.randomizeMomentum((IAtomKinetic)molecule.getChildList().get(0));
                 continue;
             }
 
@@ -512,7 +501,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
                 Vector dr = space.makeVector();
-                dr.Ev1Mv2(pair.getAtom(1).getPosition(), pair.getAtom(0).getPosition());
+                dr.Ev1Mv2(pair.get(1).getPosition(), pair.get(0).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
         }
@@ -521,10 +510,10 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         potentialMaster.calculate(box, allAtoms, forceSum);
 
         IMoleculeList moleculeList = box.getMoleculeList();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
 
         for (int iMolecule=0; iMolecule<nMolecules; iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+            IMolecule molecule = moleculeList.get(iMolecule);
             MyTypeAgent typeAgent = (MyTypeAgent)typeAgentManager.getAgent(molecule.getType());
             if (typeAgent== null) {
                 continue;
@@ -538,9 +527,9 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             agent.torque.E(0);
             //calc angular velocities
             IAtomList children = molecule.getChildList();
-            for (int i=0; i<children.getAtomCount(); i++) {
-                IAtom atom = children.getAtom(i);
-                Vector force = leafAgentManager.getAgent(atom).force;
+            for (int i = 0; i<children.size(); i++) {
+                IAtom atom = children.get(i);
+                Vector force = leafAgentManager.getAgent(atom);
                 agent.force.PE(force);
 
                 xWork.Ev1Mv2(atom.getPosition(), position);
@@ -550,25 +539,11 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         }
     }
 
-    public Class getMoleculeAgentClass() {
-        return MoleculeAgent.class;
-    }
-
     public final Object makeAgent(IMolecule a) {
         return new MoleculeAgent(space);
     }
     
-    public AtomAgent makeAgent(IAtom a, Box agentBox) {
-        return new AtomAgent(space);
-    }
-
-    public void releaseAgent(AtomAgent agent, IAtom atom, Box agentBox) {}
-
     public void releaseAgent(Object agent, IMolecule atom) {}
-
-    public Class getSpeciesAgentClass() {
-        return MyTypeAgent.class;
-    }
 
     public Object makeAgent(ISpecies type) {
         return null;
@@ -588,17 +563,6 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             torque = space.makeVector();
             force = space.makeVector();
         }
-    }
-    
-    public static class AtomAgent implements IntegratorBox.Forcible, Serializable {  //need public so to use with instanceof
-        private static final long serialVersionUID = 1L;
-        public final Vector force;  // for leaf atoms
-
-        public AtomAgent(Space space) {
-            force = space.makeVector();
-        }
-
-        public Vector force() {return force;}
     }
     
     public static class MyTypeAgent implements Serializable {

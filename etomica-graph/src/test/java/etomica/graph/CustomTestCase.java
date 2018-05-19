@@ -4,9 +4,7 @@
 
 package etomica.graph;
 
-import junit.framework.TestCase;
-
-public class CustomTestCase extends TestCase {
+public class CustomTestCase {
 
   private Runtime rt = Runtime.getRuntime();
   protected static int K = 1000;
@@ -143,7 +141,6 @@ public class CustomTestCase extends TestCase {
     }
   }
 
-  @Override
   public void setUp() {
 
     reset();

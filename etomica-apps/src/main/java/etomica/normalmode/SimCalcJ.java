@@ -33,10 +33,6 @@ public class SimCalcJ extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = new Box(space);
-        addBox(box);
-        box.setNMolecules(species, numAtoms);
-
         Basis basis;
         int[] nCells;
         if (space.D() == 1) {
@@ -44,22 +40,21 @@ public class SimCalcJ extends Simulation {
             bdry = new BoundaryRectangularPeriodic(space, numAtoms);
             basis = new BasisMonatomic(space);
             nCells = new int[]{numAtoms};
-        }
-        else if (space.D() == 2) {
+        } else if (space.D() == 2) {
             primitive = new PrimitiveCubic(space, 1);
-            int n = (int)Math.round(Math.pow(numAtoms/2, 1.0/2.0));
-            nCells = new int[]{n,n};
+            int n = (int) Math.round(Math.pow(numAtoms / 2, 1.0 / 2.0));
+            nCells = new int[]{n, n};
             bdry = new BoundaryDeformableLattice(primitive, nCells);
             basis = new BasisOrthorhombicHexagonal();
-        }
-        else {
+        } else {
             primitive = new PrimitiveCubic(space, 1);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            nCells = new int[]{n,n,n};
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            nCells = new int[]{n, n, n};
             bdry = new BoundaryDeformableLattice(primitive, nCells);
             basis = new BasisCubicFcc();
         }
-        box.setBoundary(bdry);
+        box = this.makeBox(bdry);
+        box.setNMolecules(species, numAtoms);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);

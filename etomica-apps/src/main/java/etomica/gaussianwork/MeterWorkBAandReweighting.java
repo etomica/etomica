@@ -44,8 +44,7 @@ public class MeterWorkBAandReweighting implements IDataSource {
     
     public MeterWorkBAandReweighting(IntegratorBox integratorB, PotentialMaster potentialMasterA, double ref) {
         meterB = new MeterPotentialEnergyFromIntegrator(integratorB);
-        meterA = new MeterPotentialEnergy(potentialMasterA);
-        meterA.setBox(integratorB.getBox());
+        meterA = new MeterPotentialEnergy(potentialMasterA, integratorB.getBox());
        
         this.refPref = ref;
         data = new DataDouble();

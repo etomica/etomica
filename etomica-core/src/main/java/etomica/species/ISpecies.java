@@ -10,12 +10,12 @@ import etomica.meta.annotations.IgnoreProperty;
 import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMaster;
 
+import java.util.List;
+
 /**
- * An ISpecies holds information about how to construct a molecule, and
- * creates molecules on demand.  In addition to actually creating molecules,
- * ISpecies objects are often used as keys to pass and designate which
- * species is of interest (for assigning potentials or setting the number of
- * molecules in the box, for instance).
+ * An ISpecies holds information about how to construct a molecule, and creates molecules on demand.  In addition to
+ * actually creating molecules, ISpecies objects are often used as keys to pass and designate which species is of
+ * interest (for assigning potentials or setting the number of molecules in the box, for instance).
  *
  * @author David Kofke
  * @author C. Daniel Barnes
@@ -26,15 +26,13 @@ import etomica.potential.PotentialMaster;
 public interface ISpecies {
 
     /**
-     * Returns the index for this ISpecies, within the context of an
-     * Simulation.  The index is the ISpecies' position in the array returned
-     * by SpeciesManager.getSpecies().
+     * Returns the index for this ISpecies, within the context of an Simulation.  The index is the ISpecies' position in
+     * the array returned by SpeciesManager.getSpecies().
      */
     int getIndex();
 
     /**
-     * Informs the ISpecies what its index should be.  This should only be
-     * called by the SpeciesManager.
+     * Informs the ISpecies what its index should be.  This should only be called by the SpeciesManager.
      */
     void setIndex(int newIndex);
 
@@ -55,8 +53,18 @@ public interface ISpecies {
     AtomType getAtomType(int index);
 
     /**
-     * Initializes the molecule's IAtoms in their standard arrangement.
-     * The overall position of the molecule may be changed by this method.
+     * Get the list of AtomTypes that make up this Species.
+     * <p>
+     * In general this list will be unmodifiable (will throw an exception if you attempt to modify it), instead you
+     * should use methods defined on the implementing class to add or remove AtomTypes.
+     *
+     * @return
+     */
+    List<AtomType> getAtomTypes();
+
+    /**
+     * Initializes the molecule's IAtoms in their standard arrangement. The overall position of the molecule may be
+     * changed by this method.
      */
     void initializeConformation(IMolecule molecule);
 }

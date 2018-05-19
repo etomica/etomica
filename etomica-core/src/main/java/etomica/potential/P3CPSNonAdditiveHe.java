@@ -48,9 +48,9 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
     }
 
     public double energy(IAtomList atomSet) {
-        IAtom atomA = atomSet.getAtom(0);
-        IAtom atomB = atomSet.getAtom(1);
-        IAtom atomC = atomSet.getAtom(2);
+        IAtom atomA = atomSet.get(0);
+        IAtom atomB = atomSet.get(1);
+        IAtom atomC = atomSet.get(2);
 
         drAB.Ev1Mv2(atomA.getPosition(),atomB.getPosition());
         drAC.Ev1Mv2(atomA.getPosition(),atomC.getPosition());
@@ -569,9 +569,9 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
         System.out.println();
         System.out.println("Equilateral triangle 1, rij = 4 a0");  
         a = BohrRadius.UNIT.toSim(4.0);
-        r0 = space.makeVector(new double[] {0,0,0});
-        r1 = space.makeVector(new double[] {a,0,0});
-        r2 = space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+        r0 = Vector.of(new double[]{0, 0, 0});
+        r1 = Vector.of(new double[]{a, 0, 0});
+        r2 = Vector.of(new double[]{a / 2.0, a / 2.0 * Math.sqrt(3), 0});
         
         atom0.getPosition().E(r0);
         atom1.getPosition().E(r1);
@@ -587,9 +587,9 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
         
         System.out.println("Equilateral triangle 2, rij = 5.6 a0"); 
         a = BohrRadius.UNIT.toSim(5.6);
-        r0 = space.makeVector(new double[] {0,0,0});
-        r1 = space.makeVector(new double[] {a,0,0});
-        r2 = space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+        r0 = Vector.of(new double[]{0, 0, 0});
+        r1 = Vector.of(new double[]{a, 0, 0});
+        r2 = Vector.of(new double[]{a / 2.0, a / 2.0 * Math.sqrt(3), 0});
         
         atom0.getPosition().E(r0);
         atom1.getPosition().E(r1);
@@ -605,9 +605,9 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
         
         System.out.println("Equilateral triangle 3, rij = 7 a0"); 
         a = BohrRadius.UNIT.toSim(7.0);
-        r0 = space.makeVector(new double[] {0,0,0});
-        r1 = space.makeVector(new double[] {a,0,0});
-        r2 = space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+        r0 = Vector.of(new double[]{0, 0, 0});
+        r1 = Vector.of(new double[]{a, 0, 0});
+        r2 = Vector.of(new double[]{a / 2.0, a / 2.0 * Math.sqrt(3), 0});
         
         atom0.getPosition().E(r0);
         atom1.getPosition().E(r1);
@@ -623,9 +623,9 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
         
         System.out.println("Line 1, r12 = 5.6 a0, r13 = 11.2 a0, r23 = 5.6 a0");
         a = BohrRadius.UNIT.toSim(5.6);
-        r0 = space.makeVector(new double[] {0,0,0});
-        r1 = space.makeVector(new double[] {a,0,0});
-        r2 = space.makeVector(new double[] {2*a,0,0});
+        r0 = Vector.of(new double[]{0, 0, 0});
+        r1 = Vector.of(new double[]{a, 0, 0});
+        r2 = Vector.of(new double[]{2 * a, 0, 0});
        
         
         atom0.getPosition().E(r0);
@@ -644,9 +644,9 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
         
         System.out.println("r12=3.0a0, r23=5.0a0, r13=4.0a0");
         a = BohrRadius.UNIT.toSim(1.0);
-        r0 = space.makeVector(new double[] {0,0,0});
-        r1 = space.makeVector(new double[] {3*a,0,0});
-        r2 = space.makeVector(new double[] {0,4*a,0});
+        r0 = Vector.of(new double[]{0, 0, 0});
+        r1 = Vector.of(new double[]{3 * a, 0, 0});
+        r2 = Vector.of(new double[]{0, 4 * a, 0});
              
         atom0.getPosition().E(r0);
         atom1.getPosition().E(r1);
@@ -659,9 +659,9 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
         System.out.println();
         
         System.out.println("r12=6.0a0, r23=5.0a0; r13=5.0a0");
-        r0 = space.makeVector(new double[] {0,0,0});
-        r1 = space.makeVector(new double[] {6*a,0,0});
-        r2 = space.makeVector(new double[] {3*a,4*a,0});
+        r0 = Vector.of(new double[]{0, 0, 0});
+        r1 = Vector.of(new double[]{6 * a, 0, 0});
+        r2 = Vector.of(new double[]{3 * a, 4 * a, 0});
           
         atom0.getPosition().E(r0);
         atom1.getPosition().E(r1);
@@ -675,9 +675,9 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
         for (int i=0;i<50;i++) {
             double b = 1+i*0.1;
             a = BohrRadius.UNIT.toSim(b);
-            r0 = space.makeVector(new double[] {0,0,0});
-            r1 = space.makeVector(new double[] {a,0,0});
-            r2 = space.makeVector(new double[] {2*a,0,0});
+            r0 = Vector.of(new double[]{0, 0, 0});
+            r1 = Vector.of(new double[]{a, 0, 0});
+            r2 = Vector.of(new double[]{2 * a, 0, 0});
            
             
             atom0.getPosition().E(r0);

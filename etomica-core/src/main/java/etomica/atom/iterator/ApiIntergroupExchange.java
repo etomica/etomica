@@ -54,12 +54,12 @@ public class ApiIntergroupExchange extends ApiIntergroup {
         	monomer1++;
         	atom1=monomer1*P;
         	if (atom1 < aiOuterSize) {
-        		((AtomIteratorAtomDependent)aiOuter).setAtom(((AtomIteratorArrayListSimple)aiOuter).getList().getAtom(atom1));
+        		((AtomIteratorAtomDependent)aiOuter).setAtom(((AtomIteratorArrayListSimple)aiOuter).getList().get(atom1));
         	}
         	
         } else if (atom1 % P == 0) { 
         	atom1=monomer1*P;
-        	((AtomIteratorAtomDependent)aiOuter).setAtom(((AtomIteratorArrayListSimple)aiOuter).getList().getAtom(atom1));
+        	((AtomIteratorAtomDependent)aiOuter).setAtom(((AtomIteratorArrayListSimple)aiOuter).getList().get(atom1));
         	aiOuter.reset();
         }
         
@@ -82,8 +82,8 @@ public class ApiIntergroupExchange extends ApiIntergroup {
     public void setBasis(IMoleculeList basisAtoms) {
         super.setBasis(basisAtoms);
         if (basisAtoms != null) {
-        	startAtom0 = basisAtoms.getMolecule(0).getChildList().getAtom(0);
-        	startAtom1 = basisAtoms.getMolecule(1).getChildList().getAtom(0);
+        	startAtom0 = basisAtoms.get(0).getChildList().get(0);
+        	startAtom1 = basisAtoms.get(1).getChildList().get(0);
         }
     }
     

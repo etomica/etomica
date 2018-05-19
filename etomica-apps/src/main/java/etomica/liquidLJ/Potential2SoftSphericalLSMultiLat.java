@@ -5,22 +5,28 @@
 package etomica.liquidLJ;
 
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialSoft;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
- * Methods for a soft (non-impulsive), spherically-symmetric pair potential.
- * Subclasses must provide concrete definitions for the energy (method
- * u(double)) and its derivatives.
- * 
- * @author David Kofke
+ * Class for spherical pair potential that computes lattice sums for various
+ * truncations.  This class only pretends to implement the PotentialSoft
+ * interface.  Only the energyVirialCut method should be called.  It will
+ * return an instance of ReturnValue, which contains sums of various
+ * quantities for all cutoffs passed to the constructor.
+ *
+ * This will compute self-contributions (interaction between an Atom and its
+ * own image), but only if invoked with an atom pair holding two intsances of
+ * that Atom (PotentialMaster classes don't know how to do this).
+ *
+ * @author Andrew Schultz
  */
  
 public class Potential2SoftSphericalLSMultiLat extends Potential2 implements PotentialSoft {
@@ -55,18 +61,18 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
     }
     
     public ReturnValue energyVirialCut(IAtomList atoms) {
-    	boolean isSelf = (atoms.getAtom(1) == atoms.getAtom(0));
-        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
-        drLat.E(coordinateDefinition.getLatticePosition(atoms.getAtom(1)));
-        drLat.ME(coordinateDefinition.getLatticePosition(atoms.getAtom(0)));
+    	boolean isSelf = (atoms.get(1) == atoms.get(0));
+        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
+        drLat.E(coordinateDefinition.getLatticePosition(atoms.get(1)));
+        drLat.ME(coordinateDefinition.getLatticePosition(atoms.get(0)));
         drTmp.E(drLat);
         boundary.nearestImage(drLat);
         dr.PE(drLat);
         dr.ME(drTmp);
         
-        drTmp.Ev1Mv2(atoms.getAtom(1).getPosition(), coordinateDefinition.getLatticePosition(atoms.getAtom(1)));
+        drTmp.Ev1Mv2(atoms.get(1).getPosition(), coordinateDefinition.getLatticePosition(atoms.get(1)));
         drA.E(drTmp);
-        drTmp.Ev1Mv2(atoms.getAtom(0).getPosition(), coordinateDefinition.getLatticePosition(atoms.getAtom(0)));
+        drTmp.Ev1Mv2(atoms.get(0).getPosition(), coordinateDefinition.getLatticePosition(atoms.get(0)));
         drA.ME(drTmp);
         
         for (int i=0; i<rCut2.length; i++) {

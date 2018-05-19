@@ -18,7 +18,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -51,8 +51,7 @@ public class MappedRdf extends Simulation {
         addSpecies(species);
 
         //construct box
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
 
         BoxInflate inflater = new BoxInflate(box, space);
@@ -63,7 +62,7 @@ public class MappedRdf extends Simulation {
         potentialMaster.lrcMaster().setEnabled(false);
 
         //controller and integrator
-        integrator = new IntegratorMC(potentialMaster, random, temperature);
+        integrator = new IntegratorMC(potentialMaster, random, temperature, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         move = new MCMoveAtom(random, potentialMaster, space);
@@ -74,7 +73,6 @@ public class MappedRdf extends Simulation {
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
-        integrator.setBox(box);
         potentialMaster.setCellRange(2);
 
         potentialMaster.getNbrCellManager(box).assignCellAll();
@@ -136,7 +134,7 @@ public class MappedRdf extends Simulation {
             sim.integrator.getEventManager().addListener(rdfPumpListener);
             rdfPumpListener.setInterval(10*numAtoms);
 
-            SimulationGraphic gsim = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,space,sim.getController());
+            SimulationGraphic gsim = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE);
 
             rdfPlot.setDoLegend(false);
             rdfPlot.getPlot().setTitle("Radial Distribution Function");

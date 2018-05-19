@@ -12,9 +12,12 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
+import etomica.space.Space;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Dimensioned;
 import etomica.units.dimensions.Temperature;
+
+import java.util.Objects;
 
 /**
  * Superclass of integrators that acts on a single box.
@@ -25,7 +28,8 @@ import etomica.units.dimensions.Temperature;
 public abstract class IntegratorBox extends Integrator {
 
     protected final PotentialMaster potentialMaster;
-    protected Box box;
+    protected final Box box;
+    protected final Space space;
     protected double temperature;
     protected boolean isothermal = false;
     protected DataSourceScalar meterPE;
@@ -36,11 +40,13 @@ public abstract class IntegratorBox extends Integrator {
      * @param potentialMaster PotentialMaster instance used to compute energy etc.
      * @param temperature used by integration algorithm and/or to initialize velocities
      */
-    public IntegratorBox(PotentialMaster potentialMaster, double temperature) {
+    public IntegratorBox(PotentialMaster potentialMaster, double temperature, Box box) {
         super();
+        this.box = Objects.requireNonNull(box);
+        this.space = box.getSpace();
         this.potentialMaster = potentialMaster;
         if (potentialMaster != null) {
-            meterPE = new MeterPotentialEnergy(potentialMaster);
+            meterPE = new MeterPotentialEnergy(potentialMaster, box);
         }
         setTemperature(temperature);
     }
@@ -131,12 +137,7 @@ public abstract class IntegratorBox extends Integrator {
     /**
      * @param box the Box to set
      */
-    public void setBox(Box box) {
-        this.box = box;
-        if (meterPE instanceof MeterPotentialEnergy) {
-            ((MeterPotentialEnergy) meterPE).setBox(box);
-        }
-    }
+    protected void setBox(Box box) {}
 
     /**
      *

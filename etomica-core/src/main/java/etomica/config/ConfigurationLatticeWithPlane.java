@@ -183,7 +183,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 	    halfShape.setX(planeDimIdx, halfShape.getX(planeDimIdx) / 2);
 
 
-        Vector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        Vector latticeConstantV = Vector.of(lattice.getLatticeConstants());
         halfShape.DE(latticeConstantV);
 
         int[][] latticeDimensions;
@@ -206,7 +206,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 	        Vector latticeScaling = space.makeVector();
 	        if (rescalingToFitVolume) {
                 latticeScaling.E(halfShape);
-	            latticeScaling.DE(space.makeVector(latticeDimensions[side]));
+	            latticeScaling.DE(Vector.of(latticeDimensions[side]));
 	        } else {
 	            latticeScaling.E(1.0);
 	        }

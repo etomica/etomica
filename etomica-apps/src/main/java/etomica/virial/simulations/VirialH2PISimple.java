@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.virial.simulations;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import etomica.atom.*;
 import etomica.atom.iterator.ANIntragroupExchange;
 import etomica.atom.iterator.ApiIntergroupCoupled;
@@ -28,16 +29,15 @@ import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.BohrRadius;
 import etomica.units.Kelvin;
-import etomica.util.Arrays;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
-import org.json.simple.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -156,7 +156,7 @@ public class VirialH2PISimple {
 		final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesH2, temperature, refCluster, tarCluster);
 		PotentialGroup pIntra1 = sim.integrators[1].getPotentialMaster().makePotentialGroup(1);
 		int[] seeds = sim.getRandomSeeds();
-		System.out.println("Random seeds: "+Arrays.toString(seeds));
+		System.out.println("Random seeds: "+ Arrays.toString(seeds));
 		P1HydrogenMielkeAtomic p1 = new P1HydrogenMielkeAtomic(space);
 		pIntra1.addPotential(p1, new ANIntragroupExchange(1, nBeads));
 		//        We use ANIntragroupExchange here by purpose even though we may not be doing exchange
@@ -239,13 +239,13 @@ public class VirialH2PISimple {
 
 		for (int b=0; b<nPoints; b++) {
 			IMoleculeList molecules = sim.box[b].getMoleculeList();
-			for (int m=0; m<molecules.getMoleculeCount(); m++) {
+			for (int m = 0; m<molecules.size(); m++) {
 				if (xcFlag[m]) {
-					IAtomList atoms = molecules.getMolecule(m).getChildList();
-					for (int i=0; i<atoms.getAtomCount(); i++) {
-						AtomHydrogen o = (AtomHydrogen)atoms.getAtom(i);
-						double cT = Math.cos((Math.PI*i)/atoms.getAtomCount());
-						double sT = Math.sin((Math.PI*i)/atoms.getAtomCount());
+					IAtomList atoms = molecules.get(m).getChildList();
+					for (int i = 0; i<atoms.size(); i++) {
+						AtomHydrogen o = (AtomHydrogen)atoms.get(i);
+						double cT = Math.cos((Math.PI*i)/atoms.size());
+						double sT = Math.sin((Math.PI*i)/atoms.size());
 						Vector vec = space.makeVector();
 						vec.setX(0, cT);
 						vec.setX(1, sT);
@@ -273,8 +273,8 @@ public class VirialH2PISimple {
 			@Override
 			public void integratorStepFinished(IntegratorEvent e) {
 				IAtomList atoms = sim.box[1].getLeafList();
-				Vector a0 = ((IAtomOriented)atoms.getAtom(0)).getOrientation().getDirection();
-				Vector a1 = ((IAtomOriented)atoms.getAtom(1)).getOrientation().getDirection();
+				Vector a0 = ((IAtomOriented)atoms.get(0)).getOrientation().getDirection();
+				Vector a1 = ((IAtomOriented)atoms.get(1)).getOrientation().getDirection();
 				double angle = Math.acos(a0.dot(a1));
 				h1.addValue(angle);
 			}
@@ -424,7 +424,8 @@ public class VirialH2PISimple {
 
 			try {
 				FileWriter jsonFile = new FileWriter(params.jsonOutputFileName);
-				jsonFile.write(JSONObject.toJSONString((resultsMap)));
+				ObjectMapper om = new ObjectMapper();
+				jsonFile.write(om.writeValueAsString(resultsMap));
 				jsonFile.write("\n");
 				jsonFile.close();
 			} catch (IOException e) {

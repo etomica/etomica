@@ -28,8 +28,8 @@ public class ANIntergroupExchange implements AtomsetIteratorBasisDependent {
     }
 
     public int size() {
-    	int particles0 = moleculePair.atom0.getChildList().getAtomCount()/P;
-    	int particles1 = moleculePair.atom1.getChildList().getAtomCount()/P;
+    	int particles0 = moleculePair.mol0.getChildList().size()/P;
+    	int particles1 = moleculePair.mol1.getChildList().size()/P;
     	
         return P*particles0/2*(particles0-1)*particles1+P*particles1/2*(particles1-1)*particles0;
     }
@@ -43,8 +43,8 @@ public class ANIntergroupExchange implements AtomsetIteratorBasisDependent {
     	// if possible, we begin by extracting pairs from polymer 0
     	atoms.clear();
     	
-    	int size0 = moleculePair.atom0.getChildList().getAtomCount();
-    	int size1 = moleculePair.atom1.getChildList().getAtomCount();
+    	int size0 = moleculePair.mol0.getChildList().size();
+    	int size1 = moleculePair.mol1.getChildList().size();
     	
     	
     	
@@ -53,7 +53,7 @@ public class ANIntergroupExchange implements AtomsetIteratorBasisDependent {
     			return null;
     		}
     		atoms.addAll(pair);
-    		atoms.add(moleculePair.atom1.getChildList().getAtom(counter));
+    		atoms.add(moleculePair.mol1.getChildList().get(counter));
     		counter++;
     		
     		if (counter%P==0) {
@@ -66,7 +66,7 @@ public class ANIntergroupExchange implements AtomsetIteratorBasisDependent {
     			anIntragroupExchange.reset();
     			if (counter == size1) {
     				//switch to taking pairs from polymer1, if it is big enough
-    				if (moleculePair.atom1.getChildList().getAtomCount()==P){
+    				if (moleculePair.mol1.getChildList().size()==P){
     					//all done with monomers from polymer 1
     					//System.out.println(atoms);
     					return atoms;
@@ -81,7 +81,7 @@ public class ANIntergroupExchange implements AtomsetIteratorBasisDependent {
     		if (counter == size0) {
     			return null;
     		}
-    		atoms.add(moleculePair.atom0.getChildList().getAtom(counter));
+    		atoms.add(moleculePair.mol0.getChildList().get(counter));
     		atoms.addAll(pair);
     		counter++;
     		
@@ -125,18 +125,18 @@ public class ANIntergroupExchange implements AtomsetIteratorBasisDependent {
      * iteration.
      */
     public void setBasis(IMoleculeList basisMolecules) {
-        if (basisMolecules.getMoleculeCount() != 2) {
+        if (basisMolecules.size() != 2) {
             throw new IllegalArgumentException();
         }
         
-        moleculePair.atom0 = basisMolecules.getMolecule(0);
-        moleculePair.atom1 = basisMolecules.getMolecule(1);
+        moleculePair.mol0 = basisMolecules.get(0);
+        moleculePair.mol1 = basisMolecules.get(1);
     }
 
     public void reset() {
         counter = 0;
-        stillOnPolymer0 = moleculePair.atom0.getChildList().getAtomCount()>P;
-        MoleculeSetSinglet one = new MoleculeSetSinglet(stillOnPolymer0? moleculePair.atom0 : moleculePair.atom1);
+        stillOnPolymer0 = moleculePair.mol0.getChildList().size()>P;
+        MoleculeSetSinglet one = new MoleculeSetSinglet(stillOnPolymer0? moleculePair.mol0 : moleculePair.mol1);
         anIntragroupExchange.setBasis(one);
         anIntragroupExchange.reset();
         pair = anIntragroupExchange.next();

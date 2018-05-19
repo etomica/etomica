@@ -9,7 +9,7 @@ import etomica.atom.DiameterHashByType;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.function.Function;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
@@ -36,7 +36,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
      * 
      */
     public MultiharmonicGraphic(Multiharmonic simulation, Space _space) {
-        super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+        super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
         final DisplayBox displayBox = getDisplayBox(sim.box);
         remove(displayBox);
@@ -114,12 +114,12 @@ public class MultiharmonicGraphic extends SimulationGraphic {
 
         DataSourceScalar delta = new DataSourceScalar("exact",Energy.DIMENSION) {
             public double getDataAsScalar() {
-                return 0.5*sim.box.getLeafList().getAtomCount() * Math.log(omegaBSlider.getValue()/omegaASlider.getValue());
+                return 0.5*sim.box.getLeafList().size() * Math.log(omegaBSlider.getValue()/omegaASlider.getValue());
             }
         };
         DataSourceScalar uAvg = new DataSourceScalar("exact",Energy.DIMENSION) {
             public double getDataAsScalar() {
-                return sim.box.getLeafList().getAtomCount();
+                return sim.box.getLeafList().size();
             }
         };
         

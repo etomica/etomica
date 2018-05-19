@@ -12,10 +12,10 @@ import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.DataSourceCountSteps;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
@@ -44,17 +44,18 @@ public class HSMC2D extends Simulation {
 
     public HSMC2D() {
         super(Space2D.getInstance());
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-        integrator = new IntegratorMC(this, potentialMaster);
-        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+
         species = new SpeciesSpheresMono(this, space);
         species2 = new SpeciesSpheresMono(this, space);
         addSpecies(species);
         addSpecies(species2);
-        box = new Box(space);
-        addBox(box);
+
+        box = this.makeBox();
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+        integrator = new IntegratorMC(this, potentialMaster, box);
+        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
         box.setNMolecules(species, 20);
         box.setNMolecules(species2, 20);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
@@ -67,8 +68,6 @@ public class HSMC2D extends Simulation {
         potentialMaster.addPotential(potential12, new AtomType[]{type1, type2});
         potentialMaster.addPotential(potential22, new AtomType[]{type2, type2});
         meterCycles = new DataSourceCountSteps(integrator);
-
-        integrator.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
 
@@ -77,7 +76,7 @@ public class HSMC2D extends Simulation {
     public static void main(String[] args) {
 
         final HSMC2D sim = new HSMC2D();
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
         simGraphic.makeAndDisplayFrame();
     }
 

@@ -61,7 +61,6 @@ import etomica.graph.operations.SplitParameters;
 import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.property.IsBiconnected;
 import etomica.graph.property.IsConnected;
-import etomica.graph.viewer.ClusterViewer;
 import etomica.math.SpecialFunctions;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
@@ -147,8 +146,8 @@ public class WertheimDiagrams3SiteRho {
         if (p == null) {
             makeVirialDiagrams();
         }
-        GraphList<Graph> pn = makeGraphList();
-        GraphList<Graph> allP = makeGraphList();
+        GraphList pn = makeGraphList();
+        GraphList allP = makeGraphList();
         allP.addAll(p);
         if (!connectedOnly) {
             allP.addAll(cancelP);
@@ -336,7 +335,7 @@ public class WertheimDiagrams3SiteRho {
         if (p == null) {
             makeVirialDiagrams();
         }
-        GraphList<Graph> dpn = makeGraphList();
+        GraphList dpn = makeGraphList();
         for (Graph g : disconnectedP) {
             int fieldCount = 0;
             for (Node node : g.nodes()) {
@@ -385,13 +384,13 @@ public class WertheimDiagrams3SiteRho {
         return map;
     }
 
-    public static GraphList<Graph> makeGraphList() {
+    public static GraphList makeGraphList() {
         ComparatorChain comp = new ComparatorChain();
         comp.addComparator(new ComparatorNumFieldNodes());
         comp.addComparator(new ComparatorBiConnected());
         comp.addComparator(new ComparatorNumEdges());
         comp.addComparator(new ComparatorNumNodes());
-        GraphList<Graph> graphList = new GraphList<Graph>(comp);
+        GraphList graphList = new GraphList(comp);
         return graphList;
     }       
    
@@ -426,7 +425,7 @@ public class WertheimDiagrams3SiteRho {
             }
         };
 
-        GraphList<Graph> topSet = makeGraphList();
+        GraphList topSet = makeGraphList();
 
         char oneBond = 'o';
         mBond = 'm';// multi-body
@@ -915,7 +914,7 @@ public class WertheimDiagrams3SiteRho {
             }
         };
 
-        GraphList<Graph> topSet = makeGraphList();
+        GraphList topSet = makeGraphList();
 
         char oneBond = 'o';
         mBond = 'm';  // multi-body

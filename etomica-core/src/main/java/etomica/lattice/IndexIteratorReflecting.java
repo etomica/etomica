@@ -4,7 +4,7 @@
 
 package etomica.lattice;
 
-import etomica.util.Arrays;
+import java.util.Arrays;
 
 /**
  * Generates iterates by alternately keeping or flipping the sign of each element of

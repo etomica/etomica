@@ -40,29 +40,27 @@ public class SWMD3D extends Simulation {
 
     public SWMD3D() {
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.5, space);
 
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        box = this.makeBox();
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
         integrator.setTemperature(1);
         double lambda = 2;
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-
-        box = new Box(space);
-        addBox(box);
-        potential = new etomica.potential.P2SquareWell(space);
+        potential = new P2SquareWell(space);
         potential.setLambda(lambda);
 
-        species = new etomica.species.SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
         box.setNMolecules(species, 108);
 
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
-
-        integrator.setBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         BoxInflate inflater = new BoxInflate(box, space);
@@ -79,7 +77,7 @@ public class SWMD3D extends Simulation {
         final String APP_NAME = "SWMD3D";
 
         final SWMD3D sim = new SWMD3D();
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
 
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
@@ -87,8 +85,7 @@ public class SWMD3D extends Simulation {
         ColorSchemeByType colorScheme = ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList().getFirst()).getColorScheme());
         colorScheme.setColor(sim.species.getLeafType(), java.awt.Color.red);
 
-        MeterPressureHard pMeter = new MeterPressureHard(sim.space);
-        pMeter.setIntegrator(sim.integrator);
+        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
 
         DisplayTextBox pdisplay = new DisplayTextBox();
         DataPumpListener pPump = new DataPumpListener(pMeter, pdisplay, 100);

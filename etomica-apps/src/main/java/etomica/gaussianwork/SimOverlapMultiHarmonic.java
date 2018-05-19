@@ -5,7 +5,7 @@
 package etomica.gaussianwork;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.*;
@@ -14,8 +14,8 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
-import etomica.listener.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P1Harmonic;
@@ -48,7 +48,7 @@ public class SimOverlapMultiHarmonic extends Simulation{
     private static final long serialVersionUID = 1L;
     protected SpeciesSpheresMono species;
     protected Box boxA, boxB;
-    protected IController controller;
+    protected Controller controller;
     protected ActivityIntegrate activityIntegrate;
     protected IntegratorMC integratorA, integratorB;
     protected P1Harmonic potentialA, potentialB;
@@ -61,76 +61,70 @@ public class SimOverlapMultiHarmonic extends Simulation{
     protected DataPump[] accumulatorPumps;
     protected double refPref;
 
-    public SimOverlapMultiHarmonic(int numAtoms, double wA, double wB, double temperature){
-		super(Space1D.getInstance());
+    public SimOverlapMultiHarmonic(int numAtoms, double wA, double wB, double temperature) {
+        super(Space1D.getInstance());
 
-		refPref =(wA/wB); // the analytic solution for free energy difference
+        species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
 
-		potentialMasterA = new PotentialMasterMonatomic(this);
-		potentialMasterB = new PotentialMasterMonatomic(this);
+        refPref = (wA / wB); // the analytic solution for free energy difference
 
-		integrators = new IntegratorBox[2];
-		accumulatorPumps = new DataPump[2];
+        potentialMasterA = new PotentialMasterMonatomic(this);
+        potentialMasterB = new PotentialMasterMonatomic(this);
+
+        integrators = new IntegratorBox[2];
+        accumulatorPumps = new DataPump[2];
         meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
-		species = new SpeciesSpheresMono(this, space);
-		addSpecies(species);
+        //System A
+        boxA = this.makeBox(new BoundaryRectangularNonperiodic(space));
+        boxA.getBoundary().setBoxSize(new Vector1D(3.0));
+        boxA.setNMolecules(species, numAtoms);
 
-		//System A
-		boxA = new Box(new BoundaryRectangularNonperiodic(space), space);
-		addBox(boxA);
-		boxA.getBoundary().setBoxSize(new Vector1D(3.0));
-		boxA.setNMolecules(species, numAtoms);
+        integratorA = new IntegratorMC(this, potentialMasterA, boxA);
+        integratorA.setTemperature(temperature);
+        integrators[0] = integratorA;
 
-		integratorA = new IntegratorMC(this, potentialMasterA);
-		integratorA.setBox(boxA);
-		integratorA.setTemperature(temperature);
-		integrators[0] = integratorA;
-
-		potentialA = new P1Harmonic(space);
-		potentialA.setSpringConstant(wA);
-		integratorA.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialA, random));
+        potentialA = new P1Harmonic(space);
+        potentialA.setSpringConstant(wA);
+        integratorA.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialA, random));
         potentialMasterA.addPotential(potentialA, new AtomType[]{species.getLeafType()});
 
-		MeterPotentialEnergy meterPEA = new MeterPotentialEnergy(potentialMasterA);
-		meterPEA.setBox(boxA);
+        MeterPotentialEnergy meterPEA = new MeterPotentialEnergy(potentialMasterA, boxA);
 
-		//System B
-		boxB = new Box(new BoundaryRectangularNonperiodic(space), space);
-		addBox(boxB);
-		boxB.setNMolecules(species, numAtoms);
+        //System B
+        boxB = this.makeBox(new BoundaryRectangularNonperiodic(space));
+        boxB.setNMolecules(species, numAtoms);
 
-		integratorB = new IntegratorMC(this, potentialMasterB);
-		integratorB.setBox(boxB);
-		integratorB.setTemperature(temperature);
-		integrators[1] = integratorB;
+        integratorB = new IntegratorMC(this, potentialMasterB, boxB);
+        integratorB.setTemperature(temperature);
+        integrators[1] = integratorB;
 
-		potentialB = new P1Harmonic(space);
-		potentialB.setSpringConstant(wB);
-		potentialB.setX0(new Vector1D(1.0));
-		integratorB.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialB, random));
+        potentialB = new P1Harmonic(space);
+        potentialB.setSpringConstant(wB);
+        potentialB.setX0(new Vector1D(1.0));
+        integratorB.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialB, random));
         potentialMasterB.addPotential(potentialB, new AtomType[]{species.getLeafType()});
 
-		MeterPotentialEnergy meterPEB = new MeterPotentialEnergy(potentialMasterB);
-		meterPEB.setBox(boxB);
+        MeterPotentialEnergy meterPEB = new MeterPotentialEnergy(potentialMasterB, boxB);
 
-		//Overlap
-		integratorOverlap = new IntegratorOverlap(new IntegratorBox[] {integratorA, integratorB});
-		MeterBoltzmannA meterA = new MeterBoltzmannA(integratorA, potentialMasterB);
-		meterA.setTemperature(temperature);
-		meters[0] = meterA;
-		setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);
+        //Overlap
+        integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorA, integratorB});
+        MeterBoltzmannA meterA = new MeterBoltzmannA(integratorA, potentialMasterB);
+        meterA.setTemperature(temperature);
+        meters[0] = meterA;
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);
 
-		MeterBoltzmannB meterB = new MeterBoltzmannB(integratorB, potentialMasterA);
-		meterB.setTemperature(temperature);
-		meters[1] = meterB;
-		setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
+        MeterBoltzmannB meterB = new MeterBoltzmannB(integratorB, potentialMasterA);
+        meterB.setTemperature(temperature);
+        meters[1] = meterB;
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
 
-		activityIntegrate = new ActivityIntegrate(integratorOverlap);
-		getController().addAction(activityIntegrate);
+        activityIntegrate = new ActivityIntegrate(integratorOverlap);
+        getController().addAction(activityIntegrate);
 
-	}
+    }
 
 	public static void main(String[] args){
 
@@ -355,7 +349,7 @@ public class SimOverlapMultiHarmonic extends Simulation{
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
             integrators[iBox].getEventManager().addListener(pumpListener);
             if (iBox == 1) {
-                pumpListener.setInterval(boxB.getMoleculeList().getMoleculeCount());
+                pumpListener.setInterval(boxB.getMoleculeList().size());
             }
         } else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);

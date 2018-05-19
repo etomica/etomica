@@ -13,8 +13,9 @@ import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
@@ -147,8 +148,8 @@ public class VirialHSMixture {
         }
 
         if (false) {
-            sim.box.getBoundary().setBoxSize(space.makeVector(new double[]{10, 10, 10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            sim.box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box);
 //            displayBox0.setPixelUnit(new Pixel(300.0/size));
             displayBox0.setShowBoundary(false);

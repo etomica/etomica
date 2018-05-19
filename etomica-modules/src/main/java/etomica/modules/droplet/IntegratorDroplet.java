@@ -10,7 +10,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForcePressureSum;
@@ -22,8 +21,6 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
-
-import java.io.Serializable;
 
 /**
  * Mesoscale integrator for Droplet module.
@@ -40,14 +37,15 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
     protected final Vector dr;
 
     protected AtomLeafAgentManager<MyAgent> agentManager;
+    private AtomLeafAgentManager<Vector> forces;
 
-    public IntegratorDroplet(Simulation sim, PotentialMaster potentialMaster, Space _space) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
+    public IntegratorDroplet(Simulation sim, PotentialMaster potentialMaster, Box box) {
+        this(potentialMaster, sim.getRandom(), 0.05, 1.0, box);
     }
 
     public IntegratorDroplet(PotentialMaster potentialMaster, IRandom random,
-                             double timeStep, double temperature, Space _space) {
-        super(potentialMaster,random,timeStep,temperature, _space);
+                             double timeStep, double temperature, Box box) {
+        super(potentialMaster,random,timeStep,temperature, box);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
         forceSum = new PotentialCalculationForcePressureSum(space);
@@ -66,18 +64,11 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         workTensor = space.makeTensor();
         workTensor2 = space.makeTensor();
         dr = space.makeVector();
+        agentManager = new AtomLeafAgentManager<MyAgent>(this, box);
+        forces = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
+        forceSum.setAgentManager(forces);
     }
     
-    public void setBox(Box box) {
-        if (this.box != null) {
-            // allow agentManager to de-register itself as a BoxListener
-            agentManager.dispose();
-        }
-        super.setBox(box);
-        agentManager = new AtomLeafAgentManager<MyAgent>(this, box,MyAgent.class);
-        forceSum.setAgentManager(agentManager);
-    }
-
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 
@@ -86,9 +77,9 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         super.doStepInternal();
 
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             MyAgent agent = agentManager.getAgent(a);
             agent.r0.E(a.getPosition());
             agent.rp.E(a.getPosition());
@@ -97,7 +88,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         foo();
 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             MyAgent agent = agentManager.getAgent(a);
             Vector r = a.getPosition();
             r.E(agent.r0);
@@ -114,7 +105,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         foo();
         
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             MyAgent agent = agentManager.getAgent(a);
             Vector r = a.getPosition();
             r.E(agent.r0);
@@ -131,7 +122,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         foo();
 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             MyAgent agent = agentManager.getAgent(a);
             Vector r = a.getPosition();
             r.E(agent.r0);
@@ -148,7 +139,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         foo();
 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             MyAgent agent = agentManager.getAgent(a);
             agent.rp.PEa1Tv1(timeStep/6.0, a.getVelocity());
             a.getPosition().E(agent.rp);
@@ -170,36 +161,36 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         //Compute forces on each atom
         potentialMaster.calculate(box, allAtoms, forceSum);
         double vol = 4.0/3.0*Math.PI;
-        double dv = vol / box.getMoleculeList().getMoleculeCount();
+        double dv = vol / box.getMoleculeList().size();
         double sp = 2.0*Math.pow(dv,1.0/3.0);
 
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             Vector v = a.getVelocity();
             v.E(0);
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             Vector v = a.getVelocity();
             dr.E(0);
             stokeslet(sp);
-            MyAgent iAgent = agentManager.getAgent(a);
-            dr.Ea1Tv1(dv,iAgent.force);
+            Vector iForce = forces.getAgent(a);
+            dr.Ea1Tv1(dv,iForce);
             workTensor.transform(dr);
             v.PE(dr);
             for (int jLeaf=iLeaf+1; jLeaf<nLeaf; jLeaf++) {
-                IAtomKinetic aj = (IAtomKinetic)leafList.getAtom(jLeaf);
-                MyAgent jAgent = agentManager.getAgent(aj);
+                IAtomKinetic aj = (IAtomKinetic)leafList.get(jLeaf);
+                Vector jForce = forces.getAgent(aj);
                 dr.Ev1Mv2(a.getPosition(),aj.getPosition());
                 stokeslet(sp);
                 // reuse as tensor * f
-                dr.Ea1Tv1(dv,jAgent.force);
+                dr.Ea1Tv1(dv,jForce);
                 workTensor.transform(dr);
                 v.PE(dr);
 
-                dr.Ea1Tv1(dv,iAgent.force);
+                dr.Ea1Tv1(dv,iForce);
                 workTensor.transform(dr);
                 Vector vj = aj.getVelocity();
                 vj.PE(dr);
@@ -256,7 +247,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
             IAtomList pair = Debug.getAtoms(box);
             if (pair != null) {
                 Vector dr = space.makeVector();
-                dr.Ev1Mv2(pair.getAtom(1).getPosition(), pair.getAtom(0).getPosition());
+                dr.Ev1Mv2(pair.get(1).getPosition(), pair.get(0).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
         }
@@ -273,19 +264,14 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
     
     public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
             
-    public final static class MyAgent implements IntegratorBox.Forcible, Serializable {  //need public so to use with instanceof
-        private static final long serialVersionUID = 1L;
-        public Vector force;
+    public final static class MyAgent {  //need public so to use with instanceof
         public Vector r0; // position at the beginning of the timestep
         public Vector rp;
 
         public MyAgent(Space space) {
-            force = space.makeVector();
             r0 = space.makeVector();
             rp = space.makeVector();
         }
-        
-        public Vector force() {return force;}
     }
     
 }

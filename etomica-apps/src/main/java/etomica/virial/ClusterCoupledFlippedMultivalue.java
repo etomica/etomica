@@ -206,7 +206,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
                 for (int i = 0; !didFlipTrue && i < pointCount; i++) {
                     flippedAtoms[i] = !flippedAtoms[i];
                     didFlipTrue = flippedAtoms[i];
-                    flip(atomList.getMolecule(i));
+                    flip(atomList.get(i));
                 }
                 if (!didFlipTrue) {
                     // if we flipped every atom from true to false, we must be done
@@ -270,12 +270,12 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
 
     private void printConfig(BoxCluster box, double[] varr) {
         System.out.println();
-        int nmols = box.getMoleculeList().getMoleculeCount();
+        int nmols = box.getMoleculeList().size();
         for(int i=0; i<nmols;i++){
-            IMolecule mol = box.getMoleculeList().getMolecule(i);
-            int natoms = mol.getChildList().getAtomCount();
+            IMolecule mol = box.getMoleculeList().get(i);
+            int natoms = mol.getChildList().size();
             for(int j=0; j<natoms;j++){
-                IAtom atom = mol.getChildList().getAtom(j);
+                IAtom atom = mol.getChildList().get(j);
                 Vector p = atom.getPosition();
                 System.out.println(atom.getType().getElement().getSymbol() + " " + p.getX(0) + " " + p.getX(1) +" "+ p.getX(2));
             }
@@ -296,10 +296,10 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
     protected void flip(IMolecule flippedMolecule) {
         Vector COM = positionDefinition.position(flippedMolecule);
 		IAtomList childAtoms = flippedMolecule.getChildList();
-		for (int i = 0; i < childAtoms.getAtomCount(); i++) {
+		for (int i = 0; i < childAtoms.size(); i++) {
 		    childAtomVector.Ea1Tv1(2,COM);
-			childAtomVector.ME(childAtoms.getAtom(i).getPosition());
-			childAtoms.getAtom(i).getPosition().E(childAtomVector);
+			childAtomVector.ME(childAtoms.get(i).getPosition());
+			childAtoms.get(i).getPosition().E(childAtomVector);
 		}
     }
 

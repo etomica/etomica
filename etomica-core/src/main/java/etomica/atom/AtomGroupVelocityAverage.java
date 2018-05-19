@@ -32,9 +32,9 @@ public class AtomGroupVelocityAverage implements Serializable {
         vectorSum.E(0.0);
         double massSum = 0;
         IAtomList children = molecule.getChildList();
-        int nAtoms = children.getAtomCount();
+        int nAtoms = children.size();
         for (int i=0; i<nAtoms; i++) {
-            IAtom a = children.getAtom(i);
+            IAtom a = children.get(i);
             vectorSum.PE(((IAtomKinetic)a).getVelocity());
             massSum += a.getType().getMass();
         }

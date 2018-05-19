@@ -234,7 +234,7 @@ public class DecorateWertheim3SiteRho implements Unary {
 
       Set<Graph> result = new HashSet<Graph>();    
       ArrayList<Graph> pool = new ArrayList<Graph>();
-      Set<Graph> product = new GraphList<Graph>(null);
+      Set<Graph> product = new GraphList(null);
       pool.addAll(argument);
       CoefficientImpl coefficient = new CoefficientImpl(0);
       
@@ -364,7 +364,7 @@ public class DecorateWertheim3SiteRho implements Unary {
           }
           if ((foundSigmaPoint & maskB) != 0){
         	  Set<Graph> g1 = new HashSet<Graph>();//single diagram
-              Set<Graph> product1 = new GraphList<Graph>(null);
+              Set<Graph> product1 = new GraphList(null);
               for (Graph gP:product){
             	  g1.clear();
             	  g1.add(gP);
@@ -384,7 +384,7 @@ public class DecorateWertheim3SiteRho implements Unary {
           }
           if ((foundSigmaPoint & maskC) != 0){
         	  Set<Graph> g1 = new HashSet<Graph>();//single diagram
-              Set<Graph> product1 = new GraphList<Graph>(null);
+              Set<Graph> product1 = new GraphList(null);
               for (Graph gP:product){
             	  g1.clear();
             	  g1.add(gP);
@@ -404,7 +404,7 @@ public class DecorateWertheim3SiteRho implements Unary {
           }
           if ((foundSigmaPoint & maskAB) != 0){
         	  Set<Graph> g1 = new HashSet<Graph>();//single diagram
-              Set<Graph> product1 = new GraphList<Graph>(null);
+              Set<Graph> product1 = new GraphList(null);
               for (Graph gP:product){
             	  g1.clear();
             	  g1.add(gP);
@@ -424,7 +424,7 @@ public class DecorateWertheim3SiteRho implements Unary {
           }
           if ((foundSigmaPoint & maskAC) != 0){
         	  Set<Graph> g1 = new HashSet<Graph>();//single diagram
-              Set<Graph> product1 = new GraphList<Graph>(null);
+              Set<Graph> product1 = new GraphList(null);
               for (Graph gP:product){
             	  g1.clear();
             	  g1.add(gP);
@@ -444,7 +444,7 @@ public class DecorateWertheim3SiteRho implements Unary {
           }
           if ((foundSigmaPoint & maskBC) != 0){
         	  Set<Graph> g1 = new HashSet<Graph>();//single diagram
-              Set<Graph> product1 = new GraphList<Graph>(null);
+              Set<Graph> product1 = new GraphList(null);
               for (Graph gP:product){
             	  g1.clear();
             	  g1.add(gP);
@@ -464,7 +464,7 @@ public class DecorateWertheim3SiteRho implements Unary {
           }
           if ((foundSigmaPoint & maskABC) != 0){
         	  Set<Graph> g1 = new HashSet<Graph>();//single diagram
-              Set<Graph> product1 = new GraphList<Graph>(null);
+              Set<Graph> product1 = new GraphList(null);
               for (Graph gP:product){
             	  g1.clear();
             	  g1.add(gP);

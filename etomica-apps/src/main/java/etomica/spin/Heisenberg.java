@@ -13,8 +13,8 @@ import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.site.NeighborSiteManager;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.simulation.Simulation;
@@ -52,18 +52,17 @@ public class Heisenberg extends Simulation {
      */
     public Heisenberg(Space _space, int nCells) {
         super(_space);
-        potentialMaster = new PotentialMasterSite(this, nCells, space);
-        box = new Box(space);
-        addBox(box);
-        int numAtoms = space.powerD(nCells);
         spins = new SpeciesSpheresMono(this, space);
         addSpecies(spins);
+        potentialMaster = new PotentialMasterSite(this, nCells, space);
+        box = this.makeBox();
+        int numAtoms = space.powerD(nCells);
         box.setNMolecules(spins, numAtoms);
         new ConfigurationAligned().initializeCoordinates(box);
 
         potential = new P2Spin(space);
         field = new P1MagneticField(space);
-        integrator = new IntegratorMC(this, potentialMaster);
+        integrator = new IntegratorMC(this, potentialMaster, box);
         mcmove = new MCMoveSpinFlip(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(mcmove);
 
@@ -73,8 +72,6 @@ public class Heisenberg extends Simulation {
         AtomType type = spins.getLeafType();
         potentialMaster.addPotential(field, new AtomType[]{type});
         potentialMaster.addPotential(potential, new AtomType[]{type, type});
-
-        integrator.setBox(box);
 
         meter = new MeterSpin(space);
         meter.setBox(box);
@@ -89,7 +86,7 @@ public class Heisenberg extends Simulation {
     public static void main(String[] args) {
     	Space sp = Space2D.getInstance();
         Heisenberg sim = new Heisenberg(sp, 60);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
         ((SimulationRestart)simGraphic.getController().getReinitButton().getAction()).setConfiguration(null);
 		IAction repaintAction = simGraphic.getPaintAction(sim.box);
         DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);

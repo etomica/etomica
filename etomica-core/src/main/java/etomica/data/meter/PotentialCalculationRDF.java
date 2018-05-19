@@ -59,8 +59,8 @@ public class PotentialCalculationRDF implements PotentialCalculation {
     }
 
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-        IAtom atom0 = atoms.getAtom(0);
-        IAtom atom1 = atoms.getAtom(1);
+        IAtom atom0 = atoms.get(0);
+        IAtom atom1 = atoms.get(1);
         dr.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
 
         double xMaxSquared = xMax*xMax;

@@ -30,7 +30,7 @@ public class PotentialGroup3PI extends PotentialGroup {
     public void setBox(Box box) {
         super.setBox(box);
         if (tripletDone != null) return;
-        int nMolecules = box.getMoleculeList().getMoleculeCount();
+        int nMolecules = box.getMoleculeList().size();
 
         int nTriplets = VirialDiagrams.tripletId(nMolecules-3, nMolecules-2, nMolecules-1, nMolecules)+1;
 
@@ -44,7 +44,7 @@ public class PotentialGroup3PI extends PotentialGroup {
         CoordinatePairSet cPairs = ((BoxCluster)box).getCPairSet();
         long thisCPairID = cPairs.getID();
         int beadFac = uBeads.length;
-        int nMolecules = box.getMoleculeList().getMoleculeCount();
+        int nMolecules = box.getMoleculeList().size();
 
         if (thisCPairID != lastPairID || box.getIndex() != lastBoxIndex) {
             for (int i=0; i<tripletDone.length; i++) {
@@ -52,9 +52,9 @@ public class PotentialGroup3PI extends PotentialGroup {
             }
         }
 
-        int id0 = molecules.getMolecule(0).getIndex();
-        int id1 = molecules.getMolecule(1).getIndex();
-        int id2 = molecules.getMolecule(2).getIndex();
+        int id0 = molecules.get(0).getIndex();
+        int id1 = molecules.get(1).getIndex();
+        int id2 = molecules.get(2).getIndex();
         int tripletID = VirialDiagrams.tripletId(id0, id1, id2, nMolecules);
 
         if (thisCPairID != lastPairID || box.getIndex() != lastBoxIndex || !tripletDone[tripletID]) {
@@ -103,10 +103,10 @@ public class PotentialGroup3PI extends PotentialGroup {
         public double energy(IMoleculeList molecules) {
             PotentialGroup3PI.this.energy(molecules);
 
-            int nMolecules = box.getMoleculeList().getMoleculeCount();
-            int id0 = molecules.getMolecule(0).getIndex();
-            int id1 = molecules.getMolecule(1).getIndex();
-            int id2 = molecules.getMolecule(2).getIndex();
+            int nMolecules = box.getMoleculeList().size();
+            int id0 = molecules.get(0).getIndex();
+            int id1 = molecules.get(1).getIndex();
+            int id2 = molecules.get(2).getIndex();
             int tripletID = VirialDiagrams.tripletId(id0, id1, id2, nMolecules);
 
             return PotentialGroup3PI.this.uBeads[offset][tripletID];

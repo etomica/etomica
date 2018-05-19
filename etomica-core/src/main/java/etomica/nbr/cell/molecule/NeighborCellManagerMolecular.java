@@ -203,9 +203,9 @@ public class NeighborCellManagerMolecular implements BoxCellManager, BoundaryEve
         }
         
         IMoleculeList moleculeList = box.getMoleculeList();
-        int count = moleculeList.getMoleculeCount();
+        int count = moleculeList.size();
         for (int i=0; i<count; i++) {
-            IMolecule molecule = moleculeList.getMolecule(i);
+            IMolecule molecule = moleculeList.get(i);
             assignCell(molecule);
         }
     }
@@ -235,10 +235,6 @@ public class NeighborCellManagerMolecular implements BoxCellManager, BoundaryEve
     
     public IListener makeMCMoveListener() {
         return new MyMCMoveListener(box,this, space);
-    }
-    
-    public Class getMoleculeAgentClass() {
-        return CellMolecular.class;
     }
 
     /**

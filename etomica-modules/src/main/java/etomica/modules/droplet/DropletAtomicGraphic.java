@@ -12,7 +12,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.graphics.*;
 import etomica.lattice.CellLattice;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.cell.Cell;
@@ -42,7 +42,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
     
     public DropletAtomicGraphic(final DropletAtomic simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
@@ -181,8 +181,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
         
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPE.setBox(sim.box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         DataProcessor foo = new DataProcessor() {
         
             protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
@@ -190,7 +189,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
             }
         
             protected IData processData(IData inputData) {
-                ((DataDouble)inputData).x /= sim.box.getMoleculeList().getMoleculeCount() * Kelvin.UNIT.toSim(118);
+                ((DataDouble)inputData).x /= sim.box.getMoleculeList().size() * Kelvin.UNIT.toSim(118);
                 return inputData;
             }
         };
@@ -336,7 +335,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         	sp = Space3D.getInstance();
         }
 
-        DropletAtomic sim = new DropletAtomic(sp);
+        DropletAtomic sim = new DropletAtomic();
         DropletAtomicGraphic swGraphic = new DropletAtomicGraphic(sim, sp);
         swGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(2));
 		SimulationGraphic.makeAndDisplayFrame
@@ -359,7 +358,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
             Cell cell = (Cell)lattice.site(v);
             
             double[] size = lattice.getCellSize();
-            return cell.occupants().getAtomCount() / (size[0]*size[1]*size[2]);
+            return cell.occupants().size() / (size[0]*size[1]*size[2]);
         }
     }
 
@@ -369,7 +368,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
 	        Space sp = Space3D.getInstance();
-	        DropletAtomic sim = new DropletAtomic(sp);
+	        DropletAtomic sim = new DropletAtomic();
             DropletAtomicGraphic ljmdGraphic = new DropletAtomicGraphic(sim, sp);
             ljmdGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(2));
 

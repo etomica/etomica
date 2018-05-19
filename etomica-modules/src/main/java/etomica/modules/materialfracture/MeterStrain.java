@@ -45,10 +45,10 @@ public class MeterStrain extends DataSourceScalar {
         if(hex){
             double sum = 0;
             for (int i=aNumber; i<aNumber+18; i+=2) {
-                sum += leafList.getAtom(i).getPosition().getX(0);
+                sum += leafList.get(i).getPosition().getX(0);
             }
             for (int i=197-aNumber; i>197-aNumber-18; i-=2) {
-                sum -= leafList.getAtom(i).getPosition().getX(0);
+                sum -= leafList.get(i).getPosition().getX(0);
             }
             return sum/9.0;
         }

@@ -9,7 +9,6 @@ import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -25,7 +24,7 @@ import java.io.IOException;
 public class PotentialCalculationMappedRdf implements PotentialCalculation{
     protected final Box box;
     protected final IteratorDirective allAtoms;
-    protected final AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager;
+    protected final AtomLeafAgentManager<Vector> forceManager;
     protected final Space space;
     protected double beta;
     protected final Vector dr;
@@ -42,7 +41,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
     protected double vShift;
     protected double R, uR;
 
-    public PotentialCalculationMappedRdf(Space space, Box box, int nbins, AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager) {
+    public PotentialCalculationMappedRdf(Space space, Box box, int nbins, AtomLeafAgentManager<Vector> forceManager) {
         this.space = space;
         this.box = box;
         this.nbins = nbins;
@@ -184,8 +183,8 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         if (!(potential instanceof Potential2SoftSpherical)) return;
         Potential2SoftSpherical p2 = (Potential2SoftSpherical)potential;
-        IAtom a = atoms.getAtom(0);
-        IAtom b = atoms.getAtom(1);
+        IAtom a = atoms.get(0);
+        IAtom b = atoms.get(1);
 //        System.out.println("volume "+vol);
         dr.Ev1Mv2(b.getPosition(),a.getPosition());
         box.getBoundary().nearestImage(dr);
@@ -200,8 +199,8 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
         sum += v-u;
 
         if (r<x0) {
-            Vector fi = forceManager.getAgent(a).force;
-            Vector fj = forceManager.getAgent(b).force;
+            Vector fi = forceManager.getAgent(a);
+            Vector fj = forceManager.getAgent(b);
             //  System.out.println(u+" "+r);
             double fifj = (fi.dot(dr) - fj.dot(dr))/r;
             double xs = calcXu(r, u);

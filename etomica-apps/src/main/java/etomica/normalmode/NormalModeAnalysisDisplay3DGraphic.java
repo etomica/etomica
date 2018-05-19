@@ -14,10 +14,9 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataTable;
 import etomica.data.types.DataTable.DataInfoTable;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
-import etomica.space.Boundary;
-import etomica.space.BoundaryRectangularPeriodic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Null;
 
@@ -33,7 +32,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 
 	public NormalModeAnalysisDisplay3DGraphic(final NormalModeAnalysisDisplay3D simulation, Space space) {
 		
-		super(simulation, TABBED_PANE, APP_NAME,REPAINT_INTERVAL, space, simulation.getController());
+		super(simulation, TABBED_PANE, APP_NAME,REPAINT_INTERVAL);
 		this.sim = simulation;
 		
 		DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
@@ -216,12 +215,11 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 	int [] nCells = new int[]{n,n,n};
                 	sim.nm.setNCellNum(n);
                 	
-                	Boundary boundary = new BoundaryRectangularPeriodic(sim.getSpace(), n*sim.L);
-                	sim.box.setBoundary(boundary);
+                	sim.box.getBoundary().setBoxSize(Vector.of(n * sim.L, n * sim.L, n * sim.L));
                 	sim.setNCells(nCells);
                 	sim.coordinateDefinition.initializeCoordinates(nCells);
                 	sim.waveVectorFactory.makeWaveVectors(sim.box);
-                	sim.truncationRadius = boundary.getBoxSize().getX(0) * 0.495;
+                	sim.truncationRadius = sim.boundary.getBoxSize().getX(0) * 0.495;
                 	sim.pTruncated.setTruncationRadius(sim.truncationRadius);
                 	sim.latticeEnergy = sim.meterPE.getDataAsScalar();
                 	                	
@@ -754,7 +752,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 	
 	public static void main(String[] args){
 		Space sp = Space.getInstance(3);
-		NormalModeAnalysisDisplay3DGraphic simGraphic = new NormalModeAnalysisDisplay3DGraphic(new NormalModeAnalysisDisplay3D(sp), sp);
+		NormalModeAnalysisDisplay3DGraphic simGraphic = new NormalModeAnalysisDisplay3DGraphic(new NormalModeAnalysisDisplay3D(), sp);
 		SimulationGraphic.makeAndDisplayFrame(simGraphic.getPanel(), APP_NAME);
 		
 	}
@@ -768,7 +766,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
 		public void init(){
 			getRootPane().putClientProperty(APP_NAME, Boolean.TRUE);
 			Space sp = Space.getInstance(3);
-			NormalModeAnalysisDisplay3DGraphic nm3Dgraphic = new NormalModeAnalysisDisplay3DGraphic(new NormalModeAnalysisDisplay3D(sp), sp);
+			NormalModeAnalysisDisplay3DGraphic nm3Dgraphic = new NormalModeAnalysisDisplay3DGraphic(new NormalModeAnalysisDisplay3D(), sp);
 			getContentPane().add(nm3Dgraphic.getPanel());
 		}
 	}

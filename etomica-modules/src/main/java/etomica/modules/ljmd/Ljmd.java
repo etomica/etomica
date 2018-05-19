@@ -32,39 +32,38 @@ public class Ljmd extends Simulation {
     
     public Ljmd(Space _space) {
         super(_space);
+
+        //species
+        species = new SpeciesSpheresMono(this, space);//index 1
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.99, space);
-        
+
         int N = 182;  //number of atoms
-        
+
         //controller and integrator
-	    integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
-	    integrator.setIsothermal(false);
+        box = this.makeBox();
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         integrator.setTimeStep(0.01);
-     //   integrator.setDoSleep(false);
+        //   integrator.setDoSleep(false);
 
-	    //species and potentials
-	    species = new SpeciesSpheresMono(this, space);//index 1
-	    species.setIsDynamic(true);
-        addSpecies(species);
-        
         //instantiate several potentials for selection in combo-box
-	    P2LennardJones potential = new P2LennardJones(space);
-        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential,2.5);
+        P2LennardJones potential = new P2LennardJones(space);
+        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential, 2.5);
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         //construct box
-	    box = new Box(space);
-        addBox(box);
         Vector dim = space.makeVector();
         dim.E(15);
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, N);
         new ConfigurationLattice(space.D() == 2 ? (new LatticeOrthorhombicHexagonal(space)) : (new LatticeCubicFcc(space)), space).initializeCoordinates(box);
-        integrator.setBox(box);
 
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }

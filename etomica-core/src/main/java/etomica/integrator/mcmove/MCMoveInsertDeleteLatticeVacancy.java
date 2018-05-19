@@ -188,7 +188,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         if (integrator.getStepCount() != lastStepCount) {
             forced = 0;
         }
-        int numAtoms = box.getLeafList().getAtomCount();
+        int numAtoms = box.getLeafList().size();
         if (forced==1) {
             insert = !insert;
             System.out.println("forcing "+(insert ? "insertion" : "deletion"));
@@ -202,9 +202,9 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         numNewDeleteCandidates = 0;
         if (dirty || lastStepCount != integrator.getStepCount()) findCandidates();
         if (insert) {
-            if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.getMoleculeCount()-1);
+            if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.size()-1);
             else testMolecule = species.makeMolecule();
-            IAtom testAtom = testMolecule.getChildList().getAtom(0);
+            IAtom testAtom = testMolecule.getChildList().get(0);
 
             int nInsertCandidates = insertCandidates.size();
             if (nInsertCandidates == 0) {
@@ -214,7 +214,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
                 testMolecule = null;
                 return false;
             }
-            IAtom partner = box.getLeafList().getAtom(insertCandidates.get(random.nextInt(nInsertCandidates)));
+            IAtom partner = box.getLeafList().get(insertCandidates.get(random.nextInt(nInsertCandidates)));
 //            System.out.println("inserting next to "+partner);
             uOld = 0;
             if (nbrVectors != null) {
@@ -313,7 +313,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
                 ip = numAtoms-1;
             }
 
-            IAtom testAtom = box.getLeafList().getAtom(ip);
+            IAtom testAtom = box.getLeafList().get(ip);
             testMolecule = testAtom.getParentGroup();
             //delete molecule only upon accepting trial
             energyMeter.setTarget(testMolecule);
@@ -338,7 +338,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         }
         
         Boundary boundary = box.getBoundary();
-        int numAtoms = box.getLeafList().getAtomCount();
+        int numAtoms = box.getLeafList().size();
         if (numNeighbors.length < numAtoms) {
             numNeighbors = new int[numAtoms];
             numNeighborCandidatesOnDelete = new int[numAtoms];
@@ -352,7 +352,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
             numNeighbors[i] = numNeighborCandidatesOnDelete[i] = numDeleteCandidateNbrs[i] = deleteCandidateTimes[i] = 0;
         }
         for (int i=0; i<numAtoms; i++) {
-            IAtom iAtom = box.getLeafList().getAtom(i);
+            IAtom iAtom = box.getLeafList().get(i);
             Vector pi = iAtom.getPosition();
             atomIterator.setAtom(iAtom);
             ((AtomsetIteratorDirectable)atomIterator).setDirection(Direction.UP);
@@ -373,7 +373,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
             if (numNeighbors[i] < 13) {
                 // the neighbors of i may be candidates for deletion.  after deleting
                 // one of its neighbors, i would have <12 neighbors
-                IAtom iAtom = box.getLeafList().getAtom(i);
+                IAtom iAtom = box.getLeafList().get(i);
                 Vector pi = iAtom.getPosition();
                 atomIterator.setAtom(iAtom);
                 ((AtomsetIteratorDirectable)atomIterator).setDirection(null);
@@ -466,7 +466,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
 
     public void myAcceptNotify() {
         if (!insert) {
-            oldPosition.E(testMolecule.getChildList().getAtom(0).getPosition());
+            oldPosition.E(testMolecule.getChildList().get(0).getPosition());
         }
         super.myAcceptNotify();
         dirty = true;
@@ -492,8 +492,8 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         }
 
         public IAtom nextAtom() {
-            if (cursor >= nbrs.getAtomCount()) return null;
-            IAtom a = nbrs.getAtom(cursor);
+            if (cursor >= nbrs.size()) return null;
+            IAtom a = nbrs.get(cursor);
             cursor++;
             return a;
         }
@@ -515,7 +515,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         }
 
         public int size() {
-            return nbrs.getAtomCount();
+            return nbrs.size();
         }
 
         public int nBody() {return 1;}
@@ -542,8 +542,8 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         public IAtom nextAtom() {
             IAtomList pair = api.next();
             if (pair==null) return null;
-            IAtom a = pair.getAtom(0);
-            if (a==myAtom) a = pair.getAtom(1);
+            IAtom a = pair.get(0);
+            if (a==myAtom) a = pair.get(1);
             return a;
         }
 
@@ -594,7 +594,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         }
 
         public int size() {
-            return box.getLeafList().getAtomCount()-1;
+            return box.getLeafList().size()-1;
         }
         
         public void reset() {
@@ -616,8 +616,8 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         public IAtom nextAtom() {
             cursor++;
             if (cursor==targetIndex) cursor++;
-            if (cursor >= box.getLeafList().getAtomCount()) return null;
-            return box.getLeafList().getAtom(cursor);
+            if (cursor >= box.getLeafList().size()) return null;
+            return box.getLeafList().get(cursor);
         }
         
         public void setAtom(IAtom atom) {

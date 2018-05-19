@@ -9,7 +9,6 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.molecule.IMolecule;
 
 /**
  */
@@ -29,13 +28,13 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
         maxChainLength = 0;
         // untag all the Atoms
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int i=0; i<nLeaf; i++) {
-            chainLengthManager.getAgent(leafList.getAtom(i)).chainLength = 0;
+            chainLengthManager.getAgent(leafList.get(i)).chainLength = 0;
         }
 
         for (int i=0; i<nLeaf; i++) {
-            IAtom a = leafList.getAtom(i);
+            IAtom a = leafList.get(i);
             // if an Atom has a chain length, it was already counted as part of 
             // another chain
             if (chainLengthManager.getAgent(a).chainLength > 0) continue;
@@ -80,15 +79,11 @@ public class AtomFilterChainLength implements AtomFilterCollective, AtomLeafAgen
             // allow old agentManager to de-register itself as a BoxListener
             chainLengthManager.dispose();
         }
-        chainLengthManager = new AtomLeafAgentManager<LengthAgent>(this,box,LengthAgent.class);
+        chainLengthManager = new AtomLeafAgentManager<LengthAgent>(this,box);
     }
 
-    public boolean accept(IAtom a) {
+    public boolean test(IAtom a) {
         return chainLengthManager.getAgent(a).chainLength == maxChainLength;
-    }
-
-    public boolean accept(IMolecule mole) {
-        return false;
     }
 
     protected Box box;

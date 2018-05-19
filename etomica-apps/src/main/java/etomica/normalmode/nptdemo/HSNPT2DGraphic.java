@@ -14,7 +14,7 @@ import etomica.graphics.DeviceToggleButton;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayCanvas;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.ModifierBoolean;
 
 /**
@@ -34,12 +34,12 @@ public class HSNPT2DGraphic extends SimulationGraphic {
     protected final ColorSchemeScaledOverlap colorSchemeScaled;
 
     public HSNPT2DGraphic(HSNPT2DSim sim) {
-        super(sim, TABBED_PANE, sim.getSpace(), sim.getController());
+        super(sim, TABBED_PANE);
         this.sim = sim;
         getDisplayBox(sim.box).setScale(0.8);
         redColorScheme = getDisplayBox(sim.box).getColorScheme();
 
-        displayBoxScaled = new DisplayBox(sim, sim.box, sim.getSpace(), sim.getController());
+        displayBoxScaled = new DisplayBox(sim, sim.box);
         displayBoxScaled.setScale(0.9);
         System.out.println("displayBoxScaled created");
         DisplayCanvas oldCanvas = displayBoxScaled.canvas;
@@ -117,7 +117,7 @@ public class HSNPT2DGraphic extends SimulationGraphic {
     }
     
     public void setDisplayDensity(double newDisplayDensity) {
-        double density = sim.box.getMoleculeList().getMoleculeCount() / sim.box.getBoundary().volume();
+        double density = sim.box.getMoleculeList().size() / sim.box.getBoundary().volume();
         double newScale = Math.sqrt(density/newDisplayDensity) * nominalScale;
         DisplayBox unscaledDisplayBox = getDisplayBox(sim.box);
         unscaledDisplayBox.setScale(newScale);
@@ -133,7 +133,7 @@ public class HSNPT2DGraphic extends SimulationGraphic {
     
     public double getDisplayDensity() {
         double scale = getDisplayBox(sim.box).getScale();
-        double density = sim.box.getMoleculeList().getMoleculeCount() / sim.box.getBoundary().volume();
+        double density = sim.box.getMoleculeList().size() / sim.box.getBoundary().volume();
         double s = scale/nominalScale;
         return density /(s*s); 
     }

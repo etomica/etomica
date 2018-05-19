@@ -30,7 +30,7 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceMolec
 
     public double getDataAsScalar() {
         if (box == null) throw new IllegalStateException("must call setBox before using meter");
-        return (species == null) ? box.getMoleculeList().getMoleculeCount(): box.getNMolecules(species);
+        return (species == null) ? box.getMoleculeList().size(): box.getNMolecules(species);
     }
     
     public IData getData(IMolecule atom) {

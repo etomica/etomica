@@ -20,7 +20,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
@@ -47,7 +47,7 @@ public class SamGraphic extends SimulationGraphic {
     public final DeviceSlider numCellsSlider;
     
     public SamGraphic(final Sam sim) {
-        super(sim, SimulationGraphic.TABBED_PANE, "SAM", sim.getSpace(), sim.getController());
+        super(sim, SimulationGraphic.TABBED_PANE, "SAM");
         DisplayBox displayBox = getDisplayBox(sim.box);
         displayBox.setPixelUnit(new Pixel(8));
         setPaintInterval(sim.box, 1);
@@ -128,7 +128,7 @@ public class SamGraphic extends SimulationGraphic {
         wallPositionSlider.setShowBorder(true);
         wallPositionSlider.setLabel("Wall position");
         wallPositionSlider.setMinimum(15);
-        double surfacePosition = sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0).getPosition().getX(1);
+        double surfacePosition = sim.box.getMoleculeList(sim.speciesSurface).get(0).getChildList().get(0).getPosition().getX(1);
         double sliderValue = sim.wallPotential.getWallPosition()-surfacePosition;
         if (sliderValue < 30) {
             wallPositionSlider.setMaximum(30);
@@ -227,8 +227,7 @@ public class SamGraphic extends SimulationGraphic {
         }
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
-        MeterKineticEnergy meterKE = new MeterKineticEnergy();
-        meterKE.setBox(sim.box);
+        MeterKineticEnergy meterKE = new MeterKineticEnergy(sim.box);
         AccumulatorHistory historyKE = new AccumulatorHistory();
         historyKE.setTimeDataSource(timeCounter);
         pump = new DataPump(meterKE, historyKE);
@@ -236,8 +235,7 @@ public class SamGraphic extends SimulationGraphic {
         IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
         sim.integrator.getEventManager().addListener(pumpListener);
         pumpListener.setInterval(10);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
-        meterPE.setBox(sim.box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
         AccumulatorHistory historyPE = new AccumulatorHistory();
         historyPE.setTimeDataSource(timeCounter);
         pump = new DataPump(meterPE, historyPE);
@@ -449,7 +447,7 @@ public class SamGraphic extends SimulationGraphic {
 
         protected IData processData(IData inputData) {
             double[] xy = data.getData();
-            double surfacePosition = sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0).getPosition().getX(1);
+            double surfacePosition = sim.box.getMoleculeList(sim.speciesSurface).get(0).getChildList().get(0).getPosition().getX(1);
             xy[0] = sim.wallPotential.wallPosition-surfacePosition;
             xy[1] = inputData.getValue(0);
             return data;
@@ -483,7 +481,7 @@ public class SamGraphic extends SimulationGraphic {
             double position = sim.wallPotential.getWallPosition()-0.1;
             sim.wallPotential.setWallPosition(position);
             wallPositionSlider.doUpdate();
-            double surfacePosition = sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0).getPosition().getX(1);
+            double surfacePosition = sim.box.getMoleculeList(sim.speciesSurface).get(0).getChildList().get(0).getPosition().getX(1);
             if (position-surfacePosition < 15.01) {
                 // turn ourselves off
                 moveWallToggle.actionPerformed();
@@ -501,14 +499,14 @@ public class SamGraphic extends SimulationGraphic {
         }
 
         public void update() {
-            surfacePosition = sim.box.getMoleculeList(sim.speciesSurface).getMolecule(0).getChildList().getAtom(0).getPosition().getX(1);
+            surfacePosition = sim.box.getMoleculeList(sim.speciesSurface).get(0).getChildList().get(0).getPosition().getX(1);
         }
 
         public void setValue(double newValue) {
             double maxAtomPos = -100;
             IAtomList leafList = sim.box.getLeafList();
-            for (int i=0; i<leafList.getAtomCount(); i++) {
-                IAtom atom = leafList.getAtom(i);
+            for (int i = 0; i<leafList.size(); i++) {
+                IAtom atom = leafList.get(i);
                 double atomPos = atom.getPosition().getX(1);
                 if (atomPos > maxAtomPos) {
                     maxAtomPos = atomPos;

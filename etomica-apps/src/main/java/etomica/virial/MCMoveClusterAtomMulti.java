@@ -27,7 +27,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     public void setBox(Box p) {
         super.setBox(p);
         if (translationVectors == null) {
-            translationVectors = new Vector[box.getLeafList().getAtomCount()-1];
+            translationVectors = new Vector[box.getLeafList().size()-1];
             for (int i=0; i<translationVectors.length; i++) {
                 translationVectors[i] = space.makeVector();
             }
@@ -45,10 +45,10 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
 	public boolean doTrial() {
         uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
         IAtomList leafAtoms = box.getLeafList();
-        for(int i=startAtom; i<leafAtoms.getAtomCount(); i++) {
+        for(int i = startAtom; i<leafAtoms.size(); i++) {
             translationVectors[i-1].setRandomCube(random);
             translationVectors[i-1].TE(stepSize);
-            leafAtoms.getAtom(i).getPosition().PE(translationVectors[i-1]);
+            leafAtoms.get(i).getPosition().PE(translationVectors[i-1]);
         }
 		((BoxCluster)box).trialNotify();
         uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
@@ -61,8 +61,8 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
 
     public void rejectNotify() {
         IAtomList leafAtoms = box.getLeafList();
-        for(int i=startAtom; i<leafAtoms.getAtomCount(); i++) {
-            leafAtoms.getAtom(i).getPosition().ME(translationVectors[i-1]);
+        for(int i = startAtom; i<leafAtoms.size(); i++) {
+            leafAtoms.get(i).getPosition().ME(translationVectors[i-1]);
         }
     	((BoxCluster)box).rejectNotify();
     }

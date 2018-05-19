@@ -38,23 +38,22 @@ public class LJMD2D extends Simulation {
 
     public LJMD2D() {
         super(Space2D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
+        box = this.makeBox();
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.01);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
-        addSpecies(species);
-        box = new Box(space);
-        addBox(box);
         box.setNMolecules(species, 50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         potential = new P2LennardJones(space);
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
-
-        integrator.setBox(box);
 
         energy = new MeterEnergy(potentialMaster, box);
 

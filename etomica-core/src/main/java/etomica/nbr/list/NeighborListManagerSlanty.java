@@ -10,9 +10,8 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterList.NeighborListAgentSource;
-import etomica.potential.IPotential;
-import etomica.potential.PotentialArray;
-import etomica.space.Space;
+
+import java.util.List;
 
 /**
  * Implements neighbor listing for a slanty box.  Because using slanty cells
@@ -28,8 +27,8 @@ public class NeighborListManagerSlanty extends NeighborListManager {
      * Configures instance for use by the given PotentialMaster.
      */
     public NeighborListManagerSlanty(PotentialMasterList potentialMasterList, double range,
-                                     Box box, Space space) {
-        super(potentialMasterList, range, box, space);
+                                     Box box) {
+        super(potentialMasterList, range, box);
         pair = new AtomPair();
     }
 
@@ -42,50 +41,39 @@ public class NeighborListManagerSlanty extends NeighborListManager {
     protected void neighborSetup() {
 
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         // reset criteria
         for (int j=0; j<nLeaf; j++) {
-            IAtom atom = leafList.getAtom(j);
-            final NeighborCriterion[] criterion = getCriterion(atom.getType());
+            IAtom atom = leafList.get(j);
+            final NeighborCriterion[] criterion = getCriteria(atom.getType());
             agentManager2Body.getAgent(atom).clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
                 criterion[i].reset(atom);
             }
 
-            PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom.getType());
-            IPotential[] potentials = potentialArray.getPotentials();
-            NeighborCriterion[] criteria = potentialArray.getCriteria();
+            List<NeighborCriterion> criteria = potentialMaster.getCriteria1Body(atom.getType());
 
-            for (int i = 0; i < potentials.length; i++) {
-                if (potentials[i].nBody() != 1) {
-                    continue;
-                }
+            for (int i = 0; i < criteria.size(); i++) {
                 atomSetSinglet.atom = atom;
-                agentManager1Body.getAgent(atom).setIsInteracting(criteria[i].accept(atomSetSinglet),i);
+                agentManager1Body.getAgent(atom).setIsInteracting(criteria.get(i).accept(atomSetSinglet), i);
             }
         }
         
         IAtomList atomList = box.getLeafList();
-        for (int iAtom=0; iAtom<atomList.getAtomCount()-1; iAtom++) {
-            IAtom atom0 = atomList.getAtom(iAtom);
+        for (int iAtom = 0; iAtom<atomList.size()-1; iAtom++) {
+            IAtom atom0 = atomList.get(iAtom);
             pair.atom0 = atom0;
-            PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom0.getType());
-            IPotential[] potentials = potentialArray.getPotentials();
-            NeighborCriterion[] criteria = potentialArray.getCriteria();
+            NeighborCriterion[] criteria = potentialMaster.getCriteria(atom0.getType());
 
-            for (int jAtom=iAtom+1; jAtom<atomList.getAtomCount(); jAtom++) {
+            for (int jAtom = iAtom+1; jAtom<atomList.size(); jAtom++) {
         
-                IAtom atom1 = atomList.getAtom(jAtom);
+                IAtom atom1 = atomList.get(jAtom);
+                NeighborCriterion c = criteria[atom1.getType().getIndex()];
+                if (c == null) continue;
                 pair.atom1 = atom1;
-                for (int i = 0; i < potentials.length; i++) {
-                    if (potentials[i].nBody() < 2) {
-                        continue;
-                    }
-                    if (criteria[i].accept(pair)) {
-                        agentManager2Body.getAgent(atom0).addUpNbr(atom1,i);
-                        agentManager2Body.getAgent(atom1).addDownNbr(atom0,
-                                potentialMaster.getRangedPotentials(atom1.getType()).getPotentialIndex(potentials[i]));
-                    }
+                if (c.accept(pair)) {
+                    agentManager2Body.getAgent(atom0).addUpNbr(atom1, atom0.getType().getIndex());
+                    agentManager2Body.getAgent(atom1).addDownNbr(atom0, atom1.getType().getIndex());
                 }
             }
         }
@@ -111,14 +99,14 @@ public class NeighborListManagerSlanty extends NeighborListManager {
         }
         pair.atom0 = atom;
         IAtomList atomList = box.getLeafList();
-        PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom.getType());
-        IPotential[] potentials = potentialArray.getPotentials();
-        NeighborCriterion[] criteria = potentialArray.getCriteria();
-        for (int jAtom=0; jAtom<atomList.getAtomCount(); jAtom++) {
+        NeighborCriterion[] criteria = potentialMaster.getCriteria(atom.getType());
+        for (int jAtom = 0; jAtom<atomList.size(); jAtom++) {
             if (jAtom == atom.getLeafIndex()) {
                 continue;
             }
-            IAtom atom1 = atomList.getAtom(jAtom);
+            IAtom atom1 = atomList.get(jAtom);
+            NeighborCriterion c = criteria[atom1.getType().getIndex()];
+            if (c == null) continue;
             if (jAtom < atom.getLeafIndex()) {
                 pair.atom1 = atom;
                 pair.atom0 = atom1;
@@ -127,19 +115,13 @@ public class NeighborListManagerSlanty extends NeighborListManager {
                 pair.atom0 = atom;
                 pair.atom1 = atom1;
             }
-            for (int i = 0; i < potentials.length; i++) {
-                if (potentials[i].nBody() < 2) {
-                    continue;
-                }
-                if (criteria[i].accept(pair)) {
-                    agentManager2Body.getAgent(pair.atom0).addUpNbr(pair.atom1,i);
-                    agentManager2Body.getAgent(pair.atom1).addDownNbr(pair.atom0,
-                            potentialMaster.getRangedPotentials(atom1.getType()).getPotentialIndex(potentials[i]));
-                }
+
+            if (c.accept(pair)) {
+                agentManager2Body.getAgent(pair.atom0).addUpNbr(pair.atom1, pair.atom0.getType().getIndex());
+                agentManager2Body.getAgent(pair.atom1).addDownNbr(pair.atom0, pair.atom1.getType().getIndex());
             }
         }
     }
-    private static final long serialVersionUID = 1L;
     protected final AtomPair pair;
 
     /**
@@ -147,12 +129,12 @@ public class NeighborListManagerSlanty extends NeighborListManager {
      * PotentialMaster
      */
     public static class NeighborListSlantyAgentSource extends NeighborListAgentSource {
-        public NeighborListSlantyAgentSource(double range, Space space) {
-            super(range, space);
+        public NeighborListSlantyAgentSource(double range) {
+            super(range);
         }
         
         public NeighborListManager makeAgent(Box box) {
-            return new NeighborListManagerSlanty(potentialMaster, range, box, space);
+            return new NeighborListManagerSlanty(potentialMaster, range, box);
         }
     }
     

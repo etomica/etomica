@@ -65,7 +65,7 @@ public class P1HardBoundary implements PotentialHard, Drawable {
 
     public double energy(IAtomList a) {
         Vector dimensions = boundary.getBoxSize();
-        Vector pos = a.getAtom(0).getPosition();
+        Vector pos = a.get(0).getPosition();
         for (int i=0; i<work.getD(); i++) {
             if (!isActiveDim[i][1]) {
                 continue;
@@ -82,7 +82,7 @@ public class P1HardBoundary implements PotentialHard, Drawable {
     public double energyChange() {return 0.0;}
     
     public double collisionTime(IAtomList a, double falseTime) {
-        IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
+        IAtomKinetic atom = (IAtomKinetic)a.get(0);
         work.E(atom.getPosition());
         Vector v = atom.getVelocity();
         work.PEa1Tv1(falseTime,v);
@@ -119,7 +119,7 @@ public class P1HardBoundary implements PotentialHard, Drawable {
     }
 
     public void bump(IAtomList a, double falseTime) {
-        IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
+        IAtomKinetic atom = (IAtomKinetic)a.get(0);
         work.E(atom.getPosition());
         Vector v = atom.getVelocity();
         work.PEa1Tv1(falseTime,v);

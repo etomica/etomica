@@ -46,7 +46,7 @@ public class P1Smash implements PotentialSoft {
     }
 
     public Vector[] gradient(IAtomList atoms) {
-        IAtom a = atoms.getAtom(0);
+        IAtom a = atoms.get(0);
         if (a.getPosition().getX(2) > 0) {
             gradient[0].setX(2, g);
         }
@@ -57,7 +57,7 @@ public class P1Smash implements PotentialSoft {
     }
 
     public double energy(IAtomList atoms) {
-        IAtom a = atoms.getAtom(0);
+        IAtom a = atoms.get(0);
         return Math.abs(a.getPosition().getX(2))*g;
     }
     

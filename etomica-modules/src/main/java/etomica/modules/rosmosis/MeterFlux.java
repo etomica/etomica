@@ -34,7 +34,7 @@ import etomica.units.dimensions.*;
  *
  * @author Andrew Schultz
  */
-public class MeterFlux implements IDataSource, MoleculeAgentSource {
+public class MeterFlux implements IDataSource, MoleculeAgentSource<Vector> {
 
     public MeterFlux(Simulation sim, Space _space) {
         this.sim = sim;
@@ -64,7 +64,7 @@ public class MeterFlux implements IDataSource, MoleculeAgentSource {
     public void setSpecies(ISpecies[] newSpecies) {
         species = newSpecies;
         if (box != null) {
-            agentManager = new MoleculeAgentManager(sim, box, this);
+            agentManager = new MoleculeAgentManager<>(sim, box, this);
         }
     }
     
@@ -86,7 +86,7 @@ public class MeterFlux implements IDataSource, MoleculeAgentSource {
             }
         }
         if (species != null) {
-            agentManager = new MoleculeAgentManager(sim, box, this);
+            agentManager = new MoleculeAgentManager<>(sim, box, this);
         }
     }
     
@@ -118,9 +118,9 @@ public class MeterFlux implements IDataSource, MoleculeAgentSource {
         double boxLength = box.getBoundary().getBoxSize().getX(dim);
         for (int i=0; i<species.length; i++) {
             IMoleculeList molecules = box.getMoleculeList(species[i]);
-            for (int j=0; j<molecules.getMoleculeCount(); j++) {
-                IMolecule atom = molecules.getMolecule(j);
-                Vector oldPosition = ((Vector)agentManager.getAgent(atom));
+            for (int j = 0; j<molecules.size(); j++) {
+                IMolecule atom = molecules.get(j);
+                Vector oldPosition = agentManager.getAgent(atom);
                 double oldX = oldPosition.getX(dim);
                 Vector newPosition = positionDefinition.position(atom);
                 double newX = newPosition.getX(dim);
@@ -169,11 +169,7 @@ public class MeterFlux implements IDataSource, MoleculeAgentSource {
         return tag;
     }
 
-    public Class getMoleculeAgentClass() {
-        return Vector.class;
-    }
-
-    public Object makeAgent(IMolecule a) {
+    public Vector makeAgent(IMolecule a) {
         ISpecies thisSpecies = a.getType();
         for (int i=0; i<species.length; i++) {
             if (species[i] == thisSpecies) {
@@ -186,7 +182,7 @@ public class MeterFlux implements IDataSource, MoleculeAgentSource {
         return null;
     }
 
-    public void releaseAgent(Object agent, IMolecule atom) {
+    public void releaseAgent(Vector agent, IMolecule atom) {
         /* do nothing */
     }
 
@@ -199,7 +195,7 @@ public class MeterFlux implements IDataSource, MoleculeAgentSource {
     protected double[] boundaries;
     protected int[] boundaryCoefficients;
     protected int dim;
-    protected MoleculeAgentManager agentManager;
+    protected MoleculeAgentManager<Vector> agentManager;
     protected IntegratorBox integrator;
     protected double oldTime;
     protected long oldStep;

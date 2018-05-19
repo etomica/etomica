@@ -36,9 +36,9 @@ public class MoleculePositionCOM implements IMoleculePositionDefinition, Seriali
         double massSum = 0;
         center.E(0.0);
         IAtomList children = molecule.getChildList();
-        int nAtoms = children.getAtomCount();
+        int nAtoms = children.size();
         for (int i=0; i<nAtoms; i++) {
-            IAtom a = children.getAtom(i);
+            IAtom a = children.get(i);
             double mass = a.getType().getMass();
             center.PEa1Tv1(mass, a.getPosition());
             massSum += mass;

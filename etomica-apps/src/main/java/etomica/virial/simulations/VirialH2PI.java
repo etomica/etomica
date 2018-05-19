@@ -27,7 +27,7 @@ import etomica.graphics.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.integrator.mcmove.MCMove;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.*;
@@ -596,9 +596,9 @@ public class VirialH2PI {
 				for (int i=1; i<nPoints; i++) {
 					groupTranslationVector.setX(0, r*Math.cos(2*(i-1)*Math.PI/(nPoints-1)));
 					groupTranslationVector.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
-					moveMoleculeAction.actionPerformed(molecules.getMolecule(i));
+					moveMoleculeAction.actionPerformed(molecules.get(i));
 					if (nBeads>1) {
-						Vector v = molecules.getMolecule(i).getChildList().getAtom(1).getPosition();
+						Vector v = molecules.get(i).getChildList().get(1).getPosition();
 						v.TE(0.95);
 					}
 				}
@@ -634,9 +634,9 @@ public class VirialH2PI {
 
 			if (false) {
 				double vSize = 5;
-				sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{vSize,vSize,vSize}));
-				sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{vSize,vSize,vSize}));
-				SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+				sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{vSize, vSize, vSize}));
+				sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{vSize, vSize, vSize}));
+				SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 				DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
 				DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
 				displayBox0.setPixelUnit(new Pixel(300.0/vSize));

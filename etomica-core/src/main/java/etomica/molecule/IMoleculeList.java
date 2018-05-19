@@ -4,22 +4,24 @@
 
 package etomica.molecule;
 
+import java.util.List;
+
 /**
- * Interface for a set of IAtoms.  The IAtomSet might contain 0, 1, 2 or many
- * IAtoms.
+ * Interface for a set of IMolecules.  The IMoleculeList might contain 0, 1, 2 or many
+ * IMolecules.
  * 
  * @author Andrew Schultz
  */
-public interface IMoleculeList {
+public interface IMoleculeList extends List<IMolecule> {
 
     /**
-     * Returns the i-th atom, with numbering beginning from 0. 
+     * Returns the i-th molecule, with numbering beginning from 0.
      * If i is greater than count-1, throws an IllegalArgumentException.
      */
-    public IMolecule getMolecule(int i);
+    IMolecule get(int i);
 
     /**
-     * @return the number of atoms in the set
+     * @return the number of molecules in the list
      */
-    public int getMoleculeCount();
+    int size();
 }

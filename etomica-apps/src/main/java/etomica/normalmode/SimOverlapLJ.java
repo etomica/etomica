@@ -15,10 +15,10 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.*;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.*;
@@ -61,6 +61,8 @@ public class SimOverlapLJ extends Simulation {
     public SimOverlapLJ(Space _space, int numAtoms, double density, double temperature, double harmonicFudge) {
         super(_space);
 
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
 
         PotentialMaster potentialMasterTarget = new PotentialMasterMonatomic(this);
         integrators = new IntegratorBox[2];
@@ -68,43 +70,38 @@ public class SimOverlapLJ extends Simulation {
         meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
-
         // TARGET
-        boxTarget = new Box(space);
-        addBox(boxTarget);
-        boxTarget.setNMolecules(species, numAtoms);
-
-        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature);
-        MCMoveAtomCoupled atomMove = new MCMoveAtomCoupled(potentialMasterTarget, new MeterPotentialEnergy(potentialMasterTarget), getRandom(), space);
-        atomMove.setStepSize(0.1);
-        atomMove.setStepSizeMax(0.5);
-        integratorTarget.getMoveManager().addMCMove(atomMove);
-        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
-
-        integrators[1] = integratorTarget;
-
         if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
-            boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms/density);
+            primitive = new PrimitiveCubic(space, 1.0 / density);
+            boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms / density);
             nCells = new int[]{numAtoms};
             basis = new BasisMonatomic(space);
         } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            primitive = new PrimitiveCubic(space, n*L);
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            primitive = new PrimitiveCubic(space, n * L);
             primitiveUnitCell = new PrimitiveCubic(space, L);
 
-            nCells = new int[]{n,n,n};
+            nCells = new int[]{n, n, n};
             boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
             Basis basisFCC = new BasisCubicFcc();
             basis = new BasisBigCell(space, basisFCC, nCells);
         }
-        boxTarget.setBoundary(boundaryTarget);
+        boxTarget = this.makeBox(boundaryTarget);
+        boxTarget.setNMolecules(species, numAtoms);
+
+        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature, boxTarget);
+        MCMoveAtomCoupled atomMove = new MCMoveAtomCoupled(potentialMasterTarget, new MeterPotentialEnergy(potentialMasterTarget), getRandom(), space);
+        atomMove.setStepSize(0.1);
+        atomMove.setStepSizeMax(0.5);
+        integratorTarget.getMoveManager().addMCMove(atomMove);
+        ((MCMoveStepTracker) atomMove.getTracker()).setNoisyAdjustment(true);
+
+        integrators[1] = integratorTarget;
+
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
-        coordinateDefinitionTarget.initializeCoordinates(new int[] {1,1,1});
+        coordinateDefinitionTarget.initializeCoordinates(new int[]{1, 1, 1});
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
         double truncationRadius = boundaryTarget.getBoxSize().getX(0) * 0.45;
@@ -114,61 +111,55 @@ public class SimOverlapLJ extends Simulation {
         atomMove.setPotential(pTruncated);
 
 
-		/*
-		 * 1-body Potential to Constraint the atom from moving too far away from
-		 * its lattice-site
-		 */
-		p1Constraint = new P1Constraint(space, primitiveUnitCell.getSize()[0], boxTarget, coordinateDefinitionTarget);
+        /*
+         * 1-body Potential to Constraint the atom from moving too far away from
+         * its lattice-site
+         */
+        p1Constraint = new P1Constraint(space, primitiveUnitCell.getSize()[0], boxTarget, coordinateDefinitionTarget);
         potentialMasterTarget.addPotential(p1Constraint, new AtomType[]{sphereType});
 
         if (potentialMasterTarget instanceof PotentialMasterList) {
             double neighborRange = truncationRadius;
             int cellRange = 7;
-            ((PotentialMasterList)potentialMasterTarget).setRange(neighborRange);
-            ((PotentialMasterList)potentialMasterTarget).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+            ((PotentialMasterList) potentialMasterTarget).setRange(neighborRange);
+            ((PotentialMasterList) potentialMasterTarget).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMasterTarget).getNeighborManager(boxTarget).reset();
-            int potentialCells = ((PotentialMasterList)potentialMasterTarget).getNbrCellManager(boxTarget).getLattice().getSize()[0];
-            if (potentialCells < cellRange*2+1) {
-                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+            ((PotentialMasterList) potentialMasterTarget).getNeighborManager(boxTarget).reset();
+            int potentialCells = ((PotentialMasterList) potentialMasterTarget).getNbrCellManager(boxTarget).getLattice().getSize()[0];
+            if (potentialCells < cellRange * 2 + 1) {
+                throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
             }
-            if (potentialCells > cellRange*2+1) {
-                System.out.println("could probably use a larger truncation radius ("+potentialCells+" > "+(cellRange*2+1)+")");
+            if (potentialCells > cellRange * 2 + 1) {
+                System.out.println("could probably use a larger truncation radius (" + potentialCells + " > " + (cellRange * 2 + 1) + ")");
             }
         }
 
-        integratorTarget.setBox(boxTarget);
-
         potentialMasterTarget.lrcMaster().setEnabled(false);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
-        meterPE.setBox(boxTarget);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget, boxTarget);
         double latticeEnergy = meterPE.getDataAsScalar();
 
         // HARMONIC
         boundaryHarmonic = new BoundaryRectangularPeriodic(space);
-        boxHarmonic = new Box(boundaryHarmonic, space);
-        addBox(boxHarmonic);
+        if (space.D() == 1) {
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms / density);
+        } else {
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
+        }
+        boxHarmonic = this.makeBox(boundaryHarmonic);
         boxHarmonic.setNMolecules(species, numAtoms);
 
-        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, random, 1.0);
+        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, random, 1.0, boxHarmonic);
 
         MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(move);
         integrators[0] = integratorHarmonic;
 
-        if (space.D() == 1) {
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms/density);
-        } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
-        }
-        boxHarmonic.setBoundary(boundaryHarmonic);
-
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
-        coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinitionHarmonic.initializeCoordinates(new int[]{1, 1, 1});
 
-        String inFile = "LJDB_nA"+numAtoms+"_d0962";
+        String inFile = "LJDB_nA" + numAtoms + "_d0962";
         normalModes = new NormalModesFromFile(inFile, space.D());
         normalModes.setHarmonicFudge(harmonicFudge);
         //normalModes.setTemperature(temperature);
@@ -184,11 +175,9 @@ public class SimOverlapLJ extends Simulation {
 
         move.setBox(boxHarmonic);
 
-        integratorHarmonic.setBox(boxHarmonic);
-
         if (potentialMasterTarget instanceof PotentialMasterList) {
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMasterTarget).getNeighborManager(boxHarmonic).reset();
+            ((PotentialMasterList) potentialMasterTarget).getNeighborManager(boxHarmonic).reset();
         }
 
         // OVERLAP
@@ -342,7 +331,7 @@ public class SimOverlapLJ extends Simulation {
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
             integrators[iBox].getEventManager().addListener(pumpListener);
             if (iBox == 1) {
-                pumpListener.setInterval(boxTarget.getMoleculeList().getMoleculeCount());
+                pumpListener.setInterval(boxTarget.getMoleculeList().size());
             }
         }
         else {

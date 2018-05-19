@@ -20,19 +20,19 @@ public class ConformationWaterTIP4P implements IConformation, java.io.Serializab
     
     public void initializePositions(IAtomList list){
         
-        IAtom o = list.getAtom(SpeciesWater4P.indexO);
+        IAtom o = list.get(SpeciesWater4P.indexO);
         o.getPosition().E(new double[] {0, 0, 0.0});
 
         double x = bondLengthOH*Math.sin(0.5*angleHOH);
         double y = bondLengthOH*Math.cos(0.5*angleHOH);
         
-        IAtom h1 = list.getAtom(SpeciesWater4P.indexH1);
+        IAtom h1 = list.get(SpeciesWater4P.indexH1);
         h1.getPosition().E(new double[] {-x, y, 0.0});
                 
-        IAtom h2 = list.getAtom(SpeciesWater4P.indexH2);
+        IAtom h2 = list.get(SpeciesWater4P.indexH2);
         h2.getPosition().E(new double[] {+x, y, 0.0});
         
-        IAtom m = list.getAtom(SpeciesWater4P.indexM);
+        IAtom m = list.get(SpeciesWater4P.indexM);
         m.getPosition().E(new double[] {0, rOM, 0.0});
     }
     

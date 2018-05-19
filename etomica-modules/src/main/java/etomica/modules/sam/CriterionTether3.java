@@ -53,8 +53,8 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
     }
 
     public boolean accept(IAtomList pair) {
-        IAtom atom1 = pair.getAtom(0);
-        IAtom atom2 = pair.getAtom(1);
+        IAtom atom1 = pair.get(0);
+        IAtom atom2 = pair.get(1);
         if (atom1.getIndex() != 0 || atom1.getParentGroup().getType() != polymerSpecies) {
             IAtom foo = atom2;
             atom2 = atom1;
@@ -70,8 +70,8 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
         if (bondedSurfaceAtoms == null) {
             return false;
         }
-        for (int i=0; i<bondedSurfaceAtoms.getAtomCount(); i++) {
-            if (bondedSurfaceAtoms.getAtom(i) == atom2) {
+        for (int i = 0; i<bondedSurfaceAtoms.size(); i++) {
+            if (bondedSurfaceAtoms.get(i) == atom2) {
                 return true;
             }
         }
@@ -87,10 +87,6 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
 
     public boolean unsafe() {
         return false;
-    }
-
-    public Class getMoleculeAgentClass() {
-        return IAtomList.class;
     }
 
     public Object makeAgent(IMolecule a) {

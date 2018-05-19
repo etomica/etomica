@@ -16,7 +16,6 @@ import etomica.lattice.crystal.Primitive;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
-import etomica.molecule.MoleculeListWrapper;
 import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -55,7 +54,7 @@ public abstract class CoordinateDefinition {
     public void initializeCoordinates(int[] nCells) {
         MoleculeIteratorAllMolecules atomIterator = new MoleculeIteratorAllMolecules(box);
         IMoleculeList moleculeList = box.getMoleculeList();
-        if (moleculeList.getMoleculeCount() == 0) {
+        if (moleculeList.size() == 0) {
             throw new RuntimeException("There are no atoms yet!");
         }
 
@@ -108,8 +107,8 @@ public abstract class CoordinateDefinition {
         indexIterator.reset();
         Vector position = lattice.getSpace().makeVector();
         MoleculeArrayList currentList = null;
-        for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+        for (int iMolecule = 0; iMolecule<moleculeList.size(); iMolecule++) {
+            IMolecule molecule = moleculeList.get(iMolecule);
             // initialize coordinates of child atoms
             molecule.getType().initializeConformation(molecule);
 
@@ -127,7 +126,7 @@ public abstract class CoordinateDefinition {
                 // new cell
                 iCell++;
                 currentList = new MoleculeArrayList(basisSize);
-                cells[iCell] = new BasisCell(new MoleculeListWrapper(currentList), lattice.getSpace().makeVector());
+                cells[iCell] = new BasisCell(currentList, lattice.getSpace().makeVector());
                 cells[iCell].cellPosition.E(position);
             }
             currentList.add(molecule);
@@ -135,7 +134,7 @@ public abstract class CoordinateDefinition {
         
         initNominalU(cells[totalCells-1].molecules);
         
-        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box, Vector.class);
+        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box);
     }
 
     

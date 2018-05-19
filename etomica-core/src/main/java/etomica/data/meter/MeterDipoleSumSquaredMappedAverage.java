@@ -5,13 +5,11 @@
 package etomica.data.meter;
 
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorRigidIterative.MoleculeAgent;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.molecule.DipoleSource;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
@@ -51,7 +49,7 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
     protected Vector work;
     protected MoleculeAgentManager moleculeAgentManager;
     protected DipoleSource dipoleSource;
-    protected AtomLeafAgentManager atomAgentManager;
+    protected AtomLeafAgentManager<Vector> atomAgentManager;
     protected PotentialCalculationForceSum pcForce;
 
 	public MeterDipoleSumSquaredMappedAverage(final Space space, Box box, Simulation sim, double dipoleMagnitude, double temperature, PotentialMaster potentialMaster) {
@@ -76,15 +74,8 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
 		dr = space.makeVector();
 		work = space.makeVector();
 		
-		AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> atomAgentSource = new AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent>() {
-		    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
-		        return new IntegratorVelocityVerlet.MyAgent(space);
-		    }
-		    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {/**do nothing**/}
-        };
-		
 		pcForce = new PotentialCalculationForceSum();
-		atomAgentManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(atomAgentSource , box,IntegratorVelocityVerlet.MyAgent.class);
+		atomAgentManager = new AtomLeafAgentManager<Vector>(a -> space.makeVector() , box);
         pcForce.setAgentManager(atomAgentManager);
 		
 	}
@@ -102,7 +93,7 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
 		IMoleculeList moleculeList = box.getMoleculeList();
 		
 		
-		int nM = moleculeList.getMoleculeCount();	
+		int nM = moleculeList.size();
 		
 		//TODO
 //		IAtomList atomList0 = moleculeList.getMolecule(0).getChildList();
@@ -129,12 +120,12 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
 		 double A = 0;
 		 vectorSum.E(0);
 		 for (int i = 0;i < nM; i++){
-			 dr.E(dipoleSource.getDipole(moleculeList.getMolecule(i)));
+			 dr.E(dipoleSource.getDipole(moleculeList.get(i)));
 			 dr.normalize();
 			 
 			 A += -2.0/3.0*bt2*mu2*(dr.squared()-1);
 			 
-			 MoleculeAgent torqueAgent = (MoleculeAgent) moleculeAgentManager.getAgent(moleculeList.getMolecule(i));
+			 MoleculeAgent torqueAgent = (MoleculeAgent) moleculeAgentManager.getAgent(moleculeList.get(i));
 			 dr.XE(torqueAgent.torque);
 			 vectorSum.PE(dr);
 		 }//i loop
@@ -180,15 +171,5 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
 		// TODO Auto-generated method stub
 		
 	}
-
-	public Class getMoleculeAgentClass() {
-		// TODO Auto-generated method stub
-		return MoleculeAgent.class;
-	}
-	
-	public AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> getAtomAgentManager(){
-		return atomAgentManager;
-	}
-	
 
 }

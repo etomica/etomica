@@ -18,9 +18,9 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.*;
-import etomica.listener.IntegratorListenerAction;
 import etomica.molecule.IMolecule;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
@@ -75,21 +75,51 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
     public SimOverlapSoftSphereEinHarm(Space _space, int numAtoms, double density, boolean slanty, double temperature, double spring, double frac, int exponent, double rc) {
         super(_space);
 
-        if (slanty) {
-            BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
-            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class);
-            potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
-        }
-        else {
-            potentialMaster = new PotentialMasterList(this, space);
-        }
-
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
+        if (slanty) {
+            BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
+            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
+            potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
+        } else {
+            potentialMaster = new PotentialMasterList(this, space);
+        }
+
         // TARGET
-        box = new Box(space);
-        addBox(box);
+        double nbrDistance = 0;
+        if (slanty) {
+            int c = (int) Math.round(Math.pow(numAtoms, 1.0 / 3.0));
+            nCells = new int[]{c, c, c};
+
+            double L = Math.pow(Math.sqrt(2) / density, 1.0 / 3.0);
+            nbrDistance = L;
+            double angle = Math.PI / 3;
+
+//            primitive = new PrimitiveFcc(space, L*c);
+            primitive = new PrimitiveTriclinic(space, L * c, L * c, L * c, angle, angle, angle);
+
+            boundary = new BoundaryDeformablePeriodic(space, primitive.vectors());
+            ((BoundaryDeformablePeriodic) boundary).setTruncationRadius(rc);
+            boundaryRef = new BoundaryDeformablePeriodic(space, primitive.vectors());
+            ((BoundaryDeformablePeriodic) boundaryRef).setTruncationRadius(rc);
+            Basis basisSimple = new Basis(new Vector3D[]{new Vector3D(0.0, 0.0, 0.0)});
+            basis = new BasisBigCell(space, basisSimple, nCells);
+        } else {
+
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
+            nbrDistance = L / Math.sqrt(2);
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            primitive = new PrimitiveCubic(space, n * L);
+
+            nCells = new int[]{n, n, n};
+            boundary = new BoundaryRectangularPeriodic(space, n * L);
+            boundaryRef = new BoundaryRectangularPeriodic(space, n * L);
+            Basis basisFCC = new BasisCubicFcc();
+            basis = new BasisBigCell(space, basisFCC, nCells);
+        }
+        System.out.println("nbr distance " + nbrDistance);
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
         integrators = new IntegratorBox[2];
@@ -97,45 +127,10 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
-        integrators[1] = new IntegratorMC(potentialMaster, getRandom(), temperature);
-        double nbrDistance = 0;
-        if (slanty) {
-            int c = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
-            nCells = new int[]{c,c,c};
-
-            double L = Math.pow(Math.sqrt(2)/density, 1.0/3.0);
-            nbrDistance = L;
-            double angle = Math.PI/3;
-
-//            primitive = new PrimitiveFcc(space, L*c);
-            primitive = new PrimitiveTriclinic(space, L*c,L*c,L*c, angle,angle,angle);
-
-            boundary = new BoundaryDeformablePeriodic(space, primitive.vectors());
-            ((BoundaryDeformablePeriodic)boundary).setTruncationRadius(rc);
-            boundaryRef = new BoundaryDeformablePeriodic(space, primitive.vectors());
-            ((BoundaryDeformablePeriodic)boundaryRef).setTruncationRadius(rc);
-            Basis basisSimple = new Basis(new Vector3D[]{new Vector3D(0.0, 0.0, 0.0)});
-            basis = new BasisBigCell(space, basisSimple, nCells);
-        }
-        else {
-
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            nbrDistance = L / Math.sqrt(2);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            primitive = new PrimitiveCubic(space, n*L);
-
-            nCells = new int[]{n,n,n};
-            boundary = new BoundaryRectangularPeriodic(space, n * L);
-            boundaryRef = new BoundaryRectangularPeriodic(space, n * L);
-            Basis basisFCC = new BasisCubicFcc();
-            basis = new BasisBigCell(space, basisFCC, nCells);
-        }
-        System.out.println("nbr distance "+nbrDistance);
-
-        box.setBoundary(boundary);
+        integrators[1] = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
 
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
         potential = new P2SoftSphericalTruncated(space, potential, rc);
@@ -145,26 +140,23 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
 
         potentialMaster.lrcMaster().setEnabled(false);
 
-        integrators[1].setBox(box);
-
         int cellRange = 7;
         potentialMaster.setRange(rc);
         potentialMaster.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
         potentialMaster.getNeighborManager(box).reset();
         int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange*2+1) {
-            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+        if (potentialCells < cellRange * 2 + 1) {
+            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         latticeEnergy = meterPE.getDataAsScalar();
-        System.out.println("uLat "+latticeEnergy/numAtoms);
+        System.out.println("uLat " + latticeEnergy / numAtoms);
 
         P1HarmonicSite p1Harmonic = new P1HarmonicSite(space);
         p1Harmonic.setSpringConstant(spring);
-        p1Harmonic.setAtomAgentManager(box,coordinateDefinition.siteManager);
+        p1Harmonic.setAtomAgentManager(box, coordinateDefinition.siteManager);
         potentialMasterHarmonic = new PotentialMasterMonatomic(this);
         potentialMasterHarmonic.addPotential(p1Harmonic, new AtomType[]{sphereType, sphereType});
 
@@ -176,18 +168,17 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         atomMove.setStepSizeMax(0.5);
         atomMove.setDoExcludeNonNeighbors(true);
         atomMove.setPotential(potential);
-        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, nbrDistance, this);
+        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, nbrDistance);
 //        atomMove.setConstraint(p1Constraint);
-        ((IntegratorMC)integrators[1]).getMoveManager().addMCMove(atomMove);
+        ((IntegratorMC) integrators[1]).getMoveManager().addMCMove(atomMove);
 //      ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
 
 
         // HARMONIC
-        boxRef = new Box(boundaryRef, space);
-        addBox(boxRef);
+        boxRef = this.makeBox(boundaryRef);
         boxRef.setNMolecules(species, numAtoms);
 
-        IntegratorMC integratorRef = new IntegratorMC(null, random, 1.0); //null changed on 11/20/2009
+        IntegratorMC integratorRef = new IntegratorMC(null, random, 1.0, boxRef); //null changed on 11/20/2009
 
         MCMoveHarmonicEin move = new MCMoveHarmonicEin(getRandom());
         move.setAlphaEin(spring);
@@ -195,11 +186,11 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         integrators[0] = integratorRef;
 
         CoordinateDefinitionLeaf coordinateDefinitionRef = new CoordinateDefinitionLeaf(boxRef, primitive, basis, space);
-        coordinateDefinitionRef.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinitionRef.initializeCoordinates(new int[]{1, 1, 1});
 
         potentialMaster.getNeighborManager(boxRef).reset();
 
-        String inFile = "inputSSDB"+numAtoms;
+        String inFile = "inputSSDB" + numAtoms;
         normalModes = new NormalModesFromFile(inFile, space.D());
         /*
          * nuke this line if it is DB
@@ -217,8 +208,6 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         move.setFrac(frac);
 
         move.setBox(boxRef);
-
-        integratorRef.setBox(boxRef);
 
         // OVERLAP
         integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorRef, integrators[1]});
@@ -244,7 +233,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
-        ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
+        ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
     }
 
     /**
@@ -292,7 +281,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         sim.setNumAlpha(numAlpha);
         sim.setAlphaCenter(alphaCenter, alphaSpan);
         if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
                 protected Color[] allColors;
@@ -389,7 +378,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
             accumulatorPumps[iBox] = new DataPump(meters[iBox], newAccumulator);
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
             integrators[iBox].getEventManager().addListener(pumpListener);
-            pumpListener.setInterval(box.getLeafList().getAtomCount());
+            pumpListener.setInterval(box.getLeafList().size());
         } else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);
         }

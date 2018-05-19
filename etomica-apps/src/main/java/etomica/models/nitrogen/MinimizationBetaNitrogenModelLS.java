@@ -23,7 +23,7 @@ import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.models.nitrogen.LatticeSumCrystalMolecular.DataGroupLSC;
 import etomica.molecule.*;
 import etomica.normalmode.BasisBigCell;
-import etomica.paracetamol.AtomActionTransformed;
+import etomica.action.AtomActionTransformed;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -47,113 +47,112 @@ import java.util.Arrays;
 public class MinimizationBetaNitrogenModelLS extends Simulation{
 
 	public MinimizationBetaNitrogenModelLS(Space space, double density, double rC) {
-		super(space);
-		this.space = space;
-		this.density = density;
-		
-		double ratio = 1.631;
-		double aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
-		double cDim = aDim*ratio;
-		System.out.println("density: " + density);
-		System.out.println("aDim: " + aDim + " ;cDim: " + cDim);
-		
-		int [] nCells = new int[]{1,2,1};
-		Basis basisHCP = new BasisHcp();
-		basis = new BasisBigCell(space, basisHCP, nCells);
-        
-		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		SpeciesN2 species = new SpeciesN2(space);
-		species.setConformation(conformation);
-		addSpecies(species);
-		
-		SpeciesN2B ghostSpecies = new SpeciesN2B(space);
-		ghostSpecies.setConformation(conformation);
-		addSpecies(ghostSpecies);
-		
-		int numMolecule = 4;
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecule);		
-		
-		ghostBox = new Box(space);
-		addBox(ghostBox);
-		ghostBox.setNMolecules(ghostSpecies, 1);
-		
+        super(space);
+        this.space = space;
+        this.density = density;
+
+        double ratio = 1.631;
+        double aDim = Math.pow(4.0 / (Math.sqrt(3.0) * ratio * density), 1.0 / 3.0);
+        double cDim = aDim * ratio;
+        System.out.println("density: " + density);
+        System.out.println("aDim: " + aDim + " ;cDim: " + cDim);
+
+        int[] nCells = new int[]{1, 2, 1};
+        Basis basisHCP = new BasisHcp();
+        basis = new BasisBigCell(space, basisHCP, nCells);
+
+        ConformationNitrogen conformation = new ConformationNitrogen(space);
+        SpeciesN2 species = new SpeciesN2(space);
+        species.setConformation(conformation);
+        addSpecies(species);
+
+        SpeciesN2B ghostSpecies = new SpeciesN2B(space);
+        ghostSpecies.setConformation(conformation);
+        addSpecies(ghostSpecies);
+
+        int numMolecule = 4;
 		Vector[] boxDim = new Vector[3];
-		boxDim[0] = space.makeVector(new double[]{aDim, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-2*aDim*Math.cos(Degree.UNIT.toSim(60)), 2*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, cDim});
-		
+		boxDim[0] = Vector.of(new double[]{aDim, 0, 0});
+		boxDim[1] = Vector.of(new double[]{-2 * aDim * Math.cos(Degree.UNIT.toSim(60)), 2 * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
+		boxDim[2] = Vector.of(new double[]{0, 0, cDim});
+
 		BoundaryDeformablePeriodicSwitch boundary = new BoundaryDeformablePeriodicSwitch(space, boxDim);
 		boundary.setDoPBC(false);
-		primitive = new PrimitiveTriclinic(space, aDim, 2*aDim, cDim, Math.PI*(90/180.0),Math.PI*(90/180.0),Math.PI*(120/180.0));
-		box.setBoundary(boundary);
-	
-		BetaPhaseLatticeParameterLS parameters = new BetaPhaseLatticeParameterLS();
-		double[][] param = parameters.getParameter(density);
-		
-		double[] u = new double[20];
-		int kParam=0;
-		for (int i=0; i<param.length;i++){
-			for (int j=0; j<param[0].length;j++){
-				u[kParam]=param[i][j];
-				kParam++;
-			}	
-		}
-		this.u = u;
-		
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		coordinateDef.setIsBetaLatticeSum();
-		coordinateDef.setIsDoLatticeSum();
-		coordinateDef.setOrientationVectorBetaLatticeSum(space, density, param);
-		coordinateDef.initializeCoordinates(new int[]{1,1,1});
-		
-		potential = new P2Nitrogen(space, rC);
-		potential.setBox(box);
-		potential.setEnablePBC(false);
-		
-		this.nLayer = (int)(rC/aDim+0.5);
-		
-		FunctionData<Object> function = new FunctionData<Object>() {
-			public IData f(Object obj) {
-				data.x = potential.energy((IMoleculeList)obj);
-				return data;
-			}
-			public IDataInfo getDataInfo() {
-				return dataInfo;
-			}
-			final DataInfo dataInfo = new DataDouble.DataInfoDouble("Lattice energy", Energy.DIMENSION);
-			final DataDouble data = new DataDouble();
-		};
-		
-		BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basis);
-		LatticeSumCrystalMolecular latticeSum = new LatticeSumCrystalMolecular(lattice, coordinateDef, ghostBox);
-		latticeSum.setMaxLatticeShell(nLayer);
-		
-		double sum = 0;
-	    double basisDim = lattice.getBasis().getScaledCoordinates().length;
-		DataGroupLSC data = (DataGroupLSC)latticeSum.calculateSum(function);
-        for(int j=0; j<basisDim; j++) {
-            for(int jp=0; jp<basisDim; jp++) {
-                sum += ((DataDouble)data.getDataReal(j,jp)).x; 
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numMolecule);
+
+        ghostBox = this.makeBox();
+        ghostBox.setNMolecules(ghostSpecies, 1);
+
+        primitive = new PrimitiveTriclinic(space, aDim, 2 * aDim, cDim, Math.PI * (90 / 180.0), Math.PI * (90 / 180.0), Math.PI * (120 / 180.0));
+
+        BetaPhaseLatticeParameterLS parameters = new BetaPhaseLatticeParameterLS();
+        double[][] param = parameters.getParameter(density);
+
+        double[] u = new double[20];
+        int kParam = 0;
+        for (int i = 0; i < param.length; i++) {
+            for (int j = 0; j < param[0].length; j++) {
+                u[kParam] = param[i][j];
+                kParam++;
+            }
+        }
+        this.u = u;
+
+        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        coordinateDef.setIsBetaLatticeSum();
+        coordinateDef.setIsDoLatticeSum();
+        coordinateDef.setOrientationVectorBetaLatticeSum(space, density, param);
+        coordinateDef.initializeCoordinates(new int[]{1, 1, 1});
+
+        potential = new P2Nitrogen(space, rC);
+        potential.setBox(box);
+        potential.setEnablePBC(false);
+
+        this.nLayer = (int) (rC / aDim + 0.5);
+
+        FunctionData<Object> function = new FunctionData<Object>() {
+            public IData f(Object obj) {
+                data.x = potential.energy((IMoleculeList) obj);
+                return data;
+            }
+
+            public IDataInfo getDataInfo() {
+                return dataInfo;
+            }
+
+            final DataInfo dataInfo = new DataDouble.DataInfoDouble("Lattice energy", Energy.DIMENSION);
+            final DataDouble data = new DataDouble();
+        };
+
+        BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basis);
+        LatticeSumCrystalMolecular latticeSum = new LatticeSumCrystalMolecular(lattice, coordinateDef, ghostBox);
+        latticeSum.setMaxLatticeShell(nLayer);
+
+        double sum = 0;
+        double basisDim = lattice.getBasis().getScaledCoordinates().length;
+        DataGroupLSC data = (DataGroupLSC) latticeSum.calculateSum(function);
+        for (int j = 0; j < basisDim; j++) {
+            for (int jp = 0; jp < basisDim; jp++) {
+                sum += ((DataDouble) data.getDataReal(j, jp)).x;
             }
         }
 
-        initialLatticeEnergy = (0.5*sum/basisDim);
-		System.out.println("initial energy: " + initialLatticeEnergy);
-		
-		
-		atomGroupAction = new MoleculeChildAtomAction(new AtomActionTransformed(lattice.getSpace()));
-		
-		translateBy = new AtomActionTranslateBy(coordinateDef.getPrimitive().getSpace());
-        atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy); 
-		lsPosition = space.makeVector();
-				
-		xVecBox = Math.sqrt(box.getBoundary().getEdgeVector(0).squared());
-		yVecBox = Math.sqrt(box.getBoundary().getEdgeVector(1).squared());
-		zVecBox = Math.sqrt(box.getBoundary().getEdgeVector(2).squared());
-		
-	}
+        initialLatticeEnergy = (0.5 * sum / basisDim);
+        System.out.println("initial energy: " + initialLatticeEnergy);
+
+
+        atomGroupAction = new MoleculeChildAtomAction(new AtomActionTransformed(lattice.getSpace()));
+
+        translateBy = new AtomActionTranslateBy(coordinateDef.getPrimitive().getSpace());
+        atomGroupActionTranslate = new MoleculeChildAtomAction(translateBy);
+        lsPosition = space.makeVector();
+
+        xVecBox = Math.sqrt(box.getBoundary().getEdgeVector(0).squared());
+        yVecBox = Math.sqrt(box.getBoundary().getEdgeVector(1).squared());
+        zVecBox = Math.sqrt(box.getBoundary().getEdgeVector(2).squared());
+
+    }
 	
 	public double getEnergy (double[] u){
 
@@ -254,18 +253,18 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 	            MoleculePair pair = new MoleculePair();
 		        	            
 		        for (int i=0; i<4; i++) {
-		            IMolecule molecule0 = sim.box.getMoleculeList().getMolecule(i);
-		            pair.atom0 = molecule0;
+		            IMolecule molecule0 = sim.box.getMoleculeList().get(i);
+		            pair.mol0 = molecule0;
 		            
 		            Vector destination = sim.getSpace().makeVector();
 		            Vector f = sim.getSpace().makeVector();
 		            torques[i].E(0.0);
 		            
 		           	for(int jp=0; jp<4; jp++){	
-		                IMolecule ghostMol = sim.ghostBox.getMoleculeList(sim.ghostBox.getMoleculeList().getMolecule(0).getType()).getMolecule(0);
+		                IMolecule ghostMol = sim.ghostBox.getMoleculeList(sim.ghostBox.getMoleculeList().get(0).getType()).get(0);
 	                    ghostMol.getType().initializeConformation(ghostMol);
 	                    
-	                    pair.atom1 = ghostMol;
+	                    pair.mol1 = ghostMol;
 	            		
 	                    int rotationNum = jp%4;
 	                    ((AtomActionTransformed)sim.atomGroupAction.getAtomAction()).setTransformationTensor(sim.coordinateDef.yOrientationTensor[rotationNum]);
@@ -274,9 +273,9 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		                ((AtomActionTransformed)sim.atomGroupAction.getAtomAction()).setTransformationTensor(sim.coordinateDef.xzOrientationTensor[rotationNum]);
 		                sim.atomGroupAction.actionPerformed(ghostMol);
 		            	
-		            	destination.E(pos.position(sim.box.getMoleculeList().getMolecule(jp)));
+		            	destination.E(pos.position(sim.box.getMoleculeList().get(jp)));
 		        		translator.setDestination(destination);
-						translator.actionPerformed(pair.atom1); 
+						translator.actionPerformed(pair.mol1);
 						
 		            	int nLayer = sim.nLayer;
 		            	for(int x=-nLayer; x<=nLayer; x++){
@@ -376,7 +375,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 		        }
 		
 		        for (int i=0; i<4; i++) {
-		            IMolecule iMol = sim.box.getMoleculeList().getMolecule(i);
+		            IMolecule iMol = sim.box.getMoleculeList().get(i);
                     p.E(pos.position(iMol));
 	                for (int j=0; j<3; j++) {
 	                    if (x0[i*3+j] == 0) {
@@ -388,7 +387,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
 	                translator.actionPerformed(iMol);
 	                
 	                if (orient0[i].isZero()) {
-                        orient0[i].E(iMol.getChildList().getAtom(0).getPosition());
+                        orient0[i].E(iMol.getChildList().get(0).getPosition());
                         orient0[i].ME(pos.position(iMol));
                         orient0[i].normalize();
                     }
@@ -418,7 +417,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
         double disp = 0.0;
         double angleDisp = 0.0;
         for (int i=0; i<4; i++) {
-            IMolecule iMol = sim.box.getMoleculeList().getMolecule(i);
+            IMolecule iMol = sim.box.getMoleculeList().get(i);
             p.E(pos.position(iMol));
             for (int j=0; j<3; j++) {
 //                System.out.println(x0[i*3+j]+" => "+p.getX(j)+"    "+(p.getX(j)-x0[i*3+j]));
@@ -427,7 +426,7 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
                 disp += dx*dx;
             }
             
-            orientf[i].E(iMol.getChildList().getAtom(0).getPosition());
+            orientf[i].E(iMol.getChildList().get(0).getPosition());
             orientf[i].ME(pos.position(iMol));
             orientf[i].normalize();
             angleDisp += orientf[i].Mv1Squared(orient0[i]);
@@ -499,8 +498,8 @@ public class MinimizationBetaNitrogenModelLS extends Simulation{
     protected static void doTransform(IMolecule molecule, IMoleculePositionDefinition posDef, Tensor rotationTensor) {
         IAtomList childList = molecule.getChildList();
         Vector com = posDef.position(molecule);
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.ME(com);
             rotationTensor.transform(r);

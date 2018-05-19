@@ -37,7 +37,7 @@ import etomica.graphics.Drawable;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.lattice.LatticeCubicSimple;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Rectangle;
@@ -71,7 +71,7 @@ public class Osmosis extends SimulationGraphic {
 
     public Osmosis(OsmosisSim simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         
@@ -84,7 +84,7 @@ public class Osmosis extends SimulationGraphic {
 
 	    //display of box
         final DisplayBox displayBox = getDisplayBox(sim.box);
-        ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
+        ColorSchemeByType colorScheme = new ColorSchemeByType();
 
         colorScheme.setColor(sim.speciesSolvent.getLeafType(), Color.blue);
         colorScheme.setColor(sim.speciesSolute.getLeafType(), Color.red);
@@ -117,8 +117,7 @@ public class Osmosis extends SimulationGraphic {
 	    displayCycles.setPrecision(6);	
 
 	    // Right side of membrane osmotic
-        osmosisPMeter = new MeterOsmoticPressure(sim.getSpace(), new P1HardBoundary[]{sim.boundaryHardA,sim.boundaryHardB}); 
-        osmosisPMeter.setIntegrator(sim.integrator);
+        osmosisPMeter = new MeterOsmoticPressure(new P1HardBoundary[]{sim.boundaryHardA,sim.boundaryHardB}, sim.integrator);
         final AccumulatorAverageCollapsing osmosisPMeterAvg = new AccumulatorAverageCollapsing();
         final DataPump osmosisPump = new DataPump(osmosisPMeter, osmosisPMeterAvg);
         dataStreamPumps.add(osmosisPump);

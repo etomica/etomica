@@ -16,6 +16,7 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.units.Degree;
 import etomica.units.dimensions.*;
@@ -23,6 +24,7 @@ import etomica.util.Arrays;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -44,12 +46,13 @@ public class LatticeEditor {
     protected BravaisLattice currentLattice;
     private JPanel panel;
     protected Box box;
+    private BoundaryDeformableLattice boundary;
     protected ISpecies species;
     private DeviceBox[] angleBoxes, sizeBoxes;
     public JPanel anglePanel, sizePanel;
     public JPanel boxPanel;
     protected CrystalViewer viewer;
-    protected final HashMap latticeNameHash;
+    protected final HashMap<BravaisLattice, String> latticeNameHash;
     protected LatticeEditorBoxPropertyArray pvBox = null; 
     private final Space space;
     
@@ -74,14 +77,16 @@ public class LatticeEditor {
     private static final int ANGLE_START_INDEX = 3;
     private static final int ANGLE_END_INDEX = 5;
 
+    @SuppressWarnings("unchecked")
     public LatticeEditor(CrystalViewer viewer, BravaisLattice[] lattices,
     		             String[] latticeNames, Space _space) {
     
         this.viewer = viewer;
         this.space = _space;
         box = viewer.box;
+        boundary = viewer.boundary;
         species = viewer.species;
-        latticeNameHash = new HashMap();
+        latticeNameHash = new HashMap<>();
         for (int i=0; i<lattices.length; i++) {
             latticeNameHash.put(lattices[i], latticeNames[i]);
         }
@@ -279,11 +284,7 @@ public class LatticeEditor {
     }
 
     protected void update() {
-        double[]  boxSize = new double[] { size,size,size };
-
-        box.setBoundary(new BoundaryDeformableLattice
-                                             (currentLattice.getPrimitive(),
-                                              boxSize));
+        boundary.updateSize(currentLattice.getPrimitive(), new int[]{size, size, size});
 
         int numAtoms = size*size*size;
         if (currentLattice instanceof BravaisLatticeCrystal) {
@@ -296,18 +297,15 @@ public class LatticeEditor {
     }
 
     protected void changeBox() {
-    	
-    	Box oldBox = box;
-        double[]  boxSize = new double[] { 10.0, 10.0, 10.0 };
 
-    	box = new Box(new BoundaryDeformableLattice
-    			                             (currentLattice.getPrimitive(),
-    			    		                  boxSize), space);
-    	if(oldBox != null) {
-    	    viewer.sim.removeBox(oldBox);
-    	}
-    	viewer.sim.addBox(box);
-    	viewer.displayBox.setBox(box);
+        Box oldBox = box;
+        double[] boxSize = new double[]{10.0, 10.0, 10.0};
+        if (oldBox != null) {
+            viewer.sim.removeBox(oldBox);
+        }
+
+        box = viewer.sim.makeBox(new BoundaryDeformableLattice(currentLattice.getPrimitive(), boxSize));
+        viewer.displayBox.setBox(box);
     }
 
     public JPanel getPanel() {return panel;}

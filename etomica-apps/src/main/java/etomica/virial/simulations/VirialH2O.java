@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.virial.simulations;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
@@ -28,15 +29,14 @@ import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Kelvin;
-import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
-import org.json.simple.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -200,7 +200,7 @@ public class VirialH2O {
         // make simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesH2O, temperature, refCluster, diffClusterNew);
         int [] seeds = sim.getRandomSeeds();
-        System.out.println("Random seeds: "+Arrays.toString(seeds));
+        System.out.println("Random seeds: "+ Arrays.toString(seeds));
 
         sim.integratorOS.setNumSubSteps(1000);
         steps /= 1000;
@@ -227,8 +227,8 @@ public class VirialH2O {
         // if using 3-body potential for B3, we must select initial configuration
         // that is not overlapping for any two molecules
         IAtomList tarList = sim.box[1].getLeafList();
-        for (int i=0; i<tarList.getAtomCount(); i++) {
-            Vector p = tarList.getAtom(i).getPosition();
+        for (int i = 0; i<tarList.size(); i++) {
+            Vector p = tarList.get(i).getPosition();
             p.setX(i, 4.0);                
         }            
         sim.box[1].trialNotify();
@@ -251,9 +251,9 @@ public class VirialH2O {
             public void integratorStepStarted(IntegratorEvent e) {}
             public void integratorStepFinished(IntegratorEvent e) {
                 IAtomList atoms = sim.box[1].getLeafList();
-                double x01 = Math.sqrt(atoms.getAtom(0).getPosition().Mv1Squared(atoms.getAtom(1).getPosition()));
-                double x02 = Math.sqrt(atoms.getAtom(0).getPosition().Mv1Squared(atoms.getAtom(2).getPosition()));
-                double x12 = Math.sqrt(atoms.getAtom(1).getPosition().Mv1Squared(atoms.getAtom(2).getPosition()));
+                double x01 = Math.sqrt(atoms.get(0).getPosition().Mv1Squared(atoms.get(1).getPosition()));
+                double x02 = Math.sqrt(atoms.get(0).getPosition().Mv1Squared(atoms.get(2).getPosition()));
+                double x12 = Math.sqrt(atoms.get(1).getPosition().Mv1Squared(atoms.get(2).getPosition()));
                 double xMax = Math.max(x01,x02);
                 xMax = Math.max(xMax,x12);
                 double y1 = tarFlipped.makeCopy().value(sim.box[1]);
@@ -394,7 +394,8 @@ public class VirialH2O {
             
             try {
                 FileWriter jsonFile = new FileWriter(params.jsonOutputFileName);
-                jsonFile.write(JSONObject.toJSONString(resultsMap));
+                ObjectMapper om = new ObjectMapper();
+                jsonFile.write(om.writeValueAsString(resultsMap));
                 jsonFile.write("\n");
                 jsonFile.close();
             } catch (IOException e) {

@@ -42,7 +42,7 @@ public class BasisBigCell extends Basis {
         
         Box box = new Box(boundary, space);
         sim.addBox(box);
-        Vector vector = space.makeVector(nSubCells);
+        Vector vector = Vector.of(nSubCells);
         box.getBoundary().setBoxSize(vector);
         int numMolecules = subBasis.getScaledCoordinates().length;
         for (int i=0; i<nSubCells.length; i++) {
@@ -56,10 +56,10 @@ public class BasisBigCell extends Basis {
         
         // retrieve real coordinates and scale them
         IAtomList atomList = box.getLeafList();
-        Vector[] pos = new Vector[atomList.getAtomCount()];
-        for (int i=0; i<atomList.getAtomCount(); i++) {
+        Vector[] pos = new Vector[atomList.size()];
+        for (int i = 0; i<atomList.size(); i++) {
             pos[i] = space.makeVector();
-            pos[i].E(atomList.getAtom(i).getPosition());
+            pos[i].E(atomList.get(i).getPosition());
             pos[i].DE(boxSize);
             // coordinates now range from -0.5 to +0.5, we want 0.0 to 1.0
             pos[i].PE(0.5);

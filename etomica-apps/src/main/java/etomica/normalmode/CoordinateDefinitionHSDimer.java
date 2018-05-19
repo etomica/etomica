@@ -99,8 +99,8 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
         
         indexIterator.reset();
                 
-        for (int iMolecule = 0; iMolecule<moleculeList.getMoleculeCount(); iMolecule++) {
-            IMolecule molecule = moleculeList.getMolecule(iMolecule);
+        for (int iMolecule = 0; iMolecule<moleculeList.size(); iMolecule++) {
+            IMolecule molecule = moleculeList.get(iMolecule);
             IConformationOriented conformation = (IConformationOriented)((Species)molecule.getType()).getConformation();
             
             if (configuration == null) {
@@ -131,7 +131,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
                 // new cell
                 iCell++;
                 currentList = new MoleculeArrayList(basisSize);
-                cells[iCell] = new BasisCell(new MoleculeListWrapper(currentList), lattice.getSpace().makeVector());
+                cells[iCell] = new BasisCell(currentList, lattice.getSpace().makeVector());
                 cells[iCell].cellPosition.E(position);
             }
                         
@@ -139,7 +139,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
         }
 
         moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
-        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box, Vector.class);
+        siteManager = new AtomLeafAgentManager<Vector>(new SiteSource(space), box);
     }
     
     public void setConfiguration(Configuration configuration){
@@ -161,16 +161,16 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
     	
         int j = 3;
         
-        for (int i=0; i < molecules.getMoleculeCount() ; i++){
-        	IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i < molecules.size() ; i++){
+        	IMolecule molecule = molecules.get(i);
         	int thisOrientationIndex = orientationSelector.f(i);
         	
 	    	/*
 	    	 * Determine the Orientation of Each Molecule
 	    	 */
 	    	
-	    	Vector leafPos0 = molecule.getChildList().getAtom(0).getPosition();
-	    	Vector leafPos1 = molecule.getChildList().getAtom(1).getPosition();
+	    	Vector leafPos0 = molecule.getChildList().get(0).getPosition();
+	    	Vector leafPos1 = molecule.getChildList().get(1).getPosition();
 	    	
 	    	axis.Ev1Mv2(leafPos1, leafPos0);
 	       	axis.normalize();
@@ -195,7 +195,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
 	    	else {
 	    	    u[j+1] = phi/sintheta;
 	    	}
-	    	j += coordinateDim/molecules.getMoleculeCount();
+	    	j += coordinateDim/molecules.size();
         }
         return u;
      }
@@ -216,9 +216,9 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
     	
     	int j=3;
 	        
-        for (int i=0; i < molecules.getMoleculeCount() ; i++){
+        for (int i = 0; i < molecules.size() ; i++){
         	
-        	IMolecule molecule = molecules.getMolecule(i);
+        	IMolecule molecule = molecules.get(i);
             int thisOrientationIndex = orientationSelector.f(i);
             Vector[] myAxes = axes[thisOrientationIndex];
 
@@ -236,7 +236,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
             IConformationOriented conformationOriented = (IConformationOriented)((Species)molecule.getType()).getConformation();
             conformationOriented.initializePositions(molecule.getChildList(), orientation);
 	    	
-	    	j += coordinateDim/molecules.getMoleculeCount();
+	    	j += coordinateDim/molecules.size();
 	    	
         }
         super.setToU(molecules, newU);
@@ -249,7 +249,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
     		throw new RuntimeException("<CoordinateDefinitionNitrogen> setToUMoleculei method, newU[] length should be 5!");
     	}
     	
-		IMolecule molecule = box.getMoleculeList().getMolecule(moleculei);
+		IMolecule molecule = box.getMoleculeList().get(moleculei);
         int thisOrientationIndex = orientationSelector.f(moleculei);
         Vector[] myAxes = axes[thisOrientationIndex];
 

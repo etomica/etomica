@@ -4,7 +4,7 @@
 
 package etomica.virial;
 
-import etomica.util.Arrays;
+import java.util.Arrays;
 
 /**
  * @author andrew
@@ -15,15 +15,14 @@ import etomica.util.Arrays;
 public class ClusterSumEF extends ClusterSum {
 
     /**
-     * Constructs a Cluster sum of the given cluster and weights.  The MayerFunction 
+     * Constructs a Cluster sum of the given cluster and weights.  The MayerFunction
      * array should contain only e-bonds.
      */
-    public ClusterSumEF(ClusterBonds[] subClusters, double[] subClusterWeights,
-            MayerFunction[] eArray) {
-        super(subClusters, subClusterWeights, (MayerFunction[])Arrays.resizeArray(eArray,eArray.length*2));
+    public ClusterSumEF(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] eArray) {
+        super(subClusters, subClusterWeights, Arrays.copyOf(eArray, eArray.length * 2));
         numF = f.length/2;
     }
-    
+
     public ClusterAbstract makeCopy() {
         MayerFunction[] e = new MayerFunction[numF];
         System.arraycopy(f,0,e,0,numF);
@@ -53,7 +52,7 @@ public class ClusterSumEF extends ClusterSum {
             }
         }
     }
-    
+
     private static final long serialVersionUID = 1L;
     private final int numF;
 }

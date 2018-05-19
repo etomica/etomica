@@ -203,6 +203,22 @@ public final class Vector2D implements Vector, java.io.Serializable {
         y = z2;
     }
 
+    @Override
+    public void nearestImage(Vector dimensions) {
+        Vector2D dimensions2D = ((Vector2D) dimensions);
+        final double halfX = dimensions2D.x / 2;
+        final double halfY = dimensions2D.y / 2;
+
+        while (x > halfX)
+            x -= dimensions2D.x;
+        while (x < -halfX)
+            x += dimensions2D.x;
+        while (y > halfY)
+            y -= dimensions2D.y;
+        while (y < -halfY)
+            y += dimensions2D.y;
+    }
+
     public boolean isNaN() {
         return Double.isNaN(x) || Double.isNaN(y);
     }

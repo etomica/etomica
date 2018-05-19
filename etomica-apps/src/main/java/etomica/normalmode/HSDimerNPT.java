@@ -22,13 +22,13 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.*;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcpBaseCentered;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.NeighborListManagerSlanty;
@@ -73,9 +73,12 @@ public class HSDimerNPT extends Simulation {
     public HSDimerNPT(final Space space, int numMolecules, boolean fancyMove, double pSet, double rho, int[] nC, int cp, double L, double thetaFrac, double targetAcc) {
         super(space);
 
+        species = new SpeciesHSDimer(space, true, L);
+        addSpecies(species);
+
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
-        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class);
-        potentialMaster = new PotentialMasterList(this, 2, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(2, space), space);
+        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
+        potentialMaster = new PotentialMasterList(this, 2, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(2), space);
 
         double tol = 1e-8;
         double a = Math.sqrt(3.0) + tol;
@@ -93,37 +96,33 @@ public class HSDimerNPT extends Simulation {
         System.out.println("close-packed theta: " + theta);
 
         double sigma = 1.0;
-        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-
-        species = new SpeciesHSDimer(space, true, L);
-        addSpecies(species);
-
-        P2HardSphere p2 = new P2HardSphere(space, sigma, false);
-        potentialMaster.addPotential(p2, new AtomType[]{species.getDimerAtomType(), species.getDimerAtomType()});
-
-        box = new Box(space);
-        addBox(box);
-        box.setNMolecules(species, numMolecules);
-
         Vector[] boxDim = new Vector[3];
 
         Basis unitBasis;
         if (cp == 1 || cp == 2) {
-            boxDim[0] = space.makeVector(new double[]{nC[0] * a, 0.0, 0.0});
-            boxDim[1] = space.makeVector(new double[]{0.0, nC[1] * b, 0.0});
-            boxDim[2] = space.makeVector(new double[]{nC[2] * cx, 0.0, nC[2] * cz});
+            boxDim[0] = Vector.of(new double[]{nC[0] * a, 0.0, 0.0});
+            boxDim[1] = Vector.of(new double[]{0.0, nC[1] * b, 0.0});
+            boxDim[2] = Vector.of(new double[]{nC[2] * cx, 0.0, nC[2] * cz});
             unitBasis = new BasisHcpBaseCentered();
         } else {
             throw new RuntimeException("not yet");
         }
+        latticeBox = this.makeBox(new BoundaryDeformablePeriodic(space, boxDim));
+        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, latticeBox);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+
+        P2HardSphere p2 = new P2HardSphere(space, sigma, false);
+        potentialMaster.addPotential(p2, new AtomType[]{species.getDimerAtomType(), species.getDimerAtomType()});
+
+        Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numMolecules);
+
         Primitive primitive = new PrimitiveMonoclinic(space, nC[0] * a, nC[1] * b, nC[2] * c,
                 boxAngle);
 
-        Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
         Basis basis = new BasisBigCell(space, unitBasis, new int[]{nC[0], nC[1], nC[2]});
-        box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionHSDimer(this, box, primitive, basis, space);
         Vector[][] axes = new Vector[1][3];
@@ -139,12 +138,7 @@ public class HSDimerNPT extends Simulation {
         };
         coordinateDefinition.setOrientations(axes, new double[]{theta}, selector);
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
-        integrator.setBox(box);
-
-        latticeBox = new Box(space);
-        addBox(latticeBox);
         latticeBox.setNMolecules(species, numMolecules);
-        latticeBox.setBoundary(new BoundaryDeformablePeriodic(space, boxDim));
         CoordinateDefinitionHSDimer coordinateDefinitionLattice = new CoordinateDefinitionHSDimer(this, latticeBox, primitive, basis, space);
         coordinateDefinitionLattice.setOrientations(axes, new double[]{theta}, selector);
         coordinateDefinitionLattice.initializeCoordinates(new int[]{1, 1, 1});
@@ -495,8 +489,8 @@ public class HSDimerNPT extends Simulation {
             }
 
 
-            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.getSpace(), sim.getController());
-            DiameterHashByType diameter = new DiameterHashByType(sim);
+            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
+            DiameterHashByType diameter = new DiameterHashByType();
             diameter.setDiameter(sim.species.getDimerAtomType(), 1.0);
             graphic.getDisplayBox(sim.box).setDiameterHash(diameter);
 

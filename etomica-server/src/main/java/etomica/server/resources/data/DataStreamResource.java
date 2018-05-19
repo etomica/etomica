@@ -95,7 +95,7 @@ public class DataStreamResource {
     public List<ConstructionInfo> listMeters(@PathParam("simId") String simId) {
         SimulationModel model = this.simStore.get(UUID.fromString(simId));
 
-        Set<Class> dataSources = dataSourceIndex.getComponentSet().stream()
+        Set<Class<?>> dataSources = dataSourceIndex.getComponentSet().stream()
                 .filter(cls -> !IDataSink.class.isAssignableFrom(cls))
                 .filter(cls -> !Modifier.isInterface(cls.getModifiers()))
                 .filter(cls -> !cls.isInterface())
@@ -112,7 +112,7 @@ public class DataStreamResource {
     public List<ConstructionInfo> listAccumulators(@PathParam("simId") String simId) {
         SimulationModel model = this.simStore.get(UUID.fromString(simId));
 
-        Set<Class<? extends DataAccumulator>> accumulators = accumulatorIndex.getComponentSet().stream()
+        Set<Class<?>> accumulators = accumulatorIndex.getComponentSet().stream()
                 .filter(cls -> !Modifier.isInterface(cls.getModifiers()))
                 .filter(cls -> !cls.isInterface())
                 .collect(Collectors.toSet());

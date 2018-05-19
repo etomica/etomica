@@ -42,8 +42,7 @@ public class MeterTemperature extends DataSourceScalar {
     public MeterTemperature(Simulation sim, Box box, int D) {
 		super("Temperature", Temperature.DIMENSION);
 		dim = D;
-		meterKE = new MeterKineticEnergy();
-		((MeterKineticEnergy)meterKE).setBox(box);
+		meterKE = new MeterKineticEnergy(box);
 		this.sim = sim;
 		this.box = box;
 	}
@@ -53,14 +52,14 @@ public class MeterTemperature extends DataSourceScalar {
     }
 
 	public double getDataAsScalar() {
-	    int totalD = box.getLeafList().getAtomCount() * dim;
+	    int totalD = box.getLeafList().size() * dim;
 	    if (sim != null) {
 	        totalD = 0;
 //	        ISpecies[] species = sim.getSpeciesManager().getSpecies();
 	        for (int i=0; i<sim.getSpeciesCount(); i++) {
 	            int nMolecules = box.getNMolecules(sim.getSpecies(i));
 	            if (nMolecules > 0) {
-	                IMolecule molecule = box.getMoleculeList(sim.getSpecies(i)).getMolecule(0);
+	                IMolecule molecule = box.getMoleculeList(sim.getSpecies(i)).get(0);
 	                if (molecule instanceof MoleculeOrientedDynamic) {
 	                    if (Double.isInfinite(((ISpeciesOriented)sim.getSpecies(i)).getMass())) {
 	                        continue;
@@ -69,21 +68,21 @@ public class MeterTemperature extends DataSourceScalar {
 	                }
 	                else {
 	                    IAtomList children = molecule.getChildList();
-                        if (children.getAtomCount() == 0 ||
-                                Double.isInfinite(children.getAtom(0).getType().getMass())) {
+                        if (children.size() == 0 ||
+                                Double.isInfinite(children.get(0).getType().getMass())) {
 	                        continue;
 	                    }
-                        if (children.getAtom(0).getType() instanceof AtomTypeOriented) {
+                        if (children.get(0).getType() instanceof AtomTypeOriented) {
                             // oriented sphere at this point corresponds to cylindrical symmetry
 	                        if (dim == 3) {
-	                            totalD += 5*nMolecules*children.getAtomCount();
+	                            totalD += 5*nMolecules*children.size();
 	                        }
 	                        else { // dim = 2
-	                            totalD += 3*nMolecules*children.getAtomCount();
+	                            totalD += 3*nMolecules*children.size();
 	                        }
 	                    }
 	                    else {
-	                        totalD += dim*nMolecules*children.getAtomCount();
+	                        totalD += dim*nMolecules*children.size();
 	                    }
 	                }
 	            }

@@ -35,9 +35,9 @@ public class ConfigurationWater3 implements Configuration, java.io.Serializable 
         vec[ 11 ] = new Vector3D( 0.9389442708130433 , 1.0193283005722875 , -1.064292011718281 );
         
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom a = leafList.getAtom(iLeaf);
+            IAtom a = leafList.get(iLeaf);
             a.getPosition().E(vec[iLeaf]);
         }
     }
