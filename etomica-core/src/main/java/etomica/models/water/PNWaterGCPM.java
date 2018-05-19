@@ -260,24 +260,24 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
      * This returns the polarizable portion of the GCPM potential for any
      * number of atoms.
      */
-    public double getPolarizationEnergy(IMoleculeList atoms) {
+    public double getPolarizationEnergy(IMoleculeList molecules) {
 
-        final int atomCount = atoms.size();
-        if (Eq.length < atomCount + 1) {
-            Eq = Arrays.copyOf(Eq, atomCount + 1);
-            A = Arrays.copyOf(A, atomCount + 1);
+        final int molCount = molecules.size();
+        if (Eq.length < molCount + 1) {
+            Eq = Arrays.copyOf(Eq, molCount + 1);
+            A = Arrays.copyOf(A, molCount + 1);
         }
-        if (Eq[atomCount] == null) {
-            Eq[atomCount] = new Matrix(3 * atomCount, 1);
-            A[atomCount] = new Matrix(3 * atomCount, 3 * atomCount);
+        if (Eq[molCount] == null) {
+            Eq[molCount] = new Matrix(3 * molCount, 1);
+            A[molCount] = new Matrix(3 * molCount, 3 * molCount);
 
-            for (int i = 0; i < 3 * atomCount; i++) {
-                A[atomCount].set(i, i, 1);
+            for (int i = 0; i < 3 * molCount; i++) {
+                A[molCount].set(i, i, 1);
             }
         }
-        final Matrix myEq = Eq[atomCount];
-        final Matrix myA = A[atomCount];
-        for (int i = 0; i < 3 * atomCount; i++) {
+        final Matrix myEq = Eq[molCount];
+        final Matrix myA = A[molCount];
+        for (int i = 0; i < 3 * molCount; i++) {
             myEq.set(i, 0, 0);
         }
 
@@ -286,8 +286,8 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
          * kmb, 8/7/06
          */
 
-        for (int i = 0; i < atoms.size(); i++) {
-            IAtomList iLeafAtoms = atoms.get(i).getChildList();
+        for (int i = 0; i < molecules.size(); i++) {
+            IAtomList iLeafAtoms = molecules.get(i).getChildList();
             Vector O1r = iLeafAtoms.get(SpeciesWater4P.indexO).getPosition();
             Vector H11r = iLeafAtoms.get(SpeciesWater4P.indexH1).getPosition();
             Vector H12r = iLeafAtoms.get(SpeciesWater4P.indexH2).getPosition();
@@ -297,9 +297,9 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
             comWi.PEa1Tv1(massH, H12r);
             comWi.TE(1.0 / totalMass);//c.o.m of molecule i
 
-            for (int j = 0; j < atoms.size(); j++) {
+            for (int j = 0; j < molecules.size(); j++) {
                 if (i == j) continue;
-                IAtomList jLeafAtoms = atoms.get(j).getChildList();
+                IAtomList jLeafAtoms = molecules.get(j).getChildList();
                 Vector Mjr = jLeafAtoms.get(SpeciesWater4P.indexM).getPosition();
                 Vector Ojr = jLeafAtoms.get(SpeciesWater4P.indexO).getPosition();
                 Vector Hj1r = jLeafAtoms.get(SpeciesWater4P.indexH1).getPosition();
@@ -427,7 +427,7 @@ public class PNWaterGCPM extends PotentialMolecular implements PotentialPolariza
             UpolAtkins = -0.5 * (x.transpose().times(myEq)).get(0, 0) * alphaPol;
         } else {
             UpolAtkins = 0;
-            for (int i = 0; i < 3 * atomCount; i++) {
+            for (int i = 0; i < 3 * molCount; i++) {
                 UpolAtkins += x.get(i, 0) * myEq.get(i, 0);
             }
             UpolAtkins *= -0.5 * alphaPol;
