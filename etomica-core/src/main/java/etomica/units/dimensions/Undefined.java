@@ -32,6 +32,8 @@ public final class Undefined extends Dimension {
     private Undefined() {
         super("Undefined",
                 Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+
+        System.err.println("Warning: using Undefined dimension");
     }
     
     /**
