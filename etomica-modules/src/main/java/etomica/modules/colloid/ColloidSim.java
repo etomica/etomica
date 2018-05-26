@@ -8,12 +8,10 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
-import etomica.box.BoxAgentManager;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.nbr.*;
-import etomica.nbr.list.BoxAgentSourceCellManagerList;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -55,8 +53,7 @@ public class ColloidSim extends Simulation {
         speciesColloid.setIsDynamic(true);
         addSpecies(speciesColloid);
 
-        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
-        potentialMaster = new PotentialMasterList(this, 6, boxAgentSource, new BoxAgentManager<>(boxAgentSource, this), space);
+        potentialMaster = new PotentialMasterList(this, 6, space);
 
         int nColloid = 1;
         chainLength = 50;
@@ -107,11 +104,11 @@ public class ColloidSim extends Simulation {
         NeighborCriterion c = new CriterionSimple(this, space, 5, 6);
         potentialMaster.setCriterion(species.getLeafType(), species.getLeafType(), new CriterionAdapter(c) {
             @Override
-            public boolean accept(IAtomList pair) {
-                int idx0 = pair.get(0).getParentGroup().getIndex() % chainLength;
-                int idx1 = pair.get(1).getParentGroup().getIndex() % chainLength;
+            public boolean accept(IAtom atom1, IAtom atom2) {
+                int idx0 = atom1.getParentGroup().getIndex() % chainLength;
+                int idx1 = atom2.getParentGroup().getIndex() % chainLength;
                 if (idx0 + idx1 == 0) return true;
-                return c.accept(pair);
+                return c.accept(atom1, atom2);
             }
         });
         p2mc = new P2HardSphereMC(space, colloidMonomerBondManager, species);
@@ -256,6 +253,6 @@ public class ColloidSim extends Simulation {
         public void setBox(Box box) {}
         public void reset(IAtom atom) {}
         public boolean needUpdate(IAtom atom) {return false;}
-        public boolean accept(IAtomList pair) {return false;}
+        public boolean accept(IAtom atom1, IAtom atom2) {return false;}
     }
 }

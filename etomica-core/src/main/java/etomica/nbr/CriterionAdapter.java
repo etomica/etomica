@@ -9,7 +9,6 @@
 package etomica.nbr;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 
 /**
@@ -44,8 +43,10 @@ public abstract class CriterionAdapter implements NeighborCriterion, java.io.Ser
      * Implementation of this method should introduce new criterion and return
      * true if pair meets this criterion and that of the wrapped
      * NeighborCriterion.
+     * @param atom1
+     * @param atom2
      */
-    public abstract boolean accept(IAtomList pair);
+    public abstract boolean accept(IAtom atom1, IAtom atom2);
 
     /**
      * Indicates whether the neighbor list for the given atom should be updated,

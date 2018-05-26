@@ -15,10 +15,9 @@ import etomica.space.Space;
  */
 public class BoxAgentSourceCellManager implements BoxAgentSource<NeighborCellManager> {
 
-    public BoxAgentSourceCellManager(Simulation sim, IMoleculePositionDefinition positionDefinition, Space _space) {
-        this.sim = sim;
+    public BoxAgentSourceCellManager(IMoleculePositionDefinition positionDefinition, double range) {
         this.positionDefinition = positionDefinition;
-        this.space = _space;
+        this.range = range;
     }
     
     public void setRange(double d) {
@@ -26,16 +25,12 @@ public class BoxAgentSourceCellManager implements BoxAgentSource<NeighborCellMan
     }
 
     public NeighborCellManager makeAgent(Box box) {
-        NeighborCellManager cellManager = new NeighborCellManager(sim, box,range,positionDefinition, space);
-        box.getBoundary().getEventManager().addListener(cellManager);
-        return cellManager;
+        return new NeighborCellManager(box,range,positionDefinition);
     }
     
     public void releaseAgent(NeighborCellManager agent) {
     }
     
-    protected final Simulation sim;
     protected double range;
     protected final IMoleculePositionDefinition positionDefinition;
-    protected final Space space;
 }

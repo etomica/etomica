@@ -40,7 +40,6 @@ public class MCMoveSmer extends MCMoveBoxStep {
     protected final IRandom random;
     protected Space space;
     protected final PotentialMasterCell potentialMaster;
-    protected final Api1ACell neighborIterator;
     protected final Vector dr;
     protected final IPotentialAtomic trimerPotential;
     protected final AtomArrayList smerList;
@@ -59,7 +58,6 @@ public class MCMoveSmer extends MCMoveBoxStep {
         this.newSmerList = new AtomArrayList();
         this.affectedAtomIterator = new AtomIteratorArrayListSimple(smerList);
         this.potentialMaster = potentialMaster;
-        this.neighborIterator = new Api1ACell(3,1.0,potentialMaster.getCellAgentManager());
         this.dr = _space.makeVector();
         this.random = random;
         this.space = _space;

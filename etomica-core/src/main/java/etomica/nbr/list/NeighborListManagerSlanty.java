@@ -9,7 +9,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.nbr.NeighborCriterion;
-import etomica.nbr.list.PotentialMasterList.NeighborListAgentSource;
 
 import java.util.List;
 
@@ -45,7 +44,7 @@ public class NeighborListManagerSlanty extends NeighborListManager {
         // reset criteria
         for (int j=0; j<nLeaf; j++) {
             IAtom atom = leafList.get(j);
-            final NeighborCriterion[] criterion = getCriteria(atom.getType());
+            final NeighborCriterion[] criterion = potentialMaster.getCriteria(atom.getType());
             agentManager2Body.getAgent(atom).clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
                 criterion[i].reset(atom);
@@ -54,8 +53,7 @@ public class NeighborListManagerSlanty extends NeighborListManager {
             List<NeighborCriterion> criteria = potentialMaster.getCriteria1Body(atom.getType());
 
             for (int i = 0; i < criteria.size(); i++) {
-                atomSetSinglet.atom = atom;
-                agentManager1Body.getAgent(atom).setIsInteracting(criteria.get(i).accept(atomSetSinglet), i);
+                agentManager1Body.getAgent(atom).setIsInteracting(criteria.get(i).accept(atom, null), i);
             }
         }
         
@@ -71,7 +69,7 @@ public class NeighborListManagerSlanty extends NeighborListManager {
                 NeighborCriterion c = criteria[atom1.getType().getIndex()];
                 if (c == null) continue;
                 pair.atom1 = atom1;
-                if (c.accept(pair)) {
+                if (c.accept(atom0, atom1)) {
                     agentManager2Body.getAgent(atom0).addUpNbr(atom1, atom0.getType().getIndex());
                     agentManager2Body.getAgent(atom1).addDownNbr(atom0, atom1.getType().getIndex());
                 }
@@ -100,6 +98,7 @@ public class NeighborListManagerSlanty extends NeighborListManager {
         pair.atom0 = atom;
         IAtomList atomList = box.getLeafList();
         NeighborCriterion[] criteria = potentialMaster.getCriteria(atom.getType());
+        IAtom firstAtom, secondAtom;
         for (int jAtom = 0; jAtom<atomList.size(); jAtom++) {
             if (jAtom == atom.getLeafIndex()) {
                 continue;
@@ -108,17 +107,17 @@ public class NeighborListManagerSlanty extends NeighborListManager {
             NeighborCriterion c = criteria[atom1.getType().getIndex()];
             if (c == null) continue;
             if (jAtom < atom.getLeafIndex()) {
-                pair.atom1 = atom;
-                pair.atom0 = atom1;
+                firstAtom = atom;
+                secondAtom = atom1;
             }
             else {
-                pair.atom0 = atom;
-                pair.atom1 = atom1;
+                firstAtom = atom;
+                secondAtom = atom1;
             }
 
-            if (c.accept(pair)) {
-                agentManager2Body.getAgent(pair.atom0).addUpNbr(pair.atom1, pair.atom0.getType().getIndex());
-                agentManager2Body.getAgent(pair.atom1).addDownNbr(pair.atom0, pair.atom1.getType().getIndex());
+            if (c.accept(firstAtom, secondAtom)) {
+                agentManager2Body.getAgent(firstAtom).addUpNbr(secondAtom, pair.atom0.getType().getIndex());
+                agentManager2Body.getAgent(secondAtom).addDownNbr(firstAtom, pair.atom1.getType().getIndex());
             }
         }
     }

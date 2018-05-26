@@ -5,7 +5,6 @@
 package etomica.nbr;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.atom.AtomLeafAgentManager;
@@ -166,8 +165,8 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource<Dou
 		return dr > rMaxSafe;
 	}
 
-	public boolean accept(IAtomList atom) {
-		dr = (atom.get(0)).getPosition().getX(neighborDim);
+	public boolean accept(IAtom atom1, IAtom atom2) {
+		dr = atom1.getPosition().getX(neighborDim);
         if (!isBoundaryWall) {
             dr = Math.abs(dr - wallPosition);
         }
@@ -179,9 +178,9 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource<Dou
                 dr = dr + 0.5*boxSize;
             }
         }
-		if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 0 && Debug.allAtoms(atom))) {
+		if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 0 && Debug.allAtoms(new AtomSetSinglet(atom1)))) {
 			if (dr < neighborRange || Debug.LEVEL > 1) {
-				System.out.println("Atom "+atom+" is "+(dr < neighborRange ? "" : "not ")+"interacting, dr="+dr);
+				System.out.println("Atom "+atom1+" is "+(dr < neighborRange ? "" : "not ")+"interacting, dr="+dr);
             }
 		}
 		return dr < neighborRange;

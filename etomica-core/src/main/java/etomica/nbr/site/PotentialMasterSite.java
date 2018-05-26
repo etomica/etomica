@@ -4,10 +4,7 @@
 
 package etomica.nbr.site;
 
-import etomica.atom.AtomSetSinglet;
-import etomica.atom.AtomType;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
+import etomica.atom.*;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
@@ -22,12 +19,13 @@ import etomica.species.ISpecies;
 import etomica.util.Debug;
 
 import java.util.List;
+import java.util.function.Function;
 
 public class PotentialMasterSite extends PotentialMasterNbr {
 
-    protected final AtomSetSinglet atomSetSinglet;
-    protected final AtomsetIteratorPDT neighborIterator;
+    private final BoxAgentManager<NeighborIterator> neighborIterators;
     private int cellRange;
+    private final BoxAgentManager<NeighborSiteManager> neighborSiteManagers;
 
 	/**
 	 * Invokes superclass constructor, specifying IteratorFactoryCell
@@ -36,17 +34,13 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * to assign cells.
      */
 	public PotentialMasterSite(Simulation sim, int nCells, Space space) {
-        this(sim, new BoxAgentManager<>(sim, box -> new NeighborSiteManager(box, nCells)), space);
+        this(sim, nCells);
     }
 
-    public PotentialMasterSite(Simulation sim, BoxAgentManager<BoxCellManager> boxAgentManager, Space _space) {
-        this(sim, boxAgentManager, new Api1ASite(_space.D(), boxAgentManager));
-    }
-    
-    protected PotentialMasterSite(Simulation sim, BoxAgentManager<? extends BoxCellManager> boxAgentManager, AtomsetIteratorPDT neighborIterator) {
-        super(sim, boxAgentManager);
-        atomSetSinglet = new AtomSetSinglet();
-        this.neighborIterator = neighborIterator;
+    protected PotentialMasterSite(Simulation sim, int nCells) {
+        super(sim);
+        this.neighborSiteManagers = new BoxAgentManager<>(sim, box -> new NeighborSiteManager(box, nCells));
+        this.neighborIterators = new BoxAgentManager<>(sim, box -> new NeighborIteratorSite(neighborSiteManagers.getAgent(box), box));
 	}
     
     /**
@@ -88,58 +82,61 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         }
     }
 
-    /**
-     * Overrides superclass method to enable direct neighbor-list iteration
-     * instead of iteration via species/potential hierarchy. If no target atoms are
-     * specified in directive, neighborlist iteration is begun with
-     * speciesMaster of box, and repeated recursively down species hierarchy;
-     * if one atom is specified, neighborlist iteration is performed on it and
-     * down species hierarchy from it; if two or more atoms are specified,
-     * superclass method is invoked.
-     */
-    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
-        if (!enabled)
-            return;
-        IAtom targetAtom = id.getTargetAtom();
-        IMolecule targetMolecule = id.getTargetMolecule();
-        neighborIterator.setBox(box);
-        if (targetAtom == null && targetMolecule == null) {
-            if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
-                throw new IllegalArgumentException("When there is no target, iterator directive must be up");
-            }
-            neighborIterator.setDirection(IteratorDirective.Direction.UP);
-            // invoke setBox on all criteria and potentials
-            setBoxForCriteria(box);
-            setBoxForPotentials(box);
+    @Override
+    public BoxCellManager getBoxCellManager(Box box) {
+        return neighborSiteManagers.getAgent(box);
+    }
 
-            //no target atoms specified
-            //call calculate with each molecule
-            for (int j=0; j<simulation.getSpeciesCount(); j++) {
-                IMoleculeList moleculeList = box.getMoleculeList(simulation.getSpecies(j));
-                PotentialArray intraPotentialArray = getIntraPotentials(simulation.getSpecies(j));
-                final IPotential[] intraPotentials = intraPotentialArray.getPotentials();
-                for (IMolecule molecule : moleculeList) {
-                    IAtomList atomList = molecule.getChildList();
-                    for (IAtom anAtomList : atomList) {
-                        calculate(anAtomList, pc);
-                    }
 
+    public void calculate(Box box, PotentialCalculation pc, boolean includeLrc) {
+
+        NeighborIterator nbrIterator = neighborIterators.getAgent(box);
+        setBoxForCriteria(box);
+        setBoxForPotentials(box);
+
+        IAtomList atoms = box.getLeafList();
+        for (int i = 0; i < atoms.size(); i++) {
+            calculate(atoms.get(i), nbrIterator, pc, IteratorDirective.Direction.UP);
+        }
+        for (int i = 0; i < simulation.getSpeciesCount(); i++) {
+            PotentialArray intraPotentialArray = getIntraPotentials(simulation.getSpecies(i));
+            IPotential[] intraPotentials = intraPotentialArray.getPotentials();
+            if (intraPotentials.length > 0) {
+                IMoleculeList moleculeList = box.getMoleculeList(simulation.getSpecies(i));
+                for (int j = 0; j < moleculeList.size(); j++) {
                     for (IPotential intraPotential : intraPotentials) {
-                        ((PotentialGroupNbr) intraPotential).calculateRangeIndependent(molecule, id.direction(), null, pc);
+                        ((PotentialGroupNbr) intraPotential).calculateRangeIndependent(moleculeList.get(i), IteratorDirective.Direction.UP, null, pc);
                     }
                 }
             }
         }
-        else {
-            // one target atom
-            neighborIterator.setDirection(id.direction());
+    }
+
+    @Override
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
+        if (!enabled) {
+            return;
+        }
+
+        IAtom targetAtom = id.getTargetAtom();
+        IMolecule targetMolecule = id.getTargetMolecule();
+        if (targetAtom == null && targetMolecule == null) {
+            if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
+                throw new IllegalArgumentException("When there is no target, iterator directive must be up");
+            }
+
+            calculate(box, pc, id.includeLrc);
+
+        } else {
             if (targetAtom != null) {
-                IPotentialAtomic[] potentials = getRangedPotentials(targetAtom.getType());
-                for (IPotentialAtomic potential : potentials) {
-                    if (potential != null) potential.setBox(box);
+                for (IPotentialAtomic potential : getRangedPotentials(targetAtom.getType())) {
+                    if (potential != null) {
+                        potential.setBox(box);
+                    }
                 }
 
-                //walk up the tree looking for 1-body range-independent potentials that apply to parents
+
+                //look for 1-body range-independent potentials that apply to parents
                 IMolecule parentMolecule = targetAtom.getParentGroup();
                 PotentialArray potentialArray = getIntraPotentials(parentMolecule.getType());
                 IPotential[] intraPotentials = potentialArray.getPotentials();
@@ -147,13 +144,10 @@ public class PotentialMasterSite extends PotentialMasterNbr {
                     intraPotential.setBox(box);
                     ((PotentialGroupNbr) intraPotential).calculateRangeIndependent(parentMolecule, id.direction(), targetAtom, pc);
                 }
-                calculate(targetAtom, pc);
-            }
-            else {
-
-                IAtomList atomList = (targetMolecule).getChildList();
-                for (IAtom anAtomList : atomList) {
-                    calculate(anAtomList, pc);
+                calculate(targetAtom, neighborIterators.getAgent(box), pc, id.direction());
+            } else {
+                for (int i = 0; i < targetMolecule.getChildList().size(); i++) {
+                    calculate(targetMolecule.getChildList().get(i), neighborIterators.getAgent(box), pc, id.direction());
                 }
 
                 PotentialArray intraPotentialArray = getIntraPotentials(targetMolecule.getType());
@@ -163,39 +157,42 @@ public class PotentialMasterSite extends PotentialMasterNbr {
                 }
             }
         }
+
         if (lrcMaster != null) {
             lrcMaster.calculate(box, id, pc);
         }
     }
 
-    /**
-     * Performs given PotentialCalculation using potentials/neighbors associated
-     * with the given atom (if any).  Then, if atom is not a leaf atom, iteration over
-     * child atoms is performed and process is repeated (recursively) with each on down
-     * the hierarchy until leaf atoms are reached.
-     */
-    protected void calculate(IAtom atom, PotentialCalculation pc) {
+    private void calculate(IAtom atom, NeighborIterator neighborIterator, PotentialCalculation pc, IteratorDirective.Direction direction) {
+        calculate1Body(atom, pc);
+        NeighborCriterion[] myCriteria = criteria[atom.getType().getIndex()];
+        IPotentialAtomic[] potentials = rangedPotentials[atom.getType().getIndex()];
 
+        neighborIterator.forEachNeighbor(atom, direction,
+                (targetAtom, otherAtom) -> {
+                    NeighborCriterion criterion = myCriteria[otherAtom.getType().getIndex()];
+                    if (criterion != null && criterion.accept(targetAtom, otherAtom)) {
+                        pc.doCalculation(new AtomPair(targetAtom, otherAtom), potentials[otherAtom.getType().getIndex()]);
+                    }
+                },
+                (otherAtom, targetAtom) -> {
+                    NeighborCriterion criterion = myCriteria[otherAtom.getType().getIndex()];
+                    if (criterion != null && criterion.accept(otherAtom, targetAtom)) {
+                        pc.doCalculation(new AtomPair(otherAtom, targetAtom), potentials[otherAtom.getType().getIndex()]);
+                    }
+                }
+        );
+
+    }
+
+    private void calculate1Body(IAtom atom, PotentialCalculation pc) {
         List<IPotentialAtomic> potentials1 = rangedPotentials1Body[atom.getType().getIndex()];
-        if (potentials1.size() > 0) {
+        if (!potentials1.isEmpty()) {
             List<NeighborCriterion> criteria1 = criteria1Body[atom.getType().getIndex()];
-            atomSetSinglet.atom = atom;
             for (int i = 0; i < potentials1.size(); i++) {
-                if (criteria1.get(i).accept(atomSetSinglet)) pc.doCalculation(atomSetSinglet, potentials1.get(i));
-            }
-        }
-
-        neighborIterator.setTarget(atom);
-        neighborIterator.reset();
-        for (IAtomList pair = neighborIterator.next(); pair != null;
-             pair = neighborIterator.next()) {
-            IAtom atom0 = pair.get(0);
-            IAtom atom1 = pair.get(1);
-            IPotentialAtomic p2 = rangedPotentials[atom0.getType().getIndex()][atom1.getType().getIndex()];
-            if (p2 == null) continue;
-            NeighborCriterion nbrCriterion = criteria[atom0.getType().getIndex()][atom1.getType().getIndex()];
-            if (nbrCriterion.accept(pair)) {
-                pc.doCalculation(pair, p2);
+                if (criteria1.get(i).accept(atom, null)) {
+                    pc.doCalculation(new AtomSetSinglet(atom), potentials1.get(i));
+                }
             }
         }
     }

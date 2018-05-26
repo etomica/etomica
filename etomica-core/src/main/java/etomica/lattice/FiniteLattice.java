@@ -15,12 +15,12 @@ package etomica.lattice;
  * History
  * Created on Jan 3, 2005 by kofke
  */
-public interface FiniteLattice extends AbstractLattice {
+public interface FiniteLattice<T> extends AbstractLattice<T> {
 
     /**
      * Returns an array containing all the sites in the lattice.
      */
-    public Object[] sites();
+    public T[] sites();
 
     /**
      * Returns an array with elements giving the maximum number of

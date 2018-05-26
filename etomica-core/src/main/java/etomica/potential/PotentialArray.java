@@ -30,7 +30,7 @@ public class PotentialArray implements java.io.Serializable {
      * @param potential The potential of interest
      * @return index associated with potential
      */
-    public int getPotentialIndex(IPotential potential) {
+    public synchronized int getPotentialIndex(IPotential potential) {
         if(mostRecentIndex > -1 && potentials[mostRecentIndex]==potential) return mostRecentIndex;
 
         mostRecentIndex = -1;

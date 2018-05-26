@@ -52,9 +52,7 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
         bondManager.setAgent(polymerMolecule, surfaceAtoms);
     }
 
-    public boolean accept(IAtomList pair) {
-        IAtom atom1 = pair.get(0);
-        IAtom atom2 = pair.get(1);
+    public boolean accept(IAtom atom1, IAtom atom2) {
         if (atom1.getIndex() != 0 || atom1.getParentGroup().getType() != polymerSpecies) {
             IAtom foo = atom2;
             atom2 = atom1;

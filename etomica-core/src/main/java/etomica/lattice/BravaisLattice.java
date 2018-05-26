@@ -37,7 +37,7 @@ public class BravaisLattice implements SpaceLattice, java.io.Serializable {
      * on-the-fly from the the lattice primitive and the given index.  Index may comprise 
      * any integer values (positive, negative, or zero).
      */
-    public Object site(int[] index) {
+    public Vector site(int[] index) {
         if(index.length != getSpace().D()) throw new IllegalArgumentException("index given to site method of lattice must have number of elements equal to dimension of lattice");
         latticeVector.E(0);
         Vector[] latticeVectors = primitive.vectors();

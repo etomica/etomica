@@ -14,7 +14,7 @@ import etomica.space.Space;
  * 
  * @author Andrew Schultz
  */
-public class LatticeOrthorhombicHexagonal extends BravaisLatticeCrystal implements SpaceLattice {
+public class LatticeOrthorhombicHexagonal extends BravaisLatticeCrystal {
 
     public LatticeOrthorhombicHexagonal(Space space) {
         this(space, 1);

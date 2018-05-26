@@ -20,6 +20,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
+import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.potential.P2LJQ;
 import etomica.potential.P2SoftTruncated;
 import etomica.potential.PotentialMaster;
@@ -146,10 +147,10 @@ public class VLESim extends Simulation {
         getController().addAction(activityIntegrate);
 
         if (doNBR) {
-            ((PotentialMasterCell) potentialMaster).getCellAgentManager().getAgent(boxLiquid).assignCellAll();
-            ((PotentialMasterCell) potentialMaster).getCellAgentManager().getAgent(boxVapor).assignCellAll();
-            integratorLiquid.getMoveEventManager().addListener(((NeighborCellManager) ((PotentialMasterCell) potentialMaster).getCellAgentManager().getAgent(boxLiquid)).makeMCMoveListener());
-            integratorVapor.getMoveEventManager().addListener(((NeighborCellManager) ((PotentialMasterCell) potentialMaster).getCellAgentManager().getAgent(boxVapor)).makeMCMoveListener());
+            ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxLiquid).assignCellAll();
+            ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxVapor).assignCellAll();
+            integratorLiquid.getMoveEventManager().addListener(((NeighborCellManager) ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxLiquid)).makeMCMoveListener());
+            integratorVapor.getMoveEventManager().addListener((((NeighborCellManager) ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxVapor)).makeMCMoveListener()));
         }
     }
 

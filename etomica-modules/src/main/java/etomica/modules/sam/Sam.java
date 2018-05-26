@@ -186,9 +186,9 @@ public class Sam extends Simulation {
         p2SCH2t = new P2SoftSphericalTruncatedSwitched(space, p2SCH2, rCut);
 
         NeighborCriterion nonBondedCriterion = new NeighborCriterion() {
-            public boolean accept(IAtomList pair) {
-                int idx0 = pair.get(0).getIndex();
-                int idx1 = pair.get(1).getIndex();
+            public boolean accept(IAtom atom1, IAtom atom2) {
+                int idx0 = atom1.getIndex();
+                int idx1 = atom2.getIndex();
                 int idxDiff = idx0 - idx1;
                 return idxDiff > 3 || idxDiff < -3;
             }
@@ -575,7 +575,7 @@ public class Sam extends Simulation {
 
         @Override
         public double energy(IAtomList atoms) {
-            return bondCriterion.accept(atoms) ? p2Bond.energy(atoms) : p2lj.energy(atoms);
+            return bondCriterion.accept(atoms.get(0), atoms.get(1)) ? p2Bond.energy(atoms) : p2lj.energy(atoms);
         }
 
         @Override
@@ -586,17 +586,17 @@ public class Sam extends Simulation {
 
         @Override
         public double virial(IAtomList atoms) {
-            return bondCriterion.accept(atoms) ? p2Bond.virial(atoms) : p2lj.virial(atoms);
+            return bondCriterion.accept(atoms.get(0), atoms.get(1)) ? p2Bond.virial(atoms) : p2lj.virial(atoms);
         }
 
         @Override
         public Vector[] gradient(IAtomList atoms) {
-            return bondCriterion.accept(atoms) ? p2Bond.gradient(atoms) : p2lj.gradient(atoms);
+            return bondCriterion.accept(atoms.get(0), atoms.get(1)) ? p2Bond.gradient(atoms) : p2lj.gradient(atoms);
         }
 
         @Override
         public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-            return bondCriterion.accept(atoms) ? p2Bond.gradient(atoms, pressureTensor) : p2lj.gradient(atoms, pressureTensor);
+            return bondCriterion.accept(atoms.get(0), atoms.get(1)) ? p2Bond.gradient(atoms, pressureTensor) : p2lj.gradient(atoms, pressureTensor);
         }
     }
 }

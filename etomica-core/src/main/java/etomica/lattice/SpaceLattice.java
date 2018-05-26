@@ -5,6 +5,7 @@
 package etomica.lattice;
 
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Marker interface indicating that AbstractLattice.site(int[]) returns an
@@ -14,9 +15,12 @@ import etomica.space.Space;
  * (assuming that the lattice is not modified between calls).
  */
 
-public interface SpaceLattice extends AbstractLattice {
+public interface SpaceLattice extends AbstractLattice<Vector> {
 
-    public Space getSpace();
+    @Override
+    Vector site(int[] index);
 
-    public double[] getLatticeConstants();
+    Space getSpace();
+
+    double[] getLatticeConstants();
 }

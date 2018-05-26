@@ -14,7 +14,9 @@ import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
 import etomica.integrator.Integrator;
+import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.Api1ACell;
+import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
@@ -55,7 +57,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
     protected List<Integer> insertCandidates, deleteCandidates;
     protected int[] numNeighbors, numNeighborCandidatesOnDelete, deleteCandidateTimes, numDeleteCandidateNbrs;
     protected int totalDeleteCandidateTimes;
-    protected PotentialMaster potentialMaster;
+    protected PotentialMasterNbr potentialMaster;
     protected int numNewDeleteCandidates;
     protected int forced = 0;
     protected double oldLnA, oldB, newLnA;
@@ -65,7 +67,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
     protected double oldBoxSize;
     protected AtomIteratorAtomDependent atomIterator;
 
-    public MCMoveInsertDeleteLatticeVacancy(PotentialMaster potentialMaster,
+    public MCMoveInsertDeleteLatticeVacancy(PotentialMasterNbr potentialMaster,
                                             IRandom random, Space _space, Integrator integrator, double maxDistance, int maxN, int maxVacancy) {
         super(potentialMaster, random, _space, maxN-maxVacancy, maxN);
         this.space = _space;
@@ -92,7 +94,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
             atomIterator = new AtomIteratorNbr(((PotentialMasterList)potentialMaster).getNeighborManager(box));
         }
         else if (potentialMaster instanceof PotentialMasterCell) {
-            atomIterator = new AtomIteratorNbrCell(maxDistance, ((PotentialMasterCell)potentialMaster).getCellAgentManager(), box);
+            atomIterator = new AtomIteratorNbrCell(maxDistance, (NeighborCellManager) potentialMaster.getBoxCellManager(box), box);
         }
         else {
             // brute force!
@@ -534,9 +536,8 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         protected final Api1ACell api;
         protected IAtom myAtom;
         
-        public AtomIteratorNbrCell(double maxDistance, BoxAgentManager<? extends BoxCellManager> neighborCellAgentManager, Box box) {
-            api = new Api1ACell(3, maxDistance, neighborCellAgentManager);
-            api.setBox(box);
+        public AtomIteratorNbrCell(double maxDistance, NeighborCellManager cellManager, Box box) {
+            api = new Api1ACell(maxDistance, box, cellManager);
         }
 
         public IAtom nextAtom() {
