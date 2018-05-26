@@ -40,7 +40,6 @@ import etomica.util.ParameterBase;
  */
 public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
     
-    private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public MCMoveAtomMonomer mcMoveAtomMonomer;
     public MCMoveAtomSmer mcMoveAtomSmer;
@@ -93,6 +92,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         bvso.setBox(box);
         associationManagerOriented = new AssociationManager(box, potentialMaster, bvso);//define and track atom associations
         associationHelper = new AssociationHelperDouble(space, box, associationManagerOriented);
+        box.setNMolecules(species, numAtoms);
         mcMoveBiasUB = new MCMoveBiasUB(potentialMaster, bvso, random, space);
         mcMoveBiasUB.setMaxLength(maxChainLength);//only allow the formation up to maxChainLengh-mer
         mcMoveAtomMonomer.setAssociationManager(associationManagerOriented);
@@ -119,7 +119,6 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         //actionIntegrate.setSleepPeriod(1);
         actionIntegrator.setMaxSteps(numSteps);
         getController().addAction(actionIntegrator);
-        box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);
         inflater.actionPerformed();

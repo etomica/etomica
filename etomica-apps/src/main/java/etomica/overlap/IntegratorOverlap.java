@@ -147,7 +147,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
                 }
                 totTime[i] -= System.currentTimeMillis();
                 for (int j = 0; j < iSubSteps; j++) {
-                    integrators.get(j).doStep();
+                    integrators.get(i).doStep();
                 }
                 totTime[i] += System.currentTimeMillis();
                 totNumSubSteps[i] += iSubSteps;

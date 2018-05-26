@@ -19,7 +19,7 @@ public class BenchSimCatalysis {
     @Param("20")
     private int nCellsZ;
 
-    @Setup
+    @Setup(Level.Iteration)
     public void setup() {
         sim = new Catalysis(Space3D.getInstance(), nCellsZ);
         sim.integrator.reset();
