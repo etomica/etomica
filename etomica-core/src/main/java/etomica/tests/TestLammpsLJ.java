@@ -73,7 +73,7 @@ public class TestLammpsLJ extends Simulation {
 
         box.setNMolecules(species, 32000);
         BoxInflate inflate = new BoxInflate(box, space);
-        inflate.setTargetDensity(0.65);
+        inflate.setTargetDensity(0.8442);
         inflate.actionPerformed();
         Configuration config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
