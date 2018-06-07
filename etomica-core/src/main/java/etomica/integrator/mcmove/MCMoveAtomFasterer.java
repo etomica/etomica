@@ -10,8 +10,7 @@ import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.box.Box;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterFasterer;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
@@ -23,10 +22,10 @@ import etomica.util.random.IRandom;
  *
  * @author David Kofke
  */
-public class MCMoveAtom extends MCMoveBoxStep {
+public class MCMoveAtomFasterer extends MCMoveBoxStep {
 
+    protected final PotentialMasterFasterer potentialMasterFasterer;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    protected final MeterPotentialEnergy energyMeter;
     protected final Vector translationVector;
     protected final IRandom random;
     protected IAtom atom;
@@ -41,67 +40,33 @@ public class MCMoveAtom extends MCMoveBoxStep {
      *
      * @param random          random number generator used to select the atom and its displacement
      * @param potentialMaster used to construct MeterPotentialEnergy required by full constructor
-     * @param space           space of the simulation
      */
-    public MCMoveAtom(IRandom random, PotentialMaster potentialMaster, Space space) {
-        this(random, potentialMaster, space, 1.0, 15.0, false);
-    }
-
-    /**
-     * @param random          random number generator used to select the atom and its displacement
-     * @param potentialMaster used to construct MeterPotentialEnergy required by full constructor
-     * @param space           space of the simulation
-     * @param stepSize        starting step size for the trial
-     * @param stepSizeMax     maximum allowable value of stepSize
-     * @param fixOverlap      flag specifying whether trial throws an exception if the configuration
-     *                        at the start of the trial has an overlap
-     */
-    public MCMoveAtom(IRandom random, PotentialMaster potentialMaster,
-                      Space space, double stepSize, double stepSizeMax,
-                      boolean fixOverlap) {
-        this(random, potentialMaster, space, stepSize, stepSizeMax, fixOverlap,
-                new MeterPotentialEnergy(potentialMaster));
-    }
-
-    /**
-     * @param random          random number generator used to select the atom and its displacement
-     * @param potentialMaster not directly used
-     * @param space           space of the simulation
-     * @param stepSize        starting step size for the trial
-     * @param stepSizeMax     maximum allowable value of stepSize
-     * @param fixOverlap      flag specifying whether trial throws an exception if the configuration
-     *                        at the start of the trial has an overlap
-     * @param meterPE         used to compute energies before and after displacement
-     */
-    public MCMoveAtom(IRandom random, PotentialMaster potentialMaster,
-                      Space space, double stepSize, double stepSizeMax,
-                      boolean fixOverlap, MeterPotentialEnergy meterPE) {
-        super(potentialMaster);
+    public MCMoveAtomFasterer(IRandom random, PotentialMasterFasterer potentialMaster, Box box) {
+        super(null);
+        this.potentialMasterFasterer = potentialMaster;
         this.random = random;
-        this.space = space;
+        this.space = box.getSpace();
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf) atomSource).setRandomNumberGenerator(random);
-        this.energyMeter = meterPE;
         translationVector = space.makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
         setStepSize(stepSize);
         perParticleFrequency = true;
-        energyMeter.setIncludeLrc(false);
-        this.fixOverlap = fixOverlap;
+        setBox(box);
     }
 
-    long tt1 = 0, tt2 = 0;
-    int n1 = 0, n2 = 0;
+    long tt1, tt2 = 0;
+    int n1, n2 = 0;
+
     public boolean doTrial() {
         atom = atomSource.getAtom();
         if (atom == null) return false;
-        energyMeter.setTarget(atom);
         tt1 -= System.nanoTime();
-        uOld = energyMeter.getDataAsScalar();
+        uOld = potentialMasterFasterer.computeOneOld(atom);
         tt1 += System.nanoTime();
         n1++;
-        if (uOld > 1e8 && !fixOverlap) {
+        if (uOld > 1e8) {
             throw new RuntimeException("atom " + atom + " in box " + box + " has an overlap");
         }
         translationVector.setRandomCube(random);
@@ -111,9 +76,15 @@ public class MCMoveAtom extends MCMoveBoxStep {
     }//end of doTrial
 
     public double getChi(double temperature) {
+//        if (atom.getLeafIndex()==147) {
+//            System.out.println(n2+" "+atom+" "+uOld);
+//            System.exit(0);
+//        }
         tt2 -= System.nanoTime();
-        uNew = energyMeter.getDataAsScalar();
+        uNew = potentialMasterFasterer.computeOne(atom);
         tt2 += System.nanoTime();
+//        System.out.println(n2+" "+atom+" "+uOld+" "+uNew);
+//        if (n2>10) System.exit(0);
         n2++;
         if (n2 % 100000 == 0) {
             System.out.println(tt1 / n1 / 1e9 + " " + tt2 / n2 / 1e9);
@@ -126,11 +97,22 @@ public class MCMoveAtom extends MCMoveBoxStep {
     }
 
     public void acceptNotify() {  /* do nothing */
+//        System.out.println("accepted");
+        potentialMasterFasterer.processAtomU(1);
+        // put it back, then compute old contributions to energy
+        translationVector.TE(-1);
+        atom.getPosition().PE(translationVector);
+        potentialMasterFasterer.computeOne(atom);
+        translationVector.TE(-1);
+        atom.getPosition().PE(translationVector);
+        potentialMasterFasterer.processAtomU(-1);
     }
 
     public void rejectNotify() {
+//        System.out.println("rejected");
         translationVector.TE(-1);
         atom.getPosition().PE(translationVector);
+        potentialMasterFasterer.resetAtomDU();
     }
 
     public AtomIterator affectedAtoms() {
@@ -140,7 +122,6 @@ public class MCMoveAtom extends MCMoveBoxStep {
 
     public void setBox(Box p) {
         super.setBox(p);
-        energyMeter.setBox(p);
         atomSource.setBox(p);
     }
 
