@@ -1,37 +1,38 @@
 package etomica.experimental;
 
 import etomica.atom.AtomType;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorMD;
-import etomica.potential.*;
+import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.Potential2Soft;
+import etomica.potential.PotentialMaster;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.util.random.IRandom;
 
-public class IntegratorVelocityVerletFast extends IntegratorMD {
-    private final VectorSystem3D positions;
-    private final VectorSystem3D forces;
-    private final VectorSystem3D velocities;
+public class IntegratorVelocityVerletLessFast extends IntegratorMD {
+    private final Vector[] forces;
     private final int[] atomTypes;
     private final AtomType[] types;
     private final Potential2Soft[][] potentials;
 
-    public IntegratorVelocityVerletFast(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Box box) {
+    public IntegratorVelocityVerletLessFast(PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Box box) {
         super(potentialMaster, random, timeStep, temperature, box);
         this.atomTypes = new int[box.getLeafList().size()];
 
 
-        this.positions = new VectorSystem3D(this.box);
-        this.forces = new VectorSystem3D(this.box.getLeafList().size());
-        this.velocities = new VectorSystem3D(this.box.getLeafList().size());
+        this.forces = new Vector[box.getLeafList().size()];
+        for (int i = 0; i < this.forces.length; i++) {
+            forces[i] = new Vector3D();
+        }
 
         for (int i = 0; i < this.box.getLeafList().size(); i++) {
-            this.velocities.setVector(i, ((IAtomKinetic) box.getLeafList().get(i)).getVelocity());
             this.atomTypes[i] = box.getLeafList().get(i).getType().getIndex();
         }
 
@@ -41,10 +42,14 @@ public class IntegratorVelocityVerletFast extends IntegratorMD {
     }
 
     private void computeForces() {
-        this.forces.setAll(0);
-        for (int i = 0; i < this.positions.getRows(); i++) {
-            for (int j = i + 1; j < this.positions.getRows(); j++) {
-                Vector3D dr = this.positions.diff(i, j);
+        for (Vector force : this.forces) {
+            force.E(0);
+        }
+        IAtomList atoms = box.getLeafList();
+        Vector3D dr = new Vector3D();
+        for (int i = 0; i < atoms.size(); i++) {
+            for (int j = i + 1; j < atoms.size(); j++) {
+                dr.Ev1Mv2(atoms.get(i).getPosition(), atoms.get(j).getPosition());
                 this.box.getBoundary().nearestImage(dr);
                 double r2 = dr.squared();
                 Potential2Soft potential = potentials[atomTypes[i]][atomTypes[j]];
@@ -54,20 +59,22 @@ public class IntegratorVelocityVerletFast extends IntegratorMD {
                 }
 
                 dr.TE(du / r2);
-                this.forces.sub(i, dr);
-                this.forces.add(j, dr);
+                this.forces[i].ME(dr);
+                this.forces[j].PE(dr);
 //                System.out.printf("%d, %f, %f, %s%n", j, du, r2, dr);
             }
-//            System.out.println(forces.get(i));
+//            System.out.println(forces[i]);
 //            System.exit(1);
         }
     }
 
     private double getEnergy() {
         double energy = 0;
-        for (int i = 0; i < this.positions.getRows(); i++) {
-            for (int j = i + 1; j < this.positions.getRows(); j++) {
-                Vector3D dr = this.positions.diff(i, j);
+        IAtomList atoms = box.getLeafList();
+        Vector3D dr = new Vector3D();
+        for (int i = 0; i < atoms.size(); i++) {
+            for (int j = i + 1; j < atoms.size(); j++) {
+                dr.Ev1Mv2(atoms.get(i).getPosition(), atoms.get(j).getPosition());
                 this.box.getBoundary().nearestImage(dr);
                 double r2 = dr.squared();
                 Potential2Soft potential = potentials[atomTypes[i]][atomTypes[j]];
@@ -80,15 +87,20 @@ public class IntegratorVelocityVerletFast extends IntegratorMD {
     protected void doStepInternal() {
         super.doStepInternal();
 
-        for (int i = 0; i < this.positions.getRows(); i++) {
-            this.velocities.addScaled(i, i, 0.5 * timeStep * this.types[this.atomTypes[i]].rm(), forces);
-            this.positions.addScaled(i, i, timeStep, velocities);
+        IAtomList atoms = box.getLeafList();
+        for (int i = 0; i < atoms.size(); i++) {
+
+            IAtomKinetic a = ((IAtomKinetic) atoms.get(i));
+            a.getVelocity().PEa1Tv1(0.5 * timeStep * this.types[this.atomTypes[i]].rm(), forces[i]);
+            a.getPosition().PEa1Tv1(timeStep, a.getVelocity());
         }
 
         this.computeForces();
 
-        for (int i = 0; i < this.positions.getRows(); i++) {
-            this.velocities.addScaled(i, i, 0.5 * timeStep * this.types[this.atomTypes[i]].rm(), forces);
+        for (int i = 0; i < atoms.size(); i++) {
+
+            IAtomKinetic a = ((IAtomKinetic) atoms.get(i));
+            a.getVelocity().PEa1Tv1(0.5 * timeStep * this.types[this.atomTypes[i]].rm(), forces[i]);
         }
 
     }

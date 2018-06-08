@@ -46,6 +46,7 @@ public class ActionIntegrate implements IAction {
         }
         integrator.resetStepCount();
         for (stepCount = 0; stepCount < maxSteps; stepCount++) {
+            long t0 = System.nanoTime();
             if (Debug.ON) {
                 if (stepCount == Debug.START) Debug.DEBUG_NOW = true;
                 if (stepCount == Debug.STOP) break;
@@ -53,6 +54,8 @@ public class ActionIntegrate implements IAction {
                 Debug.stepCount = stepCount;
             }
             integrator.doStep();
+            long t1 = System.nanoTime();
+            System.out.println("Step " + stepCount + " in " + (t1 - t0) / 1_000_000 + " ms");
         }
 	}
 

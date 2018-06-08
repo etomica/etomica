@@ -4,6 +4,7 @@
 
 package etomica.tests;
 
+import etomica.action.ActionIntegrate;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
@@ -21,6 +22,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -48,12 +50,12 @@ public class TestLJMD3D extends Simulation {
         species.setIsDynamic(true);
         addSpecies(species);
 
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space);
+        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
         double sigma = 1.0;
         box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.02);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        ActionIntegrate activityIntegrate = new ActionIntegrate(integrator);
         activityIntegrate.setMaxSteps(numSteps);
         getController().addAction(activityIntegrate);
         box.setNMolecules(species, numAtoms);
@@ -66,7 +68,7 @@ public class TestLJMD3D extends Simulation {
 
         potentialMaster.addPotential(p2, new AtomType[]{leafType, leafType});
 
-        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
+//        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
         config.initializeCoordinates(box);
     }
