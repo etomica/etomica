@@ -15,6 +15,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
+import etomica.data.meter.MeterPressure;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
@@ -86,6 +87,11 @@ public class TestLJMC3DSlowBrute extends Simulation {
 
         TestLJMC3DSlowBrute sim = new TestLJMC3DSlowBrute(numAtoms, params.numSteps, config);
 
+        MeterPressure pMeter = new MeterPressure(sim.space);
+        pMeter.setIntegrator(sim.integrator);
+        AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(10);
+        DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator, 2 * numAtoms);
+        sim.integrator.getEventManager().addListener(pPump);
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(10);
         DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator, 10);
@@ -99,6 +105,7 @@ public class TestLJMC3DSlowBrute extends Simulation {
 
         System.out.println("Move acceptance: " + sim.mcMoveAtom.getTracker().acceptanceProbability());
 
+        double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
         double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         avgPE /= numAtoms;
         System.out.println("PE/epsilon=" + avgPE);
@@ -108,11 +115,14 @@ public class TestLJMC3DSlowBrute extends Simulation {
         Cv *= Cv / numAtoms;
         System.out.println("Cv/k=" + Cv);
 
-        if (Double.isNaN(avgPE) || Math.abs(avgPE + 4.56) > 0.04) {
+        if (Double.isNaN(Z) || Math.abs(Z + 0.25 - 0.4) > 0.2) {
             System.exit(1);
         }
+        if (Double.isNaN(avgPE) || Math.abs(avgPE + 4.56) > 0.04) {
+            System.exit(2);
+        }
         if (Double.isNaN(Cv) || Math.abs(Cv - 0.61) > 0.45) {  // actual average seems to be 0.51
-            System.exit(1);
+            System.exit(3);
         }
     }
 

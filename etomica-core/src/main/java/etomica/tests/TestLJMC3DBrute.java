@@ -29,7 +29,6 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Simple Lennard-Jones Monte Carlo simulation in 3D.
@@ -47,7 +46,6 @@ public class TestLJMC3DBrute extends Simulation {
 
     public TestLJMC3DBrute(int numAtoms, int numSteps, Configuration config) {
         super(Space3D.getInstance());
-        setRandom(new RandomMersenneTwister(2));
 
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
@@ -117,10 +115,10 @@ public class TestLJMC3DBrute extends Simulation {
         Cv *= Cv / numAtoms;
         System.out.println("Cv/k=" + Cv);
 
-        if (Double.isNaN(Z) || Math.abs(Z + 0.25) > 0.2) {
+        if (Double.isNaN(Z) || Math.abs(Z + 0.25 - 0.4) > 0.2) {
             System.exit(1);
         }
-        if (Double.isNaN(avgPE) || Math.abs(avgPE + 4.56) > 0.04) {
+        if (Double.isNaN(avgPE) || Math.abs(avgPE + 4.56 - 0.2) > 0.04) {
             System.exit(1);
         }
         if (Double.isNaN(Cv) || Math.abs(Cv - 0.61) > 0.45) {  // actual average seems to be 0.51

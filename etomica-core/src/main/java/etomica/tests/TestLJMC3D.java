@@ -29,7 +29,6 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomMersenneTwister;
 
 /**
  * Simple Lennard-Jones Monte Carlo simulation in 3D.
@@ -47,7 +46,7 @@ public class TestLJMC3D extends Simulation {
 
     public TestLJMC3D(int numAtoms, int numSteps, Configuration config) {
         super(Space3D.getInstance());
-        setRandom(new RandomMersenneTwister(2));
+
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
@@ -107,8 +106,10 @@ public class TestLJMC3D extends Simulation {
 
         System.out.println("Move acceptance: " + sim.mcMoveAtom.getTracker().acceptanceProbability());
 
+        double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
         double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         avgPE /= numAtoms;
+        System.out.println("Z=" + Z);
         System.out.println("PE/epsilon=" + avgPE);
         double temp = sim.integrator.getTemperature();
         double Cv = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
@@ -116,11 +117,14 @@ public class TestLJMC3D extends Simulation {
         Cv *= Cv / numAtoms;
         System.out.println("Cv/k=" + Cv);
 
-        if (Double.isNaN(avgPE) || Math.abs(avgPE + 4.56) > 0.04) {
+        if (Double.isNaN(Z) || Math.abs(Z + 0.25 - 0.4) > 0.2) {
             System.exit(1);
         }
+        if (Double.isNaN(avgPE) || Math.abs(avgPE + 4.56 - 0.2) > 0.04) {
+            System.exit(2);
+        }
         if (Double.isNaN(Cv) || Math.abs(Cv - 0.61) > 0.45) {  // actual average seems to be 0.51
-            System.exit(1);
+            System.exit(3);
         }
     }
 
