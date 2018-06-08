@@ -26,7 +26,7 @@ public class MCMoveAtomFasterer extends MCMoveBoxStep {
 
     protected final PotentialMasterFasterer potentialMasterFasterer;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    protected final Vector translationVector;
+    protected final Vector translationVector, oldPosition;
     protected final IRandom random;
     protected IAtom atom;
     protected double uOld;
@@ -49,6 +49,7 @@ public class MCMoveAtomFasterer extends MCMoveBoxStep {
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf) atomSource).setRandomNumberGenerator(random);
         translationVector = space.makeVector();
+        oldPosition = space.makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
         setStepSize(stepSize);
@@ -65,7 +66,12 @@ public class MCMoveAtomFasterer extends MCMoveBoxStep {
         }
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
-        atom.getPosition().PE(translationVector);
+        Vector r = atom.getPosition();
+        oldPosition.E(r);
+        r.PE(translationVector);
+        Vector shift = box.getBoundary().centralImage(r);
+        r.PE(shift);
+        potentialMasterFasterer.updateAtom(atom);
         return true;
     }//end of doTrial
 
@@ -78,22 +84,25 @@ public class MCMoveAtomFasterer extends MCMoveBoxStep {
         return uNew - uOld;
     }
 
-    public void acceptNotify() {  /* do nothing */
+    public void acceptNotify() {
 //        System.out.println("accepted");
         potentialMasterFasterer.processAtomU(1);
         // put it back, then compute old contributions to energy
-        translationVector.TE(-1);
-        atom.getPosition().PE(translationVector);
+        Vector r = atom.getPosition();
+        r.E(oldPosition);
+        potentialMasterFasterer.updateAtom(atom);
         potentialMasterFasterer.computeOne(atom);
-        translationVector.TE(-1);
         atom.getPosition().PE(translationVector);
+        Vector shift = box.getBoundary().centralImage(r);
+        r.PE(shift);
         potentialMasterFasterer.processAtomU(-1);
+        potentialMasterFasterer.updateAtom(atom);
     }
 
     public void rejectNotify() {
 //        System.out.println("rejected");
-        translationVector.TE(-1);
-        atom.getPosition().PE(translationVector);
+        atom.getPosition().E(oldPosition);
+        potentialMasterFasterer.updateAtom(atom);
         potentialMasterFasterer.resetAtomDU();
     }
 
