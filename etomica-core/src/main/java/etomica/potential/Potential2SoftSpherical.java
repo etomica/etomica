@@ -5,11 +5,11 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
 import etomica.box.Box;
-import etomica.space.Vector;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Methods for a soft (non-impulsive), spherically-symmetric pair potential.
@@ -28,7 +28,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         gradient[1] = space.makeVector();
         dr = space.makeVector();
     }
-        
+
     /**
      * The derivative of the pair energy, times the separation r: r du/dr.
      */

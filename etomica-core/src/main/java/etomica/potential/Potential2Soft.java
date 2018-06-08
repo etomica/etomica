@@ -27,4 +27,9 @@ public interface Potential2Soft extends PotentialSoft, Potential2Spherical {
      * The derivative of the pair energy, times the separation r: r du/dr.
      */
     public double du(double r2);
+
+    default void udu(double r2, double[] u, double[] du) {
+        u[0] = u(r2);
+        du[0] = du(r2);
+    }
 }

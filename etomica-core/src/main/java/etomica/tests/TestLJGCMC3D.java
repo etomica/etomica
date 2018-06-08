@@ -37,7 +37,7 @@ import etomica.util.ParseArgs;
 /**
  * Grand Canonical Lennard-Jones Monte Carlo simulation in 3D.
  * Initial configurations at http://rheneas.eng.buffalo.edu/etomica/tests/
- * This class uses the same LJMC3D that TestLJMC3D uses
+ * This class uses the same LJMC3D that TestLJMC3DSlowerer uses
  */
 public class TestLJGCMC3D extends Simulation {
 
