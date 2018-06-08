@@ -91,19 +91,11 @@ public class MCMoveAtom extends MCMoveBoxStep {
         this.fixOverlap = fixOverlap;
     }
 
-    long tt1 = 0, tt2 = 0;
-    int n1 = 0, n2 = 0;
     public boolean doTrial() {
         atom = atomSource.getAtom();
         if (atom == null) return false;
         energyMeter.setTarget(atom);
-        tt1 -= System.nanoTime();
         uOld = energyMeter.getDataAsScalar();
-        tt1 += System.nanoTime();
-        n1++;
-        if (uOld > 1e8 && !fixOverlap) {
-            throw new RuntimeException("atom " + atom + " in box " + box + " has an overlap");
-        }
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
         atom.getPosition().PE(translationVector);
@@ -111,13 +103,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
     }//end of doTrial
 
     public double getChi(double temperature) {
-        tt2 -= System.nanoTime();
         uNew = energyMeter.getDataAsScalar();
-        tt2 += System.nanoTime();
-        n2++;
-        if (n2 % 100000 == 0) {
-            System.out.println(tt1 / n1 / 1e9 + " " + tt2 / n2 / 1e9);
-        }
         return Math.exp(-(uNew - uOld) / temperature);
     }
 

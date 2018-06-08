@@ -75,7 +75,7 @@ public class TestLJMD3D extends Simulation {
         SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
         int numAtoms = params.numAtoms;
-        Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3D.class);
+        Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3DSlowerer.class);
 
         TestLJMD3D sim = new TestLJMD3D(numAtoms, params.numSteps / params.numAtoms, config);
 

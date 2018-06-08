@@ -35,7 +35,7 @@ import etomica.util.random.RandomMersenneTwister;
  * Simple Lennard-Jones Monte Carlo simulation in 3D.
  * Initial configurations at http://rheneas.eng.buffalo.edu/etomica/tests/
  */
-public class TestLJMC3DFasterer extends Simulation {
+public class TestLJMC3DBrute extends Simulation {
 
     public IntegratorMCFasterer integrator;
     public MCMoveAtomFasterer mcMoveAtom;
@@ -45,7 +45,7 @@ public class TestLJMC3DFasterer extends Simulation {
     public P2LennardJones potential;
     public Controller controller;
 
-    public TestLJMC3DFasterer(int numAtoms, int numSteps, Configuration config) {
+    public TestLJMC3DBrute(int numAtoms, int numSteps, Configuration config) {
         super(Space3D.getInstance());
         setRandom(new RandomMersenneTwister(2));
 
@@ -84,9 +84,9 @@ public class TestLJMC3DFasterer extends Simulation {
         SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
         int numAtoms = params.numAtoms;
-        Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3DFasterer.class);
+        Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3DBrute.class);
 
-        TestLJMC3DFasterer sim = new TestLJMC3DFasterer(numAtoms, params.numSteps, config);
+        TestLJMC3DBrute sim = new TestLJMC3DBrute(numAtoms, params.numSteps, config);
 
         MeterPressureFasterer pMeter = new MeterPressureFasterer(sim.box, sim.potentialMaster);
         pMeter.setTemperature(sim.integrator.getTemperature());

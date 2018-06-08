@@ -33,7 +33,7 @@ import etomica.util.ParseArgs;
  * Simple Lennard-Jones Monte Carlo simulation in 3D.
  * Initial configurations at http://rheneas.eng.buffalo.edu/etomica/tests/
  */
-public class TestLJMC3DSlow extends Simulation {
+public class TestLJMC3DSlowBrute extends Simulation {
 
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
@@ -42,7 +42,7 @@ public class TestLJMC3DSlow extends Simulation {
     public P2LennardJones potential;
     public Controller controller;
 
-    public TestLJMC3DSlow(int numAtoms, int numSteps, Configuration config) {
+    public TestLJMC3DSlowBrute(int numAtoms, int numSteps, Configuration config) {
         super(Space3D.getInstance());
 
         species = new SpeciesSpheresMono(this, space);
@@ -82,9 +82,9 @@ public class TestLJMC3DSlow extends Simulation {
         SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
         int numAtoms = params.numAtoms;
-        Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3DSlow.class);
+        Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3DSlowBrute.class);
 
-        TestLJMC3DSlow sim = new TestLJMC3DSlow(numAtoms, params.numSteps, config);
+        TestLJMC3DSlowBrute sim = new TestLJMC3DSlowBrute(numAtoms, params.numSteps, config);
 
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(10);

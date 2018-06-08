@@ -56,16 +56,10 @@ public class MCMoveAtomFasterer extends MCMoveBoxStep {
         setBox(box);
     }
 
-    long tt1, tt2 = 0;
-    int n1, n2 = 0;
-
     public boolean doTrial() {
         atom = atomSource.getAtom();
         if (atom == null) return false;
-        tt1 -= System.nanoTime();
         uOld = potentialMasterFasterer.computeOneOld(atom);
-        tt1 += System.nanoTime();
-        n1++;
         if (uOld > 1e8) {
             throw new RuntimeException("atom " + atom + " in box " + box + " has an overlap");
         }
@@ -76,19 +70,7 @@ public class MCMoveAtomFasterer extends MCMoveBoxStep {
     }//end of doTrial
 
     public double getChi(double temperature) {
-//        if (atom.getLeafIndex()==147) {
-//            System.out.println(n2+" "+atom+" "+uOld);
-//            System.exit(0);
-//        }
-        tt2 -= System.nanoTime();
         uNew = potentialMasterFasterer.computeOne(atom);
-        tt2 += System.nanoTime();
-//        System.out.println(n2+" "+atom+" "+uOld+" "+uNew);
-//        if (n2>10) System.exit(0);
-        n2++;
-        if (n2 % 100000 == 0) {
-            System.out.println(tt1 / n1 / 1e9 + " " + tt2 / n2 / 1e9);
-        }
         return Math.exp(-(uNew - uOld) / temperature);
     }
 
