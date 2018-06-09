@@ -25,7 +25,6 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
         super(sim, box);
         cellManager = new NeighborCellManagerFasterer(box, cellRange);
         this.cellRange = cellRange;
-        forces = new Vector[0];
     }
 
     public NeighborCellManagerFasterer getCellManager() {
