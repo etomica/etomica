@@ -18,9 +18,9 @@ import etomica.data.meter.MeterPressureFromIntegratorFasterer;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorVelocityVerletFasterer;
-import etomica.nbr.list.PotentialMasterListFasterer;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.PotentialMasterFasterer;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -30,7 +30,7 @@ import etomica.util.ParseArgs;
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
  */
-public class TestLJMD3D extends Simulation {
+public class TestLJMD3DBrute extends Simulation {
 
     public IntegratorVelocityVerletFasterer integrator;
     public SpeciesSpheresMono species;
@@ -41,7 +41,7 @@ public class TestLJMD3D extends Simulation {
     public AccumulatorAverageCollapsing avgEnergy;
     public DataPump pump;
 
-    public TestLJMD3D(int numAtoms, int numSteps, Configuration config) {
+    public TestLJMD3DBrute(int numAtoms, int numSteps, Configuration config) {
         super(Space3D.getInstance());
 
         species = new SpeciesSpheresMono(this, space);
@@ -49,7 +49,7 @@ public class TestLJMD3D extends Simulation {
         addSpecies(species);
 
         box = this.makeBox();
-        PotentialMasterListFasterer potentialMaster = new PotentialMasterListFasterer(this, box, 2, 4);
+        PotentialMasterFasterer potentialMaster = new PotentialMasterFasterer(this, box);
         double sigma = 1.0;
         integrator = new IntegratorVelocityVerletFasterer(this, potentialMaster, box);
         integrator.setTimeStep(0.02);
@@ -66,8 +66,6 @@ public class TestLJMD3D extends Simulation {
 
         potentialMaster.setPairPotential(leafType, leafType, p2);
 
-        integrator.getEventManager().addListener(potentialMaster);
-
         config.initializeCoordinates(box);
     }
 
@@ -77,7 +75,7 @@ public class TestLJMD3D extends Simulation {
         int numAtoms = params.numAtoms;
         Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3DSlowerer.class);
 
-        TestLJMD3D sim = new TestLJMD3D(numAtoms, params.numSteps / params.numAtoms, config);
+        TestLJMD3DBrute sim = new TestLJMD3DBrute(numAtoms, params.numSteps / params.numAtoms, config);
 
         MeterPressureFromIntegratorFasterer pMeter = new MeterPressureFromIntegratorFasterer(sim.integrator);
         AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(50);

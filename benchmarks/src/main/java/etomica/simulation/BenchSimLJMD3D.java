@@ -4,11 +4,12 @@
 
 package etomica.simulation;
 
-import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.IteratorDirective;
+import etomica.config.Configuration;
+import etomica.config.ConfigurationResourceFile;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.simulation.prototypes.LJMD3D;
-import etomica.simulation.prototypes.LJMD3DNbr;
+import etomica.potential.PotentialMaster;
+import etomica.potential.PotentialMasterFasterer;
+import etomica.tests.*;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -21,20 +22,60 @@ import java.util.concurrent.TimeUnit;
 @Fork(1)
 public class BenchSimLJMD3D {
 
-    private LJMD3DNbr sim;
-    private PotentialCalculationForceSum pc;
-    private IteratorDirective id;
-    private PotentialMasterList pm;
+    @Param({"500", "4000"})
+    private int numMolecules;
+
+    @Param({"200000"})
+    private int numSteps;
+
+    private TestLJMD3D sim;
+    private PotentialMasterFasterer pm;
+
+    private TestLJMD3DBrute simBrute;
+    private PotentialMasterFasterer pmBrute;
+
+    private TestLJMD3DSlowerer simSlow;
+    private PotentialCalculationForceSum pcSlow;
+    private PotentialMaster pmSlow;
+
+    private TestLJMD3DSlowBrute simSlowBrute;
+    private PotentialCalculationForceSum pcSlowBrute;
+    private PotentialMaster pmSlowBrute;
 
     @Setup(Level.Iteration)
     public void setUp() {
 
-        sim = new LJMD3DNbr();
-        sim.integrator.reset();
-        id = new IteratorDirective(IteratorDirective.Direction.UP);
-        pc = sim.integrator.getForceSum();
-        pm = (PotentialMasterList) sim.integrator.getPotentialMaster();
+        Configuration config = new ConfigurationResourceFile(
+                String.format("LJMC3D%d.pos", numMolecules),
+                TestLJMC3D.class
+        );
 
+        {
+            sim = new TestLJMD3D(numMolecules, numSteps, config);
+            sim.integrator.reset();
+            pm = sim.integrator.getPotentialMaster();
+        }
+
+        {
+            simBrute = new TestLJMD3DBrute(numMolecules, numSteps, config);
+            simBrute.integrator.reset();
+            pmBrute = sim.integrator.getPotentialMaster();
+        }
+
+        {
+            simSlow = new TestLJMD3DSlowerer(numMolecules, numSteps, config);
+            simSlow.integrator.reset();
+            pcSlow = simSlow.integrator.getForceSum();
+            pmSlow = simSlow.integrator.getPotentialMaster();
+        }
+
+
+        {
+            simSlowBrute = new TestLJMD3DSlowBrute(numMolecules, numSteps, config);
+            simSlowBrute.integrator.reset();
+            pcSlowBrute = simSlowBrute.integrator.getForceSum();
+            pmSlowBrute = simSlowBrute.integrator.getPotentialMaster();
+        }
     }
 
     @Benchmark
@@ -42,12 +83,40 @@ public class BenchSimLJMD3D {
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
     @Measurement(time = 3, iterations = 5)
-    public long integratorStep() {
-//        sim.integrator.doStep();
-        pm.calculate(sim.box, pc, false);
-        return sim.integrator.getStepCount();
+    public void integratorStep() {
+        sim.integrator.doStep();
+//        pm.computeAll(true);
     }
 
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    @Warmup(time = 1, iterations = 5)
+    @Measurement(time = 3, iterations = 5)
+    public void integratorStepBrute() {
+        simBrute.integrator.doStep();
+//        pmBrute.computeAll(true);
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    @Warmup(time = 1, iterations = 5)
+    @Measurement(time = 3, iterations = 5)
+    public void integratorStepSlowerer() {
+        simSlow.integrator.doStep();
+//        pmSlow.calculate(simSlow.box, null, pcSlow);
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    @Warmup(time = 1, iterations = 5)
+    @Measurement(time = 3, iterations = 5)
+    public void integratorStepSlowBrute() {
+        simSlowBrute.integrator.doStep();
+//        pmSlowBrute.calculate(simSlowBrute.box, null, pcSlowBrute);
+    }
 
     public static void main(String[] args) throws RunnerException {
 

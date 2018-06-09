@@ -38,7 +38,7 @@ public class BenchSimLJMC3D {
 
         Configuration config = new ConfigurationResourceFile(
                 String.format("LJMC3D%d.pos", numMolecules),
-                TestLJMC3DSlowerer.class
+                TestLJMC3D.class
         );
 
         {
