@@ -12,10 +12,16 @@ import java.util.Arrays;
 public class VectorSystem3D {
     private final double[] coords;
     private final int rows;
+    private final Object[] locks;
+    private static final int D = 3;
 
     public VectorSystem3D(int vectors) {
         this.coords = new double[vectors * 3];
         this.rows = vectors;
+        this.locks = new Object[vectors];
+        for (int i = 0; i < this.locks.length; i++) {
+            locks[i] = new Object();
+        }
     }
 
     public VectorSystem3D(Box box) {
@@ -49,6 +55,11 @@ public class VectorSystem3D {
     }
     
     public Vector3D diff(int v1, int v2) {
+//        Vector3D v = new Vector3D();
+//        for (int i = 0; i < D; i++) {
+//            v.setX(i, coords[3 * v1 + i] - coords[3 * v2 + i]);
+//        }
+//        return v;
         double dx = coords[3 * v1] - coords[3 * v2];
         double dy = coords[3 * v1 + 1] - coords[3 * v2 + 1];
         double dz = coords[3 * v1 + 2] - coords[3 * v2 + 2];
@@ -56,18 +67,31 @@ public class VectorSystem3D {
     }
 
     public void add(int i, Vector3D vec) {
-        coords[3 * i] += vec.getX(0);
-        coords[3 * i + 1] += vec.getX(1);
-        coords[3 * i + 2] += vec.getX(2);
+//        synchronized (locks[i]) {
+//        for (int j = 0; j < D; j++) {
+//            coords[3 * i + j] += vec.getX(j);
+//        }
+            coords[3 * i] += vec.getX(0);
+            coords[3 * i + 1] += vec.getX(1);
+            coords[3 * i + 2] += vec.getX(2);
+//        }
     }
 
     public void sub(int i, Vector3D vec) {
-        coords[3 * i] -= vec.getX(0);
-        coords[3 * i + 1] -= vec.getX(1);
-        coords[3 * i + 2] -= vec.getX(2);
+//        synchronized (locks[i]) {
+//        for (int j = 0; j < D; j++) {
+//            coords[3 * i + j] -= vec.getX(j);
+//        }
+            coords[3 * i] -= vec.getX(0);
+            coords[3 * i + 1] -= vec.getX(1);
+            coords[3 * i + 2] -= vec.getX(2);
+//        }
     }
 
     public void addScaled(int i, int j, double scale, VectorSystem3D sys) {
+//        for (int k = 0; k < D; k++) {
+//            this.coords[i * 3 + k] += scale * sys.coords[j * 3 + k];
+//        }
         this.coords[i * 3 + 0] += scale * sys.coords[j * 3 + 0];
         this.coords[i * 3 + 1] += scale * sys.coords[j * 3 + 1];
         this.coords[i * 3 + 2] += scale * sys.coords[j * 3 + 2];

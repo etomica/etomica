@@ -13,6 +13,8 @@ import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.util.random.IRandom;
 
+import java.util.stream.IntStream;
+
 public class IntegratorVelocityVerletFast extends IntegratorMD {
     private final VectorSystem3D positions;
     private final VectorSystem3D forces;
@@ -43,6 +45,7 @@ public class IntegratorVelocityVerletFast extends IntegratorMD {
     private void computeForces() {
         this.forces.setAll(0);
         for (int i = 0; i < this.positions.getRows(); i++) {
+//        IntStream.range(0, this.positions.getRows()).parallel().forEach(i -> {
             for (int j = i + 1; j < this.positions.getRows(); j++) {
                 Vector3D dr = this.positions.diff(i, j);
                 this.box.getBoundary().nearestImage(dr);
@@ -60,6 +63,7 @@ public class IntegratorVelocityVerletFast extends IntegratorMD {
             }
 //            System.out.println(forces.get(i));
 //            System.exit(1);
+//        });
         }
     }
 
@@ -75,6 +79,18 @@ public class IntegratorVelocityVerletFast extends IntegratorMD {
             }
         }
         return energy;
+
+//        return IntStream.range(0, this.positions.getRows()).parallel().mapToDouble(i -> {
+//            double energy = 0;
+//            for (int j = i + 1; j < this.positions.getRows(); j++) {
+//                Vector3D dr = this.positions.diff(i, j);
+//                this.box.getBoundary().nearestImage(dr);
+//                double r2 = dr.squared();
+//                Potential2Soft potential = potentials[atomTypes[i]][atomTypes[j]];
+//                energy += potential.u(r2);
+//            }
+//            return energy;
+//        }).sum();
     }
 
     protected void doStepInternal() {

@@ -27,7 +27,8 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.tests.TestLJMC3D;
 
 public class LJMD3DVecSys extends Simulation {
-    public IntegratorVelocityVerletLessFast integrator;
+//    public IntegratorVelocityVerletLessFast integrator;
+    public IntegratorVelocityVerletFast integrator;
     public SpeciesSpheresMono species;
     public Box box;
     public P2LennardJones potential;
@@ -46,17 +47,17 @@ public class LJMD3DVecSys extends Simulation {
 
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         box = this.makeBox();
-        box.setNMolecules(species, 500);
+        box.setNMolecules(species, 4000);
 //        ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
 
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.65);
         inflater.actionPerformed();
-        Configuration configuration = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", 500), TestLJMC3D.class);
+        Configuration configuration = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", 4000), TestLJMC3D.class);
         configuration.initializeCoordinates(box);
 
-//        integrator = new IntegratorVelocityVerletFast(potentialMaster, this.getRandom(), 0.02, 1, box);
-        integrator = new IntegratorVelocityVerletLessFast(potentialMaster, this.getRandom(), 0.02, 1, box);
+        integrator = new IntegratorVelocityVerletFast(potentialMaster, this.getRandom(), 0.02, 1, box);
+//        integrator = new IntegratorVelocityVerletLessFast(potentialMaster, this.getRandom(), 0.02, 1, box);
 
         energy = integrator.getMeter();
         avgEnergy = new AccumulatorAverageCollapsing();
@@ -70,7 +71,7 @@ public class LJMD3DVecSys extends Simulation {
     public static void main(String[] args) {
         LJMD3DVecSys sim = new LJMD3DVecSys();
         ActionIntegrate ai = new ActionIntegrate(sim.integrator);
-        ai.setMaxSteps(1000000 / 500);
+        ai.setMaxSteps(1000000 / 4000);
         sim.getController().addAction(ai);
 
         long t0 = System.nanoTime();
