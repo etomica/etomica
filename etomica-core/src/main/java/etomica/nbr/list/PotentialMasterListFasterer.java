@@ -6,13 +6,17 @@ package etomica.nbr.list;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.nbr.cell.molecule.PotentialMasterCellFasterer;
 import etomica.potential.Potential2Soft;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.util.Debug;
 
-public class PotentialMasterListFasterer extends PotentialMasterCellFasterer {
+import java.util.Arrays;
+
+public class PotentialMasterListFasterer extends PotentialMasterCellFasterer implements IntegratorListener {
 
     protected double maxRhoCut;
     protected double nbrRange;
@@ -26,8 +30,8 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer {
     protected Vector[][] nbrBoxOffsets;
     protected Vector[] oldAtomPositions;
 
-    public PotentialMasterListFasterer(Simulation sim, Box box, int cellRange) {
-        super(sim, box, 2);
+    public PotentialMasterListFasterer(Simulation sim, Box box, int cellRange, double nbrRange) {
+        super(sim, box, cellRange);
         int numAtomTypes = pairPotentials.length;
         maxR2 = new double[numAtomTypes];
         maxR2Unsafe = new double[numAtomTypes];
@@ -35,6 +39,7 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer {
         nbrBoxOffsets = new Vector[0][0];
         nbrs = new int[0][0];
         numAtomNbrsUp = new int[0];
+        this.nbrRange = nbrRange;
     }
 
     public void init() {
@@ -54,6 +59,11 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer {
                 maxR2[i] = maxDr * maxDr;
             }
         }
+        reset();
+    }
+
+    public void setNeighborRange(double newRange) {
+        nbrRange = newRange;
     }
 
     public void setDoDownNbrs(boolean doDown) {
@@ -100,6 +110,7 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer {
         boolean moreAtoms = boxNumAtoms > oldAtomPositions.length;
         if (moreAtoms) {
             oldAtomPositions = new Vector[boxNumAtoms];
+            for (int i = 0; i < boxNumAtoms; i++) oldAtomPositions[i] = space.makeVector();
         }
         for (int i = 0; i < boxNumAtoms; i++) {
             Vector ri = atoms.get(i).getPosition();
@@ -116,7 +127,6 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer {
         int[] wrapMap = cellManager.getWrapMap();
         int[] cellLastAtom = cellManager.getCellLastAtom();
 
-        resetStart:
         while (true) {
             if (moreAtoms) {
                 numAtomNbrsUp = new int[boxNumAtoms];
@@ -133,7 +143,6 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer {
             for (int i = 0; i < boxNumAtoms; i++) numAtomNbrsUp[i] = 0;
 
             double rc2 = nbrRange * nbrRange;
-            Vector bs = box.getBoundary().getBoxSize();
             int tooMuch = 0;
             for (int i = 0; i < boxNumAtoms; i++) {
                 IAtom iAtom = atoms.get(i);
@@ -204,13 +213,29 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer {
         virialTot = 0;
         IAtomList atoms = box.getLeafList();
         int numAtoms = atoms.size();
-        if (doForces && numAtoms > forces.length) {
-            forces = new Vector[numAtoms];
+        if (numAtoms > uAtom.length) {
+            uAtom = new double[numAtoms];
+            duAtom = new double[numAtoms];
+            uAtomsChanged2 = new int[numAtoms];
+            if (doForces) {
+                int oldLength = forces.length;
+                forces = Arrays.copyOf(forces, numAtoms);
+                for (int i = oldLength; i < numAtoms; i++) forces[i] = box.getSpace().makeVector();
+            }
+        } else {
+            if (doForces) {
+                if (numAtoms > forces.length) {
+                    int oldLength = forces.length;
+                    forces = Arrays.copyOf(forces, numAtoms);
+                    for (int i = oldLength; i < numAtoms; i++) forces[i] = box.getSpace().makeVector();
+                }
+            }
+            for (int i = 0; i < numAtoms; i++) {
+                uAtom[i] = 0;
+                if (doForces) forces[i].E(0);
+            }
         }
-        for (int i = 0; i < numAtoms; i++) {
-            uAtom[i] = 0;
-            if (doForces) forces[i].E(0);
-        }
+
         for (int i = 0; i < numAtoms; i++) {
             IAtom iAtom = atoms.get(i);
             Vector ri = iAtom.getPosition();
@@ -227,9 +252,23 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer {
                 Potential2Soft pij = iPotentials[jType];
                 Vector rj = jAtom.getPosition();
                 Vector jbo = iNbrBoxOffsets[j];
-                uTot += handleComputeAll(doForces, i, j, ri, rj, jbo, pij);
+                uTot += handleComputeAll(doForces, i, jj, ri, rj, jbo, pij);
             }
         }
         return uTot;
+    }
+
+    @Override
+    public void integratorInitialized(IntegratorEvent e) {
+        init();
+    }
+
+    @Override
+    public void integratorStepStarted(IntegratorEvent e) {
+        checUpdateNbrs();
+    }
+
+    @Override
+    public void integratorStepFinished(IntegratorEvent e) {
     }
 }
