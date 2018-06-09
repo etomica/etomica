@@ -1,13 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-package etomica.nbr.cell.molecule;
+package etomica.nbr.cell;
 
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.nbr.cell.NeighborCellManagerFasterer;
 import etomica.potential.Potential2Soft;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMasterFasterer;

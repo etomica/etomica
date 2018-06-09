@@ -21,7 +21,7 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMCFasterer;
 import etomica.integrator.mcmove.MCMoveAtomFasterer;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.nbr.cell.molecule.PotentialMasterCellFasterer;
+import etomica.nbr.cell.PotentialMasterCellFasterer;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;

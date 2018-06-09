@@ -8,7 +8,7 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
-import etomica.nbr.cell.molecule.PotentialMasterCellFasterer;
+import etomica.nbr.cell.PotentialMasterCellFasterer;
 import etomica.potential.Potential2Soft;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
