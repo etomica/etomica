@@ -31,7 +31,7 @@ public class BenchSimLJMD3DFast {
                 .jvmArgs(
                         "-XX:+UnlockDiagnosticVMOptions"
 //                        "-XX:+PrintAssembly",
-//                        "-XX:CompileCommand=print etomica.experimental.VectorSystem3D::sub"
+//                        ,"-XX:CompileCommand=print etomica.experimental.VectorSystem3D::sub"
 //                        ,"-XX:-UseSuperWord"
                 )
                 .build();

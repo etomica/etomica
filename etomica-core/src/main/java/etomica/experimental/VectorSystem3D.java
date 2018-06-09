@@ -7,9 +7,19 @@ import etomica.space.Vector;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.util.Arrays;
+import java.util.concurrent.locks.LockSupport;
 
 public class VectorSystem3D {
+
+    private static final VarHandle COORDS;
+
+    static {
+        COORDS = MethodHandles.arrayElementVarHandle(double[].class);
+    }
+
     private final double[] coords;
     private final int rows;
     private final Object[] locks;
@@ -71,9 +81,9 @@ public class VectorSystem3D {
 //        for (int j = 0; j < D; j++) {
 //            coords[3 * i + j] += vec.getX(j);
 //        }
-            coords[3 * i] += vec.getX(0);
-            coords[3 * i + 1] += vec.getX(1);
-            coords[3 * i + 2] += vec.getX(2);
+            coords[3 * i] += vec.x;
+            coords[3 * i + 1] += vec.y;
+            coords[3 * i + 2] += vec.z;
 //        }
     }
 
@@ -82,10 +92,58 @@ public class VectorSystem3D {
 //        for (int j = 0; j < D; j++) {
 //            coords[3 * i + j] -= vec.getX(j);
 //        }
-            coords[3 * i] -= vec.getX(0);
-            coords[3 * i + 1] -= vec.getX(1);
-            coords[3 * i + 2] -= vec.getX(2);
+            coords[3 * i] -= vec.x;
+            coords[3 * i + 1] -= vec.y;
+            coords[3 * i + 2] -= vec.z;
 //        }
+    }
+
+    public void addAtomic(int i, Vector3D vec) {
+//        COORDS.getAndAdd(coords, 3 * i, vec.getX(0));
+//        COORDS.getAndAdd(coords, 3 * i + 1, vec.getX(1));
+//        COORDS.getAndAdd(coords, 3 * i + 2, vec.getX(2));
+
+        double x = coords[3 * i + 0];
+        while (!COORDS.compareAndSet(coords, 3 * i + 0, x, x + vec.x)) {
+            LockSupport.parkNanos(1);
+            x = coords[3 * i + 0];
+        }
+
+        double y = coords[3 * i + 1];
+        while (!COORDS.compareAndSet(coords, 3 * i + 1, y, y + vec.y)) {
+            LockSupport.parkNanos(1);
+            y = coords[3 * i + 1];
+        }
+
+        double z = coords[3 * i + 2];
+        while (!COORDS.compareAndSet(coords, 3 * i + 2, z, z + vec.z)) {
+            LockSupport.parkNanos(1);
+            z = coords[3 * i + 2];
+        }
+    }
+
+    public void subAtomic(int i, Vector3D vec) {
+//        COORDS.getAndAdd(coords, 3 * i, -vec.getX(0));
+//        COORDS.getAndAdd(coords, 3 * i + 1, -vec.getX(1));
+//        COORDS.getAndAdd(coords, 3 * i + 2, -vec.getX(2));
+
+        double x = coords[3 * i + 0];
+        while (!COORDS.compareAndSet(coords, 3 * i + 0, x, x - vec.x)) {
+            LockSupport.parkNanos(1);
+            x = coords[3 * i + 0];
+        }
+
+        double y = coords[3 * i + 1];
+        while (!COORDS.compareAndSet(coords, 3 * i + 1, y, y - vec.y)) {
+            LockSupport.parkNanos(1);
+            y = coords[3 * i + 1];
+        }
+
+        double z = coords[3 * i + 2];
+        while (!COORDS.compareAndSet(coords, 3 * i + 2, z, z - vec.z)) {
+            LockSupport.parkNanos(1);
+            z = coords[3 * i + 2];
+        }
     }
 
     public void addScaled(int i, int j, double scale, VectorSystem3D sys) {

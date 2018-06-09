@@ -13,7 +13,7 @@ import etomica.space.Vector;
  */
 public final class Vector3D implements Vector, java.io.Serializable {
 
-    protected double x, y, z;
+    public double x, y, z;
     private static final long serialVersionUID = 1L;
 
     public int getD() {

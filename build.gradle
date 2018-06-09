@@ -24,8 +24,8 @@ subprojects {
         jcenter()
     }
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = 10
+    targetCompatibility = 10
 
     dependencies {
         testCompile 'org.junit.jupiter:junit-jupiter-api:5.2.0-M1'

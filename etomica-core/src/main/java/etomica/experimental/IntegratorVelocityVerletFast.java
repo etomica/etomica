@@ -45,7 +45,6 @@ public class IntegratorVelocityVerletFast extends IntegratorMD {
     private void computeForces() {
         this.forces.setAll(0);
         for (int i = 0; i < this.positions.getRows(); i++) {
-//        IntStream.range(0, this.positions.getRows()).parallel().forEach(i -> {
             for (int j = i + 1; j < this.positions.getRows(); j++) {
                 Vector3D dr = this.positions.diff(i, j);
                 this.box.getBoundary().nearestImage(dr);
@@ -63,8 +62,26 @@ public class IntegratorVelocityVerletFast extends IntegratorMD {
             }
 //            System.out.println(forces.get(i));
 //            System.exit(1);
-//        });
         }
+    }
+
+    private void computeForcesParallel() {
+        IntStream.range(0, this.positions.getRows()).parallel().forEach(i -> {
+            for (int j = i + 1; j < this.positions.getRows(); j++) {
+                Vector3D dr = this.positions.diff(i, j);
+                this.box.getBoundary().nearestImage(dr);
+                double r2 = dr.squared();
+                Potential2Soft potential = potentials[atomTypes[i]][atomTypes[j]];
+                double du = potential.du(r2);
+                if (du == 0) {
+                    continue;
+                }
+
+                dr.TE(du / r2);
+                this.forces.subAtomic(i, dr);
+                this.forces.addAtomic(j, dr);
+            }
+        });
     }
 
     private double getEnergy() {
