@@ -6,6 +6,8 @@ import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
+import jdk.incubator.vector.DoubleVector;
+import jdk.incubator.vector.Shapes;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
@@ -13,8 +15,10 @@ import java.util.Arrays;
 import java.util.concurrent.locks.LockSupport;
 
 public class VectorSystem3D {
+    public static final DoubleVector.DoubleSpecies<Shapes.S256Bit> SPECIES = DoubleVector.species(Shapes.S_256_BIT);
 
     private static final VarHandle COORDS;
+    private static final boolean[] MASK = {true, true, true, false};
 
     static {
         COORDS = MethodHandles.arrayElementVarHandle(double[].class);
@@ -26,7 +30,7 @@ public class VectorSystem3D {
     private static final int D = 3;
 
     public VectorSystem3D(int vectors) {
-        this.coords = new double[vectors * 3];
+        this.coords = new double[vectors * 3 + 1]; // extra 1 is to allow loading the last vector into 4-element simd register (only first 3 values are used)
         this.rows = vectors;
         this.locks = new Object[vectors];
         for (int i = 0; i < this.locks.length; i++) {
@@ -45,7 +49,7 @@ public class VectorSystem3D {
             coords[i * 3 + 2] = pos.getX(2);
         }
     }
-    
+
     public void setVector(int row, Vector v) {
         coords[row * 3] = v.getX(0);
         coords[row * 3 + 1] = v.getX(1);
@@ -63,7 +67,7 @@ public class VectorSystem3D {
     public Vector3D get(int i) {
         return new Vector3D(coords[i * 3], coords[i * 3 + 1], coords[i * 3 + 2]);
     }
-    
+
     public Vector3D diff(int v1, int v2) {
 //        Vector3D v = new Vector3D();
 //        for (int i = 0; i < D; i++) {
@@ -74,6 +78,12 @@ public class VectorSystem3D {
         double dy = coords[3 * v1 + 1] - coords[3 * v2 + 1];
         double dz = coords[3 * v1 + 2] - coords[3 * v2 + 2];
         return new Vector3D(dx, dy, dz);
+    }
+
+    public DoubleVector<Shapes.S256Bit> diffV(int v1, int v2) {
+        var mask = SPECIES.maskFromValues(MASK);
+        var v = SPECIES.fromArray(coords, 3 * v1, mask);
+        return v.sub(SPECIES.fromArray(coords, 3 * v2, mask));
     }
 
     public void add(int i, Vector3D vec) {
@@ -96,6 +106,20 @@ public class VectorSystem3D {
             coords[3 * i + 1] -= vec.y;
             coords[3 * i + 2] -= vec.z;
 //        }
+    }
+
+    public void subV(int i, DoubleVector<Shapes.S256Bit> vec) {
+        var mask = SPECIES.maskFromValues(true, true, true, false);
+        var iVec = SPECIES.fromArray(coords, i * 3);
+        iVec.sub(vec, mask);
+        iVec.intoArray(coords, i * 3);
+    }
+
+    public void addV(int i, DoubleVector<Shapes.S256Bit> vec) {
+        var mask = SPECIES.maskFromValues(true, true, true, false);
+        var iVec = SPECIES.fromArray(coords, i * 3);
+        iVec.add(vec, mask);
+        iVec.intoArray(coords, i * 3);
     }
 
     public void addAtomic(int i, Vector3D vec) {

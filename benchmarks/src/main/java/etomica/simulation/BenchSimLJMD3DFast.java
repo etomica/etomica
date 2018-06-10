@@ -27,9 +27,11 @@ public class BenchSimLJMD3DFast {
 
         Options opts = new OptionsBuilder()
                 .include(BenchSimLJMD3DFast.class.getSimpleName())
-//                .addProfiler(LinuxPerfAsmProfiler.class)
+                .addProfiler(LinuxPerfAsmProfiler.class)
                 .jvmArgs(
+                        "--add-modules=jdk.incubator.vector", "-XX:+UseVectorApiIntrinsics",
                         "-XX:+UnlockDiagnosticVMOptions"
+                        , "-XX:CompileCommand=inline etomica.experimental.VectorSystem::*"
 //                        "-XX:+PrintAssembly",
 //                        ,"-XX:CompileCommand=print etomica.experimental.VectorSystem3D::sub"
 //                        ,"-XX:-UseSuperWord"
