@@ -5,8 +5,6 @@ import etomica.api.IAtomList;
 import etomica.api.IBoundary;
 import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomPair;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.data.DataSourceUniform;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -28,7 +26,7 @@ import java.io.IOException;
  */
 public class PotentialCalculationMappedRdf implements PotentialCalculation{
     protected final Vector dr;
-    protected long[] gSum;
+    protected double[] gSum;
     protected IBoundary boundary;
     protected final DataSourceUniform xDataSource;
     protected double xMax;
@@ -53,7 +51,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
         xDataSource.setTypeMax(DataSourceUniform.LimitType.HALF_STEP);
         xDataSource.setTypeMin(DataSourceUniform.LimitType.HALF_STEP);
 
-        gSum = new long[xDataSource.getData().getLength()];
+        gSum = new double[xDataSource.getData().getLength()];
 
         this.boundary = box.getBoundary();
         this.nbins = nbins;
@@ -224,7 +222,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
      */
     public void reset() {
         xMax = xDataSource.getXMax();
-        gSum = new long[xDataSource.getData().getLength()];
+        gSum = new double[xDataSource.getData().getLength()];
     }
 
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
@@ -268,7 +266,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation{
         }
     }
 
-    public long[] getGSum() {
+    public double[] getGSum() {
         return gSum;
     }
 }

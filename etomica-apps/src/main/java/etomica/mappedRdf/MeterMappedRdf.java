@@ -2,12 +2,7 @@ package etomica.mappedRdf;
 
 import etomica.action.IAction;
 import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IAtomType;
-import etomica.api.IBoundary;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.iterator.ApiLeafAtoms;
-import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.data.*;
@@ -17,8 +12,6 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.space.Vector;
-import etomica.units.Length;
 import etomica.units.Null;
 
 import java.io.Serializable;
@@ -90,6 +83,9 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
                 xDataSource.getXMax() != xMax) {
             reset();
         }
+        pcForce.reset();
+        potentialMaster.calculate(box, allAtoms, pcForce);
+
         potentialMaster.calculate(box, allAtoms, pc);
 
         callCount++;
@@ -115,7 +111,7 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
         double norm = numAtomPairs * callCount / box.getBoundary().volume();
         double[] r = rData.getData();
         double dx2 = 0.5 * (xMax - xDataSource.getXMin()) / r.length;
-        long[] gSum = pc.getGSum();
+        double[] gSum = pc.getGSum();
         double[] gR = pc.gR();
 
         System.out.println("metervol "+ box.getBoundary().volume());
