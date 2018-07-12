@@ -9,7 +9,6 @@ import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
 import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat.ReturnValue;
 import etomica.potential.IPotentialAtomic;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Sums the force on each iterated atom and adds it to the integrator agent
@@ -35,20 +34,14 @@ public class PotentialCalculationSolidSuperCutLS extends PotentialCalculationSol
             virialSum = new double[n];
             sum1 = new double[n];
             dadbSum = new double[n];
-            pSumXYZ1 = new Vector[n];
-            pSumXYZ2 = new Vector[n];
-            for (int i=0; i<n; i++) {
-                pSumXYZ1[i] = space.makeVector();
-                pSumXYZ2[i] = space.makeVector();
-            }
+            pzxySum = new double[n];
         }
         for (int i=0; i<n; i++) {
             energySum[i] += rv.energySum[i];
             virialSum[i] += rv.virialSum[i];
             sum1[i] += rv.sum1[i]*fac1;
             dadbSum[i] += rv.dadbSum[i];
-            pSumXYZ1[i].PEa1Tv1(fac1, rv.pSumXYZ1[i]);
-            pSumXYZ2[i].PE(rv.pSumXYZ2[i]);
+            pzxySum[i] += rv.pzxySum[i];
         }
     }
 }

@@ -156,7 +156,7 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
     }
 
     public double getEnergySum() {
-      return energySum;
+        return energySum;
     }
     
     /**
