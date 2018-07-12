@@ -229,7 +229,7 @@ public class VirialLJD {
         }
 
         sim.integratorOS.setNumSubSteps((int) blockSize);
-        sim.setAccumulatorBlockSize(blockSize == 0 ? steps : blockSize);
+        sim.setAccumulatorBlockSize(blockSize);
         if (doChainRef) sim.accumulators[0].setBlockSize(1);
         sim.ai.setMaxSteps(steps / blockSize);
         for (int i=0; i<2; i++) {
