@@ -7,8 +7,8 @@ package etomica.normalmode;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IDataSource;
 import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.potential.IteratorDirective;
@@ -44,7 +44,7 @@ public class MeterSolidDA implements IDataSource {
         pcEnergy.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, pcEnergy);
         latticeEnergy = pcEnergy.getSum();
-        
+
         PotentialCalculationVirialSum pcVirial = new PotentialCalculationVirialSum();
         pcVirial.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, pcVirial);
@@ -85,16 +85,15 @@ public class MeterSolidDA implements IDataSource {
     	pc.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, pc);
         double p1 = pc.getPressureSum();
-        Vector pXYZ = pc.getPressureSumXYZ();
-        System.out.println(p1+" "+pXYZ);
         double[] x = data.getData();
         double V = box.getBoundary().volume();
         double rho = box.getMoleculeList().size()/V;
         double measuredP = temperature*rho - pc.getVirialSum()/(dim*V);
         int N = box.getMoleculeList().size();
-        x[0] = pc.getEnergySum()/N;
+        double uSum = pc.getEnergySum();
+        x[0] = uSum / N;
         x[1] = measuredP;
-        double buc = (0.5*pc.getDADBSum() + (pc.getEnergySum() - latticeEnergy))/temperature/N;
+        double buc = (0.5 * pc.getDADBSum() + (uSum - latticeEnergy)) / temperature / N;
         x[2] = buc;
         double vol = box.getBoundary().volume();
         // P = Plat + Pres + x[5]
