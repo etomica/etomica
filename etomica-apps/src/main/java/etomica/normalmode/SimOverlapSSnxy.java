@@ -14,13 +14,13 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.overlap.IntegratorOverlap;
@@ -348,19 +348,19 @@ public class SimOverlapSSnxy extends Simulation {
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(
                 sim.dsvo.minDiffLocation());
         System.out.println("harmonic ratio average: "+((DataDoubleArray)
-                allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]
+                allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
                 +" stdev: "+((DataDoubleArray)allYourBase.getData(
-                AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[1]
+                sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
                 +" error: "+((DataDoubleArray)allYourBase.getData(
-                AccumulatorAverage.ERROR.index)).getData()[1]);
+                sim.accumulators[0].ERROR.index)).getData()[1]);
 
         allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
         System.out.println("target ratio average: "+((DataDoubleArray)
-                allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]
+                allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]
                 +" stdev: "+((DataDoubleArray)allYourBase.getData(
-                AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[1]
+                sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[1]
                 +" error: "+((DataDoubleArray)allYourBase.getData(
-                AccumulatorAverage.ERROR.index)).getData()[1]);
+                sim.accumulators[1].ERROR.index)).getData()[1]);
 
         long endTime = System.currentTimeMillis();
         System.out.println("End Time: " + endTime);

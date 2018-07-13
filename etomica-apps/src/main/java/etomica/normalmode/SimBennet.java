@@ -208,11 +208,11 @@ public class SimBennet extends Simulation {
          *
          */
 
-        double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.AVERAGE.index);
-        double wTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.AVERAGE.index);
+        double wHarmonic = dataAverageHarmonic.getData().getValue(dataAverageHarmonic.AVERAGE.index);
+        double wTarget = dataAverageTarget.getData().getValue(dataAverageTarget.AVERAGE.index);
 
-        double eHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.ERROR.index);
-        double eTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.ERROR.index);
+        double eHarmonic = dataAverageHarmonic.getData().getValue(dataAverageHarmonic.ERROR.index);
+        double eTarget = dataAverageTarget.getData().getValue(dataAverageTarget.ERROR.index);
 
         System.out.println("wBennetHarmonic: "  + wHarmonic  + " ,error: "+ eHarmonic);
         System.out.println("wBennetTarget: " + wTarget + " ,error: "+ eTarget);

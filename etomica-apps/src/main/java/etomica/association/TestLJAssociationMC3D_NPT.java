@@ -191,7 +191,7 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         if (true) {
         	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE);
         	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-            rhoAccumulator.addDataSink(densityHistory, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            rhoAccumulator.addDataSink(densityHistory, new StatType[]{rhoAccumulator.MOST_RECENT});
             DisplayPlot rhoPlot = new DisplayPlot();
         	densityHistory.setDataSink(rhoPlot.getDataSet().makeDataSink());
         	graphic.add(rhoPlot);
@@ -205,16 +205,16 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         sim.getController().actionPerformed();
         
         System.out.println("numAtom=" +numAtoms);
-        double avgDensity = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;//average density
+        double avgDensity = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(rhoAccumulator.AVERAGE.index)).x;//average density
         System.out.println("average density=" +avgDensity);
         double Z = pressure/(avgDensity*sim.integrator.getTemperature());
-        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
+        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
         
         avgPE /= numAtoms;
         System.out.println("Z="+Z);
         System.out.println("PE/epsilon="+avgPE);
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
+        double Cv = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.STANDARD_DEVIATION.index)).x;
         Cv /= temp;
         Cv *= Cv/numAtoms;
         System.out.println("Cv/k="+Cv);

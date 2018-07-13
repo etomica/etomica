@@ -12,8 +12,6 @@ import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupExchange;
 import etomica.chem.elements.ElementChemical;
 import etomica.config.ConformationLinear;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataGroup;
@@ -748,22 +746,22 @@ public class VirialHePIXCOdd {
         sim.printResults(refIntegral);
 
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-        IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
-        IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
-        IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
+        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
+        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
         
         
         System.out.println();
 
         DataGroup allData0 = (DataGroup)sim.accumulators[0].getData();
-        IData dataAuto0 = allData0.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData dataAuto0 = allData0.getData(sim.accumulators[0].BLOCK_CORRELATION.index);
         System.out.println("reference autocorrelation function: "+dataAuto0.getValue(0));
         System.out.println("reference overlap autocorrelation function: "+dataAuto0.getValue(1));
         
         System.out.println();
 
-        IData dataAuto = allData.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData dataAuto = allData.getData(sim.accumulators[1].BLOCK_CORRELATION.index);
         System.out.println("target autocorrelation function: "+dataAuto.getValue(0));
         System.out.println("target overlap autocorrelation function: "+dataAuto.getValue(1));
         

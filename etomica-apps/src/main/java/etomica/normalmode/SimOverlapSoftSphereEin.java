@@ -291,14 +291,14 @@ public class SimOverlapSoftSphereEin extends Simulation {
         sim.getController().actionPerformed();
         //MeterTargetTP.closeFW();
 
-        System.out.println("average delta U " + accumulator.getData().getValue(AccumulatorAverage.AVERAGE.index) + " " + accumulator.getData().getValue(AccumulatorAverage.ERROR.index) + " " + accumulator.getData().getValue(AccumulatorAverage.BLOCK_CORRELATION.index));
+        System.out.println("average delta U " + accumulator.getData().getValue(accumulator.AVERAGE.index) + " " + accumulator.getData().getValue(accumulator.ERROR.index) + " " + accumulator.getData().getValue(accumulator.BLOCK_CORRELATION.index));
 
         System.out.println("\nratio averages:\n");
 
         DataGroup data = (DataGroup)sim.accumulator.getData();
-        IData dataErr = data.getData(AccumulatorAverage.ERROR.index);
-        IData dataAvg = data.getData(AccumulatorAverage.AVERAGE.index);
-        IData dataCorrelation = data.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData dataErr = data.getData(sim.accumulator.ERROR.index);
+        IData dataAvg = data.getData(sim.accumulator.AVERAGE.index);
+        IData dataCorrelation = data.getData(sim.accumulator.BLOCK_CORRELATION.index);
         for (int i=0; i<otherFrac.length; i++) {
             System.out.println(otherFrac[i]);
             double[] iAlpha = sim.meter.getAlpha(i);
@@ -314,7 +314,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
             // but we're going to be interpolating anyway and the covariance is almost
             // completely insensitive to choice of alpha.  so just take the covariance for
             // the middle alphas.
-            IData dataCov = data.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+            IData dataCov = data.getData(((AccumulatorAverageCovariance) accumulator).BLOCK_COVARIANCE.index);
             System.out.print("covariance "+otherFrac[1]+" / "+otherFrac[0]+"   ");
             for (int i=0; i<numAlpha; i++) {
                 i = (numAlpha-1)/2;

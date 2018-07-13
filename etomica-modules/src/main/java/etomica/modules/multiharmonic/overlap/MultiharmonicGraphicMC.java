@@ -1607,8 +1607,8 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             double[] lnRefAvg = new double[numAlpha];
             double[] lnTargetAvg = new double[numAlpha];
 
-            IData refData = ((DataGroup)accRefUa2.getData()).getData(AccumulatorAverage.AVERAGE.index);
-            IData targetData = ((DataGroup)accTargetUa2.getData()).getData(AccumulatorAverage.AVERAGE.index);
+            IData refData = ((DataGroup) accRefUa2.getData()).getData(accRefUa2.AVERAGE.index);
+            IData targetData = ((DataGroup) accTargetUa2.getData()).getData(accTargetUa2.AVERAGE.index);
             
             for (int j=0; j<numAlpha; j++) {
                 double jAlpha = dsvo.getAlphaSource().getAlpha(j);

@@ -8,7 +8,10 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.data.*;
+import etomica.data.AccumulatorAverageCovariance;
+import etomica.data.DataPumpListener;
+import etomica.data.DataSourceCountSteps;
+import etomica.data.IData;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
@@ -465,10 +468,10 @@ public class SimLJHTTISuper extends Simulation {
         long endTime = System.currentTimeMillis();
         System.out.println();
 
-        IData avgRawData = avgSolid.getData(AccumulatorAverage.AVERAGE);
-        IData errRawData = avgSolid.getData(AccumulatorAverage.ERROR);
-        IData corRawData = avgSolid.getData(AccumulatorAverage.BLOCK_CORRELATION);
-        IData covRawData = avgSolid.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
+        IData avgRawData = avgSolid.getData(avgSolid.AVERAGE);
+        IData errRawData = avgSolid.getData(avgSolid.ERROR);
+        IData corRawData = avgSolid.getData(avgSolid.BLOCK_CORRELATION);
+        IData covRawData = avgSolid.getData(avgSolid.BLOCK_COVARIANCE);
 
         int j = 0;
         for (int i=0; i<cutoffs.length; i++) {
@@ -481,9 +484,9 @@ public class SimLJHTTISuper extends Simulation {
         System.out.println("\n");
 
         if (nCutoffsLS>0) {
-            avgRawData = accPULS.getData(AccumulatorAverage.AVERAGE);
-            errRawData = accPULS.getData(AccumulatorAverage.ERROR);
-            corRawData = accPULS.getData(AccumulatorAverage.BLOCK_CORRELATION);
+            avgRawData = accPULS.getData(accPULS.AVERAGE);
+            errRawData = accPULS.getData(accPULS.ERROR);
+            corRawData = accPULS.getData(accPULS.BLOCK_CORRELATION);
 
             j = 0;
             for (int i=0; i<cutoffsLS.length; i++) {
@@ -496,16 +499,16 @@ public class SimLJHTTISuper extends Simulation {
             System.out.println("\n");
         }
 
-        IData avgData = accPUBlocks.getData(AccumulatorAverage.AVERAGE);
-        IData errData = accPUBlocks.getData(AccumulatorAverage.ERROR);
-        IData corData = accPUBlocks.getData(AccumulatorAverage.BLOCK_CORRELATION);
-        IData covData = accPUBlocks.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
+        IData avgData = accPUBlocks.getData(accPUBlocks.AVERAGE);
+        IData errData = accPUBlocks.getData(accPUBlocks.ERROR);
+        IData corData = accPUBlocks.getData(accPUBlocks.BLOCK_CORRELATION);
+        IData covData = accPUBlocks.getData(accPUBlocks.BLOCK_COVARIANCE);
 
         int n = errData.getLength();
 
-        avgRawData = avgSolid.getData(AccumulatorAverage.AVERAGE);
-        errRawData = avgSolid.getData(AccumulatorAverage.ERROR);
-        covRawData = avgSolid.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
+        avgRawData = avgSolid.getData(avgSolid.AVERAGE);
+        errRawData = avgSolid.getData(avgSolid.ERROR);
+        covRawData = avgSolid.getData(avgSolid.BLOCK_COVARIANCE);
 
         int jRaw = 0;
         j = 0;
@@ -591,12 +594,12 @@ public class SimLJHTTISuper extends Simulation {
 
         if (nCutoffsLS > 0) {
 
-            avgRawData = accPULS.getData(AccumulatorAverage.AVERAGE);
+            avgRawData = accPULS.getData(accPULS.AVERAGE);
 
-            avgData = accPULSBlocks.getData(AccumulatorAverage.AVERAGE);
-            errData = accPULSBlocks.getData(AccumulatorAverage.ERROR);
-            covData = accPULSBlocks.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
-            corData = accPULSBlocks.getData(AccumulatorAverage.BLOCK_CORRELATION);
+            avgData = accPULSBlocks.getData(accPULSBlocks.AVERAGE);
+            errData = accPULSBlocks.getData(accPULSBlocks.ERROR);
+            covData = accPULSBlocks.getData(accPULSBlocks.BLOCK_COVARIANCE);
+            corData = accPULSBlocks.getData(accPULSBlocks.BLOCK_CORRELATION);
 
             n = errData.getLength();
 

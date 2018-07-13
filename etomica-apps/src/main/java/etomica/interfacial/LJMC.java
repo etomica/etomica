@@ -162,7 +162,7 @@ public class LJMC extends Simulation {
         densityProfileAvg.setPushInterval(10);
         DataPump profilePump = new DataPumpListener(densityProfileMeter, densityProfileAvg, 1000);
         DataDump profileDump = new DataDump();
-        densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
+        densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
         IntegratorListenerAction profilePumpListener = new IntegratorListenerAction(profilePump);
         sim.integrator.getEventManager().addListener(profilePumpListener);
         profilePumpListener.setInterval(10);
@@ -203,7 +203,7 @@ public class LJMC extends Simulation {
             
 
             DisplayPlot profilePlot = new DisplayPlot();
-            densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
+            densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
             profilePlot.setLabel("density");
             simGraphic.add(profilePlot);
             
@@ -224,12 +224,12 @@ public class LJMC extends Simulation {
         System.out.println("Potential energy: "+u);
         System.out.println("Wall force: "+meterWF.getDataAsScalar());
 
-        double avgPE = accPE.getData().getValue(AccumulatorAverage.AVERAGE.index);
-        double errPE = accPE.getData().getValue(AccumulatorAverage.ERROR.index);
-        double corPE = accPE.getData().getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
-        double avgWF = accWF.getData().getValue(AccumulatorAverage.AVERAGE.index);
-        double errWF = accWF.getData().getValue(AccumulatorAverage.ERROR.index);
-        double corWF = accWF.getData().getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
+        double avgPE = accPE.getData().getValue(accPE.AVERAGE.index);
+        double errPE = accPE.getData().getValue(accPE.ERROR.index);
+        double corPE = accPE.getData().getValue(accPE.BLOCK_CORRELATION.index);
+        double avgWF = accWF.getData().getValue(accWF.AVERAGE.index);
+        double errWF = accWF.getData().getValue(accWF.ERROR.index);
+        double corWF = accWF.getData().getValue(accWF.BLOCK_CORRELATION.index);
         
         if (steps>100000) {
             System.out.println(String.format("Average potential energy: %25.15e %10.4e % 5.3f\n",avgPE,errPE,corPE));

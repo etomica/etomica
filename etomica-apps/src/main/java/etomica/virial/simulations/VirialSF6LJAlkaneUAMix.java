@@ -12,8 +12,6 @@ import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
@@ -797,11 +795,11 @@ public static void main(String[] args) {
 
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
 
-    IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
+    IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
 
-    IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
+    IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
 
-    IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+    IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
 
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
 

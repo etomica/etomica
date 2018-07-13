@@ -8,8 +8,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterNMolecules;
@@ -240,7 +240,7 @@ public class LJmuVT extends Simulation {
                 ljmcGraphic.add(displayDensity);
 
                 AccumulatorHistory historyDensity = new AccumulatorHistory(new HistoryCollapsingAverage());
-                avgDensity.addDataSink(historyDensity, new StatType[]{AccumulatorAverage.MOST_RECENT});
+                avgDensity.addDataSink(historyDensity, new StatType[]{avgDensity.MOST_RECENT});
                 DisplayPlot densityPlot = new DisplayPlot();
                 densityPlot.setLabel("density");
                 historyDensity.addDataSink(densityPlot.getDataSet().makeDataSink());

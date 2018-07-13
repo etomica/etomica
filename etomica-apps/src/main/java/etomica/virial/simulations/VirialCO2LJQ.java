@@ -5,32 +5,19 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverageCovarianceFull;
-import etomica.integrator.IntegratorListener;
-import etomica.integrator.IntegratorEvent;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.IData;
-import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.potential.P2LJQQ;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.CompoundUnit;
-import etomica.units.Coulomb;
-import etomica.units.Kelvin;
-import etomica.units.Meter;
-import etomica.units.Pixel;
-import etomica.units.Unit;
+import etomica.units.*;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerESpherical;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
 /**
@@ -179,34 +166,7 @@ public class VirialCO2LJQ {
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
 
-        double[] ratioAndError = sim.dvo.getAverageAndError();
-        System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
-        System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
-        IData ratioData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverageCovarianceFull.RATIO.index);
-        IData ratioErrorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorRatioAverageCovarianceFull.RATIO_ERROR.index);
-        IData averageData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorAverage.AVERAGE.index);
-        IData stdevData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index);
-        IData errorData = ((DataGroup)sim.accumulators[0].getData()).getData(AccumulatorAverage.ERROR.index);
-        System.out.println("reference ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
-        System.out.println("reference   average: "+averageData.getValue(0)
-                          +" stdev: "+stdevData.getValue(0)
-                          +" error: "+errorData.getValue(0));
-        System.out.println("reference overlap average: "+averageData.getValue(1)
-                          +" stdev: "+stdevData.getValue(1)
-                          +" error: "+errorData.getValue(1));
-        
-        ratioData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverageCovarianceFull.RATIO.index);
-        ratioErrorData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorRatioAverageCovarianceFull.RATIO_ERROR.index);
-        averageData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorAverage.AVERAGE.index);
-        stdevData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index);
-        errorData = ((DataGroup)sim.accumulators[1].getData()).getData(AccumulatorAverage.ERROR.index);
-        System.out.println("target ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
-        System.out.println("target average: "+averageData.getValue(0)
-                          +" stdev: "+stdevData.getValue(0)
-                          +" error: "+errorData.getValue(0));
-        System.out.println("target overlap average: "+averageData.getValue(1)
-                          +" stdev: "+stdevData.getValue(1)
-                          +" error: "+errorData.getValue(1));
+        sim.printResults(HSB[nPoints]);
 	}
 
     /**

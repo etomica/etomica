@@ -230,8 +230,8 @@ public class SimHarmonicUmbrella extends Simulation {
 		        System.out.println("********** Harmonic-to-Umbrella Sampling "+ idStep + "   *************");
 		        System.out.println("*****************************************************************");
 
-                double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.AVERAGE.index);
-                double eHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.ERROR.index);
+                double wHarmonic = dataAverageHarmonic.getData().getValue(dataAverageHarmonic.AVERAGE.index);
+                double eHarmonic = dataAverageHarmonic.getData().getValue(dataAverageHarmonic.ERROR.index);
                 System.out.println("\n wHarmonicUmbrella: "  + wHarmonic   + " ,error: "+ eHarmonic);
 
                 try {

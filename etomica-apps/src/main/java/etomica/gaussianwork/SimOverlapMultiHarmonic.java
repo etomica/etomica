@@ -219,22 +219,22 @@ public class SimOverlapMultiHarmonic extends Simulation{
         System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+" ,error: "+temperature*(error/ratio));
 
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        double betaFAW = -Math.log(((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]);
-        System.out.println("System-A ratio average: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]
-                + " stdev: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[1]
-                + " error: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[1]);
+        double betaFAW = -Math.log(((DataDoubleArray) allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]);
+        System.out.println("System-A ratio average: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
+                + " stdev: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
+                + " error: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
 
         allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
-        double betaFBW = -Math.log(((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]);
-        System.out.println("System-B ratio average: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]
-                + " stdev: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[1]
-                + " error: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[1]);
+        double betaFBW = -Math.log(((DataDoubleArray) allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]);
+        System.out.println("System-B ratio average: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]
+                + " stdev: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[1]
+                + " error: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[1].ERROR.index)).getData()[1]);
 
         /*
          * Refer Wu & Kofke JCp 123,054103(2003) Eq (6)
          */
-        double betaUAB = dataAverageA.getData().getValue(AccumulatorAverage.AVERAGE.index);
-        double betaUBA = dataAverageB.getData().getValue(AccumulatorAverage.AVERAGE.index);
+        double betaUAB = dataAverageA.getData().getValue(dataAverageA.AVERAGE.index);
+        double betaUBA = dataAverageB.getData().getValue(dataAverageB.AVERAGE.index);
 
         double SAB = betaUAB - betaFAB;
         double SBA = betaUBA + betaFAB;

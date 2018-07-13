@@ -227,8 +227,8 @@ public class SimCalcSLJ extends Simulation {
 
         double A = sWriter.getLastA();
 		System.out.println("A/N: " + A/nA);
-        System.out.println("Average Energy: " + energyAverage.getData().getValue(AccumulatorAverage.AVERAGE.index)
-                + " ,Error: " + energyAverage.getData().getValue(AccumulatorAverage.ERROR.index));
+        System.out.println("Average Energy: " + energyAverage.getData().getValue(energyAverage.AVERAGE.index)
+                + " ,Error: " + energyAverage.getData().getValue(energyAverage.ERROR.index));
         System.out.println(" ");
 
         long endTime = System.currentTimeMillis();

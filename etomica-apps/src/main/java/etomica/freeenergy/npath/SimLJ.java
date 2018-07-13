@@ -25,9 +25,9 @@ import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.CompoundUnit;
-import etomica.units.dimensions.Null;
 import etomica.units.SimpleUnit;
 import etomica.units.Unit;
+import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -216,10 +216,10 @@ public class SimLJ extends Simulation {
 
         sim.getController().actionPerformed();
 
-        IData avgEnergies = accEnergies.getData(AccumulatorAverage.AVERAGE);
-        IData errEnergies = accEnergies.getData(AccumulatorAverage.ERROR);
-        IData corEnergies = accEnergies.getData(AccumulatorAverage.BLOCK_CORRELATION);
-        IData covEnergies = accEnergies.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
+        IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
+        IData errEnergies = accEnergies.getData(accEnergies.ERROR);
+        IData corEnergies = accEnergies.getData(accEnergies.BLOCK_CORRELATION);
+        IData covEnergies = accEnergies.getData(accEnergies.BLOCK_COVARIANCE);
 
         System.out.println("swap acceptance: "+sim.mcMoveSwap.getTracker().acceptanceProbability());
         System.out.println("simple move step size: " + sim.mcMoveAtom.getStepSize());

@@ -274,9 +274,9 @@ public class SimEinStep1 extends Simulation {
         //MeterTargetTP.closeFW();
 
         DataGroup data = (DataGroup)accumulator.getData();
-        IData dataErr = data.getData(AccumulatorAverage.ERROR.index);
-        IData dataAvg = data.getData(AccumulatorAverage.AVERAGE.index);
-        IData dataCorrelation = data.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData dataErr = data.getData(accumulator.ERROR.index);
+        IData dataAvg = data.getData(accumulator.AVERAGE.index);
+        IData dataCorrelation = data.getData(accumulator.BLOCK_CORRELATION.index);
         double avg = dataAvg.getValue(0);
         double err = dataErr.getValue(0);
         double cor = dataCorrelation.getValue(0);

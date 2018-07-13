@@ -79,7 +79,7 @@ public class MultiharmonicMC extends Simulation {
         integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpEnergy));
 
         historyEnergy = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
-        accumulatorEnergy.addDataSink(historyEnergy, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
+        accumulatorEnergy.addDataSink(historyEnergy, new AccumulatorAverage.StatType[]{accumulatorEnergy.AVERAGE});
 
         stepCounter = new DataSourceCountSteps(integrator);
 

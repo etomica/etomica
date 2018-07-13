@@ -249,8 +249,8 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         pdbWriter.setFileName("calcS_n"+exponent+"_T"+temperature+".pdb");
         pdbWriter.actionPerformed();
 
-        System.out.println("Average Energy: " + energyAverage.getData().getValue(AccumulatorAverage.AVERAGE.index) / nA);
-        System.out.println("Error Energy: " + energyAverage.getData().getValue(AccumulatorAverage.ERROR.index) / nA);
+        System.out.println("Average Energy: " + energyAverage.getData().getValue(energyAverage.AVERAGE.index) / nA);
+        System.out.println("Error Energy: " + energyAverage.getData().getValue(energyAverage.ERROR.index) / nA);
         System.out.println(" ");
         /*
         System.out.println("Average Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index));

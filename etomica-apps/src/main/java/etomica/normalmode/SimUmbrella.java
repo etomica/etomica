@@ -317,19 +317,19 @@ public class SimUmbrella extends Simulation {
         		long idStep = sim.integrator.getStepCount();
 
 
-                double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.AVERAGE.index);
-                double wTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.AVERAGE.index);
+                double wHarmonic = dataAverageHarmonic.getData().getValue(dataAverageHarmonic.AVERAGE.index);
+                double wTarget = dataAverageTarget.getData().getValue(dataAverageTarget.AVERAGE.index);
 
 		        /*
                  * Qharmonic = < e0 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
 		         *  Qtarget  = < e1 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
 		         *
 		         */
-                double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.AVERAGE.index);
-                double Qtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.AVERAGE.index);
+                double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(dataAverageSamplingHarmonic.AVERAGE.index);
+                double Qtarget = dataAverageSamplingTarget.getData().getValue(dataAverageSamplingTarget.AVERAGE.index);
 
-                double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.ERROR.index);
-                double eQtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.ERROR.index);
+                double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(dataAverageSamplingHarmonic.ERROR.index);
+                double eQtarget = dataAverageSamplingTarget.getData().getValue(dataAverageSamplingTarget.ERROR.index);
 
 		        /*
 		         * deltaFE_harmonic: beta*(FE_harmonic - FE_umbrella) = - ln(Qharmonic)
@@ -384,21 +384,21 @@ public class SimUmbrella extends Simulation {
         }
 
 
-        double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.AVERAGE.index);
-        double wTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.AVERAGE.index);
+        double wHarmonic = dataAverageHarmonic.getData().getValue(dataAverageHarmonic.AVERAGE.index);
+        double wTarget = dataAverageTarget.getData().getValue(dataAverageTarget.AVERAGE.index);
 
-        double eHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.ERROR.index);
-        double eTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.ERROR.index);
+        double eHarmonic = dataAverageHarmonic.getData().getValue(dataAverageHarmonic.ERROR.index);
+        double eTarget = dataAverageTarget.getData().getValue(dataAverageTarget.ERROR.index);
         /*
          * Qharmonic = < e0 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
          *  Qtarget  = < e1 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
          *
          */
-        double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.AVERAGE.index);
-        double Qtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.AVERAGE.index);
+        double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(dataAverageSamplingHarmonic.AVERAGE.index);
+        double Qtarget = dataAverageSamplingTarget.getData().getValue(dataAverageSamplingTarget.AVERAGE.index);
 
-        double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.ERROR.index);
-        double eQtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.ERROR.index);
+        double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(dataAverageSamplingHarmonic.ERROR.index);
+        double eQtarget = dataAverageSamplingTarget.getData().getValue(dataAverageSamplingTarget.ERROR.index);
 
         /*
          * deltaFE_harmonic: beta*(FE_harmonic - FE_umbrella) = - ln(Qharmonic)

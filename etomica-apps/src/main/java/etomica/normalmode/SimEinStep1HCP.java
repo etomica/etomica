@@ -253,8 +253,8 @@ public class SimEinStep1HCP extends Simulation {
         //MeterTargetTP.closeFW();
 
         DataGroup data = (DataGroup)accumulator.getData();
-        IData dataErr = data.getData(AccumulatorAverage.ERROR.index);
-        IData dataAvg = data.getData(AccumulatorAverage.AVERAGE.index);
+        IData dataErr = data.getData(accumulator.ERROR.index);
+        IData dataAvg = data.getData(accumulator.AVERAGE.index);
         double avg = dataAvg.getValue(0);
         double err = dataErr.getValue(0);
         System.out.println("Qratio  "+avg+" "+err);

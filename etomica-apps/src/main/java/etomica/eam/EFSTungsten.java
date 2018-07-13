@@ -10,8 +10,8 @@ import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.Tungsten;
-import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.*;
 import etomica.data.history.History;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterEnergy;
@@ -182,10 +182,10 @@ public class EFSTungsten extends Simulation {
             sim.integrator.getEventManager().addListener((DADBPump));
             sim.integrator.getEventManager().addListener((pressurePump));
 
-            accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{AccumulatorAverage.MOST_RECENT});
-            accumulatorAverageKE.addDataSink(kineticAccumulator, new StatType[]{AccumulatorAverage.MOST_RECENT});
-            accumulatorAverageDADB.addDataSink(DADBAccumulator, new StatType[]{AccumulatorAverage.MOST_RECENT});
-            accumulatorAveragePressure.addDataSink(pressureAccumulator, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{accumulatorAveragePE.MOST_RECENT});
+            accumulatorAverageKE.addDataSink(kineticAccumulator, new StatType[]{accumulatorAverageKE.MOST_RECENT});
+            accumulatorAverageDADB.addDataSink(DADBAccumulator, new StatType[]{accumulatorAverageDADB.MOST_RECENT});
+            accumulatorAveragePressure.addDataSink(pressureAccumulator, new StatType[]{accumulatorAveragePressure.MOST_RECENT});
 
             DisplayPlot plotPE = new DisplayPlot();
             plotPE.setLabel("PE Plot");
@@ -217,8 +217,8 @@ public class EFSTungsten extends Simulation {
         	DataProcessorCvMD dataProcessorKE = new DataProcessorCvMD();
         	dataProcessorKE.setIntegrator(sim.integrator);
 
-            accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{AccumulatorAverage.STANDARD_DEVIATION});
-            accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{AccumulatorAverage.STANDARD_DEVIATION});
+            accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{accumulatorAveragePE.STANDARD_DEVIATION});
+            accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{accumulatorAverageKE.STANDARD_DEVIATION});
            
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
             ArrayList<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
@@ -317,19 +317,19 @@ public class EFSTungsten extends Simulation {
         	}
         }
 
-        double PE = accumulatorAveragePE.getData(AccumulatorAverage.AVERAGE).getValue(0)
+        double PE = accumulatorAveragePE.getData(accumulatorAveragePE.AVERAGE).getValue(0)
                     /sim.box.getLeafList().size();
-        double PEerror = accumulatorAveragePE.getData(AccumulatorAverage.ERROR).getValue(0)
+        double PEerror = accumulatorAveragePE.getData(accumulatorAveragePE.ERROR).getValue(0)
                 /sim.box.getLeafList().size();
-        double PEcor = accumulatorAveragePE.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0)
+        double PEcor = accumulatorAveragePE.getData(accumulatorAveragePE.BLOCK_CORRELATION).getValue(0)
                 /sim.box.getLeafList().size();
         double PV = Pascal.UNIT.toSim(0)*1e9/(Mole.UNIT.toSim(1/16.870e24));
 
-        double dadb = accumulatorAverageDADB.getData(AccumulatorAverage.AVERAGE).getValue(0)
+        double dadb = accumulatorAverageDADB.getData(accumulatorAverageDADB.AVERAGE).getValue(0)
                 /sim.box.getLeafList().size();
-        double dadbError = accumulatorAverageDADB.getData(AccumulatorAverage.ERROR).getValue(0)
+        double dadbError = accumulatorAverageDADB.getData(accumulatorAverageDADB.ERROR).getValue(0)
                 /sim.box.getLeafList().size();
-        double dadbCor = accumulatorAverageDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0)
+        double dadbCor = accumulatorAverageDADB.getData(accumulatorAverageDADB.BLOCK_CORRELATION).getValue(0)
                 /sim.box.getLeafList().size();
 	
         System.out.println("PE(eV) "+ElectronVolt.UNIT.fromSim(PE)+" error: "+ElectronVolt.UNIT.fromSim(PEerror)+ " corrolation: "+PEcor);

@@ -12,8 +12,6 @@ import etomica.chem.elements.Carbon;
 import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
 import etomica.config.IConformation;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataGroup;
@@ -399,9 +397,9 @@ public class VirialCO2H2OGCPM {
         sim.printResults(HSB);
 
         DataGroup allYourBase = (DataGroup)sim.accumulators[1].getData();
-        IData averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
-        IData errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
-        IData covarianceData = allYourBase.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+        IData averageData = allYourBase.getData(sim.accumulators[1].AVERAGE.index);
+        IData errorData = allYourBase.getData(sim.accumulators[1].ERROR.index);
+        IData covarianceData = allYourBase.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
         int n = 0;
         double correlationCoef = covarianceData.getValue(n+1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue((n+2)*(n+2)-1));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;

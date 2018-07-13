@@ -16,11 +16,11 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
@@ -252,8 +252,8 @@ public class SimHarmonic extends Simulation {
             sim.getController().actionPerformed();
 
             DataGroup boltzmannData = (DataGroup)avgBoltzmann.getData();
-            double pNotOverlap = ((DataDouble) boltzmannData.getData(AccumulatorAverage.AVERAGE.index)).x;
-            double pError = ((DataDouble) boltzmannData.getData(AccumulatorAverage.ERROR.index)).x;
+            double pNotOverlap = ((DataDouble) boltzmannData.getData(avgBoltzmann.AVERAGE.index)).x;
+            double pError = ((DataDouble) boltzmannData.getData(avgBoltzmann.ERROR.index)).x;
 
             System.out.println("avg HS Boltzmann factor "+pNotOverlap+" +/- "+pError);
 

@@ -10,7 +10,6 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
 import etomica.config.GrainBoundaryTiltConfiguration;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
@@ -156,7 +155,7 @@ public class SimDimerLJgb extends Simulation{
         AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
         
         DataPump energyPump = new DataPump(energyMeter,accumulatorAveragePE);
-        accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{AccumulatorAverage.MOST_RECENT});
+        accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{accumulatorAveragePE.MOST_RECENT});
         
         DisplayPlot plotPE = new DisplayPlot();
         plotPE.setLabel("PE Plot");

@@ -10,7 +10,6 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.IData;
@@ -178,9 +177,9 @@ public class SimIdealGas extends Simulation {
 
         sim.getController().actionPerformed();
 
-        IData avgEnergies = accEnergies.getData(AccumulatorAverage.AVERAGE);
-        IData errEnergies = accEnergies.getData(AccumulatorAverage.ERROR);
-        IData corEnergies = accEnergies.getData(AccumulatorAverage.BLOCK_CORRELATION);
+        IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
+        IData errEnergies = accEnergies.getData(accEnergies.ERROR);
+        IData corEnergies = accEnergies.getData(accEnergies.BLOCK_CORRELATION);
 
         System.out.println("swap acceptance: "+sim.mcMoveSwap.getTracker().acceptanceProbability());
         System.out.println("simple move step size: "+((MCMoveStepTracker)sim.mcMoveAtom.getTracker()).getAdjustStepSize());

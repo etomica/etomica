@@ -9,16 +9,19 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.*;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
+import etomica.data.IData;
 import etomica.data.histogram.Histogram;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterRDF;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -211,9 +214,9 @@ public class MappedU extends Simulation {
 
         if (computeUMA) {
 
-            IData mappedAvg = accMappedVirial.getData(AccumulatorAverage.AVERAGE);
-            IData mappedErr = accMappedVirial.getData(AccumulatorAverage.ERROR);
-            IData mappedCor = accMappedVirial.getData(AccumulatorAverage.BLOCK_CORRELATION);
+            IData mappedAvg = accMappedVirial.getData(accMappedVirial.AVERAGE);
+            IData mappedErr = accMappedVirial.getData(accMappedVirial.ERROR);
+            IData mappedCor = accMappedVirial.getData(accMappedVirial.BLOCK_CORRELATION);
 
             double avg = mappedAvg.getValue(0);
             double err = mappedErr.getValue(0);
@@ -231,9 +234,9 @@ public class MappedU extends Simulation {
 
         if (computeU){
 
-            double UAvg = accU.getData(AccumulatorAverage.AVERAGE).getValue(0);
-            double UErr = accU.getData(AccumulatorAverage.ERROR).getValue(0);
-            double UCor = accU.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
+            double UAvg = accU.getData(accU.AVERAGE).getValue(0);
+            double UErr = accU.getData(accU.ERROR).getValue(0);
+            double UCor = accU.getData(accU.BLOCK_CORRELATION).getValue(0);
 
             System.out.println("Uavg intensive "+UAvg/numAtoms);
             System.out.println("err intensive "+UErr/numAtoms);

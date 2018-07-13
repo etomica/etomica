@@ -8,7 +8,10 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.data.*;
+import etomica.data.AccumulatorAverageCovariance;
+import etomica.data.DataPumpListener;
+import etomica.data.DataSourceCountSteps;
+import etomica.data.IData;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
@@ -611,7 +614,7 @@ public class SimLJHTTISuperHCP extends Simulation {
 
         if (nCutoffsLS > 0) {
 
-            avgRawData = accPULS.getData(AccumulatorAverage.AVERAGE);
+            avgRawData = accPULS.getData(accPULS.AVERAGE);
 
             avgData = accPULSBlocks.getData(accPULSBlocks.AVERAGE);
             errData = accPULSBlocks.getData(accPULSBlocks.ERROR);

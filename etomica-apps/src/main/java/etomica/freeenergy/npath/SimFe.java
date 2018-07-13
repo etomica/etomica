@@ -360,7 +360,7 @@ public class SimFe extends Simulation {
             DataPumpListener pumpSfac = new DataPumpListener(meterSfac, avgSfac, 100 * interval);
             sim.integrator.getEventManager().addListener(pumpSfac);
             DisplayPlot plotSfac = new DisplayPlot();
-            avgSfac.addDataSink(plotSfac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
+            avgSfac.addDataSink(plotSfac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{avgSfac.AVERAGE});
             plotSfac.setLabel("Structure Factor");
             plotSfac.setDoDrawLines(new DataTag[]{meterSfac.getTag()},false);
             plotSfac.getPlot().setYLog(true);
@@ -452,10 +452,10 @@ public class SimFe extends Simulation {
             System.out.println("MC accepted fraction " + ((IntegratorMDHarmonicMC) sim.integrator).getAcceptanceProbability());
         }
 
-        IData avgEnergies = accEnergies.getData(AccumulatorAverage.AVERAGE);
-        IData errEnergies = accEnergies.getData(AccumulatorAverage.ERROR);
-        IData corEnergies = accEnergies.getData(AccumulatorAverage.BLOCK_CORRELATION);
-        IData covEnergies = accEnergies.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
+        IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
+        IData errEnergies = accEnergies.getData(accEnergies.ERROR);
+        IData corEnergies = accEnergies.getData(accEnergies.BLOCK_CORRELATION);
+        IData covEnergies = accEnergies.getData(accEnergies.BLOCK_COVARIANCE);
 
         System.out.println("spring energy: "+avgEnergies.getValue(0)/numAtoms+"   error: "+errEnergies.getValue(0)/numAtoms+"  cor: "+corEnergies.getValue(0));
         System.out.println("Fe energy: "+avgEnergies.getValue(1)/numAtoms+"   error: "+errEnergies.getValue(1)/numAtoms+"  cor: "+corEnergies.getValue(1));

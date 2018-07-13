@@ -21,11 +21,11 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.LatticeCubicBcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroupSoft;
 import etomica.potential.PotentialMaster;
@@ -190,10 +190,10 @@ public class CH4NVT extends Simulation {
         sim.getController().actionPerformed();
         
         // compressibility factor Z=P/rho/T(all in sim units)
-        double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
-        double Zerr = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
-        double Zblock_correlation = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index)).x;
-        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
+        double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
+        double Zerr = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.ERROR.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
+        double Zblock_correlation = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.BLOCK_CORRELATION.index)).x;
+        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
         avgPE /= numberMolecules;
         System.out.println("Z="+Z);
         System.out.println( "Zerr="+Zerr);

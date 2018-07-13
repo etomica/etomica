@@ -23,12 +23,12 @@ import etomica.data.meter.MeterPressure;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.*;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.NeighborCellManager;
@@ -747,7 +747,7 @@ public class SimLJVacancy extends Simulation {
             double pAvg = Double.NaN;
             if (numAtoms-n < pSplitter.getNumDataSinks()) {
                 AccumulatorAverageBlockless pAcc = (AccumulatorAverageBlockless)pSplitter.getDataSink(numAtoms-n);
-                pAvg = pAcc == null ? Double.NaN : pAcc.getData().getValue(AccumulatorAverageBlockless.AVERAGE.index);
+                pAvg = pAcc == null ? Double.NaN : pAcc.getData().getValue(pAcc.AVERAGE.index);
             }
             if (dsfeData.getLength() > i) {
                 System.out.println(String.format("%6d %20.15e %20.15e %20.15e %20.15e %20.15e", n, nHistogram[i], fenData.getValue(i), pAvg, dsfeData.getValue(i), dsfe2Data.getValue(i)));

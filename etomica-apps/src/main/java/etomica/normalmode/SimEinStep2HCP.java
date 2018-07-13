@@ -8,7 +8,10 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.data.*;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataPumpListener;
+import etomica.data.DataSourceCountSteps;
+import etomica.data.IData;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
@@ -269,9 +272,9 @@ public class SimEinStep2HCP extends Simulation {
         sim.getController().actionPerformed();
 
         DataGroup data = (DataGroup)accumulator.getData();
-        IData dataErr = data.getData(AccumulatorAverage.ERROR.index);
-        IData dataAvg = data.getData(AccumulatorAverage.AVERAGE.index);
-        IData dataCorrelation = data.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData dataErr = data.getData(accumulator.ERROR.index);
+        IData dataAvg = data.getData(accumulator.AVERAGE.index);
+        IData dataCorrelation = data.getData(accumulator.BLOCK_CORRELATION.index);
         System.out.println("msd/T  "+dataAvg.getValue(0)/(temperature*numMolecules)+" "+dataErr.getValue(0)/(temperature*numMolecules)+" "+dataCorrelation.getValue(0));
 
 //        DataGroup dataPEInt = (DataGroup)accumulatorPEInt.getData();

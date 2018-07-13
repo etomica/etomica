@@ -208,7 +208,7 @@ public class LJMD extends Simulation {
         densityProfileAvg.setPushInterval(10);
         DataPumpListener profilePump = new DataPumpListener(densityProfileMeter, densityProfileAvg, dataInterval);
         DataDump profileDump = new DataDump();
-        densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
+        densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
         sim.integrator.getEventManager().addListener(profilePump);
         densityProfileAvg.setPushInterval(1);
 
@@ -259,7 +259,7 @@ public class LJMD extends Simulation {
             }
             
             DisplayPlot profilePlot = new DisplayPlot();
-            densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
+            densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
             profilePlot.setLabel("density");
             simGraphic.add(profilePlot);
 
@@ -330,8 +330,8 @@ public class LJMD extends Simulation {
         FileWriter fwProfile;
         try {
             fwProfile = new FileWriter("density.dat");
-            IData profileAvg = densityProfileAvg.getData(AccumulatorAverage.AVERAGE);
-            IData xProfile = ((DataInfoFunction) ((DataInfoGroup) densityProfileAvg.getDataInfo()).getSubDataInfo(AccumulatorAverage.AVERAGE.index)).getXDataSource().getIndependentData(0);
+            IData profileAvg = densityProfileAvg.getData(densityProfileAvg.AVERAGE);
+            IData xProfile = ((DataInfoFunction) ((DataInfoGroup) densityProfileAvg.getDataInfo()).getSubDataInfo(densityProfileAvg.AVERAGE.index)).getXDataSource().getIndependentData(0);
             for  (int i=0; i<xProfile.getLength(); i++) {
                 fwProfile.write((xProfile.getValue(i)-sim.config.getShift().getX(2))+" "+profileAvg.getValue(i)+"\n");
             }
@@ -343,12 +343,12 @@ public class LJMD extends Simulation {
         
         
         if (fixedWall) {
-            double avgPE = accPE.getData().getValue(AccumulatorAverage.AVERAGE.index);
-            double errPE = accPE.getData().getValue(AccumulatorAverage.ERROR.index);
-            double corPE = accPE.getData().getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
-            double avgWF = accWF.getData().getValue(AccumulatorAverage.AVERAGE.index);
-            double errWF = accWF.getData().getValue(AccumulatorAverage.ERROR.index);
-            double corWF = accWF.getData().getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
+            double avgPE = accPE.getData().getValue(accPE.AVERAGE.index);
+            double errPE = accPE.getData().getValue(accPE.ERROR.index);
+            double corPE = accPE.getData().getValue(accPE.BLOCK_CORRELATION.index);
+            double avgWF = accWF.getData().getValue(accWF.AVERAGE.index);
+            double errWF = accWF.getData().getValue(accWF.ERROR.index);
+            double corWF = accWF.getData().getValue(accWF.BLOCK_CORRELATION.index);
             
             if (steps>100*dataInterval) {
                 System.out.print(String.format("Average potential energy: %25.15e %10.4e % 5.3f\n",avgPE,errPE,corPE));

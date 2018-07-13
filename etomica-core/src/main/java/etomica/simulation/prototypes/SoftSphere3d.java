@@ -10,7 +10,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountSteps;
@@ -125,8 +124,8 @@ public class SoftSphere3d extends Simulation {
 
 
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble) ((DataGroup) accumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
-        double energy = ((DataDouble) ((DataGroup) accumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
+        double Cv = ((DataDouble) ((DataGroup) accumulator.getData()).getData(accumulator.STANDARD_DEVIATION.index)).x;
+        double energy = ((DataDouble) ((DataGroup) accumulator.getData()).getData(accumulator.AVERAGE.index)).x;
         Cv /= temp;
         Cv *= Cv / numAtoms;
         System.out.println("Cv/k: " + Cv);

@@ -187,17 +187,17 @@ public class LJMC extends Simulation {
             DataPump profilePump = new DataPump(densityProfileMeter, profileFork);
             profileFork.addDataSink(densityProfileAvg);
             DataDump profileDump = new DataDump();
-            densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
+            densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
             IntegratorListenerAction profilePumpListener = new IntegratorListenerAction(profilePump);
             sim.integrator.getEventManager().addListener(profilePumpListener);
             profilePumpListener.setInterval(numAtoms);
             dataStreamPumps.add(profilePump);
 
             final FitTanh fitTanh = new FitTanh();
-            densityProfileAvg.addDataSink(fitTanh, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
+            densityProfileAvg.addDataSink(fitTanh, new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
 
             DisplayPlot profilePlot = new DisplayPlot();
-            densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
+            densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
             fitTanh.setDataSink(profilePlot.getDataSet().makeDataSink());
             profilePlot.setLegend(new DataTag[]{densityProfileAvg.getTag()}, "density");
             profilePlot.setLegend(new DataTag[]{densityProfileAvg.getTag(), fitTanh.getTag()}, "fit");

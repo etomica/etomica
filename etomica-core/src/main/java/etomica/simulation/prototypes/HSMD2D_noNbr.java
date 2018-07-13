@@ -83,7 +83,7 @@ public class HSMD2D_noNbr extends Simulation {
         integrator.getEventManager().addListener(new IntegratorListenerAction(pressurePump));
 
         pressureHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
-        pressureAverage.addDataSink(pressureHistory, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
+        pressureAverage.addDataSink(pressureHistory, new AccumulatorAverage.StatType[]{pressureAverage.AVERAGE});
 
         MeterTemperature meterTemperature = new MeterTemperature(box, space.D());
         temperatureAverage = new AccumulatorAverageCollapsing();
@@ -92,7 +92,7 @@ public class HSMD2D_noNbr extends Simulation {
 
 
         temperatureHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
-        temperatureAverage.addDataSink(temperatureHistory, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
+        temperatureAverage.addDataSink(temperatureHistory, new AccumulatorAverage.StatType[]{temperatureAverage.AVERAGE});
         DataSourceCountTime timeCounter = new DataSourceCountTime(integrator);
 
         temperatureHistory.setTimeDataSource(timeCounter);

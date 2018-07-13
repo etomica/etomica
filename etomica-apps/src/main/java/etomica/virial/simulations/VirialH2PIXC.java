@@ -5,31 +5,33 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.integrator.IntegratorEvent;
-import etomica.integrator.IntegratorListener;
 import etomica.atom.*;
 import etomica.chem.elements.Hydrogen;
 import etomica.config.ConformationLinear;
-import etomica.data.*;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.AccumulatorRatioAverageCovariance;
+import etomica.data.DataPumpListener;
+import etomica.data.IDataInfo;
 import etomica.data.meter.MeterAvgBondLength;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
-import etomica.integrator.mcmove.MCMove;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.mcmove.MCMove;
 import etomica.potential.P1HydrogenMielke.P1HydrogenMielkeAtomic;
 import etomica.potential.P1IntraMolecular;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresHetero;
-import etomica.units.*;
+import etomica.units.BohrRadius;
+import etomica.units.Kelvin;
+import etomica.units.Pixel;
+import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.CompoundDimension;
-import etomica.units.dimensions.DimensionRatio;
-import etomica.units.dimensions.Quantity;
-import etomica.units.dimensions.Volume;
 import etomica.util.Constants;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
@@ -293,7 +295,7 @@ public class VirialH2PIXC {
 				@Override
 				public void integratorStepFinished(IntegratorEvent e) {
 					if ((sim.integrator.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
-					System.out.println(temperatureK + " " + avg0.getData(AccumulatorAverage.AVERAGE).getValue(0) + " " + avg0.getData(AccumulatorAverage.ERROR).getValue(0) + " " + avg0.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0));
+                    System.out.println(temperatureK + " " + avg0.getData(avg0.AVERAGE).getValue(0) + " " + avg0.getData(avg0.ERROR).getValue(0) + " " + avg0.getData(avg0.BLOCK_CORRELATION).getValue(0));
 				}
 			};
 			sim.integrator.getEventManager().addListener(progressReport);
@@ -319,16 +321,16 @@ public class VirialH2PIXC {
 		//        System.out.println("Bond length acceptance "+cbl0.getTracker().acceptanceRatio());
 
 		System.out.println();
-		System.out.println("reference average: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[0]
-				+ " stdev: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[0]
-				+ " error: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[0]);
+        System.out.println("reference average: " + ((DataDoubleArray) allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[0]
+                + " stdev: " + ((DataDoubleArray) allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[0]
+                + " error: " + ((DataDoubleArray) allYourBase.getData(sim.accumulator.ERROR.index)).getData()[0]);
 
-		double ratio = ((DataDoubleArray) allYourBase.getData(AccumulatorRatioAverageCovariance.RATIO.index)).getData()[1];
-		double error = ((DataDoubleArray) allYourBase.getData(AccumulatorRatioAverageCovariance.RATIO_ERROR.index)).getData()[1];
+        double ratio = ((DataDoubleArray) allYourBase.getData(sim.accumulator.RATIO.index)).getData()[1];
+        double error = ((DataDoubleArray) allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[1];
 
-		System.out.println("target average: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]
-				+ " stdev: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[1]
-				+ " error: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[1]);
+        System.out.println("target average: " + ((DataDoubleArray) allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[1]
+                + " stdev: " + ((DataDoubleArray) allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[1]
+                + " error: " + ((DataDoubleArray) allYourBase.getData(sim.accumulator.ERROR.index)).getData()[1]);
 
 		System.out.println();
 		System.out.println("ratio average: "+ratio+", error: "+error);

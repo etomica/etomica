@@ -428,26 +428,26 @@ public class HSNPT extends Simulation {
                     throw new RuntimeException(e);
                 }
             }
-            double vavg = volumeAvg.getData().getValue(AccumulatorAverage.AVERAGE.index);
-            double verr = volumeAvg.getData().getValue(AccumulatorAverage.ERROR.index);
-            double vstdev = volumeAvg.getData().getValue(AccumulatorAverage.STANDARD_DEVIATION.index);
-            double vcorr = volumeAvg.getData().getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
+            double vavg = volumeAvg.getData().getValue(volumeAvg.AVERAGE.index);
+            double verr = volumeAvg.getData().getValue(volumeAvg.ERROR.index);
+            double vstdev = volumeAvg.getData().getValue(volumeAvg.STANDARD_DEVIATION.index);
+            double vcorr = volumeAvg.getData().getValue(volumeAvg.BLOCK_CORRELATION.index);
             System.out.println("avg volume "+vavg+"  err "+verr+"  stdev "+vstdev+"  correlation "+vcorr);
             System.out.println("avg density "+params.numAtoms/vavg+" "+params.numAtoms/(vavg*vavg)*verr);
         }
 
         if (params.nvt) {
-            double davg = displacementAvg.getData().getValue(AccumulatorAverage.AVERAGE.index);
-            double dstdev = displacementAvg.getData().getValue(AccumulatorAverage.STANDARD_DEVIATION.index);
-            double derr = displacementAvg.getData().getValue(AccumulatorAverage.ERROR.index);
+            double davg = displacementAvg.getData().getValue(displacementAvg.AVERAGE.index);
+            double dstdev = displacementAvg.getData().getValue(displacementAvg.STANDARD_DEVIATION.index);
+            double derr = displacementAvg.getData().getValue(displacementAvg.ERROR.index);
             System.out.println("displacement avg "+davg+" stdev "+dstdev+" err "+derr);
 
-//            double dmaxavg = displacementMax.getData().getValue(AccumulatorAverage.StatType.AVERAGE.index);
-//            double dmaxstdev = displacementMax.getData().getValue(AccumulatorAverage.StatType.STANDARD_DEVIATION.index);
+//            double dmaxavg = displacementMax.getData().getValue(displacementMax.StatType.AVERAGE.index);
+//            double dmaxstdev = displacementMax.getData().getValue(displacementMax.StatType.STANDARD_DEVIATION.index);
 //            System.out.println("displacement max avg "+dmaxavg+" stdev "+dmaxstdev);
 
-            double emaxavg = maxExpansionAvg.getData().getValue(AccumulatorAverage.AVERAGE.index);
-            double emaxstdev = maxExpansionAvg.getData().getValue(AccumulatorAverage.STANDARD_DEVIATION.index);
+            double emaxavg = maxExpansionAvg.getData().getValue(maxExpansionAvg.AVERAGE.index);
+            double emaxstdev = maxExpansionAvg.getData().getValue(maxExpansionAvg.STANDARD_DEVIATION.index);
             System.out.println("max expansion avg "+emaxavg+" stdev "+emaxstdev);
         }
     }

@@ -14,7 +14,10 @@ import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.ElementChemical;
 import etomica.config.ConformationLinear;
-import etomica.data.*;
+import etomica.data.AccumulatorAverageCovariance;
+import etomica.data.DataPumpListener;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
@@ -35,11 +38,8 @@ import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 import etomica.units.*;
+import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.CompoundDimension;
-import etomica.units.dimensions.DimensionRatio;
-import etomica.units.dimensions.Quantity;
-import etomica.units.dimensions.Volume;
 import etomica.util.Constants;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
@@ -642,9 +642,9 @@ public class VirialHePI_PotentialCorrection {
         sim.printResults(refIntegral);
 
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-        IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
-        IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
-        IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
+        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
+        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
         int nTotal = (targetDiagrams.length+2);
         double oVar = dataCov.getValue(nTotal*nTotal-1);
@@ -673,13 +673,13 @@ public class VirialHePI_PotentialCorrection {
         System.out.println();
 
         DataGroup allData0 = (DataGroup)sim.accumulators[0].getData();
-        IData dataAuto0 = allData0.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData dataAuto0 = allData0.getData(sim.accumulators[0].BLOCK_CORRELATION.index);
         System.out.println("reference autocorrelation function: "+dataAuto0.getValue(0));
         System.out.println("reference overlap autocorrelation function: "+dataAuto0.getValue(1));
         
         System.out.println();
 
-        IData dataAuto = allData.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData dataAuto = allData.getData(sim.accumulators[1].BLOCK_CORRELATION.index);
         System.out.println("target autocorrelation function: "+dataAuto.getValue(0));
         System.out.println("target overlap autocorrelation function: "+dataAuto.getValue(1));
         

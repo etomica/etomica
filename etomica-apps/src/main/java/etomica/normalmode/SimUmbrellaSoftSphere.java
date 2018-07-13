@@ -8,7 +8,6 @@ import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.IDataSource;
@@ -320,11 +319,11 @@ public class SimUmbrellaSoftSphere extends Simulation {
 
         }
 
-        double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.AVERAGE.index);
-        double Qtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.AVERAGE.index);
+        double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(dataAverageSamplingHarmonic.AVERAGE.index);
+        double Qtarget = dataAverageSamplingTarget.getData().getValue(dataAverageSamplingTarget.AVERAGE.index);
 
-        double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.ERROR.index);
-        double eQtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.ERROR.index);
+        double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(dataAverageSamplingHarmonic.ERROR.index);
+        double eQtarget = dataAverageSamplingTarget.getData().getValue(dataAverageSamplingTarget.ERROR.index);
 
 	    /*
 	     * deltaFE_harmonic: beta*(FE_harmonic - FE_umbrella) = - ln(Qharmonic)

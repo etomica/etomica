@@ -379,8 +379,8 @@ public class VirialPolyhedra2 {
         
 
         DataGroup allYourBase = (DataGroup)accumulator.getData();
-        IData averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
-        IData errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
+        IData averageData = allYourBase.getData(accumulator.AVERAGE.index);
+        IData errorData = allYourBase.getData(accumulator.ERROR.index);
         
         System.out.println();
         

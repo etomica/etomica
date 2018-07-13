@@ -17,8 +17,6 @@ import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.IElement;
 import etomica.chem.elements.Nitrogen;
 import etomica.config.IConformation;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
@@ -820,9 +818,9 @@ public class VirialN2AlkaneEHMix {
         sim.printResults(HSB[nPoints]);
         
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-        IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
-        IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
-        IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
+        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
+        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
         int nTotal = (targetDiagrams.length+2);
         double oVar = dataCov.getValue(nTotal*nTotal-1);

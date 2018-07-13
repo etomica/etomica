@@ -756,9 +756,9 @@ public class VirialCO2PI {
         sim.printResults(refIntegral);
 
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-        IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
-        IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
-        IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
+        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
+        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
         int nTotal = (targetDiagrams.length+2);
         double oVar = dataCov.getValue(nTotal*nTotal-1);
@@ -794,9 +794,9 @@ public class VirialCO2PI {
         
 
         DataGroup dataDisp = (DataGroup)accDisp.getData();
-        double avgDisp = dataDisp.getData(AccumulatorAverage.AVERAGE.index).getValue(0);
-        double errDisp = dataDisp.getData(AccumulatorAverage.ERROR.index).getValue(0);
-        double corDisp = dataDisp.getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
+        double avgDisp = dataDisp.getData(accDisp.AVERAGE.index).getValue(0);
+        double errDisp = dataDisp.getData(accDisp.ERROR.index).getValue(0);
+        double corDisp = dataDisp.getData(accDisp.BLOCK_CORRELATION.index).getValue(0);
         
         System.out.println(String.format("position stdev: %15.9e  %10.4e  %4.2f", avgDisp, errDisp, corDisp));
 

@@ -276,7 +276,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
             ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(typeSBO, Color.YELLOW);
             ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(typeH, Color.WHITE);
         	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-            rhoAccumulator.addDataSink(densityHistory, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            rhoAccumulator.addDataSink(densityHistory, new StatType[]{rhoAccumulator.MOST_RECENT});
             DisplayPlot rhoPlot = new DisplayPlot();
         	densityHistory.setDataSink(rhoPlot.getDataSet().makeDataSink());
         	rhoPlot.setLabel("density");
@@ -289,12 +289,12 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         	//graphic.add(smerPlot1);
         	DataSourceCountSteps stepCounter = new DataSourceCountSteps(sim.integrator);
         	AccumulatorHistory energyHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-            energyAccumulator.addDataSink(energyHistory, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            energyAccumulator.addDataSink(energyHistory, new StatType[]{energyAccumulator.MOST_RECENT});
             DisplayPlot energyPlot = new DisplayPlot();
         	AccumulatorHistory energy2History = new AccumulatorHistory(new HistoryCollapsingAverage());
         	energyHistory.setTimeDataSource(stepCounter);
         	energy2History.setTimeDataSource(stepCounter);
-            energy2Accumulator.addDataSink(energy2History, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            energy2Accumulator.addDataSink(energy2History, new StatType[]{energy2Accumulator.MOST_RECENT});
             energyHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
         	energyPlot.setLabel("energy");
         	graphic.add(energyPlot);
@@ -311,9 +311,9 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         finalDensity = rhoUnit.fromSim(finalDensity);
         System.out.println("next initial Density "+finalDensity);
         System.out.println("numAtom=" +numAtoms);
-        double avgDensity = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;//average density
-        double errDensity = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x;
-        double correlationBlock = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index)).x;
+        double avgDensity = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(rhoAccumulator.AVERAGE.index)).x;//average density
+        double errDensity = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(rhoAccumulator.ERROR.index)).x;
+        double correlationBlock = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(rhoAccumulator.BLOCK_CORRELATION.index)).x;
         System.out.println("err "+errDensity);
         System.out.println("correlationBlock "+correlationBlock);
         //double avgSmerFraction = ((DataDouble)((DataGroup)smerAccumulator1.getData()).getData(smerAccumulator1.AVERAGE.index)).x;//average density
@@ -323,7 +323,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         //System.out.println("smer fraction of "+associationEnergy+" association energy "+avgSmerFraction);
         
         double Z = pressure/(avgDensity*sim.integrator.getTemperature());
-        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
+        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
         System.out.println("average energy= "+avgPE);
         double finalEnergy = energyMeter.getDataAsScalar();
         double finalEnergy2 = energy2Meter.getDataAsScalar();
@@ -335,7 +335,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
     	Unit calPerMoles = new CompoundUnit(new Unit[]{Calorie.UNIT,Mole.UNIT},new double[]{1.0,-1.0});
     	System.out.println("PE/epsilon="+calPerMoles.fromSim(avgPE)+"cal/mole");
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
+        double Cv = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.STANDARD_DEVIATION.index)).x;
         Cv /= temp;
         Cv *= Cv/numAtoms;
         System.out.println("Cv/k="+Cv);

@@ -26,11 +26,11 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayBoxCanvasG3DSys.OrientedFullSite;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicBcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.DipoleSource;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculePositionDefinition;
@@ -226,8 +226,8 @@ public class DLJ_NVT_1site extends Simulation {
         sim.getController().actionPerformed();
 
         //calculate dipoleSumSquared average
-        double dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
-        double dipoleSumSquaredERR = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x;
+        double dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.AVERAGE.index)).x;
+        double dipoleSumSquaredERR = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.ERROR.index)).x;
 
         double volume = sim.box.getBoundary().volume();
         double dipoleFac = 4 * Math.PI * dipoleSumSquared/9.0/volume/temperature;
@@ -258,7 +258,7 @@ public class DLJ_NVT_1site extends Simulation {
         double test = 4 * Math.PI/9.0/1.35/boxSize/boxSize/boxSize;
         System.out.println("D test= "+test);
 
-        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
+        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
         System.out.println("average energy= "+avgPE);
         avgPE /= numberMolecules;
         System.out.println("average energy per molecule= "+avgPE);
