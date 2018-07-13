@@ -93,11 +93,9 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
                 	double pu = p2Soft.u(dr2);
                 	double dpu = p2Soft.du(dr2);
                     double p1 = -dpu/dr2*drTmp.dot(drLatTmp);
-                    pTmp1.Ea1Tv1(-dpu/dr2, drTmp);
-                    pTmp1.TE(drLatTmp);
                     double dadb = -dpu/dr2*drTmp.dot(drA);
                     pTmp1.Ea1Tv1(-dpu / dr2, drTmp);
-                    double pzxy = pTmp1.getX(2) * dr.getX(2) - (pTmp1.getX(0) * dr.getX(0) + pTmp1.getX(1) * dr.getX(1)) / 2;
+                    double pzxy = pTmp1.getX(2) * drTmp.getX(2) - (pTmp1.getX(0) * drTmp.getX(0) + pTmp1.getX(1) * drTmp.getX(1)) / 2;
                 	if (isSelf) {
                 	    pu *= 0.5;
                 	    dpu *= 0.5;
