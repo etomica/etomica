@@ -1,7 +1,7 @@
 apply plugin: 'eclipse'
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.7'
+    gradleVersion = '4.8'
 }
 
 tasks.withType(JavaCompile) {
@@ -24,8 +24,8 @@ subprojects {
         jcenter()
     }
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = 10
+    targetCompatibility = 10
 
     dependencies {
         testCompile 'org.junit.jupiter:junit-jupiter-api:5.2.0-M1'
@@ -102,7 +102,8 @@ project(':etomica-graph') {
     dependencies {
         compile 'xml-apis:xml-apis-ext:1.3.04'
         compile 'org.apache.xmlgraphics:batik-swing:1.7'
-        compile 'org.apache.xmlgraphics:fop:1.0'
+        compile 'org.apache.xmlgraphics:batik-transcoder:1.7'
+//        compile 'org.apache.xmlgraphics:fop:1.0'
     }
 }
 
