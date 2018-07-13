@@ -1,3 +1,7 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "2.0.4"
+}
+
 apply plugin: 'eclipse'
 
 task wrapper(type: Wrapper) {
@@ -63,8 +67,29 @@ subprojects {
     task allDeps(type: DependencyReportTask) {}
 }
 
+project(':etomica-graphics3D') {
+    compileJava {
+        inputs.property("moduleName", "etomica.graphics3D")
+        doFirst {
+            options.compilerArgs = [
+                    '--module-path', classpath.asPath,
+            ]
+            classpath = files()
+        }
+    }
+}
+
 project(':etomica-core') {
-    
+    compileJava {
+        inputs.property("moduleName", "etomica.core")
+        doFirst {
+            options.compilerArgs = [
+                    '--module-path', classpath.asPath,
+            ]
+            classpath = files()
+        }
+    }
+
     dependencies {
         compile 'com.fasterxml.jackson.core:jackson-databind:2.9.0'
         compile 'gov.nist.math:jama:1.0.3'
@@ -83,6 +108,15 @@ project(':etomica-core') {
 }
 
 project(':etomica-apps') {
+    compileJava {
+        inputs.property("moduleName", "etomica.apps")
+        doFirst {
+            options.compilerArgs = [
+                    '--module-path', classpath.asPath,
+            ]
+            classpath = files()
+        }
+    }
 
     dependencies {
         compile project(':etomica-core')
@@ -91,18 +125,48 @@ project(':etomica-apps') {
 }
 
 project(':etomica-modules') {
-    
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    compileJava {
+        inputs.property("moduleName", "etomica.module")
+        doFirst {
+            options.compilerArgs = [
+                    '--module-path', classpath.asPath,
+            ]
+            classpath = files()
+        }
+    }
+
     dependencies {
         compile project(':etomica-apps')
+    }
+
+    jar {
+        manifest {
+            attributes "Main-Class": "etomica.modules.statistics.StatisticsMCGraphic"
+        }
+    }
+
+    task listDeps {
+        println configurations.compile*.absolutePath.join(':')
     }
 }
 
 project(':etomica-graph') {
+    compileJava {
+        inputs.property("moduleName", "etomica.graph")
+        doFirst {
+            options.compilerArgs = [
+                    '--module-path', classpath.asPath,
+            ]
+            classpath = files()
+        }
+    }
 
     dependencies {
-        compile 'xml-apis:xml-apis-ext:1.3.04'
-        compile 'org.apache.xmlgraphics:batik-swing:1.7'
-        compile 'org.apache.xmlgraphics:batik-transcoder:1.7'
+//        compile 'xml-apis:xml-apis-ext:1.3.04'
+//        compile 'org.apache.xmlgraphics:batik-swing:1.7'
+//        compile 'org.apache.xmlgraphics:batik-transcoder:1.7'
 //        compile 'org.apache.xmlgraphics:fop:1.0'
     }
 }

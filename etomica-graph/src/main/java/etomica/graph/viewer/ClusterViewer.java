@@ -78,7 +78,7 @@ public class ClusterViewer extends JFrame implements Viewer {
 
   public void update(Set<Graph> graphs) {
 
-    GraphMap gm = new GraphMap(graphs, mainPanel);
-    gm.draw();
+//    GraphMap gm = new GraphMap(graphs, mainPanel);
+//    gm.draw();
   }
 }
