@@ -21,7 +21,10 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp4;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.liquidLJ.*;
+import etomica.liquidLJ.DataProcessorReweight;
+import etomica.liquidLJ.DataProcessorReweightRatio;
+import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
+import etomica.liquidLJ.ValueCache;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
@@ -334,7 +337,7 @@ public class SimLJHTTISuperHCP extends Simulation {
 
         final double[] cutoffsLS = new double[nCutoffsLS];
         PotentialMasterMonatomic potentialMasterLS = new PotentialMasterMonatomic(sim);
-        Potential2SoftSphericalLSMultiLatSlanty pLS = null;
+        Potential2SoftSphericalLSMultiLat pLS = null;
         PotentialMasterMonatomic potentialMasterLJLS = null;
         Potential2SoftSphericalLSMultiLat pLJLS = null;
         final double[] uFacCutLS = new double[cutoffsLS.length];
@@ -349,7 +352,7 @@ public class SimLJHTTISuperHCP extends Simulation {
             for (int i=0; i<nCutoffsLS; i++) {
                 cutoffsLS[i] *= Math.pow(density, -1.0/3.0);
             }
-            pLS = new Potential2SoftSphericalLSMultiLatSlanty(sim.getSpace(), cutoffsLS, potential, sim.coordinateDefinition, new int[]{1,1,1});
+            pLS = new Potential2SoftSphericalLSMultiLat(sim.getSpace(), cutoffsLS, potential, sim.coordinateDefinition);
             potentialMasterLS.addPotential(pLS, new AtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
 
             meterSolidLS = new MeterSolidDACut(sim.getSpace(), potentialMasterLS, sim.coordinateDefinition, cutoffsLS);
