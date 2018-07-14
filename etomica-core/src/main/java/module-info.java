@@ -5,6 +5,7 @@ module etomica.core {
     requires therapi.runtime.javadoc;
     requires transitive etomica.graphics3D;
     requires jama;
+    requires ptolemy.ptplot;
     exports etomica.action;
     exports etomica.atom;
     exports etomica.data;
