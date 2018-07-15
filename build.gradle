@@ -200,3 +200,25 @@ task javadocAll(type: Javadoc) {
 
     destinationDir = new File(projectDir, 'docs/javadoc')
 }
+
+task linkModule(type: Exec, dependsOn: ':etomica-modules:jar') {
+    def modulePath = project(":etomica-modules").configurations.runtime.files.path
+    modulePath.add(project(":etomica-modules").jar.archivePath)
+    def modulePathStr = modulePath.join(":")
+
+    commandLine "jlink"
+    args = [
+            "--module-path",
+            modulePathStr,
+            "--add-modules",
+            "etomica.modules",
+            "--launcher",
+            "stats=etomica.modules/etomica.modules.statistics.StatisticsMCGraphic",
+            "--output",
+            "stats_module",
+            "--strip-debug",
+            "--compress", "2",
+            "--no-header-files",
+            "--no-man-pages"
+    ]
+}
