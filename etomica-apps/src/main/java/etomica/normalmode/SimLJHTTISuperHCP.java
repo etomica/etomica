@@ -67,12 +67,12 @@ public class SimLJHTTISuperHCP extends Simulation {
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        double a = Math.pow(2, 1.0 / 6.0) / Math.pow(density, 1.0 / 3.0) / Math.pow(alpha, 1.0 / 3.0);
+        double a = Math.pow(2, 1.0 / 6.0) / Math.pow(density, 1.0 / 3.0);
         int n = (int) Math.round(Math.pow(numAtoms / 8, 1.0 / 3.0));
         if (8 * n * n * n != numAtoms) {
             throw new RuntimeException("Not compatible with HCP4");
         }
-        primitive = new PrimitiveOrthorhombic(space, a, a * Math.sqrt(3), a * Math.sqrt(8.0 / 3.0) * alpha);
+        primitive = new PrimitiveOrthorhombic(space, a, a * Math.sqrt(3), a * Math.sqrt(8.0 / 3.0));
         nCells = new int[]{2 * n, n, n};
         Vector[] primitiveVectors = primitive.vectors();
         double[] L = new double[]{nCells[0] * primitiveVectors[0].getX(0),
@@ -84,8 +84,8 @@ public class SimLJHTTISuperHCP extends Simulation {
 
         basis = new BasisHcp4();
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(nCells);
+        CoordinateDefinitionLeaf c0 = new CoordinateDefinitionLeaf(box, primitive, basis, space);
+        c0.initializeCoordinates(nCells);
 
         if (rc > 0.494 * n * a * Math.sqrt(8.0 / 3.0)) {
             throw new RuntimeException("cutoff too big");
@@ -126,13 +126,30 @@ public class SimLJHTTISuperHCP extends Simulation {
             throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        getController().addAction(activityIntegrate);
-
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
         ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
+
+        if (alpha != 1) {
+            // we found our neighbors with the unstrained unit cell.
+            // now actually apply the strain
+            a /= Math.pow(alpha, 1.0 / 3.0);
+            primitive = new PrimitiveOrthorhombic(space, a, a * Math.sqrt(3), a * Math.sqrt(8.0 / 3.0) * alpha);
+            primitiveVectors = primitive.vectors();
+            L = new double[]{nCells[0] * primitiveVectors[0].getX(0),
+                    nCells[1] * primitiveVectors[1].getX(1),
+                    nCells[2] * primitiveVectors[2].getX(2)};
+            boundary.setBoxSize(Vector.of(L));
+
+            coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
+            coordinateDefinition.initializeCoordinates(nCells);
+        } else {
+            coordinateDefinition = c0;
+        }
+
+        activityIntegrate = new ActivityIntegrate(integrator);
+
+        getController().addAction(activityIntegrate);
     }
 
     /**
