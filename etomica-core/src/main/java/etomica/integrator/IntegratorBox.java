@@ -5,7 +5,7 @@
 package etomica.integrator;
 
 import etomica.box.Box;
-import etomica.meta.annotations.IgnoreProperty;
+// import etomica.meta.annotations.IgnoreProperty;
 import etomica.potential.PotentialMaster;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -54,7 +54,7 @@ public abstract class IntegratorBox extends Integrator {
     /**
      * @return the PotentialMaster instance used to compute energy etc.
      */
-    @IgnoreProperty
+    // @IgnoreProperty
     public PotentialMaster getPotentialMaster() {
         return potentialMaster;
     }

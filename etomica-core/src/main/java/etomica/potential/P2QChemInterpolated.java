@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import Jama.Matrix;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
@@ -480,14 +479,14 @@ public class P2QChemInterpolated extends Potential2SoftSpherical {
 			b[n] = Math.log(yB[n]);
 		}
 		
-		Matrix A = new Matrix(a);
-		Matrix B = new Matrix(b, N);
-
-		Matrix At = A.transpose();
-		Matrix X = ((At.times(A)).inverse()).times(At.times(B));
+//		Matrix A = new Matrix(a);
+//		Matrix B = new Matrix(b, N);
+//
+//		Matrix At = A.transpose();
+//		Matrix X = ((At.times(A)).inverse()).times(At.times(B));
 			
-		double theta0 = Math.exp(X.get(0, 0));
-		double theta1 = X.get(1, 0);
+		double theta0 = 0;
+		double theta1 = 0;
 		
 		////////////////////////////////////////////////////////////
 		// Normal equations
@@ -516,11 +515,11 @@ public class P2QChemInterpolated extends Potential2SoftSpherical {
 			
 		}
 		
-		Matrix E = new Matrix(e, N);
-		double error = E.norm2();	
-		
-		Matrix E2 = new Matrix(e2, N);
-		double error2 = E2.norm2();	
+//		Matrix E = new Matrix(e, N);
+//		double error = E.norm2();
+//
+//		Matrix E2 = new Matrix(e2, N);
+		double error2 = 0;
 			
 		theta = new double[] {theta0,theta1};
 		//System.out.println("theta0 = " + theta0 + ", theta1 = "+ theta1 + ", error = " + error+ ", error2 = " + error2);

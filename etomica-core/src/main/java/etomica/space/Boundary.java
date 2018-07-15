@@ -4,11 +4,11 @@
 
 package etomica.space;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+//import com.fasterxml.jackson.annotation.JsonIgnore;
 import etomica.box.Box;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Polytope;
-import etomica.meta.annotations.IgnoreProperty;
+// import etomica.meta.annotations.IgnoreProperty;
 
 /**
  * Parent class of boundary objects that describe the size and periodic nature
@@ -47,7 +47,7 @@ public abstract class Boundary {
      * @return the boundary's Box.  Might be null if the boundary is not
      * associated with a box.
      */
-    @JsonIgnore
+//    @JsonIgnore
     public Box getBox() {
         return box;
     }
@@ -89,12 +89,12 @@ public abstract class Boundary {
      * @return the event manager, which fires notifications about changes to
      * this boundary to any added listener.
      */
-    @JsonIgnore
+//    @JsonIgnore
     public BoundaryEventManager getEventManager() {
         return eventManager;
     }
 
-    @JsonIgnore
+//    @JsonIgnore
     public abstract IndexIteratorSizable getIndexIterator();
 
     /**
@@ -165,7 +165,7 @@ public abstract class Boundary {
      * @param d the dimension of the desired edge vector
      * @return the edge vector
      */
-    @IgnoreProperty
+    // @IgnoreProperty
     public abstract Vector getEdgeVector(int d);
 
     /**
@@ -175,7 +175,7 @@ public abstract class Boundary {
      * @param d the dimension of the desired periodicity
      * @return the periodicity of dimension d
      */
-    @IgnoreProperty
+    // @IgnoreProperty
     public abstract boolean getPeriodicity(int d);
 
     public boolean[] getPeriodicity() {

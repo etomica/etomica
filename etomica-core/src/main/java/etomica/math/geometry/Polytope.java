@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import etomica.meta.annotations.IgnoreProperty;
+//import com.fasterxml.jackson.annotation.JsonIgnore;
+// import etomica.meta.annotations.IgnoreProperty;
 import etomica.space.Vector;
 import etomica.space.Space;
 
@@ -142,7 +142,7 @@ public abstract class Polytope implements Shape, java.io.Serializable {
      * Number of vertices in the polytrope. A vertex is a point where D edges
      * meet.
      */
-    @JsonIgnore
+//    @JsonIgnore
     public final int getVertexCount() {
         return vertices.length;
     }
@@ -150,7 +150,7 @@ public abstract class Polytope implements Shape, java.io.Serializable {
     /**
      * The space defining the vectors used to represent the vertices.
      */
-    @JsonIgnore
+//    @JsonIgnore
     public Space getEmbeddedSpace() {
         return embeddedSpace;
     }

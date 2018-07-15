@@ -5,7 +5,7 @@
 package etomica.units.dimensions;
 import java.util.Arrays;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+//import com.fasterxml.jackson.annotation.JsonValue;
 import etomica.units.CompoundUnit;
 import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
@@ -51,7 +51,7 @@ public class Dimension implements java.io.Serializable {
         return new CompoundUnit(unitSystem.baseUnits(), signature());
     }
 
-    @JsonValue
+//    @JsonValue
     public String toString() {
         return name;
     }

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+//import com.fasterxml.jackson.annotation.JsonIgnore;
 import etomica.space.Vector;
 
 /**
@@ -35,7 +35,7 @@ public abstract class Polyhedron extends Polytope {
     /**
      * Returns all faces defined by the polyhedron.
      */
-    @JsonIgnore
+//    @JsonIgnore
     public Polygon[] getFaces() {
         return faces;
     }

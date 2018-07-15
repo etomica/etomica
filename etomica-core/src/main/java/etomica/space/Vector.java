@@ -5,10 +5,10 @@
 package etomica.space;
 
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+//import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import etomica.math.function.IFunction;
-import etomica.meta.annotations.IgnoreProperty;
-import etomica.meta.serializers.VectorSerializer;
+// import etomica.meta.annotations.IgnoreProperty;
+// import etomica.meta.serializers.VectorSerializer;
 import etomica.space1d.Vector1D;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
@@ -18,7 +18,7 @@ import etomica.util.random.IRandom;
 /**
  * Interface containing vector operations, accessor, and mutator methods.
  */
-@JsonSerialize(using = VectorSerializer.class)
+//@JsonSerialize(using = VectorSerializer.class)
 public interface Vector {
 
     /**
@@ -61,7 +61,7 @@ public interface Vector {
     /**
      * Returns true if all components of this vector are zero; false otherwise.
      */
-    @IgnoreProperty
+    // @IgnoreProperty
     public boolean isZero();
 
     /**
@@ -72,7 +72,7 @@ public interface Vector {
     /**
      * Returns true if any element of the vector is not-a-number.
      */
-    @IgnoreProperty
+    // @IgnoreProperty
     public boolean isNaN();
 
     /**

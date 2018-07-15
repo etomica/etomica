@@ -20,6 +20,6 @@ module etomica.apps {
     requires etomica.core;
     requires etomica.graph;
     requires java.desktop;
-    requires jackson.databind;
-    requires jama;
+//    requires jackson.databind;
+    requires Jama;
 }

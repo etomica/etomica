@@ -4,8 +4,8 @@
 
 package etomica.action;
 
-import Jama.EigenvalueDecomposition;
-import Jama.Matrix;
+//import Jama.EigenvalueDecomposition;
+//import Jama.Matrix;
 import etomica.box.Box;
 import etomica.math.numerical.CalcGradientDifferentiable;
 import etomica.molecule.IMoleculeList;
@@ -38,11 +38,11 @@ public class CalcVibrationalModes implements IAction, Serializable {
     double [][] dForces;
     double prodFreq;
     int[] modeSigns;
-    Matrix fC;
+//    Matrix fC;
     double mass;
     int writeCount;
     IMoleculeList ms;
-    EigenvalueDecomposition eigenDecomp;
+//    EigenvalueDecomposition eigenDecomp;
     CalcGradientDifferentiable cgd;
     
     public CalcVibrationalModes(){
@@ -75,9 +75,9 @@ public class CalcVibrationalModes implements IAction, Serializable {
             //System.out.println("  -Calculating force constant row "+l+"...");
             d[l] = 0;
         }
-        fC = new Matrix(dForces);
-        eigenDecomp = new EigenvalueDecomposition(fC);
-        modes = eigenDecomp.getRealEigenvalues();
+//        fC = new Matrix(dForces);
+//        eigenDecomp = new EigenvalueDecomposition(fC);
+//        modes = eigenDecomp.getRealEigenvalues();
         for(int i=0; i<modes.length; i++){   
             if(modes[i]>0.0){modeSigns[0]++;}
             else {modeSigns[1]++;}

@@ -11,8 +11,8 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.IElement;
 import etomica.integrator.Integrator;
-import etomica.meta.annotations.IgnoreProperty;
-import etomica.meta.javadoc.KeepSimJavadoc;
+//// import etomica.meta.annotations.IgnoreProperty;
+//// import etomica.meta.javadoc.KeepSimJavadoc;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.species.ISpecies;
@@ -27,7 +27,7 @@ import java.util.*;
  * It contains boxes, species, an integrator, a random number generator,
  * and a controller.
  */
-@KeepSimJavadoc
+//@KeepSimJavadoc
 public class Simulation {
 
     protected final Space space;
@@ -170,7 +170,7 @@ public class Simulation {
     /**
      * @return the number of boxes that have been added to the Simulation.
      */
-    @IgnoreProperty
+//    // @IgnoreProperty
     public final int getBoxCount() {
         return boxes.size();
     }
@@ -179,7 +179,7 @@ public class Simulation {
      * @return the Controller used to run the simulation's Actions and
      * Activities.
      */
-    @IgnoreProperty
+//    // @IgnoreProperty
     public final Controller getController() {
         return controller;
     }
@@ -212,7 +212,7 @@ public class Simulation {
      * @return the Simulation's event manager, which fires events for
      * Boxes and Species being added and removed.
      */
-    @IgnoreProperty
+//    // @IgnoreProperty
     public final SimulationEventManager getEventManager() {
         return eventManager;
     }
@@ -256,7 +256,7 @@ public class Simulation {
     /**
      * @return the number of Species in the Simulation.
      */
-    @IgnoreProperty
+//    // @IgnoreProperty
     public final int getSpeciesCount() {
         return speciesList.size();
     }

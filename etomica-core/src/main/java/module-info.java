@@ -1,11 +1,14 @@
 module etomica.core {
-    requires jackson.annotations;
+//    requires jackson.annotations;
     requires java.desktop;
-    requires jackson.databind;
-    requires therapi.runtime.javadoc;
+//    requires jackson.databind;
+//    requires therapi.runtime.javadoc;
     requires transitive etomica.graphics3D;
-    requires jama;
+
     requires ptolemy.ptplot;
+    requires Jama;
+    requires commons.math3;
+
     exports etomica.action;
     exports etomica.atom;
     exports etomica.data;

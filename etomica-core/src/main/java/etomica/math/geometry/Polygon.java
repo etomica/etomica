@@ -4,7 +4,6 @@
 
 package etomica.math.geometry;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import etomica.space.Vector;
 import etomica.space.Space;
 
@@ -56,7 +55,6 @@ public abstract class Polygon extends Polytope {
     /**
      * Returns the 2-D volume of the polygon, which is its area
      */
-    @JsonIgnore
     public double getVolume() {
         return getArea();
     }

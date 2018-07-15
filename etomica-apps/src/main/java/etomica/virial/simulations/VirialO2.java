@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.virial.simulations;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.fasterxml.jackson.databind.ObjectMapper;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -280,8 +280,8 @@ public class VirialO2 {
 
             try {
                 FileWriter jsonFile = new FileWriter(params.jsonOutputFileName);
-                ObjectMapper om = new ObjectMapper();
-                jsonFile.write(om.writeValueAsString(resultsMap));
+//                ObjectMapper om = new ObjectMapper();
+//                jsonFile.write(om.writeValueAsString(resultsMap));
                 jsonFile.write("\n");
                 jsonFile.close();
             } catch (IOException e) {
