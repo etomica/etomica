@@ -1,4 +1,4 @@
-module etomica.core {
+open module etomica.core {
 //    requires jackson.annotations;
     requires java.desktop;
 //    requires jackson.databind;
