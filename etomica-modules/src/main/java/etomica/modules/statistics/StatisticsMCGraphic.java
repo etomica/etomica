@@ -162,6 +162,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             final DisplayTextBoxesCAE muDisplay = new DisplayTextBoxesCAE();
             muDisplay.setAccumulator(widomHPB.avg);
             muDisplay.setDoShowCurrent(false);
+            muDisplay.setLabel("Chemical Potential");
             resetDisplays = new IAction() {
                 public void actionPerformed() {
                     dPump.actionPerformed();
