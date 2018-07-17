@@ -12,4 +12,4 @@ install:
 
 artifacts:
   - path: stats_module.zip
-  - name: stats_module
+    name: stats_module
