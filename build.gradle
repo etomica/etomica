@@ -203,8 +203,9 @@ task javadocAll(type: Javadoc) {
 
 task linkModule(type: Exec, dependsOn: ':etomica-modules:jar') {
     def modulePath = project(":etomica-modules").configurations.runtime.files.path
+    def sep = System.getProperty("os.name").toLowerCase().contains("windows") ? ";" : ":"
     modulePath.add(project(":etomica-modules").jar.archivePath)
-    def modulePathStr = modulePath.join(":")
+    def modulePathStr = modulePath.join(sep)
 
     commandLine "jlink"
     args = [
