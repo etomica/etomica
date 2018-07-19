@@ -162,7 +162,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             final DisplayTextBoxesCAE muDisplay = new DisplayTextBoxesCAE();
             muDisplay.setAccumulator(widomHPB.avg);
             muDisplay.setDoShowCurrent(false);
-            muDisplay.setLabel("Chemical Potentail");
+            muDisplay.setLabel("Chemical Potential");
             resetDisplays = new IAction() {
                 public void actionPerformed() {
                     dPump.actionPerformed();
@@ -716,7 +716,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
 
     public static class StatsParams extends ParameterBase {
         public int D = 3;
-        public int moduleNum = 2;
+        public int moduleNum = 1;
     }
 
     public static class MyFunctionInvertible implements FunctionInvertible, FunctionDifferentiable {
