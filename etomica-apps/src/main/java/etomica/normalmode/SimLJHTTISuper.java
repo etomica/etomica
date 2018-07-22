@@ -98,9 +98,9 @@ public class SimLJHTTISuper extends Simulation {
 
         potentialMaster.lrcMaster().setEnabled(false);
 
-        int cellRange = 7;
+        int cellRange = 2;
         potentialMaster.setRange(rc);
-        potentialMaster.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+        potentialMaster.setCellRange(cellRange); // NeighborCellManager handles this even if cells are a bit small
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
         potentialMaster.getNeighborManager(box).reset();
         int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
@@ -234,8 +234,8 @@ public class SimLJHTTISuper extends Simulation {
             potentialMasterData.addPotential(potentialT, new AtomType[]{sphereType, sphereType});
             potentialMasterData.lrcMaster().setEnabled(false);
 
-            int cellRange = 7;
-            potentialMasterData.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+            int cellRange = 2;
+            potentialMasterData.setCellRange(cellRange);
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
             potentialMasterData.getNeighborManager(sim.box).reset();
             int potentialCells = potentialMasterData.getNbrCellManager(sim.box).getLattice().getSize()[0];
@@ -261,8 +261,8 @@ public class SimLJHTTISuper extends Simulation {
             potentialMasterDataLJ.addPotential(potentialLJ, new AtomType[]{sphereType, sphereType});
             potentialMasterDataLJ.lrcMaster().setEnabled(false);
 
-            int cellRange = 7;
-            potentialMasterDataLJ.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+            int cellRange = 2;
+            potentialMasterDataLJ.setCellRange(cellRange);
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
             potentialMasterDataLJ.getNeighborManager(sim.box).reset();
             int potentialCells = potentialMasterDataLJ.getNbrCellManager(sim.box).getLattice().getSize()[0];
