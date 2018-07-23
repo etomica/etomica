@@ -210,6 +210,7 @@ public class LjMC3D extends Simulation {
                 }
             }
         }
+        sim.potentialMasterCell.getNbrCellManager(sim.box).assignCellAll();
 
 
         if (!graphics) {
