@@ -211,7 +211,8 @@ public final class SpecialFunctions {
             //if that tolerance is not met within the given numberof iterations then the program will
             //ask you to check the values entered
             if (j1 == n) {
-                throw new RuntimeException("please check your the values a, c & xin");
+                return Double.NaN;
+//                throw new RuntimeException("please check your the values a, c & xin");
             }
         }//end for
 
