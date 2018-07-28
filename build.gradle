@@ -5,7 +5,7 @@ plugins {
 apply plugin: 'eclipse'
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.8'
+    gradleVersion = '4.9'
 }
 
 tasks.withType(JavaCompile) {
@@ -201,11 +201,46 @@ task javadocAll(type: Javadoc) {
     destinationDir = new File(projectDir, 'docs/javadoc')
 }
 
-task linkModule(type: Exec, dependsOn: ':etomica-modules:jar') {
+task cleanModules(type: Delete) {
+    delete "${projectDir}/etomica_modules"
+}
+
+task linkModules(type: Exec, dependsOn: ':etomica-modules:jar') {
+    dependsOn 'cleanModules'
     def modulePath = project(":etomica-modules").configurations.runtime.files.path
     def sep = System.getProperty("os.name").toLowerCase().contains("windows") ? ";" : ":"
     modulePath.add(project(":etomica-modules").jar.archivePath)
     def modulePathStr = modulePath.join(sep)
+
+    //noinspection GroovyAssignabilityCheck
+    def mainClasses = [
+            "stats=etomica.modules/etomica.modules.statistics.StatisticsMCGraphic",
+            "adsorbtion=etomica.modules/etomica.modules.adsorption.AdsorptionGraphic",
+            "catalysis=etomica.modules/etomica.modules.catalysis.CatalysisGraphic",
+            "chainequilibrium=etomica.modules/etomica.modules.chainequilibrium.ChainEquilibriumGraphic",
+            "colloid=etomica.modules/etomica.modules.colloid.ColloidGraphic",
+            "crystalviewer=etomica.modules/etomica.modules.crystalviewer.CrystalViewer",
+            "dcvgcmd=etomica.modules/etomica.modules.dcvgcmd.DCVGCMDGraphic",
+            "droplet=etomica.modules/etomica.modules.droplet.DropletGraphic",
+            "droplet_atomic=etomica.modules/etomica.modules.droplet.DropletAtomicGraphic",
+            "ensembles=etomica.modules/etomica.modules.ensembles.LJMCGraphic",
+            "insertion=etomica.modules/etomica.modules.insertion.InsertionGraphic",
+            "interfacial=etomica.modules/etomica.modules.interfacial.InterfacialSWGraphic",
+            "ljmd=etomica.modules/etomica.modules.ljmd.LjmdGraphic",
+            "materialfracture=etomica.modules/etomica.modules.materialfracture.MaterialFractureGraphic",
+            "mu=etomica.modules/etomica.modules.mu.MuGraphic",
+            "multiharmonic=etomica.modules/etomica.modules.multiharmonic.MultiharmonicGraphicMC",
+            "osmosis=etomica.modules/etomica.modules.osmosis.Osmosis",
+            "pistoncylinder=etomica.modules/etomica.modules.pistoncylinder.PistonCylinderGraphic",
+            "reactionequilibrium=etomica.modules/etomica.modules.reactionequilibrium.ReactionEquilibriumGraphic",
+            "rheology=etomica.modules/etomica.modules.rheology.RheologyGraphic",
+            "reverse_osmosis=etomica.modules/etomica.modules.rosmosis.ReverseOsmosisGraphic",
+            "reverse_osmosis_water=etomica.modules/etomica.modules.rosmosis.ReverseOsmosisWaterGraphic",
+            "sam=etomica.modules/etomica.modules.sam.SamGraphic",
+            "swmd=etomica.modules/etomica.modules.swmd.SwmdGraphic",
+            "vle=etomica.modules/etomica.modules.vle.VLE",
+            "b2fit=etomica.modules/etomica.modules.vle.B2Fit",
+    ]
 
     commandLine "jlink"
     args = [
@@ -213,13 +248,14 @@ task linkModule(type: Exec, dependsOn: ':etomica-modules:jar') {
             modulePathStr,
             "--add-modules",
             "etomica.modules",
-            "--launcher",
-            "stats=etomica.modules/etomica.modules.statistics.StatisticsMCGraphic",
             "--output",
-            "stats_module",
+            "etomica_modules",
             "--strip-debug",
             "--compress", "2",
             "--no-header-files",
-            "--no-man-pages"
-    ]
+            "--no-man-pages",
+            mainClasses.collect { ["--launcher", it] }
+    ].flatten()
+
+
 }
