@@ -72,30 +72,29 @@ public class LjMd3D extends Simulation {
         species.setIsDynamic(true);
         addSpecies(species);
 
+        box = this.makeBox();
+        box.setNMolecules(species, numAtoms);
+
+        BoxInflate inflater = new BoxInflate(box, space);
+        inflater.setTargetDensity(density);
+        inflater.actionPerformed();
+
+        double L = Math.pow(numAtoms / density, 1.0 / 3.0);
         double nbrRange = rcShort * 1.6;
+        if (nbrRange > 0.5 * L) {
+            if (rcShort > 0.4 * L) {
+                throw new RuntimeException("rcShort is too large");
+            }
+            nbrRange = 0.495 * L;
+        }
         potentialMasterList = new PotentialMasterList(this, nbrRange, space);
         potentialMasterList.setCellRange(2);
-        box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMasterList, box);
         integrator.setTimeStep(tStep);
         integrator.setIsothermal(true);
         integrator.setTemperature(temperature);
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
-        box.setNMolecules(species, numAtoms);
-
-        double L = Math.pow(numAtoms / density, 1.0 / 3.0);
-        if (nbrRange > 0.5 * L) {
-            if (rcShort > 0.4 * L) {
-                throw new RuntimeException("rcShort is too large");
-            }
-            nbrRange = 0.495 * L;
-            potentialMasterList.setRange(nbrRange);
-        }
-
-        BoxInflate inflater = new BoxInflate(box, space);
-        inflater.setTargetDensity(density);
-        inflater.actionPerformed();
 
         potential = ss ? new P2SoftSphere(space, 1, 4, 12) : new P2LennardJones(space);
         AtomType leafType = species.getLeafType();
