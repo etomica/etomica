@@ -171,3 +171,6 @@ virtualenv
 
 # ignore the docs folder, we will be automatically publishing it to a separate repo
 docs
+
+etomica_modules
+etomica_modules.*

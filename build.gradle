@@ -149,9 +149,9 @@ project(':etomica-modules') {
         }
     }
 
-    task listDeps {
-        println configurations.compile*.absolutePath.join(':')
-    }
+//    task listDeps {
+//        println configurations.compile*.absolutePath.join(':')
+//    }
 }
 
 project(':etomica-graph') {
@@ -212,7 +212,6 @@ task linkModules(type: Exec, dependsOn: ':etomica-modules:jar') {
     modulePath.add(project(":etomica-modules").jar.archivePath)
     def modulePathStr = modulePath.join(sep)
 
-    //noinspection GroovyAssignabilityCheck
     def mainClasses = [
             "stats=etomica.modules/etomica.modules.statistics.StatisticsMCGraphic",
             "adsorbtion=etomica.modules/etomica.modules.adsorption.AdsorptionGraphic",
@@ -257,5 +256,14 @@ task linkModules(type: Exec, dependsOn: ':etomica-modules:jar') {
             mainClasses.collect { ["--launcher", it] }
     ].flatten()
 
+    doLast {
+        mainClasses.collect { it.split("=")[0] }.each {
+            def scriptPath = new File("${projectDir}/etomica_modules/bin/${it}").absolutePath
+            exec {
+                executable "python"
+                args "${projectDir}/fix_module_launchers.py", "${scriptPath}"
+            }
+        }
+    }
 
 }
