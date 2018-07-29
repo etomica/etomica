@@ -214,7 +214,7 @@ task linkModules(type: Exec, dependsOn: ':etomica-modules:jar') {
 
     def mainClasses = [
             "stats=etomica.modules/etomica.modules.statistics.StatisticsMCGraphic",
-            "adsorbtion=etomica.modules/etomica.modules.adsorption.AdsorptionGraphic",
+            "adsorption=etomica.modules/etomica.modules.adsorption.AdsorptionGraphic",
             "catalysis=etomica.modules/etomica.modules.catalysis.CatalysisGraphic",
             "chainequilibrium=etomica.modules/etomica.modules.chainequilibrium.ChainEquilibriumGraphic",
             "colloid=etomica.modules/etomica.modules.colloid.ColloidGraphic",
