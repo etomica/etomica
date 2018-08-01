@@ -33,13 +33,11 @@ after_success:
 - "./publish_javadoc.sh"
 deploy:
   skip_cleanup: true
-  before_deploy:
-    - "if [ $TRAVIS_OS_NAME = osx ]; then export ARTIFACT_NAME=etomica_modules_macos.zip; else export ARTIFACT_NAME=etomica_modules_linux.zip; fi"
   provider: releases
   api_key:
     secure: uDvouePndIuIqHnY+K1rUzgO6kmZmf1KPQgq5TOHCWiRelS/eNiJ8Wso14aocP0ZPB72uwvF1tbNg4RLFEH+SQtrUf+0Ge84cmSiXT6wKU175MwyO/LoYtMshXUxGlzgUk5px/JS26mRlMSzbIPZr1L72PuVotkmfEAE5W9ERho2jttNQOcX+hC84aR88MaFqXlXRTKN/kFZiXmjAw6/sEzdW5kE3cwgbJmL+Gt4C6cPfytya1OWG4SIExd85gkwk1p7RyKzpMDbpnpCFZlJ6PVS5Ad37SLF/sI5yPG4cYDJopjJOmwU1IP+Rt9GX7vU34xPRSET3mNkRN0VKf0sYIUmXZpk1BaYwgyKToBE6eF9YU20wmZmfpZK63hH/H9QtnCOkeESklIKlG5Ox8KA/uQfYAZpXHigw9Ny8hGSL6PV9J20GS6+BE/8cXXs9kC8g9mz+b88XbQhhgdlLbuSoA+LMSVIZLMfSkzQc67cNCJuT5ZYEFgcUujxZS4ELz6eByZAqg2AH5wyd2lD7u/xZoKz2/HE0QJ7c/CZy4uSUv6/BhIrurkdLYfePHJRsPctLYVEDU9H3MbTo1z7h713/SHvU0hNWDq7sYV2xv1cuAj29wzY0yB3SLg0UeCz8Mkjh1nRHvxarCmEulpsgHMqsDtGGNYqcmGXBhCJDAan444=
   file_glob: true
-  file: "${ARTIFACT_NAME}"
+  file: "etomica_modules_*.zip"
   draft: true
   on:
     tags: true
