@@ -22,7 +22,6 @@ jdk:
 #- sh -e /etc/init.d/xvfb start
 install: skip
 script:
-- "jdk_switcher use openjdk10"
 - "./gradlew linkModules && zip -r etomica_modules_macos.zip etomica_modules"
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
