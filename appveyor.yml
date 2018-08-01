@@ -19,7 +19,6 @@ deploy:
   auth_token:
       secure: XzbnSO8+IYvc1zhU7x4oWo4d90qg6eqOZsoihtdtI5LmHypXEU5FD4dotts1Fd2L
   on:
-    branch: modules-jlink
     appveyor_repo_tag: true
 
 
