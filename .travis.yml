@@ -1,8 +1,8 @@
 notifications:
   email: false
 os:
-  - linux
-  - osx
+- linux
+- osx
 dist: trusty
 sudo: false
 addons:
@@ -27,7 +27,7 @@ before_script:
 - export DISPLAY=:99.0
 - sh -e /etc/init.d/xvfb start
 script:
-- ./gradlew check
+- "./gradlew linkModules && zip -r etomica_modules_macos.zip etomica_modules"
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
@@ -40,3 +40,13 @@ env:
     secure: pZe9nYywDB/fzjG6V6zrxEnX4nzfR41ixjqCsgW7BmM9oq8fhQXwmLnVslWb1pM3jCzZDa91NHdYkm0/h7VmgNvfk66k9UtpNSpWiEagCMRm3WEvnHU5+7+S2OzfxO9+VS0MVqOBTxVQBRFhiYtB6J+PPSRpHPX1TsG8JphNOXX9tC/KKKejWrw2hpuZJhvuBO55IER+vRAnh9BiqwejTAzqaEIZaqBXIg5dzi0NIIgdCJT43hoDPTqpBl7slfJhbm4dpVqxQYK+MzgydmqKQAqRCO9eSL1DhhfHSXnuFj7dCjFH2vAspbq/pQhnLRK6JeQVfHdlAeIXHfC+ac+DhihSq5h3YKYsDAoJ3HjCkQSTFnUplAUbikrsa4HXIQUzY1CdAew82fB8rj5gWr/TQAy4vjbGUqDPO4WwhlSMnLmsYA6JnSbxowgJU1KrHPuiQwa3QySNvK873cig62PQn21MxVFfqqZaKTw5QCrA+QBdQpDLOPo0tqd77Vnaog2CC3g0Gl9kAFu8tPoE0Muu3m6cWGAPTKZ+eHWqY9c0poZLxZMGqewHgexbt9lOhrLaPYJlbRBFiZ1ihMvJrZXdc06t+N0yfB+jICS7Ll2RtbXyTsjWMz5eaS6CVaZGN8MtvbX6M372GoTgtG0K0UGuFoK4EeZ+vNSSApnWi8y598Q=
 after_success:
 - "./publish_javadoc.sh"
+deploy:
+
+  provider: releases
+  api_key:
+    secure: uDvouePndIuIqHnY+K1rUzgO6kmZmf1KPQgq5TOHCWiRelS/eNiJ8Wso14aocP0ZPB72uwvF1tbNg4RLFEH+SQtrUf+0Ge84cmSiXT6wKU175MwyO/LoYtMshXUxGlzgUk5px/JS26mRlMSzbIPZr1L72PuVotkmfEAE5W9ERho2jttNQOcX+hC84aR88MaFqXlXRTKN/kFZiXmjAw6/sEzdW5kE3cwgbJmL+Gt4C6cPfytya1OWG4SIExd85gkwk1p7RyKzpMDbpnpCFZlJ6PVS5Ad37SLF/sI5yPG4cYDJopjJOmwU1IP+Rt9GX7vU34xPRSET3mNkRN0VKf0sYIUmXZpk1BaYwgyKToBE6eF9YU20wmZmfpZK63hH/H9QtnCOkeESklIKlG5Ox8KA/uQfYAZpXHigw9Ny8hGSL6PV9J20GS6+BE/8cXXs9kC8g9mz+b88XbQhhgdlLbuSoA+LMSVIZLMfSkzQc67cNCJuT5ZYEFgcUujxZS4ELz6eByZAqg2AH5wyd2lD7u/xZoKz2/HE0QJ7c/CZy4uSUv6/BhIrurkdLYfePHJRsPctLYVEDU9H3MbTo1z7h713/SHvU0hNWDq7sYV2xv1cuAj29wzY0yB3SLg0UeCz8Mkjh1nRHvxarCmEulpsgHMqsDtGGNYqcmGXBhCJDAan444=
+  file: "etomica_modules_macos.zip"
+  on:
+    tags: true
+    condition: $TRAVIS_OS_NAME = osx
+    branch: modules-jlink
