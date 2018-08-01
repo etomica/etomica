@@ -11,23 +11,18 @@ addons:
     - python-numpy
 language: java
 jdk:
-- openjdk8
-- oraclejdk9
-
-# only run one osx build since we override the jdk anyways
-matrix:
-  exclude:
-  - os: osx
-    jdk: oraclejdk9
-before_install:
-  - if [ $TRAVIS_OS_NAME = osx ]; then brew update && brew cask reinstall java && ls /Library/Java/JavaVirtualMachines; fi
-  - if [ $TRAVIS_OS_NAME = osx ]; then export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-10.0.2.jdk/Contents/Home; fi
-  - if [ $TRAVIS_OS_NAME = osx ]; then export PATH=$JAVA_HOME/bin:$PATH; fi
-before_script:
-- export DISPLAY=:99.0
-- sh -e /etc/init.d/xvfb start
+- openjdk10
+#
+#before_install:
+#  - if [ $TRAVIS_OS_NAME = osx ]; then brew update && brew cask reinstall java && ls /Library/Java/JavaVirtualMachines; fi
+#  - if [ $TRAVIS_OS_NAME = osx ]; then export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-10.0.2.jdk/Contents/Home; fi
+#  - if [ $TRAVIS_OS_NAME = osx ]; then export PATH=$JAVA_HOME/bin:$PATH; fi
+#before_script:
+#- export DISPLAY=:99.0
+#- sh -e /etc/init.d/xvfb start
 install: skip
 script:
+- "jdk_switcher use openjdk10"
 - "./gradlew linkModules && zip -r etomica_modules_macos.zip etomica_modules"
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
