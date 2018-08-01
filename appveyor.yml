@@ -1,16 +1,25 @@
 image:
 - Visual Studio 2015
-- Ubuntu
 stack: jdk 10
 build: off
 install:
 - cmd: set JAVA_HOME=C:\Program Files\Java\jdk10
 - cmd: set PATH=%JAVA_HOME%\bin;%PATH%
 - cmd: .\gradlew linkModule
-- cmd: 7z a etomica_modules.zip %APPVEYOR_BUILD_FOLDER%\etomica_modules\
-- sh: ./gradlew linkModules
-- sh: 7z a etomica_modules.zip $APPVEYOR_BUILD_FOLDER/etomica_modules/
+- cmd: 7z a etomica_modules_windows.zip %APPVEYOR_BUILD_FOLDER%\etomica_modules\
 
 artifacts:
-  - path: etomica_modules.zip
-    name: etomica_modules
+  - path: etomica_modules_windows.zip
+    name: etomica_modules_windows
+
+deploy:
+- provider: GitHub
+  artifact: etomica_modules_windows.zip
+  draft: true
+  auth_token:
+      secure: XzbnSO8+IYvc1zhU7x4oWo4d90qg6eqOZsoihtdtI5LmHypXEU5FD4dotts1Fd2L
+  on:
+    branch: modules-jlink
+    appveyor_repo_tag: true
+
+
