@@ -12,17 +12,13 @@ addons:
 language: java
 jdk:
 - openjdk10
-#
-#before_install:
-#  - if [ $TRAVIS_OS_NAME = osx ]; then brew update && brew cask reinstall java && ls /Library/Java/JavaVirtualMachines; fi
-#  - if [ $TRAVIS_OS_NAME = osx ]; then export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-10.0.2.jdk/Contents/Home; fi
-#  - if [ $TRAVIS_OS_NAME = osx ]; then export PATH=$JAVA_HOME/bin:$PATH; fi
 #before_script:
 #- export DISPLAY=:99.0
 #- sh -e /etc/init.d/xvfb start
 install: skip
 script:
 - "./gradlew linkModules && zip -r etomica_modules_macos.zip etomica_modules"
+- "if [ $TRAVIS_OS_NAME = osx ]; then zip -r etomica_modules_macos.zip etomica_modules; else zip -r etomica_modules_linux.zip etomica_modules; fi"
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
@@ -40,7 +36,8 @@ deploy:
   provider: releases
   api_key:
     secure: uDvouePndIuIqHnY+K1rUzgO6kmZmf1KPQgq5TOHCWiRelS/eNiJ8Wso14aocP0ZPB72uwvF1tbNg4RLFEH+SQtrUf+0Ge84cmSiXT6wKU175MwyO/LoYtMshXUxGlzgUk5px/JS26mRlMSzbIPZr1L72PuVotkmfEAE5W9ERho2jttNQOcX+hC84aR88MaFqXlXRTKN/kFZiXmjAw6/sEzdW5kE3cwgbJmL+Gt4C6cPfytya1OWG4SIExd85gkwk1p7RyKzpMDbpnpCFZlJ6PVS5Ad37SLF/sI5yPG4cYDJopjJOmwU1IP+Rt9GX7vU34xPRSET3mNkRN0VKf0sYIUmXZpk1BaYwgyKToBE6eF9YU20wmZmfpZK63hH/H9QtnCOkeESklIKlG5Ox8KA/uQfYAZpXHigw9Ny8hGSL6PV9J20GS6+BE/8cXXs9kC8g9mz+b88XbQhhgdlLbuSoA+LMSVIZLMfSkzQc67cNCJuT5ZYEFgcUujxZS4ELz6eByZAqg2AH5wyd2lD7u/xZoKz2/HE0QJ7c/CZy4uSUv6/BhIrurkdLYfePHJRsPctLYVEDU9H3MbTo1z7h713/SHvU0hNWDq7sYV2xv1cuAj29wzY0yB3SLg0UeCz8Mkjh1nRHvxarCmEulpsgHMqsDtGGNYqcmGXBhCJDAan444=
-  file: "etomica_modules_macos.zip"
+  file_glob: true
+  file: "etomica_modules_*.zip"
   on:
     tags: true
     condition: $TRAVIS_OS_NAME = osx
