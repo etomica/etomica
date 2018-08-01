@@ -26,6 +26,7 @@ before_install:
 before_script:
 - export DISPLAY=:99.0
 - sh -e /etc/init.d/xvfb start
+install: skip
 script:
 - "./gradlew linkModules && zip -r etomica_modules_macos.zip etomica_modules"
 before_cache:
