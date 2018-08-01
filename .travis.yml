@@ -32,6 +32,7 @@ env:
 after_success:
 - "./publish_javadoc.sh"
 deploy:
+  skip_cleanup: true
   before_deploy:
     - "if [ $TRAVIS_OS_NAME = osx ]; then export ARTIFACT_NAME=etomica_modules_macos.zip; else export ARTIFACT_NAME=etomica_modules_linux.zip; fi"
   provider: releases
