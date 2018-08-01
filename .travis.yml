@@ -39,6 +39,8 @@ deploy:
   file_glob: true
   file: "etomica_modules_*.zip"
   draft: true
+  tag_name: $TRAVIS_TAG
+  target_commitish: $TRAVIS_COMMIT
   on:
     tags: true
     branch: modules-jlink
