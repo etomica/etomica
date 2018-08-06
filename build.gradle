@@ -213,6 +213,7 @@ task linkModules(type: Exec, dependsOn: ':etomica-modules:jar') {
     def modulePathStr = modulePath.join(sep)
 
     def mainClasses = [
+            "launcher=etomica.modules/etomica.modules.ModuleLauncher",
             "stats=etomica.modules/etomica.modules.statistics.StatisticsMCGraphic",
             "adsorption=etomica.modules/etomica.modules.adsorption.AdsorptionGraphic",
             "catalysis=etomica.modules/etomica.modules.catalysis.CatalysisGraphic",

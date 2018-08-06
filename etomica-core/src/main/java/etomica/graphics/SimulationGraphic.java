@@ -120,16 +120,18 @@ public class SimulationGraphic implements SimulationContainer {
 
     public static JFrame makeAndDisplayFrame(JPanel panel, String title) {
         JFrame f = makeFrame(panel);
+        f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         f.setTitle(title);
         f.setVisible(true);
-        f.addWindowListener(SimulationGraphic.WINDOW_CLOSER);
+//        f.addWindowListener(SimulationGraphic.WINDOW_CLOSER);
         return f;
     }
 
     public static JFrame makeAndDisplayFrame(JPanel panel) {
         JFrame f = makeFrame(panel);
+        f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         f.setVisible(true);
-        f.addWindowListener(SimulationGraphic.WINDOW_CLOSER);
+//        f.addWindowListener(SimulationGraphic.WINDOW_CLOSER);
         return f;
     }
 
