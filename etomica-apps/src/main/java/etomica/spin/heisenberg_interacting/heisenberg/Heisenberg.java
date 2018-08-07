@@ -188,6 +188,11 @@ public class Heisenberg extends Simulation {
         double AEE = 0;
         double AEEER = 0;
         double AEECor = 0;
+        double avgdipolex=0;
+        double avgdipoley=0;
+        double errdipoley=0;
+
+        double errdipolex=0;
         if (aEE) {
 
 //            AEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
@@ -200,12 +205,17 @@ public class Heisenberg extends Simulation {
             double ERsum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
             double sum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
             double ERsum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
+            avgdipolex = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(7);
+            errdipolex = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(7);
+            avgdipoley = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(8);
+
+            errdipoley = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(8);
 
             IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
             covariance.getValue(1);
             AEE = sum0 + sum1 * sum1;
             AEEER = Math.sqrt(ERsum0 * ERsum0 + 4 * sum1 * sum1 * ERsum1 * ERsum1 -
-                    2 * ERsum0 * sum1 * 2 * ERsum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3)));
+                    2 * ERsum0 * sum1 * 2 * ERsum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(8)));
             AEECor = covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3));
 
         }
@@ -227,6 +237,8 @@ public class Heisenberg extends Simulation {
                     + " AEEDifficulty:\t" + (AEEER * Math.sqrt(totalTime) / nCells / nCells)
                     + " AEECor= " + AEECor);
             System.out.println("AEE_Time: " + (endTime - startTime) / (1000.0 * 60.0));
+            System.out.println("avgdipolex: " + avgdipolex +"errdipolex: " + errdipolex);
+            System.out.println("avgdipoley: " + avgdipoley +"errdipoley: " + errdipoley);
         }
 
 
@@ -237,10 +249,10 @@ public class Heisenberg extends Simulation {
         public boolean isGraphic = false;
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 10;// Kelvin
+        public double temperature = 5;// Kelvin
         public int nCells = 3;//number of atoms is nCells*nCells
-        public double interactionS = 1.0;
-        public double dipoleMagnitude = 1.0;
-        public int steps = 100000;
+        public double interactionS = 3.0;
+        public double dipoleMagnitude = 10.0;
+        public int steps = 10000;
     }
 }

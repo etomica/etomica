@@ -18,9 +18,9 @@ import etomica.space3d.Orientation3D;
  */
 public class MCMoveRotate extends MCMoveAtom {
     
-    private IOrientation oldOrientation;
+    protected IOrientation oldOrientation;
 
-    private transient IOrientation iOrientation;
+    protected IOrientation iOrientation;
 
     public MCMoveRotate(PotentialMaster potentialMaster, IRandom random,
                         Space _space) {
