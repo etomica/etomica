@@ -34,9 +34,9 @@ import java.awt.*;
 import java.util.Arrays;
 
 /**
- * Computes additive virial coefficients using the pair potential1 for He of Przybytek et al. (2017) Phys. Rev. Lett. 119, 123401
+ * Computes additive virial coefficients using the pair potential1 for He of Przybytek et al. (2018) Phys. Rev. Lett. 119, 123401
  */
-public class VirialHePCJSD {
+public class VirialHeD {
 
 
     public static void main(String[] args) {
@@ -50,12 +50,12 @@ public class VirialHePCJSD {
         else {
             // customize parameters here
             params.nPoints = 4;
-            params.nDer = 2;
+            params.nDer = 3;
             params.temperature = 15;
             params.numSteps = 1000000;
             params.potential = PotentialChoice.NEW;
             params.calcDiff = PotentialChoice.OLD;
-            //params.tol = 1e-12;
+            params.BDtol = 1e-12;
             params.seed = null;
 
             params.refFrac = -1;
@@ -65,7 +65,7 @@ public class VirialHePCJSD {
             params.doHist = false;
             params.doChainRef = false;
 
-            isCommandline = true;
+//            isCommandline = true;
         }
 
         final int nPoints = params.nPoints;
@@ -74,7 +74,7 @@ public class VirialHePCJSD {
         long steps = params.numSteps;
         final PotentialChoice potential = params.potential;
         final PotentialChoice calcDiff = params.calcDiff;
-        //final double tol = params.tol;
+        final double BDtol = params.BDtol;
         int[] seed = params.seed;
 
         double refFrac = params.refFrac;
@@ -88,8 +88,6 @@ public class VirialHePCJSD {
 
         long blockSize = 1000;
         int EqSubSteps = 1000;
-
-        double tol = 1e-12;
 
         System.out.println("Overlap sampling for He at " + temperatureK + " K " + "for Additive B"+nPoints+" and "+nDer+" derivatives");
 
@@ -155,11 +153,12 @@ public class VirialHePCJSD {
         ClusterAbstract refCluster = doChainRef ? new ClusterChainHS(nPoints, fRefPos) : new ClusterWheatleyHS(nPoints, fRef);
         refCluster.setTemperature(temperature);
 
-        final ClusterWheatleySoftDerivatives fullTargetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, tol, nDer);
+        final ClusterWheatleySoftDerivatives fullTargetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, BDtol, nDer);
 
         ClusterAbstract targetCluster = null;
+        ClusterWheatleySoftDerivatives clusterDiff = null;
         if (calcDiff != PotentialChoice.NONE){
-            Potential2SoftSpherical pTargetDiff ;
+            Potential2SoftSpherical pTargetDiff;
             if ( calcDiff == PotentialChoice.OLD ) {
                 pTargetDiff = new P2HePCKLJS(space);
             }
@@ -168,7 +167,8 @@ public class VirialHePCJSD {
             }
             MayerGeneralSpherical fTargetDiff = new MayerGeneralSpherical(pTargetDiff);
             ClusterAbstract[] targetSubtract = new ClusterAbstract[1];
-            targetSubtract[0] = new ClusterWheatleySoftDerivatives(nPoints, fTargetDiff, tol, nDer);
+            clusterDiff = new ClusterWheatleySoftDerivatives(nPoints, fTargetDiff, BDtol, nDer);
+            targetSubtract[0] = clusterDiff;
             targetCluster = new ClusterDifference(fullTargetCluster, targetSubtract);
         }
         else {
@@ -184,20 +184,11 @@ public class VirialHePCJSD {
 
         ClusterAbstract[] targetDiagrams = null;
         if(calcDiff != PotentialChoice.NONE){
-            Potential2SoftSpherical pTargetDiff ;
-            if ( calcDiff == PotentialChoice.OLD ) {
-                pTargetDiff = new P2HePCKLJS(space);
-            }
-            else {
-                pTargetDiff = new P2HeSimplified(space);
-            }
-            MayerGeneralSpherical fTargetDiff = new MayerGeneralSpherical(pTargetDiff);
-            ClusterWheatleySoftDerivatives targetClusterDiff = new ClusterWheatleySoftDerivatives(nPoints, fTargetDiff, tol, nDer);
             targetDiagrams = new ClusterDifference[nDer];
             for(int m=1;m<=nDer;m++){
                 ClusterAbstract targetClusterm = new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes(fullTargetCluster,m);
                 ClusterAbstract[] targetClusterDiffm = new ClusterAbstract[1];
-                targetClusterDiffm[0] = new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes(targetClusterDiff,m);
+                targetClusterDiffm[0] = new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes(clusterDiff,m);
                 targetDiagrams[m-1]= new ClusterDifference(targetClusterm,targetClusterDiffm);
             }
         }
@@ -426,7 +417,7 @@ public class VirialHePCJSD {
         public long numSteps = 10000000;
         public PotentialChoice potential = PotentialChoice.NEW;
         public PotentialChoice calcDiff = PotentialChoice.NONE;
-        //public double tol = 1e-12;
+        public double BDtol = 1e-12; //no BD
         public int[] seed = null;
 
         public double refFrac = -1;

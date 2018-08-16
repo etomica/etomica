@@ -36,7 +36,7 @@ import java.awt.*;
  * 
  * Uses Wheatley recursion.
  */
-public class VirialHeNonAdditiveWheatleyDerivatives {
+public class VirialHeNonAdditiveD {
 
     public static void main(String[] args) {
 
