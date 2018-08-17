@@ -22,7 +22,6 @@ import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.math.function.FunctionDifferentiable;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.potential.IPotentialAtomic;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -45,7 +44,6 @@ public class MappedSingletDensity extends Simulation {
     public final PotentialMasterCell potentialMaster;
     public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
-    public final IPotentialAtomic p1;
 
     /**
      * Creates simulation with default parameters from {@link SimParams}
@@ -81,11 +79,10 @@ public class MappedSingletDensity extends Simulation {
         potentialMaster.addPotential(p2, new AtomType[]{atomType, atomType});
 
         if (params.field == Field.SINE) {
-            p1 = new P1Sine(space, 5, params.temperature);
+            P1Sine p1 = new P1Sine(space, 5, params.temperature);
             potentialMaster.addPotential(p1, new AtomType[]{atomType});
-        }
-        else {
-            p1 = null;
+        } else if (params.field == Field.PARABOLIC) {
+            throw new RuntimeException("not yet");
         }
 
         integrator = new IntegratorMC(this, potentialMaster, box);
@@ -176,20 +173,24 @@ public class MappedSingletDensity extends Simulation {
             densityMeter.setProfileDim(2);
             MeterNMolecules meterNMolecules = new MeterNMolecules();
             densityMeter.setDataSource(meterNMolecules);
-            AccumulatorAverageFixed acc = new AccumulatorAverageFixed(blockSize);
+            AccumulatorAverageFixed acc = new AccumulatorAverageFixed(5 * blockSize);
             DataPumpListener pump = new DataPumpListener(densityMeter, acc, params.numAtoms);
             sim.getIntegrator().getEventManager().addListener(pump);
 
             MeterProfileForceSum densityMeterForce = new MeterProfileForceSum(sim.box(), sim.potentialMaster, params.temperature);
             densityMeterForce.setProfileDim(2);
             AccumulatorAverageFixed accForce = new AccumulatorAverageFixed(blockSize);
-            DataPumpListener pumpForce = new DataPumpListener(densityMeterForce, accForce, params.numAtoms);
+            DataPumpListener pumpForce = new DataPumpListener(densityMeterForce, accForce, 5 * params.numAtoms);
             sim.getIntegrator().getEventManager().addListener(pumpForce);
 
             FunctionDifferentiable f;
+            double L = sim.box().getBoundary().getBoxSize().getX(2);
             switch (params.field) {
                 case SINE:
-                    f = new FunctionSine(5, sim.box().getBoundary().getBoxSize().getX(2));
+                    f = new FunctionSine(5, L);
+                    break;
+                case UNIFORM:
+                    f = new FunctionUniform(L);
                     break;
                 default:
                     throw new RuntimeException("not yet");
@@ -197,14 +198,52 @@ public class MappedSingletDensity extends Simulation {
             MeterProfileMappedAvg densityMeterMappedAvg = new MeterProfileMappedAvg(sim.box(), sim.potentialMaster, params.temperature, f);
             densityMeterMappedAvg.setProfileDim(2);
             AccumulatorAverageFixed accMappedAvg = new AccumulatorAverageFixed(blockSize);
-            DataPumpListener pumpMappedAvg = new DataPumpListener(densityMeterMappedAvg, accMappedAvg, params.numAtoms);
+            DataPumpListener pumpMappedAvg = new DataPumpListener(densityMeterMappedAvg, accMappedAvg, 5 * params.numAtoms);
             sim.getIntegrator().getEventManager().addListener(pumpMappedAvg);
 
+            MeterProfileMappedAvg densityMeterP = new MeterProfileMappedAvg(sim.box(), sim.potentialMaster, params.temperature, f);
+            densityMeterP.getXDataSource().setNValues(104);
+            densityMeterP.setProfileDim(2);
+            densityMeterP.setBehavior(MeterProfileMappedAvg.Behavior.P);
+            MeterProfileMappedAvg densityMeterZidot0 = new MeterProfileMappedAvg(sim.box(), sim.potentialMaster, params.temperature, f);
+            densityMeterZidot0.getXDataSource().setNValues(104);
+            densityMeterZidot0.setProfileDim(2);
+            densityMeterZidot0.setBehavior(MeterProfileMappedAvg.Behavior.ZIDOT);
+            densityMeterZidot0.setZidotZ(0);
+            MeterProfileMappedAvg densityMeterZidot1 = new MeterProfileMappedAvg(sim.box(), sim.potentialMaster, params.temperature, f);
+            densityMeterZidot1.getXDataSource().setNValues(104);
+            densityMeterZidot1.setProfileDim(2);
+            densityMeterZidot1.setBehavior(MeterProfileMappedAvg.Behavior.ZIDOT);
+            densityMeterZidot1.setZidotZ(L / 8);
+            MeterProfileMappedAvg densityMeterZidot2 = new MeterProfileMappedAvg(sim.box(), sim.potentialMaster, params.temperature, f);
+            densityMeterZidot2.getXDataSource().setNValues(104);
+            densityMeterZidot2.setProfileDim(2);
+            densityMeterZidot2.setBehavior(MeterProfileMappedAvg.Behavior.ZIDOT);
+            densityMeterZidot2.setZidotZ(L / 4);
+
+            MeterProfileMappedAvg densityMeterDZidot0 = new MeterProfileMappedAvg(sim.box(), sim.potentialMaster, params.temperature, f);
+            densityMeterDZidot0.getXDataSource().setNValues(104);
+            densityMeterDZidot0.setProfileDim(2);
+            densityMeterDZidot0.setBehavior(MeterProfileMappedAvg.Behavior.DZIDOT);
+            densityMeterDZidot0.setZidotZ(0);
+            MeterProfileMappedAvg densityMeterDZidot1 = new MeterProfileMappedAvg(sim.box(), sim.potentialMaster, params.temperature, f);
+            densityMeterDZidot1.getXDataSource().setNValues(104);
+            densityMeterDZidot1.setProfileDim(2);
+            densityMeterDZidot1.setBehavior(MeterProfileMappedAvg.Behavior.DZIDOT);
+            densityMeterDZidot1.setZidotZ(L / 8);
+            MeterProfileMappedAvg densityMeterDZidot2 = new MeterProfileMappedAvg(sim.box(), sim.potentialMaster, params.temperature, f);
+            densityMeterDZidot2.getXDataSource().setNValues(104);
+            densityMeterDZidot2.setProfileDim(2);
+            densityMeterDZidot2.setBehavior(MeterProfileMappedAvg.Behavior.DZIDOT);
+            densityMeterDZidot2.setZidotZ(L / 4);
 
             DisplayPlot densityPlot = new DisplayPlot();
             acc.addDataSink(densityPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{acc.AVERAGE});
             accForce.addDataSink(densityPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{acc.AVERAGE});
             accMappedAvg.addDataSink(densityPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{acc.AVERAGE});
+
+            new DataPump(densityMeterP, densityPlot.getDataSet().makeDataSink()).actionPerformed();
+
             densityPlot.setLabel("density");
             graphic.add(densityPlot);
 
@@ -214,6 +253,27 @@ public class MappedSingletDensity extends Simulation {
             accMappedAvg.addDataSink(errorPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{acc.ERROR});
             errorPlot.setLabel("error");
             graphic.add(errorPlot);
+
+            DisplayPlot corPlot = new DisplayPlot();
+            acc.addDataSink(corPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{acc.BLOCK_CORRELATION});
+            accForce.addDataSink(corPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{acc.BLOCK_CORRELATION});
+            accMappedAvg.addDataSink(corPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{acc.BLOCK_CORRELATION});
+            corPlot.setLabel("correlation");
+            graphic.add(corPlot);
+
+            DisplayPlot zidotPlot = new DisplayPlot();
+            new DataPump(densityMeterZidot0, zidotPlot.getDataSet().makeDataSink()).actionPerformed();
+            new DataPump(densityMeterZidot1, zidotPlot.getDataSet().makeDataSink()).actionPerformed();
+            new DataPump(densityMeterZidot2, zidotPlot.getDataSet().makeDataSink()).actionPerformed();
+            zidotPlot.setLabel("zidot");
+            graphic.add(zidotPlot);
+
+            DisplayPlot dzidotPlot = new DisplayPlot();
+            new DataPump(densityMeterDZidot0, dzidotPlot.getDataSet().makeDataSink()).actionPerformed();
+            new DataPump(densityMeterDZidot1, dzidotPlot.getDataSet().makeDataSink()).actionPerformed();
+            new DataPump(densityMeterDZidot2, dzidotPlot.getDataSet().makeDataSink()).actionPerformed();
+            dzidotPlot.setLabel("-dzidot");
+            graphic.add(dzidotPlot);
 
             List<DataPump> pumps = graphic.getController().getDataStreamPumps();
             pumps.add(pump);

@@ -98,10 +98,13 @@ public class MeterProfileForceSum implements IDataSource, DataSourceIndependent,
         double[] y = data.getData();
         IAtomList atoms = box.getLeafList();
         double L = box.getBoundary().getBoxSize().getX(profileDim);
+        double dz = L / xDataSource.getNValues();
         for (IAtom atom : atoms) {
             double fz = agentManager.getAgent(atom).getX(profileDim);
             double zi = atom.getPosition().getX(profileDim);
-            int izi = xDataSource.getIndex(zi);
+            double binzi = zi + 0.5 * dz;
+            if (binzi > L / 2) continue;
+            int izi = xDataSource.getIndex(binzi);
             for (int i = izi; i < y.length; i++) {
                 y[i] += fz;
             }

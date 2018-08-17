@@ -44,6 +44,12 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
     protected double temperature;
 
     protected final FunctionDifferentiable c;
+    protected Behavior behavior;
+    protected double zidotz;
+
+    public enum Behavior {
+        NORMAL, P, ZIDOT, DZIDOT
+    }
 
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
@@ -61,6 +67,14 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
         pc = new PotentialCalculationForceSum();
         agentManager = new AtomLeafAgentManager<Vector>(this, box);
         pc.setAgentManager(agentManager);
+    }
+
+    public void setBehavior(Behavior b) {
+        behavior = b;
+    }
+
+    public void setZidotZ(double z) {
+        zidotz = z;
     }
 
     public IDataInfo getDataInfo() {
@@ -110,10 +124,6 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
 
         // our c(zi) wasn't actually computed starting from z
         double x = (zi > z) ? (czi - cz) / q : ((czi - cz) / q + 1);
-        double zidot = pz / pzi * (0.5 - x) / temperature;
-        if (Double.isNaN(zidot)) {
-            throw new RuntimeException(x + " " + pz + " " + pzi + " " + cz + " " + czi + " " + q);
-        }
         return pz / pzi * (0.5 - x) / temperature;
     }
 
@@ -123,21 +133,44 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
     public IData getData() {
         pc.reset();
         potentialMaster.calculate(box, id, pc);
-        Boundary boundary = box.getBoundary();
         data.E(0);
         double[] y = data.getData();
         IAtomList atoms = box.getLeafList();
         double L = box.getBoundary().getBoxSize().getX(profileDim);
         double dz = L / xDataSource.getNValues();
-        for (IAtom atom : atoms) {
-            double fz = agentManager.getAgent(atom).getX(profileDim);
-            double zi = atom.getPosition().getX(profileDim);
+        if (behavior == Behavior.ZIDOT) {
             for (int i = 0; i < y.length; i++) {
-                double z = -L / 2 + i * dz;
-                // dphi/dz = -T d(ln(p))/dz
-                //         = -T / p dp/dz
-                // - T p dp/dz
-                y[i] -= (fz - c.df(2, zi) / c.df(1, zi) * temperature) * zidot(z, zi);
+                double zi = -L / 2 + i * dz;
+                if (Math.abs(zidotz - zi) < dz * 0.01) {
+                    y[i] = Double.NaN;
+                    continue;
+                }
+                y[i] = zidot(zidotz, zi);
+            }
+            return data;
+        }
+        if (behavior == Behavior.DZIDOT) {
+            for (int i = 0; i < y.length; i++) {
+                double zi = -L / 2 + i * dz;
+                if (Math.abs(zidotz - zi) < dz * 0.01) {
+                    y[i] = Double.NaN;
+                    continue;
+                }
+                y[i] = -(zidot(zidotz, zi + dz * 0.01) - zidot(zidotz, zi - dz * 0.01)) / (0.02 * dz);
+            }
+            return data;
+        }
+        if (behavior != Behavior.P) {
+            for (IAtom atom : atoms) {
+                double fz = agentManager.getAgent(atom).getX(profileDim);
+                double zi = atom.getPosition().getX(profileDim);
+                for (int i = 0; i < y.length; i++) {
+                    double z = -L / 2 + (i + 0.5) * dz;
+                    // dphi/dz = -T d(ln(p))/dz
+                    //         = -T / p dp/dz
+                    // - T p dp/dz
+                    y[i] -= (fz - c.df(2, zi) / c.df(1, zi) * temperature) * zidot(z, zi);
+                }
             }
         }
 //        data.TE(0);
