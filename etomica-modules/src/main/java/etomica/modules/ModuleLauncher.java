@@ -24,6 +24,7 @@ public class ModuleLauncher extends JPanel {
         selector.addActionListener(e -> {
             this.currentModule = (EtomicaModuleInfo) ((JComboBox) e.getSource()).getSelectedItem();
             this.descriptionPane.setText(this.currentModule.description);
+            this.argsField.setText(this.currentModule.args);
         });
         this.add(selector, BorderLayout.NORTH);
 
