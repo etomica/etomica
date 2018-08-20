@@ -52,7 +52,7 @@ public class VirialHeD {
             params.nPoints = 4;
             params.nDer = 3;
             params.temperature = 15;
-            params.numSteps = 1000000;
+            params.numSteps = 100000;
             params.potential = PotentialChoice.NEW;
             params.calcDiff = PotentialChoice.OLD;
             params.BDtol = 1e-12;
@@ -103,7 +103,7 @@ public class VirialHeD {
             throw new RuntimeException("POTENTIAL AND CALCDIFF ARE THE SAME !!!!");
         }
         else if( calcDiff == PotentialChoice.NONE ){
-            System.out.println("Computing full coefficient using " + potential + " Potential");
+            System.out.println("Computing full additive coefficient using " + potential + " Potential");
         }
         else if ( calcDiff != PotentialChoice.NONE ) {
             if ( potential == PotentialChoice.SIMPLE && calcDiff == PotentialChoice.OLD ){
