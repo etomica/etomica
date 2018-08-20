@@ -63,9 +63,8 @@ public class VirialHeD {
             params.dorefpref = false;
 
             params.doHist = false;
-            params.doChainRef = false;
+            params.doChainRef = true;
 
-//            isCommandline = true;
         }
 
         final int nPoints = params.nPoints;
@@ -199,11 +198,6 @@ public class VirialHeD {
             }
         }
 
-//        ClusterAbstract[] targetDiagrams = new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes[nDer];
-//            for(int m=1;m<=nDer;m++) {
-//                targetDiagrams[m - 1] = new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes(fullTargetCluster, m);
-//            }
-
         sim.setExtraTargetClusters(targetDiagrams);
         sim.init();
 
@@ -297,7 +291,7 @@ public class VirialHeD {
             }
             String potStr = potential==PotentialChoice.SIMPLE?"simple_":(potential==PotentialChoice.OLD?"old_":(potential==PotentialChoice.NEW?"new_": " ???? ")) ;
             String cdStr = calcDiff==PotentialChoice.SIMPLE?"simple_diff_":(calcDiff==PotentialChoice.OLD?"old_diff_":(calcDiff==PotentialChoice.NONE?"full_": " ???? ")) ;
-            refFileName = "refpref_"+nPoints+"_pair_"+potStr+cdStr+tempString;
+            refFileName = "refpref_ad_"+nPoints+"_pair_"+potStr+cdStr+tempString;
             refFileName += "K";
         }
 
@@ -425,7 +419,7 @@ public class VirialHeD {
         public boolean dorefpref = false;
 
         public boolean doHist = false;
-        public boolean doChainRef = false;
+        public boolean doChainRef = true;
 
     }
 }
