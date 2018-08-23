@@ -156,7 +156,7 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
                     y[i] = Double.NaN;
                     continue;
                 }
-                y[i] = -(zidot(zidotz, zi + dz * 0.01) - zidot(zidotz, zi - dz * 0.01)) / (0.02 * dz);
+                y[i] = -(c.df(1, zi + dz * 0.01) * zidot(zidotz, zi + dz * 0.01) - c.df(1, zi - dz * 0.01) * zidot(zidotz, zi - dz * 0.01)) / (0.02 * dz) / c.df(1, zi);
             }
             return data;
         }
