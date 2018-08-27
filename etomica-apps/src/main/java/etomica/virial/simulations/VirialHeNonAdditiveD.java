@@ -53,7 +53,7 @@ public class VirialHeNonAdditiveD {
         }
         else {
             // customize here
-            params.nPoints = 6;
+            params.nPoints = 4;
             params.nDer = 3;
             params.temperature = 15;
             params.numSteps = 1000000;
@@ -332,7 +332,9 @@ public class VirialHeNonAdditiveD {
             }
             String potStr = potential==PotentialChoice.SIMPLE?"simple_":(potential==PotentialChoice.OLD?"old_":(potential==PotentialChoice.NEW?"new_": " ???? ")) ;
             String cdStr = calcDiff==PotentialChoice.SIMPLE?"simple_diff_":(calcDiff==PotentialChoice.OLD?"old_diff_":(calcDiff==PotentialChoice.NONE?"full_": " ???? ")) ;
-            refFileName = "refpref_nad_"+nPoints+"_pair_"+potStr+cdStr+tempString;
+            String p3Astr = dop3Aprox?"p3A_":"";
+            String p3ADstr = dop3AproxDiff?"p3AD_":"";
+            refFileName = "refpref_nad_"+nPoints+"_pair_"+potStr+cdStr+p3Astr+p3ADstr+tempString;
             refFileName += "K";
         }
 
