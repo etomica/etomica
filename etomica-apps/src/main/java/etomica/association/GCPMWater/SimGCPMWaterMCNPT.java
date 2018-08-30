@@ -20,7 +20,6 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.listener.IntegratorListenerAction;
@@ -64,22 +63,24 @@ public class SimGCPMWaterMCNPT extends Simulation {
     public ActivityIntegrate actionIntegrator;
         
     
-    public SimGCPMWaterMCNPT(int numAtoms, double pressureBar, double densityMolLiter, double temperatureK, long numSteps) {
+    public SimGCPMWaterMCNPT(int numMolceules, double pressureBar, double densityMolLiter, double temperatureK, long numSteps) {
         super(Space3D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster();
         //setRandom(new RandomNumberGenerator(3));
         BoxAgentSourceCellManagerMolecular bASCellManagerMolecular = new BoxAgentSourceCellManagerMolecular(this, new MoleculePositionGeometricCenter(space), space);
         bASCellManagerMolecular.setRange(3.5);//association range=2.1-3.5
         BoxAgentManager cellAgentManager = new BoxAgentManager(bASCellManagerMolecular,NeighborCellManagerMolecular.class);
-        System.out.println("pressure = "+pressureBar+"bar");
-        System.out.println("initial density = "+densityMolLiter+"mol/L");
-        System.out.println("temperature = "+temperatureK+"K");
-        System.out.println("numSteps = "+numSteps+"steps");
+        System.out.println("numAtom=" +numMolceules);
+        System.out.println("temperature = "+temperatureK+" K");
+        System.out.println("pressure = "+pressureBar+" bar");
+        System.out.println("numSteps = "+numSteps+" steps");
+        System.out.println("initial density = "+densityMolLiter+" mol/L" +"\n");
+
     	CompoundUnit rhoUnit = new CompoundUnit(new Unit[]{Mole.UNIT,Liter.UNIT},new double[]{1,-1});
         double density = rhoUnit.toSim(densityMolLiter);
         double pressure = Bar.UNIT.toSim(pressureBar);
         double temperature = Kelvin.UNIT.toSim(temperatureK);
-        double volume = 1/(density/numAtoms);
+        double volume = 1/(density/numMolceules);
         double boxLength = Math.pow(volume, 1.0/3.0);      
 
 	    integrator = new IntegratorMC(this, potentialMaster);
@@ -92,9 +93,10 @@ public class SimGCPMWaterMCNPT extends Simulation {
         addBox(box);
         Unit calPerMole = new CompoundUnit(new Unit[]{Calorie.UNIT,Mole.UNIT},new double[]{1.0,-1.0});
 
-        ((MCMoveStepTracker)mcMoveMolecule.getTracker()).setNoisyAdjustment(true);
+/*        ((MCMoveStepTracker)mcMoveMolecule.getTracker()).setNoisyAdjustment(true);
         ((MCMoveStepTracker)mcMoveRotateMolecule.getTracker()).setNoisyAdjustment(true);
-        ((MCMoveStepTracker)mcMoveVolume.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker)mcMoveVolume.getTracker()).setNoisyAdjustment(true);*/
+
         integrator.getMoveManager().addMCMove(mcMoveMolecule);
         integrator.getMoveManager().addMCMove(mcMoveRotateMolecule);
         integrator.getMoveManager().addMCMove(mcMoveVolume);
@@ -106,7 +108,7 @@ public class SimGCPMWaterMCNPT extends Simulation {
         species = new SpeciesWater4P(space);
         addSpecies(species);
         species.setConformation(new ConformationWaterGCPM(space));
-        box.setNMolecules(species, numAtoms);
+        box.setNMolecules(species, numMolceules);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
@@ -115,17 +117,15 @@ public class SimGCPMWaterMCNPT extends Simulation {
         potential.setBox(box);
         System.out.println("cut-off Distance "+boxLength*0.49+" A");
         potential.setTemperature(temperature);
-
-        System.out.println("number of molecules "+box.getMoleculeList().getMoleculeCount());
         System.out.println("volume "+box.getBoundary().volume());
-        System.out.println("Rho "+box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume());
+        System.out.println("Rho "+box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume()+"\n");
         
         BoxImposePbc pbc = new BoxImposePbc(box, space);
         pbc.setApplyToMolecules(true);
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
         potentialMaster.addPotential(potential, new ISpecies[] {species});
-        String configFile = "GCPM_NPT_"+numAtoms+"atoms"+temperatureK+"T"+pressureBar+"Bar"+numSteps+"steps";
+        String configFile = "GCPM_NPT_"+numMolceules+"atoms"+temperatureK+"T"+pressureBar+"Bar"+numSteps+"steps";
         if(new File(configFile+".pos").exists()){
         	ConfigurationFile config = new ConfigurationFile(configFile);
             config.initializeCoordinates(box);
@@ -142,7 +142,7 @@ public class SimGCPMWaterMCNPT extends Simulation {
 
     	GCPMWaterMCParam params = new GCPMWaterMCParam();
     	ParseArgs.doParseArgs(params, args);
-    	int numAtoms = params.numAtoms;
+    	int numMolecules = params.numMolecules;
     	double pressure = params.pressure;
     	double density = params.density;
         double temperature = params.temperature;
@@ -151,7 +151,9 @@ public class SimGCPMWaterMCNPT extends Simulation {
         double stepSizeRotation = params.stepSizeRotation;
         double stepSizeVolume = params.stepSizeVolume;
 
-        final SimGCPMWaterMCNPT sim = new SimGCPMWaterMCNPT(numAtoms, pressure, density, temperature,numSteps);
+        long t1 = System.currentTimeMillis();
+
+        final SimGCPMWaterMCNPT sim = new SimGCPMWaterMCNPT(numMolecules, pressure, density, temperature,numSteps);
         if (false) {
         	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,"water", 1, sim.space,sim.getController());
         	graphic.makeAndDisplayFrame();
@@ -167,7 +169,7 @@ public class SimGCPMWaterMCNPT extends Simulation {
         	sim.mcMoveRotateMolecule.setStepSize(stepSizeRotation);
         	sim.mcMoveVolume.setStepSize(stepSizeVolume);
         }
-        
+
         sim.actionIntegrator.setMaxSteps(numSteps);
         MeterDensity rhoMeter = new MeterDensity(sim.space);//Meter for measurement of the total molecule number density((number of molecules)/(volume of box)) in a box 
         rhoMeter.setBox(sim.box);
@@ -205,8 +207,11 @@ public class SimGCPMWaterMCNPT extends Simulation {
         	sim.actionIntegrator.setMaxSteps(Long.MAX_VALUE);
         	return;
         }
-        double initialEnergy = meterEV.getData().getValue(0);
-        System.out.println("initialEnergy "+initialEnergy);
+        sim.integrator.reset();
+        double initialEnergy = sim.integrator.getPotentialEnergy();
+        System.out.println("initial Energy "+initialEnergy);
+        double initialEnthalpy = meterEV.getData().getValue(0);
+        System.out.println("initial Enthaply "+initialEnthalpy+"\n");
         sim.getController().actionPerformed();
         System.out.println("step size of mcMoveMolecule "+sim.mcMoveMolecule.getStepSize());
         System.out.println("step size of mcMoveRotateMolecule "+sim.mcMoveRotateMolecule.getStepSize());
@@ -214,56 +219,86 @@ public class SimGCPMWaterMCNPT extends Simulation {
         
         System.out.println("Acceptance of mcMoveMolecule "+sim.mcMoveMolecule.getTracker().acceptanceProbability());
         System.out.println("Acceptance of mcMoveRotateMolecule "+sim.mcMoveRotateMolecule.getTracker().acceptanceProbability());
-        System.out.println("Acceptance of mcMoveVolume "+sim.mcMoveVolume.getTracker().acceptanceProbability());
-        
+        System.out.println("Acceptance of mcMoveVolume "+sim.mcMoveVolume.getTracker().acceptanceProbability()+"\n");
         WriteConfiguration writeConfig = new WriteConfiguration(sim.space);
         writeConfig.setDoApplyPBC(false);//some atoms outside the box are allowed. Don't move atoms outside the box to the other side of the box.
         writeConfig.setBox(sim.box);
-        writeConfig.setFileName("GCPM_NPT_"+numAtoms+"atoms"+temperature+"T"+pressure+"Bar"+numSteps+"steps.pos");
+        writeConfig.setFileName("GCPM_NPT_"+numMolecules+"atoms"+temperature+"T"+pressure+"Bar"+numSteps+"steps.pos");
         writeConfig.actionPerformed();
         
     	CompoundUnit rhoUnit = new CompoundUnit(new Unit[]{Mole.UNIT,Liter.UNIT},new double[]{1,-1});
         double finalDensity = rhoMeter.getDataAsScalar();
         finalDensity = rhoUnit.fromSim(finalDensity);
-        System.out.println("next initial Density "+finalDensity);
-        System.out.println("numAtom=" +numAtoms);
+        System.out.println("next initial Density "+finalDensity+"\n");
 
         double avgDensity = ((DataDouble)((DataGroup)rhoAccumulator.getData()).getData(rhoAccumulator.AVERAGE.index)).x;//average density
         double errDensity = ((DataDouble)((DataGroup)rhoAccumulator.getData()).getData(rhoAccumulator.ERROR.index)).x;
         double correlationBlock = ((DataDouble)((DataGroup)rhoAccumulator.getData()).getData(rhoAccumulator.BLOCK_CORRELATION.index)).x;
 
+        System.out.println("average density(sim)= " +avgDensity);
         System.out.println("err "+errDensity);
         System.out.println("correlationBlock "+correlationBlock);
-        System.out.println("average density(sim)= " +avgDensity);
-        avgDensity = rhoUnit.fromSim(avgDensity);
-        System.out.println("average density(mol/liter)= " +avgDensity);
+        double avgDensitymolpl = rhoUnit.fromSim(avgDensity);
+        System.out.println("average density(mol/liter)= " +avgDensitymolpl+"\n");
+
+        double finalEnergy = sim.integrator.getPotentialEnergy();
+        System.out.println("final Energy "+finalEnergy);
+        double finalEnthalpy = meterEV.getData().getValue(0);
+        System.out.println("final Enthalpy = "+finalEnthalpy+"\n");
 
         double Z = pressure/(avgDensity*sim.integrator.getTemperature());
+        System.out.println("Z="+Z+"\n");
+
         double avgEnthalpy = ((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index).getValue(0);
         System.out.println("average enthalpy (sim) = "+avgEnthalpy);
-        double Enthalpy = meterEV.getData().getValue(0);
-        System.out.println("final enthalpy = "+Enthalpy);
-        avgEnthalpy /= numAtoms;
-        System.out.println("Z="+Z);
+        avgEnthalpy /= numMolecules;
     	Unit JoulesPerMoles = new CompoundUnit(new Unit[]{Joule.UNIT,Mole.UNIT},new double[]{1.0,-1.0});
-    	System.out.println("Average Enthalpy (Joule/mole) = "+JoulesPerMoles.fromSim(avgEnthalpy));
+    	double avgEnthalpyjpm = JoulesPerMoles.fromSim(avgEnthalpy);
+    	System.out.println("Average Enthalpy (Joule/mole) = "+avgEnthalpyjpm+"\n");
+
+        double Volume = meterEV.getData().getValue(1);
+        System.out.println("final volume = "+Volume);
+        double avgVolume = ((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index).getValue(1);
+        System.out.println("average volume (sim) = "+avgVolume);
+        double avgVolumem3 = avgVolume*1e-27;
+        System.out.println("Average Volume (Liter) = "+avgVolumem3+"\n");
+
         double temp = sim.integrator.getTemperature();
+        System.out.println("Tsim = "+temp);
         double varEnthalpy = ((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.COVARIANCE.index).getValue(0);
         double varV = ((DataGroup)energyAccumulator.getData()).getData(energyAccumulator.COVARIANCE.index).getValue(3);
         double covVEnthalpy = ((DataGroup)energyAccumulator.getData()).getData((energyAccumulator).COVARIANCE.index).getValue(1);
 
         System.out.println("varEnthalpy = "+varEnthalpy );
         System.out.println("varV = "+varV );
-        System.out.println("covVEnthalpy = "+covVEnthalpy );
+        System.out.println("covVEnthalpy = "+covVEnthalpy+"\n");
+
+        double avgKt = varV/(avgVolume*1*temp);
+        double avgCp = varEnthalpy/(1*(temp*temp))/numMolecules;
+        double avgalphap = covVEnthalpy/(1*(temp*temp)*avgVolume);
+        double avgCv = avgCp - ((temp*(avgalphap*avgalphap))/(avgDensity*avgKt));
+
+        System.out.println("average Kt(sim) = "+avgKt);
+        System.out.println("average Cp(sim) = "+avgCp);
+        System.out.println("average alphap(sim) = "+avgalphap+"\n");
+
+        System.out.println("average Cv(sim) = "+avgCv);
+        Unit JoulesPerMolesK = new CompoundUnit(new Unit[]{Joule.UNIT,Mole.UNIT,Kelvin.UNIT},new double[]{1.0,-1.0,-1.0});
+        double avgCvJpmK = JoulesPerMolesK.fromSim(avgCv);
+        System.out.println("average Cv(Joules/mol/K) = "+avgCvJpmK+"\n");
+        System.out.println("conv Cv from sim to JpmK = "+JoulesPerMolesK.fromSim(1)+"\n");
+
+        long t2 = System.currentTimeMillis();
+        System.out.println("time = "+(t2-t1)/1000.0+"\n");
 
     }
 
     public static class GCPMWaterMCParam extends ParameterBase {
-		public int numAtoms = 20;
-		public double pressure = 170;//bar
+		public int numMolecules = 256;
+		public double pressure = 100;//bar
 		public double density = 3.3531383834004864;//1g/cm3=1000/18.02mol/L
-		public double temperature = 630.0;//Kelvin
-		public long numSteps = 5000;
+		public double temperature = 600.0;//Kelvin
+		public long numSteps = 10;
 		public double stepSizeTranslation = 0.0;
 		public double stepSizeRotation = 0.0;
 		public double stepSizeVolume = 0.0;
