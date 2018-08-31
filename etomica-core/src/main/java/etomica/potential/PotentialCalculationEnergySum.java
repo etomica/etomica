@@ -26,7 +26,7 @@ public class PotentialCalculationEnergySum implements PotentialCalculation, Pote
 	 */
 	public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
 	    sum += potential.energy(atoms);
-	    if (debug && Double.isInfinite(sum) || Double.isNaN(sum)) {
+		if (debug && (Double.isInfinite(sum) || Double.isNaN(sum))) {
 	        System.err.println("unhappy energy "+sum+" for "+atoms);
 	        potential.energy(atoms);
 	        debug = false;
@@ -39,7 +39,7 @@ public class PotentialCalculationEnergySum implements PotentialCalculation, Pote
      */
     public void doCalculation(IMoleculeList molecules, IPotentialMolecular potential) {
         sum += potential.energy(molecules);
-        if (debug && Double.isInfinite(sum) || Double.isNaN(sum)) {
+		if (debug && (Double.isInfinite(sum) || Double.isNaN(sum))) {
             System.err.println("unhappy energy "+sum+" for "+molecules);
             potential.energy(molecules);
             debug = false;
