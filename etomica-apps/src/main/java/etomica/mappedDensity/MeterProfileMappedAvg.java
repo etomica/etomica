@@ -110,6 +110,8 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
         double q = c.f(L / 2);
         double cz = c.f(z);
         double czi = c.f(zi);
+  //      double czplusLby2 = c.f(z+L/2);
+  //      double czminusLby2 = c.f(z-L/2);
 
         // c(zi) computed starting from z
         // p(zi) zidot(zi) = (p(z) zidot(z+)) - beta p(z) c(zi)/q
@@ -123,8 +125,19 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
         // zidot(zi) = beta p(z)/p(zi) (1/2 - c(zi)/q)
 
         // our c(zi) wasn't actually computed starting from z
+//////////////////////////
         double x = (zi > z) ? (czi - cz) / q : ((czi - cz) / q + 1);
         return pz / pzi * (0.5 - x) / temperature;
+
+ //       double pminusLby2= c.df(1, -L/2);
+ //       double zidotminusLby2=-0.0725;
+   //     zidotminusLby2=pz*(cz/q-1/2)/(pminusLby2*temperature);
+  //      if (zi >= z) {zidotminusLby2=-pz*(1-(czplusLby2/q))/(pminusLby2*temperature);} else {zidotminusLby2=pz*((czminusLby2/q))/(pminusLby2*temperature);}
+  //      double heavisidei;
+  //      if (zi >= z) {heavisidei=1;} else {heavisidei=0;}
+  //      return ((pminusLby2*zidotminusLby2/pzi)+(pz*((heavisidei)-(czi/q))/(temperature*pzi)));
+    //    return ((((heavisidei)-(zi/L))/(temperature)));
+
     }
 
     /**
@@ -169,7 +182,8 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
                     // dphi/dz = -T d(ln(p))/dz
                     //         = -T / p dp/dz
                     // - T p dp/dz
-                    y[i] -= (fz - c.df(2, zi) / c.df(1, zi) * temperature) * zidot(z, zi);
+                   y[i] -= (fz - c.df(2, zi) / c.df(1, zi) * temperature) * zidot(z, zi);
+
                 }
             }
         }
