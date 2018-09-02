@@ -5,7 +5,7 @@ import etomica.math.function.FunctionDifferentiable;
 import org.apache.commons.math3.special.Erf;
 
 public class FunctionParabolic implements FunctionDifferentiable {
-    double arg = 5;  //Vo
+    double arg = 15;  //Vo
     private final double L;
     private final double temperature;
 

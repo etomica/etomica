@@ -8,12 +8,15 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
-public class P1Parabolic implements IPotentialAtomic, PotentialSoft {
+public class P1Lnparabolic implements IPotentialAtomic, PotentialSoft {
+
     double arg = 15;  //Vo
     private double L;
+    private double temperature;
     private final Vector[] gradient;
 
-    public P1Parabolic(Space space) {
+    public P1Lnparabolic(Space space, double temperature) {
+        this.temperature = temperature;
         gradient = new Vector[]{space.makeVector()};
     }
 
@@ -25,9 +28,8 @@ public class P1Parabolic implements IPotentialAtomic, PotentialSoft {
     @Override
     public Vector[] gradient(IAtomList atoms) {
         double z = atoms.get(0).getPosition().getX(2);
-        gradient[0].setX(2, arg*2*(z));
-//        System.out.println(z+" "+energy(atoms)+" "+gradient[0].getX(2));
-        return gradient;
+         gradient[0].setX(2, -temperature*2*arg*z/(1+(arg*z*z)));
+         return gradient;
     }
 
     @Override
@@ -38,7 +40,7 @@ public class P1Parabolic implements IPotentialAtomic, PotentialSoft {
     @Override
     public double energy(IAtomList atoms) {
         double z = atoms.get(0).getPosition().getX(2);
-        return arg*(z*z);
+        return -temperature * Math.log(1 + (arg*z*z));
     }
 
     @Override
@@ -55,6 +57,5 @@ public class P1Parabolic implements IPotentialAtomic, PotentialSoft {
     public int nBody() {
         return 1;
     }
-
 
 }
