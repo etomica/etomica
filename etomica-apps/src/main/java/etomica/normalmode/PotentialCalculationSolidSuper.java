@@ -21,7 +21,7 @@ import etomica.space.Vector;
 public class PotentialCalculationSolidSuper implements PotentialCalculation {
         
     protected final CoordinateDefinition coordinateDefinition;
-    protected final Vector drSite0, drSite1, drA, dr, drB;
+    protected final Vector drSite0, drSite1, drA, dr, drB, dr0;
     protected final Space space;
     protected double pSum, virialSum;
     protected final Vector pSumXYZ, pTmp;
@@ -44,6 +44,7 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
         setBox(coordinateDefinition.getBox());
         pSumXYZ = space.makeVector();
         pTmp = space.makeVector();
+        dr0 = space.makeVector();
     }
     
     public void setDoSecondDerivative(boolean doD2) {
@@ -77,17 +78,22 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
 //            System.out.println(site1+" "+atom1.getPosition());
 //        }
 
-        dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-        boundary.nearestImage(dr);
-        double r2 = dr.squared();
-
         drB.Ev1Mv2(site1, site0);
         boundary.nearestImage(drB);
-        drB.TE(fac1);
+        double r2site = drB.squared();
 
         drSite0.Ev1Mv2(atom0.getPosition(), site0);
+        drSite0.ME(dr0);
+        boundary.nearestImage(drSite0);
         drSite1.Ev1Mv2(atom1.getPosition(), site1);
+        drSite1.ME(dr0);
+        boundary.nearestImage(drSite1);
+
         drA.Ev1Mv2(drSite1, drSite0);
+        // dr = drB + drSite1 - drSite0
+        dr.Ev1Pv2(drB, drA);
+        boundary.nearestImage(dr);
+        double r2 = dr.squared();
 
         Potential2SoftSpherical potentialSoft = (Potential2SoftSpherical)potential;
         
@@ -179,6 +185,10 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
         fac1 = 1.0/(D*vol);
         int N = box.getMoleculeList().size();
         fac2 = (-1/vol + pHarmonic/temperature)/(D*N-D);
+
+        IAtom atom0 = box.getLeafList().get(0);
+        Vector site0 = coordinateDefinition.getLatticePosition(atom0);
+        dr0.Ev1Mv2(atom0.getPosition(), site0);
     }
     
     public void setBox(Box box) {
