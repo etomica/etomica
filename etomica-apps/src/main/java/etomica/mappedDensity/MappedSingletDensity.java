@@ -109,12 +109,12 @@ public class MappedSingletDensity extends Simulation {
         }
         else {
       //      params.field = Field.SINE;
-      //          params.field = Field.PARABOLIC;
+               params.field = Field.PARABOLIC;
       //      params.field = Field.PHIPARABOLICPSUMOFGAUSSIANS;
        //        params.field = Field.PHISINEPSINESUM;
        //     params.field = Field.UNIFORM;
        //     params.field = Field.LNPARABOLIC;
-            params.field = Field.PHILNPARABOLICPFOURIERSUM;
+        //    params.field = Field.PHILNPARABOLICPFOURIERSUM;
             // modify parameters here for interactive testing
         }
 
@@ -289,12 +289,12 @@ public class MappedSingletDensity extends Simulation {
             }
             else {
             //    params.field = Field.SINE;
-           //         params.field = Field.PARABOLIC;
+                    params.field = Field.PARABOLIC;
            //     params.field = Field.PHIPARABOLICPSUMOFGAUSSIANS;
            //      params.field = Field.PHISINEPSINESUM;
            //     params.field = Field.UNIFORM;
           //      params.field = Field.LNPARABOLIC;
-                params.field = Field.PHILNPARABOLICPFOURIERSUM;
+         //       params.field = Field.PHILNPARABOLICPFOURIERSUM;
                 // modify parameters here for interactive testing
             }
 
@@ -492,7 +492,6 @@ public class MappedSingletDensity extends Simulation {
             pumps.add(pumpMappedAvg);
 
             graphic.makeAndDisplayFrame();
-
         }
     }
 
@@ -501,10 +500,10 @@ public class MappedSingletDensity extends Simulation {
     }
 
     public static class SimParams extends ParameterBase {
-        public long steps = 250000;
+        public long steps = 75000000;
         public double density = 1.0;
         public double temperature = 5.0;
         public int numAtoms = 500;
-        public Field field = Field.PHILNPARABOLICPFOURIERSUM;
+        public Field field = Field.PARABOLIC;
     }
 }

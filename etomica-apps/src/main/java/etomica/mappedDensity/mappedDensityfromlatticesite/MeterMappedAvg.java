@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.mappedDensity;
+package etomica.mappedDensity.mappedDensityfromlatticesite;
 
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
@@ -15,6 +15,7 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.math.function.FunctionDifferentiable;
+import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -22,7 +23,7 @@ import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
 
-public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
+public class MeterMappedAvg implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
     protected final PotentialMaster potentialMaster;
     protected final IteratorDirective id;
@@ -32,7 +33,9 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
     protected DataSourceUniform xDataSource;
     protected DataFunction data;
     protected IDataInfo dataInfo;
-    /**
+    protected double Rmax;
+    protected Vector rivector;
+     /**
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.
      */
@@ -42,7 +45,7 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
      */
     protected final DataTag tag;
     protected double temperature;
-
+protected CoordinateDefinition latticesite;
     protected final FunctionDifferentiable c;
     protected Behavior behavior;
     protected double zidotz;
@@ -54,10 +57,13 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
-    public MeterProfileMappedAvg(Box box, PotentialMaster potentialMaster, double temperature, FunctionDifferentiable c) {
+    public MeterMappedAvg(Box box, PotentialMaster potentialMaster, double temperature, FunctionDifferentiable c, CoordinateDefinition latticesite) {
         this.box = box;
         this.temperature = temperature;
         this.c = c;
+        this.Rmax = 0.25;
+this.latticesite=latticesite;
+this.rivector =box.getSpace().makeVector();
         xDataSource = new DataSourceUniform("x", Length.DIMENSION);
         tag = new DataTag();
         xDataSource.setTypeMax(LimitType.HALF_STEP);
@@ -84,7 +90,7 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
     public DataTag getTag() {
         return tag;
     }
-
+//sim.coordinateDefinition - latticesites
     /**
      * Accessor method for vector describing the direction along which the profile is measured.
      * Each atom position is dotted along this vector to obtain its profile abscissa value.
@@ -103,40 +109,18 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
         reset();
     }
 
-    public double zidot(double z, double zi) {
-        double L = box.getBoundary().getBoxSize().getX(profileDim);
-        double pzi = c.df(1, zi);
-        double pz = c.df(1, z);
-        double q = c.f(L / 2);
-        double cz = c.f(z);
-        double czi = c.f(zi);
-  //      double czplusLby2 = c.f(z+L/2);
-  //      double czminusLby2 = c.f(z-L/2);
-
-        // c(zi) computed starting from z
-        // p(zi) zidot(zi) = (p(z) zidot(z+)) - beta p(z) c(zi)/q
-        // zi=z- => p(z) zidot(z-) = (p(z) zidot(z+)) - beta p(z)
-        // z+ - z- => p(z) zidot(z+) - p(z) zidot(z-) = + beta p(z)
-        // zidot(z+) - zidot(z-) = beta
-        // zidot(z+) = beta/2
-        //
-        // p(zi) zidot(zi) = beta p(z) / 2 - beta p(z) c(zi)/q
-        //                 = beta p(z) (1/2 - c(zi)/q)
-        // zidot(zi) = beta p(z)/p(zi) (1/2 - c(zi)/q)
-
-        // our c(zi) wasn't actually computed starting from z
+    public double ridot(double r, double ri) {
+        double pri = c.df(1, ri);
+        double pr = c.df(1, r);
+        double q = c.f(1000000000);
+        double cr = c.f(r);
+        double cri = c.f(ri);
 //////////////////////////
-        double x = (zi > z) ? (czi - cz) / q : ((czi - cz) / q + 1);
-        return pz / pzi * (0.5 - x) / temperature;
+        double heavisidei;
+        if (ri >= r) {heavisidei=1;} else {heavisidei=0;}
+     //   System.out.println(" r: " + r+" ri: " + ri+" rsqp*ridot: " + (r*r*pr*r*r*pr  * (heavisidei - cri/q)) / (temperature*ri*ri*pri));
 
- //       double pminusLby2= c.df(1, -L/2);
- //       double zidotminusLby2=-0.0725;
-   //     zidotminusLby2=pz*(cz/q-1/2)/(pminusLby2*temperature);
-  //      if (zi >= z) {zidotminusLby2=-pz*(1-(czplusLby2/q))/(pminusLby2*temperature);} else {zidotminusLby2=pz*((czminusLby2/q))/(pminusLby2*temperature);}
-  //      double heavisidei;
-  //      if (zi >= z) {heavisidei=1;} else {heavisidei=0;}
-  //      return ((pminusLby2*zidotminusLby2/pzi)+(pz*((heavisidei)-(czi/q))/(temperature*pzi)));
-    //    return ((((heavisidei)-(zi/L))/(temperature)));
+        return (r*r*pr  * (heavisidei - cri/q)) / (temperature*ri*ri*pri);
 
     }
 
@@ -150,39 +134,39 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
         double[] y = data.getData();
         IAtomList atoms = box.getLeafList();
         double L = box.getBoundary().getBoxSize().getX(profileDim);
-        double dz = L / xDataSource.getNValues();
+        double dz = Rmax / xDataSource.getNValues();
         if (behavior == Behavior.ZIDOT) {
             for (int i = 0; i < y.length; i++) {
-                double zi = -L / 2 + i * dz;
+                double zi = i * dz;
                 if (Math.abs(zidotz - zi) < dz * 0.01) {
                     y[i] = Double.NaN;
                     continue;
                 }
-                y[i] = zidot(zidotz, zi);
+                y[i] = ridot(zidotz, zi);
             }
             return data;
         }
         if (behavior == Behavior.DZIDOT) {
             for (int i = 0; i < y.length; i++) {
-                double zi = -L / 2 + i * dz;
+                double zi =  i * dz;
                 if (Math.abs(zidotz - zi) < dz * 0.01) {
                     y[i] = Double.NaN;
                     continue;
                 }
-                y[i] = -(c.df(1, zi + dz * 0.01) * zidot(zidotz, zi + dz * 0.01) - c.df(1, zi - dz * 0.01) * zidot(zidotz, zi - dz * 0.01)) / (0.02 * dz) / c.df(1, zi);
+                y[i] = -(c.df(1, zi + dz * 0.01) * ridot(zidotz, zi + dz * 0.01) - c.df(1, zi - dz * 0.01) * ridot(zidotz, zi - dz * 0.01)) / (0.02 * dz) / c.df(1, zi);
             }
             return data;
         }
         if (behavior != Behavior.P) {
             for (IAtom atom : atoms) {
-                double fz = agentManager.getAgent(atom).getX(profileDim);
-                double zi = atom.getPosition().getX(profileDim);
+                 rivector.Ev1Mv2(atom.getPosition(),latticesite.getLatticePosition(atom)) ;
+                 box.getBoundary().nearestImage(rivector);
+                double ri = Math.sqrt(rivector.squared()) ;
+                double fr = agentManager.getAgent(atom).dot(rivector)/ri;
+
                 for (int i = 0; i < y.length; i++) {
-                    double z = -L / 2 + (i + 0.5) * dz;
-                    // dphi/dz = -T d(ln(p))/dz
-                    //         = -T / p dp/dz
-                    // - T p dp/dz
-                  y[i] -= (fz - c.df(2, zi) / c.df(1, zi) *temperature) * zidot(z, zi);
+                    double r =  (i + 0.5) * dz;
+                   y[i] -= (fr - c.df(2, ri) / c.df(1, ri) * temperature) * ridot(r, ri)/(r*r);
 
                 }
             }
@@ -190,13 +174,13 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
 //        data.TE(0);
 
         int N = atoms.size();
-        double q = c.f(L / 2);
+        double q = c.f(1000000000);
         for (int i = 0; i < y.length; i++) {
-            double z = -L / 2 + (i + 0.5) * dz;
-            y[i] += N * c.df(1, z) / q;
+            double r =  (i + 0.5) * dz;
+            y[i] += N * c.df(1, r) / q;
+              System.out.println(" r "+r+" N "+N+" pr "+c.df(1, r)+" q " + q +" Np/q "+y[i]);
         }
-        double area = box.getBoundary().volume() / L;
-        data.TE(1 / area);
+
         return data;
     }
 
@@ -227,9 +211,8 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
         if (box == null) return;
 
         Boundary boundary = box.getBoundary();
-        double halfBox = 0.5 * boundary.getBoxSize().getX(profileDim);
-        xDataSource.setXMin(-halfBox);
-        xDataSource.setXMax(halfBox);
+        xDataSource.setXMin(0);
+        xDataSource.setXMax(Rmax);
 
         data = new DataFunction(new int[]{xDataSource.getNValues()});
         dataInfo = new DataInfoFunction("Mapped Average Profile", new CompoundDimension(new Dimension[]{Quantity.DIMENSION, Volume.DIMENSION}, new double[]{1, -1}), this);
