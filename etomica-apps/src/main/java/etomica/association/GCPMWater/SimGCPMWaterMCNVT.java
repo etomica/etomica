@@ -28,6 +28,7 @@ import etomica.models.water.ConformationWaterGCPM;
 import etomica.models.water.PNWaterGCPMReactionField;
 import etomica.models.water.SpeciesWater4P;
 import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.molecule.iterator.MoleculeIteratorAll;
 import etomica.nbr.cell.molecule.BoxAgentSourceCellManagerMolecular;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.potential.PotentialMaster;
@@ -117,7 +118,7 @@ public class SimGCPMWaterMCNVT extends Simulation {
         pbc.setApplyToMolecules(true);
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
-        potentialMaster.addPotential(potential, new ISpecies[] {species});
+        potentialMaster.addPotential(potential, new MoleculeIteratorAll(new ISpecies[]{species}, true), null);
         String configFile = "GCPM_NVT_"+numMolceules+"atoms"+temperatureK+"T"+numSteps+"steps";
         if(new File(configFile+".pos").exists()){
         	ConfigurationFile config = new ConfigurationFile(configFile);
