@@ -55,8 +55,6 @@ public class MCMoveRotateMolecule3D extends MCMoveMolecule {
 
         r0.E(positionDefinition.position(molecule));
         doTransform();
-        
-        energyMeter.setTarget(molecule);
         return true;
     }
     
