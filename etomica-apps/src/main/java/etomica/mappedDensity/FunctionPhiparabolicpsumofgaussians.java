@@ -19,8 +19,11 @@ public class FunctionPhiparabolicpsumofgaussians implements FunctionDifferentiab
     private final double a4;
     private final double b4;
     private final double c4;
+    private final double a5;
+    private final double b5;
+    private final double c5;
 
-    public FunctionPhiparabolicpsumofgaussians(double L, double a1, double b1, double c1,double a2, double b2, double c2,double a3, double b3, double c3,double a4, double b4, double c4) {
+    public FunctionPhiparabolicpsumofgaussians(double L, double a1, double b1, double c1,double a2, double b2, double c2,double a3, double b3, double c3,double a4, double b4, double c4,double a5, double b5, double c5) {
          this.L = L;
         this.a1 = a1;
         this.b1 = b1;
@@ -34,7 +37,9 @@ public class FunctionPhiparabolicpsumofgaussians implements FunctionDifferentiab
         this.a4 = a4;
         this.b4 = b4;
         this.c4 = c4;
-    }
+        this.a5 = a5;
+        this.b5 = b5;
+        this.c5 = c5; }
 
 
     @Override
@@ -46,27 +51,35 @@ public class FunctionPhiparabolicpsumofgaussians implements FunctionDifferentiab
                 double b2plusLby2byc2 = 1- SpecialFunctions.erfc( (b2+L/2)/c2);
                 double b3plusLby2byc3 = 1- SpecialFunctions.erfc( (b3+L/2)/c3);
                 double b4plusLby2byc4 = 1- SpecialFunctions.erfc( (b4+L/2)/c4);
+                double b5plusLby2byc5 = 1- SpecialFunctions.erfc( (b5+L/2)/c5);
+
                 double b1minusLby2byc1 = 1- SpecialFunctions.erfc( (b1-L/2)/c1);
                 double b2minusLby2byc2 = 1- SpecialFunctions.erfc( (b2-L/2)/c2);
                 double b3minusLby2byc3 = 1- SpecialFunctions.erfc( (b3-L/2)/c3);
                 double b4minusLby2byc4 = 1- SpecialFunctions.erfc( (b4-L/2)/c4);
+                double b5minusLby2byc5 = 1- SpecialFunctions.erfc( (b5-L/2)/c5);
+
                 double b1pluszbyc1 = 1- SpecialFunctions.erfc( (b1+x)/c1);
                 double b2pluszbyc2 = 1- SpecialFunctions.erfc( (b2+x)/c2);
                 double b3pluszbyc3 = 1- SpecialFunctions.erfc( (b3+x)/c3);
                 double b4pluszbyc4 = 1- SpecialFunctions.erfc( (b4+x)/c4);
+                double b5pluszbyc5 = 1- SpecialFunctions.erfc( (b5+x)/c5);
+
                 double b1minuszbyc1 = 1- SpecialFunctions.erfc( (b1-x)/c1);
                 double b2minuszbyc2 = 1- SpecialFunctions.erfc( (b2-x)/c2);
                 double b3minuszbyc3 = 1- SpecialFunctions.erfc( (b3-x)/c3);
                 double b4minuszbyc4 = 1- SpecialFunctions.erfc( (b4-x)/c4);
-                return (0.5*Math.sqrt(3.141592653589)*((a1*c1*(b1plusLby2byc1-b1minuszbyc1))+(a2*c2*(b2plusLby2byc2-b2minuszbyc2))+(a3*c3*(b3plusLby2byc3-b3minuszbyc3))+(a4*c4*(b4plusLby2byc4-b4minuszbyc4))+(a1*c1*(-b1minusLby2byc1+b1pluszbyc1))+(a2*c2*(-b2minusLby2byc2+b2pluszbyc2))+(a3*c3*(-b3minusLby2byc3+b3pluszbyc3))+(a4*c4*(-b4minusLby2byc4+b4pluszbyc4))));
+                double b5minuszbyc5 = 1- SpecialFunctions.erfc( (b5-x)/c5);
+
+                return (0.5*Math.sqrt(3.141592653589)*((a1*c1*(b1plusLby2byc1-b1minuszbyc1))+(a2*c2*(b2plusLby2byc2-b2minuszbyc2))+(a3*c3*(b3plusLby2byc3-b3minuszbyc3))+(a4*c4*(b4plusLby2byc4-b4minuszbyc4))+(a5*c5*(b5plusLby2byc5-b5minuszbyc5))+(a1*c1*(-b1minusLby2byc1+b1pluszbyc1))+(a2*c2*(-b2minusLby2byc2+b2pluszbyc2))+(a3*c3*(-b3minusLby2byc3+b3pluszbyc3))+(a4*c4*(-b4minusLby2byc4+b4pluszbyc4))+(a5*c5*(-b5minusLby2byc5+b5pluszbyc5))));
 
             // p
             case 1:
-                return (a1*Math.exp(-((x-b1)/c1)*((x-b1)/c1))+a2*Math.exp(-((x-b2)/c2)*((x-b2)/c2))+a3*Math.exp(-((x-b3)/c3)*((x-b3)/c3))+a4*Math.exp(-((x-b4)/c4)*((x-b4)/c4))+a1*Math.exp(-((x+b1)/c1)*((x+b1)/c1))+a2*Math.exp(-((x+b2)/c2)*((x+b2)/c2))+a3*Math.exp(-((x+b3)/c3)*((x+b3)/c3))+a4*Math.exp(-((x+b4)/c4)*((x+b4)/c4)));
+                return (a1*Math.exp(-((x-b1)/c1)*((x-b1)/c1))+a2*Math.exp(-((x-b2)/c2)*((x-b2)/c2))+a3*Math.exp(-((x-b3)/c3)*((x-b3)/c3))+a4*Math.exp(-((x-b4)/c4)*((x-b4)/c4))+a5*Math.exp(-((x-b5)/c5)*((x-b5)/c5))+a1*Math.exp(-((x+b1)/c1)*((x+b1)/c1))+a2*Math.exp(-((x+b2)/c2)*((x+b2)/c2))+a3*Math.exp(-((x+b3)/c3)*((x+b3)/c3))+a4*Math.exp(-((x+b4)/c4)*((x+b4)/c4))+a5*Math.exp(-((x+b5)/c5)*((x+b5)/c5)));
 
             // dp/dz
             case 2:
-                return ((-2*(x-b1)*a1*Math.exp(-((x-b1)/c1)*((x-b1)/c1))/(c1*c1))-(2*(x-b2)*a2*Math.exp(-((x-b2)/c2)*((x-b2)/c2))/(c2*c2))-(2*(x-b3)*a3*Math.exp(-((x-b3)/c3)*((x-b3)/c3))/(c3*c3))-(2*(x-b4)*a4*Math.exp(-((x-b4)/c4)*((x-b4)/c4))/(c4*c4))-(2*(x+b1)*a1*Math.exp(-((x+b1)/c1)*((x+b1)/c1))/(c1*c1))-(2*(x+b2)*a2*Math.exp(-((x+b2)/c2)*((x+b2)/c2))/(c2*c2))-(2*(x+b3)*a3*Math.exp(-((x+b3)/c3)*((x+b3)/c3))/(c3*c3))-(2*(x+b4)*a4*Math.exp(-((x+b4)/c4)*((x+b4)/c4))/(c4*c4)));
+                return ((-2*(x-b1)*a1*Math.exp(-((x-b1)/c1)*((x-b1)/c1))/(c1*c1))-(2*(x-b2)*a2*Math.exp(-((x-b2)/c2)*((x-b2)/c2))/(c2*c2))-(2*(x-b3)*a3*Math.exp(-((x-b3)/c3)*((x-b3)/c3))/(c3*c3))-(2*(x-b4)*a4*Math.exp(-((x-b4)/c4)*((x-b4)/c4))/(c4*c4))-(2*(x-b5)*a5*Math.exp(-((x-b5)/c5)*((x-b5)/c5))/(c5*c5))-(2*(x+b1)*a1*Math.exp(-((x+b1)/c1)*((x+b1)/c1))/(c1*c1))-(2*(x+b2)*a2*Math.exp(-((x+b2)/c2)*((x+b2)/c2))/(c2*c2))-(2*(x+b3)*a3*Math.exp(-((x+b3)/c3)*((x+b3)/c3))/(c3*c3))-(2*(x+b4)*a4*Math.exp(-((x+b4)/c4)*((x+b4)/c4))/(c4*c4))-(2*(x+b5)*a5*Math.exp(-((x+b5)/c5)*((x+b5)/c5))/(c5*c5)));
 
             default:
                 throw new RuntimeException("can't do that");

@@ -112,15 +112,15 @@ this.rivector =box.getSpace().makeVector();
     public double ridot(double r, double ri) {
         double pri = c.df(1, ri);
         double pr = c.df(1, r);
-        double q = c.f(1000000000);
-        double cr = c.f(r);
+        double q = 1;
         double cri = c.f(ri);
 //////////////////////////
         double heavisidei;
         if (ri >= r) {heavisidei=1;} else {heavisidei=0;}
-     //   System.out.println(" r: " + r+" ri: " + ri+" rsqp*ridot: " + (r*r*pr*r*r*pr  * (heavisidei - cri/q)) / (temperature*ri*ri*pri));
 
-        return (r*r*pr  * (heavisidei - cri/q)) / (temperature*ri*ri*pri);
+    //    System.out.println(" r: " + r+" ri: " + ri+" rsqp*ridot: " +  (r*r*pr*pr* ((heavisidei/(4*Math.PI)) - cri/q)) / (temperature*ri*ri*pri) );
+
+        return (pr  * ((heavisidei/(4*Math.PI)) - cri/q)) / (temperature*ri*ri*pri);
 
     }
 
@@ -142,7 +142,10 @@ this.rivector =box.getSpace().makeVector();
                     y[i] = Double.NaN;
                     continue;
                 }
+
                 y[i] = ridot(zidotz, zi);
+                System.out.println(" i "+i+" y[i] "+y[i]);
+
             }
             return data;
         }
@@ -154,7 +157,11 @@ this.rivector =box.getSpace().makeVector();
                     continue;
                 }
                 y[i] = -(c.df(1, zi + dz * 0.01) * ridot(zidotz, zi + dz * 0.01) - c.df(1, zi - dz * 0.01) * ridot(zidotz, zi - dz * 0.01)) / (0.02 * dz) / c.df(1, zi);
+
+                System.out.println(" i "+i+" y[i] "+y[i]);
+
             }
+
             return data;
         }
         if (behavior != Behavior.P) {
@@ -164,21 +171,31 @@ this.rivector =box.getSpace().makeVector();
                 double ri = Math.sqrt(rivector.squared()) ;
                 double fr = agentManager.getAgent(atom).dot(rivector)/ri;
 
+     //           System.out.println(y[0]);
+
+
                 for (int i = 0; i < y.length; i++) {
                     double r =  (i + 0.5) * dz;
-                   y[i] -= (fr - c.df(2, ri) / c.df(1, ri) * temperature) * ridot(r, ri)/(r*r);
+
+         //      System.out.println(" r "+r+ " ri "+ri+ " ensemble "+(fr - c.df(2, ri) / c.df(1, ri) * temperature) * ridot(r, ri)/(r*r)+ " y[i] "+y[i]);
+
+
+                    y[i] -= (fr - (temperature*c.df(2, ri) / c.df(1, ri)) ) * ridot(r, ri);
+
 
                 }
             }
+
         }
 //        data.TE(0);
 
         int N = atoms.size();
-        double q = c.f(1000000000);
+        double q = 1;
         for (int i = 0; i < y.length; i++) {
             double r =  (i + 0.5) * dz;
             y[i] += N * c.df(1, r) / q;
-              System.out.println(" r "+r+" N "+N+" pr "+c.df(1, r)+" q " + q +" Np/q "+y[i]);
+ //           System.out.println(" r "+r+" N "+N+" pr "+c.df(1, r)+" q " + q +" Np/q "+N * c.df(1, r) / q);
+
         }
 
         return data;
