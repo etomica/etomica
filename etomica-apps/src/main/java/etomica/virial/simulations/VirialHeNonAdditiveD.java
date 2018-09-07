@@ -334,7 +334,7 @@ public class VirialHeNonAdditiveD {
             String cdStr = calcDiff==PotentialChoice.SIMPLE?"simple_diff_":(calcDiff==PotentialChoice.OLD?"old_diff_":(calcDiff==PotentialChoice.NONE?"full_": " ???? ")) ;
             String p3Astr = dop3Aprox?"p3A_":"";
             String p3ADstr = dop3AproxDiff?"p3AD_":"";
-            refFileName = "refpref_nad_"+nPoints+"_pair_"+potStr+cdStr+p3Astr+p3ADstr+tempString;
+            refFileName = "refpref_"+nPoints+"_nad_"+potStr+cdStr+p3Astr+p3ADstr+tempString;
             refFileName += "K";
         }
 

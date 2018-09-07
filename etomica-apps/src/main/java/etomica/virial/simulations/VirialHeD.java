@@ -291,7 +291,7 @@ public class VirialHeD {
             }
             String potStr = potential==PotentialChoice.SIMPLE?"simple_":(potential==PotentialChoice.OLD?"old_":(potential==PotentialChoice.NEW?"new_": " ???? ")) ;
             String cdStr = calcDiff==PotentialChoice.SIMPLE?"simple_diff_":(calcDiff==PotentialChoice.OLD?"old_diff_":(calcDiff==PotentialChoice.NONE?"full_": " ???? ")) ;
-            refFileName = "refpref_ad_"+nPoints+"_pair_"+potStr+cdStr+tempString;
+            refFileName = "refpref_"+nPoints+"_ad_"+potStr+cdStr+tempString;
             refFileName += "K";
         }
 
