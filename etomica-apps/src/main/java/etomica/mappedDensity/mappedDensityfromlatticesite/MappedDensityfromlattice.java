@@ -128,10 +128,6 @@ public class MappedDensityfromlattice extends Simulation {
         //set up simulation parameters
         SimOverlapParam params = new SimOverlapParam();
         if (args.length == 0) {
-            params.numAtoms = 500;
-            params.numSteps = 250000;
-            params.temperature = 3;
-            params.density = 2;
             params.rcMax1 = 3;
             params.rcMax0 = 3;
             params.rc = 3;
@@ -153,13 +149,38 @@ public class MappedDensityfromlattice extends Simulation {
         double rcMax0 = params.rcMax0;
         double rcMax1 = params.rcMax1;
         if (rcMax1 > rcMax0) rcMax1 = rcMax0;
-        double[] bpharm = params.bpharm;
+//        double[] bpharm = params.bpharm;
         double[] bpharmLJ = params.bpharmLJ;
         int[] seeds = params.randomSeeds;
 
-  //      System.out.println("Running "+(ss?"soft-sphere":"Lennard-Jones")+" simulation");
         System.out.println(numAtoms+" atoms at density "+density+" and temperature "+temperature);
         System.out.println(numSteps+" steps");
+
+        if(params.temperature==0.1 && params.density==1) {params.msd=0.00444872;}
+        if(params.temperature==0.2 && params.density==1) {params.msd= 0.00882799;}
+        if(params.temperature==0.3 && params.density==1) {params.msd=0.0124214 ;}
+        if(params.temperature==0.4 && params.density==1) {params.msd=0.0176487 ;}
+        if(params.temperature==0.5 && params.density==1) {params.msd= 0.0206668;}
+        if(params.temperature==0.6 && params.density==1) {params.msd= 0.0246517;}
+        if(params.temperature==0.7 && params.density==1) {params.msd= 0.0298408;}
+        if(params.temperature==0.8 && params.density==1) {params.msd= 0.0337209;}
+        if(params.temperature==0.9 && params.density==1) {params.msd= 0.0371567;}
+        if(params.temperature==1.0 && params.density==1) {params.msd= 0.0413929;}
+        if(params.temperature==0.55555556 && params.density==1.29) {params.msd=0.00551846 ;}
+        if(params.temperature==1.11111111 && params.density==1.29) {params.msd=0.011446 ;}
+        if(params.temperature==1.66666667 && params.density==1.29) {params.msd=0.0168222 ;}
+        if(params.temperature==2.22222222 && params.density==1.29) {params.msd=0.0225697 ;}
+        if(params.temperature==2.77777778 && params.density==1.29) {params.msd=0.0277941 ;}
+        if(params.temperature==3.33333333 && params.density==1.29) {params.msd=0.0346079 ;}
+        if(params.temperature==3.88888889 && params.density==1.29) {params.msd=0.0391218 ;}
+        if(params.temperature==4.22222222 && params.density==1.29) {params.msd=0.0434448 ;}
+        if(params.temperature==1.0 && params.density==3.16) {params.msd= 0.00012008;}
+        if(params.temperature==1.0 && params.density==2.23) {params.msd= 0.000636781;}
+        if(params.temperature==1.0 && params.density==1.58) {params.msd= 0.0034778;}
+        if(params.temperature==1.0 && params.density==1.29) {params.msd= 0.00988742;}
+
+
+        System.out.println(params.msd+" =msd here");
 
         //instantiate simulation
         final MappedDensityfromlattice sim = new MappedDensityfromlattice(Space.getInstance(3), numAtoms, density, temperature, rc*Math.pow(density, -1.0/3.0), ss, seeds);
@@ -214,9 +235,6 @@ public class MappedDensityfromlattice extends Simulation {
             if (nCutoffs%2==0) delta += 0.5;
         }
         nCutoffs--;
-        if (nCutoffs > bpharm.length) {
-            throw new RuntimeException("need more beta P harmonic");
-        }
         delta = 0.5;
         double[] cutoffs = new double[nCutoffs];
         cutoffs[0] = rc0;
@@ -282,28 +300,6 @@ public class MappedDensityfromlattice extends Simulation {
         // meter needs lattice energy, so make it now
 
 
-
-        MeterSolidDACut meterSolid = new MeterSolidDACut(sim.getSpace(), potentialMasterData, sim.coordinateDefinition, cutoffs);
-        meterSolid.setTemperature(temperature);
-        meterSolid.setBPRes(bpharm);
-        IData d = meterSolid.getData();
-
-
-        MeterPotentialEnergy meterEnergyShort = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
-        final double[] uFacCut = new double[cutoffs.length];
-        double uShort = meterEnergyShort.getDataAsScalar();
-        for (int i=0; i<uFacCut.length; i++) {
-            uFacCut[i] = d.getValue(6*i)*numAtoms - uShort;
-        }
-
-
-        if (ss) {
-            if (bpharmLJ.length < cutoffs.length) {
-                throw new RuntimeException("I need LJ harmonic pressures for all cutoffs");
-            }
-            meterSolid.setPotentialMasterDADv2(potentialMasterDataLJ, bpharmLJ);
-        }
-
         double rcMaxLS = 3*0.494*L;
         if (rcMaxLS>rcMax0) rcMaxLS = rcMax0;
         if (rcMax1 >= rcMax0) rcMaxLS=0;
@@ -316,9 +312,6 @@ public class MappedDensityfromlattice extends Simulation {
             if (nCutoffsLS%2==0) delta += 0.5;
         }
         nCutoffsLS--;
-        if (nCutoffsLS > bpharm.length) {
-            throw new RuntimeException("need more beta P harmonic");
-        }
 
         final double[] cutoffsLS = new double[nCutoffsLS];
         PotentialMasterMonatomic potentialMasterLS = new PotentialMasterMonatomic(sim);
@@ -327,80 +320,6 @@ public class MappedDensityfromlattice extends Simulation {
         Potential2SoftSphericalLSMultiLat pLJLS = null;
         final double[] uFacCutLS = new double[cutoffsLS.length];
         MeterSolidDACut meterSolidLS = null;
-        if (nCutoffsLS>0) {
-            cutoffsLS[0] = rc0;
-            delta = 0.5;
-            for (int i=1; i<cutoffsLS.length; i++) {
-                cutoffsLS[i] = cutoffsLS[i-1] + delta;
-                if (i%2==0) delta += 0.5;
-            }
-            for (int i=0; i<nCutoffsLS; i++) {
-                cutoffsLS[i] *= Math.pow(density, -1.0/3.0);
-            }
-            pLS = new Potential2SoftSphericalLSMultiLat(sim.getSpace(), cutoffsLS, potential, sim.coordinateDefinition);
-            potentialMasterLS.addPotential(pLS, new AtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
-
-            meterSolidLS = new MeterSolidDACut(sim.getSpace(), potentialMasterLS, sim.coordinateDefinition, cutoffsLS);
-            meterSolidLS.setTemperature(temperature);
-            meterSolidLS.setBPRes(bpharm);
-            d = meterSolidLS.getData();
-
-            if (params.ss) {
-                potentialMasterLJLS = new PotentialMasterMonatomic(sim);
-                pLJLS = new Potential2SoftSphericalLSMultiLat(sim.getSpace(), cutoffsLS, p2LJ, sim.coordinateDefinition);
-                potentialMasterLJLS.addPotential(pLJLS, new AtomType[]{sim.species.getLeafType(), sim.species.getLeafType()});
-                if (bpharmLJ.length < cutoffsLS.length) {
-                    throw new RuntimeException("I need LJ harmonic pressures for all LS cutoffs");
-                }
-                meterSolidLS.setPotentialMasterDADv2(potentialMasterLJLS, bpharmLJ);
-            }
-
-            for (int i=0; i<uFacCut.length; i++) {
-                uFacCutLS[i] = uFacCut[i];
-            }
-            for (int i=uFacCut.length; i<uFacCutLS.length; i++) {
-                uFacCutLS[i] = d.getValue(6*i)*numAtoms - uShort;
-            }
-        }
-        System.out.print("cutoffs: ");
-        if (nCutoffsLS>0) {
-            for (int i=0; i<nCutoffsLS; i++) {
-                System.out.print(" "+cutoffsLS[i]);
-            }
-        }
-        else {
-            for (int i=0; i<nCutoffs; i++) {
-                System.out.print(" "+cutoffs[i]);
-            }
-        }
-        System.out.println();
-        System.out.print("bPharm ");
-        if (nCutoffsLS>0) {
-            for (int i=0; i<nCutoffsLS; i++) {
-                System.out.print(" "+bpharm[i]);
-            }
-        }
-        else {
-            for (int i=0; i<nCutoffs; i++) {
-                System.out.print(" "+bpharm[i]);
-            }
-        }
-        System.out.println();
-        if (ss) {
-            System.out.print("bPharmLJ ");
-            if (nCutoffsLS>0) {
-                for (int i=0; i<nCutoffsLS; i++) {
-                    System.out.print(" "+bpharmLJ[i]);
-                }
-            }
-            else {
-                for (int i=0; i<nCutoffs; i++) {
-                    System.out.print(" "+bpharmLJ[i]);
-                }
-            }
-            System.out.println();
-        }
-
 
         if (args.length == 0) {
             // quick initialization
@@ -412,12 +331,12 @@ public class MappedDensityfromlattice extends Simulation {
             sim.initialize(nSteps);
         }
 
-        MeterConventional meterConventional = new MeterConventional(sim.box, sim.coordinateDefinition);
+        MeterConventional meterConventional = new MeterConventional(params.msd,sim.box, sim.coordinateDefinition);
         long steps = params.numSteps;
         int interval = 5* params.numAtoms;
         int blocks = 100;
         long blockSize = steps / (interval * blocks);
-        meterConventional.getXDataSource().setNValues(100);  //con bins=1000
+        meterConventional.getXDataSource().setNValues(params.bins);  //con bins=1000
         meterConventional.reset();
         AccumulatorAverageFixed accCon = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumpCon = new DataPumpListener(meterConventional, accCon, interval);
@@ -428,8 +347,8 @@ public class MappedDensityfromlattice extends Simulation {
        f = new Function(params.msd);
    //     f = new FunctionUniform(params.msd);
 
-        MeterMappedAvg meterMappedAvg = new MeterMappedAvg(sim.box(), sim.potentialMaster, params.temperature, f, sim.coordinateDefinition);
-        meterMappedAvg.getXDataSource().setNValues(100);  //map bins=1000
+        MeterMappedAvg meterMappedAvg = new MeterMappedAvg(params.msd,sim.box(), sim.potentialMaster, params.temperature, f, sim.coordinateDefinition);
+        meterMappedAvg.getXDataSource().setNValues(params.bins);  //map bins=1000
         meterMappedAvg.reset();
         AccumulatorAverageFixed accMappedAvg = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumpMappedAvg = new DataPumpListener(meterMappedAvg, accMappedAvg, interval);
@@ -458,38 +377,6 @@ public class MappedDensityfromlattice extends Simulation {
             throw new RuntimeException("unable to find appropriate intervals");
         }
  //       System.out.println("block size "+blockSize+" interval "+interval);
-
-        final ValueCache energyFastCache = new ValueCache(meterEnergyShort, sim.integrator);
-
-        DataProcessorReweight puReweight = new DataProcessorReweight(temperature, energyFastCache, uFacCut, sim.box, cutoffs.length);
-        DataPumpListener pumpPU = new DataPumpListener(meterSolid, puReweight, interval);
-        sim.integrator.getEventManager().addListener(pumpPU);
-        final AccumulatorAverageCovariance avgSolid = new AccumulatorAverageCovariance(blockSize);
-        puReweight.setDataSink(avgSolid);
-
-        DataProcessorReweightRatio puReweightRatio = new DataProcessorReweightRatio(cutoffs.length);
-        avgSolid.setBlockDataSink(puReweightRatio);
-        AccumulatorAverageCovariance accPUBlocks = new AccumulatorAverageCovariance(1, true);
-        puReweightRatio.setDataSink(accPUBlocks);
-
-        AccumulatorAverageCovariance accPULSBlocks = null;
-        AccumulatorAverageCovariance accPULS = null;
-        if (nCutoffsLS>0) {
-            DataProcessorReweight puLSReweight = new DataProcessorReweight(temperature, energyFastCache, uFacCutLS, sim.box, nCutoffsLS);
-            DataPumpListener pumpPULS = new DataPumpListener(meterSolidLS, puLSReweight, intervalLS);
-            sim.integrator.getEventManager().addListener(pumpPULS);
-            accPULS = new AccumulatorAverageCovariance(blockSizeLS);
-            puLSReweight.setDataSink(accPULS);
-
-            DataProcessorReweightRatio puLSReweightRatio = new DataProcessorReweightRatio(nCutoffsLS, nCutoffs-1);
-            accPULS.setBlockDataSink(puLSReweightRatio);
-
-            accPULSBlocks = new AccumulatorAverageCovariance(1, true);
-            puLSReweightRatio.setDataSink(accPULSBlocks);
-        }
-
-
-
 
         final long startTime = System.currentTimeMillis();
 
@@ -526,10 +413,11 @@ public class MappedDensityfromlattice extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numAtoms = 500;
-        public double msd = 0.003231939;
-        public double density = 2;
-        public long numSteps = 25000;
-        public double temperature = 3.0;
+        public double msd = 0.00444872;
+        public int bins = 1000;
+        public double density = 1;
+        public long numSteps = 50000000;
+        public double temperature = 1;
         public double rc = 3;
         public double rc0 = rc;
         public double rcMax1 = 3;

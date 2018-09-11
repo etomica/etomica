@@ -8,14 +8,14 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 
-public class P1Sine implements IPotentialAtomic, PotentialSoft {
-//defines the external potential that will be added
+public class P1Newnewsine implements IPotentialAtomic, PotentialSoft {
+
     private final int n;
     private final double temperature;
     private double L;
     private final Vector[] gradient;
 
-    public P1Sine(Space space, int n, double temperature) {
+    public P1Newnewsine(Space space, int n, double temperature) {
         this.n = n;
         this.temperature = temperature;
         gradient = new Vector[]{space.makeVector()};
@@ -31,7 +31,7 @@ public class P1Sine implements IPotentialAtomic, PotentialSoft {
         double z = atoms.get(0).getPosition().getX(2);
         // temperature/(2+sin())*cos()*(2 PI n / L)
         double arg = 2 * Math.PI * n / L;
-        gradient[0].setX(2, -(temperature / (2 + Math.sin(arg * z))) * Math.cos(arg * z) * arg);
+        gradient[0].setX(2, -temperature / (3 + 2.5*Math.sin(arg * z)) * 2.5*Math.cos(arg * z) * arg);
 //        System.out.println(z+" "+energy(atoms)+" "+gradient[0].getX(2));
         return gradient;
     }
@@ -44,7 +44,7 @@ public class P1Sine implements IPotentialAtomic, PotentialSoft {
     @Override
     public double energy(IAtomList atoms) {
         double z = atoms.get(0).getPosition().getX(2);
-        return -temperature * Math.log(2 + Math.sin(2 * Math.PI * n * z / L));
+        return -temperature * Math.log(3 + 2.5*Math.sin(2 * Math.PI * n * z / L));
     }
 
     @Override
@@ -61,4 +61,6 @@ public class P1Sine implements IPotentialAtomic, PotentialSoft {
     public int nBody() {
         return 1;
     }
+
+
 }

@@ -32,6 +32,8 @@ public class MeterConventional implements IDataSource, DataSourceIndependent {
     protected IDataInfo dataInfo;
     protected double Rmax;
     protected Vector rivector;
+    protected double msd;
+
     /**
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.
@@ -45,9 +47,10 @@ public class MeterConventional implements IDataSource, DataSourceIndependent {
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
-    public MeterConventional(Box box, CoordinateDefinition latticesite) {
+    public MeterConventional(double msd, Box box, CoordinateDefinition latticesite) {
         this.box = box;
-        this.Rmax = 0.25;
+        this.msd = msd;
+        this.Rmax = Math.sqrt(msd)*8;
         this.latticesite = latticesite;
         this.rivector = box.getSpace().makeVector();
         xDataSource = new DataSourceUniform("x", Length.DIMENSION);

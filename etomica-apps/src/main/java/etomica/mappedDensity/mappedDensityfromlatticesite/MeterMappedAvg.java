@@ -49,6 +49,7 @@ protected CoordinateDefinition latticesite;
     protected final FunctionDifferentiable c;
     protected Behavior behavior;
     protected double zidotz;
+    protected double msd;
 
     public enum Behavior {
         NORMAL, P, ZIDOT, DZIDOT
@@ -57,11 +58,12 @@ protected CoordinateDefinition latticesite;
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
-    public MeterMappedAvg(Box box, PotentialMaster potentialMaster, double temperature, FunctionDifferentiable c, CoordinateDefinition latticesite) {
+    public MeterMappedAvg(double msd,Box box, PotentialMaster potentialMaster, double temperature, FunctionDifferentiable c, CoordinateDefinition latticesite) {
         this.box = box;
         this.temperature = temperature;
         this.c = c;
-        this.Rmax = 0.25;
+        this.msd = msd;
+        this.Rmax = Math.sqrt(msd)*8;
 this.latticesite=latticesite;
 this.rivector =box.getSpace().makeVector();
         xDataSource = new DataSourceUniform("x", Length.DIMENSION);

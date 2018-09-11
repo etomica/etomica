@@ -77,14 +77,17 @@ public class MappedSingletDensity extends Simulation {
         AtomType atomType = species.getLeafType();
         potentialMaster.addPotential(p2, new AtomType[]{atomType, atomType});
 //SINE IS ACTUALLY LN(2+SIN)
-         if (params.field==Field.SINE || params.field==Field.PHISINEPSINESUM) {       //AS FOR PHISINEPSINESUM EXTERNAL POT IS LN(2+SIN)-SAME AS FIELD.SINE
+         if (params.field==Field.SINE || params.field==Field.PHISINEPSINESUM || params.field == Field.UNIFORM) {       //AS FOR PHISINEPSINESUM EXTERNAL POT IS LN(2+SIN)-SAME AS FIELD.SINE
             P1Sine p1 = new P1Sine(space, 5, params.temperature);
             potentialMaster.addPotential(p1, new AtomType[]{atomType});
-        } else if (params.field == Field.PARABOLIC || params.field == Field.PHIPARABOLICPSUMOFGAUSSIANS || params.field==Field.UNIFORM || params.field==Field.PHIARGPT5PARABOLICPSINESUM) {
+        } else if (params.field == Field.PARABOLIC || params.field == Field.PHIPARABOLICPSUMOFGAUSSIANS || params.field==Field.PHIARGPT5PARABOLICPSINESUM) {
             P1Parabolic p1 = new P1Parabolic(space);
             potentialMaster.addPotential(p1, new AtomType[]{atomType});
         } else if (params.field == Field.LNPARABOLIC  || params.field==Field.PHILNPARABOLICPFOURIERSUM) {
              P1Lnparabolic p1 = new P1Lnparabolic(space, params.temperature);
+             potentialMaster.addPotential(p1, new AtomType[]{atomType});
+         } else if (params.field == Field.EXPMINUSZSQ) {
+             P1EXP p1 = new P1EXP(space);
              potentialMaster.addPotential(p1, new AtomType[]{atomType});
          }
 
@@ -108,14 +111,16 @@ public class MappedSingletDensity extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-      //      params.field = Field.SINE;
+       //     params.field = Field.SINE;
       //         params.field = Field.PARABOLIC;
-            params.field = Field.PHIPARABOLICPSUMOFGAUSSIANS;
-       //        params.field = Field.PHISINEPSINESUM;
-     //       params.field = Field.UNIFORM;
+        //    params.field = Field.PHIPARABOLICPSUMOFGAUSSIANS;
+               params.field = Field.PHISINEPSINESUM;
        //     params.field=Field.PHIARGPT5PARABOLICPSINESUM;
        //     params.field = Field.LNPARABOLIC;
         //    params.field = Field.PHILNPARABOLICPFOURIERSUM;
+       //     params.field = Field.UNIFORM;
+            //   params.field = Field.EXPMINUSZSQ;
+
             // modify parameters here for interactive testing
         }
 
@@ -185,7 +190,7 @@ public class MappedSingletDensity extends Simulation {
 //        if(params.temperature==5.0 && params.density==0.875) { a1	=	1.315;a2	=	31.42;a3	=	1.473;a4	=	-36.17;b1	=	2.429;b2	=	0.0000438;b3	=	1.616;b4	=	0.2096;c1	=	0.3507;c2	=	0.6199;c3	=	0.4191;c4	=	0.5117; }
 //ADD AT DENSITY 1
 
-
+//FOURIER SUM
         double w=0.0;
         double aa0=0.0;
         double aa1=0.0;
@@ -204,15 +209,14 @@ public class MappedSingletDensity extends Simulation {
         double bb6=0.0;
         double bb7=0.0;
         double bb8=0.0;
-        if(params.temperature==5.0 && params.density==0.125) { aa0	=	0.163;aa1	=	-0.1611;bb1	=	0.002316;w	=	0.3161; }
-        if(params.temperature==5.0 && params.density==0.25) { aa0	=	0.2699;aa1	=	-0.226;bb1	=	-0.001215;aa2	=	-0.03164;bb2	=	0.000017410;w	=	0.452;}
-        if(params.temperature==5.0 && params.density==0.375) { aa0	=	0.3713;aa1	=	-0.2577;bb1	=	-0.0001242;aa2	=	-0.0591;bb2	=	-0.0004511;aa3	=	-0.02903;bb3	=	0.0007041;w	=	0.5803; }
-        if(params.temperature==5.0 && params.density==0.5) { aa0	=	0.497;aa1	=	-0.2496;bb1	=	-0.002978;aa2	=	-0.08614;bb2	=	0.0009408;aa3	=	-0.05285;bb3	=	0.00009303;aa4	=	-0.02467;bb4	=	0.0004671;aa5	=	-0.0191;bb5	=	-0.0002042;w	=	0.6375; }
-        if(params.temperature==5.0 && params.density==0.625) { aa0	=	0.6094;aa1	=	-0.2194;bb1	=	0.0001033;aa2	=	-0.08316;bb2	=	0.0001291;aa3	=	-0.05949;bb3	=	-0.0007456;aa4	=	-0.03628;bb4	=	-0.0001542;aa5	=	-0.02883;bb5	=	-0.002359;aa6	=	-0.02167;bb6	=	0.001621;aa7	=	-0.01387;bb7	=	-0.001378;aa8	=	-0.01515;bb8	=	0.0003271;w	=	0.745; }
-        if(params.temperature==5.0 && params.density==0.75) { aa0	=	0.7342;aa1	=	-0.1708;bb1	=	-0.001283;aa2	=	-0.0687;bb2	=	-0.000631;aa3	=	-0.05176;bb3	=	0.000020330;aa4	=	-0.03543;bb4	=	-0.001902;aa5	=	-0.03444;bb5	=	0.0008964;aa6	=	-0.03727;bb6	=	-0.001505;aa7	=	-0.02758;bb7	=	0.00339;aa8	=	-0.03205;bb8	=	0.002385;w	=	0.8163; }
-        if(params.temperature==5.0 && params.density==0.875) { aa0	=	0.8623;aa1	=	-0.1249;bb1	=	-0.002119;aa2	=	-0.04785;bb2	=	0.0005982;aa3	=	-0.03866;bb3	=	0.0006171;aa4	=	-0.03175;bb4	=	0.0004208;aa5	=	-0.03391;bb5	=	-0.002698;aa6	=	-0.04049;bb6	=	0.0001741;aa7	=	-0.04738;bb7	=	-0.005311;aa8	=	-0.03914;bb8	=	0.001588;w	=	0.8672; }
-        if(params.temperature==5.0 && params.density==1.0){ aa0	=	0.9914;aa1	=	-0.08932;bb1	=	-0.0008935;aa2	=	-0.03311;bb2	=	-0.00003376;aa3	=	-0.02908;bb3	=	0.0009846;aa4	=	-0.02128;bb4	=	-0.00009971;aa5	=	-0.02648;bb5	=	-0.003185;aa6	=	-0.04043;bb6	=	-0.0004319;aa7	=	-0.0536;bb7	=	0.001873;aa8	=	-0.08296;bb8	=	0.008638;w	=	0.8936; }
-
+        if(params.temperature==5.0 && params.density==0.125) { aa0	=	0.124700000;aa1	=	-0.004748000;bb1	=	-0.000047860;aa2	=	-0.003962000;bb2	=	0.000066840;aa3	=	-0.002992000;bb3	=	0.000004400;aa4	=	-0.002137000;bb4	=	0.000073050;aa5	=	-0.001254000;bb5	=	-0.000033180;aa6	=	-0.000778400;bb6	=	-0.000027450;aa7	=	-0.000433600;bb7	=	0.000026760;aa8	=	-0.000246500;bb8	=	0.000043330;w	=	0.448500000; }
+        if(params.temperature==5.0 && params.density==0.25) { aa0	=	0.250100000;aa1	=	-0.007282000;bb1	=	-0.000022140;aa2	=	-0.006333000;bb2	=	-0.000147300;aa3	=	-0.004818000;bb3	=	0.000255200;aa4	=	-0.002671000;bb4	=	-0.000231700;aa5	=	-0.001823000;bb5	=	-0.000345900;aa6	=	-0.000950700;bb6	=	-0.000041880;aa7	=	-0.000389300;bb7	=	0.000185600;aa8	=	-0.000304900;bb8	=	-0.000273400;w	=	0.491400000; }
+        if(params.temperature==5.0 && params.density==0.375) { aa0	=	0.375000000;aa1	=	-0.008432000;bb1	=	0.001360000;aa2	=	-0.006944000;bb2	=	-0.000718100;aa3	=	-0.005082000;bb3	=	0.000411600;aa4	=	-0.002238000;bb4	=	-0.000439300;aa5	=	-0.001487000;bb5	=	0.000502500;aa6	=	-0.000701700;bb6	=	0.000325200;aa7	=	0.000003404;bb7	=	0.000097250;aa8	=	0.000231700;bb8	=	0.000142900;w	=	0.565900000; }
+        if(params.temperature==5.0 && params.density==0.5) { aa0	=	0.500100000;aa1	=	-0.007932000;bb1	=	0.001553000;aa2	=	-0.004792000;bb2	=	0.000292000;aa3	=	-0.003789000;bb3	=	-0.000185600;aa4	=	-0.002862000;bb4	=	0.000376800;aa5	=	-0.001774000;bb5	=	-0.000787800;aa6	=	-0.000795400;bb6	=	-0.000007208;aa7	=	-0.000139200;bb7	=	0.000006755;aa8	=	0.000238400;bb8	=	0.000078790;w	=	0.618300000; }
+        if(params.temperature==5.0 && params.density==0.625) { aa0	=	0.625000000;aa1	=	-0.006388000;bb1	=	0.001690000;aa2	=	-0.005215000;bb2	=	0.000550800;aa3	=	-0.002219000;bb3	=	0.000579800;aa4	=	-0.003402000;bb4	=	0.000770600;aa5	=	-0.001442000;bb5	=	-0.000147100;aa6	=	-0.001351000;bb6	=	-0.000733100;aa7	=	0.000171400;bb7	=	-0.000578300;aa8	=	0.000080490;bb8	=	0.000154300;w	=	0.658500000; }
+        if(params.temperature==5.0 && params.density==0.75) { aa0	=	0.750000000;aa1	=	-0.007309000;bb1	=	-0.003973000;aa2	=	-0.006042000;bb2	=	-0.001989000;aa3	=	-0.000348100;bb3	=	-0.002074000;aa4	=	-0.002198000;bb4	=	-0.000535500;aa5	=	-0.000049120;bb5	=	-0.000008381;aa6	=	0.001013000;bb6	=	0.001290000;aa7	=	-0.000416200;bb7	=	-0.000802300;w	=	0.741200000; }
+        if(params.temperature==5.0 && params.density==0.875) { aa0	=	0.874800000;aa1	=	-0.005123000;bb1	=	-0.013320000;aa2	=	-0.006292000;bb2	=	0.000337900;aa3	=	-0.001784000;bb3	=	0.000150300;aa4	=	-0.001172000;bb4	=	0.001691000;aa5	=	0.000588800;bb5	=	0.000881900;aa6	=	-0.001800000;bb6	=	-0.000843700;aa7	=	0.002573000;bb7	=	-0.000501800;aa8	=	0.000766900;bb8	=	0.000112700;w	=	0.711500000; }
+        if(params.temperature==5.0 && params.density==1.0) { aa0	=	1.0;aa1	=	-0.016120000;bb1	=	0.004948000;aa2	=	0.000768600;bb2	=	0.005620000;aa3	=	-0.007674000;bb3	=	0.002280000;aa4	=	-0.001069000;bb4	=	-0.002247000;aa5	=	0.000506000;bb5	=	-0.001660000;aa6	=	0.002331000;bb6	=	-0.000510100;aa7	=	0.001027000;bb7	=	-0.003227000;aa8	=	-0.002271000;bb8	=	0.003299000;w	=	0.776200000; }
 
         double sa1=0.0;
         double sa2=0.0;
@@ -270,7 +274,7 @@ public class MappedSingletDensity extends Simulation {
         MeterProfileByVolume densityMeter = new MeterProfileByVolume(sim.space);
         densityMeter.setBox(sim.box());
         densityMeter.setProfileDim(2);
-        densityMeter.getXDataSource().setNValues(500);  //conventional bins=100
+        densityMeter.getXDataSource().setNValues(params.bins);  //conventional bins=100
         densityMeter.reset();
 
         MeterNMolecules meterNMolecules = new MeterNMolecules();
@@ -281,7 +285,7 @@ public class MappedSingletDensity extends Simulation {
 
         MeterProfileForceSum densityMeterForce = new MeterProfileForceSum(sim.box(), sim.potentialMaster, params.temperature);
         densityMeterForce.setProfileDim(2);
-        densityMeterForce.getXDataSource().setNValues(500);  //pap bins=1000
+        densityMeterForce.getXDataSource().setNValues(params.bins);  //pap bins=1000
         densityMeterForce.reset();
         AccumulatorAverageFixed accForce = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumpForce = new DataPumpListener(densityMeterForce, accForce, interval);
@@ -308,8 +312,8 @@ public class MappedSingletDensity extends Simulation {
             case PHISINEPSINESUM:
                 f = new FunctionPhisinepsinesum(L,aa,bb,cc);
                 break;
-            case PHILNPARABOLICPFOURIERSUM:
-                f = new FunctionPhilnparabolicpfouriersum(L,aa0,aa1,aa2,aa3,aa4,aa5,aa6,aa7,aa8,bb1,bb2,bb3,bb4,bb5,bb6,bb7,bb8,w);
+            case EXPMINUSZSQ:
+                f = new FunctionExpminuszsq(L,aa0,aa1,aa2,aa3,aa4,aa5,aa6,aa7,aa8,bb1,bb2,bb3,bb4,bb5,bb6,bb7,bb8,w);
                 break;
             case PHIARGPT5PARABOLICPSINESUM:
                 f = new FunctionPhiargpt5parabolicpsinesum(L,sa1,sb1,sc1,sa2,sb2,sc2,sa3,sb3,sc3,sa4,sb4,sc4,sa5,sb5,sc5,sa6,sb6,sc6,sa7,sb7,sc7,sa8,sb8,sc8);
@@ -319,7 +323,7 @@ public class MappedSingletDensity extends Simulation {
         }
         MeterProfileMappedAvg densityMeterMappedAvg = new MeterProfileMappedAvg(sim.box(), sim.potentialMaster, params.temperature, f);
         densityMeterMappedAvg.setProfileDim(2);
-        densityMeterMappedAvg.getXDataSource().setNValues(500);  //mappedavg bins=1000
+        densityMeterMappedAvg.getXDataSource().setNValues(params.bins);  //mappedavg bins=1000
         densityMeterMappedAvg.reset();
         AccumulatorAverageFixed accMappedAvg = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumpMappedAvg = new DataPumpListener(densityMeterMappedAvg, accMappedAvg, 5 * params.numAtoms);
@@ -355,12 +359,14 @@ public class MappedSingletDensity extends Simulation {
             else {
             //    params.field = Field.SINE;
            //         params.field = Field.PARABOLIC;
-                params.field = Field.PHIPARABOLICPSUMOFGAUSSIANS;
-           //      params.field = Field.PHISINEPSINESUM;
-          //    params.field = Field.UNIFORM;
+            //    params.field = Field.PHIPARABOLICPSUMOFGAUSSIANS;
+                 params.field = Field.PHISINEPSINESUM;
+           //   params.field = Field.UNIFORM;
           //      params.field=Field.PHIARGPT5PARABOLICPSINESUM;
                 //      params.field = Field.LNPARABOLIC;
          //       params.field = Field.PHILNPARABOLICPFOURIERSUM;
+             //   params.field = Field.EXPMINUSZSQ;
+
                 // modify parameters here for interactive testing
             }
 
@@ -431,15 +437,14 @@ public class MappedSingletDensity extends Simulation {
             double bb6=0.0;
             double bb7=0.0;
             double bb8=0.0;
-            if(params.temperature==5.0 && params.density==0.125) { aa0	=	0.163;aa1	=	-0.1611;bb1	=	0.002316;w	=	0.3161; }
-            if(params.temperature==5.0 && params.density==0.25) { aa0	=	0.2699;aa1	=	-0.226;bb1	=	-0.001215;aa2	=	-0.03164;bb2	=	0.000017410;w	=	0.452;}
-            if(params.temperature==5.0 && params.density==0.375) { aa0	=	0.3713;aa1	=	-0.2577;bb1	=	-0.0001242;aa2	=	-0.0591;bb2	=	-0.0004511;aa3	=	-0.02903;bb3	=	0.0007041;w	=	0.5803; }
-            if(params.temperature==5.0 && params.density==0.5) { aa0	=	0.497;aa1	=	-0.2496;bb1	=	-0.002978;aa2	=	-0.08614;bb2	=	0.0009408;aa3	=	-0.05285;bb3	=	0.00009303;aa4	=	-0.02467;bb4	=	0.0004671;aa5	=	-0.0191;bb5	=	-0.0002042;w	=	0.6375; }
-            if(params.temperature==5.0 && params.density==0.625) { aa0	=	0.6094;aa1	=	-0.2194;bb1	=	0.0001033;aa2	=	-0.08316;bb2	=	0.0001291;aa3	=	-0.05949;bb3	=	-0.0007456;aa4	=	-0.03628;bb4	=	-0.0001542;aa5	=	-0.02883;bb5	=	-0.002359;aa6	=	-0.02167;bb6	=	0.001621;aa7	=	-0.01387;bb7	=	-0.001378;aa8	=	-0.01515;bb8	=	0.0003271;w	=	0.745; }
-            if(params.temperature==5.0 && params.density==0.75) { aa0	=	0.7342;aa1	=	-0.1708;bb1	=	-0.001283;aa2	=	-0.0687;bb2	=	-0.000631;aa3	=	-0.05176;bb3	=	0.000020330;aa4	=	-0.03543;bb4	=	-0.001902;aa5	=	-0.03444;bb5	=	0.0008964;aa6	=	-0.03727;bb6	=	-0.001505;aa7	=	-0.02758;bb7	=	0.00339;aa8	=	-0.03205;bb8	=	0.002385;w	=	0.8163; }
-            if(params.temperature==5.0 && params.density==0.875) { aa0	=	0.8623;aa1	=	-0.1249;bb1	=	-0.002119;aa2	=	-0.04785;bb2	=	0.0005982;aa3	=	-0.03866;bb3	=	0.0006171;aa4	=	-0.03175;bb4	=	0.0004208;aa5	=	-0.03391;bb5	=	-0.002698;aa6	=	-0.04049;bb6	=	0.0001741;aa7	=	-0.04738;bb7	=	-0.005311;aa8	=	-0.03914;bb8	=	0.001588;w	=	0.8672; }
-            if(params.temperature==5.0 && params.density==1.0){ aa0	=	0.9914;aa1	=	-0.08932;bb1	=	-0.0008935;aa2	=	-0.03311;bb2	=	-0.00003376;aa3	=	-0.02908;bb3	=	0.0009846;aa4	=	-0.02128;bb4	=	-0.00009971;aa5	=	-0.02648;bb5	=	-0.003185;aa6	=	-0.04043;bb6	=	-0.0004319;aa7	=	-0.0536;bb7	=	0.001873;aa8	=	-0.08296;bb8	=	0.008638;w	=	0.8936; }
-
+            if(params.temperature==5.0 && params.density==0.125) { aa0	=	0.124700000;aa1	=	-0.004748000;bb1	=	-0.000047860;aa2	=	-0.003962000;bb2	=	0.000066840;aa3	=	-0.002992000;bb3	=	0.000004400;aa4	=	-0.002137000;bb4	=	0.000073050;aa5	=	-0.001254000;bb5	=	-0.000033180;aa6	=	-0.000778400;bb6	=	-0.000027450;aa7	=	-0.000433600;bb7	=	0.000026760;aa8	=	-0.000246500;bb8	=	0.000043330;w	=	0.448500000; }
+            if(params.temperature==5.0 && params.density==0.25) { aa0	=	0.250100000;aa1	=	-0.007282000;bb1	=	-0.000022140;aa2	=	-0.006333000;bb2	=	-0.000147300;aa3	=	-0.004818000;bb3	=	0.000255200;aa4	=	-0.002671000;bb4	=	-0.000231700;aa5	=	-0.001823000;bb5	=	-0.000345900;aa6	=	-0.000950700;bb6	=	-0.000041880;aa7	=	-0.000389300;bb7	=	0.000185600;aa8	=	-0.000304900;bb8	=	-0.000273400;w	=	0.491400000; }
+            if(params.temperature==5.0 && params.density==0.375) { aa0	=	0.375000000;aa1	=	-0.008432000;bb1	=	0.001360000;aa2	=	-0.006944000;bb2	=	-0.000718100;aa3	=	-0.005082000;bb3	=	0.000411600;aa4	=	-0.002238000;bb4	=	-0.000439300;aa5	=	-0.001487000;bb5	=	0.000502500;aa6	=	-0.000701700;bb6	=	0.000325200;aa7	=	0.000003404;bb7	=	0.000097250;aa8	=	0.000231700;bb8	=	0.000142900;w	=	0.565900000; }
+            if(params.temperature==5.0 && params.density==0.5) { aa0	=	0.500100000;aa1	=	-0.007932000;bb1	=	0.001553000;aa2	=	-0.004792000;bb2	=	0.000292000;aa3	=	-0.003789000;bb3	=	-0.000185600;aa4	=	-0.002862000;bb4	=	0.000376800;aa5	=	-0.001774000;bb5	=	-0.000787800;aa6	=	-0.000795400;bb6	=	-0.000007208;aa7	=	-0.000139200;bb7	=	0.000006755;aa8	=	0.000238400;bb8	=	0.000078790;w	=	0.618300000; }
+            if(params.temperature==5.0 && params.density==0.625) { aa0	=	0.625000000;aa1	=	-0.006388000;bb1	=	0.001690000;aa2	=	-0.005215000;bb2	=	0.000550800;aa3	=	-0.002219000;bb3	=	0.000579800;aa4	=	-0.003402000;bb4	=	0.000770600;aa5	=	-0.001442000;bb5	=	-0.000147100;aa6	=	-0.001351000;bb6	=	-0.000733100;aa7	=	0.000171400;bb7	=	-0.000578300;aa8	=	0.000080490;bb8	=	0.000154300;w	=	0.658500000; }
+            if(params.temperature==5.0 && params.density==0.75) { aa0	=	0.750000000;aa1	=	-0.007309000;bb1	=	-0.003973000;aa2	=	-0.006042000;bb2	=	-0.001989000;aa3	=	-0.000348100;bb3	=	-0.002074000;aa4	=	-0.002198000;bb4	=	-0.000535500;aa5	=	-0.000049120;bb5	=	-0.000008381;aa6	=	0.001013000;bb6	=	0.001290000;aa7	=	-0.000416200;bb7	=	-0.000802300;w	=	0.741200000; }
+            if(params.temperature==5.0 && params.density==0.875) { aa0	=	0.874800000;aa1	=	-0.005123000;bb1	=	-0.013320000;aa2	=	-0.006292000;bb2	=	0.000337900;aa3	=	-0.001784000;bb3	=	0.000150300;aa4	=	-0.001172000;bb4	=	0.001691000;aa5	=	0.000588800;bb5	=	0.000881900;aa6	=	-0.001800000;bb6	=	-0.000843700;aa7	=	0.002573000;bb7	=	-0.000501800;aa8	=	0.000766900;bb8	=	0.000112700;w	=	0.711500000; }
+            if(params.temperature==5.0 && params.density==1.0) { aa0	=	1.0;aa1	=	-0.016120000;bb1	=	0.004948000;aa2	=	0.000768600;bb2	=	0.005620000;aa3	=	-0.007674000;bb3	=	0.002280000;aa4	=	-0.001069000;bb4	=	-0.002247000;aa5	=	0.000506000;bb5	=	-0.001660000;aa6	=	0.002331000;bb6	=	-0.000510100;aa7	=	0.001027000;bb7	=	-0.003227000;aa8	=	-0.002271000;bb8	=	0.003299000;w	=	0.776200000; }
 
             double sa1=0.0;
             double sa2=0.0;
@@ -515,8 +520,8 @@ public class MappedSingletDensity extends Simulation {
                 case PHIPARABOLICPSUMOFGAUSSIANS:
                     f = new FunctionPhiparabolicpsumofgaussians(L,a1,b1,c1,a2,b2,c2,a3,b3,c3,a4,b4,c4,a5,b5,c5);
                     break;
-                case PHILNPARABOLICPFOURIERSUM:
-                    f = new FunctionPhilnparabolicpfouriersum(L,aa0,aa1,aa2,aa3,aa4,aa5,aa6,aa7,aa8,bb1,bb2,bb3,bb4,bb5,bb6,bb7,bb8,w);
+                case EXPMINUSZSQ:
+                    f = new FunctionExpminuszsq(L,aa0,aa1,aa2,aa3,aa4,aa5,aa6,aa7,aa8,bb1,bb2,bb3,bb4,bb5,bb6,bb7,bb8,w);
                     break;
                 case PHIARGPT5PARABOLICPSINESUM:
                     f = new FunctionPhiargpt5parabolicpsinesum(L,sa1,sb1,sc1,sa2,sb2,sc2,sa3,sb3,sc3,sa4,sb4,sc4,sa5,sb5,sc5,sa6,sb6,sc6,sa7,sb7,sc7,sa8,sb8,sc8);
@@ -614,14 +619,15 @@ public class MappedSingletDensity extends Simulation {
     }
 
     enum Field {
-        SINE, UNIFORM, PARABOLIC, PHISINEPSINESUM, PHIPARABOLICPSUMOFGAUSSIANS, LNPARABOLIC, PHILNPARABOLICPFOURIERSUM,PHIARGPT5PARABOLICPSINESUM
+        SINE, UNIFORM, PARABOLIC, PHISINEPSINESUM, PHIPARABOLICPSUMOFGAUSSIANS, LNPARABOLIC, PHILNPARABOLICPFOURIERSUM,PHIARGPT5PARABOLICPSINESUM,EXPMINUSZSQ
     }
 
     public static class SimParams extends ParameterBase {
-        public long steps = 75000000;
+        public long steps = 100000000;
         public double density = 0.5;
-        public double temperature = 5.0;
+        public int bins = 100;
+        public double temperature = 5;
         public int numAtoms = 500;
-        public Field field = Field.PHIPARABOLICPSUMOFGAUSSIANS;
+        public Field field = Field.PHISINEPSINESUM;
     }
 }
