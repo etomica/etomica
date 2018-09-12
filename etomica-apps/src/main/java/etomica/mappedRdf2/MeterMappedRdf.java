@@ -16,17 +16,16 @@ import etomica.units.Null;
 
 import java.io.Serializable;
 
-/**
- * Created by aksharag on 5/16/17.
- */
 public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIndependent, Serializable, AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> {
 
     protected final PotentialCalculationForceSum pcForce;
     protected final AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager;
+    protected final double temperature;
 
-    public MeterMappedRdf(Space space, PotentialMaster potentialMaster, Box box, int nbins) {
+    public MeterMappedRdf(Space space, PotentialMaster potentialMaster, Box box, int nbins, double temperature) {
         this.space = space;
         this.box = box;
+        this.temperature = temperature;
 
         this.potentialMaster = potentialMaster;
 
@@ -108,6 +107,7 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
         long numAtoms = box.getLeafList().getAtomCount();
         numAtomPairs = numAtoms * (numAtoms - 1) / 2;
         double norm = numAtomPairs * callCount / box.getBoundary().volume();
+
         double[] r = rData.getData();
         double dx2 = 0.5 * (xMax - xDataSource.getXMin()) / r.length;
         double[] gSum = pc.getGSum();
@@ -121,7 +121,7 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
 
 //            y[i] = gR[i];
 
-            y[i] = 1 + (gSum[i] / (norm)) / (2 * 4 * Math.PI);
+            y[i] = 1 + (gSum[i] / (temperature*norm)) / (2 );
 //            y[i] = gSum[i];
 
 

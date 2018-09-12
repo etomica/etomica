@@ -26,9 +26,6 @@ import etomica.util.ParseArgs;
 
 import java.io.IOException;
 
-/**
- * Created by aksharag on 5/15/17.
- */
 public class MappedRdf extends Simulation {
 
     public SpeciesSpheresMono species;
@@ -72,9 +69,7 @@ public class MappedRdf extends Simulation {
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
         integrator.setBox(box);
         potentialMaster.setCellRange(2);
-
         potentialMaster.getNbrCellManager(box).assignCellAll();
-
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
     }
 
@@ -84,14 +79,14 @@ public class MappedRdf extends Simulation {
 
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
-        } else {
-            params.temperature = 2.0;
-            params.density = 0.01;
-            params.numSteps = 1000000;
-            params.rc = 4;
-            params.numAtoms = 1000;
-
         }
+        //else {
+        //    params.temperature = 50000.0;
+        //    params.density = 0.01;
+        //    params.numSteps = 10000;
+        //    params.rc = 4;
+        //    params.numAtoms = 100;
+        //}
 
         int numAtoms = params.numAtoms;
         double temperature = params.temperature;
@@ -101,14 +96,11 @@ public class MappedRdf extends Simulation {
         boolean graphics = false;
         boolean computeR = params.computeR;
         boolean computeRMA = params.computeRMA;
-
         int nBlocks = params.nBlocks;
-
 
         Space space = Space.getInstance(3);
 
         MappedRdf sim = new MappedRdf(space, numAtoms, temperature, density, rc);
-
         MeterRDF meterRDF = null;
         MeterMappedRdf meterMappedRdf = null;
 
@@ -122,7 +114,6 @@ public class MappedRdf extends Simulation {
             meterRDF.setBox(sim.box);
             meterRDF.getXDataSource().setNValues(nbins);
             meterRDF.getXDataSource().setXMax(eqncutoff);
-
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
 
             DisplayPlot rdfPlot = new DisplayPlot();
@@ -158,7 +149,7 @@ public class MappedRdf extends Simulation {
         meterRDF.getXDataSource().setXMax(eqncutoff);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
 
-        meterMappedRdf = new MeterMappedRdf(space, sim.integrator.getPotentialMaster(), sim.box, nbins);
+        meterMappedRdf = new MeterMappedRdf(space, sim.integrator.getPotentialMaster(), sim.box, nbins,params.temperature);
         meterMappedRdf.setBox(sim.box);
         meterMappedRdf.getXDataSource().setNValues(nbins);
         meterMappedRdf.getXDataSource().setXMax(eqncutoff);
@@ -207,12 +198,12 @@ public class MappedRdf extends Simulation {
 
 
     public static class LJMDParams extends ParameterBase {
-        public int numAtoms = 100;
-        public double temperature = 1.0;
-        public double density = 0.01;
-        public long numSteps = 1000000;
-        public double rc = 4;
-        public int nBlocks = 1000;
+        public int numAtoms = 500;
+        public double temperature = 1.35;
+        public double density = 0.8;
+        public long numSteps = 9000;
+        public double rc = 3;
+        public int nBlocks = 100;
         public boolean computeR = false;
         public boolean computeRMA = true;
     }

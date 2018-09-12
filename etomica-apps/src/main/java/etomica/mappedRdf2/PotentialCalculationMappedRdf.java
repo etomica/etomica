@@ -21,9 +21,7 @@ import etomica.units.Length;
 
 import java.io.IOException;
 
-/**
- * Created by aksharag on 5/16/17.
- */
+
 public class PotentialCalculationMappedRdf implements PotentialCalculation {
     protected final Vector dr;
     protected double[] gSum;
@@ -253,7 +251,9 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
                     double fifj = (fi.dot(dr) - fj.dot(dr)) / (r * r * r);
                     double xu = R < r ? 1 : 0; //calcXu(r, u, R);
                     double wp = 0.5 * fifj;
-                    gSum[k] -= xu * wp;               //add once for each atom
+             //       gSum[k] -= ( (xu/(4 * Math.PI)) - (r*r*r/(3*vol)) )* wp;               //add once for each atom
+                    gSum[k] -= ( (xu/(4 * Math.PI)) )* wp;               //add once for each atom
+
                 }
 //                else{
 //                    if(r>R && r<(R+0.01)){
