@@ -252,8 +252,8 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
                     double xu = R < r ? 1 : 0; //calcXu(r, u, R);
                     double wp = 0.5 * fifj;
                 //    gSum[k] -= ((xu/(4 * Math.PI)))* wp*beta;               //add once for each atom
-                 //   gSum[k] -= ((xu/(4 * Math.PI))-(r*r*r/(3*vol)))* wp*beta;               //add once for each atom
-                       gSum[k] -= ((r*r*r/(3*vol)))* wp*beta;               //add once for each atom
+               //     gSum[k] -= ((xu/(4 * Math.PI))-(r*r*r/(3*vol)))* wp*beta;               //add once for each atom
+                       gSum[k] -= ((-r*r*r/(3*vol)))* wp*beta;               //add once for each atom
 
                 }
 //                else{

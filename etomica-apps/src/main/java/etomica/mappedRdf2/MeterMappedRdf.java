@@ -63,6 +63,8 @@ public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent
     public void reset() {
         rData = (DataDoubleArray) xDataSource.getData();
         xMax = xDataSource.getXMax();
+        pc.getXDataSource().setNValues(rData.getLength());
+        pc.getXDataSource().setXMax(xMax);
         data = new DataFunction(new int[]{rData.getLength()});
         dataInfo = new DataFunction.DataInfoFunction("g(r)", Null.DIMENSION, this);
         dataInfo.addTag(tag);
@@ -74,19 +76,20 @@ public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent
      * meter was reset or had some parameter changed (xMax or # of bins).
      */
     public IData getData() {
-
         if (rData != xDataSource.getData() ||
                 data.getLength() != rData.getLength() ||
                 xDataSource.getXMax() != xMax) {
             reset();
         }
         pcForce.reset();
+        pc.reset();
         potentialMaster.calculate(box, allAtoms, pcForce);
 
         potentialMaster.calculate(box, allAtoms, pc);
 
 
         final double[] y = data.getData();
+
         long numAtomPairs = 0;
         long numAtoms = box.getLeafList().getAtomCount();
         numAtomPairs = numAtoms * (numAtoms - 1)/2 ;
@@ -96,7 +99,7 @@ public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent
         double[] gSum = pc.getGSum();
         double[] gR = pc.gR();
 
-        System.out.println("metervol " + box.getBoundary().volume());
+  //      System.out.println("metervol " + box.getBoundary().volume());
 
         for (int i = 0; i < r.length; i++) {
 //            double vShell = space.sphereVolume(r[i]+dx2)-space.sphereVolume(r[i]-dx2);
@@ -109,7 +112,7 @@ public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent
 
 
         }
-        System.out.println(y[10]);
+ //       System.out.println(y[10]);
         return data;
     }
 

@@ -81,9 +81,9 @@ public class MappedRdf extends Simulation {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.temperature = 5000.0;
+            params.temperature = 1.0;
             params.density = 0.01;
-            params.numSteps = 300000;
+            params.numSteps = 100000;
             params.rc = 4;
             params.numAtoms = 500;
 
@@ -105,7 +105,7 @@ public class MappedRdf extends Simulation {
 
         MappedRdf sim = new MappedRdf(space, numAtoms, temperature, density, rc);
 
-        MeterRDF meterRDF = null;
+        MeterRDF  meterRDF = null;
         MeterMappedRdf meterMappedRdf = null;
 
         double halfBoxlength = sim.box.getBoundary().getBoxSize().getX(0) / 2;

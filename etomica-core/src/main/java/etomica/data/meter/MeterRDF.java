@@ -137,6 +137,9 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
             iterator.setBox(box);
             iterator.reset();
             // iterate over all pairs
+for(int i=0; i<gSum.length; i++) {
+    gSum[i] = 0;
+}
             for (IAtomList pair = iterator.next(); pair != null;
                  pair = iterator.next()) {
                 if (type1 != null && (pair.getAtom(0).getType() != type1 || pair.getAtom(1).getType() != type2)) continue;
@@ -163,14 +166,17 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
                 numAtomPairs++;
             }
         }
-	    double norm = numAtomPairs * callCount / box.getBoundary().volume();
+	    if (singlesample) {callCount=1;}
+        double norm = numAtomPairs * callCount / box.getBoundary().volume();
 	    double[] r = rData.getData();
 	    double dx2 = 0.5*(xMax - xDataSource.getXMin())/r.length;
 	    for(int i=0;i<r.length; i++) {
 	        double vShell = space.sphereVolume(r[i]+dx2)-space.sphereVolume(r[i]-dx2);
 	        y[i] = gSum[i] / (norm*vShell);
+
 	    }
-	    return data;
+	//   System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" +y[90]);
+	     return data;
 	}
     
     public DataSourceUniform getXDataSource() {
