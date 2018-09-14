@@ -39,8 +39,11 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
 	 * @param space
 	 */
     public MeterRDF(Space space) {
+        this(space, false);
+    }
+    public MeterRDF(Space space,boolean singlesample){
 	    this.space = space;
-
+        this.singlesample=singlesample;
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
         xDataSource.setTypeMax(LimitType.HALF_STEP);
         xDataSource.setTypeMin(LimitType.HALF_STEP);
@@ -120,14 +123,32 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
      * meter was reset or had some parameter changed (xMax or # of bins).
 	 */
 	public IData getData() {
+
         if (rData != xDataSource.getData() ||
             data.getLength() != rData.getLength() ||
             xDataSource.getXMax() != xMax) {
             reset();
             //that zeroed everything.  just return the zeros.
-            return data;
+            if(!singlesample) return data;
+
         }
-        
+        if(singlesample){
+            double xMaxSquared = xMax*xMax;
+            iterator.setBox(box);
+            iterator.reset();
+            // iterate over all pairs
+            for (IAtomList pair = iterator.next(); pair != null;
+                 pair = iterator.next()) {
+                if (type1 != null && (pair.getAtom(0).getType() != type1 || pair.getAtom(1).getType() != type2)) continue;
+                dr.Ev1Mv2(pair.getAtom(1).getPosition(),pair.getAtom(0).getPosition());
+                boundary.nearestImage(dr);
+                double r2 = dr.squared();       //compute pair separation
+                if(r2 < xMaxSquared) {
+                    int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
+                    gSum[index]++;                        //add once for each atom
+                }
+            }
+        }
         final double[] y = data.getData();
         long numAtomPairs = 0;
         if (type1 == null) {
@@ -210,4 +231,5 @@ public class MeterRDF implements IAction, IEtomicaDataSource, DataSourceIndepend
     protected final DataTag tag;
     protected long callCount;
     protected IAtomType type1, type2;
+    protected boolean singlesample;
 }

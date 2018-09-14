@@ -16,16 +16,14 @@ import etomica.units.Null;
 
 import java.io.Serializable;
 
-public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIndependent, Serializable, AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> {
+public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent, Serializable, AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> {
 
     protected final PotentialCalculationForceSum pcForce;
     protected final AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager;
-    protected final double temperature;
 
-    public MeterMappedRdf(Space space, PotentialMaster potentialMaster, Box box, int nbins, double temperature) {
+    public MeterMappedRdf(Space space, PotentialMaster potentialMaster, Box box, int nbins) {
         this.space = space;
         this.box = box;
-        this.temperature = temperature;
 
         this.potentialMaster = potentialMaster;
 
@@ -68,14 +66,15 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
         data = new DataFunction(new int[]{rData.getLength()});
         dataInfo = new DataFunction.DataInfoFunction("g(r)", Null.DIMENSION, this);
         dataInfo.addTag(tag);
-        callCount = 0;
-        pc.reset();
     }
 
+
     /**
-     * Takes the RDF for the current configuration of the given box.
+     * Returns the RDF, averaged over the calls to actionPerformed since the
+     * meter was reset or had some parameter changed (xMax or # of bins).
      */
-    public void actionPerformed() {
+    public IData getData() {
+
         if (rData != xDataSource.getData() ||
                 data.getLength() != rData.getLength() ||
                 xDataSource.getXMax() != xMax) {
@@ -86,28 +85,12 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
 
         potentialMaster.calculate(box, allAtoms, pc);
 
-        callCount++;
-    }
-
-    /**
-     * Returns the RDF, averaged over the calls to actionPerformed since the
-     * meter was reset or had some parameter changed (xMax or # of bins).
-     */
-    public IData getData() {
-        if (rData != xDataSource.getData() ||
-                data.getLength() != rData.getLength() ||
-                xDataSource.getXMax() != xMax) {
-            reset();
-            //that zeroed everything.  just return the zeros.
-            return data;
-        }
 
         final double[] y = data.getData();
         long numAtomPairs = 0;
         long numAtoms = box.getLeafList().getAtomCount();
-        numAtomPairs = numAtoms * (numAtoms - 1) / 2;
-        double norm = numAtomPairs * callCount / box.getBoundary().volume();
-
+        numAtomPairs = numAtoms * (numAtoms - 1)/2 ;
+        double norm = numAtomPairs  / box.getBoundary().volume();
         double[] r = rData.getData();
         double dx2 = 0.5 * (xMax - xDataSource.getXMin()) / r.length;
         double[] gSum = pc.getGSum();
@@ -121,11 +104,12 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
 
 //            y[i] = gR[i];
 
-            y[i] = 1 + (gSum[i] / (temperature*norm)) / (2 );
-//            y[i] = gSum[i];
+       //     y[i] = 1 + (gSum[i] / (norm)) / (2 );
+                y[i] = 1 + (gSum[i] / (norm)) ;
 
 
         }
+        System.out.println(y[10]);
         return data;
     }
 
@@ -187,7 +171,6 @@ public class MeterMappedRdf implements IAction, IEtomicaDataSource, DataSourceIn
     protected double xMax;
     private String name;
     protected final DataTag tag;
-    protected long callCount;
     protected final PotentialMaster potentialMaster;
     protected final PotentialCalculationMappedRdf pc;
 
