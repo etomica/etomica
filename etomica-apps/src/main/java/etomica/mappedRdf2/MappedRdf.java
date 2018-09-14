@@ -83,8 +83,8 @@ public class MappedRdf extends Simulation {
         } else {
             params.temperature = 1.0;
             params.density = 0.01;
-            params.numSteps = 100000;
-            params.rc = 4;
+            params.numSteps = 10000000;
+            params.rc = 3;
             params.numAtoms = 500;
 
         }
@@ -213,11 +213,11 @@ public class MappedRdf extends Simulation {
 
 
     public static class LJMDParams extends ParameterBase {
-        public int numAtoms = 100;
+        public int numAtoms = 500;
         public double temperature = 1.0;
         public double density = 0.01;
-        public long numSteps = 1000000;
-        public double rc = 4;
+        public long numSteps = 10000000;
+        public double rc = 3;
         public int nBlocks = 100;
         public boolean computeR = false;
         public boolean computeRMA = true;

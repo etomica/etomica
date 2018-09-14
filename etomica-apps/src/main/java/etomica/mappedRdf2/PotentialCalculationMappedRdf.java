@@ -243,17 +243,15 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
             int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
             for (int k = 0; k < xDataSource.getData().getLength(); k++) {
                 double R = xDataSource.getData().getValue(k);
-                // System.out.println("R "+ R);
-                if (R < x0) {
+                 if (R < x0) {
                     Vector fi = forceManager.getAgent(atom0).force;
                     Vector fj = forceManager.getAgent(atom1).force;
-                    //  System.out.println(u+" "+r);
-                    double fifj = (fi.dot(dr) - fj.dot(dr)) / (r * r * r);
+                     double fifj = (fi.dot(dr) - fj.dot(dr)) / (r * r * r);
                     double xu = R < r ? 1 : 0; //calcXu(r, u, R);
                     double wp = 0.5 * fifj;
-                //    gSum[k] -= ((xu/(4 * Math.PI)))* wp*beta;               //add once for each atom
-               //     gSum[k] -= ((xu/(4 * Math.PI))-(r*r*r/(3*vol)))* wp*beta;               //add once for each atom
-                       gSum[k] -= ((-r*r*r/(3*vol)))* wp*beta;               //add once for each atom
+              //      gSum[k] -= ((xu/(4 * Math.PI)))* wp*beta;               //add once for each atom
+                    gSum[k] -= ((xu/(4 * Math.PI))-(r*r*r/(3*vol)))* wp*beta;               //add once for each atom
+               //        gSum[k] -= ((-r*r*r/(3*vol)))* wp*beta;               //add once for each atom
 
                 }
 //                else{

@@ -105,12 +105,7 @@ public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent
 //            double vShell = space.sphereVolume(r[i]+dx2)-space.sphereVolume(r[i]-dx2);
             // y[i] = (gR[i]*callCount+gSum[i])*01/(norm*vShell);
 
-//            y[i] = gR[i];
-
-       //     y[i] = 1 + (gSum[i] / (norm)) / (2 );
-                y[i] = 1 + (gSum[i] / (norm)) ;
-
-
+              y[i] = 1 + (gSum[i] / (norm)) ;
         }
  //       System.out.println(y[10]);
         return data;
