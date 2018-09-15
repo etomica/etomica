@@ -261,6 +261,10 @@ public class ClusterWheatleyMultibodyDerivatives extends ClusterWheatleySoftDeri
             }
             if ((fMulti.length <= l || fMulti[l] == null) && fNonAdditive == null) {
                 fQmulti[i] = 1;
+                double c = Math.log(fQ[i][0])/beta;
+                for(int m=1; m<=nDer;m++){
+                    fQ[i][m]=fQ[i][m-1]*c;      //calculates derivatives of fQ w.r.t. beta
+                }
                 continue;
             }
             int ll = 0;
