@@ -203,6 +203,10 @@ public class ClusterWheatleyMultibodyDerivativesBD extends ClusterWheatleySoftDe
             }
             if ((fMulti.length <= l || fMulti[l] == null) && fNonAdditive == null) {
                 fQmulti[i] = BDONE;
+                BigDecimal c = BDlog((fQ[i][0])).divide(BDbeta,mc);
+                for(int m=1; m<=nDer;m++){
+                    fQ[i][m]=fQ[i][m-1].multiply(c,mc);      //calculates derivatives of fQ w.r.t. beta
+                }
                 continue;
             }
             int ll = 0;
