@@ -16,8 +16,8 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorRigidMatrixIterative;
-import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.OrientationCalcWater4P;
 import etomica.models.water.P2WaterTIP4PSoft;
 import etomica.models.water.SpeciesWater4POriented;
@@ -38,21 +38,20 @@ public class WaterDropletMatrix {
     public static SimulationGraphic makeWaterDroplet() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
-        sim.addBox(box);
         SpeciesWater4POriented species = new SpeciesWater4POriented(sim.getSpace(), true);
         sim.addSpecies(species);
+        Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
+        sim.addBox(box);
         box.setNMolecules(species, 108);
-        box.setDensity(0.7/18.0*Constants.AVOGADRO/1E24);
+        box.setDensity(0.7 / 18.0 * Constants.AVOGADRO / 1E24);
         ConfigurationWater108TIP4P config = new ConfigurationWater108TIP4P();
 //        Configuration config = new ConfigurationLattice(new LatticeCubicFcc(), space);
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.002;
         int maxIterations = 20;
-        IntegratorRigidMatrixIterative integrator = new IntegratorRigidMatrixIterative(sim, potentialMaster, timeInterval, 1, space);
+        IntegratorRigidMatrixIterative integrator = new IntegratorRigidMatrixIterative(sim, potentialMaster, timeInterval, 1, box);
         integrator.printInterval = 100;
         integrator.setMaxIterations(maxIterations);
-        integrator.setBox(box);
         OrientationCalcWater4P calcer = new OrientationCalcWater4P(sim.getSpace());
         species.setConformation(calcer);
         config.initializeCoordinates(box);
@@ -63,15 +62,15 @@ public class WaterDropletMatrix {
         ActivityIntegrate ai = new ActivityIntegrate(integrator);
         sim.getController().addAction(ai);
 
-        P2WaterTIP4PSoft p2Water = new P2WaterTIP4PSoft(sim.getSpace(),Double.POSITIVE_INFINITY,new MoleculePositionCOM(space));
-        potentialMaster.addPotential(p2Water, new ISpecies[]{species,species});
+        P2WaterTIP4PSoft p2Water = new P2WaterTIP4PSoft(sim.getSpace(), Double.POSITIVE_INFINITY, new MoleculePositionCOM(space));
+        potentialMaster.addPotential(p2Water, new ISpecies[]{species, species});
 
         if (false) {
             ai.setSleepPeriod(2);
-            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Matrix", 1, space, sim.getController());
-            ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
-            ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
-    
+            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Matrix", 1);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
+
             MeterEnergy meterE = new MeterEnergy(potentialMaster, box);
             meterE.setKinetic(new MeterKineticEnergyFromIntegrator(integrator));
             meterE.setPotential(new MeterPotentialEnergyFromIntegrator(integrator));

@@ -107,9 +107,9 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             if (g12*g13*g23 != 0) {
                 // Get a handle on the list of atoms from the AtomPairSet
                 atoms.clear();
-                atoms.add(atomSet.getAtom(0));
-                atoms.add(atomSet.getAtom(1));
-                atoms.add(atomSet.getAtom(2));
+                atoms.add(atomSet.get(0));
+                atoms.add(atomSet.get(1));
+                atoms.add(atomSet.get(2));
                 double u123NonAdd = p3NonAdd.energy(atoms);
 
                 //deltaC = Math.exp(-beta*u123) - Math.exp(-beta*(u12 + u13 + u23));
@@ -168,9 +168,9 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             // we need to properly construct these lists even if we don't use them
             // (due to overlaps) because the next list is obtained by removing/adding
             // atoms from this one.
-            atoms.add(atomSet.getAtom(0));
-            atoms.add(atomSet.getAtom(1));
-            atoms.add(atomSet.getAtom(2));
+            atoms.add(atomSet.get(0));
+            atoms.add(atomSet.get(1));
+            atoms.add(atomSet.get(2));
 
             // if 12 13 or 23 is overlapped, then we can't calculate u123Pol and
             // couldn't calculate the uijPol.  Fortunately, gij is 0, so the 123
@@ -200,7 +200,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
 
             atoms.remove(2);
-            atoms.add(atomSet.getAtom(3));
+            atoms.add(atomSet.get(3));
             double exp124NonAdd = 1.0;
             if (g12*g14*g24 != 0) {
                 double u124NonAdd = p3NonAdd.energy(atoms);
@@ -216,7 +216,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
 
             atoms.remove(1);
-            atoms.add(atomSet.getAtom(2));
+            atoms.add(atomSet.get(2));
             double exp134NonAdd = 1.0;
             if (g13*g14*g34 != 0) {
                 double u134NonAdd = p3NonAdd.energy(atoms);
@@ -232,7 +232,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
 
             atoms.remove(0);
-            atoms.add(atomSet.getAtom(1));
+            atoms.add(atomSet.get(1));
             double exp234NonAdd = 1.0;
             if (g23*g24*g34 != 0) {
                 double u234NonAdd = p3NonAdd.energy(atoms);
@@ -248,7 +248,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
 
             
-            atoms.add(atomSet.getAtom(0));
+            atoms.add(atomSet.get(0));
             if (g12*g13*g14*g23*g24*g34 != 0) {
                 double sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0;
                 // e123*e124*e134*e234 - 1 = sum(fij) + sum(pairs of fij) + sum(triplets of fij) + f123*f124*f134*f234
@@ -324,9 +324,9 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             // we need to properly construct these lists even if we don't use them
             // (due to overlaps) because the next list is obtained by removing/adding
             // atoms from this one.
-            atoms.add(atomSet.getAtom(0));
-            atoms.add(atomSet.getAtom(1));
-            atoms.add(atomSet.getAtom(2));  // 123
+            atoms.add(atomSet.get(0));
+            atoms.add(atomSet.get(1));
+            atoms.add(atomSet.get(2));  // 123
 
             double u123NonAdd = 0; 
             if (g12*g13*g23 != 0) {
@@ -351,7 +351,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
             
             atoms.remove(2);
-            atoms.add(atomSet.getAtom(3));  // 124
+            atoms.add(atomSet.get(3));  // 124
 
             double u124NonAdd = 0; 
             if (g12*g14*g24 != 0) {
@@ -369,7 +369,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
 
             atoms.remove(2);
-            atoms.add(atomSet.getAtom(4));  // 125
+            atoms.add(atomSet.get(4));  // 125
 
             double u125NonAdd = 0; 
             if (g12*g15*g25 != 0) {
@@ -387,7 +387,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
 
             atoms.remove(1);
-            atoms.add(atomSet.getAtom(2));  // 153
+            atoms.add(atomSet.get(2));  // 153
             
             double u135NonAdd = 0; 
             if (g13*g15*g35 != 0) {
@@ -413,7 +413,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
 
             atoms.remove(1);
-            atoms.add(atomSet.getAtom(3));  // 134
+            atoms.add(atomSet.get(3));  // 134
             
             double u134NonAdd = 0;
             if (g13*g14*g34 != 0) {
@@ -439,7 +439,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
 
             atoms.remove(1);
-            atoms.add(atomSet.getAtom(4));  // 145
+            atoms.add(atomSet.get(4));  // 145
             
             double u145NonAdd = 0;
             if (g14*g15*g45 != 0) {
@@ -465,7 +465,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
 
             atoms.remove(0);
-            atoms.add(atomSet.getAtom(1));  // 452            
+            atoms.add(atomSet.get(1));  // 452
 
             double u245NonAdd = 0;
             if (g24*g25*g45 != 0) {
@@ -504,7 +504,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
 
             atoms.remove(1);
-            atoms.add(atomSet.getAtom(2));  // 423
+            atoms.add(atomSet.get(2));  // 423
             
             double u234NonAdd = 0;
             if (g23*g24*g34 != 0) {
@@ -543,7 +543,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
 
             atoms.remove(0);
-            atoms.add(atomSet.getAtom(4));  // 235
+            atoms.add(atomSet.get(4));  // 235
          
             double u235NonAdd = 0;
             if (g23*g25*g35 != 0) {
@@ -582,7 +582,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
 
             atoms.remove(0);
-            atoms.add(atomSet.getAtom(3));  // 354
+            atoms.add(atomSet.get(3));  // 354
 
             double u345NonAdd = 0;
             if (g34*g35*g45 != 0) {
@@ -620,7 +620,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
                 }
             }
 
-            atoms.add(atomSet.getAtom(0));  // 3541
+            atoms.add(atomSet.get(0));  // 3541
             if (g13*g14*g15*g34*g35*g45 != 0) {
             	double u1345NonAdd = u135NonAdd + u134NonAdd + u145NonAdd + u345NonAdd ;
                 double beta1345 = u1345NonAdd*beta;
@@ -632,7 +632,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
 
             atoms.remove(1);
-            atoms.add(atomSet.getAtom(1));  // 3412
+            atoms.add(atomSet.get(1));  // 3412
             if (g12*g13*g14*g23*g24*g34 != 0) {
                 double u1234NonAdd = u123NonAdd + u234NonAdd + u124NonAdd + u134NonAdd;
                 double beta1234 = u1234NonAdd*beta;
@@ -644,7 +644,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
 
             atoms.remove(1);
-            atoms.add(atomSet.getAtom(4));  // 3125
+            atoms.add(atomSet.get(4));  // 3125
             if (g12*g13*g15*g23*g25*g35 != 0) {
                 double u1235NonAdd = u123NonAdd + u235NonAdd + u125NonAdd + u135NonAdd;
                 double beta1235 = u1235NonAdd*beta;
@@ -656,7 +656,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
 
             atoms.remove(0);
-            atoms.add(atomSet.getAtom(3));  // 1254
+            atoms.add(atomSet.get(3));  // 1254
             if (g12*g14*g15*g24*g25*g45 != 0) {
                 double u1245NonAdd = u124NonAdd + u245NonAdd + u125NonAdd + u145NonAdd;
                 double beta1245 = u1245NonAdd*beta;
@@ -668,7 +668,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
             }
 
             atoms.remove(0);
-            atoms.add(atomSet.getAtom(2));  // 2543
+            atoms.add(atomSet.get(2));  // 2543
             if (g23*g24*g25*g34*g35*g45 != 0) {
                 double u2345NonAdd = u234NonAdd + u245NonAdd + u235NonAdd + u345NonAdd;
                 double beta2345 = u2345NonAdd*beta;
@@ -679,7 +679,7 @@ public class ClusterSumNonAdditiveTrimerEnergy implements ClusterAbstract, java.
                 deltaE += -exp2345*g23*g24*g25*g34*g35*g45*(f12 + f13 + f14 + f15 + 1);
             }
 
-            atoms.add(atomSet.getAtom(0));  // 25431
+            atoms.add(atomSet.get(0));  // 25431
             if (g12*g13*g14*g15*g23*g24*g25*g34*g35*g45 != 0) {
                 double u12345NonAdd = u123NonAdd + u124NonAdd + u125NonAdd;
                 u12345NonAdd =  u12345NonAdd + u135NonAdd + u134NonAdd + u145NonAdd + u245NonAdd;

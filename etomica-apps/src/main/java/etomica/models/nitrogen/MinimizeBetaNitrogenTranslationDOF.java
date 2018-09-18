@@ -40,57 +40,52 @@ import java.io.IOException;
 public class MinimizeBetaNitrogenTranslationDOF extends Simulation {
 	
 
-	public MinimizeBetaNitrogenTranslationDOF(Space space, int[] nC, double density, String fname, double tol){
+	public MinimizeBetaNitrogenTranslationDOF(Space space, int[] nC, double density, String fname, double tol) {
 		super(space);
 		this.space = space;
 		this.density = density;
 		this.nC = nC;
 		this.fname = fname;
 		this.tolerance = tol;
-		
-    	energy = new double[3];
-    	allValue = new double[3];
-		
+
+		energy = new double[3];
+		allValue = new double[3];
+
 		double ratio = 1.631;//Math.sqrt(8.0/3.0);
-		aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
-		cDim = aDim*ratio;
-		numMolecule = nC[0]*nC[1]*nC[2]*2;
-		
+		aDim = Math.pow(4.0 / (Math.sqrt(3.0) * ratio * density), 1.0 / 3.0);
+		cDim = aDim * ratio;
+		numMolecule = nC[0] * nC[1] * nC[2] * 2;
+
+        species = new SpeciesN2(space);
+        addSpecies(species);
+
 		potentialMaster = new PotentialMaster();
 		Basis basisHCP = new BasisHcp();
 		BasisBigCell basis = new BasisBigCell(space, basisHCP, nC);
-		
-		species = new SpeciesN2(space);
-		addSpecies(species);
-		
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecule);
-		
+
 		boxDim = new Vector[3];
-		boxDim[0] = space.makeVector(new double[]{nC[0]*aDim, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-nC[1]*aDim*Math.cos(Degree.UNIT.toSim(60)), nC[1]*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, nC[2]*cDim});
-		
+		boxDim[0] = Vector.of(new double[]{nC[0] * aDim, 0, 0});
+		boxDim[1] = Vector.of(new double[]{-nC[1] * aDim * Math.cos(Degree.UNIT.toSim(60)), nC[1] * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
+		boxDim[2] = Vector.of(new double[]{0, 0, nC[2] * cDim});
 		boundary = new BoundaryDeformablePeriodic(space, boxDim);
-		primitive = new PrimitiveHexagonal(space, nC[0]*aDim, nC[2]*cDim);
-		
+		box = this.makeBox(boundary);
+		box.setNMolecules(species, numMolecule);
+
+		primitive = new PrimitiveHexagonal(space, nC[0] * aDim, nC[2] * cDim);
+
 		coordinateDefinition = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDefinition.setIsGamma();
 		coordinateDefinition.setOrientationVectorGamma(space);
-		coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
-		
-		box.setBoundary(boundary);
-		double rC = box.getBoundary().getBoxSize().getX(0)*0.475;
+		coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
+		double rC = box.getBoundary().getBoxSize().getX(0) * 0.475;
 		//System.out.println("rC: " + rC);
-		
+
 		P2Nitrogen potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
-		
+
 		potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-		
-		meterPotential = new MeterPotentialEnergy(potentialMaster);
-    	meterPotential.setBox(box);
+
+		meterPotential = new MeterPotentialEnergy(potentialMaster, box);
 	}
 	
 

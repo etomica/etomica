@@ -112,9 +112,9 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
 	}
 
     public double energy(IAtomList atomSet) {
-        IAtom atomA = atomSet.getAtom(0);
-        IAtom atomB = atomSet.getAtom(1);
-        IAtom atomC = atomSet.getAtom(2);
+        IAtom atomA = atomSet.get(0);
+        IAtom atomB = atomSet.get(1);
+        IAtom atomC = atomSet.get(2);
 
         drAB.Ev1Mv2(atomA.getPosition(),atomB.getPosition());
         drAC.Ev1Mv2(atomA.getPosition(),atomC.getPosition());
@@ -253,9 +253,9 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
 	        
 	        System.out.println("Equilateral triangle 1, rij = 4 a0");  
 	        a = BohrRadius.UNIT.toSim(4.0);
-	        r0 = space.makeVector(new double[] {0,0,0});
-	        r1 = space.makeVector(new double[] {a,0,0});
-	        r2 = space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+	        r0 = Vector.of(new double[]{0, 0, 0});
+	        r1 = Vector.of(new double[]{a, 0, 0});
+	        r2 = Vector.of(new double[]{a / 2.0, a / 2.0 * Math.sqrt(3), 0});
         
 	        atom0.getPosition().E(r0);
 	        atom1.getPosition().E(r1);
@@ -273,9 +273,9 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
         
 	        System.out.println("Equilateral triangle 2, rij = 5.6 a0"); 
 	        a = BohrRadius.UNIT.toSim(5.6);
-	        r0 = space.makeVector(new double[] {0,0,0});
-	        r1 = space.makeVector(new double[] {a,0,0});
-	        r2 = space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+	        r0 = Vector.of(new double[]{0, 0, 0});
+	        r1 = Vector.of(new double[]{a, 0, 0});
+	        r2 = Vector.of(new double[]{a / 2.0, a / 2.0 * Math.sqrt(3), 0});
 	        
 	        atom0.getPosition().E(r0);
 	        atom1.getPosition().E(r1);
@@ -292,9 +292,9 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
 	        
 	        System.out.println("Equilateral triangle 2, rij = 10 a0"); 
 	        a = BohrRadius.UNIT.toSim(10);
-	        r0 = space.makeVector(new double[] {0,0,0});
-	        r1 = space.makeVector(new double[] {a,0,0});
-	        r2 = space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+	        r0 = Vector.of(new double[]{0, 0, 0});
+	        r1 = Vector.of(new double[]{a, 0, 0});
+	        r2 = Vector.of(new double[]{a / 2.0, a / 2.0 * Math.sqrt(3), 0});
 	        
 	        atom0.getPosition().E(r0);
 	        atom1.getPosition().E(r1);
@@ -310,9 +310,9 @@ System.out.println();
 	        
 	        System.out.println("Equilateral triangle, rij = 2.6 a0"); 
 	        a = BohrRadius.UNIT.toSim(2.6);
-	        r0 = space.makeVector(new double[] {0,0,0});
-	        r1 = space.makeVector(new double[] {a,0,0});
-	        r2 = space.makeVector(new double[] {a/2.0,a/2.0*Math.sqrt(3),0});
+	        r0 = Vector.of(new double[]{0, 0, 0});
+	        r1 = Vector.of(new double[]{a, 0, 0});
+	        r2 = Vector.of(new double[]{a / 2.0, a / 2.0 * Math.sqrt(3), 0});
 	        
 	        atom0.getPosition().E(r0);
 	        atom1.getPosition().E(r1);
@@ -329,9 +329,9 @@ System.out.println();
 		       long t0 = date.getTime();
 		       for (int i=0;i<1000000;i++) {
 		            a = BohrRadius.UNIT.toSim(potential.b);
-		            r0 = space.makeVector(new double[] {0,0,0});
-		            r1 = space.makeVector(new double[] {a,0,0});
-		            r2 = space.makeVector(new double[] {2*a,0,0});
+		            r0 = Vector.of(new double[]{0, 0, 0});
+		            r1 = Vector.of(new double[]{a, 0, 0});
+		            r2 = Vector.of(new double[]{2 * a, 0, 0});
 	           
 	            
 		            atom0.getPosition().E(r0);
@@ -348,14 +348,14 @@ System.out.println();
 		       System.out.println(tElapsed+"  milliseconds for 1000000 configurations"+"  "+t0+" "+tf);
         } else {
         	
-        	r0 = space.makeVector(new double[] {0,0,0});
+        	r0 = Vector.of(new double[]{0, 0, 0});
         	atom0.getPosition().E(r0);
         	P2HePCKLJS p2 = new P2HePCKLJS(space);
         	
         	for (int i=1;i<=5;i++) {
 
             	double r01 = 1.5*i;
-        		r1 = space.makeVector(new double[] {r01,0,0});
+        		r1 = Vector.of(new double[]{r01, 0, 0});
         		atom1.getPosition().E(r1);
     		
     	    for (int j=1;j<=5;j++) {
@@ -367,7 +367,7 @@ System.out.println();
     	    		 double theta = Math.PI/5*k;
     	    		 double x2 = r02*Math.cos(theta);
     	    		 double y2 = r02*Math.sin(theta);
-    	    		 r2 = space.makeVector(new double[] {x2,y2,0});
+    	    		 r2 = Vector.of(new double[]{x2, y2, 0});
     	    		 atom2.getPosition().E(r2);
     	    		 
     	    		 double r12 = Math.sqrt((x2-r01)*(x2-r01)+y2*y2);

@@ -53,9 +53,8 @@ import etomica.util.Debug;
  * @see Boundary
  * @see BoxEventManager
  */
-public class Box implements java.io.Serializable {
+public class Box {
 
-    private static final long serialVersionUID = 2L;
     /**
      * List of leaf atoms in box
      */
@@ -64,23 +63,30 @@ public class Box implements java.io.Serializable {
     private final BoxEventManager eventManager;
     private final Space space;
     protected MoleculeArrayList[] moleculeLists;
-    private Boundary boundary;
+    private final Boundary boundary;
     private int index;
 
     /**
      * Constructs box with default rectangular periodic boundary.
+     *
+     * @param space space governing the simulation
      */
     public Box(Space space) {
         this(new BoundaryRectangularPeriodic(space), space);
     }
 
     /**
-     * Constructs box with the given boundary
+     * Constructs box with the given Boundary, which specifies the size and shape of the Box and specifies what
+     * happens to atoms as they cross the box boundary e.g. periodic boundaries.
+     *
+     * @param boundary the specified Boundary
+     * @param space    space governing the simulation
      */
     public Box(Boundary boundary, Space space) {
         this.space = space;
         eventManager = new BoxEventManager(this);
-        setBoundary(boundary);
+        this.boundary = boundary;
+        this.boundary.setBox(this);
 
         moleculeLists = new MoleculeArrayList[0];
         allMoleculeList = new AtomSetAllMolecules();
@@ -88,10 +94,14 @@ public class Box implements java.io.Serializable {
         leafList = new AtomArrayList();
     }
 
+    public Space getSpace() {
+        return space;
+    }
+
     /**
      * @return the Box's index.  The index corresponds to the box's position
-     * in the simulation's list of IBoxes.  The index of the first Box is 0.
-     * The index of the last Box is n-1, where n is the number of IBoxes.
+     * in the simulation's list of Boxes.  The index of the first Box is 0.
+     * The index of the last Box is n-1, where n is the number of Boxes.
      */
     public int getIndex() {
         return index;
@@ -101,7 +111,7 @@ public class Box implements java.io.Serializable {
      * Informs the Box what its index is.  This should only be called by the
      * Simulation.
      *
-     * @param newIndex the box's new index
+     * @param newIndex the Box's new index
      */
     public void setIndex(int newIndex) {
         index = newIndex;
@@ -127,61 +137,61 @@ public class Box implements java.io.Serializable {
     }
 
     /**
-     * Adds the given molecule to the this box.  The molecule should not
-     * already be in this box and should not be in another Box.  The molecule
+     * Adds the given molecule to the this Box.  The molecule should not
+     * already be in this Box and should not be in another Box.  The molecule
      * should be a member of an ISpecies which has been added to the
-     * Simulation.
+     * Simulation. No exceptions are thrown if these conditions are violated.
      *
-     * @param molecule the molecule to be added to the box
+     * @param molecule the molecule to be added to the Box
      */
     public void addMolecule(IMolecule molecule) {
         int speciesIndex = molecule.getType().getIndex();
         if (Debug.ON) {
-            for (int i = 0; i < moleculeLists[speciesIndex].getMoleculeCount(); i++) {
-                if (moleculeLists[speciesIndex].getMolecule(i) == molecule) {
+            for (int i = 0; i < moleculeLists[speciesIndex].size(); i++) {
+                if (moleculeLists[speciesIndex].get(i) == molecule) {
                     throw new RuntimeException("you bastard!");
                 }
             }
         }
-        molecule.setIndex(moleculeLists[speciesIndex].getMoleculeCount());
+        molecule.setIndex(moleculeLists[speciesIndex].size());
         moleculeLists[speciesIndex].add(molecule);
         allMoleculeList.setMoleculeLists(moleculeLists);
 
         IAtomList childList = molecule.getChildList();
-        int nLeafAtoms = leafList.getAtomCount();
-        for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-            IAtom childAtom = childList.getAtom(iChild);
+        int nLeafAtoms = leafList.size();
+        for (int iChild = 0; iChild < childList.size(); iChild++) {
+            IAtom childAtom = childList.get(iChild);
             childAtom.setLeafIndex(nLeafAtoms++);
             leafList.add(childAtom);
         }
         eventManager.moleculeAdded(molecule);
 
         if (Debug.ON) {
-            for (int i = 0; i < moleculeLists[speciesIndex].getMoleculeCount(); i++) {
-                if (moleculeLists[speciesIndex].getMolecule(i).getIndex() != i) {
-                    throw new RuntimeException("oops " + molecule + " " + moleculeLists[speciesIndex].getMolecule(i) + " " + i);
+            for (int i = 0; i < moleculeLists[speciesIndex].size(); i++) {
+                if (moleculeLists[speciesIndex].get(i).getIndex() != i) {
+                    throw new RuntimeException("oops " + molecule + " " + moleculeLists[speciesIndex].get(i) + " " + i);
                 }
             }
         }
     }
 
     /**
-     * Removes the given molecule from this box.  The molecule must be held
-     * by the box before this method is called.
+     * Removes the given molecule from this Box.
      *
-     * @param molecule the molecule to be removed from the box
+     * @param molecule the molecule to be removed from the Box
+     * @throws IllegalArgumentException if the given molecule is not in the Box
      */
     public void removeMolecule(IMolecule molecule) {
         int moleculeIndex = molecule.getIndex();
         MoleculeArrayList moleculeList = moleculeLists[molecule.getType().getIndex()];
-        if (Debug.ON && moleculeList.getMolecule(moleculeIndex) != molecule) {
+        if (moleculeList.get(moleculeIndex) != molecule) {
             throw new IllegalArgumentException("can't find " + molecule);
         }
-        if (moleculeIndex < moleculeList.getMoleculeCount() - 1) {
+        if (moleculeIndex < moleculeList.size() - 1) {
             moleculeList.removeAndReplace(moleculeIndex);
-            IMolecule replacingMolecule = moleculeList.getMolecule(moleculeIndex);
+            IMolecule replacingMolecule = moleculeList.get(moleculeIndex);
             replacingMolecule.setIndex(moleculeIndex);
-            eventManager.moleculeIndexChanged(replacingMolecule, moleculeList.getMoleculeCount());
+            eventManager.moleculeIndexChanged(replacingMolecule, moleculeList.size());
         } else {
             moleculeList.remove(moleculeIndex);
         }
@@ -189,12 +199,12 @@ public class Box implements java.io.Serializable {
 
         eventManager.moleculeRemoved(molecule);
         IAtomList childList = molecule.getChildList();
-        for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-            IAtom childAtom = childList.getAtom(iChild);
+        for (int iChild = 0; iChild < childList.size(); iChild++) {
+            IAtom childAtom = childList.get(iChild);
             int leafIndex = childAtom.getLeafIndex();
             leafList.removeAndReplace(leafIndex);
-            if (leafList.getAtomCount() > leafIndex) {
-                IAtom movedAtom = leafList.getAtom(leafIndex);
+            if (leafList.size() > leafIndex) {
+                IAtom movedAtom = leafList.get(leafIndex);
                 int movedLeafIndex = movedAtom.getLeafIndex();
                 movedAtom.setLeafIndex(leafIndex);
                 eventManager.atomLeafIndexChanged(movedAtom, movedLeafIndex);
@@ -210,18 +220,19 @@ public class Box implements java.io.Serializable {
      *
      * @param species the species whose number of molecules should be changed
      * @param n       the desired number of molecules
+     * @throws IllegalArgumentException if n < 0.
      */
     public void setNMolecules(ISpecies species, int n) {
         int speciesIndex = species.getIndex();
         MoleculeArrayList moleculeList = moleculeLists[speciesIndex];
-        int currentNMolecules = moleculeList.getMoleculeCount();
+        int currentNMolecules = moleculeList.size();
         int moleculeLeafAtoms = 0;
         IMolecule newMolecule0 = null;
         if (currentNMolecules > 0) {
-            moleculeLeafAtoms = moleculeList.getMolecule(0).getChildList().getAtomCount();
+            moleculeLeafAtoms = moleculeList.get(0).getChildList().size();
         } else if (n > currentNMolecules) {
             newMolecule0 = species.makeMolecule();
-            moleculeLeafAtoms = newMolecule0.getChildList().getAtomCount();
+            moleculeLeafAtoms = newMolecule0.getChildList().size();
         }
         notifyNewMolecules(species, (n - currentNMolecules), moleculeLeafAtoms);
         if (n < 0) {
@@ -229,7 +240,7 @@ public class Box implements java.io.Serializable {
         }
         if (n > currentNMolecules) {
             moleculeLists[species.getIndex()].ensureCapacity(n);
-            leafList.ensureCapacity(leafList.getAtomCount() + (n - currentNMolecules) * moleculeLeafAtoms);
+            leafList.ensureCapacity(leafList.size() + (n - currentNMolecules) * moleculeLeafAtoms);
             if (newMolecule0 != null) {
                 addMolecule(newMolecule0);
                 currentNMolecules++;
@@ -239,7 +250,7 @@ public class Box implements java.io.Serializable {
             }
         } else {
             for (int i = currentNMolecules; i > n; i--) {
-                removeMolecule(moleculeList.getMolecule(i - 1));
+                removeMolecule(moleculeList.get(i - 1));
             }
         }
     }
@@ -249,7 +260,7 @@ public class Box implements java.io.Serializable {
      */
     public int getNMolecules(ISpecies species) {
         int speciesIndex = species.getIndex();
-        return moleculeLists[speciesIndex].getMoleculeCount();
+        return moleculeLists[speciesIndex].size();
     }
 
     /**
@@ -277,16 +288,6 @@ public class Box implements java.io.Serializable {
     }
 
     /**
-     * Sets the box's boundary to the given IBoundary.
-     *
-     * @param b the new boundary
-     */
-    public void setBoundary(Boundary b) {
-        boundary = b;
-        boundary.setBox(this);
-    }
-
-    /**
      * Uses BoxInflate to adjust the volume to the specified density.
      * New volume is set such that N/V = rho, where N is the number of
      * molecules in the box.
@@ -294,7 +295,7 @@ public class Box implements java.io.Serializable {
      * @param rho the specified density
      */
     public void setDensity(double rho) {
-        double vNew = getMoleculeList().getMoleculeCount() / rho;
+        double vNew = getMoleculeList().size() / rho;
         double scale = Math.pow(vNew / boundary.volume(), 1.0 / space.D());
         BoxInflate inflater = new BoxInflate(this, space);
         inflater.setScale(scale);
@@ -338,12 +339,7 @@ public class Box implements java.io.Serializable {
         return leafList;
     }
 
-    /**
-     * Notifies the SpeciesMaster that the given number of new Atoms will be
-     * added to the system.  It's not required to call this method before
-     * adding atoms, but if adding many Atoms, calling this will improve
-     * performance.
-     */
+
     protected void notifyNewMolecules(ISpecies species, int numNewMolecules, int moleculeLeafAtoms) {
         if (numNewMolecules < 1) return;
         // has no actual effect within this object.  We just notify things to
@@ -351,9 +347,9 @@ public class Box implements java.io.Serializable {
         // actual max index has already increased, there's no harm since
         // there's nothing that says the max index can't be too large.
         int numNewLeafAtoms = numNewMolecules * moleculeLeafAtoms;
-        eventManager.numberMolecules(species, moleculeLists[species.getIndex()].getMoleculeCount() + numNewMolecules);
+        eventManager.numberMolecules(species, moleculeLists[species.getIndex()].size() + numNewMolecules);
         if (numNewLeafAtoms > 1) {
-            eventManager.globalAtomLeafIndexChanged(leafList.getAtomCount() + numNewLeafAtoms);
+            eventManager.globalAtomLeafIndexChanged(leafList.size() + numNewLeafAtoms);
         }
     }
 }

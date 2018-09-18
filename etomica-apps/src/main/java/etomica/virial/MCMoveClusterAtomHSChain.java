@@ -31,7 +31,7 @@ public class MCMoveClusterAtomHSChain extends MCMoveAtom {
     public boolean doTrial() {
 
         IAtomList leafAtoms = box.getLeafList();
-        int n = leafAtoms.getAtomCount();
+        int n = leafAtoms.size();
         if (seq == null) {
             seq = new int[n];
         }
@@ -44,10 +44,10 @@ public class MCMoveClusterAtomHSChain extends MCMoveAtom {
             seq[j] = seq[i];
             seq[i] = k;
         }
-        leafAtoms.getAtom(seq[0]).getPosition().E(0);
+        leafAtoms.get(seq[0]).getPosition().E(0);
 
         for (int i = 1; i<n; i++) {
-            Vector pos = leafAtoms.getAtom(seq[i]).getPosition();
+            Vector pos = leafAtoms.get(seq[i]).getPosition();
 
             pos.setRandomInSphere(random);
             double sig = getSigma(seq[i - 1], seq[i]);
@@ -59,7 +59,7 @@ public class MCMoveClusterAtomHSChain extends MCMoveAtom {
                 }
             }
             pos.TE(sig);
-            pos.PE(leafAtoms.getAtom(seq[i-1]).getPosition());
+            pos.PE(leafAtoms.get(seq[i-1]).getPosition());
         }
 
         ((BoxCluster)box).trialNotify();

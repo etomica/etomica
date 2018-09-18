@@ -6,7 +6,7 @@ package etomica.math.discrete;
 
 import etomica.lattice.IndexIterator;
 import etomica.math.SpecialFunctions;
-import etomica.util.Arrays;
+import java.util.Arrays;
 
 /**
  * Iterator that returns different permutations of a sequence of integers when

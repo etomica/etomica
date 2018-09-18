@@ -13,7 +13,7 @@ import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTensor;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierGeneral;
@@ -47,7 +47,7 @@ public class DropletGraphic extends SimulationGraphic {
 
     public DropletGraphic(final Droplet simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, _space.D() == 2 ? 10*REPAINT_INTERVAL : REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
@@ -65,13 +65,13 @@ public class DropletGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 IAtomList leafList = sim.box.getLeafList();
                 center.E(0);
-                for (int i=0; i<leafList.getAtomCount(); i++) {
-                    center.PE(leafList.getAtom(i).getPosition());
+                for (int i = 0; i<leafList.size(); i++) {
+                    center.PE(leafList.get(i).getPosition());
                 }
-                center.TE(1.0/leafList.getAtomCount());
+                center.TE(1.0/leafList.size());
 
-                for (int i=0; i<leafList.getAtomCount(); i++) {
-                    leafList.getAtom(i).getPosition().ME(center);
+                for (int i = 0; i<leafList.size(); i++) {
+                    leafList.get(i).getPosition().ME(center);
                 }
             }
             final Vector center = sim.getSpace().makeVector();
@@ -257,7 +257,7 @@ public class DropletGraphic extends SimulationGraphic {
         	sp = Space3D.getInstance();
         }
 
-        Droplet sim = new Droplet(sp);
+        Droplet sim = new Droplet();
         DropletGraphic simGraphic = new DropletGraphic(sim, sp);
 		SimulationGraphic.makeAndDisplayFrame
 		        (simGraphic.getPanel(), APP_NAME);
@@ -269,7 +269,7 @@ public class DropletGraphic extends SimulationGraphic {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
 	        Space sp = Space3D.getInstance();
-	        Droplet sim = new Droplet(sp);
+	        Droplet sim = new Droplet();
             DropletGraphic simGraphic = new DropletGraphic(sim, sp);
             simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(15));
 

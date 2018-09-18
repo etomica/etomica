@@ -27,10 +27,10 @@ public class PotentialNonAdditiveDifference extends PotentialMolecular {
 
     public double energy(IMoleculeList molecules) {
         double u = pFull.energy(molecules);
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            pair.atom0 = molecules.getMolecule(i);
-            for (int j=i+1; j<molecules.getMoleculeCount(); j++) {
-                pair.atom1 = molecules.getMolecule(j);
+        for (int i = 0; i<molecules.size(); i++) {
+            pair.mol0 = molecules.get(i);
+            for (int j = i+1; j<molecules.size(); j++) {
+                pair.mol1 = molecules.get(j);
                 u -= p2.energy(pair);
             }
         }

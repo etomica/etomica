@@ -18,7 +18,6 @@ import javax.swing.event.ChangeListener;
 
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
-import etomica.action.activity.IController;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.SimulationGraphic;
@@ -42,7 +41,7 @@ public class DeviceEigenvaluesSlider extends Device {
 	private final int DEFAULT_MIN_nEIGENVECTORS = 0;
 	private final int DEFAULT_MAX_nEIGENVECTORS = 24;
 
-	public DeviceEigenvaluesSlider(IController cont) {
+	public DeviceEigenvaluesSlider(Controller cont) {
 		
         //using all eigenvalues or individual radio button
         ButtonGroup eValGroup = new ButtonGroup();
@@ -233,7 +232,7 @@ public class DeviceEigenvaluesSlider extends Device {
 	 * Set the eigenvalue # slider controller.
 	 */
    
-    public void setController(IController cont) {
+    public void setController(Controller cont) {
     	super.setController(cont);
     	eValNumSlider.setController(cont);
         
@@ -345,7 +344,7 @@ public class DeviceEigenvaluesSlider extends Device {
         device.setEValNum(0);
         
         
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
         graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
         graphic.add(device);
         graphic.makeAndDisplayFrame(APP_NAME);

@@ -19,7 +19,7 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.P1HydrogenMielke.P2HydrogenMielkeAtomic;
 import etomica.potential.PotentialGroup;
@@ -167,9 +167,9 @@ public class VirialH2PIBoltzmann {
         
         
         IAtomList leafList = sim.box.getLeafList();
-        int half = leafList.getAtomCount()/2;
-        for (int i=half; i<leafList.getAtomCount(); i++) {
-            Vector p = leafList.getAtom(i).getPosition();
+        int half = leafList.size()/2;
+        for (int i = half; i<leafList.size(); i++) {
+            Vector p = leafList.get(i).getPosition();
             p.setX(2, r0);
         }
         sim.box.trialNotify();
@@ -177,8 +177,8 @@ public class VirialH2PIBoltzmann {
 
         if (false) {
             double vSize = 10;
-            sim.box.getBoundary().setBoxSize(space.makeVector(new double[]{vSize,vSize,vSize}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            sim.box.getBoundary().setBoxSize(Vector.of(new double[]{vSize, vSize, vSize}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox = simGraphic.getDisplayBox(sim.box); 
             displayBox.setPixelUnit(new Pixel(300.0/vSize));
             displayBox.setShowBoundary(false);

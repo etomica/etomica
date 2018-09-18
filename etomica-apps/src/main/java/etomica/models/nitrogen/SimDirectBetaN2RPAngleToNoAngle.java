@@ -12,12 +12,12 @@ import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.nbr.list.molecule.BoxAgentSourceCellManagerListMolecular;
 import etomica.nbr.list.molecule.NeighborListManagerSlantyMolecular;
@@ -43,116 +43,110 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 
     public SimDirectBetaN2RPAngleToNoAngle(Space space, int numMolecules, double density, double temperature, double angle, long numSteps) {
         super(space);
-        
-        BoxAgentSourceCellManagerListMolecular boxAgentSourceTarg = new BoxAgentSourceCellManagerListMolecular(this, null, space);
-        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManagerTarg = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSourceTarg,NeighborCellManagerMolecular.class);
- 
-        BoxAgentSourceCellManagerListMolecular boxAgentSourceRef = new BoxAgentSourceCellManagerListMolecular(this, null, space);
-        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManagerRef = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSourceRef,NeighborCellManagerMolecular.class);
-        
+
         SpeciesN2 species = new SpeciesN2(space);
-		addSpecies(species);
+        addSpecies(species);
+
+        BoxAgentSourceCellManagerListMolecular boxAgentSourceTarg = new BoxAgentSourceCellManagerListMolecular(this, null, space);
+        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManagerTarg = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSourceTarg, this);
+
+        BoxAgentSourceCellManagerListMolecular boxAgentSourceRef = new BoxAgentSourceCellManagerListMolecular(this, null, space);
+        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManagerRef = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSourceRef, this);
 
         // TARGET
-        boxTarg = new Box(space);
-        addBox(boxTarg);
+        double ratio = 1.631;
+        double aDim = Math.pow(4.0 / (Math.sqrt(3.0) * ratio * density), 1.0 / 3.0);
+        double cDim = aDim * ratio;
+        System.out.println("\naDim: " + aDim + " ;cDim: " + cDim);
+        int nC = (int) Math.pow(numMolecules / 1.999999999, 1.0 / 3.0);
+
+        Basis basisHCP = new BasisHcp();
+        BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC, nC, nC});
+
+        Vector[] boxDim = new Vector[3];
+        boxDim[0] = Vector.of(new double[]{nC * aDim, 0, 0});
+        boxDim[1] = Vector.of(new double[]{-nC * aDim * Math.cos(Degree.UNIT.toSim(60)), nC * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
+        boxDim[2] = Vector.of(new double[]{0, 0, nC * cDim});
+        Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
+        boxTarg = this.makeBox(boundary);
         boxTarg.setNMolecules(species, numMolecules);
 
-    	double ratio = 1.631;
-		double aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
-		double cDim = aDim*ratio;
-		System.out.println("\naDim: " + aDim + " ;cDim: " + cDim);
-		int nC = (int)Math.pow(numMolecules/1.999999999, 1.0/3.0);
-		
-		Basis basisHCP = new BasisHcp();
-		BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC,nC,nC});
-        
-		Vector[] boxDim = new Vector[3];
-		boxDim[0] = space.makeVector(new double[]{nC*aDim, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-nC*aDim*Math.cos(Degree.UNIT.toSim(60)), nC*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, nC*cDim});
-		
-		int[] nCells = new int[]{1,1,1};
-		Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
-		Primitive primitive = new PrimitiveHexagonal(space, nC*aDim, nC*cDim);
-		
-		CoordinateDefinitionNitrogen coordinateDefTarg = new CoordinateDefinitionNitrogen(this, boxTarg, primitive, basis, space);
-		coordinateDefTarg.setIsBetaHCP();
-		coordinateDefTarg.setOrientationVectorBeta(space);
-		coordinateDefTarg.initializeCoordinates(nCells);
-		
-	    boxTarg.setBoundary(boundary);
-	    
-		double rCScale = 0.475;
-		double rc = aDim*nC*rCScale;
-		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rc);
-		P2Nitrogen potentialTarg = new P2Nitrogen(space, rc);
-		potentialTarg.setBox(boxTarg);
 
-		PRotConstraint pRotConstraintTarg = new PRotConstraint(space,coordinateDefTarg, boxTarg);
-		pRotConstraintTarg.setConstraintAngle(angle);
-		
-		PotentialMasterListMolecular potentialMasterTarg = 
-			new PotentialMasterListMolecular(this, rc, boxAgentSourceTarg, boxAgentManagerTarg, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
-		potentialMasterTarg.addPotential(potentialTarg, new ISpecies[]{species, species});
-		//potentialMasterTarg.addPotential(pRotConstraintTarg,new ISpecies[]{species} );
-	       
-		MCMoveMoleculeCoupledInitPert moveTarg = new MCMoveMoleculeCoupledInitPert(potentialMasterTarg, getRandom(),space, coordinateDefTarg);
-		moveTarg.setBox(boxTarg);
-		moveTarg.setPotential(potentialTarg);
-		moveTarg.setDoExcludeNonNeighbors(true);
-		
+        int[] nCells = new int[]{1, 1, 1};
+        Primitive primitive = new PrimitiveHexagonal(space, nC * aDim, nC * cDim);
+
+        CoordinateDefinitionNitrogen coordinateDefTarg = new CoordinateDefinitionNitrogen(this, boxTarg, primitive, basis, space);
+        coordinateDefTarg.setIsBetaHCP();
+        coordinateDefTarg.setOrientationVectorBeta(space);
+        coordinateDefTarg.initializeCoordinates(nCells);
+
+        double rCScale = 0.475;
+        double rc = aDim * nC * rCScale;
+        System.out.println("Truncation Radius (" + rCScale + " Box Length): " + rc);
+        P2Nitrogen potentialTarg = new P2Nitrogen(space, rc);
+        potentialTarg.setBox(boxTarg);
+
+        PRotConstraint pRotConstraintTarg = new PRotConstraint(space, coordinateDefTarg, boxTarg);
+        pRotConstraintTarg.setConstraintAngle(angle);
+
+        PotentialMasterListMolecular potentialMasterTarg =
+                new PotentialMasterListMolecular(this, rc, boxAgentSourceTarg, boxAgentManagerTarg, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
+        potentialMasterTarg.addPotential(potentialTarg, new ISpecies[]{species, species});
+        //potentialMasterTarg.addPotential(pRotConstraintTarg,new ISpecies[]{species} );
+
+        MCMoveMoleculeCoupledInitPert moveTarg = new MCMoveMoleculeCoupledInitPert(potentialMasterTarg, getRandom(), space, coordinateDefTarg);
+        moveTarg.setBox(boxTarg);
+        moveTarg.setPotential(potentialTarg);
+        moveTarg.setDoExcludeNonNeighbors(true);
+
 //		MCMoveRotateMolecule3D rotateTarg = new MCMoveRotateMolecule3D(potentialMasterTarg, getRandom(), space);
 //		rotateTarg.setBox(boxTarg);
-		MCMoveRotateMolecule3DFixedAngle rotateFixedAngle
-		= new MCMoveRotateMolecule3DFixedAngle(potentialMasterTarg, getRandom(), space, angle, coordinateDefTarg, boxTarg);
-		rotateFixedAngle.setBox(boxTarg);
-		
-        IntegratorMC integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature);
+        MCMoveRotateMolecule3DFixedAngle rotateFixedAngle
+                = new MCMoveRotateMolecule3DFixedAngle(potentialMasterTarg, getRandom(), space, angle, coordinateDefTarg, boxTarg);
+        rotateFixedAngle.setBox(boxTarg);
+
+        IntegratorMC integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature, boxTarg);
         integratorTarg.getMoveManager().addMCMove(moveTarg);
-		//integratorTarg.getMoveManager().addMCMove(rotateTarg);
+        //integratorTarg.getMoveManager().addMCMove(rotateTarg);
         integratorTarg.getMoveManager().addMCMove(rotateFixedAngle);
-	    
-		integratorTarg.setBox(boxTarg);
 
         // Reference System
-		PotentialMasterListMolecular potentialMasterRef = 
-			new PotentialMasterListMolecular(this, rc, boxAgentSourceRef, boxAgentManagerRef, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
-		potentialMasterRef.addPotential(potentialTarg, new ISpecies[]{species, species});
-		potentialMasterRef.addPotential(pRotConstraintTarg,new ISpecies[]{species} );
-		
-		int cellRange = 6;
-	    potentialMasterTarg.setRange(rc);
-	    potentialMasterTarg.setCellRange(cellRange); 
-	    potentialMasterTarg.getNeighborManager(boxTarg).reset();
+        PotentialMasterListMolecular potentialMasterRef =
+                new PotentialMasterListMolecular(this, rc, boxAgentSourceRef, boxAgentManagerRef, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
+        potentialMasterRef.addPotential(potentialTarg, new ISpecies[]{species, species});
+        potentialMasterRef.addPotential(pRotConstraintTarg, new ISpecies[]{species});
 
-	        
+        int cellRange = 6;
+        potentialMasterTarg.setRange(rc);
+        potentialMasterTarg.setCellRange(cellRange);
+        potentialMasterTarg.getNeighborManager(boxTarg).reset();
+
+
 //	    int potentialCells = potentialMasterTarg.getNbrCellManager(boxTarg).getLattice().getSize()[0];
 //	    if (potentialCells < cellRange*2+1) {
 //	      throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
 //	    }
-	    potentialMasterRef.setRange(rc);
-	    potentialMasterRef.setCellRange(cellRange); 
-	    potentialMasterRef.getNeighborManager(boxTarg).reset();
-	    potentialTarg.setRange(Double.POSITIVE_INFINITY); 
-	    
-	    MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef);
-        meterPERef.setBox(boxTarg);
+        potentialMasterRef.setRange(rc);
+        potentialMasterRef.setCellRange(cellRange);
+        potentialMasterRef.getNeighborManager(boxTarg).reset();
+        potentialTarg.setRange(Double.POSITIVE_INFINITY);
+
+        MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef, boxTarg);
         double latticeEnergy = meterPERef.getDataAsScalar();
         System.out.println("lattice energy (sim unit): " + latticeEnergy);
-		System.out.println("lattice energy per mol(sim unit): " + latticeEnergy/numMolecules);
-		
-		MeterBoltzmannDirect meterBoltzmann = new MeterBoltzmannDirect(integratorTarg, meterPERef);
-		
+        System.out.println("lattice energy per mol(sim unit): " + latticeEnergy / numMolecules);
+
+        MeterBoltzmannDirect meterBoltzmann = new MeterBoltzmannDirect(integratorTarg, meterPERef);
+
 //        MeterRotPerturbMolecule meterBoltzmannRotPerb = new MeterRotPerturbMolecule(integratorTarg, potentialMasterRef, species, space, this, coordinateDefTarg);
 //        meterBoltzmannRotPerb.setLatticeEnergy(latticeEnergy);
-		int numBlock = 100;
-		int interval = numMolecules;
-		long blockSize = numSteps/(numBlock*interval);
+        int numBlock = 100;
+        int interval = numMolecules;
+        long blockSize = numSteps / (numBlock * interval);
         if (blockSize == 0) blockSize = 1;
-        System.out.println("block size "+blockSize+" interval "+interval);
+        System.out.println("block size " + blockSize + " interval " + interval);
         boltzmannAverage = new AccumulatorAverageFixed(blockSize);
-        
+
         DataPump boltzmannPump = new DataPump(meterBoltzmann, boltzmannAverage);
         IntegratorListenerAction boltzmannPumpListener = new IntegratorListenerAction(boltzmannPump, 100);
         integratorTarg.getEventManager().addListener(boltzmannPumpListener);

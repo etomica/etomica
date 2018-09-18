@@ -9,8 +9,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorRigidIterative;
-import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.DipoleSourceWater;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
@@ -35,12 +35,12 @@ public class WaterBox {
     public static SimulationGraphic makeWaterBox() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(Space3D.getInstance());
-        Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
-        sim.addBox(box);
         SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
         sim.addSpecies(species);
+        Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
+        sim.addBox(box);
         box.setNMolecules(species, 256);
-        box.setDensity(1/18.0*Constants.AVOGADRO/1E24);
+        box.setDensity(1 / 18.0 * Constants.AVOGADRO / 1E24);
         ConfigurationWater256 configFile = new ConfigurationWater256();
         configFile.initializeCoordinates(box);
 //        SpeciesSpheresMono speciesOrient = new SpeciesSpheresMono(sim);
@@ -49,10 +49,9 @@ public class WaterBox {
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.004;
         int maxIterations = 20;
-        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, space);
+        IntegratorRigidIterative integrator = new IntegratorRigidIterative(sim, potentialMaster, timeInterval, 1, box);
         integrator.printInterval = 10;
         integrator.setMaxIterations(maxIterations);
-        integrator.setBox(box);
         OrientationCalcWater3P calcer = new OrientationCalcWater3P(sim.getSpace());
 //        integrator.setOrientAtom((IAtomPositioned)((IMolecule)box.getMoleculeList(speciesOrient).getAtom(0)).getChildList().getAtom(0));
         integrator.setOrientationCalc(species, calcer);
@@ -75,25 +74,25 @@ public class WaterBox {
         System.out.println(boxlength);
 
         DipoleSourceWater dipoleSource = new DipoleSourceWater(sim.getSpace());
-        dipoleSource.setDipoleStrength(2*Electron.UNIT.toSim(0.41)*Math.cos(109.5/2.0*Math.PI/180));
-        P2ReactionFieldDipole pNRF = new P2ReactionFieldDipole(sim.getSpace(),new MoleculePositionCOM(space));
+        dipoleSource.setDipoleStrength(2 * Electron.UNIT.toSim(0.41) * Math.cos(109.5 / 2.0 * Math.PI / 180));
+        P2ReactionFieldDipole pNRF = new P2ReactionFieldDipole(sim.getSpace(), new MoleculePositionCOM(space));
         pNRF.setDipoleSource(dipoleSource);
-        pNRF.setRange(boxlength*0.49);
+        pNRF.setRange(boxlength * 0.49);
         pNRF.setDielectric(78.4);
 
-        P2MoleculeSoftTruncatedSwitched p2Switched = new P2MoleculeSoftTruncatedSwitched(pNRF, boxlength*0.49, space);
+        P2MoleculeSoftTruncatedSwitched p2Switched = new P2MoleculeSoftTruncatedSwitched(pNRF, boxlength * 0.49, space);
         p2Switched.setSwitchFac(0.5);
         potentialMaster.addPotential(p2Switched, new ISpecies[]{species, species});
         potentialMaster.lrcMaster().addPotential(pNRF.makeP0());
 
-        p2Switched = new P2MoleculeSoftTruncatedSwitched(p2Water, boxlength*0.49, space);
+        p2Switched = new P2MoleculeSoftTruncatedSwitched(p2Water, boxlength * 0.49, space);
         p2Switched.setSwitchFac(0.5);
-        potentialMaster.addPotential(p2Switched, new ISpecies[]{species,species});
+        potentialMaster.addPotential(p2Switched, new ISpecies[]{species, species});
 
         ai.setSleepPeriod(2);
-        SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1, space, sim.getController());
-        ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
-        ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
+        SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
+        ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
+        ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
         return graphic;
     }
     public static void main(String[] args) {

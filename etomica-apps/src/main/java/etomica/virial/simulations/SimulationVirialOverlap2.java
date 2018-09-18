@@ -191,27 +191,25 @@ public class SimulationVirialOverlap2 extends Simulation {
             // integrator for iBox samples based on iBox cluster
             box[iBox] = boxFactory.makeBox(space, sampleClusters[iBox]);
             addBox(box[iBox]);
-            for (int i=0; i<species.length; i++) {
+            for (int i = 0; i < species.length; i++) {
                 box[iBox].setNMolecules(species[i], nMolecules[i]);
             }
-            
-            integrators[iBox] = new IntegratorMC(this, potentialMaster);
+
+            integrators[iBox] = new IntegratorMC(this, potentialMaster, box[iBox]);
             integrators[iBox].setTemperature(temperature);
-            integrators[iBox].setBox(box[iBox]);
             integrators[iBox].getMoveManager().setEquilibrating(true);
-            
+
             MCMoveManager moveManager = integrators[iBox].getMoveManager();
-            
+
             if (!multiAtomic) {
                 mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(random, space);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
-                
+
                 if (doRotate) {
                     mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, space);
                     moveManager.addMCMove(mcMoveRotate[iBox]);
                 }
-            }
-            else {
+            } else {
                 mcMoveRotate[iBox] = new MCMoveClusterRotateMoleculeMulti(random, space);
                 mcMoveRotate[iBox].setStepSize(Math.PI);
                 moveManager.addMCMove(mcMoveRotate[iBox]);
@@ -220,38 +218,36 @@ public class SimulationVirialOverlap2 extends Simulation {
                 if (doWiggle) {
                     // we can use the bending move if none of the molecules has more than 3 atoms
                     boolean doBend = true;
-                    for (int i=0; i<species.length; i++) {
-                        if (box[iBox].getNMolecules(species[i])>0 && box[iBox].getMoleculeList(species[i]).getMolecule(0).getChildList().getAtomCount() > 3) {
+                    for (int i = 0; i < species.length; i++) {
+                        if (box[iBox].getNMolecules(species[i]) > 0 && box[iBox].getMoleculeList(species[i]).get(0).getChildList().size() > 3) {
                             doBend = false;
                         }
                     }
                     if (doBend) {
                         mcMoveWiggle[iBox] = new MCMoveClusterAngleBend(potentialMaster, random, 0.5, space);
-                    }
-                    else {
+                    } else {
                         mcMoveWiggle[iBox] = new MCMoveClusterWiggleMulti(this, potentialMaster, valueClusters[0].pointCount(), space);
                     }
                     moveManager.addMCMove(mcMoveWiggle[iBox]);
                 }
             }
-            
+
             ConfigurationCluster configuration = new ConfigurationCluster(space);
             configuration.initializeCoordinates(box[iBox]);
             if (iBox == 0) {
-                meters[iBox] = new MeterVirial(new ClusterAbstract[]{valueClusters[0],sampleClusters[1].makeCopy()});
-            }
-            else {
-                ClusterAbstract[] allClustersForTarget = new ClusterAbstract[extraTargetClusters.length+2];
+                meters[iBox] = new MeterVirial(new ClusterAbstract[]{valueClusters[0], sampleClusters[1].makeCopy()});
+            } else {
+                ClusterAbstract[] allClustersForTarget = new ClusterAbstract[extraTargetClusters.length + 2];
                 allClustersForTarget[0] = valueClusters[1];
                 System.arraycopy(extraTargetClusters, 0, allClustersForTarget, 1, extraTargetClusters.length);
-                allClustersForTarget[allClustersForTarget.length-1] = sampleClusters[0].makeCopy();
+                allClustersForTarget[allClustersForTarget.length - 1] = sampleClusters[0].makeCopy();
                 meters[iBox] = new MeterVirial(allClustersForTarget);
             }
             meters[iBox].setBox(box[iBox]);
-            dpVirialOverlap[iBox] = new DataProcessorVirialOverlap(11, iBox==0);
+            dpVirialOverlap[iBox] = new DataProcessorVirialOverlap(11, iBox == 0);
             accumulators[iBox] = new AccumulatorRatioAverageCovarianceFull(blockSize);
             dpVirialOverlap[iBox].setDataSink(accumulators[iBox]);
-            accumulatorPumps[iBox] = new DataPumpListener(meters[iBox],dpVirialOverlap[iBox]);
+            accumulatorPumps[iBox] = new DataPumpListener(meters[iBox], dpVirialOverlap[iBox]);
             integrators[iBox].getEventManager().addListener(accumulatorPumps[iBox]);
         }
         
@@ -395,7 +391,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
                 CoordinatePairSet cPairs = box[1].getCPairSet();
-                int nPoints = box[1].getMoleculeList().getMoleculeCount();
+                int nPoints = box[1].getMoleculeList().size();
                 for (int i=0; i<nPoints; i++) {
                     for (int j=i+1; j<nPoints; j++) {
                         double r2ij = cPairs.getr2(i, j);

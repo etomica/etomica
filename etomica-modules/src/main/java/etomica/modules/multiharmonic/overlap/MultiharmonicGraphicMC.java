@@ -61,18 +61,14 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
      * 
      */
     public MultiharmonicGraphicMC(MultiharmonicMC simulation, Space _space) {
-        super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+        super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
         
         
-        final MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(sim.potentialMasterA);
-        meterPEAinA.setBox(sim.boxA);
-        final MeterPotentialEnergy meterPEAinB = new MeterPotentialEnergy(sim.potentialMasterA);
-        meterPEAinB.setBox(sim.boxB);
-        final MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(sim.potentialMasterB);
-        meterPEBinA.setBox(sim.boxA);
-        final MeterPotentialEnergy meterPEBinB = new MeterPotentialEnergy(sim.potentialMasterB);
-        meterPEBinB.setBox(sim.boxB);
+        final MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(sim.potentialMasterA, sim.boxA);
+        final MeterPotentialEnergy meterPEAinB = new MeterPotentialEnergy(sim.potentialMasterA, sim.boxB);
+        final MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(sim.potentialMasterB, sim.boxA);
+        final MeterPotentialEnergy meterPEBinB = new MeterPotentialEnergy(sim.potentialMasterB, sim.boxB);
         
         final int na = 11;
         final MeterOverlap meterOverlapA = new MeterOverlap(meterPEAinA, meterPEBinA, 1.0, true);
@@ -489,7 +485,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 
         final DataSourceScalar delta = new DataSourceScalar("exact",Energy.DIMENSION) {
             public double getDataAsScalar() {
-                return 0.5*sim.boxA.getLeafList().getAtomCount() * Math.log(omegaBSlider.getValue()/omegaASlider.getValue());
+                return 0.5*sim.boxA.getLeafList().size() * Math.log(omegaBSlider.getValue()/omegaASlider.getValue());
             }
         };
         

@@ -455,9 +455,9 @@ public class ConfigurationWater108TIP4P implements Configuration, java.io.Serial
         vec[ 431 ] = new Vector3D(  3.7230260341976598 , 3.12992969590808 , 6.831624852713128 );
 
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom a = leafList.getAtom(iLeaf);
+            IAtom a = leafList.get(iLeaf);
             a.getPosition().E(vec[iLeaf]);
         }
     }

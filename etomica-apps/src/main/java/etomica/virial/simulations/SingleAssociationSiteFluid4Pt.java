@@ -11,11 +11,12 @@ import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2HardAssociationCone;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2MoleculeMonatomic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.util.Arrays;
@@ -240,9 +241,9 @@ public class SingleAssociationSiteFluid4Pt {
 		sim.integratorOS.setNumSubSteps(1000);
 		
 		if (false) {
-            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             Species species = (Species)sim.getSpecies(0);

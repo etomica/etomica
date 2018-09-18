@@ -40,44 +40,41 @@ public class HarmonicBetaNitrogenModel extends Simulation{
 	public HarmonicBetaNitrogenModel(Space space, int numMolecule, double density) {
 		super(space);
 		this.space = space;
-		
+
+        SpeciesN2 species = new SpeciesN2(space);
+        addSpecies(species);
+
 		potentialMaster = new PotentialMaster();
-		
-	  	double ratio = 1.631;
-		double aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
-		double cDim = aDim*ratio;
+
+		double ratio = 1.631;
+		double aDim = Math.pow(4.0 / (Math.sqrt(3.0) * ratio * density), 1.0 / 3.0);
+		double cDim = aDim * ratio;
 		System.out.println("\naDim: " + aDim + " ;cDim: " + cDim);
-		int nC = (int)Math.pow(numMolecule/1.999999999, 1.0/3.0);
-		
+		int nC = (int) Math.pow(numMolecule / 1.999999999, 1.0 / 3.0);
+
 		Basis basisHCP = new BasisHcp();
-		BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC,nC,nC});
-        
+		BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC, nC, nC});
+
 		Vector[] boxDim = new Vector[3];
-		boxDim[0] = space.makeVector(new double[]{nC*aDim, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-nC*aDim*Math.cos(Degree.UNIT.toSim(60)), nC*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, nC*cDim});
-		
-		int[] nCells = new int[]{1,1,1};
+		boxDim[0] = Vector.of(nC * aDim, 0, 0);
+		boxDim[1] = Vector.of(-nC * aDim * Math.cos(Degree.UNIT.toSim(60)), nC * aDim * Math.sin(Degree.UNIT.toSim(60)), 0);
+		boxDim[2] = Vector.of(0, 0, nC * cDim);
+
+		int[] nCells = new int[]{1, 1, 1};
 		Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
-		Primitive primitive = new PrimitiveHexagonal(space, nC*aDim, nC*cDim);
-		
-		SpeciesN2 species = new SpeciesN2(space);
-		addSpecies(species);
-		
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecule);		
-		
+		Primitive primitive = new PrimitiveHexagonal(space, nC * aDim, nC * cDim);
+
+		box = this.makeBox(boundary);
+		box.setNMolecules(species, numMolecule);
+
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space, 0);
 		coordinateDef.setIsBeta();
 		coordinateDef.setOrientationVectorBeta(space);
 		coordinateDef.initializeCoordinates(nCells);
-		
-		box.setBoundary(boundary);
 		double rCScale = 0.475;
-		double rC = aDim*nC*rCScale;
-		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
-		
+		double rC = aDim * nC * rCScale;
+		System.out.println("Truncation Radius (" + rCScale + " Box Length): " + rC);
+
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
 
@@ -87,7 +84,7 @@ public class HarmonicBetaNitrogenModel extends Simulation{
 	
 	public double[][] get2ndDerivative(){
 	
-		int numMolecule = box.getMoleculeList().getMoleculeCount();
+		int numMolecule = box.getMoleculeList().size();
 		int dofTrans = 3;
 		double[][] array = new double[dofTrans*numMolecule][dofTrans*numMolecule];
 			
@@ -98,13 +95,13 @@ public class HarmonicBetaNitrogenModel extends Simulation{
 		 *	(Skipping the molec1 == molec2) 
 		 */
 		for(int molec0=0; molec0<numMolecule; molec0++){
-			pair.atom0 = box.getMoleculeList().getMolecule(molec0);
+			pair.mol0 = box.getMoleculeList().get(molec0);
 			
 			for(int molec1=molec0; molec1<numMolecule; molec1++){
 				if(molec0 == molec1) continue;
 				
 				// Analytical calculation for 3x3 Translational second Derivative
-				pair.atom1 = box.getMoleculeList().getMolecule(molec1);
+				pair.mol1 = box.getMoleculeList().get(molec1);
 		
 				transTensor.E(potential.secondDerivative(pair));
 				for(int i=0; i<3; i++){

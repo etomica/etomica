@@ -63,8 +63,8 @@ public class MeterDensityDistribution implements IDataSource {
                             }
                         }
                     }
-                    for (int i=0; i<atoms.getAtomCount(); i++) {
-                        p2.E(atoms.getAtom(i).getPosition());
+                    for (int i = 0; i<atoms.size(); i++) {
+                        p2.E(atoms.get(i).getPosition());
                         p2.PE(shift);
                         p2.PEa1Tv1(0.5, L);
                         p2.DE(subBox);

@@ -39,7 +39,7 @@ public class ColorSchemeDropletSurface extends etomica.graphics.ColorScheme impl
     }
     
     public Color getAtomColor(IAtom a) {
-        return liquidFilter.accept(a) ? interiorColor : surfaceColor;
+        return liquidFilter.test(a) ? interiorColor : surfaceColor;
     }
     
     protected Color surfaceColor, interiorColor;

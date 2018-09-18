@@ -21,12 +21,12 @@ public class ConfigurationReplicate {
      */
     public static void replicate(Configuration config, Box boxBig, int[] reps, Space space) {
         Simulation sim = new Simulation(space);
-        Box box0 = new Box(space);
-        sim.addBox(box0);
         ISpecies species = new SpeciesSpheresMono(sim, space);
         sim.addSpecies(species);
+        Box box0 = new Box(space);
+        sim.addBox(box0);
 
-        int numAtoms1 = boxBig.getLeafList().getAtomCount();
+        int numAtoms1 = boxBig.getLeafList().size();
         int numAtoms0 = numAtoms1;
         for (int i=0; i<reps.length; i++) {
             numAtoms0 /= reps[i];
@@ -47,8 +47,8 @@ public class ConfigurationReplicate {
                     xyzShift[2] = box0.getBoundary().getBoxSize().getX(2)*(-0.5*(reps[2]-1) + k);
                     int start1 = numAtoms0*(i*reps[2]*reps[1] + j*reps[2] + k);
                     for (int iAtom = 0; iAtom<numAtoms0; iAtom++) {
-                        Vector p0 = leafList0.getAtom(iAtom).getPosition();
-                        Vector p1 = leafList1.getAtom(start1+iAtom).getPosition();
+                        Vector p0 = leafList0.get(iAtom).getPosition();
+                        Vector p1 = leafList1.get(start1+iAtom).getPosition();
                         for (int l=0; l<3; l++) {
                             p1.setX(l, p0.getX(l) + xyzShift[l]);
                         }

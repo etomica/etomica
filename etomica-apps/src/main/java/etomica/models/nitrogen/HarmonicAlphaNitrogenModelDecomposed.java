@@ -48,41 +48,38 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 	public HarmonicAlphaNitrogenModelDecomposed(Space space, int numMolecule, double density) {
 		super(space);
 		this.space = space;
-		
-		
-		int nCell = (int) Math.round(Math.pow((numMolecule/4), 1.0/3.0));
-		double unitCellLength = Math.pow(numMolecule/density, 1.0/3.0)/nCell;//5.661;
+
+        SpeciesN2 species = new SpeciesN2(space);
+        addSpecies(species);
+
+		int nCell = (int) Math.round(Math.pow((numMolecule / 4), 1.0 / 3.0));
+		double unitCellLength = Math.pow(numMolecule / density, 1.0 / 3.0) / nCell;//5.661;
 		System.out.println("a: " + unitCellLength);
 		System.out.println("nCell: " + nCell);
-		
+
 		potentialMaster = new PotentialMaster();
-				
+
 		Basis basisFCC = new BasisCubicFcc();
 		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
-		
+
 		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		SpeciesN2 species = new SpeciesN2(space);
 		species.setConformation(conformation);
-		addSpecies(species);
-		
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecule);		
-		
-		int [] nCells = new int[]{1,1,1};
-		Boundary boundary = new BoundaryRectangularPeriodic(space,nCell*unitCellLength);
-		Primitive primitive = new PrimitiveCubic(space, nCell*unitCellLength);
-	
+
+		Boundary boundary = new BoundaryRectangularPeriodic(space, nCell * unitCellLength);
+		box = this.makeBox(boundary);
+		box.setNMolecules(species, numMolecule);
+
+		int[] nCells = new int[]{1, 1, 1};
+		Primitive primitive = new PrimitiveCubic(space, nCell * unitCellLength);
+
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsAlpha();
 		coordinateDef.setOrientationVectorAlpha(space);
 		coordinateDef.initializeCoordinates(nCells);
-		
-		box.setBoundary(boundary);
 		double rCScale = 0.475;
-		double rC =box.getBoundary().getBoxSize().getX(0)*rCScale;
-		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
-		
+		double rC = box.getBoundary().getBoxSize().getX(0) * rCScale;
+		System.out.println("Truncation Radius (" + rCScale + " Box Length): " + rC);
+
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
 
@@ -94,7 +91,7 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 	
 	public double[][] get2ndDerivativeMoleculei(CoordinateDefinition coordinateDef, int iMolecule){
 		
-		int numMolecule = box.getMoleculeList().getMoleculeCount();
+		int numMolecule = box.getMoleculeList().size();
 		int dofPerMol = coordinateDef.getCoordinateDim()/numMolecule;
 		
 		double[][] array = new double[dofPerMol][coordinateDef.getCoordinateDim() - ((iMolecule+1)*dofPerMol)];
@@ -109,14 +106,14 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 		 *	(Skipping the molec1 == molec2) 
 		 */
 	
-		pair.atom0 = box.getMoleculeList().getMolecule(iMolecule);
+		pair.mol0 = box.getMoleculeList().get(iMolecule);
 			
 		for(int molec1=(iMolecule+1); molec1<numMolecule; molec1++){
 			/*
 			 * working within the 5x5 Matrix
 			 */
 			// Analytical calculation for 3x3 Translational second Derivative
-			pair.atom1 = box.getMoleculeList().getMolecule(molec1);
+			pair.mol1 = box.getMoleculeList().get(molec1);
 		
 			transTensor.E(potential.secondDerivative(pair));
 			for(int i=0; i<3; i++){
@@ -142,7 +139,7 @@ public class HarmonicAlphaNitrogenModelDecomposed extends Simulation{
 		double[][] array = new double[coordinateDef.getCoordinateDim()][coordinateDef.getCoordinateDim()];
 		double[] newU = new double[coordinateDef.getCoordinateDim()];
 		
-		int numMolecule = box.getMoleculeList().getMoleculeCount();
+		int numMolecule = box.getMoleculeList().size();
 		int dofPerMol = coordinateDef.getCoordinateDim()/numMolecule;
 		
 		CalcNumerical2ndDerivative cm2ndD = new CalcNumerical2ndDerivative(box, potentialMaster, coordinateDef);

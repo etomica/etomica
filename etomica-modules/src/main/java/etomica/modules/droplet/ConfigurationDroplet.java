@@ -26,21 +26,21 @@ public class ConfigurationDroplet implements Configuration {
         axis.setX(2,1.0/(axis.getX(0)*axis.getX(0)));
         
         IAtomList leafList = box.getLeafList();
-        int numAtoms = leafList.getAtomCount();
+        int numAtoms = leafList.size();
         for (int i=0; i<numAtoms; i++) {
-            Vector r = leafList.getAtom(i).getPosition();
+            Vector r = leafList.get(i).getPosition();
             r.setRandomInSphere(random);
             r.TE(axis);
         }
 
         center.E(0);
-        for (int i=0; i<leafList.getAtomCount(); i++) {
-            center.PE(leafList.getAtom(i).getPosition());
+        for (int i = 0; i<leafList.size(); i++) {
+            center.PE(leafList.get(i).getPosition());
         }
-        center.TE(1.0/leafList.getAtomCount());
+        center.TE(1.0/leafList.size());
 
-        for (int i=0; i<leafList.getAtomCount(); i++) {
-            leafList.getAtom(i).getPosition().ME(center);
+        for (int i = 0; i<leafList.size(); i++) {
+            leafList.get(i).getPosition().ME(center);
         }
     }
     

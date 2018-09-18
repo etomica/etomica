@@ -10,24 +10,29 @@ import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.simulation.Simulation;
 
 /**
+ * BoxAgentSource that creates an MoleculeAgentManager.
  * @author Tai Boon Tan
  */
-public class BoxAgentSourceMoleculeManager implements BoxAgentSource<MoleculeAgentManager> {
+public class BoxAgentSourceMoleculeManager<E> implements BoxAgentSource<MoleculeAgentManager<E>> {
 
-    private final MoleculeAgentSource moleculeAgentSource;
+    private final MoleculeAgentSource<E> moleculeAgentSource;
     protected Simulation sim;
 
-    public BoxAgentSourceMoleculeManager(MoleculeAgentSource moleculeAgentSource, Simulation sim) {
+    /**
+     * @param moleculeAgentSource object that makes the molecule agents
+     * @param sim the governing simulation
+     */
+    public BoxAgentSourceMoleculeManager(MoleculeAgentSource<E> moleculeAgentSource, Simulation sim) {
         super();
         this.sim = sim;
         this.moleculeAgentSource = moleculeAgentSource;
     }
 
-    public MoleculeAgentManager makeAgent(Box box) {
-        return new MoleculeAgentManager(sim, box, moleculeAgentSource);
+    public MoleculeAgentManager<E> makeAgent(Box box) {
+        return new MoleculeAgentManager<>(sim, box, moleculeAgentSource);
     }
 
-    public void releaseAgent(MoleculeAgentManager agent) {
+    public void releaseAgent(MoleculeAgentManager<E> agent) {
         agent.dispose();
     }
 }

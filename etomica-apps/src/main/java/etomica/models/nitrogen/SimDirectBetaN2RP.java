@@ -9,13 +9,13 @@ import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.listener.IntegratorListenerAction;
 import etomica.normalmode.BasisBigCell;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.potential.PotentialMaster;
@@ -39,86 +39,79 @@ public class SimDirectBetaN2RP extends Simulation {
 
     public SimDirectBetaN2RP(Space space, int numMolecules, double density, double temperature, double[] angle) {
         super(space);
-        
+
+        species = new SpeciesN2(space);
+        addSpecies(species);
+
         PotentialMaster potentialMasterTarg = new PotentialMaster();
         PotentialMaster potentialMasterRef = new PotentialMaster();
-        
-        species = new SpeciesN2(space);
-		addSpecies(species);
 
         // TARGET
-        boxTarg = new Box(space);
-        addBox(boxTarg);
+        double ratio = 1.631;
+        double aDim = Math.pow(4.0 / (Math.sqrt(3.0) * ratio * density), 1.0 / 3.0);
+        double cDim = aDim * ratio;
+        System.out.println("\naDim: " + aDim + " ;cDim: " + cDim);
+        int nC = (int) Math.pow(numMolecules / 1.999999999, 1.0 / 3.0);
+
+        Basis basisHCP = new BasisHcp();
+        BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC, nC, nC});
+
+        Vector[] boxDim = new Vector[3];
+        boxDim[0] = Vector.of(nC * aDim, 0, 0);
+        boxDim[1] = Vector.of(-nC * aDim * Math.cos(Degree.UNIT.toSim(60)), nC * aDim * Math.sin(Degree.UNIT.toSim(60)), 0);
+        boxDim[2] = Vector.of(0, 0, nC * cDim);
+        Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
+        boxTarg = this.makeBox(boundary);
         boxTarg.setNMolecules(species, numMolecules);
 
-    	double ratio = 1.631;
-		double aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
-		double cDim = aDim*ratio;
-		System.out.println("\naDim: " + aDim + " ;cDim: " + cDim);
-		int nC = (int)Math.pow(numMolecules/1.999999999, 1.0/3.0);
-		
-		Basis basisHCP = new BasisHcp();
-		BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC,nC,nC});
-        
-		Vector[] boxDim = new Vector[3];
-		boxDim[0] = space.makeVector(new double[]{nC*aDim, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-nC*aDim*Math.cos(Degree.UNIT.toSim(60)), nC*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, nC*cDim});
-		
-		int[] nCells = new int[]{1,1,1};
-		Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
-		Primitive primitive = new PrimitiveHexagonal(space, nC*aDim, nC*cDim);
-		
-		coordinateDefTarg = new CoordinateDefinitionNitrogen(this, boxTarg, primitive, basis, space);
-		coordinateDefTarg.setIsBeta();
-		coordinateDefTarg.setOrientationVectorBeta(space);
-		coordinateDefTarg.initializeCoordinates(nCells);
-		
-	    boxTarg.setBoundary(boundary);
-	    
-		double rCScale = 0.475;
-		double rc = aDim*nC*rCScale;
-		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rc);
-		P2Nitrogen potentialTarg = new P2Nitrogen(space, rc);
-		potentialTarg.setBox(boxTarg);
 
-		PRotConstraint pRotConstraintTarg = new PRotConstraint(space,coordinateDefTarg, boxTarg);
-		pRotConstraintTarg.setConstraintAngle(angle[0]);
-		
-		potentialMasterTarg.addPotential(potentialTarg, new ISpecies[]{species, species});
-		potentialMasterTarg.addPotential(pRotConstraintTarg,new ISpecies[]{species} );
-		
-		MCMoveMoleculeCoupled moveTarg = new MCMoveMoleculeCoupled(potentialMasterTarg, getRandom(),space);
-		moveTarg.setBox(boxTarg);
-		moveTarg.setPotential(potentialTarg);
-		
-		MCMoveRotateMolecule3D rotateTarg = new MCMoveRotateMolecule3D(potentialMasterTarg, getRandom(), space);
-		rotateTarg.setBox(boxTarg);
-		
-        integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature);
+        int[] nCells = new int[]{1, 1, 1};
+        Primitive primitive = new PrimitiveHexagonal(space, nC * aDim, nC * cDim);
+
+        coordinateDefTarg = new CoordinateDefinitionNitrogen(this, boxTarg, primitive, basis, space);
+        coordinateDefTarg.setIsBeta();
+        coordinateDefTarg.setOrientationVectorBeta(space);
+        coordinateDefTarg.initializeCoordinates(nCells);
+
+        double rCScale = 0.475;
+        double rc = aDim * nC * rCScale;
+        System.out.println("Truncation Radius (" + rCScale + " Box Length): " + rc);
+        P2Nitrogen potentialTarg = new P2Nitrogen(space, rc);
+        potentialTarg.setBox(boxTarg);
+
+        PRotConstraint pRotConstraintTarg = new PRotConstraint(space, coordinateDefTarg, boxTarg);
+        pRotConstraintTarg.setConstraintAngle(angle[0]);
+
+        potentialMasterTarg.addPotential(potentialTarg, new ISpecies[]{species, species});
+        potentialMasterTarg.addPotential(pRotConstraintTarg, new ISpecies[]{species});
+
+        MCMoveMoleculeCoupled moveTarg = new MCMoveMoleculeCoupled(potentialMasterTarg, getRandom(), space);
+        moveTarg.setBox(boxTarg);
+        moveTarg.setPotential(potentialTarg);
+
+        MCMoveRotateMolecule3D rotateTarg = new MCMoveRotateMolecule3D(potentialMasterTarg, getRandom(), space);
+        rotateTarg.setBox(boxTarg);
+
+        integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature, boxTarg);
         integratorTarg.getMoveManager().addMCMove(moveTarg);
-		integratorTarg.getMoveManager().addMCMove(rotateTarg);
-	    
-		integratorTarg.setBox(boxTarg);
-		
-	    MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterTarg);
-        meterPETarg.setBox(boxTarg);
+        integratorTarg.getMoveManager().addMCMove(rotateTarg);
+
+        MeterPotentialEnergy meterPETarg = new MeterPotentialEnergy(potentialMasterTarg, boxTarg);
         System.out.println("lattice energy (sim unit): " + meterPETarg.getDataAsScalar());
-        
+
         // Reference System
 
-		PRotConstraint pRotConstraintRef = new PRotConstraint(space,coordinateDefTarg, boxTarg);
-		pRotConstraintRef.setConstraintAngle(angle[1]);
-		
-		potentialMasterRef.addPotential(potentialTarg, new ISpecies[]{species, species});
-		potentialMasterRef.addPotential(pRotConstraintRef,new ISpecies[]{species} );
-		        
-	    MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef);
-        meterPERef.setBox(boxTarg);
-        
+        PRotConstraint pRotConstraintRef = new PRotConstraint(space, coordinateDefTarg, boxTarg);
+        pRotConstraintRef.setConstraintAngle(angle[1]);
+
+        potentialMasterRef.addPotential(potentialTarg, new ISpecies[]{species, species});
+        potentialMasterRef.addPotential(pRotConstraintRef, new ISpecies[]{species});
+
+        MeterPotentialEnergy meterPERef = new MeterPotentialEnergy(potentialMasterRef, boxTarg);
+
         MeterBoltzmannDirect meterBoltzmann = new MeterBoltzmannDirect(integratorTarg, meterPERef);
         boltzmannAverage = new AccumulatorAverageFixed(100);
-        
+
         DataPump boltzmannPump = new DataPump(meterBoltzmann, boltzmannAverage);
         IntegratorListenerAction boltzmannPumpListener = new IntegratorListenerAction(boltzmannPump, 100);
         integratorTarg.getEventManager().addListener(boltzmannPumpListener);

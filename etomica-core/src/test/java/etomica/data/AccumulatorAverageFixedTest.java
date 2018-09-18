@@ -7,28 +7,37 @@ package etomica.data;
 import etomica.data.types.DataDouble;
 import etomica.units.dimensions.Null;
 import etomica.util.random.RandomMersenneTwister;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class AccumulatorAverageFixedTest extends AccumulatorAverageTestBase {
+import static etomica.data.AccumulatorAverageTestBase.simpleTest;
 
-    public AccumulatorAverageFixedTest() {
-        super(new AccumulatorAverageFixed());
+class AccumulatorAverageFixedTest {
+    private AccumulatorAverage accumulator;
+
+    @BeforeEach
+    public void setUp() {
+        this.accumulator = new AccumulatorAverageFixed();
     }
 
+    @Test
     public void testSimple() {
-        super.testSimple();
+        AccumulatorAverageTestBase.testSimple(accumulator);
         
         // should cause a reset
         accumulator.setBlockSize(500);
 
-        assertTrue(accumulator.getData().isNaN());
-        assertEquals(accumulator.getBlockCount(), 0);
+        Assertions.assertTrue(accumulator.getData().isNaN());
+        Assertions.assertEquals(accumulator.getBlockCount(), 0);
 
         // back to the default
         accumulator.setBlockSize(1000);
 
-        simpleTest();
+        simpleTest(accumulator);
     }
 
+    @Test
     public void testCorrelated() {
         accumulator.putDataInfo(new DataDouble.DataInfoDouble("test", Null.DIMENSION));
         DataDouble rawData = new DataDouble();
@@ -42,15 +51,15 @@ public class AccumulatorAverageFixedTest extends AccumulatorAverageTestBase {
         
         IData accData = accumulator.getData();
         double avg = accData.getValue(accumulator.AVERAGE.index);
-        assertTrue("average "+avg, Math.abs(avg-0.5) < 0.01);
+        Assertions.assertTrue(Math.abs(avg - 0.5) < 0.01, "average " + avg);
         
         double blockCorrelation = accData.getValue(accumulator.BLOCK_CORRELATION.index);
-        assertTrue("block correlation "+blockCorrelation, Math.abs(blockCorrelation-0.7195) < 0.006);
+        Assertions.assertTrue(Math.abs(blockCorrelation - 0.7195) < 0.006, "block correlation " + blockCorrelation);
         
         double stdev = accData.getValue(accumulator.STANDARD_DEVIATION.index);
-        assertTrue("stdev "+stdev, Math.abs(stdev-0.046345) < 5.e-4);
+        Assertions.assertTrue(Math.abs(stdev - 0.046345) < 5.e-4, "stdev " + stdev);
 
         double error = accData.getValue(accumulator.ERROR.index);
-        assertTrue("error "+error, error/1.35e-4 + 1.35e-4/error - 2 < 0.02);
+        Assertions.assertTrue(error / 1.35e-4 + 1.35e-4 / error - 2 < 0.02, "error " + error);
     }
 }

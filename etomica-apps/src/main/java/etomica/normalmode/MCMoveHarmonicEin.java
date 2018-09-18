@@ -55,8 +55,8 @@ public class MCMoveHarmonicEin extends MCMoveHarmonic {
         double sqrtFrac = Math.sqrt(frac);
         double einFac = Math.sqrt((1-frac)*temperature/alpha);
         lastU = 0;
-        for (int i=0; i<atomList.getAtomCount(); i++) {
-            IAtom a = atomList.getAtom(i);
+        for (int i = 0; i<atomList.size(); i++) {
+            IAtom a = atomList.get(i);
             Vector p = a.getPosition();
             Vector site = coordinateDefinition.getLatticePosition(a);
             p.ME(site);

@@ -32,7 +32,7 @@ public class MeterDensity extends DataSourceScalar {
     public double getDataAsScalar() {
         if (box == null) throw new IllegalStateException("must call setBox before using meter");
         return (species == null ? 
-        			box.getMoleculeList().getMoleculeCount() : 
+        			box.getMoleculeList().size() :
         			box.getNMolecules(species))
 				/box.getBoundary().volume();
     }

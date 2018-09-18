@@ -5,6 +5,7 @@
 package etomica.data.types;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import etomica.data.DataTag;
 import etomica.data.IData;
@@ -13,7 +14,6 @@ import etomica.data.IDataInfoFactory;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArrayFactory;
 import etomica.units.dimensions.Null;
-import etomica.util.Arrays;
 
 /**
  * Data object that holds <tt>double[]</tt> arrays as if they are columns in a
@@ -212,7 +212,7 @@ public class DataTable extends DataGroup implements IData, Serializable {
             }
             nRows = newNRows;
             if (rowHeaders != null) {
-                rowHeaders = (String[])Arrays.resizeArray(rowHeaders, nRows);
+                rowHeaders = Arrays.copyOf(rowHeaders, nRows);
             }
         }
         

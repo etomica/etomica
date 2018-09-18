@@ -100,15 +100,15 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
 
     public void setBox(Box box) {
         super.setBox(box);
-        inserted = new boolean[box.getLeafList().getAtomCount()];
+        inserted = new boolean[box.getLeafList().size()];
     }
 
     public boolean doTrial() {
         
         IAtomList leafAtoms = box.getLeafList();
-        int n = leafAtoms.getAtomCount();
+        int n = leafAtoms.size();
 
-        leafAtoms.getAtom(0).getPosition();
+        leafAtoms.get(0).getPosition();
 
         inserted[0] = true;
         for (int i=1; i<n; i++) {
@@ -130,7 +130,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
             seq[i] = k;
         }
 //        System.out.println(Arrays.toString(seq));
-        leafAtoms.getAtom(seq[0]).getPosition().E(0);
+        leafAtoms.get(seq[0]).getPosition().E(0);
         while (true) {
             int prevInserted = 0;
             boolean didInsert = false;
@@ -145,13 +145,13 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                             j = prevInserted+1;
                         }
                         inserted[j] = true;
-                        Vector pos = leafAtoms.getAtom(seq[j]).getPosition();
+                        Vector pos = leafAtoms.get(seq[j]).getPosition();
                         // insert j (between prevInserted and nextInserted)
                         if (i-prevInserted == 2) {
 
                             // insertion into a lens
-                            Vector posPrev = leafAtoms.getAtom(seq[prevInserted]).getPosition();
-                            Vector posNext = leafAtoms.getAtom(seq[nextInserted]).getPosition();
+                            Vector posPrev = leafAtoms.get(seq[prevInserted]).getPosition();
+                            Vector posNext = leafAtoms.get(seq[nextInserted]).getPosition();
                             
                             axis0.Ev1Mv2(posNext, posPrev);
                             double r2 = axis0.squared();
@@ -164,8 +164,8 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                         }
                         else if (j-prevInserted==1) {
                             // odd gap.  even it up  n = 1 + (n-1)
-                            Vector posPrev = leafAtoms.getAtom(seq[prevInserted]).getPosition();
-                            Vector posNext = leafAtoms.getAtom(seq[nextInserted]).getPosition();
+                            Vector posPrev = leafAtoms.get(seq[prevInserted]).getPosition();
+                            Vector posNext = leafAtoms.get(seq[nextInserted]).getPosition();
                             while (true) {
                                 numTrials[i-prevInserted]++;
                                 pos.setRandomInSphere(random);
@@ -197,8 +197,8 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
                             if (j-prevInserted != i-j) {
                                 throw new RuntimeException("maxBias has only been computed for symmetric insertion");
                             }
-                            Vector posPrev = leafAtoms.getAtom(seq[prevInserted]).getPosition();
-                            Vector posNext = leafAtoms.getAtom(seq[nextInserted]).getPosition();
+                            Vector posPrev = leafAtoms.get(seq[prevInserted]).getPosition();
+                            Vector posNext = leafAtoms.get(seq[nextInserted]).getPosition();
                             double rpn = Math.sqrt(posNext.Mv1Squared(posPrev));
                             while (true) {
                                 numTrials[i-prevInserted]++;
@@ -252,7 +252,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveAtom {
         }
         if (sigma != 1) {
             for (int i=1; i<n; i++) {
-                leafAtoms.getAtom(seq[i]).getPosition().TE(sigma);
+                leafAtoms.get(seq[i]).getPosition().TE(sigma);
             }
         }
 //        System.out.println(Math.sqrt(leafAtoms.getAtom(0).getPosition().Mv1Squared(leafAtoms.getAtom(n-1).getPosition())));

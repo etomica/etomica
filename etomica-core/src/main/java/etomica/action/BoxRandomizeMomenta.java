@@ -36,9 +36,9 @@ public class BoxRandomizeMomenta implements IAction {
     public void actionPerformed() {
         atomActionRandomizeVelocity.setTemperature(temperature);
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            atomActionRandomizeVelocity.actionPerformed(leafList.getAtom(iLeaf));
+            atomActionRandomizeVelocity.actionPerformed(leafList.get(iLeaf));
         }
     }
 

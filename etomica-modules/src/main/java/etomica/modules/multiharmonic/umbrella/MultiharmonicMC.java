@@ -10,8 +10,8 @@ import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
-import etomica.listener.IntegratorListenerAction;
 import etomica.modules.multiharmonic.MCMoveMultiHarmonic;
 import etomica.potential.P1Harmonic;
 import etomica.potential.PotentialMaster;
@@ -42,18 +42,16 @@ public class MultiharmonicMC extends Simulation {
     protected final DataPump dataPumpA;
     public MultiharmonicMC() {
         super(Space1D.getInstance());
-        PotentialMaster potentialMasterA = new PotentialMasterMonatomic(this);
-        PotentialMaster potentialMasterB = new PotentialMasterMonatomic(this);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
+        PotentialMaster potentialMasterA = new PotentialMasterMonatomic(this);
+        PotentialMaster potentialMasterB = new PotentialMasterMonatomic(this);
 
-        box = new Box(new BoundaryRectangularNonperiodic(space), space);
-        addBox(box);
+        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector1D(3.0));
         box.setNMolecules(species, 10);
 
-        integrator = new IntegratorMC(this, potentialMasterA);
-        integrator.setBox(box);
+        integrator = new IntegratorMC(this, potentialMasterA, box);
         integrator.setTemperature(1.0);
         potentialA = new P1Harmonic(space);
         moveA = new MCMoveMultiHarmonic(potentialA, random);
@@ -65,10 +63,8 @@ public class MultiharmonicMC extends Simulation {
         integrator.getMoveManager().addMCMove(moveB);
         potentialMasterB.addPotential(potentialB, new AtomType[]{species.getLeafType()});
 
-        MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(potentialMasterA);
-        meterPEAinA.setBox(box);
-        MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(potentialMasterB);
-        meterPEBinA.setBox(box);
+        MeterPotentialEnergy meterPEAinA = new MeterPotentialEnergy(potentialMasterA, box);
+        MeterPotentialEnergy meterPEBinA = new MeterPotentialEnergy(potentialMasterB, box);
         meterUmbrella = new MeterUmbrella(meterPEAinA, meterPEBinA, 1.0);
 
         accumulator = new AccumulatorRatioAverageCovariance(1);

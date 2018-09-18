@@ -6,7 +6,6 @@ package etomica.mappedvirial;
 
 import etomica.action.IAction;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -17,8 +16,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.math.DoubleRange;
 import etomica.potential.IteratorDirective;
 import etomica.potential.Potential2SoftSpherical;
@@ -29,13 +26,13 @@ import etomica.space.Vector;
 import etomica.units.dimensions.Force;
 import etomica.units.dimensions.Length;
 
-public class MeterMeanForce implements IDataSource, AgentSource<IntegratorVelocityVerlet.MyAgent>, DataSourceIndependent, IAction {
+public class MeterMeanForce implements IDataSource, DataSourceIndependent, IAction {
 
     protected final PotentialMaster potentialMaster;
     protected final PotentialCalculationForceSum pcForce;
     protected final Box box;
     protected final IteratorDirective allAtoms;
-    protected final AtomLeafAgentManager<MyAgent> forceManager;
+    protected final AtomLeafAgentManager<Vector> forceManager;
     protected final Space space;
     protected final Potential2SoftSpherical p2;
     protected final Vector dr, fij;
@@ -52,13 +49,8 @@ public class MeterMeanForce implements IDataSource, AgentSource<IntegratorVeloci
         this.box = box;
         this.potentialMaster = potentialMaster;
         pcForce = new PotentialCalculationForceSum();
-        if (box != null) {
-            forceManager = new AtomLeafAgentManager<MyAgent>(this, box, MyAgent.class);
-            pcForce.setAgentManager(forceManager);
-        }
-        else {
-            forceManager = null;
-        }
+        forceManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
+        pcForce.setAgentManager(forceManager);
         allAtoms = new IteratorDirective();
         dr = space.makeVector();
         fij = space.makeVector();
@@ -85,29 +77,23 @@ public class MeterMeanForce implements IDataSource, AgentSource<IntegratorVeloci
         return hist2;
     }
 
-    public MyAgent makeAgent(IAtom a, Box agentBox) {
-        return new MyAgent(space);
-    }
-    
-    public void releaseAgent(MyAgent agent, IAtom atom, Box agentBox) {}
-
     public void actionPerformed() {
         pcForce.reset();
         potentialMaster.calculate(box, allAtoms, pcForce);
         IAtomList list = box.getLeafList();
 
-        int n = list.getAtomCount();
+        int n = list.size();
         for (int i=0; i<n; i++) {
-            IAtom a = list.getAtom(i);
-            Vector fi = forceManager.getAgent(a).force;
+            IAtom a = list.get(i);
+            Vector fi = forceManager.getAgent(a);
             for (int j=i+1; j<n; j++) {
-                IAtom b = list.getAtom(j);
+                IAtom b = list.get(j);
                 dr.Ev1Mv2(b.getPosition(),a.getPosition());
                 box.getBoundary().nearestImage(dr);
                 double r2 = dr.squared();
                 double r = Math.sqrt(r2);
                 if (r > p2.getRange()) continue;
-                Vector fj = forceManager.getAgent(b).force;
+                Vector fj = forceManager.getAgent(b);
                 fij.Ev1Mv2(fj,fi);
                 double fdr = 0.5*fij.dot(dr)/r;
                 hist.addValue(r, fdr);

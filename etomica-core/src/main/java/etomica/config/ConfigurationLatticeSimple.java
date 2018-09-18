@@ -70,7 +70,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
      */
     public void initializeCoordinates(Box box) {
         IMoleculeList moleculeList = box.getMoleculeList();
-        int sumOfMolecules = moleculeList.getMoleculeCount();
+        int sumOfMolecules = moleculeList.size();
         if (sumOfMolecules == 0) {
             return;
         }
@@ -90,7 +90,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         }
         Vector shape = space.makeVector();
         shape.E(dim);
-        Vector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        Vector latticeConstantV = Vector.of(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -111,9 +111,9 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
         Vector offset = space.makeVector();
         offset.Ea1Tv1(-0.5, box.getBoundary().getBoxSize());
         Vector destinationVector = atomActionTranslateTo.getDestination();
-        int nMolecules = moleculeList.getMoleculeCount();
+        int nMolecules = moleculeList.size();
         for (int i=0; i<nMolecules; i++) {
-            IMolecule a = moleculeList.getMolecule(i);
+            IMolecule a = moleculeList.get(i);
             // initialize coordinates of child atoms
             a.getType().initializeConformation(a);
 

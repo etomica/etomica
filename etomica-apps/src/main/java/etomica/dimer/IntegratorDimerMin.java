@@ -9,20 +9,16 @@ import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
-import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 
@@ -38,11 +34,11 @@ import java.io.FileWriter;
  * 	@author msellers
  */
 
-public class IntegratorDimerMin extends IntegratorBox implements AgentSource<IntegratorVelocityVerlet.MyAgent> {
+public class IntegratorDimerMin extends IntegratorBox {
 
 	public Simulation sim;
 	public Box boxMin;
-	public AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> atomAgent0, atomAgentMin;
+	public AtomLeafAgentManager<Vector> atomAgent0, atomAgentMin;
 	public PotentialCalculationForceSum force0, forceMin;
 	public IteratorDirective allatoms;
 	public FileWriter fileWriter;
@@ -74,28 +70,26 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
 	public boolean rotate, normalD, minFound;
 	public String file;
 	public WriteConfiguration writer;
-	private final Space space;
 	public CalcVibrationalModes vib;
 	
 	
 	public IntegratorDimerMin(Simulation sim, PotentialMaster potentialMaster,
-                              ISpecies[] species,
-                              Boolean normalDir, Space _space) {
-		this(sim, potentialMaster, 1.0, species, normalDir, _space);
+							  ISpecies[] species,
+							  Boolean normalDir, Box box) {
+		this(sim, potentialMaster, 1.0, species, normalDir, box);
 	}
 	
 	public IntegratorDimerMin(Simulation aSim, PotentialMaster potentialMaster,
-                              double temperature,
-                              ISpecies[] aspecies, Boolean normalDir, Space _space) {
-		super(potentialMaster, temperature);
+							  double temperature,
+							  ISpecies[] aspecies, Boolean normalDir, Box box) {
+		super(potentialMaster, temperature, box);
 		this.sim = aSim;
 		this.force0 = new PotentialCalculationForceSum();
 		this.forceMin = new PotentialCalculationForceSum();
 		this.allatoms = new IteratorDirective();
 		this.movableSpecies = aspecies;
 		this.normalD = normalDir;
-		this.space = _space;
-		
+
 		stepLength = 0.005;
 		deltaR = 1E-3;
 		dTheta = 1E-5;
@@ -170,106 +164,103 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
 	
 	
 	protected void setup() {
-		super.setup();     
-        movableAtoms = 0;
-        for(int i=0; i<movableSpecies.length; i++){
-            movableAtoms += box.getMoleculeList(movableSpecies[i]).getMoleculeCount();
-        }
-        workVector = space.makeVector();
-        N = new Vector[movableAtoms];
-        F0 = new Vector[movableAtoms];
-        Fmin = new Vector[movableAtoms];
-        Fmin2 = new Vector[movableAtoms];
-        Nstar = new Vector[movableAtoms];
-        THETA = new Vector[movableAtoms];
-        THETAstar = new Vector[movableAtoms];
-        Fperp = new Vector[movableAtoms];
-        Fminperp = new Vector[movableAtoms];
-        Fmin2perp = new Vector[movableAtoms];
-        Fstar = new Vector[movableAtoms];
-        Fminstar = new Vector[movableAtoms];
-        Fmin2star = new Vector[movableAtoms];
-        Fstarperp = new Vector[movableAtoms];
-        Fpara = new Vector[movableAtoms];
-        
-        for (int i=0; i<movableAtoms; i++){
-            N[i] = space.makeVector();
-            Nstar[i] = space.makeVector();
-            F0[i] = space.makeVector();
-            Fmin[i] = space.makeVector();
-            Fmin2[i] = space.makeVector();
-            Nstar[i] = space.makeVector();
-            NDelta = space.makeVector();
-            NstarDelta = space.makeVector();
-            THETA[i] = space.makeVector();
-            THETAstar[i] = space.makeVector();
-            Fperp[i] = space.makeVector();
-            Fminperp[i] = space.makeVector();
-            Fmin2perp[i] = space.makeVector();
-            Fstar[i] = space.makeVector();
-            Fminstar[i] = space.makeVector();
-            Fmin2star[i] = space.makeVector();
-            Fstarperp[i] = space.makeVector();
-            Fpara[i] = space.makeVector();
-        }  
-	        
-		boxMin = new Box(box.getBoundary(), space);
-        sim.addBox(boxMin);
-        
-        if(potentialMaster instanceof PotentialMasterListDimer){
-            getEventManager().addListener(((PotentialMasterList)potentialMaster).getNeighborManager(boxMin)); 
-         }
-        
-        energyBox0 = new MeterPotentialEnergy(potentialMaster);
-        energyBoxMin = new MeterPotentialEnergy(potentialMaster);
-         
-        energyBox0.setBox(box);
-        energyBoxMin.setBox(boxMin);
-         
+		super.setup();
+		movableAtoms = 0;
+		for (int i = 0; i < movableSpecies.length; i++) {
+			movableAtoms += box.getMoleculeList(movableSpecies[i]).size();
+		}
+		workVector = space.makeVector();
+		N = new Vector[movableAtoms];
+		F0 = new Vector[movableAtoms];
+		Fmin = new Vector[movableAtoms];
+		Fmin2 = new Vector[movableAtoms];
+		Nstar = new Vector[movableAtoms];
+		THETA = new Vector[movableAtoms];
+		THETAstar = new Vector[movableAtoms];
+		Fperp = new Vector[movableAtoms];
+		Fminperp = new Vector[movableAtoms];
+		Fmin2perp = new Vector[movableAtoms];
+		Fstar = new Vector[movableAtoms];
+		Fminstar = new Vector[movableAtoms];
+		Fmin2star = new Vector[movableAtoms];
+		Fstarperp = new Vector[movableAtoms];
+		Fpara = new Vector[movableAtoms];
+
+		for (int i = 0; i < movableAtoms; i++) {
+			N[i] = space.makeVector();
+			Nstar[i] = space.makeVector();
+			F0[i] = space.makeVector();
+			Fmin[i] = space.makeVector();
+			Fmin2[i] = space.makeVector();
+			Nstar[i] = space.makeVector();
+			NDelta = space.makeVector();
+			NstarDelta = space.makeVector();
+			THETA[i] = space.makeVector();
+			THETAstar[i] = space.makeVector();
+			Fperp[i] = space.makeVector();
+			Fminperp[i] = space.makeVector();
+			Fmin2perp[i] = space.makeVector();
+			Fstar[i] = space.makeVector();
+			Fminstar[i] = space.makeVector();
+			Fmin2star[i] = space.makeVector();
+			Fstarperp[i] = space.makeVector();
+			Fpara[i] = space.makeVector();
+		}
+
+		boxMin = sim.makeBox(box.getBoundary());
+
+		if (potentialMaster instanceof PotentialMasterListDimer) {
+			getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(boxMin));
+		}
+
+		energyBox0 = new MeterPotentialEnergy(potentialMaster, box);
+		energyBoxMin = new MeterPotentialEnergy(potentialMaster);
+		energyBoxMin.setBox(boxMin);
+
 		// Offset Rmin (half-dimer end) from initial configuration, along N.		
-		atomAgent0 = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box, IntegratorVelocityVerlet.MyAgent.class);
-		atomAgentMin = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, boxMin, IntegratorVelocityVerlet.MyAgent.class);
-		
+		atomAgent0 = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
+		atomAgentMin = new AtomLeafAgentManager<>(a -> space.makeVector(), boxMin);
+
 		force0.setAgentManager(atomAgent0);
 		forceMin.setAgentManager(atomAgentMin);
-		
+
 //		ISpecies [] species = sim.getSpeciesManager().getSpecies();
-		
-		for(int i=0; i<sim.getSpeciesCount(); i++){
+
+		for (int i = 0; i < sim.getSpeciesCount(); i++) {
 			boxMin.setNMolecules(sim.getSpecies(i),
 					box.getNMolecules(sim.getSpecies(i)));
 		}
-		    	    	
+
 		// Atom list for movable and offset atoms
 		list = new AtomArrayList();
-        listMin = new AtomArrayList();
-		
-		for(int i=0; i<movableSpecies.length; i++){
-            IMoleculeList molecules = box.getMoleculeList(movableSpecies[i]);
-            IMoleculeList molecules1 = boxMin.getMoleculeList(movableSpecies[i]);
-            for (int j=0; j<molecules.getMoleculeCount(); j++) {
-                list.add(molecules.getMolecule(j).getChildList().getAtom(0));
-                listMin.add(molecules1.getMolecule(j).getChildList().getAtom(0));
-            }
-		}  
-		
-        ConfigurationFile config = new ConfigurationFile(file+"_saddle");
-        config.initializeCoordinates(box);        
-        
-        // Read in coordinates for boxMin atom locations
-        ConfigurationFile configFile = new ConfigurationFile(file+"_A_saddle");
-        configFile.initializeCoordinates(boxMin);
-        writer = new WriteConfiguration(space);
-        writer.setConfName(file+"_A_minimum");
-                
-        if(normalD==true){
-            // Read in coordinates for opposite boxMin atom locations
-            ConfigurationFile configFile1 = new ConfigurationFile(file+"_B_saddle");
-            configFile1.initializeCoordinates(boxMin);
-            writer.setConfName(file+"_B_minimum");
-        }
-        
-        dimerNormal();
+		listMin = new AtomArrayList();
+
+		for (int i = 0; i < movableSpecies.length; i++) {
+			IMoleculeList molecules = box.getMoleculeList(movableSpecies[i]);
+			IMoleculeList molecules1 = boxMin.getMoleculeList(movableSpecies[i]);
+			for (int j = 0; j < molecules.size(); j++) {
+				list.add(molecules.get(j).getChildList().get(0));
+				listMin.add(molecules1.get(j).getChildList().get(0));
+			}
+		}
+
+		ConfigurationFile config = new ConfigurationFile(file + "_saddle");
+		config.initializeCoordinates(box);
+
+		// Read in coordinates for boxMin atom locations
+		ConfigurationFile configFile = new ConfigurationFile(file + "_A_saddle");
+		configFile.initializeCoordinates(boxMin);
+		writer = new WriteConfiguration(space);
+		writer.setConfName(file + "_A_minimum");
+
+		if (normalD == true) {
+			// Read in coordinates for opposite boxMin atom locations
+			ConfigurationFile configFile1 = new ConfigurationFile(file + "_B_saddle");
+			configFile1.initializeCoordinates(boxMin);
+			writer.setConfName(file + "_B_minimum");
+		}
+
+		dimerNormal();
 
 	}
 	
@@ -343,9 +334,9 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
             // Use Nstar to offset(rotate) replicas
             Vector workVector1 = space.makeVector();
             for(int i=0; i<Nstar.length; i++){
-                workVector1.E(list.getAtom(i).getPosition());
+                workVector1.E(list.get(i).getPosition());
                 workVector1.PEa1Tv1(deltaR, Nstar[i]);
-                listMin.getAtom(i).getPosition().E(workVector1);
+                listMin.get(i).getPosition().E(workVector1);
             }
 
 			// Calculate F*'s
@@ -399,9 +390,9 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
                         
             // Use new N to offset(rotate) replica
             for(int i=0; i<N.length; i++){             
-                workVector.E(list.getAtom(i).getPosition());
+                workVector.E(list.get(i).getPosition());
                 workVector.PEa1Tv1(deltaR, N[i]);
-                listMin.getAtom(i).getPosition().E(workVector);
+                listMin.get(i).getPosition().E(workVector);
             }     
 						
 			rotCounter++;
@@ -423,8 +414,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
 		
 		for(int i=0; i<N.length; i++){
 			workvector.Ea1Tv1(stepLength, N[i]);
-			list.getAtom(i).getPosition().PE(workvector);
-			listMin.getAtom(i).getPosition().PE(workvector);
+			list.get(i).getPosition().PE(workvector);
+			listMin.get(i).getPosition().PE(workvector);
 		}
 		dimerNormal();
 	}
@@ -460,8 +451,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
         
         // N =  (Rmin - R0) / (deltaR)
         for (int i=0; i<N.length; i++){ 
-            workvector.E(listMin.getAtom(i).getPosition());
-            workvector.ME(list.getAtom(i).getPosition());
+            workvector.E(listMin.get(i).getPosition());
+            workvector.ME(list.get(i).getPosition());
             N[i].E(workvector);
             mag += workvector.squared();
         }
@@ -491,8 +482,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
 		// Copy forces of dimer ends (R1, R2) to local array
 		for(int i=0; i<aF1.length; i++){
 			
-			aF[i].E(atomAgent0.getAgent(list.getAtom(i)).force());
-			aF1[i].E(atomAgentMin.getAgent(listMin.getAtom(i)).force());
+			aF[i].E(atomAgent0.getAgent(list.get(i)));
+			aF1[i].E(atomAgentMin.getAgent(listMin.get(i)));
 			aF2[i].Ea1Tv1(2.0, aF[i]);
 			aF2[i].ME(aF1[i]);
 			
@@ -514,7 +505,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
         
      // Copy forces of dimer end and center (R1, R) to local array
         for(int i=0; i<aF1star.length; i++){
-            aF1star[i].E(atomAgentMin.getAgent(listMin.getAtom(i)).force());
+            aF1star[i].E(atomAgentMin.getAgent(listMin.get(i)));
             aF2star[i].Ea1Tv1(2.0, aF[i]);
             aF2star[i].ME(aF1star[i]);
         }
@@ -546,11 +537,4 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource<Int
 	public void setActivityIntegrate(ActivityIntegrate ai){
 		activityIntegrate = ai;
 	}
-
-	public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
-		return new IntegratorVelocityVerlet.MyAgent(space);
-	}
-
-	public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {}
-	
 }

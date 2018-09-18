@@ -380,7 +380,7 @@ public class FFTDecomposition implements Property {
     comp.addComparator(new ComparatorBiConnected());
     comp.addComparator(new ComparatorNumEdges());
     comp.addComparator(new ComparatorNumNodes());
-    GraphList<Graph> graphList = new GraphList<Graph>(comp);
+    GraphList graphList = new GraphList(comp);
     MaxIsomorph maxIso = new MaxIsomorph();
     MaxIsomorphParameters mip = new MaxIsomorphParameters(new GraphOp.GraphOpNull(), MaxIsomorph.PROPERTY_ALL);
     while (iter.hasNext()) {
@@ -388,7 +388,7 @@ public class FFTDecomposition implements Property {
     }
     
     FFTDecomposition isFFT = new FFTDecomposition();
-    Set<Graph> fftSet = new GraphList<Graph>(comp);
+    Set<Graph> fftSet = new GraphList(comp);
     System.out.println("FFT");
     for (Graph g : graphList) {
       if (!isFFT.check(g)) {
@@ -401,7 +401,7 @@ public class FFTDecomposition implements Property {
       fftSet.add(g);
     }
     ClusterViewer.createView("FFT", fftSet);
-    Set<Graph> segmentGraphs = new GraphList<Graph>(comp);
+    Set<Graph> segmentGraphs = new GraphList(comp);
     for (long gn : isFFT.getSegments()) {
       Graph g = GraphNumber.makeGraph(gn);
       g.getNode((byte)0).setType(Metadata.TYPE_NODE_ROOT);

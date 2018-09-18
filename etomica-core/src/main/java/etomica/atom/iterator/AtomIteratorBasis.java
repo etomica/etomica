@@ -89,8 +89,8 @@ public class AtomIteratorBasis extends AtomIteratorArrayListSimple implements
             myList = littleList;
             setList(myList);
             needSetupIterator = false;
-        } else if (atoms.getMoleculeCount() == 1) {
-            basis = atoms.getMolecule(0);
+        } else if (atoms.size() == 1) {
+            basis = atoms.get(0);
             needSetupIterator = true;
         } else {
             throw new IllegalArgumentException(

@@ -10,7 +10,7 @@ fi
 
 # check for: etomica repo (not a fork), consistent jdk version (in case we ever test against multiple),
 #            not a pull request, and only commits to master branch.
-if [ "$TRAVIS_REPO_SLUG" == "etomica/etomica" ] && [ "$TRAVIS_JDK_VERSION" == "oraclejdk8" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
+if [ "$TRAVIS_REPO_SLUG" == "etomica/etomica" ] && [ "$TRAVIS_JDK_VERSION" == "oraclejdk9" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
     COMMIT_AUTHOR_EMAIL="$(git --no-pager show -s --format='%ce' ${TRAVIS_COMMIT})"
     echo "Generating javadoc..."
     ./gradlew javadocAll || { echo "Javadoc build failed!"; exit 1; }

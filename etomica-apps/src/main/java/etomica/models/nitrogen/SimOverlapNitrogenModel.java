@@ -16,6 +16,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveVolume;
@@ -23,7 +24,6 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.listener.IntegratorListenerAction;
 import etomica.normalmode.*;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.PotentialMaster;
@@ -57,106 +57,99 @@ public class SimOverlapNitrogenModel extends Simulation {
     public SimOverlapNitrogenModel(Space _space, int numMolecules,double temperature, String filename, double scale) {
         super(_space);
         this.fname = filename;
-        
+
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPump[2];
         meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
-        double unitCellLength = scale*5.661;
-        nCell = (int) Math.round(Math.pow((numMolecules/4), 1.0/3.0));
-       
+        double unitCellLength = scale * 5.661;
+        nCell = (int) Math.round(Math.pow((numMolecules / 4), 1.0 / 3.0));
+
+        Basis basisFCC = new BasisCubicFcc();
+        Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
+
+        ConformationNitrogen conformation = new ConformationNitrogen(space);
+        species = new SpeciesN2(space);
+        species.setConformation(conformation);
+        addSpecies(species);
+
         potentialMasterTarget = new PotentialMaster();
-        
-    	Basis basisFCC = new BasisCubicFcc();
-		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
-		
-		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		species = new SpeciesN2(space);
-		species.setConformation(conformation);
-		addSpecies(species);
-		
+
         // TARGET
-        boxTarget = new Box(space);
-        addBox(boxTarget);
+        boundaryTarget = new BoundaryDeformablePeriodic(space, nCell * unitCellLength);
+        boxTarget = this.makeBox(boundaryTarget);
         boxTarget.setNMolecules(species, numMolecules);
 
-    	int [] nCells = new int[]{1,1,1};
-		boundaryTarget = new BoundaryDeformablePeriodic(space,nCell*unitCellLength);
-		primitive = new PrimitiveCubic(space, nCell*unitCellLength);
-	
-		CoordinateDefinitionNitrogen coordDefTarget = new CoordinateDefinitionNitrogen(this, boxTarget, primitive, basis, space);
-		coordDefTarget.setIsAlpha();
-		coordDefTarget.setOrientationVectorAlpha(space);
-		coordDefTarget.initializeCoordinates(nCells);
-        
-		boxTarget.setBoundary(boundaryTarget);
-		double rCScale = 0.45;
-		double rC = boxTarget.getBoundary().getBoxSize().getX(0)*rCScale;
-		System.out.println("Truncation Radius (" + rCScale +" Box Length): " + rC);
-		P2Nitrogen potential = new P2Nitrogen(space, rCScale);
-		potential.setBox(boxTarget);
-		System.out.println("Box Dimension(before): " + boxTarget.getBoundary().getBoxSize().toString());
-		final Vector initBox = space.makeVector(new double[]{boxTarget.getBoundary().getBoxSize().getX(0),
-															  boxTarget.getBoundary().getBoxSize().getX(1),
-															  boxTarget.getBoundary().getBoxSize().getX(2)});
-		coordDefTarget.setInitVolume(initBox);
-		
-		P0LatticeEnergyCorrec p0correc = new P0LatticeEnergyCorrec(space);
-		p0correc.setSpecies(species);
-		p0correc.setBox(boxTarget);
-		
-		potentialMasterTarget.addPotential(potential, new ISpecies[]{species,species});
-		potentialMasterTarget.addPotential(p0correc, new ISpecies[]{species, species});
-		
-        integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), Kelvin.UNIT.toSim(temperature));
-		MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMasterTarget,getRandom(),space);
-		move.setBox(boxTarget);
-		move.setPotential(potential);
-		
-		MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMasterTarget, getRandom(), space);
-		rotate.setBox(boxTarget);
-		
-		MCMoveVolume mcMoveVolume = new MCMoveVolume(this, potentialMasterTarget, space);
-		mcMoveVolume.setBox(boxTarget);
-		mcMoveVolume.setPressure(Pascal.UNIT.toSim(0.0e9));
-				
-		integratorTarget = new IntegratorMC(this, potentialMasterTarget);
-		integratorTarget.getMoveManager().addMCMove(move);
-		integratorTarget.getMoveManager().addMCMove(rotate);
-		integratorTarget.getMoveManager().addMCMove(mcMoveVolume);
+        int[] nCells = new int[]{1, 1, 1};
+        primitive = new PrimitiveCubic(space, nCell * unitCellLength);
 
-		integratorTarget.setBox(boxTarget);
+        CoordinateDefinitionNitrogen coordDefTarget = new CoordinateDefinitionNitrogen(this, boxTarget, primitive, basis, space);
+        coordDefTarget.setIsAlpha();
+        coordDefTarget.setOrientationVectorAlpha(space);
+        coordDefTarget.initializeCoordinates(nCells);
+
+        double rCScale = 0.45;
+        double rC = boxTarget.getBoundary().getBoxSize().getX(0) * rCScale;
+        System.out.println("Truncation Radius (" + rCScale + " Box Length): " + rC);
+        P2Nitrogen potential = new P2Nitrogen(space, rCScale);
+        potential.setBox(boxTarget);
+        System.out.println("Box Dimension(before): " + boxTarget.getBoundary().getBoxSize().toString());
+        final Vector initBox = Vector.of(new double[]{boxTarget.getBoundary().getBoxSize().getX(0),
+                boxTarget.getBoundary().getBoxSize().getX(1),
+                boxTarget.getBoundary().getBoxSize().getX(2)});
+        coordDefTarget.setInitVolume(initBox);
+
+        P0LatticeEnergyCorrec p0correc = new P0LatticeEnergyCorrec(space);
+        p0correc.setSpecies(species);
+        p0correc.setBox(boxTarget);
+
+        potentialMasterTarget.addPotential(potential, new ISpecies[]{species, species});
+        potentialMasterTarget.addPotential(p0correc, new ISpecies[]{species, species});
+
+        integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), Kelvin.UNIT.toSim(temperature), boxTarget);
+        MCMoveMoleculeCoupled move = new MCMoveMoleculeCoupled(potentialMasterTarget, getRandom(), space);
+        move.setBox(boxTarget);
+        move.setPotential(potential);
+
+        MCMoveRotateMolecule3D rotate = new MCMoveRotateMolecule3D(potentialMasterTarget, getRandom(), space);
+        rotate.setBox(boxTarget);
+
+        MCMoveVolume mcMoveVolume = new MCMoveVolume(this, potentialMasterTarget, space);
+        mcMoveVolume.setBox(boxTarget);
+        mcMoveVolume.setPressure(Pascal.UNIT.toSim(0.0e9));
+
+        integratorTarget = new IntegratorMC(this, potentialMasterTarget, boxTarget);
+        integratorTarget.getMoveManager().addMCMove(move);
+        integratorTarget.getMoveManager().addMCMove(rotate);
+        integratorTarget.getMoveManager().addMCMove(mcMoveVolume);
         integrators[1] = integratorTarget;
-     
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
-        meterPE.setBox(boxTarget);
-        latticeEnergy =  meterPE.getDataAsScalar();
-        
-        System.out.println("lattice energy per molecule in K: " +Kelvin.UNIT.fromSim(latticeEnergy)/numMolecules+"\n");
-      
+
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget, boxTarget);
+        latticeEnergy = meterPE.getDataAsScalar();
+
+        System.out.println("lattice energy per molecule in K: " + Kelvin.UNIT.fromSim(latticeEnergy) / numMolecules + "\n");
+
         // HARMONIC
-        boundaryHarmonic =  new BoundaryDeformablePeriodic(space,nCell*unitCellLength);
-        boxHarmonic = new Box(boundaryHarmonic, space);
-        addBox(boxHarmonic);
+        boundaryHarmonic = new BoundaryDeformablePeriodic(space, nCell * unitCellLength);
+        boxHarmonic = this.makeBox(boundaryHarmonic);
         boxHarmonic.setNMolecules(species, numMolecules);
-        boxHarmonic.setBoundary(boundaryHarmonic);
-        
-        integratorHarmonic = new IntegratorMC(null, random, 1.0); //null changed on 11/20/2009
+
+        integratorHarmonic = new IntegratorMC(null, random, 1.0, boxHarmonic); //null changed on 11/20/2009
 
         moveHarmonic = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(moveHarmonic);
         integrators[0] = integratorHarmonic;
-       
+
         CoordinateDefinitionNitrogen coordDefHarmonic = new CoordinateDefinitionNitrogen(this, boxHarmonic, primitive, basis, space);
-    	coordDefHarmonic.setIsAlpha();
-		coordDefHarmonic.setOrientationVectorAlpha(space);
-		coordDefHarmonic.initializeCoordinates(nCells);
-		coordDefHarmonic.setInitVolume(initBox);
-        
-		normalModes = new NormalModesFromFile(filename, space.D());
+        coordDefHarmonic.setIsAlpha();
+        coordDefHarmonic.setOrientationVectorAlpha(space);
+        coordDefHarmonic.initializeCoordinates(nCells);
+        coordDefHarmonic.setInitVolume(initBox);
+
+        normalModes = new NormalModesFromFile(filename, space.D());
         normalModes.setTemperature(Kelvin.UNIT.toSim(temperature));
-        
+
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(boxHarmonic);
         moveHarmonic.setOmegaSquared(normalModes.getOmegaSquared());
@@ -166,11 +159,9 @@ public class SimOverlapNitrogenModel extends Simulation {
         moveHarmonic.setCoordinateDefinition(coordDefHarmonic);
         moveHarmonic.setTemperature(Kelvin.UNIT.toSim(temperature));
         //moveHarmonic.setModeNum(new int[] {4});
-        
+
         moveHarmonic.setBox(boxHarmonic);
-        
-        integratorHarmonic.setBox(boxHarmonic);
-   
+
         // OVERLAP
         integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorHarmonic, integratorTarget});
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordDefTarget, normalModes);
@@ -179,17 +170,17 @@ public class SimOverlapNitrogenModel extends Simulation {
         meterTarget.setLatticeEnergy(latticeEnergy);
         meters[1] = meterTarget;
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
-        
+
         MeterBoltzmannHarmonic meterHarmonic = new MeterBoltzmannHarmonic(moveHarmonic, potentialMasterTarget);
         meterHarmonic.setTemperature(Kelvin.UNIT.toSim(temperature));
         meterHarmonic.setLatticeEnergy(latticeEnergy);
         meters[0] = meterHarmonic;
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);
-        
+
         setRefPref(1.0, 30);
-     
+
         activityIntegrate = new ActivityIntegrate(integratorOverlap);
-        
+
         getController().addAction(activityIntegrate);
     }
 
@@ -211,11 +202,11 @@ public class SimOverlapNitrogenModel extends Simulation {
             IntegratorListenerAction pumpListener = new IntegratorListenerAction(accumulatorPumps[iBox]);
             integrators[iBox].getEventManager().addListener(pumpListener);
             if (iBox == 1) {
-            	if (boxTarget.getMoleculeList().getMoleculeCount()==32){
+            	if (boxTarget.getMoleculeList().size()==32){
             		
             	    pumpListener.setInterval(100);
             	
-            	} else if (boxTarget.getMoleculeList().getMoleculeCount()==108){
+            	} else if (boxTarget.getMoleculeList().size()==108){
                 
             	    pumpListener.setInterval(300);
             	} else 
@@ -451,7 +442,7 @@ public class SimOverlapNitrogenModel extends Simulation {
     
         
 		if(false){
-			SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space, sim.getController());
+			SimulationGraphic simGraphic = new SimulationGraphic(sim);
 		    simGraphic.getDisplayBox(sim.boxHarmonic).setPixelUnit(new Pixel(50));
 		    simGraphic.makeAndDisplayFrame("Overlap Sampling Alpha-Phase Nitrogen Crystal Structure");
 			sim.activityIntegrate.setMaxSteps(numSteps);

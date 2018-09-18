@@ -19,10 +19,10 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterProfileByVolume;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
@@ -54,36 +54,36 @@ public class LJMC extends Simulation {
 
     public LJMC(double temperature, String lammpsFile) {
         super(Space3D.getInstance());
-        BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(2, space);
-        box = new Box(boundary, space);
-        addBox(box);
-        
+
         speciesFluid = new SpeciesSpheresMono(space, new ElementSimple("F"));
         addSpecies(speciesFluid);
         speciesTopWall = new SpeciesSpheresMono(space, new ElementSimple("TW"));
         addSpecies(speciesTopWall);
         speciesBottomWall = new SpeciesSpheresMono(space, new ElementSimple("BW"));
         addSpecies(speciesBottomWall);
-        
+
+        BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(2, space);
+        box = this.makeBox(boundary);
+
         config = new ConfigurationLammps(space, lammpsFile, speciesTopWall, speciesBottomWall, speciesFluid);
         config.setTopPadding(10);
         config.initializeCoordinates(box);
         double Lxy = config.getLxy();
-        
+
         potentialMasterCell = new PotentialMasterCell(this, 5.49925, space);
         potentialMasterCell.setCellRange(2);
-        integrator = new IntegratorMC(this, potentialMasterCell);
+        integrator = new IntegratorMC(this, potentialMasterCell, box);
         integrator.setTemperature(temperature);
         MCMoveAtom mcMoveAtom = new MCMoveAtom(random, potentialMasterCell, space);
         mcMoveAtom.setAtomSource(new AtomSourceRandomSpecies(getRandom(), speciesFluid));
         MCMoveAtom mcMoveAtomBig = new MCMoveAtom(random, potentialMasterCell, space);
         mcMoveAtomBig.setAtomSource(new AtomSourceRandomSpecies(getRandom(), speciesFluid));
-        mcMoveAtomBig.setStepSize(0.5*Lxy);
-        ((MCMoveStepTracker)mcMoveAtomBig.getTracker()).setTunable(false);
-        
+        mcMoveAtomBig.setStepSize(0.5 * Lxy);
+        ((MCMoveStepTracker) mcMoveAtomBig.getTracker()).setTunable(false);
+
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().addMCMove(mcMoveAtomBig);
-        
+
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
 
@@ -93,25 +93,23 @@ public class LJMC extends Simulation {
 
         pBW = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.09985, 0.4), 5.49925);
         potentialMasterCell.addPotential(pBW, new AtomType[]{leafType, speciesBottomWall.getLeafType()});
-        
+
         pTW = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.5, 0.1), 1.68);
         potentialMasterCell.addPotential(pTW, new AtomType[]{leafType, speciesTopWall.getLeafType()});
 
         Potential1 p1F = new Potential1(space) {
-            
+
             public double energy(IAtomList atoms) {
-                double pz = atoms.getAtom(0).getPosition().getX(2);
-                double zMin = -0.5*boundary.getBoxSize().getX(2);
-                double zMax = box.getMoleculeList(speciesTopWall).getMolecule(0).getChildList().getAtom(0).getPosition().getX(2);
+                double pz = atoms.get(0).getPosition().getX(2);
+                double zMin = -0.5 * boundary.getBoxSize().getX(2);
+                double zMax = box.getMoleculeList(speciesTopWall).get(0).getChildList().get(0).getPosition().getX(2);
                 return (pz < zMin || pz > zMax) ? Double.POSITIVE_INFINITY : 0;
             }
         };
         potentialMasterCell.addPotential(p1F, new AtomType[]{leafType});
-        
-        integrator.setBox(box);
 
         integrator.getMoveEventManager().addListener(potentialMasterCell.getNbrCellManager(box).makeMCMoveListener());
-		
+
         potentialMasterCell.getNbrCellManager(box).assignCellAll();
     }
     
@@ -149,8 +147,7 @@ public class LJMC extends Simulation {
         DataPumpListener pumpWF = new DataPumpListener(meterWF, forkWF, 1000);
         sim.integrator.getEventManager().addListener(pumpWF);
         
-        MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(sim.potentialMasterCell);
-        meterPE2.setBox(sim.box);
+        MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(sim.potentialMasterCell, sim.box);
         double u = meterPE2.getDataAsScalar();
         System.out.println("Potential energy: "+u);
         System.out.println("Wall force: "+meterWF.getDataAsScalar());
@@ -173,7 +170,7 @@ public class LJMC extends Simulation {
         
         if (graphics) {
             final String APP_NAME = "LJMC";
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
 
             List<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
             dataStreamPumps.add(profilePump);

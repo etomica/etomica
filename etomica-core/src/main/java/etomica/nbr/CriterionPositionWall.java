@@ -32,7 +32,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource<Dou
         this.neighborRange = Double.NaN;
         setBoundaryWall(true);
         setSafetyFactor(0.8);
-        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<DoubleWrapper>>(new BoxAgentSourceAtomManager<DoubleWrapper>(this,DoubleWrapper.class),AtomLeafAgentManager.class,sim);
+        boxAgentManager = new BoxAgentManager<AtomLeafAgentManager<DoubleWrapper>>(new BoxAgentSourceAtomManager<DoubleWrapper>(this,DoubleWrapper.class), sim);
 	}
 
     /**
@@ -167,7 +167,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource<Dou
 	}
 
 	public boolean accept(IAtomList atom) {
-		dr = (atom.getAtom(0)).getPosition().getX(neighborDim);
+		dr = (atom.get(0)).getPosition().getX(neighborDim);
         if (!isBoundaryWall) {
             dr = Math.abs(dr - wallPosition);
         }

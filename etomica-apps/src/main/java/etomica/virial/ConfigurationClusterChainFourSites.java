@@ -37,9 +37,9 @@ public class ConfigurationClusterChainFourSites extends ConfigurationCluster {
 		IAtomList list = box.getLeafList();
         Vector direction = space.makeVector();
         Vector secondaryDirection = space.makeVector();
-		for (int i=1;i<list.getAtomCount();i++){
-			list.getAtom(i).getPosition().setX(0, 0.9*i);
-			if (list.getAtom(i) instanceof IAtomOriented){
+		for (int i = 1; i<list.size(); i++){
+			list.get(i).getPosition().setX(0, 0.9*i);
+			if (list.get(i) instanceof IAtomOriented){
 				double x = 1.0/3.0;
 				double y = -2.0/(3.0*Math.sqrt(2.0));
 				double z = Math.sqrt(2.0/3.0);
@@ -47,7 +47,7 @@ public class ConfigurationClusterChainFourSites extends ConfigurationCluster {
 				double norm = Math.sqrt(16/9.0*(x*x+y*y+0.25*z*z));
 				secondaryDirection.E(new double[]{4.0*x/3.0, 4.0*y/3.0, -2.0*z/3.0});
 				secondaryDirection.TE(1.0/norm);
-				((IOrientationFull3D)((IAtomOriented)list.getAtom(i)).getOrientation()).setDirections(direction, secondaryDirection);
+				((IOrientationFull3D)((IAtomOriented)list.get(i)).getOrientation()).setDirections(direction, secondaryDirection);
 			}
 		 }
 		 clusterBox.trialNotify();

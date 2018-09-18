@@ -29,7 +29,7 @@ public class CoordinatePairMoleculeSet implements CoordinatePairSet {
      * @param list The list of atoms for which the set of pairs is formed.
      */
     public CoordinatePairMoleculeSet(IMoleculeList list, Space space) {
-        numAtoms = list.getMoleculeCount();
+        numAtoms = list.size();
         atoms = new IMolecule[numAtoms];
         r2 = new double[numAtoms*numAtoms];
         setAtoms(list);
@@ -58,8 +58,8 @@ public class CoordinatePairMoleculeSet implements CoordinatePairSet {
     }
 
     private void setAtoms(IMoleculeList list) {
-        for (int i=0; i<list.getMoleculeCount(); i++) {
-            atoms[i] = list.getMolecule(i);
+        for (int i = 0; i<list.size(); i++) {
+            atoms[i] = list.get(i);
         }
     }
     

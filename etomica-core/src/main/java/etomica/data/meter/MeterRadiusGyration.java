@@ -66,7 +66,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
              molecule = iterator.nextMolecule()) {
             // loop over molecules
             IAtomList childList = molecule.getChildList();
-            if (childList.getAtomCount() < 2) {
+            if (childList.size() < 2) {
                 // a monatomic molecule
                 continue;
             }
@@ -74,13 +74,13 @@ public class MeterRadiusGyration extends DataSourceScalar {
             // find center of mass
             //do the first iterate explicitly, assume there is at least
             // one leaf atom
-            IAtom firstAtom = childList.getAtom(0);
+            IAtom firstAtom = childList.get(0);
             int nLeafAtoms = 1;
             realPos.E(firstAtom.getPosition());
             cm.E(realPos);
             Vector prevPosition = firstAtom.getPosition();
-            for (int iChild = 1; iChild < childList.getAtomCount(); iChild++) {
-                IAtom a = childList.getAtom(iChild);
+            for (int iChild = 1; iChild < childList.size(); iChild++) {
+                IAtom a = childList.get(iChild);
                 nLeafAtoms++;
                 Vector position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
@@ -96,8 +96,8 @@ public class MeterRadiusGyration extends DataSourceScalar {
             // calculate Rg^2 for this chain
             double r2 = 0.0;
             realPos.E(firstAtom.getPosition());
-            for (int iChild = 1; iChild < childList.getAtomCount(); iChild++) {
-                IAtom a = childList.getAtom(iChild);
+            for (int iChild = 1; iChild < childList.size(); iChild++) {
+                IAtom a = childList.get(iChild);
                 Vector position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate

@@ -14,17 +14,17 @@ import etomica.atom.AtomArrayList;
  * AtomArrayList is kept for each potential (potential => AtomArrayList mapping
  * is the responsibility of the consumer). 
  */
-public class AtomNeighborLists implements java.io.Serializable {
+public class AtomNeighborLists {
 
-    private static final long serialVersionUID = 2L;
+    private static final AtomArrayList[] EMPTY_ATOMLIST_ARRAY = new AtomArrayList[0];
     protected AtomArrayList[] upList, downList;
 	
     /**
      * Constructs sequencer for the given atom.
      */
     public AtomNeighborLists() {
-        upList = new AtomArrayList[0];
-        downList = new AtomArrayList[0];
+        upList = EMPTY_ATOMLIST_ARRAY;
+        downList = EMPTY_ATOMLIST_ARRAY;
     }
     
     /**

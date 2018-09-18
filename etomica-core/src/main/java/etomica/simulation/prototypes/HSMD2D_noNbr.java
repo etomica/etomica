@@ -17,14 +17,15 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -50,17 +51,19 @@ public class HSMD2D_noNbr extends Simulation {
 
     public HSMD2D_noNbr() {
         super(Space2D.getInstance());
-        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
-        integrator = new IntegratorHard(this, potentialMaster, space);
-        integrator.setIsothermal(false);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
         addSpecies(species);
-        box = new Box(new BoundaryRectangularNonperiodic(space), space);
-        addBox(box);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{10, 10}));
+
+        PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
+
+        box = this.makeBox(new BoundaryRectangularNonperiodic(space));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10}));
+        integrator = new IntegratorHard(this, potentialMaster, box);
+        integrator.setIsothermal(false);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
         box.setNMolecules(species, 64);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         P2HardSphere potential = new P2HardSphere(space);
@@ -71,12 +74,9 @@ public class HSMD2D_noNbr extends Simulation {
 //        potentialBoundary.setActive(1,true,true);
 //        potentialBoundary.setActive(0,false,true);
 //        potentialBoundary.setActive(1,false,true);
-
-        integrator.setBox(box);
         integrator.setIsothermal(true);
 
-        meterPressure = new MeterPressureHard(space);
-        meterPressure.setIntegrator(integrator);
+        meterPressure = new MeterPressureHard(integrator);
         pressureAverage = new AccumulatorAverageCollapsing();
         pressurePump = new DataPump(meterPressure, pressureAverage);
 //        IntervalActionAdapter pressureAction = new IntervalActionAdapter(pressurePump, integrator);
@@ -106,7 +106,7 @@ public class HSMD2D_noNbr extends Simulation {
         final String APP_NAME = "HSMD2D no Nbr";
 
         final HSMD2D_noNbr sim = new HSMD2D_noNbr();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space, sim.getController());
+        final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
         sim.activityIntegrate.setSleepPeriod(10);
 
         DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();

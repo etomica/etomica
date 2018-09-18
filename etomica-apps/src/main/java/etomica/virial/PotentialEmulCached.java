@@ -45,7 +45,7 @@ public class PotentialEmulCached extends PotentialEmul {
     
     public double energy(IMoleculeList molecules) {
         for (int i=0; i<nBody; i++) {
-            ids[i] = molecules.getMolecule(i).getIndex();
+            ids[i] = molecules.get(i).getIndex();
         }
         int gid = VirialDiagrams.getGroupID(ids, maxNumAtoms);
         if (Double.isNaN(lastEnergies[gid])) {

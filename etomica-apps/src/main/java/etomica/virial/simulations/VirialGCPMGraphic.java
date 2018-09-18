@@ -15,6 +15,7 @@ import etomica.models.water.PNWaterGCPM;
 import etomica.models.water.SpeciesWater4P;
 import etomica.potential.PotentialMolecular;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.virial.ClusterAbstract;
@@ -68,9 +69,9 @@ public class VirialGCPMGraphic {
         species.setConformation(new ConformationWaterGCPM(space));
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species, temperature, refCluster,targetCluster, false);
-        sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-        sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+        sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
         simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
         simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
 

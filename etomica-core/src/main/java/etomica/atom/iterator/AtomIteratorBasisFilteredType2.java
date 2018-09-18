@@ -39,7 +39,7 @@ public class AtomIteratorBasisFilteredType2 extends AtomIteratorBasis {
     public IAtomList next() {
         IAtomList atom = super.next();
         while (atom != null) {
-            AtomType t = atom.getAtom(0).getType();
+            AtomType t = atom.get(0).getType();
             if (t == filteredType1 || t == filteredType2) {
                 return atom;
             }

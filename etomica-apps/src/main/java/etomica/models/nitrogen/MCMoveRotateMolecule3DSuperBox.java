@@ -122,19 +122,19 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
      
     public boolean doTrial() {
     	
-        if(box.getMoleculeList().getMoleculeCount()==0) {molecule = null; return false;}
+        if(box.getMoleculeList().size()==0) {molecule = null; return false;}
             
         molNum = random.nextInt(nA);
-        molecule = basisCell[0].molecules.getMolecule(molIndex[13][molNum]);
+        molecule = basisCell[0].molecules.get(molIndex[13][molNum]);
       
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
         
         uCorrect = 0.0;
-        pairAB.atom0 = molecule;
+        pairAB.mol0 = molecule;
         for(int i=0; i<molIndex.length; i++){
         	if(i==13) continue;
-        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][molNum]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][molNum]);
         	uCorrect += potentialAA.energy(pairAB);
      
         }
@@ -151,7 +151,7 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
         affectedMoleculeList.clear();
         
         for(int i=0; i<molIndex.length; i++){
-        	molecule = basisCell[0].molecules.getMolecule(molIndex[i][molNum]);
+        	molecule = basisCell[0].molecules.get(molIndex[i][molNum]);
         	affectedMoleculeList.add(affectedMol);
         	r0.E(positionDefinition.position(molecule));
         	doTransform(molecule, r0);
@@ -161,7 +161,7 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
          * After the rotational move
          */
       
-        molecule = basisCell[0].molecules.getMolecule(molIndex[13][molNum]);
+        molecule = basisCell[0].molecules.get(molIndex[13][molNum]);
         energyMeter.setTarget(molecule);
         uNew = energyMeter.getDataAsScalar();
         
@@ -169,10 +169,10 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
          * uCorrect is account for the double-counting of the molecular energy
          */
         uCorrect = 0.0;
-        pairAB.atom0 = molecule;
+        pairAB.mol0 = molecule;
         for(int i=0; i<molIndex.length; i++){
         	if(i==13) continue;
-        	pairAB.atom1 = basisCell[0].molecules.getMolecule(molIndex[i][molNum]);
+        	pairAB.mol1 = basisCell[0].molecules.get(molIndex[i][molNum]);
         	uCorrect += potentialAA.energy(pairAB);
 
         }
@@ -193,8 +193,8 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
     
     protected void doTransform(IMolecule molecule, Vector r0) {
         IAtomList childList = molecule.getChildList();
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);
@@ -206,7 +206,7 @@ public class MCMoveRotateMolecule3DSuperBox extends MCMoveMolecule implements MC
     public void rejectNotify() {
     	rotationTensor.invert();
     	for(int i=0; i<molIndex.length; i++){
-        	molecule = basisCell[0].molecules.getMolecule(molIndex[i][molNum]);
+        	molecule = basisCell[0].molecules.get(molIndex[i][molNum]);
         	r0.E(positionDefinition.position(molecule));
 	        doTransform(molecule, r0);
     	}

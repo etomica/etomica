@@ -11,7 +11,6 @@ import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.IPotential;
 import etomica.potential.Potential1;
-import etomica.potential.PotentialArray;
 import etomica.potential.PotentialHard;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -48,7 +47,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
 
      
     public double collisionTime(IAtomList a, double falseTime) {
-        IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
+        IAtomKinetic atom = (IAtomKinetic)a.get(0);
         Vector r = atom.getPosition();
         Vector v = atom.getVelocity();
         double vx = v.getX(0);
@@ -62,7 +61,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
     }
 
     public void bump(IAtomList a, double falseTime) {
-        IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
+        IAtomKinetic atom = (IAtomKinetic)a.get(0);
         Vector v = atom.getVelocity();
         Vector p = atom.getPosition();
         double x = p.getX(0);
@@ -122,8 +121,7 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
         Vector p = atom.getPosition();
         IAtomList[] upList = neighborManager.getUpList(atom);
         IAtomList[] downList = neighborManager.getDownList(atom);
-        PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom.getType());
-        IPotential[] potentials = potentialArray.getPotentials();
+        IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType());
         double de = 0;
         for (int ip=0; ip<upList.length; ip++) {
             if (potentials[ip].nBody() != 2) continue;
@@ -133,8 +131,8 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
             double wellSigmaSq = ((P2SquareWellOneSide)potentials[ip]).getLambda();
             wellSigmaSq *= wellSigmaSq;
             wellSigmaSq *= sigmaSq;
-            for (int i=0; i<upList[ip].getAtomCount(); i++) {
-                IAtomKinetic atom2 = ((IAtomKinetic)upList[ip].getAtom(i));
+            for (int i = 0; i<upList[ip].size(); i++) {
+                IAtomKinetic atom2 = ((IAtomKinetic)upList[ip].get(i));
                 Vector pos2 = atom2.getPosition();
                 Vector vel2 = atom2.getVelocity();
                 double x2 = pos2.getX(0) + vel2.getX(0)*falseTime;
@@ -156,8 +154,8 @@ public class P1MagicWall extends Potential1 implements PotentialHard {
                     de -= epsilon;
                 }
             }
-            for (int i=0; i<downList[ip].getAtomCount(); i++) {
-                IAtomKinetic atom2 = ((IAtomKinetic)downList[ip].getAtom(i));
+            for (int i = 0; i<downList[ip].size(); i++) {
+                IAtomKinetic atom2 = ((IAtomKinetic)downList[ip].get(i));
                 Vector pos2 = atom2.getPosition();
                 Vector vel2 = atom2.getVelocity();
                 double x2 = pos2.getX(0) + vel2.getX(0)*falseTime;

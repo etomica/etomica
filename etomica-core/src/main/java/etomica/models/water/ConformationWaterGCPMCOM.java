@@ -23,13 +23,13 @@ public class ConformationWaterGCPMCOM extends ConformationWaterGCPM {
     public void initializePositions(IAtomList list){
         super.initializePositions(list);
         
-        IAtom o = list.getAtom(SpeciesWater4PCOM.indexO);
+        IAtom o = list.get(SpeciesWater4PCOM.indexO);
                
-        IAtom h1 = list.getAtom(SpeciesWater4PCOM.indexH1);
+        IAtom h1 = list.get(SpeciesWater4PCOM.indexH1);
                 
-        IAtom h2 = list.getAtom(SpeciesWater4PCOM.indexH2);
+        IAtom h2 = list.get(SpeciesWater4PCOM.indexH2);
         
-        Vector cr = list.getAtom(SpeciesWater4PCOM.indexC).getPosition();
+        Vector cr = list.get(SpeciesWater4PCOM.indexC).getPosition();
         cr.Ea1Tv1(Oxygen.INSTANCE.getMass(), o.getPosition());
         cr.PEa1Tv1(Hydrogen.INSTANCE.getMass(), h1.getPosition());
         cr.PEa1Tv1(Hydrogen.INSTANCE.getMass(), h2.getPosition());

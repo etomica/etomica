@@ -20,8 +20,7 @@ import etomica.units.dimensions.Null;
 public class MeterWorkHarmonicUmbrella implements IDataSource {
     
     public MeterWorkHarmonicUmbrella(IntegratorBox integrator, MeterHarmonicEnergy meterHarmonic) {
-        meterTarget= new MeterPotentialEnergy(integrator.getPotentialMaster());
-        meterTarget.setBox(integrator.getBox());
+        meterTarget = new MeterPotentialEnergy(integrator.getPotentialMaster(), integrator.getBox());
         this.integrator = integrator;
     	this.meterHarmonic = meterHarmonic;
     	

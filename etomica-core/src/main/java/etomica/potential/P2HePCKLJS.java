@@ -341,7 +341,7 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
         }
 
         public double energy(IAtomList atoms) {
-            dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
+            dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
             boundary.nearestImage(dr);
             return u(dr.squared());
         }
@@ -485,7 +485,7 @@ public class P2HePCKLJS extends Potential2SoftSpherical {
         }
 
         public double energy(IAtomList atoms) {
-            dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
+            dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
             boundary.nearestImage(dr);
             return u(dr.squared());
         }

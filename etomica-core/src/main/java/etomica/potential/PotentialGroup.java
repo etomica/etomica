@@ -150,7 +150,7 @@ public class PotentialGroup extends PotentialMolecular {
     
     //TODO this needs some work
     public double energy(IMoleculeList basisAtoms) {
-        if(basisAtoms.getMoleculeCount() != this.nBody()) {
+        if(basisAtoms.size() != this.nBody()) {
             throw new IllegalArgumentException("Error: number of atoms for energy calculation inconsistent with order of potential");
         }
         double sum = 0.0;

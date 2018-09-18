@@ -80,9 +80,9 @@ public class AssociationHelperMolecule implements IAssociationHelperMolecule {
         if (!validateBondList(molecule, bondList, mightBeBroken)) {
             return true;
         }
-        for (int i=0; i<bondList.getMoleculeCount(); i++) {
-            if (smerList.indexOf(bondList.getMolecule(i)) == -1) {
-                if (populate(smerList, bondList.getMolecule(i), mightBeBroken)) {
+        for (int i = 0; i<bondList.size(); i++) {
+            if (smerList.indexOf(bondList.get(i)) == -1) {
+                if (populate(smerList, bondList.get(i), mightBeBroken)) {
                     return true;
                 }
             }
@@ -94,7 +94,7 @@ public class AssociationHelperMolecule implements IAssociationHelperMolecule {
      * Returns false if invalid bonding is recognized
      */
     protected boolean validateBondList(IMolecule molecule, IMoleculeList bondList, boolean mightBeBroken) {
-        if (bondList.getMoleculeCount() > maxBonds){
+        if (bondList.size() > maxBonds){
             if (mightBeBroken) {
                 return false;
             }
@@ -102,12 +102,12 @@ public class AssociationHelperMolecule implements IAssociationHelperMolecule {
             System.out.println(bondList);
             throw new RuntimeException();
         }
-        if (minR2 > 0 && bondList.getMoleculeCount() > 1){
-            for (int i=0; i<bondList.getMoleculeCount()-1; i++) {
-                IMolecule moleculei = bondList.getMolecule(i);
-                for (int j=i+1; j<bondList.getMoleculeCount(); j++) {
-                    IMolecule moleculej = bondList.getMolecule(j);
-                    dr.Ev1Mv2(moleculei.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition(), moleculej.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition());
+        if (minR2 > 0 && bondList.size() > 1){
+            for (int i = 0; i<bondList.size()-1; i++) {
+                IMolecule moleculei = bondList.get(i);
+                for (int j = i+1; j<bondList.size(); j++) {
+                    IMolecule moleculej = bondList.get(j);
+                    dr.Ev1Mv2(moleculei.getChildList().get(SpeciesAceticAcid.indexC).getPosition(), moleculej.getChildList().get(SpeciesAceticAcid.indexC).getPosition());
                     boundary.nearestImage(dr);
                     if (dr.squared() < minR2) {
                         if (mightBeBroken) {

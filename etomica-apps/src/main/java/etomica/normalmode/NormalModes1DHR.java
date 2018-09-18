@@ -91,11 +91,11 @@ public class NormalModes1DHR implements NormalModes {
     public static void main(String[] args) {
         int N = 8;
         Space space = Space1D.getInstance();
-        Box box = new Box(space);
         Simulation sim = new Simulation(space);
-        sim.addBox(box);
         ISpecies species = new SpeciesSpheresMono(sim,space);
         sim.addSpecies(species);
+        Box box = new Box(space);
+        sim.addBox(box);
         box.setNMolecules(species, N);
         box.getBoundary().setBoxSize(new Vector1D(2*N));
         NormalModes1DHR nm = new NormalModes1DHR(box.getBoundary(), N);

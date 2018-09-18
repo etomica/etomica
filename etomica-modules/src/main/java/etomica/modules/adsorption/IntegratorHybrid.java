@@ -11,7 +11,6 @@
 package etomica.modules.adsorption;
 
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
@@ -34,18 +33,12 @@ public class IntegratorHybrid extends IntegratorBox {
 	private int MDStepCount, MDStepRepetitions;
     
 	public IntegratorHybrid(PotentialMasterHybrid potentialMaster, IntegratorMD integratorMD, IntegratorMC integratorMC, double temperature) {
-		super(potentialMaster, temperature);
+		super(potentialMaster, temperature, integratorMD.getBox());
 		this.integratorMD = integratorMD;
 		this.integratorMC = integratorMC;
 		potentialMasterHybrid = potentialMaster;
         setMDStepRepetitions(50);
     }
-	
-	public void setBox(Box box) {
-	    integratorMC.setBox(box);
-	    integratorMD.setBox(box);
-	    super.setBox(box);
-	}
 	
 	public void setMCMoveInsertDelete(MyMCMove mcMoveIDA, MyMCMove mcMoveIDB) {
 	    this.mcMoveIDA = mcMoveIDA;
@@ -89,9 +82,9 @@ public class IntegratorHybrid extends IntegratorBox {
                 integratorMC.doStep();
             }
 			IAtomList allAtoms = box.getLeafList();
-			for (int i=0; i<allAtoms.getAtomCount(); i++) {
-			    if (allAtoms.getAtom(i).getPosition().getX(2) < -40) {
-			        throw new RuntimeException(i+" "+allAtoms.getAtom(i)+" "+allAtoms.getAtom(i).getPosition());
+			for (int i = 0; i<allAtoms.size(); i++) {
+			    if (allAtoms.get(i).getPosition().getX(2) < -40) {
+			        throw new RuntimeException(i+" "+allAtoms.get(i)+" "+allAtoms.get(i).getPosition());
 			    }
 			}
             potentialMasterHybrid.setUseNbrLists(true);
@@ -101,9 +94,9 @@ public class IntegratorHybrid extends IntegratorBox {
             MDStepCount--;
 	 		integratorMD.doStep();
             IAtomList allAtoms = box.getLeafList();
-            for (int i=0; i<allAtoms.getAtomCount(); i++) {
-                if (allAtoms.getAtom(i).getPosition().getX(2) < -40) {
-                    throw new RuntimeException(i+" "+allAtoms.getAtom(i)+" "+allAtoms.getAtom(i).getPosition());
+            for (int i = 0; i<allAtoms.size(); i++) {
+                if (allAtoms.get(i).getPosition().getX(2) < -40) {
+                    throw new RuntimeException(i+" "+allAtoms.get(i)+" "+allAtoms.get(i).getPosition());
                 }
             }
 		} 

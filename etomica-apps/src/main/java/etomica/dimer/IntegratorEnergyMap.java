@@ -9,7 +9,6 @@ import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -18,20 +17,18 @@ import etomica.space.Vector;
 import java.io.IOException;
 import java.util.Formatter;
 
-public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
+public class IntegratorEnergyMap extends IntegratorBox {
 
     IAtom adatom;
     public MeterPotentialEnergy energy;
     String fileTail;
-    private final Space space;
 
     public IntegratorEnergyMap(Simulation aSim, PotentialMaster potentialMaster,
                                IAtom aAdatom, String aFileTail,
-                               Space _space) {
-        super(potentialMaster, 1.0);
+                               Box box) {
+        super(potentialMaster, 1.0, box);
         this.fileTail = aFileTail;
         this.adatom = aAdatom;
-        this.space = _space;
     }
 
     protected void doStepInternal() {
@@ -69,24 +66,8 @@ public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
         super.setup();
     
         // Set variables for energy
-        energy = new MeterPotentialEnergy(potentialMaster);
-        energy.setBox(box);
+        energy = new MeterPotentialEnergy(potentialMaster, box);
         
         
     }
-
-    
-    
-    public Class getAgentClass() {
-        return IntegratorVelocityVerlet.MyAgent.class;
-    }
-
-    public Object makeAgent(IAtom a, Box agentBox) {
-        return new IntegratorVelocityVerlet.MyAgent(space);
-    }
-
-    public void releaseAgent(Object agent, IAtom atom, Box agentBox) {
-        // TODO Auto-generated method stub  
-    }
-    
 }

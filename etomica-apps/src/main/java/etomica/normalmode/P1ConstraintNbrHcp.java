@@ -31,15 +31,15 @@ public class P1ConstraintNbrHcp implements IPotentialAtomic {
         //Check for neighboring sites
         drj = space.makeVector();
         drk = space.makeVector();
-        neighborAtoms = new int[list.getAtomCount()][12];
+        neighborAtoms = new int[list.size()][12];
         AtomArrayList tmpList = new AtomArrayList(12);
 
-        for (int i=0; i<list.getAtomCount(); i++) {
-            IAtom atomi = list.getAtom(i);
+        for (int i = 0; i<list.size(); i++) {
+            IAtom atomi = list.get(i);
             tmpList.clear();
-            for (int j=0; j<list.getAtomCount(); j++) {
+            for (int j = 0; j<list.size(); j++) {
                 if (i==j) continue;
-                IAtom atomj = list.getAtom(j);
+                IAtom atomj = list.get(j);
                 drj.Ev1Mv2(atomi.getPosition(), atomj.getPosition());
                 boundary.nearestImage(drj);
                 if (drj.squared() < neighborRadiusSq*1.01) {
@@ -47,7 +47,7 @@ public class P1ConstraintNbrHcp implements IPotentialAtomic {
                 }
             }
             for (int j=0; j<12; j++) {
-                neighborAtoms[i][j] = tmpList.getAtom(j).getLeafIndex();
+                neighborAtoms[i][j] = tmpList.get(j).getLeafIndex();
             }
         }
     }
@@ -69,7 +69,7 @@ public class P1ConstraintNbrHcp implements IPotentialAtomic {
      * Returns sum of energy for all triplets containing the given atom
      */
 	public double energy(IAtomList atoms) {
-	    IAtom atom = atoms.getAtom(0);
+	    IAtom atom = atoms.get(0);
 	    double u = energyi(atom);
 	    if (u == Double.POSITIVE_INFINITY) {
 	        return u;
@@ -89,7 +89,7 @@ public class P1ConstraintNbrHcp implements IPotentialAtomic {
 	    int atomIndex = atom.getLeafIndex();
 	    int[] list = neighborAtoms[atomIndex];
 	    for (int i=0; i<12; i++) {
-	        IAtom atomj = leafList.getAtom(list[i]);
+	        IAtom atomj = leafList.get(list[i]);
 	        drj.Ev1Mv2(posAtom, atomj.getPosition());
 	        boundary.nearestImage(drj);
 	        if (drj.squared() > neighborRadiusSq*3.0) {

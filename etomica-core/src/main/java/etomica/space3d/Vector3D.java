@@ -240,6 +240,27 @@ public final class Vector3D implements Vector, java.io.Serializable {
         z = r * (2*s- 1.);
     }
 
+    @Override
+    public void nearestImage(Vector dimensions) {
+        Vector3D dimensions3D = ((Vector3D) dimensions);
+        final double halfX = dimensions3D.x / 2;
+        final double halfY = dimensions3D.y / 2;
+        final double halfZ = dimensions3D.z / 2;
+
+        while (x > halfX)
+            x -= dimensions3D.x;
+        while (x < -halfX)
+            x += dimensions3D.x;
+        while (y > halfY)
+            y -= dimensions3D.y;
+        while (y < -halfY)
+            y += dimensions3D.y;
+        while (z > halfZ)
+            z -= dimensions3D.z;
+        while (z < -halfZ)
+            z += dimensions3D.z;
+    }
+
     /**
      * Creating a random unit vector on unit sphere Uses only two random number
      * generator at a time

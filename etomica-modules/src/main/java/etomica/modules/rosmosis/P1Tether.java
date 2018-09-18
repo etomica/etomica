@@ -29,7 +29,7 @@ public class P1Tether extends Potential1 implements AgentSource<Vector>, Potenti
     public P1Tether(Box box, ISpecies species, Space _space) {
         super(_space);
         this.species = species;
-        agentManager = new AtomLeafAgentManager<Vector>(this, box, Vector.class);
+        agentManager = new AtomLeafAgentManager<Vector>(this, box);
         work = _space.makeVector();
         gradient = new Vector[]{work};
     }
@@ -43,14 +43,14 @@ public class P1Tether extends Potential1 implements AgentSource<Vector>, Potenti
     }
 
     public double energy(IAtomList atoms) {
-        IAtom atom = atoms.getAtom(0);
+        IAtom atom = atoms.get(0);
         work.E(atom.getPosition());
         work.ME(agentManager.getAgent(atom));
         return 0.5 * epsilon * work.squared();
     }
 
     public Vector[] gradient(IAtomList atoms) {
-        IAtom atom = atoms.getAtom(0);
+        IAtom atom = atoms.get(0);
         work.E(atom.getPosition());
         work.ME(agentManager.getAgent(atom));
         work.TE(epsilon);

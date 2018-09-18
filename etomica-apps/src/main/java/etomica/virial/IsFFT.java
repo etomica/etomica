@@ -45,8 +45,8 @@ public class IsFFT implements Property {
         virialDiagrams.setDoShortcut(true);
         virialDiagrams.makeVirialDiagrams();
         Set<Graph> graphs = virialDiagrams.getVirialGraphs();
-        FFT = new GraphList<Graph>();
-        MSMC = new GraphList<Graph>();
+        FFT = new GraphList();
+        MSMC = new GraphList();
        // ALL = new GraphList<Graph>();
         for( Graph g:graphs){
         	if((g.nodeCount()==n)){

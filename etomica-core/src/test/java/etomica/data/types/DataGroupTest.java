@@ -4,12 +4,11 @@
 
 package etomica.data.types;
 
-import junit.framework.TestCase;
 import etomica.data.IData;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class DataGroupTest extends TestCase {
+class DataGroupTest {
 
     protected final DataGroup data;
 
@@ -20,14 +19,15 @@ public class DataGroupTest extends TestCase {
         data = new DataGroup(new IData[]{data0, data1, data2});
     }
 
+    @Test
     public void testDataGroup() {
         testGetValue(data, new double[]{0,1,2,3,4,5,6,7,8});
     }
 
     public void testGetValue(IData someData, double[] expectedValues) {
-        assertEquals(someData.getLength(), expectedValues.length);
+        Assertions.assertEquals(someData.getLength(), expectedValues.length);
         for (int i=0; i<expectedValues.length; i++) {
-            assertEquals(expectedValues[i], someData.getValue(i));
+            Assertions.assertEquals(expectedValues[i], someData.getValue(i));
         }
     }
 }

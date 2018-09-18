@@ -65,12 +65,8 @@ public class SimLJHTTISuperHCP extends Simulation {
         addSpecies(species);
 
         // TARGET
-        box = new Box(space);
-        addBox(box);
-        box.setNMolecules(species, numAtoms);
-
-        int n = (int)Math.round(Math.pow(numAtoms/8, 1.0/3.0));
-        if (8*n*n*n != numAtoms) {
+        int n = (int) Math.round(Math.pow(numAtoms / 8, 1.0 / 3.0));
+        if (8 * n * n * n != numAtoms) {
             throw new RuntimeException("Not compatible with HCP");
         }
         // V = nc
@@ -80,35 +76,35 @@ public class SimLJHTTISuperHCP extends Simulation {
         // v = sqrt(3)/2 a^3 coa
         // a = (2 v / (sqrt(3) coa))^(1/3)
         //   = (4 / (sqrt(3) rho coa))^(1/3)
-        double a = Math.pow(4/(Math.sqrt(3)*density*coa), 1.0/3.0);
-        double c = coa*a;  // sqrt(8/3)
+        double a = Math.pow(4 / (Math.sqrt(3) * density * coa), 1.0 / 3.0);
+        double c = coa * a;  // sqrt(8/3)
         Vector[] boxDim = new Vector[3];
-        boxDim[0] = space.makeVector(new double[]{2*n*a, 0, 0});
-        boxDim[1] = space.makeVector(new double[]{-2*n*a*Math.cos(Degree.UNIT.toSim(60)), 2*n*a*Math.sin(Degree.UNIT.toSim(60)), 0});
-        boxDim[2] = space.makeVector(new double[]{0, 0, n*c});
-
-        primitive = new PrimitiveHexagonal(space, a, c);
-        nCells = new int[]{2*n,2*n,n};
+        boxDim[0] = Vector.of(new double[]{2 * n * a, 0, 0});
+        boxDim[1] = Vector.of(new double[]{-2 * n * a * Math.cos(Degree.UNIT.toSim(60)), 2 * n * a * Math.sin(Degree.UNIT.toSim(60)), 0});
+        boxDim[2] = Vector.of(new double[]{0, 0, n * c});
         boundary = new BoundaryDeformableLattice(primitive, nCells);
+        primitive = new PrimitiveHexagonal(space, a, c);
+        nCells = new int[]{2 * n, 2 * n, n};
         boundary.setTruncationRadius(rc);
-        basis = new BasisHcp();
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numAtoms);
 
-        box.setBoundary(boundary);
+
+        basis = new BasisHcp();
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
 
-        if (rc > 0.494*c*n) {
+        if (rc > 0.494 * c * n) {
             throw new RuntimeException("cutoff too big");
         }
 
         BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, _space);
-        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class);
-        potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
+        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
+        potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         atomMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
@@ -130,16 +126,14 @@ public class SimLJHTTISuperHCP extends Simulation {
 
         potentialMaster.lrcMaster().setEnabled(false);
 
-        integrator.setBox(box);
-
         int cellRange = 7;
         potentialMaster.setRange(rc);
         potentialMaster.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
         potentialMaster.getNeighborManager(box).reset();
         int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange*2+1) {
-            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+        if (potentialCells < cellRange * 2 + 1) {
+            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
 
         activityIntegrate = new ActivityIntegrate(integrator);
@@ -148,12 +142,12 @@ public class SimLJHTTISuperHCP extends Simulation {
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
-        ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
+        ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
     }
 
     /**
      * @param args filename containing simulation parameters
-     * @see SimLJHTTI.SimOverlapParam
+     * @see SimLJHTTISuperHCP.SimOverlapParam
      */
     public static void main(String[] args) {
         //set up simulation parameters
@@ -198,7 +192,7 @@ public class SimLJHTTISuperHCP extends Simulation {
         }
         System.out.println("Random seeds: "+Arrays.toString(seeds));
         if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
                 protected Color[] allColors;
@@ -264,8 +258,8 @@ public class SimLJHTTISuperHCP extends Simulation {
         {
 
             BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(sim, null, sim.space);
-            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class);
-            potentialMasterData = new PotentialMasterList(sim, cutoffs[nCutoffs-1], boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, sim.space), sim.space);
+            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, sim);
+            potentialMasterData = new PotentialMasterList(sim, cutoffs[nCutoffs-1], boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), sim.space);
 
             // |potential| is our local potential used for data collection.
             P2SoftSphericalTruncated potentialT = new P2SoftSphericalTruncated(sim.getSpace(), potential, cutoffs[nCutoffs-1]-0.01);
@@ -323,8 +317,7 @@ public class SimLJHTTISuperHCP extends Simulation {
         meterSolid.setBPRes(bpharm);
         IData d = meterSolid.getData();
 
-        MeterPotentialEnergy meterEnergyShort = new MeterPotentialEnergy(sim.potentialMaster);
-        meterEnergyShort.setBox(sim.box);
+        MeterPotentialEnergy meterEnergyShort = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         final double[] uFacCut = new double[cutoffs.length];
         double uShort = meterEnergyShort.getDataAsScalar();
         for (int i=0; i<uFacCut.length; i++) {

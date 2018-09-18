@@ -33,9 +33,9 @@ public class ConfigurationFile implements Configuration, java.io.Serializable {
         }
         try {
             BufferedReader bufReader = new BufferedReader(fileReader);
-            int nLeaf = leafList.getAtomCount();
+            int nLeaf = leafList.size();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtom a = leafList.getAtom(iLeaf);
+                IAtom a = leafList.get(iLeaf);
                 setPosition(a,bufReader.readLine());
             }
             fileReader.close();

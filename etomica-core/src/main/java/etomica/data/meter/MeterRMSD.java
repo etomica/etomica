@@ -30,12 +30,12 @@ public class MeterRMSD extends DataSourceScalar {
         super("RMSD", Length.DIMENSION);
         this.box = box;
         IAtomList atoms = box.getLeafList();
-        originalPosition = new Vector[atoms.getAtomCount()];
-        lastPosition = new Vector[atoms.getAtomCount()];
-        for (int i = 0; i < atoms.getAtomCount(); i++) {
+        originalPosition = new Vector[atoms.size()];
+        lastPosition = new Vector[atoms.size()];
+        for (int i = 0; i < atoms.size(); i++) {
             originalPosition[i] = space.makeVector();
             lastPosition[i] = space.makeVector();
-            originalPosition[i].E(atoms.getAtom(i).getPosition());
+            originalPosition[i].E(atoms.get(i).getPosition());
             lastPosition[i].E(originalPosition[i]);
         }
         dr = space.makeVector();
@@ -47,8 +47,8 @@ public class MeterRMSD extends DataSourceScalar {
         double sum = 0;
         IAtomList atoms = box.getLeafList();
         Boundary boundary = box.getBoundary();
-        for (int i = 0; i < atoms.getAtomCount(); i++) {
-            Vector p = atoms.getAtom(i).getPosition();
+        for (int i = 0; i < atoms.size(); i++) {
+            Vector p = atoms.get(i).getPosition();
             dr.Ev1Mv2(p, lastPosition[i]);
             drTmp.E(dr);
             boundary.nearestImage(drTmp);
@@ -59,6 +59,6 @@ public class MeterRMSD extends DataSourceScalar {
             sum += p.Mv1Squared(originalPosition[i]);
             lastPosition[i].E(p);
         }
-        return Math.sqrt(sum / atoms.getAtomCount());
+        return Math.sqrt(sum / atoms.size());
     }
 }

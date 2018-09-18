@@ -56,7 +56,7 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
     public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
-        dTheta = new double[p.getMoleculeList().getMoleculeCount()];
+        dTheta = new double[p.getMoleculeList().size()];
     }
     
     public void setSpecies(ISpecies newSpecies) {
@@ -68,13 +68,13 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
         wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            if (species != null && moleculeList.getMolecule(i).getType() != species) {
+        for(int i = 0; i<moleculeList.size(); i++) {
+            if (species != null && moleculeList.get(i).getType() != species) {
                 continue;
             }
-            IMolecule molecule = moleculeList.getMolecule(i);
+            IMolecule molecule = moleculeList.get(i);
             IAtomList childList = molecule.getChildList();
-            int numChildren = childList.getAtomCount();
+            int numChildren = childList.size();
             if (numChildren != 3) continue;
             double dt = stepSize * (random.nextDouble() - 0.5);
             dTheta[i] = dt;
@@ -88,12 +88,12 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
     
     protected void transform(IMolecule molecule, double dt) {
         IAtomList childList = molecule.getChildList();
-        int numChildren = childList.getAtomCount();
+        int numChildren = childList.size();
         if (numChildren != 3) return;
         
-        Vector pos0 = childList.getAtom(0).getPosition();
-        Vector pos1 = childList.getAtom(1).getPosition();
-        Vector pos2 = childList.getAtom(2).getPosition();
+        Vector pos0 = childList.get(0).getPosition();
+        Vector pos1 = childList.get(1).getPosition();
+        Vector pos2 = childList.get(2).getPosition();
         
         work1.Ev1Mv2(pos0, pos1);
         double bondLength01 = Math.sqrt(work1.squared());
@@ -143,9 +143,9 @@ public class MCMoveClusterAngleBend extends MCMoveBoxStep {
     public void rejectNotify() {
 //        System.out.println("rejected wiggle");
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i=0; i<box.getMoleculeList().getMoleculeCount(); i++) {
+        for(int i = 0; i<box.getMoleculeList().size(); i++) {
             if (dTheta[i] == 0) continue;
-            transform(moleculeList.getMolecule(i), -dTheta[i]);
+            transform(moleculeList.get(i), -dTheta[i]);
         }
         ((BoxCluster)box).rejectNotify();
     }

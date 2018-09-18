@@ -22,7 +22,7 @@ public abstract class ColorSchemeCollectiveAgent extends ColorScheme implements 
     
     public ColorSchemeCollectiveAgent(Box box) {
     	super();
-        agentManager = new AtomLeafAgentManager<Color>(this, box, Color.class);
+        agentManager = new AtomLeafAgentManager<Color>(this, box);
     }
     
     public abstract void colorAllAtoms();

@@ -47,7 +47,7 @@ public class ComponentSubst implements Unary {
   }
   
   public Set<Graph> apply(Graph g, ComponentSubstParameters params) {
-    GraphList<Graph> result = new GraphList<Graph>();
+    GraphList result = new GraphList();
     if (g.nodeCount() < params.gComp.nodeCount()) {
       result.add(g.copy());
       return result;
@@ -79,7 +79,7 @@ public class ComponentSubst implements Unary {
         }
       }
       else {
-        term = new GraphList<Graph>();
+        term = new GraphList();
         term.add(gSplit);
       }
       if (gRecombine.isEmpty()) {

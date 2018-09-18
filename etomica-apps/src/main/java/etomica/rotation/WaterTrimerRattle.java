@@ -18,8 +18,8 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerletRattle;
-import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.ConformationWater3P;
 import etomica.models.water.P2WaterSPC;
 import etomica.models.water.SpeciesWater3P;
@@ -30,6 +30,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.units.Electron;
@@ -43,27 +44,26 @@ public class WaterTrimerRattle {
     public static SimulationGraphic makeWaterDroplet() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
-        sim.addBox(box);
         SpeciesWater3P species = new SpeciesWater3P(sim.getSpace(), true);
         sim.addSpecies(species);
+        Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
+        sim.addBox(box);
         box.setNMolecules(species, 3);
-        box.setDensity(0.9/18.0*Constants.AVOGADRO/1E24);
+        box.setDensity(0.9 / 18.0 * Constants.AVOGADRO / 1E24);
         ConfigurationWater3_3P config = new ConfigurationWater3_3P();
 //        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(), space);
         config.initializeCoordinates(box);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{15,15,15}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{15, 15, 15}));
         PotentialMaster potentialMaster = new PotentialMaster();
         double timeInterval = 0.001;
         int maxIterations = 100;
-        IntegratorVelocityVerletRattle integrator = new IntegratorVelocityVerletRattle(sim, potentialMaster, space);
+        IntegratorVelocityVerletRattle integrator = new IntegratorVelocityVerletRattle(sim, potentialMaster, box);
         double lOH = ConformationWater3P.bondLengthOH;
-        double lHH = Math.sqrt(2*lOH*lOH*(1-Math.cos(ConformationWater3P.angleHOH)));
-        integrator.setBondConstraints(species, new int[][]{{0,2},{1,2},{0,1}}, new double[]{lOH, lOH, lHH});
+        double lHH = Math.sqrt(2 * lOH * lOH * (1 - Math.cos(ConformationWater3P.angleHOH)));
+        integrator.setBondConstraints(species, new int[][]{{0, 2}, {1, 2}, {0, 1}}, new double[]{lOH, lOH, lHH});
         integrator.setTimeStep(timeInterval);
         integrator.printInterval = 1000;
         integrator.setMaxIterations(maxIterations);
-        integrator.setBox(box);
 //        integrator.setIsothermal(true);
         integrator.setTemperature(Kelvin.UNIT.toSim(0));
         integrator.setThermostatInterval(100);
@@ -92,20 +92,20 @@ public class WaterTrimerRattle {
         potentialQOO.setCharge1(chargeOxygen);
         potentialQOO.setCharge2(chargeOxygen);
         pGroup.addPotential(potentialQOO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{oType, oType}));
-        
+
         P2Electrostatic potentialQOH = new P2Electrostatic(space);
         potentialQOH.setCharge1(chargeOxygen);
         potentialQOH.setCharge2(chargeHydrogen);
         pGroup.addPotential(potentialQOH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{oType, hType}));
         pGroup.addPotential(potentialQOH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{hType, oType}));
 
-        potentialMaster.addPotential(pGroup, new ISpecies[]{species,species});
+        potentialMaster.addPotential(pGroup, new ISpecies[]{species, species});
         if (false) {
             ai.setSleepPeriod(2);
-            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rigid", 1, space, sim.getController());
-            ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
-            ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
-    
+            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rigid", 1);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
+
             MeterEnergy meterE = new MeterEnergy(potentialMaster, box);
             meterE.setKinetic(new MeterKineticEnergyFromIntegrator(integrator));
             meterE.setPotential(new MeterPotentialEnergyFromIntegrator(integrator));

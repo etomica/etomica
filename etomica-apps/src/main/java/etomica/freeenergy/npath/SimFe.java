@@ -18,6 +18,8 @@ import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.history.HistoryScrolling;
 import etomica.data.meter.*;
+import etomica.eam.P2EAM;
+import etomica.eam.PotentialCalculationEnergySumEAM;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
@@ -32,8 +34,6 @@ import etomica.lattice.SpaceLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveHCP4;
-import etomica.meam.P2EAM;
-import etomica.meam.PotentialCalculationEnergySumEAM;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialCalculationForceSum;
@@ -67,21 +67,20 @@ public class SimFe extends Simulation {
         species = new SpeciesSpheresMono(space, Iron.INSTANCE);
         species.setIsDynamic(true);
         addSpecies(species);
-        box = new Box(space);
-        addBox(box);
+        box = this.makeBox();
         box.setNMolecules(species, numAtoms);
         Primitive primitive = (crystal == HCP) ? new PrimitiveHCP4(space) : new PrimitiveCubic(space);
         Vector l = space.makeVector();
         double[] primitiveSize = primitive.getSize();
-        int[] f = new int[]{10,10,10};
-        if (crystal == HCP) f = new int[]{6,4,4};
-        for (int i=0; i<3; i++) {
-            double x = f[i]*primitiveSize[i];
-            if (i<=offsetDim) x *= 2;
-            l.setX(i,x);
+        int[] f = new int[]{10, 10, 10};
+        if (crystal == HCP) f = new int[]{6, 4, 4};
+        for (int i = 0; i < 3; i++) {
+            double x = f[i] * primitiveSize[i];
+            if (i <= offsetDim) x *= 2;
+            l.setX(i, x);
         }
         box.getBoundary().setBoxSize(l);
-        
+
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
@@ -94,7 +93,7 @@ public class SimFe extends Simulation {
         double rc = 6;
         potential = new P2EAM(space, n, m, eps, a, C, rc, rc);
 
-        potentialMaster = new PotentialMasterList(this, 1.2*rc, space);
+        potentialMaster = new PotentialMasterList(this, 1.2 * rc, space);
         potentialMaster.getNbrCellManager(box).setSuppressBoxLengthWarning(true);
         potentialMaster.setCellRange(2);
 
@@ -110,22 +109,22 @@ public class SimFe extends Simulation {
         if (numInnerSteps > 0 && w > 0) {
             if (doHarmonic) {
                 if (w > 3e6) {
-                    integrator = new IntegratorMDHarmonicMC(potentialMaster, random, timeStep, temperature, space);
+                    integrator = new IntegratorMDHarmonicMC(potentialMaster, random, timeStep, temperature, box);
                     ((IntegratorMDHarmonicMC) integrator).setP1Harmonic(p1ImageHarmonic);
                     swap = false;
                 } else {
-                    integrator = new IntegratorImageHarmonicMD(potentialMaster, random, timeStep, temperature, space);
+                    integrator = new IntegratorImageHarmonicMD(potentialMaster, random, timeStep, temperature, box);
                     ((IntegratorImageHarmonicMD) integrator).setP1Harmonic(p1ImageHarmonic);
                 }
             } else {
-                integrator = new IntegratorImageMultistepMD(potentialMaster, random, timeStep, temperature, space);
+                integrator = new IntegratorImageMultistepMD(potentialMaster, random, timeStep, temperature, box);
                 ((IntegratorImageMultistepMD) integrator).setP1Harmonic(p1ImageHarmonic);
                 ((IntegratorImageMultistepMD) integrator).setNumInnerSteps(numInnerSteps);
             }
         } else {
-            integrator = new IntegratorVelocityVerlet(potentialMaster, random, timeStep, temperature, space);
+            integrator = new IntegratorVelocityVerlet(potentialMaster, random, timeStep, temperature, box);
         }
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         meterPE.setPotentialCalculation(new PotentialCalculationEnergySumEAM(potential));
         integrator.setMeterPotentialEnergy(meterPE);
         integrator.setIsothermal(true);
@@ -137,38 +136,33 @@ public class SimFe extends Simulation {
         ai = new ActivityIntegrate(integrator);
         getController().addAction(ai);
 
-        integrator.setBox(box);
-
         p1ImageHarmonic.setZeroForce(true);
 
         SpaceLattice lat = null;
         if (crystal == Crystal.FCC) {
             lat = new LatticeCubicFcc(space);
-        }
-        else if (crystal == Crystal.BCC) {
+        } else if (crystal == Crystal.BCC) {
             lat = new LatticeCubicBcc(space);
-        }
-        else if (crystal == HCP) {
+        } else if (crystal == HCP) {
             lat = new LatticeHcp4(space);
-        }
-        else {
-            throw new RuntimeException("Don't know how to do "+crystal);
+        } else {
+            throw new RuntimeException("Don't know how to do " + crystal);
         }
         ConfigurationLattice config = new ConfigurationLattice(lat, space);
         config.initializeCoordinates(box);
-    
+
         p1ImageHarmonic.findNOffset(box);
-    
+
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         potentialMaster.getNeighborManager(box).reset();
-    
+
         Vector boxLength = box.getBoundary().getBoxSize();
         double lMin = boxLength.getX(0);
         if (boxLength.getX(1) < lMin) lMin = boxLength.getX(1);
         if (boxLength.getX(2) < lMin) lMin = boxLength.getX(2);
         double ww = w / lMin;
-        double swapDistance = 1.5*Math.sqrt(1.5*temperature/ww);
-        if (swapDistance > lMin/4) swapDistance = lMin/4;
+        double swapDistance = 1.5 * Math.sqrt(1.5 * temperature / ww);
+        if (swapDistance > lMin / 4) swapDistance = lMin / 4;
         if (swapDistance > rc) swapDistance = rc;
         if (swapDistance < 2) swapDistance = 2;
         PotentialMasterCell potentialMasterCell = new PotentialMasterCell(this, swapDistance, space);
@@ -177,20 +171,19 @@ public class SimFe extends Simulation {
         if (swap) {
             mcMoveSwap = new MCMoveAtomSwap(random, potentialMasterCell, space, p1ImageHarmonic);
             mcMoveSwap.setNbrDistance(swapDistance);
-            IntegratorMC integratorMC = new IntegratorMC(potentialMaster, random, temperature);
+            IntegratorMC integratorMC = new IntegratorMC(potentialMaster, random, temperature, box);
             integratorMC.getMoveManager().addMCMove(mcMoveSwap);
-            integratorMC.setBox(box);
             integratorMC.reset();
-    
+
             integrator.getEventManager().addListener(new IntegratorListener() {
                 int countdown = 10, interval = 10;
-        
+
                 public void integratorInitialized(IntegratorEvent e) {
                 }
-        
+
                 public void integratorStepStarted(IntegratorEvent e) {
                 }
-        
+
                 @Override
                 public void integratorStepFinished(IntegratorEvent e) {
                     if (--countdown > 0) {
@@ -275,7 +268,7 @@ public class SimFe extends Simulation {
         if (graphics) {
             sim.integrator.setThermostatInterval(thermostatInterval);
             final String APP_NAME = "SimFe";
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
             ColorScheme colorScheme = new ColorScheme() {
                 @Override
                 public Color getAtomColor(IAtom a) {
@@ -326,8 +319,7 @@ public class SimFe extends Simulation {
             tHist.addDataSink(tPlot.getDataSet().makeDataSink());
             tPlot.setDoLegend(false);
 
-            MeterKineticEnergy meterKE = new MeterKineticEnergy();
-            meterKE.setBox(sim.box);
+            MeterKineticEnergy meterKE = new MeterKineticEnergy(sim.box);
             AccumulatorHistory keHist = new AccumulatorHistory(new HistoryCollapsingAverage());
             keHist.setTimeDataSource(tSource);
             DataPumpListener kePump = new DataPumpListener(meterKE, keHist, interval);
@@ -339,8 +331,7 @@ public class SimFe extends Simulation {
             keHist.addDataSink(kePlot.getDataSet().makeDataSink());
             kePlot.setDoLegend(false);
 
-            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-            meterPE.setBox(sim.box);
+            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
             meterPE.setPotentialCalculation(new DataSourceEnergies.PotentialCalculationEnergiesEAM(sim.potential));
             MeterEnergy meterE = new MeterEnergy(sim.potentialMaster, sim.box);
             meterE.setPotential(meterPE);

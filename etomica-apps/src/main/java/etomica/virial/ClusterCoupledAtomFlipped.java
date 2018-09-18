@@ -32,10 +32,10 @@ public class ClusterCoupledAtomFlipped  extends ClusterCoupledFlipped {
     // flip the atom, not the molecule 
     protected void flip(IMolecule flippedMolecule) {
     	IAtomList childAtoms = flippedMolecule.getChildList();
-    	if (childAtoms.getAtomCount() > 1){
+    	if (childAtoms.size() > 1){
             throw new RuntimeException("i can just handle single atom!");
     	}
-    	IOrientation or = ((IAtomOriented)childAtoms.getAtom(0)).getOrientation();
+    	IOrientation or = ((IAtomOriented)childAtoms.get(0)).getOrientation();
     	if (or instanceof OrientationFull3D) {
     	    ((OrientationFull3D) or).getSecondaryDirection().normalize();
     	    axis.E(((OrientationFull3D) or).getSecondaryDirection());

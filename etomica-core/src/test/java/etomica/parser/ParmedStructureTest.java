@@ -13,21 +13,22 @@ import etomica.potential.PotentialGroup;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresCustom;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class ParmedStructureTest {
     private static ParmedStructure structure;
 
     private static final double EPSILON = 0.000001;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
+        assumeTrue(ParmedParser.class.getClassLoader().getResource("virtualenv/bin/parmed_json") != null);
         // this can take a while so we only do it once.
         structure = ParmedParser.parseGromacsResourceFiles("test.top", "test.gro");
     }
@@ -35,7 +36,7 @@ public class ParmedStructureTest {
     @Test
     public void testGetBox() throws Exception {
         Box box = structure.getBox();
-        assertEquals(
+        Assertions.assertEquals(
                 36935.2335047,
                 box.getBoundary().volume(),
                 EPSILON
@@ -46,14 +47,14 @@ public class ParmedStructureTest {
     public void testGetSpecies() throws Exception {
         SpeciesSpheresCustom species = structure.getSpecies();
 
-        assertEquals(
+        Assertions.assertEquals(
                 12.01078,
-                species.makeMolecule().getChildList().getAtom(0).getType().getMass(),
+                species.makeMolecule().getChildList().get(0).getType().getMass(),
                 EPSILON
         );
 
-        assertTrue(
-                species.makeMolecule().getChildList().getAtom(0).getPosition()
+        Assertions.assertTrue(
+                species.makeMolecule().getChildList().get(0).getPosition()
                 .equals(new Vector3D(0.0, 0.0, 0.0))
         );
     }
@@ -71,7 +72,7 @@ public class ParmedStructureTest {
         act.setDestination(new Vector3D(5, 5, 5));
         act.actionPerformed(mol2);
 
-        assertEquals(
+        Assertions.assertEquals(
                 -0.002102905446227447,
                 potentialGroup.energy(new MoleculePair(
                         mol1,
@@ -86,13 +87,13 @@ public class ParmedStructureTest {
     public void testGetMolecules() {
         List<IMolecule> molList = structure.getMolecules();
 
-        assertTrue(
-                molList.get(0).getChildList().getAtom(0).getPosition()
+        Assertions.assertTrue(
+                molList.get(0).getChildList().get(0).getPosition()
                 .equals(new Vector3D(0, 0, 0))
         );
 
-        assertTrue(
-                molList.get(1).getChildList().getAtom(1).getPosition()
+        Assertions.assertTrue(
+                molList.get(1).getChildList().get(1).getPosition()
                 .equals(new Vector3D(-0.9299999999999999, -0.56, 13.799999999999999))
         );
     }

@@ -44,12 +44,12 @@ public class P2Water3P extends PotentialMolecular {
 		double sum = 0.0;
 		double r2 = 0.0;
 
-		IMolecule water1 = pair.getMolecule(0);
-		IMolecule water2 = pair.getMolecule(1);
+		IMolecule water1 = pair.get(0);
+		IMolecule water2 = pair.get(1);
 		
 		//compute O-O distance to consider truncation	
-        Vector O1r = (water1.getChildList().getAtom(2)).getPosition();
-        Vector O2r = (water2.getChildList().getAtom(2)).getPosition();
+        Vector O1r = (water1.getChildList().get(2)).getPosition();
+        Vector O2r = (water2.getChildList().get(2)).getPosition();
 
 		work.Ev1Mv2(O1r, O2r);
         shift.Ea1Tv1(-1,work);
@@ -65,10 +65,10 @@ public class P2Water3P extends PotentialMolecular {
 		double s6 = s2*s2*s2;
 		sum += epsilon4*s6*(s6 - 1.0);
 		
-        Vector H11r = (water1.getChildList().getAtom(0)).getPosition();
-        Vector H12r = (water1.getChildList().getAtom(1)).getPosition();
-        Vector H21r = (water2.getChildList().getAtom(0)).getPosition();
-        Vector H22r = (water2.getChildList().getAtom(1)).getPosition();
+        Vector H11r = (water1.getChildList().get(0)).getPosition();
+        Vector H12r = (water1.getChildList().get(1)).getPosition();
+        Vector H21r = (water2.getChildList().get(0)).getPosition();
+        Vector H22r = (water2.getChildList().get(1)).getPosition();
         		
         if (zeroShift) {
             r2 = O1r.Mv1Squared(H21r);

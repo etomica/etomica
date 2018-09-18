@@ -24,6 +24,7 @@ import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.potential.*;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresHetero;
@@ -124,11 +125,11 @@ public class VirialCO2SKSMix {
             public void initializePositions(IAtomList atomList) {
                 // atoms are C, O and O, so we arrange them as 1-0-2
                 double bondL = 1.1491;
-                atomList.getAtom(0).getPosition().E(0);
-                atomList.getAtom(1).getPosition().E(0);
-                atomList.getAtom(1).getPosition().setX(0, -bondL);
-                atomList.getAtom(2).getPosition().E(0);
-                atomList.getAtom(2).getPosition().setX(0, +bondL);
+                atomList.get(0).getPosition().E(0);
+                atomList.get(1).getPosition().E(0);
+                atomList.get(1).getPosition().setX(0, -bondL);
+                atomList.get(2).getPosition().E(0);
+                atomList.get(2).getPosition().setX(0, +bondL);
             }
         };
         SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
@@ -225,9 +226,9 @@ public class VirialCO2SKSMix {
 
         if (false) {
             double size = 10;
-            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
             DisplayBox dBox1 = simGraphic.getDisplayBox(sim.box[1]);
             dBox0.setPixelUnit(new Pixel(300.0/size));

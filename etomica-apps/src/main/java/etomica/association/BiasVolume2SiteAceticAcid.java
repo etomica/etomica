@@ -106,11 +106,11 @@ public class BiasVolume2SiteAceticAcid implements AssociationDefinitionMolecule 
     
     protected void doFlip(IMolecule molecule){
     	IAtomList childList = molecule.getChildList();
-    	Vector rC = childList.getAtom(SpeciesAceticAcid.indexC).getPosition();
-    	for (int i = 0;i<childList.getAtomCount();i+=1){
+    	Vector rC = childList.get(SpeciesAceticAcid.indexC).getPosition();
+    	for (int i = 0; i<childList.size(); i+=1){
     		if (i == SpeciesAceticAcid.indexC)continue;
-    		childList.getAtom(i).getPosition().TE(-1);
-    		childList.getAtom(i).getPosition().PEa1Tv1(2, rC);
+    		childList.get(i).getPosition().TE(-1);
+    		childList.get(i).getPosition().PEa1Tv1(2, rC);
     	}
     }
     
@@ -123,8 +123,8 @@ public class BiasVolume2SiteAceticAcid implements AssociationDefinitionMolecule 
     protected void doTransform(IMolecule molecule, Vector r0, Vector axis, double theta) {
         IAtomList childList = molecule.getChildList();
         rotationTensor.setRotationAxis(axis, theta);
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtom a = childList.getAtom(iChild);
+        for (int iChild = 0; iChild<childList.size(); iChild++) {
+            IAtom a = childList.get(iChild);
             Vector r = a.getPosition();
             r.ME(r0);
             rotationTensor.transform(r);
@@ -139,15 +139,15 @@ public class BiasVolume2SiteAceticAcid implements AssociationDefinitionMolecule 
     
     public boolean isAssociated(IMolecule molecule1, IMolecule molecule2){
     	
-        H1DBO2.Ev1Mv2(molecule2.getChildList().getAtom(SpeciesAceticAcid.indexDBO).getPosition(), molecule1.getChildList().getAtom(SpeciesAceticAcid.indexH).getPosition());
+        H1DBO2.Ev1Mv2(molecule2.getChildList().get(SpeciesAceticAcid.indexDBO).getPosition(), molecule1.getChildList().get(SpeciesAceticAcid.indexH).getPosition());
         boundary.nearestImage(H1DBO2);
         double distance1 = H1DBO2.squared();
         H1DBO2.normalize();
-        H1SBO1.Ev1Mv2(molecule1.getChildList().getAtom(SpeciesAceticAcid.indexSBO).getPosition(), molecule1.getChildList().getAtom(SpeciesAceticAcid.indexH).getPosition());
+        H1SBO1.Ev1Mv2(molecule1.getChildList().get(SpeciesAceticAcid.indexSBO).getPosition(), molecule1.getChildList().get(SpeciesAceticAcid.indexH).getPosition());
         H1SBO1.normalize();
         double cosOHO1 = H1SBO1.dot(H1DBO2);
-        DBO2H1.Ev1Mv2(molecule1.getChildList().getAtom(SpeciesAceticAcid.indexH).getPosition(), molecule2.getChildList().getAtom(SpeciesAceticAcid.indexDBO).getPosition());
-        DBO2C2.Ev1Mv2(molecule2.getChildList().getAtom(SpeciesAceticAcid.indexC).getPosition(), molecule2.getChildList().getAtom(SpeciesAceticAcid.indexDBO).getPosition());
+        DBO2H1.Ev1Mv2(molecule1.getChildList().get(SpeciesAceticAcid.indexH).getPosition(), molecule2.getChildList().get(SpeciesAceticAcid.indexDBO).getPosition());
+        DBO2C2.Ev1Mv2(molecule2.getChildList().get(SpeciesAceticAcid.indexC).getPosition(), molecule2.getChildList().get(SpeciesAceticAcid.indexDBO).getPosition());
         DBO2H1.normalize();
         DBO2C2.normalize();
         double cosHOC1 = DBO2H1.dot(DBO2C2);

@@ -122,7 +122,7 @@ public class MeterHyperVirial implements IDataSource {
             potentialMaster.calculate(box, iteratorDirective, virial);
             //System.out.println("fac="+(1/(box.getBoundary().volume()*box.getSpace().D())));
             double V = box.getBoundary().volume();
-            int n = box.getMoleculeList().getMoleculeCount();
+            int n = box.getMoleculeList().size();
             double rho = n/V; 
             double p = rho*temperature - virial.getSum()/(box.getBoundary().volume()*dim);
             y[1] = p;

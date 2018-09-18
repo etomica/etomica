@@ -7,12 +7,19 @@ package etomica.action;
 import etomica.box.Box;
 
 /**
-  * Elementary action performed on a box.
-  */
+ * Elementary action performed on a Box. If action is invoked without previously specifying Box, no action is performed.
+ */
 public interface BoxAction extends IAction {
 
-    public void setBox(Box box);
-    
-    public Box getBox();
+    /**
+     * @return the Box specified by the last call to setBox, or null if no Box was previously specified
+     */
+    Box getBox();
+
+    /**
+     * Specifies the Box that will be subject to the action, upon subsequent call to actionPerformed()
+     * @param box the Box targeted by the action
+     */
+    void setBox(Box box);
 
 }

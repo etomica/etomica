@@ -3,14 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.catalysis;
+
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.potential.Potential2HardSpherical;
-import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
@@ -62,8 +64,8 @@ public class P2SquareWellSurface extends Potential2HardSpherical {
      * both approaching and diverging
      */
     public void bump(IAtomList pair, double falseTime) {
-        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
-        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+        IAtomKinetic atom0 = (IAtomKinetic)pair.get(0);
+        IAtomKinetic atom1 = (IAtomKinetic)pair.get(1);
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
@@ -156,8 +158,8 @@ public class P2SquareWellSurface extends Potential2HardSpherical {
      * approach, or when they edge of the wells are reached as atoms diverge.
      */
     public double collisionTime(IAtomList pair, double falseTime) {
-        IAtomKinetic coord0 = (IAtomKinetic)pair.getAtom(0);
-        IAtomKinetic coord1 = (IAtomKinetic)pair.getAtom(1);
+        IAtomKinetic coord0 = (IAtomKinetic)pair.get(0);
+        IAtomKinetic coord1 = (IAtomKinetic)pair.get(1);
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
         
         dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
@@ -196,9 +198,26 @@ public class P2SquareWellSurface extends Potential2HardSpherical {
         return time + falseTime;
     }
 
-  /**
-   * Returns infinity if overlapping, -epsilon if otherwise less than well diameter, or zero if neither.
-   */
+    public double energy(IAtomList pair) {
+        IAtom atom0 = pair.get(0);
+        IAtom atom1 = pair.get(1);
+        double rm0 = atom0.getType().rm();
+        CatalysisAgent agent;
+        if (rm0 == 0) {
+            agent = (CatalysisAgent) agentManager.getAgent(atom1);
+        } else {
+            agent = (CatalysisAgent) agentManager.getAgent(atom0);
+        }
+        if (!agent.isRadical && agent.bondedAtom2 != null) {
+            // turn off C-surface attraction for OCO
+            return 0;
+        }
+        return super.energy(pair);
+    }
+
+    /**
+     * Returns infinity if overlapping, -epsilon if otherwise less than well diameter, or zero if neither.
+     */
     public double u(double r2) {
         if (r2 > wellDiameterSquared) return 0.0;
         if (r2 > coreDiameterSquared) return -epsilon;

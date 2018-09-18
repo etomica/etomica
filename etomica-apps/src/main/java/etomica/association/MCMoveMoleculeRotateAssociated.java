@@ -36,7 +36,7 @@ public class MCMoveMoleculeRotateAssociated extends MCMoveRotateMolecule3D {
     
     public boolean doTrial() {//rotate any molecule
     	debug = false;
-        if(box.getMoleculeList().getMoleculeCount()==0) {return false;}
+        if(box.getMoleculeList().size()==0) {return false;}
         molecule = moleculeSource.getMolecule();
         associationHelper.populateList(smerList,molecule,true);
         energyMeter.setTarget(molecule);
@@ -53,7 +53,7 @@ public class MCMoveMoleculeRotateAssociated extends MCMoveRotateMolecule3D {
     		return 0.0;
     	}
 
-    	if (smerList.getMoleculeCount() > maxLength) {
+    	if (smerList.size() > maxLength) {
     		return 0.0;
 		}
         return super.getChi(temperature);

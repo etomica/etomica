@@ -63,19 +63,27 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
     public SimOverlapSoftSphereTPSlantedBox(Space _space, int numAtoms, double density, double temperature, double[] otherTemperatures, double[] alpha, int exponent, int numAlpha, double alphaSpan, long numSteps, double rc) {
         super(_space);
 
-        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
-        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class);
-        potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
-
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
+        BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
+        BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
+        potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
+
         // TARGET
-        box = new Box(space);
-        addBox(box);
+        System.out.println("numatoms: " + numAtoms);
+        int c = (int) Math.round(Math.pow(numAtoms, 1.0 / 3.0));
+        nCells = new int[]{c, c, c};
+        double sixtyDeg = Degree.UNIT.toSim(60);
+
+        double L = Math.pow(numAtoms * Math.sqrt(2) / density, 1.0 / 3.0);
+
+        primitive = new PrimitiveTriclinic(space, L, L, L, sixtyDeg, sixtyDeg, sixtyDeg);
+        boundary = new BoundaryDeformablePeriodic(space,primitive.vectors());
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         atomMove = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
@@ -83,30 +91,18 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
         integrator.getMoveManager().addMCMove(atomMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
 
-        System.out.println("numatoms: "+ numAtoms);
-        int c = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
-        nCells = new int[]{c,c,c};
-        double sixtyDeg = Degree.UNIT.toSim(60);
-
-        double L = Math.pow(numAtoms*Math.sqrt(2)/density, 1.0/3.0);
-
-        primitive = new PrimitiveTriclinic(space, L, L, L, sixtyDeg, sixtyDeg, sixtyDeg);
-
-        boundary = new BoundaryDeformablePeriodic(space, primitive.vectors());
         Basis basisSimple = new Basis(new Vector3D[]{new Vector3D(0.0, 0.0, 0.0)});
         basis = new BasisBigCell(space, basisSimple, nCells);
 
-        box.setBoundary(boundary);
-
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, exponent);
-     	if(potentialMaster instanceof PotentialMasterList){
-			potential = new P2SoftSphericalTruncated(space, potential, rc);
+        if (potentialMaster instanceof PotentialMasterList) {
+            potential = new P2SoftSphericalTruncated(space, potential, rc);
 
-		} else {
-			potential = new P2SoftSphericalTruncatedShifted(space, potential, rc);
+        } else {
+            potential = new P2SoftSphericalTruncatedShifted(space, potential, rc);
 
         }
         atomMove.setPotential(potential);
@@ -119,26 +115,22 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
          *
          */
 
-        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, primitive.getSize()[0]/c, this);
+        P1ConstraintNbr p1Constraint = new P1ConstraintNbr(space, primitive.getSize()[0] / c);
         atomMove.setConstraint(p1Constraint);
 
         potentialMaster.lrcMaster().setEnabled(false);
 
-        integrator.setBox(box);
-
-		if (potentialMaster instanceof PotentialMasterList) {
-            ((PotentialMasterList)potentialMaster).setRange(rc);
+        if (potentialMaster instanceof PotentialMasterList) {
+            ((PotentialMasterList) potentialMaster).setRange(rc);
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMaster).getNeighborManager(box).reset();
-		}
+            ((PotentialMasterList) potentialMaster).getNeighborManager(box).reset();
+        }
 
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         latticeEnergy = meterPE.getDataAsScalar();
-        System.out.println("lattice energy: "+latticeEnergy/numAtoms);
+        System.out.println("lattice energy: " + latticeEnergy / numAtoms);
 
-        meter = new MeterTargetTP(potentialMaster, species, space, this);
-        meter.setCoordinateDefinition(coordinateDefinition);
+        meter = new MeterTargetTP(potentialMaster, species, this, coordinateDefinition);
         meter.setLatticeEnergy(latticeEnergy);
         meter.setTemperature(temperature);
         meter.setOtherTemperatures(otherTemperatures);
@@ -147,13 +139,12 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
         meter.setNumAlpha(numAlpha);
         int numBlocks = 100;
         int interval = numAtoms;
-        long blockSize = numSteps/(numBlocks*interval);
+        long blockSize = numSteps / (numBlocks * interval);
         if (blockSize == 0) blockSize = 1;
-        System.out.println("block size "+blockSize+" interval "+interval);
+        System.out.println("block size " + blockSize + " interval " + interval);
         if (otherTemperatures.length > 1) {
             accumulator = new AccumulatorAverageCovariance(blockSize);
-        }
-        else {
+        } else {
             accumulator = new AccumulatorAverageFixed(blockSize);
         }
         accumulatorPump = new DataPumpListener(meter, accumulator, interval);
@@ -166,7 +157,7 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
         if (potentialMaster instanceof PotentialMasterList) {
             // extend potential range, so that atoms that move outside the truncation range will still interact
             // atoms that move in will not interact since they won't be neighbors
-            ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
+            ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
         }
     }
 
@@ -204,7 +195,7 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
         //instantiate simulation
         final SimOverlapSoftSphereTPSlantedBox sim = new SimOverlapSoftSphereTPSlantedBox(Space.getInstance(3), numMolecules, density, temperature, otherTemperatures, alpha, exponentN, numAlpha, alphaSpan, numSteps, rc);
         if (true) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
                 protected Color[] allColors;

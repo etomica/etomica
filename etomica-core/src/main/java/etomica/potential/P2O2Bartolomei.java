@@ -136,8 +136,8 @@ public class P2O2Bartolomei implements IPotentialAtomic {
     }
 
     public double energy(IAtomList atoms) {
-        IAtomOriented atom0 = (IAtomOriented)atoms.getAtom(0);
-        IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(1);
+        IAtomOriented atom0 = (IAtomOriented)atoms.get(0);
+        IAtomOriented atom1 = (IAtomOriented)atoms.get(1);
         double rCM = Math.sqrt(atom0.getPosition().Mv1Squared(atom1.getPosition()));        
         double th1 = 0;
         double th2 = 0;
@@ -755,7 +755,7 @@ public class P2O2Bartolomei implements IPotentialAtomic {
         }
 
         public double energy(IAtomList atoms) {
-            dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
+            dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
             boundary.nearestImage(dr);
             return u(dr.squared());
         }

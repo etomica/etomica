@@ -9,7 +9,6 @@ import java.awt.Color;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.simulation.Simulation;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.Api1ACell;
 
@@ -18,9 +17,9 @@ import etomica.nbr.cell.Api1ACell;
  */
 public class ColorSchemeNeighborCell extends ColorSchemeCollectiveAgent {
     
-    public ColorSchemeNeighborCell(Simulation sim, PotentialMasterNbr potentialMaster, Box box, int dim) {
+    public ColorSchemeNeighborCell(PotentialMasterNbr potentialMaster, Box box, int dim) {
         super(box);
-        typeColorScheme = new ColorSchemeByType(sim);
+        typeColorScheme = new ColorSchemeByType();
         leafList = box.getLeafList();
         nbrIterator = new Api1ACell(dim, 1.0, potentialMaster.getCellAgentManager());
         nbrIterator.setDirection(null);
@@ -29,9 +28,9 @@ public class ColorSchemeNeighborCell extends ColorSchemeCollectiveAgent {
     
     public void colorAllAtoms() {
 		//color all atoms according to their type
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.getAtom(iLeaf);
+            IAtom atom = leafList.get(iLeaf);
             agentManager.setAgent(atom, typeColorScheme.getAtomColor(atom));
         }
         if (referenceAtom == null) {
@@ -41,7 +40,7 @@ public class ColorSchemeNeighborCell extends ColorSchemeCollectiveAgent {
         nbrIterator.reset();
         for (IAtomList pair = nbrIterator.next(); pair != null;
              pair = nbrIterator.next()) {
-            IAtom atom = pair.getAtom(1);
+            IAtom atom = pair.get(1);
             if(atom.getType() == referenceAtom.getType()) {
                 agentManager.setAgent(atom, Color.blue);
             } else {

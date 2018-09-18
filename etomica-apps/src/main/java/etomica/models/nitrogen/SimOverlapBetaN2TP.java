@@ -52,152 +52,150 @@ public class SimOverlapBetaN2TP extends Simulation {
     public SimOverlapBetaN2TP(Space space, int numMolecules, double density, double temperature, double[] otherTemperatures,
     		double[] alpha, int numAlpha, double alphaSpan, long numSteps, boolean isBeta, boolean isBetaHCP, double rcScale) {
         super(space);
-        
+
+        species = new SpeciesN2(space);
+        addSpecies(species);
+
         BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
-        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource,NeighborCellManagerMolecular.class);
-     
-		double ratio = 1.631;
-		double aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
-		double cDim = aDim*ratio;
-		System.out.println("a: " + aDim + " ;cDim: " + cDim);
-		int nC = (int)Math.pow(numMolecules/1.999999999, 1.0/3.0);
-		
-		Basis basisHCP = new BasisHcp();
-		BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC,nC,nC});
-        
-		species = new SpeciesN2(space);
-		addSpecies(species);
+        BoxAgentManager<NeighborCellManagerMolecular> boxAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, this);
 
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecules);
-        
-		Vector[] boxDim = new Vector[3];
-		boxDim[0] = space.makeVector(new double[]{nC*aDim, 0, 0});
-		boxDim[1] = space.makeVector(new double[]{-nC*aDim*Math.cos(Degree.UNIT.toSim(60)), nC*aDim*Math.sin(Degree.UNIT.toSim(60)), 0});
-		boxDim[2] = space.makeVector(new double[]{0, 0, nC*cDim});
-		
-		int[] nCells = new int[]{1,1,1};
-		Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
-		primitive = new PrimitiveHexagonal(space, nC*aDim, nC*cDim);
-		
-		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
-		if(isBeta){coordinateDef.setIsBeta();}
-		if(isBetaHCP){coordinateDef.setIsBetaHCP();}
+        double ratio = 1.631;
+        double aDim = Math.pow(4.0 / (Math.sqrt(3.0) * ratio * density), 1.0 / 3.0);
+        double cDim = aDim * ratio;
+        System.out.println("a: " + aDim + " ;cDim: " + cDim);
+        int nC = (int) Math.pow(numMolecules / 1.999999999, 1.0 / 3.0);
+
+        Basis basisHCP = new BasisHcp();
+        BasisBigCell basis = new BasisBigCell(space, basisHCP, new int[]{nC, nC, nC});
+
+        Vector[] boxDim = new Vector[3];
+        boxDim[0] = Vector.of(new double[]{nC * aDim, 0, 0});
+        boxDim[1] = Vector.of(new double[]{-nC * aDim * Math.cos(Degree.UNIT.toSim(60)), nC * aDim * Math.sin(Degree.UNIT.toSim(60)), 0});
+        boxDim[2] = Vector.of(new double[]{0, 0, nC * cDim});
+        Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numMolecules);
+
+
+        int[] nCells = new int[]{1, 1, 1};
+        primitive = new PrimitiveHexagonal(space, nC * aDim, nC * cDim);
+
+        coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
+        if (isBeta) {
+            coordinateDef.setIsBeta();
+        }
+        if (isBetaHCP) {
+            coordinateDef.setIsBetaHCP();
+        }
         coordinateDef.setOrientationVectorBeta(space);
-		coordinateDef.initializeCoordinates(nCells);
+        coordinateDef.initializeCoordinates(nCells);
 
-		
-		double[] u = new double[20];
 
-		if(isBeta){
-			BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
-			double[][] param = parameters.getParameter(density);
-			
+        double[] u = new double[20];
+
+        if (isBeta) {
+            BetaPhaseLatticeParameter parameters = new BetaPhaseLatticeParameter();
+            double[][] param = parameters.getParameter(density);
+
 //			BetaPhaseLatticeParameterNA parameters = new BetaPhaseLatticeParameterNA();
 //			double[][] param = parameters.getParameter(numMolecules);
-			
-			int kParam=0;
-			for (int i=0; i<param.length;i++){
-				for (int j=0; j<param[0].length;j++){
-					if(isBetaHCP&&(j<3)){
-						u[kParam]=0.0;
-					} else {
-						u[kParam]=param[i][j];
-					}
-					kParam++;
-				}	
-			}
-			
-			System.out.println("*************Parameters*************");
-			for (int i=0; i<u.length;i++){
-				System.out.print(u[i] +", ");
-				if((i+1)%5==0){
-					System.out.println();
-				}
-			}
-			
-			int numDOF = coordinateDef.getCoordinateDim();
-			double[] newU = new double[numDOF];
-			if(true){
-				for(int j=0; j<numDOF; j+=10){
-					if(j>0 && j%(nC*10)==0){
-						j+=nC*10;
-						if(j>=numDOF){
-							break;
-						}
-					}
-					for(int k=0; k<10;k++){
-						newU[j+k]= u[k];
-					}
-				}
-				
-				for(int j=nC*10; j<numDOF; j+=10){
-					if(j>nC*10 && j%(nC*10)==0){
-						j+=nC*10;
-						if(j>=numDOF){
-							break;
-						}
-					}
-					for(int k=0; k<10;k++){
-						newU[j+k]= u[k+10];
-					}
-				}
-			}
 
-			coordinateDef.setToU(box.getMoleculeList(), newU);
-			coordinateDef.initNominalU(box.getMoleculeList());
-			
-		}
-		
-        box.setBoundary(boundary);
-		double rc = aDim*nC*rcScale;
-		System.out.println("Truncation Radius (" + rcScale +" Box Length): " + rc);
-		potential = new P2Nitrogen(space, rc);
-		potential.setBox(box);
+            int kParam = 0;
+            for (int i = 0; i < param.length; i++) {
+                for (int j = 0; j < param[0].length; j++) {
+                    if (isBetaHCP && (j < 3)) {
+                        u[kParam] = 0.0;
+                    } else {
+                        u[kParam] = param[i][j];
+                    }
+                    kParam++;
+                }
+            }
 
-		//potentialMaster = new PotentialMaster();
-		potentialMaster = new PotentialMasterListMolecular(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
-	    potentialMaster.addPotential(potential, new ISpecies[]{species, species});
-	
-	    int cellRange = 6;
+            System.out.println("*************Parameters*************");
+            for (int i = 0; i < u.length; i++) {
+                System.out.print(u[i] + ", ");
+                if ((i + 1) % 5 == 0) {
+                    System.out.println();
+                }
+            }
+
+            int numDOF = coordinateDef.getCoordinateDim();
+            double[] newU = new double[numDOF];
+            if (true) {
+                for (int j = 0; j < numDOF; j += 10) {
+                    if (j > 0 && j % (nC * 10) == 0) {
+                        j += nC * 10;
+                        if (j >= numDOF) {
+                            break;
+                        }
+                    }
+                    for (int k = 0; k < 10; k++) {
+                        newU[j + k] = u[k];
+                    }
+                }
+
+                for (int j = nC * 10; j < numDOF; j += 10) {
+                    if (j > nC * 10 && j % (nC * 10) == 0) {
+                        j += nC * 10;
+                        if (j >= numDOF) {
+                            break;
+                        }
+                    }
+                    for (int k = 0; k < 10; k++) {
+                        newU[j + k] = u[k + 10];
+                    }
+                }
+            }
+
+            coordinateDef.setToU(box.getMoleculeList(), newU);
+            coordinateDef.initNominalU(box.getMoleculeList());
+
+        }
+        double rc = aDim * nC * rcScale;
+        System.out.println("Truncation Radius (" + rcScale + " Box Length): " + rc);
+        potential = new P2Nitrogen(space, rc);
+        potential.setBox(box);
+
+        //potentialMaster = new PotentialMaster();
+        potentialMaster = new PotentialMasterListMolecular(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlantyMolecular.NeighborListSlantyAgentSourceMolecular(rc, space), space);
+        potentialMaster.addPotential(potential, new ISpecies[]{species, species});
+
+        int cellRange = 6;
         potentialMaster.setRange(rc);
-        potentialMaster.setCellRange(cellRange); 
+        potentialMaster.setCellRange(cellRange);
         potentialMaster.getNeighborManager(box).reset();
         potential.setRange(Double.POSITIVE_INFINITY);
-        
+
 //        int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
 //        if (potentialCells < cellRange*2+1) {
 //            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
 //        }
-        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().getMolecule(0))[0].getMoleculeCount();
+        int numNeigh = potentialMaster.getNeighborManager(box).getUpList(box.getMoleculeList().get(0))[0].size();
         System.out.println("numNeigh: " + numNeigh);
 
-		move = new MCMoveMoleculeCoupled(potentialMaster,getRandom(),space);
-		move.setBox(box);
-		move.setPotential(potential);
-		move.setDoExcludeNonNeighbors(true);
-		//move.setStepSize(Kelvin.UNIT.toSim(temperature));
-		//((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
-		
-		integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature));
-		integrator.getMoveManager().addMCMove(move);
-		if(isBetaHCP){
-			rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
-			rotate.setBox(box);
-			integrator.getMoveManager().addMCMove(rotate);
-		}
-		integrator.setBox(box);
-		
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-        meterPE.setBox(box);
+        move = new MCMoveMoleculeCoupled(potentialMaster, getRandom(), space);
+        move.setBox(box);
+        move.setPotential(potential);
+        move.setDoExcludeNonNeighbors(true);
+        //move.setStepSize(Kelvin.UNIT.toSim(temperature));
+        //((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
+
+        integrator = new IntegratorMC(potentialMaster, getRandom(), Kelvin.UNIT.toSim(temperature), box);
+        integrator.getMoveManager().addMCMove(move);
+        if (isBetaHCP) {
+            rotate = new MCMoveRotateMolecule3D(potentialMaster, getRandom(), space);
+            rotate.setBox(box);
+            integrator.getMoveManager().addMCMove(rotate);
+        }
+
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
         latticeEnergy = meterPE.getDataAsScalar();
-        System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy/numMolecules);
+        System.out.println("lattice energy per molecule (sim unit): " + latticeEnergy / numMolecules);
         System.out.println("lattice energy (sim unit): " + latticeEnergy);
 
-    	potential.setRange(rc);
-        meter = new MeterTargetTPMolecule(potentialMaster, species, space, this);
-        meter.setCoordinateDefinition(coordinateDef);
+        potential.setRange(rc);
+        meter = new MeterTargetTPMolecule(potentialMaster, species, this, coordinateDef);
         meter.setLatticeEnergy(latticeEnergy);
         meter.setBetaPhase(true);
         meter.setTemperature(Kelvin.UNIT.toSim(temperature));
@@ -206,24 +204,23 @@ public class SimOverlapBetaN2TP extends Simulation {
         meter.setAlphaSpan(alphaSpan);
         meter.setNumAlpha(numAlpha);
         potential.setRange(Double.POSITIVE_INFINITY);
-        
+
         int numBlocks = 100;
         int interval = numMolecules;
-        long blockSize = numSteps/(numBlocks*interval);
+        long blockSize = numSteps / (numBlocks * interval);
         if (blockSize == 0) blockSize = 1;
-        System.out.println("block size "+blockSize+" interval "+interval);
+        System.out.println("block size " + blockSize + " interval " + interval);
         if (otherTemperatures.length > 1) {
             accumulator = new AccumulatorAverageCovariance(blockSize);
-        }
-        else {
+        } else {
             accumulator = new AccumulatorAverageFixed(blockSize);
         }
         accumulatorPump = new DataPumpListener(meter, accumulator, numMolecules);
         integrator.getEventManager().addListener(accumulatorPump);
-       
+
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-     
+
     }
     
     public void initialize(long initSteps) {
@@ -309,7 +306,7 @@ public class SimOverlapBetaN2TP extends Simulation {
         System.out.flush();
         
         if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 //            simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 //		  
 //		    DiameterHashByType diameter = new DiameterHashByType(sim);

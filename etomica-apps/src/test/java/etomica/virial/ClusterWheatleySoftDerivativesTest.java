@@ -11,11 +11,9 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by Navneeth on 6/7/2017.
@@ -25,7 +23,7 @@ public class ClusterWheatleySoftDerivativesTest {
     BoxCluster box;
     ClusterWheatleySoftDerivatives cwsd;
 
-    @Before
+    @BeforeEach
     public void setup() {
         Space space = Space.getInstance(3);
         Species species = new SpeciesSpheresMono(space, new ElementSimple(""));
@@ -37,9 +35,9 @@ public class ClusterWheatleySoftDerivativesTest {
 
         Simulation sim = new Simulation(space);
 
-        box = new BoxCluster(cl, space);
-
         sim.addSpecies(species);
+
+        box = new BoxCluster(cl, space);
         sim.addBox(box);
 
         box.setNMolecules(species, npoints);
@@ -52,11 +50,11 @@ public class ClusterWheatleySoftDerivativesTest {
         double testval = cwsd.value(box);
         double shouldbe = 0.2;
 
-        assertEquals(shouldbe,testval,1e-12);
+        Assertions.assertEquals(shouldbe,testval,1e-12);
 
         IAtomList al = box.getLeafList();
         for(int i=0; i<npoints;i++){
-            al.getAtom(i).getPosition().setX(0,i/2.0);
+            al.get(i).getPosition().setX(0,i/2.0);
         }
         box.trialNotify();
         box.acceptNotify();
@@ -64,7 +62,7 @@ public class ClusterWheatleySoftDerivativesTest {
         testval = cwsd.value(box);
         shouldbe = -0.005947243342292857;
 
-        assertEquals(shouldbe,testval,1e-12);
+        Assertions.assertEquals(shouldbe,testval,1e-12);
 
     }
     @Test
@@ -73,11 +71,11 @@ public class ClusterWheatleySoftDerivativesTest {
         double[] lastval = cwsd.getAllLastValues(box);
         double[] shouldbe = new double[]{0.2,0.0,0.0,0.0,0.0,0.0};
 
-        assertArrayEquals(lastval,shouldbe,1e-12);
+        Assertions.assertArrayEquals(lastval,shouldbe,1e-12);
 
         IAtomList al = box.getLeafList();
         for(int i=0; i<npoints;i++){
-            al.getAtom(i).getPosition().setX(0,i/2.0);
+            al.get(i).getPosition().setX(0,i/2.0);
         }
         box.trialNotify();
         box.acceptNotify();
@@ -85,7 +83,7 @@ public class ClusterWheatleySoftDerivativesTest {
         lastval=cwsd.getAllLastValues(box);
         shouldbe=new double[]{-0.005947243342292857,-0.013480397126374919,-0.018697807753013534,-0.014321377449658898,-0.009692919520843135,-0.006293319547673247};
 
-        assertArrayEquals(lastval,shouldbe,1e-12);
+        Assertions.assertArrayEquals(lastval,shouldbe,1e-12);
 
     }
 

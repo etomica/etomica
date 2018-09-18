@@ -181,7 +181,7 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
             for (int a=0; a<n; a++) {
                 if ((i & (1<<a)) != 0) {
                     moleculeIndices[l] = a;
-                    molecules.add(boxMolecules.getMolecule(a));
+                    molecules.add(boxMolecules.get(a));
                     l++;
                 }
             }

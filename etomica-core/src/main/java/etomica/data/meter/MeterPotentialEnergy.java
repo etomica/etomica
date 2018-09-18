@@ -30,6 +30,11 @@ public class MeterPotentialEnergy extends DataSourceScalar {
         iteratorDirective.setDirection(IteratorDirective.Direction.UP);
     }
 
+    public MeterPotentialEnergy(PotentialMaster potentialMaster, Box box) {
+        this(potentialMaster);
+        this.setBox(box);
+    }
+
     /**
      * Sets flag indicating whether calculated energy should include
      * long-range correction for potential truncation (true) or not (false).

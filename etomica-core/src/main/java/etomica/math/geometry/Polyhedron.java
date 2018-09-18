@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.math.geometry;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import etomica.space.Vector;
@@ -94,7 +96,7 @@ public abstract class Polyhedron extends Polytope {
      * should be part of multiple faces.  Used by constructor.
      */
     private static LineSegment[] allEdges(Polygon[] faces) {
-        LinkedList list = new LinkedList();
+        List<LineSegment> list = new ArrayList<>();
         for(int i=0; i<faces.length; i++) {
             LineSegment[] edges= faces[i].getEdges();
             for(int j=0; j<edges.length; j++) {
@@ -103,7 +105,7 @@ public abstract class Polyhedron extends Polytope {
                 }
             }
         }
-        return (LineSegment[])list.toArray(new LineSegment[0]);
+        return list.toArray(new LineSegment[0]);
     }
 
     protected final LineSegment[] edges;

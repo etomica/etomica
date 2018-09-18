@@ -4,13 +4,18 @@
 
 package etomica.crystalviewer;
 
-import junit.framework.TestCase;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
 import etomica.lattice.crystal.PrimitiveTriclinic;
+import etomica.space.Vector;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class BLCPrimitiveTriclinicLatticePlaneTest {
 
 	private String funcName = "";
 
@@ -25,13 +30,8 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 
 	private LatticePlaneTestUtility lptu = null;
 
-	public BLCPrimitiveTriclinicLatticePlaneTest(String name) {
-		super(name);
-		funcName = name;
-	}
-
-	protected void setUp() throws Exception {
-		super.setUp();
+	@BeforeEach
+	public void setUp() throws Exception {
 		if (lptu == null) {
 			lptu = new LatticePlaneTestUtility();			
 	        lptu.createLatticeAndBox(lptu.TRICLINIC, DEFAULT_MILLER, DEFAULT_BOX);
@@ -39,8 +39,8 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 		}
 	}
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
+	@AfterEach
+	public void tearDown() throws Exception {
 	}
 
 	private double[] makeArray(Vector v) {
@@ -56,7 +56,8 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
      * beta = 90 degrees
      * gamma = 90 degrees
      */
-    public void testStandard() {
+    @Test
+	public void testStandard() {
 
     	int idx = 0;
     	double cubicSize = 1.0;
@@ -81,19 +82,19 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	leafList = lptu.getBox().getLeafList();
 
     	try {
-		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a =  leafList.getAtom(idx);
+		    for(idx = 0; idx < leafList.size(); idx++) {
+			    IAtom a =  leafList.get(idx);
                 if(a.getPosition().getX(2) >= spacePos-epsilon &&
                    a.getPosition().getX(2) <= spacePos+epsilon) {
-            	    assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
+            	    Assertions.assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
                 else {
-            	    assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
+            	    Assertions.assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
 		    }
 		}
-        catch (junit.framework.AssertionFailedError e) {
-		    IAtom a =  leafList.getAtom(idx);
+        catch (org.opentest4j.AssertionFailedError e) {
+		    IAtom a =  leafList.get(idx);
             if(a.getPosition().getX(2) >= spacePos-epsilon &&
                a.getPosition().getX(2) <= spacePos+epsilon) {
                 System.out.println(funcName + " -> Atom position : " + a.getPosition() +
@@ -120,7 +121,8 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
      * beta = 90 degrees
      * gamma = 90 degrees
      */
-    public void testCellSizeAllDifferent() {
+    @Test
+	public void testCellSizeAllDifferent() {
 
     	int idx = 0;
     	double cubicSizeA = 1.5;
@@ -147,22 +149,22 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	leafList = lptu.getBox().getLeafList();
 
     	try {
-		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a =  leafList.getAtom(idx);
+		    for(idx = 0; idx < leafList.size(); idx++) {
+			    IAtom a =  leafList.get(idx);
 
                 if(a.getPosition().getX(2) >= spacePos-epsilon &&
                    a.getPosition().getX(2) <= spacePos+epsilon) {
-            	    assertTrue(lptu.getLatticePlane().inPlane(
-            	    		(a.getPosition())));
+            	    Assertions.assertTrue(lptu.getLatticePlane().inPlane(
+							(a.getPosition())));
                 }
                 else {
-            	    assertFalse(lptu.getLatticePlane().inPlane(
-            	    		(a.getPosition())));
+            	    Assertions.assertFalse(lptu.getLatticePlane().inPlane(
+							(a.getPosition())));
                 }
 		    }
 		}
-        catch (junit.framework.AssertionFailedError e) {
-		    IAtom a =  leafList.getAtom(idx);
+        catch (org.opentest4j.AssertionFailedError e) {
+		    IAtom a =  leafList.get(idx);
             if(a.getPosition().getX(2) >= spacePos-epsilon &&
                a.getPosition().getX(2) <= spacePos+epsilon) {
             	System.out.println(funcName + " ->Atom position : " + a.getPosition() +
@@ -188,7 +190,8 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
      * beta = 110.0 degrees
      * gamma = 120.0 degrees
      */
-    public void testCellSizeAllDifferentAnglesAllDifferent() {
+    @Test
+	public void testCellSizeAllDifferentAnglesAllDifferent() {
 
     	int idx = 0;
     	double cubicSizeA = 1.25;
@@ -218,20 +221,20 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	leafList = lptu.getBox().getLeafList();
 
        	try {
-		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a =  leafList.getAtom(idx);
+		    for(idx = 0; idx < leafList.size(); idx++) {
+			    IAtom a =  leafList.get(idx);
 
                 if(a.getPosition().getX(2) >= spacePos-epsilon &&
                    a.getPosition().getX(2) <= spacePos+epsilon) {
-            	    assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
+            	    Assertions.assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
                 else {
-            	    assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
+            	    Assertions.assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
 		    }
 		}
-        catch (junit.framework.AssertionFailedError e) {
-		    IAtom a =  leafList.getAtom(idx);
+        catch (org.opentest4j.AssertionFailedError e) {
+		    IAtom a =  leafList.get(idx);
             if(a.getPosition().getX(2) >= spacePos-epsilon &&
                a.getPosition().getX(2) <= spacePos+epsilon) {
             	System.out.println(funcName + " ->Atom position : " + a.getPosition() +
@@ -257,7 +260,8 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
      * gamma = 100.0 degrees
 
      */
-    public void testOddMillerIndices() {
+    @Test
+	public void testOddMillerIndices() {
 
     	int idx = 0;
     	double cubicSizeA = 1.1;
@@ -320,20 +324,20 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	leafList = lptu.getBox().getLeafList();
 
     	try {
-		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a = leafList.getAtom(idx);
+		    for(idx = 0; idx < leafList.size(); idx++) {
+			    IAtom a = leafList.get(idx);
 
 			    if(dd.contains(makeArray(a.getPosition())) == true) {
 			    	itemsFound++;
-            	    assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
+            	    Assertions.assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
                 else {
-            	    assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
+            	    Assertions.assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
 		    }
 		}
-        catch (junit.framework.AssertionFailedError e) {
-		    IAtom a =  leafList.getAtom(idx);
+        catch (org.opentest4j.AssertionFailedError e) {
+		    IAtom a =  leafList.get(idx);
             if(dd.contains(makeArray(a.getPosition()))) {
             	System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should be in plane but is not.");
@@ -345,7 +349,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
         	fail();
         }
 
-        assertEquals(actualPlane.length, itemsFound);
+        Assertions.assertEquals(actualPlane.length, itemsFound);
 
     } // End testOddMillerIndices()
 
@@ -361,7 +365,8 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
      * beta = 104.0 degrees
      * gamma = 115.0 degrees
      */
-    public void testPlaneMinusFiveHundreths() {
+    @Test
+	public void testPlaneMinusFiveHundreths() {
 
     	int idx = 0;
     	double cubicSizeA = 1.1;
@@ -393,14 +398,14 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 
 
     	try {
-		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a = leafList.getAtom(idx);
+		    for(idx = 0; idx < leafList.size(); idx++) {
+			    IAtom a = leafList.get(idx);
 
-            	assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
+            	Assertions.assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
 		    }
 		}
-        catch (junit.framework.AssertionFailedError e) {
-		    IAtom a =  leafList.getAtom(idx);
+        catch (org.opentest4j.AssertionFailedError e) {
+		    IAtom a =  leafList.get(idx);
             System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should not be in plane but is.");
             fail();
@@ -419,7 +424,8 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
      * beta = 104.0 degrees
      * gamma = 115.0 degrees
      */
-    public void testPlane() {
+    @Test
+	public void testPlane() {
 
     	int idx = 0;
     	double cubicSizeA = 1.1;
@@ -482,20 +488,20 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 
 
     	try {
-		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a = leafList.getAtom(idx);
+		    for(idx = 0; idx < leafList.size(); idx++) {
+			    IAtom a = leafList.get(idx);
 
 			    if(dd.contains(makeArray(a.getPosition())) == true) {
 			    	itemsFound++;
-            	    assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
+            	    Assertions.assertTrue(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
                 else {
-            	    assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
+            	    Assertions.assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
                 }
 		    }
 		}
-        catch (junit.framework.AssertionFailedError e) {
-		    IAtom a =  leafList.getAtom(idx);
+        catch (org.opentest4j.AssertionFailedError e) {
+		    IAtom a =  leafList.get(idx);
             if(dd.contains(makeArray(a.getPosition()))) {
             	System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should be in plane but is not.");
@@ -507,7 +513,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
          	fail();
         }
 
-        assertEquals(actualPlane.length, itemsFound);
+        Assertions.assertEquals(actualPlane.length, itemsFound);
 
     } // End testPlane()
 
@@ -522,7 +528,8 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
      * beta = 104.0 degrees
      * gamma = 115.0 degrees
      */
-    public void testPlanePlusFiveHundreths() {
+    @Test
+	public void testPlanePlusFiveHundreths() {
 
     	int idx = 0;
     	double cubicSizeA = 1.1;
@@ -554,14 +561,14 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 
 
     	try {
-		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
-			    IAtom a = leafList.getAtom(idx);
+		    for(idx = 0; idx < leafList.size(); idx++) {
+			    IAtom a = leafList.get(idx);
 
-            	assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
+            	Assertions.assertFalse(lptu.getLatticePlane().inPlane(a.getPosition()));
 		    }
 		}
-        catch (junit.framework.AssertionFailedError e) {
-		    IAtom a =  leafList.getAtom(idx);
+        catch (org.opentest4j.AssertionFailedError e) {
+		    IAtom a =  leafList.get(idx);
             System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should not be in plane but is.");
             fail();

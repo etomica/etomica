@@ -43,23 +43,23 @@ public class SpeciesAlkane extends SpeciesSpheresHetero {
     public IMolecule makeMolecule() {
         Molecule group = new Molecule(this, totalChildCount);
         //make straight alkane CH3-CH2-...-CH2-CH3
-        group.addChildAtom(makeLeafAtom(childTypes[0]));
+        group.addChildAtom(makeLeafAtom(this.getCH3Type()));
         for(int j = 0; j < childCount[1]; j++) {
-            group.addChildAtom(makeLeafAtom(childTypes[1]));//CH2
+            group.addChildAtom(makeLeafAtom(this.getCH2Type()));//CH2
         }
         if (childCount[0] > 1) {
-            group.addChildAtom(makeLeafAtom(childTypes[0]));//CH3
+            group.addChildAtom(makeLeafAtom(this.getCH3Type()));//CH3
         }
         conformation.initializePositions(group.getChildList());
         return group;
     }
 
     public AtomType getCH3Type() {
-        return childTypes[0];
+        return this.getAtomType(0);
     }
 
     public AtomType getCH2Type() {
-        return childTypes[1];
+        return this.getAtomType(1);
     }
 
     public void setTotalChildren(int newTotalChildren) {

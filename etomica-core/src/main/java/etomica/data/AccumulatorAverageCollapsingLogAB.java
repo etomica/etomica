@@ -5,9 +5,10 @@
 package etomica.data;
 
 import etomica.util.random.IRandom;
-import etomica.util.Arrays;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGeneratorUnix;
+
+import java.util.Arrays;
 
 public class AccumulatorAverageCollapsingLogAB extends
         AccumulatorAverageCollapsingLog {
@@ -27,7 +28,7 @@ public class AccumulatorAverageCollapsingLogAB extends
     
     protected void resizeData(int newSize) {
         super.resizeData(newSize);
-        labSums = (double[][])Arrays.resizeArray(labSums, newSize);
+        labSums = Arrays.copyOf(labSums, newSize);
         labSums[newSize-1] = new double[nMoments];
     }
 

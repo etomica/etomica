@@ -10,15 +10,12 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.config.Configuration;
-import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.types.DataTable;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.graphics.DisplayTextBox.LabelType;
-import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2SquareWell;
@@ -54,7 +51,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
 	public ReactionEquilibriumGraphic(ReactionEquilibrium simulation, Space space) {
 
-		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, space, simulation.getController());
+		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
 
         resetAction = getController().getSimRestart().getDataResetAction();
@@ -64,10 +61,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
         getDisplayBox(sim.box).setPixelUnit(new Pixel(5));
 
-        Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space);
-        config.initializeCoordinates(sim.box);
-
-		temperatureSelect = new DeviceThermoSlider(sim.controller1, sim.integratorHard1);
+		temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integratorHard1);
         sim.integratorHard1.getEventManager().addListener(new IntegratorListenerAction(this.getPaintAction(sim.box)));
 		temperatureSelect.setUnit(Kelvin.UNIT);
 		temperatureSelect.setMaximum(2500);
@@ -286,7 +280,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         densityDisplay.setLabelType(LabelType.BORDER);
 
 //        filter3.setDataSink(new DataSinkConsole());
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.controller1, sim.activityIntegrate);
+		DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
 
 		//************* Lay out components ****************//
 

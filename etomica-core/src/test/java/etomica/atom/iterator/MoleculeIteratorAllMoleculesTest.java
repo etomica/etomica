@@ -11,8 +11,12 @@ import etomica.molecule.MoleculeArrayList;
 import etomica.molecule.iterator.MoleculeIteratorAllMolecules;
 import etomica.simulation.Simulation;
 import etomica.species.ISpecies;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
+
+import static etomica.atom.iterator.MoleculeIteratorTestAbstract.testIterates;
 
 /**
  * Unit test for ApiIntraspeciesAA
@@ -20,8 +24,9 @@ import java.util.LinkedList;
  * @author David Kofke
  *  
  */
-public class MoleculeIteratorAllMoleculesTest extends MoleculeIteratorTestAbstract {
+class MoleculeIteratorAllMoleculesTest {
 
+    @Test
     public void testIterator() {
 
         int[] n0 = new int[] { 10, 1, 0, 0, 0};
@@ -50,12 +55,12 @@ public class MoleculeIteratorAllMoleculesTest extends MoleculeIteratorTestAbstra
         MoleculeArrayList moleculeList = new MoleculeArrayList();
         for(int i=0; i<species.length; i++) {
             IMoleculeList molecules = box.getMoleculeList(species[i]);
-            for (int j=0; j<molecules.getMoleculeCount(); j++) {
-                moleculeList.add(molecules.getMolecule(j));
+            for (int j = 0; j<molecules.size(); j++) {
+                moleculeList.add(molecules.get(j));
             }
         }
         
         LinkedList list = testIterates(iterator, moleculeList.toMoleculeArray());
-        assertEquals(list.size(), box.getMoleculeList().getMoleculeCount());
+        Assertions.assertEquals(list.size(), box.getMoleculeList().size());
     }
 }

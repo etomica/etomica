@@ -15,10 +15,10 @@ import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterRDFPC;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -43,39 +43,39 @@ public class MappedVirialLJ extends Simulation {
     
     public MappedVirialLJ(Space _space, int numAtoms, double temperature, double density, double rc) {
         super(_space);
+
+        //species
+        species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, rc, space);
         potentialMaster.lrcMaster().setEnabled(false);
-        
+
         //controller and integrator
-	    integrator = new IntegratorMC(potentialMaster, random, temperature);
+        box = this.makeBox();
+        integrator = new IntegratorMC(potentialMaster, random, temperature, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         move = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(move);
 
-	    //species and potentials
-	    species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
-        
-	    P2LennardJones potential = new P2LennardJones(space);
+        //potentials
+        P2LennardJones potential = new P2LennardJones(space);
         p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         //construct box
-	    box = new Box(space);
-        addBox(box);
         box.setNMolecules(species, numAtoms);
-        
+
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
-        
+
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
-        integrator.setBox(box);
         potentialMaster.setCellRange(2);
-        
+
         potentialMaster.getNbrCellManager(box).assignCellAll();
-        
+
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
     }
     
@@ -117,7 +117,7 @@ public class MappedVirialLJ extends Simulation {
         MappedVirialLJ sim = new MappedVirialLJ(space, numAtoms, temperature, density, rc);
         
         if (graphics) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.makeAndDisplayFrame();
 
             ArrayList<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();

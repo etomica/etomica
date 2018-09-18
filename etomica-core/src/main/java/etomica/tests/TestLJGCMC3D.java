@@ -4,13 +4,13 @@
 
 package etomica.tests;
 
-import etomica.action.ActionIntegrate;
 import etomica.action.BoxInflate;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
-import etomica.config.ConfigurationFile;
+import etomica.config.Configurations;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
@@ -20,11 +20,11 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressure;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -51,9 +51,14 @@ public class TestLJGCMC3D extends Simulation {
 
     public TestLJGCMC3D(int numAtoms, int numSteps, Configuration config) {
         super(Space3D.getInstance());
+
+        species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         double sigma = 1.0;
-        integrator = new IntegratorMC(this, potentialMaster);
+        box = this.makeBox();
+        integrator = new IntegratorMC(this, potentialMaster, box);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         mcMoveAtom.setStepSize(0.2 * sigma);
         ((MCMoveStepTracker) mcMoveAtom.getTracker()).setTunable(false);
@@ -63,14 +68,10 @@ public class TestLJGCMC3D extends Simulation {
         mcMoveID.setMu(-4.12);
         integrator.getMoveManager().addMCMove(mcMoveID);
         integrator.getMoveManager().setEquilibrating(false);
-        ActionIntegrate actionIntegrate = new ActionIntegrate(integrator, false);
-        actionIntegrate.setMaxSteps(numSteps);
-        getController().addAction(actionIntegrate);
-        species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate.setMaxSteps(numSteps);
+        getController().addAction(activityIntegrate);
         mcMoveID.setSpecies(species);
-        box = new Box(space);
-        addBox(box);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.65);
@@ -88,7 +89,6 @@ public class TestLJGCMC3D extends Simulation {
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 
         config.initializeCoordinates(box);
-        integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
     }
 
@@ -96,7 +96,7 @@ public class TestLJGCMC3D extends Simulation {
         SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
         int numAtoms = params.numAtoms;
-        ConfigurationFile config = new ConfigurationFile("LJMC3D" + Integer.toString(numAtoms));
+        Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJGCMC3D.class);
 
         TestLJGCMC3D sim = new TestLJGCMC3D(numAtoms, params.numSteps, config);
 
@@ -121,7 +121,7 @@ public class TestLJGCMC3D extends Simulation {
 
         sim.getController().actionPerformed();
 
-        double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().getMoleculeCount() * sim.integrator.getTemperature());
+        double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
         double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
         double rho = densityAccumulator.getData(densityAccumulator.AVERAGE).getValue(0);
         avgPE /= numAtoms;

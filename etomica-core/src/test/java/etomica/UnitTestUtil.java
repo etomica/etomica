@@ -26,6 +26,8 @@ public class UnitTestUtil {
 
     public static boolean VERBOSE = false;
 
+    public static final double DELTA = 0.0001;
+
     /**
      * Private to prevent instantiation
      */
@@ -49,12 +51,6 @@ public class UnitTestUtil {
      *            number of atoms per molecule of species0
      * @param n1
      *            number of atoms of species1 in each box
-     * @param n2
-     *            number of atoms of species2 in each box
-     * @param n2A
-     *            tree specification of species 2, e.g., {2,4} indicates that
-     *            each molecule has 2 subgroups, each with 4 atoms (such as
-     *            CH3-CH3)
      * @return root of species hierarchy
      */
 
@@ -114,9 +110,6 @@ public class UnitTestUtil {
                                                       int[][] nAtoms) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        //        new SpeciesSpheres(sim);
-        Box box = new Box(space);
-        sim.addBox(box);
         for (int i = 0; i < nMolecules.length; i++) {
             AtomType[] leafTypes = new AtomType[nAtoms[i].length];
             for (int j = 0; j < nAtoms[i].length; j++) {
@@ -125,7 +118,11 @@ public class UnitTestUtil {
             SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, leafTypes);
             species.setChildCount(nAtoms[i]);
             sim.addSpecies(species);
-            box.setNMolecules(species, nMolecules[i]);
+        }
+        Box box = new Box(space);
+        sim.addBox(box);
+        for (int i = 0; i < nMolecules.length; i++) {
+            box.setNMolecules(sim.getSpecies(i), nMolecules[i]);
         }
         return sim;
     }

@@ -36,8 +36,8 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft {
 
 	public double energy(IAtomList a) {
 		Vector dimensions = boundary.getBoxSize();
-		double rx = a.getAtom(0).getPosition().getX(0);
-		double ry = a.getAtom(0).getPosition().getX(1);
+		double rx = a.get(0).getPosition().getX(0);
+		double ry = a.get(0).getPosition().getX(1);
 		double dx1 = (dimensions.getX(0) - rx);
 		double dy1 = (dimensions.getX(1) - ry);
 		return energy(rx) + energy(ry) + energy(dx1) + energy(dy1);		
@@ -59,8 +59,8 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft {
 	
 	public Vector[] gradient(IAtomList a) {
 		Vector dimensions = boundary.getBoxSize();
-		double rx = a.getAtom(0).getPosition().getX(0);
-		double ry = a.getAtom(0).getPosition().getX(1);
+		double rx = a.get(0).getPosition().getX(0);
+		double ry = a.get(0).getPosition().getX(1);
 		double dx1 = (dimensions.getX(0) - rx);
 		double dy1 = (dimensions.getX(1) - ry);
 		double gradx = gradient(rx) - gradient(dx1);

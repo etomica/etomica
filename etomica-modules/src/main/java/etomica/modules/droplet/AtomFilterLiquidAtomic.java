@@ -9,7 +9,6 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.molecule.IMolecule;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 
@@ -19,7 +18,7 @@ public class AtomFilterLiquidAtomic implements AtomFilterCollective, AtomLeafAge
         leafList = box.getLeafList();
         nbrListManager = potentialMaster.getNeighborManager(box);
         setMaxNbrsVapor(80);
-        agentManager = new AtomLeafAgentManager<Boolean>(this, box, Boolean.class);
+        agentManager = new AtomLeafAgentManager<Boolean>(this, box);
     }
 
     public void setMaxNbrsVapor(int newMaxNbrsVapor) {
@@ -32,22 +31,18 @@ public class AtomFilterLiquidAtomic implements AtomFilterCollective, AtomLeafAge
     
     public void resetFilter() {
 		//color all atoms according to their type
-        int nLeaf = leafList.getAtomCount();
+        int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.getAtom(iLeaf);
-            int nbrs = nbrListManager.getUpList(atom)[0].getAtomCount() +
-                       nbrListManager.getDownList(atom)[0].getAtomCount();
+            IAtom atom = leafList.get(iLeaf);
+            int nbrs = nbrListManager.getUpList(atom)[0].size() +
+                       nbrListManager.getDownList(atom)[0].size();
             agentManager.setAgent(atom, nbrs > maxNbrsVapor);
         }
     }
     
-    public boolean accept(IAtom a) {
+    public boolean test(IAtom a) {
         Boolean b = agentManager.getAgent(a);
         return b == null ? false : b;
-    }
-
-    public boolean accept(IMolecule mole) {
-        return false;
     }
 
     public Boolean makeAgent(IAtom a, Box agentBox) {

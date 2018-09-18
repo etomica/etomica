@@ -88,7 +88,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
     
     public void initializeCoordinates(Box box, ISpecies species) {
         IMoleculeList moleculeList = species == null ? box.getMoleculeList() : box.getMoleculeList(species);
-        int sumOfMolecules = moleculeList.getMoleculeCount();
+        int sumOfMolecules = moleculeList.size();
         if (sumOfMolecules == 0) {
             return;
         }
@@ -110,7 +110,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         Vector shape = space.makeVector();
         shape.E(dim);
         shape.PE(-boundaryPadding);
-        Vector latticeConstantV = space.makeVector(lattice.getLatticeConstants());
+        Vector latticeConstantV = Vector.of(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -138,7 +138,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
             latticeScaling.E(dim);
             latticeScaling.PE(-boundaryPadding);
             latticeScaling.DE(latticeConstantV);
-            latticeScaling.DE(space.makeVector(latticeDimensions));
+            latticeScaling.DE(Vector.of(latticeDimensions));
         } else {
             latticeScaling.E(1.0);
         }
@@ -176,7 +176,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         double voidSum = 0;
         int siteCount = 0;
         for (int i=0; i<sumOfMolecules; i++) {
-            IMolecule a = moleculeList.getMolecule(i);
+            IMolecule a = moleculeList.get(i);
             int[] ii = indexIterator.next();
             siteCount++;
             // add voidFrac for each /site/ (not molecule)

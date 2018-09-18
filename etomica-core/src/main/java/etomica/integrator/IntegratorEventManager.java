@@ -10,7 +10,7 @@ public class IntegratorEventManager {
 
     protected final ArrayList<IntegratorListener> listeners = new ArrayList<IntegratorListener>();
     private final IntegratorEvent event;
-    protected boolean eventing;
+    private boolean eventing;
 
     public IntegratorEventManager(Integrator integrator) {
         this.event = new IntegratorEvent(integrator);

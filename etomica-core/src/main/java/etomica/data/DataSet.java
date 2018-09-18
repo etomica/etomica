@@ -105,7 +105,7 @@ public class DataSet {
             psuedoSinks = (DataSetSink[])Arrays.addObject(psuedoSinks, dataSetSink);
 
             if (index/32 > dataChangedBits.length-1) {
-                dataChangedBits = Arrays.resizeArray(dataChangedBits,dataChangedBits.length+1);
+                dataChangedBits = java.util.Arrays.copyOf(dataChangedBits,dataChangedBits.length+1);
             }
             dataChangedBits[dataChangedBits.length-1] |= 1<<(index%32);
 

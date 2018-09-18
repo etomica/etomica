@@ -196,6 +196,18 @@ public final class VectorND implements Vector, java.io.Serializable {
         } while (rsq > 1.0);
     }
 
+    @Override
+    public void nearestImage(Vector dimensions) {
+        VectorND dimensionsND = ((VectorND) dimensions);
+
+        for (int i = 0; i < x.length; i++) {
+            while (x[i] > dimensionsND.x[i] / 2)
+                x[i] -= dimensionsND.x[i];
+            while (x[i] < -dimensionsND.x[i] / 2)
+                x[i] += dimensionsND.x[i];
+        }
+    }
+
     /**
      * Creating a random unit vector on unit sphere Uses only two random number
      * generator at a time

@@ -43,9 +43,9 @@ public class P3BondAngle extends Potential implements PotentialSoft {
     }
 
     public double energy(IAtomList atomSet) {
-        IAtom atom0 = atomSet.getAtom(0);
-        IAtom atom1 = atomSet.getAtom(1);
-        IAtom atom2 = atomSet.getAtom(2);
+        IAtom atom0 = atomSet.get(0);
+        IAtom atom1 = atomSet.get(1);
+        IAtom atom2 = atomSet.get(2);
         dr12.Ev1Mv2(atom1.getPosition(),atom0.getPosition());
         dr23.Ev1Mv2(atom2.getPosition(),atom1.getPosition());
         boundary.nearestImage(dr12);
@@ -107,9 +107,9 @@ public class P3BondAngle extends Potential implements PotentialSoft {
     }
 
     public Vector[] gradient(IAtomList atoms) {
-        IAtom atom0 = atoms.getAtom(0);
-        IAtom atom1 = atoms.getAtom(1);
-        IAtom atom2 = atoms.getAtom(2);
+        IAtom atom0 = atoms.get(0);
+        IAtom atom1 = atoms.get(1);
+        IAtom atom2 = atoms.get(2);
         dr12.Ev1Mv2(atom1.getPosition(),atom0.getPosition());
         dr23.Ev1Mv2(atom2.getPosition(),atom1.getPosition());
         boundary.nearestImage(dr12);
@@ -207,7 +207,7 @@ public class P3BondAngle extends Potential implements PotentialSoft {
 
             int iRand = random.nextInt(3);
             iRand = 1;
-            IAtom atom = atoms.getAtom(iRand);
+            IAtom atom = atoms.get(iRand);
             gradient.E(potential.gradient(atoms)[iRand]);
             
             dr.setRandomSphere(random);

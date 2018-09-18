@@ -81,7 +81,7 @@ public class MeterNormalizedCoord implements IDataSource, IAction, Serializable 
         	
             BasisCell cell = cells[iCell];
             IMoleculeList molecules = cell.molecules;
-            int numMolecules = molecules.getMoleculeCount();
+            int numMolecules = molecules.size();
             
             double[] u = coordinateDefinition.calcU(molecules);
             

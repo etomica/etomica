@@ -59,7 +59,7 @@ public class P2SoftTruncated extends Potential2
      * is less than the cutoff value
      */
     public double energy(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
+        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         return (r2 < r2Cutoff) ? wrappedPotential.energy(atoms) : 0;
@@ -70,7 +70,7 @@ public class P2SoftTruncated extends Potential2
      * is less than the cutoff value
      */
     public double virial(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
+        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         return (r2 < r2Cutoff) ? wrappedPotential.virial(atoms) : 0;
@@ -81,7 +81,7 @@ public class P2SoftTruncated extends Potential2
      * is less than the cutoff value
      */
     public Vector[] gradient(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
+        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         return (r2 < r2Cutoff) ? wrappedPotential.gradient(atoms) : gradient;
@@ -92,7 +92,7 @@ public class P2SoftTruncated extends Potential2
      * is less than the cutoff value
      */
     public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
+        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         if (r2 > r2Cutoff) return gradient;
@@ -100,7 +100,7 @@ public class P2SoftTruncated extends Potential2
     }
     
     public double hyperVirial(IAtomList atoms) {
-        dr.Ev1Mv2(atoms.getAtom(1).getPosition(),atoms.getAtom(0).getPosition());
+        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
         boundary.nearestImage(dr);
         double r2 = dr.squared();
         return (r2 < r2Cutoff) ? wrappedPotential.hyperVirial(atoms) : 0;

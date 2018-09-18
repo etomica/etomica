@@ -44,9 +44,9 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 	}
 	
 	public Vector[] gradient(IAtomList atomSet, Tensor pressureTensor){
-        IAtom atom0 = atomSet.getAtom(0);
-        IAtom atom1 = atomSet.getAtom(1);
-        IAtom atom2 = atomSet.getAtom(2);
+        IAtom atom0 = atomSet.get(0);
+        IAtom atom1 = atomSet.get(1);
+        IAtom atom2 = atomSet.get(2);
 		dr12.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
 		dr23.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 		boundary.nearestImage(dr12);
@@ -164,9 +164,9 @@ public class P3BondAngleDreiding extends Potential implements PotentialSoft {
 	}
 	
 	public double energy(IAtomList atomSet){
-        IAtom atom0 = atomSet.getAtom(0);
-        IAtom atom1 = atomSet.getAtom(1);
-        IAtom atom2 = atomSet.getAtom(2);
+        IAtom atom0 = atomSet.get(0);
+        IAtom atom1 = atomSet.get(1);
+        IAtom atom2 = atomSet.get(2);
 		dr12.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
 		dr23.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
 		boundary.nearestImage(dr12);

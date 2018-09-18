@@ -15,8 +15,8 @@ import etomica.data.meter.MeterEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DisplayPlot;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -70,37 +70,42 @@ public class ZeoliteSimulation extends Simulation {
     private int interval;
     private SpeciesSpheresMono sp;
     private String filename;
-    /**
-     * Sole public constructor, makes a simulation using a 3D space.
-     */
-    //we use a second, private constructor to permit the space to
-    //appear twice in the call to the superclass constructor; alternatively
-    //we could have passed Space3D.getInstance() twice
-    private ZeoliteSimulation() {
 
-        // invoke the superclass constructor
-        // "true" is indicating to the superclass that this is a dynamic simulation
-        // the PotentialMaster is selected such as to implement neighbor listing
+    public ZeoliteSimulation() {
+
         super(Space3D.getInstance());
 
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, 1.6, space);
         //Additions for Zeolite Calculations
         //Start by reading the first line, which is number of Atoms
-        String fileName = "2unitcell";
         //String fileName = "pbu2";
-        ConfigurationFileXYZ config = new ConfigurationFileXYZ(fileName, space);
+        ConfigurationFileXYZ config = new ConfigurationFileXYZ("2unitcell.xyz", space);
         int[] numAtoms = config.getNumAtoms();
+
+        species = new SpeciesSpheresMono[numAtoms.length];
+        for (int i = 0; i < numAtoms.length; i++) {
+            species[i] = new SpeciesSpheresMono(this, space);
+            species[i].setIsDynamic(true);
+            addSpecies(species[i]);
+            if (i != (numAtoms.length - 1)) {
+                // all elements except the last (methane) are fixed
+                ((ElementSimple) (species[i].getLeafType()).getElement()).setMass(Double.POSITIVE_INFINITY);
+            } else {
+                ((ElementSimple) species[i].getLeafType().getElement()).setMass(16);
+            }
+        }
 
         nAtomsMeth = numAtoms[numAtoms.length - 1];
         double neighborRangeFac = 1.2;
         //defaults.makeLJDefaults();
         //Setting sizes of molecules
 
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, 1.6, space);
         double range = 8.035;
-        potentialMaster.setRange(3.214*neighborRangeFac*2.5);
+        potentialMaster.setRange(3.214 * neighborRangeFac * 2.5);
 
 
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
+        box = this.makeBox();
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(10);
         integrator.setTimeStep(0.00611);
@@ -110,23 +115,9 @@ public class ZeoliteSimulation extends Simulation {
         activityIntegrate = new ActivityIntegrate(integrator, 2, true);
         activityIntegrate.setMaxSteps(500);
         getController().addAction(activityIntegrate);
-
-        box = new Box(space);
-        addBox(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
-        species = new SpeciesSpheresMono[numAtoms.length];
-        for(int i=0;i<numAtoms.length;i++){
-        	species[i] = new SpeciesSpheresMono(this, space);
-            species[i].setIsDynamic(true);
-            addSpecies(species[i]);
-        	box.setNMolecules(species[i], numAtoms[i]);
-        	if (i!=(numAtoms.length-1)){
-                // all elements except the last (methane) are fixed
-        	    ((ElementSimple)(species[i].getLeafType()).getElement()).setMass(Double.POSITIVE_INFINITY);
-        	}
-            else {
-                ((ElementSimple)species[i].getLeafType().getElement()).setMass(16);
-            }
+        for (int i = 0; i < numAtoms.length; i++) {
+            box.setNMolecules(species[i], numAtoms[i]);
         }
         //Setting up potential for Methane-Methane interactions
         potentialMM = new P2LennardJones(space);
@@ -143,11 +134,11 @@ public class ZeoliteSimulation extends Simulation {
 
         //Setting up Methane - Silicon interactions
         //P2LennardJones potentialMS = potentialMO;
-        P2WCA potentialMS = new P2WCA(space,1.18,potentialMO.getEpsilon());
+        P2WCA potentialMS = new P2WCA(space, 1.18, potentialMO.getEpsilon());
 
         //Wrap LJ potentials to truncate
-        P2SoftSphericalTruncated MM = new P2SoftSphericalTruncated(space, potentialMM,2.5*potentialMM.getSigma());
-        P2SoftSphericalTruncated MO = new P2SoftSphericalTruncated(space, potentialMO,2.5*potentialMO.getSigma());
+        P2SoftSphericalTruncated MM = new P2SoftSphericalTruncated(space, potentialMM, 2.5 * potentialMM.getSigma());
+        P2SoftSphericalTruncated MO = new P2SoftSphericalTruncated(space, potentialMO, 2.5 * potentialMO.getSigma());
         //P2SoftSphericalTruncated MS = new P2SoftSphericalTruncated(potentialMS,2.5*potentialMS.getSigma());
 
 
@@ -158,7 +149,6 @@ public class ZeoliteSimulation extends Simulation {
         //Initializes the coordinates and positions
         config.initializeCoordinates(box);
         box.getBoundary().setBoxSize(config.getUpdatedDimensions());
-        integrator.setBox(box);
         //integrator.addListener(new BoxImposePbc(box));
 
         //PARAMETERS For Simulation Run
@@ -167,11 +157,11 @@ public class ZeoliteSimulation extends Simulation {
         double ts = 0.00611;
         integrator.setTimeStep(ts);
         interval = 2000;
-        integrator.setThermostatInterval(interval/1000);
+        integrator.setThermostatInterval(interval / 1000);
 
         //      Adding coordinate writer by Mike Sellars
 
-        filename = (numAtoms[2]+"_"+activityIntegrate.getMaxSteps()+"_"+ts+"_"+interval+"_WCA");
+        filename = (numAtoms[2] + "_" + activityIntegrate.getMaxSteps() + "_" + ts + "_" + interval + "_WCA");
         sp = species[2];
         /*
         MSDCoordWriter coordWriter = new MSDCoordWriter(this.space, filename,sp);

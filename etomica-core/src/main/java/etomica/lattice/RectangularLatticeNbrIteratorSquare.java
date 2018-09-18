@@ -141,7 +141,7 @@ public class RectangularLatticeNbrIteratorSquare extends
         f.setSize(700, 500);
         f.getContentPane().add(canvas);
         f.pack();
-        f.show();
+        f.setVisible(true);
         f.addWindowListener(SimulationGraphic.WINDOW_CLOSER);
     }//end of main
 

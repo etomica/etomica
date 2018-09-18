@@ -5,8 +5,6 @@
 package etomica.metastable;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.integrator.IntegratorEvent;
-import etomica.integrator.IntegratorListener;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -21,6 +19,8 @@ import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.lattice.LatticeCubicFcc;
@@ -29,12 +29,13 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.statmech.LennardJones;
-import etomica.units.dimensions.Energy;
 import etomica.units.Pixel;
 import etomica.units.SimpleUnit;
+import etomica.units.dimensions.Energy;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
@@ -59,38 +60,37 @@ public class LJmuVT extends Simulation {
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
         }
+
+        //species
+        species = new SpeciesSpheresMono(this, space);//index 1
+        species.setIsDynamic(true);
+        addSpecies(species);
+
         potentialMaster = new PotentialMasterCell(this, rc, space);
         potentialMaster.setCellRange(2);
 
         //controller and integrator
-	    integrator = new IntegratorMC(potentialMaster, random, temperature);
+        box = this.makeBox();
+        integrator = new IntegratorMC(potentialMaster, random, temperature, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-	    //species and potentials
-	    species = new SpeciesSpheresMono(this, space);//index 1
-	    species.setIsDynamic(true);
-        addSpecies(species);
-
         //instantiate several potentials for selection in combo-box
-	    P2LennardJones potential = new P2LennardJones(space);
+        P2LennardJones potential = new P2LennardJones(space);
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         //construct box
-	    box = new Box(space);
-        addBox(box);
-        integrator.setBox(box);
 
         mcMoveID = new MCMoveInsertDelete(potentialMaster, random, space);
         mcMoveID.setMu(mu);
         mcMoveID.setSpecies(species);
         integrator.getMoveManager().addMCMove(mcMoveID);
-        
-        double L = Math.pow(numAtoms/density, 1.0/3.0);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{L,L,L}));
+
+        double L = Math.pow(numAtoms / density, 1.0 / 3.0);
+        box.getBoundary().setBoxSize(Vector.of(new double[]{L, L, L}));
         box.setNMolecules(species, numAtoms);
-        
+
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
 
         potentialMaster.getNbrCellManager(box).assignCellAll();
@@ -224,7 +224,7 @@ public class LJmuVT extends Simulation {
             meterN.setBox(sim.box);
 
             if (false) {
-                SimulationGraphic ljmcGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+                SimulationGraphic ljmcGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
                 ljmcGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(3));
 
                 SimulationGraphic.makeAndDisplayFrame(ljmcGraphic.getPanel(), "LJ Spinodal");

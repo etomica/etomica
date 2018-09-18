@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMD;
 import etomica.modifier.Modifier;
@@ -30,7 +30,7 @@ public class DeviceDelaySlider {
     protected double  delayExponent;
     protected int maxSleep;
 
-    public DeviceDelaySlider(IController cont, ActivityIntegrate ai) {
+    public DeviceDelaySlider(Controller cont, ActivityIntegrate ai) {
         delayExponent = 2.0;
         maxSleep = 100;
         this.ai = ai;

@@ -5,9 +5,9 @@
 package etomica.modules.multiharmonic.overlap;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.integrator.Integrator;
 import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
 import etomica.modules.multiharmonic.MCMoveMultiHarmonic;
 import etomica.overlap.IntegratorOverlap;
@@ -38,29 +38,25 @@ public class MultiharmonicMC extends Simulation {
     protected final ActivityIntegrate activityIntegrate;
     public MultiharmonicMC() {
         super(Space1D.getInstance());
-        potentialMasterA = new PotentialMasterMonatomic(this);
-        potentialMasterB = new PotentialMasterMonatomic(this);
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
+        potentialMasterA = new PotentialMasterMonatomic(this);
+        potentialMasterB = new PotentialMasterMonatomic(this);
 
-        boxA = new Box(new BoundaryRectangularNonperiodic(space), space);
-        addBox(boxA);
+        boxA = this.makeBox(new BoundaryRectangularNonperiodic(space));
         boxA.getBoundary().setBoxSize(new Vector1D(3.0));
         boxA.setNMolecules(species, 10);
-        boxB = new Box(new BoundaryRectangularNonperiodic(space), space);
-        addBox(boxB);
+        boxB = this.makeBox(new BoundaryRectangularNonperiodic(space));
         boxB.getBoundary().setBoxSize(new Vector1D(3.0));
         boxB.setNMolecules(species, 10);
 
-        integratorA = new IntegratorMC(this, potentialMasterA);
-        integratorA.setBox(boxA);
+        integratorA = new IntegratorMC(this, potentialMasterA, boxA);
         integratorA.setTemperature(1.0);
         potentialA = new P1Harmonic(space);
         integratorA.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialA, random));
         potentialMasterA.addPotential(potentialA, new AtomType[]{species.getLeafType()});
 
-        integratorB = new IntegratorMC(this, potentialMasterA);
-        integratorB.setBox(boxB);
+        integratorB = new IntegratorMC(this, potentialMasterA, boxB);
         integratorB.setTemperature(1.0);
         potentialB = new P1Harmonic(space);
         integratorB.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialB, random));

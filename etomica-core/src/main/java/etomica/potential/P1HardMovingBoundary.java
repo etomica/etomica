@@ -119,7 +119,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     }
     
     public double energy(IAtomList a) {
-        double dx = a.getAtom(0).getPosition().getX(wallD) - wallPosition;
+        double dx = a.get(0).getPosition().getX(wallD) - wallPosition;
         if (dx*dx < collisionRadius*collisionRadius) {
             return Double.POSITIVE_INFINITY;
         }
@@ -129,7 +129,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     public double energyChange() {return 0.0;}
     
     public double collisionTime(IAtomList atoms, double falseTime) {
-        IAtomKinetic atom = (IAtomKinetic)atoms.getAtom(0);
+        IAtomKinetic atom = (IAtomKinetic)atoms.get(0);
         double dr = atom.getPosition().getX(wallD) - wallPosition;
         double dv = atom.getVelocity().getX(wallD) - wallVelocity;
         dr += dv*falseTime;
@@ -193,7 +193,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     }
                 
     public void bump(IAtomList atoms, double falseTime) {
-        IAtomKinetic atom = (IAtomKinetic)atoms.getAtom(0);
+        IAtomKinetic atom = (IAtomKinetic)atoms.get(0);
         double r = atom.getPosition().getX(wallD);
         Vector v = atom.getVelocity();
         if (!isForced) {

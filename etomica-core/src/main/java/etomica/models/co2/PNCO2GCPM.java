@@ -4,7 +4,7 @@
 
 package etomica.models.co2;
 
-import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
@@ -32,6 +32,10 @@ import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Electron;
 import etomica.units.ElectronVolt;
 import etomica.units.Kelvin;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * GCPM CO2 potential class (GCPCDO).  This potential was described in
@@ -106,10 +110,10 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
     public double energy(IMoleculeList atoms){
         double sum = 0;
         if (component != Component.INDUCTION) {
-            for (int i=0; i<atoms.getMoleculeCount()-1; i++) {
-                pair.atom0 = atoms.getMolecule(i);
-                for (int j=i+1; j<atoms.getMoleculeCount(); j++) {
-                    pair.atom1 = atoms.getMolecule(j);
+            for (int i = 0; i<atoms.size()-1; i++) {
+                pair.mol0 = atoms.get(i);
+                for (int j = i+1; j<atoms.size(); j++) {
+                    pair.mol1 = atoms.get(j);
                     sum += getNonPolarizationEnergy(pair);
                     if (Double.isInfinite(sum)) {
                         return sum;
@@ -135,11 +139,11 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
      * pair of atoms (dispersion + fixed-charge electrostatics)
      */
     public double getNonPolarizationEnergy(IMoleculeList molecules) {
-        IAtomList water1Atoms = molecules.getMolecule(0).getChildList();
-        IAtomList water2Atoms = molecules.getMolecule(1).getChildList();
+        IAtomList water1Atoms = molecules.get(0).getChildList();
+        IAtomList water2Atoms = molecules.get(1).getChildList();
 
-        Vector C1r = water1Atoms.getAtom(0).getPosition();
-        Vector C2r = water2Atoms.getAtom(0).getPosition();
+        Vector C1r = water1Atoms.get(0).getPosition();
+        Vector C2r = water2Atoms.get(0).getPosition();
         
         work.Ev1Mv2(C1r, C2r);
         shift.Ea1Tv1(-1,work);
@@ -153,16 +157,16 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
             return Double.POSITIVE_INFINITY;
         }
 
-        Vector O11r = water1Atoms.getAtom(1).getPosition();
-        Vector O12r = water1Atoms.getAtom(2).getPosition();
-        Vector O21r = water2Atoms.getAtom(1).getPosition();
-        Vector O22r = water2Atoms.getAtom(2).getPosition();
+        Vector O11r = water1Atoms.get(1).getPosition();
+        Vector O12r = water1Atoms.get(2).getPosition();
+        Vector O21r = water2Atoms.get(1).getPosition();
+        Vector O22r = water2Atoms.get(2).getPosition();
 
         double sum =0;
         if (zeroShift) {
             for (int i=0; i<3; i++) {
                 for (int j=0; j<3; j++) {
-                    r2 = water1Atoms.getAtom(i).getPosition().Mv1Squared(water2Atoms.getAtom(j).getPosition());
+                    r2 = water1Atoms.get(i).getPosition().Mv1Squared(water2Atoms.get(j).getPosition());
                     double r = Math.sqrt(r2);
                     double rOverSigma = r/sigmaAll[i][j];
                     double sigma2OverR2 = 1/(rOverSigma*rOverSigma);
@@ -175,9 +179,9 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
         else {
             for (int i=0; i<3; i++) {
                 for (int j=0; j<3; j++) {
-                    Vector r1 = water1Atoms.getAtom(i).getPosition();
+                    Vector r1 = water1Atoms.get(i).getPosition();
                     shift.PE(r1);
-                    r2 = water2Atoms.getAtom(j).getPosition().Mv1Squared(shift);
+                    r2 = water2Atoms.get(j).getPosition().Mv1Squared(shift);
                     shift.ME(r1);
                     
                     double r = Math.sqrt(r2);
@@ -275,12 +279,12 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
      */
     public double getPolarizationEnergy(IMoleculeList molecules) {
         
-        final int atomCount = molecules.getMoleculeCount();
+        final int atomCount = molecules.size();
         if (Eq.length < atomCount+1) {
             int oldSize = Eq.length;
-            Eq = (Vector[])etomica.util.Arrays.resizeArray(Eq, atomCount);
-            Ep = (Vector[])etomica.util.Arrays.resizeArray(Ep, atomCount);
-            mu= (Vector[])etomica.util.Arrays.resizeArray(mu, atomCount);
+            Eq = Arrays.copyOf(Eq, atomCount);
+            Ep = Arrays.copyOf(Ep, atomCount);
+            mu = Arrays.copyOf(mu, atomCount);
             for (int i=oldSize; i<atomCount; i++) {
                 Eq[i] = space.makeVector();
                 Ep[i] = space.makeVector();
@@ -293,16 +297,16 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
             Ep[i].E(0);
         }
         
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
-            Vector C1r = iLeafAtoms.getAtom(0).getPosition();
+        for (int i = 0; i<molecules.size(); i++) {
+            IAtomList iLeafAtoms = molecules.get(i).getChildList();
+            Vector C1r = iLeafAtoms.get(0).getPosition();
 
-            for (int j=0; j<molecules.getMoleculeCount(); j++) {
+            for (int j = 0; j<molecules.size(); j++) {
                 if  (i == j) continue;
-                IAtomList jLeafAtoms = molecules.getMolecule(j).getChildList();
-                Vector Cjr = jLeafAtoms.getAtom(0).getPosition();
-                Vector Oj1r = jLeafAtoms.getAtom(1).getPosition();
-                Vector Oj2r = jLeafAtoms.getAtom(2).getPosition();
+                IAtomList jLeafAtoms = molecules.get(j).getChildList();
+                Vector Cjr = jLeafAtoms.get(0).getPosition();
+                Vector Oj1r = jLeafAtoms.get(1).getPosition();
+                Vector Oj2r = jLeafAtoms.get(2).getPosition();
                 
                 work.Ev1Mv2(C1r, Cjr);
                 shift.Ea1Tv1(-1,work);
@@ -365,11 +369,11 @@ public class PNCO2GCPM extends PotentialMolecular implements PotentialPolarizabl
 for (int iter=0; iter<maxIter; iter++) {
         double sumDeltaMu = 0;
         double sumMu = 0;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
-            Vector C1r = iLeafAtoms.getAtom(0).getPosition();
+        for (int i = 0; i<molecules.size(); i++) {
+            IAtomList iLeafAtoms = molecules.get(i).getChildList();
+            Vector C1r = iLeafAtoms.get(0).getPosition();
 
-            work.Ev1Mv2(C1r,iLeafAtoms.getAtom(1).getPosition());
+            work.Ev1Mv2(C1r,iLeafAtoms.get(1).getPosition());
             work.normalize();
             Ep[i].PE(Eq[i]);
             double cosTheta = Math.abs(work.dot(Ep[i])/Math.sqrt(Ep[i].squared()));
@@ -380,18 +384,18 @@ for (int iter=0; iter<maxIter; iter++) {
             sumDeltaMu += mu[i].Mv1Squared(oldMu);
             sumMu += mu[i].squared();
         }
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+        for (int i = 0; i<molecules.size(); i++) {
             Ep[i].E(0);
         }
 
         double tauK = tauAll[0][0];
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IAtomList iLeafAtoms = molecules.getMolecule(i).getChildList();
-            Vector C1r = iLeafAtoms.getAtom(0).getPosition();
+        for (int i = 0; i<molecules.size(); i++) {
+            IAtomList iLeafAtoms = molecules.get(i).getChildList();
+            Vector C1r = iLeafAtoms.get(0).getPosition();
 
-            for (int j=i+1; j<molecules.getMoleculeCount(); j++) {
-                IAtomList jLeafAtoms = molecules.getMolecule(j).getChildList();
-                Vector Cjr = jLeafAtoms.getAtom(0).getPosition();
+            for (int j = i+1; j<molecules.size(); j++) {
+                IAtomList jLeafAtoms = molecules.get(j).getChildList();
+                Vector Cjr = jLeafAtoms.get(0).getPosition();
                 
                 rijVector.Ev1Mv2(C1r, Cjr);
         		boundary.nearestImage(rijVector);
@@ -426,7 +430,7 @@ for (int iter=0; iter<maxIter; iter++) {
         }
         
         if (debugme) {
-            for (int i=0; i<molecules.getMoleculeCount(); i++) {
+            for (int i = 0; i<molecules.size(); i++) {
                 System.out.println(iter+" "+i+" "+Ep[i]+" "+mu[i]);
             }
         }
@@ -439,7 +443,7 @@ for (int iter=0; iter<maxIter; iter++) {
         }
 }
         UpolAtkins = 0;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
+        for (int i = 0; i<molecules.size(); i++) {
             UpolAtkins += Eq[i].dot(mu[i]);
         }
         UpolAtkins *= -0.5;
@@ -541,12 +545,12 @@ for (int iter=0; iter<maxIter; iter++) {
 
         public double energy(IMoleculeList molecules) {
             double bfac = 1.0/(2*1.161);
-            IAtomList atomsi = molecules.getMolecule(0).getChildList();
-            IAtomList atomsj = molecules.getMolecule(1).getChildList();
-            IAtomList atomsk = molecules.getMolecule(2).getChildList();
-            Vector ri = atomsi.getAtom(0).getPosition();
-            Vector rj = atomsj.getAtom(0).getPosition();
-            Vector rk = atomsk.getAtom(0).getPosition();
+            IAtomList atomsi = molecules.get(0).getChildList();
+            IAtomList atomsj = molecules.get(1).getChildList();
+            IAtomList atomsk = molecules.get(2).getChildList();
+            Vector ri = atomsi.get(0).getPosition();
+            Vector rj = atomsj.get(0).getPosition();
+            Vector rk = atomsk.get(0).getPosition();
             rij.Ev1Mv2(rj, ri);
             rik.Ev1Mv2(rk, ri);
             rjk.Ev1Mv2(rk, rj);
@@ -566,11 +570,11 @@ for (int iter=0; iter<maxIter; iter++) {
             cosg[1] = -rij.dot(rjk);
             cosg[2] = rjk.dot(rik);
             cosg[3] = cosg[0];
-            bveci.Ev1Mv2(atomsi.getAtom(1).getPosition(), atomsi.getAtom(2).getPosition());
+            bveci.Ev1Mv2(atomsi.get(1).getPosition(), atomsi.get(2).getPosition());
             bveci.TE(bfac);
-            bvecj.Ev1Mv2(atomsj.getAtom(1).getPosition(), atomsj.getAtom(2).getPosition());
+            bvecj.Ev1Mv2(atomsj.get(1).getPosition(), atomsj.get(2).getPosition());
             bvecj.TE(bfac);
-            bveck.Ev1Mv2(atomsk.getAtom(1).getPosition(), atomsk.getAtom(2).getPosition());
+            bveck.Ev1Mv2(atomsk.get(1).getPosition(), atomsk.get(2).getPosition());
             bveck.TE(bfac);
             norm.E(rij);
             norm.XE(rik);
@@ -716,34 +720,34 @@ for (int iter=0; iter<maxIter; iter++) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-        speciesCO2.setChildCount(new int[]{1,2});
+        speciesCO2.setChildCount(new int[]{1, 2});
         speciesCO2.setConformation(new IConformation() {
-            
+
             public void initializePositions(IAtomList atomList) {
-                atomList.getAtom(0).getPosition().E(0);
-                atomList.getAtom(1).getPosition().setX(0,1.161);
-                atomList.getAtom(2).getPosition().setX(0,-1.161);
+                atomList.get(0).getPosition().E(0);
+                atomList.get(1).getPosition().setX(0, 1.161);
+                atomList.get(2).getPosition().setX(0, -1.161);
             }
         });
         sim.addSpecies(speciesCO2);
-        Box box = new etomica.box.Box(space);
+        Box box = new Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 2);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
-        IMolecule mol0 = box.getMoleculeList().getMolecule(0);
-        IMolecule mol1 = box.getMoleculeList().getMolecule(1);
-        
-        mol0.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{0.000000,0,0.000000 }));
-        mol0.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{-1.161,0,0 }));
-        mol0.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{1.161,0,0 }));
-        mol1.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{ 0,0,z }));
-        mol1.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{ -1.161,0,z}));
-        mol1.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{ 1.161,0,z }));
-        
+        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
+        IMolecule mol0 = box.getMoleculeList().get(0);
+        IMolecule mol1 = box.getMoleculeList().get(1);
+
+        mol0.getChildList().get(0).getPosition().E(Vector.of(new double[]{0.000000, 0, 0.000000}));
+        mol0.getChildList().get(1).getPosition().E(Vector.of(new double[]{-1.161, 0, 0}));
+        mol0.getChildList().get(2).getPosition().E(Vector.of(new double[]{1.161, 0, 0}));
+        mol1.getChildList().get(0).getPosition().E(Vector.of(new double[]{0, 0, z}));
+        mol1.getChildList().get(1).getPosition().E(Vector.of(new double[]{-1.161, 0, z}));
+        mol1.getChildList().get(2).getPosition().E(Vector.of(new double[]{1.161, 0, z}));
+
 //        space.makeVector(new double[]{ 1.000000,-11.000000,-5.000000 }) 
 //        space.makeVector(new double[]{ 0.732908,-10.699688,-3.910782 }) 
 //        space.makeVector(new double[]{ 1.267092,-11.300312,-6.089218 }) 
-        
+
 //        MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(space);
 //        translator.setDestination(space.makeVector(new double[]{x,0,z}));
 //        translator.actionPerformed(mol1);
@@ -752,31 +756,30 @@ for (int iter=0; iter<maxIter; iter++) {
         IMoleculeList molecules = box.getMoleculeList();
         double u = p2.energy(molecules);
         System.out.println(u);
-        
+
         sim = new Simulation(space);
-        SpeciesSpheresRotating species2CO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+2*Oxygen.INSTANCE.getMass()));
+        SpeciesSpheresRotating species2CO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass() + 2 * Oxygen.INSTANCE.getMass()));
         sim.addSpecies(species2CO2);
-        box = new etomica.box.Box(space);
-        sim.addBox(box);
+        box = sim.makeBox();
         box.setNMolecules(species2CO2, 2);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
         IAtomList pair = box.getLeafList();
-        IAtomOriented atom0 = (IAtomOriented)pair.getAtom(0);
-        IAtomOriented atom1 = (IAtomOriented)pair.getAtom(1);
-        atom1.getPosition().E(space.makeVector(new double[]{x,0,z}));
+        IAtomOriented atom0 = (IAtomOriented) pair.get(0);
+        IAtomOriented atom1 = (IAtomOriented) pair.get(1);
+        atom1.getPosition().E(Vector.of(new double[]{x, 0, z}));
 //        ((IAtomOriented)pair.getAtom(0)).getOrientation().setDirection(space.makeVector(new double[]{Math.cos(22.5/180.0*Math.PI), Math.sin(22.5/180.0*Math.PI),0}));
 //        IVectorMutable o1 = space.makeVector(new double[]{-1,0,0});
 //        atom1.getOrientation().setDirection(o1);
         P2CO2Hellmann p2H = new P2CO2Hellmann(space, Parameters.B);
         double uH = p2H.energy(pair);
-        System.out.println("Hellmann: "+uH);
-        
+        System.out.println("Hellmann: " + uH);
+
     }
     
     public static void main(String[] args) {
         double nufac0 = Kelvin.UNIT.toSim(2.52e4);
-        double nufac = 9.0/16.0*ElectronVolt.UNIT.toSim(13.7);
-        System.out.println(nufac0+" "+nufac);
+        double nufac = 9.0 / 16.0 * ElectronVolt.UNIT.toSim(13.7);
+        System.out.println(nufac0 + " " + nufac);
         double x1 = 6;
         double z1 = 5.;
         double y2 = 7.;
@@ -784,34 +787,34 @@ for (int iter=0; iter<maxIter; iter++) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-        speciesCO2.setChildCount(new int[]{1,2});
+        speciesCO2.setChildCount(new int[]{1, 2});
         speciesCO2.setConformation(new IConformation() {
-            
+
             public void initializePositions(IAtomList atomList) {
-                atomList.getAtom(0).getPosition().E(0);
-                atomList.getAtom(1).getPosition().setX(0,1.161);
-                atomList.getAtom(2).getPosition().setX(0,-1.161);
+                atomList.get(0).getPosition().E(0);
+                atomList.get(1).getPosition().setX(0, 1.161);
+                atomList.get(2).getPosition().setX(0, -1.161);
             }
         });
         sim.addSpecies(speciesCO2);
-        Box box = new etomica.box.Box(space);
+        Box box = new Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 3);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
-        IMolecule mol0 = box.getMoleculeList().getMolecule(0);
-        IMolecule mol1 = box.getMoleculeList().getMolecule(1);
-        IMolecule mol2 = box.getMoleculeList().getMolecule(2);
-        
-        mol0.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{0.000000,0,0.000000 }));
-        mol0.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{-1.161,0,0 }));
-        mol0.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{1.161,0,0 }));
-        mol1.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{ x1,0,z1 }));
-        mol1.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{ x1,0,z1-1.161}));
-        mol1.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{ x1,0,z1+1.161 }));
-        mol2.getChildList().getAtom(0).getPosition().E(space.makeVector(new double[]{ 0,y2,z2}));
-        mol2.getChildList().getAtom(1).getPosition().E(space.makeVector(new double[]{ 0,y2-1.161,z2}));
-        mol2.getChildList().getAtom(2).getPosition().E(space.makeVector(new double[]{ 0,y2+1.161,z2 }));
-        
+        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
+        IMolecule mol0 = box.getMoleculeList().get(0);
+        IMolecule mol1 = box.getMoleculeList().get(1);
+        IMolecule mol2 = box.getMoleculeList().get(2);
+
+        mol0.getChildList().get(0).getPosition().E(Vector.of(new double[]{0.000000, 0, 0.000000}));
+        mol0.getChildList().get(1).getPosition().E(Vector.of(new double[]{-1.161, 0, 0}));
+        mol0.getChildList().get(2).getPosition().E(Vector.of(new double[]{1.161, 0, 0}));
+        mol1.getChildList().get(0).getPosition().E(Vector.of(new double[]{x1, 0, z1}));
+        mol1.getChildList().get(1).getPosition().E(Vector.of(new double[]{x1, 0, z1 - 1.161}));
+        mol1.getChildList().get(2).getPosition().E(Vector.of(new double[]{x1, 0, z1 + 1.161}));
+        mol2.getChildList().get(0).getPosition().E(Vector.of(new double[]{0, y2, z2}));
+        mol2.getChildList().get(1).getPosition().E(Vector.of(new double[]{0, y2 - 1.161, z2}));
+        mol2.getChildList().get(2).getPosition().E(Vector.of(new double[]{0, y2 + 1.161, z2}));
+
 //        MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(space);
 //        translator.setDestination(space.makeVector(new double[]{x,0,z}));
 //        translator.actionPerformed(mol1);
@@ -822,33 +825,32 @@ for (int iter=0; iter<maxIter; iter++) {
         P3GCPMAxilrodTeller p3 = p.makeAxilrodTeller();
         double u3 = p3.energy(molecules);
         System.out.println(u3);
-        
- 
+
+
         sim = new Simulation(space);
-        SpeciesSpheresRotating species2CO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+2*Oxygen.INSTANCE.getMass()));
+        SpeciesSpheresRotating species2CO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass() + 2 * Oxygen.INSTANCE.getMass()));
         sim.addSpecies(species2CO2);
-        box = new etomica.box.Box(space);
-        sim.addBox(box);
+        box = sim.makeBox();
         box.setNMolecules(species2CO2, 3);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{100,100,100}));
+        box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
         IAtomList pair = box.getLeafList();
-        IAtomOriented atom0 = (IAtomOriented)pair.getAtom(0);
-        IAtomOriented atom1 = (IAtomOriented)pair.getAtom(1);
-        IAtomOriented atom2 = (IAtomOriented)pair.getAtom(2);
-        atom1.getPosition().E(space.makeVector(new double[]{0,0,z1}));
-        atom2.getPosition().E(space.makeVector(new double[]{0,y2,0}));
+        IAtomOriented atom0 = (IAtomOriented) pair.get(0);
+        IAtomOriented atom1 = (IAtomOriented) pair.get(1);
+        IAtomOriented atom2 = (IAtomOriented) pair.get(2);
+        atom1.getPosition().E(Vector.of(new double[]{0, 0, z1}));
+        atom2.getPosition().E(Vector.of(new double[]{0, y2, 0}));
 //        ((IAtomOriented)pair.getAtom(0)).getOrientation().setDirection(space.makeVector(new double[]{Math.cos(22.5/180.0*Math.PI), Math.sin(22.5/180.0*Math.PI),0}));
 //        IVectorMutable o1 = space.makeVector(new double[]{-1,0,0});
 //        atom1.getOrientation().setDirection(o1);
 
-        AtomTypeAgentManager paramsManagerATM = new AtomTypeAgentManager(null);
+        Map<AtomType, P3AxilrodTeller.MyAgent> paramsManagerATM = new HashMap<>();
         P3AxilrodTeller p3ATM0 = new P3AxilrodTeller(space, paramsManagerATM);
         p3ATM0.setBox(box);
         double alphaCO2 = 2.913;
-        paramsManagerATM.setAgent(species2CO2.getLeafType(), new P3AxilrodTeller.MyAgent(alphaCO2, ElectronVolt.UNIT.toSim(13.7)));
+        paramsManagerATM.put(species2CO2.getLeafType(), new P3AxilrodTeller.MyAgent(alphaCO2, ElectronVolt.UNIT.toSim(13.7)));
 
         System.out.println(p3ATM0.energy(pair));
-        
+
     }
 
 }

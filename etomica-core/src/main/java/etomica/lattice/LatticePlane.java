@@ -8,7 +8,6 @@ import etomica.atom.AtomFilter;
 import etomica.atom.IAtom;
 import etomica.lattice.crystal.Primitive;
 import etomica.math.geometry.Plane;
-import etomica.molecule.IMolecule;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -42,12 +41,8 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
         setMillerIndices(h);
     }
     
-    public boolean accept(IAtom a) {
+    public boolean test(IAtom a) {
         return !plane.isPositiveSide(a.getPosition());
-    }
-
-    public boolean accept(IMolecule mole) {
-        return false;
     }
 
     public void setTolerance(double tolerance) {

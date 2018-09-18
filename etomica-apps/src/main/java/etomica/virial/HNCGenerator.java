@@ -21,9 +21,9 @@ public class HNCGenerator {
 	public static ArrayList<Set<Graph>> HNCGenerate(int n, char fBond){
 		
 	
-		Set<Graph> c0 = new GraphList<Graph>();
-		Set<Graph> t0 = new GraphList<Graph>();
-		Set<Graph> h0 = new GraphList<Graph>();
+		Set<Graph> c0 = new GraphList();
+		Set<Graph> t0 = new GraphList();
+		Set<Graph> h0 = new GraphList();
 		
 //		MetadataImpl.rootPointLabelSpecial= false;
 		MetadataImpl.rootPointsSpecial = false;
@@ -48,7 +48,7 @@ public class HNCGenerator {
 		tList.add(t0);
 		hList.add(h0);
 		
-        Set<Graph> ttk = new GraphList<Graph>();
+        Set<Graph> ttk = new GraphList();
 
         for(int m=1;m<=n;m++){
 
@@ -102,7 +102,7 @@ public class HNCGenerator {
 			if(m==1){
 		//		System.out.println("Calculating h1");
 				hm.addAll(ttk);
-				Set<Graph> p = new GraphList<Graph>(); // temp variable
+				Set<Graph> p = new GraphList(); // temp variable
 				
 				for(Graph g:hm){	
 					Graph newGraph = g.copy();
@@ -118,8 +118,8 @@ public class HNCGenerator {
 			}
 			
 			else {
-	            Set<Graph> ttotal = new GraphList<Graph>();
-	            Set<Graph> tcount = new GraphList<Graph>();
+	            Set<Graph> ttotal = new GraphList();
+	            Set<Graph> tcount = new GraphList();
 
 	            for(Graph g:ttk){  //Initialised to ttk
 	                ttotal.add(g.copy());
@@ -144,7 +144,7 @@ public class HNCGenerator {
 					}
 				}
 					
-	            Set<Graph> temp = new GraphList<Graph>();
+	            Set<Graph> temp = new GraphList();
 				for(Graph g:hm){
 					temp.add(g);
 					g = g.copy();

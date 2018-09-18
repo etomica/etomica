@@ -81,8 +81,8 @@ public final class MoleculeIteratorSinglet implements MoleculeIterator, Molecule
     }
     
     public IMoleculeList next() {
-        atomSetSinglet.atom = nextMolecule();
-        if (atomSetSinglet.atom == null) return null;
+        atomSetSinglet.mol = nextMolecule();
+        if (atomSetSinglet.mol == null) return null;
         return atomSetSinglet;
     }
     

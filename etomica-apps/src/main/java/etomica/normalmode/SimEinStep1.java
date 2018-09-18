@@ -60,61 +60,55 @@ public class SimEinStep1 extends Simulation {
     public SimEinStep1(Space _space, final int numAtoms, double density, final double temperature, double spring, int exponent, double rc, boolean slanty) {
         super(_space);
 
-        if (slanty) {
-            BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
-            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class);
-            potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc, space), space);
-        }
-        else {
-            potentialMaster = new PotentialMasterList(this, space);
-        }
-
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        // TARGET
-        box = new Box(space);
-        addBox(box);
-        box.setNMolecules(species, numAtoms);
-
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
-
         if (slanty) {
-            int c = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
-            nCells = new int[]{c,c,c};
+            BoxAgentSourceCellManagerList boxAgentSource = new BoxAgentSourceCellManagerList(this, null, space);
+            BoxAgentManager<NeighborCellManager> boxAgentManager = new BoxAgentManager<NeighborCellManager>(boxAgentSource, this);
+            potentialMaster = new PotentialMasterList(this, rc, boxAgentSource, boxAgentManager, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
+        } else {
+            potentialMaster = new PotentialMasterList(this, space);
+        }
 
-            double L = Math.pow(Math.sqrt(2)/density, 1.0/3.0);
-            double angle = Math.PI/3;
+        // TARGET
+        if (slanty) {
+            int c = (int) Math.round(Math.pow(numAtoms, 1.0 / 3.0));
+            nCells = new int[]{c, c, c};
+
+            double L = Math.pow(Math.sqrt(2) / density, 1.0 / 3.0);
+            double angle = Math.PI / 3;
 
 //            primitive = new PrimitiveFcc(space, L*c);
-            primitive = new PrimitiveTriclinic(space, L*c,L*c,L*c, angle,angle,angle);
+            primitive = new PrimitiveTriclinic(space, L * c, L * c, L * c, angle, angle, angle);
 
             boundary = new BoundaryDeformablePeriodic(space, primitive.vectors());
-            ((BoundaryDeformablePeriodic)boundary).setTruncationRadius(rc);
+            ((BoundaryDeformablePeriodic) boundary).setTruncationRadius(rc);
             Basis basisSimple = new Basis(new Vector3D[]{new Vector3D(0.0, 0.0, 0.0)});
             basis = new BasisBigCell(space, basisSimple, nCells);
-        }
-        else {
+        } else {
 
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            primitive = new PrimitiveCubic(space, n*L);
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            primitive = new PrimitiveCubic(space, n * L);
 
-            nCells = new int[]{n,n,n};
+            nCells = new int[]{n, n, n};
             boundary = new BoundaryRectangularPeriodic(space, n * L);
             Basis basisFCC = new BasisCubicFcc();
             basis = new BasisBigCell(space, basisFCC, nCells);
         }
+        box = this.makeBox(boundary);
+        box.setNMolecules(species, numAtoms);
 
-        box.setBoundary(boundary);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
 
         CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{1,1,1});
+        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
 //        ConfigurationFile configEC = new ConfigurationFile("ec");
 //        configEC.initializeCoordinates(box);
 
-        Potential2SoftSpherical potential = exponent > 0 ? new  P2SoftSphere(space, 1.0, 1.0, exponent) : new P2LennardJones(space);
+        Potential2SoftSpherical potential = exponent > 0 ? new P2SoftSphere(space, 1.0, 1.0, exponent) : new P2LennardJones(space);
         potential = new P2SoftSphericalTruncated(space, potential, rc);
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
@@ -122,22 +116,20 @@ public class SimEinStep1 extends Simulation {
 
         potentialMaster.lrcMaster().setEnabled(false);
 
-        integrator.setBox(box);
-
         int cellRange = 7;
         potentialMaster.setRange(rc);
         potentialMaster.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
         potentialMaster.getNeighborManager(box).reset();
         int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
-        if (potentialCells < cellRange*2+1) {
-            throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
+        if (potentialCells < cellRange * 2 + 1) {
+            throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
 
         if (false) {
             P1HarmonicSite p1Harmonic = new P1HarmonicSite(space);
             p1Harmonic.setSpringConstant(spring);
-            p1Harmonic.setAtomAgentManager(box,coordinateDefinition.siteManager);
+            p1Harmonic.setAtomAgentManager(box, coordinateDefinition.siteManager);
             potentialMasterHarmonic = new PotentialMasterMonatomic(this);
             potentialMasterHarmonic.addPotential(p1Harmonic, new AtomType[]{sphereType, sphereType});
         }
@@ -155,7 +147,7 @@ public class SimEinStep1 extends Simulation {
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
         //XXX we don't want to do this because our potential is shifted!
-        ((P2SoftSphericalTruncated)potential).setTruncationRadius(0.6*boundary.getBoxSize().getX(0));
+        ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
     }
 
     /**
@@ -209,8 +201,7 @@ public class SimEinStep1 extends Simulation {
         //instantiate simulation
         final SimEinStep1 sim = new SimEinStep1(Space3D.getInstance(), numMolecules, density, temperature, spring, exponentN, rc, slanty);
 
-        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPE.setBox(sim.box);
+        final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         final double latticeEnergy = meterPE.getDataAsScalar();
         System.out.println("uLat "+latticeEnergy/numMolecules);
         System.out.println("buLat "+latticeEnergy/numMolecules/temperature);
@@ -226,7 +217,7 @@ public class SimEinStep1 extends Simulation {
         };
 
         if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
                 protected Color[] allColors;

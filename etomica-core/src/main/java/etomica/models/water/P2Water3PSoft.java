@@ -33,12 +33,12 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialMolecularTorqu
 	}
 
     public Vector[][] gradientAndTorque(IMoleculeList pair){
-		MoleculeOrientedDynamic water1 = (MoleculeOrientedDynamic)pair.getMolecule(0);
-		MoleculeOrientedDynamic water2 = (MoleculeOrientedDynamic)pair.getMolecule(1);
+		MoleculeOrientedDynamic water1 = (MoleculeOrientedDynamic)pair.get(0);
+		MoleculeOrientedDynamic water2 = (MoleculeOrientedDynamic)pair.get(1);
 		
 		//compute O-O distance to consider truncation	
-		Vector O1r = (water1.getChildList().getAtom(2)).getPosition();
-		Vector O2r = (water2.getChildList().getAtom(2)).getPosition();
+		Vector O1r = (water1.getChildList().get(2)).getPosition();
+		Vector O2r = (water2.getChildList().get(2)).getPosition();
 
 		work.Ev1Mv2(O1r, O2r);
         shift.Ea1Tv1(-1,work);
@@ -65,10 +65,10 @@ public class P2Water3PSoft extends P2Water3P implements IPotentialMolecularTorqu
         work.XE(gradient[0]);
         torque[1].E(work);
         
-		Vector H11r = water1.getChildList().getAtom(0).getPosition();
-		Vector H12r = water1.getChildList().getAtom(1).getPosition();
-		Vector H21r = water2.getChildList().getAtom(0).getPosition();
-		Vector H22r = water2.getChildList().getAtom(1).getPosition();
+		Vector H11r = water1.getChildList().get(0).getPosition();
+		Vector H12r = water1.getChildList().get(1).getPosition();
+		Vector H21r = water2.getChildList().get(0).getPosition();
+		Vector H22r = water2.getChildList().get(1).getPosition();
 
         // O1-H21
         work.Ev1Mv2(O1r, H21r);

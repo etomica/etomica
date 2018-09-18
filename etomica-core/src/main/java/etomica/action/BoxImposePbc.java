@@ -48,8 +48,8 @@ public class BoxImposePbc extends BoxActionAdapter {
         if (applyToMolecules) {
             IMoleculeList molecules = box.getMoleculeList();
             
-            for (int i=0; i<molecules.getMoleculeCount(); i++) {
-                IMolecule molecule = molecules.getMolecule(i);
+            for (int i = 0; i<molecules.size(); i++) {
+                IMolecule molecule = molecules.get(i);
                 Vector shift;
                 if (molecule instanceof IMoleculePositioned) {
                     Vector position = ((IMoleculePositioned)molecule).getPosition();
@@ -67,8 +67,8 @@ public class BoxImposePbc extends BoxActionAdapter {
         }
         else {
             IAtomList atoms = box.getLeafList();
-            for (int i=0; i<atoms.getAtomCount(); i++) {
-                IAtom atom = atoms.getAtom(i);
+            for (int i = 0; i<atoms.size(); i++) {
+                IAtom atom = atoms.get(i);
                 Vector shift = boundary.centralImage(atom.getPosition());
                 if (!shift.isZero()) {
                     atom.getPosition().PE(shift);

@@ -81,9 +81,9 @@ public class MCMoveAtomSwap extends MCMoveBox {
             if (r2 > nbrDistance*nbrDistance) continue;
             nbrList.add(jAtom);
         }
-        if (nbrList.getAtomCount() == 0) return false;
-        int r = random.nextInt(nbrList.getAtomCount());
-        atom2 = nbrList.getAtom(r);
+        if (nbrList.size() == 0) return false;
+        int r = random.nextInt(nbrList.size());
+        atom2 = nbrList.get(r);
 
         singlet.atom = atom;
         uOld = 2*p1.energy(singlet);

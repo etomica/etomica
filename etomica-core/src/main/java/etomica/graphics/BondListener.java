@@ -40,7 +40,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource<ArrayList>
     public BondListener(Box box, BondManager bondManager) {
         this.box = box;
         bondIteratorsHash = new HashMap<ISpecies,Model.PotentialAndIterator[]>();
-        atomAgentManager = new AtomLeafAgentManager<ArrayList>(this, box, ArrayList.class);
+        atomAgentManager = new AtomLeafAgentManager<ArrayList>(this, box);
         this.bondManager = bondManager;
         atomSetSinglet = new MoleculeSetSinglet();
     }
@@ -76,7 +76,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource<ArrayList>
                 else {
                     System.err.println("iterator wasn't directable, strange things may happen");
                 }
-                atomSetSinglet.atom = molecule;
+                atomSetSinglet.mol = molecule;
                 iterator.setBasis(atomSetSinglet);
                 iterator.setTarget(null);
                 iterator.reset();
@@ -85,7 +85,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource<ArrayList>
                     
                     Object bond = bondManager.makeBond(bondedPair, bondedPotential);
 
-                    atomAgentManager.getAgent(bondedPair.getAtom(0)).add(bond);
+                    atomAgentManager.getAgent(bondedPair.get(0)).add(bond);
                 }
             }
         }
@@ -103,8 +103,8 @@ public class BondListener implements AtomLeafAgentManager.AgentSource<ArrayList>
         for (IMolecule molecule = moleculeIterator.nextMolecule(); molecule != null;
              molecule = moleculeIterator.nextMolecule()) {
             IAtomList childList = molecule.getChildList();
-            for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
-                ArrayList list = atomAgentManager.getAgent(childList.getAtom(iChild));
+            for (int iChild = 0; iChild < childList.size(); iChild++) {
+                ArrayList list = atomAgentManager.getAgent(childList.get(iChild));
                 for (int i=0; i<list.size(); i++) {
                     bondManager.releaseBond(list.get(i));
                 }
@@ -143,7 +143,7 @@ public class BondListener implements AtomLeafAgentManager.AgentSource<ArrayList>
                 else {
                     System.err.println("iterator wasn't directable, strange things may happen");
                 }
-                atomSetSinglet.atom = molecule;
+                atomSetSinglet.mol = molecule;
                 iterator.setBasis(atomSetSinglet);
                 iterator.setTarget(newAtom);
                 iterator.reset();

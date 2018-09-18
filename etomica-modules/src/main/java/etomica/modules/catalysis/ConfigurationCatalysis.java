@@ -81,15 +81,15 @@ public class ConfigurationCatalysis implements Configuration {
         IMoleculeList molecules = pretendBox.getMoleculeList();
         Vector shift = space.makeVector();
         shift.setX(0, -1.901);
-        while (molecules.getMoleculeCount()>0) {
-            IMolecule molecule1 = molecules.getMolecule(0);
+        while (molecules.size()>0) {
+            IMolecule molecule1 = molecules.get(0);
             pretendBox.removeMolecule(molecule1);
             box.addMolecule(molecule1);
             IMolecule molecule2 = speciesO.makeMolecule();
             box.addMolecule(molecule2);
-            IAtom atom1 = molecule1.getChildList().getAtom(0);
+            IAtom atom1 = molecule1.getChildList().get(0);
             Vector pos1 = atom1.getPosition();
-            IAtom atom2 = molecule2.getChildList().getAtom(0);
+            IAtom atom2 = molecule2.getChildList().get(0);
             Vector pos2 = atom2.getPosition();
             pos2.Ev1Mv2(pos1, shift);
             pos1.PE(shift);
@@ -107,7 +107,7 @@ public class ConfigurationCatalysis implements Configuration {
 
         molecules = pretendBox.getMoleculeList(speciesSurface);
         for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = molecules.getMolecule(0);
+            IMolecule molecule = molecules.get(0);
             pretendBox.removeMolecule(molecule);
             box.addMolecule(molecule);
         }

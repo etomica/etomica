@@ -155,10 +155,10 @@ public class MeterVirialExternalFieldOverlapConfinedSW implements ClusterWeightS
     	 
     	    double glowestatom = 0.0;
     	    double ghighestatom = 0.0;     	   	    
-    	    double [] z = new double [atoms.getAtomCount()];       	   
+    	    double [] z = new double [atoms.size()];
     
     	    for(byte g : gList){
-    	    	z[g] = atoms.getAtom(g).getPosition().getX(2);
+    	    	z[g] = atoms.get(g).getPosition().getX(2);
     	    	if (z[g] < glowestatom){
     	    		glowestatom = z[g];    	    			
     	    	}    	 
@@ -192,13 +192,13 @@ public class MeterVirialExternalFieldOverlapConfinedSW implements ClusterWeightS
     	    			double g2 = 1;    	    		
     	    			for(byte gm1 :gm1List){
     	    			
-    	    				if (atoms.getAtom(gm1).getPosition().getX(2) < wallPosition + 0.5 || wallPosition + wallDistance[j] - 0.5 < atoms.getAtom(gm1).getPosition().getX(2)){
+    	    				if (atoms.get(gm1).getPosition().getX(2) < wallPosition + 0.5 || wallPosition + wallDistance[j] - 0.5 < atoms.get(gm1).getPosition().getX(2)){
     	    					g2 *= 0;
     	    				}    	   
-    	    				else if (atoms.getAtom(gm1).getPosition().getX(2) < wallPosition + 0.5 + lambdaWF){
+    	    				else if (atoms.get(gm1).getPosition().getX(2) < wallPosition + 0.5 + lambdaWF){
     	    					g2 *= Math.exp(epsilonWF / temperature); 
     	    				}
-    	    				if (atoms.getAtom(gm1).getPosition().getX(2) >  wallPosition + wallDistance[j] - 0.5 - lambdaWF){
+    	    				if (atoms.get(gm1).getPosition().getX(2) >  wallPosition + wallDistance[j] - 0.5 - lambdaWF){
     	    					g2 *= Math.exp(epsilonWF / temperature); 
     	    				}
     	    					    			

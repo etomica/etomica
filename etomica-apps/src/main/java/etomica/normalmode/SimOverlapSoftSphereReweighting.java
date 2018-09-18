@@ -71,44 +71,41 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
     public SimOverlapSoftSphereReweighting(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent) {
         super(_space);
         this.fname = filename;
+        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        addSpecies(species);
+
         potentialMasterTarget = new PotentialMasterMonatomic(this);
         integrators = new IntegratorBox[2];
         accumulatorPumps = new DataPumpListener[2];
         meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        addSpecies(species);
-
         // TARGET
 
-        boxTarget = new Box(space);
-        addBox(boxTarget);
+        if (space.D() == 1) {
+            primitive = new PrimitiveCubic(space, 1.0 / density);
+            boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms / density);
+            nCells = new int[]{numAtoms};
+            basis = new BasisMonatomic(space);
+        } else {
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
+            primitive = new PrimitiveCubic(space, L);
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            nCells = new int[]{n, n, n};
+            boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
+            basis = new BasisCubicFcc();
+        }
+        boxTarget = this.makeBox(boundaryTarget);
         boxTarget.setNMolecules(species, numAtoms);
 
-        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature);
+        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature, boxTarget);
         MCMoveAtomCoupled atomMove = new MCMoveAtomCoupled(potentialMasterTarget, new MeterPotentialEnergy(potentialMasterTarget), getRandom(), space);
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
         integratorTarget.getMoveManager().addMCMove(atomMove);
-        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) atomMove.getTracker()).setNoisyAdjustment(true);
 
         integrators[1] = integratorTarget;
-
-        if (space.D() == 1) {
-            primitive = new PrimitiveCubic(space, 1.0/density);
-            boundaryTarget = new BoundaryRectangularPeriodic(space, numAtoms/density);
-            nCells = new int[]{numAtoms};
-            basis = new BasisMonatomic(space);
-        } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            primitive = new PrimitiveCubic(space, L);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            nCells = new int[]{n,n,n};
-            boundaryTarget = new BoundaryRectangularPeriodic(space, n * L);
-            basis = new BasisCubicFcc();
-        }
-        boxTarget.setBoundary(boundaryTarget);
 
         CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
@@ -120,8 +117,6 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         potentialMasterTarget.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
         atomMove.setPotential(pTruncated);
 
-        integratorTarget.setBox(boxTarget);
-
         /*
          *  1-body Potential to Constraint the atom from moving too far
          *  	away from its lattice-site
@@ -132,31 +127,27 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         potentialMasterTarget.addPotential(p1Constraint, new AtomType[]{sphereType});
 
         potentialMasterTarget.lrcMaster().setEnabled(false);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
-        meterPE.setBox(boxTarget);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget, boxTarget);
         latticeEnergy = meterPE.getDataAsScalar();
 
 
         // HARMONIC
-        boundaryHarmonic = new BoundaryRectangularPeriodic(space);
-        boxHarmonic = new Box(boundaryHarmonic, space);
-        addBox(boxHarmonic);
+
+        if (space.D() == 1) {
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms / density);
+        } else {
+            double L = Math.pow(4.0 / density, 1.0 / 3.0);
+            int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
+        }
+        boxHarmonic = this.makeBox(boundaryHarmonic);
         boxHarmonic.setNMolecules(species, numAtoms);
 
-        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, random, 1.0);
+        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, random, 1.0, boxHarmonic);
 
         move = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(move);
         integrators[0] = integratorHarmonic;
-
-        if (space.D() == 1) {
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, numAtoms/density);
-        } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, n * L);
-        }
-        boxHarmonic.setBoundary(boundaryHarmonic);
 
         CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.initializeCoordinates(nCells);
@@ -178,8 +169,6 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         move.setTemperature(temperature);
 
         move.setBox(boxHarmonic);
-
-        integratorHarmonic.setBox(boxHarmonic);
 
         // OVERLAP
         integratorOverlap = new IntegratorOverlap(new IntegratorBox[]{integratorHarmonic, integratorTarget});
@@ -453,14 +442,14 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
             accumulatorPumps[iBox] = new DataPumpListener(meters[iBox], newAccumulator);
             integrators[iBox].getEventManager().addListener(accumulatorPumps[iBox]);
             if (iBox == 1) {
-                if (boxTarget.getMoleculeList().getMoleculeCount() == 32) {
+                if (boxTarget.getMoleculeList().size() == 32) {
                     accumulatorPumps[iBox].setInterval(100);
 
-                } else if (boxTarget.getMoleculeList().getMoleculeCount() == 108) {
+                } else if (boxTarget.getMoleculeList().size() == 108) {
 
                     accumulatorPumps[iBox].setInterval(300);
                 } else
-                    accumulatorPumps[iBox].setInterval(boxTarget.getMoleculeList().getMoleculeCount());
+                    accumulatorPumps[iBox].setInterval(boxTarget.getMoleculeList().size());
             }
         } else {
             accumulatorPumps[iBox].setDataSink(newAccumulator);

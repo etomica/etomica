@@ -43,17 +43,17 @@ public class MeterTiltRotationStdev implements IDataSource {
 
     public IData getData() {
         IMoleculeList molecules = box.getMoleculeList(species);
-        int nMolecules = molecules.getMoleculeCount();
+        int nMolecules = molecules.size();
         for (int i=0; i<phiSum.length; i++) {
             phiSum[i] = 0;
             phi2Sum[i] = 0;
         }
         for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+            IMolecule molecule = molecules.get(i);
             IAtomList atomList = molecule.getChildList();
-            int leafCount = atomList.getAtomCount();
-            dr.E(atomList.getAtom(leafCount-1).getPosition());
-            dr.ME(atomList.getAtom(0).getPosition());
+            int leafCount = atomList.size();
+            dr.E(atomList.get(leafCount-1).getPosition());
+            dr.ME(atomList.get(0).getPosition());
             double phi = Math.atan2(dr.getX(1), dr.getX(0));
             phiSum[0] += phi;
             phi2Sum[0] += phi*phi;

@@ -4,10 +4,10 @@
 
 package etomica.math.discrete;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 /**
  * Created by alex on 5/1/17.
@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 public class FixedSumIteratorTest {
     private FixedSumIterator iter;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         iter = new FixedSumIterator(5);
         iter.setSum(5);

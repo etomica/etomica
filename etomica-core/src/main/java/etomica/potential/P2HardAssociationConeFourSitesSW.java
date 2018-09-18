@@ -60,8 +60,8 @@ public class P2HardAssociationConeFourSitesSW extends Potential2 {
      * Returns the pair potential energy.
      */
     public double energy(IAtomList atoms) {
-        IAtomOriented atom0 = (IAtomOriented)atoms.getAtom(0);
-        IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(1);
+        IAtomOriented atom0 = (IAtomOriented)atoms.get(0);
+        IAtomOriented atom1 = (IAtomOriented)atoms.get(1);
         dr.Ev1Mv2(atom1.getPosition(),atom0.getPosition());//dr=atom1-atom0
         boundary.nearestImage(dr);
         double r2 = dr.squared();

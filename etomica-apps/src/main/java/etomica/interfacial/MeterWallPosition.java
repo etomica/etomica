@@ -23,7 +23,7 @@ public class MeterWallPosition extends DataSourceScalar {
     }
 
     public double getDataAsScalar() {
-        return box.getMoleculeList(wallSpecies).getMolecule(0).getChildList().getAtom(0).getPosition().getX(2) - zShift;
+        return box.getMoleculeList(wallSpecies).get(0).getChildList().get(0).getPosition().getX(2) - zShift;
     }
 
 }

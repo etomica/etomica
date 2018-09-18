@@ -16,7 +16,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.models.rowley.*;
 import etomica.molecule.IMolecule;
@@ -24,6 +24,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
@@ -274,14 +275,14 @@ public class VirialRowleyAlcohol {
             sim.integrators[1].getEventManager().addListener(new IntegratorListenerAction(dataPumpDistance)); // measure data at each step
 
             IMoleculeList moleculeList = targetBox.getMoleculeList();
-    		IMolecule monomerA = moleculeList.getMolecule(0);
-    		IMolecule monomerB = moleculeList.getMolecule(1);
+    		IMolecule monomerA = moleculeList.get(0);
+    		IMolecule monomerB = moleculeList.get(1);
 
             IAtomList atomSetA = monomerA.getChildList();
     		IAtomList atomSetB = monomerB.getChildList();
 
-            IAtom atom_aC_A = atomSetA.getAtom(1);
-    		IAtom atom_aC_B = atomSetB.getAtom(1);
+            IAtom atom_aC_A = atomSetA.get(1);
+    		IAtom atom_aC_B = atomSetB.get(1);
 
             dataDistance1.setAtoms(atom_aC_A, atom_aC_B);
 
@@ -343,9 +344,9 @@ public class VirialRowleyAlcohol {
 
         if (graphics) {
 
-            referenceBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            targetBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            targetBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(referenceBox).setShowBoundary(false);
             simGraphic.getDisplayBox(targetBox).setShowBoundary(false);
 

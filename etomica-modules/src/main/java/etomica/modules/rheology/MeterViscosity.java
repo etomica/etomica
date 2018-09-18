@@ -37,11 +37,11 @@ public class MeterViscosity extends DataSourceScalar {
             return Double.NaN;
         }
         double b = integrator.getB();
-        IAtomList list = box.getMoleculeList().getMolecule(0).getChildList();
+        IAtomList list = box.getMoleculeList().get(0).getChildList();
         double v = 0;
-        for (int i=0; i<list.getAtomCount()-1; i++) {
-            Vector p0 = list.getAtom(i).getPosition();
-            Vector p1 = list.getAtom(i+1).getPosition();
+        for (int i = 0; i<list.size()-1; i++) {
+            Vector p0 = list.get(i).getPosition();
+            Vector p1 = list.get(i+1).getPosition();
             dr.Ev1Mv2(p1, p0);
             v += dr.getX(0)*dr.getX(1)/(1+b*dr.squared());
         }

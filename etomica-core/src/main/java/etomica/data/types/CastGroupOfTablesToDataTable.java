@@ -10,7 +10,8 @@ import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTable.DataInfoTable;
-import etomica.util.Arrays;
+
+import java.util.Arrays;
 
 /**
  * A DataProcessor that converts a homogeneous DataGroup into a multidimensional DataDoubleArray. 
@@ -66,7 +67,7 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
         String[] rowHeaders = null;
         for (int i = 0; i<((DataInfoGroup)inputDataInfo).getNDataInfo(); i++) {
             DataInfoTable elementDataInfo = (DataInfoTable)((DataInfoGroup)inputDataInfo).getSubDataInfo(i);
-            columnDataInfo = (DataInfoDoubleArray[])Arrays.resizeArray(columnDataInfo, nColumns+elementDataInfo.getNDataInfo());
+            columnDataInfo = Arrays.copyOf(columnDataInfo, nColumns + elementDataInfo.getNDataInfo());
             for (int j=nColumns; j<columnDataInfo.length; j++) {
                 columnDataInfo[j] = (DataInfoDoubleArray)elementDataInfo.getSubDataInfo(j-nColumns);
             }

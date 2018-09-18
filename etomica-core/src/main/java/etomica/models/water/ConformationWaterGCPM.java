@@ -26,16 +26,16 @@ public class ConformationWaterGCPM implements IConformation, java.io.Serializabl
         double z = 0.0;
         
         
-        IAtom o = list.getAtom(SpeciesWater4P.indexO);
+        IAtom o = list.get(SpeciesWater4P.indexO);
         o.getPosition().E(new double[] {x, y, z});
                
-        IAtom h1 = list.getAtom(SpeciesWater4P.indexH1);
+        IAtom h1 = list.get(SpeciesWater4P.indexH1);
         h1.getPosition().E(new double[] {x-bondLengthOH*Math.cos((Math.PI-angleHOH)/2), y, z+bondLengthOH*Math.sin((Math.PI-angleHOH)/2)});
                 
-        IAtom h2 = list.getAtom(SpeciesWater4P.indexH2);
+        IAtom h2 = list.get(SpeciesWater4P.indexH2);
         h2.getPosition().E(new double[] {x+bondLengthOH*Math.cos((Math.PI-angleHOH)/2), y, z+bondLengthOH*Math.sin((Math.PI-angleHOH)/2)});
         
-        IAtom m = list.getAtom(SpeciesWater4P.indexM);
+        IAtom m = list.get(SpeciesWater4P.indexM);
         m.getPosition().E(new double[] {x, y, z+rOM});
 
         

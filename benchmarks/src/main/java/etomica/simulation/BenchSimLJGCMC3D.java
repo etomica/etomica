@@ -32,7 +32,7 @@ public class BenchSimLJGCMC3D {
 
         Configuration config = new ConfigurationResourceFile(
                 // Uses the same position config as LJMC3D
-                String.format("tests/LJMC3D%d.pos", numMolecules),
+                String.format("LJMC3D%d.pos", numMolecules),
                 TestLJGCMC3D.class
         );
 
@@ -49,7 +49,7 @@ public class BenchSimLJGCMC3D {
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
-    @Measurement(time = 1, timeUnit = TimeUnit.SECONDS)
+    @Measurement(time = 3, iterations = 5, timeUnit = TimeUnit.SECONDS)
     public long integratorStep() {
         sim.integrator.doStep();
         return sim.integrator.getStepCount();

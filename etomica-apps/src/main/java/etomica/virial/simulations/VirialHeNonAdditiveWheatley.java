@@ -164,7 +164,7 @@ public class VirialHeNonAdditiveWheatley {
         IAtomList atoms = sim.box[1].getLeafList();
         double r = 3;
         for (int i=1; i<nPoints; i++) {
-            Vector v = atoms.getAtom(i).getPosition();
+            Vector v = atoms.get(i).getPosition();
             v.setX(0, r*Math.cos(2*(i-1)*Math.PI/(nPoints-1)));
             v.setX(1, r*Math.sin(2*(i-1)*Math.PI/(nPoints-1)));
         }
@@ -178,9 +178,9 @@ public class VirialHeNonAdditiveWheatley {
         } */ 
         
         if (false) {
-            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             SpeciesSpheresMono species = (SpeciesSpheresMono)sim.getSpecies(0);

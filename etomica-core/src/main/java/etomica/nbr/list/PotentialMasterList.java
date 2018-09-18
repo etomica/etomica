@@ -5,7 +5,6 @@
 package etomica.nbr.list;
 
 import etomica.atom.*;
-import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
@@ -18,8 +17,11 @@ import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.util.Arrays;
 import etomica.util.Debug;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * PotentialMaster used to implement neighbor listing.  Instance of this
@@ -32,9 +34,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
     protected final AtomPair atomPair;
     protected final NeighborListAgentSource neighborListAgentSource;
     protected final BoxAgentManager<NeighborListManager> neighborListAgentManager;
-    private final AtomIteratorSinglet singletIterator;
+    private final BoxAgentSourceCellManagerList boxAgentSource;
     protected double range;
-    protected NeighborCriterion[] allCriteria;
     private int cellRange;
     private double maxPotentialRange = 0;
     private double safetyFactor = 0.4;
@@ -67,35 +68,29 @@ public class PotentialMasterList extends PotentialMasterNbr {
     }
 
     public PotentialMasterList(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, Space _space) {
-        this(sim, range, boxAgentSource, new BoxAgentManager<NeighborCellManager>(boxAgentSource, NeighborCellManager.class), _space);
+        this(sim, range, boxAgentSource, new BoxAgentManager<>(boxAgentSource, sim), _space);
     }
 
     public PotentialMasterList(Simulation sim, double range, BoxAgentSourceCellManagerList boxAgentSource, BoxAgentManager<? extends BoxCellManager> agentManager, Space _space){
-        this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSource(range, _space), _space);
+        this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSource(range), _space);
     }
 
     public PotentialMasterList(Simulation sim, double range,
                                BoxAgentSourceCellManagerList boxAgentSource,
                                BoxAgentManager<? extends BoxCellManager> agentManager,
                                NeighborListAgentSource neighborListAgentSource, Space _space) {
-        super(sim, boxAgentSource, agentManager);
+        super(sim, agentManager);
         space = _space;
         this.neighborListAgentSource = neighborListAgentSource;
         neighborListAgentSource.setPotentialMaster(this);
-        neighborListAgentManager = new BoxAgentManager<NeighborListManager>(neighborListAgentSource, NeighborListManager.class);
-        singletIterator = new AtomIteratorSinglet();
+        neighborListAgentManager = new BoxAgentManager<>(neighborListAgentSource, sim);
         atomSetSinglet = new AtomSetSinglet();
         atomPair = new AtomPair();
         cellRange = 2;
-        allCriteria = new NeighborCriterion[0];
+        this.boxAgentSource = boxAgentSource;
 
-        neighborListAgentManager.setSimulation(sim);
-
-        BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborCellManagerList cellManager = (NeighborCellManagerList)iterator.next();
-            cellManager.setPotentialMaster(this);
+        for (BoxCellManager boxCellManager : boxAgentManager.getAgents().values()) {
+            ((NeighborCellManagerList) boxCellManager).setPotentialMaster(this);
         }
 
         boxAgentSource.setPotentialMaster(this);
@@ -137,22 +132,16 @@ public class PotentialMasterList extends PotentialMasterNbr {
             throw new IllegalArgumentException("Range must be greater than 0");
         }
         range = newRange;
-        ((BoxAgentSourceCellManagerList)boxAgentSource).setRange(range);
+        boxAgentSource.setRange(range);
         recomputeCriteriaRanges();
 
-        BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
-            cellManager.setPotentialRange(range);
+        for (BoxCellManager boxCellManager : boxAgentManager.getAgents().values()) {
+            ((NeighborCellManager) boxCellManager).setPotentialRange(range);
         }
 
         neighborListAgentSource.setRange(newRange);
 
-        BoxAgentManager.AgentIterator<NeighborListManager> iteratorList = neighborListAgentManager.makeIterator();
-        iteratorList.reset();
-        while (iteratorList.hasNext()) {
-            NeighborListManager neighborListManager = iteratorList.next();
+        for (NeighborListManager neighborListManager : neighborListAgentManager.getAgents().values()) {
             neighborListManager.setRange(range);
         }
     }
@@ -207,27 +196,15 @@ public class PotentialMasterList extends PotentialMasterNbr {
         if (potential.getRange() == Double.POSITIVE_INFINITY) {
             throw new RuntimeException("not the method you wanted to call");
         }
-        for (int i=0; i<atomTypes.length; i++) {
-            addRangedPotential(potential, atomTypes[i]);
-        }
 
-        // add the criterion to all existing NeighborListManagers
-        allCriteria = (NeighborCriterion[]) Arrays.addObject(allCriteria, criterion);
+        int type1 = atomTypes[0].getIndex();
+        int type2 = atomTypes[1].getIndex();
+        criteria[type1][type2] = criteria[type2][type1] = criterion;
 
-        for (int i=0; i<atomTypes.length; i++) {
-            ((PotentialArray)rangedAgentManager.getAgent(atomTypes[i])).setCriterion(potential, criterion);
-        }
         if (potential.getRange() > maxPotentialRange) {
             maxPotentialRange = potential.getRange();
         }
         recomputeCriteriaRanges();
-
-        BoxAgentManager.AgentIterator<NeighborListManager> iterator = neighborListAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborListManager neighborListManager = iterator.next();
-            neighborListManager.updateLists();
-        }
     }
 
     /**
@@ -236,49 +213,49 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * notifies the NeighborListManager of its existence.
      */
     protected void addRangedPotentialForTypes(IPotentialAtomic potential, AtomType[] atomType) {
+        super.addRangedPotentialForTypes(potential, atomType);
         // we'll fix the neighbor range later in recomputeCriteriaRanges
         // 0 guarantees the simulation to be hosed if our range is less than the potential range
         // (since recomputeCriteriaRange will bail in that case)
         NeighborCriterion criterion;
-        if (atomType.length == 2) {
+        if (potential.nBody() >= 2) {
             NeighborCriterion rangedCriterion;
             if (potential.getRange() < Double.POSITIVE_INFINITY) {
                 rangedCriterion = new CriterionSimple(simulation, space, potential.getRange(), 0.0);
             }
             else {
-                rangedCriterion = new CriterionAll();
+                // ????? how can this work?
+                System.err.println("you have a 'ranged' potential with infinite range.  good luck with that!");
+                rangedCriterion = null;
             }
-            criterion = new CriterionTypePair(rangedCriterion, atomType[0], atomType[1]);
-            ISpecies moleculeType0 = atomType[0].getSpecies();
-            ISpecies moleculeType1 = atomType[1].getSpecies();
-            if (moleculeType0 == moleculeType1) {
-                criterion = new CriterionInterMolecular(criterion);
+            criterion = rangedCriterion;
+            Set<ISpecies> allMySpecies = new HashSet<>();
+            allMySpecies.add(atomType[0].getSpecies());
+            // if any of our types are in the same species, then enforce inter-molecular
+            for (int i = 0; i < atomType.length; i++) {
+                if (allMySpecies.contains(atomType[i].getSpecies())) {
+                    criterion = new CriterionInterMolecular(criterion);
+                    break;
+                }
             }
-        }
-        else if (atomType.length == 1) {
-            criterion = new CriterionType(new CriterionAll(), atomType[0]);
-        }
-        else {
-            criterion = new CriterionTypesMulti(new CriterionAll(), atomType);
+            if (potential.nBody() == 2) {
+                setCriterion(atomType[0], atomType[1], criterion);
+            } else {
+                // n-body, so add criterion for all i-j and also i-i
+                for (int i = 0; i < atomType.length; i++) {
+                    for (int j = i; j < atomType.length; j++) {
+                        setCriterion(atomType[i], atomType[j], criterion);
+                    }
+                }
+            }
+        } else {
+            setCriterion1Body(potential, atomType[0], new CriterionAll());
         }
 
-        // add the criterion to all existing NeighborListManagers
-        allCriteria = (NeighborCriterion[]) Arrays.addObject(allCriteria, criterion);
-
-        for (int i=0; i<atomType.length; i++) {
-            ((PotentialArray)rangedAgentManager.getAgent(atomType[i])).setCriterion(potential, criterion);
-        }
         if (potential.getRange() > maxPotentialRange && potential.getRange() < Double.POSITIVE_INFINITY) {
             maxPotentialRange = potential.getRange();
         }
         recomputeCriteriaRanges();
-
-        BoxAgentManager.AgentIterator<NeighborListManager> iterator = neighborListAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborListManager neighborListManager = iterator.next();
-            neighborListManager.updateLists();
-        }
     }
 
     /**
@@ -286,25 +263,18 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * class receiving notification) and readjust cell lists
      */
     public void reset() {
-        rangedPotentialIterator.reset();
         maxPotentialRange = 0;
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
-            IPotential[] potentials = potentialArray.getPotentials();
-            for (int i=0; i<potentials.length; i++) {
-                if (potentials[i].getRange() > maxPotentialRange) {
-                    maxPotentialRange = potentials[i].getRange();
+        for (int i = 0; i < rangedPotentials.length; i++) {
+            for (int j = i; j < rangedPotentials.length; j++) {
+                IPotentialAtomic p = rangedPotentials[i][j];
+                if (p != null && p.getRange() > maxPotentialRange) {
+                    maxPotentialRange = p.getRange();
                 }
             }
         }
         recomputeCriteriaRanges();
 
-        BoxAgentManager.AgentIterator<NeighborListManager> iterator = neighborListAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborListManager neighborListManager = iterator.next();
-            neighborListManager.reset();
-        }
+        neighborListAgentManager.getAgents().values().forEach(NeighborListManager::reset);
     }
 
     /**
@@ -321,115 +291,40 @@ public class PotentialMasterList extends PotentialMasterNbr {
             // if they don't, the simulation will probably crash
             return;
         }
-        rangedPotentialIterator.reset();
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
-            IPotential[] potentials = potentialArray.getPotentials();
-            NeighborCriterion[] criteria = potentialArray.getCriteria();
-            // this will double (or more) count criteria that apply to multiple atom types, but it won't hurt us
-            for (int j=0; j<criteria.length; j++) {
-                CriterionSimple rangedCriterion = getRangedCriterion(criteria[j]);
+        for (int i = 0; i < rangedPotentials.length; i++) {
+            for (int j = i; j < rangedPotentials.length; j++) {
+                IPotentialAtomic p = rangedPotentials[i][j];
+                NeighborCriterion c = criteria[i][j];
+                if (c == null) continue;
+                CriterionSimple rangedCriterion = getRangedCriterion(c);
                 if (rangedCriterion != null) {
-                    double newRange = maxDisplacement/safetyFactor + potentials[j].getRange();
+                    double newRange = maxDisplacement / safetyFactor + p.getRange();
                     rangedCriterion.setNeighborRange(newRange);
-                    rangedCriterion.setInteractionRange(potentials[j].getRange());
+                    rangedCriterion.setInteractionRange(p.getRange());
                     rangedCriterion.setSafetyFactor(safetyFactor);
                 }
             }
         }
     }
 
-    /**
-     * Returns the criterion used by to determine what atoms interact with the
-     * given potential.
-     */
-    public NeighborCriterion getCriterion(IPotentialAtomic potential) {
-        rangedPotentialIterator.reset();
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
-            IPotential[] potentials = potentialArray.getPotentials();
-            for (int j=0; j<potentials.length; j++) {
-                if (potentials[j] == potential) {
-                    return potentialArray.getCriteria()[j];
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Sets the criterion associated with the given potential, overriding the
-     * default provided by the PotentialMasterList.  The criterion can be
-     * configured by calling getCriterion(Potential) and changing the
-     * criterion.  The potential passed to this method must be a potential
-     * handled by this instance.
-     */
-    public void setCriterion(IPotentialAtomic potential, NeighborCriterion criterion) {
-        NeighborCriterion oldCriterion = getCriterion(potential);
-        if (oldCriterion != null) {
-            // remove the criterion to all existing NeighborListManagers
-            allCriteria = (NeighborCriterion[]) Arrays.removeObject(allCriteria, oldCriterion);
-        }
-        rangedPotentialIterator.reset();
-        boolean success = false;
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
-            IPotential[] potentials = potentialArray.getPotentials();
-            for (int j=0; j<potentials.length; j++) {
-                if (potentials[j] == potential) {
-                    success = true;
-                    potentialArray.setCriterion(potential, criterion);
-                    break;
-                }
-            }
-        }
-        if (success) {
-            // add the criterion to all existing NeighborListManagers
-            allCriteria = (NeighborCriterion[]) Arrays.addObject(allCriteria, criterion);
-        	return;
-        }
-        throw new IllegalArgumentException("Potential "+potential+" is not associated with this PotentialMasterList");
-    }
-
     public void removePotential(IPotentialAtomic potential) {
-        rangedPotentialIterator.reset();
-        while (rangedPotentialIterator.hasNext()) {
-            PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
-            IPotential[] potentials = potentialArray.getPotentials();
-            for (int j=0; j<potentials.length; j++) {
-                if (potentials[j] == potential) {
-                    // found it!
-                    // remove the criterion from our list
-                    allCriteria = (NeighborCriterion[]) Arrays.removeObject(allCriteria, potentialArray.getCriteria()[j]);
-                    break;
-                }
-            }
-        }
-
         super.removePotential(potential);
 
         maxPotentialRange = 0;
-        for (int i=0; i<allPotentials.length; i++) {
-            double pRange = allPotentials[i].getRange();
-            if (pRange == Double.POSITIVE_INFINITY) {
-                continue;
-            }
-            if (pRange > maxPotentialRange) {
-                maxPotentialRange = pRange;
+        for (int i = 0; i < rangedPotentials.length; i++) {
+            for (int j = 0; j < rangedPotentials.length; j++) {
+                if (rangedPotentials[i][j] == null) criteria[i][j] = null;
+                double pRange = rangedPotentials[i][j].getRange();
+                if (pRange == Double.POSITIVE_INFINITY) {
+                    continue;
+                }
+                if (pRange > maxPotentialRange) {
+                    maxPotentialRange = pRange;
+                }
             }
         }
+
         recomputeCriteriaRanges();
-
-        BoxAgentManager.AgentIterator<NeighborListManager> iterator = neighborListAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborListManager neighborListManager = iterator.next();
-            neighborListManager.updateLists();
-        }
-    }
-
-    public NeighborCriterion[] getNeighborCriteria() {
-        return allCriteria;
     }
 
     /**
@@ -451,33 +346,27 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 throw new IllegalArgumentException("When there is no target, iterator directive must be up");
             }
             // invoke setBox on all potentials
-            for (int i=0; i<allPotentials.length; i++) {
-                allPotentials[i].setBox(box);
-                if(allPotentials[i].nBody() == 0){
-                	((PotentialGroup)allPotentials[i]).calculate(new MoleculeIterator0(), id.direction(), null, pc);
-                }
-            }
+            setBoxForPotentials(box);
 
             //no target atoms specified
             //call calculate with each SpeciesAgent
             IMoleculeList list = box.getMoleculeList();
-            int size = list.getMoleculeCount();
+            int size = list.size();
             for (int i=0; i<size; i++) {
-                calculate(list.getMolecule(i), id.direction(), pc, neighborManager);//call calculate with the SpeciesAgent
+                calculate(list.get(i), id.direction(), pc, neighborManager);//call calculate with the SpeciesAgent
             }
         }
         else {
             if (targetAtom != null) {
-                PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
-                IPotential[] potentials = potentialArray.getPotentials();
-                for(int i=0; i<potentials.length; i++) {
-                    potentials[i].setBox(box);
+                int targetTypeIdx = targetAtom.getType().getIndex();
+                for (int j = 0; j < rangedPotentials[targetTypeIdx].length; j++) {
+                    if (rangedPotentials[targetTypeIdx][j] != null) rangedPotentials[targetTypeIdx][j].setBox(box);
                 }
 
                 //first walk up the tree looking for 1-body range-independent potentials that apply to parents
                 IMolecule parentAtom = targetAtom.getParentGroup();
-                potentialArray = getIntraPotentials(parentAtom.getType());
-                potentials = potentialArray.getPotentials();
+                PotentialArray potentialArray = getIntraPotentials(parentAtom.getType());
+                IPotential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);
                     ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(parentAtom,id.direction(), targetAtom,pc);
@@ -514,42 +403,46 @@ public class PotentialMasterList extends PotentialMasterNbr {
 
         //cannot use AtomIterator field because of recursive call
         IAtomList list = molecule.getChildList();
-        int size = list.getAtomCount();
+        int size = list.size();
         for (int i=0; i<size; i++) {
-            calculate(list.getAtom(i), direction, pc, neighborManager);//recursive call
+            calculate(list.get(i), direction, pc, neighborManager);//recursive call
         }
     }
 
     protected void calculate(IAtom atom, IteratorDirective.Direction direction, PotentialCalculation pc, NeighborListManager neighborManager) {
-        singletIterator.setAtom(atom);
-        PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.getType());
-        IPotential[] potentials = potentialArray.getPotentials();
-        for(int i=0; i<potentials.length; i++) {
-            switch (potentials[i].nBody()) {
-            case 1:
-                boolean[] potential1BodyArray = neighborManager.getPotential1BodyList(atom).getInteractingList();
+        List<IPotentialAtomic> potentials1 = rangedPotentials1Body[atom.getType().getIndex()];
+        if (potentials1.size() > 0) {
+            boolean[] potential1BodyArray = neighborManager.getPotential1BodyList(atom).getInteractingList();
+            atomSetSinglet.atom = atom;
+            for (int i = 0; i < potentials1.size(); i++) {
                 if (potential1BodyArray[i]) {
                     atomSetSinglet.atom = atom;
-                    pc.doCalculation(atomSetSinglet, (IPotentialAtomic)potentials[i]);
+                    pc.doCalculation(atomSetSinglet, potentials1.get(i));
                 }
-                break;
+            }
+        }
+
+        IPotentialAtomic[] potentials = rangedPotentials[atom.getType().getIndex()];
+        for (int i = 0; i < potentials.length; i++) {
+            if (potentials[i] == null) continue;
+            switch (potentials[i].nBody()) {
             case 2:
                 if (direction != IteratorDirective.Direction.DOWN) {
                     IAtomList list = neighborManager.getUpList(atom)[i];
-                    int nNeighbors = list.getAtomCount();
+                    int nNeighbors = list.size();
                     atomPair.atom0 = atom;
                     for (int j=0; j<nNeighbors; j++) {
-                        atomPair.atom1 = list.getAtom(j);
-                        pc.doCalculation(atomPair, (IPotentialAtomic)potentials[i]);
+                        atomPair.atom1 = list.get(j);
+                        pc.doCalculation(atomPair, potentials[i]);
                     }
                 }
                 if (direction != IteratorDirective.Direction.UP) {
                     IAtomList list = neighborManager.getDownList(atom)[i];
-                    int nNeighbors = list.getAtomCount();
+                    int nNeighbors = list.size();
                     atomPair.atom1 = atom;
                     for (int j=0; j<nNeighbors; j++) {
-                        atomPair.atom0 = list.getAtom(j);
-                        pc.doCalculation(atomPair, (IPotentialAtomic)potentials[i]);
+                        atomPair.atom0 = list.get(j);
+                        pc.doCalculation(atomPair, potentials[i]);
                     }
                 }
                 break;//switch
@@ -559,20 +452,20 @@ public class PotentialMasterList extends PotentialMasterNbr {
             	if(atomArrayList==null){
             		atomArrayList = new AtomArrayList();
             	}
-                doNBodyStuff(atom, pc, i, (IPotentialAtomic)potentials[i], neighborManager);
+                doNBodyStuff(atom, pc, i, potentials[i], neighborManager);
                 if (direction != IteratorDirective.Direction.UP) {
                     // must have a target and be doing "both"
                     // we have to do the calculation considering each of the
                     // target's neighbors
                     IAtomList list = neighborManager.getUpList(atom)[i];
-                    for (int j=0; j<list.getAtomCount(); j++) {
-                        IAtom otherAtom = list.getAtom(j);
-                        doNBodyStuff(otherAtom, pc, i, (IPotentialAtomic)potentials[i], neighborManager);
+                    for (int j = 0; j<list.size(); j++) {
+                        IAtom otherAtom = list.get(j);
+                        doNBodyStuff(otherAtom, pc, i, potentials[i], neighborManager);
                     }
                     list = neighborManager.getDownList(atom)[i];
-                    for (int j=0; j<list.getAtomCount(); j++) {
-                        IAtom otherAtom = list.getAtom(j);
-                        doNBodyStuff(otherAtom, pc, i, (IPotentialAtomic)potentials[i], neighborManager);
+                    for (int j = 0; j<list.size(); j++) {
+                        IAtom otherAtom = list.get(j);
+                        doNBodyStuff(otherAtom, pc, i, potentials[i], neighborManager);
                     }
                 }
 
@@ -616,23 +509,17 @@ public class PotentialMasterList extends PotentialMasterNbr {
     public void setCellRange(int newCellRange) {
         cellRange = newCellRange;
 
-        BoxAgentManager.AgentIterator<? extends BoxCellManager> iterator = boxAgentManager.makeIterator();
-        iterator.reset();
-        while (iterator.hasNext()) {
-            NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
-            cellManager.setCellRange(cellRange);
+        for (BoxCellManager boxCellManager : boxAgentManager.getAgents().values()) {
+            ((NeighborCellManager) boxCellManager).setCellRange(cellRange);
         }
     }
 
     public static class NeighborListAgentSource implements BoxAgentManager.BoxAgentSource<NeighborListManager> {
-        protected final Space space;
         protected PotentialMasterList potentialMaster;
         protected double range;
         
-        public NeighborListAgentSource(double range, Space space) {
-
+        public NeighborListAgentSource(double range) {
             this.range = range;
-            this.space = space;
         }
         
         public void setRange(double newRange) {
@@ -644,7 +531,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
 
         public NeighborListManager makeAgent(Box box) {
-            return new NeighborListManager(potentialMaster, range, box, space);
+            return new NeighborListManager(potentialMaster, range, box);
         }
 
         public void releaseAgent(NeighborListManager object) {

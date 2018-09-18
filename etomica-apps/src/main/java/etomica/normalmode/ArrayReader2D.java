@@ -4,6 +4,8 @@
 
 package etomica.normalmode;
 
+import etomica.util.Resources;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,15 +46,9 @@ public class ArrayReader2D {
      * columns in the file.
      */
     public static double[][][] getFromFile(String fn, int rows){
-        FileReader fileReaderS;
-        try {
-            fileReaderS = new FileReader(fn);
-        }catch(IOException e) {
-            throw new RuntimeException("Cannot open "+fn+", caught IOException: " + e.getMessage());
-        }
         double[][][] S = null;
         try {
-            BufferedReader bufReaderS = new BufferedReader(fileReaderS);
+            BufferedReader bufReaderS = Resources.openResourceFile(fn, ArrayReader2D.class);
             String line = bufReaderS.readLine();
             ArrayList allS = new ArrayList();
             int dim = 0;

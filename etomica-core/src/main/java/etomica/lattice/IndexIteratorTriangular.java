@@ -4,7 +4,9 @@
 
 package etomica.lattice;
 
-import etomica.util.Arrays;
+import java.util.Arrays;
+
+import static java.lang.Math.sqrt;
 
 /**
  * Iterates arrays of int such that a[0] >= a[1] >= ... >= a[D-1] >= 0, where
@@ -182,7 +184,7 @@ public class IndexIteratorTriangular implements IndexIterator, java.io.Serializa
             for(int i=0; i<a.length; i++) {
                 sum += a[i]*a[i];
             }
-            System.out.println(++count+". "+Arrays.toString(a)+" "+Math.sqrt(sum));
+            System.out.println(++count+". "+ Arrays.toString(a) +" "+ sqrt(sum));
         }
     }
 

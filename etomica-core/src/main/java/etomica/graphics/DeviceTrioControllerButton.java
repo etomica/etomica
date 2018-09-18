@@ -178,7 +178,7 @@ public class DeviceTrioControllerButton extends Device {
 //        DeviceTrioControllerButton button = new DeviceTrioControllerButton(Simulation.instance, Simulation.instance.controller(0)); 
 //          button.setShape("VERTICAL"); //three choices "HORIZONTAL", "AUTOMATIC"
         
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
 
         // Simulation Graphic will display it's own Trio button group by
         // default.  Just remove them and put ours on for this test.

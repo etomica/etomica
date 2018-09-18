@@ -20,7 +20,6 @@ import etomica.molecule.IMoleculePositionDefinition;
 import etomica.simulation.Simulation;
 import etomica.space.*;
 import etomica.util.Debug;
-import etomica.util.IEvent;
 import etomica.util.IListener;
 
 /**
@@ -74,7 +73,7 @@ public class NeighborCellManager implements BoxCellManager, BoundaryEventListene
         lattice = new CellLattice(space, box.getBoundary().getBoxSize(), Cell.FACTORY);
         setPotentialRange(potentialRange);
         v = space.makeVector();
-        agentManager = new AtomLeafAgentManager<Cell>(this,box,Cell.class);
+        agentManager = new AtomLeafAgentManager<Cell>(this,box);
         doApplyPBC = false;
     }
 
@@ -212,11 +211,11 @@ public class NeighborCellManager implements BoxCellManager, BoundaryEventListene
         for (int i=0; i<allCells.length; i++) {
             ((Cell)allCells[i]).occupants().clear();
         }
-        
+
         IAtomList leafList = box.getLeafList();
-        int count = leafList.getAtomCount();
+        int count = leafList.size();
         for (int i=0; i<count; i++) {
-            IAtom atom = leafList.getAtom(i);
+            IAtom atom = leafList.get(i);
             assignCell(atom);
         }
     }
@@ -243,8 +242,8 @@ public class NeighborCellManager implements BoxCellManager, BoundaryEventListene
         atomCell.addAtom(atom);
         agentManager.setAgent(atom, atomCell);
     }
-    
-    public IListener makeMCMoveListener() {
+
+    public IListener<MCMoveEvent> makeMCMoveListener() {
         return new MyMCMoveListener(box,this);
     }
 
@@ -272,14 +271,14 @@ public class NeighborCellManager implements BoxCellManager, BoundaryEventListene
     public void releaseAgent(Cell cell, IAtom atom, Box agentBox) {
         cell.removeAtom(atom);
     }
-    
-    private static class MyMCMoveListener implements IListener, java.io.Serializable {
+
+    private static class MyMCMoveListener implements IListener<MCMoveEvent>, java.io.Serializable {
         public MyMCMoveListener(Box box, NeighborCellManager manager) {
             this.box = box;
             neighborCellManager = manager;
         }
-        
-        public void actionPerformed(IEvent evt) {
+
+        public void actionPerformed(MCMoveEvent evt) {
             if (evt instanceof MCMoveTrialCompletedEvent && ((MCMoveTrialCompletedEvent)evt).isAccepted()) {
                 return;
             }
@@ -287,13 +286,11 @@ public class NeighborCellManager implements BoxCellManager, BoundaryEventListene
                 return;
             }
 
-            if (evt instanceof MCMoveEvent) {
-                MCMove move = ((MCMoveEvent)evt).getMCMove();
-                AtomIterator iterator = move.affectedAtoms(box);
-                iterator.reset();
-                for (IAtom atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
-                    updateCell(atom);
-                }
+            MCMove move = evt.getMCMove();
+            AtomIterator iterator = move.affectedAtoms(box);
+            iterator.reset();
+            for (IAtom atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
+                updateCell(atom);
             }
         }
 

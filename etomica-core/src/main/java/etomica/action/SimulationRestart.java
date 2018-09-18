@@ -5,7 +5,7 @@
 package etomica.action;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.exception.ConfigurationOverlapException;
@@ -27,7 +27,7 @@ public final class SimulationRestart extends SimulationActionAdapter {
     protected boolean ignoreOverlap;
     protected SimulationDataAction accumulatorAction;
     protected IAction postAction;
-    private IController controller;
+    private final Controller controller;
 
     public SimulationRestart(Simulation sim) {
         super.setSimulation(sim, sim.getSpace());

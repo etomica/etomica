@@ -46,8 +46,8 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
 
     public void setBox(Box p) {
     	super.setBox(p);
-        selectedAtoms = new IAtom[box.getMoleculeList().getMoleculeCount()];
-        translationVectors = new Vector3D[box.getMoleculeList().getMoleculeCount()];
+        selectedAtoms = new IAtom[box.getMoleculeList().size()];
+        translationVectors = new Vector3D[box.getMoleculeList().size()];
         for (int i=0; i<translationVectors.length; i++) {
             translationVectors[i] = space.makeVector();
         }
@@ -64,27 +64,27 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
         wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 
         IMoleculeList moleculeList = box.getMoleculeList();
-        for(int i=0; i<moleculeList.getMoleculeCount(); i++) {
-            if (species != null && moleculeList.getMolecule(i).getType() != species) {
+        for(int i = 0; i<moleculeList.size(); i++) {
+            if (species != null && moleculeList.get(i).getType() != species) {
                 continue;
             }
-            IAtomList childList = moleculeList.getMolecule(i).getChildList();
+            IAtomList childList = moleculeList.get(i).getChildList();
             Vector position = space.makeVector();
             Vector positionNeighbor = space.makeVector();
-            int numChildren = childList.getAtomCount();// total atoms in the i-th molecule
+            int numChildren = childList.size();// total atoms in the i-th molecule
             int numCarbons = (numChildren-2)/3;// number of carbons in the i-th molecule
             int j = random.nextInt(2);// 0 or 1
             double theta = (random.nextDouble()-0.5)* 2.0 * stepSize;// [-60,60)
 
-            selectedAtoms[i] = childList.getAtom(j);
+            selectedAtoms[i] = childList.get(j);
 //            System.out.println(selectedAtoms[i]+" "+j+" before "+selectedAtoms[i].coord.position());
             if (j==0){
-            	position = childList.getAtom(0).getPosition();
-            	positionNeighbor = childList.getAtom(1).getPosition();
+            	position = childList.get(0).getPosition();
+            	positionNeighbor = childList.get(1).getPosition();
             }
             else if (j==1){
-            	position = childList.getAtom(numCarbons-1).getPosition();
-            	positionNeighbor = childList.getAtom(numCarbons-2).getPosition();
+            	position = childList.get(numCarbons-1).getPosition();
+            	positionNeighbor = childList.get(numCarbons-2).getPosition();
             }
             else {
             	throw new RuntimeException("wrong random number in CH3 MC move!");
@@ -104,7 +104,7 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
             	///// #########  GET the new positions of 3 H on C0  ########################### ///////////////////
             	///// ######################################################################### ///////////////////
             	for (int s=0;s<3; s++){
-            		hydrogen[s] =  childList.getAtom(numCarbons * (s+1));// [n], [2n], [3n]
+            		hydrogen[s] =  childList.get(numCarbons * (s+1));// [n], [2n], [3n]
             		Vector r = hydrogen[s].getPosition();
             		r.ME(position);//position is position of C0
             		rotateTensor.transform(r);
@@ -115,9 +115,9 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
             	///// ######################################################################### ///////////////////
             	///// #########  GET the new positions of 3 H on C[n-1]      ###################### ///////////////////
             	///// ######################################################################### ///////////////////
-            	hydrogen[0]=childList.getAtom(numCarbons*2-1);//[n-1+n]
-            	hydrogen[1]=childList.getAtom(numCarbons*3-1);//[n-1+2n]
-            	hydrogen[2]=childList.getAtom(numCarbons*3+1);//[3n+1]
+            	hydrogen[0]=childList.get(numCarbons*2-1);//[n-1+n]
+            	hydrogen[1]=childList.get(numCarbons*3-1);//[n-1+2n]
+            	hydrogen[2]=childList.get(numCarbons*3+1);//[3n+1]
             	for (int s=0;s<3; s++){
             		Vector r = hydrogen[s].getPosition();
             		r.ME(position);//position is position of C[n-1]
@@ -129,9 +129,9 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
             // shift the whole molecule so that the center of mass doesn't change
             translationVectors[i].PE(position);
             axis.E(translationVectors[i]);
-            axis.TE(1.0/childList.getAtomCount());
-            for (int k=0; k<childList.getAtomCount(); k++) {
-                childList.getAtom(k).getPosition().ME(axis);
+            axis.TE(1.0/childList.size());
+            for (int k = 0; k<childList.size(); k++) {
+                childList.get(k).getPosition().ME(axis);
             }
         
         }
@@ -148,12 +148,12 @@ public class MCMoveClusterRotateCH3 extends MCMoveMolecule {
     public void rejectNotify() {
         IMoleculeList moleculeList = box.getMoleculeList();
         for(int i=0; i<selectedAtoms.length; i++) {
-            if (species != null && moleculeList.getMolecule(i).getType() != species) continue;
-            IAtomList childList = moleculeList.getMolecule(i).getChildList();
+            if (species != null && moleculeList.get(i).getType() != species) continue;
+            IAtomList childList = moleculeList.get(i).getChildList();
             axis.E(translationVectors[i]);
-            axis.TE(1.0/childList.getAtomCount());
-            for (int k=0; k<childList.getAtomCount(); k++) {
-                childList.getAtom(k).getPosition().PE(axis);
+            axis.TE(1.0/childList.size());
+            for (int k = 0; k<childList.size(); k++) {
+                childList.get(k).getPosition().PE(axis);
             }
             selectedAtoms[i].getPosition().ME(translationVectors[i]);
         }

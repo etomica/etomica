@@ -45,8 +45,8 @@ public class P2RoughSphere extends P2HardSphere {
      * Assumes atoms have same size and mass
      */
     public void bump(IAtomList pair, double falseTime) {
-        IAtom atom0 = pair.getAtom(0);
-        IAtom atom1 = pair.getAtom(1);
+        IAtom atom0 = pair.get(0);
+        IAtom atom1 = pair.get(1);
         IAtomOrientedKinetic coord0 = (IAtomOrientedKinetic)atom0;
         IAtomOrientedKinetic coord1 = (IAtomOrientedKinetic)atom1;
         Vector v1 = coord0.getVelocity();

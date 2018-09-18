@@ -7,22 +7,22 @@ package g3dsys;
 import g3dsys.control.G3DSys;
 import g3dsys.images.Ball;
 import g3dsys.images.Figure;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.awt.Color;
-import java.awt.Frame;
-import java.awt.Panel;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.TestCase;
-
-public class G3DTest extends TestCase {
+public class G3DTest {
 	
 	private Frame frame;
 	private Panel panel;
 	private G3DSys gsys;
 	
+	@BeforeEach
 	public void setUp() {
 		frame = new Frame();
 		panel = new Panel();
@@ -37,6 +37,7 @@ public class G3DTest extends TestCase {
 	 * Tests whether adding many randomly placed Figures and then removing
 	 * them correctly leaves the size unchanged.
 	 */
+	@Test
 	public void testfigureRemoveResize() {
         gsys.addFig(new Ball(gsys, G3DSys.getColix(Color.RED), 0,0,0, 100));
 		float minx = gsys.getMinX(); float maxx = gsys.getMaxX();
@@ -64,18 +65,18 @@ public class G3DTest extends TestCase {
         }
 		System.out.println("removed figures in "+(System.currentTimeMillis()-begin)+" milliseconds");
 		
-		assertTrue("model not minx-resized properly; is "
-				+gsys.getMinX()+", not "+minx, gsys.getMinX() == minx);
-		assertTrue("model not maxx-resized properly; is "
-				+gsys.getMaxX()+", not "+maxx, gsys.getMaxX() == maxx);
-		assertTrue("model not miny-resized properly; is "
-				+gsys.getMinY()+", not "+miny, gsys.getMinY() == miny);
-		assertTrue("model not maxy-resized properly; is "
-				+gsys.getMaxY()+", not "+maxy, gsys.getMaxY() == maxy);
-		assertTrue("model not minz-resized properly; is "
-				+gsys.getMinZ()+", not "+minz, gsys.getMinZ() == minz);
-		assertTrue("model not maxz-resized properly; is "
-				+gsys.getMaxZ()+", not "+maxz, gsys.getMaxZ() == maxz);
+		Assertions.assertTrue(gsys.getMinX() == minx, "model not minx-resized properly; is "
+				+ gsys.getMinX() + ", not " + minx);
+		Assertions.assertTrue(gsys.getMaxX() == maxx, "model not maxx-resized properly; is "
+				+ gsys.getMaxX() + ", not " + maxx);
+		Assertions.assertTrue(gsys.getMinY() == miny, "model not miny-resized properly; is "
+				+ gsys.getMinY() + ", not " + miny);
+		Assertions.assertTrue(gsys.getMaxY() == maxy, "model not maxy-resized properly; is "
+				+ gsys.getMaxY() + ", not " + maxy);
+		Assertions.assertTrue(gsys.getMinZ() == minz, "model not minz-resized properly; is "
+				+ gsys.getMinZ() + ", not " + minz);
+		Assertions.assertTrue(gsys.getMaxZ() == maxz, "model not maxz-resized properly; is "
+				+ gsys.getMaxZ() + ", not " + maxz);
 	}
 
 }

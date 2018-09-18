@@ -4,22 +4,22 @@
 
 package etomica.atom;
 
-import etomica.simulation.Simulation;
-
 /**
  * This class hashes atomic diameters based on both element and atom type.
  * Specifying diameters by type overrides any element specification (since type
  * can be more specific).
- * 
+ *
  * @author Andrew Schultz
  */
 public class DiameterHashByElementType extends DiameterHashByType {
 
-    public DiameterHashByElementType(Simulation sim) {
-        super(sim);
+    private final DiameterHashByElement diameterManagerByElement;
+
+    public DiameterHashByElementType() {
+        super();
         diameterManagerByElement = new DiameterHashByElement();
     }
-    
+
     public double getDiameter(IAtom atom) {
         double d = super.getDiameter(atom);
         if (d >= 0) {
@@ -27,14 +27,12 @@ public class DiameterHashByElementType extends DiameterHashByType {
         }
         return diameterManagerByElement.getDiameter(atom);
     }
-    
+
     public void setDiameter(String element, double newDiameter) {
         diameterManagerByElement.setDiameter(element, newDiameter);
     }
-    
+
     public DiameterHashByElement getDiameterHashByElement() {
         return diameterManagerByElement;
     }
-
-    protected final DiameterHashByElement diameterManagerByElement;
 }

@@ -34,8 +34,7 @@ public class CalcNumerical2ndDerivative{
 	public CalcNumerical2ndDerivative(Box box, PotentialMaster potentialMaster,
                                       CoordinateDefinition coordinateDefinition){
 		this.coordinateDefinition = coordinateDefinition;
-		meterPotential = new MeterPotentialEnergy(potentialMaster);
-		meterPotential.setBox(box);
+		meterPotential = new MeterPotentialEnergy(potentialMaster, box);
 		
 		a = new double[ntab][ntab];
 	}

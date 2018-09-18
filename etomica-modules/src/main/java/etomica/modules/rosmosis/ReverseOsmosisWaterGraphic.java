@@ -14,7 +14,7 @@ import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2Electrostatic;
@@ -54,7 +54,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
     
     public ReverseOsmosisWaterGraphic(final ReverseOsmosisWater simulation) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, simulation.getSpace(), simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
@@ -279,11 +279,11 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
 
         //display of box, timer
         ColorSchemeByType colorScheme = (ColorSchemeByType)getDisplayBox(sim.box).getColorScheme();
-        colorScheme.setColor(sim.speciesSodium.getLeafType(),java.awt.Color.BLUE);
-        colorScheme.setColor(sim.speciesChlorine.getLeafType(),java.awt.Color.GREEN);
-        colorScheme.setColor(sim.speciesSolvent.getOxygenType(),java.awt.Color.RED);
-        colorScheme.setColor(sim.speciesSolvent.getHydrogenType(),java.awt.Color.WHITE);
-        colorScheme.setColor(sim.speciesMembrane.getLeafType(),java.awt.Color.CYAN);
+        colorScheme.setColor(sim.speciesSodium.getLeafType(), Color.BLUE);
+        colorScheme.setColor(sim.speciesChlorine.getLeafType(), Color.GREEN);
+        colorScheme.setColor(sim.speciesSolvent.getOxygenType(), Color.RED);
+        colorScheme.setColor(sim.speciesSolvent.getHydrogenType(), Color.WHITE);
+        colorScheme.setColor(sim.speciesMembrane.getLeafType(), Color.CYAN);
 
 	    //meters and displays
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
@@ -314,8 +314,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         energyPumpListener.setInterval(10);
         dataStreamPumps.add(energyPump);
 		
-		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
-		peMeter.setBox(sim.box);
+		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
         final AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);
         final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
@@ -699,7 +698,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         
         public IData processData(IData data) {
             myData.E(data);
-            myData.TE(1.0/box.getLeafList().getAtomCount());
+            myData.TE(1.0/box.getLeafList().size());
             return myData;
         }
 
@@ -714,7 +713,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
 
-        ReverseOsmosisWaterGraphic reverseOsmosisGraphic = new ReverseOsmosisWaterGraphic(new ReverseOsmosisWater(space));
+        ReverseOsmosisWaterGraphic reverseOsmosisGraphic = new ReverseOsmosisWaterGraphic(new ReverseOsmosisWater());
 		SimulationGraphic.makeAndDisplayFrame
 		        (reverseOsmosisGraphic.getPanel(), APP_NAME);
     }
@@ -724,7 +723,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-            ReverseOsmosisWaterGraphic reverseOsmosisGraphic = new ReverseOsmosisWaterGraphic(new ReverseOsmosisWater(Space3D.getInstance()));
+            ReverseOsmosisWaterGraphic reverseOsmosisGraphic = new ReverseOsmosisWaterGraphic(new ReverseOsmosisWater());
 
 		    getContentPane().add(reverseOsmosisGraphic.getPanel());
 	    }

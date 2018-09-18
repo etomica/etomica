@@ -89,9 +89,9 @@ public class ClusterCoupledFlippedPartial implements ClusterAbstract {
             for (int i = 0; !didFlipTrue && i<flipMol; i++) {
                 flippedAtoms[i] = !flippedAtoms[i];
                 didFlipTrue = flippedAtoms[i];
-                flip(atomList.getMolecule(flipList[actualFlipList[i]][0]));
+                flip(atomList.get(flipList[actualFlipList[i]][0]));
                 for (int j = 2;j < flipList[actualFlipList[i]].length; j++){
-                	flip(atomList.getMolecule(flipList[actualFlipList[i]][j]),atomList.getMolecule(flipList[actualFlipList[i]][0]));
+                	flip(atomList.get(flipList[actualFlipList[i]][j]),atomList.get(flipList[actualFlipList[i]][0]));
                 }
             }
             if (!didFlipTrue) {
@@ -109,10 +109,10 @@ public class ClusterCoupledFlippedPartial implements ClusterAbstract {
     private void flip(IMolecule flippedMolecule, IMolecule centralMolecule) {
         Vector COM = positionDefinition.position(centralMolecule);
 		IAtomList childAtoms = flippedMolecule.getChildList();
-		for (int i = 0; i < childAtoms.getAtomCount(); i++) {
+		for (int i = 0; i < childAtoms.size(); i++) {
 		    childAtomVector.Ea1Tv1(2,COM);
-			childAtomVector.ME(childAtoms.getAtom(i).getPosition());
-			childAtoms.getAtom(i).getPosition().E(childAtomVector);
+			childAtomVector.ME(childAtoms.get(i).getPosition());
+			childAtoms.get(i).getPosition().E(childAtomVector);
 		}
     }
     private void flip(IMolecule flippedMolecule) {

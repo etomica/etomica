@@ -44,86 +44,86 @@ import java.io.IOException;
  */
 public class MinimizeBetaNitrogenLatticeParameterLSFromFile extends Simulation {
 	
-	public MinimizeBetaNitrogenLatticeParameterLSFromFile(Space space, double density, double[] u, double rC){
+	public MinimizeBetaNitrogenLatticeParameterLSFromFile(Space space, double density, double[] u, double rC) {
 		super(space);
 		this.space = space;
 		this.density = density;
-		
+
 		double ratio = 1.631;
-		double aDim = Math.pow(4.0/(Math.sqrt(3.0)*ratio*density), 1.0/3.0);
-		double cDim = aDim*ratio;
+		double aDim = Math.pow(4.0 / (Math.sqrt(3.0) * ratio * density), 1.0 / 3.0);
+		double cDim = aDim * ratio;
 		//System.out.println("aDim: " + aDim + " ;cDim: " + cDim);
-		
-		int [] nCells = new int[]{1,2,1};
+
+		int[] nCells = new int[]{1, 2, 1};
 		Basis basisHCP = new BasisHcp();
 		basis = new BasisBigCell(space, basisHCP, nCells);
-        
+
 		ConformationNitrogen conformation = new ConformationNitrogen(space);
 		SpeciesN2 species = new SpeciesN2(space);
 		species.setConformation(conformation);
 		addSpecies(species);
-		
+
 		SpeciesN2B ghostSpecies = new SpeciesN2B(space);
 		ghostSpecies.setConformation(conformation);
 		addSpecies(ghostSpecies);
-		
+
 		int numMolecule = 4;
-		box = new Box(space);
-		addBox(box);
-		box.setNMolecules(species, numMolecule);		
-		
-		ghostBox = new Box(space);
-		addBox(ghostBox);
+		box = this.makeBox();
+		box.setNMolecules(species, numMolecule);
+
+		ghostBox = this.makeBox();
 		ghostBox.setNMolecules(ghostSpecies, 1);
-		
-		primitive = new PrimitiveTriclinic(space, aDim, 2*aDim, cDim, Math.PI*(90/180.0),Math.PI*(90/180.0),Math.PI*(120/180.0));
+
+		primitive = new PrimitiveTriclinic(space, aDim, 2 * aDim, cDim, Math.PI * (90 / 180.0), Math.PI * (90 / 180.0), Math.PI * (120 / 180.0));
 
 		double param[][] = new double[4][5];
-		for(int i=0; i<4; i++){
-			for(int j=0; j<5; j++){
-				param[i][j] = u[i*5+j];
-					
-			}	
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 5; j++) {
+				param[i][j] = u[i * 5 + j];
+
+			}
 		}
-		
+
 		coordinateDef = new CoordinateDefinitionNitrogen(this, box, primitive, basis, space);
 		coordinateDef.setIsBetaLatticeSum();
 		coordinateDef.setIsDoLatticeSum();
 		coordinateDef.setOrientationVectorBetaLatticeSum(space, density, param);
-		coordinateDef.initializeCoordinates(new int[]{1,1,1});
-		
+		coordinateDef.initializeCoordinates(new int[]{1, 1, 1});
+
 		potential = new P2Nitrogen(space, rC);
 		potential.setBox(box);
 		potential.setEnablePBC(false);
-		
-		this.nLayer = (int)(rC/aDim+0.5);
-		
+
+		this.nLayer = (int) (rC / aDim + 0.5);
+
 		FunctionData<Object> function = new FunctionData<Object>() {
 			public IData f(Object obj) {
-				data.x = potential.energy((IMoleculeList)obj);
+				data.x = potential.energy((IMoleculeList) obj);
 				return data;
 			}
+
 			public IDataInfo getDataInfo() {
 				return dataInfo;
 			}
+
 			final DataInfo dataInfo = new DataDouble.DataInfoDouble("Lattice energy", Energy.DIMENSION);
 			final DataDouble data = new DataDouble();
 		};
-		
+
 		BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basis);
 		LatticeSumCrystalMolecular latticeSum = new LatticeSumCrystalMolecular(lattice, coordinateDef, ghostBox);
 		latticeSum.setMaxLatticeShell(nLayer);
-		
-		double sum = 0;
-	    double basisDim = lattice.getBasis().getScaledCoordinates().length;
-		DataGroupLSC data = (DataGroupLSC)latticeSum.calculateSum(function);
-        for(int j=0; j<basisDim; j++) {
-            for(int jp=0; jp<basisDim; jp++) {
-                sum += ((DataDouble)data.getDataReal(j,jp)).x; 
-            }
-        }
 
-		System.out.println("initial energy: " + (0.5*sum/basisDim));
+		double sum = 0;
+		double basisDim = lattice.getBasis().getScaledCoordinates().length;
+		DataGroupLSC data = (DataGroupLSC) latticeSum.calculateSum(function);
+		for (int j = 0; j < basisDim; j++) {
+			for (int jp = 0; jp < basisDim; jp++) {
+				sum += ((DataDouble) data.getDataReal(j, jp)).x;
+			}
+		}
+
+		System.out.println("initial energy: " + (0.5 * sum / basisDim));
 	}
 	
 

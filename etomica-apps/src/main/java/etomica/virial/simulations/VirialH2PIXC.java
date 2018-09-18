@@ -17,7 +17,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.integrator.mcmove.MCMove;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P1HydrogenMielke.P1HydrogenMielkeAtomic;
 import etomica.potential.P1IntraMolecular;
 import etomica.space.Space;
@@ -175,11 +175,11 @@ public class VirialH2PIXC {
 		AtomType type = species.getAtomType(0);
 
 		IAtomList leafList = sim.box.getLeafList();
-		for (int i=0; i<leafList.getAtomCount(); i++) {
+		for (int i = 0; i<leafList.size(); i++) {
 
-			AtomHydrogen o = (AtomHydrogen)leafList.getAtom(i);
-			double cT = Math.cos((Math.PI*i)/leafList.getAtomCount());
-			double sT = Math.sin((Math.PI*i)/leafList.getAtomCount());
+			AtomHydrogen o = (AtomHydrogen)leafList.get(i);
+			double cT = Math.cos((Math.PI*i)/leafList.size());
+			double sT = Math.sin((Math.PI*i)/leafList.size());
 			Vector vec = space.makeVector();
 			vec.setX(0, cT);
 			vec.setX(1, sT);
@@ -191,7 +191,7 @@ public class VirialH2PIXC {
 		//        System.exit(1);
 
 		for (int i=0; i<nSpheres; i++) {
-			((AtomHydrogen)leafList.getAtom(i)).setBondLength(newr0);
+			((AtomHydrogen)leafList.get(i)).setBondLength(newr0);
 		}
 		sim.box.trialNotify();
 		sim.box.acceptNotify();
@@ -199,8 +199,8 @@ public class VirialH2PIXC {
 
 		if (false) {
 			double vSize = 10;
-			sim.box.getBoundary().setBoxSize(space.makeVector(new double[]{vSize,vSize,vSize}));
-			SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+			sim.box.getBoundary().setBoxSize(Vector.of(new double[]{vSize, vSize, vSize}));
+			SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 			DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);
 			displayBox.setPixelUnit(new Pixel(300.0/vSize));
 			displayBox.setShowBoundary(false);

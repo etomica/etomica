@@ -8,7 +8,7 @@ import java.awt.event.ItemListener;
 import java.util.HashMap;
 
 import etomica.action.IAction;
-import etomica.action.activity.IController;
+import etomica.action.activity.Controller;
 
 /**
  * Generic Device that has a combo box.  Selecting an item from the combo box
@@ -16,7 +16,7 @@ import etomica.action.activity.IController;
  */
 public class DeviceSelector extends Device {
 
-     public DeviceSelector(IController controller) {
+     public DeviceSelector(Controller controller) {
         super(controller);
         selector = new javax.swing.JComboBox();
         label = new javax.swing.JLabel("");

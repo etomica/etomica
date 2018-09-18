@@ -5,7 +5,6 @@
 package etomica.surfacetension;
 
 import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -17,8 +16,6 @@ import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray;
-import etomica.integrator.Integrator.Forcible;
-import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -34,14 +31,14 @@ import etomica.units.dimensions.Null;
  * 
  * @author Andrew Schultz
  */
-public class SurfaceTensionMapped extends DataProcessor implements AgentSource<Forcible> {
+public class SurfaceTensionMapped extends DataProcessor {
 
     protected final DataDouble data = new DataDouble();
     protected final FitTanh fit;
     protected final MeterProfileByVolume densityProfileMeter;
     protected final PotentialMaster potentialMaster;
     protected final PotentialCalculationForceSum pcForce;
-    protected final AtomLeafAgentManager<Forcible> forceAgentManager;
+    protected final AtomLeafAgentManager<Vector> forceAgentManager;
     protected final Space space;
     protected final Box box;
     protected final IteratorDirective allAtoms;
@@ -60,7 +57,7 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
         
         this.potentialMaster = potentialMaster;
         pcForce = new PotentialCalculationForceSum();
-        forceAgentManager = new AtomLeafAgentManager<Forcible>(this, box, Forcible.class);
+        forceAgentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
         pcForce.setAgentManager(forceAgentManager);
         allAtoms = new IteratorDirective();
     }
@@ -79,7 +76,7 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
         double c = 2/param[2];
 //        System.out.println("fit: "+Arrays.toString(param));
         IAtomList atoms = box.getLeafList();
-        double rho = atoms.getAtomCount()/box.getBoundary().volume();
+        double rho = atoms.size()/box.getBoundary().volume();
         double L = box.getBoundary().getBoxSize().getX(0);
         double tL1 = Math.tanh(c * (L/2 - param[3]));
         double tL2 = Math.tanh(c * (L/2 + param[3]));
@@ -95,9 +92,9 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
         double cL1 = Math.cosh(c*(L/2-param[3]));
         double cL2 = Math.cosh(c*(L/2+param[3]));
         double jFac = (param[1]-param[0])/(2*L) * ((tL2-tL1)*c*L + 2*Math.log(cL1/cL2))/(tL1+tL2);
-        for (int i=0; i<atoms.getAtomCount(); i++) {
-            IAtom atom = atoms.getAtom(i);
-            Vector f = forceAgentManager.getAgent(atom).force();
+        for (int i = 0; i<atoms.size(); i++) {
+            IAtom atom = atoms.get(i);
+            Vector f = forceAgentManager.getAgent(atom);
             double px = atom.getPosition().getX(0);
             double t1 = Math.tanh(c * (px + param[3]));
             double t2 = Math.tanh(c * (px - param[3]));
@@ -117,11 +114,5 @@ public class SurfaceTensionMapped extends DataProcessor implements AgentSource<F
         data.x = st + mapSum/box.getBoundary().volume();
         return data;
     }
-
-    public Forcible makeAgent(IAtom a, Box agentBox) {
-        return new IntegratorVelocityVerlet.MyAgent(space);
-    }
-
-    public void releaseAgent(Forcible agent, IAtom atom, Box agentBox) {}
 
 }

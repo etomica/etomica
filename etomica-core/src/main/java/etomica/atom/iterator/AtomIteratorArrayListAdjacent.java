@@ -45,7 +45,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
      */
     public int size() {
         int size = 0;
-        if(direction != IteratorDirective.Direction.DOWN && (firstCursor < list.getAtomCount()-1)) {
+        if(direction != IteratorDirective.Direction.DOWN && (firstCursor < list.size()-1)) {
             size++;
         }
         if(direction != IteratorDirective.Direction.UP && (firstCursor > 0)) {
@@ -76,11 +76,11 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     public IAtom nextAtom() {
         if(upListNow) {
             upListNow = false;
-            return list.getAtom(firstCursor+1);
+            return list.get(firstCursor+1);
         }
         else if (dnListNow) {
             dnListNow = false;
-            return list.getAtom(firstCursor-1);
+            return list.get(firstCursor-1);
         }
         return null;
     }
@@ -89,7 +89,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
      * Readies the iterator to begin iteration.
      */
     public void reset() {
-        upListNow = ((direction != IteratorDirective.Direction.DOWN) && (firstCursor < list.getAtomCount()-1));
+        upListNow = ((direction != IteratorDirective.Direction.DOWN) && (firstCursor < list.size()-1));
         dnListNow = ((direction != IteratorDirective.Direction.UP) && (firstCursor > 0));
     }
 

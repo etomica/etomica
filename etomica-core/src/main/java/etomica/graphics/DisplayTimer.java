@@ -6,7 +6,7 @@ package etomica.graphics;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.integrator.IntegratorMD;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 
 /** 
  * DisplayBox to present the elapsed time in a

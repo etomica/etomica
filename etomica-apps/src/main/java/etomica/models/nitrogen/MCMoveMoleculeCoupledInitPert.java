@@ -112,8 +112,8 @@ public class MCMoveMoleculeCoupledInitPert extends MCMoveBoxStep {
         }
         coordinateDef.setToU(box.getMoleculeList(), tempU);
         
-        pair.atom0 = molecule0;
-        pair.atom1 = molecule1;
+        pair.mol0 = molecule0;
+        pair.mol1 = molecule1;
         energyMeter.setTarget(molecule0);
         uOld = energyMeter.getDataAsScalar();
         energyMeter.setTarget(molecule1);

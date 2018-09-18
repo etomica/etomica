@@ -13,28 +13,28 @@ import java.util.Set;
 
 import etomica.graph.model.comparators.ComparatorChain;
 
-public class GraphList<E> implements Set<E> {
+public class GraphList implements Set<Graph> {
 
-    protected final ArrayList<E> list;
-    protected final Comparator<E> comparator;
+    protected final ArrayList<Graph> list;
+    protected final Comparator<Graph> comparator;
     protected boolean sorted = true;
 
     public GraphList() {
-        this((Comparator<E>)new ComparatorChain());
+        this(new ComparatorChain());
     }
     
-    public GraphList(Comparator<E> comparator) {
-        list = new ArrayList<E>();
+    public GraphList(Comparator<Graph> comparator) {
+        list = new ArrayList<>();
         this.comparator = comparator;
     }
 
-    public boolean add(E e) {
+    public boolean add(Graph e) {
         list.add(e);
         sorted = false;
         return true;
     }
 
-    public boolean addAll(Collection<? extends E> c) {
+    public boolean addAll(Collection<? extends Graph> c) {
         list.addAll(c);
         sorted = false;
         return true;
@@ -42,7 +42,7 @@ public class GraphList<E> implements Set<E> {
     
     protected void sort() {
         if (sorted) return;
-        if (comparator != null) Collections.sort(list, comparator);
+        if (comparator != null) list.sort(comparator);
         sorted = true;
     }
 
@@ -63,7 +63,7 @@ public class GraphList<E> implements Set<E> {
         return list.isEmpty();
     }
 
-    public Iterator<E> iterator() {
+    public Iterator<Graph> iterator() {
         sort();
         return list.iterator();
     }

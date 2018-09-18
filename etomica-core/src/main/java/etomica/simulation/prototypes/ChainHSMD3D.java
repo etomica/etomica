@@ -24,6 +24,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
 
@@ -44,32 +45,32 @@ public class ChainHSMD3D extends Simulation {
 
     public ChainHSMD3D() {
         super(Space3D.getInstance());
+
+        int chainLength = 4;
+        model = new ModelChain(space, true);
+        model.setNumAtoms(chainLength);
+        model.setBondingPotential(new P2HardBond(space, 1.0, 0.15, true));
+        species = (SpeciesSpheres) model.makeSpecies(this);
+
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         int numAtoms = 108;
-        int chainLength = 4;
         double neighborRangeFac = 1.6;
         potentialMaster.setRange(neighborRangeFac);
 
-        integrator = new IntegratorHard(this, potentialMaster, space);
+        box = this.makeBox();
+        integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator, 1, true);
         getController().addAction(activityIntegrate);
 
-        model = new ModelChain(space, true);
-        model.setNumAtoms(chainLength);
-        model.setBondingPotential(new P2HardBond(space, 1.0, 0.15, true));
-
-        species = (SpeciesSpheres) model.makeSpecies(this);
         potentialMaster.addModel(model);
         ((ConformationLinear) model.getConformation()).setBondLength(1.0);
         ((ConformationLinear) model.getConformation()).setAngle(1, 0.35);
 
-        box = new Box(space);
         double l = 14.4573 * Math.pow((chainLength * numAtoms / 2020.0), 1.0 / 3.0);
-        box.getBoundary().setBoxSize(space.makeVector(new double[]{l, l, l}));
-        addBox(box);
+        box.getBoundary().setBoxSize(Vector.of(new double[]{l, l, l}));
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         box.setNMolecules(species, numAtoms);
         config.initializeCoordinates(box);
@@ -80,9 +81,8 @@ public class ChainHSMD3D extends Simulation {
         potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
         nonBondedCriterion.setBonded(false);
-        ((CriterionInterMolecular) potentialMaster.getCriterion(potential)).setIntraMolecularCriterion(nonBondedCriterion);
+        ((CriterionInterMolecular) potentialMaster.getCriterion(leafType, leafType)).setIntraMolecularCriterion(nonBondedCriterion);
 
-        integrator.setBox(box);
         MeterRadiusGyration meterRG = new MeterRadiusGyration(space);
         meterRG.setBox(box);
         histogramRG = new AccumulatorHistogram(new HistogramCollapsing(), 10);
@@ -93,7 +93,7 @@ public class ChainHSMD3D extends Simulation {
     public static void main(String[] args) {
 
         final etomica.simulation.prototypes.ChainHSMD3D sim = new etomica.simulation.prototypes.ChainHSMD3D();
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, sim.space, sim.getController());
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
         DisplayPlot plotRG = new DisplayPlot();
         sim.histogramRG.addDataSink(plotRG.getDataSet().makeDataSink());
         plotRG.setLabel("RG");

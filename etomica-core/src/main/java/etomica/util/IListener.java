@@ -5,7 +5,7 @@
 package etomica.util;
 
 
-public interface IListener {
+public interface IListener<E extends IEvent> {
 
-    public void actionPerformed(IEvent event);
+    void actionPerformed(E event);
 }

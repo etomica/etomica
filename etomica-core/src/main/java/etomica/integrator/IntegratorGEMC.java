@@ -26,15 +26,15 @@ public class IntegratorGEMC extends IntegratorManagerMC {
         if (!(newIntegrator instanceof IntegratorBox)) {
             throw new IllegalArgumentException("Sub integrators must be able to handle a box");
         }
-        if (nIntegrators == 2) {
+        if (integrators.size() == 2) {
             throw new IllegalArgumentException("Only 2 sub-integrators can be added");
         }
         super.addIntegrator(newIntegrator);
-        if (nIntegrators == 2) {
+        if (integrators.size() == 2) {
             volumeExchange = new MCMoveVolumeExchange(((IntegratorBox)newIntegrator).getPotentialMaster(), random,
-                    space, (IntegratorBox)integrators[0],(IntegratorBox)integrators[1]);
+                    space, (IntegratorBox)integrators.get(0),(IntegratorBox) integrators.get(1));
             moleculeExchange = new MCMoveMoleculeExchange(((IntegratorBox)newIntegrator).getPotentialMaster(), random,
-                    space, (IntegratorBox)integrators[0],(IntegratorBox)integrators[1]);
+                    space, (IntegratorBox) integrators.get(0),(IntegratorBox) integrators.get(1));
             moveManager.recomputeMoveFrequencies();
             moveManager.addMCMove(volumeExchange);
             moveManager.addMCMove(moleculeExchange);

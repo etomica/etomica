@@ -46,7 +46,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     
     public void initializeCoordinates(int[] nCells) {
         super.initializeCoordinates(nCells);
-        moleculeSiteManager = new MoleculeAgentManager(sim, box, new MoleculeSiteSource(space, positionDefinition));
+        moleculeSiteManager = new MoleculeAgentManager<>(sim, box, new MoleculeSiteSource(space, positionDefinition));
     }
 
     public double[] calcU(IMoleculeList molecules) {
@@ -56,8 +56,8 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         // degrees of freedom
     
     	int j = 0;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             Vector pos = positionDefinition.position(molecule);
             Vector site = getLatticePosition(molecule);
             
@@ -66,7 +66,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             for (int k = 0; k < pos.getD(); k++) {
                 u[j+k] = work1.getX(k);
             }
-               j += coordinateDim/molecules.getMoleculeCount();
+               j += coordinateDim/molecules.size();
 
         }
         
@@ -84,8 +84,8 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         // subclass is responsible for setting orientation or intramolecular
         // degrees of freedom
         int j = 0;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i<molecules.size(); i++) {
+            IMolecule molecule = molecules.get(i);
             Vector site = getLatticePosition(molecule);
             for (int k = 0; k < site.getD(); k++) {
                 work1.setX(k, site.getX(k) + newU[j+k]);
@@ -94,13 +94,13 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             atomActionTranslateTo.setDestination(work1);
             atomActionTranslateTo.actionPerformed(molecule);
             
-            j += coordinateDim/molecules.getMoleculeCount();
+            j += coordinateDim/molecules.size();
 
         }
     }
     
     public Vector getLatticePosition(IMolecule molecule) {
-        return (Vector)moleculeSiteManager.getAgent(molecule);
+        return moleculeSiteManager.getAgent(molecule);
     }
     
     public void setPositionDefinition(IMoleculePositionDefinition positionDefinition) {
@@ -118,7 +118,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     
     private static final long serialVersionUID = 1L;
     protected final Simulation sim;
-    protected MoleculeAgentManager moleculeSiteManager;
+    protected MoleculeAgentManager<Vector> moleculeSiteManager;
     protected final Vector work1;
     protected final double[] u;
     protected IMoleculePositionDefinition positionDefinition;
@@ -126,21 +126,19 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     protected Vector initVolume;
     protected final BoxInflate inflate;
 
-    protected static class MoleculeSiteSource implements MoleculeAgentSource, Serializable {
+    protected static class MoleculeSiteSource implements MoleculeAgentSource<Vector>, Serializable {
         
         public MoleculeSiteSource(Space space, IMoleculePositionDefinition positionDefinition) {
             this.space = space;
             this.positionDefinition = positionDefinition;
         }
-        public Class getMoleculeAgentClass() {
-            return Vector.class;
-        }
-        public Object makeAgent(IMolecule molecule) {
+
+        public Vector makeAgent(IMolecule molecule) {
             Vector vector = space.makeVector();
             vector.E(positionDefinition.position(molecule));
             return vector;
         }
-        public void releaseAgent(Object agent, IMolecule molecule) {
+        public void releaseAgent(Vector agent, IMolecule molecule) {
             //nothing to do
         }
 

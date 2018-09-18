@@ -81,34 +81,34 @@ public class ConfigurationSAM implements Configuration {
         Vector offset = space.makeVector();
 
         IMoleculeList molecules = pretendBox.getMoleculeList(speciesMolecules);
-        double y0 = molecules.getMolecule(0).getChildList().getAtom(0).getPosition().getX(1) + moleculeOffset.getX(1);
+        double y0 = molecules.get(0).getChildList().get(0).getPosition().getX(1) + moleculeOffset.getX(1);
         for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = molecules.getMolecule(0);
+            IMolecule molecule = molecules.get(0);
             pretendBox.removeMolecule(molecule);
             groupTranslator.actionPerformed(molecule);
             box.addMolecule(molecule);
             if (i % 2 == 0 && conformation[1] != null) {
                 if ((i-1)/(nCellsZ*2) % 2 == 1 && conformation[3] != null) {
-                    offset.E(molecule.getChildList().getAtom(0).getPosition());
+                    offset.E(molecule.getChildList().get(0).getPosition());
                     conformation[3].initializePositions(molecule.getChildList());
-                    offset.ME(molecule.getChildList().getAtom(0).getPosition());
+                    offset.ME(molecule.getChildList().get(0).getPosition());
                     translator.getTranslationVector().E(offset);
                     groupTranslator.actionPerformed(molecule);
                     translator.getTranslationVector().E(moleculeOffset);        
                 }
                 else {
-                    offset.E(molecule.getChildList().getAtom(0).getPosition());
+                    offset.E(molecule.getChildList().get(0).getPosition());
                     conformation[1].initializePositions(molecule.getChildList());
-                    offset.ME(molecule.getChildList().getAtom(0).getPosition());
+                    offset.ME(molecule.getChildList().get(0).getPosition());
                     translator.getTranslationVector().E(offset);
                     groupTranslator.actionPerformed(molecule);
                     translator.getTranslationVector().E(moleculeOffset);
                 }
             }
             else if ((i-1)/(nCellsZ*2) % 2 == 1 && conformation[2] != null) {
-                offset.E(molecule.getChildList().getAtom(0).getPosition());
+                offset.E(molecule.getChildList().get(0).getPosition());
                 conformation[2].initializePositions(molecule.getChildList());
-                offset.ME(molecule.getChildList().getAtom(0).getPosition());
+                offset.ME(molecule.getChildList().get(0).getPosition());
                 translator.getTranslationVector().E(offset);
                 groupTranslator.actionPerformed(molecule);
                 translator.getTranslationVector().E(moleculeOffset);
@@ -124,10 +124,10 @@ public class ConfigurationSAM implements Configuration {
 
         molecules = pretendBox.getMoleculeList(speciesSurface);
         for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = molecules.getMolecule(0);
+            IMolecule molecule = molecules.get(0);
             pretendBox.removeMolecule(molecule);
             box.addMolecule(molecule);
-            Vector pos = molecule.getChildList().getAtom(0).getPosition();
+            Vector pos = molecule.getChildList().get(0).getPosition();
             pos.setX(1, y0-yOffset);
         }
         sim.removeBox(pretendBox);

@@ -13,13 +13,14 @@ import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.models.OPLS.AceticAcidModPotentialHelper;
 import etomica.models.OPLS.SpeciesAceticAcid;
 import etomica.potential.P3BondAngle;
 import etomica.potential.P4BondTorsion;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.units.Kelvin;
@@ -145,9 +146,9 @@ public class VirialAceticAcid {
         Box targetBox = sim.box[1];
              
         if (false) {
-            referenceBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            targetBox.getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            targetBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             ColorSchemeByType colorScheme0 = (ColorSchemeByType) simGraphic.getDisplayBox(referenceBox).getColorScheme();
             ColorSchemeByType colorScheme1 = (ColorSchemeByType) simGraphic.getDisplayBox(targetBox).getColorScheme();
             DiameterHashByType	diameterScheme0 = (DiameterHashByType) simGraphic.getDisplayBox(referenceBox).getDiameterHash();

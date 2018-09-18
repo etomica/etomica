@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.util.Resources;
 
 
 /** 
@@ -31,14 +32,8 @@ public class ArrayReader1D {
     }
     
     protected static Object[] getFromFile(String fn, boolean useVectors){
-        FileReader fileReaderQ;
         try {
-            fileReaderQ = new FileReader(fn);
-        }catch(IOException e) {
-            throw new RuntimeException("Cannot open "+fn+", caught IOException: " + e.getMessage());
-        }
-        try {
-            BufferedReader bufReaderQ = new BufferedReader(fileReaderQ);
+            BufferedReader bufReaderQ = Resources.openResourceFile(fn, ArrayReader1D.class);
             String line = bufReaderQ.readLine();
             ArrayList allQ = new ArrayList();
             int dim = 0;
@@ -56,7 +51,7 @@ public class ArrayReader1D {
                 }
                 if (useVectors) {
                 	Space space = Space.getInstance(thisQ.length);
-                    allQ.add(space.makeVector(thisQ));
+                    allQ.add(Vector.of(thisQ));
                 }
                 else {
                     allQ.add(thisQ);

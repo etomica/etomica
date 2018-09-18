@@ -9,6 +9,8 @@ import etomica.math.numerical.AkimaSpline;
 import etomica.util.IEvent;
 import etomica.util.IListener;
 
+import java.util.Arrays;
+
 public class MCMoveOverlapListener implements IListener {
 
     protected final MCMoveInsertDeleteBiased mcMove;
@@ -143,12 +145,12 @@ public class MCMoveOverlapListener implements IListener {
             // trial failed, but we were still here.  we need to increment our sums here
             // for the histogram.
             Box box = mcMove.getBox();
-            int numAtoms = box.getLeafList().getAtomCount();
+            int numAtoms = box.getLeafList().size();
             if (sumInsert.length < numAtoms+1) {
-                sumInsert = (double[][])etomica.util.Arrays.resizeArray(sumInsert, numAtoms+1);
-                numInsert = etomica.util.Arrays.resizeArray(numInsert, numAtoms+1);
-                sumDelete = (double[][])etomica.util.Arrays.resizeArray(sumDelete, numAtoms+1);
-                numDelete = etomica.util.Arrays.resizeArray(numDelete, numAtoms+1);
+                sumInsert = Arrays.copyOf(sumInsert, numAtoms+1);
+                numInsert = Arrays.copyOf(numInsert, numAtoms+1);
+                sumDelete = Arrays.copyOf(sumDelete, numAtoms+1);
+                numDelete = Arrays.copyOf(numDelete, numAtoms+1);
             }
             if (mcMove.lastMoveInsert()) {
                 numInsert[numAtoms]++;
@@ -160,7 +162,7 @@ public class MCMoveOverlapListener implements IListener {
         else if (event instanceof MCMoveTrialInitiatedEvent) {
             if (((MCMoveEvent)event).getMCMove() != mcMove) return;
             Box box = mcMove.getBox();
-            int numAtoms = box.getLeafList().getAtomCount();
+            int numAtoms = box.getLeafList().size();
             // x = V/N*Math.exp(-beta*deltaU)
             double x = mcMove.getChi(temperature) * Math.exp(-mcMove.getLnBiasDiff());
             if (mcMove.lastMoveInsert()) {
@@ -168,10 +170,10 @@ public class MCMoveOverlapListener implements IListener {
             }
             if (minNumAtoms > numAtoms) minNumAtoms = numAtoms;
             if (sumInsert.length < numAtoms+1) {
-                sumInsert = (double[][])etomica.util.Arrays.resizeArray(sumInsert, numAtoms+1);
-                numInsert = etomica.util.Arrays.resizeArray(numInsert, numAtoms+1);
-                sumDelete = (double[][])etomica.util.Arrays.resizeArray(sumDelete, numAtoms+1);
-                numDelete = etomica.util.Arrays.resizeArray(numDelete, numAtoms+1);
+                sumInsert = Arrays.copyOf(sumInsert, numAtoms+1);
+                numInsert = Arrays.copyOf(numInsert, numAtoms+1);
+                sumDelete = Arrays.copyOf(sumDelete, numAtoms+1);
+                numDelete = Arrays.copyOf(numDelete, numAtoms+1);
             }
             if (sumInsert[numAtoms] == null) {
                 sumInsert[numAtoms] = new double[numAlpha];

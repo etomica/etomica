@@ -22,6 +22,7 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
@@ -137,15 +138,15 @@ public class VirialHSOrC {
             mcDiscrete[i].setRPow(rPow);
             sim.integrators[i].getMoveManager().addMCMove(mcDiscrete[i]);
             sim.integrators[i].getMoveManager().removeMCMove(sim.mcMoveTranslate[i]);
-            sim.box[i].getLeafList().getAtom(1).getPosition().setX(0, dr*Math.round(0.5/dr));
-            if (nPoints>2) sim.box[i].getLeafList().getAtom(2).getPosition().setX(1, dr*Math.round(0.5/dr));
+            sim.box[i].getLeafList().get(1).getPosition().setX(0, dr*Math.round(0.5/dr));
+            if (nPoints>2) sim.box[i].getLeafList().get(2).getPosition().setX(1, dr*Math.round(0.5/dr));
             sim.box[i].trialNotify();
             sim.box[i].acceptNotify();
 
         }
         indexer = new DataDistributer.Indexer() {
             public int getIndex() {
-                double x = sim.box[1].getLeafList().getAtom(1).getPosition().getX(0);
+                double x = sim.box[1].getLeafList().get(1).getPosition().getX(0);
                 return (int)Math.round(Math.abs(x)/dr);
             }
         };
@@ -161,9 +162,9 @@ public class VirialHSOrC {
         boolean doGraphics = false;
         if (doGraphics) {
             double size = 10;
-            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox = simGraphic.getDisplayBox(sim.box[0]);
             displayBox.setPixelUnit(new Pixel(300.0/size));
             displayBox.setShowBoundary(false);

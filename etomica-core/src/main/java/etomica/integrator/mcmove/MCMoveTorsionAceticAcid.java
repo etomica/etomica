@@ -36,11 +36,11 @@ public class MCMoveTorsionAceticAcid extends MCMoveMolecule {
         molecule = moleculeSource.getMolecule();
 
         IAtomList childList = molecule.getChildList();
-        int numChildren = childList.getAtomCount();//5
+        int numChildren = childList.size();//5
 
-        IAtom c = childList.getAtom(1);
-        IAtom sBO = childList.getAtom(3);
-        IAtom h = childList.getAtom(4);
+        IAtom c = childList.get(1);
+        IAtom sBO = childList.get(3);
+        IAtom h = childList.get(4);
         vCO.Ev1Mv2(sBO.getPosition(), c.getPosition());//vector CO
         vOH.Ev1Mv2(h.getPosition(), sBO.getPosition());//vector OH
         double lengthdr13 = vCO.squared();
@@ -56,7 +56,7 @@ public class MCMoveTorsionAceticAcid extends MCMoveMolecule {
             // shift the whole molecule so that the center of mass (or whatever
             // the position definition uses) doesn't change
         	//newCenter is needed to be changed to oldCenter
-            IAtom atomk = childList.getAtom(k);
+            IAtom atomk = childList.get(k);
             atomk.getPosition().PEa1Tv1(-0.2, secondaryDirection);
         }
         uNew = energyMeter.getDataAsScalar();
@@ -65,10 +65,10 @@ public class MCMoveTorsionAceticAcid extends MCMoveMolecule {
 
     public void rejectNotify() {
         IAtomList childList = molecule.getChildList();
-        int numChildren = childList.getAtomCount();//5
-        IAtom c = childList.getAtom(1);
-        IAtom sBO = childList.getAtom(3);
-        IAtom h = childList.getAtom(4);
+        int numChildren = childList.size();//5
+        IAtom c = childList.get(1);
+        IAtom sBO = childList.get(3);
+        IAtom h = childList.get(4);
         vCO.Ev1Mv2(sBO.getPosition(), c.getPosition());//vector CO
         vOH.Ev1Mv2(h.getPosition(), sBO.getPosition());//vector OH
         double lengthdr13 = vCO.squared();
@@ -81,7 +81,7 @@ public class MCMoveTorsionAceticAcid extends MCMoveMolecule {
         secondaryDirection.TE(2);
         h.getPosition().PE(secondaryDirection);
         for (int k=0; k<numChildren; k++) {
-            IAtom atomk = childList.getAtom(k);
+            IAtom atomk = childList.get(k);
             atomk.getPosition().PEa1Tv1(-0.2, secondaryDirection);
         }
     }

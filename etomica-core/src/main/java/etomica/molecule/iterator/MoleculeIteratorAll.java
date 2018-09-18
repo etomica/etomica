@@ -8,7 +8,6 @@ import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
-import etomica.molecule.MoleculeListWrapper;
 import etomica.potential.IteratorDirective.Direction;
 import etomica.species.ISpecies;
 
@@ -33,7 +32,7 @@ public class MoleculeIteratorAll implements MoleculesetIteratorPDT, java.io.Seri
     public MoleculeIteratorAll(ISpecies[] species,boolean oneIterate) {
         this.species = species;
         this.oneIterate=oneIterate;
-        next = new MoleculeListWrapper();
+        next = new MoleculeArrayList();
     }
 
     /**
@@ -63,20 +62,19 @@ public class MoleculeIteratorAll implements MoleculesetIteratorPDT, java.io.Seri
 
     public void reset() {
         // add all Atoms to ArrayList we will return
-        MoleculeArrayList arrayList = next.getArrayList();
-        arrayList.clear();
+        next.clear();
         for (int i=0; i<species.length; i++) {
-            arrayList.addAll(box.getMoleculeList(species[i]));
+            next.addAll(box.getMoleculeList(species[i]));
         }
         nextCursor = 0;
     }
     
     public void unset() {
-        next.getArrayList().clear();
+        next.clear();
     }
     
     public IMoleculeList next() {
-        if (nextCursor + 1 > next.getMoleculeCount()||(oneIterate && nextCursor>0)) {
+        if (nextCursor + 1 > next.size()||(oneIterate && nextCursor>0)) {
             return null;
         }
         if (nextCursor < 0) {
@@ -84,10 +82,9 @@ public class MoleculeIteratorAll implements MoleculesetIteratorPDT, java.io.Seri
             nextCursor = -nextCursor;
             return next;
         }
-        MoleculeArrayList arrayList = next.getArrayList();
-        IMolecule oldFirst = arrayList.getMolecule(0);
-        arrayList.set(0,arrayList.getMolecule(nextCursor));
-        arrayList.set(nextCursor,oldFirst);
+        IMolecule oldFirst = next.get(0);
+        next.set(0,next.get(nextCursor));
+        next.set(nextCursor,oldFirst);
         nextCursor++;
         return next;
     }
@@ -101,12 +98,12 @@ public class MoleculeIteratorAll implements MoleculesetIteratorPDT, java.io.Seri
      * a call to reset().
      */
     public int size() {
-        return next.getMoleculeCount();
+        return next.size();
     }
 
     protected final ISpecies[] species;
     protected Box box;
     protected int nextCursor;
-    protected final MoleculeListWrapper next;
+    protected final MoleculeArrayList next;
     protected final boolean oneIterate;
 }

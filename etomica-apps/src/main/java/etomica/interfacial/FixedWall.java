@@ -11,7 +11,6 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListenerMD;
-import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -19,11 +18,11 @@ import etomica.species.ISpecies;
 
 public class FixedWall implements IntegratorListenerMD {
 
-    protected final AtomLeafAgentManager<MyAgent> agentManager;
+    protected final AtomLeafAgentManager<Vector> agentManager;
     protected final Box box;
     protected final ISpecies species;
     
-    public FixedWall(Space space, Box box, AtomLeafAgentManager<MyAgent> agentManager, ISpecies species) {
+    public FixedWall(Space space, Box box, AtomLeafAgentManager<Vector> agentManager, ISpecies species) {
         this.box = box;
         this.agentManager = agentManager;
         this.species = species;
@@ -33,10 +32,10 @@ public class FixedWall implements IntegratorListenerMD {
         IMoleculeList molecules = box.getMoleculeList(species);
         double zTotMomentum = 0;
         double totMass = 0;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IAtomList atoms = molecules.getMolecule(i).getChildList();
-            for (int j=0; j<atoms.getAtomCount(); j++) {
-                IAtomKinetic jAtom = (IAtomKinetic)atoms.getAtom(j);
+        for (int i = 0; i<molecules.size(); i++) {
+            IAtomList atoms = molecules.get(i).getChildList();
+            for (int j = 0; j<atoms.size(); j++) {
+                IAtomKinetic jAtom = (IAtomKinetic)atoms.get(j);
                 double m = jAtom.getType().getMass();
                 zTotMomentum += m*jAtom.getVelocity().getX(2);
                 totMass += m;
@@ -44,10 +43,10 @@ public class FixedWall implements IntegratorListenerMD {
         }
 
         double vz = zTotMomentum/totMass;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IAtomList atoms = molecules.getMolecule(i).getChildList();
-            for (int j=0; j<atoms.getAtomCount(); j++) {
-                IAtomKinetic jAtom = (IAtomKinetic)atoms.getAtom(j);
+        for (int i = 0; i<molecules.size(); i++) {
+            IAtomList atoms = molecules.get(i).getChildList();
+            for (int j = 0; j<atoms.size(); j++) {
+                IAtomKinetic jAtom = (IAtomKinetic)atoms.get(j);
                 Vector v = jAtom.getVelocity();
                 v.E(0);
                 v.setX(2, vz);
@@ -65,22 +64,22 @@ public class FixedWall implements IntegratorListenerMD {
         IMoleculeList molecules = box.getMoleculeList(species);
         double fz = 0;
         double totMass = 0;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IAtomList atoms = molecules.getMolecule(i).getChildList();
-            for (int j=0; j<atoms.getAtomCount(); j++) {
-                IAtom jAtom = atoms.getAtom(j);
-                fz += agentManager.getAgent(jAtom).force.getX(2);
+        for (int i = 0; i<molecules.size(); i++) {
+            IAtomList atoms = molecules.get(i).getChildList();
+            for (int j = 0; j<atoms.size(); j++) {
+                IAtom jAtom = atoms.get(j);
+                fz += agentManager.getAgent(jAtom).getX(2);
                 totMass += jAtom.getType().getMass();
             }
         }
 
         
         fz /= totMass;
-        for (int i=0; i<molecules.getMoleculeCount(); i++) {
-            IAtomList atoms = molecules.getMolecule(i).getChildList();
-            for (int j=0; j<atoms.getAtomCount(); j++) {
-                IAtom jAtom = atoms.getAtom(j);
-                Vector jf = agentManager.getAgent(jAtom).force;
+        for (int i = 0; i<molecules.size(); i++) {
+            IAtomList atoms = molecules.get(i).getChildList();
+            for (int j = 0; j<atoms.size(); j++) {
+                IAtom jAtom = atoms.get(j);
+                Vector jf = agentManager.getAgent(jAtom);
                 jf.E(0);
                 jf.setX(2, fz*jAtom.getType().getMass());
             }

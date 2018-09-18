@@ -53,9 +53,9 @@ public class CalcVibrationalModes implements IAction, Serializable {
 
     public void setup(Box aBox, PotentialMaster aPotentialMaster, IMoleculeList movableSet, Space _space){
         ms = movableSet; 
-        mass = ms.getMolecule(0).getType().getAtomType(0).getMass();
+        mass = ms.get(0).getType().getAtomType(0).getMass();
         cgd = new CalcGradientDifferentiable(aBox, aPotentialMaster, ms, _space);
-        d = new int[movableSet.getMoleculeCount()*3];
+        d = new int[movableSet.size()*3];
         positions = new double[d.length];
         dForces = new double[positions.length][positions.length];
         modeSigns = new int[3];
@@ -63,9 +63,9 @@ public class CalcVibrationalModes implements IAction, Serializable {
     
     public void actionPerformed() {
         // setup position array
-        for(int i=0; i<ms.getMoleculeCount(); i++){
+        for(int i = 0; i<ms.size(); i++){
             for(int j=0; j<3; j++){
-                positions[(3*i)+j] = ms.getMolecule(i).getChildList().getAtom(0).getPosition().getX(j);
+                positions[(3*i)+j] = ms.get(i).getChildList().get(0).getPosition().getX(j);
             }
         }
         // fill dForces array

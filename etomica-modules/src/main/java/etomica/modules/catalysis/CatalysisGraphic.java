@@ -35,7 +35,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.listener.IntegratorListenerAction;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.list.PotentialMasterList;
@@ -71,7 +71,7 @@ public class CatalysisGraphic extends SimulationGraphic {
 
     public CatalysisGraphic(final Catalysis simulation, Space _space, boolean showParams) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
@@ -122,7 +122,7 @@ public class CatalysisGraphic extends SimulationGraphic {
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         //display of box, timer
-        ColorSchemeRadical colorScheme = new ColorSchemeRadical(sim, sim.interactionTracker.getAgentManager());
+        ColorSchemeRadical colorScheme = new ColorSchemeRadical(sim.interactionTracker.getAgentManager());
         colorScheme.setColor(sim.speciesO.getLeafType(),java.awt.Color.RED);
         colorScheme.setColor(sim.speciesC.getLeafType(),java.awt.Color.BLUE);
         colorScheme.setColor(sim.speciesSurface.getLeafType(),Color.GRAY);

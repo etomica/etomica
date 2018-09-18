@@ -11,12 +11,12 @@ import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.histogram.HistogramExpanding;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.listener.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
@@ -61,50 +61,46 @@ public class SimUmbrella extends Simulation {
     public SimUmbrella(Space _space, int numAtoms, double density, double temperature, String filename, int exponent) {
         super(_space);
 
-        String refFileName = filename +"_ref";
+        String refFileName = filename + "_ref";
         FileReader refFileReader;
         try {
-        	refFileReader = new FileReader(refFileName);
-        } catch (IOException e){
-        	throw new RuntimeException ("Cannot find refPref file!! "+e.getMessage() );
+            refFileReader = new FileReader(refFileName);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot find refPref file!! " + e.getMessage());
         }
         try {
-        	BufferedReader bufReader = new BufferedReader(refFileReader);
-        	String line = bufReader.readLine();
+            BufferedReader bufReader = new BufferedReader(refFileReader);
+            String line = bufReader.readLine();
 
-        	refPref = Double.parseDouble(line);
-        	setRefPref(refPref);
+            refPref = Double.parseDouble(line);
+            setRefPref(refPref);
 
-        } catch (IOException e){
-        	throw new RuntimeException(" Cannot read from file "+ refFileName);
+        } catch (IOException e) {
+            throw new RuntimeException(" Cannot read from file " + refFileName);
         }
         //System.out.println("refPref is: "+ refPref);
-
-
-        int D = space.D();
-
-        potentialMasterMonatomic = new PotentialMasterMonatomic(this);
-        integrator = new IntegratorMC(potentialMasterMonatomic, getRandom(), temperature);
 
         species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
+        int D = space.D();
+
+        potentialMasterMonatomic = new PotentialMasterMonatomic(this);
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        primitive = new PrimitiveCubic(space, L);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        boundary = new BoundaryRectangularPeriodic(space,n * L);
+        box = this.makeBox(boundary);
+        integrator = new IntegratorMC(potentialMasterMonatomic, getRandom(), temperature, box);
+
         //Target
-        box = new Box(space);
-        addBox(box);
         box.setNMolecules(species, numAtoms);
 
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-       	double L = Math.pow(4.0/density, 1.0/3.0);
-        primitive = new PrimitiveCubic(space, L);
-        int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-        nCells = new int[]{n,n,n};
-        boundary = new BoundaryRectangularPeriodic(space, n*L);
+        nCells = new int[]{n, n, n};
         basis = new BasisCubicFcc();
-
-        box.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         normalModes = new NormalModesFromFile(filename, D);
@@ -120,8 +116,6 @@ public class SimUmbrella extends Simulation {
         AtomType sphereType = species.getLeafType();
         potentialMasterMonatomic.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
 
-        integrator.setBox(box);
-
         /*
          *  1-body Potential to Constraint the atom from moving too far
          *  	away from its lattice-site
@@ -133,8 +127,7 @@ public class SimUmbrella extends Simulation {
 
 
         potentialMasterMonatomic.lrcMaster().setEnabled(false);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterMonatomic);
-        meterPE.setBox(box);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterMonatomic, box);
         latticeEnergy = meterPE.getDataAsScalar();
 
         move = new MCMoveAtomCoupledUmbrella(potentialMasterMonatomic, getRandom(),
@@ -145,8 +138,7 @@ public class SimUmbrella extends Simulation {
 
         meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
 
-        meterEnergy = new MeterPotentialEnergy(potentialMasterMonatomic);
-        meterEnergy.setBox(box);
+        meterEnergy = new MeterPotentialEnergy(potentialMasterMonatomic, box);
 
     }
 

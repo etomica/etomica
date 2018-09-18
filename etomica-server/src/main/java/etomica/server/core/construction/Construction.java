@@ -90,6 +90,7 @@ public class Construction {
         });
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> Optional<T> createInstance(ConstructionParams params, SimulationModel model) throws ClassNotFoundException {
         return getEligibleConstructor(Class.forName(params.className)).flatMap(constructor -> {
             Object[] constructorParams = params.constructorParams.stream()

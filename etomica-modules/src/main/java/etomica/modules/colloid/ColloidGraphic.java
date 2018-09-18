@@ -4,54 +4,34 @@
 
 package etomica.modules.colloid;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
-import etomica.space.Vector;
 import etomica.atom.DiameterHashByType;
-import etomica.data.AccumulatorAverage;
+import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.AccumulatorAverageCollapsing;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataProcessorFunction;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataTag;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterProfileByVolume;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceSelector;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
-import etomica.listener.IntegratorListenerAction;
+import etomica.graphics.*;
+import etomica.integrator.IntegratorListenerAction;
+import etomica.math.function.Function;
 import etomica.math.geometry.Plane;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.CriterionPositionWall;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.units.Pixel;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
-import etomica.units.Pixel;
 import etomica.units.dimensions.Quantity;
-import etomica.math.function.Function;
-import etomica.data.history.HistoryCollapsingDiscard;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Colloid module app.  Design by Alberto Striolo.
@@ -68,7 +48,7 @@ public class ColloidGraphic extends SimulationGraphic {
     
     public ColloidGraphic(final ColloidSim simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space, simulation.getController());
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
@@ -99,11 +79,6 @@ public class ColloidGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
         displayCycles.setLabel("Simulation time");
         
-        //display of box, timer
-        ColorSchemeByType colorScheme = new ColorSchemeByType(sim);
-        colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
-        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType(sim));
-
         DeviceSelector graftSelector = new DeviceSelector(sim.getController());
         graftSelector.addOption("1", new GraftAction(1));
         graftSelector.addOption("2", new GraftAction(2));
@@ -114,17 +89,20 @@ public class ColloidGraphic extends SimulationGraphic {
         graftSelector.setSelected(5);
         graftSelector.setLabel("# of grafted chains");
         add(graftSelector);
-        
+
         DeviceSlider chainLengthSlider = new DeviceSlider(sim.getController());
         chainLengthSlider.setModifier(new Modifier() {
             public void setValue(double newValue) {
                 if (newValue > 2*(sim.box.getBoundary().getBoxSize().getX(1) - sim.getColloidSigma())) {
                     throw new IllegalArgumentException("too large for box size");
                 }
-                sim.setChainLength((int)newValue);
-                meterE2E.setChainLength((int)newValue);
-                int n = sim.box.getLeafList().getAtomCount();
+                int chainLength = (int) newValue;
+                sim.setChainLength(chainLength);
+                meterE2E.setChainLength(chainLength);
+                int n = sim.box.getLeafList().size();
                 sim.integrator.setThermostatInterval((1000+(n-1))/n);
+                sim.p2mm.setChainLength(chainLength);
+                sim.p2mc.setChainLength(chainLength);
             }
             public double getValue() {
                 return sim.getChainLength();
@@ -143,7 +121,8 @@ public class ColloidGraphic extends SimulationGraphic {
         chainLengthSlider.setPostAction(getPaintAction(sim.box));
         chainLengthSlider.setShowValues(true);
         add(chainLengthSlider);
-        
+
+        //display of box, timer
         MeterTemperature meterTemperature = new MeterTemperature(sim.box, 3);
         DisplayTextBox displayTemperature = new DisplayTextBox();
         DataPumpListener tempPump = new DataPumpListener(meterTemperature, displayTemperature);
@@ -395,7 +374,7 @@ public class ColloidGraphic extends SimulationGraphic {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
 
-        ColloidGraphic swmdGraphic = new ColloidGraphic(new ColloidSim(space), space);
+        ColloidGraphic swmdGraphic = new ColloidGraphic(new ColloidSim(), space);
 		SimulationGraphic.makeAndDisplayFrame
 		        (swmdGraphic.getPanel(), APP_NAME);
     }
@@ -406,7 +385,7 @@ public class ColloidGraphic extends SimulationGraphic {
         }
         public void actionPerformed() {
             sim.setNumGraft(nGraft);
-            int n = sim.box.getLeafList().getAtomCount();
+            int n = sim.box.getLeafList().size();
             sim.integrator.setThermostatInterval((1000+(n-1))/n);
             getDisplayBox(sim.box).repaint();
         }
@@ -420,7 +399,7 @@ public class ColloidGraphic extends SimulationGraphic {
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
             int dim = 3;
             Space sp = Space.getInstance(dim);
-            ColloidGraphic swmdGraphic = new ColloidGraphic(new ColloidSim(sp), sp);
+            ColloidGraphic swmdGraphic = new ColloidGraphic(new ColloidSim(), sp);
 
 		    getContentPane().add(swmdGraphic.getPanel());
 	    }

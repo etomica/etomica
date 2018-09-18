@@ -129,12 +129,12 @@ public class MCMoveSemigrand extends MCMoveBox {
         else while(iInsert == iDelete) {iInsert = random.nextInt(nSpecies);}
   
         IMoleculeList moleculeList = box.getMoleculeList(speciesSet[iDelete]);
-        deleteMolecule = moleculeList.getMolecule(random.nextInt(moleculeList.getMoleculeCount()));
+        deleteMolecule = moleculeList.get(random.nextInt(moleculeList.size()));
         energyMeter.setTarget(deleteMolecule);
         uOld = energyMeter.getDataAsScalar();
         box.removeMolecule(deleteMolecule);
         
-        int size = reservoirs[iInsert].getMoleculeCount();
+        int size = reservoirs[iInsert].size();
         if(size>0) {
             insertMolecule = reservoirs[iInsert].remove(size-1);
             box.addMolecule(insertMolecule);

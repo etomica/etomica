@@ -13,13 +13,13 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombicHexagonal;
-import etomica.listener.IntegratorListenerAction;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
@@ -52,33 +52,31 @@ public class SimCalcSSoftSphere2D extends Simulation {
     public SimCalcSSoftSphere2D(Space _space, int numAtoms, int[] nCells, double temperature, int exponent) {
         super(_space);
 
-
-        potentialMaster = new PotentialMasterMonatomic(this);
-
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
         addSpecies(species);
 
-        box = new Box(space);
-        addBox(box);
+        potentialMaster = new PotentialMasterMonatomic(this);
+
+        primitive = new PrimitiveOrthorhombicHexagonal(space, 1);
+        Vector[] dimension = space.makeVectorArray(2);
+        for (int i = 0; i < space.D(); i++) {
+            dimension[i].Ea1Tv1(nCells[i], primitive.vectors()[i]);
+        }
+        boundary = new BoundaryDeformablePeriodic(space, dimension);
+        box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, new MeterPotentialEnergy(potentialMaster), getRandom(), space);
         move.setStepSize(0.2);
         move.setStepSizeMax(0.5);
         integrator.getMoveManager().addMCMove(move);
-        ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
+        ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
 
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         // activityIntegrate.setMaxSteps(nSteps);
 
-        primitive = new PrimitiveOrthorhombicHexagonal(space, 1);
-        Vector[] dimension = space.makeVectorArray(2);
-        for(int i=0; i<space.D(); i++){
-            dimension[i].Ea1Tv1(nCells[i], primitive.vectors()[i]);
-        }
-        boundary = new BoundaryDeformablePeriodic(space, dimension);
         basis = new BasisOrthorhombicHexagonal();
 
         Potential2SoftSpherical potential = new P2SoftSphere(space);
@@ -91,8 +89,6 @@ public class SimCalcSSoftSphere2D extends Simulation {
         potentialMaster.addPotential(pTruncated, new AtomType[]{sphereType, sphereType});
         move.setPotential(pTruncated);
 
-        box.setBoundary(boundary);
-
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
 
@@ -101,10 +97,8 @@ public class SimCalcSSoftSphere2D extends Simulation {
          * 1-body Potential to Constraint the atom from moving too far
          * 	away from its lattice-site
          */
-       P1Constraint p1Constraint = new P1Constraint(space, primitive.getSize()[0], box, coordinateDefinition);
+        P1Constraint p1Constraint = new P1Constraint(space, primitive.getSize()[0], box, coordinateDefinition);
         potentialMaster.addPotential(p1Constraint, new AtomType[]{sphereType});
-
-       integrator.setBox(box);
     }
 
     /**
@@ -172,8 +166,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
         //System.exit(1);
 
 
-        MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster);
-        meterEnergy.setBox(sim.box);
+        MeterPotentialEnergy meterEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         System.out.println("Lattice Energy per particle: "+ meterEnergy.getDataAsScalar()/nA);
         System.out.println(" ");
         //System.exit(1);
