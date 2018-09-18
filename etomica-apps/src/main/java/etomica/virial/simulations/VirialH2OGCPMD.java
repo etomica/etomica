@@ -6,8 +6,6 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.histogram.HistogramSimple;
@@ -434,9 +432,9 @@ public class VirialH2OGCPMD {
         boolean derprint = false;
         if(derprint){
             DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-            IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
-            IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
-            IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+            IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
+            IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
+            IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
             // we'll ignore block correlation -- whatever effects are here should be in the full target results
             
             int nTotal = (primes.length+2);
