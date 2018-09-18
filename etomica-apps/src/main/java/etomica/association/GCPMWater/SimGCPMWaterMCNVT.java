@@ -5,7 +5,6 @@ import etomica.action.BoxInflate;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
-import etomica.box.BoxAgentManager;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage.StatType;
@@ -19,18 +18,17 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
 import etomica.models.water.ConformationWaterGCPM;
 import etomica.models.water.PNWaterGCPMReactionField;
 import etomica.models.water.SpeciesWater4P;
 import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.molecule.iterator.MoleculeIteratorAll;
 import etomica.nbr.cell.molecule.BoxAgentSourceCellManagerMolecular;
-import etomica.nbr.cell.molecule.NeighborCellManagerMolecular;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -59,7 +57,6 @@ public class SimGCPMWaterMCNVT extends Simulation {
     public SpeciesWater4P species;
     public Box box;
     public PNWaterGCPMReactionField potential;
-    double epsilon = 1.0;
     public ActivityIntegrate actionIntegrator;
 
 
@@ -69,7 +66,6 @@ public class SimGCPMWaterMCNVT extends Simulation {
         //setRandom(new RandomNumberGenerator(3));
         BoxAgentSourceCellManagerMolecular bASCellManagerMolecular = new BoxAgentSourceCellManagerMolecular(this, new MoleculePositionGeometricCenter(space), space);
         bASCellManagerMolecular.setRange(3.5);//association range=2.1-3.5
-        BoxAgentManager cellAgentManager = new BoxAgentManager(bASCellManagerMolecular,NeighborCellManagerMolecular.class);
         System.out.println("numAtom=" +numMolceules);
         System.out.println("temperature = "+temperatureK+" K");
         System.out.println("numSteps = "+numSteps+" steps");
@@ -81,12 +77,13 @@ public class SimGCPMWaterMCNVT extends Simulation {
         double volume = 1/(density/numMolceules);
         double boxLength = Math.pow(volume, 1.0/3.0);      
 
-	    integrator = new IntegratorMC(this, potentialMaster);
-	    integrator.setTemperature(temperature);
+
 	    mcMoveMolecule = new MCMoveMolecule(potentialMaster,random, space,10.0,15.0);
 	    mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster,random, space);
 	    box = new Box(space);
         addBox(box);
+        integrator = new IntegratorMC(this, potentialMaster,box);
+        integrator.setTemperature(temperature);
 
 /*        ((MCMoveStepTracker)mcMoveMolecule.getTracker()).setNoisyAdjustment(true);
         ((MCMoveStepTracker)mcMoveRotateMolecule.getTracker()).setNoisyAdjustment(true);
@@ -112,7 +109,7 @@ public class SimGCPMWaterMCNVT extends Simulation {
         System.out.println("cut-off Distance "+boxLength*0.49+" A");
         potential.setTemperature(temperature);
         System.out.println("volume "+box.getBoundary().volume());
-        System.out.println("Rho "+box.getMoleculeList().getMoleculeCount() / box.getBoundary().volume()+"\n");
+        System.out.println("Rho "+box.getMoleculeList().size() / box.getBoundary().volume()+"\n");
         
         BoxImposePbc pbc = new BoxImposePbc(box, space);
         pbc.setApplyToMolecules(true);
@@ -128,8 +125,6 @@ public class SimGCPMWaterMCNVT extends Simulation {
 	        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
 	        config.initializeCoordinates(box);
         }
-        integrator.setBox(box);
-
     }
  
     public static void main(String[] args) {  	
@@ -147,7 +142,7 @@ public class SimGCPMWaterMCNVT extends Simulation {
 
         final SimGCPMWaterMCNVT sim = new SimGCPMWaterMCNVT(numMolecules, density, temperatureK,numSteps);
         if (false) {
-        	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,"water", 1, sim.space,sim.getController());
+        	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,"water", 1);
         	graphic.makeAndDisplayFrame();
         	sim.actionIntegrator.setMaxSteps(Long.MAX_VALUE);
         	return;
@@ -169,7 +164,7 @@ public class SimGCPMWaterMCNVT extends Simulation {
         sim.integrator.getEventManager().addListener(energyManager);
 
         if (false) {
-        	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,"water", 1, sim.space,sim.getController());
+        	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,"water", 1);
         	SpeciesWater4P species = (SpeciesWater4P)sim.getSpecies(0);
             ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
