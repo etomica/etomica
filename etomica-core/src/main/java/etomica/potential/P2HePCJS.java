@@ -47,6 +47,7 @@ public class P2HePCJS extends Potential2SoftSpherical {
     protected final double[][] P_QED;
     protected final double zeta_QED;
     protected final double[] C_QED;
+    protected final double[][] aS_BO, aS_AD, aS_REL, aS_QED;
 
     public P2HePCJS(Space space) {
         super(space);
@@ -170,6 +171,23 @@ public class P2HePCJS extends Potential2SoftSpherical {
                             1.377841e-6,
                             7.61187886972970e-5};
 
+        aS_BO = new double[][]{{0.80740, 1.2195e-6},
+                {1.2603, 2.6076e-5},
+                {0.13365, -1.6989e-7},
+                {0.057123, -5.9399e-8}};
+        aS_AD = new double[][]{{0.30940, 7.5317e-12},
+                {1.8485, 5.8720e-6},
+                {0.27382, 4.8110e-8},
+                {0.047007, 1.0593e-10}};
+        aS_REL = new double[][]{{0.20535, 3.0628e-12},
+                {1.6829, 2.3492e-7},
+                {0.42205, -1.2725e-6},
+                {0.39672, 1.2107e-6},
+                {0.064498, 3.8763e-10}};
+        aS_QED = new double[][]{{0.80740, 3.3214e-7},
+                {0.50144, -1.0022e-7},
+                {0.16251, -6.5718e-8},
+                {0.062390, -2.1856e-8}};
     }
 
     /**
@@ -395,6 +413,45 @@ public class P2HePCJS extends Potential2SoftSpherical {
 
         double retar = num/den;
         return retar;
+    }
+
+    public double sigma_BO(double R) {
+        return formSigma(R, aS_BO);
+    }
+
+    public double sigma_AD(double R) {
+        return formSigma(R, aS_AD);
+    }
+
+    public double sigma_REL(double R) {
+        return formSigma(R, aS_REL);
+    }
+
+    public double sigma_QED(double R) {
+        return formSigma(R, aS_QED);
+    }
+
+    public double sigma(double R) {
+        // sum the squared errors, because that makes sense.
+        double sum = 0, x;
+        x = sigma_BO(R);
+        sum += x * x;
+        x = sigma_AD(R);
+        sum += x * x;
+        x = sigma_REL(R);
+        sum += x * x;
+        x = sigma_QED(R);
+        sum += x * x;
+        return Math.sqrt(sum);
+    }
+
+    public double formSigma(double R, double[][] myAS) {
+        double R2 = R * R;
+        double rv = Math.exp(-myAS[0][0] * R) * myAS[1][0];
+        for (int i = 1; i <= myAS.length; i++) {
+            rv += Math.exp(-myAS[0][i] * R2) * myAS[1][i];
+        }
+        return rv;
     }
 
     /**
