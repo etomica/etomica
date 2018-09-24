@@ -23,16 +23,14 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
     protected final CoordinateDefinition coordinateDefinition;
     protected final Vector drSite0, drSite1, drA, dr, drB, dr0;
     protected final Space space;
-    protected double pSum, virialSum;
-    protected final Vector pTmp;
+    protected double virialSum;
     protected double energySum, dadbSum;
-    protected double fac1, fac2;
+    protected double fac1;
     protected Box box;
     protected Boundary boundary;
     protected boolean doD2;
     protected double d2sum;
-    protected double pHarmonic, temperature;
-    
+
     public PotentialCalculationSolidSuper(Space space, CoordinateDefinition coordinateDefinition) {
         this.coordinateDefinition = coordinateDefinition;
         this.space = space;
@@ -42,17 +40,11 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
         dr = space.makeVector();
         drB = space.makeVector();
         setBox(coordinateDefinition.getBox());
-        pTmp = space.makeVector();
         dr0 = space.makeVector();
     }
     
     public void setDoSecondDerivative(boolean doD2) {
         this.doD2 = doD2;
-    }
-    
-    public void setPHarmonic(double pHarmonic, double temperature) {
-        this.pHarmonic = pHarmonic;
-        this.temperature = temperature;
     }
 
     /**
@@ -85,15 +77,10 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
         Potential2SoftSpherical potentialSoft = (Potential2SoftSpherical)potential;
         
         double du = potentialSoft.du(r2);
-        pSum -= du / r2 * dr.dot(drB) * fac1;
-        pTmp.Ea1Tv1(-du/r2, dr);
-        pTmp.TE(drB);
         virialSum += du;
 
         double dot = dr.dot(drA);
         dadbSum -= du/r2*dot;
-        pTmp.Ea1Tv1(-fac2*du/r2, dr);
-        pTmp.TE(drA);
 
         // dr is vector between i and j
         // drA is vector between sites i and j
@@ -110,11 +97,7 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
             }
         }
     }
-    
-    public double getPressureSum() {
-        return pSum;
-    }
-    
+
     public double getVirialSum() {
         return virialSum;
     }
@@ -135,19 +118,17 @@ public class PotentialCalculationSolidSuper implements PotentialCalculation {
     }
     
     public void zeroSum() {
-        pSum = virialSum = energySum = dadbSum = d2sum = 0;
+        virialSum = energySum = dadbSum = d2sum = 0;
         boundary = box.getBoundary();
         int D = boundary.getBoxSize().getD();
         double vol = boundary.volume();
         fac1 = 1.0/(D*vol);
-        int N = box.getMoleculeList().size();
-        fac2 = (-1/vol + pHarmonic/temperature)/(D*N-D);
 
         IAtom atom0 = box.getLeafList().get(0);
         Vector site0 = coordinateDefinition.getLatticePosition(atom0);
         dr0.Ev1Mv2(atom0.getPosition(), site0);
     }
-    
+
     public void setBox(Box box) {
         this.box = box;
         boundary = box.getBoundary();

@@ -40,7 +40,7 @@ import java.util.Arrays;
 
 public class SimLJHTTISuperSFMD extends Simulation {
 
-    public final CoordinateDefinitionLeaf coordinateDefinition;
+    public final CoordinateDefinition coordinateDefinition;
     public IntegratorMD integrator;
     public ActivityIntegrate activityIntegrate;
     public Box box;
@@ -70,7 +70,7 @@ public class SimLJHTTISuperSFMD extends Simulation {
         box = this.makeBox(boundary);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), 0.002, temperature, box);
+        integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), 0.005, temperature, box);
         integrator.setIsothermal(true);
 
         primitive = new PrimitiveCubic(space, n * L);
@@ -180,6 +180,8 @@ public class SimLJHTTISuperSFMD extends Simulation {
         IData d = meterSolid.getData();
         double uLat = d.getValue(0);
         System.out.println("uLat: " + uLat);
+        double pLat = d.getValue(1) - temperature * density;
+        System.out.println("pLat: " + pLat);
 
         if (args.length == 0) {
             // quick initialization
@@ -249,19 +251,40 @@ public class SimLJHTTISuperSFMD extends Simulation {
         System.out.print(String.format("Praw:  % 21.15e  %10.4e  % 6.3f\n", avgP, errP, corP));
         System.out.print(String.format("bUc:   % 21.15e  %10.4e  % 6.3f\n", avgBUc, errBUc, corBUc));
         System.out.print(String.format("Zc:    % 21.15e  %10.4e  % 6.3f\n", avgZc, errZc, corZc));
+        System.out.print(String.format("P:     % 21.15e  %10.4e\n", avgZc * density * temperature + pLat + bpharm * temperature, errZc * density * temperature));
 
         if (params.doD2) {
+            IData covData = avgSolid.getData(avgSolid.BLOCK_COVARIANCE);
             double y = avgU * numAtoms - uLat * numAtoms - 1.5 * temperature * (numAtoms - 1);
+            double ey = errU * numAtoms;
             double avgCv = (avgRawData.getValue(5) - y * y) / (temperature * temperature);
-            double errCv = errRawData.getValue(5) / (temperature * temperature);
+            int n = avgRawData.getLength();
+            double coru2u = covData.getValue(0 * n + 5) / Math.sqrt(covData.getValue(0 * n + 0) * covData.getValue(5 * n + 5));
+            double errCv = Math.sqrt(errRawData.getValue(5) * errRawData.getValue(5) + 4 * y * y * ey * ey - 4 * y * ey * errRawData.getValue(5) * coru2u) / (temperature * temperature);
             double corCv = corRawData.getValue(5);
 
-            double avgCvc = avgRawData.getValue(6) - avgBUc * avgBUc * numAtoms * numAtoms;
-            double errCvc = errRawData.getValue(6);
+            y = avgBUc * numAtoms;
+            ey = errBUc * numAtoms;
+//            System.out.println("Cvcraw: "+avgRawData.getValue(6)/numAtoms+" "+errRawData.getValue(6)/numAtoms);
+            double avgCvc = avgRawData.getValue(6) - y * y;
+            coru2u = covData.getValue(2 * n + 6) / Math.sqrt(covData.getValue(2 * n + 2) * covData.getValue(6 * n + 6));
+            double errCvc = Math.sqrt(errRawData.getValue(6) * errRawData.getValue(6) + 4 * y * y * ey * ey - 4 * y * ey * errRawData.getValue(6) * coru2u);
             double corCvc = corRawData.getValue(6);
 
             System.out.print(String.format("Cvraw: % 21.15e  %10.4e  % 6.3f\n", avgCv / numAtoms, errCv / numAtoms, corCv));
+//            System.out.print(String.format("Cvc0:  % 21.15e  %10.4e  % 6.3f\n", avgRawData.getValue(6) / numAtoms, errCvc / numAtoms, corCvc));
             System.out.print(String.format("Cvc:   % 21.15e  %10.4e  % 6.3f\n", avgCvc / numAtoms, errCvc / numAtoms, corCvc));
+
+            y = avgDadv2 * numAtoms;
+            ey = errDadv2 * numAtoms;
+            double avgCvc2 = avgRawData.getValue(7) - y * y;
+            coru2u = covData.getValue(4 * n + 7) / Math.sqrt(covData.getValue(4 * n + 4) * covData.getValue(7 * n + 7));
+            double errCvc2 = Math.sqrt(errRawData.getValue(7) * errRawData.getValue(7) + 4 * y * y * ey * ey - 4 * y * ey * errRawData.getValue(7) * coru2u);
+            double corCvc2 = corRawData.getValue(7);
+
+//            System.out.print(String.format("Cvcraw:% 21.15e  %10.4e  % 6.3f\n", avgRawData.getValue(7) / numAtoms, errRawData.getValue(7) / numAtoms, corCvc2));
+            System.out.print(String.format("Cvc:   % 21.15e  %10.4e  % 6.3f\n", avgCvc2 / numAtoms, errCvc2 / numAtoms, corCvc2));
+
         }
 
         System.out.println();
