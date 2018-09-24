@@ -49,8 +49,8 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
     	}
         fA = new double[nf][nDer+1];
         fB = new double[nf][nDer+1];
-        if(tol!=0){setTolerance(tol);}
         this.nDer = nDer;
+        if(tol!=0){setTolerance(tol);}
         this.binomial = new int[nDer+1][]; 
         for(int m=0;m<=nDer;m++){
             binomial[m] = new int[m+1];
