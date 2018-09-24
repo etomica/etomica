@@ -133,10 +133,10 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
  //       double zidotminusLby2=-0.0725;
    //     zidotminusLby2=pz*(cz/q-1/2)/(pminusLby2*temperature);
   //      if (zi >= z) {zidotminusLby2=-pz*(1-(czplusLby2/q))/(pminusLby2*temperature);} else {zidotminusLby2=pz*((czminusLby2/q))/(pminusLby2*temperature);}
-  //      double heavisidei;
-  //      if (zi >= z) {heavisidei=1;} else {heavisidei=0;}
+ //       double heavisidei;
+ //       if (zi >= z) {heavisidei=1;} else {heavisidei=0;}
   //      return ((pminusLby2*zidotminusLby2/pzi)+(pz*((heavisidei)-(czi/q))/(temperature*pzi)));
-    //    return ((((heavisidei)-(zi/L))/(temperature)));
+   //     return ((((heavisidei)-(zi/L))/(temperature)));
 
     }
 

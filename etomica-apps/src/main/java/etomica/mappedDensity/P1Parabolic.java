@@ -9,7 +9,7 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 
 public class P1Parabolic implements IPotentialAtomic, PotentialSoft {
-    double arg = 0.8;  //Vo
+    double arg = 1;  //Vo
     private double L;
     private final Vector[] gradient;
 

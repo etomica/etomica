@@ -77,10 +77,10 @@ public class MappedSingletDensity extends Simulation {
         AtomType atomType = species.getLeafType();
         potentialMaster.addPotential(p2, new AtomType[]{atomType, atomType});
 //SINE IS ACTUALLY LN(2+SIN)
-         if (params.field==Field.SINE || params.field==Field.PHISINEPSINESUM || params.field == Field.UNIFORM) {       //AS FOR PHISINEPSINESUM EXTERNAL POT IS LN(2+SIN)-SAME AS FIELD.SINE
+         if (params.field==Field.SINE || params.field==Field.PHISINEPSINESUM ) {       //AS FOR PHISINEPSINESUM EXTERNAL POT IS LN(2+SIN)-SAME AS FIELD.SINE
             P1Sine p1 = new P1Sine(space, 5, params.temperature);
             potentialMaster.addPotential(p1, new AtomType[]{atomType});
-        } else if (params.field == Field.PARABOLIC || params.field == Field.PHIPARABOLICPSUMOFGAUSSIANS || params.field==Field.PHIARGPT5PARABOLICPSINESUM) {
+        } else if (params.field == Field.PARABOLIC || params.field == Field.UNIFORM || params.field == Field.PHIPARABOLICPSUMOFGAUSSIANS || params.field==Field.PHIARGPT5PARABOLICPSINESUM) {
             P1Parabolic p1 = new P1Parabolic(space);
             potentialMaster.addPotential(p1, new AtomType[]{atomType});
         } else if (params.field == Field.LNPARABOLIC  || params.field==Field.PHILNPARABOLICPFOURIERSUM) {
@@ -114,11 +114,11 @@ public class MappedSingletDensity extends Simulation {
        //     params.field = Field.SINE;
       //         params.field = Field.PARABOLIC;
         //    params.field = Field.PHIPARABOLICPSUMOFGAUSSIANS;
-               params.field = Field.PHISINEPSINESUM;
+        //       params.field = Field.PHISINEPSINESUM;
        //     params.field=Field.PHIARGPT5PARABOLICPSINESUM;
        //     params.field = Field.LNPARABOLIC;
         //    params.field = Field.PHILNPARABOLICPFOURIERSUM;
-       //     params.field = Field.UNIFORM;
+            params.field = Field.UNIFORM;
             //   params.field = Field.EXPMINUSZSQ;
 
             // modify parameters here for interactive testing
@@ -360,8 +360,8 @@ public class MappedSingletDensity extends Simulation {
             //    params.field = Field.SINE;
            //         params.field = Field.PARABOLIC;
             //    params.field = Field.PHIPARABOLICPSUMOFGAUSSIANS;
-                 params.field = Field.PHISINEPSINESUM;
-           //   params.field = Field.UNIFORM;
+           //      params.field = Field.PHISINEPSINESUM;
+              params.field = Field.UNIFORM;
           //      params.field=Field.PHIARGPT5PARABOLICPSINESUM;
                 //      params.field = Field.LNPARABOLIC;
          //       params.field = Field.PHILNPARABOLICPFOURIERSUM;
@@ -624,10 +624,10 @@ public class MappedSingletDensity extends Simulation {
 
     public static class SimParams extends ParameterBase {
         public long steps = 100000000;
-        public double density = 0.5;
-        public int bins = 100;
+        public double density = 0.125;
+        public int bins = 1000;
         public double temperature = 5;
         public int numAtoms = 500;
-        public Field field = Field.PHISINEPSINESUM;
+        public Field field = Field.UNIFORM;
     }
 }
