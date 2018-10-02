@@ -60,7 +60,7 @@ public class VirialTraPPE {
             // customize parameters here
             params.chemForm = ChemForm.N2;
             params.nPoints = 2;
-            params.nDer = 0;
+            params.nDer = 3;
             params.temperature = 400;
             params.numSteps = 1000000;
 
@@ -133,13 +133,20 @@ public class VirialTraPPE {
 
         if(chemForm == ChemForm.N2) {
 
+            //TraPPE Parameters
+            AtomType typeM = new AtomType(new ElementSimple("M", 0.0));
+            AtomType typeN = new AtomType(Nitrogen.INSTANCE);
+
+            AtomType[] atomTypes = new AtomType[]{typeM,typeN};
+
             double bondLength = 1.10; // Angstrom
             double sigmaN = 3.31; // Angstrom
             double epsilonN = Kelvin.UNIT.toSim(36.0);
             double qN = Electron.UNIT.toSim(-0.482);
             double qM = Electron.UNIT.toSim(0.964);
 
-
+            //Set Geometry
+            species = new SpeciesSpheresHetero(space, atomTypes);
 
             Vector3D posM = new Vector3D(new double[] {0,0,0});
             Vector3D posN1 = new Vector3D(new double[] {-bondLength/2,0,0});
@@ -147,6 +154,10 @@ public class VirialTraPPE {
             Vector[] pos = new Vector[]{posM,posN1,posN2};
             IConformation conformation = new ConformationGeneric(pos);
 
+            species.setConformation(conformation);
+            ((SpeciesSpheresHetero) species).setChildCount(new int[]{1,2});
+
+            //Set Potential
             pTargetGroup = new PotentialGroup(2);
 
             P2LennardJones p2N = new P2LennardJones(space, sigmaN, epsilonN);
@@ -161,23 +172,19 @@ public class VirialTraPPE {
             p2eNM.setCharge2(qM);
             p2eNM.setSigma(0.1);
 
-            AtomType typeM = new AtomType(new ElementSimple("M", 0.0));
-            AtomType typeN = new AtomType(Nitrogen.INSTANCE);
-
-            AtomType[] atomTypes = new AtomType[]{typeM,typeN};
-
-            species = new SpeciesSpheresHetero(space, atomTypes);
-
-            species.setConformation(conformation);
-            ((SpeciesSpheresHetero) species).setChildCount(new int[]{1,2});
-
             pTargetGroup.addPotential(p2N, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeN, typeN}));
-//            pTargetGroup.addPotential(p2eNN, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeN, typeN}));
-//            pTargetGroup.addPotential(p2eMM, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeM, typeM}));
-//            pTargetGroup.addPotential(p2eNM, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeN, typeM}));
+            pTargetGroup.addPotential(p2eNN, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeN, typeN}));
+            pTargetGroup.addPotential(p2eMM, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeM, typeM}));
+            pTargetGroup.addPotential(p2eNM, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeN, typeM}));
 
         }
         else if (chemForm == ChemForm.O2) {
+
+            //TraPPE Parameters
+            AtomType typeM = new AtomType(new ElementSimple("M", 0.0));
+            AtomType typeO = new AtomType(Oxygen.INSTANCE);
+
+            AtomType[] atomTypes = new AtomType[]{typeM,typeO};
 
             double bondLength = 1.210; // Angstrom
             double sigmaO = 3.020; // Angstrom
@@ -185,12 +192,19 @@ public class VirialTraPPE {
             double qO = Electron.UNIT.toSim(-0.113);
             double qM = Electron.UNIT.toSim(0.226);
 
+            //Set Geometry
+            species = new SpeciesSpheresHetero(space, atomTypes);
+
             Vector3D posM = new Vector3D(new double[] {0,0,0});
             Vector3D posO1 = new Vector3D(new double[] {-bondLength/2,0,0});
             Vector3D posO2 = new Vector3D(new double[] {+bondLength/2,0,0});
             Vector[] pos = new Vector[]{posM,posO1,posO2};
             IConformation conformation = new ConformationGeneric(pos);
 
+            species.setConformation(conformation);
+            ((SpeciesSpheresHetero) species).setChildCount(new int[]{1,2});
+
+            //Set Potential
             pTargetGroup = new PotentialGroup(2);
 
             P2LennardJones p2O = new P2LennardJones(space, sigmaO, epsilonO);
@@ -205,16 +219,6 @@ public class VirialTraPPE {
             p2eOM.setCharge2(qM);
             p2eOM.setSigma(0.1);
 
-            AtomType typeM = new AtomType(new ElementSimple("M", 0.0));
-            AtomType typeO = new AtomType(Oxygen.INSTANCE);
-
-            AtomType[] atomTypes = new AtomType[]{typeM,typeO};
-
-            species = new SpeciesSpheresHetero(space, atomTypes);
-
-            species.setConformation(conformation);
-            ((SpeciesSpheresHetero) species).setChildCount(new int[]{1,2});
-
             pTargetGroup.addPotential(p2O, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO, typeO}));
             pTargetGroup.addPotential(p2eOO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO, typeO}));
             pTargetGroup.addPotential(p2eMM, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeM, typeM}));
@@ -222,6 +226,12 @@ public class VirialTraPPE {
 
         }
         else if (chemForm == ChemForm.CO2) {
+
+            //TraPPE Parameters
+            AtomType typeC = new AtomType(Carbon.INSTANCE);
+            AtomType typeO = new AtomType(Oxygen.INSTANCE);
+
+            AtomType[] atomTypes = new AtomType[]{typeC,typeO};
 
             double bondLengthCO = 1.160; // Angstrom
             double sigmaC = 2.800; // Angstrom
@@ -231,14 +241,21 @@ public class VirialTraPPE {
             double epsilonO = Kelvin.UNIT.toSim(79.0);
             double qO = Electron.UNIT.toSim(-0.350);
 
-            double sigmaCO = (sigmaC+sigmaO)/2;
-            double epsilonCO = Math.sqrt(epsilonC*epsilonO);
+            //Set Geometry
+            species = new SpeciesSpheresHetero(space, atomTypes);
 
             Vector3D posC = new Vector3D(new double[] {0,0,0});
             Vector3D posO1 = new Vector3D(new double[] {-bondLengthCO,0,0});
             Vector3D posO2 = new Vector3D(new double[] {+bondLengthCO,0,0});
             Vector[] pos = new Vector[]{posC,posO1,posO2};
             IConformation conformation = new ConformationGeneric(pos);
+
+            species.setConformation(conformation);
+            ((SpeciesSpheresHetero) species).setChildCount(new int[]{1,2});
+
+            //Set Potential
+            double sigmaCO = (sigmaC+sigmaO)/2;
+            double epsilonCO = Math.sqrt(epsilonC*epsilonO);
 
             pTargetGroup = new PotentialGroup(2);
 
@@ -255,16 +272,6 @@ public class VirialTraPPE {
             p2eCO.setCharge1(qO);
             p2eCO.setCharge2(qC);
 
-            AtomType typeC = new AtomType(Carbon.INSTANCE);
-            AtomType typeO = new AtomType(Oxygen.INSTANCE);
-
-            AtomType[] atomTypes = new AtomType[]{typeC,typeO};
-
-            species = new SpeciesSpheresHetero(space, atomTypes);
-
-            species.setConformation(conformation);
-            ((SpeciesSpheresHetero) species).setChildCount(new int[]{1,2});
-
             pTargetGroup.addPotential(p2O, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO, typeO}));
             pTargetGroup.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));
             pTargetGroup.addPotential(p2CO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeO}));
@@ -273,6 +280,13 @@ public class VirialTraPPE {
             pTargetGroup.addPotential(p2eCO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeO}));
         }
         else if (chemForm == ChemForm.NH3) {
+
+            //TraPPE Parameters
+            AtomType typeN = new AtomType(Nitrogen.INSTANCE);
+            AtomType typeH = new AtomType(Hydrogen.INSTANCE);
+            AtomType typeM = new AtomType(new ElementSimple("M", 0.0));
+
+            AtomType[] atomTypes = new AtomType[]{typeN,typeH,typeM};
 
             double bondLengthNH = 1.012; // Angstrom
             double bondLengthNM = 0.080; // Angstrom
@@ -283,6 +297,9 @@ public class VirialTraPPE {
             double qH = Electron.UNIT.toSim(0.410);
             double qM = Electron.UNIT.toSim(-1.230);
 
+            //Set Geometry
+            species = new SpeciesSpheresHetero(space, atomTypes);
+
             Vector3D posN = new Vector3D(new double[] {0,0,0});
             Vector3D posH1 = new Vector3D(new double[] {bondLengthNH,0,0});
             Vector3D posH2 = new Vector3D(new double[] {bondLengthNH*(Math.sin(thetaHNH)),-bondLengthNH*(Math.cos(thetaHNH)),0});
@@ -291,6 +308,10 @@ public class VirialTraPPE {
             Vector[] pos = new Vector[]{posN,posH1,posH2,posH3,posM};
             IConformation conformation = new ConformationGeneric(pos);
 
+            species.setConformation(conformation);
+            ((SpeciesSpheresHetero) species).setChildCount(new int[]{1,3,1});
+
+            //Set Potential
             pTargetGroup = new PotentialGroup(2);
 
             P2LennardJones p2N = new P2LennardJones(space, sigmaN, epsilonN);
@@ -304,17 +325,6 @@ public class VirialTraPPE {
             p2eHM.setCharge1(qH);
             p2eHM.setCharge2(qM);
             p2eHM.setSigma(0.1);
-
-            AtomType typeN = new AtomType(Nitrogen.INSTANCE);
-            AtomType typeH = new AtomType(Hydrogen.INSTANCE);
-            AtomType typeM = new AtomType(new ElementSimple("M", 0.0));
-
-            AtomType[] atomTypes = new AtomType[]{typeN,typeH,typeM};
-
-            species = new SpeciesSpheresHetero(space, atomTypes);
-
-            species.setConformation(conformation);
-            ((SpeciesSpheresHetero) species).setChildCount(new int[]{1,3,1});
 
             pTargetGroup.addPotential(p2N, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeN, typeN}));
             pTargetGroup.addPotential(p2eHH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeH}));
@@ -535,12 +545,15 @@ public class VirialTraPPE {
         public int nDer = 3;
         public double temperature = 400;
         public long numSteps = 1000000;
+
         public double refFrac = -1;
         public double sigmaHSRef = 5;
-        public boolean doHist = false;
         public int[] seed = null;
+
+        public boolean doHist = false;
         public boolean dorefpref = false;
         public boolean doChainRef = true;
+
         public double BDtol = 1e-12;
 
     }
