@@ -50,7 +50,7 @@ public class MeterConventional implements IDataSource, DataSourceIndependent {
     public MeterConventional(double msd, Box box, CoordinateDefinition latticesite) {
         this.box = box;
         this.msd = msd;
-        this.Rmax = Math.sqrt(msd)*8;
+        this.Rmax = Math.sqrt(msd)*6;
         this.latticesite = latticesite;
         this.rivector = box.getSpace().makeVector();
         xDataSource = new DataSourceUniform("x", Length.DIMENSION);

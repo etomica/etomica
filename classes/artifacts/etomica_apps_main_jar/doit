@@ -1,0 +1,134 @@
+#!/bin/bash
+# to get integral file
+
+qsub -p 1 script 0.1 1.0 
+
+qsub -p 1 script 0.2 1.0 
+
+qsub -p 1 script 0.3 1.0 
+
+qsub -p 1 script 0.4 1.0 
+
+qsub -p 1 script 0.5 1.0 
+
+qsub -p 1 script 0.6 1.0 
+
+qsub -p 1 script 0.7 1.0 
+
+qsub -p 1 script 0.8 1.0 
+
+qsub -p 1 script 0.9 1.0 
+
+qsub -p 1 script 1.0 1.0 
+
+
+qsub -p 1 script 0.55555556 1.290994449
+
+qsub -p 1 script 1.11111111 1.290994449
+
+qsub -p 1 script 1.66666667 1.290994449
+
+qsub -p 1 script 2.22222222 1.290994449
+
+qsub -p 1 script 2.77777778 1.290994449
+
+qsub -p 1 script 3.33333333 1.290994449
+
+qsub -p 1 script 3.88888889 1.290994449
+
+
+qsub -p 1 script 20 3.16227766
+
+qsub -p 1 script 40 3.16227766
+
+qsub -p 1 script 60 3.16227766
+
+qsub -p 1 script 80 3.16227766
+
+qsub -p 1 script 100 3.16227766
+
+qsub -p 1 script 120 3.16227766
+
+qsub -p 1 script 140 3.16227766
+
+qsub -p 1 script 160 3.16227766
+
+qsub -p 1 script 180 3.16227766
+
+qsub -p 1 script 196 3.16227766
+
+
+
+
+
+
+qsub -p 1 script2 0.1 1.0 
+
+qsub -p 1 script2 0.2 1.0 
+
+qsub -p 1 script2 0.3 1.0 
+
+qsub -p 1 script2 0.4 1.0 
+
+qsub -p 1 script2 0.5 1.0 
+
+qsub -p 1 script2 0.6 1.0 
+
+qsub -p 1 script2 0.7 1.0 
+
+qsub -p 1 script2 0.8 1.0 
+
+qsub -p 1 script2 0.9 1.0 
+
+qsub -p 1 script2 1.0 1.0 
+
+
+qsub -p 1 script2 0.55555556 1.290994449
+
+qsub -p 1 script2 1.11111111 1.290994449
+
+qsub -p 1 script2 1.66666667 1.290994449
+
+qsub -p 1 script2 2.22222222 1.290994449
+
+qsub -p 1 script2 2.77777778 1.290994449
+
+qsub -p 1 script2 3.33333333 1.290994449
+
+qsub -p 1 script2 3.88888889 1.290994449
+
+
+qsub -p 1 script2 20 3.16227766
+
+qsub -p 1 script2 40 3.16227766
+
+qsub -p 1 script2 60 3.16227766
+
+qsub -p 1 script2 80 3.16227766
+
+qsub -p 1 script2 100 3.16227766
+
+qsub -p 1 script2 120 3.16227766
+
+qsub -p 1 script2 140 3.16227766
+
+qsub -p 1 script2 160 3.16227766
+
+qsub -p 1 script2 180 3.16227766
+
+qsub -p 1 script2 196 3.16227766
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 

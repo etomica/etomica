@@ -63,7 +63,7 @@ protected CoordinateDefinition latticesite;
         this.temperature = temperature;
         this.c = c;
         this.msd = msd;
-        this.Rmax = Math.sqrt(msd)*8;
+        this.Rmax = Math.sqrt(msd)*6;
 this.latticesite=latticesite;
 this.rivector =box.getSpace().makeVector();
         xDataSource = new DataSourceUniform("x", Length.DIMENSION);
@@ -182,7 +182,7 @@ this.rivector =box.getSpace().makeVector();
          //      System.out.println(" r "+r+ " ri "+ri+ " ensemble "+(fr - c.df(2, ri) / c.df(1, ri) * temperature) * ridot(r, ri)/(r*r)+ " y[i] "+y[i]);
 
 
-                    y[i] -= (fr - (temperature*c.df(2, ri) / c.df(1, ri)) ) * ridot(r, ri);
+               //     y[i] -= (fr - (temperature*c.df(2, ri) / c.df(1, ri)) ) * ridot(r, ri);
 
 
                 }
@@ -196,7 +196,6 @@ this.rivector =box.getSpace().makeVector();
         for (int i = 0; i < y.length; i++) {
             double r =  (i + 0.5) * dz;
             y[i] += N * c.df(1, r) / q;
- //           System.out.println(" r "+r+" N "+N+" pr "+c.df(1, r)+" q " + q +" Np/q "+N * c.df(1, r) / q);
 
         }
 

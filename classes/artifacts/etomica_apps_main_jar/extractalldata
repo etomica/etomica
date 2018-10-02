@@ -1,0 +1,233 @@
+#!/bin/bash
+# to 
+
+printf "density1\n"
+
+printf "betauanharmonic-mapperf\n"
+
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.1rho1.0perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.2rho1.0perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.3rho1.0perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.4rho1.0perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.5rho1.0perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.6rho1.0perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.7rho1.0perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.8rho1.0perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.9rho1.0perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT1.0rho1.0perf.out
+
+printf "betauanharmonic-mapvac\n"
+
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.1rho1.0vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.2rho1.0vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.3rho1.0vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.4rho1.0vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.5rho1.0vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.6rho1.0vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.7rho1.0vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.8rho1.0vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.9rho1.0vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT1.0rho1.0vac.out
+
+printf "uconventionalperf\n"
+
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.1rho1.0perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.2rho1.0perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.3rho1.0perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.4rho1.0perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.5rho1.0perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.6rho1.0perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.7rho1.0perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.8rho1.0perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.9rho1.0perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT1.0rho1.0perf.out
+
+printf "uconventionalvac\n"
+
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.1rho1.0vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.2rho1.0vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.3rho1.0vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.4rho1.0vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.5rho1.0vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.6rho1.0vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.7rho1.0vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.8rho1.0vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.9rho1.0vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT1.0rho1.0vac.out
+
+printf "Pperf\n"
+
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.1rho1.0perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.2rho1.0perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.3rho1.0perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.4rho1.0perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.5rho1.0perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.6rho1.0perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.7rho1.0perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.8rho1.0perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.9rho1.0perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT1.0rho1.0perf.out
+
+printf "Pvac\n"
+
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.1rho1.0vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.2rho1.0vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.3rho1.0vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.4rho1.0vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.5rho1.0vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.6rho1.0vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.7rho1.0vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.8rho1.0vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.9rho1.0vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT1.0rho1.0vac.out
+
+
+printf "density1.29\n"
+
+printf "betauanharmonic-mapperf\n"
+
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.55555556rho1.290994449perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT1.11111111rho1.290994449perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT1.66666667rho1.290994449perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT2.22222222rho1.290994449perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT2.77777778rho1.290994449perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT3.33333333rho1.290994449perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT3.88888889rho1.290994449perf.out
+
+printf "betauanharmonic-mapvac\n"
+
+awk '/rc:  0 bUc:/ {print $4,$5}' simT0.55555556rho1.290994449vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT1.11111111rho1.290994449vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT1.66666667rho1.290994449vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT2.22222222rho1.290994449vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT2.77777778rho1.290994449vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT3.33333333rho1.290994449vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT3.88888889rho1.290994449vac.out
+
+printf "uconventionalperf\n"
+
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.55555556rho1.290994449perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT1.11111111rho1.290994449perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT1.66666667rho1.290994449perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT2.22222222rho1.290994449perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT2.77777778rho1.290994449perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT3.33333333rho1.290994449perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT3.88888889rho1.290994449perf.out
+
+printf "uconventionalvac\n"
+
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT0.55555556rho1.290994449vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT1.11111111rho1.290994449vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT1.66666667rho1.290994449vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT2.22222222rho1.290994449vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT2.77777778rho1.290994449vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT3.33333333rho1.290994449vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT3.88888889rho1.290994449vac.out
+
+printf "Pperf\n"
+
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.55555556rho1.290994449perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT1.11111111rho1.290994449perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT1.66666667rho1.290994449perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT2.22222222rho1.290994449perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT2.77777778rho1.290994449perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT3.33333333rho1.290994449perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT3.88888889rho1.290994449perf.out
+
+printf "Pvac\n"
+
+awk '/rc:  0 Praw:/ {print $4,$5}' simT0.55555556rho1.290994449vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT1.11111111rho1.290994449vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT1.66666667rho1.290994449vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT2.22222222rho1.290994449vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT2.77777778rho1.290994449vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT3.33333333rho1.290994449vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT3.88888889rho1.290994449vac.out
+
+
+printf "density3.16\n"
+
+printf "betauanharmonic-mapperf\n"
+
+awk '/rc:  0 bUc:/ {print $4,$5}' simT20rho3.16227766perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT40rho3.16227766perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT60rho3.16227766perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT80rho3.16227766perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT100rho3.16227766perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT120rho3.16227766perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT140rho3.16227766perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT160rho3.16227766perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT180rho3.16227766perf.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT196rho3.16227766perf.out
+
+printf "betauanharmonic-mapvac\n"
+
+awk '/rc:  0 bUc:/ {print $4,$5}' simT20rho3.16227766vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT40rho3.16227766vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT60rho3.16227766vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT80rho3.16227766vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT100rho3.16227766vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT120rho3.16227766vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT140rho3.16227766vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT160rho3.16227766vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT180rho3.16227766vac.out
+awk '/rc:  0 bUc:/ {print $4,$5}' simT196rho3.16227766vac.out
+
+printf "uconventionalperf\n"
+
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT20rho3.16227766perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT40rho3.16227766perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT60rho3.16227766perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT80rho3.16227766perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT100rho3.16227766perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT120rho3.16227766perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT140rho3.16227766perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT160rho3.16227766perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT180rho3.16227766perf.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT196rho3.16227766perf.out
+
+
+printf "uconventionalvac\n"
+
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT20rho3.16227766vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT40rho3.16227766vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT60rho3.16227766vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT80rho3.16227766vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT100rho3.16227766vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT120rho3.16227766vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT140rho3.16227766vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT160rho3.16227766vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT180rho3.16227766vac.out
+awk '/rc:  0 Uraw:/ {print $4,$5}' simT196rho3.16227766vac.out
+
+printf "Pperf\n"
+
+awk '/rc:  0 Praw:/ {print $4,$5}' simT20rho3.16227766perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT40rho3.16227766perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT60rho3.16227766perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT80rho3.16227766perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT100rho3.16227766perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT120rho3.16227766perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT140rho3.16227766perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT160rho3.16227766perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT180rho3.16227766perf.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT196rho3.16227766perf.out
+
+printf "Pvac\n"
+
+awk '/rc:  0 Praw:/ {print $4,$5}' simT20rho3.16227766vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT40rho3.16227766vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT60rho3.16227766vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT80rho3.16227766vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT100rho3.16227766vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT120rho3.16227766vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT140rho3.16227766vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT160rho3.16227766vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT180rho3.16227766vac.out
+awk '/rc:  0 Praw:/ {print $4,$5}' simT196rho3.16227766vac.out
+
+
+
+
+
+

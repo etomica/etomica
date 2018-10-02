@@ -128,7 +128,7 @@ public class DataSourceUniform implements IDataSource, java.io.Serializable {
      * Minimum allowable value is 2 (smaller values cause return with no action).
      */
     public void setNValues(int nValues) {
-        if(nValues < 2) return;
+        if(nValues < 1) return;
         calculateX(nValues, xMin, xMax, typeMin, typeMax);
     }
     

@@ -25,6 +25,7 @@ import etomica.liquidLJ.DataProcessorReweightRatio;
 import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
 import etomica.liquidLJ.ValueCache;
 import etomica.mappedDensity.FunctionPhilnparabolicpfouriersum;
+import etomica.math.SpecialFunctions;
 import etomica.math.function.FunctionDifferentiable;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.BasisBigCell;
@@ -40,6 +41,7 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
+import org.apache.commons.math3.special.Erf;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -172,7 +174,9 @@ public class MappedDensityfromlattice extends Simulation {
         if(params.temperature==2.22222222 && params.density==1.29) {params.msd=0.0225697 ;}
         if(params.temperature==2.77777778 && params.density==1.29) {params.msd=0.0277941 ;}
         if(params.temperature==3.33333333 && params.density==1.29) {params.msd=0.0346079 ;}
-        if(params.temperature==3.88888889 && params.density==1.29) {params.msd=0.0391218 ;}
+  //      if(params.temperature==3.88888889 && params.density==1.29) {params.msd=0.0391218 ;}
+          if(params.temperature==3.88888889 && params.density==1.29) {params.msd=0.019958926856778678 ;}
+
         if(params.temperature==4.22222222 && params.density==1.29) {params.msd=0.0434448 ;}
         if(params.temperature==1.0 && params.density==3.16) {params.msd= 0.00012008;}
         if(params.temperature==1.0 && params.density==2.23) {params.msd= 0.000636781;}
@@ -394,8 +398,12 @@ public class MappedDensityfromlattice extends Simulation {
         for (int i=0;i<rdata.getLength();i++){
             System.out.println(rdata.getValue(i)+" "+data.getValue(i)+" "+dataunc.getValue(i)+" "+dataMappedAvg.getValue(i)+" "+dataMappedAvgunc.getValue(i));
         }
+        double x =(Math.sqrt(3.0/2.0)+0.14*0.2);
+        double er = 1 - SpecialFunctions.erfc( (Math.sqrt(3/2)+0.14*0.2));
 
-        System.out.println("time: " + (endTime - startTime)/1000.0);
+
+
+        System.out.println("erfn: " + x);
     }
 
     public void initialize(long initSteps) {
@@ -413,11 +421,11 @@ public class MappedDensityfromlattice extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numAtoms = 500;
-        public double msd = 0.00444872;
-        public int bins = 1000;
-        public double density = 1;
-        public long numSteps = 50000000;
-        public double temperature = 1;
+        public double msd = 0.019958926856778678;
+        public int bins = 2;
+        public double density = 1.29;
+        public long numSteps = 250000;
+        public double temperature = 3.88888889;
         public double rc = 3;
         public double rc0 = rc;
         public double rcMax1 = 3;
