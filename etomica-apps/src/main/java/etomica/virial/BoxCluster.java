@@ -7,6 +7,7 @@ package etomica.virial;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
+import etomica.molecule.IMoleculePositionDefinition;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 
@@ -26,6 +27,14 @@ public class BoxCluster extends Box {
         sampleCluster = cluster;
         this.space = _space;
 	}
+
+	public void setPositionDefinition(IMoleculePositionDefinition positionDefinition){
+	    this.positionDefinition = positionDefinition;
+        if(cPairSet != null && cPairSet instanceof CoordinatePairMoleculeSet ){
+            ((CoordinatePairMoleculeSet) cPairSet).setPositionDefinition(positionDefinition);
+            ((CoordinatePairMoleculeSet) cPairTrialSet).setPositionDefinition(positionDefinition);
+        }
+    }
 
     /**
      * returns the current coordinate pair set
@@ -69,7 +78,9 @@ public class BoxCluster extends Box {
             }
             else {
                 cPairSet = new CoordinatePairMoleculeSet(molecules,space);
+                if(positionDefinition!=null)((CoordinatePairMoleculeSet) cPairSet).setPositionDefinition(positionDefinition);
                 cPairTrialSet = new CoordinatePairMoleculeSet(molecules,space);
+                if(positionDefinition!=null)((CoordinatePairMoleculeSet) cPairTrialSet).setPositionDefinition(positionDefinition);
             }
             aPairSet = new AtomPairSet(molecules);
         }
@@ -112,4 +123,5 @@ public class BoxCluster extends Box {
     protected long cPairID;
 	protected final ClusterWeight sampleCluster;
 	protected final Space space;
+	protected IMoleculePositionDefinition positionDefinition;
 }

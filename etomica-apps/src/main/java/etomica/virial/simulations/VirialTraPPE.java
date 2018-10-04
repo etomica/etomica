@@ -7,11 +7,8 @@ package etomica.virial.simulations;
 import etomica.action.IAction;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
-import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
 import etomica.chem.elements.*;
-import etomica.config.ConformationGeneric;
-import etomica.config.IConformation;
 import etomica.data.histogram.HistogramSimple;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
@@ -22,13 +19,16 @@ import etomica.integrator.IntegratorListener;
 import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.*;
+import etomica.molecule.MoleculePositionCOM;
+import etomica.potential.IPotential;
+import etomica.potential.P2PotentialGroupBuilder;
+import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
-import etomica.species.SpeciesSpheresHetero;
+import etomica.species.SpeciesBuilder;
 import etomica.units.Degree;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -58,7 +58,7 @@ public class VirialTraPPE {
         }
         else {
             // customize parameters here
-            params.chemForm = ChemForm.N2;
+            params.chemForm = ChemForm.NH3;
             params.nPoints = 2;
             params.nDer = 3;
             params.temperature = 400;
@@ -133,106 +133,90 @@ public class VirialTraPPE {
 
         if(chemForm == ChemForm.N2) {
 
-            //TraPPE Parameters
+            //Atoms in Compound
             AtomType typeM = new AtomType(new ElementSimple("M", 0.0));
             AtomType typeN = new AtomType(Nitrogen.INSTANCE);
 
             AtomType[] atomTypes = new AtomType[]{typeM,typeN};
 
+            int[] atomCount = new int[]{1,2};
+
+            //TraPPE Parameters
             double bondLength = 1.10; // Angstrom
             double sigmaN = 3.31; // Angstrom
             double epsilonN = Kelvin.UNIT.toSim(36.0);
             double qN = Electron.UNIT.toSim(-0.482);
+            double sigmaM = 0.0; // Angstrom
+            double epsilonM = Kelvin.UNIT.toSim(0.0);
             double qM = Electron.UNIT.toSim(0.964);
 
-            //Set Geometry
-            species = new SpeciesSpheresHetero(space, atomTypes);
+            //Construct Arrays
+            double[] sigma = new double[] {sigmaM,sigmaN};
+            double[] epsilon = new double[] {epsilonM,epsilonN};
+            double[] charge = new double[] {qM,qN};
 
+            //Get Coordinates
             Vector3D posM = new Vector3D(new double[] {0,0,0});
             Vector3D posN1 = new Vector3D(new double[] {-bondLength/2,0,0});
             Vector3D posN2 = new Vector3D(new double[] {+bondLength/2,0,0});
             Vector[] pos = new Vector[]{posM,posN1,posN2};
-            IConformation conformation = new ConformationGeneric(pos);
 
-            species.setConformation(conformation);
-            ((SpeciesSpheresHetero) species).setChildCount(new int[]{1,2});
+            //Set Geometry
+            species = SpeciesBuilder.SpeciesBuilder(space,atomTypes,atomCount,pos);
 
             //Set Potential
-            pTargetGroup = new PotentialGroup(2);
-
-            P2LennardJones p2N = new P2LennardJones(space, sigmaN, epsilonN);
-            P2Electrostatic p2eNN = new P2Electrostatic(space);
-            p2eNN.setCharge1(qN);
-            p2eNN.setCharge2(qN);
-            P2Electrostatic p2eMM = new P2Electrostatic(space);
-            p2eMM.setCharge1(qM);
-            p2eMM.setCharge2(qM);
-            P2ElectrostaticWithHardCore p2eNM = new P2ElectrostaticWithHardCore(space);
-            p2eNM.setCharge1(qN);
-            p2eNM.setCharge2(qM);
-            p2eNM.setSigma(0.1);
-
-            pTargetGroup.addPotential(p2N, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeN, typeN}));
-            pTargetGroup.addPotential(p2eNN, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeN, typeN}));
-            pTargetGroup.addPotential(p2eMM, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeM, typeM}));
-            pTargetGroup.addPotential(p2eNM, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeN, typeM}));
-
+            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,atomTypes,sigma,epsilon,charge);
         }
+
         else if (chemForm == ChemForm.O2) {
 
-            //TraPPE Parameters
+            //Atoms in Compound
             AtomType typeM = new AtomType(new ElementSimple("M", 0.0));
             AtomType typeO = new AtomType(Oxygen.INSTANCE);
 
             AtomType[] atomTypes = new AtomType[]{typeM,typeO};
 
+            int[] atomCount = new int[]{1,2};
+
+            //TraPPE Parameters
             double bondLength = 1.210; // Angstrom
             double sigmaO = 3.020; // Angstrom
             double epsilonO = Kelvin.UNIT.toSim(49.0);
             double qO = Electron.UNIT.toSim(-0.113);
+            double sigmaM = 0.0; // Angstrom
+            double epsilonM = Kelvin.UNIT.toSim(0.0);
             double qM = Electron.UNIT.toSim(0.226);
 
-            //Set Geometry
-            species = new SpeciesSpheresHetero(space, atomTypes);
+            //Construct Arrays
+            double[] sigma = new double[] {sigmaM,sigmaO};
+            double[] epsilon = new double[] {epsilonM,epsilonO};
+            double[] charge = new double[] {qM,qO};
 
+            //Get Coordinates
             Vector3D posM = new Vector3D(new double[] {0,0,0});
             Vector3D posO1 = new Vector3D(new double[] {-bondLength/2,0,0});
             Vector3D posO2 = new Vector3D(new double[] {+bondLength/2,0,0});
             Vector[] pos = new Vector[]{posM,posO1,posO2};
-            IConformation conformation = new ConformationGeneric(pos);
 
-            species.setConformation(conformation);
-            ((SpeciesSpheresHetero) species).setChildCount(new int[]{1,2});
+            //Set Geometry
+            species = SpeciesBuilder.SpeciesBuilder(space,atomTypes,atomCount,pos);
 
             //Set Potential
-            pTargetGroup = new PotentialGroup(2);
-
-            P2LennardJones p2O = new P2LennardJones(space, sigmaO, epsilonO);
-            P2Electrostatic p2eOO = new P2Electrostatic(space);
-            p2eOO.setCharge1(qO);
-            p2eOO.setCharge2(qO);
-            P2Electrostatic p2eMM = new P2Electrostatic(space);
-            p2eMM.setCharge1(qM);
-            p2eMM.setCharge2(qM);
-            P2ElectrostaticWithHardCore p2eOM = new P2ElectrostaticWithHardCore(space);
-            p2eOM.setCharge1(qO);
-            p2eOM.setCharge2(qM);
-            p2eOM.setSigma(0.1);
-
-            pTargetGroup.addPotential(p2O, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO, typeO}));
-            pTargetGroup.addPotential(p2eOO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO, typeO}));
-            pTargetGroup.addPotential(p2eMM, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeM, typeM}));
-            pTargetGroup.addPotential(p2eOM, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO, typeM}));
+            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,atomTypes,sigma,epsilon,charge);
 
         }
+
         else if (chemForm == ChemForm.CO2) {
 
-            //TraPPE Parameters
+            //Atoms in Compound
             AtomType typeC = new AtomType(Carbon.INSTANCE);
             AtomType typeO = new AtomType(Oxygen.INSTANCE);
 
             AtomType[] atomTypes = new AtomType[]{typeC,typeO};
 
+            int[] atomCount = new int[] {1,2};
+
+            //TraPPE Parameters
             double bondLengthCO = 1.160; // Angstrom
             double sigmaC = 2.800; // Angstrom
             double epsilonC = Kelvin.UNIT.toSim(27.0);
@@ -241,95 +225,68 @@ public class VirialTraPPE {
             double epsilonO = Kelvin.UNIT.toSim(79.0);
             double qO = Electron.UNIT.toSim(-0.350);
 
-            //Set Geometry
-            species = new SpeciesSpheresHetero(space, atomTypes);
+            //Construct Arrays
+            double[] sigma = new double[] {sigmaC,sigmaO};
+            double[] epsilon = new double[] {epsilonC,epsilonO};
+            double[] charge = new double[] {qC,qO};
 
+            //Get Coordinates
             Vector3D posC = new Vector3D(new double[] {0,0,0});
             Vector3D posO1 = new Vector3D(new double[] {-bondLengthCO,0,0});
             Vector3D posO2 = new Vector3D(new double[] {+bondLengthCO,0,0});
             Vector[] pos = new Vector[]{posC,posO1,posO2};
-            IConformation conformation = new ConformationGeneric(pos);
 
-            species.setConformation(conformation);
-            ((SpeciesSpheresHetero) species).setChildCount(new int[]{1,2});
+            //Set Geometry
+            species = SpeciesBuilder.SpeciesBuilder(space,atomTypes,atomCount,pos);
 
             //Set Potential
-            double sigmaCO = (sigmaC+sigmaO)/2;
-            double epsilonCO = Math.sqrt(epsilonC*epsilonO);
-
-            pTargetGroup = new PotentialGroup(2);
-
-            P2LennardJones p2O = new P2LennardJones(space, sigmaO, epsilonO);
-            P2LennardJones p2C = new P2LennardJones(space, sigmaC, epsilonC);
-            P2LennardJones p2CO = new P2LennardJones(space, sigmaCO, epsilonCO);
-            P2Electrostatic p2eOO = new P2Electrostatic(space);
-            p2eOO.setCharge1(qO);
-            p2eOO.setCharge2(qO);
-            P2Electrostatic p2eCC = new P2Electrostatic(space);
-            p2eCC.setCharge1(qC);
-            p2eCC.setCharge2(qC);
-            P2Electrostatic p2eCO = new P2Electrostatic(space);
-            p2eCO.setCharge1(qO);
-            p2eCO.setCharge2(qC);
-
-            pTargetGroup.addPotential(p2O, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO, typeO}));
-            pTargetGroup.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));
-            pTargetGroup.addPotential(p2CO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeO}));
-            pTargetGroup.addPotential(p2eOO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeO, typeO}));
-            pTargetGroup.addPotential(p2eCC, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));
-            pTargetGroup.addPotential(p2eCO, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeO}));
+            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,atomTypes,sigma,epsilon,charge);
         }
         else if (chemForm == ChemForm.NH3) {
 
-            //TraPPE Parameters
+            //Atom in Compound
             AtomType typeN = new AtomType(Nitrogen.INSTANCE);
             AtomType typeH = new AtomType(Hydrogen.INSTANCE);
             AtomType typeM = new AtomType(new ElementSimple("M", 0.0));
 
             AtomType[] atomTypes = new AtomType[]{typeN,typeH,typeM};
 
+            int[] atomCount = new int[] {1,3,1};
+
+            //TraPPE Parameters
             double bondLengthNH = 1.012; // Angstrom
             double bondLengthNM = 0.080; // Angstrom
-            double thetaHNH = Degree.UNIT.toSim(106.7);
             double thetaHNM = Degree.UNIT.toSim(67.9) ;
+            double thetaHNH = Degree.UNIT.toSim(106.7);
+            double thetaHNHxy = Degree.UNIT.toSim(60);
             double sigmaN = 3.420; // Angstrom
             double epsilonN = Kelvin.UNIT.toSim(185.0);
+            double qN = Electron.UNIT.toSim(0.0);
+            double sigmaH = 0.0; // Angstrom
+            double epsilonH = Kelvin.UNIT.toSim(0.0);
             double qH = Electron.UNIT.toSim(0.410);
+            double sigmaM = 0.0; // Angstrom
+            double epsilonM = Kelvin.UNIT.toSim(0.0);
             double qM = Electron.UNIT.toSim(-1.230);
 
-            //Set Geometry
-            species = new SpeciesSpheresHetero(space, atomTypes);
+            //Construct Arrays
+            double[] sigma = new double[] {sigmaN,sigmaH,sigmaM};
+            double[] epsilon = new double[] {epsilonN,epsilonH,epsilonM};
+            double[] charge = new double[] {qN,qH,qM};
 
+            //Get Coordinates
             Vector3D posN = new Vector3D(new double[] {0,0,0});
-            Vector3D posH1 = new Vector3D(new double[] {bondLengthNH,0,0});
-            Vector3D posH2 = new Vector3D(new double[] {bondLengthNH*(Math.sin(thetaHNH)),-bondLengthNH*(Math.cos(thetaHNH)),0});
-            Vector3D posH3 = new Vector3D(new double[] {});
-            Vector3D posM = new Vector3D(new double[] {});
+            Vector3D posH1 = new Vector3D(new double[] {bondLengthNH*Math.sin(thetaHNM),0,-bondLengthNH*Math.cos(thetaHNM)});
+            Vector3D posH2 = new Vector3D(new double[] {-bondLengthNH*Math.sin(thetaHNM)*Math.cos(thetaHNHxy),bondLengthNH*Math.sin(thetaHNM)*Math.sin(thetaHNHxy),-bondLengthNH*Math.cos(thetaHNM)});
+            Vector3D posH3 = new Vector3D(new double[] {-bondLengthNH*Math.sin(thetaHNM)*Math.cos(thetaHNHxy),-bondLengthNH*Math.sin(thetaHNM)*Math.sin(thetaHNHxy),-bondLengthNH*Math.cos(thetaHNM)});
+            Vector3D posM = new Vector3D(new double[] {0,0,-bondLengthNM});
             Vector[] pos = new Vector[]{posN,posH1,posH2,posH3,posM};
-            IConformation conformation = new ConformationGeneric(pos);
 
-            species.setConformation(conformation);
-            ((SpeciesSpheresHetero) species).setChildCount(new int[]{1,3,1});
+            //Set Geometry
+            species = SpeciesBuilder.SpeciesBuilder(space,atomTypes,atomCount,pos);
 
             //Set Potential
-            pTargetGroup = new PotentialGroup(2);
-
-            P2LennardJones p2N = new P2LennardJones(space, sigmaN, epsilonN);
-            P2Electrostatic p2eHH = new P2Electrostatic(space);
-            p2eHH.setCharge1(qH);
-            p2eHH.setCharge2(qH);
-            P2Electrostatic p2eMM = new P2Electrostatic(space);
-            p2eMM.setCharge1(qM);
-            p2eMM.setCharge2(qM);
-            P2ElectrostaticWithHardCore p2eHM = new P2ElectrostaticWithHardCore(space);
-            p2eHM.setCharge1(qH);
-            p2eHM.setCharge2(qM);
-            p2eHM.setSigma(0.1);
-
-            pTargetGroup.addPotential(p2N, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeN, typeN}));
-            pTargetGroup.addPotential(p2eHH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeH}));
-            pTargetGroup.addPotential(p2eMM, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeM, typeM}));
-            pTargetGroup.addPotential(p2eHM, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeM}));
+            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,atomTypes,sigma,epsilon,charge);
         }
 
         MayerGeneral fTarget = new MayerGeneral(pTargetGroup);
@@ -348,6 +305,9 @@ public class VirialTraPPE {
         sim.setExtraTargetClusters(primes);
 
         sim.init();
+
+        sim.box[0].setPositionDefinition(new MoleculePositionCOM(space));
+        sim.box[1].setPositionDefinition(new MoleculePositionCOM(space));
 
         if (doChainRef) {
             sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
