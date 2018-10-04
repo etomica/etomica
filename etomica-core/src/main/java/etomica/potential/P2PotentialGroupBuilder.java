@@ -7,38 +7,43 @@ import etomica.atom.iterator.ApiBuilder;
 import etomica.space.Space;
 
 /**
- * Creates a two-body potential group using model parameters.
+ * Creates a two-body potential group using model parameters for 1 or 2 species.
  *
  * @author navneeth
  */
 
 public class P2PotentialGroupBuilder {
 
-    public static PotentialGroup P2PotentialGroupBuilder(Space space, ModelParams modelParams){
+    public static PotentialGroup P2PotentialGroupBuilder(Space space, ModelParams MP1, ModelParams MP2){
 
         PotentialGroup potentialGroup = new PotentialGroup(2);
         double sigmaHC = 0.1;
+        if(MP2 == null) MP2 = MP1;
 
-        AtomType[] atomTypes = modelParams.atomTypes;
-        double[] sigma = modelParams.sigma;
-        double[] epsilon = modelParams.epsilon;
-        double[] charge = modelParams.charge;
-
-        for(int i = 0; i < atomTypes.length; i++){
-            for(int j = i; j < atomTypes.length; j++){
+        for(int i = 0; i < MP1.atomTypes.length; i++){
+            int s = MP1 == MP2 ? i : 0;
+            for(int j = s; j < MP2.atomTypes.length; j++){
 
 //                System.out.println("Atom "+i+" and " +j);
 //                System.out.println(sigma[i] + " " + sigma[j]);
 //                System.out.println(epsilon[i] + " " + epsilon[j]);
 //                System.out.println(charge[i] + " " +charge[j]);
 
-                double sigmaij = i == j ? sigma[i]: (sigma[i]+sigma[j])/2;
-                double epsilonij= i == j ? epsilon[i]: Math.sqrt(epsilon[i]*epsilon[j]);
-                double qiqj = charge[i]*charge[j];
-                AtomType[] atomList = new AtomType[] {atomTypes[i],atomTypes[j]};
+                double sigmaij;
+                double epsilonij;
+                if( MP1 == MP2 && i == j ){
+                    sigmaij = MP1.sigma[i];
+                    epsilonij = MP1.epsilon[i];
+                }
+                else{
+                    sigmaij = (MP1.sigma[i]+MP2.sigma[j])/2;
+                    epsilonij = Math.sqrt(MP1.epsilon[i]*MP2.epsilon[j]);
+                }
+                double qiqj = MP1.charge[i]*MP2.charge[j];
+                AtomType[] atomList = new AtomType[] {MP1.atomTypes[i],MP2.atomTypes[j]};
 
                 P2LennardJones p2LJ;
-                if(epsilon[i] != 0 && epsilon[j] != 0) {
+                if(MP1.epsilon[i] != 0 && MP2.epsilon[j] != 0) {
                     p2LJ = new P2LennardJones(space, sigmaij, epsilonij);
                     potentialGroup.addPotential(p2LJ, ApiBuilder.makeIntergroupTypeIterator(atomList));
 //                    System.out.println("Added p2LJ");
@@ -49,14 +54,14 @@ public class P2PotentialGroupBuilder {
 //                    System.out.print("Added ");
                     if (qiqj < 0 && epsilonij == 0) {
                         p2ES = new P2ElectrostaticWithHardCore(space);
-                        ((P2ElectrostaticWithHardCore) p2ES).setCharge1(charge[i]);
-                        ((P2ElectrostaticWithHardCore) p2ES).setCharge2(charge[j]);
+                        ((P2ElectrostaticWithHardCore) p2ES).setCharge1(MP1.charge[i]);
+                        ((P2ElectrostaticWithHardCore) p2ES).setCharge2(MP2.charge[j]);
                         ((P2ElectrostaticWithHardCore) p2ES).setSigma(sigmaHC);
 //                        System.out.print("HardCore ");
                     } else {
                         p2ES = new P2Electrostatic(space);
-                        ((P2Electrostatic) p2ES).setCharge1(charge[i]);
-                        ((P2Electrostatic) p2ES).setCharge2(charge[j]);
+                        ((P2Electrostatic) p2ES).setCharge1(MP1.charge[i]);
+                        ((P2Electrostatic) p2ES).setCharge2(MP2.charge[j]);
                     }
                     potentialGroup.addPotential(p2ES, ApiBuilder.makeIntergroupTypeIterator(atomList));
 //                    System.out.println("p2ES");

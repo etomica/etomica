@@ -58,7 +58,7 @@ public class VirialTraPPE {
         }
         else {
             // customize parameters here
-            params.chemForm = ChemForm.N2;
+            params.chemForm = ChemForm.NH3;
             params.nPoints = 2;
             params.nDer = 3;
             params.temperature = 400;
@@ -166,7 +166,7 @@ public class VirialTraPPE {
 
             //Set Potential
             P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes,sigma,epsilon,charge);
-            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,modelParams);
+            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,modelParams,null);
         }
 
         else if (chemForm == ChemForm.O2) {
@@ -204,7 +204,7 @@ public class VirialTraPPE {
 
             //Set Potential
             P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes,sigma,epsilon,charge);
-            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,modelParams);
+            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,modelParams,null);
 
         }
 
@@ -243,7 +243,7 @@ public class VirialTraPPE {
 
             //Set Potential
             P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes,sigma,epsilon,charge);
-            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,modelParams);
+            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,modelParams,null);
         }
         else if (chemForm == ChemForm.NH3) {
 
@@ -290,7 +290,7 @@ public class VirialTraPPE {
 
             //Set Potential
             P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes,sigma,epsilon,charge);
-            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,modelParams);
+            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,modelParams,null);
         }
 
         MayerGeneral fTarget = new MayerGeneral(pTargetGroup);
