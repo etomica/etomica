@@ -58,7 +58,7 @@ public class VirialTraPPE {
         }
         else {
             // customize parameters here
-            params.chemForm = ChemForm.NH3;
+            params.chemForm = ChemForm.N2;
             params.nPoints = 2;
             params.nDer = 3;
             params.temperature = 400;
@@ -165,7 +165,8 @@ public class VirialTraPPE {
             species = SpeciesBuilder.SpeciesBuilder(space,atomTypes,atomCount,pos);
 
             //Set Potential
-            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,atomTypes,sigma,epsilon,charge);
+            P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes,sigma,epsilon,charge);
+            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,modelParams);
         }
 
         else if (chemForm == ChemForm.O2) {
@@ -202,7 +203,8 @@ public class VirialTraPPE {
             species = SpeciesBuilder.SpeciesBuilder(space,atomTypes,atomCount,pos);
 
             //Set Potential
-            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,atomTypes,sigma,epsilon,charge);
+            P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes,sigma,epsilon,charge);
+            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,modelParams);
 
         }
 
@@ -240,7 +242,8 @@ public class VirialTraPPE {
             species = SpeciesBuilder.SpeciesBuilder(space,atomTypes,atomCount,pos);
 
             //Set Potential
-            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,atomTypes,sigma,epsilon,charge);
+            P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes,sigma,epsilon,charge);
+            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,modelParams);
         }
         else if (chemForm == ChemForm.NH3) {
 
@@ -286,7 +289,8 @@ public class VirialTraPPE {
             species = SpeciesBuilder.SpeciesBuilder(space,atomTypes,atomCount,pos);
 
             //Set Potential
-            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,atomTypes,sigma,epsilon,charge);
+            P2PotentialGroupBuilder.ModelParams modelParams = new P2PotentialGroupBuilder.ModelParams(atomTypes,sigma,epsilon,charge);
+            pTargetGroup = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,modelParams);
         }
 
         MayerGeneral fTarget = new MayerGeneral(pTargetGroup);

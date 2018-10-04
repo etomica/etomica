@@ -7,17 +7,22 @@ import etomica.atom.iterator.ApiBuilder;
 import etomica.space.Space;
 
 /**
- * Creates a two-body potential group using parameters.
+ * Creates a two-body potential group using model parameters.
  *
  * @author navneeth
  */
 
 public class P2PotentialGroupBuilder {
 
-    public static PotentialGroup P2PotentialGroupBuilder(Space space, AtomType[] atomTypes, double[] sigma, double[] epsilon, double[] charge){
+    public static PotentialGroup P2PotentialGroupBuilder(Space space, ModelParams modelParams){
 
         PotentialGroup potentialGroup = new PotentialGroup(2);
         double sigmaHC = 0.1;
+
+        AtomType[] atomTypes = modelParams.atomTypes;
+        double[] sigma = modelParams.sigma;
+        double[] epsilon = modelParams.epsilon;
+        double[] charge = modelParams.charge;
 
         for(int i = 0; i < atomTypes.length; i++){
             for(int j = i; j < atomTypes.length; j++){
@@ -60,6 +65,21 @@ public class P2PotentialGroupBuilder {
             }
         }
         return potentialGroup;
+    }
+
+    public static class ModelParams {
+
+        protected AtomType[] atomTypes;
+        protected double[] sigma;
+        protected double[] epsilon;
+        protected double[] charge;
+
+        public ModelParams(AtomType[] atomTypes, double[] sigma, double[] epsilon, double[] charge){
+            this.atomTypes = atomTypes;
+            this.sigma = sigma;
+            this.epsilon = epsilon;
+            this.charge = charge;
+        }
     }
 
 }
