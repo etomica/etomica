@@ -37,7 +37,7 @@ public class ClusterWheatleySoftMix extends ClusterWheatleySoft {
                 fMap[i][j] = f[iType][jType];
             }
         }
-        clusterBD = new ClusterWheatleySoftBDMix(nPoints, nTypes, f, -3*(int)Math.log10(tol));
+        clusterBD = new ClusterWheatleySoftMixBD(nPoints, nTypes, f, -3*(int)Math.log10(tol));
     }
     
     public ClusterAbstract makeCopy() {

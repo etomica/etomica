@@ -11,13 +11,13 @@ import java.math.BigDecimal;
  * 
  * @author Andrew Schultz
  */
-public class ClusterWheatleySoftBDMix extends ClusterWheatleySoftBD {
+public class ClusterWheatleySoftMixBD extends ClusterWheatleySoftBD {
 
     protected final MayerFunction[][] mixF;
     protected final int[] nTypes;
     protected final MayerFunction[][] fMap;
     
-    public ClusterWheatleySoftBDMix(int nPoints, int[] nTypes, MayerFunction[][] f, int precision) {
+    public ClusterWheatleySoftMixBD(int nPoints, int[] nTypes, MayerFunction[][] f, int precision) {
         super(nPoints, null, precision);
         this.nTypes = nTypes;
         mixF = f;
@@ -43,7 +43,7 @@ public class ClusterWheatleySoftBDMix extends ClusterWheatleySoftBD {
     }
     
     public ClusterAbstract makeCopy() {
-        ClusterWheatleySoftMix c = new ClusterWheatleySoftMix(n, nTypes, mixF, tol);
+        ClusterWheatleySoftMixBD c = new ClusterWheatleySoftMixBD(n, nTypes, mixF, mc.getPrecision());
         c.setTemperature(1/beta);
         return c;
     }
