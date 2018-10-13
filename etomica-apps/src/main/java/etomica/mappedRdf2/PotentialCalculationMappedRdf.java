@@ -25,6 +25,8 @@ import java.io.IOException;
 public class PotentialCalculationMappedRdf implements PotentialCalculation {
     protected final Vector dr;
     protected double[] gSum;
+    protected double[] gSum2;
+
     protected IBoundary boundary;
     protected final DataSourceUniform xDataSource;
     protected double xMax;
@@ -50,6 +52,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
         xDataSource.setTypeMin(DataSourceUniform.LimitType.HALF_STEP);
 
         gSum = new double[xDataSource.getData().getLength()];
+        gSum2 = new double[xDataSource.getData().getLength()];
 
         this.boundary = box.getBoundary();
         this.nbins = nbins;
@@ -221,6 +224,8 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
     public void reset() {
         xMax = xDataSource.getXMax();
         gSum = new double[xDataSource.getData().getLength()];
+        gSum2 = new double[xDataSource.getData().getLength()];
+
     }
 
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
@@ -251,7 +256,8 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
                     double wp = 0.5 * fifj;
               //      gSum[k] -= ((xu/(4 * Math.PI)))* wp*beta;               //add once for each atom
                     gSum[k] -= ((xu/(4 * Math.PI))-(r*r*r/(3*vol)))* wp*beta;               //add once for each atom
-               //        gSum[k] -= ((-r*r*r/(3*vol)))* wp*beta;               //add once for each atom
+                    //   gSum[k] -= ((-r*r*r/(3*vol)))* wp*beta;               //add once for each atom
+                     gSum2[k] -= ((xu/(4 * Math.PI)) )* wp*beta;               //add once for each atom
 
                 }
 //                else{
@@ -267,4 +273,8 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
     public double[] getGSum() {
         return gSum;
     }
+    public double[] getGSum2() {
+        return gSum2;
+    }
+
 }

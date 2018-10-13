@@ -1,6 +1,5 @@
 package etomica.mappedRdf2;
 
-import etomica.action.IAction;
 import etomica.api.IAtom;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.iterator.IteratorDirective;
@@ -16,12 +15,12 @@ import etomica.units.Null;
 
 import java.io.Serializable;
 
-public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent, Serializable, AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> {
+public class MeterMappedRdf2 implements IEtomicaDataSource, DataSourceIndependent, Serializable, AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> {
 
     protected final PotentialCalculationForceSum pcForce;
     protected final AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager;
 
-    public MeterMappedRdf(Space space, PotentialMaster potentialMaster, Box box, int nbins) {
+    public MeterMappedRdf2(Space space, PotentialMaster potentialMaster, Box box, int nbins) {
         this.space = space;
         this.box = box;
 
@@ -96,7 +95,7 @@ public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent
         double norm = numAtomPairs  / box.getBoundary().volume();
         double[] r = rData.getData();
         double dx2 = 0.5 * (xMax - xDataSource.getXMin()) / r.length;
-        double[] gSum = pc.getGSum();
+        double[] gSum2 = pc.getGSum2();
         double[] gR = pc.gR();
 
   //      System.out.println("metervol " + box.getBoundary().volume());
@@ -105,7 +104,7 @@ public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent
 //            double vShell = space.sphereVolume(r[i]+dx2)-space.sphereVolume(r[i]-dx2);
             // y[i] = (gR[i]*callCount+gSum[i])*01/(norm*vShell);
 
-              y[i] = 1 + (gSum[i] / (norm)) ;
+              y[i] = 1 + (gSum2[i] / (norm)) ;
         //    y[i] =  (gSum[i] / (norm)) ;
 
         }
