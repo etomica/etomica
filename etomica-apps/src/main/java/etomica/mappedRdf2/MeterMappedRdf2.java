@@ -19,11 +19,12 @@ public class MeterMappedRdf2 implements IEtomicaDataSource, DataSourceIndependen
 
     protected final PotentialCalculationForceSum pcForce;
     protected final AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager;
+    protected double density;
 
-    public MeterMappedRdf2(Space space, PotentialMaster potentialMaster, Box box, int nbins) {
+    public MeterMappedRdf2(Space space, PotentialMaster potentialMaster, Box box, int nbins,double density) {
         this.space = space;
         this.box = box;
-
+this.density=density;
         this.potentialMaster = potentialMaster;
 
         pcForce = new PotentialCalculationForceSum();
@@ -97,6 +98,7 @@ public class MeterMappedRdf2 implements IEtomicaDataSource, DataSourceIndependen
         double dx2 = 0.5 * (xMax - xDataSource.getXMin()) / r.length;
         double[] gSum2 = pc.getGSum2();
         double[] gR = pc.gR();
+        double vol = box.getBoundary().volume();
 
   //      System.out.println("metervol " + box.getBoundary().volume());
 
@@ -104,7 +106,7 @@ public class MeterMappedRdf2 implements IEtomicaDataSource, DataSourceIndependen
 //            double vShell = space.sphereVolume(r[i]+dx2)-space.sphereVolume(r[i]-dx2);
             // y[i] = (gR[i]*callCount+gSum[i])*01/(norm*vShell);
 
-              y[i] = 1 + (gSum2[i] / (norm)) ;
+            y[i] =  numAtoms * (numAtoms - 1)/(vol*vol) + (gSum2[i]) ;
         //    y[i] =  (gSum[i] / (norm)) ;
 
         }

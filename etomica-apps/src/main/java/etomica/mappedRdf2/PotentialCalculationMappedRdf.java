@@ -26,6 +26,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
     protected final Vector dr;
     protected double[] gSum;
     protected double[] gSum2;
+    protected double[] thirdterm;
 
     protected IBoundary boundary;
     protected final DataSourceUniform xDataSource;
@@ -53,6 +54,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
 
         gSum = new double[xDataSource.getData().getLength()];
         gSum2 = new double[xDataSource.getData().getLength()];
+        thirdterm = new double[xDataSource.getData().getLength()];
 
         this.boundary = box.getBoundary();
         this.nbins = nbins;
@@ -62,33 +64,6 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
         vol = box.getBoundary().volume();
 
         this.forceManager = forceManager;
-    }
-
-    public static void main(String[] args) throws IOException {
-        Simulation sim = new Simulation(Space3D.getInstance());
-        Box box = new Box(sim.getSpace());
-        box.getBoundary().setBoxSize(new Vector3D(100, 100, 100));
-
-        PotentialCalculationMappedRdf pc = new PotentialCalculationMappedRdf(sim.getSpace(), box, 1000000, null);
-        P2LennardJones potential = new P2LennardJones(sim.getSpace());
-        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(sim.getSpace(), potential, 4);
-        double R = 1.5;
-
-//        pc.setVolume(99999.99999999997);
-        pc.setPotential(p2Truncated);
-        pc.setTemperature(2);
-        double rc = p2Truncated.getRange();
-        double x0 = rc;
-//        FileWriter fw = new FileWriter("vu.dat");
-        for (int i = 10; i < 40; i++) {
-            double r = i * 0.1;
-            if (r >= 4) r = 3.99999999;
-
-            System.out.println(r + " " + pc.calcXu(r, p2Truncated.u(r * r), R) * r * r + " ");
-//               fw.write(r+" "+pc.calcXu(r, p2Truncated.u(r*r),1.5)+"\n");
-        }
-
-//         fw.close();
     }
 
     public DataSourceUniform getXDataSource() {
@@ -152,7 +127,6 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
 
         q *= (D == 2 ? 2 : 4) * Math.PI;
         q += vol;
-        System.out.println("vol " + vol + " q " + q);
 
         for (int i = 1; i <= nbins; i++) {
             double r = Math.exp(c1 * i) - 1;
@@ -225,7 +199,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
         xMax = xDataSource.getXMax();
         gSum = new double[xDataSource.getData().getLength()];
         gSum2 = new double[xDataSource.getData().getLength()];
-
+        thirdterm= new double[xDataSource.getData().getLength()];
     }
 
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
@@ -251,24 +225,17 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
                  if (R < x0) {
                     Vector fi = forceManager.getAgent(atom0).force;
                     Vector fj = forceManager.getAgent(atom1).force;
-                     double fifj = (fi.dot(dr) - fj.dot(dr)) / (r * r * r);
-                    double xu = R < r ? 1 : 0; //calcXu(r, u, R);
-                    double wp = 0.5 * fifj;
-              //      gSum[k] -= ((xu/(4 * Math.PI)))* wp*beta;               //add once for each atom
-                    gSum[k] -= ((xu/(4 * Math.PI))-(r*r*r/(3*vol)))* wp*beta;               //add once for each atom
+                     double xu = R < r ? 1 : 0; //calcXu(r, u, R);
+               //      gSum[k] -= ((xu/(4 * Math.PI)))* wp*beta;               //add once for each atom
+                    gSum[k] =gSum[k] - ((xu/(4 * Math.PI*r * r * r))-(1/(3*vol)))* (fi.dot(dr) - fj.dot(dr))*beta/vol;               //add once for each atom
                     //   gSum[k] -= ((-r*r*r/(3*vol)))* wp*beta;               //add once for each atom
-                     gSum2[k] -= ((xu/(4 * Math.PI)) )* wp*beta;               //add once for each atom
-
-                }
-//                else{
-//                    if(r>R && r<(R+0.01)){
-//                        gSum[k] += 1;
-//                    }
-
-//                }
+                     gSum2[k] = gSum2[k] - ((xu/(4 * Math.PI*r * r * r)) )* (fi.dot(dr) - fj.dot(dr))*beta/vol;                //add once for each atom
+                     thirdterm[k] +=  (beta*(fi.dot(dr) - fj.dot(dr))/(3*vol*vol));               //add once for each atom
+                 }
+//
             }
         }
-    }
+     }
 
     public double[] getGSum() {
         return gSum;
@@ -276,5 +243,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
     public double[] getGSum2() {
         return gSum2;
     }
-
+    public double[] getThirdterm() {
+        return thirdterm;
+    }
 }

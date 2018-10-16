@@ -1,6 +1,5 @@
 package etomica.mappedRdf2;
 
-import etomica.action.IAction;
 import etomica.api.IAtom;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.iterator.IteratorDirective;
@@ -16,13 +15,13 @@ import etomica.units.Null;
 
 import java.io.Serializable;
 
-public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent, Serializable, AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> {
+public class MeterMappedRdf3 implements IEtomicaDataSource, DataSourceIndependent, Serializable, AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> {
 
     protected final PotentialCalculationForceSum pcForce;
     protected final AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager;
     protected double density;
 
-    public MeterMappedRdf(Space space, PotentialMaster potentialMaster, Box box, int nbins,double density) {
+    public MeterMappedRdf3(Space space, PotentialMaster potentialMaster, Box box, int nbins,double density) {
         this.space = space;
         this.box = box;
 this.density=density;
@@ -91,19 +90,23 @@ this.density=density;
 
         final double[] y = data.getData();
 
+        long numAtomPairs = 0;
         long numAtoms = box.getLeafList().getAtomCount();
+        numAtomPairs = numAtoms * (numAtoms - 1)/2 ;
+        double norm = numAtomPairs  / box.getBoundary().volume();
         double[] r = rData.getData();
         double dx2 = 0.5 * (xMax - xDataSource.getXMin()) / r.length;
-        double[] gSum = pc.getGSum();
+        double[] thirdterm = pc.getThirdterm();
         double[] gR = pc.gR();
         double vol = box.getBoundary().volume();
+
   //      System.out.println("metervol " + box.getBoundary().volume());
 
         for (int i = 0; i < r.length; i++) {
 //            double vShell = space.sphereVolume(r[i]+dx2)-space.sphereVolume(r[i]-dx2);
             // y[i] = (gR[i]*callCount+gSum[i])*01/(norm*vShell);
 
-              y[i] =  numAtoms * (numAtoms - 1)/(vol*vol) + (gSum[i]) ;
+              y[i] = thirdterm[i] ;
         //    y[i] =  (gSum[i] / (norm)) ;
 
         }
