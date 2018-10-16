@@ -12,6 +12,7 @@ import etomica.data.AccumulatorHistogram;
 import etomica.data.DataPumpListener;
 import etomica.data.histogram.HistogramSimple;
 import etomica.data.meter.MeterNMolecules;
+import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -29,6 +30,11 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
+
+import java.awt.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Implements Ashton and Wilding method for calculation of osmotic virial coefficient (B2, B3)
@@ -55,16 +61,14 @@ public class AshtonWildingOsmoticVirial extends Simulation {
     public AshtonWildingOsmoticVirial(int numAtoms, double vf, double q, boolean computeIdeal){
 
         super(Space3D.getInstance());
-        setRandom(new RandomMersenneTwister(1));
+//        setRandom(new RandomMersenneTwister(1));
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
 
         integrator = new IntegratorMC(this, potentialMaster);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-        integrator.getMoveManager().addMCMove(mcMoveInsertDelete);
 
 
         double sigma1 = 1.0; //solute
@@ -77,14 +81,8 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         addSpecies(species2);
         box = new Box(space);
         addBox(box);
-        box.setBoundary(new BoundaryRectangularPeriodic(space, 4*sigma1));
+        box.setBoundary(new BoundaryRectangularPeriodic(space, 4.0*sigma1));
         System.out.println("vol: "+box.getBoundary().volume());
-
-        mcMoveInsertDelete.setSpecies(species2);
-        double mu = (8*vf-9*vf*vf+3*vf*vf*vf) / Math.pow((1-vf),3)+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))); //Configurational chemical potential from Carnahan–Starling equation of state
-        System.out.println("mu "+ mu+" muig "+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))));
-       // mu = Double.MAX_VALUE;
-        mcMoveInsertDelete.setMu(mu);
 
         box.setNMolecules(species1, numAtoms);
 
@@ -96,6 +94,13 @@ public class AshtonWildingOsmoticVirial extends Simulation {
             System.out.println("P_ideal");
         }
         else{
+            mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
+            mcMoveInsertDelete.setSpecies(species2);
+            double mu = (8*vf-9*vf*vf+3*vf*vf*vf) / Math.pow((1-vf),3)+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))); //Configurational chemical potential from Carnahan–Starling equation of state
+            System.out.println("mu "+ mu+" muig "+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))));
+            mcMoveInsertDelete.setMu(mu);
+            integrator.getMoveManager().addMCMove(mcMoveInsertDelete);
+
             potential1 = new P2HardSphere(space, sigma1, false);
             potential2 = new P2HardSphere(space, sigma2, false);
 //            potential2 = new P2Ideal(space);
@@ -122,19 +127,18 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         potentialMaster.getNbrCellManager(box).assignCellAll();
     }
 
-    public static void main(String[] args){
+    public static <OutputStream> void main(String[] args) throws IOException {
         simParams params = new simParams();
 
-        if(args.length > 0){
+        if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
-        }
-        else{
-            params.numAtoms = 3;
-            params.numSteps = 1000;
+        } else {
+            params.numAtoms = 2; //3
+            params.numSteps = 10000; //1000
             params.nBlocks = 100;
-            params.vf = 0.1;
+            params.vf = 0.20;
             params.computeIdeal = false;
-            params.sizeRatio = 0.2;
+            params.sizeRatio = 0.33333333333333333333;
         }
         int numAtoms = params.numAtoms;
         long numSteps = params.numSteps;
@@ -145,37 +149,38 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         boolean graphics = false;
         AccumulatorAverageFixed accNm = null;
 
-        long numSamples = numSteps / numAtoms ;
+        long numSamples = numSteps / numAtoms;
         long samplesPerBlock = numSamples / nBlocks;
-        if(samplesPerBlock == 0) samplesPerBlock = 1;
+        if (samplesPerBlock == 0) samplesPerBlock = 1;
 
-        System.out.println(numAtoms + " Atoms, "+ numSteps + " Steps" );
-        System.out.println("Volume fraction: "+ vf);
-        System.out.println("Size ratio: "+ q);
-        System.out.println("nBlocks "+ nBlocks);
+        System.out.println(numAtoms + " Atoms, " + numSteps + " Steps");
+        System.out.println("Volume fraction: " + vf);
+        System.out.println("Size ratio: " + q);
+        System.out.println("nBlocks " + nBlocks);
 
         long t1 = System.currentTimeMillis();
 
         AshtonWildingOsmoticVirial sim = new AshtonWildingOsmoticVirial(numAtoms, vf, q, computeIdeal);
 
-        if(graphics){
+        if (graphics) {
             final String appName = "Ashton-Wilding";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, appName, 3, sim.getSpace(), sim.getController());
-
-            ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species1.getLeafType(), 1);
-            ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
+            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas).setBoundaryFrameColor(Color.BLACK);
+            ((DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species1.getLeafType(), 1);
+            ((DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
             simGraphic.makeAndDisplayFrame(appName);
             return;
         }
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
+        sim.activityIntegrate.setMaxSteps(numSteps / 10);
         sim.getController().actionPerformed();
         sim.getController().reset();
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.integrator.getMoveManager().setEquilibrating(false);
 
         MeterRminSpecies meterRmin = new MeterRminSpecies(sim.space, sim.box, sim.species1);
-        AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, 4*sim.potential1.getRange())));
-        DataPumpListener pumpRmin = new DataPumpListener(meterRmin,accRmin,numAtoms);
+        AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, 4.0 * sim.potential1.getRange())));
+        DataPumpListener pumpRmin = new DataPumpListener(meterRmin, accRmin, numAtoms);
         sim.integrator.getEventManager().addListener(pumpRmin);
 
         MeterNMolecules meterNMolecules = new MeterNMolecules();
@@ -189,9 +194,13 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         double[] histRmin = accRmin.getHistograms().getHistogram();
         double[] r = accRmin.getHistograms().xValues();
 
+        System.out.println("\nWriting probabilities to test.txt file\n");
+        FileWriter writer = new FileWriter("test.txt");
         for (int i = 0; i < histRmin.length; i++) {
-            System.out.println(r[i]+" "+histRmin[i]);
+         //   System.out.println(r[i] + " " + histRmin[i]);
+            writer.write(r[i] + " " + histRmin[i] + "\n");
         }
+        writer.close();
 
         double NmAvg = accNm.getData(AccumulatorAverage.AVERAGE).getValue(0);
         double NmErr = accNm.getData(AccumulatorAverage.ERROR).getValue(0);
@@ -209,12 +218,12 @@ public class AshtonWildingOsmoticVirial extends Simulation {
     }
 
     public static class simParams extends ParameterBase{
-        public int numAtoms = 20;
+        public int numAtoms = 2;
         public long numSteps = 10000;
         public int nBlocks = 100;
         public double vf = 0.2;
         public double sizeRatio = 0.2;
-        public boolean computeIdeal = true;
+        public boolean computeIdeal = false;
 
     }
 }
