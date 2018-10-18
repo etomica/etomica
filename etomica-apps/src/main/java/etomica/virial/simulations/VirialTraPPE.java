@@ -56,11 +56,11 @@ public class VirialTraPPE {
         }
         else {
             // customize parameters here
-            params.chemForm = new ChemForm[]{ChemForm.N2};
+            params.chemForm = new ChemForm[]{ChemForm.NH3,ChemForm.NH3};
             params.nPoints = 2;
-            params.nTypes = new int[]{0};
+            params.nTypes = new int[]{1,1};
             params.nDer = 3;
-            params.temperature = 400;
+            params.temperature = 450;
             params.numSteps = 1000000;
 
             params.refFrac = -1;
@@ -89,7 +89,7 @@ public class VirialTraPPE {
         boolean dorefpref = params.dorefpref;
         boolean doChainRef = params.doChainRef;
 
-        final double BDtol = params.BDtol;
+        double BDtol = params.BDtol;
 
         if( chemForm.length > 2 || chemForm.length == 0 ) throw new RuntimeException("chemForm length is wrong!");
 
@@ -120,7 +120,7 @@ public class VirialTraPPE {
         }
         else{
             String typescript = "{"+nTypes[0]+","+nTypes[1]+"}";
-            System.out.println("Overlap sampling for TraPPE " + chemForm[0] + " " + chemForm[1] + " " +typescript + " Mixture " + " at " + temperatureK + " K " + "for B" + nPoints + " and " + nDer + " derivatives");
+            System.out.println("Overlap sampling for TraPPE " + chemForm[0] + " " + chemForm[1] + " " +typescript + " Mixture at " + temperatureK + " K " + "for B" + nPoints + " and " + nDer + " derivatives");
         }
         System.out.println("Reference diagram: B"+nPoints+" for hard spheres with diameter " + sigmaHSRef + " Angstroms");
 
@@ -151,7 +151,8 @@ public class VirialTraPPE {
         //Setting up target cluster
 
         Species species[] = null;
-        ClusterAbstract targetCluster = null;
+        ClusterAbstractMultivalue targetCluster = null;
+        ClusterAbstractMultivalue targetClusterBD = null;
 
         if(!isMixture){
             nTypes[0] = nPoints;
@@ -164,6 +165,17 @@ public class VirialTraPPE {
 
             targetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, BDtol, nDer);
             targetCluster.setTemperature(temperature);
+
+            if(TPPure.polar && nPoints==2) {
+                System.out.println("Performing Flipping");
+                ((ClusterWheatleySoftDerivatives) targetCluster).setTolerance(0);
+                final int precision = -3*(int)Math.log10(BDtol);
+                targetClusterBD = new ClusterWheatleySoftDerivativesBD(nPoints,fTarget,precision,nDer);
+                targetClusterBD.setTemperature(temperature);
+                ((ClusterWheatleySoftDerivatives)targetCluster).setDoCaching(false);
+                ((ClusterWheatleySoftDerivativesBD)targetClusterBD).setDoCaching(false);
+                targetCluster = new ClusterCoupledFlippedMultivalue(targetCluster, targetClusterBD, space, 20, nDer, BDtol);
+            }
 
         }
         else {
@@ -191,6 +203,17 @@ public class VirialTraPPE {
 
             targetCluster = new ClusterWheatleySoftDerivativesMix(nPoints, nTypes,fAll, BDtol, nDer);
             targetCluster.setTemperature(temperature);
+
+            if(TP1.polar && TP2.polar && nPoints==2) {
+                System.out.println("Performing Flipping");
+                ((ClusterWheatleySoftDerivativesMix) targetCluster).setTolerance(0);
+                final int precision = -3*(int)Math.log10(BDtol);
+                targetClusterBD = new ClusterWheatleySoftDerivativesMixBD(nPoints,nTypes,fAll,precision,nDer);
+                targetClusterBD.setTemperature(temperature);
+                ((ClusterWheatleySoftDerivativesMix) targetCluster).setDoCaching(false);
+                ((ClusterWheatleySoftDerivativesMixBD) targetClusterBD).setDoCaching(false);
+                targetCluster = new ClusterCoupledFlippedMultivalue(targetCluster, targetClusterBD, space, 20, nDer, BDtol);
+            }
         }
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, nTypes, temperature,refCluster,targetCluster);
@@ -419,6 +442,8 @@ public class VirialTraPPE {
         protected Species species;
         protected PotentialGroup potentialGroup;
         protected static Element elementM = new ElementSimple("M", 0.0);
+        protected boolean polar;
+        //Set up computing the boolean. It is hard coded for now.
 
 /*
         public TraPPEParams(Element[] elements, double[] sigma, double[] epsilon, double[] charge) {
@@ -560,6 +585,8 @@ public class VirialTraPPE {
                 atomTypes = new AtomType[]{typeN,typeH,typeM};
 
                 int[] atomCount = new int[] {1,3,1};
+
+                polar = true;
 
                 //TraPPE Parameters
                 double bondLengthNH = 1.012; // Angstrom

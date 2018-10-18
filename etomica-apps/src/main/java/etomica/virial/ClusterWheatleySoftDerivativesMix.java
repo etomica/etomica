@@ -11,6 +11,7 @@ public class ClusterWheatleySoftDerivativesMix extends ClusterWheatleySoftDeriva
         this.nTypes=nTypes;
         mixF = f;
         fMap = new MayerFunction[nPoints][nPoints];
+        if(tol!=0){setTolerance(tol);}
         int iType = 0, jType = 0;
         int iSum = nTypes[0], jSum = 0;
         for (int i=0; i<nPoints; i++) {
@@ -28,7 +29,19 @@ public class ClusterWheatleySoftDerivativesMix extends ClusterWheatleySoftDeriva
                 fMap[i][j] = f[iType][jType];
             }
         }
-        clusterBD = new ClusterWheatleySoftDerivativesMixBD(nPoints, nTypes, f, -3*(int)Math.log10(tol),nDer);
+    }
+
+    public void setTolerance(double newTol) {
+        if(nTypes==null)return;
+        if(newTol!=0){
+            clusterBD = new ClusterWheatleySoftDerivativesMixBD(n, nTypes, mixF, -3*(int)Math.log10(newTol),nDer);
+            clusterBD.setDoCaching(false);
+            clusterBD.setPrecisionLimit(300);
+        }
+        else{
+            clusterBD = null;
+        }
+        tol = newTol;
     }
 
     public ClusterAbstract makeCopy() {
