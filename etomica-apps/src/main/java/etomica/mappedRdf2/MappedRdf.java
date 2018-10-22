@@ -18,6 +18,7 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
+import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
@@ -34,8 +35,7 @@ public class MappedRdf extends Simulation {
     public MCMoveAtom move;
     public ActivityIntegrate activityIntegrate;
  //   public P2SoftSphericalTruncatedForceShifted p2Truncated;
- public P2SoftSphericalTruncated p2Truncated;
-
+ public P2SoftSphericalTruncatedForceShifted p2Truncated;
 
     public MappedRdf(Space _space, int numAtoms, double temperature, double density, double rc) {
         super(_space);
@@ -65,7 +65,7 @@ public class MappedRdf extends Simulation {
 
         P2LennardJones potential = new P2LennardJones(space);
      //   p2Truncated = new P2SoftSphericalTruncatedForceShifted(space, potential, rc);
-        p2Truncated = new P2SoftSphericalTruncated(space, potential, rc);
+        p2Truncated = new P2SoftSphericalTruncatedForceShifted(space, potential, rc);
 
         potentialMaster.addPotential(p2Truncated, new IAtomType[]{species.getLeafType(), species.getLeafType()});
 
@@ -93,6 +93,7 @@ public class MappedRdf extends Simulation {
         double density = params.density;
         long numSteps = params.numSteps;
         double rc = params.rc;
+        double rcforHandfinmap = params.rcforHandfinmap;
         boolean graphics = false;
         boolean computeR = params.computeR;
         boolean computeRMA = params.computeRMA;
@@ -110,8 +111,8 @@ public class MappedRdf extends Simulation {
         MeterMappedRdf3 meterMappedRdf3 = null;
 
         double halfBoxlength = sim.box.getBoundary().getBoxSize().getX(0) / 2;
-        int nbins = (int) Math.floor(rc / 0.01);
-        double eqncutoff = nbins * 0.01;
+        int nbins = 1000;
+        double eqncutoff = halfBoxlength;
 
 
         if (graphics) {
@@ -154,21 +155,21 @@ public class MappedRdf extends Simulation {
         meterRDF.getXDataSource().setNValues(nbins);
         meterRDF.getXDataSource().setXMax(eqncutoff);
 
-        meterMappedRdf = new MeterMappedRdf(space, sim.integrator.getPotentialMaster(), sim.box, nbins,params.density);
+        meterMappedRdf = new MeterMappedRdf(params.rcforHandfinmap,space, sim.integrator.getPotentialMaster(), sim.box, nbins,params.density);
         meterMappedRdf.setBox(sim.box);
         meterMappedRdf.getXDataSource().setNValues(nbins);
         meterMappedRdf.getXDataSource().setXMax(eqncutoff);
         meterMappedRdf.getPotentialCalculation().setPotential(sim.p2Truncated);
         meterMappedRdf.getPotentialCalculation().setTemperature(temperature);
 
-        meterMappedRdf2 = new MeterMappedRdf2(space, sim.integrator.getPotentialMaster(), sim.box, nbins,params.density);
+        meterMappedRdf2 = new MeterMappedRdf2(params.rcforHandfinmap,space, sim.integrator.getPotentialMaster(), sim.box, nbins,params.density);
         meterMappedRdf2.setBox(sim.box);
         meterMappedRdf2.getXDataSource().setNValues(nbins);
         meterMappedRdf2.getXDataSource().setXMax(eqncutoff);
         meterMappedRdf2.getPotentialCalculation().setPotential(sim.p2Truncated);
         meterMappedRdf2.getPotentialCalculation().setTemperature(temperature);
 
-        meterMappedRdf3 = new MeterMappedRdf3(space, sim.integrator.getPotentialMaster(), sim.box, nbins,params.density);
+        meterMappedRdf3 = new MeterMappedRdf3(params.rcforHandfinmap,space, sim.integrator.getPotentialMaster(), sim.box, nbins,params.density);
         meterMappedRdf3.setBox(sim.box);
         meterMappedRdf3.getXDataSource().setNValues(nbins);
         meterMappedRdf3.getXDataSource().setXMax(eqncutoff);
@@ -225,13 +226,15 @@ public class MappedRdf extends Simulation {
     }
 
     public static class LJMDParams extends ParameterBase {
-        public int numAtoms = 500;
+        public int numAtoms = 4;
         public double temperature = 1.0;
-        public double density = 0.001;
-        public long numSteps = 20000000;
-        public double rc = 5;
+        public double density = 0.05;
+        public long numSteps = 20000;
+        public double rc = 2;
         public int nBlocks = 100;
         public boolean computeR = false;
         public boolean computeRMA = true;
+        public double rcforHandfinmap = 2;
+
     }
 }

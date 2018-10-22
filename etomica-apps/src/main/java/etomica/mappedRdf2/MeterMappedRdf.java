@@ -3,6 +3,7 @@ package etomica.mappedRdf2;
 import etomica.action.IAction;
 import etomica.api.IAtom;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomPair;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.data.*;
@@ -21,12 +22,14 @@ public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent
     protected final PotentialCalculationForceSum pcForce;
     protected final AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager;
     protected double density;
+    protected double rcforHandfinmap;
 
-    public MeterMappedRdf(Space space, PotentialMaster potentialMaster, Box box, int nbins,double density) {
+    public MeterMappedRdf(double rcforHandfinmap,Space space, PotentialMaster potentialMaster, Box box, int nbins,double density) {
         this.space = space;
         this.box = box;
 this.density=density;
         this.potentialMaster = potentialMaster;
+        this.rcforHandfinmap = rcforHandfinmap;
 
         pcForce = new PotentialCalculationForceSum();
         if (box != null) {
@@ -36,7 +39,7 @@ this.density=density;
             forceManager = null;
         }
 
-        pc = new PotentialCalculationMappedRdf(space, box, nbins, forceManager);
+        pc = new PotentialCalculationMappedRdf(rcforHandfinmap,space, box, nbins, forceManager);
 
         xDataSource = pc.getXDataSource();
 
@@ -85,13 +88,20 @@ this.density=density;
         pcForce.reset();
         pc.reset();
         potentialMaster.calculate(box, allAtoms, pcForce);
+        long numAtoms = box.getLeafList().getAtomCount();
 
-        potentialMaster.calculate(box, allAtoms, pc);
-
+       potentialMaster.calculate(box, allAtoms, pc);
+    AtomPair foo=new AtomPair();
+    for (int i=0;i<numAtoms;i++){
+        foo.atom0=box.getLeafList().getAtom(i);
+         for (int j=i+1;j<numAtoms;j++){
+          foo.atom1=box.getLeafList().getAtom(j);
+            pc.doCalculation(foo,null);
+    }
+}
 
         final double[] y = data.getData();
 
-        long numAtoms = box.getLeafList().getAtomCount();
         double[] r = rData.getData();
         double dx2 = 0.5 * (xMax - xDataSource.getXMin()) / r.length;
         double[] gSum = pc.getGSum();

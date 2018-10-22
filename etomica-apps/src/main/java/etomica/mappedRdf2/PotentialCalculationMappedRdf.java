@@ -27,7 +27,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
     protected double[] gSum;
     protected double[] gSum2;
     protected double[] thirdterm;
-
+    protected double rcforHandfinmap;
     protected IBoundary boundary;
     protected final DataSourceUniform xDataSource;
     protected double xMax;
@@ -46,7 +46,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
     protected Potential2SoftSpherical p2;
 
 
-    public PotentialCalculationMappedRdf(Space space, Box box, int nbins, AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager) {
+    public PotentialCalculationMappedRdf(double rcforHandfinmap,Space space, Box box, int nbins, AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager) {
         dr = space.makeVector();
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
         xDataSource.setTypeMax(DataSourceUniform.LimitType.HALF_STEP);
@@ -55,6 +55,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
         gSum = new double[xDataSource.getData().getLength()];
         gSum2 = new double[xDataSource.getData().getLength()];
         thirdterm = new double[xDataSource.getData().getLength()];
+        this.rcforHandfinmap = rcforHandfinmap;
 
         this.boundary = box.getBoundary();
         this.nbins = nbins;
@@ -213,25 +214,22 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
         boundary.nearestImage(dr);
         double r2 = dr.squared();       //compute pair separation
         double r = Math.sqrt(r2);
-        if (r > p2.getRange()) return;
-        double fij = p2.du(r2);
-        double up = fij / r;
-        double vp = 0; //up;
-        double u = p2.u(r2);
+        if (r > rcforHandfinmap) return;//<l/2
+
         if (r2 < xMaxSquared) {
             int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
             for (int k = 0; k < xDataSource.getData().getLength(); k++) {
                 double R = xDataSource.getData().getValue(k);
-                 if (R < x0) {
-                    Vector fi = forceManager.getAgent(atom0).force;
+                     Vector fi = forceManager.getAgent(atom0).force;
                     Vector fj = forceManager.getAgent(atom1).force;
                      double xu = R < r ? 1 : 0; //calcXu(r, u, R);
                //      gSum[k] -= ((xu/(4 * Math.PI)))* wp*beta;               //add once for each atom
-                    gSum[k] =gSum[k] - ((xu/(4 * Math.PI*r * r * r))-(1/(3*vol)))* (fi.dot(dr) - fj.dot(dr))*beta/vol;               //add once for each atom
+                     //replaced fi.dot(dr)-fj.dot(dr) terms with fi.dot(dr)
+                    gSum[k] =gSum[k] - ((xu/(4 * Math.PI*r * r * r))-(1/(3*vol)))* (fi.dot(dr)-fj.dot(dr)  )*beta/vol;               //add once for each atom
                     //   gSum[k] -= ((-r*r*r/(3*vol)))* wp*beta;               //add once for each atom
-                     gSum2[k] = gSum2[k] - ((xu/(4 * Math.PI*r * r * r)) )* (fi.dot(dr) - fj.dot(dr))*beta/vol;                //add once for each atom
-                     thirdterm[k] +=  (beta*(fi.dot(dr) - fj.dot(dr))/(3*vol*vol));               //add once for each atom
-                 }
+                     gSum2[k] = gSum2[k] - ((xu/(4 * Math.PI*r * r * r)) )* (fi.dot(dr)-fj.dot(dr)  )*beta/vol;                //add once for each atom
+                     thirdterm[k] +=  (beta*(fi.dot(dr)-fj.dot(dr)  )/(3*vol*vol));               //add once for each atom
+
 //
             }
         }
