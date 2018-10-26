@@ -2,6 +2,7 @@ package etomica.spin.heisenberg_interacting.heisenberg;
 
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
+import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -11,23 +12,21 @@ import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.Integrator;
-import etomica.potential.*;
+import etomica.potential.IPotentialAtomic;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialCalculationEnergySum;
+import etomica.potential.PotentialCalculationTorqueSum;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
-import etomica.space1d.Tensor1D;
-import etomica.space1d.Vector1D;
-import etomica.space2d.Vector2D;
 import etomica.units.dimensions.Null;
 
-public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappedAveraging.MoleculeAgent> {
+public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<MeterMappedAveraging.MoleculeAgent> {
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
     protected final Space space;
-    protected final PotentialMaster potentialMaster;
+    protected final IPotentialAtomic p2;
     protected final IteratorDirective allAtoms;
     protected PotentialCalculationEnergySum energySum;
     //    protected PotentialCalculationFSum FSum;
@@ -39,27 +38,28 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
     protected double bt;
     protected Vector dr;
     protected Vector work;
-    protected AtomLeafAgentManager<MoleculeAgent> leafAgentManager;
+    protected AtomLeafAgentManager<MeterMappedAveraging.MoleculeAgent> leafAgentManager;
     private Box box;
     protected PotentialCalculationHeisenberg Ans;
 
-    public MeterMappedAveraging(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster) {
+    public MeterMappedAveraging3Pair(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, IPotentialAtomic p2) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
-        data = new DataDoubleArray(9);
-        dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{9});
+        data = new DataDoubleArray(2);
+        dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{2});
         tag = new DataTag();
         dataInfo.addTag(tag);
         this.box = box;
+        this.p2 = p2;
+
         this.space = space;
         this.temperature = temperature;
-        this.potentialMaster = potentialMaster;
         J = interactionS;
         bt = 1 / temperature;
         mu = dipoleMagnitude;
 
         dr = space.makeVector();
         work = space.makeVector();
-        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box, MoleculeAgent.class);
+        leafAgentManager = new AtomLeafAgentManager<MeterMappedAveraging.MoleculeAgent>(this, box, MeterMappedAveraging.MoleculeAgent.class);
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
 //        FSum = new PotentialCalculationFSum(space, dipoleMagnitude, interactionS, bt);
@@ -68,7 +68,7 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
         secondDerivativeSum.setAgentManager(leafAgentManager);
 
 
-        int nMax = 5;
+        int nMax = 10;
         Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         allAtoms = new IteratorDirective();
 
@@ -79,43 +79,48 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
         if (box == null) throw new IllegalStateException("no box");
         IAtomList leafList = box.getLeafList();
         torqueSum.reset();
-
+        secondDerivativeSum.reset();
 //        MeterMappedAveraging.MoleculeAgent torqueAgent =  leafAgentManager.getAgent(leafList.getAtom(0));
 //        double f1 = torqueAgent.torque.getX(1);
 //        System.out.println("f1= "+f1);
 
-        potentialMaster.calculate(box, allAtoms, torqueSum);
+        AtomPair pair = new AtomPair();
+        pair.atom0 = box.getLeafList().getAtom(0);
+        pair.atom1 = box.getLeafList().getAtom(1);//01
 
-//        f1 = torqueAgent.torque.getX(1);
-//        System.out.println("f1= "+f1);
-//        System.exit(2);
-//        FSum.zeroSum();
-//        potentialMaster.calculate(box, allAtoms, FSum);
-        secondDerivativeSum.reset();
-        potentialMaster.calculate(box, allAtoms, secondDerivativeSum);
+        torqueSum.doCalculation(pair,p2);
+        secondDerivativeSum.doCalculation(pair,p2);
+        pair.atom1 = box.getLeafList().getAtom(2);//02
+        torqueSum.doCalculation(pair,p2);
+        secondDerivativeSum.doCalculation(pair,p2);
+        pair.atom0 = box.getLeafList().getAtom(1);//12
+        torqueSum.doCalculation(pair,p2);//12
+        secondDerivativeSum.doCalculation(pair,p2);
 
         Ans.zeroSum();
-        potentialMaster.calculate(box, allAtoms, Ans);
+        pair.atom0 = box.getLeafList().getAtom(0);
+        pair.atom1 = box.getLeafList().getAtom(1);//01
+        Ans.doCalculation(pair,p2);
+        pair.atom1 = box.getLeafList().getAtom(2);//02
+        Ans.doCalculation(pair,p2);
+        pair.atom0 = box.getLeafList().getAtom(1);//12
+        Ans.doCalculation(pair,p2);
 
-        //TODO
-        x[1] = Ans.getSumJEMUE() ;
-        x[2] = x[1]* x[1];
+
+        x[0] = - Ans.getSumJEEMJEJE() + Ans.getSumUEE() - Ans.getSumJEMUE() * Ans.getSumJEMUE();
+        x[1]  = Ans.getSumJEMUE();
+//        System.out.println("mine "+x[0]+" "+x[1]);
 
 
-        x[5] = -Ans.getSumJEEMJEJE();
-        x[6] = Ans.getSumUEE();
-//        x[0] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE() - x[1] - x[2];
-        x[0] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE()  - x[2];
-        x[7] = Ans.getdipolex();
-        x[8] = Ans.getdipoley();
-
-//        System.out.println("x1= " + x[1]);
-//        System.out.println("x2= " + x[2]);
-//        System.exit(2);
+//count += 1;
+//if(count > 19){
+//    System.exit(2);
+//}
         return data;
+
     }
 
-
+//    int count = 0;
     public DataTag getTag() {
         return tag;
     }
@@ -124,37 +129,14 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MeterMappe
         return dataInfo;
     }
 
-    public MoleculeAgent makeAgent(IAtom a, Box box) {
-        return new MoleculeAgent();
+    public MeterMappedAveraging.MoleculeAgent makeAgent(IAtom a, Box box) {
+        return new MeterMappedAveraging.MoleculeAgent();
     }
 
-    public void releaseAgent(MoleculeAgent agent, IAtom a, Box box) {
+    public void releaseAgent(MeterMappedAveraging.MoleculeAgent agent, IAtom a, Box box) {
 
     }
 
 
-    public static class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible {  //need public so to use with instanceof
-        public final Vector torque;
-        public final Tensor phi;
-        public final Vector force;
-
-        public MoleculeAgent() {
-            torque = new Vector1D();
-            phi = new Tensor1D();
-            force = new Vector2D();
-        }
-
-        public Vector torque() {
-            return torque;
-        }
-
-        public Tensor phi() {
-            return phi;
-        }
-
-        public Vector force() {
-            return force;
-        }
-    }
 
 }

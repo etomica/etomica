@@ -45,8 +45,8 @@ public class MeterMappedAveragingPair implements IDataSource, AgentSource<MeterM
 
     public MeterMappedAveragingPair(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, IPotentialAtomic p2) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
-        data = new DataDoubleArray(6);
-        dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{6});
+        data = new DataDoubleArray(2);
+        dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{2});
         tag = new DataTag();
         dataInfo.addTag(tag);
         this.box = box;
@@ -69,7 +69,7 @@ public class MeterMappedAveragingPair implements IDataSource, AgentSource<MeterM
         secondDerivativeSum.setAgentManager(leafAgentManager);
 
 
-        int nMax = 50;
+        int nMax = 10;
         Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         allAtoms = new IteratorDirective();
 
@@ -102,12 +102,17 @@ public class MeterMappedAveragingPair implements IDataSource, AgentSource<MeterM
 //        x[2] = Ans.getSumJEMUEy() * Ans.getSumJEMUEy();
 //        x[3] = Ans.getSumJEMUEx();
 //        x[4] = Ans.getSumJEMUEy();
-        x[0] = Ans.getSumJEEMJEJE();
-        x[1] = Ans.getSumUEE();
-        x[2] = Ans.getdipolex() + Ans.getdipoley();
-        x[3] = Ans.getSumJEMUE() * Ans.getSumJEMUE();
-        x[4] = Ans.getSumJEMUE();
-        x[5] = Ans.getdipoleconv();
+
+//        x[0] = Ans.getSumJEEMJEJE();
+//        x[1] = Ans.getSumUEE();
+//        x[2] = Ans.getdipolex() + Ans.getdipoley();
+//        x[3] = Ans.getSumJEMUE() * Ans.getSumJEMUE();
+//        x[4] = Ans.getSumJEMUE();
+//        x[5] = Ans.getdipoleconv();
+
+        //TODO
+        x[0] = - Ans.getSumJEEMJEJE() + Ans.getSumUEE() - Ans.getSumJEMUE() * Ans.getSumJEMUE();
+        x[1]  = Ans.getSumJEMUE();
 
         return data;
 

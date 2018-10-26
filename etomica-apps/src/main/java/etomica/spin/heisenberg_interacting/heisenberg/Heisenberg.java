@@ -92,7 +92,6 @@ public class Heisenberg extends Simulation {
         AtomType type = spins.getLeafType();
 //        potentialMaster.addPotential(field, new IAtomType[] {type});
         potentialMaster.addPotential(potential, new AtomType[]{type, type});
-
         integrator.setBox(box);
 
     }
@@ -215,7 +214,7 @@ public class Heisenberg extends Simulation {
             covariance.getValue(1);
             AEE = sum0 + sum1 * sum1;
             AEEER = Math.sqrt(ERsum0 * ERsum0 + 4 * sum1 * sum1 * ERsum1 * ERsum1 -
-                    2 * ERsum0 * sum1 * 2 * ERsum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(8)));
+                    2 * ERsum0 * sum1 * 2 * ERsum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3)));
             AEECor = covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3));
 
         }

@@ -12,9 +12,7 @@ import etomica.data.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.listener.IntegratorListenerAction;
-import etomica.nbr.site.PotentialMasterSite;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -39,7 +37,7 @@ import java.util.Calendar;
  *
  * @author Weisong Lin
  */
-public class HeisenbergPair extends Simulation {
+public class Heisenberg3Pair extends Simulation {
 
     private static final String APP_NAME = "Heisenberg";
     public final ActivityIntegrate activityIntegrate;
@@ -47,7 +45,7 @@ public class HeisenbergPair extends Simulation {
     public SpeciesSpheresMono spins;
     public P2Spin potential;
     public P1MagneticField field;
-    public MCMoveRotatePair mcMove;
+    public MCMoveRotate3Pair mcMove;
     private IntegratorMC integrator;
 
     /**
@@ -57,14 +55,14 @@ public class HeisenbergPair extends Simulation {
      * @param interactionS    the J in heisenberg energy function: U = J*Cos(theta1-theta2)
      * @param dipoleMagnitude is the strength of heisenberg dipole.
      */
-    public HeisenbergPair(Space space, double temperature, double interactionS, double dipoleMagnitude) {
+    public Heisenberg3Pair(Space space, double temperature, double interactionS, double dipoleMagnitude) {
         super(Space2D.getInstance());
         setRandom(new RandomNumberGenerator(1)); //debug only
         System.out.println("============================the RandomSeed is one ===========================");
 
         box = new Box(space);
         addBox(box);
-        int numAtoms = 2;
+        int numAtoms = 3;
 
         spins = new SpeciesSpheresRotating(space, new ElementSimple("A"));
 
@@ -75,7 +73,7 @@ public class HeisenbergPair extends Simulation {
         // the electric field is zero for now, maybe need to add electric field in the future.
         field = new P1MagneticField(space, dipoleMagnitude);
         integrator = new IntegratorMC(this, null);
-        mcMove = new MCMoveRotatePair(potential, random, space);
+        mcMove = new MCMoveRotate3Pair(potential, random, space);
         integrator.getMoveManager().addMCMove(mcMove);
         integrator.setTemperature(temperature);
         activityIntegrate = new ActivityIntegrate(integrator);
@@ -101,7 +99,7 @@ public class HeisenbergPair extends Simulation {
 
         boolean isGraphic = params.isGraphic;
         double temperature = params.temperature;
-        int numberMolecules = 2;
+        int numberMolecules = 3;
         boolean aEE = params.aEE;
         boolean mSquare = params.mSquare;
         int steps = params.steps;
@@ -113,7 +111,7 @@ public class HeisenbergPair extends Simulation {
         System.out.println("temperature= " + temperature);
 
         Space sp = Space2D.getInstance();
-        HeisenbergPair sim = new HeisenbergPair(sp, temperature, interactionS, dipoleMagnitude);
+        Heisenberg3Pair sim = new Heisenberg3Pair(sp, temperature, interactionS, dipoleMagnitude);
 
         MeterSpinMSquare meterMSquare = null;
         AccumulatorAverage dipoleSumSquaredAccumulator = null;
@@ -124,11 +122,12 @@ public class HeisenbergPair extends Simulation {
         int blockNumber = 100;
 
 
-        int sampleAtInterval = numberMolecules;
+        int sampleAtInterval = 3;
+        System.out.println("Interval = " + sampleAtInterval);
         int samplePerBlock = steps / sampleAtInterval / blockNumber;
         System.out.println("number of blocks is : " + blockNumber);
         System.out.println("sample per block is : " + samplePerBlock);
-        System.out.println("number of molecules are: " + 2);
+        System.out.println("number of molecules are: " + numberMolecules);
         System.out.println("interacitonS= " + interactionS);
         System.out.println("dipoleStrength= " + dipoleMagnitude);
 
@@ -148,10 +147,10 @@ public class HeisenbergPair extends Simulation {
 
 
         //AEE
-        MeterMappedAveragingPair AEEMeter = null;
+        MeterMappedAveraging3Pair AEEMeter = null;
         AccumulatorAverageCovariance AEEAccumulator = null;
         if (aEE) {
-            AEEMeter = new MeterMappedAveragingPair(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potential);
+            AEEMeter = new MeterMappedAveraging3Pair(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potential);
             AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
             DataPump AEEPump = new DataPump(AEEMeter, AEEAccumulator);
             IntegratorListenerAction AEEListener = new IntegratorListenerAction(AEEPump);
@@ -238,15 +237,20 @@ public class HeisenbergPair extends Simulation {
         }
 
         if (aEE) {
-            System.out.println("AEE_new:\t" + (AEE / numberMolecules)
-                    + " AEEErr:\t" + (AEEER / numberMolecules)
-                    + " AEEDifficulty:\t" + (AEEER * Math.sqrt(totalTime) / numberMolecules)
+            System.out.println("AEE_new:\t" + (AEE )
+                    + " AEEErr:\t" + (AEEER )
+                    + " AEEDifficulty:\t" + (AEEER * Math.sqrt(totalTime) )
                     + " AEECor= " + AEECor);
+//            System.out.println("AEE_new:\t" + (AEE / numberMolecules)
+//                    + " AEEErr:\t" + (AEEER / numberMolecules)
+//                    + " AEEDifficulty:\t" + (AEEER * Math.sqrt(totalTime) / numberMolecules)
+//                    + " AEECor= " + AEECor);
             System.out.println("AEE_Time: " + (endTime - startTime) / (1000.0 * 60.0));
             System.out.println("avgdipole: " + avgdipole);
            System.out.println("JEEMJEJE: " + avgJEEMJEJE +"  errJEEMJEJE: " + errJEEMJEJE +"  UEE: " + avgUEE +"  errUEE: " + errUEE +"  JEMUE: " + avgJEMUE +"  errJEMUE: " + errJEMUE + "  JEMUEsq: " + avgJEMUEsquare +"  errJEMUEsq: " + errJEMUEsquare+"  dipoleconv: " + avgdipoleconv+"  errdipoleconv: " + errdipoleconv+"  dipolemap: " + avgdipole+"  errdipolemap: " + errdipole);
 
-
+//decide sum0 and sum1 which one is wrong then print out every steps of the wrong TODO
+            //campare with average
         }
 
 
@@ -260,6 +264,6 @@ public class HeisenbergPair extends Simulation {
         public double temperature = 0.8;// Kelvin
         public double interactionS = 2;
         public double dipoleMagnitude = 10.0;
-        public int steps = 15000;
+        public int steps = 70000;
     }
 }
