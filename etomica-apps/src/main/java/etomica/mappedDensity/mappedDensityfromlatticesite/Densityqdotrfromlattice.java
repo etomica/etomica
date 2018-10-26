@@ -12,9 +12,7 @@ import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.IData;
-import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
@@ -26,9 +24,13 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
+import etomica.math.SpecialFunctions;
 import etomica.math.function.FunctionDifferentiable;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.normalmode.*;
+import etomica.normalmode.BasisBigCell;
+import etomica.normalmode.CoordinateDefinitionLeaf;
+import etomica.normalmode.MCMoveAtomCoupled;
+import etomica.normalmode.MeterSolidDACut;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
@@ -43,7 +45,7 @@ import java.awt.*;
 import java.util.Arrays;
 
 
-public class MappedDensityfromlattice3D extends Simulation {
+public class Densityqdotrfromlattice extends Simulation {
 
     public final CoordinateDefinitionLeaf coordinateDefinition;
     public IntegratorMC integrator;
@@ -57,7 +59,7 @@ public class MappedDensityfromlattice3D extends Simulation {
     public PotentialMasterList potentialMaster;
     public Potential2SoftSpherical potential;
     public SpeciesSpheresMono species;
-    public MappedDensityfromlattice3D(Space _space, int numAtoms, double density, double temperature, double rc, boolean ss, int[] seeds) {
+    public Densityqdotrfromlattice(Space _space, int numAtoms, double density, double temperature, double rc, boolean ss, int[] seeds) {
         super(_space);
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
@@ -68,7 +70,6 @@ public class MappedDensityfromlattice3D extends Simulation {
         potentialMaster = new PotentialMasterList(this, space);
 
         // TARGET
-
         double L = Math.pow(4.0 / density, 1.0 / 3.0);
         int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
         boundary = new BoundaryRectangularPeriodic(space, n * L);
@@ -155,8 +156,36 @@ public class MappedDensityfromlattice3D extends Simulation {
         System.out.println(numAtoms+" atoms at density "+density+" and temperature "+temperature);
         System.out.println(numSteps+" steps");
 
+        if(params.temperature==0.1 && params.density==1) {params.msd=0.00444872;}
+        if(params.temperature==0.2 && params.density==1) {params.msd= 0.00882799;}
+        if(params.temperature==0.3 && params.density==1) {params.msd=0.0124214 ;}
+        if(params.temperature==0.4 && params.density==1) {params.msd=0.0176487 ;}
+        if(params.temperature==0.5 && params.density==1) {params.msd= 0.0206668;}
+        if(params.temperature==0.6 && params.density==1) {params.msd= 0.0246517;}
+        if(params.temperature==0.7 && params.density==1) {params.msd= 0.0298408;}
+        if(params.temperature==0.8 && params.density==1) {params.msd= 0.0337209;}
+        if(params.temperature==0.9 && params.density==1) {params.msd= 0.0371567;}
+        if(params.temperature==1.0 && params.density==1) {params.msd= 0.0413929;}
+        if(params.temperature==0.55555556 && params.density==1.29) {params.msd=0.00551846 ;}
+        if(params.temperature==1.11111111 && params.density==1.29) {params.msd=0.011446 ;}
+        if(params.temperature==1.66666667 && params.density==1.29) {params.msd=0.0168222 ;}
+        if(params.temperature==2.22222222 && params.density==1.29) {params.msd=0.0225697 ;}
+        if(params.temperature==2.77777778 && params.density==1.29) {params.msd=0.0277941 ;}
+        if(params.temperature==3.33333333 && params.density==1.29) {params.msd=0.0346079 ;}
+  //      if(params.temperature==3.88888889 && params.density==1.29) {params.msd=0.0391218 ;}
+          if(params.temperature==3.88888889 && params.density==1.29) {params.msd=0.019958926856778678 ;}
+
+        if(params.temperature==4.22222222 && params.density==1.29) {params.msd=0.0434448 ;}
+        if(params.temperature==1.0 && params.density==3.16) {params.msd= 0.00012008;}
+        if(params.temperature==1.0 && params.density==2.23) {params.msd= 0.000636781;}
+        if(params.temperature==1.0 && params.density==1.58) {params.msd= 0.0034778;}
+        if(params.temperature==1.0 && params.density==1.29) {params.msd= 0.00988742;}
+
+
+        System.out.println(params.msd+" =msd here");
+
         //instantiate simulation
-        final MappedDensityfromlattice3D sim = new MappedDensityfromlattice3D(Space.getInstance(3), numAtoms, density, temperature, rc*Math.pow(density, -1.0/3.0), ss, seeds);
+        final Densityqdotrfromlattice sim = new Densityqdotrfromlattice(Space.getInstance(3), numAtoms, density, temperature, rc*Math.pow(density, -1.0/3.0), ss, seeds);
         if (seeds == null) {
             seeds = ((RandomMersenneTwister)sim.getRandom()).getSeedArray();
         }
@@ -197,13 +226,6 @@ public class MappedDensityfromlattice3D extends Simulation {
         }
 
         //start simulation
-
-        MeterDensity meterDensity = new MeterDensity(sim.getSpace());
-        meterDensity.setBox(sim.box);
-        System.out.println("density is "+meterDensity.getDataAsScalar());
-        MeterPotentialEnergy meterpe = new MeterPotentialEnergy(sim.potentialMaster,sim.box);
-        System.out.println("lattice energy is "+meterpe.getDataAsScalar()/numAtoms);
-        System.out.println("temperature is "+sim.integrator.getTemperature());
 
         double L = Math.pow(numAtoms, 1.0/3.0);
         if (rcMax1 > 0.494*L) rcMax1 = 0.494*L;
@@ -303,54 +325,36 @@ public class MappedDensityfromlattice3D extends Simulation {
 
         if (args.length == 0) {
             // quick initialization
-            sim.initialize(numSteps/8);
+            sim.initialize(numSteps/10);
         }
         else {
             long nSteps = numSteps/20 + 50*numAtoms + numAtoms*numAtoms*3;
             if (nSteps > numSteps/2) nSteps = numSteps/2;
             sim.initialize(nSteps);
         }
-        int interval = 5* params.numAtoms;
 
-        msd Msd = new msd(params.thetaphinumberofbins,  sim.box, sim.coordinateDefinition);
-        Msd.reset();
-        DataPumpListener pumpmsd = new DataPumpListener(Msd, null, interval);
-        sim.getIntegrator().getEventManager().addListener(pumpmsd);
-        sim.activityIntegrate.setMaxSteps(params.numSteps);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        double [] arraymsd =( (DataDoubleArray) Msd.getData()).getData();
-
-                for (int k = 0; k < arraymsd.length; k++) { System.out.println(arraymsd[k]); }
-///////////////////////////////////////MSD ARRAY DONE///////////////////////////////////////////////////////
-
-        MeterConventional3D meterConventional3D = new MeterConventional3D(arraymsd,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.coordinateDefinition);
+        MeterConventionalqdotr meterConventionalqdotr = new MeterConventionalqdotr(params.qvector,params.msd,sim.box, sim.coordinateDefinition);
         long steps = params.numSteps;
+        int interval = 5* params.numAtoms;
         int blocks = 100;
         long blockSize = steps / (interval * blocks);
-        meterConventional3D.reset();
-        AccumulatorAverageFixed accCon = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener pumpCon = new DataPumpListener(meterConventional3D, accCon, interval);
-        sim.getIntegrator().getEventManager().addListener(pumpCon);
+        meterConventionalqdotr.getXDataSource().setNValues(params.bins);  //con bins=1000
+        meterConventionalqdotr.reset();
+        AccumulatorAverageFixed accConqdotr = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener pumpConqdotr = new DataPumpListener(meterConventionalqdotr, accConqdotr, interval);
+        sim.getIntegrator().getEventManager().addListener(pumpConqdotr);
 
+//do for mapped
+        FunctionDifferentiable f;
+       f = new Function(params.msd);
+   //     f = new FunctionUniform(params.msd);
 
-      MeterMappedAvg3D meterMappedAvg3D = new MeterMappedAvg3D(arraymsd,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.potentialMaster, params.temperature, sim.coordinateDefinition);
-     //  double [] hey=new double[params.thetaphinumberofbins*params.thetaphinumberofbins] ;
-     //  for (int i = 0; i < hey.length; i++) {
-      //          hey[i] = 0.0391218;
-       //    hey[i] = 1.391218;
-       //}
- //      MeterMappedAvg3D meterMappedAvg3D = new MeterMappedAvg3D(hey,params.rnumberofbins,params.thetaphinumberofbins,params.msd,sim.box(), sim.potentialMaster, params.temperature, sim.coordinateDefinition);
-
-        meterMappedAvg3D.reset();
-        AccumulatorAverageFixed accMappedAvg = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener pumpMappedAvg = new DataPumpListener(meterMappedAvg3D, accMappedAvg, interval);
-        sim.getIntegrator().getEventManager().addListener(pumpMappedAvg);
-
-        AccumulatorAverageFixed pe = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener pumppe = new DataPumpListener(meterpe, pe, interval);
-        sim.getIntegrator().getEventManager().addListener(pumppe);
-
+        MeterMappedAvgqdotr meterMappedAvgqdotr = new MeterMappedAvgqdotr(params.qvector,params.msd,sim.box(), sim.potentialMaster, params.temperature, f, sim.coordinateDefinition);
+        meterMappedAvgqdotr.getXDataSource().setNValues(params.bins);  //map bins=1000
+        meterMappedAvgqdotr.reset();
+        AccumulatorAverageFixed accMappedAvgqdotr = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener pumpMappedAvgqdotr = new DataPumpListener(meterMappedAvgqdotr, accMappedAvgqdotr, interval);
+        sim.getIntegrator().getEventManager().addListener(pumpMappedAvgqdotr);
 
         int numBlocks = 100;
          int intervalLS = 5*interval;
@@ -383,26 +387,15 @@ public class MappedDensityfromlattice3D extends Simulation {
         sim.getController().actionPerformed();
         long endTime = System.currentTimeMillis();
 
-        DataDoubleArray data =  (DataDoubleArray)accCon.getData(accCon.AVERAGE);
-        DataDoubleArray dataunc =(DataDoubleArray)  accCon.getData(accCon.ERROR);
-        DataDoubleArray dataMappedAvg =(DataDoubleArray)  accMappedAvg.getData(accMappedAvg.AVERAGE);
-        DataDoubleArray dataMappedAvgunc = (DataDoubleArray) accMappedAvg.getData(accMappedAvg.ERROR);
-        IData pot =   pe.getData(pe.AVERAGE);
+        IData data =  accConqdotr.getData(accConqdotr.AVERAGE);
+        IData dataunc =  accConqdotr.getData(accConqdotr.ERROR);
+        IData dataMappedAvg =  accMappedAvgqdotr.getData(accMappedAvgqdotr.AVERAGE);
+        IData dataMappedAvgunc =  accMappedAvgqdotr.getData(accMappedAvgqdotr.ERROR);
 
-        IData rdata= ((DataFunction.DataInfoFunction)((DataGroup.DataInfoGroup)accCon.getDataInfo()).getSubDataInfo(0)).getXDataSource().getIndependentData(0);
-        IData thetadata=((DataFunction.DataInfoFunction)((DataGroup.DataInfoGroup)accCon.getDataInfo()).getSubDataInfo(0)).getXDataSource().getIndependentData(1);  //i have y[i][j][k] where theta is j and phi is k
-        IData phidata=((DataFunction.DataInfoFunction)((DataGroup.DataInfoGroup)accCon.getDataInfo()).getSubDataInfo(0)).getXDataSource().getIndependentData(2);
-        System.out.println(pot.getValue(0));
-
-        for (int i = 0; i < params.rnumberofbins; i++) {
-            for (int j = 0; j < params.thetaphinumberofbins; j++) {
-                for (int k = 0; k < params.thetaphinumberofbins; k++) {
-                    int [] rho=new int[] {i,j,k};
-                    System.out.println(rdata.getValue(i)+" "+thetadata.getValue(j)+" "+phidata.getValue(k)+" "+" "+data.getValue(rho)+" "+dataunc.getValue(rho)+" "+dataMappedAvg.getValue(rho)+" "+dataMappedAvgunc.getValue(rho));
-                }
-            }
+        IData rdata= ((DataFunction.DataInfoFunction)((DataGroup.DataInfoGroup)accConqdotr.getDataInfo()).getSubDataInfo(0)).getXDataSource().getIndependentData(0);
+        for (int i=0;i<rdata.getLength();i++){
+            System.out.println(rdata.getValue(i)+" "+data.getValue(i)+" "+dataunc.getValue(i)+" "+dataMappedAvg.getValue(i)+" "+dataMappedAvgunc.getValue(i));
         }
-
 
     }
 
@@ -421,9 +414,10 @@ public class MappedDensityfromlattice3D extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numAtoms = 500;
-         public int rnumberofbins = 5;
-        public int thetaphinumberofbins=1;
+        public double msd = 0.00205;
+        public int bins = 1;
         public double density = 1;
+        public double[] qvector ={30, 30, 30};
         public long numSteps = 250000;
         public double temperature = 0.1;
         public double rc = 3;
