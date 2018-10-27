@@ -10,6 +10,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.IData;
+import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -28,6 +29,8 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
+
+import java.awt.*;
 
 /**
  * Calculate osmotic virial coefficients for Hard-Sphere potential in Grand Canonical ensemble for solvent
@@ -135,10 +138,10 @@ public class GCRestrictedGibbsHS extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.numAtoms = 3;
-            params.numSteps = 100000;
+            params.numAtoms = 2;
+            params.numSteps = 1000000;
             params.nBlocks = 100;
-            params.vf = 0.01;
+            params.vf = 0.05;
             params.q = 0.2;
         }
 
@@ -147,7 +150,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         int nBlocks = params.nBlocks;
         double vf = params.vf;
         double q = params.q;
-        boolean graphics = false;
+        boolean graphics = true;
 
         long numSamples = numSteps/3;
         long samplesPerBlock = numSamples/nBlocks;
@@ -171,8 +174,10 @@ public class GCRestrictedGibbsHS extends Simulation {
         if (graphics) {
             final String APP_NAME = "SimHard";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
-
-            ((DiameterHashByType)simGraphic.getDisplayBox(sim.box1).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
+            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box1).canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box1).canvas).setBoundaryFrameColor(Color.BLACK);
+            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box2).canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box2).canvas).setBoundaryFrameColor(Color.BLACK);((DiameterHashByType)simGraphic.getDisplayBox(sim.box1).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
             ((DiameterHashByType)simGraphic.getDisplayBox(sim.box2).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
             simGraphic.makeAndDisplayFrame(APP_NAME);
 
@@ -226,7 +231,7 @@ public class GCRestrictedGibbsHS extends Simulation {
     public static class simParams extends ParameterBase{
         public int numAtoms = 3;
         public int numSteps = 200000;
-        public int nBlocks = 1000;
+        public int nBlocks = 100;
         public double vf = 0.2;
         public double q = 2.0;
     }
