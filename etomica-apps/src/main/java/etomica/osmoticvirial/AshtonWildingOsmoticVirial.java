@@ -136,9 +136,9 @@ public class AshtonWildingOsmoticVirial extends Simulation {
             params.numAtoms = 2; //3
             params.numSteps = 10000; //1000
             params.nBlocks = 100;
-            params.vf = 0.20;
+            params.vf = 0.05;
             params.computeIdeal = false;
-            params.sizeRatio = 0.33333333333333333333;
+            params.sizeRatio = 0.3;
         }
         int numAtoms = params.numAtoms;
         long numSteps = params.numSteps;
@@ -146,7 +146,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         double vf = params.vf;
         double q = params.sizeRatio;
         boolean computeIdeal = params.computeIdeal;
-        boolean graphics = false;
+        boolean graphics = true;
         AccumulatorAverageFixed accNm = null;
 
         long numSamples = numSteps / numAtoms;
