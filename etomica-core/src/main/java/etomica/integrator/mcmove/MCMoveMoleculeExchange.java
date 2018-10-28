@@ -51,24 +51,24 @@ public class MCMoveMoleculeExchange extends MCMove {
     
 
     public MCMoveMoleculeExchange(PotentialMaster potentialMaster, IRandom random,
-                                  Space _space,
+                                  Space space,
                                   IntegratorBox integrator1,
                                   IntegratorBox integrator2) {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         energyMeter.setIncludeLrc(true);
-        moleculeReplacer = new MoleculeChildAtomAction(new AtomActionTranslateBy(_space));
-        moleculeTranslator = new MoleculeActionTranslateTo(_space);
-        translationVector = _space.makeVector();
-        setAtomPositionDefinition(new MoleculePositionCOM(_space));
+        moleculeReplacer = new MoleculeChildAtomAction(new AtomActionTranslateBy(space));
+        moleculeTranslator = new MoleculeActionTranslateTo(space);
+        translationVector = space.makeVector();
+        setAtomPositionDefinition(new MoleculePositionCOM(space));
         this.integrator1 = integrator1;
         this.integrator2 = integrator2;
         box1 = integrator1.getBox();
         box2 = integrator2.getBox();
         moleculeSource = new MoleculeSourceRandomMolecule();
         ((MoleculeSourceRandomMolecule)moleculeSource).setRandomNumberGenerator(random);
-        positionSource = new RandomPositionSourceRectangular(_space, random);
+        positionSource = new RandomPositionSourceRectangular(space, random);
     }
     
     public boolean doTrial() {
@@ -88,9 +88,13 @@ public class MCMoveMoleculeExchange extends MCMove {
         moleculeSource.setBox(dBox);
         molecule = moleculeSource.getMolecule();  //select random molecule to delete
 
-        energyMeter.setBox(dBox);
-        energyMeter.setTarget(molecule);
-        uOld = energyMeter.getDataAsScalar();
+        if(potential.isPotentialHard()) {
+            uOld = 0.0;
+        } else {
+            energyMeter.setBox(dBox);
+            energyMeter.setTarget(molecule);
+            uOld = energyMeter.getDataAsScalar();
+        }
         dBox.removeMolecule(molecule);
 
         positionSource.setBox(iBox);
