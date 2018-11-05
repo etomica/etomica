@@ -228,7 +228,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
                     gSum[k] =gSum[k] - ((xu/(4 * Math.PI*r * r * r))-(1/(3*vol)))* (fi.dot(dr)-fj.dot(dr)  )*beta/vol;               //add once for each atom
                     //   gSum[k] -= ((-r*r*r/(3*vol)))* wp*beta;               //add once for each atom
                      gSum2[k] = gSum2[k] - ((xu/(4 * Math.PI*r * r * r)) )* (fi.dot(dr)-fj.dot(dr)  )*beta/vol;                //add once for each atom
-                     thirdterm[k] +=  (beta*(fi.dot(dr)-fj.dot(dr)  )/(3*vol*vol));               //add once for each atom
+                     thirdterm[k] +=  (beta*(fi.dot(dr)-fj.dot(dr)  )/(3*vol*(4*Math.PI*rcforHandfinmap*rcforHandfinmap*rcforHandfinmap/3)));               //add once for each atom
 
 //
             }
