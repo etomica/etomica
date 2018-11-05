@@ -81,6 +81,7 @@ public class MeterConventionalDebyeWaller implements IDataSource, DataSourceInde
             for (int i=0;i<3;i++){
                 qdotrjcap =qdotrjcap +(qvector[i]*rivector.getX(i));         //  double qdotrcap = qvector.dot(rivector)/ri;
             }
+            System.out.println(qdotrjcap);
 
             y[0] = y[0]+ qdotrjcap*qdotrjcap ;
         }
