@@ -35,7 +35,7 @@ public class MappedRdf extends Simulation {
     public MCMoveAtom move;
     public ActivityIntegrate activityIntegrate;
  //   public P2SoftSphericalTruncatedForceShifted p2Truncated;
- public P2SoftSphericalTruncatedForceShifted p2Truncated;
+ public P2SoftSphericalTruncatedShifted p2Truncated;
 
     public MappedRdf(Space _space, int numAtoms, double temperature, double density, double rc) {
         super(_space);
@@ -65,7 +65,7 @@ public class MappedRdf extends Simulation {
 
         P2LennardJones potential = new P2LennardJones(space);
      //   p2Truncated = new P2SoftSphericalTruncatedForceShifted(space, potential, rc);
-        p2Truncated = new P2SoftSphericalTruncatedForceShifted(space, potential, rc);
+        p2Truncated = new P2SoftSphericalTruncatedShifted(space, potential, rc);
 
         potentialMaster.addPotential(p2Truncated, new IAtomType[]{species.getLeafType(), species.getLeafType()});
 
