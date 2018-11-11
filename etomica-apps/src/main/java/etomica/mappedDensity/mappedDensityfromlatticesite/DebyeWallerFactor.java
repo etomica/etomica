@@ -317,6 +317,8 @@ public class DebyeWallerFactor extends Simulation {
         IData dataMappedAvgNumerator =  accMappedAvgDebyeWallerNumerator.getData(accMappedAvgDebyeWallerNumerator.AVERAGE);
         IData dataMappedAvguncNumerator =  accMappedAvgDebyeWallerNumerator.getData(accMappedAvgDebyeWallerNumerator.ERROR);
 
+        System.out.println(data.getValue(0)+" "+dataunc.getValue(0)+" "+dataMappedAvgNumerator.getValue(0)+" "+dataMappedAvguncNumerator.getValue(0));
+
         System.out.println(Math.exp(-data.getValue(0))+" "+dataunc.getValue(0)*Math.exp(-data.getValue(0))+" "+Math.exp(-dataMappedAvgNumerator.getValue(0))+" "+dataMappedAvguncNumerator.getValue(0)*Math.exp(-dataMappedAvgNumerator.getValue(0)));
     }
 
