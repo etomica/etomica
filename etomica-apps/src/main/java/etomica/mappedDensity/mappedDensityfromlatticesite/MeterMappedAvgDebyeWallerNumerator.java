@@ -114,42 +114,23 @@ this.rivector =box.getSpace().makeVector();
                 for (int i=0;i<3;i++){
                     qdotrcap =qdotrcap +(qvector[i]*rivector.getX(i))/ri;         //  double qdotrcap = qvector.dot(rivector)/ri;
                 }
-              double  Nrold=((qdotrcap*qdotrcap/(ri*ri*ri))*((ri*Math.exp(3*ri*ri/(2*msd))*(-(0.0575824*Math.sqrt(msd)*ri)-(0.0191941*beta*Math.pow(msd,1.5)*fr))*erfx)+(ri*( ri* (-0.0795775*ri-0.0265258*beta*msd*fr+0.0795775*ri)+(Math.exp(3*ri*ri/(2*msd))*(0.0575824*Math.pow(msd,0.5)*ri+0.0191941*beta*Math.pow(msd,1.5)*fr)*erfx)+(ri*(0.0795775*ri+0.0265258*beta*msd*fr))  ))));
-              double  Drold=  ((1/(Math.pow(msd,1.5)*ri*ri))*((ri*((-0.0795775*beta*Math.pow(msd,1.5)*fr)+(Math.pow(msd,0.5)*ri*(-0.238732+0.238732))))   ));
 
-  double Nroldd=(qdotrcap*qdotrcap/(ri*ri))*( ((-0.0265258*beta*fr*msd+(1.33893*Math.pow(10,-17))*ri)*ri) + (Math.exp(3*ri*ri/(2*msd))*(0.0191941*beta*fr*Math.pow(msd,1.5)+0.0575824*Math.pow(msd,0.5)*ri)*erfx ) + ( (0.0265258*beta*fr*msd+0.0795775*ri)*ri )+(Math.exp(3*ri*ri/(2*msd))*Math.sqrt(msd)*erfx*(-0.0191941*beta*fr*msd-0.0575824*ri)    ));
-
-  double Droldd=(1/(Math.pow(msd,1.5)*ri*ri))*( (ri*(-0.0795775*beta*fr*Math.pow(msd,1.5)+4.01679*Math.pow(10,-17)*Math.pow(msd,0.5)*ri))   );
-   //double Nrintegtill5=(  );
-
-  //double Drintegtill5=(  );
-
-double Nrwithr2=(qdotrcap*qdotrcap/(ri*ri))*ri*(0.07957747154594766*msd*ri+0.07957747154594766*ri*ri*ri+beta*fr*msd*(0.026525823848649224*ri*ri));
-double Drwithr2=0.07957747154594766;
-
-//double Nr=0.07957747154594766*qdotrcap*qdotrcap;
-//double Dr=ri*(-0.07957747154594766*beta*fr*Math.pow(msd,1.5)+ri*Math.pow(msd,0.5)*4.0167938672911886*Math.pow(10,-17));
+double Nrwithr2tillinfinity=(qdotrcap*qdotrcap/(ri*ri))*ri*(0.07957747154594766*msd*ri+0.07957747154594766*ri*ri*ri+beta*fr*msd*(0.026525823848649224*ri*ri));
+double Drwithr2tillinfinity=0.07957747154594766;
 
 double er5 = 1- SpecialFunctions.erfc(5*Math.sqrt(3.0/(2.0*msd)));
 double ex=Math.exp(3*ri*ri/(2*msd));
 
 double Nrwithr2till5= (qdotrcap*qdotrcap)*((-30*Math.exp(-75/(2*msd))*msd*(25+msd) + (Math.sqrt(6*Math.PI)*er5*Math.pow(msd,2.5)) )*( (3.0839528461809902*Math.pow(10,-18)/(Math.pow(msd,1.5))) - (0.006109677966410353*beta*fr/(ri*Math.pow(msd,0.5))) + ( 0.004420970641441536*beta*Math.exp(3*ri*ri/(2*msd))*fr*erfx/(ri*ri) ) + (0.013262911924324609*erfx*Math.exp(3*ri*ri/(2*msd))/(msd*ri)) )+(( -6*msd*ri*(msd+ri*ri) + erfx*Math.sqrt(6*Math.PI)*Math.pow(msd,2.5)*Math.exp(3*ri*ri/(2*msd)) )/18)*(- (0.07957747154594767*beta*fr/(ri*ri)) - (0.238732414637843/(msd*ri)) ));
-
 double Drwithr2till5=(-30*Math.exp(-75/(2*msd))*msd + Math.sqrt(6*Math.PI)*er5*Math.pow(msd,1.5) )*((3.0839528461809902*Math.pow(10,-18)/Math.pow(msd,1.5)) - ( (0.006109677966410353*beta*fr)/(Math.pow(msd,0.5)*ri) ) + (0.004420970641441536*beta*ex*fr*erfx/(ri*ri) ) +( 0.013262911924324609*ex*erfx/(msd*ri) ) )-((msd* (-6*ri + ex*Math.sqrt(6*Math.PI*msd)*erfx)/18)*(  (0.07957747154594767*beta*fr/(ri*ri)) + (0.238732414637843/(msd*ri)) ));
 
-                 //             System.out.println(Nr+" "+Nrwithr2+" "+Nroldd+" "+Dr+" "+Drwithr2+" "+Droldd);
-double er=1- SpecialFunctions.erfc(Math.sqrt(3/(2*msd)));
+double Drxyz=1;
+double Nrxyz=qdotrcap*qdotrcap*( 0.9999999999999999*msd*ri + 1.6825506805955375*Math.pow(10,-16)*msd*ri + 0.9999999999999999*ri*ri*ri + beta*fr*(0.3333333333333333*msd*ri*ri) )/ri;
 
-double Drwithr2till1=(-6*Math.exp(-3/(2*msd))*msd + Math.sqrt(6*Math.PI)*er*Math.pow(msd,1.5) )*((3.0839528461809902*Math.pow(10,-18)/Math.pow(msd,1.5)) - ( (0.006109677966410353*beta*fr)/(Math.pow(msd,0.5)*ri) ) + (0.004420970641441536*beta*ex*fr*erfx/(ri*ri) ) +( 0.013262911924324609*ex*erfx/(msd*ri) ) )-((msd* (-6*ri + ex*Math.sqrt(6*Math.PI*msd)*erfx)/18)*(  (0.07957747154594767*beta*fr/(ri*ri)) + (0.238732414637843/(msd*ri)) ));
+                  System.out.println(Nrwithr2tillinfinity+" "+Nrwithr2till5+" "+Drwithr2tillinfinity+" "+Drwithr2till5+" "+Nrxyz);
 
-System.out.println(Nrwithr2+" "+Nrwithr2till5+" "+Drwithr2+" "+Drwithr2till5);
-
-
-                 //        System.out.println(Nr+" "+Nrold+" "+Dr+" "+Drold+" Nrintegtill5 "+ Nrintegtill5+" Drintegtill5 "+ Drintegtill5);
-
-                y[0]=y[0]+ (Nrwithr2till5/Drwithr2till5);
+                y[0]=y[0]+ (Nrxyz/Drxyz);
         //            System.out.println(y[0]);
-
 
             }
         y[0]=y[0]/numAtoms;
