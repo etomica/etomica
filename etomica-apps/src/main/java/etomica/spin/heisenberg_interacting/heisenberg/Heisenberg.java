@@ -65,8 +65,8 @@ public class Heisenberg extends Simulation {
      */
     public Heisenberg(Space space, int nCells, double temperature, double interactionS, double dipoleMagnitude) {
         super(Space2D.getInstance());
-        setRandom(new RandomNumberGenerator(1)); //debug only
-        System.out.println("============================the RandomSeed is one ===========================");
+//        setRandom(new RandomNumberGenerator(1)); //debug only
+//        System.out.println("============================the RandomSeed is one ===========================");
 
         potentialMaster = new PotentialMasterSite(this, nCells, space);
         box = new Box(space);
@@ -231,24 +231,49 @@ public class Heisenberg extends Simulation {
         long endTime = System.currentTimeMillis();
 
         double totalTime = (endTime - startTime) / (1000.0 * 60.0);
-        if (mSquare) {
-            System.out.println("-<M^2>*bt*bt:\t" + (-dipoleSumSquared / temperature / temperature / nCells / nCells)
-                    + " mSquareErr:\t" + (dipoleSumSquaredERR / temperature / temperature / nCells / nCells)
-                    + " mSquareDifficulty:\t" + (dipoleSumSquaredERR / temperature / temperature / nCells / nCells) * Math.sqrt(totalTime)
-                    + " dipolesumCor= " + dipoleSumCor);
-            System.out.println("mSquare_Time: " + (endTime - startTime) / (1000.0 * 60.0));
-        }
+//        if (mSquare) {
+//            System.out.println("-<M^2>*bt*bt:\t" + (-dipoleSumSquared / temperature / temperature / nCells / nCells)
+//                    + " mSquareErr:\t" + (dipoleSumSquaredERR / temperature / temperature / nCells / nCells)
+//                    + " mSquareDifficulty:\t" + (dipoleSumSquaredERR / temperature / temperature / nCells / nCells) * Math.sqrt(totalTime)
+//                    + " dipolesumCor= " + dipoleSumCor);
+//            System.out.println("mSquare_Time: " + (endTime - startTime) / (1000.0 * 60.0));
+//        }
+//
+//        if (aEE) {
+//            System.out.println("AEE_new:\t" + (AEE / nCells / nCells)
+//                    + " AEEErr:\t" + (AEEER / nCells / nCells)
+//                    + " AEEDifficulty:\t" + (AEEER * Math.sqrt(totalTime) / nCells / nCells)
+//                    + " AEECor= " + AEECor);
+//            System.out.println("AEE_Time: " + (endTime - startTime) / (1000.0 * 60.0));
+////            System.out.println("avgdipolex: " + avgdipolex + "errdipolex: " + errdipolex);
+////            System.out.println("avgdipoley: " + avgdipoley + "errdipoley: " + errdipoley);
+//        }
 
-        if (aEE) {
-            System.out.println("AEE_new:\t" + (AEE / nCells / nCells)
-                    + " AEEErr:\t" + (AEEER / nCells / nCells)
-                    + " AEEDifficulty:\t" + (AEEER * Math.sqrt(totalTime) / nCells / nCells)
-                    + " AEECor= " + AEECor);
-            System.out.println("AEE_Time: " + (endTime - startTime) / (1000.0 * 60.0));
-//            System.out.println("avgdipolex: " + avgdipolex + "errdipolex: " + errdipolex);
-//            System.out.println("avgdipoley: " + avgdipoley + "errdipoley: " + errdipoley);
-        }
 
+        System.out.println("Conventional:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (-dipoleSumSquared / temperature / temperature / numberMolecules)
+                + " Err:\t" + (dipoleSumSquaredERR / temperature / temperature / numberMolecules));
+
+        double sumIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(7);
+        double errSumIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(7);
+        System.out.println("IdealMapping:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (sumIdeal / numberMolecules)
+                + " Err:\t" + (errSumIdeal / numberMolecules));
+
+        System.out.println("Mapping:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (AEE / numberMolecules)
+                + " Err:\t" + (AEEER / numberMolecules));
+
+        double sumJEEMJEJE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(5);
+        double errJEEMJEJE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(5);
+        System.out.println("JEEMJEJE:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (sumJEEMJEJE / numberMolecules)
+                + " Err:\t" + (errJEEMJEJE / numberMolecules));
+
+        double sumUEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(6);
+        double errUEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(6);
+        System.out.println("UEE:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (sumUEE / numberMolecules)
+                + " Err:\t" + (errUEE / numberMolecules));
+
+
+        System.out.println("Time: " + (endTime - startTime) / (1000.0 * 60.0));
+        System.out.println(" dipolesumCor " + dipoleSumCor);
 
     }
 
@@ -257,7 +282,7 @@ public class Heisenberg extends Simulation {
         public boolean isGraphic = false;
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 5;// Kelvin
+        public double temperature = 1.0;// Kelvin
         public int nCells = 3;//number of atoms is nCells*nCells
         public double interactionS = 1.0;
         public double dipoleMagnitude = 1.0;

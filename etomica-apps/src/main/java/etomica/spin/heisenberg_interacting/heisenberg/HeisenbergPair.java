@@ -57,8 +57,8 @@ public class HeisenbergPair extends Simulation {
      */
     public HeisenbergPair(Space space, double temperature, double interactionS, double dipoleMagnitude) {
         super(Space2D.getInstance());
-        setRandom(new RandomNumberGenerator(1)); //debug only
-        System.out.println("============================the RandomSeed is one ===========================");
+//        setRandom(new RandomNumberGenerator(1)); //debug only
+//        System.out.println("============================the RandomSeed is one ===========================");
 
         box = new Box(space);
         addBox(box);
