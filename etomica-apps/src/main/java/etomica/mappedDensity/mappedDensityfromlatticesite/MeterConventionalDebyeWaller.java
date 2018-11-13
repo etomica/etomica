@@ -76,14 +76,14 @@ public class MeterConventionalDebyeWaller implements IDataSource, DataSourceInde
         for (IAtom atom : atoms) {
             rivector.Ev1Mv2(atom.getPosition(), latticesite.getLatticePosition(atom));
             box.getBoundary().nearestImage(rivector);
-             double qdotrjcap =0.0;
+             double qdotrj =0.0;
 
             for (int i=0;i<3;i++){
-                qdotrjcap =qdotrjcap +(qvector[i]*rivector.getX(i));         //  double qdotrcap = qvector.dot(rivector)/ri;
+                qdotrj =qdotrj +(qvector[i]*rivector.getX(i));         //  double qdotrcap = qvector.dot(rivector)/ri;
             }
-            System.out.println(qdotrjcap);
+     //       System.out.println(qdotrjcap);
 
-            y[0] = y[0]+ qdotrjcap*qdotrjcap ;
+            y[0] = y[0]+ qdotrj*qdotrj ;
         }
         y[0]=y[0]/numAtoms;
         return data;

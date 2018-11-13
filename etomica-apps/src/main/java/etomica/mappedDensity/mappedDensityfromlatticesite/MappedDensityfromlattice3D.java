@@ -423,9 +423,9 @@ public class MappedDensityfromlattice3D extends Simulation {
         public int numAtoms = 500;
          public int rnumberofbins = 5;
         public int thetaphinumberofbins=1;
-        public double density = 1;
-        public long numSteps = 250000;
-        public double temperature = 0.1;
+        public double density = 4;
+        public long numSteps = 500000;
+        public double temperature = 1;
         public double rc = 3;
         public double rc0 = rc;
         public double rcMax1 = 3;

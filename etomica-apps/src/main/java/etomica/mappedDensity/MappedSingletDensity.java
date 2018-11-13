@@ -23,6 +23,8 @@ import etomica.math.function.FunctionDifferentiable;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.P2SoftSphericalTruncatedForceShifted;
+import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -73,7 +75,7 @@ public class MappedSingletDensity extends Simulation {
         potentialMaster = new PotentialMasterCell(this, rc, space);
 
         P2LennardJones p2lj = new P2LennardJones(space);
-        P2SoftSphericalTruncated p2 = new P2SoftSphericalTruncated(space, p2lj, rc);
+        P2SoftSphericalTruncatedForceShifted p2 = new P2SoftSphericalTruncatedForceShifted(space, p2lj, rc);
         AtomType atomType = species.getLeafType();
         potentialMaster.addPotential(p2, new AtomType[]{atomType, atomType});
 //SINE IS ACTUALLY LN(2+SIN)

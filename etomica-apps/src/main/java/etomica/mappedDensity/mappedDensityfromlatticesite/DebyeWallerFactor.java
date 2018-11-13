@@ -150,9 +150,19 @@ public class DebyeWallerFactor extends Simulation {
 
         System.out.println(numAtoms+" atoms at density "+density+" and temperature "+temperature);
         System.out.println(numSteps+" steps");
+        System.out.println(params.qvector[0]+" "+params.qvector[1]+" "+params.qvector[2]);
 
-    //    if(params.temperature==0.1 && params.density==1) {params.msd=0.00444872;}
-    //    if(params.temperature==0.2 && params.density==1) {params.msd= 0.00882799;}
+    if(params.temperature==0.1 && params.density==1) {params.msd=0.00209;}
+    if(params.temperature==1.0 && params.density==1) {params.msd=0.02087467244330456;}
+    if(params.temperature==1.0 && params.density==1.29) {params.msd=0.0048534350128924325;}
+    if(params.temperature==1.0 && params.density==2.23) {params.msd=3.148736764595765E-4;}
+    if(params.temperature==1.0 && params.density==3.16) {params.msd=5.9164815687942386E-5;}
+    if(params.temperature==1.0 && params.density==4) {params.msd=1.9425724904833156E-5;}
+
+
+
+
+        //    if(params.temperature==0.2 && params.density==1) {params.msd= 0.00882799;}
     //    if(params.temperature==0.3 && params.density==1) {params.msd=0.0124214 ;}
     //    if(params.temperature==0.4 && params.density==1) {params.msd=0.0176487 ;}
     //    if(params.temperature==0.5 && params.density==1) {params.msd= 0.0206668;}
@@ -275,12 +285,19 @@ public class DebyeWallerFactor extends Simulation {
          FunctionDifferentiable f;
        f = new Function(params.msd);
 
-        MeterMappedAvgDebyeWallerNumerator meterMappedAvgDebyeWallerNumerator = new MeterMappedAvgDebyeWallerNumerator(params.numAtoms,params.qvector,params.msd,sim.box(), sim.potentialMaster, params.temperature, f, sim.coordinateDefinition);
-        meterMappedAvgDebyeWallerNumerator.getXDataSource().setNValues(params.bins);  //map bins=1000
-        meterMappedAvgDebyeWallerNumerator.reset();
-        AccumulatorAverageFixed accMappedAvgDebyeWallerNumerator = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener pumpMappedAvgDebyeWallerNumerator = new DataPumpListener(meterMappedAvgDebyeWallerNumerator, accMappedAvgDebyeWallerNumerator, interval);
-        sim.getIntegrator().getEventManager().addListener(pumpMappedAvgDebyeWallerNumerator);
+        MeterMappedAvgDebyeWallerr meterMappedAvgDebyeWallerr = new MeterMappedAvgDebyeWallerr(params.numAtoms,params.qvector,params.msd,sim.box(), sim.potentialMaster, params.temperature, f, sim.coordinateDefinition);
+        meterMappedAvgDebyeWallerr.getXDataSource().setNValues(params.bins);  //map bins=1000
+        meterMappedAvgDebyeWallerr.reset();
+        AccumulatorAverageFixed accMappedAvgDebyeWallerr = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener pumpMappedAvgDebyeWallerr = new DataPumpListener(meterMappedAvgDebyeWallerr, accMappedAvgDebyeWallerr, interval);
+        sim.getIntegrator().getEventManager().addListener(pumpMappedAvgDebyeWallerr);
+
+        MeterMappedAvgDebyeWallerxyz meterMappedAvgDebyeWallerxyz = new MeterMappedAvgDebyeWallerxyz(params.numAtoms,params.qvector,params.msd,sim.box(), sim.potentialMaster, params.temperature, f, sim.coordinateDefinition);
+        meterMappedAvgDebyeWallerxyz.getXDataSource().setNValues(params.bins);  //map bins=1000
+        meterMappedAvgDebyeWallerxyz.reset();
+        AccumulatorAverageFixed accMappedAvgDebyeWallerxyz = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener pumpMappedAvgDebyeWallerxyz = new DataPumpListener(meterMappedAvgDebyeWallerxyz, accMappedAvgDebyeWallerxyz, interval);
+        sim.getIntegrator().getEventManager().addListener(pumpMappedAvgDebyeWallerxyz);
 
         int numBlocks = 100;
          int intervalLS = 5*interval;
@@ -314,12 +331,14 @@ public class DebyeWallerFactor extends Simulation {
 
         IData data =  accConDebyeWaller.getData(accConDebyeWaller.AVERAGE);
         IData dataunc =  accConDebyeWaller.getData(accConDebyeWaller.ERROR);
-        IData dataMappedAvgNumerator =  accMappedAvgDebyeWallerNumerator.getData(accMappedAvgDebyeWallerNumerator.AVERAGE);
-        IData dataMappedAvguncNumerator =  accMappedAvgDebyeWallerNumerator.getData(accMappedAvgDebyeWallerNumerator.ERROR);
+        IData dataMappedAvgr =  accMappedAvgDebyeWallerr.getData(accMappedAvgDebyeWallerr.AVERAGE);
+        IData dataMappedAvguncr =  accMappedAvgDebyeWallerr.getData(accMappedAvgDebyeWallerr.ERROR);
+        IData dataMappedAvgxyz =  accMappedAvgDebyeWallerxyz.getData(accMappedAvgDebyeWallerxyz.AVERAGE);
+        IData dataMappedAvguncxyz =  accMappedAvgDebyeWallerxyz.getData(accMappedAvgDebyeWallerxyz.ERROR);
 
-        System.out.println(data.getValue(0)+" "+dataunc.getValue(0)+" "+dataMappedAvgNumerator.getValue(0)+" "+dataMappedAvguncNumerator.getValue(0));
+        System.out.println(data.getValue(0)+" "+dataunc.getValue(0)+" "+dataMappedAvgr.getValue(0)+" "+dataMappedAvguncr.getValue(0)+" "+dataMappedAvgxyz.getValue(0)+" "+dataMappedAvguncxyz.getValue(0));
 
-        System.out.println(Math.exp(-data.getValue(0))+" "+dataunc.getValue(0)*Math.exp(-data.getValue(0))+" "+Math.exp(-dataMappedAvgNumerator.getValue(0))+" "+dataMappedAvguncNumerator.getValue(0)*Math.exp(-dataMappedAvgNumerator.getValue(0)));
+        System.out.println(Math.exp(-data.getValue(0))+" "+dataunc.getValue(0)*Math.exp(-data.getValue(0))+" "+Math.exp(-dataMappedAvgr.getValue(0))+" "+dataMappedAvguncr.getValue(0)*Math.exp(-dataMappedAvgr.getValue(0))+" "+Math.exp(-dataMappedAvgxyz.getValue(0))+" "+dataMappedAvguncxyz.getValue(0)*Math.exp(-dataMappedAvgxyz.getValue(0)));
     }
 
     public void initialize(long initSteps) {
@@ -336,16 +355,16 @@ public class DebyeWallerFactor extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numAtoms = 500;
-        public double msd = 0.00205;
-       public int bins = 1;
+        public double msd = 0.00209;
+        public int bins = 1;
         public double density = 1;
-        public double[] qvector ={30, 20, 10};
-        public long numSteps = 250000;
-        public double temperature = 0.1;
-        public double rc = 3;
+        public double[] qvector ={600, 300, -100};
+        public long numSteps = 1000000;
+        public double temperature = 1.0;
+        public double rc = 2.5;
         public double rc0 = rc;
-        public double rcMax1 = 3;
-        public double rcMax0 = 3;
+        public double rcMax1 = 2.5;
+        public double rcMax0 = 2.5;
         public double[] bpharm = new double[0];
         public double[] bpharmLJ = new double[0];
         public boolean ss = false;
