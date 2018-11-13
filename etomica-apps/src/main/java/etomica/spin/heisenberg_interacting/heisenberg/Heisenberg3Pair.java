@@ -33,8 +33,6 @@ import java.util.Calendar;
  * Mapped averaging: get the A_EE secondDerivative of free energy w.r.t electric field E when E is zero
  * Prototype for simulation of a more general magnetic system.
  *
- *
- *
  * @author Weisong Lin
  */
 public class Heisenberg3Pair extends Simulation {
@@ -55,14 +53,14 @@ public class Heisenberg3Pair extends Simulation {
      * @param interactionS    the J in heisenberg energy function: U = J*Cos(theta1-theta2)
      * @param dipoleMagnitude is the strength of heisenberg dipole.
      */
-    public Heisenberg3Pair(Space space, double temperature, double interactionS, double dipoleMagnitude) {
+    public Heisenberg3Pair(Space space, double temperature, double interactionS, double dipoleMagnitude, int numberMolecules) {
         super(Space2D.getInstance());
         setRandom(new RandomNumberGenerator(1)); //debug only
         System.out.println("============================the RandomSeed is one ===========================");
 
         box = new Box(space);
         addBox(box);
-        int numAtoms = 3;
+        int numAtoms = numberMolecules;
 
         spins = new SpeciesSpheresRotating(space, new ElementSimple("A"));
 
@@ -97,9 +95,8 @@ public class Heisenberg3Pair extends Simulation {
         Calendar cal = Calendar.getInstance();
         System.out.println("startTime : " + date.format(cal.getTime()));
 
-        boolean isGraphic = params.isGraphic;
         double temperature = params.temperature;
-        int numberMolecules = 3;
+        int numberMolecules = params.numberMolecules;
         boolean aEE = params.aEE;
         boolean mSquare = params.mSquare;
         int steps = params.steps;
@@ -111,7 +108,7 @@ public class Heisenberg3Pair extends Simulation {
         System.out.println("temperature= " + temperature);
 
         Space sp = Space2D.getInstance();
-        Heisenberg3Pair sim = new Heisenberg3Pair(sp, temperature, interactionS, dipoleMagnitude);
+        Heisenberg3Pair sim = new Heisenberg3Pair(sp, temperature, interactionS, dipoleMagnitude, numberMolecules);
 
         MeterSpinMSquare meterMSquare = null;
         AccumulatorAverage dipoleSumSquaredAccumulator = null;
@@ -122,8 +119,7 @@ public class Heisenberg3Pair extends Simulation {
         int blockNumber = 100;
 
 
-        int sampleAtInterval = 3;
-        System.out.println("Interval = " + sampleAtInterval);
+        int sampleAtInterval = numberMolecules;
         int samplePerBlock = steps / sampleAtInterval / blockNumber;
         System.out.println("number of blocks is : " + blockNumber);
         System.out.println("sample per block is : " + samplePerBlock);
@@ -176,53 +172,34 @@ public class Heisenberg3Pair extends Simulation {
         double AEE = 0;
         double AEEER = 0;
         double AEECor = 0;
-        double avgdipole=0;
-        double errdipole=0;
-        double avgJEEMJEJE=0;
-        double errJEEMJEJE=0;
-        double avgUEE=0;
-        double errUEE=0;
-        double avgJEMUE=0;
-        double errJEMUE=0;
-        double avgJEMUEsquare=0;
-        double errJEMUEsquare=0;
-        double avgdipoleconv=0;
-        double errdipoleconv=0;
 
         if (aEE) {
-
-//            AEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
-//            AEEER = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
-//            AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
-//            IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-//            covariance.getValue(1);
-
-
-//            avgdipole = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(2);
-//            errdipole = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(2);
-//            avgJEMUE=((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(4);
-//            errJEMUE=((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(4);
-//            avgJEMUEsquare=((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(3);
-//            errJEMUEsquare=((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(3);
-//            avgJEEMJEJE=((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
-//            errJEEMJEJE=((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
-//            avgUEE=((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
-//            errUEE=((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
-//            avgdipoleconv=((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(5);
-//            errdipoleconv=((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(5);
-//            AEE = -avgJEEMJEJE+avgUEE-avgJEMUEsquare+(avgJEMUE*avgJEMUE);
-
             double sum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
             double errSum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
             double sum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
             double errSum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
+            double sum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(2);
+            double errSum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(2);
 
-            IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-            covariance.getValue(1);
-            AEE = sum0  + sum1 * sum1;
-            AEEER = Math.sqrt(errSum0 * errSum0 + 4 * sum1 * sum1 * errSum1 * errSum1 -
-                    2 * errSum0 * sum1 * 2 * errSum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3)));
-            AEECor = covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3));
+            double sum3 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(3);
+            double ERsum3 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(3);
+            double sum4 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(4);
+            double ERsum4 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(4);
+
+
+
+//            IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+//            covariance.getValue(1);
+//            AEE = sum0 + sum1 * sum1;
+//            AEEER = Math.sqrt(errSum0 * errSum0 + 4 * sum1 * sum1 * errSum1 * errSum1 -
+//                    2 * errSum0 * sum1 * 2 * errSum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3)));
+//            AEECor = covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3));
+
+            AEE = sum0 + sum1 * sum1 + sum2 * sum2 - sum3 * sum3 - sum4 * sum4;
+//            AEE = sum0 ;
+            AEEER = errSum0;
+            AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
+
         }
 
         long endTime = System.currentTimeMillis();
@@ -237,20 +214,15 @@ public class Heisenberg3Pair extends Simulation {
         }
 
         if (aEE) {
-            System.out.println("AEE_new:\t" + (AEE )
-                    + " AEEErr:\t" + (AEEER )
-                    + " AEEDifficulty:\t" + (AEEER * Math.sqrt(totalTime) )
+            System.out.println("AEE_new:\t" + (AEE / numberMolecules)
+                    + " AEEErr:\t" + (AEEER / numberMolecules)
+                    + " AEEDifficulty:\t" + (AEEER * Math.sqrt(totalTime) / numberMolecules)
                     + " AEECor= " + AEECor);
-//            System.out.println("AEE_new:\t" + (AEE / numberMolecules)
-//                    + " AEEErr:\t" + (AEEER / numberMolecules)
+//            System.out.println("AEE_new/2:\t" + (AEE / numberMolecules/3)
+//                    + " AEEErr/2:\t" + (AEEER / numberMolecules/3)
 //                    + " AEEDifficulty:\t" + (AEEER * Math.sqrt(totalTime) / numberMolecules)
 //                    + " AEECor= " + AEECor);
             System.out.println("AEE_Time: " + (endTime - startTime) / (1000.0 * 60.0));
-            System.out.println("avgdipole: " + avgdipole);
-           System.out.println("JEEMJEJE: " + avgJEEMJEJE +"  errJEEMJEJE: " + errJEEMJEJE +"  UEE: " + avgUEE +"  errUEE: " + errUEE +"  JEMUE: " + avgJEMUE +"  errJEMUE: " + errJEMUE + "  JEMUEsq: " + avgJEMUEsquare +"  errJEMUEsq: " + errJEMUEsquare+"  dipoleconv: " + avgdipoleconv+"  errdipoleconv: " + errdipoleconv+"  dipolemap: " + avgdipole+"  errdipolemap: " + errdipole);
-
-//decide sum0 and sum1 which one is wrong then print out every steps of the wrong TODO
-            //campare with average
         }
 
 
@@ -258,12 +230,12 @@ public class Heisenberg3Pair extends Simulation {
 
     // ******************* parameters **********************//
     public static class Param extends ParameterBase {
-        public boolean isGraphic = false;
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 0.8;// Kelvin
-        public double interactionS = 2;
-        public double dipoleMagnitude = 10.0;
-        public int steps = 70000;
+        public double temperature = 5;// Kelvin
+        public double interactionS = 1;
+        public double dipoleMagnitude = 1;
+        public int steps = 50000;
+        public int numberMolecules = 3;
     }
 }

@@ -35,8 +35,6 @@ import java.util.Calendar;
  * Mapped averaging: get the A_EE secondDerivative of free energy w.r.t electric field E when E is zero
  * Prototype for simulation of a more general magnetic system.
  *
- *
- *
  * @author Weisong Lin
  */
 public class HeisenbergPair extends Simulation {
@@ -99,7 +97,6 @@ public class HeisenbergPair extends Simulation {
         Calendar cal = Calendar.getInstance();
         System.out.println("startTime : " + date.format(cal.getTime()));
 
-        boolean isGraphic = params.isGraphic;
         double temperature = params.temperature;
         int numberMolecules = 2;
         boolean aEE = params.aEE;
@@ -177,18 +174,18 @@ public class HeisenbergPair extends Simulation {
         double AEE = 0;
         double AEEER = 0;
         double AEECor = 0;
-        double avgdipole=0;
-        double errdipole=0;
-        double avgJEEMJEJE=0;
-        double errJEEMJEJE=0;
-        double avgUEE=0;
-        double errUEE=0;
-        double avgJEMUE=0;
-        double errJEMUE=0;
-        double avgJEMUEsquare=0;
-        double errJEMUEsquare=0;
-        double avgdipoleconv=0;
-        double errdipoleconv=0;
+        double avgdipole = 0;
+        double errdipole = 0;
+        double avgJEEMJEJE = 0;
+        double errJEEMJEJE = 0;
+        double avgUEE = 0;
+        double errUEE = 0;
+        double avgJEMUE = 0;
+        double errJEMUE = 0;
+        double avgJEMUEsquare = 0;
+        double errJEMUEsquare = 0;
+        double avgdipoleconv = 0;
+        double errdipoleconv = 0;
 
         if (aEE) {
 
@@ -218,12 +215,26 @@ public class HeisenbergPair extends Simulation {
             double sum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
             double errSum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
 
+            double sum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(2);
+            double errSum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(2);
+
+            double sum3 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(3);
+            double ERsum3 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(3);
+            double sum4 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(4);
+            double ERsum4 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(4);
+
+
+//TODO
             IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
             covariance.getValue(1);
-            AEE = sum0  + sum1 * sum1;
-            AEEER = Math.sqrt(errSum0 * errSum0 + 4 * sum1 * sum1 * errSum1 * errSum1 -
-                    2 * errSum0 * sum1 * 2 * errSum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3)));
-            AEECor = covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3));
+//            AEE = sum0 + sum1 * sum1 + sum2 * sum2;
+//            AEEER = Math.sqrt(errSum0 * errSum0 + 4 * sum1 * sum1 * errSum1 * errSum1 -
+//                    2 * errSum0 * sum1 * 2 * errSum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3)));
+//            AEECor = covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3));
+
+            AEE = sum0 + sum1 * sum1 + sum2 * sum2 - sum3 * sum3 - sum4 * sum4;
+            AEEER = errSum0;
+            AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
         }
 
         long endTime = System.currentTimeMillis();
@@ -244,7 +255,7 @@ public class HeisenbergPair extends Simulation {
                     + " AEECor= " + AEECor);
             System.out.println("AEE_Time: " + (endTime - startTime) / (1000.0 * 60.0));
             System.out.println("avgdipole: " + avgdipole);
-           System.out.println("JEEMJEJE: " + avgJEEMJEJE +"  errJEEMJEJE: " + errJEEMJEJE +"  UEE: " + avgUEE +"  errUEE: " + errUEE +"  JEMUE: " + avgJEMUE +"  errJEMUE: " + errJEMUE + "  JEMUEsq: " + avgJEMUEsquare +"  errJEMUEsq: " + errJEMUEsquare+"  dipoleconv: " + avgdipoleconv+"  errdipoleconv: " + errdipoleconv+"  dipolemap: " + avgdipole+"  errdipolemap: " + errdipole);
+            System.out.println("JEEMJEJE: " + avgJEEMJEJE + "  errJEEMJEJE: " + errJEEMJEJE + "  UEE: " + avgUEE + "  errUEE: " + errUEE + "  JEMUE: " + avgJEMUE + "  errJEMUE: " + errJEMUE + "  JEMUEsq: " + avgJEMUEsquare + "  errJEMUEsq: " + errJEMUEsquare + "  dipoleconv: " + avgdipoleconv + "  errdipoleconv: " + errdipoleconv + "  dipolemap: " + avgdipole + "  errdipolemap: " + errdipole);
 
 
         }
@@ -254,12 +265,11 @@ public class HeisenbergPair extends Simulation {
 
     // ******************* parameters **********************//
     public static class Param extends ParameterBase {
-        public boolean isGraphic = false;
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 0.8;// Kelvin
-        public double interactionS = 2;
-        public double dipoleMagnitude = 10.0;
+        public double temperature = 3;// Kelvin
+        public double interactionS = 3;
+        public double dipoleMagnitude = 2;
         public int steps = 15000;
     }
 }
