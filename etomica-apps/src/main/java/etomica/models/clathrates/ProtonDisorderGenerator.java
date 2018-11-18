@@ -50,8 +50,6 @@ import java.io.PrintWriter;
  * @author Sabry Moustafa
  */
 public class ProtonDisorderGenerator extends Simulation {
-    private static final long serialVersionUID = 1L;
-    protected Space space = Space3D.getInstance(3);
     protected Box boxO, box;
     protected SpeciesSpheresMono speciesO;
     protected SpeciesWater4P species;
@@ -59,9 +57,8 @@ public class ProtonDisorderGenerator extends Simulation {
     protected EwaldSummation potentialES;
     protected PotentialMaster potentialMaster;
 
-    public ProtonDisorderGenerator(Space space, String configFile, int nBasis, int[] nC, double[] a0, boolean isIce, int numMolecule, boolean includeM, double rCutRealES, double kCut) {
+    public ProtonDisorderGenerator(Space space, String configFile, int nBasis, int[] nC, double[] a0, boolean isIce, int numMolecule, double rCutRealES, double kCut) {
         super(space);
-        this.space = space;
         speciesO = new SpeciesSpheresMono(this, space);
         addSpecies(speciesO);
         Boundary boundaryO = new BoundaryRectangularPeriodic(space, a0);
@@ -89,7 +86,7 @@ public class ProtonDisorderGenerator extends Simulation {
 
         ChargeAgentSourceRPM agentSource = new MinimizationTIP4P.ChargeAgentSourceRPM(species, isIce);
 //		AtomLeafAgentManager atomAgentManager = new AtomLeafAgentManager(agentSource, box);
-        AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
+        AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<>(agentSource, box);
 
         double sigma, epsilon;
 //		if(isIce){
@@ -111,7 +108,6 @@ public class ProtonDisorderGenerator extends Simulation {
 
         potentialLJ = new P2LennardJones(space, sigma, epsilon);
         potentialLJ.setBox(box);
-//		potentialES = new EwaldSummation(box, atomAgentManager, precision_s, space, nKs, nRealShells);
         potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
 
 //XXXX Potential Master
@@ -122,10 +118,6 @@ public class ProtonDisorderGenerator extends Simulation {
 
     public static void main(String[] args) {
         SimParams params = new SimParams();
-        double x = Kelvin.UNIT.toSim(1.0);
-        double y = Joule.UNIT.toSim(1.0);
-        double yy = Joule.UNIT.fromSim(Kelvin.UNIT.toSim(1.0)) * 6.0221413e+23 * 1e-3;
-        double zz = 1 / yy;
         ParseArgs.doParseArgs(params, args);
         String configFileName = params.configFile;
         int[] nC = params.nC;
@@ -142,7 +134,7 @@ public class ProtonDisorderGenerator extends Simulation {
 
 
         boolean isGraphics = params.isGraphics;
-        final ProtonDisorderGenerator sim = new ProtonDisorderGenerator(Space3D.getInstance(3), configFileName, nBasis, nC, a0, isIce, numMolecule, includeM, rCutRealES, kCut);
+        final ProtonDisorderGenerator sim = new ProtonDisorderGenerator(Space3D.getInstance(3), configFileName, nBasis, nC, a0, isIce, numMolecule, rCutRealES, kCut);
         int[][] pairOdCoord = new int[nBasis * 4 / 2][3];
         int[] nCoordsO = new int[nBasis];
         IAtomList atomList = sim.boxO.getLeafList();
@@ -150,7 +142,6 @@ public class ProtonDisorderGenerator extends Simulation {
         double dr2, drNbr = 3.5;
         int nCoordTot = 0; //must = N*4/2
         for (int i = 0; i < nBasis; i++) {
-            int n4 = 0;
             for (int j = i + 1; j < nBasis; j++) {
                 if (i == j) continue;
                 dr.Ev1Mv2(atomList.get(j).getPosition(), atomList.get(i).getPosition());
@@ -164,12 +155,9 @@ public class ProtonDisorderGenerator extends Simulation {
                     pairOdCoord[nCoordTot][0] = i;
                     pairOdCoord[nCoordTot][1] = j;
                     pairOdCoord[nCoordTot][2] = dRandCoordi;
-                    n4++;
                     nCoordTot++;
                 }
             }//j
-//    	    System.out.println(" n4 = "+n4);
-
         }//i
         int test = 0, count = 0;
         while (test != nBasis) {
