@@ -3,17 +3,11 @@ package etomica.spin.heisenberg_interacting.heisenberg;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.integrator.Integrator;
-import etomica.molecule.DipoleSource;
-import etomica.molecule.IMoleculeList;
 import etomica.potential.*;
-import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.space.Vector;
-import etomica.util.numerical.BesselFunction;
 
 public class PotentialCalculationPhiSum implements PotentialCalculation {
-    protected AtomLeafAgentManager<MeterMappedAveraging.MoleculeAgent> leafAgentManager;
+    protected AtomLeafAgentManager<MoleculeAgent> leafAgentManager;
     protected AtomLeafAgentManager.AgentIterator leafAgentIterator;
 
 
@@ -61,7 +55,7 @@ public class PotentialCalculationPhiSum implements PotentialCalculation {
         leafAgentIterator.reset();
         while (leafAgentIterator.hasNext()) {
             Object agent = leafAgentIterator.next();
-            ((MeterMappedAveraging.MoleculeAgent) agent).phi().E(0);
+            ((MoleculeAgent) agent).phi().E(0);
         }
 
 

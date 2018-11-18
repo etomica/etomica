@@ -5,7 +5,6 @@ import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.potential.*;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 
 import static etomica.math.SpecialFunctions.besselI;
@@ -29,9 +28,9 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
     protected double psiy1, psiy2, psiy11, psiy12, psiy22, psi1y1, psi1y2, psi1y11, psi1y22, psiy111, psiy222, psiy221, psiy112;
     protected int nMax;
     protected int count = 1;
-    protected AtomLeafAgentManager<MeterMappedAveraging.MoleculeAgent> leafAgentManager;
+    protected AtomLeafAgentManager<MoleculeAgent> leafAgentManager;
 
-    public PotentialCalculationHeisenberg(Space space, double dipoleMagnitude, double interactionS, double beta, int nMax, AtomLeafAgentManager<MeterMappedAveraging.MoleculeAgent> leafAgentManager) {
+    public PotentialCalculationHeisenberg(Space space, double dipoleMagnitude, double interactionS, double beta, int nMax, AtomLeafAgentManager<MoleculeAgent> leafAgentManager) {
         ei = space.makeVector();//TODO Do I have to do this again.
         ej = space.makeVector();
         J = interactionS;
@@ -601,8 +600,8 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 //        System.out.println("JEEMJEJEytest-("+ testy +")");
 
         //Var<JE-UE>
-        MeterMappedAveraging.MoleculeAgent agentAtom1 = leafAgentManager.getAgent(atom1);
-        MeterMappedAveraging.MoleculeAgent agentAtom2 = leafAgentManager.getAgent(atom2);
+        MoleculeAgent agentAtom1 = leafAgentManager.getAgent(atom1);
+        MoleculeAgent agentAtom2 = leafAgentManager.getAgent(atom2);
         double f1 = bt * agentAtom1.torque.getX(0);
         double f2 = bt * agentAtom2.torque.getX(0);
 
@@ -716,7 +715,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         UEE = 0;
         JEMUEx = 0;
         JEMUExIdeal = 0;
-        JEMUE = 0;
+        JEMUE = 0;//not used
         JEMUEy = 0;
         JEMUEyIdeal = 0;
         JEMUESquare = 0;

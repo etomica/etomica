@@ -7,9 +7,13 @@ package etomica.spin.heisenberg_interacting.heisenberg;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
+import etomica.box.BoxCellManager;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.*;
 import etomica.data.types.DataDouble;
@@ -18,8 +22,12 @@ import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.listener.IntegratorListenerAction;
+import etomica.nbr.site.Api1ASite;
 import etomica.nbr.site.NeighborSiteManager;
 import etomica.nbr.site.PotentialMasterSite;
+import etomica.potential.IPotentialAtomic;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialCalculation;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -170,6 +178,35 @@ public class Heisenberg extends Simulation {
             sim.integrator.getEventManager().addListener(AEEListener);
         }
 
+        //Mapped averaging using pair excess
+        Box box = sim.getBox(0);
+//        BoxAgentManager.BoxAgentSource<BoxCellManager> boxAgentSource = new PotentialMasterSite.BoxAgentSiteSource(nCells, sim.space);
+//        Api1ASite api = new Api1ASite(sim.getSpace().D(), new BoxAgentManager<BoxCellManager>(boxAgentSource, BoxCellManager.class));
+//        api.setDirection(IteratorDirective.Direction.UP);
+//        api.setBox(box);
+//        IAtomList atoms = box.getLeafList();
+//        for(int i=0; i<atoms.getAtomCount(); i++) {
+//            IAtom atom = atoms.getAtom(i);
+//            api.setTarget(atom);
+//            api.reset();
+//            for(IAtomList nbr=api.next(); nbr!=null; nbr=api.next()) {
+//                System.out.println(nbr);
+//            }
+//        }
+        NeighborListMaker pairList = new NeighborListMaker(nCells*nCells);
+        sim.potentialMaster.calculate(box,new IteratorDirective(),pairList);
+        System.out.println("pair count: "+pairList.count);
+        MeterMappedAveragingPairExcess[] m2ExList = new MeterMappedAveragingPairExcess[pairList.count];
+        AccumulatorAverageCovariance[] m2ExAccumulators = new AccumulatorAverageCovariance[pairList.count];
+        for(int i=0; i<pairList.count; i++) {
+            m2ExList[i] = new MeterMappedAveragingPairExcess(pairList.pairs[i],sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster, sim.potential);
+            m2ExAccumulators[i] = new AccumulatorAverageCovariance(samplePerBlock, true);
+            DataPump AEEPump = new DataPump(m2ExList[i], m2ExAccumulators[i]);
+            IntegratorListenerAction AEEListener = new IntegratorListenerAction(AEEPump);
+            AEEListener.setInterval(sampleAtInterval);
+            sim.integrator.getEventManager().addListener(AEEListener);
+        }
+
         sim.activityIntegrate.setMaxSteps(steps);
         sim.getController().actionPerformed();
 
@@ -194,13 +231,7 @@ public class Heisenberg extends Simulation {
 
         double errdipolex = 0;
         if (aEE) {
-
-//            AEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
-//            AEEER = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
-//            AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
-//            IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-//            covariance.getValue(1);
-
+//combined mapping
             double sum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
             double ERsum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
             double sum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
@@ -213,19 +244,22 @@ public class Heisenberg extends Simulation {
             double sum4 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(4);
             double ERsum4 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(4);
 
-//            avgdipolex = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(7);
-//            errdipolex = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(7);
-//            avgdipoley = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(8);
-//            errdipoley = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(8);
-
             IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
             covariance.getValue(1);
-            AEE = sum0 + sum1 * sum1 + sum2 * sum2 - sum3 * sum3 - sum4 * sum4;
-//            AEE = sum0;
+            AEE = sum0 + sum1 * sum1 + sum2 * sum2 - sum3 * sum3 - sum4 * sum4;//combined mapping
             AEEER = Math.sqrt(ERsum0 * ERsum0 + 4 * sum1 * sum1 * ERsum1 * ERsum1 -
                     2 * ERsum0 * sum1 * 2 * ERsum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3)));
             AEECor = covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3));
 
+        }
+
+        Double aEE2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(7); //independent-spin mapping
+        for(int i=0; i<m2ExAccumulators.length; i++) {
+            double m2 = ((DataGroup) m2ExAccumulators[i].getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
+            double JEMUE2x = ((DataGroup) m2ExAccumulators[i].getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
+            double JEMUE2y = ((DataGroup) m2ExAccumulators[i].getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(2);
+            double m2Id = ((DataGroup) m2ExAccumulators[i].getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(7);
+            aEE2 += m2 + JEMUE2x*JEMUE2x + JEMUE2y*JEMUE2y - m2Id;
         }
 
         long endTime = System.currentTimeMillis();
@@ -260,6 +294,7 @@ public class Heisenberg extends Simulation {
 
         System.out.println("Mapping:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (AEE / numberMolecules)
                 + " Err:\t" + (AEEER / numberMolecules));
+        System.out.println("Mapping2:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (aEE2 / numberMolecules) );
 
         double sumJEEMJEJE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(5);
         double errJEEMJEJE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(5);
@@ -270,6 +305,7 @@ public class Heisenberg extends Simulation {
         double errUEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(6);
         System.out.println("UEE:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (sumUEE / numberMolecules)
                 + " Err:\t" + (errUEE / numberMolecules));
+
 
 
         System.out.println("Time: " + (endTime - startTime) / (1000.0 * 60.0));
@@ -286,6 +322,20 @@ public class Heisenberg extends Simulation {
         public int nCells = 3;//number of atoms is nCells*nCells
         public double interactionS = 1.0;
         public double dipoleMagnitude = 1.0;
-        public int steps = 10000;
+        public int steps = 100000;
+    }
+
+    static class NeighborListMaker implements PotentialCalculation  {
+        int count = 0;
+        final AtomPair[] pairs;
+        public NeighborListMaker(int nAtoms) {
+            pairs = new AtomPair[nAtoms*2];
+        }
+        public void doCalculation(IAtomList atoms, IPotentialAtomic dummy) {
+            System.out.println(atoms);
+            pairs[count] = new AtomPair(atoms.getAtom(0),atoms.getAtom(1));
+            count++;
+        }
+
     }
 }
