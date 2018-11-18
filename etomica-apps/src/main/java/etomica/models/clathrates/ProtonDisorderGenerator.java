@@ -71,12 +71,12 @@ public class ProtonDisorderGenerator extends Simulation {
 
         species = new SpeciesWater4P(space);
         addSpecies(species);
-        box = new Box(space);
+        double[] a0_sc = new double[]{a0[0] * nC[0], a0[1] * nC[1], a0[2] * nC[2]};
+        Boundary boundary = new BoundaryRectangularPeriodic(space, a0_sc);
+        box = new Box(boundary, space);
         addBox(box);
         box.setNMolecules(species, numMolecule);
-        double[] a0_sc = new double[]{a0[0] * nC[0], a0[1] * nC[1], a0[2] * nC[2]};
 
-        box.getBoundary().setBoxSize(Vector.of(a0_sc));
 //		double precision = 1.0e-5 , precision_s;
 //		if (precision ==1.0e-5 ){   
 //			precision_s = 3.047059472445871 ;
