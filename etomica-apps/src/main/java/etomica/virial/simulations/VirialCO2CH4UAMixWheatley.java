@@ -16,6 +16,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.math.SpecialFunctions;
+import etomica.models.co2.SpeciesTraPPECO2;
 import etomica.potential.P2CO2TraPPE;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;
@@ -124,8 +125,8 @@ public class VirialCO2CH4UAMixWheatley {
 
         targetCluster.setTemperature(temperature);
 
-        
-        SpeciesTraPPECO2 speciesCO2 = new SpeciesTraPPECO2(space);// CO2 
+
+        SpeciesTraPPECO2 speciesCO2 = new SpeciesTraPPECO2(space);// CO2
         SpeciesSpheresMono speciesCH4 = new SpeciesSpheresMono(space, new ElementSimple("A"));//CH4
        
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), 

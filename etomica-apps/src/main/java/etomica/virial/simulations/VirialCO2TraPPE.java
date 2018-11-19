@@ -5,9 +5,10 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.integrator.IntegratorListener;
-import etomica.integrator.IntegratorEvent;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.models.co2.SpeciesTraPPECO2;
 import etomica.potential.P2CO2TraPPE;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -16,12 +17,7 @@ import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.MayerEGeneral;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesTraPPECO2;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
 /**
