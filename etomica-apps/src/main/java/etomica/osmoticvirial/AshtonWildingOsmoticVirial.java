@@ -30,6 +30,10 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 /**
  * Implements Ashton and Wilding method for calculation of osmotic virial coefficient (B2, B3)
  * for Hard-Sphere model as described in the paper DOI: 10.1063/1.4883718.
@@ -52,20 +56,17 @@ public class AshtonWildingOsmoticVirial extends Simulation {
      * @param q size of solvent divided by size of solute
      * @param computeIdeal whether to compute histograms for ideal gas
      */
-    public AshtonWildingOsmoticVirial(int numAtoms, double vf, double q, boolean computeIdeal, double L){
+    public AshtonWildingOsmoticVirial(int numAtoms, double vf, double q, boolean computeIdeal, double L, boolean graphics){
 
         super(Space3D.getInstance());
-        setRandom(new RandomMersenneTwister(1));
+//      setRandom(new RandomMersenneTwister(1));
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
 
         integrator = new IntegratorMC(this, potentialMaster);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-        integrator.getMoveManager().addMCMove(mcMoveInsertDelete);
-
 
         double sigma1 = 1.0; //solute
         double sigma2 = q * sigma1; //solvent
@@ -80,12 +81,6 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         box.setBoundary(new BoundaryRectangularPeriodic(space, L*sigma1));
         System.out.println("vol: "+box.getBoundary().volume());
 
-        mcMoveInsertDelete.setSpecies(species2);
-        double mu = (8*vf-9*vf*vf+3*vf*vf*vf) / Math.pow((1-vf),3)+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))); //Configurational chemical potential from Carnahan–Starling equation of state
-        System.out.println("mu "+ mu+" muig "+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))));
-       // mu = Double.MAX_VALUE;
-        mcMoveInsertDelete.setMu(mu);
-
         box.setNMolecules(species1, numAtoms);
 
         if(computeIdeal) {
@@ -96,6 +91,14 @@ public class AshtonWildingOsmoticVirial extends Simulation {
             System.out.println("P_ideal");
         }
         else{
+            mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
+            mcMoveInsertDelete.setSpecies(species2);
+            double mu = (8*vf-9*vf*vf+3*vf*vf*vf) / Math.pow((1-vf),3)+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))); //Configurational chemical potential from Carnahan–Starling equation of state
+            System.out.println("mu "+ mu+" muig "+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))));
+//          mu = Double.MAX_VALUE;
+            mcMoveInsertDelete.setMu(mu);
+            integrator.getMoveManager().addMCMove(mcMoveInsertDelete);
+
             potential1 = new P2HardSphere(space, sigma1, false);
             potential2 = new P2HardSphere(space, sigma2, false);
 //            potential2 = new P2Ideal(space);
@@ -123,20 +126,21 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         potentialMaster.getNbrCellManager(box).assignCellAll();
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException {
         simParams params = new simParams();
 
         if(args.length > 0){
             ParseArgs.doParseArgs(params, args);
         }
         else{
-            params.numAtoms = 3;
-            params.numSteps = 100000;
+            params.numAtoms = 2;
+            params.numSteps = 10000000;
             params.nBlocks = 100;
-            params.vf = 0.1;
+            params.vf = 0.05;
             params.computeIdeal = false;
-            params.sizeRatio = 0.2;
+            params.sizeRatio = 0.33333333333333333333;
             params.L = 3;
+            params.graphics = false;
         }
         int numAtoms = params.numAtoms;
         long numSteps = params.numSteps;
@@ -145,7 +149,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         double q = params.sizeRatio;
         boolean computeIdeal = params.computeIdeal;
         double L = params.L;
-        boolean graphics = false;
+        boolean graphics = params.graphics;
         AccumulatorAverageFixed accNm = null;
 
         long numSamples = numSteps / numAtoms ;
@@ -160,7 +164,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        AshtonWildingOsmoticVirial sim = new AshtonWildingOsmoticVirial(numAtoms, vf, q, computeIdeal, L);
+        AshtonWildingOsmoticVirial sim = new AshtonWildingOsmoticVirial(numAtoms, vf, q, computeIdeal, L, graphics);
 
         if(graphics){
             final String appName = "Ashton-Wilding";
@@ -192,9 +196,10 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         sim.getController().actionPerformed();
         double[] histRmin = accRmin.getHistograms().getHistogram();
         double[] r = accRmin.getHistograms().xValues();
-
+        System.out.println("\nWriting probabilities to test.txt file\n");
+        FileWriter writer = new FileWriter("test.txt");
         for (int i = 0; i < histRmin.length; i++) {
-            System.out.println(r[i]+" "+histRmin[i]);
+            writer.write(r[i]+" "+histRmin[i]+"\n");
         }
 
         double NmAvg = accNm.getData(AccumulatorAverage.AVERAGE).getValue(0);
@@ -213,13 +218,14 @@ public class AshtonWildingOsmoticVirial extends Simulation {
     }
 
     public static class simParams extends ParameterBase{
-        public int numAtoms = 20;
-        public long numSteps = 10000;
+        public int numAtoms = 2;
+        public long numSteps = 10000000;
         public int nBlocks = 100;
-        public double vf = 0.2;
-        public double sizeRatio = 0.2;
+        public double vf = 0.05;
+        public double sizeRatio = 0.33333333333333333333;
         public boolean computeIdeal = false;
-        public double L = 2.5;
+        public double L = 3.0;
+        public boolean graphics = false;
 
     }
 }
