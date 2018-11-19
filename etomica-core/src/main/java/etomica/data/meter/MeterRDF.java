@@ -35,7 +35,7 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent, ja
     protected final Space space;
     protected final DataSourceUniform xDataSource;
     protected final DataTag tag;
-    private final Vector dr;
+    protected final Vector dr;
     protected Box box;
     protected long[] gSum;
     protected DataFunction data;
@@ -45,7 +45,6 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent, ja
     protected long callCount;
     protected AtomType type1, type2;
     private IDataInfo dataInfo;
-    private Boundary boundary;
     private String name;
 
 	/**
@@ -115,6 +114,7 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent, ja
         double xMaxSquared = xMax*xMax;
         iterator.setBox(box);
         iterator.reset();
+        Boundary boundary = box.getBoundary();
         // iterate over all pairs
         for (IAtomList pair = iterator.next(); pair != null;
              pair = iterator.next()) {
@@ -199,7 +199,6 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent, ja
      */
     public void setBox(Box box) {
         this.box = box;
-        boundary = box.getBoundary();
     }
 
     public String getName() {
