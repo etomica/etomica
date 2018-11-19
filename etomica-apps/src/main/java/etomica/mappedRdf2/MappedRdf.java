@@ -227,14 +227,14 @@ public class MappedRdf extends Simulation {
 
     public static class LJMDParams extends ParameterBase {
         public int numAtoms = 100;
-        public double temperature = 5.0;
-        public double density = 1;
+        public double temperature = 10.0;
+        public double density = 0.015;
         public long numSteps =  10000;
-        public double rc = 2;
-        public int nBlocks = 100;
+        public double rc = 3;
+        public int nBlocks = 10;
         public boolean computeR = false;
         public boolean computeRMA = true;
-        public double rcforHandfinmap = 2;
+        public double rcforHandfinmap = 3.5;
 
     }
 }
