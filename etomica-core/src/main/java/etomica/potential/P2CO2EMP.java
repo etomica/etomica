@@ -21,6 +21,13 @@ import etomica.space.Vector;
  */
 public class P2CO2EMP extends PotentialMolecular {
 
+    protected final double chargeCC, chargeCO, chargeOO;
+    protected final Vector work, shift;
+    public double sigmaC, sigmaC2, sigmaO, sigmaO2, sigmaCO, sigmaCO2;
+    protected double epsilonC, epsilonO, epsilonCO;
+    protected Boundary boundary;
+    protected double rCut2 = Double.POSITIVE_INFINITY;
+
 	public P2CO2EMP(Space space, double sigmaC, double sigmaCO, double sigmaO, double epsilonC, double epsilonCO, double epsilonO, double chargeC) {
 		super(2, null);
         this.sigmaC = sigmaC;
@@ -40,6 +47,10 @@ public class P2CO2EMP extends PotentialMolecular {
         chargeOO = chargeO * chargeO;
 	}
 
+    public void setRange(double newRange) {
+        rCut2 = newRange * newRange;
+    }
+
     public void setBox(Box box) {
         boundary = box.getBoundary();
     }
@@ -48,8 +59,8 @@ public class P2CO2EMP extends PotentialMolecular {
 
 		IMolecule m1 = pair.get(0);
 		IMolecule m2 = pair.get(1);
-		
-		//compute C-C distance to consider truncation	
+
+        //compute C-C distance to consider truncation
         Vector C1r = (m1.getChildList().get(0)).getPosition();
         Vector C2r = (m2.getChildList().get(0)).getPosition();
 
@@ -61,12 +72,12 @@ public class P2CO2EMP extends PotentialMolecular {
 		double r2 = work.squared();
 
 		if(r2<1.6) return Double.POSITIVE_INFINITY;
-	
+
 		double sum = chargeCC/Math.sqrt(r2);
 		double s2 = sigmaC2/r2;
 		double s6 = s2*s2*s2;
 		sum += 4*epsilonC*s6*(s6 - 1.0);
-		
+
         Vector O11r = (m1.getChildList().get(1)).getPosition();
         Vector O12r = (m1.getChildList().get(2)).getPosition();
         Vector O21r = (m2.getChildList().get(1)).getPosition();
@@ -186,11 +197,11 @@ public class P2CO2EMP extends PotentialMolecular {
             s6 = s2*s2*s2;
             sum += 4*epsilonO*s6*(s6 - 1.0);
         }
-		return sum;																					        
+        return sum;
 	}
 
     public double getRange() {
-        return Double.POSITIVE_INFINITY;
+        return Math.sqrt(rCut2);
     }
 
     public double getSigmaC() {
@@ -216,11 +227,4 @@ public class P2CO2EMP extends PotentialMolecular {
     public double getEpsilonCO() {
         return epsilonCO;
     }
-    
-    private static final long serialVersionUID = 1L;
-	public double sigmaC, sigmaC2, sigmaO, sigmaO2, sigmaCO, sigmaCO2;
-	protected double epsilonC, epsilonO, epsilonCO;
-	protected Boundary boundary;
-	protected final double chargeCC, chargeCO, chargeOO;
-	protected final Vector work, shift;
 }
