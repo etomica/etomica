@@ -134,7 +134,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         }
         else{
             params.numAtoms = 2;
-            params.numSteps = 10000000;
+            params.numSteps = 1000000;
             params.nBlocks = 100;
             params.vf = 0.05;
             params.computeIdeal = false;
@@ -201,6 +201,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         for (int i = 0; i < histRmin.length; i++) {
             writer.write(r[i]+" "+histRmin[i]+"\n");
         }
+        writer.close();
 
         double NmAvg = accNm.getData(AccumulatorAverage.AVERAGE).getValue(0);
         double NmErr = accNm.getData(AccumulatorAverage.ERROR).getValue(0);
