@@ -109,6 +109,8 @@ public class MeterMappedAveragingPairExcess implements IDataSource, AgentSource<
         x[4] = ans.getSumJEMUEyIdeal();//not used
         x[5] = ans.getSumJEEMJEJE();//not used
         x[6] = ans.getSumUEE();//not used
+        x[6] =  ans.getAEEJ0()  - ans.getSumJEMUExIdeal() * ans.getSumJEMUExIdeal() - ans.getSumJEMUEyIdeal() * ans.getSumJEMUEyIdeal();
+//        x[0] -= -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum();
         x[7] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum();
         return data;
     }

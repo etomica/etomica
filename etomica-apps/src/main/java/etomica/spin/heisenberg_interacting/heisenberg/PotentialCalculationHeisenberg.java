@@ -705,8 +705,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         JEMUExIdeal += -bmu * (f1 * Math.sin(t1) + f2 * Math.sin(t2));
         JEMUEyIdeal += bmu * (f1 * Math.cos(t1) + f2 * Math.cos(t2));
 
-        AEEJ0 += (bmu2 * (2 * (p12 + p21) * Math.cos(t1 - t2) + (3 * f1 + 2 * f2) * Math.sin(2 * t1) + 2 * (-2 + p11 + p22 + 3 * f2 * Math.cos(t2) * Math.sin(t2) + f1 * Math.sin(2 * t2)))) / 2.0;
-
+        AEEJ0 += bmu2 * ( - 2  +  p11  +  p22  +  (p12  +  p21) * Math.cos(t1  -  t2));
     }
 
 

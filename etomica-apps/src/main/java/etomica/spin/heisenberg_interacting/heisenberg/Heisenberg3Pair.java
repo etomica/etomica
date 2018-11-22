@@ -218,6 +218,20 @@ public class Heisenberg3Pair extends Simulation {
 //                    + " AEECor= " + AEECor);
 //            System.out.println("AEE_Time: " + (endTime - startTime) / (1000.0 * 60.0));
 //        }
+        double JEMUEx = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
+        double errJEMUEx = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
+        double JEMUEy = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(2);
+        double errJEMUEy = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(2);
+
+        double JEMUExSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(8);
+        double errJEMUExSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(8);
+        double JEMUEySquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(9);
+        double errJEMUEySquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(9);
+
+        System.out.println("JEMUEx= " + JEMUEx + " Err " + errJEMUEx);
+        System.out.println("JEMUEy= " + JEMUEy + " Err " + errJEMUEy);
+        System.out.println("JEMUExSquare= " + JEMUExSquare + " Err " + errJEMUExSquare);
+        System.out.println("JEMUEySquare= " + JEMUEySquare + " Err " + errJEMUEySquare);
 
 
         System.out.println("Conventional:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (-dipoleSumSquared / temperature / temperature / numberMolecules)
@@ -249,10 +263,10 @@ public class Heisenberg3Pair extends Simulation {
     public static class Param extends ParameterBase {
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 2;// Kelvin
+        public double temperature = 1;// Kelvin
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
-        public int steps = 1000;
+        public int steps = 10000;
         public int numberMolecules = 3;
     }
 }

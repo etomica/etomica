@@ -39,7 +39,7 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
 
     public MeterMappedAveraging3Pair(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, IPotentialAtomic p2) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
-        int nValues = 8;
+        int nValues = 10;
         data = new DataDoubleArray(nValues);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nValues});
         tag = new DataTag();
@@ -84,23 +84,23 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
         pair.atom0 = leafList.getAtom(0);
         pair.atom1 = leafList.getAtom(1);//01
 
-        torqueSum.doCalculation(pair,p2);
-        secondDerivativeSum.doCalculation(pair,p2);
+        torqueSum.doCalculation(pair, p2);
+        secondDerivativeSum.doCalculation(pair, p2);
         pair.atom1 = leafList.getAtom(2);//02
-        torqueSum.doCalculation(pair,p2);
-        secondDerivativeSum.doCalculation(pair,p2);
-        pair.atom0 = leafList.getAtom(1);//12
-        torqueSum.doCalculation(pair,p2);//12
-        secondDerivativeSum.doCalculation(pair,p2);
+        torqueSum.doCalculation(pair, p2);
+        secondDerivativeSum.doCalculation(pair, p2);
+//        pair.atom0 = leafList.getAtom(1);//12
+//        torqueSum.doCalculation(pair,p2);//12
+//        secondDerivativeSum.doCalculation(pair,p2);
 
         Ans.zeroSum();
         pair.atom0 = leafList.getAtom(0);
         pair.atom1 = leafList.getAtom(1);//01
-        Ans.doCalculation(pair,p2);
+        Ans.doCalculation(pair, p2);
         pair.atom1 = leafList.getAtom(2);//02
-        Ans.doCalculation(pair,p2);
-        pair.atom0 = leafList.getAtom(1);//12
-        Ans.doCalculation(pair,p2);
+        Ans.doCalculation(pair, p2);
+//        pair.atom0 = leafList.getAtom(1);//12
+//        Ans.doCalculation(pair,p2);
 
 
         secondDerivativeSumIdeal.zeroSum();
@@ -134,10 +134,12 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
         x[5] = Ans.getSumJEEMJEJE();
         x[6] = Ans.getSumUEE();
         x[7] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum();
+        x[8] = x[1] * x[1];
+        x[9] = x[2] * x[2];
         return data;
     }
 
-//    int count = 0;
+    //    int count = 0;
     public DataTag getTag() {
         return tag;
     }
@@ -153,7 +155,6 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
     public void releaseAgent(MoleculeAgent agent, IAtom a, Box box) {
 
     }
-
 
 
 }
