@@ -227,14 +227,14 @@ public class HeisenbergPair extends Simulation {
 //TODO
             IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
             covariance.getValue(1);
-//            AEE = sum0 + sum1 * sum1 + sum2 * sum2;
-//            AEEER = Math.sqrt(errSum0 * errSum0 + 4 * sum1 * sum1 * errSum1 * errSum1 -
-//                    2 * errSum0 * sum1 * 2 * errSum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3)));
-//            AEECor = covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3));
+            AEE = sum0 + sum1 * sum1 + sum2 * sum2;
+            AEEER = Math.sqrt(errSum0 * errSum0 + 4 * sum1 * sum1 * errSum1 * errSum1 -
+                    2 * errSum0 * sum1 * 2 * errSum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(6)));
+            AEECor = covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(6));
 
-            AEE = sum0 + sum1 * sum1 + sum2 * sum2 - sum3 * sum3 - sum4 * sum4;
-            AEEER = errSum0;
-            AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
+//            AEE = sum0 + sum1 * sum1 + sum2 * sum2 - sum3 * sum3 - sum4 * sum4;
+//            AEEER = errSum0;
+//            AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
         }
 
         long endTime = System.currentTimeMillis();
@@ -267,9 +267,9 @@ public class HeisenbergPair extends Simulation {
     public static class Param extends ParameterBase {
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 3;// Kelvin
-        public double interactionS = 3;
-        public double dipoleMagnitude = 2;
+        public double temperature = 1;// Kelvin
+        public double interactionS = 1;
+        public double dipoleMagnitude = 1;
         public int steps = 15000;
     }
 }

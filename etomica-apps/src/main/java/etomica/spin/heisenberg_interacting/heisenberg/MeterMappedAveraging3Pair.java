@@ -126,9 +126,11 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
 //                - ans.getAEEJ0()
 //                + ans.getSumJEMUExIdeal() * ans.getSumJEMUExIdeal() + ans.getSumJEMUEyIdeal() * ans.getSumJEMUEyIdeal();
 //        x[0] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum();
-//        x[0]= ans.getAEEJ0();
+        x[0] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE()
+                - Ans.getSumJEMUEx() * Ans.getSumJEMUEx() - Ans.getSumJEMUEy() * Ans.getSumJEMUEy();
         x[1] = Ans.getSumJEMUEx();
         x[2] = Ans.getSumJEMUEy();
+
         x[3] = Ans.getSumJEMUExIdeal();
         x[4] = Ans.getSumJEMUEyIdeal();
         x[5] = Ans.getSumJEEMJEJE();
