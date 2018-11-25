@@ -1,0 +1,16 @@
+#!/bin/bash
+# to get integral file
+
+qsub script 5000 10 5 5 
+qsub script 5000 20 10 10 
+qsub script 5000 40 10 10 
+
+qsub script 20000 10 5 5  
+qsub script 20000 20 10 10 
+qsub script 20000 40 10 10 
+
+qsub script 100000 10 5 5  
+qsub script 100000 20 10 10 
+qsub script 100000 40 10 10 
+
+ 

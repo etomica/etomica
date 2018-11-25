@@ -1,0 +1,13 @@
+#$ -S /bin/bash
+# /usr/users/apoorvap/myfiles/PAP2/
+# /usr/users/apoorvap/myfiles/PAP2/
+#$ -cwd
+ 
+echo $JOB_NAME $JOB_ID `hostname` `date` >> ~/q.log
+
+java -cp etomica-apps_main.jar etomica.rotation.WaterDADB -numSteps $1 -temperature $2 -rCutLJ $3 -rCutRealES $4 > numSteps${1}T${2}rCutLJ${3}rCutRealES${4}.out
+
+echo $JOB_NAME $JOB_ID `hostname` `date` >> ~/q2.log
+ 
+
+ 
