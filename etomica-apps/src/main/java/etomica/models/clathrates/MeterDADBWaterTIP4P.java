@@ -10,14 +10,16 @@ import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeAgentManager;
+import etomica.normalmode.AtomSiteSource;
+import etomica.normalmode.LatticeSumMolecularCrystal;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
+import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Orientation3D;
 import etomica.space3d.OrientationFull3D;
@@ -25,7 +27,7 @@ import etomica.space3d.RotationTensor3D;
 import etomica.units.dimensions.Null;
 
 import java.util.Arrays;
-public class MeterDADBWaterTIP4P  implements IDataSource, AgentSource<MyAgent> {
+public class MeterDADBWaterTIP4P  implements IDataSource {
 
 
     protected final DataDoubleArray data;
@@ -36,7 +38,7 @@ public class MeterDADBWaterTIP4P  implements IDataSource, AgentSource<MyAgent> {
     protected final DataSourceScalar meterPE;
     protected final PotentialCalculationForceSum pcForceSum;
     protected final PotentialMaster potentialMaster;
-    protected final AtomLeafAgentManager<MyAgent> forceManager;
+    protected final AtomLeafAgentManager<Vector> forceManager;
     protected final IteratorDirective id;
     protected final Vector dr;
     protected double latticeEnergy;
@@ -64,7 +66,7 @@ public class MeterDADBWaterTIP4P  implements IDataSource, AgentSource<MyAgent> {
         this.potentialMaster = potentialMaster;
         id = new IteratorDirective();
         pcForceSum = new PotentialCalculationForceSum();
-        forceManager = new AtomLeafAgentManager<MyAgent>(this, latticeCoordinates.getBox(), MyAgent.class);
+        forceManager = new AtomLeafAgentManager<>(a -> space.makeVector(), latticeCoordinates.getBox());
         pcForceSum.setAgentManager(forceManager);
         dr = space.makeVector();
         MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(potentialMaster);
@@ -91,33 +93,36 @@ public class MeterDADBWaterTIP4P  implements IDataSource, AgentSource<MyAgent> {
         IMoleculeList molecules = box.getMoleculeList();
         double ForceSum = 0;
         double orientationSum = 0;
+        AtomLeafAgentManager<Vector> atomLatticeCoordinates = new AtomLeafAgentManager<>(new AtomSiteSource(space), box, Vector.class);
 
-        for (int i = 0; i < molecules.getMoleculeCount(); i++) {
-            IMolecule molecule = molecules.getMolecule(i);
+        for (int i = 0; i < molecules.size(); i++) {    //#########GET GETATOM/MOLECULE WORKING
+            IMolecule molecule = molecules.get(i);
             IAtomList leafList = molecule.getChildList();
-            Vector h1Force = forceManager.getAgent(leafList.getAtom(0)).force();
-            Vector h2Force = forceManager.getAgent(leafList.getAtom(1)).force();
-            Vector oForce = forceManager.getAgent(leafList.getAtom(2)).force();
-            Vector mForce = forceManager.getAgent(leafList.getAtom(3)).force();
-            totalForce.E(h1Force);
+
+            Vector h1Force = agentManager.getAgent(leafList.get(0));
+            Vector h2Force = agentManager.getAgent(leafList.get(1));
+            Vector oForce = agentManager.getAgent(leafList.get(2));
+            Vector mForce = agentManager.getAgent(leafList.get(3));
+
+            totalForce.E(h1Force); //########################WHAT IS E,PE,TE?
             totalForce.PE(h2Force);
             totalForce.PE(mForce);
             totalForce.PE(oForce);
-            Vector h1 = leafList.getAtom(0).getPosition();
-            Vector h2 = leafList.getAtom(1).getPosition();
-            Vector o = leafList.getAtom(2).getPosition();
-            Vector m = leafList.getAtom(3).getPosition();
-            double hMass = leafList.getAtom(0).getType().getMass();
-            double oMass = leafList.getAtom(2).getType().getMass();
+            Vector h1 = leafList.get(0).getPosition();
+            Vector h2 = leafList.get(1).getPosition();
+            Vector o = leafList.get(2).getPosition();
+            Vector m = leafList.get(3).getPosition();
+            double hMass = leafList.get(0).getType().getMass();
+            double oMass = leafList.get(2).getType().getMass();
 
             centerMass.Ea1Tv1(hMass, h1);
             centerMass.PEa1Tv1(hMass, h2);
-            centerMass.PEa1Tv1(oMass, o);
-            centerMass.TE(1 / (2 * hMass + oMass));
+            centerMass.PEa1Tv1(oMass, o);   //WHAT IS THIS PE AND TE
+            centerMass.TE(1 / (2 * hMass + oMass));   //##################WHAT IS TE?
 
             dr.Ev1Mv2(m, centerMass);
             torque.E(mForce);
-            torque.XE(dr);
+            torque.XE(dr);  //#############################WHAT DOES THIS XE DO?
             q.E(torque);
             dr.Ev1Mv2(h1, centerMass);
             torque.E(h1Force);
@@ -132,12 +137,12 @@ public class MeterDADBWaterTIP4P  implements IDataSource, AgentSource<MyAgent> {
             torque.XE(dr);
             q.PE(torque);
             //for the total torque q
-
+//#####################MOLECULE SITE SOURCE
             Vector lPos = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).position;
             dr.Ev1Mv2(centerMass, lPos);
             ForceSum += totalForce.dot(dr);
 
-
+//bring class
             OrientationFull3D or = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).orientation;
             Vector a0 = or.getDirection();//om
             Vector a1 = or.getSecondaryDirection();//h1h2
@@ -195,7 +200,7 @@ public class MeterDADBWaterTIP4P  implements IDataSource, AgentSource<MyAgent> {
             double DUDT = -q.dot(axis);
             double denominator = 1 - Math.cos(beta);
             if (denominator == 0) continue;
-            orientationSum += 1.5 * (beta - Math.sin(beta)) / denominator * DUDT;
+            orientationSum += 1.5 * (beta - Math.sin(beta)) / denominator * DUDT;  //TRY ANOTHER 3/2 THAT U WERE GETTING FOR TORQUE ..DERIVATION
 //            orientationSum += 0.5 * betaNew * DUDT;  //Only kappa3
 
 
@@ -205,9 +210,21 @@ public class MeterDADBWaterTIP4P  implements IDataSource, AgentSource<MyAgent> {
         if (!doRotation) orientationSum = 0;
         if (justDADB) {
             if (justU) {
-                int N = molecules.getMoleculeCount();
+                int N = molecules.size();
                 double fac = (doTranslation ? 1.5 : 0) * (N - 1) + (doRotation ? 1.5 : 0) * N;
                 x[0] = (x0 + latticeEnergy) + (fac * temperature) + 0.5 * ForceSum + orientationSum;
+
+                for (int i = 0; i < molecules.size(); i++) {    //#########GET GETATOM/MOLECULE WORKING
+                    for (int j = 0; j > i; j++) {  //12, 13...
+
+                        LatticeSumMolecularCrystal.atomicToMolecularD(aTensor, i, j);
+                    }
+                }
+
+                for (int i = 0; i < molecules.size(); i++) {    //#########GET GETATOM/MOLECULE WORKING
+                    LatticeSumMolecularCrystal.atomicToMolecularD(aTensor, i, i);  //11, 22, etc. (call same molecules)
+                }
+
             } else {
                 x[0] = x0 + 0.5 * ForceSum + orientationSum; //translation and rotation
             }
@@ -221,6 +238,7 @@ public class MeterDADBWaterTIP4P  implements IDataSource, AgentSource<MyAgent> {
         x[1] = ForceSum;
         x[2] = x[0] + 0.5 * x[1];
         // so this is the energy
+        //##########################3WHAT IS THE FOLLOWING STUFF???/
         x[3] = (2 * temperature - x[0]) * x[0];   // x[0]*x[0] = 2*T*x[0] - x[3]
         x[4] = (2 * temperature - x[0]) * x[2];
 //        x[5] = (x[0]*x[0]+2*temperature*temperature)*x[2];
@@ -246,19 +264,19 @@ public class MeterDADBWaterTIP4P  implements IDataSource, AgentSource<MyAgent> {
         Box box = latticeCoordinates.getBox();
         IMoleculeList molecules = box.getMoleculeList();
         //test make k3 rotate back to its nominal orientation
-
+//###############################WHAT IS DOKAPPA3?
         System.out.println("You're doing the bebug in MeterDADBWaterTIP4P");
         boolean doKappa3 = false;
         boolean onlyTranslation = false;
         if (doKappa3) System.out.println("You're doing kappa3");
         for (int j = 99; j >= 0 && doKappa3; j--) {
-            for (int i = 0; i < molecules.getMoleculeCount(); i++) {
-                IMolecule molecule = molecules.getMolecule(i);
+            for (int i = 0; i < molecules.size(); i++) {
+                IMolecule molecule = molecules.get(i);
                 IAtomList leafList = molecule.getChildList();
-                Vector h1 = leafList.getAtom(0).getPosition();
-                Vector h2 = leafList.getAtom(1).getPosition();
-                Vector o = leafList.getAtom(2).getPosition();
-                Vector m = leafList.getAtom(3).getPosition();
+                Vector h1 = leafList.get(0).getPosition();
+                Vector h2 = leafList.get(1).getPosition();
+                Vector o = leafList.get(2).getPosition();
+                Vector m = leafList.get(3).getPosition();
                 OrientationFull3D or = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).orientation;
                 Vector a0 = or.getDirection();//om
                 Vector a1 = or.getSecondaryDirection();//h1h2
@@ -293,19 +311,19 @@ public class MeterDADBWaterTIP4P  implements IDataSource, AgentSource<MyAgent> {
         }
         if (doKappa3) System.exit(2);
 
-
+//############################WHAT IS THIS TEST? WHY DOING IT
         //test make configuration translate back to its nominal position
         if (onlyTranslation) System.out.println("You're doing only translation");
         for (int j = 99; j > 0 && onlyTranslation; j--) {
-            for (int i = 0; i < molecules.getMoleculeCount(); i++) {
-                IMolecule molecule = molecules.getMolecule(i);
+            for (int i = 0; i < molecules.size(); i++) {
+                IMolecule molecule = molecules.get(i);
                 IAtomList leafList = molecule.getChildList();
-                Vector h1 = leafList.getAtom(0).getPosition();
-                Vector h2 = leafList.getAtom(1).getPosition();
-                Vector o = leafList.getAtom(2).getPosition();
-                Vector m = leafList.getAtom(3).getPosition();
-                double hmass = leafList.getAtom(0).getType().getMass();
-                double omass = leafList.getAtom(2).getType().getMass();
+                Vector h1 = leafList.get(0).getPosition();
+                Vector h2 = leafList.get(1).getPosition();
+                Vector o = leafList.get(2).getPosition();
+                Vector m = leafList.get(3).getPosition();
+                double hmass = leafList.get(0).getType().getMass();
+                double omass = leafList.get(2).getType().getMass();
                 centerMass.Ea1Tv1(hmass, h1);
                 centerMass.PEa1Tv1(hmass, h2);
                 centerMass.PEa1Tv1(omass, o);
@@ -328,16 +346,16 @@ public class MeterDADBWaterTIP4P  implements IDataSource, AgentSource<MyAgent> {
             pcForceSum.reset();
             potentialMaster.calculate(box, id, pcForceSum);
             double fdr = 0, fdr2 = 0;
-            for (int i = 0; i < molecules.getMoleculeCount(); i++) {
+            for (int i = 0; i < molecules.size(); i++) {
 
-                IMolecule molecule = molecules.getMolecule(i);
+                IMolecule molecule = molecules.get(i);
                 IAtomList leafList = molecule.getChildList();
-                Vector h1 = leafList.getAtom(0).getPosition();
-                Vector h2 = leafList.getAtom(1).getPosition();
-                Vector o = leafList.getAtom(2).getPosition();
-                Vector m = leafList.getAtom(3).getPosition();
-                double hmass = leafList.getAtom(0).getType().getMass();
-                double omass = leafList.getAtom(2).getType().getMass();
+                Vector h1 = leafList.get(0).getPosition();
+                Vector h2 = leafList.get(1).getPosition();
+                Vector o = leafList.get(2).getPosition();
+                Vector m = leafList.get(3).getPosition();
+                double hmass = leafList.get(0).getType().getMass();
+                double omass = leafList.get(2).getType().getMass();
                 centerMass.Ea1Tv1(hmass, h1);
                 centerMass.PEa1Tv1(hmass, h2);
                 centerMass.PEa1Tv1(omass, o);
@@ -345,10 +363,10 @@ public class MeterDADBWaterTIP4P  implements IDataSource, AgentSource<MyAgent> {
                 Vector nominalCenterMass = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).position;
                 dr.Ev1Mv2(nominalCenterMass, centerMass);
 
-                Vector h1force = forceManager.getAgent(leafList.getAtom(0)).force();
-                Vector h2force = forceManager.getAgent(leafList.getAtom(1)).force();
-                Vector oforce = forceManager.getAgent(leafList.getAtom(2)).force();
-                Vector mforce = forceManager.getAgent(leafList.getAtom(3)).force();
+                Vector h1Force = agentManager.getAgent(leafList.get(0));
+                Vector h2Force = agentManager.getAgent(leafList.get(1));
+                Vector oForce = agentManager.getAgent(leafList.get(2));
+                Vector mForce = agentManager.getAgent(leafList.get(3));
                 totalForce.E(h1force);
                 totalForce.PE(h2force);
                 totalForce.PE(mforce);
@@ -363,20 +381,19 @@ public class MeterDADBWaterTIP4P  implements IDataSource, AgentSource<MyAgent> {
 
         if (onlyTranslation) System.exit(2);
 
-
 //debug for rotation angle and axis
         boolean allKappa = false;
         if (allKappa) System.out.println("You're doing all kappa");
         double[] beta0 = new double[46];
         double forceSum = 0;
         for (int j = 99; j > 0 && allKappa; j--) {
-            for (int i = 0; i < molecules.getMoleculeCount(); i++) {
-                IMolecule molecule = molecules.getMolecule(i);
+            for (int i = 0; i < molecules.size(); i++) {
+                IMolecule molecule = molecules.get(i);
                 IAtomList leafList = molecule.getChildList();
-                Vector h1 = leafList.getAtom(0).getPosition();
-                Vector h2 = leafList.getAtom(1).getPosition();
-                Vector o = leafList.getAtom(2).getPosition();
-                Vector m = leafList.getAtom(3).getPosition();
+                Vector h1 = leafList.get(0).getPosition();
+                Vector h2 = leafList.get(1).getPosition();
+                Vector o = leafList.get(2).getPosition();
+                Vector m = leafList.get(3).getPosition();
                 OrientationFull3D or = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecule)).orientation;
                 Vector a0 = or.getDirection();//om
                 Vector a1 = or.getSecondaryDirection();//h1h2
@@ -430,8 +447,8 @@ public class MeterDADBWaterTIP4P  implements IDataSource, AgentSource<MyAgent> {
                 axis.normalize();
 
                 if (j == 99) beta0[i] = beta;
-                double hMass = leafList.getAtom(0).getType().getMass();
-                double oMass = leafList.getAtom(2).getType().getMass();
+                double hMass = leafList.get(0).getType().getMass();
+                double oMass = leafList.get(2).getType().getMass();
                 centerMass.Ea1Tv1(hMass, h1);
                 centerMass.PEa1Tv1(hMass, h2);
                 centerMass.PEa1Tv1(oMass, o);
@@ -486,24 +503,25 @@ public class MeterDADBWaterTIP4P  implements IDataSource, AgentSource<MyAgent> {
 
             double orientationSum = 0;
             double DUDTsum = 0, fooSum = 0;
-            for (int i = 0; i < molecules.getMoleculeCount(); i++) {
+            for (int i = 0; i < molecules.size(); i++) {
 
-                IMolecule molecule = molecules.getMolecule(i);
+                IMolecule molecule = molecules.get(i);
                 IAtomList leafList = molecule.getChildList();
-                Vector h1Force = forceManager.getAgent(leafList.getAtom(0)).force();
-                Vector h2Force = forceManager.getAgent(leafList.getAtom(1)).force();
-                Vector oForce = forceManager.getAgent(leafList.getAtom(2)).force();
-                Vector mForce = forceManager.getAgent(leafList.getAtom(3)).force();
+                Vector h1Force = agentManager.getAgent(leafList.get(0));
+                Vector h2Force = agentManager.getAgent(leafList.get(1));
+                Vector oForce = agentManager.getAgent(leafList.get(2));
+                Vector mForce = agentManager.getAgent(leafList.get(3));
+
                 totalForce.E(h1Force);
                 totalForce.PE(h2Force);
                 totalForce.PE(mForce);
                 totalForce.PE(oForce);
-                Vector h1 = leafList.getAtom(0).getPosition();
-                Vector h2 = leafList.getAtom(1).getPosition();
-                Vector o = leafList.getAtom(2).getPosition();
-                Vector m = leafList.getAtom(3).getPosition();
-                double hMass = leafList.getAtom(0).getType().getMass();
-                double oMass = leafList.getAtom(2).getType().getMass();
+                Vector h1 = leafList.get(0).getPosition();
+                Vector h2 = leafList.get(1).getPosition();
+                Vector o = leafList.get(2).getPosition();
+                Vector m = leafList.get(3).getPosition();
+                double hMass = leafList.get(0).getType().getMass();
+                double oMass = leafList.get(2).getType().getMass();
 
                 centerMass.Ea1Tv1(hMass, h1);
                 centerMass.PEa1Tv1(hMass, h2);
@@ -613,12 +631,7 @@ public class MeterDADBWaterTIP4P  implements IDataSource, AgentSource<MyAgent> {
         return dataInfo;
     }
 
-    public final MyAgent makeAgent(IAtom a, Box box) {
-        return new MyAgent(space);
-    }
 
-    public void releaseAgent(MyAgent agent, IAtom atom, Box box) {
-    }
 
 
 

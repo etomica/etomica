@@ -108,7 +108,7 @@ public class LatticeSumMolecularCrystal {
     
     
     
-    protected Tensor atomicToMolecularD(AtomicTensorAtomicPair aTensor, IMolecule mol0, IMolecule mol1){
+    public Tensor atomicToMolecularD(AtomicTensorAtomicPair aTensor, IMolecule mol0, IMolecule mol1){
 
     	TensorND D6mol = new TensorND(6);
     	Tensor3D D3tt  = new Tensor3D();	Tensor3D D3tr  = new Tensor3D();

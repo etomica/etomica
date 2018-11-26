@@ -38,7 +38,7 @@ import etomica.util.ParseArgs;
 
 import java.awt.*;
 
-public class ClathrateHarmonicFE extends Simulation {
+public class ClathrateHarmonicFEcopy extends Simulation {
     protected static double[] initialU;
     protected Box box;
     protected PotentialMaster potentialMaster;
@@ -48,7 +48,7 @@ public class ClathrateHarmonicFE extends Simulation {
     protected Potential2SoftSphericalLS potentialLJLS;
     protected EwaldSummation potentialES;
 
-    public ClathrateHarmonicFE(Space space, int[] nC, double rCutRealES, double rCutLJ, double[] a0_sc, int numMolecule, String configFileName, boolean isIce, double kCut, boolean includeM) {
+    public ClathrateHarmonicFEcopy(Space space, int[] nC, double rCutRealES, double rCutLJ, double[] a0_sc, int numMolecule, String configFileName, boolean isIce, double kCut, boolean includeM) {
         super(space);
         species = new SpeciesWater4P(space);
         addSpecies(species);
@@ -184,7 +184,7 @@ public class ClathrateHarmonicFE extends Simulation {
 
         int numMolecule = nBasis * nC[0] * nC[1] * nC[2];
         final Space space = Space3D.getInstance();
-        final ClathrateHarmonicFE sim = new ClathrateHarmonicFE(space, nC, rCutRealES, rCutLJ, a0_sc, numMolecule, configFile, isIce, kCut, includeM);
+        final ClathrateHarmonicFEcopy sim = new ClathrateHarmonicFEcopy(space, nC, rCutRealES, rCutLJ, a0_sc, numMolecule, configFile, isIce, kCut, includeM);
 
 
         //Anonymous class enables you to make your code more concise.
@@ -196,7 +196,7 @@ public class ClathrateHarmonicFE extends Simulation {
             Vector drTmp = space.makeVector();
             Tensor D3ESLJ = space.makeTensor();
             Tensor tmpD3LJ = space.makeTensor();
-//second derivative
+
             //dr == r0 - r1
             public Tensor atomicTensor(IAtom atom0, IAtom atom1) {
                 D3ESLJ.E(0);

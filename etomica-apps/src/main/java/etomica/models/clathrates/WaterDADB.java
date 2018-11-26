@@ -17,11 +17,9 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
-import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
-import etomica.integrator.IntegratorVelocityVerletRattle;
+ import etomica.integrator.IntegratorVelocityVerletRattle;
 import etomica.integrator.IntegratorVelocityVerletShake.BondConstraints;
-import etomica.listener.IntegratorListenerAction;
-import etomica.models.clathrates.MinimizationTIP4P.ChargeAgentSourceRPM;
+ import etomica.models.clathrates.MinimizationTIP4P.ChargeAgentSourceRPM;
 import etomica.models.water.ConformationWaterTIP4P;
 import etomica.models.water.SpeciesWater4P;
 import etomica.molecule.IMolecule;
@@ -31,6 +29,7 @@ import etomica.molecule.MoleculePositionCOM;
 import etomica.normalmode.*;
 import etomica.potential.EwaldSummation;
 import etomica.potential.P2LennardJones;
+import etomica.potential.Potential2SoftSphericalLS;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
@@ -70,7 +69,7 @@ public class WaterDADB extends Simulation {
         box.setNMolecules(species, 46 * numCells * numCells * numCells);
         box.setDensity(46 / 12.03 / 12.03 / 12.03);
         ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
-        AtomLeafAgentManager<EwaldSummation.MyCharge> atomAgentManager = new AtomLeafAgentManager<EwaldSummation.MyCharge>(agentSource, box, EwaldSummation.MyCharge.class);
+        AtomLeafAgentManager<EwaldSummation.MyCharge> atomAgentManager = new AtomLeafAgentManager<EwaldSummation.MyCharge>(agentSource, box);
         int[] nC = new int[]{numCells, numCells, numCells};
         if (unitCells) {
             numCells = 1;
@@ -98,17 +97,19 @@ public class WaterDADB extends Simulation {
         latticeCoordinates = new MoleculeAgentManager(this, box, new MoleculeSiteSource(space, new MoleculePositionCOM(space), new WaterOrientationDefinition(space)));
         AtomLeafAgentManager<Vector> atomLatticeCoordinates = new AtomLeafAgentManager<>(new AtomSiteSource(space), box, Vector.class);
 
-        EwaldSummationLattice potentialES = new EwaldSummationLattice(box, atomAgentManager, space, kCut, rCutRealES, atomLatticeCoordinates);
+        EwaldSummation potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
 
         P2LennardJones potentialLJ = new P2LennardJones(space, sigma, epsilon);
-        potentialLJLS = new Potential2SoftSphericalLS(space, rCutLJ, rC, potentialLJ, latticeCoordinates);
+        potentialLJLS = new Potential2SoftSphericalLS(space, rCutLJ, rC, potentialLJ);
 //		potentialLJ =  new P2SoftSphericalTruncated(space, potentialLJ, rC);
         potentialMaster = new PotentialMaster();
         potentialMaster.addPotential(potentialES, new AtomType[0]);
         potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
 
+        //ADD MINIMIZATION TO IT LATER
+
         int maxIterations = 100;
-        integrator = new IntegratorVelocityVerletRattle(this, potentialMaster, space);
+        integrator = new IntegratorVelocityVerletRattle(this, potentialMaster, box);
         integrator.setShakeTolerance(shakeTol);
         double lOH = ConformationWaterTIP4P.bondLengthOH;
         double lHH = Math.sqrt(2 * lOH * lOH * (1 - Math.cos(ConformationWaterTIP4P.angleHOH)));
@@ -126,12 +127,12 @@ public class WaterDADB extends Simulation {
 //            Vector newTorque = space.makeVector();
             Vector dr = space.makeVector();
 
-            public void redistributeForces(IMolecule molecule, AtomLeafAgentManager agentManager) {
+            public void redistributeForces(IMolecule molecule, AtomLeafAgentManager<Vector> agentManager) {
                 IAtomList leafList = molecule.getChildList();
-                Vector h1 = leafList.getAtom(0).getPosition();
-                Vector h2 = leafList.getAtom(1).getPosition();
-                Vector o = leafList.getAtom(2).getPosition();
-                Vector m = leafList.getAtom(3).getPosition();
+                Vector h1 = leafList.get(0).getPosition();
+                Vector h2 = leafList.get(1).getPosition();
+                Vector o = leafList.get(2).getPosition();
+                Vector m = leafList.get(3).getPosition();
                 Vector h1torque = space.makeVector();
                 Vector h2torque = space.makeVector();
                 Vector h1h2 = space.makeVector();
@@ -140,8 +141,8 @@ public class WaterDADB extends Simulation {
                 Vector mTorque = space.makeVector();
                 Vector totalTorque = space.makeVector();
                 Vector totalForce = space.makeVector();
-                double hMass = leafList.getAtom(0).getType().getMass();
-                double oMass = leafList.getAtom(2).getType().getMass();
+                double hMass = leafList.get(0).getType().getMass();
+                double oMass = leafList.get(2).getType().getMass();
                 double hMassPercent = hMass / (2 * hMass + oMass);
                 double oMassPercent = oMass / (2 * hMass + oMass);
                 centerMass.Ea1Tv1(hMass, h1);
@@ -155,10 +156,10 @@ public class WaterDADB extends Simulation {
                 vectorSum.E(h1Vector);
                 vectorSum.PE(h2Vector);
                 vectorSum.PEa1Tv1(-2.0, oVector);
-                Vector h1Force = ((MyAgent) agentManager.getAgent(leafList.getAtom(0))).force();
-                Vector h2Force = ((MyAgent) agentManager.getAgent(leafList.getAtom(1))).force();
-                Vector oForce = ((MyAgent) agentManager.getAgent(leafList.getAtom(2))).force();
-                Vector mForce = ((MyAgent) agentManager.getAgent(leafList.getAtom(3))).force();
+                Vector h1Force = agentManager.getAgent(leafList.get(0));
+                Vector h2Force = agentManager.getAgent(leafList.get(1));
+                Vector oForce = agentManager.getAgent(leafList.get(2));
+                Vector mForce = agentManager.getAgent(leafList.get(3));
 
                 boolean testForceAndTorque = false;
                 Vector totalTorqueNew = space.makeVector();
@@ -183,7 +184,7 @@ public class WaterDADB extends Simulation {
                     totalTorque.PE(mTorque);//test for total torque
                 }
 
-
+//#####################WHAT IS HAPPENING BELOW?????
                 h1h2.Ev1Mv2(h2, h1);
                 om.Ev1Mv2(m, o);
                 Vector a0 = space.makeVector();
@@ -191,11 +192,10 @@ public class WaterDADB extends Simulation {
                 Vector a2 = space.makeVector();
                 a0.E(mVector);
                 a0.normalize();
-                a1.Ea1Tv1(-1, h1h2);
+                a1.Ea1Tv1(-1, h1h2);   //#########WHAT DOES Ea1Tv1 DO?????
                 a1.normalize();
-                a2.E(a0);
-                a2.XE(a1);
-
+                a2.E(a0);//equal
+                a2.XE(a1);//cross a2=a2Xa1
 
                 //separate mForce into 3 direction
                 Vector f0 = space.makeVector();
@@ -289,10 +289,10 @@ public class WaterDADB extends Simulation {
             public void relaxMolecule(IMolecule molecule) {
                 IAtomList leafList = molecule.getChildList();
 
-                Vector h1 = leafList.getAtom(0).getPosition();
-                Vector h2 = leafList.getAtom(1).getPosition();
-                Vector o = leafList.getAtom(2).getPosition();
-                Vector m = leafList.getAtom(3).getPosition();
+                Vector h1 = leafList.get(0).getPosition();
+                Vector h2 = leafList.get(1).getPosition();
+                Vector o = leafList.get(2).getPosition();
+                Vector m = leafList.get(3).getPosition();
                 m.E(h1);
                 m.PE(h2);
                 m.PEa1Tv1(-2, o);
@@ -306,14 +306,12 @@ public class WaterDADB extends Simulation {
         integrator.getShakeAgentManager().setAgent(species, bondConstraints);
         integrator.setTimeStep(timeInterval);
         integrator.setMaxIterations(maxIterations);
-        integrator.setBox(box);
 //        integrator.setOrientAtom((IAtom)((IMolecule)box.getMoleculeList(speciesOrient).getAtom(0)).getChildList().getAtom(0));
         integrator.setIsothermal(true);
         integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
         integrator.setThermostatInterval(100);
         integrator.setThermostatNoDrift(true);
-        integrator.doRotation = doRotation;
-        integrator.doTranslation = doTranslation;
+
         try {
             integrator.reset();
         } catch (ConfigurationOverlapException e) {
@@ -365,7 +363,7 @@ public class WaterDADB extends Simulation {
 
         if (runGraphic) {
 //			sim.ai.setSleepPeriod(2);
-            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rattle", 1, sim.space, sim.getController());
+            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rattle", 1);
             ((ColorSchemeByType) graphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getHydrogenType(), Color.WHITE);
             ((ColorSchemeByType) graphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getOxygenType(), Color.RED);
             ((DiameterHashByType) graphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getMType(), 0.1);
@@ -402,14 +400,12 @@ public class WaterDADB extends Simulation {
                     return data;
                 }
             };
-            DataPump pump = new DataPump(meterE, processor);
+            DataPumpListener pump = new DataPumpListener(meterE, processor,10);
             processor.setDataSink(history);
             DisplayPlot ePlot = new DisplayPlot();
 //            ePlot.setUnit(new SimpleUnit(Energy.DIMENSION,46*Joule.UNIT.toSim(1)/Constants.AVOGADRO*1000,"energy","symbol",true));
             history.setDataSink(ePlot.getDataSet().makeDataSink());
-            IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
-            pumpListener.setInterval(10);
-            sim.integrator.getEventManager().addListener(pumpListener);
+            sim.integrator.getEventManager().addListener(pump);
             ePlot.setLabel("Energy");
             graphic.add(ePlot);
             graphic.getDisplayBox(graphic.getSimulation().getBox(0)).setPixelUnit(new Pixel(25));
@@ -422,6 +418,7 @@ public class WaterDADB extends Simulation {
             meterPE.setBox(sim.box);
 
             MeterDADBWaterTIP4P meterDADB = new MeterDADBWaterTIP4P(sim.space, meterPE, sim.potentialMaster, Kelvin.UNIT.toSim(temperature), sim.latticeCoordinates);
+
             meterDADB.doRotation = doRotation;
             meterDADB.doTranslation = doTranslation;
             DataFork forkPE = new DataFork();
@@ -458,7 +455,7 @@ public class WaterDADB extends Simulation {
             historyPE.addDataSink(plotPE.getDataSet().makeDataSink());
             plotPE.setLabel("PE");
             plotPE.setLegend(new DataTag[]{meterPE.getTag()}, "Conv");
-            plotPE.setLegend(new DataTag[]{meterDADB.getTag()}, "HMA");
+  //          plotPE.setLegend(new DataTag[]{meterDADB.getTag()}, "HMA");
             graphic.add(plotPE);
 
             if (false) {
@@ -482,7 +479,7 @@ public class WaterDADB extends Simulation {
                     }
 
                     protected IData processData(IData inputData) {
-                        int N = sim.box.getMoleculeList().getMoleculeCount();
+                        int N = sim.box.getMoleculeList().size();
                         double fac = (doRotation ? 1.5 : 0) * N + (doTranslation ? 1.5 : 0) * (N - 1);
                         data.x = inputData.getValue(0) - latticeEnergy - fac * Kelvin.UNIT.toSim(temperature);
                         return data;
@@ -541,9 +538,9 @@ public class WaterDADB extends Simulation {
 //        System.out.println("shakeTol= " + shakeTol);
         IMoleculeList molecules = sim.box.getMoleculeList();
         System.out.println("beginLE = " + latticeEnergy);
-        int N = sim.box.getMoleculeList().getMoleculeCount();
+        int N = sim.box.getMoleculeList().size();
         double fac = (doRotation ? 1.5 : 0) * N + (doTranslation ? 1.5 : 0) * (N - 1);
-        System.out.println("harmonicE= " + fac * Kelvin.UNIT.toSim((molecules.getMoleculeCount() * temperature)));
+        System.out.println("harmonicE= " + fac * Kelvin.UNIT.toSim((molecules.size() * temperature)));
         System.out.println("main:doTranslation:   " + doTranslation + "  doRotation:  " + doRotation);
         System.out.println("timeInterval= " + timeInterval);
 
@@ -593,10 +590,10 @@ public class WaterDADB extends Simulation {
 
         public IOrientation getOrientation(IMolecule molecule) {
             IAtomList leafList = molecule.getChildList();
-            Vector h1 = leafList.getAtom(0).getPosition();
-            Vector h2 = leafList.getAtom(1).getPosition();
-            Vector o = leafList.getAtom(2).getPosition();
-            Vector m = leafList.getAtom(3).getPosition();
+            Vector h1 = leafList.get(0).getPosition();
+            Vector h2 = leafList.get(1).getPosition();
+            Vector o = leafList.get(2).getPosition();
+            Vector m = leafList.get(3).getPosition();
             v1.Ev1Mv2(m, o);
             v1.normalize();
             v2.Ev1Mv2(h2, h1);
