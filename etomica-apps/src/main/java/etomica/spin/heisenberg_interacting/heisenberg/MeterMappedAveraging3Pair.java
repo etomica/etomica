@@ -64,7 +64,7 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
         secondDerivativeSum.setAgentManager(leafAgentManager);
         secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);
 
-        int nMax = 10;
+        int nMax = 2;
         Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         allAtoms = new IteratorDirective();
 
@@ -116,18 +116,18 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
             IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
             dr.PEa1Tv1(torqueScalar, atom.getOrientation().getDirection());
         }//i loop
-        x[0] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum()
-                - Ans.getSumJEEMJEJE() + Ans.getSumUEE()
-                - Ans.getSumJEMUEx() * Ans.getSumJEMUEx() - Ans.getSumJEMUEy() * Ans.getSumJEMUEy()
-                - Ans.getAEEJ0() + Ans.getSumJEMUExIdeal() * Ans.getSumJEMUExIdeal() + Ans.getSumJEMUEyIdeal() * Ans.getSumJEMUEyIdeal();
+//        x[0] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum()
+//                - Ans.getSumJEEMJEJE() + Ans.getSumUEE()
+//                - Ans.getSumJEMUEx() * Ans.getSumJEMUEx() - Ans.getSumJEMUEy() * Ans.getSumJEMUEy()
+//                - Ans.getAEEJ0() + Ans.getSumJEMUExIdeal() * Ans.getSumJEMUExIdeal() + Ans.getSumJEMUEyIdeal() * Ans.getSumJEMUEyIdeal();
 
 //        x[0] = - ans.getSumJEEMJEJE() + ans.getSumUEE()
 //                - ans.getSumJEMUEx() * ans.getSumJEMUEx() - ans.getSumJEMUEy() * ans.getSumJEMUEy()
 //                - ans.getAEEJ0()
 //                + ans.getSumJEMUExIdeal() * ans.getSumJEMUExIdeal() + ans.getSumJEMUEyIdeal() * ans.getSumJEMUEyIdeal();
 //        x[0] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum();
-        x[0] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE()
-                - Ans.getSumJEMUEx() * Ans.getSumJEMUEx() - Ans.getSumJEMUEy() * Ans.getSumJEMUEy();
+        x[0] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE();
+//                - Ans.getSumJEMUEx() * Ans.getSumJEMUEx() - Ans.getSumJEMUEy() * Ans.getSumJEMUEy();
         x[1] = Ans.getSumJEMUEx();
         x[2] = Ans.getSumJEMUEy();
 

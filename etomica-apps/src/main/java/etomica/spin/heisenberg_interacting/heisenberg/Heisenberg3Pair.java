@@ -229,11 +229,14 @@ public class Heisenberg3Pair extends Simulation {
         IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         covariance.getValue(1);
         double test = sum0 + sum1 * sum1 + sum2 * sum2;
+        test = sum0;
         double errTest = Math.sqrt(errSum0 * errSum0 + 4 * sum1 * sum1 * errSum1 * errSum1 -
                 2 * errSum0 * sum1 * 2 * errSum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(11)));
         double corTest = covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(11));
 
-        System.out.println(" AEEDirect= " + test / 3 + " Err " + errTest + " cor " + corTest);
+
+
+        System.out.println(" AEEDirect= " + test / 3 + " Err " + errSum0/3 );
 
 
         double JEMUEx = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
@@ -282,7 +285,7 @@ public class Heisenberg3Pair extends Simulation {
     public static class Param extends ParameterBase {
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 3;// Kelvin
+        public double temperature =1;// Kelvin
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
         public int steps = 15000;

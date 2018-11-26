@@ -42,7 +42,7 @@ public class MeterMappedAveragingPair implements IDataSource, AgentSource<Molecu
 
     public MeterMappedAveragingPair(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, IPotentialAtomic p2) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
-        int nValues = 5;
+        int nValues = 10;
         data = new DataDoubleArray(nValues);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nValues});
         tag = new DataTag();
@@ -69,7 +69,7 @@ public class MeterMappedAveragingPair implements IDataSource, AgentSource<Molecu
         secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);
 
 
-        int nMax = 10;
+        int nMax = 3;
         Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         allAtoms = new IteratorDirective();
 
@@ -108,10 +108,12 @@ public class MeterMappedAveragingPair implements IDataSource, AgentSource<Molecu
             dr.PEa1Tv1(torqueScalar, atom.getOrientation().getDirection());
 //            System.out.println("dr + " + dr);
         }//i loop
-        x[0] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum()
-                - Ans.getSumJEEMJEJE() + Ans.getSumUEE()
-                - Ans.getSumJEMUEx() * Ans.getSumJEMUEx() - Ans.getSumJEMUEy() * Ans.getSumJEMUEy()
-                - Ans.getAEEJ0()  + Ans.getSumJEMUExIdeal() * Ans.getSumJEMUExIdeal() + Ans.getSumJEMUEyIdeal() * Ans.getSumJEMUEyIdeal();
+
+
+//        x[0] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum()
+//                - Ans.getSumJEEMJEJE() + Ans.getSumUEE()
+//                - Ans.getSumJEMUEx() * Ans.getSumJEMUEx() - Ans.getSumJEMUEy() * Ans.getSumJEMUEy()
+//                - Ans.getAEEJ0()  + Ans.getSumJEMUExIdeal() * Ans.getSumJEMUExIdeal() + Ans.getSumJEMUEyIdeal() * Ans.getSumJEMUEyIdeal();
 
 //        x[0] = - ans.getSumJEEMJEJE() + ans.getSumUEE()
 //                - ans.getSumJEMUEx() * ans.getSumJEMUEx() - ans.getSumJEMUEy() * ans.getSumJEMUEy()
@@ -119,10 +121,18 @@ public class MeterMappedAveragingPair implements IDataSource, AgentSource<Molecu
 //                + ans.getSumJEMUExIdeal() * ans.getSumJEMUExIdeal() + ans.getSumJEMUEyIdeal() * ans.getSumJEMUEyIdeal();
 //        x[0] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum();
 //        x[0]= ans.getAEEJ0();
+        x[0] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE();
+
         x[1] = Ans.getSumJEMUEx();
         x[2] = Ans.getSumJEMUEy();
         x[3] = Ans.getSumJEMUExIdeal();
         x[4] = Ans.getSumJEMUEyIdeal();
+
+        x[5] = -Ans.getSumJEEMJEJE();
+        x[6] = Ans.getSumUEE();
+        x[7] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum();
+        x[8] = x[1] * x[1];
+        x[9] = x[2] * x[2];
         return data;
 
     }
