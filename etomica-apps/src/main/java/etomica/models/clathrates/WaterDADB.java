@@ -53,6 +53,7 @@ public class WaterDADB extends Simulation {
     public PotentialMaster potentialMaster;
     public SpeciesWater4P species;
     public Box box;
+ //   protected final AtomLeafAgentManager<Vector> forceManager;
     public ActivityIntegrate ai;
     protected Potential2SoftSphericalLS potentialLJLS;
     protected final MoleculeAgentManager latticeCoordinates;
@@ -61,6 +62,7 @@ public class WaterDADB extends Simulation {
         super(space);
 //        setRandom(new RandomMersenneTwister(2));
 //        System.out.println("The randomSeed is fixed");
+ //       forceManager = new AtomLeafAgentManager<>(a -> space.makeVector(), latticeCoordinates.getBox());
 
         box = new Box(space);
         addBox(box);
@@ -577,7 +579,7 @@ public class WaterDADB extends Simulation {
 
     }
 
-    public static class WaterOrientationDefinition implements etomica.normalmode.MoleculeSiteSource.MoleculeOrientationDefinition {
+    public static class WaterOrientationDefinition implements MoleculeSiteSource.MoleculeOrientationDefinition {
         protected final OrientationFull3D or;
         protected final Vector v1, v2;
 
