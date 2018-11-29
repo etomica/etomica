@@ -1,4 +1,4 @@
-package etomica.models.clathrates;
+package etomica.models.clathrates.molecularhma;
 
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculePositionDefinition;

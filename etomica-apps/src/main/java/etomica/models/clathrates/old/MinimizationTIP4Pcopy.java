@@ -1,5 +1,5 @@
 
-package etomica.models.clathrates;
+package etomica.models.clathrates.old;
 
 import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.WriteConfiguration;
@@ -32,7 +32,7 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MinimizationTIP4P extends Simulation {
+public class MinimizationTIP4Pcopy extends Simulation {
     private static final long serialVersionUID = 1L;
     protected static double[] initialU;
     protected static double selfELJ;
@@ -44,7 +44,7 @@ public class MinimizationTIP4P extends Simulation {
     protected Potential2SoftSphericalLS potentialLJLS;
     protected EwaldSummation potentialES;
 
-    public MinimizationTIP4P(Space space, double rCutLJ, double rCutRealES, double[] a0, int[] nC, int nBasis, boolean isIce, double kCut, String configFile, boolean includeM) {
+    public MinimizationTIP4Pcopy(Space space, double rCutLJ, double rCutRealES, double[] a0, int[] nC, int nBasis, boolean isIce, double kCut, String configFile, boolean includeM) {
         super(space);
         species = new SpeciesWater4P(space);
         addSpecies(species);
@@ -140,7 +140,7 @@ public class MinimizationTIP4P extends Simulation {
         int nd = 4 * nBasis;
         double[] d = new double[nd];
         double[] x0 = new double[ng];
-        final MinimizationTIP4P sim = new MinimizationTIP4P(Space3D.getInstance(3), rCutLJ, rCutRealES, a0, nC, nBasis, isIce, kCut, configFileName, includeM);
+        final MinimizationTIP4Pcopy sim = new MinimizationTIP4Pcopy(Space3D.getInstance(3), rCutLJ, rCutRealES, a0, nC, nBasis, isIce, kCut, configFileName, includeM);
         final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
         PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum();
