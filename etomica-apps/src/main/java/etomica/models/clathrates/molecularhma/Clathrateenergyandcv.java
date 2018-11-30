@@ -30,7 +30,6 @@ import etomica.space.Vector;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.Space3D;
 import etomica.units.Calorie;
-import etomica.units.Kelvin;
 import etomica.units.Mole;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -57,9 +56,10 @@ public class Clathrateenergyandcv extends Simulation {
 
         super(space);
         box = new Box(space);
-        addBox(box);
         species = new SpeciesWater4P(getSpace(), true);
         addSpecies(species);
+        addBox(box);
+
         box.setNMolecules(species, 46 * numCells * numCells * numCells);
         box.setDensity(46 / 12.03 / 12.03 / 12.03);
         ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
@@ -68,7 +68,7 @@ public class Clathrateenergyandcv extends Simulation {
         if (unitCells) {
             numCells = 1;
         }
-        ConfigurationFile config = new ConfigurationFile(numCells + "ncFinalPos");
+        ConfigurationFile config = new ConfigurationFile(numCells + "ncfinalPos");
 //////////minimized file
         if (unitCells) {
             ConfigurationFileBinary.replicate(config, box, nC, space);
@@ -80,7 +80,7 @@ public class Clathrateenergyandcv extends Simulation {
         double sigma, epsilon; //TIP4P
         if (isIce) {
             sigma = 3.1668;
-            epsilon = Kelvin.UNIT.toSim(106.1);//TIP4P/Ice
+            epsilon = 106.1;//TIP4P/Ice
         } else {//TIP4P
             double A = 600E3; // kcal A^12 / mol
             double C = 610.0; // kcal A^6 / mol
@@ -92,12 +92,11 @@ public class Clathrateenergyandcv extends Simulation {
         latticeCoordinates = new MoleculeAgentManager(this, box, new MoleculeSiteSource(space, new MoleculePositionCOM(space), new Clathrateenergyandcv.WaterOrientationDefinition(space)));
  //       AtomLeafAgentManager<Vector> atomLatticeCoordinates = new AtomLeafAgentManager<>(new AtomSiteSource(space), box, Vector.class);
 
-        EwaldSummation potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
+         potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
 
-        P2LennardJones potentialLJ = new P2LennardJones(space, sigma, epsilon);
+        potentialLJ = new P2LennardJones(space, sigma, epsilon);
         potentialLJLS = new Potential2SoftSphericalLS(space, rCutLJ, rC, potentialLJ);
-//		potentialLJ =  new P2SoftSphericalTruncated(space, potentialLJ, rC);
-        potentialMaster = new PotentialMaster();
+         potentialMaster = new PotentialMaster();
         potentialMaster.addPotential(potentialES, new AtomType[0]);
         potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
         int maxIterations = 100;
@@ -299,7 +298,7 @@ public class Clathrateenergyandcv extends Simulation {
         integrator.setMaxIterations(maxIterations);
 //        integrator.setOrientAtom((IAtom)((IMolecule)box.getMoleculeList(speciesOrient).getAtom(0)).getChildList().getAtom(0));
         integrator.setIsothermal(true);
-        integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
+        integrator.setTemperature(temperature);
 
         // WHAT'S NEED TO CONVERT UNITS
 
@@ -386,7 +385,7 @@ public class Clathrateenergyandcv extends Simulation {
         System.out.println("beginLE = " + latticeEnergy);
         int N = sim.box.getMoleculeList().size();
         double fac = (doRotation ? 1.5 : 0) * N + (doTranslation ? 1.5 : 0) * (N - 1);
-        System.out.println("harmonicE= " + fac * Kelvin.UNIT.toSim((molecules.size() * temperature)));
+        System.out.println("harmonicE= " + fac * (molecules.size() * temperature));
         System.out.println("main:doTranslation:   " + doTranslation + "  doRotation:  " + doRotation);
         System.out.println("timeInterval= " + timeInterval);
 
@@ -399,19 +398,61 @@ public class Clathrateenergyandcv extends Simulation {
         System.out.println("totalTime= " + totalTime + " mins");
 
         if (doMapping) {
-            double mappingAverage = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(0);
-            double mappingError = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(0);
-            double mappingCor = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
-            System.out.println("mappingAverage=\t" + mappingAverage +
-                    "   mappingError=\t" + mappingError + " mappingCor=\t" + mappingCor + " time= " + totalTime);
+            double mappingAverageanh = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(0);
+            double mappingErroranh = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(0);
+            double mappingCoranh = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
+            double mappingStdevanh = accumulatorAverageFixedDADB.getData(AccumulatorAverage.STANDARD_DEVIATION).getValue(0);
+
+            double mappingAverageanh2 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(1);
+            double mappingErroranh2 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(1);
+            double mappingCoranh2 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(1);
+            double mappingStdevanh2 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.STANDARD_DEVIATION).getValue(1);
+
+            double mappingAveragedelrphidelr1 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(2);
+            double mappingErrordelrphidelr1 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(2);
+            double mappingCordelrphidelr1 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(2);
+
+            double mappingAveragedelrphidelr2 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(3);
+            double mappingErrordelrphidelr2 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(3);
+            double mappingCordelrphidelr2 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(3);
+
+            double mappingAveragedelrphidelr3 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(4);
+            double mappingErrordelrphidelr3 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(4);
+            double mappingCordelrphidelr3 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(4);
+
+            double mappingAveragedelrphidelr4 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(5);
+            double mappingErrordelrphidelr4 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(5);
+            double mappingCordelrphidelr4 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(5);
+
+            double mappingAveragedelrphidelr5 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(6);
+            double mappingErrordelrphidelr5 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(6);
+            double mappingCordelrphidelr5 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(6);
+
+            double mappingAveragedelrphidelr6 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(7);
+            double mappingErrordelrphidelr6 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(7);
+            double mappingCordelrphidelr6 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(7);
+
+            double mappingAveragedelrphidelr7 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(8);
+            double mappingErrordelrphidelr7 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(8);
+            double mappingCordelrphidelr7 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(8);
+
+            double mappingAveragedelrphidelr8 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.AVERAGE).getValue(9);
+            double mappingErrordelrphidelr8 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.ERROR).getValue(9);
+            double mappingCordelrphidelr8 = accumulatorAverageFixedDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(9);
+
+
+            System.out.println("mappingAverageanh=\t" + mappingAverageanh + " mappingErroranh=\t" + mappingErroranh + " mappingCoranh=\t" + mappingCoranh + " mappingstdevanh=\t" + mappingStdevanh +" anhmap=\t"+mappingAverageanh2+" anhmaperror=\t"+mappingErroranh2+" mappingCoranh"+mappingCoranh2+" mappingstdevanh"+mappingStdevanh2);
+
+            System.out.println(" mappingAveragedelrphidelr1=\t" + mappingAveragedelrphidelr1 + " mappingerrordelrphidelr1=\t" + mappingErrordelrphidelr1 + " mappingCordelrphidelr1=\t" + mappingCordelrphidelr1 + " mappingAveragedelrphidelr2=\t" + mappingAveragedelrphidelr2 + " mappingerrordelrphidelr2=\t" + mappingErrordelrphidelr2 + " mappingCordelrphidelr2=\t" + mappingCordelrphidelr2 + " mappingAveragedelrphidelr3=\t" + mappingAveragedelrphidelr3 + " mappingerrordelrphidelr3=\t" + mappingErrordelrphidelr3 + " mappingCordelrphidelr3=\t" + mappingCordelrphidelr3 + " mappingAveragedelrphidelr4=\t" + mappingAveragedelrphidelr4 + " mappingerrordelrphidelr4=\t" + mappingErrordelrphidelr4 + " mappingCordelrphidelr4=\t" + mappingCordelrphidelr4 + " mappingAveragedelrphidelr5=\t" + mappingAveragedelrphidelr5 + " mappingerrordelrphidelr5=\t" + mappingErrordelrphidelr5 + " mappingCordelrphidelr5=\t" + mappingCordelrphidelr5 + " mappingAveragedelrphidelr6=\t" + mappingAveragedelrphidelr6 + " mappingerrordelrphidelr6=\t" + mappingErrordelrphidelr6 + " mappingCordelrphidelr6=\t" + mappingCordelrphidelr6 + " mappingAveragedelrphidelr7=\t" + mappingAveragedelrphidelr7 + " mappingerrordelrphidelr7=\t" + mappingErrordelrphidelr7 + " mappingCordelrphidelr7=\t" + mappingCordelrphidelr7 + " mappingAveragedelrphidelr8=\t" + mappingAveragedelrphidelr8 + " mappingerrordelrphidelr8=\t" + mappingErrordelrphidelr8 + " mappingCordelrphidelr8=\t" + mappingCordelrphidelr8  );
+
         }
 
         if (doConventional) {
             double PEAverage = accumulatorAverageFixedPE.getData(AccumulatorAverage.AVERAGE).getValue(0);
             double PEAError = accumulatorAverageFixedPE.getData(AccumulatorAverage.ERROR).getValue(0);
+            double PEstdev = accumulatorAverageFixedPE.getData(AccumulatorAverage.STANDARD_DEVIATION).getValue(0);
             double PECor = accumulatorAverageFixedPE.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
-            System.out.println("PEAverage=\t" + (PEAverage - latticeEnergy - fac * Kelvin.UNIT.toSim(temperature)) +
-                    "  PEeError=\t" + PEAError + "  PECor=\t" + PECor + " time= " + totalTime);
+            System.out.println("PEAverage=\t" +PEAverage+" PEerror=\t" +PEAError+ " PECor=\t" + PECor + " PEstdev=\t" + PEstdev + "anharmoniccon "+ (PEAverage - latticeEnergy - fac * temperature) + " time= " + totalTime);
         }
 
 
@@ -454,11 +495,11 @@ public class Clathrateenergyandcv extends Simulation {
         int nX = 1;
         public int[] nC = new int[]{nX, nX, nX};
         public int numCells = 1;
-        public int numSteps = 100;
-        public double timeInterval = 0.002;
-        public double temperature = 10;
-        public double rCutLJ = 5;
-        public double rCutRealES = 5;
+        public int numSteps = 250000;
+        public double timeInterval = 0.001;
+        public double temperature = 50;
+        public double rCutLJ = 6;
+        public double rCutRealES = 6;
         public double kCut = 1.5;
         public boolean isIce = false;
         public double shakeTol = 1e-12;

@@ -238,9 +238,9 @@ public class MinimizationTIP4P extends Simulation {
                     }
                     System.out.println("totalD " + totalD);
                     if (step1 == 0) {
-                        step = 0.0000001;
+                        step = 0.00000001;
                     } else {
-                        step = step1 / 5;
+                        step = step1 / 50;
                     }
                     System.out.println(iter + ">>>>step " + step);
                 } else {
@@ -347,7 +347,7 @@ public class MinimizationTIP4P extends Simulation {
         writeConfig.setBox(sim.box);
         writeConfig.setDoApplyPBC(false);//false ... ok
 
-        writeConfig.setFileName("finalPos.pos");
+        writeConfig.setFileName("1ncfinalPos6and6.pos");
         writeConfig.actionPerformed();
 
 
@@ -398,14 +398,14 @@ public class MinimizationTIP4P extends Simulation {
     }
 
     public static class SimParams extends ParameterBase {
-        public String configFile = "config_sI";
+        public String configFile = "1ncFinalPos";
         public int nBasis = 46;//sI
         public double[] a0 = new double[]{12.03, 12.03, 12.03};//sI
-        public double rCutLJ = 1.0;
-        public double rCutRealES = 1.724496;
-        public double kCut = 0.1103499;
-        public int nOuter = 0;
-        public int nInner = 3;
+        public double rCutLJ = 6;
+        public double rCutRealES = 6;
+        public double kCut = 1.5;
+        public int nOuter = 50;
+        public int nInner = 50;
         public boolean isIce = false, isGraphics = !false;
         public boolean includeM = false;
         int nX = 1;

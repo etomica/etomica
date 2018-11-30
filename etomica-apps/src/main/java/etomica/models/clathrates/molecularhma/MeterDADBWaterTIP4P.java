@@ -57,14 +57,14 @@ public int basisDim;
     protected EwaldSummation potentialES;
     protected Box box;
     int[] nC; double[] a0; double rCutLJ;
-    public MeterDADBWaterTIP4P(int[] nC,double[] a0, double rCutLJ,Potential2SoftSpherical potentialLJ, Potential2SoftSphericalLS potentialLJLS,EwaldSummation potentialES, Space space, DataSourceScalar meterPE, Box box, int basisDim, PotentialMaster potentialMaster, double temperature, MoleculeAgentManager latticeCoordinates) {
+    public MeterDADBWaterTIP4P(int[] nC,double[] a0, double rCutLJ, Potential2SoftSpherical potentialLJ,Potential2SoftSphericalLS potentialLJLS,EwaldSummation potentialES, Space space, DataSourceScalar meterPE, Box box, int basisDim, PotentialMaster potentialMaster, double temperature, MoleculeAgentManager latticeCoordinates) {
         this.nC=nC;
         this.a0=a0;
         this.rCutLJ=rCutLJ;
         this.potentialLJ = potentialLJ;
         this.potentialLJLS = potentialLJLS;
         this.potentialES = potentialES;
-        int nData = justDADB ? 1 : 9;
+        int nData = 10;
         data = new DataDoubleArray(nData);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
@@ -223,12 +223,12 @@ public int basisDim;
             double denominator = 1 - Math.cos(beta);
             if (denominator == 0) continue;
             //weisong wrote this
- //           orientationSum += 1.5 * (beta - Math.sin(beta)) / denominator * DUDT;  //TRY ANOTHER 3/2 THAT U WERE GETTING FOR TORQUE ..DERIVATION
+            orientationSum += 1.5 * (beta - Math.sin(beta)) / denominator * DUDT;  //TRY ANOTHER 3/2 THAT U WERE GETTING FOR TORQUE ..DERIVATION
 //            orientationSum += 0.5 * betaNew * DUDT;  //Only kappa3
 
             //TRY BOTH OF THESE
 
-            orientationSum += 1.5 * 1.5 *(beta - Math.sin(beta)) / denominator * DUDT;  //TRY ANOTHER 3/2 THAT U WERE GETTING FOR TORQUE ..DERIVATION
+  //          orientationSum += 1.5 * 1.5 *(beta - Math.sin(beta)) / denominator * DUDT;  //TRY ANOTHER 3/2 THAT U WERE GETTING FOR TORQUE ..DERIVATION
   //          orientationSum += -1.5 * 1.5 *(beta - Math.sin(beta)) / denominator * DUDT; //this is -ve of torque - so in final formula use a minus in front of torque
 
         }
@@ -288,18 +288,26 @@ public int basisDim;
 
 //second derivative related to atomic tensor
                 double fac = (doTranslation ? 1.5 : 0) * (N - 1) + (doRotation ? 1.5 : 0) * N;
-                x[0] = (x0 + latticeEnergy) + (fac * temperature) + 0.5 * fdotdeltar + orientationSum;
+ //               x[0] = (x0 + latticeEnergy) + (fac * temperature) + 0.5 * fdotdeltar + orientationSum;
 //x[0]=pe
-                x[1]=x[0]-latticeEnergy-(fac * temperature);
- //x[1]=anharmonicenergy;
+                 x[0]=(x0)  + 0.5 * fdotdeltar + orientationSum;
+                 x[1]=(x0)  + 0.5 * fdotdeltar + 1.5*orientationSum;
+
+        //x[1]=anharmonicenergy;
 
         double delrdotphidotdelr=0.0;
+        double delrdotphidotdelrwithuasthetaby2=0.0;
+        double delrdotphidotdelrwithuas2theta=0.0;
 
         for (int i = 0; i < molecules.size(); i++) {
-                    for (int j = 0; j > i; j++) {  //12, 13...
+//            System.out.println("#########");
 
-                       Tensor D6mol = latticeSumMolecularCrystal.atomicToMolecularD(atomicTensorAtomicPair, molecules.get(i), molecules.get(j));
+            for (int j = 0; j < molecules.size(); j++) {
+  //              System.out.println("fine till here");
+
+                Tensor D6mol = latticeSumMolecularCrystal.atomicToMolecularD(atomicTensorAtomicPair, molecules.get(i), molecules.get(j));
 //above method will call         atomicTensorAtomicPair.atomicTensor(); //
+   //             System.out.println("#########");
 
                         Tensor3D D3tt  = new Tensor3D();	Tensor3D D3tr  = new Tensor3D();
                         Tensor3D D3rt  = new Tensor3D();	Tensor3D D3rr  = new Tensor3D();
@@ -424,7 +432,7 @@ public int basisDim;
                                 axisj.setX(1, cj - gj);
                                 axisj.setX(2, dj - bj);
 
-       delrdotphidotdelr+= dri.getX(0)*(D3tt.component(0,0)*drj.getX(0)+D3tt.component(0,1)*drj.getX(1)+D3tt.component(0,2)*drj.getX(2))+ dri.getX(1)*(D3tt.component(1,0)*drj.getX(0)+D3tt.component(1,1)*drj.getX(1)+D3tt.component(1,2)*drj.getX(2))+ dri.getX(2)*(D3tt.component(2,0)*drj.getX(0)+D3tt.component(2,1)*drj.getX(1)+D3tt.component(2,2)*drj.getX(2));
+    delrdotphidotdelr+= dri.getX(0)*(D3tt.component(0,0)*drj.getX(0)+D3tt.component(0,1)*drj.getX(1)+D3tt.component(0,2)*drj.getX(2))+ dri.getX(1)*(D3tt.component(1,0)*drj.getX(0)+D3tt.component(1,1)*drj.getX(1)+D3tt.component(1,2)*drj.getX(2))+ dri.getX(2)*(D3tt.component(2,0)*drj.getX(0)+D3tt.component(2,1)*drj.getX(1)+D3tt.component(2,2)*drj.getX(2));
                         //                               delrdotphidotdelr=delrdotphidotdelr+ dri.dot(D3tt).dot(drj);
 
     delrdotphidotdelr+= dri.getX(0)*(D3tr.component(0,0)*axisj.getX(0)+D3tr.component(0,1)*axisj.getX(1)+D3tr.component(0,2)*axisj.getX(2))+ dri.getX(1)*(D3tr.component(1,0)*axisj.getX(0)+D3tr.component(1,1)*axisj.getX(1)+D3tr.component(1,2)*axisj.getX(2))+ dri.getX(2)*(D3tr.component(2,0)*axisj.getX(0)+D3tr.component(2,1)*axisj.getX(1)+D3tr.component(2,2)*axisj.getX(2));
@@ -435,10 +443,52 @@ public int basisDim;
 
     delrdotphidotdelr+= axisi.getX(0)*(D3rr.component(0,0)*axisj.getX(0)+D3rr.component(0,1)*axisj.getX(1)+D3rr.component(0,2)*axisj.getX(2))+ axisi.getX(1)*(D3rr.component(1,0)*axisj.getX(0)+D3rr.component(1,1)*axisj.getX(1)+D3rr.component(1,2)*axisj.getX(2))+ axisi.getX(2)*(D3rr.component(2,0)*axisj.getX(0)+D3rr.component(2,1)*axisj.getX(1)+D3rr.component(2,2)*axisj.getX(2));
                         //                               delrdotphidotdelr=delrdotphidotdelr+ axisi.dot(D3rr).dot(axisj);
+       //         System.out.println(delrdotphidotdelr);
+
+
+                delrdotphidotdelrwithuas2theta+= dri.getX(0)*(D3tt.component(0,0)*drj.getX(0)+D3tt.component(0,1)*drj.getX(1)+D3tt.component(0,2)*drj.getX(2))+ dri.getX(1)*(D3tt.component(1,0)*drj.getX(0)+D3tt.component(1,1)*drj.getX(1)+D3tt.component(1,2)*drj.getX(2))+ dri.getX(2)*(D3tt.component(2,0)*drj.getX(0)+D3tt.component(2,1)*drj.getX(1)+D3tt.component(2,2)*drj.getX(2));
+                //                               delrdotphidotdelr=delrdotphidotdelr+ dri.dot(D3tt).dot(drj);
+
+                delrdotphidotdelrwithuas2theta+= dri.getX(0)*(D3tr.component(0,0)*(axisj.getX(0)/2) +D3tr.component(0,1)*(axisj.getX(1)/2) +D3tr.component(0,2)*(axisj.getX(2)/2))+ dri.getX(1)*(D3tr.component(1,0)*(axisj.getX(0)/2)+D3tr.component(1,1)*(axisj.getX(1)/2)+D3tr.component(1,2)*(axisj.getX(2)/2))+ dri.getX(2)*(D3tr.component(2,0)*(axisj.getX(0)/2)+D3tr.component(2,1)*(axisj.getX(1)/2)+D3tr.component(2,2)*(axisj.getX(2)/2));
+//                                delrdotphidotdelr=delrdotphidotdelr+ dri.dot(D3tr).dot(axisj);
+
+                delrdotphidotdelrwithuas2theta+= (axisi.getX(0)/2)*(D3rt.component(0,0)*drj.getX(0)+D3rt.component(0,1)*drj.getX(1)+D3rt.component(0,2)*drj.getX(2))+ (axisi.getX(1)/2)*(D3rt.component(1,0)*drj.getX(0)+D3rt.component(1,1)*drj.getX(1)+D3rt.component(1,2)*drj.getX(2))+ (axisi.getX(2)/2)*(D3rt.component(2,0)*drj.getX(0)+D3rt.component(2,1)*drj.getX(1)+D3rt.component(2,2)*drj.getX(2));
+                //                               delrdotphidotdelr=delrdotphidotdelr+ axisi.dot(D3rt).dot(drj);
+
+                delrdotphidotdelrwithuas2theta+= (axisi.getX(0)/2)*(D3rr.component(0,0)*(axisj.getX(0)/2)+D3rr.component(0,1)*(axisj.getX(1)/2)+D3rr.component(0,2)*(axisj.getX(2)/2))+ (axisi.getX(1)/2)*(D3rr.component(1,0)*(axisj.getX(0)/2)+D3rr.component(1,1)*(axisj.getX(1)/2)+D3rr.component(1,2)*(axisj.getX(2)/2))+ (axisi.getX(2)/2)*(D3rr.component(2,0)*(axisj.getX(0)/2)+D3rr.component(2,1)*(axisj.getX(1)/2)+D3rr.component(2,2)*(axisj.getX(2)/2));
+                //                               delrdotphidotdelr=delrdotphidotdelr+ axisi.dot(D3rr).dot(axisj);
+
+
+
+                delrdotphidotdelrwithuasthetaby2+= dri.getX(0)*(D3tt.component(0,0)*drj.getX(0)+D3tt.component(0,1)*drj.getX(1)+D3tt.component(0,2)*drj.getX(2))+ dri.getX(1)*(D3tt.component(1,0)*drj.getX(0)+D3tt.component(1,1)*drj.getX(1)+D3tt.component(1,2)*drj.getX(2))+ dri.getX(2)*(D3tt.component(2,0)*drj.getX(0)+D3tt.component(2,1)*drj.getX(1)+D3tt.component(2,2)*drj.getX(2));
+                //                               delrdotphidotdelr=delrdotphidotdelr+ dri.dot(D3tt).dot(drj);
+
+                delrdotphidotdelrwithuasthetaby2+= dri.getX(0)*(D3tr.component(0,0)*2*axisj.getX(0)+D3tr.component(0,1)*2*axisj.getX(1)+D3tr.component(0,2)*2*axisj.getX(2))+ dri.getX(1)*(D3tr.component(1,0)*2*axisj.getX(0)+D3tr.component(1,1)*2*axisj.getX(1)+D3tr.component(1,2)*2*axisj.getX(2))+ dri.getX(2)*(D3tr.component(2,0)*2*axisj.getX(0)+D3tr.component(2,1)*2*axisj.getX(1)+D3tr.component(2,2)*2*axisj.getX(2));
+//                                delrdotphidotdelr=delrdotphidotdelr+ dri.dot(D3tr).dot(axisj);
+
+                delrdotphidotdelrwithuasthetaby2+= 2*axisi.getX(0)*(D3rt.component(0,0)*drj.getX(0)+D3rt.component(0,1)*drj.getX(1)+D3rt.component(0,2)*drj.getX(2))+ 2*axisi.getX(1)*(D3rt.component(1,0)*drj.getX(0)+D3rt.component(1,1)*drj.getX(1)+D3rt.component(1,2)*drj.getX(2))+ 2*axisi.getX(2)*(D3rt.component(2,0)*drj.getX(0)+D3rt.component(2,1)*drj.getX(1)+D3rt.component(2,2)*drj.getX(2));
+                //                               delrdotphidotdelr=delrdotphidotdelr+ axisi.dot(D3rt).dot(drj);
+
+                delrdotphidotdelrwithuasthetaby2+= 2*axisi.getX(0)*(D3rr.component(0,0)*2*axisj.getX(0)+D3rr.component(0,1)*2*axisj.getX(1)+D3rr.component(0,2)*2*axisj.getX(2))+ 2*axisi.getX(1)*(D3rr.component(1,0)*2*axisj.getX(0)+D3rr.component(1,1)*2*axisj.getX(1)+D3rr.component(1,2)*2*axisj.getX(2))+ 2*axisi.getX(2)*(D3rr.component(2,0)*2*axisj.getX(0)+D3rr.component(2,1)*2*axisj.getX(1)+D3rr.component(2,2)*2*axisj.getX(2));
+                //                               delrdotphidotdelr=delrdotphidotdelr+ axisi.dot(D3rr).dot(axisj);
 
                     }
                 }
-                x[3]=delrdotphidotdelr;
+                x[2]=(fac * temperature) - ( (delrdotphidotdelr/4)+0.5*( 0.5 * fdotdeltar + orientationSum) );
+                x[3]=(fac * temperature) - ( (delrdotphidotdelr/4)+0.5*( 0.5 * fdotdeltar + 1.5*orientationSum) );
+
+        x[4]=(fac * temperature) - ( (delrdotphidotdelrwithuas2theta/4)+0.5*( 0.5 * fdotdeltar + orientationSum) );
+        x[5]=(fac * temperature) - ( (delrdotphidotdelrwithuas2theta/4)+0.5*( 0.5 * fdotdeltar + 1.5*orientationSum) );
+
+        x[6]=(fac * temperature) - ( (delrdotphidotdelrwithuasthetaby2/4)+0.5*( 0.5 * fdotdeltar + orientationSum) );
+        x[7]=(fac * temperature) - ( (delrdotphidotdelrwithuasthetaby2/4)+0.5*( 0.5 * fdotdeltar + 1.5*orientationSum) );
+
+        x[8]=(fac * temperature) - ( (-delrdotphidotdelr/4)+0.5*( 0.5 * fdotdeltar + orientationSum) );
+        x[9]=(fac * temperature) - ( (-delrdotphidotdelr/4)+0.5*( 0.5 * fdotdeltar + 1.5*orientationSum) );
+
+
+        //                System.out.println(x[2]);
+
         return data;
     }
 
