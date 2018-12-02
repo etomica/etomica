@@ -118,7 +118,8 @@ double er5 = 1- SpecialFunctions.erfc(5*Math.sqrt(3.0/(2.0*msd)));
 double ex=Math.exp(3*ri*ri/(2*msd));
 
 double Drxyz=1;
-double Nrxyz=qdotrcap*qdotrcap*( 0.9999999999999999*msd*ri + 1.6825506805955375*Math.pow(10,-16)*msd*ri + 0.9999999999999999*ri*ri*ri + beta*fr*(0.3333333333333333*msd*ri*ri) )/ri;
+                 double Nrxyz=qdotrcap*qdotrcap*(msd*ri +ri*ri*ri+ beta*fr*0.3333333333333333*msd*ri*ri  )/ri;
+//double Nrxyz=qdotrcap*qdotrcap*( 0.9999999999999999*msd*ri + 1.6825506805955375*Math.pow(10,-16)*msd*ri + 0.9999999999999999*ri*ri*ri + beta*fr*(0.3333333333333333*msd*ri*ri) )/ri;
 //double Nrxyznew=( 2*Math.PI*qdotrcap*qdotrcap* (ri*(0.15915494309189532*msd*ri + 2.6778625781941256*Math.pow(10,-17)*msd*ri + 0.15915494309189532*ri*ri*ri + beta*fr*(0.05305164769729844*msd* ri*ri))) )/(ri*ri);
 
 //double Nrxyznewnew=3*qdotrcap*qdotrcap*(ri *(-0.111111*beta*fr*msd*msd + 4.54608*Math.pow(10,-17)*msd*ri) + ex*(0.0804001*beta*fr*Math.pow(msd,2.5)+ 0.2412*Math.pow(msd,1.5)*ri) *erfx)/(ri*ri);

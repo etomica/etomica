@@ -358,8 +358,8 @@ public class DebyeWallerFactor extends Simulation {
         public double msd = 0.00209;
         public int bins = 1;
         public double density = 1;
-        public double[] qvector ={600, 300, -100};
-        public long numSteps = 1000000;
+        public double[] qvector ={60, 30, -30};
+        public long numSteps = 500000;
         public double temperature = 1.0;
         public double rc = 2.5;
         public double rc0 = rc;
