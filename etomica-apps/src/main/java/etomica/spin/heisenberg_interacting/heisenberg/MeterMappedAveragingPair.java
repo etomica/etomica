@@ -69,7 +69,7 @@ public class MeterMappedAveragingPair implements IDataSource, AgentSource<Molecu
         secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);
 
 
-        int nMax = 3;
+        int nMax = 10;
         Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         allAtoms = new IteratorDirective();
 
@@ -110,10 +110,10 @@ public class MeterMappedAveragingPair implements IDataSource, AgentSource<Molecu
         }//i loop
 
 
-//        x[0] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum()
-//                - Ans.getSumJEEMJEJE() + Ans.getSumUEE()
-//                - Ans.getSumJEMUEx() * Ans.getSumJEMUEx() - Ans.getSumJEMUEy() * Ans.getSumJEMUEy()
-//                - Ans.getAEEJ0()  + Ans.getSumJEMUExIdeal() * Ans.getSumJEMUExIdeal() + Ans.getSumJEMUEyIdeal() * Ans.getSumJEMUEyIdeal();
+        x[0] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum()
+                - Ans.getSumJEEMJEJE() + Ans.getSumUEE()
+                - Ans.getSumJEMUEx() * Ans.getSumJEMUEx() - Ans.getSumJEMUEy() * Ans.getSumJEMUEy()
+                - Ans.getAEEJ0()  + Ans.getSumJEMUExIdeal() * Ans.getSumJEMUExIdeal() + Ans.getSumJEMUEyIdeal() * Ans.getSumJEMUEyIdeal();
 
 //        x[0] = - ans.getSumJEEMJEJE() + ans.getSumUEE()
 //                - ans.getSumJEMUEx() * ans.getSumJEMUEx() - ans.getSumJEMUEy() * ans.getSumJEMUEy()
@@ -121,7 +121,7 @@ public class MeterMappedAveragingPair implements IDataSource, AgentSource<Molecu
 //                + ans.getSumJEMUExIdeal() * ans.getSumJEMUExIdeal() + ans.getSumJEMUEyIdeal() * ans.getSumJEMUEyIdeal();
 //        x[0] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum();
 //        x[0]= ans.getAEEJ0();
-        x[0] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE();
+//        x[0] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE();
 
         x[1] = Ans.getSumJEMUEx();
         x[2] = Ans.getSumJEMUEy();

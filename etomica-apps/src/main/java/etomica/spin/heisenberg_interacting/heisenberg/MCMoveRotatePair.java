@@ -19,6 +19,7 @@ public class MCMoveRotatePair extends MCMoveRotate{
     public boolean doTrial() {
         if(box.getMoleculeList().getMoleculeCount()==0) {return false;}
         atom = atomSource.getAtom();
+//        atom = box.getLeafList().getAtom(0);//TODO only rotate first molecule!!
 
         energyMeter.setTarget(atom);
         uOld = p2.energy(box.getLeafList());

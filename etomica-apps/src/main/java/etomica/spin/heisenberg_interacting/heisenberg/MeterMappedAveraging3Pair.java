@@ -39,7 +39,7 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
 
     public MeterMappedAveraging3Pair(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, IPotentialAtomic p2) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
-        int nValues = 10;
+        int nValues = 14;
         data = new DataDoubleArray(nValues);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nValues});
         tag = new DataTag();
@@ -64,7 +64,7 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
         secondDerivativeSum.setAgentManager(leafAgentManager);
         secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);
 
-        int nMax = 2;
+        int nMax = 10;
         Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         allAtoms = new IteratorDirective();
 
@@ -116,28 +116,24 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
             IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
             dr.PEa1Tv1(torqueScalar, atom.getOrientation().getDirection());
         }//i loop
-//        x[0] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum()
-//                - Ans.getSumJEEMJEJE() + Ans.getSumUEE()
-//                - Ans.getSumJEMUEx() * Ans.getSumJEMUEx() - Ans.getSumJEMUEy() * Ans.getSumJEMUEy()
-//                - Ans.getAEEJ0() + Ans.getSumJEMUExIdeal() * Ans.getSumJEMUExIdeal() + Ans.getSumJEMUEyIdeal() * Ans.getSumJEMUEyIdeal();
-
-//        x[0] = - ans.getSumJEEMJEJE() + ans.getSumUEE()
-//                - ans.getSumJEMUEx() * ans.getSumJEMUEx() - ans.getSumJEMUEy() * ans.getSumJEMUEy()
-//                - ans.getAEEJ0()
-//                + ans.getSumJEMUExIdeal() * ans.getSumJEMUExIdeal() + ans.getSumJEMUEyIdeal() * ans.getSumJEMUEyIdeal();
-//        x[0] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum();
-        x[0] = -Ans.getSumJEEMJEJE() + Ans.getSumUEE();
-//                - Ans.getSumJEMUEx() * Ans.getSumJEMUEx() - Ans.getSumJEMUEy() * Ans.getSumJEMUEy();
+        x[0] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum()
+                - Ans.getSumJEEMJEJE() + Ans.getSumUEE()
+                - Ans.getSumJEMUEx() * Ans.getSumJEMUEx() - Ans.getSumJEMUEy() * Ans.getSumJEMUEy()
+                - Ans.getAEEJ0() + Ans.getSumJEMUExIdeal() * Ans.getSumJEMUExIdeal() + Ans.getSumJEMUEyIdeal() * Ans.getSumJEMUEyIdeal();
         x[1] = Ans.getSumJEMUEx();
         x[2] = Ans.getSumJEMUEy();
-
         x[3] = Ans.getSumJEMUExIdeal();
         x[4] = Ans.getSumJEMUEyIdeal();
         x[5] = Ans.getSumJEEMJEJE();
         x[6] = Ans.getSumUEE();
         x[7] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum();
-        x[8] = x[1] * x[1];
-        x[9] = x[2] * x[2];
+        x[8] = Ans.getSumJEMUEx() * Ans.getSumJEMUEx();
+        x[9] = Ans.getSumJEMUEy() * Ans.getSumJEMUEy();
+        x[10] = -x[5] + x[6] - x[8] - x[9];
+        x[11] = Ans.getSumJEMUExIdeal() * Ans.getSumJEMUExIdeal();
+        x[12] = Ans.getSumJEMUEyIdeal() * Ans.getSumJEMUEyIdeal();
+        x[13] = Ans.getAEEJ0() - x[11] - x[12];
+
         return data;
     }
 

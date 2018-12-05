@@ -194,7 +194,7 @@ public class Heisenberg3Pair extends Simulation {
 //                    2 * errSum0 * sum1 * 2 * errSum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3)));
 //            AEECor = covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3));
 
-            AEE = sum0 + sum1 * sum1 + sum2 * sum2 - sum3 * sum3 - sum4 * sum4;
+            AEE = sum0;
             AEEER = errSum0;
             AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
 
@@ -219,41 +219,41 @@ public class Heisenberg3Pair extends Simulation {
 //            System.out.println("AEE_Time: " + (endTime - startTime) / (1000.0 * 60.0));
 //        }
 
-        double sum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
-        double errSum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
-        double sum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
-        double errSum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
-        double sum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(2);
-        double errSum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(2);
+        double AEEDirect = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(10);
+        double errAEEDirect = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(10);
 
-        IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-        covariance.getValue(1);
-        double test = sum0 + sum1 * sum1 + sum2 * sum2;
-        test = sum0;
-        double errTest = Math.sqrt(errSum0 * errSum0 + 4 * sum1 * sum1 * errSum1 * errSum1 -
-                2 * errSum0 * sum1 * 2 * errSum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(11)));
-        double corTest = covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(11));
+        double AEEDirectJ0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(13);
+        double errAEEDirectJ0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(13);
 
-
-
-        System.out.println(" AEEDirect= " + test / 3 + " Err " + errSum0/3 );
-
+        System.out.println(" AEEDirect= " + AEEDirect / numberMolecules + " Err " + errAEEDirect / numberMolecules);
+        System.out.println(" AEEDirectJ0= " + AEEDirectJ0 / numberMolecules + " Err " + errAEEDirectJ0 / numberMolecules);
 
         double JEMUEx = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
         double errJEMUEx = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
         double JEMUEy = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(2);
         double errJEMUEy = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(2);
-
         double JEMUExSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(8);
         double errJEMUExSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(8);
         double JEMUEySquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(9);
         double errJEMUEySquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(9);
+        System.out.println("JEMUEx= " + JEMUEx / numberMolecules + " Err " + errJEMUEx / numberMolecules);
+        System.out.println("JEMUEy= " + JEMUEy / numberMolecules + " Err " + errJEMUEy / numberMolecules);
+        System.out.println("JEMUExSquare= " + JEMUExSquare / numberMolecules + " Err " + errJEMUExSquare / numberMolecules);
+        System.out.println("JEMUEySquare= " + JEMUEySquare / numberMolecules + " Err " + errJEMUEySquare / numberMolecules);
 
 
-        System.out.println("JEMUEx= " + JEMUEx + " Err " + errJEMUEx);
-        System.out.println("JEMUEy= " + JEMUEy + " Err " + errJEMUEy);
-        System.out.println("JEMUExSquare= " + JEMUExSquare + " Err " + errJEMUExSquare);
-        System.out.println("JEMUEySquare= " + JEMUEySquare + " Err " + errJEMUEySquare);
+        double JEMUExIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(3);
+        double errJEMUExIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(3);
+        double JEMUEyIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(4);
+        double errJEMUEyIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(4);
+        double JEMUExSquareIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(11);
+        double errJEMUExSquareIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(11);
+        double JEMUEySquareIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(12);
+        double errJEMUEySquareIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(12);
+        System.out.println("JEMUExIdeal= " + JEMUExIdeal / numberMolecules + " Err " + errJEMUExIdeal / numberMolecules);
+        System.out.println("JEMUEyIdeal= " + JEMUEyIdeal / numberMolecules + " Err " + errJEMUEyIdeal / numberMolecules);
+        System.out.println("JEMUExSquareIdeal= " + JEMUExSquareIdeal / numberMolecules + " Err " + errJEMUExSquareIdeal / numberMolecules);
+        System.out.println("JEMUEySquareIdeal= " + JEMUEySquareIdeal / numberMolecules + " Err " + errJEMUEySquareIdeal / numberMolecules);
 
 
         System.out.println("Conventional:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (-dipoleSumSquared / temperature / temperature / numberMolecules)
@@ -285,10 +285,10 @@ public class Heisenberg3Pair extends Simulation {
     public static class Param extends ParameterBase {
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature =1;// Kelvin
-        public double interactionS = 1;
-        public double dipoleMagnitude = 1;
-        public int steps = 15000;
+        public double temperature = 2.7;// Kelvin
+        public double interactionS = 1.6;
+        public double dipoleMagnitude = 1.9;
+        public int steps = 50000;
         public int numberMolecules = 3;
     }
 }

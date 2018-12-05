@@ -21,6 +21,7 @@ public class MCMoveRotate3Pair extends MCMoveRotate {
             return false;
         }
         atom = atomSource.getAtom();
+//        atom = box.getLeafList().getAtom(0);
 
         energyMeter.setTarget(atom);
 
