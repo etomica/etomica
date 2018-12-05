@@ -12,7 +12,7 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.models.clathrates.old.MinimizationTIP4P.ChargeAgentSourceRPM;
+//import etomica.models.clathrates.MinimizationTIP4P.ChargeAgentSourceRPM;
 import etomica.models.water.ConfigurationFileTIP4P;
 import etomica.models.water.SpeciesWater4P;
 import etomica.molecule.IMolecule;
@@ -54,8 +54,8 @@ public class ClathrateHarmonicFEcopy extends Simulation {
         addSpecies(species);
         box = this.makeBox(new BoundaryRectangularPeriodic(space, a0_sc));
         box.setNMolecules(species, numMolecule);
-        ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
-        AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
+ //       ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
+ //       AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
         double sigma, epsilon;
         if (isIce) {
             sigma = 3.1668;
@@ -73,7 +73,7 @@ public class ClathrateHarmonicFEcopy extends Simulation {
         potentialLJ = new P2LennardJones(space, sigma, epsilon);
         //To get U
         potentialLJLS = new Potential2SoftSphericalLS(space, rCutLJ, a0_sc, new P2LennardJones(space, sigma, epsilon));
-        potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
+   //     potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
 //XXXX Potential Master
         potentialMaster = new PotentialMaster();
         potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
@@ -319,7 +319,7 @@ public class ClathrateHarmonicFEcopy extends Simulation {
                     double dTheta = 0.001;
                     rTensor.setRotationAxis(axes, dTheta);
                     System.out.println("dTheta = " + dTheta);
-                    MinimizationTIP4P.doTransform(mpMol, sim.box.getBoundary(), rTensor);
+  //                  MinimizationTIP4P.doTransform(mpMol, sim.box.getBoundary(), rTensor);
                     System.out.println("");
 //	    	        for(int j=0;j<4;j++){
 //			        	System.out.println(atoms.getAtom(j).getPosition());

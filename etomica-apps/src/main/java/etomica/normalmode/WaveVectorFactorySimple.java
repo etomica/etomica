@@ -50,8 +50,8 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         int[] kMin = new int[space.D()];
         int[] kMax= new int[space.D()];
         for (int i=0; i<kMax.length; i++) {
-            kMin[i] = -(numCells[i]-1)/2;
-            kMax[i] = numCells[i]/2;
+            kMin[i] = 0;
+            kMax[i] = 0;
         }
         int[][][] waveVectorIndices = new int[2*kMax[0]+1][2*kMax[1]+1][2*kMax[2]+1];
         int count = 0;
