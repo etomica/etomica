@@ -42,7 +42,7 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MoleculeAg
 
     public MeterMappedAveraging(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
-        int nValues = 8;
+        int nValues = 10;
         data = new DataDoubleArray(nValues);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nValues});
         tag = new DataTag();
@@ -121,8 +121,10 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MoleculeAg
         x[5] = Ans.getSumJEEMJEJE();
 //        x[6] = Ans.getSumUEE();//TODO
         x[7] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum();
-        x[6] =  Ans.getAEEJ0() - (-nM * bt2 * mu2 + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum());
-
+        x[6] =  Ans.getAEEJ0() - Ans.getSumJEMUExIdeal() * Ans.getSumJEMUExIdeal() - Ans.getSumJEMUEyIdeal() * Ans.getSumJEMUEyIdeal();
+        //TODO
+        x[8] = x[1]*x[1];
+        x[9] = x[2]*x[2];
         return data;
     }
 

@@ -260,20 +260,24 @@ public class HeisenbergPair extends Simulation {
 //
 //        }
 
+        double sum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
+        double ERsum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
+        double sum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(2);
+        double errSum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(2);
+
+        double sum1S = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(8);
+        double sum2S = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(9);
+
+        System.out.println("JEMUEx = " + sum1 + " err "+ ERsum1+ "\n JEMEUEy =" + sum2+ " err "+ errSum2);
+        System.out.println("JEMUExSquare = " + sum1S + " JEMEUEySquare =" + sum2S);
+
 
         double sum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
         double errSum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
-        double sum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
-        double errSum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
-        double sum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(2);
-        double errSum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(2);
 
         IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
         covariance.getValue(1);
         double test = sum0;
-        double errTest = Math.sqrt(errSum0 * errSum0 + 4 * sum1 * sum1 * errSum1 * errSum1 -
-                2 * errSum0 * sum1 * 2 * errSum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(11)));
-        double corTest = covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(11));
 
 
 
@@ -327,9 +331,9 @@ public class HeisenbergPair extends Simulation {
     public static class Param extends ParameterBase {
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 5;// Kelvin
-        public double interactionS = 7;
-        public double dipoleMagnitude = 8;
+        public double temperature = 2;// Kelvin
+        public double interactionS = 1;
+        public double dipoleMagnitude = 1;
         public int steps = 50000;
     }
 }

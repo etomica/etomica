@@ -252,6 +252,17 @@ public class Heisenberg extends Simulation {
 
         }
 
+        double sum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
+        double ERsum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
+        double sum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(2);
+        double errSum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(2);
+
+        double sum1S = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(9);
+        double sum2S = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(9);
+
+        System.out.println("JEMUEx = " + sum1 + " JEMEUEy =" + sum2);
+        System.out.println("JEMUExSquare = " + sum1S + " JEMEUEySquare =" + sum2S);
+
         double aEE2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(7); //independent-spin mapping
         double aEE2Test = 0;
         double x7 = 0;
@@ -339,10 +350,10 @@ public class Heisenberg extends Simulation {
     public static class Param extends ParameterBase {
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 1.0;// Kelvin
+        public double temperature = 1.2;// Kelvin
+        public double interactionS = 1.3;
+        public double dipoleMagnitude = 1.11;
         public int nCells = 3;//number of atoms is nCells*nCells
-        public double interactionS = 1.0;
-        public double dipoleMagnitude = 1.0;
         public int steps = 5000;
     }
 }
