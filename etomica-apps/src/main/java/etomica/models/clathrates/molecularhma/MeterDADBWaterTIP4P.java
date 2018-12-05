@@ -381,10 +381,9 @@ public int basisDim;
 //                axisi.setX(1, Math.asin( (ci - gi)/2));  //this is thetay
 //                axisi.setX(2, Math.asin( (di - bi)/2)); //this is thetaz
 
-                axisi.setX(0, Math.asin( (hi - fi) /(2*Math.sqrt(3)) ) );  //this is theta x
-                axisi.setX(1, Math.asin( (ci - gi)/(2*Math.sqrt(3))));  //this is thetay
-                axisi.setX(2, Math.asin( (di - bi)/(2*Math.sqrt(3)))); //this is thetaz
-
+                axisi.setX(0, Math.asin( (hi - fi) /(2*Math.sqrt(3.0)) ) );  //this is theta x
+                axisi.setX(1, Math.asin( (ci - gi)/(2*Math.sqrt(3.0))));  //this is thetay
+                axisi.setX(2, Math.asin( (di - bi)/(2*Math.sqrt(3.0)))); //this is thetaz
 
 
                 OrientationFull3D orj = ((MoleculeSiteSource.LatticeCoordinate) latticeCoordinates.getAgent(molecules.get(j))).orientation;
@@ -428,9 +427,9 @@ public int basisDim;
      //           axisj.setX(1, Math.asin( (cj - gj)/2));  //this is thetay
      //           axisj.setX(2, Math.asin( (dj - bj)/2)); //this is thetaz
 
-                axisj.setX(0, Math.asin( (hj - fj) /(2*Math.sqrt(3)) ) );  //this is theta x
-                axisj.setX(1, Math.asin( (cj - gj)/(2*Math.sqrt(3))));  //this is thetay
-                axisj.setX(2, Math.asin( (dj - bj)/(2*Math.sqrt(3)))); //this is thetaz
+                axisj.setX(0, Math.asin( (hj - fj) /(2*Math.sqrt(3.0)) ) );  //this is theta x
+                axisj.setX(1, Math.asin( (cj - gj)/(2*Math.sqrt(3.0))));  //this is thetay
+                axisj.setX(2, Math.asin( (dj - bj)/(2*Math.sqrt(3.0)))); //this is thetaz
 
 
                 Vector drjj=space.makeVector();
@@ -535,10 +534,11 @@ public int basisDim;
     //            axisi.setX(1, Math.asin( (ci - gi)/2));  //this is thetay
       //          axisi.setX(2, Math.asin( (di - bi)/2)); //this is thetaz
 
-                axisi.setX(0, Math.asin( (hi - fi) /(2*Math.sqrt(3)) ) );  //this is theta x
-                axisi.setX(1, Math.asin( (ci - gi)/(2*Math.sqrt(3))));  //this is thetay
-                axisi.setX(2, Math.asin( (di - bi)/(2*Math.sqrt(3)))); //this is thetaz
-                
+                axisi.setX(0, Math.asin( (hi - fi) /(2*Math.sqrt(3.0)) ) );  //this is theta x
+                axisi.setX(1, Math.asin( (ci - gi)/(2*Math.sqrt(3.0))));  //this is thetay
+                axisi.setX(2, Math.asin( (di - bi)/(2*Math.sqrt(3.0)))); //this is thetaz
+
+
                 Vector axisj=space.makeVector();
                 axisj.E(axisi);
 
