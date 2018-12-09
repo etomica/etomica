@@ -49,8 +49,10 @@ public class variationwithstrain extends Simulation{
      public IntegratorMC integrator;
     public SpeciesSpheresMono species;
     public double rCutLJ;
+    public double harmonicE;
 
-     public variationwithstrain(double[] a0, double rCutLJ,int[] nCells, Space space) {
+
+    public variationwithstrain(int i, double[] a0, double rCutLJ,int[] nCells, int[] nunitCells, Space space) {
          super(space);
          species = new SpeciesSpheresMono(this, space);
          species.setIsDynamic(true);
@@ -60,13 +62,15 @@ this.rCutLJ=rCutLJ;
         this.nCells = nCells.clone();
         this.space = space;
          Basis basis = new BasisCubicFcc();
+         basis = new BasisBigCell(space, basis, nunitCells);
          primitiveOrthorhombic = new PrimitiveOrthorhombic(space, a0[0], a0[1], a0[2]);
-
+//this.i=i;
          lattice = new BravaisLatticeCrystal(primitiveOrthorhombic, basis);
-        int nSites = nCells[0] * nCells[1] * nCells[2];
-        Boundary boundary = new BoundaryDeformableLattice(primitiveOrthorhombic, nCells);
-        Box box = new Box(boundary, space);
-        int numAtoms=nSites*4;
+         Boundary boundary = new BoundaryDeformableLattice(primitiveOrthorhombic, nCells);
+         box = this.makeBox(boundary);
+
+         int numAtoms= 4*(nunitCells[0]*nunitCells[1]*nunitCells[2]);
+   //      System.out.println(numAtoms);
          box.setNMolecules(species, numAtoms);
          potentialMaster = new PotentialMasterCell(this, rCutLJ, space);
          potentialMaster.setCellRange(2);
@@ -79,8 +83,30 @@ this.rCutLJ=rCutLJ;
           AtomType leafType = species.getLeafType();
          potentialMaster.addPotential(potentialLJ, new AtomType[]{leafType, leafType});
          potentialMaster.getNbrCellManager(box).assignCellAll();
-         System.out.println("Cell Density: " + nSites / boundary.volume());
-    }
+         System.out.println("Cell Density: " + numAtoms / boundary.volume());
+
+         NormalModesPotential normalModesPotential=new NormalModesPotential(nCells, primitiveOrthorhombic, basis, potentialLJ, space);
+         MCMoveHarmonicmodified mcMoveHarmonicmodified=new MCMoveHarmonicmodified();
+         mcMoveHarmonicmodified.setWaveVectorCoefficients(normalModesPotential.getWaveVectorFactory().getCoefficients());
+         mcMoveHarmonicmodified.setEigenVectors(normalModesPotential.getEigenvectors());
+         mcMoveHarmonicmodified.setOmegaSquared(normalModesPotential.getOmegaSquared());
+          CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(box, primitiveOrthorhombic, basis,space);
+         coordinateDefinition.initializeCoordinates(nCells);
+         CoordinateDefinition.BasisCell[] cells = coordinateDefinition.getBasisCells();
+         mcMoveHarmonicmodified.setCoordinateDefinition(coordinateDefinition);
+         mcMoveHarmonicmodified.setWaveVectors(normalModesPotential.getWaveVectorFactory().getWaveVectors());
+         int coordinateDim=coordinateDefinition.getCoordinateDim();
+         double[][] normalmodcoordreal = new double[normalModesPotential.getWaveVectorFactory().getWaveVectors().length][coordinateDim];
+         normalmodcoordreal[0][0] = (i/100.0);
+         int[] modnum= new int[12];
+for(int hh=0;hh<modnum.length;hh++){modnum[hh]=hh;}
+
+         System.out.println("normalmodcoordreal[0][0] "+normalmodcoordreal[0][0]);
+
+                harmonicE= mcMoveHarmonicmodified.doTrial(normalmodcoordreal,cells,modnum,normalModesPotential.getOmegaSquared());
+
+         System.out.println("harmonicE "+harmonicE);
+     }
 
 
 
@@ -91,41 +117,27 @@ this.rCutLJ=rCutLJ;
          for(int j=0;j<20;j++){
 
          double[] a0={5+(j/20),5-(j/20),125/((5+(j/20))*(5-(j/20)))};
-
-         final variationwithstrain sim = new variationwithstrain(a0, params.rCutLJ, params.nCells, Space3D.getInstance());
+             System.out.println("this is for size: " + a0[0]+" "+ a0[1]+" "+ a0[2]);
 
 
             for(int i=0;i<100;i++){  //change normalmodecoord
 
+            final variationwithstrain sim = new variationwithstrain(i, a0, params.rCutLJ, params.nCells,params.nunitCells, Space3D.getInstance());
 
-               NormalModesPotential normalModesPotential=new NormalModesPotential(params.nCells, sim.primitiveOrthorhombic, sim.basis, sim.potentialLJ, sim.space);
-
-                MCMoveHarmonicmodified mcMoveHarmonicmodified=new MCMoveHarmonicmodified();
-                int kDim = normalModesPotential.getWaveVectorFactory().getWaveVectors().length;
-                double[] zero=new double [kDim];
-                for(int z=0;z<kDim;z++) {zero[i] = 0;}
-                mcMoveHarmonicmodified.setWaveVectorCoefficients(zero);
-                mcMoveHarmonicmodified.setEigenVectors(normalModesPotential.getEigenvectors());
-                mcMoveHarmonicmodified.setOmegaSquared(normalModesPotential.getOmegaSquared());
-
-                int coordinateDim=3*4*params.nCells[0] * params.nCells[1] * params.nCells[2];
-                double[][] normalmodcoordreal = new double[normalModesPotential.getWaveVectorFactory().getWaveVectors().length][coordinateDim];
-                normalmodcoordreal[0][0] = (i/100.0);
-                mcMoveHarmonicmodified.doTrial(normalmodcoordreal[0][0]);
 
 
             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
             meterPE.setBox(sim.box);
-            System.out.println(meterPE);}
+            System.out.println(meterPE.getData()+" ");}
 
         }
         //what is d above command doing
     //where is it taking normal mode coordinate
 }
     public static class SimParams extends ParameterBase {
-        //    	public String configFile = "config_from_paper_HHO_shiftedL_2_sI";
-        public int[] nCells = {4,4,4};
-        public double rCutLJ = 3;
+        public int[] nCells = {1,1,1};
+        public int[] nunitCells = {4,4,4};
+        public double rCutLJ = 1;
 
     }
 

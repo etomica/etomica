@@ -1,4 +1,4 @@
-package etomica.models.clathrates.molecularhma;
+package etomica.models.clathrates.old;
 import Jama.Matrix;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
@@ -9,6 +9,8 @@ import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.models.clathrates.molecularhma.LatticeSumMolecularCrystal;
+import etomica.models.clathrates.molecularhma.MoleculeSiteSource;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeAgentManager;
@@ -21,7 +23,7 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
 import etomica.units.dimensions.Null;
 
-public class MeterDADBWaterTIP4P implements IDataSource {
+public class MeterDADBWaterTIP4Pworks implements IDataSource {
 
 
     protected final DataDoubleArray data;
@@ -57,7 +59,7 @@ public int basisDim;
     protected EwaldSummation potentialES;
     protected Box box;
     int[] nC; double[] a0; double rCutLJ;
-    public MeterDADBWaterTIP4P(int[] nC,double[] a0, double rCutLJ, Potential2SoftSpherical potentialLJ,Potential2SoftSphericalLS potentialLJLS,EwaldSummation potentialES, Space space, DataSourceScalar meterPE, Box box, int basisDim, PotentialMaster potentialMaster, double temperature, MoleculeAgentManager latticeCoordinates) {
+    public MeterDADBWaterTIP4Pworks(int[] nC, double[] a0, double rCutLJ, Potential2SoftSpherical potentialLJ, Potential2SoftSphericalLS potentialLJLS, EwaldSummation potentialES, Space space, DataSourceScalar meterPE, Box box, int basisDim, PotentialMaster potentialMaster, double temperature, MoleculeAgentManager latticeCoordinates) {
         this.nC=nC;
         this.a0=a0;
         this.rCutLJ=rCutLJ;

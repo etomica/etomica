@@ -48,17 +48,16 @@ public class MCMoveHarmonicmodified {
         eigenVectors = newEigenVectors;
     }
 
+    public void setWaveVectors(Vector[] newWaveVectors) {
+        waveVectors = newWaveVectors;
+    }
 
-    public void doTrial(double rRand00 ) {
+    public double doTrial(double[][] rRand,BasisCell[] cells, int[] modeNum,double[][] omega2) {
+
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         u = new double[coordinateDim];
-
-        rRand = new double[waveVectors.length][coordinateDim];
-        rRand[0][0] =rRand00;
-
-        BasisCell[] cells = coordinateDefinition.getBasisCells();
-
         double normalization = 1/Math.sqrt(cells.length);
+        double energy=0.0;
         for (int iCell = 0; iCell<cells.length; iCell++) {
 
             BasisCell cell = cells[iCell];
@@ -69,10 +68,14 @@ public class MCMoveHarmonicmodified {
             for (int iVector=0; iVector<waveVectors.length; iVector++) {
                 double kR = waveVectors[iVector].dot(cell.cellPosition);
                 double coskR = Math.cos(kR);
+                     for (int j = 0; j < coordinateDim; j++) {
+                        u[j] += eigenVectors[iVector][0][j] * (rRand[iVector][0] * coskR);
 
-                        for (int j=0; j<coordinateDim; j++) {
-                            u[j] += eigenVectors[iVector][0][j]* (rRand[iVector][0]*coskR );
-                        }
+                     }
+                for (int j = 0; j < coordinateDim; j++) {
+if (omega2[iVector][j]==Double.POSITIVE_INFINITY) continue;
+                    energy += rRand[iVector][j] * rRand[iVector][j] * omega2[iVector][j];
+                }
 
             }
             for (int i=0; i<coordinateDim; i++) {
@@ -80,7 +83,8 @@ public class MCMoveHarmonicmodified {
             }
             coordinateDefinition.setToU(cell.molecules, u);
         }
-     }
+return energy;
+    }
 
 
     protected CoordinateDefinition coordinateDefinition;
@@ -92,7 +96,6 @@ public class MCMoveHarmonicmodified {
     protected double[][] rRand;
      protected double temperature;
      protected double[][] uOld;
-    protected int[] modeNum;
-    protected boolean isSelectMode = false;
+
 
 }

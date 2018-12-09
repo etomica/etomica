@@ -47,18 +47,18 @@ public class NormalModesPotential implements NormalModes {
         
         Box box = new Box(boundary, space);
 
-        System.out.println("Cell Density: "+nSites/boundary.volume());
-        System.out.println("Site Density: "+nSites/boundary.volume()*basis.getScaledCoordinates().length);
+//        System.out.println("Cell Density::: "+nSites/boundary.volume());
+  //      System.out.println("Site Density: "+nSites/boundary.volume()*basis.getScaledCoordinates().length);
         kFactory = new WaveVectorFactorySimple(primitive, space);
         kFactory.makeWaveVectors(box);
-        System.out.println("Number of wave vectors: "+kFactory.getWaveVectors().length);
+  //      System.out.println("Number of wave vectors: "+kFactory.getWaveVectors().length);
         
         double sum = 0.0;
         for(int i=0; i<kFactory.getWaveVectors().length; i++) {
             sum += kFactory.getCoefficients()[i];
         }
-        System.out.println("nCells: "+ Arrays.toString(nCells));
-        System.out.println("Number of wave vectors represented: "+2.0*sum);
+   //     System.out.println("nCells: "+ Arrays.toString(nCells));
+     //   System.out.println("Number of wave vectors represented: "+2.0*sum);
     }
     
     public void calculateModes() {
@@ -99,7 +99,7 @@ public class NormalModesPotential implements NormalModes {
         //calculation of self term
         kVector.E(0.0);
         summer.setK(kVector);
-        System.out.println("\n k:"+kVector.toString()+"   in NormalModesPotential");
+ //       System.out.println("\n k:"+kVector.toString()+"   in NormalModesPotential");
         DataGroupLSC sum0 = (DataGroupLSC)summer.calculateSum(function);
         Function chopper = new Function.Chop(1e-9);
         sum0.map(chopper);
@@ -135,7 +135,7 @@ public class NormalModesPotential implements NormalModes {
             
             
             summer.setK(kVector);
-            System.out.println("k:"+kVector.toString());
+  //          System.out.println("k:"+kVector.toString());
             DataGroupLSC sum = (DataGroupLSC)summer.calculateSum(function);
             sum.map(chopper);
             for(int j=0; j<basisDim; j++) {
@@ -179,7 +179,7 @@ public class NormalModesPotential implements NormalModes {
             double[] eVals = ed.getRealEigenvalues();
             double[][] eVecs = ed.getV().getArray();
             
-            System.out.println("Real eigenvalues: " + Arrays.toString(eVals));
+  //          System.out.println("Real eigenvalues: " + Arrays.toString(eVals));
             
             if (fileName != null) {
                 // output .val file

@@ -561,8 +561,8 @@ public class Clathrateenergyandcv extends Simulation {
         int nX = 1;
         public int[] nC = new int[]{nX, nX, nX};
         public int numCells = 1;
-        public int numSteps = 20;
-        public double timeInterval = 0.002;
+        public int numSteps = 500;
+        public double timeInterval = 0.00075;
         public double temperature = 50;
         public double rCutLJ = 6;
         public double rCutRealES = 6;
