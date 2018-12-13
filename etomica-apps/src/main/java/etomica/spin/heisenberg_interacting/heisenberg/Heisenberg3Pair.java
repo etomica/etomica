@@ -174,28 +174,8 @@ public class Heisenberg3Pair extends Simulation {
         double AEECor = 0;
 
         if (aEE) {
-            double sum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
-            double errSum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
-            double sum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
-            double errSum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
-            double sum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(2);
-            double errSum2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(2);
-
-            double sum3 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(3);
-            double ERsum3 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(3);
-            double sum4 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(4);
-            double ERsum4 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(4);
-
-
-//            IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-//            covariance.getValue(1);
-//            AEE = sum0 + sum1 * sum1;
-//            AEEER = Math.sqrt(errSum0 * errSum0 + 4 * sum1 * sum1 * errSum1 * errSum1 -
-//                    2 * errSum0 * sum1 * 2 * errSum1 * covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3)));
-//            AEECor = covariance.getValue(1) / Math.sqrt(covariance.getValue(0) * covariance.getValue(3));
-
-            AEE = sum0;
-            AEEER = errSum0;
+            AEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
+            AEEER = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
             AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
 
         }
@@ -210,7 +190,6 @@ public class Heisenberg3Pair extends Simulation {
 //                    + " dipolesumCor= " + dipoleSumCor);
 //            System.out.println("mSquare_Time: " + (endTime - startTime) / (1000.0 * 60.0));
 //        }
-//
 //        if (aEE) {
 //            System.out.println("AEE_new:\t" + (AEE / numberMolecules)
 //                    + " AEEErr:\t" + (AEEER / numberMolecules)
@@ -278,6 +257,19 @@ public class Heisenberg3Pair extends Simulation {
                 + " Err:\t" + (errUEE / numberMolecules));
 
 
+        double idealPart1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(14);
+        double idealPart1Err = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(14);
+        double idealPart2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(15);
+        double idealPart2Err = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(15);
+        double idealPart3 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(16);
+        double idealPart3Err = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(16);
+        System.out.println(" idealPart1:\t" + (idealPart1 / numberMolecules)
+                + " Err:\t" + (idealPart1Err / numberMolecules));
+        System.out.println(" idealPart2:\t" + (idealPart2 / numberMolecules)
+                + " Err:\t" + (idealPart2Err / numberMolecules));
+        System.out.println(" idealPart3:\t" + (idealPart3 / numberMolecules)
+                + " Err:\t" + (idealPart3Err / numberMolecules));
+
         System.out.println("Time: " + (endTime - startTime) / (1000.0 * 60.0));
     }
 
@@ -285,9 +277,9 @@ public class Heisenberg3Pair extends Simulation {
     public static class Param extends ParameterBase {
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 2.7;// Kelvin
-        public double interactionS = 1.6;
-        public double dipoleMagnitude = 1.9;
+        public double temperature = 1.2;// Kelvin
+        public double interactionS = 1.8;
+        public double dipoleMagnitude = 1.6;
         public int steps = 50000;
         public int numberMolecules = 3;
     }

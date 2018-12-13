@@ -21,8 +21,6 @@ public class MCMoveRotate3Pair extends MCMoveRotate {
             return false;
         }
         atom = atomSource.getAtom();
-//        atom = box.getLeafList().getAtom(0);
-
         energyMeter.setTarget(atom);
 
         AtomPair pair = new AtomPair();
@@ -31,8 +29,8 @@ public class MCMoveRotate3Pair extends MCMoveRotate {
         uOld = p2.energy(pair);
         pair.atom1 = box.getLeafList().getAtom(2);//02
         uOld += p2.energy(pair);
-//        pair.atom0 = box.getLeafList().getAtom(1);//12
-//        uOld += p2.energy(pair);
+        pair.atom0 = box.getLeafList().getAtom(1);//12
+        uOld += p2.energy(pair);
 
         iOrientation = ((IAtomOriented) atom).getOrientation();
         oldOrientation.E(iOrientation);  //save old orientation
@@ -54,8 +52,8 @@ public class MCMoveRotate3Pair extends MCMoveRotate {
         uNew = p2.energy(pair);
         pair.atom1 = box.getLeafList().getAtom(2);//02
         uNew += p2.energy(pair);
-//        pair.atom0 = box.getLeafList().getAtom(1);//12
-//        uNew += p2.energy(pair);
+        pair.atom0 = box.getLeafList().getAtom(1);//12
+        uNew += p2.energy(pair);
         double chi = Math.exp(-(uNew - uOld) / temperature);
 //        System.out.println("chi "+chi+" "+uOld+" "+uNew+" "+temperature);
         return chi;

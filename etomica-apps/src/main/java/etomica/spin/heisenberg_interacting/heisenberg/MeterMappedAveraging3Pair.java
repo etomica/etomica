@@ -39,7 +39,7 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
 
     public MeterMappedAveraging3Pair(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, IPotentialAtomic p2) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
-        int nValues = 14;
+        int nValues = 17;
         data = new DataDoubleArray(nValues);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nValues});
         tag = new DataTag();
@@ -64,7 +64,7 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
         secondDerivativeSum.setAgentManager(leafAgentManager);
         secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);
 
-        int nMax = 10;
+        int nMax = 3;
         Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         allAtoms = new IteratorDirective();
 
@@ -76,6 +76,7 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
         IAtomList leafList = box.getLeafList();
         torqueSum.reset();
         secondDerivativeSum.reset();
+        secondDerivativeSumIdeal.zeroSum();
 //        MeterMappedAveraging.MoleculeAgent torqueAgent =  leafAgentManager.getAgent(leafList.getAtom(0));
 //        double f1 = torqueAgent.torque.getX(1);
 //        System.out.println("f1= "+f1);
@@ -83,28 +84,33 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
         AtomPair pair = new AtomPair();
         pair.atom0 = leafList.getAtom(0);
         pair.atom1 = leafList.getAtom(1);//01
-
         torqueSum.doCalculation(pair, p2);
         secondDerivativeSum.doCalculation(pair, p2);
+        secondDerivativeSumIdeal.doCalculation(pair, p2);
+
         pair.atom1 = leafList.getAtom(2);//02
         torqueSum.doCalculation(pair, p2);
         secondDerivativeSum.doCalculation(pair, p2);
-//        pair.atom0 = leafList.getAtom(1);//12
-//        torqueSum.doCalculation(pair,p2);//12
-//        secondDerivativeSum.doCalculation(pair,p2);
+        secondDerivativeSumIdeal.doCalculation(pair, p2);
+
+        pair.atom0 = leafList.getAtom(1);//12
+        torqueSum.doCalculation(pair,p2);
+        secondDerivativeSum.doCalculation(pair,p2);
+        secondDerivativeSumIdeal.doCalculation(pair, p2);
+
 
         Ans.zeroSum();
         pair.atom0 = leafList.getAtom(0);
         pair.atom1 = leafList.getAtom(1);//01
         Ans.doCalculation(pair, p2);
+
         pair.atom1 = leafList.getAtom(2);//02
         Ans.doCalculation(pair, p2);
-//        pair.atom0 = leafList.getAtom(1);//12
-//        Ans.doCalculation(pair,p2);
+
+        pair.atom0 = leafList.getAtom(1);//12
+        Ans.doCalculation(pair,p2);
 
 
-        secondDerivativeSumIdeal.zeroSum();
-        secondDerivativeSumIdeal.doCalculation(box.getLeafList(), p2);
         double bt2 = bt * bt;
         double mu2 = mu * mu;
         int nM = leafList.getAtomCount();
@@ -117,9 +123,9 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
             dr.PEa1Tv1(torqueScalar, atom.getOrientation().getDirection());
         }//i loop
         x[0] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum()
-                - Ans.getSumJEEMJEJE() + Ans.getSumUEE()
-                - Ans.getSumJEMUEx() * Ans.getSumJEMUEx() - Ans.getSumJEMUEy() * Ans.getSumJEMUEy()
-                - Ans.getAEEJ0() + Ans.getSumJEMUExIdeal() * Ans.getSumJEMUExIdeal() + Ans.getSumJEMUEyIdeal() * Ans.getSumJEMUEyIdeal();
+                - Ans.getSumJEEMJEJE() + Ans.getSumUEE() - Ans.getSumJEMUEx() * Ans.getSumJEMUEx() - Ans.getSumJEMUEy() * Ans.getSumJEMUEy()
+                - Ans.getAEEJ0();
+
         x[1] = Ans.getSumJEMUEx();
         x[2] = Ans.getSumJEMUEy();
         x[3] = Ans.getSumJEMUExIdeal();
@@ -132,8 +138,10 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
         x[10] = -x[5] + x[6] - x[8] - x[9];
         x[11] = Ans.getSumJEMUExIdeal() * Ans.getSumJEMUExIdeal();
         x[12] = Ans.getSumJEMUEyIdeal() * Ans.getSumJEMUEyIdeal();
-        x[13] = Ans.getAEEJ0() - x[11] - x[12];
-
+        x[13] = Ans.getAEEJ0();
+        x[14] = -nM * bt2 * mu2;
+        x[15] = - bt2 * bt2 * mu2 * dr.squared();
+        x[16] = bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum();
         return data;
     }
 
