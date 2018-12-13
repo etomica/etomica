@@ -18,7 +18,7 @@ import static etomica.math.SpecialFunctions.besselI;
 public class PotentialCalculationHeisenberg implements PotentialCalculation {
     //public class PotentialCalculationHeisenberg {
     protected Vector ei, ej;
-    protected double AEEJ0, JEMUExIdeal, JEMUEyIdeal, JEEMJEJE, UEE, JEMUESquare, JEMUEx, JEMUEy, dipolex, dipoley, JEEMJEJExtrying, JEMUExnow, UEEnow, JEMUE, dipoleconv;
+    protected double AEEJ0, JEMUExIdeal, JEMUEyIdeal, JEEMJEJE, UEE, JEMUExSquare, JEMUEySquare, JEMUEx, JEMUEy, dipolex, dipoley, JEEMJEJExtrying, UEEnow, JEMUE, dipoleconv;
     protected final double mu, J, bt, bJ, bmu; //TODO should I add final here
     protected double[] Axc0, Axs0, dAxc0, dAxs0, Axc1, Axs1, dAxc1, dAxs1;
     protected double[] d2Axc0, d2Axs0, d3Axc0, d3Axs0, d2Axc1, d2Axs1;
@@ -593,16 +593,19 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         //x
 //        JEMUE += ((bJ * Math.sin(t1 - t2) * (psix1 - psix2) / p0) + ((psix11 + psix22) / p0)) - (-bt * (Math.cos(t1) + Math.cos(t2)) * mu - (vEx1 * (f1) + vEx2 * (f2)));
         JEMUEx += ((bJ * Math.sin(t1 - t2) * (psix1 - psix2) / p0) + ((psix11 + psix22) / p0)) - (-bt * (Math.cos(t1) + Math.cos(t2)) * mu - (vEx1 * (f1) + vEx2 * (f2)));
-        JEMUExnow = ((bJ * Math.sin(t1 - t2) * (psix1 - psix2) / p0) + ((psix11 + psix22) / p0)) - (-bt * (Math.cos(t1) + Math.cos(t2)) * mu - (vEx1 * (f1) + vEx2 * (f2)));
+        double JEMUExNow = ((bJ * Math.sin(t1 - t2) * (psix1 - psix2) / p0) + ((psix11 + psix22) / p0)) - (-bt * (Math.cos(t1) + Math.cos(t2)) * mu - (vEx1 * (f1) + vEx2 * (f2)));
+
+        JEMUExSquare += JEMUExNow * JEMUExNow;
         //y
 //        JEMUE += ((bJ * Math.sin(t1 - t2) * (psiy1 - psiy2) / p0) + ((psiy11 + psiy22) / p0)) - (-bt * (Math.sin(t1) + Math.sin(t2)) * mu - (vEy1 * (f1) + vEy2 * (f2)));
         JEMUEy += ((bJ * Math.sin(t1 - t2) * (psiy1 - psiy2) / p0) + ((psiy11 + psiy22) / p0)) - (-bt * (Math.sin(t1) + Math.sin(t2)) * mu - (vEy1 * (f1) + vEy2 * (f2)));
-        double JEMUEynow = ((bJ * Math.sin(t1 - t2) * (psiy1 - psiy2) / p0) + ((psiy11 + psiy22) / p0)) - (-bt * (Math.sin(t1) + Math.sin(t2)) * mu - (vEy1 * (f1) + vEy2 * (f2)));
+        double JEMUEyNow = ((bJ * Math.sin(t1 - t2) * (psiy1 - psiy2) / p0) + ((psiy11 + psiy22) / p0)) - (-bt * (Math.sin(t1) + Math.sin(t2)) * mu - (vEy1 * (f1) + vEy2 * (f2)));
 
+        JEMUEySquare += JEMUEyNow * JEMUEyNow;
         if (debug && false) {
-            System.out.println("JEMUEx[nMax]-(" + JEMUExnow + ")/.{theta1->" + t1 + " ,theta2->" + t2 + "};");
+            System.out.println("JEMUEx[nMax]-(" + JEMUExNow + ")/.{theta1->" + t1 + " ,theta2->" + t2 + "};");
             System.out.println("total+=%^2;");
-            System.out.println("JEMUEy[nMax]-(" + JEMUEynow + ")/.{theta1->" + t1 + " ,theta2->" + t2 + "};");
+            System.out.println("JEMUEy[nMax]-(" + JEMUEyNow + ")/.{theta1->" + t1 + " ,theta2->" + t2 + "};");
             System.out.println("total+=%^2;");
         }
         double vDotGradvx1 = pM2 * (-lnp1 * psix1 * (psix1 - psix2) + psix1 * psix11 + psix2 * psix12);
@@ -659,6 +662,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 
 
 
+
         if (debug && false) {
             testx = -bmu * (f1 * Math.sin(t1) + f2 * Math.sin(t2));
             testy = bmu * (f1 * Math.cos(t1) + f2 * Math.cos(t2));
@@ -697,7 +701,8 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         JEMUE = 0;//not used
         JEMUEy = 0;
         JEMUEyIdeal = 0;
-        JEMUESquare = 0;
+        JEMUExSquare = 0;
+        JEMUEySquare = 0;
         AEEJ0 = 0;
     }
 
@@ -729,6 +734,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         return JEMUEx;
     }
 
+
     public double getSumJEMUExIdeal() {
         return JEMUExIdeal;
     }
@@ -739,6 +745,14 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 
     public double getSumJEMUEyIdeal() {
         return JEMUEyIdeal;
+    }
+
+    public double getSumJEMUExSquare() {
+        return JEMUExSquare;
+    }
+
+    public double getSumJEMUEySquare() {
+        return JEMUEySquare;
     }
 
     public double getAEEJ0() {

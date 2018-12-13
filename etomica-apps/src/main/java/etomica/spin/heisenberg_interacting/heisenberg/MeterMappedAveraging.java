@@ -111,20 +111,17 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MoleculeAg
 //            System.out.println("dr + " + dr);
         }//i loop
         x[0] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum()
-                - Ans.getSumJEEMJEJE() + Ans.getSumUEE()
-                - Ans.getSumJEMUEx() * Ans.getSumJEMUEx() - Ans.getSumJEMUEy() * Ans.getSumJEMUEy()
-                - Ans.getAEEJ0()  + Ans.getSumJEMUExIdeal() * Ans.getSumJEMUExIdeal() + Ans.getSumJEMUEyIdeal() * Ans.getSumJEMUEyIdeal();
+                - Ans.getSumJEEMJEJE() + Ans.getSumUEE() - Ans.getSumJEMUExSquare() - Ans.getSumJEMUEySquare()
+                - Ans.getAEEJ0();
         x[1] = Ans.getSumJEMUEx();
         x[2] = Ans.getSumJEMUEy();
         x[3] = Ans.getSumJEMUExIdeal();
         x[4] = Ans.getSumJEMUEyIdeal();
         x[5] = Ans.getSumJEEMJEJE();
-//        x[6] = Ans.getSumUEE();//TODO
+        x[6] = Ans.getSumUEE();
         x[7] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum();
-        x[6] =  Ans.getAEEJ0() - Ans.getSumJEMUExIdeal() * Ans.getSumJEMUExIdeal() - Ans.getSumJEMUEyIdeal() * Ans.getSumJEMUEyIdeal();
-        //TODO
-        x[8] = x[1]*x[1];
-        x[9] = x[2]*x[2];
+        x[8] = x[1] * x[1];
+        x[9] = x[2] * x[2];
         return data;
     }
 
