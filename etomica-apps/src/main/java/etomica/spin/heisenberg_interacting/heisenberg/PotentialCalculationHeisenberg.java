@@ -103,8 +103,8 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
             System.out.println("bJ= " + bJ + ";");
             System.out.println("bt = bJ/J;");
             System.out.println("bmu = bt*mu;");
-//            System.out.println("t1 = " + t1 + ";");
-//            System.out.println("t2 = " + t2 + ";");
+            System.out.println("t1 = " + t1 + ";");
+            System.out.println("t2 = " + t2 + ";");
         }
         if (count > 2000 && debug) System.exit(2);
 
@@ -629,24 +629,20 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         UEE += -(vEEx1 * f1 + vEEx2 * f2 + vDotGradvx1 * f1 + vDotGradvx2 * f2)
                 + vEx1 * (p11 * vEx1 + p12 * vEx2) + vEx2 * (p12 * vEx1 + p22 * vEx2)
                 - 2 * vEx1 * fxE1 - 2 * vEx2 * fxE2;
-//        UEE += vEx1 * (p11 * vEx1 + p12 * vEx2) + vEx2 * (p12 * vEx1 + p22 * vEx2);
-
-        testx = -(vEEx1 * f1 + vEEx2 * f2 + vDotGradvx1 * f1 + vDotGradvx2 * f2)
-                + vEx1 * (p11 * vEx1 + p12 * vEx2) + vEx2 * (p12 * vEx1 + p22 * vEx2)
-                - 2 * vEx1 * fxE1 - 2 * vEx2 * fxE2;
 
 
         UEE += -(vEEy1 * f1 + vEEy2 * f2 + vDotGradvy1 * f1 + vDotGradvy2 * f2)
                 + vEy1 * (p11 * vEy1 + p12 * vEy2) + vEy2 * (p12 * vEy1 + p22 * vEy2)
                 - 2 * vEy1 * fyE1 - 2 * vEy2 * fyE2;
 
-//        UEE += vEy1 * (p11 * vEy1 + p12 * vEy2) + vEy2 * (p12 * vEy1 + p22 * vEy2);
 
-        testy = -(vEEy1 * f1 + vEEy2 * f2 + vDotGradvy1 * f1 + vDotGradvy2 * f2)
-                + vEy1 * (p11 * vEy1 + p12 * vEy2) + vEy2 * (p12 * vEy1 + p22 * vEy2)
-                - 2 * vEy1 * fyE1 - 2 * vEy2 * fyE2;
-
-        if (debug) {
+        if (debug && false) {
+            testx = -(vEEx1 * f1 + vEEx2 * f2 + vDotGradvx1 * f1 + vDotGradvx2 * f2)
+                    + vEx1 * (p11 * vEx1 + p12 * vEx2) + vEx2 * (p12 * vEx1 + p22 * vEx2)
+                    - 2 * vEx1 * fxE1 - 2 * vEx2 * fxE2;
+            testy = -(vEEy1 * f1 + vEEy2 * f2 + vDotGradvy1 * f1 + vDotGradvy2 * f2)
+                    + vEy1 * (p11 * vEy1 + p12 * vEy2) + vEy2 * (p12 * vEy1 + p22 * vEy2)
+                    - 2 * vEy1 * fyE1 - 2 * vEy2 * fyE2;
             System.out.println("f1=" + f1 + ";f2=" + f2 + ";p12=" + (p12) + ";p11=" + p11 + ";p21=" + p21 + ";p22=" + p22 + ";");
             System.out.println("UEEx[nMax]-(" + testx + ")/.{theta1->" + t1 + " ,theta2->" + t2 + "};");
             System.out.println("total+=%;");
@@ -661,19 +657,32 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         JEMUExIdeal += -bmu * (f1 * Math.sin(t1) + f2 * Math.sin(t2));
         JEMUEyIdeal += bmu * (f1 * Math.cos(t1) + f2 * Math.cos(t2));
 
-        testx = -bmu * (f1 * Math.sin(t1) + f2 * Math.sin(t2));
-        testy = bmu * (f1 * Math.cos(t1) + f2 * Math.cos(t2));
+
 
         if (debug && false) {
+            testx = -bmu * (f1 * Math.sin(t1) + f2 * Math.sin(t2));
+            testy = bmu * (f1 * Math.cos(t1) + f2 * Math.cos(t2));
             System.out.println("JEMUExJ0-(" + testx + ")/.{theta1->" + t1 + " ,theta2->" + t2 + "};");
             System.out.println("total+=%;");
             System.out.println("JEMUEyJ0-(" + testy + ")/.{theta1->" + t1 + " ,theta2->" + t2 + "};");
             System.out.println("total+=%;");
         }
 
-        AEEJ0 += bmu2 * (-2 + p11 + p22 + (p12 + p21) * Math.cos(t1 - t2));
-        double testAEEJ0 = bmu2 * (-2 + p11 + p22 + (p12 + p21) * Math.cos(t1 - t2));
+
+        AEEJ0 += -bmu2 * (2 + f1 * f1 + f2 * f2 + 2 * f1 * f2 * Math.cos(t1 - t2) - p11 - p22 -
+                2 * p12 * Math.cos(t1 - t2));
+//        AEEJ0 += -2 * bmu2 + 4 * bJ * Math.sin((t1 - t2) / 2) * Math.sin((t1 - t2) / 2) * (
+//                bmu2 * Math.cos(t1 - t2) - bJ * bmu2 * Math.sin(t1 - t2) * Math.sin(t1 - t2)  );
+
+
         if (debug && false) {
+            double tmp = -2 * bmu2 + 4 * bJ * Math.sin((t1 - t2) / 2) * Math.sin((t1 - t2) / 2) * (
+                    bmu2 * Math.cos(t1 - t2) - bJ * bmu2 * Math.sin(t1 - t2) * Math.sin(t1 - t2));
+            System.out.println("AEEIdeal-(" + tmp + ")");
+        }
+
+        if (debug && false) {
+            double testAEEJ0 = bmu2 * (-2 + p11 + p22 + (p12 + p21) * Math.cos(t1 - t2));
             System.out.println("AEEJ0-(" + testAEEJ0 + ")/.{theta1->" + t1 + " ,theta2->" + t2 + "};");
             System.out.println("total+=%;");
         }
