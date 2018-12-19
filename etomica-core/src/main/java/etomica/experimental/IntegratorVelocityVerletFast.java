@@ -15,7 +15,7 @@ import etomica.util.random.IRandom;
 
 import java.util.stream.IntStream;
 
-public class IntegratorVelocityVerletFast extends IntegratorMD {
+public class IntegratorVelocityVerletFast extends IntegratorMD implements EnergyMeter {
     private final VectorSystem3D positions;
     private final VectorSystem3D forces;
     private final VectorSystem3D velocities;

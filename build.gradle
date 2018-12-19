@@ -1,7 +1,7 @@
 apply plugin: 'eclipse'
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.7'
+wrapper {
+    gradleVersion = '5.0'
 }
 
 tasks.withType(JavaCompile) {
@@ -19,13 +19,17 @@ subprojects {
         mainClassName = rootProject.findProperty("main")
     }
 
+    compileJava {
+        options.compilerArgs += ["--add-modules=jdk.incubator.vector"]
+    }
+
     repositories {
         // superset of maven central
         jcenter()
     }
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = 12
+    targetCompatibility = 12
 
     dependencies {
         testCompile 'org.junit.jupiter:junit-jupiter-api:5.2.0-M1'

@@ -16,7 +16,7 @@ import etomica.space3d.Vector3D;
 import etomica.units.dimensions.Energy;
 import etomica.util.random.IRandom;
 
-public class IntegratorVelocityVerletLessFast extends IntegratorMD {
+public class IntegratorVelocityVerletLessFast extends IntegratorMD implements EnergyMeter {
     private final Vector[] forces;
     private final int[] atomTypes;
     private final AtomType[] types;
@@ -49,7 +49,7 @@ public class IntegratorVelocityVerletLessFast extends IntegratorMD {
         Vector3D dr = new Vector3D();
         for (int i = 0; i < atoms.size(); i++) {
             for (int j = i + 1; j < atoms.size(); j++) {
-                dr.Ev1Mv2(atoms.get(i).getPosition(), atoms.get(j).getPosition());
+                dr.Ev1Mv2(atoms.get(j).getPosition(), atoms.get(i).getPosition());
                 this.box.getBoundary().nearestImage(dr);
                 double r2 = dr.squared();
                 Potential2Soft potential = potentials[atomTypes[i]][atomTypes[j]];
@@ -59,8 +59,8 @@ public class IntegratorVelocityVerletLessFast extends IntegratorMD {
                 }
 
                 dr.TE(du / r2);
-                this.forces[i].ME(dr);
-                this.forces[j].PE(dr);
+                this.forces[i].PE(dr);
+                this.forces[j].ME(dr);
 //                System.out.printf("%d, %f, %f, %s%n", j, du, r2, dr);
             }
 //            System.out.println(forces[i]);
