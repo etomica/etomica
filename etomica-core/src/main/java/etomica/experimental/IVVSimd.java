@@ -15,6 +15,8 @@ import etomica.util.random.IRandom;
 import jdk.incubator.vector.DoubleVector;
 import jdk.incubator.vector.Vector;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class IVVSimd extends IntegratorMD implements EnergyMeter {
@@ -32,6 +34,9 @@ public class IVVSimd extends IntegratorMD implements EnergyMeter {
         this.atomTypes = new int[box.getLeafList().size()];
 
 
+        this.randomizeMomenta();
+        shiftMomenta();
+        scaleMomenta();
         this.positions = new VecSys3DAlt(this.box);
         this.forces = new VecSys3DAlt(this.box.getLeafList().size());
         this.velocities = new VecSys3DAlt(this.box.getLeafList().size());
@@ -54,30 +59,45 @@ public class IVVSimd extends IntegratorMD implements EnergyMeter {
             int nbrCount = 0;
             int nbrSize = this.positions.size() - j;
             int vectorizedSize = nbrSize & (-S.length()); // rounds down to nearest multiple of vec len
+//            vectorizedSize = 0;
 
             var ix = S.broadcast(this.positions.xs[i]);
             var iy = S.broadcast(this.positions.ys[i]);
             var iz = S.broadcast(this.positions.zs[i]);
 
             for (; nbrCount < vectorizedSize; j+=S.length(), nbrCount += S.length()) {
-                var dx = ix.sub(S.fromArray(this.positions.xs, j));
-                var dy = iy.sub(S.fromArray(this.positions.ys, j));
-                var dz = iz.sub(S.fromArray(this.positions.zs, j));
+                var dx = S.fromArray(this.positions.xs, j).sub(ix);
+                var dy = S.fromArray(this.positions.ys, j).sub(iy);
+                var dz = S.fromArray(this.positions.zs, j).sub(iz);
+
 
                 dx = nearestImage(dx, dim.getX(0));
                 dy = nearestImage(dy, dim.getX(1));
                 dz = nearestImage(dz, dim.getX(2));
 
-                var r2s = dx.mul(dx).add(dy.mul(dy)).add(dz.mul(dz));
-                var dus = duVec(r2s);
-                if (dus.equal(0).allTrue()) {
+//                var r2s = dx.mul(dx).add(dy.mul(dy)).add(dz.mul(dz));
+                var r2s = dx.fma(dx, dy.fma(dy, dz.mul(dz)));
+                var cutoffMask = r2s.greaterThanEq(3*3);
+                if (cutoffMask.allTrue()) {
                     continue;
                 }
+                var dus = duVec(r2s);
+//                if (dus.equal(0).allTrue()) {
+//                    continue;
+//                }
 
                 var div = dus.div(r2s);
                 dx = dx.mul(div);
                 dy = dy.mul(div);
                 dz = dz.mul(div);
+
+//                if (j >= 26 && j <= 29) {
+//                    System.out.println(i + "," + "29" + " "  + dz.toArray()[29 -  j] + " sum: " + this.forces.zs[29]);
+//                }
+//
+//                if (i == 29) {
+//                    System.out.println(i + "," + j + " " + Arrays.toString(dz.toArray()) + " sum: " + this.forces.zs[29]);
+//                }
 
                 this.forces.xs[i] += dx.addAll();
                 this.forces.ys[i] += dy.addAll();
@@ -90,7 +110,7 @@ public class IVVSimd extends IntegratorMD implements EnergyMeter {
             }
 
             for (; nbrCount < nbrSize; j++, nbrCount++) {
-                Vector3D dr = this.positions.diffSingle(i, j);
+                Vector3D dr = this.positions.diffSingle(j, i);
                 this.box.getBoundary().nearestImage(dr);
                 double r2 = dr.squared();
                 var potential = potentials[0][0];
@@ -100,9 +120,18 @@ public class IVVSimd extends IntegratorMD implements EnergyMeter {
                 }
 
                 dr.TE(du / r2);
+//                if (j == 29 || i == 29) {
+//                    System.out.println(i + "," + j + " "  + dr);
+//                }
+//                System.out.println(j + " " + dr.getX(0));
                 this.forces.addSingle(i, dr);
                 this.forces.subSingle(j, dr);
             }
+
+//            if (i == 29) {
+//                System.out.println(Arrays.toString(new double[] {this.forces.xs[i], this.forces.ys[i], this.forces.zs[i]}));
+//            }
+//            System.exit(1);
         }
     }
 
@@ -118,16 +147,16 @@ public class IVVSimd extends IntegratorMD implements EnergyMeter {
         double half = dimComponent / 2;
         var comp = component;
         var mask = comp.greaterThan(half);
-        while (mask.anyTrue()) {
-            comp = comp.sub(half, mask);
-            mask = comp.greaterThan(half);
-        }
+//        while (mask.anyTrue()) {
+            comp = comp.sub(dimComponent, mask);
+//            mask = comp.greaterThan(half);
+//        }
 
         mask = comp.lessThan(-half);
-        while (mask.anyTrue()) {
-            comp = comp.add(half, mask);
-            mask = comp.lessThan(half);
-        }
+//        while (mask.anyTrue()) {
+            comp = comp.add(dimComponent, mask);
+//            mask = comp.lessThan(-half);
+//        }
 
         return comp;
     }
@@ -149,12 +178,24 @@ public class IVVSimd extends IntegratorMD implements EnergyMeter {
     protected void doStepInternal() {
         super.doStepInternal();
 
-        this.velocities.addScaled(0.5 * this.types[0].rm(), forces);
+//        var oldPos = this.positions.toVectors();
+//        System.out.println(this.positions.toVectors().stream().map(v -> v.toString()).collect(Collectors.joining("\n")));
+//        System.out.println(this.velocities.toVectors().stream().map(v -> "vel: "+ v.toString()).collect(Collectors.joining("\n")));
+//        System.out.println("---");
+        this.velocities.addScaled(0.5 * timeStep * this.types[0].rm(), forces);
         this.positions.addScaled(timeStep, velocities);
+//        var newPos = this.positions.toVectors();
+////        for (int i = 0; i < oldPos.size(); i++) {
+////            if (oldPos.get(i).Mv1Squared(newPos.get(i)) > 1e-10) {
+////                System.out.println(i + ": " + oldPos.get(i) + " " + newPos.get(i));
+////            }
+////        }
+//        System.exit(1);
+//        System.out.println("pos "+this.positions.toVectors().get(0));
 
         this.computeForces();
 
-        this.velocities.addScaled(0.5 * this.types[0].rm(), forces);
+        this.velocities.addScaled(0.5 * timeStep * this.types[0].rm(), forces);
 
     }
 

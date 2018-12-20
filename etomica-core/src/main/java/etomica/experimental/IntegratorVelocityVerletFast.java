@@ -32,6 +32,8 @@ public class IntegratorVelocityVerletFast extends IntegratorMD implements Energy
         this.forces = new VectorSystem3D(this.box.getLeafList().size());
         this.velocities = new VectorSystem3D(this.box.getLeafList().size());
 
+        this.randomizeMomenta();
+
         for (int i = 0; i < this.box.getLeafList().size(); i++) {
             this.velocities.setVector(i, ((IAtomKinetic) box.getLeafList().get(i)).getVelocity());
             this.atomTypes[i] = box.getLeafList().get(i).getType().getIndex();
@@ -47,7 +49,7 @@ public class IntegratorVelocityVerletFast extends IntegratorMD implements Energy
         for (int i = 0; i < this.positions.getRows(); i++) {
 //        IntStream.range(0, this.positions.getRows()).parallel().forEach(i -> {
             for (int j = i + 1; j < this.positions.getRows(); j++) {
-                Vector3D dr = this.positions.diff(i, j);
+                Vector3D dr = this.positions.diff(i,j);
                 this.box.getBoundary().nearestImage(dr);
                 double r2 = dr.squared();
                 Potential2Soft potential = potentials[atomTypes[i]][atomTypes[j]];

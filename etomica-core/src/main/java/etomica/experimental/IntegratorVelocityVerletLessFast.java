@@ -1,5 +1,6 @@
 package etomica.experimental;
 
+import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
@@ -15,6 +16,8 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.units.dimensions.Energy;
 import etomica.util.random.IRandom;
+
+import java.util.stream.Collectors;
 
 public class IntegratorVelocityVerletLessFast extends IntegratorMD implements EnergyMeter {
     private final Vector[] forces;
@@ -58,7 +61,12 @@ public class IntegratorVelocityVerletLessFast extends IntegratorMD implements En
                     continue;
                 }
 
+
                 dr.TE(du / r2);
+
+//                if (i == 29 || j == 29) {
+//                    System.out.println(i + "," + j + " " + dr.getX(2) + " sum: " + this.forces[29].getX(2));
+//                }
                 this.forces[i].PE(dr);
                 this.forces[j].ME(dr);
 //                System.out.printf("%d, %f, %f, %s%n", j, du, r2, dr);
@@ -86,8 +94,12 @@ public class IntegratorVelocityVerletLessFast extends IntegratorMD implements En
 
     protected void doStepInternal() {
         super.doStepInternal();
+//        System.exit(1);
 
         IAtomList atoms = box.getLeafList();
+//        System.out.println(atoms.stream().map(a -> a.getPosition().toString()).collect(Collectors.joining("\n")));
+//        System.out.println(atoms.stream().map(a -> "vel: "+ ((IAtomKinetic) a).getVelocity().toString()).collect(Collectors.joining("\n")));
+//        System.out.println("---");
         for (int i = 0; i < atoms.size(); i++) {
 
             IAtomKinetic a = ((IAtomKinetic) atoms.get(i));
