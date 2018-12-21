@@ -46,7 +46,8 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     public String toString() {
-        return "(" + x + ", " + y + ", " + z + ")";
+        return String.format("(%s %s %s)", x, y, z);
+//        return "(" + x + ", " + y + ", " + z + ")";
     }
 
     public double getX(int i) {

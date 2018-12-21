@@ -17,7 +17,11 @@ import etomica.space3d.Vector3D;
 import etomica.units.dimensions.Energy;
 import etomica.util.random.IRandom;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class IntegratorVelocityVerletLessFast extends IntegratorMD implements EnergyMeter {
     private final Vector[] forces;
@@ -103,17 +107,49 @@ public class IntegratorVelocityVerletLessFast extends IntegratorMD implements En
         for (int i = 0; i < atoms.size(); i++) {
 
             IAtomKinetic a = ((IAtomKinetic) atoms.get(i));
+            if (i == 0) {
+                System.out.println("Before: " + a.getVelocity());
+            }
             a.getVelocity().PEa1Tv1(0.5 * timeStep * this.types[this.atomTypes[i]].rm(), forces[i]);
             a.getPosition().PEa1Tv1(timeStep, a.getVelocity());
+            if (i == 0) {
+                System.out.println("Force: " + forces[i]);
+                System.out.println("After: " + a.getVelocity());
+                System.out.println("New pos: " + a.getPosition());
+            }
+        }
+        try {
+            Files.write(Paths.get("stuff_base_" + stepCount + ".txt"),
+                    atoms.stream().map(a -> {
+                        return String.format("force %s pos %s vel %s", forces[a.getLeafIndex()], a.getPosition(), ((IAtomKinetic) a).getVelocity());
+                    }).collect(Collectors.toList())
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         this.computeForces();
+
+//        try {
+//            Files.write(Paths.get("forces_base.txt"),
+//                    atoms.stream().map(a -> forces[a.getLeafIndex()].toString()).collect(Collectors.toList())
+//            );
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         for (int i = 0; i < atoms.size(); i++) {
 
             IAtomKinetic a = ((IAtomKinetic) atoms.get(i));
             a.getVelocity().PEa1Tv1(0.5 * timeStep * this.types[this.atomTypes[i]].rm(), forces[i]);
+            if (i == 0) {
+                System.out.println("Force: " + forces[i] + " vel: " + a.getVelocity());
+            }
         }
+        System.out.println(getEnergy());
+//        if (stepCount == 10) {
+//            System.exit(1);
+//        }
 
     }
 

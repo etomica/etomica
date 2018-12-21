@@ -78,6 +78,7 @@ project(':etomica-core') {
         compile "io.github.lukehutch:fast-classpath-scanner:2.9.4"
 
         compile files("$rootProject.projectDir/libs/ptolemy.jar")
+        compile files("$rootProject.projectDir/computeForcesForeign/computeForces.hpp.jar")
 
         compile project(':etomica-graphics3D')
     }

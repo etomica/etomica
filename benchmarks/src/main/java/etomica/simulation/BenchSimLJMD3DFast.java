@@ -7,6 +7,7 @@ import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.simulation.prototypes.LJMD3DNbr;
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.profile.LinuxPerfAsmProfiler;
 import org.openjdk.jmh.profile.StackProfiler;
 import org.openjdk.jmh.runner.Runner;
@@ -23,19 +24,21 @@ public class BenchSimLJMD3DFast {
 
     private Integrator integrator;
 
-    @Param({"vecsys2", "objects", "vecsys1"})
+    @Param({"vecsys2", "objects", "vecsys1", "baseline"})
     private String type;
 
     public static void main(String[] args) throws RunnerException {
 
         Options opts = new OptionsBuilder()
                 .include(BenchSimLJMD3DFast.class.getSimpleName())
-                .addProfiler(StackProfiler.class)
+                .addProfiler(GCProfiler.class)
 //                .addProfiler(LinuxPerfAsmProfiler.class)
                 .jvmArgsPrepend(
                         "--add-modules=jdk.incubator.vector",
-                        "-XX:TypeProfileLevel=111",
-                        "-XX:+UseVectorApiIntrinsics"
+                        "-XX:+UseVectorApiIntrinsics",
+                        "-Djdk.incubator.vector.VECTOR_ACCESS_OOB_CHECK=0",
+                        "-XX:CompileCommand=inline,etomica.experimental.IVVSimd::duVec",
+                        "-XX:CompileCommand=inline,etomica.experimental.IVVSimd::nearestImage"
 //                        "-XX:+UnlockDiagnosticVMOptions"
 //                        "-XX:+PrintAssembly",
 //                        "-XX:CompileCommand=print etomica.experimental.VectorSystem3D::sub"

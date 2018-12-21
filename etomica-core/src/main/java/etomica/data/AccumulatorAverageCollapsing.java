@@ -112,7 +112,6 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
      * @param data Data to be added.
      */
     public boolean addData(IData data) {
-        System.out.println(data.getValue(0));
         if (data.isNaN())
             return false;
         double value = data.getValue(0);

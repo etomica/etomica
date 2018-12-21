@@ -29,6 +29,8 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.tests.TestLJMC3D;
 import etomica.util.random.RandomMersenneTwister;
 
+import java.foreign.Scope;
+
 public class LJMD3DVecSys extends Simulation {
 //    public IntegratorVelocityVerletLessFast integrator;
     public IntegratorMD integrator;
@@ -40,10 +42,10 @@ public class LJMD3DVecSys extends Simulation {
     public AccumulatorAverageCollapsing avgEnergy;
     public DataPump pump;
 
-
-    public LJMD3DVecSys(String type) {
+    public LJMD3DVecSys(String type, Scope scope) {
         super(Space3D.getInstance());
         this.setRandom(new RandomMersenneTwister(1234));
+        System.out.println("Using " + type);
 
         species = new SpeciesSpheresMono(this, space);
         species.setIsDynamic(true);
@@ -84,6 +86,10 @@ public class LJMD3DVecSys extends Simulation {
                 integrator = new IVVSimd(potentialMaster, this.getRandom(), 0.02, 1, box);
                 energy = ((EnergyMeter) integrator).getMeter();
                 break;
+            case "native":
+                integrator = new ComputeForcesForeign(potentialMaster, this.getRandom(), 0.02, 1, box, scope);
+                energy = ((ComputeForcesForeign) integrator).getMeter();
+                break;
         }
 
         avgEnergy = new AccumulatorAverageCollapsing();
@@ -95,15 +101,17 @@ public class LJMD3DVecSys extends Simulation {
     }
 
     public static void main(String[] args) {
-        LJMD3DVecSys sim = new LJMD3DVecSys("vecsys2");
-        ActionIntegrate ai = new ActionIntegrate(sim.integrator);
-        ai.setMaxSteps(50);
-        sim.getController().addAction(ai);
+        try (Scope sc = Scope.newNativeScope()) {
+            LJMD3DVecSys sim = new LJMD3DVecSys("native", sc);
+            ActionIntegrate ai = new ActionIntegrate(sim.integrator);
+            ai.setMaxSteps(100);
+            sim.getController().addAction(ai);
 
-        long t0 = System.nanoTime();
-        sim.getController().actionPerformed();
-        long t1 = System.nanoTime();
+            long t0 = System.nanoTime();
+            sim.getController().actionPerformed();
+            long t1 = System.nanoTime();
 
-        System.out.println((t1 - t0) / 1_000_000);
+            System.out.println((t1 - t0) / 1_000_000);
+        }
     }
 }

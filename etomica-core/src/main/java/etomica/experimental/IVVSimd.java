@@ -137,7 +137,7 @@ public class IVVSimd extends IntegratorMD implements EnergyMeter {
 
     private static DoubleVector duVec(DoubleVector r2s) {
         var s2 = S.broadcast(1.0).div(r2s);
-        var s6 = s2.pow(3);
+        var s6 = s2.mul(s2).mul(s2);
         var du = s6.mul(-48.0).mul(s6.sub(0.5));
         return du.blend(0.0, r2s.greaterThanEq(3*3));
 
