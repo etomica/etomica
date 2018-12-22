@@ -14,6 +14,7 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.units.dimensions.Energy;
 import etomica.util.random.IRandom;
+import jdk.incubator.vector.DoubleVector;
 
 import java.foreign.Libraries;
 import java.foreign.NativeTypes;
@@ -23,6 +24,7 @@ import java.foreign.memory.Array;
 import java.foreign.memory.Pointer;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.nio.DoubleBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
@@ -46,6 +48,9 @@ public class ComputeForcesForeign extends IntegratorMD implements EnergyMeter {
     private final Potential2Soft[][] potentials;
 
     static etomica.foreign.computeForces cf = Libraries.bind(etomica.foreign.computeForces.class, Libraries.load(MethodHandles.lookup(), "/Users/alex/workspace/etomica/computeForcesForeign/computeForces.dylib"));
+    private DoubleBuffer xsBuf;
+    private DoubleBuffer ysBuf;
+    private DoubleBuffer zsBuf;
 
     /**
      * Constructs integrator with a default for non-isothermal sampling.
@@ -70,6 +75,14 @@ public class ComputeForcesForeign extends IntegratorMD implements EnergyMeter {
         xs = sc.allocateArray(NativeTypes.DOUBLE, atoms.size());
         ys = sc.allocateArray(NativeTypes.DOUBLE, atoms.size());
         zs = sc.allocateArray(NativeTypes.DOUBLE, atoms.size());
+
+        try {
+            xsBuf = xs.elementPointer().asDirectByteBuffer(this.box.getLeafList().size() * Double.BYTES).asDoubleBuffer();
+            ysBuf = ys.elementPointer().asDirectByteBuffer(this.box.getLeafList().size() * Double.BYTES).asDoubleBuffer();
+            zsBuf = zs.elementPointer().asDirectByteBuffer(this.box.getLeafList().size() * Double.BYTES).asDoubleBuffer();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
 
         fxs = sc.allocateArray(NativeTypes.DOUBLE, atoms.size());
         fys = sc.allocateArray(NativeTypes.DOUBLE, atoms.size());
@@ -171,23 +184,24 @@ public class ComputeForcesForeign extends IntegratorMD implements EnergyMeter {
     }
 
     private double getEnergy() {
+        return cf.computeEnergy(xs.elementPointer(), ys.elementPointer(), zs.elementPointer(), this.box.getLeafList().size(), this.box.getBoundary().getBoxSize().getX(0));
 
-        double energy = 0;
-        IAtomList atoms = box.getLeafList();
-        Vector3D dr = new Vector3D();
-        for (int i = 0; i < atoms.size(); i++) {
-            for (int j = i + 1; j < atoms.size(); j++) {
-                dr.Ev1Mv2(
-                        Vector.of(this.xs.get(i), this.ys.get(i), this.zs.get(i)),
-                        Vector.of(this.xs.get(j), this.ys.get(j), this.zs.get(j))
-                        );
-                this.box.getBoundary().nearestImage(dr);
-                double r2 = dr.squared();
-                Potential2Soft potential = potentials[0][0];
-                energy += potential.u(r2);
-            }
-        }
-        return energy;
+//        double energy = 0;
+//        IAtomList atoms = box.getLeafList();
+//        Vector3D dr = new Vector3D();
+//        for (int i = 0; i < atoms.size(); i++) {
+//            for (int j = i + 1; j < atoms.size(); j++) {
+//                dr.Ev1Mv2(
+//                        Vector.of(this.xs.get(i), this.ys.get(i), this.zs.get(i)),
+//                        Vector.of(this.xs.get(j), this.ys.get(j), this.zs.get(j))
+//                        );
+//                this.box.getBoundary().nearestImage(dr);
+//                double r2 = dr.squared();
+//                Potential2Soft potential = potentials[0][0];
+//                energy += potential.u(r2);
+//            }
+//        }
+//        return energy;
     }
 
     public MeterPotentialEnergy getMeter() {

@@ -25,6 +25,7 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.tests.TestLJMC3D;
 import etomica.util.random.RandomMersenneTwister;
@@ -53,7 +54,7 @@ public class LJMD3DVecSys extends Simulation {
 
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         box = this.makeBox();
-        box.setNMolecules(species, 4000);
+        box.setNMolecules(species, 12000);
 //        ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
 
         BoxInflate inflater = new BoxInflate(box, space);
@@ -102,7 +103,7 @@ public class LJMD3DVecSys extends Simulation {
 
     public static void main(String[] args) {
         try (Scope sc = Scope.newNativeScope()) {
-            LJMD3DVecSys sim = new LJMD3DVecSys("native", sc);
+            LJMD3DVecSys sim = new LJMD3DVecSys("vecsys1", sc);
             ActionIntegrate ai = new ActionIntegrate(sim.integrator);
             ai.setMaxSteps(100);
             sim.getController().addAction(ai);

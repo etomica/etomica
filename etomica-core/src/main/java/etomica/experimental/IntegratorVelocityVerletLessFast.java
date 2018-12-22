@@ -107,26 +107,27 @@ public class IntegratorVelocityVerletLessFast extends IntegratorMD implements En
         for (int i = 0; i < atoms.size(); i++) {
 
             IAtomKinetic a = ((IAtomKinetic) atoms.get(i));
-            if (i == 0) {
-                System.out.println("Before: " + a.getVelocity());
-            }
+//            if (i == 0) {
+//                System.out.println("Before: " + a.getVelocity());
+//            }
             a.getVelocity().PEa1Tv1(0.5 * timeStep * this.types[this.atomTypes[i]].rm(), forces[i]);
             a.getPosition().PEa1Tv1(timeStep, a.getVelocity());
-            if (i == 0) {
-                System.out.println("Force: " + forces[i]);
-                System.out.println("After: " + a.getVelocity());
-                System.out.println("New pos: " + a.getPosition());
-            }
+//            if (i == 0) {
+//                System.out.println("Force: " + forces[i]);
+//                System.out.println("After: " + a.getVelocity());
+//                System.out.println("New pos: " + a.getPosition());
+//            }
         }
-        try {
-            Files.write(Paths.get("stuff_base_" + stepCount + ".txt"),
-                    atoms.stream().map(a -> {
-                        return String.format("force %s pos %s vel %s", forces[a.getLeafIndex()], a.getPosition(), ((IAtomKinetic) a).getVelocity());
-                    }).collect(Collectors.toList())
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+//        try {
+//            Files.write(Paths.get("stuff_base_" + stepCount + ".txt"),
+//                    atoms.stream().map(a -> {
+//                        return String.format("force %s pos %s vel %s", forces[a.getLeafIndex()], a.getPosition(), ((IAtomKinetic) a).getVelocity());
+//                    }).collect(Collectors.toList())
+//            );
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         this.computeForces();
 
@@ -142,11 +143,11 @@ public class IntegratorVelocityVerletLessFast extends IntegratorMD implements En
 
             IAtomKinetic a = ((IAtomKinetic) atoms.get(i));
             a.getVelocity().PEa1Tv1(0.5 * timeStep * this.types[this.atomTypes[i]].rm(), forces[i]);
-            if (i == 0) {
-                System.out.println("Force: " + forces[i] + " vel: " + a.getVelocity());
-            }
+//            if (i == 0) {
+//                System.out.println("Force: " + forces[i] + " vel: " + a.getVelocity());
+//            }
         }
-        System.out.println(getEnergy());
+//        System.out.println(getEnergy());
 //        if (stepCount == 10) {
 //            System.exit(1);
 //        }
