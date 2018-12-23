@@ -5,6 +5,7 @@ struct vecSys {
 };
 
 void computeForces(double *xs, double *ys, double *zs, double *fxs, double *fys, double *fzs, int n, double boxSize);
+void computeForcesSimd(double *xs, double *ys, double *zs, double *fxs, double *fys, double *fzs, int n, double boxSize);
 
 extern "C" double computeEnergy(double *xs, double *ys, double *zs, int n, double boxSize);
 

@@ -34,7 +34,6 @@ public class DataPump extends DataProcessor implements IAction {
 	 */
 	public void actionPerformed() {
         IData data = dataSource.getData();
-        System.out.println(data.getValue(0));
         if (dataSourceInfo != dataSource.getDataInfo()) {
             dataSourceInfo = dataSource.getDataInfo();
             if (dataSink != null) {

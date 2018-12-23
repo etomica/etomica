@@ -24,21 +24,23 @@ public class BenchSimLJMD3DFast {
 
     private Integrator integrator;
 
-    @Param({"vecsys2", "objects", "vecsys1", "baseline"})
+    @Param({"native", "objects", "vecsys1", "baseline"})
     private String type;
+
+    @Param({"4000"})
+    private int nAtoms;
 
     public static void main(String[] args) throws RunnerException {
 
         Options opts = new OptionsBuilder()
                 .include(BenchSimLJMD3DFast.class.getSimpleName())
-                .addProfiler(GCProfiler.class)
+//                .addProfiler(GCProfiler.class)
 //                .addProfiler(LinuxPerfAsmProfiler.class)
                 .jvmArgsPrepend(
-                        "--add-modules=jdk.incubator.vector",
-                        "-XX:+UseVectorApiIntrinsics",
-                        "-Djdk.incubator.vector.VECTOR_ACCESS_OOB_CHECK=0",
-                        "-XX:CompileCommand=inline,etomica.experimental.IVVSimd::duVec",
-                        "-XX:CompileCommand=inline,etomica.experimental.IVVSimd::nearestImage"
+                        "--add-modules=jdk.incubator.vector"
+//                        "-Djdk.incubator.vector.VECTOR_ACCESS_OOB_CHECK=0",
+//                        "-XX:CompileCommand=inline,etomica.experimental.IVVSimd::duVec",
+//                        "-XX:CompileCommand=inline,etomica.experimental.IVVSimd::nearestImage"
 //                        "-XX:+UnlockDiagnosticVMOptions"
 //                        "-XX:+PrintAssembly",
 //                        "-XX:CompileCommand=print etomica.experimental.VectorSystem3D::sub"
@@ -51,7 +53,8 @@ public class BenchSimLJMD3DFast {
 
     @Setup(Level.Iteration)
     public void setUp() {
-        LJMD3DVecSys sim = new LJMD3DVecSys(type);
+        java.foreign.Scope sc = java.foreign.Scope.newNativeScope();
+        LJMD3DVecSys sim = new LJMD3DVecSys(type, sc, nAtoms);
         integrator = sim.integrator;
         integrator.reset();
     }

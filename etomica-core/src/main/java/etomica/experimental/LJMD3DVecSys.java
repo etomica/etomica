@@ -43,7 +43,7 @@ public class LJMD3DVecSys extends Simulation {
     public AccumulatorAverageCollapsing avgEnergy;
     public DataPump pump;
 
-    public LJMD3DVecSys(String type, Scope scope) {
+    public LJMD3DVecSys(String type, Scope scope, int nAtoms) {
         super(Space3D.getInstance());
         this.setRandom(new RandomMersenneTwister(1234));
         System.out.println("Using " + type);
@@ -54,7 +54,7 @@ public class LJMD3DVecSys extends Simulation {
 
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         box = this.makeBox();
-        box.setNMolecules(species, 12000);
+        box.setNMolecules(species, nAtoms);
 //        ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
 
         BoxInflate inflater = new BoxInflate(box, space);
@@ -103,7 +103,9 @@ public class LJMD3DVecSys extends Simulation {
 
     public static void main(String[] args) {
         try (Scope sc = Scope.newNativeScope()) {
-            LJMD3DVecSys sim = new LJMD3DVecSys("vecsys1", sc);
+            LJMD3DVecSys sim = new LJMD3DVecSys("baseline", sc, 4000);
+//            LJMD3DVecSys sim = new LJMD3DVecSys("objects", sc);
+//            LJMD3DVecSys sim = new LJMD3DVecSys("vecsys1", sc);
             ActionIntegrate ai = new ActionIntegrate(sim.integrator);
             ai.setMaxSteps(100);
             sim.getController().addAction(ai);

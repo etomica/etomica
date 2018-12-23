@@ -2,6 +2,8 @@
 #include <cstdio>
 #include <cstring>
 #include <immintrin.h>
+#include <iostream>
+#include <iomanip>
 
 double du(double r2) {
     double s2 = 1.0 / r2;
@@ -63,12 +65,28 @@ extern "C" void computeForces(double *xs, double *ys, double *zs, double *fxs, d
     }
 }
 
+void printVec(const __m256d &vec) {
+    double buf[4];
+    _mm256_storeu_pd(buf, vec);
+    printf("(%f %f %f %f)\n", buf[0], buf[1], buf[2], buf[3]);
+}
+
+void printVecHex(const __m256d &vec) {
+    double buf[4];
+    _mm256_storeu_pd(buf, vec);
+    std::cout << std::hex;
+    for(int i = 0; i < 4; i++) {
+        std::cout << *reinterpret_cast<uint64_t*>(&buf[i]) << " ";
+    }
+    std::cout << std::endl;
+}
+
 __m256d nearestImageVec(__m256d dists, double dimComponent) {
     double half = dimComponent / 2;
-    auto dMut = dists;
-    auto vecDim = _mm256_set1_pd(dimComponent);
-    auto vecHalf = _mm256_set1_pd(half);
-    auto mask = _mm256_cmp_pd(dMut, vecHalf, _CMP_GT_OQ);
+    __m256d dMut = dists;
+    __m256d vecDim = _mm256_set1_pd(dimComponent);
+    __m256d vecHalf = _mm256_set1_pd(half);
+    __m256d mask = _mm256_cmp_pd(dMut, vecHalf, _CMP_GT_OQ);
 
     //todo: while loop
     dMut = _mm256_blendv_pd(dMut, _mm256_sub_pd(dMut, vecDim), mask);
@@ -81,9 +99,9 @@ __m256d nearestImageVec(__m256d dists, double dimComponent) {
 }
 
 __m256d duVec(__m256d r2s) {
-    auto s2 = _mm256_div_pd(_mm256_set1_pd(1.0), r2s);
-    auto s6 = _mm256_mul_pd(_mm256_mul_pd(s2, s2), s2);
-    auto du = _mm256_mul_pd(
+    __m256d s2 = _mm256_div_pd(_mm256_set1_pd(1.0), r2s);
+    __m256d s6 = _mm256_mul_pd(_mm256_mul_pd(s2, s2), s2);
+    __m256d du = _mm256_mul_pd(
         _mm256_mul_pd(_mm256_set1_pd(-48.0), s6),
         _mm256_sub_pd(s6, _mm256_set1_pd(0.5)));
 
@@ -99,41 +117,108 @@ extern "C" void computeForcesSimd(double *xs, double *ys, double *zs, double *fx
     memset(fzs, 0, n * sizeof(double));
 
     for(int i = 0; i < n; i++) {
-        int j = i + i;
+        int j = i + 1;
         int nbrCount = 0;
         int nbrSize = n - j;
         int vectorizedSize = nbrSize & (-4);
 
-        __m256d ix = _mm256_loadu_pd(xs + i);
-        __m256d iy = _mm256_loadu_pd(ys + i);
-        __m256d iz = _mm256_loadu_pd(zs + i);
+        __m256d ix = _mm256_broadcast_sd(xs + i);
+        __m256d iy = _mm256_broadcast_sd(ys + i);
+        __m256d iz = _mm256_broadcast_sd(zs + i);
 
         for(; nbrCount < vectorizedSize; j += 4, nbrCount += 4) {
-            __m256d dx = _mm256_sub_pd(_mm256_loadu_pd(xs + j), ix);
-            __m256d dy = _mm256_sub_pd(_mm256_loadu_pd(ys + j), iy);
-            __m256d dz = _mm256_sub_pd(_mm256_loadu_pd(zs + j), iz);
+            __m256d jx = _mm256_loadu_pd(xs + j);
+            __m256d jy = _mm256_loadu_pd(ys + j);
+            __m256d jz = _mm256_loadu_pd(zs + j);
+
+            __m256d dx = _mm256_sub_pd(jx, ix);
+            __m256d dy = _mm256_sub_pd(jy, iy);
+            __m256d dz = _mm256_sub_pd(jz, iz);
+            // if (i == 0 && j == 21)
+            // {
+            //     printVec(dz);
+            // }
 
             dx = nearestImageVec(dx, boxSize);
             dy = nearestImageVec(dy, boxSize);
             dz = nearestImageVec(dz, boxSize);
+            // if (i == 0 && j == 21)
+            // {
+            //     printVec(dz);
+            // }
 
             __m256d x2 = _mm256_mul_pd(dx, dx);
             __m256d y2 = _mm256_mul_pd(dy, dy);
             __m256d z2 = _mm256_mul_pd(dz, dz);
 
             __m256d r2s = _mm256_add_pd(x2, _mm256_add_pd(y2, z2));
-            __m256d cutoffMask = _mm256_cmp_pd(r2s, _mm256_set1_pd(9.0), _CMP_GE_OQ);
-            if(_mm256_movemask_pd(cutoffMask) == 0xff) {
+            // if (i == 0 && j == 21)
+            // {
+            //     printVec(r2s);
+            // }
+            __m256d cutoffMask = _mm256_cmp_pd(r2s, _mm256_set1_pd(9.0), _CMP_GE_OS);
+            // if (i == 0 && j == 21)
+            // {
+            //     printf("mask: ");
+            //     printVecHex(cutoffMask);
+            //     std::cout << std::hex << std::setfill('0') << std::setw(4) << _mm256_movemask_pd(cutoffMask) << std::endl;
+            //     // printf("int: %d", _mm256_movemask_pd(cutoffMask));
+            // }
+
+            if(_mm256_movemask_pd(cutoffMask) == 0xF) {
                 continue;
             }
 
             __m256d dus = duVec(r2s);
+            // if (i == 0 && j == 21)
+            // {
+            //     printVec(dus);
+            // }
             __m256d tmp = _mm256_div_pd(dus, r2s);
             dx = _mm256_mul_pd(dx, tmp);
             dy = _mm256_mul_pd(dy, tmp);
             dz = _mm256_mul_pd(dz, tmp);
 
             // ...
+
+            double iForces[4];
+            _mm256_storeu_pd(iForces, dx);
+            fxs[i] += iForces[0] + iForces[1] + iForces[2] + iForces[3];
+            _mm256_storeu_pd(iForces, dy);
+            fys[i] += iForces[0] + iForces[1] + iForces[2] + iForces[3];
+            _mm256_storeu_pd(iForces, dz);
+            fzs[i] += iForces[0] + iForces[1] + iForces[2] + iForces[3];
+
+
+            _mm256_storeu_pd(fxs + j, _mm256_sub_pd(_mm256_loadu_pd(fxs + j), dx));
+            _mm256_storeu_pd(fys + j, _mm256_sub_pd(_mm256_loadu_pd(fys + j), dy));
+            _mm256_storeu_pd(fzs + j, _mm256_sub_pd(_mm256_loadu_pd(fzs + j), dz));
+        }
+
+        for (; nbrCount < nbrSize; j++, nbrCount++) {
+            double dx = xs[j] - xs[i];
+            double dy = ys[j] - ys[i];
+            double dz = zs[j] - zs[i];
+
+            dx = nearestImage(dx, boxSize);
+            dy = nearestImage(dy, boxSize);
+            dz = nearestImage(dz, boxSize);
+
+            double r2 = dx * dx + dy * dy + dz * dz;
+            if (r2 > 3 * 3) { continue; }
+
+            double div = du(r2) / r2;
+            dx *= div;
+            dy *= div;
+            dz *= div;
+            
+            fxs[i] += dx;
+            fys[i] += dy;
+            fzs[i] += dz;
+            
+            fxs[j] -= dx;
+            fys[j] -= dy;
+            fzs[j] -= dz;
         }
     }
 
@@ -188,4 +273,12 @@ extern "C" void updatePostForces(double *vxs, double *vys, double *vzs,
         vys[i] += 0.5 * rm * timeStep * fys[i];
         vzs[i] += 0.5 * rm * timeStep * fzs[i];
     }
+}
+
+int main(int argc, char const *argv[])
+{
+    __m256d mask = _mm256_cmp_pd(_mm256_set_pd(1, 9, 3, 4), _mm256_set1_pd(2), _CMP_GT_OQ);
+    printVec(mask);
+    std::cout << std::hex << std::setfill('0') << std::setw(4) << _mm256_movemask_pd(mask) << std::endl;
+    return 0;
 }

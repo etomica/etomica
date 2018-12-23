@@ -110,7 +110,12 @@ public class ComputeForcesForeign extends IntegratorMD implements EnergyMeter {
     }
 
     private void computeForcesJava() {
-        cf.computeForces(
+//        cf.computeForces(
+//                xs.elementPointer(), ys.elementPointer(), zs.elementPointer(),
+//                fxs.elementPointer(), fys.elementPointer(), fzs.elementPointer(),
+//                this.box.getLeafList().size(), this.box.getBoundary().getBoxSize().getX(0));
+
+        cf.computeForcesSimd(
                 xs.elementPointer(), ys.elementPointer(), zs.elementPointer(),
                 fxs.elementPointer(), fys.elementPointer(), fzs.elementPointer(),
                 this.box.getLeafList().size(), this.box.getBoundary().getBoxSize().getX(0));
