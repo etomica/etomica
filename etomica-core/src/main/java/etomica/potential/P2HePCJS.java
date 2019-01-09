@@ -575,7 +575,9 @@ public class P2HePCJS extends Potential2SoftSpherical {
     public static void main(String[] args){
         Space space = Space3D.getInstance();
         final P2HePCJS pnew = new P2HePCJS(space);
+        final P2HePCJS pnewp = new P2HePCJS(space, 1);
         final P2HePCKLJS pold = new P2HePCKLJS(space);
+        final P2HePCKLJS poldp = new P2HePCKLJS(space, 1);
         //double V1 = p.V(5.6,false);
         double tempK = 300; // Kelvin
         double beta = 1/Kelvin.UNIT.toSim(tempK);
@@ -585,6 +587,16 @@ public class P2HePCJS extends Potential2SoftSpherical {
             double uratio = unew/uold;
             double f = Math.exp(-unew*beta) - 1;
             System.out.println(r+" "+" "+f);
+        }
+
+        System.out.println("\nerror");
+        for (double r = 0.5; r < 10.0001; r += 0.1) {
+            double unew = pnew.u(r * r);
+            double unewp = pnewp.u(r * r);
+            double uold = pold.u(r * r);
+            double uoldp = poldp.u(r * r);
+            if (uold == Double.POSITIVE_INFINITY || unew == Double.POSITIVE_INFINITY) continue;
+            System.out.println(r + " " + unew + " " + (unewp - unew) + " " + (uoldp - uold) + " " + (uold - unew));
         }
         //double V2 = p.V(0.0,true);
         //double dampTT = p.dampTT(16,11.941151488133176);
