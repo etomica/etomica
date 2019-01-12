@@ -41,6 +41,10 @@ public interface ISpecies {
      */
     IMolecule makeMolecule();
 
+    default int getLeafAtomCount() {
+        return makeMolecule().getChildList().size();
+    }
+
     /**
      * Returns the number of child types of this group.
      */

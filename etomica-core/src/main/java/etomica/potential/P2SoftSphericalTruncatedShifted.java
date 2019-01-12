@@ -40,6 +40,12 @@ public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
         return (r2 < r2Cutoff) ? (potential.u(r2) - shift) : 0.0;
     }
 
+    public void udu(double r2, double[] u, double[] du) {
+        if (r2 > r2Cutoff) return;
+        potential.udu(r2, u, du);
+        u[0] -= shift;
+    }
+
     /**
      * Mutator method for the radial cutoff distance.
      */
