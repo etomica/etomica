@@ -70,15 +70,21 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
         onlyUpNbrs = !doDown;
     }
 
-    protected int checkNbrPair(int iAtom, int jAtom, Vector ri, Vector rj, double rc2, Vector jbo) {
+    private int checkNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, double rc2, Vector jbo, Potential2Soft[] iPotentials) {
+        if (iPotentials[jAtom.getType().getIndex()] == null) return 0;
+
+        if (skipBondedPair(this.isPureAtoms, iAtom, jAtom, this.bondedAtoms)) return 0;
+
+        Vector ri = iAtom.getPosition();
+        Vector rj = jAtom.getPosition();
         dr.Ev1Mv2(rj, ri);
         dr.PE(jbo);
         double r2 = dr.squared();
         if (r2 > rc2) return 0;
-        if (numAtomNbrsUp[iAtom] >= maxNab) return 1;
-        nbrs[iAtom][numAtomNbrsUp[iAtom]] = jAtom;
-        nbrBoxOffsets[iAtom][numAtomNbrsUp[iAtom]] = jbo;
-        numAtomNbrsUp[iAtom]++;
+        if (numAtomNbrsUp[i] >= maxNab) return 1;
+        nbrs[i][numAtomNbrsUp[i]] = j;
+        nbrBoxOffsets[i][numAtomNbrsUp[i]] = jbo;
+        numAtomNbrsUp[i]++;
         return 0;
     }
 
@@ -146,18 +152,13 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
             int tooMuch = 0;
             for (int i = 0; i < boxNumAtoms; i++) {
                 IAtom iAtom = atoms.get(i);
-                Vector ri = iAtom.getPosition();
                 int j = i;
                 int iCell = atomCell[i];
                 Vector jbo = boxOffsets[iCell];
                 Potential2Soft[] iPotentials = pairPotentials[iAtom.getType().getIndex()];
                 while ((j = cellNextAtom[j]) > -1) {
                     IAtom jAtom = atoms.get(j);
-                    int jType = jAtom.getType().getIndex();
-                    Potential2Soft pij = iPotentials[jType];
-                    if (pij == null) continue;
-                    Vector rj = jAtom.getPosition();
-                    tooMuch += checkNbrPair(i, j, ri, rj, rc2, jbo);
+                    tooMuch += checkNbrPair(i, j, iAtom, jAtom, rc2, jbo, iPotentials);
                 }
                 for (int cellOffset : cellOffsets) {
                     int jCell = iCell + cellOffset;
@@ -165,11 +166,7 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
                     jCell = wrapMap[jCell];
                     for (j = cellLastAtom[jCell]; j > -1; j = cellNextAtom[j]) {
                         IAtom jAtom = atoms.get(j);
-                        int jType = jAtom.getType().getIndex();
-                        Potential2Soft pij = iPotentials[jType];
-                        if (pij == null) continue;
-                        Vector rj = jAtom.getPosition();
-                        tooMuch += checkNbrPair(i, j, ri, rj, rc2, jbo);
+                        tooMuch += checkNbrPair(i, j, iAtom, jAtom, rc2, jbo, iPotentials);
                     }
                 }
                 if (tooMuch > 0) {
@@ -254,6 +251,10 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
                 Vector jbo = iNbrBoxOffsets[j];
                 uTot += handleComputeAll(doForces, i, jj, ri, rj, jbo, pij);
             }
+        }
+
+        if (!isPureAtoms) {
+            uTot += this.computeAllBonds(doForces);
         }
         return uTot;
     }

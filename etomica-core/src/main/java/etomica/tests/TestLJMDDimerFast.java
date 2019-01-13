@@ -25,6 +25,8 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntegratorVelocityVerletFasterer;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.nbr.cell.PotentialMasterCellFasterer;
+import etomica.nbr.list.PotentialMasterListFasterer;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
@@ -52,7 +54,7 @@ public class TestLJMDDimerFast extends Simulation {
     public DataPump pump;
 
 
-    public TestLJMDDimerFast(int moleculeSize, int totalAtoms) {
+    public TestLJMDDimerFast(int moleculeSize, int totalAtoms, boolean nbrListing) {
         super(Space3D.getInstance());
 
         species = new SpeciesSpheres(this, space, moleculeSize);
@@ -62,17 +64,17 @@ public class TestLJMDDimerFast extends Simulation {
 
         double sigma = 1.0;
         box = this.makeBox();
-        PotentialMasterFasterer potentialMaster = new PotentialMasterFasterer(this, box);
+        PotentialMasterFasterer potentialMaster = nbrListing ? new PotentialMasterListFasterer(this, box, 2, 4) : new PotentialMasterFasterer(this, box);
         integrator = new IntegratorVelocityVerletFasterer(this, potentialMaster, box);
         integrator.setTimeStep(0.005);
         integrator.setTemperature(2);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(0);
-        activityIntegrate.setMaxSteps(1000);
+//        activityIntegrate.setMaxSteps(1000);
         getController().addAction(activityIntegrate);
         box.setNMolecules(species, totalAtoms / moleculeSize);
-        new BoxInflate(box, space, 0.01).actionPerformed();
+        new BoxInflate(box, space, 0.5).actionPerformed();
         System.out.println("box size: "+box.getBoundary().getBoxSize());
 
         potential = new P2LennardJones(space, sigma, 1.0);
@@ -91,6 +93,10 @@ public class TestLJMDDimerFast extends Simulation {
         imposepbc.setBox(box);
         integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
 
+        if (nbrListing) {
+            integrator.getEventManager().addListener(((PotentialMasterListFasterer) potentialMaster));
+        }
+
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
         integrator.reset();
@@ -106,7 +112,7 @@ public class TestLJMDDimerFast extends Simulation {
 
     public static void main(String[] args) {
         final String APP_NAME = "LJMDDimer";
-        final TestLJMDDimerFast sim = new TestLJMDDimerFast(16, 512);
+        final TestLJMDDimerFast sim = new TestLJMDDimerFast(2, 512, true);
 //        long t0 = System.nanoTime();
 //        sim.getController().actionPerformed();
 //        long t1 = System.nanoTime();

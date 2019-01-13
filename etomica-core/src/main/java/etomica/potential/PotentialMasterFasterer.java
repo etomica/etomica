@@ -171,17 +171,15 @@ public class PotentialMasterFasterer {
         return uij;
     }
 
-    public static boolean skipBondedPair(boolean isPureAtoms, IAtom iAtom, IAtom jAtom, int[][][] bondedAtoms) {
+    protected static boolean skipBondedPair(boolean isPureAtoms, IAtom iAtom, IAtom jAtom, int[][][] bondedAtoms) {
         if (!isPureAtoms && iAtom.getParentGroup() == jAtom.getParentGroup()) {
             int species = iAtom.getParentGroup().getType().getIndex();
             int iChildIndex = iAtom.getIndex();
             int jChildIndex = jAtom.getIndex();
             int[] iBondedAtoms = bondedAtoms[species][iChildIndex];
-            boolean skip = false;
             for (int iBondedAtom : iBondedAtoms) {
-                if (iBondedAtom == jChildIndex) skip = true;
+                if (iBondedAtom == jChildIndex) return true;
             }
-            return skip;
         }
         return false;
     }

@@ -10,10 +10,12 @@ import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
+import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.AtomIteratorBasisDependent;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
+import etomica.config.ConformationChainLinear;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
@@ -24,13 +26,17 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
+import etomica.units.Degree;
 
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.zip.Inflater;
 
 /**
@@ -48,15 +54,15 @@ public class TestLJMDDimer extends Simulation {
     public DataPump pump;
 
 
-    public TestLJMDDimer() {
+    public TestLJMDDimer(int moleculeSize, int totalAtoms, boolean nbrListing) {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheres(this, space, 2);
-        species.setConformation(new ConformationLinear(space, 0.5));
+        species = new SpeciesSpheres(this, space, moleculeSize);
+        species.setConformation(new ConformationChainLinear(space, 0.5, new double[]{Degree.UNIT.toSim(45), Degree.UNIT.toSim(45), 0}));
         species.setIsDynamic(true);
         addSpecies(species);
 
-        PotentialMaster potentialMaster = new PotentialMaster();
+        PotentialMaster potentialMaster = nbrListing ? new PotentialMasterList(this, this.getSpace()) : new PotentialMaster();
         double sigma = 1.0;
         box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
@@ -65,9 +71,9 @@ public class TestLJMDDimer extends Simulation {
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(0);
-        activityIntegrate.setMaxSteps(1000);
+//        activityIntegrate.setMaxSteps(1000);
         getController().addAction(activityIntegrate);
-        box.setNMolecules(species, 512);
+        box.setNMolecules(species, totalAtoms / moleculeSize);
         new BoxInflate(box, space, 0.5).actionPerformed();
         System.out.println("box size: "+box.getBoundary().getBoxSize());
 
@@ -77,8 +83,12 @@ public class TestLJMDDimer extends Simulation {
         potentialMaster.addPotential(p2, new AtomType[]{leafType, leafType});
 
         P2Harmonic pBond = new P2Harmonic(space, 100, 0.51);
-        PotentialGroup p1 = new PotentialGroup(1, space);
-        ApiIndexList bondIterator = new ApiIndexList(new int[][]{{0,1}});
+        PotentialGroup p1 = potentialMaster.makePotentialGroup(1);
+
+        int[][] bonds = IntStream.range(0, moleculeSize - 1)
+                .mapToObj(i -> new int[]{i, i+1})
+                .collect(Collectors.toList()).toArray(new int[][]{});
+        ApiIndexList bondIterator = new ApiIndexList(bonds);
         p1.addPotential(pBond, bondIterator);
         potentialMaster.addPotential(p1, new ISpecies[]{species});
 
@@ -100,21 +110,21 @@ public class TestLJMDDimer extends Simulation {
 
     public static void main(String[] args) {
         final String APP_NAME = "LJMDDimer";
-        final TestLJMDDimer sim = new TestLJMDDimer();
-        long t0 = System.nanoTime();
-        sim.getController().actionPerformed();
-        long t1 = System.nanoTime();
-        System.out.println((t1 - t0) / 1e6);
-//        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
-//
-//        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-//        simGraphic.getController().getDataStreamPumps().add(sim.pump);
-//        simGraphic.getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandomByMolecule(sim, sim.box, sim.getRandom()));
-//
-//        simGraphic.makeAndDisplayFrame(APP_NAME);
-//
-//        DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
-//        display.setAccumulator(sim.avgEnergy);
-//        simGraphic.add(display);
+        final TestLJMDDimer sim = new TestLJMDDimer(2, 512, true);
+//        long t0 = System.nanoTime();
+//        sim.getController().actionPerformed();
+//        long t1 = System.nanoTime();
+//        System.out.println((t1 - t0) / 1e6);
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
+
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+        simGraphic.getController().getDataStreamPumps().add(sim.pump);
+        simGraphic.getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandomByMolecule(sim, sim.box, sim.getRandom()));
+
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+
+        DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
+        display.setAccumulator(sim.avgEnergy);
+        simGraphic.add(display);
     }
 }
