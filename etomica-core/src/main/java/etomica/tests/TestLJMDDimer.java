@@ -26,6 +26,9 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.nbr.CriterionAll;
+import etomica.nbr.CriterionBondedSimple;
+import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
@@ -92,6 +95,12 @@ public class TestLJMDDimer extends Simulation {
         p1.addPotential(pBond, bondIterator);
         potentialMaster.addPotential(p1, new ISpecies[]{species});
 
+        if (nbrListing) {
+            CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
+            nonBondedCriterion.setBonded(false);
+            ((CriterionInterMolecular) ((PotentialMasterList) potentialMaster).getCriterion(leafType, leafType)).setIntraMolecularCriterion(nonBondedCriterion);
+        }
+
         BoxImposePbc imposepbc = new BoxImposePbc(space);
         imposepbc.setBox(box);
         integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
@@ -102,6 +111,9 @@ public class TestLJMDDimer extends Simulation {
 
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
+        if (nbrListing) {
+            ((PotentialMasterList) potentialMaster).reset();
+        }
         energy = new MeterPotentialEnergy(potentialMaster, box);
         System.out.println("u0: "+energy.getDataAsScalar());
         avgEnergy = new AccumulatorAverageCollapsing();
