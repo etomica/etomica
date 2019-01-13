@@ -173,6 +173,12 @@ public class PotentialMasterFasterer {
 
     protected static boolean skipBondedPair(boolean isPureAtoms, IAtom iAtom, IAtom jAtom, int[][][] bondedAtoms) {
         if (!isPureAtoms && iAtom.getParentGroup() == jAtom.getParentGroup()) {
+            // ensure i < j
+            if (iAtom.getLeafIndex() > jAtom.getLeafIndex()) {
+                IAtom tmp = iAtom;
+                iAtom = jAtom;
+                jAtom = tmp;
+            }
             int species = iAtom.getParentGroup().getType().getIndex();
             int iChildIndex = iAtom.getIndex();
             int jChildIndex = jAtom.getIndex();
