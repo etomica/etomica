@@ -12,6 +12,7 @@ import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
+import etomica.config.ConformationChainLinear;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
@@ -29,9 +30,12 @@ import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
+import etomica.units.Degree;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -48,11 +52,11 @@ public class TestLJMDDimerFast extends Simulation {
     public DataPump pump;
 
 
-    public TestLJMDDimerFast() {
+    public TestLJMDDimerFast(int moleculeSize, int totalAtoms) {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheres(this, space, 2);
-        species.setConformation(new ConformationLinear(space, 0.5));
+        species = new SpeciesSpheres(this, space, moleculeSize);
+        species.setConformation(new ConformationChainLinear(space, 0.5, new double[]{Degree.UNIT.toSim(45), Degree.UNIT.toSim(45), 0}));
         species.setIsDynamic(true);
         addSpecies(species);
 
@@ -67,8 +71,8 @@ public class TestLJMDDimerFast extends Simulation {
         activityIntegrate.setSleepPeriod(0);
         activityIntegrate.setMaxSteps(1000);
         getController().addAction(activityIntegrate);
-        box.setNMolecules(species, 512);
-        new BoxInflate(box, space, 0.5).actionPerformed();
+        box.setNMolecules(species, totalAtoms / moleculeSize);
+        new BoxInflate(box, space, 0.01).actionPerformed();
         System.out.println("box size: "+box.getBoundary().getBoxSize());
 
         potential = new P2LennardJones(space, sigma, 1.0);
@@ -77,8 +81,10 @@ public class TestLJMDDimerFast extends Simulation {
         potentialMaster.setPairPotential(leafType, leafType, p2);
 
         P2Harmonic pBond = new P2Harmonic(space, 100, 0.51);
-        List<int[]> bonds = new ArrayList<>();
-        bonds.add(new int[]{0, 1});
+        List<int[]> bonds = IntStream.range(0, moleculeSize - 1)
+                .mapToObj(i -> new int[]{i, i+1})
+                .collect(Collectors.toList());
+
         potentialMaster.setBondingPotential(species, pBond, bonds);
 
         BoxImposePbc imposepbc = new BoxImposePbc(space);
@@ -100,21 +106,21 @@ public class TestLJMDDimerFast extends Simulation {
 
     public static void main(String[] args) {
         final String APP_NAME = "LJMDDimer";
-        final TestLJMDDimerFast sim = new TestLJMDDimerFast();
-        long t0 = System.nanoTime();
-        sim.getController().actionPerformed();
-        long t1 = System.nanoTime();
-        System.out.println((t1 - t0) / 1e6);
-//        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
-//
-//        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-//        simGraphic.getController().getDataStreamPumps().add(sim.pump);
-//        simGraphic.getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandomByMolecule(sim, sim.box, sim.getRandom()));
-//
-//        simGraphic.makeAndDisplayFrame(APP_NAME);
-//
-//        DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
-//        display.setAccumulator(sim.avgEnergy);
-//        simGraphic.add(display);
+        final TestLJMDDimerFast sim = new TestLJMDDimerFast(16, 512);
+//        long t0 = System.nanoTime();
+//        sim.getController().actionPerformed();
+//        long t1 = System.nanoTime();
+//        System.out.println((t1 - t0) / 1e6);
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
+
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+        simGraphic.getController().getDataStreamPumps().add(sim.pump);
+        simGraphic.getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandomByMolecule(sim, sim.box, sim.getRandom()));
+
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+
+        DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
+        display.setAccumulator(sim.avgEnergy);
+        simGraphic.add(display);
     }
 }
