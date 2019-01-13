@@ -4,11 +4,6 @@
 
 package etomica.simulation;
 
-import etomica.config.Configuration;
-import etomica.config.ConfigurationResourceFile;
-import etomica.potential.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterFasterer;
 import etomica.tests.*;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.profile.StackProfiler;
@@ -23,18 +18,23 @@ import java.util.concurrent.TimeUnit;
 @Fork(1)
 public class BenchSimLJMDDimer {
 
+    @Param({"true", "false"})
+    private boolean doNbr;
+
     @Param({"512"})
     private int totalAtoms;
 
     @Param({"2", "4", "8"})
     private int moleculeSize;
 
-    private TestLJMDDimerFast simFastBrute;
+    private TestLJMDDimerFast simFast;
+    private TestLJMDDimer simSlow;
 
 
     @Setup(Level.Iteration)
     public void setUp() {
-        simFastBrute = new TestLJMDDimerFast(moleculeSize, totalAtoms);
+        simFast = new TestLJMDDimerFast(moleculeSize, totalAtoms, doNbr);
+        simSlow = new TestLJMDDimer(moleculeSize, totalAtoms, doNbr);
 
     }
 
@@ -43,8 +43,17 @@ public class BenchSimLJMDDimer {
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
     @Measurement(time = 3, iterations = 5)
-    public void integratorStepFastBrute() {
-        simFastBrute.integrator.doStep();
+    public void integratorStepFast() {
+        simFast.integrator.doStep();
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    @Warmup(time = 1, iterations = 5)
+    @Measurement(time = 3, iterations = 5)
+    public void integratorStepSlow() {
+        simSlow.integrator.doStep();
     }
 
 
@@ -52,7 +61,7 @@ public class BenchSimLJMDDimer {
 
         Options opts = new OptionsBuilder()
                 .include(BenchSimLJMDDimer.class.getSimpleName())
-                .addProfiler(StackProfiler.class)
+//                .addProfiler(StackProfiler.class)
 //                .jvmArgs(
 //                        "-XX:+UnlockDiagnosticVMOptions",
 //                        "-XX:+PrintAssembly",

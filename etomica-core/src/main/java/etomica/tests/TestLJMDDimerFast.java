@@ -74,7 +74,7 @@ public class TestLJMDDimerFast extends Simulation {
 //        activityIntegrate.setMaxSteps(1000);
         getController().addAction(activityIntegrate);
         box.setNMolecules(species, totalAtoms / moleculeSize);
-        new BoxInflate(box, space, 0.5).actionPerformed();
+        new BoxInflate(box, space, 0.01).actionPerformed();
         System.out.println("box size: "+box.getBoundary().getBoxSize());
 
         potential = new P2LennardJones(space, sigma, 1.0);
@@ -112,7 +112,7 @@ public class TestLJMDDimerFast extends Simulation {
 
     public static void main(String[] args) {
         final String APP_NAME = "LJMDDimer";
-        final TestLJMDDimerFast sim = new TestLJMDDimerFast(2, 512, true);
+        final TestLJMDDimerFast sim = new TestLJMDDimerFast(4, 512, true);
 //        long t0 = System.nanoTime();
 //        sim.getController().actionPerformed();
 //        long t1 = System.nanoTime();
