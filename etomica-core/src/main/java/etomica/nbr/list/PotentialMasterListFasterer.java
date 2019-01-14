@@ -18,7 +18,6 @@ import java.util.Arrays;
 
 public class PotentialMasterListFasterer extends PotentialMasterCellFasterer implements IntegratorListener {
 
-    protected double maxRhoCut;
     protected double nbrRange;
     protected double safetyFac = 0.45;
     protected final double[] maxR2, maxR2Unsafe;
@@ -50,12 +49,11 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
             for (int j = 0; j < numAtomTypes; j++) {
                 if (pairPotentials[i][j] == null) continue;
                 double rc = pairPotentials[i][j].getRange();
-                if (maxRhoCut > rc) rc = maxRhoCut;
                 double maxDrUnsafe = (nbrRange - rc) * 0.5;
                 double x = maxDrUnsafe * maxDrUnsafe;
                 if (maxR2Unsafe[i] < x) continue;
                 maxR2Unsafe[i] = x;
-                double maxDr = maxDrUnsafe * (1 - safetyFac);
+                double maxDr = maxDrUnsafe / 0.5 * safetyFac;
                 maxR2[i] = maxDr * maxDr;
             }
         }
