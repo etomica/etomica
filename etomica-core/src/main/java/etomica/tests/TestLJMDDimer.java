@@ -4,19 +4,15 @@
 
 package etomica.tests;
 
-import etomica.action.ActionIntegrate;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
-import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
-import etomica.atom.iterator.AtomIteratorBasisDependent;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationChainLinear;
-import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -35,12 +31,10 @@ import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
-import etomica.species.SpeciesSpheresMono;
 import etomica.units.Degree;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.zip.Inflater;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -101,12 +95,13 @@ public class TestLJMDDimer extends Simulation {
             ((CriterionInterMolecular) ((PotentialMasterList) potentialMaster).getCriterion(leafType, leafType)).setIntraMolecularCriterion(nonBondedCriterion);
         }
 
-        BoxImposePbc imposepbc = new BoxImposePbc(space);
-        imposepbc.setBox(box);
-        integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
 
         if (nbrListing) {
             integrator.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box));
+        } else {
+            BoxImposePbc imposepbc = new BoxImposePbc(space);
+            imposepbc.setBox(box);
+            integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
         }
 
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
