@@ -327,6 +327,6 @@ public class HeisenbergPair extends Simulation {
         public double temperature = 2.7;// Kelvin
         public double interactionS = 1.3;
         public double dipoleMagnitude = 1.6;
-        public int steps = 50000;
+        public int steps = 1000;
     }
 }

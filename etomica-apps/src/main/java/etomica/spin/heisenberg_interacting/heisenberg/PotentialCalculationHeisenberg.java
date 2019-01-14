@@ -18,7 +18,7 @@ import static etomica.math.SpecialFunctions.besselI;
 public class PotentialCalculationHeisenberg implements PotentialCalculation {
     //public class PotentialCalculationHeisenberg {
     protected Vector ei, ej;
-    protected double AEEJ0, JEMUExIdeal, JEMUEyIdeal, JEEMJEJE, UEE, JEMUExSquare, JEMUEySquare, JEMUEx, JEMUEy, dipolex, dipoley, JEEMJEJExtrying, UEEnow, JEMUE, dipoleconv;
+    protected double AEEJ0, JEMUExIdeal, JEMUEyIdeal, JEMUEIdealSquare, JEEMJEJE, UEE, JEMUExSquare, JEMUEySquare, JEMUEx, JEMUEy, dipolex, dipoley, JEEMJEJExtrying, UEEnow, JEMUE, dipoleconv;
     protected final double mu, J, bt, bJ, bmu; //TODO should I add final here
     protected double[] Axc0, Axs0, dAxc0, dAxs0, Axc1, Axs1, dAxc1, dAxs1;
     protected double[] d2Axc0, d2Axs0, d3Axc0, d3Axs0, d2Axc1, d2Axs1;
@@ -633,7 +633,6 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
                 + vEx1 * (p11 * vEx1 + p12 * vEx2) + vEx2 * (p12 * vEx1 + p22 * vEx2)
                 - 2 * vEx1 * fxE1 - 2 * vEx2 * fxE2;
 
-
         UEE += -(vEEy1 * f1 + vEEy2 * f2 + vDotGradvy1 * f1 + vDotGradvy2 * f2)
                 + vEy1 * (p11 * vEy1 + p12 * vEy2) + vEy2 * (p12 * vEy1 + p22 * vEy2)
                 - 2 * vEy1 * fyE1 - 2 * vEy2 * fyE2;
@@ -657,11 +656,12 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
 //  System.out.println("theta1= " + t1 + " theta2= " + t2 + " dipolexmap= " + dxmap + " dipolexcon= " + dxcon + " JEMUExnow= " + JEMUExnow + " JEEMJEJExtrying=" + JEEMJEJExtrying + " UEEnow=" + UEEnow);
 //System.out.println("theta1= " + t1 + " theta2= " + t2 + " UEExnow= " + UEExnow + " UEEynow= " + UEEynow + " JEEMJEJExtrying=" + JEEMJEJExtrying + " p11=" + p11 + " p12=" + p12 + " p22=" + p22 + " JEMUExnow= " + JEMUExnow + " JEMUEynow= " + JEMUEynow + " psix111 " + psix111+ " psix222 " + psix222+ " psix112 " + psix112+ " psix221 " + psix221+ " d2Axs0 " + d2Axs0[5]+ " d3Axs0 " + d3Axs0[5]+ " d2Axc0 " + d2Axc0[5]+ " d3Axc0 " + d3Axc0[5]+ " dAxc0 " + dAxc0[5]+ " psix11 " + psix11+ " psix22 " + psix22+ " psix12 " + psix12);
 //        System.out.println("theta1= " + t1 + " theta2= " + t2 + "JEy=" + JEy + " UEEynow= " + UEEynow + " JEEMJEJEy=" + JEEMJEJEytrying + " p11=" + p11 + " p12=" + p12 + " p22=" + p22 + " JEMUExnow= " + JEMUExnow + " JEMUEynow= " + JEMUEynow + " psiy1 " + psiy1 + " psiy111 " + psiy111 + " psiy222 " + psiy222 + " psiy112 " + psiy112 + " psiy221 " + psiy221 + " psiy11 " + psiy11 + " psiy22 " + psiy22 + " psiy12 " + psiy12);
-        JEMUExIdeal += -bmu * (f1 * Math.sin(t1) + f2 * Math.sin(t2));
-        JEMUEyIdeal += bmu * (f1 * Math.cos(t1) + f2 * Math.cos(t2));
 
-
-
+//        JEMUExIdeal += -bmu * (f1 * Math.sin(t1) + f2 * Math.sin(t2));
+//        JEMUEyIdeal += bmu * (f1 * Math.cos(t1) + f2 * Math.cos(t2));
+//        testx = -bmu * (f1 * Math.sin(t1) + f2 * Math.sin(t2));
+//        testy = bmu * (f1 * Math.cos(t1) + f2 * Math.cos(t2));
+//        JEMUEIdealSquare = testx * testx + testy * testy;
 
         if (debug && false) {
             testx = -bmu * (f1 * Math.sin(t1) + f2 * Math.sin(t2));
@@ -677,6 +677,8 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
                 2 * p12 * Math.cos(t1 - t2));
 //        AEEJ0 += -2 * bmu2 + 4 * bJ * Math.sin((t1 - t2) / 2) * Math.sin((t1 - t2) / 2) * (
 //                bmu2 * Math.cos(t1 - t2) - bJ * bmu2 * Math.sin(t1 - t2) * Math.sin(t1 - t2)  );
+
+//        AEEJ0 += bmu2 * (-2 + p11 + p22 + (p12 + p21) * ei.dot(ej)) - JEMUEIdealSquare;
 
 
         if (debug && false) {
@@ -704,6 +706,7 @@ public class PotentialCalculationHeisenberg implements PotentialCalculation {
         JEMUExSquare = 0;
         JEMUEySquare = 0;
         AEEJ0 = 0;
+        JEMUEIdealSquare = 0;
     }
 
     public double getSumJEEMJEJE() {
