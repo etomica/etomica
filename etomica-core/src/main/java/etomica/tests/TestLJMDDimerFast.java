@@ -67,14 +67,14 @@ public class TestLJMDDimerFast extends Simulation {
         PotentialMasterFasterer potentialMaster = nbrListing ? new PotentialMasterListFasterer(this, box, 2, 4) : new PotentialMasterFasterer(this, box);
         integrator = new IntegratorVelocityVerletFasterer(this, potentialMaster, box);
         integrator.setTimeStep(0.005);
-        integrator.setTemperature(2);
+        integrator.setTemperature(moleculeSize);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(0);
 //        activityIntegrate.setMaxSteps(1000);
         getController().addAction(activityIntegrate);
         box.setNMolecules(species, totalAtoms / moleculeSize);
-        new BoxInflate(box, space, 0.01).actionPerformed();
+        new BoxInflate(box, space, 0.9 / moleculeSize).actionPerformed();
         System.out.println("box size: "+box.getBoundary().getBoxSize());
 
         potential = new P2LennardJones(space, sigma, 1.0);
@@ -89,12 +89,13 @@ public class TestLJMDDimerFast extends Simulation {
 
         potentialMaster.setBondingPotential(species, pBond, bonds);
 
-        BoxImposePbc imposepbc = new BoxImposePbc(space);
-        imposepbc.setBox(box);
-        integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
 
         if (nbrListing) {
             integrator.getEventManager().addListener(((PotentialMasterListFasterer) potentialMaster));
+        } else {
+            BoxImposePbc imposepbc = new BoxImposePbc(space);
+            imposepbc.setBox(box);
+            integrator.getEventManager().addListener(new IntegratorListenerAction(imposepbc));
         }
 
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);

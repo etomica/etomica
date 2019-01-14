@@ -64,14 +64,14 @@ public class TestLJMDDimer extends Simulation {
         box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.005);
-        integrator.setTemperature(2);
+        integrator.setTemperature(moleculeSize);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(0);
 //        activityIntegrate.setMaxSteps(1000);
         getController().addAction(activityIntegrate);
         box.setNMolecules(species, totalAtoms / moleculeSize);
-        new BoxInflate(box, space, 0.01).actionPerformed();
+        new BoxInflate(box, space, 0.9 / moleculeSize).actionPerformed();
         System.out.println("box size: "+box.getBoundary().getBoxSize());
 
         potential = new P2LennardJones(space, sigma, 1.0);

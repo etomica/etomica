@@ -24,7 +24,7 @@ public class BenchSimLJMDDimer {
     @Param({"512"})
     private int totalAtoms;
 
-    @Param({"2", "4", "8"})
+    @Param({"2", "4", "16"})
     private int moleculeSize;
 
     private TestLJMDDimerFast simFast;
