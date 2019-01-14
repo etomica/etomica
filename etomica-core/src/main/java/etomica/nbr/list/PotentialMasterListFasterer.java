@@ -138,6 +138,7 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
             }
             // forceReallocNbrs can be used to force reallocation when max # of nbrs is too small
             if (moreAtoms || forceReallocNbrs) {
+                maxNab *= 1.2;
                 if (maxNab == 0) maxNab = 5;
                 nbrs = new int[boxNumAtoms][maxNab];
                 nbrBoxOffsets = new Vector[boxNumAtoms][maxNab];
