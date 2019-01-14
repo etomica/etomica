@@ -205,32 +205,11 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
     }
 
     public double computeAll(boolean doForces) {
+        zeroArrays(doForces);
+
         double uTot = 0;
-        virialTot = 0;
         IAtomList atoms = box.getLeafList();
         int numAtoms = atoms.size();
-        if (numAtoms > uAtom.length) {
-            uAtom = new double[numAtoms];
-            duAtom = new double[numAtoms];
-            uAtomsChanged2 = new int[numAtoms];
-            if (doForces) {
-                int oldLength = forces.length;
-                forces = Arrays.copyOf(forces, numAtoms);
-                for (int i = oldLength; i < numAtoms; i++) forces[i] = box.getSpace().makeVector();
-            }
-        } else {
-            if (doForces) {
-                if (numAtoms > forces.length) {
-                    int oldLength = forces.length;
-                    forces = Arrays.copyOf(forces, numAtoms);
-                    for (int i = oldLength; i < numAtoms; i++) forces[i] = box.getSpace().makeVector();
-                }
-            }
-            for (int i = 0; i < numAtoms; i++) {
-                uAtom[i] = 0;
-                if (doForces) forces[i].E(0);
-            }
-        }
 
         for (int i = 0; i < numAtoms; i++) {
             IAtom iAtom = atoms.get(i);

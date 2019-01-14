@@ -56,23 +56,8 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
     }
 
     public double computeAll(boolean doForces) {
-        virialTot = 0;
-        int numAtoms = box.getLeafList().size();
-        if (numAtoms > uAtom.length) {
-            uAtom = new double[numAtoms];
-            duAtom = new double[numAtoms];
-            uAtomsChanged2 = new int[numAtoms];
-            if (doForces) {
-                int oldLength = forces.length;
-                forces = Arrays.copyOf(forces, numAtoms);
-                for (int i = oldLength; i < numAtoms; i++) forces[i] = box.getSpace().makeVector();
-            }
-        } else {
-            for (int i = 0; i < numAtoms; i++) uAtom[i] = 0;
-        }
-        if (doForces) {
-            for (int i = 0; i < numAtoms; i++) forces[i].E(0);
-        }
+        zeroArrays(doForces);
+
         IAtomList atoms = box.getLeafList();
         double uTot = 0;
         Vector[] boxOffsets = cellManager.getBoxOffsets();

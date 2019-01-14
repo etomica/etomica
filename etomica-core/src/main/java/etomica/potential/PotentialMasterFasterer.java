@@ -190,31 +190,29 @@ public class PotentialMasterFasterer {
         return false;
     }
 
-    public double computeAll(boolean doForces) {
+    protected final void zeroArrays(boolean doForces) {
         virialTot = 0;
+
         int numAtoms = box.getLeafList().size();
+        if (doForces && numAtoms > forces.length) {
+            int oldLength = forces.length;
+            forces = Arrays.copyOf(forces, numAtoms);
+            for (int i = oldLength; i < numAtoms; i++) forces[i] = box.getSpace().makeVector();
+        }
         if (numAtoms > uAtom.length) {
             uAtom = new double[numAtoms];
             duAtom = new double[numAtoms];
             uAtomsChanged2 = new int[numAtoms];
-            if (doForces) {
-                int oldLength = forces.length;
-                forces = Arrays.copyOf(forces, numAtoms);
-                for (int i = oldLength; i < numAtoms; i++) forces[i] = box.getSpace().makeVector();
-            }
-        } else {
-            if (doForces) {
-                if (numAtoms > forces.length) {
-                    int oldLength = forces.length;
-                    forces = Arrays.copyOf(forces, numAtoms);
-                    for (int i = oldLength; i < numAtoms; i++) forces[i] = box.getSpace().makeVector();
-                }
-            }
-            for (int i = 0; i < numAtoms; i++) {
-                uAtom[i] = 0;
-                if (doForces) forces[i].E(0);
-            }
         }
+        for (int i = 0; i < numAtoms; i++) {
+            uAtom[i] = 0;
+            if (doForces) forces[i].E(0);
+        }
+    }
+
+    public double computeAll(boolean doForces) {
+        zeroArrays(doForces);
+
         IAtomList atoms = box.getLeafList();
         double u = 0;
         Boundary boundary = box.getBoundary();
