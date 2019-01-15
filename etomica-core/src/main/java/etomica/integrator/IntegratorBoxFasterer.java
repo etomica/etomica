@@ -39,7 +39,7 @@ public abstract class IntegratorBoxFasterer extends Integrator {
         super();
         this.box = Objects.requireNonNull(box);
         this.space = box.getSpace();
-        this.potentialMaster = potentialMaster;
+        this.potentialMaster = Objects.requireNonNull(potentialMaster);
         setTemperature(temperature);
     }
 
@@ -58,15 +58,14 @@ public abstract class IntegratorBoxFasterer extends Integrator {
      */
     public void reset() {
         super.reset();
-        if (potentialMaster != null) {
-            currentPotentialEnergy = potentialMaster.computeAll(false);
-            if (currentPotentialEnergy == Double.POSITIVE_INFINITY) {
-                System.err.println("overlap in configuration for " + box + " when resetting integrator");
-                PotentialCalculationEnergySum.debug = true;
-                potentialMaster.computeAll(false);
-                PotentialCalculationEnergySum.debug = false;
-                throw new ConfigurationOverlapException(box);
-            }
+        potentialMaster.init();
+        currentPotentialEnergy = potentialMaster.computeAll(false);
+        if (currentPotentialEnergy == Double.POSITIVE_INFINITY) {
+            System.err.println("overlap in configuration for " + box + " when resetting integrator");
+            PotentialCalculationEnergySum.debug = true;
+            potentialMaster.computeAll(false);
+            PotentialCalculationEnergySum.debug = false;
+            throw new ConfigurationOverlapException(box);
         }
     }
 

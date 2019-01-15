@@ -30,7 +30,8 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
         return cellManager;
     }
 
-    public void setPairPotential(AtomType atomType1, AtomType atomType2, Potential2SoftSpherical p12) {
+    @Override
+    public void setPairPotential(AtomType atomType1, AtomType atomType2, Potential2Soft p12) {
         super.setPairPotential(atomType1, atomType2, p12);
         cellManager.setPotentialRange(getRange());
     }
@@ -78,6 +79,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 int jType = jAtom.getType().getIndex();
                 Potential2Soft pij = ip[jType];
                 if (pij == null) continue;
+                if (skipBondedPair(isPureAtoms, iAtom, jAtom, bondedAtoms)) continue;
                 uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij);
             }
             int iCell = atomCell[i];
@@ -90,9 +92,13 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                     int jType = jAtom.getType().getIndex();
                     Potential2Soft pij = ip[jType];
                     if (pij == null) continue;
+                    if (skipBondedPair(isPureAtoms, iAtom, jAtom, bondedAtoms)) continue;
                     uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij);
                 }
             }
+        }
+        if (!isPureAtoms) {
+            uTot += computeAllBonds(doForces);
         }
         return uTot;
     }
@@ -123,6 +129,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 int jType = jAtom.getType().getIndex();
                 Potential2Soft pij = ip[jType];
                 if (pij == null) continue;
+                if (skipBondedPair(isPureAtoms, iAtom, jAtom, bondedAtoms)) continue;
                 Vector rj = jAtom.getPosition();
                 u1 += handleComputeOne(pij, ri, rj, jbo, i, j);
             }
@@ -136,6 +143,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 int jType = jAtom.getType().getIndex();
                 Potential2Soft pij = ip[jType];
                 if (pij == null) continue;
+                if (skipBondedPair(isPureAtoms, iAtom, jAtom, bondedAtoms)) continue;
                 u1 += handleComputeOne(pij, ri, jAtom.getPosition(), jbo, i, j);
             }
 
@@ -148,8 +156,13 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 int jType = jAtom.getType().getIndex();
                 Potential2Soft pij = ip[jType];
                 if (pij == null) continue;
+                if (skipBondedPair(isPureAtoms, iAtom, jAtom, bondedAtoms)) continue;
                 u1 += handleComputeOne(pij, ri, jAtom.getPosition(), jbo, i, j);
             }
+        }
+
+        if (!isPureAtoms && !isOnlyRigidMolecules) {
+            u1 += computeOneBonded(iAtom);
         }
         return u1;
     }

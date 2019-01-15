@@ -77,7 +77,6 @@ public class IntegratorVelocityVerletFasterer extends IntegratorMDFasterer {
     }
 
     public void reset() {
-        potentialMaster.init();
         super.reset();
 
         if (Debug.ON && Debug.DEBUG_NOW) {
