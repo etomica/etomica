@@ -14,7 +14,6 @@ import etomica.spaceNd.TensorND;
  */
 public class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible {
     public final Vector torque;
-    public final Vector btPhi;
     public final Vector force;
     public final Vector vE;
     public final Vector vEE;
@@ -23,7 +22,6 @@ public class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible 
     //dvEx means dvEx/dtheta and d2vEx means d2vEx/dtheta^2 etc.
     public final Vector vEx, vEEx, dvEx, dvEEx, d2vEx;
     public final Vector vEy, vEEy, dvEy, dvEEy, d2vEy;
-    public final Vector fEx, fEy, btForce;
 
 
     public MoleculeAgent() {
@@ -33,7 +31,6 @@ public class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible 
         torque = new Vector1D();
         vE = new Vector2D();
 
-        btPhi = new Vector1D();
         vEx = new Vector1D();
         vEEx = new Vector1D();
         dvEx = new Vector1D();
@@ -44,9 +41,6 @@ public class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible 
         dvEy = new Vector1D();
         dvEEy = new Vector1D();
         d2vEy = new Vector1D();
-        fEx = new Vector1D();
-        fEy = new Vector1D();
-        btForce = new Vector1D();
     }
 
     public Vector torque() {
@@ -57,25 +51,15 @@ public class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible 
         return phi;
     }
 
-    public Vector btPhi() {
-        return btPhi;
-    }
 
     public Vector force() {
         return force;
     }
 
-    public Vector btForce() {
-        return btForce;
-    }
+//    public Vector btForce() {
+//        return btForce;
+//    }
 
-    public Vector fEx() {
-        return fEx;
-    }
-
-    public Vector fEy() {
-        return fEy;
-    }
 
     public Vector vE() {
         return vE;

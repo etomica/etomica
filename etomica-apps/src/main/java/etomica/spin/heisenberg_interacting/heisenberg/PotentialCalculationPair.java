@@ -7,21 +7,20 @@ import etomica.potential.IPotentialAtomic;
 import etomica.potential.IPotentialAtomicSecondDerivative;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 
 import static etomica.math.SpecialFunctions.besselI;
 
 /**
- * Anx expressions for computing v_E and v_EE in the mapping.
+ * Any eypressions for computing v_E and v_EE in the mapping.
  *
  * @author Weisong Lin
  */
 
-public class PotentialCalculationMoleculeAgentSum implements PotentialCalculation {
+public class PotentialCalculationPair implements PotentialCalculation {
     //public class PotentialCalculationHeisenberg {
     protected Vector ei, ej;
-    protected double AEEJ0, JEMUExIdeal, JEMUEyIdeal, JEMUEIdealSquare, JEEMJEJE, UEE, JEMUExSquare, JEMUEySquare, JEMUEx, JEMUEy, dipolex, dipoley, JEEMJEJExtrying, UEEnow, JEMUE, dipoleconv;
+    protected double AEE, JEEMJEJE, UEE, JEMUEx, JEMUEy;
     protected final double mu, J, bt, bJ, bmu;
     protected double[] Axc0, Axs0, dAxc0, dAxs0, Axc1, Axs1, dAxc1, dAxs1;
     protected double[] d2Axc0, d2Axs0, d3Axc0, d3Axs0, d2Axc1, d2Axs1;
@@ -33,14 +32,14 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
     protected Vector phi;
     protected Vector vEx, vEEx, dvEx, dvEEx, d2vEx;
     protected Vector vEy, vEEy, dvEy, dvEEy, d2vEy;
-    protected double fEx, fEy,force;
+    protected double fEx, fEy, force;
 
 
     protected int nMax;
     protected int count = 1;
     protected AtomLeafAgentManager<MoleculeAgent> leafAgentManager;
 
-    public PotentialCalculationMoleculeAgentSum(Space space, double dipoleMagnitude, double interactionS, double beta, int nMax, AtomLeafAgentManager<MoleculeAgent> leafAgentManager) {
+    public PotentialCalculationPair(Space space, double dipoleMagnitude, double interactionS, double beta, int nMax, AtomLeafAgentManager<MoleculeAgent> leafAgentManager) {
         ei = space.makeVector();//TODO Do I have to do this again.
         ej = space.makeVector();
         J = interactionS;
@@ -480,94 +479,96 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         MoleculeAgent agentAtom1 = leafAgentManager.getAgent(atom1);
         MoleculeAgent agentAtom2 = leafAgentManager.getAgent(atom2);
 
-        double vEx1 = pvx10 / p0;
-        double vEx2 = pvx20 / p0;
-        double vEy1 = pvy10 / p0;
-        double vEy2 = pvy20 / p0;
 
-        double vEEx1 = pvx11 / p0 - px1 * vEx1 / p0;
-        double vEEx2 = pvx21 / p0 - px1 * vEx2 / p0;
-        double vEEy1 = pvy11 / p0 - py1 * vEy1 / p0;
-        double vEEy2 = pvy21 / p0 - py1 * vEy2 / p0;
-
-
-        double dvEx1dt1 = dpvx10dt1 / px0 + pvx10 * dRpx0dt1;
-        double dvEy1dt1 = dpvy10dt1 / py0 + pvy10 * dRpy0dt1;
-        double dvEEx1dt1 = dpvx11dt1 / px0 + pvx11 * dRpx0dt1 - dvEx1dt1 * px1 / px0 - vEx1 * dpx1Rpx0dt1;
-        double dvEEy1dt1 = dpvy11dt1 / py0 + pvy11 * dRpy0dt1 - dvEy1dt1 * py1 / py0 - vEy1 * dpy1Rpy0dt1;
-        double d2vEx1dt1dt1 = d2pvx10dt1dt1 / px0 + dpvx10dt1 * dRpx0dt1 + dpvx10dt1 * dRpx0dt1 + pvx10 * d2Rpx0dt1dt1;
-        double d2vEy1dt1dt1 = d2pvy10dt1dt1 / py0 + dpvy10dt1 * dRpy0dt1 + dpvy10dt1 * dRpy0dt1 + pvy10 * d2Rpy0dt1dt1;
-
-
-        agentAtom1.vEx().PE(vEx1);
-        agentAtom1.vEy().PE(vEy1);
-        agentAtom1.vEEx().PE(vEEx1);
-        agentAtom1.vEEy().PE(vEEy1);
-        agentAtom1.dvEx().PE(dvEx1dt1);
-        agentAtom1.dvEy().PE(dvEy1dt1);
-        agentAtom1.dvEEx().PE(dvEEx1dt1);
-        agentAtom1.dvEEy().PE(dvEEy1dt1);
-        agentAtom1.d2vEx().PE(d2vEx1dt1dt1);
-        agentAtom1.d2vEy().PE(d2vEy1dt1dt1);
-
-
-        double dvEx2dt2 = dpvx20dt2 / px0 + pvx20 * dRpx0dt2;
-        double dvEy2dt2 = dpvy20dt2 / py0 + pvy20 * dRpy0dt2;
-        double dvEEx2dt2 = dpvx21dt2 / px0 + pvx21 * dRpx0dt2 - (dvEx2dt2 * px1 / px0 + vEx2 * dpx1Rpx0dt2);
-        double dvEEy2dt2 = dpvy21dt2 / py0 + pvy21 * dRpy0dt2 - (dvEy2dt2 * py1 / py0 + vEy2 * dpy1Rpy0dt2);
-        double d2vEx2dt2dt2 = d2pvx20dt2dt2/px0 + dpvx20dt2*dRpx0dt2 + dpvx20dt2*dRpx0dt2 +pvx20*d2Rpx0dt2dt2;
-        double d2vEy2dt2dt2 = d2pvy20dt2dt2/py0 + dpvy20dt2*dRpy0dt2 + dpvy20dt2*dRpy0dt2 +pvy20*d2Rpy0dt2dt2;
-
-        agentAtom2.vEx().PE(vEx2);
-        agentAtom2.vEy().PE(vEy2);
-        agentAtom2.vEEx().PE(vEEx2);
-        agentAtom2.vEEy().PE(vEEy2);
-        agentAtom2.dvEx().PE(dvEx2dt2);
-        agentAtom2.dvEy().PE(dvEy2dt2);
-        agentAtom2.dvEEx().PE(dvEEx2dt2);
-        agentAtom2.dvEEy().PE(dvEEy2dt2);
-        agentAtom2.d2vEx().PE(d2vEx2dt2dt2);
-        agentAtom2.d2vEy().PE(d2vEy2dt2dt2);
-
-
-
+        double f1 = bt * agentAtom1.torque.getX(0);
+        double f2 = bt * agentAtom2.torque.getX(0);
         double p11 = bt * agentAtom1.phi.component(0, 0);
         double p22 = bt * agentAtom2.phi.component(0, 0);
+        double p12 = -bJ * ei.dot(ej);
+        double p21 = p12;
+        double fxE1 = -bmu * Math.sin(t1);
+        double fxE2 = -bmu * Math.sin(t2);
+        double fyE1 = bmu * Math.cos(t1);
+        double fyE2 = bmu * Math.cos(t2);
 
 
+        // JEEMJEJE =  sum(dvEEi/dti) + sum_i sim_j (vEi*d2vEj/dtidtj )
+        double dvEEx1 = agentAtom1.dvEEx.getX(0);
+        double dvEEy1 = agentAtom1.dvEEy.getX(0);
+        double dvEEx2 = agentAtom2.dvEEx.getX(0);
+        double dvEEy2 = agentAtom2.dvEEy.getX(0);
+
+        //sum(dvEEi/dti)
+        JEEMJEJE += dvEEx1 + dvEEy1 + dvEEx2 + dvEEy2;
+
+        double vEx1 = agentAtom1.vEx.getX(0);
+        double vEy1 = agentAtom1.vEx().getX(0);
+        double d2vEx2dt1dt2 = d2pvx20dt1dt2 / px0 + dpvx20dt2 * dRpx0dt1 + dpvx20dt1 * dRpx0dt2 + pvx20 * d2Rpx0dt1dt2;
+        double d2vEy2dt1dt2 = d2pvy20dt1dt2 / py0 + dpvy20dt2 * dRpy0dt1 + dpvy20dt1 * dRpy0dt2 + pvy20 * d2Rpy0dt1dt2;
+        double vEx2 = agentAtom1.vEx.getX(0);
+        double vEy2 = agentAtom1.vEx().getX(0);
+        double d2vEx1dt1dt2 = d2pvx10dt1dt2 / px0 + dpvx10dt1 * dRpx0dt2 + dpvx10dt2 * dRpx0dt1 + pvx10 * d2Rpx0dt1dt2;
+        double d2vEy1dt1dt2 = d2pvy10dt1dt2 / py0 + dpvy10dt1 * dRpy0dt2 + dpvy10dt2 * dRpy0dt1 + pvy10 * d2Rpy0dt1dt2;
+
+        //sum_i sim_j (vEi*d2vEj/dtidtj ) i!=j case
+        JEEMJEJE += vEx1 * d2vEx2dt1dt2 + vEy1 * d2vEy2dt1dt2 + vEx2 * d2vEx1dt1dt2 + vEy2 * d2vEy1dt1dt2;
 
 
+        //sum_i sim_j (vEi*d2vEj/dtidtj ) i==j case
+        double d2vEx1dt1dt1 = agentAtom1.d2vEx().getX(0);
+        double d2vEy1dt1dt1 = agentAtom1.d2vEy().getX(0);
+        double d2vEx2dt2dt2 = agentAtom2.d2vEx().getX(0);
+        double d2vEy2dt2dt2 = agentAtom2.d2vEy().getX(0);
+        JEEMJEJE += vEx1 * d2vEx1dt1dt1 + vEy1 * d2vEy1dt1dt1 + vEx2 * d2vEx2dt2dt2 + vEy2 * d2vEy2dt2dt2;
+
+
+        //UEE = -sum_i(vEEi*fi) - sum_i sum_j(fi*dvEi/dtj*vEj) +  sum_i sum_j(vEi phiij vEj) - 2 sum_i(vEi*fEi)
+        double vEEx1 = agentAtom1.vEEx.getX(0);
+        double vEEy1 = agentAtom1.vEEy.getX(0);
+        double vEEx2 = agentAtom2.vEEx.getX(0);
+        double vEEy2 = agentAtom2.vEEy.getX(0);
+        //-sum_i(vEEi*fi)
+        UEE += -vEEx1 * f1 - vEEy1 * f1 - vEEx2 * f2 - vEEy2 * f2;
+
+
+        //- sum_i sum_j(fi*dvEi/dtj*vEj) i!=j case
+        double dvEx1dt2 = dpvx10dt2 / px0 + pvx10 * dRpx0dt2;
+        double dvEy1dt2 = dpvy10dt2 / py0 + pvy10 * dRpy0dt2;
+        double dvEx2dt1 = dpvx20dt1 / px0 + pvx20 * dRpx0dt1;
+        double dvEy2dt1 = dpvy20dt1 / py0 + pvy20 * dRpy0dt1;
+        UEE += -f1 * dvEx1dt2 * vEx2 - f2 * dvEx2dt1 * vEx1 - -f1 * dvEy1dt2 * vEy2 - f2 * dvEy2dt1 * vEy1;
+
+        //- sum_i sum_j(fi*dvEi/dtj*vEj) i==j case
+        double dvEx1dt1 = agentAtom1.dvEx().getX(0);
+        double dvEy1dt1 = agentAtom1.dvEy().getX(0);
+        double dvEx2dt2 = agentAtom2.dvEx().getX(0);
+        double dvEy2dt2 = agentAtom2.dvEy().getX(0);
+        UEE += -f1 * dvEx1dt1 * vEx1 - f2 * dvEx2dt2 * vEx2 - f1 * dvEy1dt1 * vEy1 - f2 * dvEy2dt2 * vEy2;
+
+        //sum_i sum_j(vEi phiij vEj) i!=j case
+        UEE += vEx1 * p12 * vEx2 + vEx2 * p21 * vEx1 + vEy1 * p12 * vEy2 + vEy2 * p21 * vEy1;
+
+        //sum_i sum_j(vEi phiij vEj) i==j case
+        UEE += vEx1 * p11 * vEx1 + vEx2 * p22 * vEx2 + vEy1 * p11 * vEy1 + vEy2 * p22 * vEy2;
+
+        //- 2 sum_i(vEi*fEi)
+        UEE += -2 * (vEx1 * fxE1 + vEx2 * fxE2 + vEy1 * fyE1 + vEy2 * fyE2);
+
+        //JEMUEx = sum_i( dvEx + bmu cos(theta) + vE*f)
+        JEMUEx += dvEx1dt1 + bmu * cost1 + vEx1 * f1 + dvEx2dt2 + bmu * cost2 + vEx2 * f2;
+
+
+        //JEMUEy = sum_i( dvEy + bmu sin(theta) + vE*f)
+        JEMUEy += dvEy1dt1 + bmu * sint1 + vEy1 * f1 + dvEy2dt2 + bmu * sint2 + vEy2 * f2;
 
     }
-
 
     public void zeroSum() {
         JEEMJEJE = 0;
         UEE = 0;
+        AEE = 0;
         JEMUEx = 0;
-        JEMUExIdeal = 0;
-        JEMUE = 0;//not used
         JEMUEy = 0;
-        JEMUEyIdeal = 0;
-        JEMUExSquare = 0;
-        JEMUEySquare = 0;
-        AEEJ0 = 0;
-        JEMUEIdealSquare = 0;
-
-        vEx.E(0);
-        vEEx.E(0);
-        dvEx.E(0);
-        dvEEx.E(0);
-        d2vEx.E(0);
-        vEy.E(0);
-        vEEy.E(0);
-        dvEy.E(0);
-        dvEEy.E(0);
-        d2vEy.E(0);
-        phi.E(0);
-        fEx = 0;
-        fEy = 0;
-
 
     }
 
@@ -579,48 +580,17 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         return UEE;
     }
 
-    public double getdipolex() {
-        return dipolex;
-    }
-
-    public double getdipoley() {
-        return dipoley;
-    }
-
-    public double getdipoleconv() {
-        return dipoleconv;
-    }
-
-    public double getSumJEMUE() {
-        return JEMUE;
+    public double getSumAEE() {
+        return AEE;
     }
 
     public double getSumJEMUEx() {
         return JEMUEx;
     }
 
-    public double getSumJEMUExIdeal() {
-        return JEMUExIdeal;
-    }
-
     public double getSumJEMUEy() {
         return JEMUEy;
     }
 
-    public double getSumJEMUEyIdeal() {
-        return JEMUEyIdeal;
-    }
-
-    public double getSumJEMUExSquare() {
-        return JEMUExSquare;
-    }
-
-    public double getSumJEMUEySquare() {
-        return JEMUEySquare;
-    }
-
-    public double getAEEJ0() {
-        return AEEJ0;
-    }
 
 }
