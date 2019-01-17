@@ -102,9 +102,9 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     public void PEa1Tv1(double a1, Vector u) {
-        x += a1 * ((Vector3D) u).x;
-        y += a1 * ((Vector3D) u).y;
-        z += a1 * ((Vector3D) u).z;
+        x += a1 * u.getX(0);
+        y += a1 * u.getX(1);
+        z += a1 * u.getX(2);
     }
 
     public void PE(Vector u) {

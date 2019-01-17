@@ -13,6 +13,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.util.Debug;
 import etomica.util.random.IRandom;
+import etomica.vecarray.VecArray;
 
 public class IntegratorVelocityVerletFasterer extends IntegratorMDFasterer {
 
@@ -41,10 +42,10 @@ public class IntegratorVelocityVerletFasterer extends IntegratorMDFasterer {
         }
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.size();
-        Vector[] forces = potentialMaster.getForces();
+        VecArray forces = potentialMaster.getForces();
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
-            Vector force = forces[iLeaf];
+            Vector force = forces.getMut(iLeaf);
             Vector r = a.getPosition();
             Vector v = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
@@ -66,9 +67,9 @@ public class IntegratorVelocityVerletFasterer extends IntegratorMDFasterer {
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
             Vector velocity = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                System.out.println("second " + a + " v=" + velocity + ", f=" + forces[iLeaf]);
+                System.out.println("second " + a + " v=" + velocity + ", f=" + forces.getMut(iLeaf));
             }
-            velocity.PEa1Tv1(0.5 * timeStep * a.getType().rm(), forces[iLeaf]);  //p += f(new)*dt/2
+            velocity.PEa1Tv1(0.5 * timeStep * a.getType().rm(), forces.getMut(iLeaf));  //p += f(new)*dt/2
         }
 
         if (isothermal) {

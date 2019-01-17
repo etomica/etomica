@@ -14,6 +14,7 @@ import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
+import etomica.vecarray.VecArray;
 
 import java.util.*;
 
@@ -27,7 +28,7 @@ public class PotentialMasterFasterer {
     protected int nChanged;
     protected Vector zero;
     protected double virialTot;
-    protected Vector[] forces;
+    protected final VecArray forces;
     protected final Space space;
 
     protected final boolean isPureAtoms;
@@ -48,7 +49,7 @@ public class PotentialMasterFasterer {
         uAtomsChanged2 = new int[box.getLeafList().size()];
         nChanged = 0;
         zero = box.getSpace().makeVector();
-        forces = new Vector[0];
+        forces = new VecArray(0);
 
         isPureAtoms = speciesList.stream().allMatch(s -> s.getLeafAtomCount() == 1);
         bondedAtoms = new int[sim.getSpeciesCount()][][];
@@ -64,7 +65,7 @@ public class PotentialMasterFasterer {
     public void init() {
     }
 
-    public Vector[] getForces() {
+    public VecArray getForces() {
         return forces;
     }
 
@@ -130,8 +131,8 @@ public class PotentialMasterFasterer {
         virialTot += duij;
         if (doForces) {
             dr.TE(duij / r2);
-            forces[iAtom].PE(dr);
-            forces[jAtom].ME(dr);
+            forces.add(iAtom, dr);
+            forces.sub(jAtom, dr);
         }
         return uij;
     }
@@ -197,8 +198,8 @@ public class PotentialMasterFasterer {
         if (doForces) {
             double duij = du[0];
             dr.TE(duij / r2);
-            forces[iAtom.getLeafIndex()].PE(dr);
-            forces[jAtom.getLeafIndex()].ME(dr);
+            forces.add(iAtom.getLeafIndex(), dr);
+            forces.sub(jAtom.getLeafIndex(), dr);
         }
         return uij;
     }
@@ -226,19 +227,18 @@ public class PotentialMasterFasterer {
         virialTot = 0;
 
         int numAtoms = box.getLeafList().size();
-        if (doForces && numAtoms > forces.length) {
-            int oldLength = forces.length;
-            forces = Arrays.copyOf(forces, numAtoms);
-            for (int i = oldLength; i < numAtoms; i++) forces[i] = box.getSpace().makeVector();
+        if (doForces && numAtoms > forces.getLength()) {
+            forces.resize(numAtoms);
+            forces.setAll(0);
         }
         if (numAtoms > uAtom.length) {
             uAtom = new double[numAtoms];
             duAtom = new double[numAtoms];
             uAtomsChanged2 = new int[numAtoms];
         }
+        if (doForces) forces.setAll(0);
         for (int i = 0; i < numAtoms; i++) {
             uAtom[i] = 0;
-            if (doForces) forces[i].E(0);
         }
     }
 

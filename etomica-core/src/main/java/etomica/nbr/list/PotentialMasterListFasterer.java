@@ -216,7 +216,6 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
             Vector ri = iAtom.getPosition();
             int iType = iAtom.getType().getIndex();
             Potential2Soft[] iPotentials = pairPotentials[iType];
-            Vector fi = doForces ? forces[i] : null;
             int iNumNbrs = numAtomNbrsUp[i];
             int[] iNbrs = nbrs[i];
             Vector[] iNbrBoxOffsets = nbrBoxOffsets[i];
