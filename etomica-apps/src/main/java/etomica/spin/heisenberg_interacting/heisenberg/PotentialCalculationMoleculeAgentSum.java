@@ -565,8 +565,6 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         dvEEy.E(0);
         d2vEy.E(0);
         phi.E(0);
-        fEx = 0;
-        fEy = 0;
 
 
     }
@@ -577,50 +575,6 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
 
     public double getSumUEE() {
         return UEE;
-    }
-
-    public double getdipolex() {
-        return dipolex;
-    }
-
-    public double getdipoley() {
-        return dipoley;
-    }
-
-    public double getdipoleconv() {
-        return dipoleconv;
-    }
-
-    public double getSumJEMUE() {
-        return JEMUE;
-    }
-
-    public double getSumJEMUEx() {
-        return JEMUEx;
-    }
-
-    public double getSumJEMUExIdeal() {
-        return JEMUExIdeal;
-    }
-
-    public double getSumJEMUEy() {
-        return JEMUEy;
-    }
-
-    public double getSumJEMUEyIdeal() {
-        return JEMUEyIdeal;
-    }
-
-    public double getSumJEMUExSquare() {
-        return JEMUExSquare;
-    }
-
-    public double getSumJEMUEySquare() {
-        return JEMUEySquare;
-    }
-
-    public double getAEEJ0() {
-        return AEEJ0;
     }
 
 }

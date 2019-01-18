@@ -482,24 +482,24 @@ public class PotentialCalculationPair implements PotentialCalculation {
 
         double f1 = bt * agentAtom1.torque.getX(0);
         double f2 = bt * agentAtom2.torque.getX(0);
-        double p11 = bt * agentAtom1.phi.component(0, 0);
-        double p22 = bt * agentAtom2.phi.component(0, 0);
+//        double p11 = bt * agentAtom1.phi.component(0, 0);
+//        double p22 = bt * agentAtom2.phi.component(0, 0);
         double p12 = -bJ * ei.dot(ej);
         double p21 = p12;
-        double fxE1 = -bmu * Math.sin(t1);
-        double fxE2 = -bmu * Math.sin(t2);
-        double fyE1 = bmu * Math.cos(t1);
-        double fyE2 = bmu * Math.cos(t2);
+//        double fxE1 = -bmu * Math.sin(t1);
+//        double fxE2 = -bmu * Math.sin(t2);
+//        double fyE1 = bmu * Math.cos(t1);
+//        double fyE2 = bmu * Math.cos(t2);
 
 
         // JEEMJEJE =  sum(dvEEi/dti) + sum_i sim_j (vEi*d2vEj/dtidtj )
-        double dvEEx1 = agentAtom1.dvEEx.getX(0);
-        double dvEEy1 = agentAtom1.dvEEy.getX(0);
-        double dvEEx2 = agentAtom2.dvEEx.getX(0);
-        double dvEEy2 = agentAtom2.dvEEy.getX(0);
+//        double dvEEx1 = agentAtom1.dvEEx.getX(0);
+//        double dvEEy1 = agentAtom1.dvEEy.getX(0);
+//        double dvEEx2 = agentAtom2.dvEEx.getX(0);
+//        double dvEEy2 = agentAtom2.dvEEy.getX(0);
 
         //sum(dvEEi/dti)
-        JEEMJEJE += dvEEx1 + dvEEy1 + dvEEx2 + dvEEy2;
+//        JEEMJEJE += dvEEx1 + dvEEy1 + dvEEx2 + dvEEy2;
 
         double vEx1 = agentAtom1.vEx.getX(0);
         double vEy1 = agentAtom1.vEx().getX(0);
@@ -515,20 +515,20 @@ public class PotentialCalculationPair implements PotentialCalculation {
 
 
         //sum_i sim_j (vEi*d2vEj/dtidtj ) i==j case
-        double d2vEx1dt1dt1 = agentAtom1.d2vEx().getX(0);
-        double d2vEy1dt1dt1 = agentAtom1.d2vEy().getX(0);
-        double d2vEx2dt2dt2 = agentAtom2.d2vEx().getX(0);
-        double d2vEy2dt2dt2 = agentAtom2.d2vEy().getX(0);
-        JEEMJEJE += vEx1 * d2vEx1dt1dt1 + vEy1 * d2vEy1dt1dt1 + vEx2 * d2vEx2dt2dt2 + vEy2 * d2vEy2dt2dt2;
+//        double d2vEx1dt1dt1 = agentAtom1.d2vEx().getX(0);
+//        double d2vEy1dt1dt1 = agentAtom1.d2vEy().getX(0);
+//        double d2vEx2dt2dt2 = agentAtom2.d2vEx().getX(0);
+//        double d2vEy2dt2dt2 = agentAtom2.d2vEy().getX(0);
+//        JEEMJEJE += vEx1 * d2vEx1dt1dt1 + vEy1 * d2vEy1dt1dt1 + vEx2 * d2vEx2dt2dt2 + vEy2 * d2vEy2dt2dt2;
 
 
         //UEE = -sum_i(vEEi*fi) - sum_i sum_j(fi*dvEi/dtj*vEj) +  sum_i sum_j(vEi phiij vEj) - 2 sum_i(vEi*fEi)
-        double vEEx1 = agentAtom1.vEEx.getX(0);
-        double vEEy1 = agentAtom1.vEEy.getX(0);
-        double vEEx2 = agentAtom2.vEEx.getX(0);
-        double vEEy2 = agentAtom2.vEEy.getX(0);
+//        double vEEx1 = agentAtom1.vEEx.getX(0);
+//        double vEEy1 = agentAtom1.vEEy.getX(0);
+//        double vEEx2 = agentAtom2.vEEx.getX(0);
+//        double vEEy2 = agentAtom2.vEEy.getX(0);
         //-sum_i(vEEi*fi)
-        UEE += -vEEx1 * f1 - vEEy1 * f1 - vEEx2 * f2 - vEEy2 * f2;
+//        UEE += -vEEx1 * f1 - vEEy1 * f1 - vEEx2 * f2 - vEEy2 * f2;
 
 
         //- sum_i sum_j(fi*dvEi/dtj*vEj) i!=j case
@@ -539,27 +539,27 @@ public class PotentialCalculationPair implements PotentialCalculation {
         UEE += -f1 * dvEx1dt2 * vEx2 - f2 * dvEx2dt1 * vEx1 - -f1 * dvEy1dt2 * vEy2 - f2 * dvEy2dt1 * vEy1;
 
         //- sum_i sum_j(fi*dvEi/dtj*vEj) i==j case
-        double dvEx1dt1 = agentAtom1.dvEx().getX(0);
-        double dvEy1dt1 = agentAtom1.dvEy().getX(0);
-        double dvEx2dt2 = agentAtom2.dvEx().getX(0);
-        double dvEy2dt2 = agentAtom2.dvEy().getX(0);
-        UEE += -f1 * dvEx1dt1 * vEx1 - f2 * dvEx2dt2 * vEx2 - f1 * dvEy1dt1 * vEy1 - f2 * dvEy2dt2 * vEy2;
+//        double dvEx1dt1 = agentAtom1.dvEx().getX(0);
+//        double dvEy1dt1 = agentAtom1.dvEy().getX(0);
+//        double dvEx2dt2 = agentAtom2.dvEx().getX(0);
+//        double dvEy2dt2 = agentAtom2.dvEy().getX(0);
+//        UEE += -f1 * dvEx1dt1 * vEx1 - f2 * dvEx2dt2 * vEx2 - f1 * dvEy1dt1 * vEy1 - f2 * dvEy2dt2 * vEy2;
 
         //sum_i sum_j(vEi phiij vEj) i!=j case
         UEE += vEx1 * p12 * vEx2 + vEx2 * p21 * vEx1 + vEy1 * p12 * vEy2 + vEy2 * p21 * vEy1;
 
         //sum_i sum_j(vEi phiij vEj) i==j case
-        UEE += vEx1 * p11 * vEx1 + vEx2 * p22 * vEx2 + vEy1 * p11 * vEy1 + vEy2 * p22 * vEy2;
+//        UEE += vEx1 * p11 * vEx1 + vEx2 * p22 * vEx2 + vEy1 * p11 * vEy1 + vEy2 * p22 * vEy2;
 
         //- 2 sum_i(vEi*fEi)
-        UEE += -2 * (vEx1 * fxE1 + vEx2 * fxE2 + vEy1 * fyE1 + vEy2 * fyE2);
+//        UEE += -2 * (vEx1 * fxE1 + vEx2 * fxE2 + vEy1 * fyE1 + vEy2 * fyE2);
 
         //JEMUEx = sum_i( dvEx + bmu cos(theta) + vE*f)
-        JEMUEx += dvEx1dt1 + bmu * cost1 + vEx1 * f1 + dvEx2dt2 + bmu * cost2 + vEx2 * f2;
+//        JEMUEx += dvEx1dt1 + bmu * cost1 + vEx1 * f1 + dvEx2dt2 + bmu * cost2 + vEx2 * f2;
 
 
         //JEMUEy = sum_i( dvEy + bmu sin(theta) + vE*f)
-        JEMUEy += dvEy1dt1 + bmu * sint1 + vEy1 * f1 + dvEy2dt2 + bmu * sint2 + vEy2 * f2;
+//        JEMUEy += dvEy1dt1 + bmu * sint1 + vEy1 * f1 + dvEy2dt2 + bmu * sint2 + vEy2 * f2;
 
     }
 
@@ -569,7 +569,6 @@ public class PotentialCalculationPair implements PotentialCalculation {
         AEE = 0;
         JEMUEx = 0;
         JEMUEy = 0;
-
     }
 
     public double getSumJEEMJEJE() {

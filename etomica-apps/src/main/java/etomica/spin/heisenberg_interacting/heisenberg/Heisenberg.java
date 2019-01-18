@@ -166,10 +166,12 @@ public class Heisenberg extends Simulation {
 
 
         //AEE
-        MeterMappedAveraging AEEMeter = null;
+//        MeterMappedAveraging AEEMeter = null;
+        MeterMappedAveragingVSum AEEMeter = null;
         AccumulatorAverageCovariance AEEAccumulator = null;
         if (aEE) {
-            AEEMeter = new MeterMappedAveraging(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster);
+//            AEEMeter = new MeterMappedAveraging(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster);
+            AEEMeter = new MeterMappedAveragingVSum(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster);
             AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
             DataPump AEEPump = new DataPump(AEEMeter, AEEAccumulator);
             IntegratorListenerAction AEEListener = new IntegratorListenerAction(AEEPump);
@@ -225,9 +227,7 @@ public class Heisenberg extends Simulation {
         double AEEER = 0;
         double AEECor = 0;
         if (aEE) {
-
             AEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
-            ;
             AEEER = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
             AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
 
