@@ -33,7 +33,7 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
     protected Vector phi;
     protected Vector vEx, vEEx, dvEx, dvEEx, d2vEx;
     protected Vector vEy, vEEy, dvEy, dvEEy, d2vEy;
-    protected double fEx, fEy,force;
+    protected double fEx, fEy, force;
 
 
     protected int nMax;
@@ -43,6 +43,18 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
     public PotentialCalculationMoleculeAgentSum(Space space, double dipoleMagnitude, double interactionS, double beta, int nMax, AtomLeafAgentManager<MoleculeAgent> leafAgentManager) {
         ei = space.makeVector();//TODO Do I have to do this again.
         ej = space.makeVector();
+        vEx = space.makeVector();
+        vEEx = space.makeVector();
+        dvEx = space.makeVector();
+        dvEEx = space.makeVector();
+        d2vEx = space.makeVector();
+        vEy = space.makeVector();
+        vEEy = space.makeVector();
+        dvEy = space.makeVector();
+        dvEEy = space.makeVector();
+        d2vEy = space.makeVector();
+        phi = space.makeVector();
+
         J = interactionS;
         mu = dipoleMagnitude;
         bt = beta;
@@ -515,8 +527,8 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         double dvEy2dt2 = dpvy20dt2 / py0 + pvy20 * dRpy0dt2;
         double dvEEx2dt2 = dpvx21dt2 / px0 + pvx21 * dRpx0dt2 - (dvEx2dt2 * px1 / px0 + vEx2 * dpx1Rpx0dt2);
         double dvEEy2dt2 = dpvy21dt2 / py0 + pvy21 * dRpy0dt2 - (dvEy2dt2 * py1 / py0 + vEy2 * dpy1Rpy0dt2);
-        double d2vEx2dt2dt2 = d2pvx20dt2dt2/px0 + dpvx20dt2*dRpx0dt2 + dpvx20dt2*dRpx0dt2 +pvx20*d2Rpx0dt2dt2;
-        double d2vEy2dt2dt2 = d2pvy20dt2dt2/py0 + dpvy20dt2*dRpy0dt2 + dpvy20dt2*dRpy0dt2 +pvy20*d2Rpy0dt2dt2;
+        double d2vEx2dt2dt2 = d2pvx20dt2dt2 / px0 + dpvx20dt2 * dRpx0dt2 + dpvx20dt2 * dRpx0dt2 + pvx20 * d2Rpx0dt2dt2;
+        double d2vEy2dt2dt2 = d2pvy20dt2dt2 / py0 + dpvy20dt2 * dRpy0dt2 + dpvy20dt2 * dRpy0dt2 + pvy20 * d2Rpy0dt2dt2;
 
         agentAtom2.vEx().PE(vEx2);
         agentAtom2.vEy().PE(vEy2);
@@ -530,12 +542,8 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         agentAtom2.d2vEy().PE(d2vEy2dt2dt2);
 
 
-
         double p11 = bt * agentAtom1.phi.component(0, 0);
         double p22 = bt * agentAtom2.phi.component(0, 0);
-
-
-
 
 
     }

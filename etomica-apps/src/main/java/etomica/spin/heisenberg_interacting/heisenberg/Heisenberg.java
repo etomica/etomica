@@ -251,6 +251,14 @@ public class Heisenberg extends Simulation {
 //            System.out.println("AEE_Time: " + (endTime - startTime) / (1000.0 * 60.0));
         }
 
+        double AEEVSum = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(5);
+        double AEEERVSum = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(5);
+        double AEECorVSum = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(5);
+        System.out.println("AEE_VSUM:\t" + (AEEVSum / nCells / nCells)
+                + " AEEVSumErr:\t" + (AEEERVSum / nCells / nCells)
+                + " AEEVSumDifficulty:\t" + (AEEERVSum * Math.sqrt(totalTime) / nCells / nCells)
+                + " AEEVSumCor= " + AEECorVSum);
+
         double sumIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
         double errSumIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
         double sumIdealCor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(1);
@@ -292,8 +300,8 @@ public class Heisenberg extends Simulation {
         public boolean aEE = true;
         public double temperature = 2;// Kelvin
         public double interactionS = 1;
-        public double dipoleMagnitude = 1.11;
+        public double dipoleMagnitude = 1;
         public int nCells = 3;//number of atoms is nCells*nCells
-        public int steps = 50000;
+        public int steps = 10000;
     }
 }
