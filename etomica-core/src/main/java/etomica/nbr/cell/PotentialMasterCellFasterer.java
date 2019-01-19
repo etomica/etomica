@@ -107,11 +107,14 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
         int i = iAtom.getLeafIndex();
         Vector ri = iAtom.getPosition();
         int iType = iAtom.getType().getIndex();
-        uAtomsChanged2[0] = i;
-        nChanged = 1;
-        duAtom[0] = 0;
-        Potential2Soft[] ip = pairPotentials[iType];
         IAtomList atoms = box.getLeafList();
+        uAtomsChanged.clear();
+//        uAtomsChanged.ensureCapacity(6000); // TODO
+        uAtomsChanged.add(i);
+        duAtom.clear();
+//        duAtom.ensureCapacity(6000); // TODO
+        duAtom.add(0);
+        Potential2Soft[] ip = pairPotentials[iType];
 
         Vector[] boxOffsets = cellManager.getBoxOffsets();
         int[] atomCell = cellManager.getAtomCell();
@@ -164,6 +167,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
         if (!isPureAtoms && !isOnlyRigidMolecules) {
             u1 += computeOneBonded(iAtom);
         }
+//        System.out.println(uAtomsChanged.size());
         return u1;
     }
 }

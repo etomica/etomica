@@ -41,25 +41,25 @@ public class BenchSimLJMC3D {
                 TestLJMC3D.class
         );
 
-        {
-            simSlowBrute = new TestLJMC3DSlowBrute(numMolecules, numSteps, config);
+//        {
+//            simSlowBrute = new TestLJMC3DSlowBrute(numMolecules, numSteps, config);
+//
+//            MeterPressure pMeter = new MeterPressure(simSlowBrute.space);
+//            pMeter.setIntegrator(simSlowBrute.integrator);
+//            DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
+//            simSlowBrute.integrator.getEventManager().addListener(pumpListener);
+//            simSlowBrute.integrator.reset();
+//        }
 
-            MeterPressure pMeter = new MeterPressure(simSlowBrute.space);
-            pMeter.setIntegrator(simSlowBrute.integrator);
-            DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
-            simSlowBrute.integrator.getEventManager().addListener(pumpListener);
-            simSlowBrute.integrator.reset();
-        }
-
-        {
-            simSlowerer = new TestLJMC3DSlowerer(numMolecules, numSteps, config);
-
-            MeterPressure pMeter = new MeterPressure(simSlowerer.space);
-            pMeter.setIntegrator(simSlowerer.integrator);
-            DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
-            simSlowerer.integrator.getEventManager().addListener(pumpListener);
-            simSlowerer.integrator.reset();
-        }
+//        {
+//            simSlowerer = new TestLJMC3DSlowerer(numMolecules, numSteps, config);
+//
+//            MeterPressure pMeter = new MeterPressure(simSlowerer.space);
+//            pMeter.setIntegrator(simSlowerer.integrator);
+//            DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
+//            simSlowerer.integrator.getEventManager().addListener(pumpListener);
+//            simSlowerer.integrator.reset();
+//        }
 
         {
             simBrute = new TestLJMC3DBrute(numMolecules, numSteps, config);
@@ -83,7 +83,7 @@ public class BenchSimLJMC3D {
 
     }
 
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
@@ -92,7 +92,7 @@ public class BenchSimLJMC3D {
         simSlowBrute.integrator.doStep();
     }
 
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
@@ -105,7 +105,7 @@ public class BenchSimLJMC3D {
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
-    @Measurement(time = 3, iterations = 5)
+    @Measurement(time = 10, iterations = 3)
     public void integratorStepBrute() {
         simBrute.integrator.doStep();
     }
@@ -114,7 +114,7 @@ public class BenchSimLJMC3D {
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
-    @Measurement(time = 3, iterations = 5)
+    @Measurement(time = 10, iterations = 3)
     public void integratorStep() {
         sim.integrator.doStep();
     }

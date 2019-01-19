@@ -103,7 +103,6 @@ public class MCMoveAtomFasterer extends MCMoveBoxStep {
 //        System.out.println("rejected");
         atom.getPosition().E(oldPosition);
         potentialMasterFasterer.updateAtom(atom);
-        potentialMasterFasterer.resetAtomDU();
     }
 
     public AtomIterator affectedAtoms() {

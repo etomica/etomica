@@ -14,6 +14,8 @@ import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
+import etomica.util.collections.DoubleArrayList;
+import etomica.util.collections.IntArrayList;
 
 import java.util.*;
 
@@ -22,9 +24,9 @@ public class PotentialMasterFasterer {
     protected final Potential2Soft[][] pairPotentials;
     protected final Box box;
     protected final Vector dr;
-    protected double[] uAtom, duAtom;
-    protected int[] uAtomsChanged2;
-    protected int nChanged;
+    protected double[] uAtom;
+    protected final DoubleArrayList duAtom;
+    protected final IntArrayList uAtomsChanged;
     protected Vector zero;
     protected double virialTot;
     protected Vector[] forces;
@@ -44,9 +46,10 @@ public class PotentialMasterFasterer {
         pairPotentials = new Potential2Soft[lastTypeIndex + 1][lastTypeIndex + 1];
         this.box = box;
         dr = sim.getSpace().makeVector();
+
         uAtom = new double[box.getLeafList().size()];
-        uAtomsChanged2 = new int[box.getLeafList().size()];
-        nChanged = 0;
+        uAtomsChanged = new IntArrayList(16);
+        duAtom = new DoubleArrayList(16);
         zero = box.getSpace().makeVector();
         forces = new Vector[0];
 
@@ -173,10 +176,9 @@ public class PotentialMasterFasterer {
         box.getBoundary().nearestImage(dr);
         double uij = pij.u(dr.squared());
         if (uij == 0) return 0;
-        duAtom[0] += 0.5 * uij;
-        duAtom[nChanged] += 0.5 * uij;
-        uAtomsChanged2[nChanged] = jAtom.getLeafIndex();
-        nChanged++;
+        duAtom.plusEquals(0, 0.5 * uij);
+        duAtom.add(0.5 * uij);
+        uAtomsChanged.add(jAtom.getLeafIndex());
         return uij;
     }
 
@@ -233,8 +235,6 @@ public class PotentialMasterFasterer {
         }
         if (numAtoms > uAtom.length) {
             uAtom = new double[numAtoms];
-            duAtom = new double[numAtoms];
-            uAtomsChanged2 = new int[numAtoms];
         }
         for (int i = 0; i < numAtoms; i++) {
             uAtom[i] = 0;
@@ -283,10 +283,10 @@ public class PotentialMasterFasterer {
         dr.PE(jbo);
         double uij = pij.u(dr.squared());
         if (uij == 0) return 0;
-        duAtom[0] += 0.5 * uij;
-        duAtom[nChanged] += 0.5 * uij;
-        uAtomsChanged2[nChanged] = jAtom;
-        nChanged++;
+
+        duAtom.plusEquals(0, 0.5 * uij);
+        duAtom.add(0.5 * uij);
+        uAtomsChanged.add(jAtom);
         return uij;
     }
 
@@ -294,11 +294,15 @@ public class PotentialMasterFasterer {
         int i = iAtom.getLeafIndex();
         Vector ri = iAtom.getPosition();
         int iType = iAtom.getType().getIndex();
-        uAtomsChanged2[0] = i;
-        nChanged = 1;
-        duAtom[0] = 0;
-        Potential2Soft[] ip = pairPotentials[iType];
         IAtomList atoms = box.getLeafList();
+        uAtomsChanged.clear();
+        uAtomsChanged.ensureCapacity(atoms.size());
+        uAtomsChanged.add(i);
+        duAtom.clear();
+        duAtom.ensureCapacity(atoms.size());
+        duAtom.add(0);
+
+        Potential2Soft[] ip = pairPotentials[iType];
         double u = 0;
         Boundary boundary = box.getBoundary();
         int s = atoms.size();
@@ -320,18 +324,9 @@ public class PotentialMasterFasterer {
     }
 
     public void processAtomU(double fac) {
-        for (int j = 0; j < nChanged; j++) {
-            int jj = uAtomsChanged2[j];
-            uAtom[jj] += fac * duAtom[j];
-            duAtom[j] = 0;
+        for (int j = 0; j < uAtomsChanged.size(); j++) {
+            int jj = uAtomsChanged.getInt(j);
+            uAtom[jj] += fac * duAtom.getDouble(j);
         }
-        nChanged = 0;
-    }
-
-    public void resetAtomDU() {
-        for (int j = 0; j < nChanged; j++) {
-            duAtom[j] = 0;
-        }
-        nChanged = 0;
     }
 }
