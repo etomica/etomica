@@ -139,7 +139,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
             AEE -= 2 * (vExi * fExi + vEyi * fEyi);
             //-var[JEUME]
             JEMUEx += dvExi + bmu * atom.getOrientation().getDirection().getX(0) * +vExi * fi;
-            JEMUEy += dvEyi + bmu * atom.getOrientation().getDirection().getX(1) * vEyi * fi;
+            JEMUEy += dvEyi + bmu * atom.getOrientation().getDirection().getX(1) * +vEyi * fi;
         }
 
         AEE += -vSum.getSumJEEMJEJE() + vSum.getSumUEE() - JEMUEx * JEMUEx - JEMUEy * JEMUEy;

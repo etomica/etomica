@@ -237,21 +237,21 @@ public class HeisenbergPair extends Simulation {
 //
 //        System.out.println(" AEEDirect= " + test / numberMolecules + " Err " + errSum0/numberMolecules );
 
-//        double JEMUEx = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
-//        double errJEMUEx = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
-//        double JEMUEy = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(2);
-//        double errJEMUEy = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(2);
+        double JEMUEx = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
+        double errJEMUEx = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
+        double JEMUEy = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(2);
+        double errJEMUEy = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(2);
 //
-//        double JEMUExSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(8);
-//        double errJEMUExSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(8);
-//        double JEMUEySquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(9);
-//        double errJEMUEySquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(9);
+        double JEMUExSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(8);
+        double errJEMUExSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(8);
+        double JEMUEySquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(9);
+        double errJEMUEySquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(9);
 //
 //
-//        System.out.println("JEMUEx= " + JEMUEx + " Err " + errJEMUEx);
-//        System.out.println("JEMUEy= " + JEMUEy + " Err " + errJEMUEy);
-//        System.out.println("JEMUExSquare= " + JEMUExSquare + " Err " + errJEMUExSquare);
-//        System.out.println("JEMUEySquare= " + JEMUEySquare + " Err " + errJEMUEySquare);
+        System.out.println("JEMUEx= " + JEMUEx + " Err " + errJEMUEx);
+        System.out.println("JEMUEy= " + JEMUEy + " Err " + errJEMUEy);
+        System.out.println("JEMUExSquare= " + JEMUExSquare + " Err " + errJEMUExSquare);
+        System.out.println("JEMUEySquare= " + JEMUEySquare + " Err " + errJEMUEySquare);
 
 
 //        System.out.println("Conventional:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (-dipoleSumSquared / temperature / temperature / numberMolecules)
@@ -265,15 +265,15 @@ public class HeisenbergPair extends Simulation {
 //        System.out.println("mapping:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (AEE / numberMolecules)
 //                + " Err:\t" + (AEEER / numberMolecules));
 //
-//        double sumJEEMJEJE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(5);
-//        double errJEEMJEJE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(5);
-//        System.out.println("JEEMJEJE:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (sumJEEMJEJE / numberMolecules)
-//                + " Err:\t" + (errJEEMJEJE / numberMolecules));
+        double sumJEEMJEJE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(5);
+        double errJEEMJEJE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(5);
+        System.out.println("JEEMJEJE:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (sumJEEMJEJE / numberMolecules)
+                + " Err:\t" + (errJEEMJEJE / numberMolecules));
 //
-//        double sumUEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(6);
-//        double errUEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(6);
-//        System.out.println("UEE:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (sumUEE / numberMolecules)
-//                + " Err:\t" + (errUEE / numberMolecules));
+        double sumUEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(6);
+        double errUEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(6);
+        System.out.println("UEE:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (sumUEE / numberMolecules)
+                + " Err:\t" + (errUEE / numberMolecules));
 //
 //        System.out.println("-JEEMJEJE+UEE " + ((sumJEEMJEJE + sumUEE) / numberMolecules));
 
@@ -287,6 +287,6 @@ public class HeisenbergPair extends Simulation {
         public double temperature = 2.7;// Kelvin
         public double interactionS = 1.3;
         public double dipoleMagnitude = 1.6;
-        public int steps = 1000;
+        public int steps = 5000;
     }
 }
