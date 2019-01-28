@@ -240,6 +240,7 @@ task linkModules(type: Exec, dependsOn: ':etomica-modules:jar') {
             "swmd=etomica.modules/etomica.modules.swmd.SwmdGraphic",
             "vle=etomica.modules/etomica.modules.vle.VLE",
             "b2fit=etomica.modules/etomica.modules.vle.B2Fit",
+            "lammpsViewer=etomica.apps/etomica.freeenergy.npath.ConfigFromFileLAMMPS"
     ]
 
     commandLine "jlink"
