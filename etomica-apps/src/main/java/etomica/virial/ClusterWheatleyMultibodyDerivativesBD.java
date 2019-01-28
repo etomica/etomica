@@ -24,7 +24,6 @@ public class ClusterWheatleyMultibodyDerivativesBD extends ClusterWheatleySoftDe
     protected final double[] r2;
     protected final MoleculeArrayList molecules;
     protected boolean doMulti;
-    protected double rCut2;
     protected ClusterWheatleyMultibodyDerivativesBD clusterMultiBDBD;
     protected final BigDecimal[] fQmulti;
     protected final int nDer;
@@ -56,7 +55,6 @@ public class ClusterWheatleyMultibodyDerivativesBD extends ClusterWheatleySoftDe
         r2 = new double[nPoints*(nPoints-1)/2];
         // pairwise shouldn't try to use BD                
         molecules = new MoleculeArrayList(nPoints);
-        rCut2 = Double.POSITIVE_INFINITY;
         fQmulti = new BigDecimal[1<<n];
         fQmulti[0] = fQmulti[1] = fQmulti[2] = BDONE;
         pairValues = new BigDecimal[nDer+1];
@@ -81,10 +79,6 @@ public class ClusterWheatleyMultibodyDerivativesBD extends ClusterWheatleySoftDe
         if (clusterMultiBDBD != null) {
             clusterMultiBDBD.setTemperature(newT);
         }
-    }
-
-    public void setRCut(double newRCut) {
-        rCut2 = newRCut * newRCut;
     }
 
     public void calcValue(BoxCluster box) {
@@ -119,7 +113,7 @@ public class ClusterWheatleyMultibodyDerivativesBD extends ClusterWheatleySoftDe
         // we have our own BD cluster for multibody
         // if an individual integrand (pair/total) is small, it won't trigger a BD calculation
         // BD only gets triggered here        
-        if (Math.log10(Math.abs(fB[nf-1][0].doubleValue())) < -(mc.getPrecision()-5)) {
+        if (value[0]!=0 && Math.log10(Math.abs(value[0]/bfac)) < -(mc.getPrecision()-5)) {
             // value is too small for us to compute it precisely
             if (mc.getPrecision() >= precisionLimit) {
                 for (int m=0; m<=nDer;m++){           
@@ -142,8 +136,6 @@ public class ClusterWheatleyMultibodyDerivativesBD extends ClusterWheatleySoftDe
 
     protected void calcFullFQ(BoxCluster box) {
         super.calcFullFQ(box);
-        boolean debugme = false; //box.getIndex()==1;
-        if(debugme)System.out.println(fQ[3][0]+" "+fQ[5][0]+" "+fQ[6][0]+" "+fQ[7][0]);        
         if (!doMulti) return;
         for (int i=3; i<fMulti.length; i++) {
             if (fMulti[i]!=null) fMulti[i].setBox(box);
@@ -211,6 +203,10 @@ public class ClusterWheatleyMultibodyDerivativesBD extends ClusterWheatleySoftDe
             }
             if ((fMulti.length <= l || fMulti[l] == null) && fNonAdditive == null) {
                 fQmulti[i] = BDONE;
+                BigDecimal c = BDlog((fQ[i][0])).divide(BDbeta,mc);
+                for(int m=1; m<=nDer;m++){
+                    fQ[i][m]=fQ[i][m-1].multiply(c,mc);      //calculates derivatives of fQ w.r.t. beta
+                }
                 continue;
             }
             int ll = 0;
@@ -239,7 +235,6 @@ public class ClusterWheatleyMultibodyDerivativesBD extends ClusterWheatleySoftDe
             for(int m=1; m<=nDer;m++){
                 fQ[i][m]=fQ[i][m-1].multiply(c,mc);      //calculates derivatives of fQ w.r.t. beta      
             }
-            if(debugme)System.out.println(fQ[7][0]);
         }
     }
     

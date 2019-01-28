@@ -49,9 +49,9 @@ public class MeterSolidDA implements IDataSource {
         pcVirial.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, pcVirial);
         latticePressure = -pcVirial.getSum()/(box.getBoundary().volume()*dim);
-        
 
-        int n = 5;
+
+        int n = doD2 ? 7 : 5;
         dataInfo = new DataInfoDoubleArray("Stuff", Null.DIMENSION, new int[]{n});
         dataInfo.addTag(tag);
         data = new DataDoubleArray(n);
@@ -69,12 +69,12 @@ public class MeterSolidDA implements IDataSource {
     
     public void setTemperature(double temperature) {
         this.temperature = temperature;
-        pc.setPHarmonic(pRes, temperature);
+        bpHarm = pRes / temperature;
     }
     
     public void setPRes(double pRes) {
         this.pRes = pRes;
-        pc.setPHarmonic(pRes, temperature);
+        bpHarm = pRes / temperature;
     }
     
     /**
@@ -84,7 +84,6 @@ public class MeterSolidDA implements IDataSource {
     public IData getData() {
     	pc.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, pc);
-        double p1 = pc.getPressureSum();
         double[] x = data.getData();
         double V = box.getBoundary().volume();
         double rho = box.getMoleculeList().size()/V;
@@ -98,12 +97,29 @@ public class MeterSolidDA implements IDataSource {
         double vol = box.getBoundary().volume();
         // P = Plat + Pres + x[5]
         double density = N / vol;
-        double Zc = (p1 - latticePressure)/(density*temperature);
+        double fac2 = (-1 / V + pRes) / (dim * N - dim);
+        double fV = (bpHarm - N / V) / (dim * (N - 1));
+//        System.out.println(p1+" "+fac2+" "+pc.getDADBSum()+" "+latticePressure);
+        double Zc = (-pc.getVirialSum() / (dim * V) + fV * pc.getDADBSum() - latticePressure) / (density * temperature);
+
         x[3] = Zc;
         // Pc = x[5]
         // Zc = x[5] / (rho*T)
         // this is dbAc/dv2 at constant Y (for LJ)
+
+
         x[4] = (4*buc-Zc)*density*density/2;
+        //x[4] = (N-1)*1.5/N + (0.5 * pc.getDADBSum() + uSum) / temperature / N;
+
+        if (doD2) {
+            double y = latticeEnergy + dr.getD() * (N - 1) * temperature / 2;
+            x[5] = (uSum - y) * (uSum - y);
+//            System.out.println(uSum+" "+y+" "+x[5]);
+
+            x[6] = -0.25 * (pc.getDADBSum() + pc.getD2Sum()) / temperature + (x[2] * x[2]) * N * N;
+            //x[7] = -0.25 * (pc.getDADBSum() + pc.getD2Sum()) / temperature + x[4]*x[4]*N*N;
+//            x[7] = pc.getD2Sum();
+        }
 
         return data;
     }
@@ -118,7 +134,7 @@ public class MeterSolidDA implements IDataSource {
     protected double temperature;
     protected double latticeEnergy, latticePressure;
     protected final Box box;
-    protected double pRes;
+    protected double pRes, bpHarm;
     protected final boolean doD2;
     protected final CoordinateDefinition coordinteDefinition;
     protected final Vector dr;

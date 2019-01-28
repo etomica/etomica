@@ -33,6 +33,8 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
     protected int stepcount = 0;
     protected long totcount = 0;
     protected boolean count=false;
+    protected double rCut2 = Double.POSITIVE_INFINITY;
+
 
     public ClusterWheatleySoftDerivatives(int nPoints, MayerFunction f, double tol, int nDer) {        
         this.n = nPoints;
@@ -47,9 +49,8 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
     	}
         fA = new double[nf][nDer+1];
         fB = new double[nf][nDer+1];
-        this.tol = tol;
         this.nDer = nDer;
-        clusterBD = tol == 0 ? null : new ClusterWheatleySoftDerivativesBD(nPoints, f, -3*(int)Math.log10(tol),nDer);
+        if(tol!=0){setTolerance(tol);}
         this.binomial = new int[nDer+1][]; 
         for(int m=0;m<=nDer;m++){
             binomial[m] = new int[m+1];
@@ -57,6 +58,18 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
                 binomial[m][l] = (int)(SpecialFunctions.factorial(m)/(SpecialFunctions.factorial(l)*SpecialFunctions.factorial(m-l)));
             }
         }
+    }
+
+    public void setTolerance(double newTol) {
+        if(newTol!=0){
+            clusterBD = new ClusterWheatleySoftDerivativesBD(n, f, -3*(int)Math.log10(newTol),nDer);
+            clusterBD.setDoCaching(false);
+            clusterBD.setPrecisionLimit(300);
+        }
+        else{
+            clusterBD = null;
+        }
+        tol = newTol;
     }
 
     public void setDoCaching(boolean newDoCaching) {
@@ -127,6 +140,7 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
             if (i==j) continue; // 1-point set
             int k = i&~j; //strip j bit from i and set result to k
             if (k == (k&-k)){
+                // 2-point set; these fQ's were filled when bonds were computed, so skip
                 if (fQ[i][0] == 0){
                     for (int m=1;m<=nDer;m++){
                         fQ[i][m]=0;
@@ -146,10 +160,10 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
             	}
             	continue;
             }
-            //loop over pairs formed from j and each point in partition; multiply by bond for each pair
+            //loop over pairs formed from j and each point in set i; multiply by bond for each pair
             //all such pairs will be with bits higher than j, as j is the lowest bit in i
             for (int l=(j<<1); l<i; l=(l<<1)) {
-                if ((l&i)==0) continue; //l is not in partition
+                if ((l&i)==0) continue; //l is not in i
                 fQ[i][0] *= fQ[l | j][0];
             }
             
@@ -167,11 +181,27 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         }
     }
 
+    public void setRCut(double newRCut) {
+        rCut2 = newRCut * newRCut;
+    }
+
     /**
      * Returns the cluster value for the given configuration.  You must call
      * doCheck(BoxCluster) before calling this method.
      */
     public void calcValue(BoxCluster box) {
+        CoordinatePairSet cPairs = box.getCPairSet();
+        double rMax = 0;
+        for(int i=0; i<n-1; i++) {
+            for(int j=i+1; j<n; j++) {
+                if (cPairs.getr2(i,j) > rCut2) {
+                    value[0] = 0;
+                    return;
+                }
+                if (cPairs.getr2(i,j) > rMax) rMax = cPairs.getr2(i,j);
+            }
+        }
+
         double maxR2 = 0.1;
         if (pushme) {
             // force the system to hang out between minMaxR2 and maxMaxR2

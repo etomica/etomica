@@ -21,6 +21,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.models.co2.SpeciesTraPPECO2;
 import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;

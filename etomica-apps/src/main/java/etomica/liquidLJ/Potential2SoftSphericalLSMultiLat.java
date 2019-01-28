@@ -4,6 +4,7 @@
 
 package etomica.liquidLJ;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.normalmode.CoordinateDefinition;
@@ -47,6 +48,7 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
 		drLat = space.makeVector();
 		drLatTmp = space.makeVector();
 		drA = space.makeVector();
+        dr0 = space.makeVector();
 		this.rCutMax = rCut[rCut.length-1];
 		nShells = new int[space.D()];
 		a0 = new double[space.D()];
@@ -61,18 +63,24 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
     
     public ReturnValue energyVirialCut(IAtomList atoms) {
     	boolean isSelf = (atoms.get(1) == atoms.get(0));
-        dr.Ev1Mv2(atoms.get(1).getPosition(),atoms.get(0).getPosition());
         drLat.E(coordinateDefinition.getLatticePosition(atoms.get(1)));
         drLat.ME(coordinateDefinition.getLatticePosition(atoms.get(0)));
         drTmp.E(drLat);
         boundary.nearestImage(drLat);
-        dr.PE(drLat);
-        dr.ME(drTmp);
-        
+
         drTmp.Ev1Mv2(atoms.get(1).getPosition(), coordinateDefinition.getLatticePosition(atoms.get(1)));
+        drTmp.ME(dr0);
+        boundary.nearestImage(drTmp);
         drA.E(drTmp);
         drTmp.Ev1Mv2(atoms.get(0).getPosition(), coordinateDefinition.getLatticePosition(atoms.get(0)));
+        drTmp.ME(dr0);
+        boundary.nearestImage(drTmp);
         drA.ME(drTmp);
+
+        // drLat = PBC(site1-site0)
+        // drA = PBC(r1-site1) - PBC(r0-site0)
+        // dr = drLat + drA
+        dr.Ev1Pv2(drLat, drA);
         
         for (int i=0; i<rCut2.length; i++) {
             rv.dadbSum[i] = rv.energySum[i] = rv.sum1[i] = rv.virialSum[i] = rv.pzxySum[i] = 0;
@@ -156,6 +164,9 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
             nShells[i] = (int) Math.ceil(rCutMax/a0[0] - 0.49999);
         }
 
+        IAtom atom0 = box.getLeafList().get(0);
+        Vector site0 = coordinateDefinition.getLatticePosition(atom0);
+        dr0.Ev1Mv2(atom0.getPosition(), site0);
     }
 
     protected final Vector[] gradient;
@@ -164,7 +175,7 @@ public class Potential2SoftSphericalLSMultiLat extends Potential2 implements Pot
     protected final double[] a0;
     protected final Potential2Soft p2Soft;
     protected final Vector Lxyz;
-    protected final Vector dr, drTmp, drLat, drA, drLatTmp;
+    protected final Vector dr, drTmp, drLat, drA, drLatTmp, dr0;
     protected final Vector pTmp1;
     protected final double[] rCut2;
     protected final double rCutMax;

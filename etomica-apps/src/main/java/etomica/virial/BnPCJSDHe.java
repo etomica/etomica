@@ -4,7 +4,10 @@
 
 package etomica.virial;
 
-import etomica.potential.*;
+import etomica.potential.P2HePCJS;
+import etomica.potential.P2HeSimplified;
+import etomica.potential.Potential2SoftSpherical;
+import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
@@ -22,57 +25,36 @@ import etomica.util.ParseArgs;
  * 
  * @author kate
  * @author Andrew Schultz
+ * @author Navneeth
  */
-public class BnPYCHe {
-
-    enum PotentialChoice {
-        SIMPLE, PCKLJS, PCJS
-    }
-
-    public static class BnPYHeParams extends ParameterBase {
-        public int n = 2;
-        public double T = 500;
-        public boolean verbose = false;
-        public double tol = 1e-8;
-        public PotentialChoice potentialChoice = PotentialChoice.PCJS;
-        public double rmax = 40;
-        public double sigma = 0;
-        public boolean classical = true;
-    }
+public class BnPCJSDHe {
     
     public static void main(String[] args) {
-        BnPYHeParams params = new BnPYHeParams();
+
+        BnPCJSDHeParams params = new BnPCJSDHeParams();
+
         boolean isCommandline = args.length > 0;
         if (isCommandline) {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.n = 2;
-            params.T = 100;
-            params.verbose = false;
-            params.potentialChoice = PotentialChoice.PCJS;
+            params.n = 3;
+            params.T = 15;
+            params.verbose = true;
+            params.calcApprox = false;
             params.rmax = 40;
             params.tol = 1e-8;
-            params.sigma = 0;
         }
         int m = params.n;
         double T = Kelvin.UNIT.toSim(params.T);
         double tol = params.tol;
         boolean verbose = params.verbose;
-        double sigma = params.sigma;
+        boolean calcApprox = params.calcApprox;
         Space space = Space3D.getInstance();
-        if (!params.classical && params.potentialChoice == PotentialChoice.PCJS) {
-            throw new RuntimeException("Don't know how to do semiclassical PCJS");
-        }
-        PotentialChoice pc = params.potentialChoice;
-        P2HeSimplified p2Simple = new P2HeSimplified(space);
-        P2HePCKLJS p2PCKLJS = new P2HePCKLJS(space, sigma);
-        P2HePCJS p2PCJS = new P2HePCJS(space, sigma);
-        Potential2SoftSpherical p2 = pc == PotentialChoice.SIMPLE ? p2Simple : (pc == PotentialChoice.PCKLJS ? p2PCKLJS : p2PCJS);
-        Potential2Spherical p2sc = pc == PotentialChoice.SIMPLE ? new P2HeSimplified(space).makeQFH(T) : new P2HePCKLJS(space, sigma).makeQFH(T);
+        Potential2SoftSpherical p2 = calcApprox ? new P2HeSimplified(space) : new P2HePCJS(space);
         double rMax = params.rmax;
         while (true) {
-            double[][] results = getConvergence(params.classical ? p2 : p2sc, m, rMax, tol, T, verbose, pc == PotentialChoice.SIMPLE ? 1.6 : 0);
+            double[][] results = getConvergence(p2, m, rMax, tol, T, verbose, calcApprox ? 1.6 : 0);
             if (results[2][0] > tol) {
                 double newRMax = results[2][2];
                 if (newRMax > 2.5*rMax) {
@@ -236,5 +218,14 @@ public class BnPYCHe {
         }
 
         return fr;
+    }
+
+    public static class BnPCJSDHeParams extends ParameterBase {
+        public int n = 2;
+        public double T = 50;
+        public boolean verbose = false;
+        public double tol = 1e-8;
+        public boolean calcApprox = false;
+        public double rmax = 40;
     }
 }

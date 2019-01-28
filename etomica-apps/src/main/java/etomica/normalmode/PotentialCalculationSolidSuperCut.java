@@ -21,7 +21,7 @@ import etomica.space.Vector;
 public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         
     protected final CoordinateDefinition coordinateDefinition;
-    protected final Vector drSite0, drSite1, drA, dr, drB;
+    protected final Vector drSite0, drSite1, drA, dr, drB, dr0;
     protected final Space space;
     protected double[] pzxySum;
     protected final Vector pTmp1;
@@ -44,6 +44,7 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         drA = space.makeVector();
         dr = space.makeVector();
         drB = space.makeVector();
+        dr0 = space.makeVector();
         setBox(coordinateDefinition.getBox());
         sum1 = new double[r2Cut.length];
         virialSum = new double[r2Cut.length];
@@ -63,19 +64,26 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         Vector site0 = coordinateDefinition.getLatticePosition(atom0);
         Vector site1 = coordinateDefinition.getLatticePosition(atom1);
 
-        dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-        boundary.nearestImage(dr);
-        double r2 = dr.squared();
         Potential2SoftSpherical potentialSoft = (Potential2SoftSpherical)potential;
-
-        drSite0.Ev1Mv2(atom0.getPosition(), site0);
-        drSite1.Ev1Mv2(atom1.getPosition(), site1);
-        drA.Ev1Mv2(drSite1, drSite0);
 
         drB.Ev1Mv2(site1, site0);
         boundary.nearestImage(drB);
         double r2site = drB.squared();
-        
+
+        drSite0.Ev1Mv2(atom0.getPosition(), site0);
+        drSite0.ME(dr0);
+        boundary.nearestImage(drSite0);
+        drSite1.Ev1Mv2(atom1.getPosition(), site1);
+        drSite1.ME(dr0);
+        boundary.nearestImage(drSite1);
+
+        drA.Ev1Mv2(drSite1, drSite0);
+        // dr = drB + drSite1 - drSite0
+        dr.Ev1Pv2(drB, drA);
+        boundary.nearestImage(dr);
+        double r2 = dr.squared();
+
+
         double u = potentialSoft.u(r2);
         double du = potentialSoft.du(r2);
         double p1 = -du/r2*dr.dot(drB)*fac1;
@@ -127,6 +135,10 @@ public class PotentialCalculationSolidSuperCut implements PotentialCalculation {
         int D = boundary.getBoxSize().getD();
         double vol = boundary.volume();
         fac1 = 1.0/(D*vol);
+
+        IAtom atom0 = box.getLeafList().get(0);
+        Vector site0 = coordinateDefinition.getLatticePosition(atom0);
+        dr0.Ev1Mv2(atom0.getPosition(), site0);
     }
     
     public void setBox(Box box) {

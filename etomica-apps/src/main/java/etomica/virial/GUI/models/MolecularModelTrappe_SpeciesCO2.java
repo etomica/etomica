@@ -5,6 +5,7 @@
 package etomica.virial.GUI.models;
 
 
+import etomica.models.co2.SpeciesTraPPECO2;
 import etomica.potential.P2CO2TraPPE;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -12,7 +13,6 @@ import etomica.species.ISpecies;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesTraPPECO2;
 
 public class MolecularModelTrappe_SpeciesCO2 implements IMolecularModel_SpeciesFactory,Cloneable{
 	private static String MoleculeDisplayName = "CO2 - Trappe";

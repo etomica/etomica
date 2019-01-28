@@ -23,13 +23,15 @@ import etomica.space.*;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.*;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
 import java.awt.*;
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,19 +44,27 @@ import java.util.List;
 public class ConfigFromFileLAMMPS {
 
     public static void main(String[] args) throws IOException {
+
         ConfigFromFileLAMMPSParam params = new ConfigFromFileLAMMPSParam();
-        if (args.length == 0) {
-            throw new RuntimeException("Usage: ConfigFromFileLAMMPS -filename sim.atom -configNum n -crystal CRYSTAL");
+        if (args.length > 0) {
+            ParseArgs.doParseArgs(params, args);
         }
-        ParseArgs.doParseArgs(params, args);
-        String filename = params.filename;
         boolean doSfac = params.doSfac;
         double cutoffS = params.cutS;
         double thresholdS = params.thresholdS;
         boolean GUI = params.GUI;
-        FileReader fileReader = new FileReader(filename);
-        BufferedReader reader = new BufferedReader(fileReader);
-        String line = null;
+        String input = params.input;
+        Reader reader0;
+        if (input.substring(0, 4).equals("http")) {
+            URL url = new URL(input);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+            reader0 = new InputStreamReader(in);
+        } else {
+            String filename = params.input;
+            reader0 = new FileReader(filename);
+        }
+        BufferedReader reader = new BufferedReader(reader0);
         String read = "";
         int numAtoms = -1;
         int item = -1;
@@ -73,6 +83,7 @@ public class ConfigFromFileLAMMPS {
         List<DataFunction.DataInfoFunction> sfacDataInfo = new ArrayList<>();
         DataTag sfacTag = new DataTag();
         ModifierConfiguration modifierConfig =  null;
+        String line;
         while ((line = reader.readLine()) != null) {
             if (line.matches("ITEM:.*")) {
                 read = "";
@@ -299,7 +310,7 @@ public class ConfigFromFileLAMMPS {
     }
 
     public static class ConfigFromFileLAMMPSParam extends ParameterBase {
-        public String filename;
+        public String input = "http://rheneas.eng.buffalo.edu/~andrew/lj.atom";
         public boolean doSfac = false;
         public double cutS = 8;
         public double thresholdS = 0.001;
@@ -366,7 +377,6 @@ public class ConfigFromFileLAMMPS {
                 rescaledCoords0[i].E(r0);
                 dr.Ev1Mv2(atoms.get(i).getPosition(), r0);
                 boundary.nearestImage(dr);
-                double r2 = dr.squared();
             }
 
         }

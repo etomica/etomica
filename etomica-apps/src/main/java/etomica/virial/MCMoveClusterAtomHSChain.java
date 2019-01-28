@@ -19,13 +19,11 @@ import etomica.util.random.IRandom;
 public class MCMoveClusterAtomHSChain extends MCMoveAtom {
 
     protected final double sigma;
-    protected final Vector dr;
     protected int[] seq;
 
     public MCMoveClusterAtomHSChain(IRandom random, Space _space, double sigma) {
         super(random, null, _space);
         this.sigma = sigma;
-        dr = space.makeVector();
     }
 
     public boolean doTrial() {
