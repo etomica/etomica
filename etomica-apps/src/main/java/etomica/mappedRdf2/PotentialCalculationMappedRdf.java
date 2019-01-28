@@ -26,6 +26,9 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
     protected final Vector dr;
     protected double[] gSum;
     protected double[] gSum2;
+    protected double[] newgSum;
+    protected double[] newestgSum;
+
     protected double[] thirdterm;
     protected double rcforHandfinmap;
     protected IBoundary boundary;
@@ -51,9 +54,12 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
         xDataSource.setTypeMax(DataSourceUniform.LimitType.HALF_STEP);
         xDataSource.setTypeMin(DataSourceUniform.LimitType.HALF_STEP);
+        newgSum=new double[xDataSource.getData().getLength()];
+        newestgSum=new double[xDataSource.getData().getLength()];
 
         gSum = new double[xDataSource.getData().getLength()];
         gSum2 = new double[xDataSource.getData().getLength()];
+
         thirdterm = new double[xDataSource.getData().getLength()];
         this.rcforHandfinmap = rcforHandfinmap;
 
@@ -199,6 +205,9 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
     public void reset() {
         xMax = xDataSource.getXMax();
         gSum = new double[xDataSource.getData().getLength()];
+        newgSum = new double[xDataSource.getData().getLength()];
+        newestgSum = new double[xDataSource.getData().getLength()];
+
         gSum2 = new double[xDataSource.getData().getLength()];
         thirdterm= new double[xDataSource.getData().getLength()];
     }
@@ -230,6 +239,9 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
                      gSum2[k] = gSum2[k] - ((xu/(4 * Math.PI*r * r * r)) )* (fi.dot(dr)-fj.dot(dr)  )*beta/vol;                //add once for each atom
                      thirdterm[k] +=  (beta*(fi.dot(dr)-fj.dot(dr)  )/(3*vol*(4*Math.PI*rcforHandfinmap*rcforHandfinmap*rcforHandfinmap/3)));               //add once for each atom
 
+                newgSum[k]=newgSum[k]-((beta/vol)*-1*fi.dot(dr)*((xu/(4*Math.PI*r * r * r))-(1/(3*vol))));
+
+                     newestgSum[k]=newestgSum[k]+(beta*-1*fi.dot(dr)*(1-xu)/(vol*4*Math.PI*r * r * r));
 //
             }
         }
@@ -238,6 +250,13 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
     public double[] getGSum() {
         return gSum;
     }
+    public double[] getnewGSum() {
+        return newgSum;
+    }
+    public double[] getnewestGSum() {
+        return newestgSum;
+    }
+
     public double[] getGSum2() {
         return gSum2;
     }

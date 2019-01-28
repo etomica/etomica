@@ -85,7 +85,7 @@ public class MappedRdf extends Simulation {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.numSteps = 100000000;
+            params.numSteps = 100000;
         }
 
         int numAtoms = params.numAtoms;
@@ -109,9 +109,11 @@ public class MappedRdf extends Simulation {
         MeterMappedRdf meterMappedRdf = null;
         MeterMappedRdf2 meterMappedRdf2 = null;
         MeterMappedRdf3 meterMappedRdf3 = null;
+        MeterMappedRdfnew meterMappedRdfnew= null;
+        MeterMappedRdfnewest meterMappedRdfnewest= null;
 
         double halfBoxlength = sim.box.getBoundary().getBoxSize().getX(0) / 2;
-        int nbins = 1000;
+        int nbins = 100;
         double eqncutoff = halfBoxlength;
 
 
@@ -177,9 +179,32 @@ public class MappedRdf extends Simulation {
         meterMappedRdf3.getPotentialCalculation().setTemperature(temperature);
 
 
+        meterMappedRdfnew = new MeterMappedRdfnew(params.rcforHandfinmap,space, sim.integrator.getPotentialMaster(), sim.box, nbins,params.density);
+        meterMappedRdfnew.setBox(sim.box);
+        meterMappedRdfnew.getXDataSource().setNValues(nbins);
+        meterMappedRdfnew.getXDataSource().setXMax(eqncutoff);
+        meterMappedRdfnew.getPotentialCalculation().setPotential(sim.p2Truncated);
+        meterMappedRdfnew.getPotentialCalculation().setTemperature(temperature);
+
+        meterMappedRdfnewest = new MeterMappedRdfnewest(params.rcforHandfinmap,space, sim.integrator.getPotentialMaster(), sim.box, nbins,params.density);
+        meterMappedRdfnewest.setBox(sim.box);
+        meterMappedRdfnewest.getXDataSource().setNValues(nbins);
+        meterMappedRdfnewest.getXDataSource().setXMax(eqncutoff);
+        meterMappedRdfnewest.getPotentialCalculation().setPotential(sim.p2Truncated);
+        meterMappedRdfnewest.getPotentialCalculation().setTemperature(temperature);
+
         AccumulatorAverageFixed accmap = new AccumulatorAverageFixed(numSteps/(nBlocks*numAtoms));
         DataPumpListener map = new DataPumpListener(meterMappedRdf,accmap,numAtoms);
         sim.integrator.getEventManager().addListener(map);
+
+        AccumulatorAverageFixed accmapnew = new AccumulatorAverageFixed(numSteps/(nBlocks*numAtoms));
+        DataPumpListener mapnew = new DataPumpListener(meterMappedRdfnew,accmapnew,numAtoms);
+        sim.integrator.getEventManager().addListener(mapnew);
+
+        AccumulatorAverageFixed accmapnewest = new AccumulatorAverageFixed(numSteps/(nBlocks*numAtoms));
+        DataPumpListener mapnewest = new DataPumpListener(meterMappedRdfnewest,accmapnewest,numAtoms);
+        sim.integrator.getEventManager().addListener(mapnewest);
+
 
         AccumulatorAverageFixed acccon = new AccumulatorAverageFixed(numSteps/(nBlocks*numAtoms));
         DataPumpListener con = new DataPumpListener(meterRDF,acccon,numAtoms);
@@ -203,6 +228,13 @@ public class MappedRdf extends Simulation {
       //  IData rmdata = meterMappedRdf.getIndependentData(0);
         IData gmdata = accmap.getData(accmap.AVERAGE);
         IData gmdataerr = accmap.getData(accmap.ERROR);
+
+        IData gmdatanew = accmapnew.getData(accmapnew.AVERAGE);
+        IData gmdataerrnew = accmapnew.getData(accmapnew.ERROR);
+
+        IData gmdatanewest = accmapnewest.getData(accmapnewest.AVERAGE);
+        IData gmdataerrnewest = accmapnewest.getData(accmapnewest.ERROR);
+
         IData g3rdtermdata = acc3rdterm.getData(acc3rdterm.AVERAGE);
         IData g3rdtermdataerr = acc3rdterm.getData(acc3rdterm.ERROR);
 
@@ -219,8 +251,13 @@ public class MappedRdf extends Simulation {
             double g3rdterm = g3rdtermdata.getValue(i);
             double g3rdtermerr = g3rdtermdataerr.getValue(i);
 
+            double gmnew = gmdatanew.getValue(i);
+            double gmerrnew = gmdataerrnew.getValue(i);
+
+            double gmnewest = gmdatanewest.getValue(i);
+            double gmerrnewest = gmdataerrnewest.getValue(i);
             // double e = Math.exp(-sim.p2Truncated.u(r * r) / temperature);
-            System.out.println(r + " " + g*params.numAtoms*(params.numAtoms-1)/((params.numAtoms/params.density)*(params.numAtoms/params.density)) + " " + gerr*params.numAtoms*(params.numAtoms-1)/((params.numAtoms/params.density)*(params.numAtoms/params.density)) + " "  + gm+  " " + gmerr+ " "+ gwithout3rdterm +  " " + gwithout3rdtermerr+ " "+ g3rdterm +  " " + g3rdtermerr);
+            System.out.println(r + " " + g*params.numAtoms*(params.numAtoms-1)/((params.numAtoms/params.density)*(params.numAtoms/params.density)) + " " + gerr*params.numAtoms*(params.numAtoms-1)/((params.numAtoms/params.density)*(params.numAtoms/params.density)) + " "  + gm+  " " + gmerr+ " "+ " "  + gmnew+  " " + gmerrnew+ " "  + gmnewest+  " " + gmerrnewest+ " "+ gwithout3rdterm +  " " + gwithout3rdtermerr+ " "+ g3rdterm +  " " + g3rdtermerr);
         }
 
     }
@@ -228,13 +265,13 @@ public class MappedRdf extends Simulation {
     public static class LJMDParams extends ParameterBase {
         public int numAtoms = 100;
         public double temperature = 5.0;
-        public double density = 1;
-        public long numSteps =  10000;
-        public double rc = 2;
+        public double density = 0.125;
+        public long numSteps =  100;
+        public double rc = 3.8;
         public int nBlocks = 100;
         public boolean computeR = false;
         public boolean computeRMA = true;
-        public double rcforHandfinmap = 2;
+        public double rcforHandfinmap = 3.8;
 
     }
 }
