@@ -44,7 +44,6 @@ import java.util.List;
 public class ConfigFromFileLAMMPS {
 
     public static void main(String[] args) throws IOException {
-        BufferedReader reader;
 
         ConfigFromFileLAMMPSParam params = new ConfigFromFileLAMMPSParam();
         if (args.length > 0) {
@@ -55,18 +54,17 @@ public class ConfigFromFileLAMMPS {
         double thresholdS = params.thresholdS;
         boolean GUI = params.GUI;
         String input = params.input;
+        Reader reader0;
         if (input.substring(0, 4).equals("http")) {
             URL url = new URL(input);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-            InputStreamReader isr = new InputStreamReader(in);
-            reader = new BufferedReader(isr);
+            reader0 = new InputStreamReader(in);
         } else {
             String filename = params.input;
-            FileReader fileReader = new FileReader(filename);
-            reader = new BufferedReader(fileReader);
+            reader0 = new FileReader(filename);
         }
-        String line = null;
+        BufferedReader reader = new BufferedReader(reader0);
         String read = "";
         int numAtoms = -1;
         int item = -1;
@@ -85,6 +83,7 @@ public class ConfigFromFileLAMMPS {
         List<DataFunction.DataInfoFunction> sfacDataInfo = new ArrayList<>();
         DataTag sfacTag = new DataTag();
         ModifierConfiguration modifierConfig =  null;
+        String line;
         while ((line = reader.readLine()) != null) {
             if (line.matches("ITEM:.*")) {
                 read = "";
@@ -378,7 +377,6 @@ public class ConfigFromFileLAMMPS {
                 rescaledCoords0[i].E(r0);
                 dr.Ev1Mv2(atoms.get(i).getPosition(), r0);
                 boundary.nearestImage(dr);
-                double r2 = dr.squared();
             }
 
         }
