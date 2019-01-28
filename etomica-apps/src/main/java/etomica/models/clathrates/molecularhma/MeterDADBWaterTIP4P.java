@@ -312,9 +312,13 @@ public int basisDim;
                                 D3tr.setComponent(ii, jj, D6mol.component(ii, jj + 3));
                                 D3rt.setComponent(ii, jj, D6mol.component(ii + 3, jj));
                                 D3rr.setComponent(ii, jj, D6mol.component(ii + 3, jj + 3));
+ //                               System.out.println("Dtt "+i+" "+j+" "+ii+" "+jj+" "+D3tt.component(ii,jj));
+   //                             System.out.println("Dtr "+i+" "+j+" "+ii+" "+jj+" "+D3tr.component(ii,jj));
+     //                           System.out.println("Drt "+i+" "+j+" "+ii+" "+jj+" "+D3rt.component(ii,jj));
+                                System.out.println("Drr "+i+" "+j+" "+ii+" "+jj+" "+D3rr.component(ii,jj));
+
                             }
                         }
-
                                 Vector h1i = molecules.get(i).getChildList().get(0).getPosition();
                                 Vector h2i = molecules.get(i).getChildList().get(1).getPosition();
                                 Vector oi = molecules.get(i).getChildList().get(2).getPosition();
@@ -477,6 +481,11 @@ public int basisDim;
                         D3tr.setComponent(ii, jj, D6mol.component(ii, jj + 3));
                         D3rt.setComponent(ii, jj, D6mol.component(ii + 3, jj));
                         D3rr.setComponent(ii, jj, D6mol.component(ii + 3, jj + 3));
+     //                   System.out.println("Dtt "+i+" "+j+" "+ii+" "+jj+" "+D3tt.component(ii,jj));
+   //                     System.out.println("Dtr "+i+" "+j+" "+ii+" "+jj+" "+D3tr.component(ii,jj));
+ //                       System.out.println("Drt "+i+" "+j+" "+ii+" "+jj+" "+D3rt.component(ii,jj));
+                        System.out.println("Drr "+i+" "+j+" "+ii+" "+jj+" "+D3rr.component(ii,jj));
+
                     }
                 }
 

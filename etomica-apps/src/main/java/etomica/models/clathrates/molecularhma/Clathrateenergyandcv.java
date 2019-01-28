@@ -383,8 +383,8 @@ public class Clathrateenergyandcv extends Simulation {
             dataPumpListenerPEsquare = new DataPumpListener(meterPEsquare, accumulatorAverageFixedPEsquare, 10);
         }
 
-       sim.ai.setMaxSteps(numSteps / 10);
-        sim.getController().actionPerformed();
+ //      sim.ai.setMaxSteps(numSteps / 10);
+ //       sim.getController().actionPerformed();
 
         sim.ai.setMaxSteps(numSteps);
         if (doMapping) sim.integrator.getEventManager().addListener(dataPumpListenerDADB);
@@ -561,11 +561,11 @@ public class Clathrateenergyandcv extends Simulation {
         int nX = 1;
         public int[] nC = new int[]{nX, nX, nX};
         public int numCells = 1;
-        public int numSteps = 500;
-        public double timeInterval = 0.00075;
+        public int numSteps = 10;
+        public double timeInterval = 0.000000075;
         public double temperature = 50;
-        public double rCutLJ = 6;
-        public double rCutRealES = 6;
+        public double rCutLJ = 11;
+        public double rCutRealES = 11;
         public double kCut = 1.5;
         public boolean isIce = false;
         public double shakeTol = 1e-12;
