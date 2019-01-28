@@ -85,7 +85,7 @@ public class MappedRdf extends Simulation {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.numSteps = 100000000;
+            params.numSteps = 10000;
         }
 
         int numAtoms = params.numAtoms;
@@ -229,7 +229,7 @@ public class MappedRdf extends Simulation {
         public int numAtoms = 100;
         public double temperature = 10.0;
         public double density = 0.015;
-        public long numSteps =  10000;
+        public long numSteps =  100;
         public double rc = 3;
         public int nBlocks = 10;
         public boolean computeR = false;

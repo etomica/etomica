@@ -1,4 +1,4 @@
-package etomica.mappedRdf2;
+ package etomica.mappedRdf2;
 
 import etomica.api.IAtom;
 import etomica.atom.AtomLeafAgentManager;
