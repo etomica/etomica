@@ -28,6 +28,7 @@ import etomica.units.dimensions.*;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -109,7 +110,6 @@ public class ConfigFromFileLAMMPS {
             }
             if (read.equals("numAtoms")) {
                 numAtoms = Integer.parseInt(line);
-                System.out.println("numAtoms: " + numAtoms);
             } else if (read.equals("boundary")) {
                 String[] bits = line.split("[ \t]+");
                 if (bits.length == 2) {
@@ -198,6 +198,9 @@ public class ConfigFromFileLAMMPS {
                 return "Displacement Threshold";
             }
         });
+        filterSlider.setShowBorder(true);
+        filterSlider.setBorderAlignment(TitledBorder.CENTER);
+        filterSlider.setLabel("Distance filter");
         filterSlider.setMinimum(0);
         filterSlider.setMaximum(2);
         filterSlider.setPrecision(2);
@@ -206,8 +209,15 @@ public class ConfigFromFileLAMMPS {
         filterSlider.setPostAction(() -> graphic.getDisplayBox(finalBox).repaint());
         graphic.add(filterSlider);
         DeviceSlider configSlider = new DeviceSlider(sim.getController(), modifierConfig);
+        configSlider.setShowBorder(true);
+        configSlider.setBorderAlignment(TitledBorder.CENTER);
+        configSlider.setLabel("Configuration #");
         configSlider.setMaximum(config - 1);
-        configSlider.setNMajor(config);
+        if (config > 10) {
+            configSlider.setNMajor(5);
+        } else {
+            configSlider.setNMajor(config);
+        }
         configSlider.setMinimum(0);
         configSlider.setPrecision(0);
         modifierConfig.setPostAction(new IAction() {
