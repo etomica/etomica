@@ -68,10 +68,7 @@ public class TestLJMC3D extends Simulation {
         inflater.actionPerformed();
         potential = new P2LennardJones(space, sigma, 1.0);
 
-        double truncationRadius = 12.0 * sigma;
-//        if (truncationRadius > 0.5 * box.getBoundary().getBoxSize().getX(0)) {
-//            throw new RuntimeException("Truncation radius too large.  Max allowed is" + 0.5 * box.getBoundary().getBoxSize().getX(0));
-//        }
+        double truncationRadius = 3.0 * sigma;
 
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
         AtomType leafType = species.getLeafType();
