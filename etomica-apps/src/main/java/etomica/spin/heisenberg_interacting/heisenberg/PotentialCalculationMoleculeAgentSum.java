@@ -3,6 +3,7 @@ package etomica.spin.heisenberg_interacting.heisenberg;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
+import etomica.integrator.Integrator;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.IPotentialAtomicSecondDerivative;
 import etomica.potential.PotentialCalculation;
@@ -20,6 +21,7 @@ import static etomica.math.SpecialFunctions.besselI;
 
 public class PotentialCalculationMoleculeAgentSum implements PotentialCalculation {
     //public class PotentialCalculationHeisenberg {
+    protected AtomLeafAgentManager.AgentIterator leafAgentIterator;
     protected Vector ei, ej;
     protected double AEEJ0, JEMUExIdeal, JEMUEyIdeal, JEMUEIdealSquare, JEEMJEJE, UEE, JEMUExSquare, JEMUEySquare, JEMUEx, JEMUEy, dipolex, dipoley, JEEMJEJExtrying, UEEnow, JEMUE, dipoleconv;
     protected final double mu, J, bt, bJ, bmu;
@@ -62,6 +64,8 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         bmu = bt * mu;
         this.nMax = nMax;
         this.leafAgentManager = leafAgentManager;
+
+        leafAgentIterator = leafAgentManager.makeIterator();
 
 //        int nM = leafAgentManager.getBox().getLeafList().getAtomCount();
 //        JEMUEx = new double[nM + 1];
@@ -117,18 +121,19 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
 
         count += 1;
 //        System.out.println("(*" + count + "th term*)");
-        boolean debug = (count % 150) == 0 && false;
+        boolean debug = false;
         if (debug) {
             System.out.println("nMax= " + nMax + ";");
-            System.out.println("mu= " + mu + ";");
-            System.out.println("J= " + J + ";");
-            System.out.println("bJ= " + bJ + ";");
-            System.out.println("bt = bJ/J;");
-            System.out.println("bmu = bt*mu;");
+//            System.out.println("mu= " + mu + ";");
+//            System.out.println("J= " + J + ";");
+//            System.out.println("bJ= " + bJ + ";");
+//            System.out.println("bt = bJ/J;");
+//            System.out.println("bmu = bt*mu;");
             System.out.println("t1 = " + t1 + ";");
             System.out.println("t2 = " + t2 + ";");
         }
-        if (count > 2000 && debug) System.exit(2);
+
+//        if (count > 4 && debug) System.exit(2);
 
 
 //        System.out.println("ei={" + ei.getX(0) + "," + ei.getX(1) + "};");
@@ -434,9 +439,16 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         dpvy21dt2 = 0;
 
 
+
+
         for (int n = 0; n <= nMax; n++) {
             double sinnt2 = Math.sin(n * t2);
             double cosnt2 = Math.cos(n * t2);
+
+            //TODO
+//            System.out.println("(d2Axs0[" +n + ",t1]/.pReplace)-(" +  d2Axs0[n]+")");
+//            System.out.println("(d2Axc0[" +n + ",t1]/.pReplace)-(" +  d2Axc0[n]+")");
+
 
             pvx10 += dAxs0[n] * sinnt2 + dAxc0[n] * cosnt2;
             pvy10 += dAys0[n] * sinnt2 + dAyc0[n] * cosnt2;
@@ -505,10 +517,38 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
 
         double dvEx1dt1 = dpvx10dt1 / px0 + pvx10 * dRpx0dt1;
         double dvEy1dt1 = dpvy10dt1 / py0 + pvy10 * dRpy0dt1;
+        double dvEx1dt2 = dpvx10dt2 / px0 + pvx10 * dRpx0dt2;
+        double dvEy1dt2 = dpvy10dt2 / py0 + pvy10 * dRpy0dt2;
+
+
         double dvEEx1dt1 = dpvx11dt1 / px0 + pvx11 * dRpx0dt1 - dvEx1dt1 * px1 / px0 - vEx1 * dpx1Rpx0dt1;
         double dvEEy1dt1 = dpvy11dt1 / py0 + pvy11 * dRpy0dt1 - dvEy1dt1 * py1 / py0 - vEy1 * dpy1Rpy0dt1;
         double d2vEx1dt1dt1 = d2pvx10dt1dt1 / px0 + dpvx10dt1 * dRpx0dt1 + dpvx10dt1 * dRpx0dt1 + pvx10 * d2Rpx0dt1dt1;
         double d2vEy1dt1dt1 = d2pvy10dt1dt1 / py0 + dpvy10dt1 * dRpy0dt1 + dpvy10dt1 * dRpy0dt1 + pvy10 * d2Rpy0dt1dt1;
+        double d2vEx1dt1dt2 = d2pvx10dt1dt2 / px0 + dpvx10dt1 * dRpx0dt2 + dpvx10dt2 * dRpx0dt1 + pvx10 * d2Rpx0dt1dt2;
+        double d2vEy1dt1dt2 = d2pvy10dt1dt2 / py0 + dpvy10dt1 * dRpy0dt2 + dpvy10dt2 * dRpy0dt1 + pvy10 * d2Rpy0dt1dt2;
+
+        if (debug) {
+            //passed the test!!!
+//            System.out.println("vEx1[nMax]- " + "(" + vEx1 + ")");
+//            System.out.println("vEx2[nMax]- " + "(" + vEx2 + ")");
+//            System.out.println("vEy1[nMay]- " + "(" + vEy1 + ")");
+//            System.out.println("vEy2[nMay]- " + "(" + vEy2 + ")");
+
+
+            //now test the dvEx1dtheta1  dpvx10dt1 / px0 + pvx10 * dRpx0dt1;
+//            System.out.println("(dpvx10dt1[nMax]/.pReplace) - " + "(" + dpvx10dt1 + ")");
+//            System.out.println("(px0/.pReplace) - " + "(" + px0 + ")");//passed the test
+//            System.out.println("(pvx10[t1,t2,nMax]/.pReplace) - " + "(" + pvx10 + ")");
+//            System.out.println("dRpx0dt1 - " + "(" + dRpx0dt1 + ")");
+
+            System.out.println("(dvEx1[nMax]/. pReplace)- " + "(" + dvEx1dt1 + ")");
+            System.out.println("(dvEy1[nMax]/. pReplace)- " + "(" + dvEy1dt1 + ")");
+            System.out.println("ClearAll[t1, t2]");
+//            System.out.println("vEy2[nMay]- " + "(" + vEy2 + ")");
+            System.exit(2);
+        }
+
 
 
         agentAtom1.vEx().PE(vEx1);
@@ -525,10 +565,16 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
 
         double dvEx2dt2 = dpvx20dt2 / px0 + pvx20 * dRpx0dt2;
         double dvEy2dt2 = dpvy20dt2 / py0 + pvy20 * dRpy0dt2;
+        double dvEx2dt1 = dpvx20dt1 / px0 + pvx20 * dRpx0dt1;
+        double dvEy2dt1 = dpvy20dt1 / py0 + pvy20 * dRpy0dt1;
+
         double dvEEx2dt2 = dpvx21dt2 / px0 + pvx21 * dRpx0dt2 - (dvEx2dt2 * px1 / px0 + vEx2 * dpx1Rpx0dt2);
         double dvEEy2dt2 = dpvy21dt2 / py0 + pvy21 * dRpy0dt2 - (dvEy2dt2 * py1 / py0 + vEy2 * dpy1Rpy0dt2);
         double d2vEx2dt2dt2 = d2pvx20dt2dt2 / px0 + dpvx20dt2 * dRpx0dt2 + dpvx20dt2 * dRpx0dt2 + pvx20 * d2Rpx0dt2dt2;
         double d2vEy2dt2dt2 = d2pvy20dt2dt2 / py0 + dpvy20dt2 * dRpy0dt2 + dpvy20dt2 * dRpy0dt2 + pvy20 * d2Rpy0dt2dt2;
+        double d2vEx2dt1dt2 = d2pvx20dt1dt2 / px0 + dpvx20dt2 * dRpx0dt1 + dpvx20dt1 * dRpx0dt2 + pvx20 * d2Rpx0dt1dt2;
+        double d2vEy2dt1dt2 = d2pvy20dt1dt2 / py0 + dpvy20dt2 * dRpy0dt1 + dpvy20dt1 * dRpy0dt2 + pvy20 * d2Rpy0dt1dt2;
+
 
         agentAtom2.vEx().PE(vEx2);
         agentAtom2.vEy().PE(vEy2);
@@ -542,10 +588,17 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         agentAtom2.d2vEy().PE(d2vEy2dt2dt2);
 
 
-        double p11 = bt * agentAtom1.phi.component(0, 0);
-        double p22 = bt * agentAtom2.phi.component(0, 0);
+//        double p11 = bt * agentAtom1.phi.component(0, 0);
+//        double p22 = bt * agentAtom2.phi.component(0, 0);
+        double f1 = bt * agentAtom1.torque.getX(0);
+        double f2 = bt * agentAtom2.torque.getX(0);
+        double p12 = -bJ * ei.dot(ej);
+        double p21 = p12;
 
-
+        JEEMJEJE += vEx1 * d2vEx1dt1dt2 + vEx2 * d2vEx2dt1dt2;
+        JEEMJEJE += vEy1 * d2vEy1dt1dt2 + vEy2 * d2vEy2dt1dt2;
+        UEE += f1 * dvEx1dt2 * vEx2 + f2 * dvEx2dt1 * vEx1;
+        UEE += f1 * dvEy1dt2 * vEy2 + f2 * dvEy2dt1 * vEy1;
     }
 
 
@@ -574,7 +627,22 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         d2vEy.E(0);
         phi.E(0);
 
-
+        if (leafAgentIterator != null) {
+            leafAgentIterator.reset();
+            while (leafAgentIterator.hasNext()) {
+                MoleculeAgent agent = (MoleculeAgent) leafAgentIterator.next();
+                agent.vEx().E(0);
+                agent.vEy().E(0);
+                agent.vEEx().E(0);
+                agent.vEEy().E(0);
+                agent.dvEx().E(0);
+                agent.dvEy().E(0);
+                agent.dvEEx().E(0);
+                agent.dvEEy().E(0);
+                agent.d2vEx().E(0);
+                agent.d2vEy().E(0);
+            }
+        }
     }
 
     public double getSumJEEMJEJE() {

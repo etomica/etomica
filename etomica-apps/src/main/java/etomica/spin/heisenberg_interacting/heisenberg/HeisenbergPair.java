@@ -278,6 +278,31 @@ public class HeisenbergPair extends Simulation {
 //        System.out.println("-JEEMJEJE+UEE " + ((sumJEEMJEJE + sumUEE) / numberMolecules));
 
 
+        System.out.println("These are the result of VSum" );
+        double sumJEMUExV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(11);
+        double errJEMUExV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(11);
+        System.out.println("JEMUExV:\t" + " Value:\t" + (sumJEMUExV / numberMolecules)
+                + " Err:\t" + (errJEMUExV / numberMolecules));
+
+        double sumJEMUEyV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(12);
+        double errJEMUEyV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(12);
+        System.out.println("JEMUEyV:\t" + " Value:\t" + (sumJEMUEyV / numberMolecules)
+                + " Err:\t" + (errJEMUEyV / numberMolecules));
+
+
+        double sumJEEMJEJEV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(13);
+        double errJEEMJEJEV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(13);
+        System.out.println("JEEMJEJEV:\t" + " Value:\t" + (sumJEEMJEJEV / numberMolecules)
+                + " Err:\t" + (errJEEMJEJEV / numberMolecules));
+
+
+        double sumUEEV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(14);
+        double errUEEV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(14);
+        System.out.println("UEEV:\t" + " Value:\t" + (sumUEEV / numberMolecules)
+                + " Err:\t" + (errUEEV / numberMolecules));
+
+
+
     }
 
     // ******************* parameters **********************//
@@ -288,5 +313,6 @@ public class HeisenbergPair extends Simulation {
         public double interactionS = 1.3;
         public double dipoleMagnitude = 1.6;
         public int steps = 5000;
+
     }
 }
