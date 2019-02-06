@@ -29,8 +29,8 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
     protected double[] d2Axc0, d2Axs0, d3Axc0, d3Axs0, d2Axc1, d2Axs1;
     protected double[] Ayc0, Ays0, dAyc0, dAys0, Ayc1, Ays1, dAyc1, dAys1;
     protected double[] d2Ayc0, d2Ays0, d3Ayc0, d3Ays0, d2Ayc1, d2Ays1;
-    protected double pvx10, pvx20, dpvx10dt1, dpvx20dt1, d2pvx10dt1dt1, d2pvx10dt1dt2, d2pvx20dt1dt2, d2pvx20dt2dt2, pvx11, pvx21, dpvx11dt1, dpvx11dt2, dpvx21dt1, dpvx21dt2, dpvx20dt2, d2pvx10dt1t1, dpvx10dt2;
-    protected double pvy10, pvy20, dpvy10dt1, dpvy20dt1, d2pvy10dt1dt1, d2pvy10dt1dt2, d2pvy20dt1dt2, d2pvy20dt2dt2, pvy11, pvy21, dpvy11dt1, dpvy11dt2, dpvy21dt1, dpvy21dt2, dpvy20dt2, d2pvy10dt1t1, dpvy10dt2;
+    protected double pvx10, pvx20, dpvx10dt1, dpvx20dt1, d2pvx10dt1dt2, d2pvx20dt1dt2, d2pvx20dt2dt2, pvx11, pvx21, dpvx11dt1, dpvx11dt2, dpvx21dt1, dpvx21dt2, dpvx20dt2, d2pvx10dt1dt1, dpvx10dt2;
+    protected double pvy10, pvy20, dpvy10dt1, dpvy20dt1, d2pvy10dt1dt2, d2pvy20dt1dt2, d2pvy20dt2dt2, pvy11, pvy21, dpvy11dt1, dpvy11dt2, dpvy21dt1, dpvy21dt2, dpvy20dt2, d2pvy10dt1dt1, dpvy10dt2;
 
     protected Vector phi;
     protected Vector vEx, vEEx, dvEx, dvEEx, d2vEx;
@@ -121,7 +121,7 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
 
         count += 1;
 //        System.out.println("(*" + count + "th term*)");
-        boolean debug = false;
+        boolean debug = true;
         if (debug) {
             System.out.println("nMax= " + nMax + ";");
 //            System.out.println("mu= " + mu + ";");
@@ -133,7 +133,7 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
             System.out.println("t2 = " + t2 + ";");
         }
 
-//        if (count > 4 && debug) System.exit(2);
+//        if (count > 1000 && debug) System.exit(2);
 
 
 //        System.out.println("ei={" + ei.getX(0) + "," + ei.getX(1) + "};");
@@ -184,7 +184,7 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
                 double np1p2 = (n + 1) * (n + 1);
                 double nm2p2 = (n - 2) * (n - 2);
                 double InbJ = besselI(n, bJ);
-                double Inm1bJ = besselI(n - 1, bJ);//TODO
+                double Inm1bJ = besselI(n - 1, bJ);
                 double Inm2bJ = besselI(n - 2, bJ);
                 double Inp1bJ = besselI(n + 1, bJ);
                 double sinnt1 = Math.sin(n * t1);
@@ -410,63 +410,58 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
 
 
         pvx10 = 0;
-        pvx20 = 0;
-        dpvx10dt1 = 0;
-        dpvx20dt1 = 0;
-        d2pvx10dt1dt1 = 0;
-        d2pvx10dt1dt2 = 0;
-        d2pvx20dt1dt2 = 0;
-        d2pvx20dt2dt2 = 0;
-        pvx11 = 0;
-        pvx21 = 0;
-        dpvx11dt1 = 0;
-        dpvx11dt2 = 0;
-        dpvx21dt1 = 0;
-        dpvx21dt2 = 0;
         pvy10 = 0;
-        pvy20 = 0;
-        dpvy10dt1 = 0;
-        dpvy20dt1 = 0;
-        d2pvy10dt1dt1 = 0;
-        d2pvy10dt1dt2 = 0;
-        d2pvy20dt1dt2 = 0;
-        d2pvy20dt2dt2 = 0;
+        pvx11 = 0;
         pvy11 = 0;
-        pvy21 = 0;
+        dpvx10dt1 = 0;
+        dpvy10dt1 = 0;
+        dpvx10dt2 = 0;
+        dpvy10dt2 = 0;
+        d2pvx10dt1dt2 = 0;
+        d2pvy10dt1dt2 = 0;
+        dpvx11dt1 = 0;
         dpvy11dt1 = 0;
+        dpvx11dt2 = 0;
         dpvy11dt2 = 0;
+        pvx20 = 0;
+        pvy20 = 0;
+        pvx21 = 0;
+        pvy21 = 0;
+        dpvx20dt1 = 0;
+        dpvy20dt1 = 0;
+        d2pvx20dt1dt2 = 0;
+        dpvx20dt2 = 0;
+        dpvy20dt2 = 0;
+        d2pvy20dt1dt2 = 0;
+        dpvx21dt1 = 0;
         dpvy21dt1 = 0;
+        dpvx21dt2 = 0;
         dpvy21dt2 = 0;
-
-
+        d2pvx10dt1dt1 = 0;
+        d2pvy10dt1dt1 = 0;
+        d2pvx20dt2dt2 = 0;
+        d2pvy20dt2dt2 = 0;
 
 
         for (int n = 0; n <= nMax; n++) {
             double sinnt2 = Math.sin(n * t2);
             double cosnt2 = Math.cos(n * t2);
-
-            //TODO
-//            System.out.println("(d2Axs0[" +n + ",t1]/.pReplace)-(" +  d2Axs0[n]+")");
-//            System.out.println("(d2Axc0[" +n + ",t1]/.pReplace)-(" +  d2Axc0[n]+")");
+            double n2 = n * n;
 
 
             pvx10 += dAxs0[n] * sinnt2 + dAxc0[n] * cosnt2;
             pvy10 += dAys0[n] * sinnt2 + dAyc0[n] * cosnt2;
 
-            pvx20 += n * Axs0[n] * cosnt2 - n * Axc0[n] * sinnt2;
-            pvy20 += n * Ays0[n] * cosnt2 - n * Ayc0[n] * sinnt2;
-
             pvx11 += dAxs1[n] * sinnt2 + dAxc1[n] * cosnt2;
             pvy11 += dAys1[n] * sinnt2 + dAyc1[n] * cosnt2;
 
-            pvx21 += n * Axs1[n] * cosnt2 - n * Axc1[n] * sinnt2;
-            pvy21 += n * Ays1[n] * cosnt2 - n * Ayc1[n] * sinnt2;
 
             dpvx10dt1 += d2Axs0[n] * sinnt2 + d2Axc0[n] * cosnt2;
             dpvy10dt1 += d2Ays0[n] * sinnt2 + d2Ayc0[n] * cosnt2;
 
-            d2pvx10dt1t1 += d3Axs0[n] * sinnt2 + d3Axc0[n] * cosnt2;
-            d2pvy10dt1t1 += d3Ays0[n] * sinnt2 + d3Ayc0[n] * cosnt2;
+            d2pvx10dt1dt1 += d3Axs0[n] * sinnt2 + d3Axc0[n] * cosnt2;
+            d2pvy10dt1dt1 += d3Ays0[n] * sinnt2 + d3Ayc0[n] * cosnt2;
+
 
             dpvx10dt2 += n * dAxs0[n] * cosnt2 - n * dAxc0[n] * sinnt2;
             dpvy10dt2 += n * dAys0[n] * cosnt2 - n * dAyc0[n] * sinnt2;
@@ -474,17 +469,6 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
             d2pvx10dt1dt2 += n * d2Axs0[n] * cosnt2 - n * d2Axc0[n] * sinnt2;
             d2pvy10dt1dt2 += n * d2Ays0[n] * cosnt2 - n * d2Ayc0[n] * sinnt2;
 
-            dpvx20dt1 += n * dAxs0[n] * cosnt2 - n * dAxc0[n] * sinnt2;
-            dpvy20dt1 += n * dAys0[n] * cosnt2 - n * dAyc0[n] * sinnt2;
-
-            d2pvx20dt1dt2 += -n * n * dAxs0[n] * sinnt2 - n * n * dAxc0[n] * cosnt2;
-            d2pvy20dt1dt2 += -n * n * dAys0[n] * sinnt2 - n * n * dAyc0[n] * cosnt2;
-
-            dpvx20dt2 += -n * n * Axs0[n] * sinnt2 - n * n * Axc0[n] * cosnt2;
-            dpvy20dt2 += -n * n * Ays0[n] * sinnt2 - n * n * Ayc0[n] * cosnt2;
-
-            d2pvx20dt1dt2 += -n * n * dAxs0[n] * sinnt2 - n * n * dAxc0[n] * cosnt2;
-            d2pvy20dt1dt2 += -n * n * dAys0[n] * sinnt2 - n * n * dAyc0[n] * cosnt2;
 
             dpvx11dt1 += d2Axs1[n] * sinnt2 + d2Axc1[n] * cosnt2;
             dpvy11dt1 += d2Ays1[n] * sinnt2 + d2Ayc1[n] * cosnt2;
@@ -492,14 +476,68 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
             dpvx11dt2 += n * dAxs1[n] * cosnt2 - n * dAxc1[n] * sinnt2;
             dpvy11dt2 += n * dAys1[n] * cosnt2 - n * dAyc1[n] * sinnt2;
 
-            dpvx21dt1 += n * dAxs1[n] * cosnt2 - n * dAxc1[n] * sinnt2;
-            dpvy21dt1 += n * dAys1[n] * cosnt2 - n * dAyc1[n] * sinnt2;
+            if (n != 0) {
+                pvx20 += n * Axs0[n] * cosnt2 - n * Axc0[n] * sinnt2;
+                pvy20 += n * Ays0[n] * cosnt2 - n * Ayc0[n] * sinnt2;
 
-            dpvx21dt2 += -n * n * Axs1[n] * sinnt2 - n * n * Axc1[n] * cosnt2;
-            dpvy21dt2 += -n * n * Ays1[n] * sinnt2 - n * n * Ayc1[n] * cosnt2;
+                pvx21 += n * Axs1[n] * cosnt2 - n * Axc1[n] * sinnt2;
+                pvy21 += n * Ays1[n] * cosnt2 - n * Ayc1[n] * sinnt2;
 
+                dpvx20dt1 += n * dAxs0[n] * cosnt2 - n * dAxc0[n] * sinnt2;
+                dpvy20dt1 += n * dAys0[n] * cosnt2 - n * dAyc0[n] * sinnt2;
 
+                d2pvx20dt1dt2 += -n2 * dAxs0[n] * sinnt2 - n2 * dAxc0[n] * cosnt2;
+                d2pvy20dt1dt2 += -n2 * dAys0[n] * sinnt2 - n2 * dAyc0[n] * cosnt2;
+
+                dpvx20dt2 += -n2 * Axs0[n] * sinnt2 - n2 * Axc0[n] * cosnt2;
+                dpvy20dt2 += -n2 * Ays0[n] * sinnt2 - n2 * Ayc0[n] * cosnt2;
+
+                d2pvx20dt2dt2 += -n2 * n * Axs0[n] * cosnt2 + n2 * n * Axc0[n] * sinnt2;
+                d2pvy20dt2dt2 += -n2 * n * Ays0[n] * cosnt2 + n2 * n * Ayc0[n] * sinnt2;
+
+                dpvx21dt1 += n * dAxs1[n] * cosnt2 - n * dAxc1[n] * sinnt2;
+                dpvy21dt1 += n * dAys1[n] * cosnt2 - n * dAyc1[n] * sinnt2;
+
+                dpvx21dt2 += -n2 * Axs1[n] * sinnt2 - n2 * Axc1[n] * cosnt2;
+                dpvy21dt2 += -n2 * Ays1[n] * sinnt2 - n2 * Ayc1[n] * cosnt2;
+            }
         }
+
+
+        //All the pv parts passed the test!!!!
+//        System.out.println("(pvx10[nMax]/.pReplace)-"+"("+pvx10+")");
+//        System.out.println("(pvy10[nMax]/.pReplace)-"+"("+pvy10+")");
+//        System.out.println("(pvx11[nMax]/.pReplace)-"+"("+pvx11+")");
+//        System.out.println("(pvy11[nMax]/.pReplace)-"+"("+pvy11+")");
+//        System.out.println("(dpvx10dt1[nMax]/.pReplace)-"+"("+dpvx10dt1+")");
+//        System.out.println("(dpvy10dt1[nMax]/.pReplace)-"+"("+dpvy10dt1+")");
+//        System.out.println("(dpvx10dt2[nMax]/.pReplace)-"+"("+dpvx10dt2+")");
+//        System.out.println("(dpvy10dt2[nMax]/.pReplace)-"+"("+dpvy10dt2+")");
+//        System.out.println("(d2pvx10dt1dt2[nMax]/.pReplace)-"+"("+d2pvx10dt1dt2+")");
+//        System.out.println("(d2pvy10dt1dt2[nMax]/.pReplace)-"+"("+d2pvy10dt1dt2+")");
+//        System.out.println("(dpvx11dt1[nMax]/.pReplace)-"+"("+dpvx11dt1+")");
+//        System.out.println("(dpvy11dt1[nMax]/.pReplace)-"+"("+dpvy11dt1+")");
+//        System.out.println("(dpvx11dt2[nMax]/.pReplace)-"+"("+dpvx11dt2+")");
+//        System.out.println("(dpvy11dt2[nMax]/.pReplace)-"+"("+dpvy11dt2+")");
+//        System.out.println("(pvx20[nMax]/.pReplace)-"+"("+pvx20+")");
+//        System.out.println("(pvy20[nMax]/.pReplace)-"+"("+pvy20+")");
+//        System.out.println("(pvx21[nMax]/.pReplace)-"+"("+pvx21+")");
+//        System.out.println("(pvy21[nMax]/.pReplace)-"+"("+pvy21+")");
+//        System.out.println("(dpvx20dt1[nMax]/.pReplace)-"+"("+dpvx20dt1+")");
+//        System.out.println("(dpvy20dt1[nMax]/.pReplace)-"+"("+dpvy20dt1+")");
+//        System.out.println("(d2pvx20dt1dt2[nMax]/.pReplace)-"+"("+d2pvx20dt1dt2+")");
+//        System.out.println("(dpvx20dt2[nMax]/.pReplace)-"+"("+dpvx20dt2+")");
+//        System.out.println("(dpvy20dt2[nMax]/.pReplace)-"+"("+dpvy20dt2+")");
+//        System.out.println("(d2pvy20dt1dt2[nMax]/.pReplace)-"+"("+d2pvy20dt1dt2+")");
+//        System.out.println("(dpvx21dt1[nMax]/.pReplace)-"+"("+dpvx21dt1+")");
+//        System.out.println("(dpvy21dt1[nMax]/.pReplace)-"+"("+dpvy21dt1+")");
+//        System.out.println("(dpvx21dt2[nMax]/.pReplace)-"+"("+dpvx21dt2+")");
+//        System.out.println("(dpvy21dt2[nMax]/.pReplace)-"+"("+dpvy21dt2+")");
+//        System.out.println("(d2pvx10dt1dt1[nMax]/.pReplace)-"+"("+d2pvx10dt1dt1+")");
+//        System.out.println("(d2pvy10dt1dt1[nMax]/.pReplace)-"+"("+d2pvy10dt1dt1+")");
+//        System.out.println("(d2pvx20dt2dt2[nMax]/.pReplace)-"+"("+d2pvx20dt2dt2+")");
+//        System.out.println("(d2pvy20dt2dt2[nMax]/.pReplace)-"+"("+d2pvy20dt2dt2+")");
+//        System.exit(2);
 
         MoleculeAgent agentAtom1 = leafAgentManager.getAgent(atom1);
         MoleculeAgent agentAtom2 = leafAgentManager.getAgent(atom2);
@@ -527,28 +565,6 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         double d2vEy1dt1dt1 = d2pvy10dt1dt1 / py0 + dpvy10dt1 * dRpy0dt1 + dpvy10dt1 * dRpy0dt1 + pvy10 * d2Rpy0dt1dt1;
         double d2vEx1dt1dt2 = d2pvx10dt1dt2 / px0 + dpvx10dt1 * dRpx0dt2 + dpvx10dt2 * dRpx0dt1 + pvx10 * d2Rpx0dt1dt2;
         double d2vEy1dt1dt2 = d2pvy10dt1dt2 / py0 + dpvy10dt1 * dRpy0dt2 + dpvy10dt2 * dRpy0dt1 + pvy10 * d2Rpy0dt1dt2;
-
-        if (debug) {
-            //passed the test!!!
-//            System.out.println("vEx1[nMax]- " + "(" + vEx1 + ")");
-//            System.out.println("vEx2[nMax]- " + "(" + vEx2 + ")");
-//            System.out.println("vEy1[nMay]- " + "(" + vEy1 + ")");
-//            System.out.println("vEy2[nMay]- " + "(" + vEy2 + ")");
-
-
-            //now test the dvEx1dtheta1  dpvx10dt1 / px0 + pvx10 * dRpx0dt1;
-//            System.out.println("(dpvx10dt1[nMax]/.pReplace) - " + "(" + dpvx10dt1 + ")");
-//            System.out.println("(px0/.pReplace) - " + "(" + px0 + ")");//passed the test
-//            System.out.println("(pvx10[t1,t2,nMax]/.pReplace) - " + "(" + pvx10 + ")");
-//            System.out.println("dRpx0dt1 - " + "(" + dRpx0dt1 + ")");
-
-            System.out.println("(dvEx1[nMax]/. pReplace)- " + "(" + dvEx1dt1 + ")");
-            System.out.println("(dvEy1[nMax]/. pReplace)- " + "(" + dvEy1dt1 + ")");
-            System.out.println("ClearAll[t1, t2]");
-//            System.out.println("vEy2[nMay]- " + "(" + vEy2 + ")");
-            System.exit(2);
-        }
-
 
 
         agentAtom1.vEx().PE(vEx1);
@@ -587,6 +603,42 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         agentAtom2.d2vEx().PE(d2vEx2dt2dt2);
         agentAtom2.d2vEy().PE(d2vEy2dt2dt2);
 
+        if (debug) {//TODO
+            //vEx passed the test!!!
+//            System.out.println("(vEx1[nMax]/. pReplace)- " + "(" + vEx1 + ")");
+//            System.out.println("(vEx2[nMax]/. pReplace)- " + "(" + vEx2 + ")");
+//            System.out.println("(vEy1[nMax]/. pReplace)- " + "(" + vEy1 + ")");
+//            System.out.println("(vEy2[nMax]/. pReplace)- " + "(" + vEy2 + ")");
+
+            //dvEx1  passed the test
+//            System.out.println("(dvEx1[nMax]/. pReplace)- " + "(" + dvEx1dt1 + ")");
+//            System.out.println("(dvEy1[nMax]/. pReplace)- " + "(" + dvEy1dt1 + ")");
+
+//            System.out.println("(dvEx1dt2[nMax]/. pReplace)- " + "(" + dvEx1dt2 + ")");
+//            System.out.println("(dvEy1dt2[nMax]/. pReplace)- " + "(" + dvEy1dt2 + ")");
+
+            //dvEx2 passed the test!!!
+//            System.out.println("(dvEx2[nMax]/. pReplace)- " + "(" + dvEx2dt2 + ")");
+//            System.out.println("(dvEy2[nMax]/. pReplace)- " + "(" + dvEy2dt2 + ")");
+
+//            System.out.println("(dvEx2dt1[nMax]/. pReplace)- " + "(" + dvEx2dt1 + ")");
+//            System.out.println("(dvEy2dt1[nMax]/. pReplace)- " + "(" + dvEy2dt1 + ")");
+
+
+            //VEE passed the test!!!
+//            System.out.println("(vEEx1[nMax]/. pReplace)- " + "(" + vEEx1 + ")");
+//            System.out.println("(vEEx2[nMax]/. pReplace)- " + "(" + vEEx2 + ")");
+//            System.out.println("(vEEy1[nMax]/. pReplace)- " + "(" + vEEy1 + ")");
+//            System.out.println("(vEEy2[nMax]/. pReplace)- " + "(" + vEEy2 + ")");
+
+
+
+
+
+
+            System.out.println("ClearAll[t1, t2]");
+            if (count == 100) System.exit(2);
+        }
 
 //        double p11 = bt * agentAtom1.phi.component(0, 0);
 //        double p22 = bt * agentAtom2.phi.component(0, 0);

@@ -71,7 +71,7 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
         secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);
 
 
-        int nMax = 10;//TODO
+        int nMax = 10;
         Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         vSum = new PotentialCalculationMoleculeAgentSum(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         pair = new PotentialCalculationPair(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
@@ -146,8 +146,17 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
 //            JEMUEy += dvEyi + bmu * atom.getOrientation().getDirection().getX(1)  +vEyi * fi;
 
             JEMUEx += dvExi;
-        }
 
+            if (i == 1) {
+//                System.out.println(dvEyi);
+//                System.exit(2);
+                JEMUEx += dvExi;
+                JEMUEy += dvEyi;
+            }
+
+
+        }
+//            System.exit(2);
         AEE += -vSum.getSumJEEMJEJE() + vSum.getSumUEE() - JEMUEx * JEMUEx - JEMUEy * JEMUEy;
 
         double torqueScalar = 0;
