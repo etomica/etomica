@@ -121,7 +121,8 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
 
         count += 1;
 //        System.out.println("(*" + count + "th term*)");
-        boolean debug = true;
+        //TODO
+        boolean debug = false;
         if (debug) {
             System.out.println("nMax= " + nMax + ";");
 //            System.out.println("mu= " + mu + ";");
@@ -402,8 +403,8 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
 
         double dRpy0dt1 = bJ * Math.sin(t1 - t2) / py0;//Rpy0 mean reverse of py0  D[1/py0, theta1]
         double dRpy0dt2 = -dRpy0dt1; // D[1/py0, theta2]
-        double dpy1Rpy0dt1 = -bmu * cost1;//D[py1/py0, theta1]
-        double dpy1Rpy0dt2 = -bmu * cost2;
+        double dpy1Rpy0dt1 = bmu * cost1;//D[py1/py0, theta1]
+        double dpy1Rpy0dt2 = bmu * cost2;
         double d2Rpy0dt1dt1 = bJ * (Math.cos(t1 - t2) + bJ * Math.sin(t1 - t2) * Math.sin(t1 - t2)) / py0;
         double d2Rpy0dt1dt2 = -d2Rpy0dt1dt1;
         double d2Rpy0dt2dt2 = d2Rpy0dt1dt1;
@@ -603,7 +604,7 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         agentAtom2.d2vEx().PE(d2vEx2dt2dt2);
         agentAtom2.d2vEy().PE(d2vEy2dt2dt2);
 
-        if (debug) {//TODO
+        if (debug) {
             //vEx passed the test!!!
 //            System.out.println("(vEx1[nMax]/. pReplace)- " + "(" + vEx1 + ")");
 //            System.out.println("(vEx2[nMax]/. pReplace)- " + "(" + vEx2 + ")");
@@ -624,6 +625,24 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
 //            System.out.println("(dvEx2dt1[nMax]/. pReplace)- " + "(" + dvEx2dt1 + ")");
 //            System.out.println("(dvEy2dt1[nMax]/. pReplace)- " + "(" + dvEy2dt1 + ")");
 
+            //dvEEy1dt1 & dvEEy2dt2 TODO you better check x direction as well, even though it seems to be agree.
+            // dpvy11dt1 / py0 + pvy11 * dRpy0dt1 - dvEy1dt1 * py1 / py0 - vEy1 * dpy1Rpy0dt1;
+
+//            System.out.println("(dpvy11dt1[nMax]/. pReplace)- " + "(" + dpvy11dt1 + ")");
+//            System.out.println("(py0/. pReplace)- " + "(" + py0 + ")");
+//            System.out.println("(pvy11[t1,t2,nMax]/. pReplace)- " + "(" + pvy11 + ")");
+//            System.out.println("(dRpy0dt1/. pReplace)- " + "(" + dRpy0dt1 + ")");
+//            System.out.println("(dvEy1[nMax]/. pReplace)- " + "(" + dvEy1dt1 + ")");
+//            System.out.println("(py1/. pReplace)- " + "(" + py1 + ")");
+//            System.out.println("(vEy1[nMax]/. pReplace)- " + "(" + vEy1 + ")");
+//            System.out.println("(dpy1Rpy0dt1/. pReplace)- " + "(" + dpy1Rpy0dt1 + ")");
+
+
+            System.out.println("(dvEEy1[nMax]/. pReplace)- " + "(" + dvEEy1dt1 + ")");
+            System.out.println("(dvEEy2[nMax]/. pReplace)- " + "(" + dvEEy2dt2 + ")");
+
+
+
 
             //VEE passed the test!!!
 //            System.out.println("(vEEx1[nMax]/. pReplace)- " + "(" + vEEx1 + ")");
@@ -631,13 +650,16 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
 //            System.out.println("(vEEy1[nMax]/. pReplace)- " + "(" + vEEy1 + ")");
 //            System.out.println("(vEEy2[nMax]/. pReplace)- " + "(" + vEEy2 + ")");
 
-
-
+            //d2vEx1dt1dt2 and d2vEx2dt1dt2
+//            System.out.println("(d2vEx1dt1dt2[nMax]/. pReplace)- " + "(" + d2vEx1dt1dt2 + ")");
+//            System.out.println("(d2vEx2dt1dt2[nMax]/. pReplace)- " + "(" + d2vEx2dt1dt2 + ")");
+//            System.out.println("(d2vEy1dt1dt2[nMax]/. pReplace)- " + "(" + d2vEy1dt1dt2 + ")");
+//            System.out.println("(d2vEy2dt1dt2[nMax]/. pReplace)- " + "(" + d2vEy2dt1dt2 + ")");
 
 
 
             System.out.println("ClearAll[t1, t2]");
-            if (count == 100) System.exit(2);
+            if (count == 20) System.exit(2);
         }
 
 //        double p11 = bt * agentAtom1.phi.component(0, 0);

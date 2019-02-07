@@ -290,6 +290,18 @@ public class HeisenbergPair extends Simulation {
                 + " Err:\t" + (errJEMUEyV / numberMolecules));
 
 
+        double sumJEMUExVSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(15);
+        double errJEMUExVSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(15);
+        System.out.println("JEMUExVSquare:\t" + " Value:\t" + (sumJEMUExVSquare / numberMolecules)
+                + " Err:\t" + (errJEMUExVSquare / numberMolecules));
+
+        double sumJEMUEyVSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(16);
+        double errJEMUEyVSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(16);
+        System.out.println("JEMUEyVSquare:\t" + " Value:\t" + (sumJEMUEyVSquare / numberMolecules)
+                + " Err:\t" + (errJEMUEyVSquare / numberMolecules));
+
+
+
         double sumJEEMJEJEV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(13);
         double errJEEMJEJEV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(13);
         System.out.println("JEEMJEJEV:\t" + " Value:\t" + (sumJEEMJEJEV / numberMolecules)
