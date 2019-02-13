@@ -642,8 +642,6 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
             System.out.println("(dvEEy2[nMax]/. pReplace)- " + "(" + dvEEy2dt2 + ")");
 
 
-
-
             //VEE passed the test!!!
 //            System.out.println("(vEEx1[nMax]/. pReplace)- " + "(" + vEEx1 + ")");
 //            System.out.println("(vEEx2[nMax]/. pReplace)- " + "(" + vEEx2 + ")");
@@ -657,7 +655,6 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
 //            System.out.println("(d2vEy2dt1dt2[nMax]/. pReplace)- " + "(" + d2vEy2dt1dt2 + ")");
 
 
-
             System.out.println("ClearAll[t1, t2]");
             if (count == 20) System.exit(2);
         }
@@ -669,10 +666,14 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         double p12 = -bJ * ei.dot(ej);
         double p21 = p12;
 
-        JEEMJEJE += vEx1 * d2vEx1dt1dt2 + vEx2 * d2vEx2dt1dt2;
-        JEEMJEJE += vEy1 * d2vEy1dt1dt2 + vEy2 * d2vEy2dt1dt2;
-        UEE += f1 * dvEx1dt2 * vEx2 + f2 * dvEx2dt1 * vEx1;
-        UEE += f1 * dvEy1dt2 * vEy2 + f2 * dvEy2dt1 * vEy1;
+        JEEMJEJE += vEx1 * d2vEx2dt1dt2 + vEx2 * d2vEx1dt1dt2;
+        JEEMJEJE += vEy1 * d2vEy2dt1dt2 + vEy2 * d2vEy1dt1dt2;
+        UEE -= f1 * vEx2 * dvEx1dt2 + f2 * vEx1 * dvEx2dt1;
+        UEE -= f1 * vEy2 * dvEy1dt2 + f2 * vEy1 * dvEy2dt1;
+
+
+        UEE += 2 * vEx1 * p12 * vEx2;
+        UEE += 2 * vEy1 * p12 * vEy2;
     }
 
 
