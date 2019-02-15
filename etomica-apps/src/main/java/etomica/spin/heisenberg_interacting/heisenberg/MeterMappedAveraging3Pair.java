@@ -81,6 +81,8 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
 //        double f1 = torqueAgent.torque.getX(1);
 //        System.out.println("f1= "+f1);
 
+        boolean twoPairOnly = true;
+
         AtomPair pair = new AtomPair();
         pair.atom0 = leafList.getAtom(0);
         pair.atom1 = leafList.getAtom(1);//01
@@ -93,11 +95,12 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
         secondDerivativeSum.doCalculation(pair, p2);
         secondDerivativeSumIdeal.doCalculation(pair, p2);
 
-        pair.atom0 = leafList.getAtom(1);//12
-        torqueSum.doCalculation(pair,p2);
-        secondDerivativeSum.doCalculation(pair,p2);
-        secondDerivativeSumIdeal.doCalculation(pair, p2);
-
+        if(!twoPairOnly) {
+            pair.atom0 = leafList.getAtom(1);//12
+            torqueSum.doCalculation(pair, p2);
+            secondDerivativeSum.doCalculation(pair, p2);
+            secondDerivativeSumIdeal.doCalculation(pair, p2);
+        }
 
         Ans.zeroSum();
         pair.atom0 = leafList.getAtom(0);
@@ -107,9 +110,10 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
         pair.atom1 = leafList.getAtom(2);//02
         Ans.doCalculation(pair, p2);
 
-        pair.atom0 = leafList.getAtom(1);//12
-        Ans.doCalculation(pair,p2);
-
+        if(!twoPairOnly) {
+            pair.atom0 = leafList.getAtom(1);//12
+            Ans.doCalculation(pair, p2);
+        }
 
         double bt2 = bt * bt;
         double mu2 = mu * mu;

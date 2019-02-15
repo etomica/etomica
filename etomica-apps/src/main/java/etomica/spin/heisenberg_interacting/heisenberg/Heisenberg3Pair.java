@@ -257,18 +257,18 @@ public class Heisenberg3Pair extends Simulation {
                 + " Err:\t" + (errUEE / numberMolecules));
 
 
-        double idealPart1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(14);
-        double idealPart1Err = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(14);
-        double idealPart2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(15);
-        double idealPart2Err = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(15);
-        double idealPart3 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(16);
-        double idealPart3Err = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(16);
-        System.out.println(" idealPart1:\t" + (idealPart1 / numberMolecules)
-                + " Err:\t" + (idealPart1Err / numberMolecules));
-        System.out.println(" idealPart2:\t" + (idealPart2 / numberMolecules)
-                + " Err:\t" + (idealPart2Err / numberMolecules));
-        System.out.println(" idealPart3:\t" + (idealPart3 / numberMolecules)
-                + " Err:\t" + (idealPart3Err / numberMolecules));
+//        double idealPart1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(14);
+//        double idealPart1Err = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(14);
+//        double idealPart2 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(15);
+//        double idealPart2Err = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(15);
+//        double idealPart3 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(16);
+//        double idealPart3Err = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(16);
+//        System.out.println(" idealPart1:\t" + (idealPart1 / numberMolecules)
+//                + " Err:\t" + (idealPart1Err / numberMolecules));
+//        System.out.println(" idealPart2:\t" + (idealPart2 / numberMolecules)
+//                + " Err:\t" + (idealPart2Err / numberMolecules));
+//        System.out.println(" idealPart3:\t" + (idealPart3 / numberMolecules)
+//                + " Err:\t" + (idealPart3Err / numberMolecules));
 
         System.out.println("Time: " + (endTime - startTime) / (1000.0 * 60.0));
     }
@@ -277,8 +277,8 @@ public class Heisenberg3Pair extends Simulation {
     public static class Param extends ParameterBase {
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 1.2;// Kelvin
-        public double interactionS = 1.8;
+        public double temperature = 2.7;// Kelvin
+        public double interactionS = 1.3;
         public double dipoleMagnitude = 1.6;
         public int steps = 50000;
         public int numberMolecules = 3;
