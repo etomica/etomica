@@ -264,7 +264,7 @@ public class HeisenbergPair extends Simulation {
 
         System.out.println("IdealMapping:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (sumIdeal / numberMolecules)
                 + " Err:\t" + (errSumIdeal / numberMolecules) + " Cor:\t " + sumIdealCor);
-//
+
         System.out.println("mapping:\t\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (AEE / numberMolecules)
                 + " Err:\t" + (AEEER / numberMolecules) +" Cor:\t " + AEECor);
 

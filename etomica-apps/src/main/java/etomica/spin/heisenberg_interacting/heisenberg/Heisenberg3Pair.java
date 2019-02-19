@@ -143,10 +143,10 @@ public class Heisenberg3Pair extends Simulation {
 
 
         //AEE
-        MeterMappedAveraging3Pair AEEMeter = null;
+        MeterMappedAveragingVSum3Pair AEEMeter = null;
         AccumulatorAverageCovariance AEEAccumulator = null;
         if (aEE) {
-            AEEMeter = new MeterMappedAveraging3Pair(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potential);
+            AEEMeter = new MeterMappedAveragingVSum3Pair(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potential);
             AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
             DataPump AEEPump = new DataPump(AEEMeter, AEEAccumulator);
             IntegratorListenerAction AEEListener = new IntegratorListenerAction(AEEPump);
@@ -235,16 +235,18 @@ public class Heisenberg3Pair extends Simulation {
         System.out.println("JEMUEySquareIdeal= " + JEMUEySquareIdeal / numberMolecules + " Err " + errJEMUEySquareIdeal / numberMolecules);
 
 
-        System.out.println("Conventional:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (-dipoleSumSquared / temperature / temperature / numberMolecules)
-                + " Err:\t" + (dipoleSumSquaredERR / temperature / temperature / numberMolecules));
+//        System.out.println("Conventional:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (-dipoleSumSquared / temperature / temperature / numberMolecules)
+//                + " Err:\t" + (dipoleSumSquaredERR / temperature / temperature / numberMolecules));
 
         double sumIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(7);
         double errSumIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(7);
-        System.out.println("IdealMapping:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (sumIdeal / numberMolecules)
-                + " Err:\t" + (errSumIdeal / numberMolecules));
+        double sumIdealCor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(7);
 
-        System.out.println("mapping:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (AEE / numberMolecules)
-                + " Err:\t" + (AEEER / numberMolecules));
+//        System.out.println("IdealMapping:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (sumIdeal / numberMolecules)
+//                + " Err:\t" + (errSumIdeal / numberMolecules));
+//
+//        System.out.println("mapping:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (AEE / numberMolecules)
+//                + " Err:\t" + (AEEER / numberMolecules));
 
         double sumJEEMJEJE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(5);
         double errJEEMJEJE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(5);
@@ -255,6 +257,66 @@ public class Heisenberg3Pair extends Simulation {
         double errUEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(6);
         System.out.println("UEE:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (sumUEE / numberMolecules)
                 + " Err:\t" + (errUEE / numberMolecules));
+
+
+        double AEEVSum = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(17);
+        double AEEERVSum = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(17);
+        double AEECorVSum = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(17);
+
+
+
+
+
+
+        System.out.println("Conventional:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (-dipoleSumSquared / temperature / temperature / numberMolecules)
+                + " Err:\t" + (dipoleSumSquaredERR / temperature / temperature / numberMolecules) + " Cor:\t " + dipoleSumCor);
+
+        System.out.println("IdealMapping:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (sumIdeal / numberMolecules)
+                + " Err:\t" + (errSumIdeal / numberMolecules) + " Cor:\t " + sumIdealCor);
+
+        System.out.println("mapping:\t\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (AEE / numberMolecules)
+                + " Err:\t" + (AEEER / numberMolecules) +" Cor:\t " + AEECor);
+
+        System.out.println("mappingvSum:\t" + "bJ\t" + (interactionS / temperature) + " Value:\t" + (AEEVSum / numberMolecules)
+                + " Err:\t" + (AEEERVSum / numberMolecules) +" Cor:\t " + AEECorVSum);
+
+
+        System.out.println("These are the result of VSum" );
+        double sumJEMUExV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(18);
+        double errJEMUExV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(18);
+        System.out.println("JEMUExV:\t" + " Value:\t" + (sumJEMUExV / numberMolecules)
+                + " Err:\t" + (errJEMUExV / numberMolecules));
+
+        double sumJEMUEyV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(19);
+        double errJEMUEyV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(19);
+        System.out.println("JEMUEyV:\t" + " Value:\t" + (sumJEMUEyV / numberMolecules)
+                + " Err:\t" + (errJEMUEyV / numberMolecules));
+
+
+        double sumJEMUExVSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(22);
+        double errJEMUExVSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(22);
+        System.out.println("JEMUExVSquare:\t" + " Value:\t" + (sumJEMUExVSquare / numberMolecules)
+                + " Err:\t" + (errJEMUExVSquare / numberMolecules));
+
+        double sumJEMUEyVSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(23);
+        double errJEMUEyVSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(23);
+        System.out.println("JEMUEyVSquare:\t" + " Value:\t" + (sumJEMUEyVSquare / numberMolecules)
+                + " Err:\t" + (errJEMUEyVSquare / numberMolecules));
+
+
+
+        double sumJEEMJEJEV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(20);
+        double errJEEMJEJEV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(20);
+        System.out.println("JEEMJEJEV:\t" + " Value:\t" + (sumJEEMJEJEV / numberMolecules)
+                + " Err:\t" + (errJEEMJEJEV / numberMolecules));
+
+
+        double sumUEEV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(21);
+        double errUEEV = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(21);
+        System.out.println("UEEV:\t" + " Value:\t" + (sumUEEV / numberMolecules)
+                + " Err:\t" + (errUEEV / numberMolecules));
+
+
 
 
 //        double idealPart1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(14);
@@ -278,7 +340,7 @@ public class Heisenberg3Pair extends Simulation {
         public boolean mSquare = true;
         public boolean aEE = true;
         public double temperature = 2.7;// Kelvin
-        public double interactionS = 1.3;
+        public double interactionS = 1.5;
         public double dipoleMagnitude = 1.6;
         public int steps = 50000;
         public int numberMolecules = 3;
