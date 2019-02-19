@@ -554,6 +554,8 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         double vEEy2 = pvy21 / p0 - py1 * vEy2 / p0;
 
 
+//        System.out.println("vEx1 for pairs = " + vEx1);
+
         double dvEx1dt1 = dpvx10dt1 / px0 + pvx10 * dRpx0dt1;
         double dvEy1dt1 = dpvy10dt1 / py0 + pvy10 * dRpy0dt1;
         double dvEx1dt2 = dpvx10dt2 / px0 + pvx10 * dRpx0dt2;

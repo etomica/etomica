@@ -392,8 +392,8 @@ public class PotentialCalculationMoleculeAgentSumPair implements PotentialCalcul
         double d2Rpy0dt1dt2 = -d2Rpy0dt1dt1;
         double d2Rpy0dt2dt2 = d2Rpy0dt1dt1;
 
-        double pvx10, pvx20, dpvx10dt1, dpvx20dt1, d2pvx10dt1dt2, d2pvx20dt1dt2,  dpvx20dt2,  dpvx10dt2;
-        double pvy10, pvy20, dpvy10dt1, dpvy20dt1, d2pvy10dt1dt2, d2pvy20dt1dt2,  dpvy20dt2,  dpvy10dt2;
+        double pvx10, pvx20, dpvx10dt1, dpvx20dt1, d2pvx10dt1dt2, d2pvx20dt1dt2, dpvx20dt2, dpvx10dt2;
+        double pvy10, pvy20, dpvy10dt1, dpvy20dt1, d2pvy10dt1dt2, d2pvy20dt1dt2, dpvy20dt2, dpvy10dt2;
 
 
         pvx10 = 0;
@@ -423,10 +423,8 @@ public class PotentialCalculationMoleculeAgentSumPair implements PotentialCalcul
             pvy10 += dAys0[n] * sinnt2 + dAyc0[n] * cosnt2;
 
 
-
             dpvx10dt1 += d2Axs0[n] * sinnt2 + d2Axc0[n] * cosnt2;
             dpvy10dt1 += d2Ays0[n] * sinnt2 + d2Ayc0[n] * cosnt2;
-
 
 
             dpvx10dt2 += n * dAxs0[n] * cosnt2 - n * dAxc0[n] * sinnt2;
@@ -434,7 +432,6 @@ public class PotentialCalculationMoleculeAgentSumPair implements PotentialCalcul
 
             d2pvx10dt1dt2 += n * d2Axs0[n] * cosnt2 - n * d2Axc0[n] * sinnt2;
             d2pvy10dt1dt2 += n * d2Ays0[n] * cosnt2 - n * d2Ayc0[n] * sinnt2;
-
 
 
             if (n != 0) {
@@ -484,14 +481,14 @@ public class PotentialCalculationMoleculeAgentSumPair implements PotentialCalcul
         double vEy2 = agentAtom2.vEy().getX(0);
 
 
-
         JEEMJEJE += vEx1 * d2vEx2dt1dt2 + vEx2 * d2vEx1dt1dt2;
         JEEMJEJE += vEy1 * d2vEy2dt1dt2 + vEy2 * d2vEy1dt1dt2;
-        UEE -= f1 * vEx2 * dvEx1dt2 + f2 * vEx1 * dvEx2dt1;
-//        UEE -= f1 * vEy2 * dvEy1dt2 + f2 * vEy1 * dvEy2dt1;
 
-//        UEE += 2 * vEx1 * p12 * vEx2;
-//        UEE += 2 * vEy1 * p12 * vEy2;
+        UEE -= f1 * vEx2 * dvEx1dt2 + f2 * vEx1 * dvEx2dt1;
+        UEE -= f1 * vEy2 * dvEy1dt2 + f2 * vEy1 * dvEy2dt1;
+
+        UEE += 2 * vEx1 * p12 * vEx2;
+        UEE += 2 * vEy1 * p12 * vEy2;
 
     }
 

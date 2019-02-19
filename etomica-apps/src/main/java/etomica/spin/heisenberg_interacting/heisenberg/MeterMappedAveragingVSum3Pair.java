@@ -121,22 +121,35 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
 
 
         vSum.zeroSum();
-        vSumPair.zeroSum();
+
+
+
         pair.atom0 = leafList.getAtom(0);
         pair.atom1 = leafList.getAtom(1);//01
         vSum.doCalculation(pair, p2);
-        vSumPair.doCalculation(pair,p2);
-
 
         pair.atom1 = leafList.getAtom(2);//02
         vSum.doCalculation(pair, p2);
-        vSumPair.doCalculation(pair,p2);
 
         if (!twoPairOnly) {
             pair.atom0 = leafList.getAtom(1);//12
             vSum.doCalculation(pair, p2);
-            vSumPair.doCalculation(pair,p2);
         }
+
+        vSumPair.zeroSum();
+        pair.atom0 = leafList.getAtom(0);
+        pair.atom1 = leafList.getAtom(1);//01
+        vSumPair.doCalculation(pair,p2);
+
+        pair.atom1 = leafList.getAtom(2);//02
+        vSumPair.doCalculation(pair,p2);
+
+
+        if (!twoPairOnly) {
+            pair.atom0 = leafList.getAtom(1);//12
+            vSumPair.doCalculation(pair, p2);
+        }
+
 
 
         double bt2 = bt * bt;
@@ -228,8 +241,8 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
         x[18] = JEMUEx;
         x[19] = JEMUEy;
         x[20] = JEEMJEJESelf + vSumPair.getSumJEEMJEJE();
-//        x[21] = UEESelf + vSum.getSumUEE();
-        x[21] = vSumPair.getSumUEE() ;
+        x[21] = UEESelf + vSumPair.getSumUEE();
+//        x[21] = vSumPair.getSumUEE() ;
         x[22] = JEMUEx * JEMUEx;
         x[23] = JEMUEy * JEMUEy;
         return data;
