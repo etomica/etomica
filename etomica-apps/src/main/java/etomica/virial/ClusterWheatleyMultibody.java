@@ -21,7 +21,7 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
     protected final int[] moleculeIndices;
     protected final double[] r2;
     protected final MoleculeArrayList molecules;
-    protected boolean doMulti;
+    protected boolean doMulti, doTotal;
     protected double rCut2;
     protected ClusterWheatleyMultibodyBD clusterMultiBD;
     protected double multiTol;
@@ -85,6 +85,7 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
         clusterMultiBD = new ClusterWheatleyMultibodyBD(n, f, fMulti, -3*(int)Math.log10(newTol));
         clusterMultiBD.setDoCaching(false);
         clusterMultiBD.setPrecisionLimit(300);
+        clusterMultiBD.setDoTotal(doTotal);
         multiTol = newTol;
     }
 
@@ -99,6 +100,13 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
         super.setTemperature(newT);
         if (clusterMultiBD != null) {
             clusterMultiBD.setTemperature(newT);
+        }
+    }
+
+    public void setDoTotal(boolean newDoTotal) {
+        doTotal = newDoTotal;
+        if (clusterMultiBD != null) {
+            clusterMultiBD.setDoTotal(newDoTotal);
         }
     }
 
@@ -119,12 +127,17 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
             }
         }
         // do (multi+pair) - pair here so that we avoid recomputing f bonds
-        doMulti = false;
-        super.calcValue(box);
-        double pairValue = value;
-        doMulti = true;
-        super.calcValue(box);
-        value -= pairValue;
+        if (doTotal) {
+            doMulti = true;
+            super.calcValue(box);
+        } else {
+            doMulti = false;
+            super.calcValue(box);
+            double pairValue = value;
+            doMulti = true;
+            super.calcValue(box);
+            value -= pairValue;
+        }
         // we have our own BD cluster for multibody
         // if an individual integrand (pair/total) is small, it won't trigger a BD calculation
         // BD only gets triggered here
