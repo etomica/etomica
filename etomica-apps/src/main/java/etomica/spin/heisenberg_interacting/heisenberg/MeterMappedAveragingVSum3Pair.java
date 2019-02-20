@@ -85,7 +85,7 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
 //        double f1 = torqueAgent.torque.getX(1);
 //        System.out.println("f1= "+f1);
 
-        boolean twoPairOnly = true;
+        boolean twoPairOnly = false;
 
         AtomPair pair = new AtomPair();
         pair.atom0 = leafList.getAtom(0);
@@ -121,9 +121,6 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
 
 
         vSum.zeroSum();
-
-
-
         pair.atom0 = leafList.getAtom(0);
         pair.atom1 = leafList.getAtom(1);//01
         vSum.doCalculation(pair, p2);
@@ -139,10 +136,10 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
         vSumPair.zeroSum();
         pair.atom0 = leafList.getAtom(0);
         pair.atom1 = leafList.getAtom(1);//01
-        vSumPair.doCalculation(pair,p2);
+        vSumPair.doCalculation(pair, p2);
 
         pair.atom1 = leafList.getAtom(2);//02
-        vSumPair.doCalculation(pair,p2);
+        vSumPair.doCalculation(pair, p2);
 
 
         if (!twoPairOnly) {
@@ -151,14 +148,13 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
         }
 
 
-
         double bt2 = bt * bt;
         double mu2 = mu * mu;
         double bmu = bt * mu;
         int nM = leafList.getAtomCount();
 
 
-        double AEE = 0, JEMUEx = 0, JEMUEy = 0;
+        double AEE = 0, JEMUEx = 0, JEMUEy = 0, JEMUExSquare = 0, JEMUEySquare = 0;
         double JEEMJEJESelf = 0, UEESelf = 0;
         for (int i = 0; i < nM; i++) {
             MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
@@ -178,26 +174,26 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
             //-vEEi*fi
             double fi = bt * agentAtomI.torque.getX(0);
             double vEEi = agentAtomI.vEEx().getX(0) + agentAtomI.vEEy().getX(0);
-//            UEESelf -= vEEi * fi;
+            UEESelf -= vEEi * fi;
             //-fi*dvEi/dti*vEi
             double dvExi = agentAtomI.dvEx().getX(0);
             double dvEyi = agentAtomI.dvEy().getX(0);
-//            UEESelf -= fi * (dvExi * vExi + dvEyi * vEyi);
+            UEESelf -= fi * (dvExi * vExi + dvEyi * vEyi);
             //vEi*phiii*vEi
             double phiii = bt * agentAtomI.phi.component(0, 0);
-//            UEESelf += vExi * phiii * vExi + vEyi * phiii * vEyi;
+            UEESelf += vExi * phiii * vExi + vEyi * phiii * vEyi;
             //-2*vEi*fEi
             //fExi = -bmu Sin[thetai]
             //fEyi = bmu Cos[thetai]
             IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
             double fExi = -bmu * atom.getOrientation().getDirection().getX(1);
             double fEyi = bmu * atom.getOrientation().getDirection().getX(0);
-//            UEESelf -= 2 * (vExi * fExi + vEyi * fEyi);
+            UEESelf -= 2 * (vExi * fExi + vEyi * fEyi);
             //-var[JEUME]
-//            double tmp = dvExi + bmu * atom.getOrientation().getDirection().getX(0) + vExi * fi;
-//            JEMUEx += tmp*tmp;
-//            tmp =dvEyi + bmu * atom.getOrientation().getDirection().getX(1) + vEyi * fi;
-//            JEMUEy += tmp*tmp;
+            double tmp = dvExi + bmu * atom.getOrientation().getDirection().getX(0) + vExi * fi;
+            JEMUExSquare += tmp * tmp;
+            tmp = dvEyi + bmu * atom.getOrientation().getDirection().getX(1) + vEyi * fi;
+            JEMUEySquare += tmp * tmp;
 
             JEMUEx += dvExi + bmu * atom.getOrientation().getDirection().getX(0) + vExi * fi;
             JEMUEy += dvEyi + bmu * atom.getOrientation().getDirection().getX(1) + vEyi * fi;
@@ -205,6 +201,7 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
 
 
         AEE = -vSumPair.getSumJEEMJEJE() - JEEMJEJESelf + UEESelf + vSumPair.getSumUEE() - JEMUEx * JEMUEx - JEMUEy * JEMUEy;
+//        AEE = -vSumPair.getSumJEEMJEJE() - JEEMJEJESelf + UEESelf + vSumPair.getSumUEE() - JEMUExSquare - JEMUEySquare;
 
 
         double torqueScalar = 0;
@@ -242,7 +239,6 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
         x[19] = JEMUEy;
         x[20] = JEEMJEJESelf + vSumPair.getSumJEEMJEJE();
         x[21] = UEESelf + vSumPair.getSumUEE();
-//        x[21] = vSumPair.getSumUEE() ;
         x[22] = JEMUEx * JEMUEx;
         x[23] = JEMUEy * JEMUEy;
         return data;
