@@ -332,7 +332,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
             }
         }
         if (sigma != 0) {
-            u *= 1 + 0.02 * sigma * Math.signum(u);
+            u *= 1 + 0.01 * sigma * Math.signum(u);
         }
         return u;
     }
