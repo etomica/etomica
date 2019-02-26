@@ -65,6 +65,7 @@ public class VirialHeNonAdditiveWheatley {
         final boolean subtractApprox = params.subtractApprox;
         final boolean calcApprox = !subtractApprox && params.calcApprox;
         final double sigma = !calcApprox && !subtractApprox ? params.sigma : 0;
+        final boolean doTotal = params.doTotal;
         
         double vhs = 4.0/3.0*Math.PI*Math.pow(sigmaHSRef, 3);
         final double HSBn = SpecialFunctions.factorial(nPoints)/2*Math.pow(vhs, nPoints-1);
@@ -77,6 +78,8 @@ public class VirialHeNonAdditiveWheatley {
         if (calcApprox) System.out.println("Calculating coefficients for approximate potential");
         if (subtractApprox) {
             System.out.println("computing difference from approximate He");
+        } else if (doTotal) {
+            System.out.println("computing total");
         }
 
         final double temperature = Kelvin.UNIT.toSim(temperatureK);
@@ -133,6 +136,7 @@ public class VirialHeNonAdditiveWheatley {
         fNA[3] = f3Target;
         ClusterWheatleyMultibody fullTargetCluster = new ClusterWheatleyMultibody(nPoints, fTarget, fNA);
         fullTargetCluster.setTolerance(1e-14);
+        fullTargetCluster.setDoTotal(doTotal);
         ClusterAbstract refCluster = new ClusterChainHS(nPoints, fRef);
 
         ClusterAbstract targetCluster = null;
@@ -143,6 +147,7 @@ public class VirialHeNonAdditiveWheatley {
             final ClusterWheatleyMultibody[] targetSubtract = new ClusterWheatleyMultibody[1];
             targetSubtract[0] = new ClusterWheatleyMultibody(nPoints, fTargetApprox, fNAapprox);
             targetSubtract[0].setTolerance(1e-14);
+            targetSubtract[0].setDoTotal(doTotal);
             targetCluster = new ClusterDifference(fullTargetCluster, targetSubtract);
         } else if (sigma != 0) {
             MayerFunctionSphericalThreeBody f3TargetSigma = new MayerFunctionSphericalThreeBody(p3sigma);
@@ -150,6 +155,7 @@ public class VirialHeNonAdditiveWheatley {
             fNAsigma[3] = f3TargetSigma;
             ClusterWheatleyMultibody targetSigma = new ClusterWheatleyMultibody(nPoints, fTargetSigma, fNAsigma);
             targetSigma.setTolerance(1e-14);
+            targetSigma.setDoTotal(doTotal);
             targetCluster = new ClusterDifference(targetSigma, new ClusterAbstract[]{fullTargetCluster});
         } else {
             targetCluster = fullTargetCluster;
@@ -386,5 +392,6 @@ public class VirialHeNonAdditiveWheatley {
         public boolean calcApprox = false;
         public boolean subtractApprox = false;
         public double sigma = 0;
+        public boolean doTotal = false;
     }
 }
