@@ -64,6 +64,7 @@ public class VirialHeNonAdditiveWheatley {
         double refFrac = params.refFrac;
         final boolean subtractApprox = params.subtractApprox;
         final boolean calcApprox = !subtractApprox && params.calcApprox;
+        final double sigma = !calcApprox && !subtractApprox ? params.sigma : 0;
         
         double vhs = 4.0/3.0*Math.PI*Math.pow(sigmaHSRef, 3);
         final double HSBn = SpecialFunctions.factorial(nPoints)/2*Math.pow(vhs, nPoints-1);
@@ -95,8 +96,8 @@ public class VirialHeNonAdditiveWheatley {
                 return r2 < sigmaHSRef*sigmaHSRef ? 1 : 0;
             }
         };
-        
-        MayerGeneralSpherical fTarget;
+
+        MayerGeneralSpherical fTarget, fTargetSigma;
         MayerGeneralSpherical fTargetApprox;
         if (semiClassical) {
             P2HeSimplified p2cApprox = new P2HeSimplified(space);
@@ -104,25 +105,30 @@ public class VirialHeNonAdditiveWheatley {
             
             P2HePCKLJS p2c = new P2HePCKLJS(space);
             Potential2Spherical p2 = p2c.makeQFH(temperature);
+            P2HePCKLJS p2cs = new P2HePCKLJS(space, sigma);
+            Potential2Spherical p2s = p2cs.makeQFH(temperature);
 
             fTarget = new MayerGeneralSpherical(calcApprox ? p2Approx : p2);
             fTargetApprox = new MayerGeneralSpherical(p2Approx);
-
+            fTargetSigma = new MayerGeneralSpherical(p2s);
         } else {
             P2HeSimplified p2Approx = new P2HeSimplified(space);
             
             P2HePCKLJS p2 = new P2HePCKLJS(space);
+            P2HePCKLJS p2s = new P2HePCKLJS(space, sigma);
 
             fTarget = new MayerGeneralSpherical(calcApprox ? p2Approx : p2);
             fTargetApprox = new MayerGeneralSpherical(p2Approx);
+            fTargetSigma = new MayerGeneralSpherical(p2s);
         }
 
         IPotentialAtomicMultibody p3 = new P3CPSNonAdditiveHe(space);
+        IPotentialAtomicMultibody p3sigma = new P3CPSNonAdditiveHe(space, sigma);
         P3CPSNonAdditiveHeSimplified p3Approx = new P3CPSNonAdditiveHeSimplified(space);
         p3Approx.setParameters(temperatureK);
 
         final MayerFunctionSphericalThreeBody f3Target = new MayerFunctionSphericalThreeBody(calcApprox ? p3Approx : p3);
-        
+
         MayerFunctionNonAdditive[] fNA = new MayerFunctionNonAdditive[4];
         fNA[3] = f3Target;
         ClusterWheatleyMultibody fullTargetCluster = new ClusterWheatleyMultibody(nPoints, fTarget, fNA);
@@ -138,8 +144,14 @@ public class VirialHeNonAdditiveWheatley {
             targetSubtract[0] = new ClusterWheatleyMultibody(nPoints, fTargetApprox, fNAapprox);
             targetSubtract[0].setTolerance(1e-14);
             targetCluster = new ClusterDifference(fullTargetCluster, targetSubtract);
-        }
-        else {
+        } else if (sigma != 0) {
+            MayerFunctionSphericalThreeBody f3TargetSigma = new MayerFunctionSphericalThreeBody(p3sigma);
+            MayerFunctionNonAdditive[] fNAsigma = new MayerFunctionNonAdditive[4];
+            fNAsigma[3] = f3TargetSigma;
+            ClusterWheatleyMultibody targetSigma = new ClusterWheatleyMultibody(nPoints, fTargetSigma, fNAsigma);
+            targetSigma.setTolerance(1e-14);
+            targetCluster = new ClusterDifference(targetSigma, new ClusterAbstract[]{fullTargetCluster});
+        } else {
             targetCluster = fullTargetCluster;
         }
 
@@ -373,6 +385,6 @@ public class VirialHeNonAdditiveWheatley {
         public boolean semiClassical = false;
         public boolean calcApprox = false;
         public boolean subtractApprox = false;
-        public boolean minMulti = false;
+        public double sigma = 0;
     }
 }
