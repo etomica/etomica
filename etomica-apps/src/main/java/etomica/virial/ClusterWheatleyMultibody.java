@@ -93,6 +93,7 @@ public class ClusterWheatleyMultibody extends ClusterWheatleySoft {
         ClusterWheatleyMultibody c = new ClusterWheatleyMultibody(n, f, fNonAdditive, fMulti, multiTol);
         c.setTemperature(1/beta);
         c.setDoCaching(doCaching);
+        c.setDoTotal(doTotal);
         return c;
     }
 
