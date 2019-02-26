@@ -4,15 +4,15 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
@@ -26,6 +26,10 @@ import etomica.units.Kelvin;
 public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPotentialAtomicMultibody {
 
     public P3CPSNonAdditiveHe(Space space) {
+        this(space, 0);
+    }
+
+    public P3CPSNonAdditiveHe(Space space, double sigma) {
         super(3, space);
         drAB = space.makeVector();
         drBC = space.makeVector();
@@ -34,7 +38,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         gradient[2] = space.makeVector();
-        
+        this.sigma = sigma;
         setA();
         setAlpha();
     }
@@ -326,6 +330,9 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
                     return 0;
                 }
             }
+        }
+        if (sigma != 0) {
+            u *= 1 + 0.02 * sigma * Math.signum(u);
         }
         return u;
     }
@@ -723,6 +730,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
     private static final double KPerHartree = 315774.65; // Rounding provided by Pryzbytek et al. 2010
     public boolean verbose = false;
     private int nullRegionMethod = 2; // What we have been using so far.
+    protected final double sigma;
 }
 
 
