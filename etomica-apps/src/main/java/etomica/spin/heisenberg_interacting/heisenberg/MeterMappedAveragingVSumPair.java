@@ -31,7 +31,9 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
     protected PotentialCalculationPhiSum secondDerivativeSum;
     protected PotentialCalculationPhiSumHeisenberg secondDerivativeSumIdeal;
     protected PotentialCalculationMoleculeAgentSum vSum;
+    protected PotentialCalculationMoleculeAgentSumMinusIdeal vSumMinusIdeal;
     protected PotentialCalculationMoleculeAgentSumPair vSumPair;
+    protected PotentialCalculationMoleculeAgentSumMinusIdealPair vSumPairMinusIdeal;
     protected PotentialCalculationPair pair;
     protected double temperature;
     protected double J;
@@ -45,7 +47,7 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
 
     public MeterMappedAveragingVSumPair(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, IPotentialAtomic p2) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
-        int nValues = 17;
+        int nValues = 24;
         data = new DataDoubleArray(nValues);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nValues});
         tag = new DataTag();
@@ -72,10 +74,15 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
         secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);
 
 
-        int nMax = 3;
+        int nMax = 10;
         Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         vSum = new PotentialCalculationMoleculeAgentSum(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         vSumPair = new PotentialCalculationMoleculeAgentSumPair(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
+
+        vSumMinusIdeal = new PotentialCalculationMoleculeAgentSumMinusIdeal(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
+        vSumPairMinusIdeal = new PotentialCalculationMoleculeAgentSumMinusIdealPair(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
+
+
         pair = new PotentialCalculationPair(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
 
         allAtoms = new IteratorDirective();
@@ -86,6 +93,11 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
         double[] x = data.getData();
         if (box == null) throw new IllegalStateException("no box");
         IAtomList leafList = box.getLeafList();
+        double bt2 = bt * bt;
+        double mu2 = mu * mu;
+        double bmu = bt * mu;
+        int nM = leafList.getAtomCount();
+
         torqueSum.reset();
         torqueSum.doCalculation(box.getLeafList(), p2);
 //        f1 = torqueAgent.torque.getX(1);
@@ -103,17 +115,14 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
         vSum.zeroSum();
         vSum.doCalculation(box.getLeafList(), p2);
         vSumPair.zeroSum();
-        vSumPair.doCalculation(box.getLeafList(),p2);
+        vSumPair.doCalculation(box.getLeafList(), p2);
 
         pair.zeroSum();
         pair.doCalculation(box.getLeafList(), p2);
 
         secondDerivativeSumIdeal.zeroSum();
         secondDerivativeSumIdeal.doCalculation(box.getLeafList(), p2);
-        double bt2 = bt * bt;
-        double mu2 = mu * mu;
-        double bmu = bt * mu;
-        int nM = leafList.getAtomCount();
+
 
         double AEE = 0, JEMUEx = 0, JEMUEy = 0;
         double JEEMJEJESelf = 0, UEESelf = 0;
@@ -153,13 +162,14 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
             //-var[JEUME]
             JEMUEx += dvExi + bmu * atom.getOrientation().getDirection().getX(0) + vExi * fi;
             JEMUEy += dvEyi + bmu * atom.getOrientation().getDirection().getX(1) + vEyi * fi;
+
         }
 
 
         AEE = -vSumPair.getSumJEEMJEJE() - JEEMJEJESelf + UEESelf + vSumPair.getSumUEE() - JEMUEx * JEMUEx - JEMUEy * JEMUEy;
 
+
         double torqueScalar = 0;
-//        System.out.println("nM= " + nM);
         dr.E(0);
         for (int i = 0; i < nM; i++) {
             MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
@@ -191,6 +201,103 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
         x[14] = UEESelf + vSumPair.getSumUEE();
         x[15] = JEMUEx * JEMUEx;
         x[16] = JEMUEy * JEMUEy;
+
+
+        vSumMinusIdeal.zeroSum();
+        vSumMinusIdeal.doCalculation(box.getLeafList(), p2);
+        double bmu2 = bmu * bmu;
+        for (int i = 0; i < nM; i++) {
+            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
+            IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+
+            dr.E(atom.getOrientation().getDirection());
+
+            double ti = Math.atan2(dr.getX(1), dr.getX(0));
+            double sinti = Math.sin(ti);
+            double costi = Math.cos(ti);
+            double cos2ti = Math.cos(2 * ti);
+            double sin2ti = Math.sin(2 * ti);
+
+            double vExiIdeal = -bmu * sinti;
+            double vEyiIdeal = -bmu * costi;
+            double vEExiIdeal = 0.5 * bmu2 * costi * sinti;
+            double vEEyiIdeal = -0.5 * bmu2 * costi * sinti;
+            double dvExidtiIdeal = -bmu * costi;
+            double dvEyidtiIdeal = bmu * sinti;
+            double dvEExidtiIdeal = 0.5 * bmu2 * cos2ti;
+            double dvEEyidtiIdeal = -dvEExidtiIdeal;
+            double d2vExidtidtiIdeal = -bmu2 * sin2ti;
+            double d2vEyidtidtiIdeal = -d2vExidtidtiIdeal;
+
+            agentAtomI.vEx().PE(vExiIdeal);
+            agentAtomI.vEy().PE(vEyiIdeal);
+            agentAtomI.vEEx().PE(vEExiIdeal);
+            agentAtomI.vEEy().PE(vEEyiIdeal);
+            agentAtomI.dvEx().PE(dvExidtiIdeal);
+            agentAtomI.dvEy().PE(dvEyidtiIdeal);
+            agentAtomI.dvEEx().PE(dvEExidtiIdeal);
+            agentAtomI.dvEEy().PE(dvEEyidtiIdeal);
+            agentAtomI.d2vEx().PE(d2vExidtidtiIdeal);
+            agentAtomI.d2vEy().PE(d2vEyidtidtiIdeal);
+
+        }
+        vSumPairMinusIdeal.zeroSum();
+        vSumPairMinusIdeal.doCalculation(box.getLeafList(), p2);
+
+        AEE = 0;
+        JEMUEx = 0;
+        JEMUEy = 0;
+        JEEMJEJESelf = 0;
+        UEESelf = 0;
+        for (int i = 0; i < nM; i++) {
+            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
+
+            //-dvEEi/dti
+            double dvEEi = agentAtomI.dvEEx().getX(0) + agentAtomI.dvEEy().getX(0);
+            JEEMJEJESelf += dvEEi;
+
+            //-vEi*d2vE/dtidti
+            double vExi = agentAtomI.vEx().getX(0);
+            double vEyi = agentAtomI.vEy().getX(0);
+            double d2vExi = agentAtomI.d2vEx().getX(0);
+            double d2vEyi = agentAtomI.d2vEy().getX(0);
+            JEEMJEJESelf += vExi * d2vExi + vEyi * d2vEyi;
+
+
+            //-vEEi*fi
+            double fi = bt * agentAtomI.torque.getX(0);
+            double vEEi = agentAtomI.vEEx().getX(0) + agentAtomI.vEEy().getX(0);
+            UEESelf -= vEEi * fi;
+            //-fi*dvEi/dti*vEi
+            double dvExi = agentAtomI.dvEx().getX(0);
+            double dvEyi = agentAtomI.dvEy().getX(0);
+            UEESelf -= fi * (dvExi * vExi + dvEyi * vEyi);
+            //vEi*phiii*vEi
+            double phiii = bt * agentAtomI.phi.component(0, 0);
+            UEESelf += vExi * phiii * vExi + vEyi * phiii * vEyi;
+            //-2*vEi*fEi
+            //fExi = -bmu Sin[thetai]
+            //fEyi = bmu Cos[thetai]
+            IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+            double fExi = -bmu * atom.getOrientation().getDirection().getX(1);
+            double fEyi = bmu * atom.getOrientation().getDirection().getX(0);
+            UEESelf -= 2 * (vExi * fExi + vEyi * fEyi);
+            //-var[JEUME]
+            JEMUEx += dvExi + bmu * atom.getOrientation().getDirection().getX(0) + vExi * fi;
+            JEMUEy += dvEyi + bmu * atom.getOrientation().getDirection().getX(1) + vEyi * fi;
+
+        }
+
+        AEE = -vSumPairMinusIdeal.getSumJEEMJEJE() - JEEMJEJESelf + UEESelf + vSumPairMinusIdeal.getSumUEE() - JEMUEx * JEMUEx - JEMUEy * JEMUEy;
+
+
+        x[17] = AEE;
+        x[18] = JEMUEx;
+        x[19] = JEMUEy;
+        x[20] = JEEMJEJESelf + vSumPairMinusIdeal.getSumJEEMJEJE();
+        x[21] = UEESelf + vSumPairMinusIdeal.getSumUEE();
+        x[22] = JEMUEx * JEMUEx;
+        x[23] = JEMUEy * JEMUEy;
 
 
         return data;

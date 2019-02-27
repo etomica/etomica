@@ -119,7 +119,6 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
 
         count += 1;
 //        System.out.println("(*" + count + "th term*)");
-        //TODO
         boolean debug = false;
         if (debug) {
             System.out.println("nMax= " + nMax + ";");
@@ -530,9 +529,6 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         double vEEy1Ideal = -0.5 * bmu2 * cost1 * sint1;
         double vEEy2Ideal = -0.5 * bmu2 * cost2 * sint2;
 
-
-//        System.out.println("vEx1 for pairs = " + vEx1);
-
         double dvEx1dt1 = dpvx10dt1 / px0 + pvx10 * dRpx0dt1;
         double dvEy1dt1 = dpvy10dt1 / py0 + pvy10 * dRpy0dt1;
 
@@ -552,32 +548,34 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
 
 
         agentAtom1.vEx().PE(vEx1);
-        agentAtom1.vEx().PE(-3 * vEx1Ideal);
         agentAtom1.vEy().PE(vEy1);
-        agentAtom1.vEy().PE(-3 * vEy1Ideal);
         agentAtom1.vEEx().PE(vEEx1);
-        agentAtom1.vEEx().PE(-3 * vEEx1Ideal);
         agentAtom1.vEEy().PE(vEEy1);
-        agentAtom1.vEEy().PE(-3 * vEEy1Ideal);
         agentAtom1.dvEx().PE(dvEx1dt1);
-        agentAtom1.dvEx().PE(-3 * dvEx1dt1Ideal);
         agentAtom1.dvEy().PE(dvEy1dt1);
-        agentAtom1.dvEy().PE(-3 * dvEy1dt1Ideal);
         agentAtom1.dvEEx().PE(dvEEx1dt1);
-        agentAtom1.dvEEx().PE(-3 * dvEEx1dt1Ideal);
         agentAtom1.dvEEy().PE(dvEEy1dt1);
-        agentAtom1.dvEEy().PE(-3 * dvEEy1dt1Ideal);
         agentAtom1.d2vEx().PE(d2vEx1dt1dt1);
-        agentAtom1.d2vEx().PE(-3 * d2vEx1dt1dt1Ideal);
         agentAtom1.d2vEy().PE(d2vEy1dt1dt1);
-        agentAtom1.d2vEy().PE(-3 * d2vEy1dt1dt1Ideal);
+
+        agentAtom1.vEx().PE(-vEx1Ideal);
+        agentAtom1.vEy().PE(-vEy1Ideal);
+        agentAtom1.vEEx().PE(-vEEx1Ideal);
+        agentAtom1.vEEy().PE(-vEEy1Ideal);
+        agentAtom1.dvEx().PE(-dvEx1dt1Ideal);
+        agentAtom1.dvEy().PE(-dvEy1dt1Ideal);
+        agentAtom1.dvEEx().PE(-dvEEx1dt1Ideal);
+        agentAtom1.dvEEy().PE(-dvEEy1dt1Ideal);
+        agentAtom1.d2vEx().PE(-d2vEx1dt1dt1Ideal);
+        agentAtom1.d2vEy().PE(-d2vEy1dt1dt1Ideal);
 
 
         double dvEx2dt2 = dpvx20dt2 / px0 + pvx20 * dRpx0dt2;
         double dvEy2dt2 = dpvy20dt2 / py0 + pvy20 * dRpy0dt2;
 
-        double dvEx2dt2Ideal = -bmu * sint2;
-        double dvEy2dt2Ideal = -bmu * cost2;
+
+        double dvEx2dt2Ideal = -bmu * cost2;
+        double dvEy2dt2Ideal = bmu * sint2;
 
         double dvEEx2dt2 = dpvx21dt2 / px0 + pvx21 * dRpx0dt2 - (dvEx2dt2 * px1 / px0 + vEx2 * dpx1Rpx0dt2);
         double dvEEy2dt2 = dpvy21dt2 / py0 + pvy21 * dRpy0dt2 - (dvEy2dt2 * py1 / py0 + vEy2 * dpy1Rpy0dt2);
@@ -602,16 +600,16 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         agentAtom2.d2vEy().PE(d2vEy2dt2dt2);
 
 
-        agentAtom2.vEx().PE(-3*vEx2Ideal);
-        agentAtom2.vEy().PE(-3*vEy2Ideal);
-        agentAtom2.vEEx().PE(-3*vEEx2Ideal);
-        agentAtom2.vEEy().PE(-3*vEEy2Ideal);
-        agentAtom2.dvEx().PE(-3*dvEx2dt2Ideal);
-        agentAtom2.dvEy().PE(-3*dvEy2dt2Ideal);
-        agentAtom2.dvEEx().PE(-3*dvEEx2dt2Ideal);
-        agentAtom2.dvEEy().PE(-3*dvEEy2dt2Ideal);
-        agentAtom2.d2vEx().PE(-3*d2vEx2dt2dt2Ideal);
-        agentAtom2.d2vEy().PE(-3*d2vEy2dt2dt2Ideal);
+        agentAtom2.vEx().PE(-vEx2Ideal);
+        agentAtom2.vEy().PE(-vEy2Ideal);
+        agentAtom2.vEEx().PE(-vEEx2Ideal);
+        agentAtom2.vEEy().PE(-vEEy2Ideal);
+        agentAtom2.dvEx().PE(-dvEx2dt2Ideal);
+        agentAtom2.dvEy().PE(-dvEy2dt2Ideal);
+        agentAtom2.dvEEx().PE(-dvEEx2dt2Ideal);
+        agentAtom2.dvEEy().PE(-dvEEy2dt2Ideal);
+        agentAtom2.d2vEx().PE(-d2vEx2dt2dt2Ideal);
+        agentAtom2.d2vEy().PE(-d2vEy2dt2dt2Ideal);
     }
 
 
