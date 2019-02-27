@@ -31,6 +31,7 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
     protected PotentialCalculationPhiSum secondDerivativeSum;
     protected PotentialCalculationPhiSumHeisenberg secondDerivativeSumIdeal;
     protected PotentialCalculationMoleculeAgentSum vSum;
+    protected PotentialCalculationMoleculeAgentSumPair vSumPair;
     protected PotentialCalculationPair pair;
     protected double temperature;
     protected double J;
@@ -74,6 +75,7 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
         int nMax = 3;
         Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         vSum = new PotentialCalculationMoleculeAgentSum(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
+        vSumPair = new PotentialCalculationMoleculeAgentSumPair(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         pair = new PotentialCalculationPair(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
 
         allAtoms = new IteratorDirective();
@@ -100,6 +102,9 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
 
         vSum.zeroSum();
         vSum.doCalculation(box.getLeafList(), p2);
+        vSumPair.zeroSum();
+        vSumPair.doCalculation(box.getLeafList(),p2);
+
         pair.zeroSum();
         pair.doCalculation(box.getLeafList(), p2);
 
@@ -151,7 +156,7 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
         }
 
 
-        AEE = -vSum.getSumJEEMJEJE() - JEEMJEJESelf + UEESelf + vSum.getSumUEE() - JEMUEx * JEMUEx - JEMUEy * JEMUEy;
+        AEE = -vSumPair.getSumJEEMJEJE() - JEEMJEJESelf + UEESelf + vSumPair.getSumUEE() - JEMUEx * JEMUEx - JEMUEy * JEMUEy;
 
         double torqueScalar = 0;
 //        System.out.println("nM= " + nM);
@@ -182,8 +187,8 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
         x[10] = AEE;
         x[11] = JEMUEx;
         x[12] = JEMUEy;
-        x[13] = JEEMJEJESelf + vSum.getSumJEEMJEJE();
-        x[14] = UEESelf + vSum.getSumUEE();
+        x[13] = JEEMJEJESelf + vSumPair.getSumJEEMJEJE();
+        x[14] = UEESelf + vSumPair.getSumUEE();
         x[15] = JEMUEx * JEMUEx;
         x[16] = JEMUEy * JEMUEy;
 

@@ -3,12 +3,10 @@ package etomica.spin.heisenberg_interacting.heisenberg;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.integrator.Integrator;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.IPotentialAtomicSecondDerivative;
 import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 
 import static etomica.math.SpecialFunctions.besselI;
@@ -19,7 +17,7 @@ import static etomica.math.SpecialFunctions.besselI;
  * @author Weisong Lin
  */
 
-public class PotentialCalculationMoleculeAgentSum implements PotentialCalculation {
+public class PotentialCalculationMoleculeAgentSumMinusIdealPair implements PotentialCalculation {
     //public class PotentialCalculationHeisenberg {
     protected AtomLeafAgentManager.AgentIterator leafAgentIterator;
     protected Vector ei, ej;
@@ -29,12 +27,7 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
     protected double[] d2Axc0, d2Axs0, d3Axc0, d3Axs0, d2Axc1, d2Axs1;
     protected double[] Ayc0, Ays0, dAyc0, dAys0, Ayc1, Ays1, dAyc1, dAys1;
     protected double[] d2Ayc0, d2Ays0, d3Ayc0, d3Ays0, d2Ayc1, d2Ays1;
-    protected double pvx10, pvx20, dpvx10dt1, dpvx20dt1, d2pvx10dt1dt2, d2pvx20dt1dt2, d2pvx20dt2dt2, pvx11, pvx21, dpvx11dt1, dpvx11dt2, dpvx21dt1, dpvx21dt2, dpvx20dt2, d2pvx10dt1dt1, dpvx10dt2;
-    protected double pvy10, pvy20, dpvy10dt1, dpvy20dt1, d2pvy10dt1dt2, d2pvy20dt1dt2, d2pvy20dt2dt2, pvy11, pvy21, dpvy11dt1, dpvy11dt2, dpvy21dt1, dpvy21dt2, dpvy20dt2, d2pvy10dt1dt1, dpvy10dt2;
 
-    protected Vector phi;
-    protected Vector vEx, vEEx, dvEx, dvEEx, d2vEx;
-    protected Vector vEy, vEEy, dvEy, dvEEy, d2vEy;
     protected double fEx, fEy, force;
 
 
@@ -42,20 +35,10 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
     protected int count = 1;
     protected AtomLeafAgentManager<MoleculeAgent> leafAgentManager;
 
-    public PotentialCalculationMoleculeAgentSum(Space space, double dipoleMagnitude, double interactionS, double beta, int nMax, AtomLeafAgentManager<MoleculeAgent> leafAgentManager) {
+    public PotentialCalculationMoleculeAgentSumMinusIdealPair(Space space, double dipoleMagnitude, double interactionS, double beta, int nMax, AtomLeafAgentManager<MoleculeAgent> leafAgentManager) {
         ei = space.makeVector();//TODO Do I have to do this again.
         ej = space.makeVector();
-        vEx = space.makeVector();
-        vEEx = space.makeVector();
-        dvEx = space.makeVector();
-        dvEEx = space.makeVector();
-        d2vEx = space.makeVector();
-        vEy = space.makeVector();
-        vEEy = space.makeVector();
-        dvEy = space.makeVector();
-        dvEEy = space.makeVector();
-        d2vEy = space.makeVector();
-        phi = space.makeVector();
+
 
         J = interactionS;
         mu = dipoleMagnitude;
@@ -409,40 +392,26 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         double d2Rpy0dt1dt2 = -d2Rpy0dt1dt1;
         double d2Rpy0dt2dt2 = d2Rpy0dt1dt1;
 
+        double pvx10, pvx20, dpvx10dt1, dpvx20dt1, d2pvx10dt1dt2, d2pvx20dt1dt2, dpvx20dt2, dpvx10dt2;
+        double pvy10, pvy20, dpvy10dt1, dpvy20dt1, d2pvy10dt1dt2, d2pvy20dt1dt2, dpvy20dt2, dpvy10dt2;
+
 
         pvx10 = 0;
         pvy10 = 0;
-        pvx11 = 0;
-        pvy11 = 0;
         dpvx10dt1 = 0;
         dpvy10dt1 = 0;
         dpvx10dt2 = 0;
         dpvy10dt2 = 0;
         d2pvx10dt1dt2 = 0;
         d2pvy10dt1dt2 = 0;
-        dpvx11dt1 = 0;
-        dpvy11dt1 = 0;
-        dpvx11dt2 = 0;
-        dpvy11dt2 = 0;
         pvx20 = 0;
         pvy20 = 0;
-        pvx21 = 0;
-        pvy21 = 0;
         dpvx20dt1 = 0;
         dpvy20dt1 = 0;
         d2pvx20dt1dt2 = 0;
         dpvx20dt2 = 0;
         dpvy20dt2 = 0;
         d2pvy20dt1dt2 = 0;
-        dpvx21dt1 = 0;
-        dpvy21dt1 = 0;
-        dpvx21dt2 = 0;
-        dpvy21dt2 = 0;
-        d2pvx10dt1dt1 = 0;
-        d2pvy10dt1dt1 = 0;
-        d2pvx20dt2dt2 = 0;
-        d2pvy20dt2dt2 = 0;
-
 
         for (int n = 0; n <= nMax; n++) {
             double sinnt2 = Math.sin(n * t2);
@@ -453,15 +422,9 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
             pvx10 += dAxs0[n] * sinnt2 + dAxc0[n] * cosnt2;
             pvy10 += dAys0[n] * sinnt2 + dAyc0[n] * cosnt2;
 
-            pvx11 += dAxs1[n] * sinnt2 + dAxc1[n] * cosnt2;
-            pvy11 += dAys1[n] * sinnt2 + dAyc1[n] * cosnt2;
-
 
             dpvx10dt1 += d2Axs0[n] * sinnt2 + d2Axc0[n] * cosnt2;
             dpvy10dt1 += d2Ays0[n] * sinnt2 + d2Ayc0[n] * cosnt2;
-
-            d2pvx10dt1dt1 += d3Axs0[n] * sinnt2 + d3Axc0[n] * cosnt2;
-            d2pvy10dt1dt1 += d3Ays0[n] * sinnt2 + d3Ayc0[n] * cosnt2;
 
 
             dpvx10dt2 += n * dAxs0[n] * cosnt2 - n * dAxc0[n] * sinnt2;
@@ -471,18 +434,10 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
             d2pvy10dt1dt2 += n * d2Ays0[n] * cosnt2 - n * d2Ayc0[n] * sinnt2;
 
 
-            dpvx11dt1 += d2Axs1[n] * sinnt2 + d2Axc1[n] * cosnt2;
-            dpvy11dt1 += d2Ays1[n] * sinnt2 + d2Ayc1[n] * cosnt2;
-
-            dpvx11dt2 += n * dAxs1[n] * cosnt2 - n * dAxc1[n] * sinnt2;
-            dpvy11dt2 += n * dAys1[n] * cosnt2 - n * dAyc1[n] * sinnt2;
-
             if (n != 0) {
                 pvx20 += n * Axs0[n] * cosnt2 - n * Axc0[n] * sinnt2;
                 pvy20 += n * Ays0[n] * cosnt2 - n * Ayc0[n] * sinnt2;
 
-                pvx21 += n * Axs1[n] * cosnt2 - n * Axc1[n] * sinnt2;
-                pvy21 += n * Ays1[n] * cosnt2 - n * Ayc1[n] * sinnt2;
 
                 dpvx20dt1 += n * dAxs0[n] * cosnt2 - n * dAxc0[n] * sinnt2;
                 dpvy20dt1 += n * dAys0[n] * cosnt2 - n * dAyc0[n] * sinnt2;
@@ -492,147 +447,48 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
 
                 dpvx20dt2 += -n2 * Axs0[n] * sinnt2 - n2 * Axc0[n] * cosnt2;
                 dpvy20dt2 += -n2 * Ays0[n] * sinnt2 - n2 * Ayc0[n] * cosnt2;
-
-                d2pvx20dt2dt2 += -n2 * n * Axs0[n] * cosnt2 + n2 * n * Axc0[n] * sinnt2;
-                d2pvy20dt2dt2 += -n2 * n * Ays0[n] * cosnt2 + n2 * n * Ayc0[n] * sinnt2;
-
-                dpvx21dt1 += n * dAxs1[n] * cosnt2 - n * dAxc1[n] * sinnt2;
-                dpvy21dt1 += n * dAys1[n] * cosnt2 - n * dAyc1[n] * sinnt2;
-
-                dpvx21dt2 += -n2 * Axs1[n] * sinnt2 - n2 * Axc1[n] * cosnt2;
-                dpvy21dt2 += -n2 * Ays1[n] * sinnt2 - n2 * Ayc1[n] * cosnt2;
             }
         }
-
 
         MoleculeAgent agentAtom1 = leafAgentManager.getAgent(atom1);
         MoleculeAgent agentAtom2 = leafAgentManager.getAgent(atom2);
 
-        double vEx1 = pvx10 / p0;
-        double vEx2 = pvx20 / p0;
-        double vEy1 = pvy10 / p0;
-        double vEy2 = pvy20 / p0;
-
-        double vEEx1 = pvx11 / p0 - px1 * vEx1 / p0;
-        double vEEx2 = pvx21 / p0 - px1 * vEx2 / p0;
-        double vEEy1 = pvy11 / p0 - py1 * vEy1 / p0;
-        double vEEy2 = pvy21 / p0 - py1 * vEy2 / p0;
+        double dvEx1dt2 = dpvx10dt2 / px0 + pvx10 * dRpx0dt2;
+        double dvEy1dt2 = dpvy10dt2 / py0 + pvy10 * dRpy0dt2;
 
 
-//        System.out.println("vEx1 for pairs = " + vEx1);
-
-        double dvEx1dt1 = dpvx10dt1 / px0 + pvx10 * dRpx0dt1;
-        double dvEy1dt1 = dpvy10dt1 / py0 + pvy10 * dRpy0dt1;
-//        double dvEx1dt2 = dpvx10dt2 / px0 + pvx10 * dRpx0dt2;
-//        double dvEy1dt2 = dpvy10dt2 / py0 + pvy10 * dRpy0dt2;
+        double d2vEx1dt1dt2 = d2pvx10dt1dt2 / px0 + dpvx10dt1 * dRpx0dt2 + dpvx10dt2 * dRpx0dt1 + pvx10 * d2Rpx0dt1dt2;
+        double d2vEy1dt1dt2 = d2pvy10dt1dt2 / py0 + dpvy10dt1 * dRpy0dt2 + dpvy10dt2 * dRpy0dt1 + pvy10 * d2Rpy0dt1dt2;
 
 
-        double dvEEx1dt1 = dpvx11dt1 / px0 + pvx11 * dRpx0dt1 - dvEx1dt1 * px1 / px0 - vEx1 * dpx1Rpx0dt1;
-        double dvEEy1dt1 = dpvy11dt1 / py0 + pvy11 * dRpy0dt1 - dvEy1dt1 * py1 / py0 - vEy1 * dpy1Rpy0dt1;
-        double d2vEx1dt1dt1 = d2pvx10dt1dt1 / px0 + dpvx10dt1 * dRpx0dt1 + dpvx10dt1 * dRpx0dt1 + pvx10 * d2Rpx0dt1dt1;
-        double d2vEy1dt1dt1 = d2pvy10dt1dt1 / py0 + dpvy10dt1 * dRpy0dt1 + dpvy10dt1 * dRpy0dt1 + pvy10 * d2Rpy0dt1dt1;
-//        double d2vEx1dt1dt2 = d2pvx10dt1dt2 / px0 + dpvx10dt1 * dRpx0dt2 + dpvx10dt2 * dRpx0dt1 + pvx10 * d2Rpx0dt1dt2;
-//        double d2vEy1dt1dt2 = d2pvy10dt1dt2 / py0 + dpvy10dt1 * dRpy0dt2 + dpvy10dt2 * dRpy0dt1 + pvy10 * d2Rpy0dt1dt2;
+        double dvEx2dt1 = dpvx20dt1 / px0 + pvx20 * dRpx0dt1;
+        double dvEy2dt1 = dpvy20dt1 / py0 + pvy20 * dRpy0dt1;
+
+        double d2vEx2dt1dt2 = d2pvx20dt1dt2 / px0 + dpvx20dt2 * dRpx0dt1 + dpvx20dt1 * dRpx0dt2 + pvx20 * d2Rpx0dt1dt2;
+        double d2vEy2dt1dt2 = d2pvy20dt1dt2 / py0 + dpvy20dt2 * dRpy0dt1 + dpvy20dt1 * dRpy0dt2 + pvy20 * d2Rpy0dt1dt2;
 
 
-        agentAtom1.vEx().PE(vEx1);
-        agentAtom1.vEy().PE(vEy1);
-        agentAtom1.vEEx().PE(vEEx1);
-        agentAtom1.vEEy().PE(vEEy1);
-        agentAtom1.dvEx().PE(dvEx1dt1);
-        agentAtom1.dvEy().PE(dvEy1dt1);
-        agentAtom1.dvEEx().PE(dvEEx1dt1);
-        agentAtom1.dvEEy().PE(dvEEy1dt1);
-        agentAtom1.d2vEx().PE(d2vEx1dt1dt1);
-        agentAtom1.d2vEy().PE(d2vEy1dt1dt1);
+        double f1 = bt * agentAtom1.torque.getX(0);
+        double f2 = bt * agentAtom2.torque.getX(0);
+        double p12 = -bJ * ei.dot(ej);
+        double p21 = p12;
 
 
-        double dvEx2dt2 = dpvx20dt2 / px0 + pvx20 * dRpx0dt2;
-        double dvEy2dt2 = dpvy20dt2 / py0 + pvy20 * dRpy0dt2;
-//        double dvEx2dt1 = dpvx20dt1 / px0 + pvx20 * dRpx0dt1;
-//        double dvEy2dt1 = dpvy20dt1 / py0 + pvy20 * dRpy0dt1;
+        double vEx1 = agentAtom1.vEx().getX(0);
+        double vEy1 = agentAtom1.vEy().getX(0);
 
-        double dvEEx2dt2 = dpvx21dt2 / px0 + pvx21 * dRpx0dt2 - (dvEx2dt2 * px1 / px0 + vEx2 * dpx1Rpx0dt2);
-        double dvEEy2dt2 = dpvy21dt2 / py0 + pvy21 * dRpy0dt2 - (dvEy2dt2 * py1 / py0 + vEy2 * dpy1Rpy0dt2);
-        double d2vEx2dt2dt2 = d2pvx20dt2dt2 / px0 + dpvx20dt2 * dRpx0dt2 + dpvx20dt2 * dRpx0dt2 + pvx20 * d2Rpx0dt2dt2;
-        double d2vEy2dt2dt2 = d2pvy20dt2dt2 / py0 + dpvy20dt2 * dRpy0dt2 + dpvy20dt2 * dRpy0dt2 + pvy20 * d2Rpy0dt2dt2;
-//        double d2vEx2dt1dt2 = d2pvx20dt1dt2 / px0 + dpvx20dt2 * dRpx0dt1 + dpvx20dt1 * dRpx0dt2 + pvx20 * d2Rpx0dt1dt2;
-//        double d2vEy2dt1dt2 = d2pvy20dt1dt2 / py0 + dpvy20dt2 * dRpy0dt1 + dpvy20dt1 * dRpy0dt2 + pvy20 * d2Rpy0dt1dt2;
+        double vEx2 = agentAtom2.vEx().getX(0);
+        double vEy2 = agentAtom2.vEy().getX(0);
 
 
-        agentAtom2.vEx().PE(vEx2);
-        agentAtom2.vEy().PE(vEy2);
-        agentAtom2.vEEx().PE(vEEx2);
-        agentAtom2.vEEy().PE(vEEy2);
-        agentAtom2.dvEx().PE(dvEx2dt2);
-        agentAtom2.dvEy().PE(dvEy2dt2);
-        agentAtom2.dvEEx().PE(dvEEx2dt2);
-        agentAtom2.dvEEy().PE(dvEEy2dt2);
-        agentAtom2.d2vEx().PE(d2vEx2dt2dt2);
-        agentAtom2.d2vEy().PE(d2vEy2dt2dt2);
+        JEEMJEJE += vEx1 * d2vEx2dt1dt2 + vEx2 * d2vEx1dt1dt2;
+        JEEMJEJE += vEy1 * d2vEy2dt1dt2 + vEy2 * d2vEy1dt1dt2;
 
-        if (debug) {
-            //vEx passed the test!!!
-            System.out.println("(vEx1[nMax]/. pReplace)- " + "(" + vEx1 + ")");
-            System.out.println("(vEx2[nMax]/. pReplace)- " + "(" + vEx2 + ")");
-//            System.out.println("(vEy1[nMax]/. pReplace)- " + "(" + vEy1 + ")");
-//            System.out.println("(vEy2[nMax]/. pReplace)- " + "(" + vEy2 + ")");
+        UEE -= f1 * vEx2 * dvEx1dt2 + f2 * vEx1 * dvEx2dt1;
+        UEE -= f1 * vEy2 * dvEy1dt2 + f2 * vEy1 * dvEy2dt1;
 
-            //dvEx1  passed the test
-//            System.out.println("(dvEx1[nMax]/. pReplace)- " + "(" + dvEx1dt1 + ")");
-//            System.out.println("(dvEy1[nMax]/. pReplace)- " + "(" + dvEy1dt1 + ")");
-
-//            System.out.println("(dvEx1dt2[nMax]/. pReplace)- " + "(" + dvEx1dt2 + ")");
-//            System.out.println("(dvEy1dt2[nMax]/. pReplace)- " + "(" + dvEy1dt2 + ")");
-
-            //dvEx2 passed the test!!!
-//            System.out.println("(dvEx2[nMax]/. pReplace)- " + "(" + dvEx2dt2 + ")");
-//            System.out.println("(dvEy2[nMax]/. pReplace)- " + "(" + dvEy2dt2 + ")");
-
-//            System.out.println("(dvEx2dt1[nMax]/. pReplace)- " + "(" + dvEx2dt1 + ")");
-//            System.out.println("(dvEy2dt1[nMax]/. pReplace)- " + "(" + dvEy2dt1 + ")");
-
-            //dvEEy1dt1 & dvEEy2dt2
-            // dpvy11dt1 / py0 + pvy11 * dRpy0dt1 - dvEy1dt1 * py1 / py0 - vEy1 * dpy1Rpy0dt1;
-
-//            System.out.println("(dpvy11dt1[nMax]/. pReplace)- " + "(" + dpvy11dt1 + ")");
-//            System.out.println("(py0/. pReplace)- " + "(" + py0 + ")");
-//            System.out.println("(pvy11[t1,t2,nMax]/. pReplace)- " + "(" + pvy11 + ")");
-//            System.out.println("(dRpy0dt1/. pReplace)- " + "(" + dRpy0dt1 + ")");
-//            System.out.println("(dvEy1[nMax]/. pReplace)- " + "(" + dvEy1dt1 + ")");
-//            System.out.println("(py1/. pReplace)- " + "(" + py1 + ")");
-//            System.out.println("(vEy1[nMax]/. pReplace)- " + "(" + vEy1 + ")");
-//            System.out.println("(dpy1Rpy0dt1/. pReplace)- " + "(" + dpy1Rpy0dt1 + ")");
-
-
-//            System.out.println("(dvEEy1[nMax]/. pReplace)- " + "(" + dvEEy1dt1 + ")");
-//            System.out.println("(dvEEy2[nMax]/. pReplace)- " + "(" + dvEEy2dt2 + ")");
-
-
-            //VEE passed the test!!!
-//            System.out.println("(vEEx1[nMax]/. pReplace)- " + "(" + vEEx1 + ")");
-//            System.out.println("(vEEx2[nMax]/. pReplace)- " + "(" + vEEx2 + ")");
-//            System.out.println("(vEEy1[nMax]/. pReplace)- " + "(" + vEEy1 + ")");
-//            System.out.println("(vEEy2[nMax]/. pReplace)- " + "(" + vEEy2 + ")");
-
-            //d2vEx1dt1dt2 and d2vEx2dt1dt2
-//            System.out.println("(d2vEx1dt1dt2[nMax]/. pReplace)- " + "(" + d2vEx1dt1dt2 + ")");
-//            System.out.println("(d2vEx2dt1dt2[nMax]/. pReplace)- " + "(" + d2vEx2dt1dt2 + ")");
-//            System.out.println("(d2vEy1dt1dt2[nMax]/. pReplace)- " + "(" + d2vEy1dt1dt2 + ")");
-//            System.out.println("(d2vEy2dt1dt2[nMax]/. pReplace)- " + "(" + d2vEy2dt1dt2 + ")");
-
-
-            System.out.println("ClearAll[t1, t2]");
-            if (count == 20) System.exit(2);
-        }
-
-//        double p11 = bt * agentAtom1.phi.component(0, 0);
-//        double p22 = bt * agentAtom2.phi.component(0, 0);
-//        double f1 = bt * agentAtom1.torque.getX(0);
-//        double f2 = bt * agentAtom2.torque.getX(0);
-//        double p12 = -bJ * ei.dot(ej);
-//        double p21 = p12;
-
+        UEE += 2 * vEx1 * p12 * vEx2;
+        UEE += 2 * vEy1 * p12 * vEy2;
 
     }
 
@@ -647,37 +503,8 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         JEMUEyIdeal = 0;
         JEMUExSquare = 0;
         JEMUEySquare = 0;
-        AEEJ0 = 0;
         JEMUEIdealSquare = 0;
 
-        vEx.E(0);
-        vEEx.E(0);
-        dvEx.E(0);
-        dvEEx.E(0);
-        d2vEx.E(0);
-        vEy.E(0);
-        vEEy.E(0);
-        dvEy.E(0);
-        dvEEy.E(0);
-        d2vEy.E(0);
-        phi.E(0);
-
-        if (leafAgentIterator != null) {
-            leafAgentIterator.reset();
-            while (leafAgentIterator.hasNext()) {
-                MoleculeAgent agent = (MoleculeAgent) leafAgentIterator.next();
-                agent.vEx().E(0);
-                agent.vEy().E(0);
-                agent.vEEx().E(0);
-                agent.vEEy().E(0);
-                agent.dvEx().E(0);
-                agent.dvEy().E(0);
-                agent.dvEEx().E(0);
-                agent.dvEEy().E(0);
-                agent.d2vEx().E(0);
-                agent.d2vEy().E(0);
-            }
-        }
     }
 
     public double getSumJEEMJEJE() {

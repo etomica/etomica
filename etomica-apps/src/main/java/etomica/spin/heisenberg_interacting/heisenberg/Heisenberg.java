@@ -318,7 +318,7 @@ public class Heisenberg extends Simulation {
         public double temperature = 1;// Kelvin
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
-        public int nCells = 10;//number of atoms is nCells*nCells
+        public int nCells = 3;//number of atoms is nCells*nCells
         public int steps = 100000;
     }
 }
