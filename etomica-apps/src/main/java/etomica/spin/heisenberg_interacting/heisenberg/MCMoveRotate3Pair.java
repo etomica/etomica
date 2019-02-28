@@ -27,9 +27,12 @@ public class MCMoveRotate3Pair extends MCMoveRotate {
         pair.atom0 = box.getLeafList().getAtom(0);
         pair.atom1 = box.getLeafList().getAtom(1);//01
         uOld = p2.energy(pair);
-        pair.atom1 = box.getLeafList().getAtom(2);//02
+        pair.atom0 = box.getLeafList().getAtom(1);
+        pair.atom1 = box.getLeafList().getAtom(2);//12
         uOld += p2.energy(pair);
 
+//        pair.atom1 = box.getLeafList().getAtom(2);//02
+//        uOld += p2.energy(pair);
 //        pair.atom0 = box.getLeafList().getAtom(1);//12
 //        uOld += p2.energy(pair);
 
@@ -51,8 +54,12 @@ public class MCMoveRotate3Pair extends MCMoveRotate {
         pair.atom0 = box.getLeafList().getAtom(0);
         pair.atom1 = box.getLeafList().getAtom(1);//01
         uNew = p2.energy(pair);
-        pair.atom1 = box.getLeafList().getAtom(2);//02
+
+        pair.atom0 = box.getLeafList().getAtom(1);
+        pair.atom1 = box.getLeafList().getAtom(2);//12
         uNew += p2.energy(pair);
+//        pair.atom1 = box.getLeafList().getAtom(2);//02
+//        uNew += p2.energy(pair);
 //        pair.atom0 = box.getLeafList().getAtom(1);//12
 //        uNew += p2.energy(pair);
         double chi = Math.exp(-(uNew - uOld) / temperature);

@@ -363,10 +363,10 @@ public class Heisenberg3Pair extends Simulation {
     public static class Param extends ParameterBase {
         public boolean mSquare = true;
         public boolean aEE = true;
-        public double temperature = 1.1;// Kelvin
+        public double temperature = 2.7;// Kelvin
         public double interactionS = 1.2;
         public double dipoleMagnitude = 1.6;
-        public int steps = 100000;
+        public int steps = 5000;
         public int numberMolecules = 3;
     }
 }

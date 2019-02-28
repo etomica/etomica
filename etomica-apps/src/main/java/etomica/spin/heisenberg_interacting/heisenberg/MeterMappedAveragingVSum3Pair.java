@@ -68,7 +68,7 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
         secondDerivativeSum.setAgentManager(leafAgentManager);
         secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);
 
-        int nMax = 3;
+        int nMax = 10;
         Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         allAtoms = new IteratorDirective();
         vSum = new PotentialCalculationMoleculeAgentSum(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
@@ -267,17 +267,18 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
         x[22] = JEMUEx * JEMUEx;
         x[23] = JEMUEy * JEMUEy;
 
-
         vSumMinusIdeal.zeroSum();
         pair.atom0 = leafList.getAtom(0);
-        pair.atom1 = leafList.getAtom(1);//01
+        pair.atom1 = leafList.getAtom(1);
         vSumMinusIdeal.doCalculation(pair, p2);
 
-        pair.atom1 = leafList.getAtom(2);//02
+        pair.atom0 = leafList.getAtom(1);
+        pair.atom1 = leafList.getAtom(2);//01
         vSumMinusIdeal.doCalculation(pair, p2);
 
         if (!twoPairOnly) {
-            pair.atom0 = leafList.getAtom(1);//12
+            pair.atom0 = leafList.getAtom(0);
+            pair.atom1 = leafList.getAtom(2);
             vSumMinusIdeal.doCalculation(pair, p2);
         }
 
@@ -322,14 +323,16 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
 
         vSumPairMinusIdeal.zeroSum();
         pair.atom0 = leafList.getAtom(0);
-        pair.atom1 = leafList.getAtom(1);//01
+        pair.atom1 = leafList.getAtom(1);
         vSumPairMinusIdeal.doCalculation(pair, p2);
 
-        pair.atom1 = leafList.getAtom(2);//02
+        pair.atom0 = leafList.getAtom(1);
+        pair.atom1 = leafList.getAtom(2);
         vSumPairMinusIdeal.doCalculation(pair, p2);
 
         if (!twoPairOnly) {
-            pair.atom0 = leafList.getAtom(1);//12
+            pair.atom0 = leafList.getAtom(0);
+            pair.atom1 = leafList.getAtom(2);
             vSumPairMinusIdeal.doCalculation(pair, p2);
         }
 
@@ -338,19 +341,30 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
         JEMUEy = 0;
         JEEMJEJESelf = 0;
         UEESelf = 0;
+        JEMUExSquare = 0;
+        JEMUEySquare = 0;
         for (int i = 0; i < nM; i++) {
             MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
 
             //-dvEEi/dti
             double dvEEi = agentAtomI.dvEEx().getX(0) + agentAtomI.dvEEy().getX(0);
-            JEEMJEJESelf += dvEEi;
+//            JEEMJEJESelf += dvEEi;
 
             //-vEi*d2vE/dtidti
             double vExi = agentAtomI.vEx().getX(0);
             double vEyi = agentAtomI.vEy().getX(0);
             double d2vExi = agentAtomI.d2vEx().getX(0);
             double d2vEyi = agentAtomI.d2vEy().getX(0);
-            JEEMJEJESelf += vExi * d2vExi + vEyi * d2vEyi;
+//            JEEMJEJESelf += vExi * d2vExi + vEyi * d2vEyi;
+            if (i == 1) {
+//                JEEMJEJESelf += vExi * d2vExi;
+                JEEMJEJESelf += vExi * d2vExi;
+//                JEEMJEJESelf += d2vExi ;
+//                System.out.println("vEx2T[nMax] - (" + vExi +")");
+                System.out.println("d2vEx2dt2dt2T[nMax] - (" + d2vExi +")");
+                System.exit(2);
+            }
+
 
 
             //-vEEi*fi
@@ -372,25 +386,25 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
             double fEyi = bmu * atom.getOrientation().getDirection().getX(0);
             UEESelf -= 2 * (vExi * fExi + vEyi * fEyi);
             //-var[JEUME]
+
+
             JEMUEx += dvExi + bmu * atom.getOrientation().getDirection().getX(0) + vExi * fi;
             JEMUEy += dvEyi + bmu * atom.getOrientation().getDirection().getX(1) + vEyi * fi;
 
 
-            if (i == 1) {
-                System.out.println(vExtest - vExi);
-                System.out.println(vEytest - vEyi);
-                System.out.println(vEExtest - agentAtomI.vEEx().getX(0));
-                System.out.println(vEEytest - agentAtomI.vEEy().getX(0));
-                System.out.println(dvExtest - dvExi);
-                System.out.println(dvEytest - dvEyi);
-                System.out.println(dvEExtest - agentAtomI.dvEEx().getX(0));
-                System.out.println(dvEEytest - agentAtomI.dvEEy().getX(0));
-                System.out.println(d2vExtest - d2vExi);
-                System.out.println(d2vEytest - d2vEyi);
-            }
+
+//            if (i == 2) {
+//            JEMUEx += dvExi;
+//            JEMUEy += dvEyi;
+//                System.out.println("dvEy in meter " + dvEyi);
+//            }
+
+//        System.exit(2);
+//            JEMUEx += vExi * fi ;
+//            JEMUEy += vEyi * fi;
 
         }
-
+//        System.exit(2);
         AEE = -vSumPairMinusIdeal.getSumJEEMJEJE() - JEEMJEJESelf + UEESelf + vSumPairMinusIdeal.getSumUEE() - JEMUEx * JEMUEx - JEMUEy * JEMUEy;
 
 
@@ -398,9 +412,12 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
         x[25] = JEMUEx;
         x[26] = JEMUEy;
         x[27] = JEEMJEJESelf + vSumPairMinusIdeal.getSumJEEMJEJE();
+//        x[27] = JEEMJEJESelf;
         x[28] = UEESelf + vSumPairMinusIdeal.getSumUEE();
         x[29] = JEMUEx * JEMUEx;
         x[30] = JEMUEy * JEMUEy;
+//        x[29] = JEMUExSquare;
+//        x[30] = JEMUEySquare;
 
 
         return data;
