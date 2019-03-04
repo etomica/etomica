@@ -213,15 +213,15 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
             double sin2ti = Math.sin(2 * ti);
 
             double vExiIdeal = -bmu * sinti;
-            double vEyiIdeal = -bmu * costi;
+            double vEyiIdeal = bmu * costi;
             double vEExiIdeal = 0.5 * bmu2 * costi * sinti;
             double vEEyiIdeal = -0.5 * bmu2 * costi * sinti;
             double dvExidtiIdeal = -bmu * costi;
-            double dvEyidtiIdeal = bmu * sinti;
+            double dvEyidtiIdeal = -bmu * sinti;
             double dvEExidtiIdeal = 0.5 * bmu2 * cos2ti;
             double dvEEyidtiIdeal = -dvEExidtiIdeal;
-            double d2vExidtidtiIdeal = -bmu2 * sin2ti;
-            double d2vEyidtidtiIdeal = -d2vExidtidtiIdeal;
+            double d2vExidtidtiIdeal = bmu * sinti;
+            double d2vEyidtidtiIdeal = -bmu * costi;
 
             agentAtomI.vEx().PE(vExiIdeal);
             agentAtomI.vEy().PE(vEyiIdeal);

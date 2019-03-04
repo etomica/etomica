@@ -30,10 +30,10 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
     protected double pvx10, pvx20, dpvx10dt1, dpvx20dt1, d2pvx10dt1dt2, d2pvx20dt1dt2, d2pvx20dt2dt2, pvx11, pvx21, dpvx11dt1, dpvx11dt2, dpvx21dt1, dpvx21dt2, dpvx20dt2, d2pvx10dt1dt1, dpvx10dt2;
     protected double pvy10, pvy20, dpvy10dt1, dpvy20dt1, d2pvy10dt1dt2, d2pvy20dt1dt2, d2pvy20dt2dt2, pvy11, pvy21, dpvy11dt1, dpvy11dt2, dpvy21dt1, dpvy21dt2, dpvy20dt2, d2pvy10dt1dt1, dpvy10dt2;
 
-    protected Vector phi;
-    protected Vector vEx, vEEx, dvEx, dvEEx, d2vEx;
-    protected Vector vEy, vEEy, dvEy, dvEEy, d2vEy;
-    protected double fEx, fEy, force;
+//    protected Vector phi;
+//    protected Vector vEx, vEEx, dvEx, dvEEx, d2vEx;
+//    protected Vector vEy, vEEy, dvEy, dvEEy, d2vEy;
+//    protected double fEx, fEy, force;
 
 
     protected int nMax;
@@ -41,19 +41,8 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
     protected AtomLeafAgentManager<MoleculeAgent> leafAgentManager;
 
     public PotentialCalculationMoleculeAgentSumMinusIdeal(Space space, double dipoleMagnitude, double interactionS, double beta, int nMax, AtomLeafAgentManager<MoleculeAgent> leafAgentManager) {
-        ei = space.makeVector();//TODO Do I have to do this again.
+        ei = space.makeVector();
         ej = space.makeVector();
-        vEx = space.makeVector();
-        vEEx = space.makeVector();
-        dvEx = space.makeVector();
-        dvEEx = space.makeVector();
-        d2vEx = space.makeVector();
-        vEy = space.makeVector();
-        vEEy = space.makeVector();
-        dvEy = space.makeVector();
-        dvEEy = space.makeVector();
-        d2vEy = space.makeVector();
-        phi = space.makeVector();
 
         J = interactionS;
         mu = dipoleMagnitude;
@@ -127,11 +116,11 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
 //            System.out.println("bJ= " + bJ + ";");
 //            System.out.println("bt = bJ/J;");
 //            System.out.println("bmu = bt*mu;");
-//            System.out.println("t1 = " + t1 + ";");
-//            System.out.println("t2 = " + t2 + ";");
+//            System.out.println("theta1 = " + t1 + ";");
+//            System.out.println("theta2 = " + t2 + ";");
         }
 
-//        if (count > 1000 && debug) System.exit(2);
+        if (count > 20 && debug) System.exit(2);
 
 
 //        System.out.println("ei={" + ei.getX(0) + "," + ei.getX(1) + "};");
@@ -516,8 +505,14 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
 
         double vEx1Ideal = -bmu * sint1;
         double vEx2Ideal = -bmu * sint2;
-        double vEy1Ideal = -bmu * cost1;
-        double vEy2Ideal = -bmu * cost2;
+        double vEy1Ideal = bmu * cost1;
+        double vEy2Ideal = bmu * cost2;
+
+//        System.out.println("vEx1Ideal  -(" + vEx1Ideal + ")");
+//        System.out.println("vEx2Ideal -(" + vEx2Ideal + ")");
+//        System.out.println("vEy1Ideal -(" + vEy1Ideal + ")");
+//        System.out.println("vEy2Ideal - (" + vEy2Ideal + ")");
+
 
         double vEEx1 = pvx11 / p0 - px1 * vEx1 / p0;
         double vEEx2 = pvx21 / p0 - px1 * vEx2 / p0;
@@ -529,11 +524,18 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         double vEEy1Ideal = -0.5 * bmu2 * cost1 * sint1;
         double vEEy2Ideal = -0.5 * bmu2 * cost2 * sint2;
 
+
+//        System.out.println("vEEx1Ideal  -(" +vEEx1Ideal  + ")");
+//        System.out.println("vEEx2Ideal  -(" +vEEx2Ideal  + ")");
+//        System.out.println("vEEy1Ideal  -(" + vEEy1Ideal + ")");
+//        System.out.println("vEEy2Ideal  -(" +vEEy2Ideal  + ")");
+
+
         double dvEx1dt1 = dpvx10dt1 / px0 + pvx10 * dRpx0dt1;
         double dvEy1dt1 = dpvy10dt1 / py0 + pvy10 * dRpy0dt1;
 
         double dvEx1dt1Ideal = -bmu * cost1;
-        double dvEy1dt1Ideal = bmu * sint1;
+        double dvEy1dt1Ideal = -bmu * sint1;
 
 
         double dvEEx1dt1 = dpvx11dt1 / px0 + pvx11 * dRpx0dt1 - dvEx1dt1 * px1 / px0 - vEx1 * dpx1Rpx0dt1;
@@ -543,11 +545,18 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
 
         double dvEEx1dt1Ideal = 0.5 * bmu2 * cos2t1;
         double dvEEy1dt1Ideal = -dvEEx1dt1Ideal;
-        double d2vEx1dt1dt1Ideal = -bmu2 * sin2t1;
-        double d2vEy1dt1dt1Ideal = -d2vEx1dt1dt1Ideal;
 
 
+        double d2vEx1dt1dt1Ideal = bmu * sint1;
+        double d2vEy1dt1dt1Ideal = -bmu * cost1;
+
+//        System.out.println("dvEEx1dt1Ideal  -(" +dvEEx1dt1Ideal  + ")");
+//        System.out.println("dvEEy1dt1Ideal  -(" +dvEEy1dt1Ideal  + ")");
+//        System.out.println("d2vEx1dt1dt1Ideal  -(" +d2vEx1dt1dt1Ideal  + ")");
+//        System.out.println("d2vEy1dt1dt1Ideal  -(" +d2vEy1dt1dt1Ideal  + ")");
 //        System.out.println("vEx1Total= " + agentAtom1.vEx().getX(0));
+//        System.out.println("agentAtom1.vEy() " + agentAtom1.vEy().getX(0));
+
         agentAtom1.vEx().PE(vEx1);
         agentAtom1.vEy().PE(vEy1);
         agentAtom1.vEEx().PE(vEEx1);
@@ -571,34 +580,15 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         agentAtom1.d2vEy().PE(-d2vEy1dt1dt1Ideal);
 
 
-        if (debug) {
-            if (atom2.getLeafIndex() == 1) {
-//                System.out.println("t2 = " + t1 );
-                System.out.println("t1 = " + t1 + ";");
-                System.out.println("t2 = " + t2 + ";");
-//            System.out.println("vEx21 = " + vEx2) ;
-//            System.out.println("vEx2Ideal-( " + vEx2Ideal +" )");
-            }
-            if (atom2.getLeafIndex() == 2) {
-//            System.out.println("t2 = " + t1+ ";");
-                System.out.println("t3 = " + t2 + ";");
-//            System.out.println("vEx23 = " + vEx1) ;
-//            System.out.println("vEx2Ideal-( " + vEx1Ideal +" )");
-//            System.out.println(" " + (agentAtom2.vEx().getX(0) - vEx1Ideal));
-            }
-//        System.out.println("atom1 "+ atom1.getLeafIndex()+ " atom2 " + atom2.getLeafIndex());
-//        System.out.println("(dvEy1[nMax]/.pair12 )-( " + dvEy1dt1+")");
-//        System.out.println("(dvEy1Ideal /. pair12) -( " + dvEy1dt1Ideal+")");
-//        System.out.println("((dvEy1[nMax] /. pair12) - (dvEy1Ideal /. pair12))-( " + agentAtom1.dvEy().getX(0)+")");
-        }
-
-
         double dvEx2dt2 = dpvx20dt2 / px0 + pvx20 * dRpx0dt2;
         double dvEy2dt2 = dpvy20dt2 / py0 + pvy20 * dRpy0dt2;
 
 
         double dvEx2dt2Ideal = -bmu * cost2;
-        double dvEy2dt2Ideal = bmu * sint2;
+        double dvEy2dt2Ideal = -bmu * sint2;
+
+//        System.out.println("dvEx2dt2Ideal  -(" + dvEx2dt2Ideal + ")");
+//        System.out.println("dvEy2dt2Ideal  -(" + dvEy2dt2Ideal + ")");
 
         double dvEEx2dt2 = dpvx21dt2 / px0 + pvx21 * dRpx0dt2 - (dvEx2dt2 * px1 / px0 + vEx2 * dpx1Rpx0dt2);
         double dvEEy2dt2 = dpvy21dt2 / py0 + pvy21 * dRpy0dt2 - (dvEy2dt2 * py1 / py0 + vEy2 * dpy1Rpy0dt2);
@@ -607,8 +597,17 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
 
         double dvEEx2dt2Ideal = 0.5 * bmu2 * cos2t2;
         double dvEEy2dt2Ideal = -dvEEx2dt2Ideal;
-        double d2vEx2dt2dt2Ideal = -bmu2 * sin2t2;
-        double d2vEy2dt2dt2Ideal = bmu2 * sin2t2;
+
+//        System.out.println("dvEEx2dt2Ideal  -(" + dvEEx2dt2Ideal + ")");
+//        System.out.println("dvEEy2dt2Ideal  -(" + dvEEy2dt2Ideal + ")");
+
+
+        double d2vEx2dt2dt2Ideal = bmu * sint2;
+        double d2vEy2dt2dt2Ideal = -bmu * cost2;
+
+//        System.out.println("d2vEx2dt2dt2Ideal  -(" + d2vEx2dt2dt2Ideal + ")");
+//        System.out.println("d2vEy2dt2dt2Ideal  -(" + d2vEy2dt2dt2Ideal + ")");
+
 
 
         agentAtom2.vEx().PE(vEx2);
@@ -633,6 +632,54 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         agentAtom2.dvEEy().PE(-dvEEy2dt2Ideal);
         agentAtom2.d2vEx().PE(-d2vEx2dt2dt2Ideal);
         agentAtom2.d2vEy().PE(-d2vEy2dt2dt2Ideal);
+
+//        System.out.println("vEx = " + vEx1);
+//        System.out.println("atom1 =" + atom1.getLeafIndex());
+
+//        System.out.println("vEy  = " + vEy1);
+//        System.out.println("vEyIdeal  = " + vEy1Ideal);
+//        System.out.println("agentAtom1.vEy() " + agentAtom1.vEy().getX(0));
+//        System.out.println("vEEx = " + vEEx1);
+//        System.out.println("vEEy = " + vEEy1 );
+//        System.out.println("dvEx = " + dvEx1dt1);
+//        System.out.println("dvEy = " + dvEy1dt1);
+//        System.out.println("dvEEx = " + dvEEx1dt1 );
+//        System.out.println("dvEEy = " + dvEEy1dt1 );
+//        System.out.println("d2vEx = " + d2vEx1dt1dt1);
+//        System.out.println("d2vEy = " + d2vEy1dt1dt1);
+
+
+//        double f1 = bt * agentAtom1.torque.getX(0);
+//        double f2 = bt * agentAtom2.torque.getX(0);
+
+        if (debug ) {
+            if (atom2.getLeafIndex() == 1) {
+//                System.out.println("t2 = " + t1 );
+                System.out.println("t1 = " + t1 + ";");
+                System.out.println("t2 = " + t2 + ";");
+//                System.out.println("f1 = " + f1);
+//                System.out.println("f2 = " + f2);
+//            System.out.println("vEx21 = " + vEx2) ;
+//            System.out.println("vEx2Ideal-( " + vEx2Ideal +" )");
+//                System.out.println("d2vEx2_12= " + d2vEx2dt2dt2);
+//                System.out.println("d2vEx2_Ideal = " + d2vEx2dt2dt2Ideal);
+            }
+            if (atom2.getLeafIndex() == 2) {
+                System.out.println("t2 = " + t1 + ";");
+                System.out.println("t3 = " + t2 + ";");
+//                System.out.println("f2 = " + f1);
+//                System.out.println("f3 = " + f2);
+//            System.out.println("vEx23 = " + vEx1) ;
+//            System.out.println("vEx2Ideal-( " + vEx1Ideal +" )");
+//            System.out.println(" " + (agentAtom2.vEx().getX(0) - vEx1Ideal));
+//                System.out.println("d2vEx2_23= " + d2vEx1dt1dt1);
+//                System.out.println("d2vEx2_Ideal = " + d2vEx1dt1dt1Ideal);
+//                System.out.println("Total= " + agentAtom1.d2vEx().getX(0));
+//                System.out.println("TotalPlusIdeal= " + (agentAtom1.d2vEx().getX(0) + d2vEx1dt1dt1Ideal));
+            }
+        }
+
+
     }
 
 
@@ -649,17 +696,7 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         AEEJ0 = 0;
         JEMUEIdealSquare = 0;
 
-        vEx.E(0);
-        vEEx.E(0);
-        dvEx.E(0);
-        dvEEx.E(0);
-        d2vEx.E(0);
-        vEy.E(0);
-        vEEy.E(0);
-        dvEy.E(0);
-        dvEEy.E(0);
-        d2vEy.E(0);
-        phi.E(0);
+//        phi.E(0);
 
         if (leafAgentIterator != null) {
             leafAgentIterator.reset();
