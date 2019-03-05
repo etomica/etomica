@@ -22,19 +22,14 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
     protected AtomLeafAgentManager.AgentIterator leafAgentIterator;
     protected Vector ei, ej;
     protected double AEEJ0, JEMUExIdeal, JEMUEyIdeal, JEMUEIdealSquare, JEEMJEJE, UEE, JEMUExSquare, JEMUEySquare, JEMUEx, JEMUEy, dipolex, dipoley, JEEMJEJExtrying, UEEnow, JEMUE, dipoleconv;
-    protected final double mu, J, bt, bJ, bmu;
+    protected final double mu, J, bt, bJ, bmu, bmu2, I0bJ, I1bJ, I2bJ;
     protected double[] Axc0, Axs0, dAxc0, dAxs0, Axc1, Axs1, dAxc1, dAxs1;
     protected double[] d2Axc0, d2Axs0, d3Axc0, d3Axs0, d2Axc1, d2Axs1;
     protected double[] Ayc0, Ays0, dAyc0, dAys0, Ayc1, Ays1, dAyc1, dAys1;
     protected double[] d2Ayc0, d2Ays0, d3Ayc0, d3Ays0, d2Ayc1, d2Ays1;
+    protected double[] InbJArray, Inm1bJArray, Inm2bJArray, Inp1bJArray;
     protected double pvx10, pvx20, dpvx10dt1, dpvx20dt1, d2pvx10dt1dt2, d2pvx20dt1dt2, d2pvx20dt2dt2, pvx11, pvx21, dpvx11dt1, dpvx11dt2, dpvx21dt1, dpvx21dt2, dpvx20dt2, d2pvx10dt1dt1, dpvx10dt2;
     protected double pvy10, pvy20, dpvy10dt1, dpvy20dt1, d2pvy10dt1dt2, d2pvy20dt1dt2, d2pvy20dt2dt2, pvy11, pvy21, dpvy11dt1, dpvy11dt2, dpvy21dt1, dpvy21dt2, dpvy20dt2, d2pvy10dt1dt1, dpvy10dt2;
-
-//    protected Vector phi;
-//    protected Vector vEx, vEEx, dvEx, dvEEx, d2vEx;
-//    protected Vector vEy, vEEy, dvEy, dvEEy, d2vEy;
-//    protected double fEx, fEy, force;
-
 
     protected int nMax;
     protected int count = 1;
@@ -49,18 +44,25 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         bt = beta;
         bJ = bt * J;
         bmu = bt * mu;
+        bmu2 = bmu * bmu;
         this.nMax = nMax;
         this.leafAgentManager = leafAgentManager;
 
         leafAgentIterator = leafAgentManager.makeIterator();
 
-//        int nM = leafAgentManager.getBox().getLeafList().getAtomCount();
-//        JEMUEx = new double[nM + 1];
-//        JEMUEy = new double[nM + 1];
-
-//        System.out.println(nM+1);
-//        System.exit(2);
-
+        I0bJ = besselI(0, bJ);
+        I1bJ = besselI(1, bJ);
+        I2bJ = besselI(2, bJ);
+        InbJArray = new double[nMax + 1];
+        Inm1bJArray = new double[nMax + 1];
+        Inm2bJArray = new double[nMax + 1];
+        Inp1bJArray = new double[nMax + 1];
+        for (int n = 1; n <= nMax; n++) {
+            InbJArray[n] = besselI(n, bJ);
+            Inm1bJArray[n] = besselI(n - 1, bJ);
+            Inm2bJArray[n] = besselI(n - 2, bJ);
+            Inp1bJArray[n] = besselI(n + 1, bJ);
+        }
         Axc0 = new double[nMax + 1];
         Axs0 = new double[nMax + 1];
         dAxc0 = new double[nMax + 1];
@@ -130,273 +132,251 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
 //        System.out.println("t1 = " + t1 + " c1=" + c1);
 //System.out.println("Acos eix = " + Math.acos(ei.getX(0)));
 
-        double cost1 = Math.cos(t1);
-        double sint1 = Math.sin(t1);
-        double sint2 = Math.sin(t2);
-        double cost2 = Math.cos(t2);
-        double sin2t1 = Math.sin(2 * t1);
-        double cos2t1 = Math.cos(2 * t1);
-        double sin2t2 = Math.sin(2 * t2);
-        double cos2t2 = Math.cos(2 * t2);
-        double sint1Square = sint1 * sint1;
-        double bJ2 = bJ * bJ;
-        double bmu2 = bmu * bmu;
-        double I0bJ = besselI(0, bJ);
-        double I1bJ = besselI(1, bJ);
-        double I2bJ = besselI(2, bJ);
-
+        double cost1 = ei.getX(0);
+        double sint1 = ei.getX(1);
+        double sint2 = ej.getX(1);
+        double cost2 = ej.getX(0);
+        double cos2t1 = 2 * cost1 * cost1 - 1;
+        double cos2t2 = 2 * cost2 * cost2 - 1;
+        double cost1mt2 = cost1 * cost2 + sint1 * sint2;
+        double sint1mt2 = sint1 * cost2 - cost1 * sint2;
+        double sin2t1 = 2 * sint1 * cost1;
 
         for (int n = 0; n <= nMax; n++) {
             if (n == 0) {
-                Axc0[n] = bmu * (I0bJ + I1bJ) * (-1 + Math.cos(t1));
-                dAxc0[n] = -bmu * (I0bJ + I1bJ) * Math.sin(t1);
+                Axc0[n] = bmu * (I0bJ + I1bJ) * (-1 + cost1);
+                dAxc0[n] = -bmu * (I0bJ + I1bJ) * sint1;
                 Axs0[n] = 0;
                 dAxs0[n] = 0;
-                Axc1[n] = -0.25 * bmu * bmu * Math.sin(t1) * Math.sin(t1) * (I0bJ + 2 * I1bJ + I2bJ);
-                dAxc1[n] = -0.25 * bmu * bmu * (I0bJ + 2 * I1bJ + I2bJ) * Math.sin(2 * t1);
+                Axc1[n] = -0.25 * bmu2 * sint1 * sint1 * (I0bJ + 2 * I1bJ + I2bJ);
+                dAxc1[n] = -0.25 * bmu2 * (I0bJ + 2 * I1bJ + I2bJ) * sin2t1;
                 Axs1[n] = 0;
                 dAxs1[n] = 0;
 
-                d2Axc0[n] = -bmu * Math.cos(t1) * (I0bJ + I1bJ);
+                d2Axc0[n] = -bmu * cost1 * (I0bJ + I1bJ);
                 d2Axs0[n] = 0;
-                d3Axc0[n] = bmu * Math.sin(t1) * (I0bJ + I1bJ);
+                d3Axc0[n] = bmu * sint1 * (I0bJ + I1bJ);
                 d3Axs0[n] = 0;
-                d2Axc1[n] = -0.5 * bmu * bmu * Math.cos(2 * t1) * (I0bJ + 2 * I1bJ + I2bJ);
+                d2Axc1[n] = -0.5 * bmu2 * cos2t1 * (I0bJ + 2 * I1bJ + I2bJ);
                 d2Axs1[n] = 0;
-            }
 
 
-            //x direction
-            if (n > 0) {
-                int n2 = n * n;
-                int n3 = n2 * n;
-                int n4 = n2 * n2;
-                double np1p3 = (n + 1) * (n + 1) * (n + 1);
-                double np1p2 = (n + 1) * (n + 1);
-                double nm2p2 = (n - 2) * (n - 2);
-                double InbJ = besselI(n, bJ);
-                double Inm1bJ = besselI(n - 1, bJ);
-                double Inm2bJ = besselI(n - 2, bJ);
-                double Inp1bJ = besselI(n + 1, bJ);
-                double sinnt1 = Math.sin(n * t1);
-                double cosnt1 = Math.cos(n * t2);
-                double sinnm1t1 = Math.sin((n - 1) * t1);
-                double sinnp1t1 = Math.sin((n + 1) * t1);
-                double coshnt1 = Math.cosh(n * t1);
-
-                Axc0[n] = 2 * bmu * (((bJ + 2 * bJ * n2) * Inm1bJ + (bJ - n + 2 * (1 + bJ) * n2 - 2 * n3) * InbJ) * Math.cos(t1) * Math.cos(n * t1)
-                        + (2 * bJ * Inm1bJ + (1 + 2 * bJ - 2 * n + 2 * n2) * InbJ) * n * Math.sin(t1) * Math.sin(n * t1))
-                        / (bJ + 4 * bJ * n4);
-
-                dAxc0[n] = (2 * InbJ * (-Math.cos(n * t1) * Math.sin(t1) + (n - 2 * n3) * Math.cos(t1) * Math.sin(n * t1))
-                        + Inm1bJ * (1 + n - 2 * n3) * Math.sin((n - 1) * t1)
-                        + (-1 + n - 2 * n3) * Inp1bJ * Math.sin((n + 1) * t1)
-                ) * bmu / (1 + 4 * n4);
-
-                Axs0[n] = ((1 + 2 * n + 2 * n2) * Inm1bJ * Math.sin((n - 1) * t1)
-                        + 2 * InbJ * (-2 * n * Math.cos(n * t1) * Math.sin(t1) + (1 + 2 * n2) * Math.cos(t1) * Math.sin(n * t1))
-                        + (1 - 2 * n + 2 * n2) * Inp1bJ * Math.sin((n + 1) * t1)
-                ) * bmu / (1 + 4 * n4);
-
-                dAxs0[n] = (-2 * bmu * n * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (-bJ + n) * InbJ)) * Math.cos(t1) * Math.cos(n * t1)
-                        - 2 * bmu * (bJ * Inm1bJ + (bJ - n + n2 - 2 * n4) * InbJ) * Math.sin(t1) * Math.sin(n * t1)
-                ) / (bJ + 4 * bJ * n4);
-
-                Axc1[n] = (Inm2bJ * (Math.cos((n - 2) * t1) - Math.cosh(n * t1)) * n2 / (2 - 2 * n + n2)
-                        + (-4 * bJ * (4 + n4) * Math.cos(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
-                        + 2 * n2 * (2 + n2 - 2 * n) * I0bJ * Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-                        + bJ * n2 * (2 + 2 * n + n2) * I0bJ * (bJ * InbJ * (Math.cos((n - 2) * t1) + Math.cosh(n * t1)) + 2 * Inm1bJ * (bJ * Math.cos((n - 2) * t1) + (n - 1) * Math.cosh(n * t1)))
-                ) / (bJ * bJ * (4 + n4) * I0bJ)
-                ) * bmu * bmu / 4.0 / n2;
-
-                dAxc1[n] = 0.25 * bmu * bmu * (
-                        -(n - 2) * Inm2bJ * Math.sin((n - 2) * t1) / (2 - 2 * n + n2)
-                                +
-                                (bJ * (-bJ * n * (-4 - 2 * n + n3) * I0bJ * Math.sin((n - 2) * t1) * (2 * Inm1bJ + InbJ) + (16 + 4 * n4) * Math.sin(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
-                                        - 2 * n * (4 - 2 * n + n3) * I0bJ * Math.sin((n + 2) * t1) * (bJ * (bJ - 1 - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-
-                                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
-                );
-
-                Axs1[n] = ((n2 * Inm2bJ * Math.sin((n - 2) * t1)) / (2 - 2 * n + n2)
-                        + (bJ * (bJ * n2 * (2 + 2 * n + n2) * I0bJ * Math.sin((n - 2) * t1) * (2 * Inm1bJ + InbJ) - (16 + 4 * n4) * Math.sin(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
-                        + 2 * n2 * (2 - 2 * n + n2) * I0bJ * Math.sin((n + 2) * t1) * ((-bJ + bJ * bJ - n * bJ) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n2 + 2 * n) * InbJ)
-                ) / (bJ * bJ * (4 + n4) * I0bJ)
-                ) * bmu * bmu / 4.0 / n2;
-
-                dAxs1[n] = 0.25 * bmu * bmu * (((n - 2) * Inm2bJ * Math.cos((n - 2) * t1)) / (2 - 2 * n + n2)
-                        + (bJ * (bJ * n * (-4 - 2 * n + n3) * I0bJ * Math.cos((n - 2) * t1) * (2 * Inm1bJ + InbJ)
-                        - 4 * (4 + n4) * Math.cos(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
-                )
-                        + 2 * n * (4 - 2 * n + n3) * I0bJ * Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
-                );
-
-
-                d2Axc0[n] = (-(1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) * Inp1bJ * Math.cos((n + 1) * t1)
-                        + (-1 + n) * Inm1bJ * ((1 + n) * Math.cos((n - 1) * t1) - 2 * n3 * Math.cos((n - 1) * t1))
-                        + InbJ * (-2 * (1 - n2 + 2 * n4) * Math.cos(t1) * Math.cos(n * t1) + 4 * n3 * Math.sin(t1) * Math.sin(n * t1))
-                ) * bmu / (1 + 4 * n4);
-
-                d2Axs0[n] = (-2 * bJ * bmu * Inm1bJ * (2 * n3 * Math.cos(n * t1) * Math.sin(t1) + (1 - n2 + 2 * n4) * Math.cos(t1) * Math.sin(n * t1))
-                        + 2 * bmu * InbJ * (n * (1 - n2 - 2 * bJ * n2 + 2 * n3 + 2 * n4) * Math.cos(n * t1) * Math.sin(t1) + (n * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (-1 + n2 - 2 * n4)) * Math.cos(t1) * Math.sin(n * t1))
-                ) / (bJ + 4 * bJ * n4);
-
-                d3Axc0[n] = (2 * InbJ * ((1 - n2 + 4 * n4) * Math.cos(n * t1) * Math.sin(t1) + n * (1 + n2 + 2 * n4) * Math.cos(t1) * Math.sin(n * t1))
-                        + (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) * Inp1bJ * Math.sin((n + 1) * t1)
-                        - (-1 + n) * (-1 + n) * Inm1bJ * ((1 + n) * Math.sin((n - 1) * t1) + 2 * n3 * Math.sin((1 - n) * t1))
-                ) * bmu / (1.0 + 4 * n4);
-
-                d3Axs0[n] = -(bJ * Inm1bJ * (n * (1 + n2 + 2 * n4) * Math.cos(t1) * Math.cos(n * t1) + (-1 + n2 - 4 * n4) * Math.sin(t1) * Math.sin(n * t1))
-                        + InbJ * (-n * Math.cos(t1) * Math.cos(n * t1) * ((1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) - bJ * (1 + n2 + 2 * n4)) + Math.sin(t1) * Math.sin(n * t1) * (n * (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (-1 + n2 - 4 * n4)))
-                ) * 2 * bmu / (bJ + 4 * bJ * n4);
-
-                d2Axc1[n] = 0.25 * bmu * bmu * (-(n - 2) * (n - 2) * Inm2bJ * Math.cos((n - 2) * t1) / (2 - 2 * n + n2)
-                        + (bJ * (-bJ * (n - 2) * (n - 2) * n * (2 + 2 * n + n2) * I0bJ * Math.cos((n - 2) * t1) * (2 * Inm1bJ + InbJ) + 4 * n * (4 + n4) * Math.cos(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
-                        - 2 * n * (2 + n) * (4 - 2 * n + n3) * I0bJ * Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
-                );
-
-                d2Axs1[n] = 0.25 * bmu * bmu * (-((n - 2) * (n - 2) * Inm2bJ * Math.sin((n - 2) * t1)) / (2 - 2 * n + n2)
-                        + (bJ * (-bJ * (n - 2) * (n - 2) * n * (2 + 2 * n + n2) * I0bJ * Math.sin((n - 2) * t1) * (2 * Inm1bJ + InbJ) + 4 * n * (4 + n4) * Math.sin(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
-                        - 2 * n * (n + 2) * (4 - 2 * n + n3) * I0bJ * Math.sin((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
-                );
-
-            }
-        }
-
-
-        for (int n = 0; n <= nMax; n++) {
-            if (n == 0) {
-                Ayc0[n] = bmu * (I0bJ + I1bJ) * Math.sin(t1);
-                dAyc0[n] = bmu * (I0bJ + I1bJ) * Math.cos(t1);
+                //y direction
+                Ayc0[n] = bmu * (I0bJ + I1bJ) * sint1;
+                dAyc0[n] = bmu * (I0bJ + I1bJ) * cost1;
                 Ays0[n] = 0;
                 dAys0[n] = 0;
-                Ayc1[n] = 0.25 * bmu * bmu * Math.sin(t1) * Math.sin(t1) * (I0bJ + 2 * I1bJ + I2bJ);
-                dAyc1[n] = 0.25 * bmu * bmu * Math.sin(2 * t1) * (I0bJ + 2 * I1bJ + I2bJ);
+                Ayc1[n] = 0.25 * bmu2 * sint1 * sint1 * (I0bJ + 2 * I1bJ + I2bJ);
+                dAyc1[n] = 0.25 * bmu2 * sin2t1 * (I0bJ + 2 * I1bJ + I2bJ);
                 Ays1[n] = 0;
                 dAys1[n] = 0;
 
-                d2Ayc0[n] = -bmu * Math.sin(t1) * (I0bJ + I1bJ);
+                d2Ayc0[n] = -bmu * sint1 * (I0bJ + I1bJ);
                 d2Ays0[n] = 0;
-                d3Ayc0[n] = -bmu * Math.cos(t1) * (I0bJ + I1bJ);
+                d3Ayc0[n] = -bmu * cost1 * (I0bJ + I1bJ);
                 d3Ays0[n] = 0;
-                d2Ayc1[n] = 0.5 * bmu * bmu * (I0bJ + 2 * I1bJ + I2bJ) * Math.cos(2 * t1);
+                d2Ayc1[n] = 0.5 * bmu2 * (I0bJ + 2 * I1bJ + I2bJ) * cos2t1;
                 d2Ays1[n] = 0;
             }
 
 
-            //y direction
             if (n > 0) {
                 int n2 = n * n;
                 int n3 = n2 * n;
                 int n4 = n2 * n2;
-                double InbJ = besselI(n, bJ);
-                double Inm1bJ = besselI(n - 1, bJ);
-                double Inm2bJ = besselI(n - 2, bJ);
-                double Inp1bJ = besselI(n + 1, bJ);
-                Ayc0[n] = (2 * bmu * Math.cos(n * t1) * Math.sin(t1) * ((bJ + 2 * bJ * n2) * Inm1bJ + (bJ - n + 2 * n2 + 2 * bJ * n2 - 2 * n3) * InbJ)
-                        - 2 * bmu * n * Math.cos(t1) * Math.sin(n * t1) * (2 * bJ * Inm1bJ + (1 + 2 * bJ + 2 * (-1 + n) * n) * InbJ)
+                double InbJ = InbJArray[n];
+                double Inm1bJ = Inm1bJArray[n];
+                double Inm2bJ = Inm2bJArray[n];
+                double Inp1bJ = Inp1bJArray[n];
+                double sinnt1 = Math.sin(n * t1);
+                double cosnt1 = Math.cos(n * t1);
+                double sinnm1t1 = sinnt1 * cost1 - cosnt1 * sint1;
+                double sinnp1t1 = sinnt1 * cost1 + cosnt1 * sint1;
+                double coshnt1 = Math.cosh(n * t1);
+                double sinnm2t1 = sinnt1 * cos2t1 - cosnt1 * sin2t1;
+                double sinnp2t1 = sinnt1 * cos2t1 + cosnt1 * sin2t1;
+                double cosnm2t1 = cosnt1 * cos2t1 + sinnt1 * sin2t1;
+                double cosnp2t1 = cosnt1 * cos2t1 - sinnt1 * sin2t1;
+                double cosnm1t1 = cosnt1 * cost1 + sinnt1 * sint1;
+                double cosnp1t1 = cosnt1 * cost1 - sinnt1 * sint1;
+
+
+                Axc0[n] = 2 * bmu * (((bJ + 2 * bJ * n2) * Inm1bJ + (bJ - n + 2 * (1 + bJ) * n2 - 2 * n3) * InbJ) * cost1 * cosnt1
+                        + (2 * bJ * Inm1bJ + (1 + 2 * bJ - 2 * n + 2 * n2) * InbJ) * n * sint1 * sinnt1)
+                        / (bJ + 4 * bJ * n4);
+
+                dAxc0[n] = (2 * InbJ * (-cosnt1 * sint1 + (n - 2 * n3) * cost1 * sinnt1)
+                        + Inm1bJ * (1 + n - 2 * n3) * sinnm1t1
+                        + (-1 + n - 2 * n3) * Inp1bJ * sinnp1t1
+                ) * bmu / (1 + 4 * n4);
+
+                Axs0[n] = ((1 + 2 * n + 2 * n2) * Inm1bJ * sinnm1t1
+                        + 2 * InbJ * (-2 * n * cosnt1 * sint1 + (1 + 2 * n2) * cost1 * sinnt1)
+                        + (1 - 2 * n + 2 * n2) * Inp1bJ * sinnp1t1
+                ) * bmu / (1 + 4 * n4);
+
+                dAxs0[n] = (-2 * bmu * n * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (-bJ + n) * InbJ)) * cost1 * cosnt1
+                        - 2 * bmu * (bJ * Inm1bJ + (bJ - n + n2 - 2 * n4) * InbJ) * sint1 * sinnt1
                 ) / (bJ + 4 * bJ * n4);
 
-                dAyc0[n] = 2.0 * bmu * ((bJ * Inm1bJ + (bJ - n + n2 - 2 * n4) * InbJ) * Math.cos(t1) * Math.cos(n * t1)
-                        + n * Math.sin(t1) * Math.sin(n * t1) * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (n - bJ) * InbJ))
+                Axc1[n] = (Inm2bJ * (cosnm2t1 - coshnt1) * n2 / (2 - 2 * n + n2)
+                        + (-4 * bJ * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
+                        + 2 * n2 * (2 + n2 - 2 * n) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                        + bJ * n2 * (2 + 2 * n + n2) * I0bJ * (bJ * InbJ * (cosnm2t1 + coshnt1) + 2 * Inm1bJ * (bJ * cosnm2t1 + (n - 1) * coshnt1))
+                ) / (bJ * bJ * (4 + n4) * I0bJ)
+                ) * bmu2 / 4.0 / n2;
+
+                dAxc1[n] = 0.25 * bmu2 * (
+                        -(n - 2) * Inm2bJ * sinnm2t1 / (2 - 2 * n + n2)
+                                +
+                                (bJ * (-bJ * n * (-4 - 2 * n + n3) * I0bJ * sinnm2t1 * (2 * Inm1bJ + InbJ) + (16 + 4 * n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
+                                        - 2 * n * (4 - 2 * n + n3) * I0bJ * sinnp2t1 * (bJ * (bJ - 1 - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+
+                                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
+                );
+
+                Axs1[n] = ((n2 * Inm2bJ * sinnm2t1) / (2 - 2 * n + n2)
+                        + (bJ * (bJ * n2 * (2 + 2 * n + n2) * I0bJ * sinnm2t1 * (2 * Inm1bJ + InbJ) - (16 + 4 * n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
+                        + 2 * n2 * (2 - 2 * n + n2) * I0bJ * sinnp2t1 * ((-bJ + bJ * bJ - n * bJ) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n2 + 2 * n) * InbJ)
+                ) / (bJ * bJ * (4 + n4) * I0bJ)
+                ) * bmu2 / 4.0 / n2;
+
+                dAxs1[n] = 0.25 * bmu2 * (((n - 2) * Inm2bJ * cosnm2t1) / (2 - 2 * n + n2)
+                        + (bJ * (bJ * n * (-4 - 2 * n + n3) * I0bJ * cosnm2t1 * (2 * Inm1bJ + InbJ)
+                        - 4 * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
+                )
+                        + 2 * n * (4 - 2 * n + n3) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
+                );
+
+
+                d2Axc0[n] = (-(1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) * Inp1bJ * cosnp1t1
+                        + (-1 + n) * Inm1bJ * ((1 + n) * cosnm1t1 - 2 * n3 * cosnm1t1)
+                        + InbJ * (-2 * (1 - n2 + 2 * n4) * cost1 * cosnt1 + 4 * n3 * sint1 * sinnt1)
+                ) * bmu / (1 + 4 * n4);
+
+                d2Axs0[n] = (-2 * bJ * bmu * Inm1bJ * (2 * n3 * cosnt1 * sint1 + (1 - n2 + 2 * n4) * cost1 * sinnt1)
+                        + 2 * bmu * InbJ * (n * (1 - n2 - 2 * bJ * n2 + 2 * n3 + 2 * n4) * cosnt1 * sint1 + (n * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (-1 + n2 - 2 * n4)) * cost1 * sinnt1)
                 ) / (bJ + 4 * bJ * n4);
 
-                Ays0[n] = (bJ * (1 - 2 * n + 2 * n2) * Inp1bJ * (-Math.cos((n + 1) * t1) + Math.cosh(n * t1))
-                        + bJ * Inm1bJ * ((1 + 2 * n + 2 * n2) * Math.cos((n - 1) * t1) + (-1 + 2 * n - 2 * n2) * Math.cosh(n * t1))
-                        + 2 * InbJ * (2 * bJ * n * Math.cos(t1) * Math.cos(n * t1) + n * (1 - 2 * n + 2 * n2) * Math.cosh(n * t1) + bJ * (1 + 2 * n2) * Math.sin(t1) * Math.sin(n * t1))
+                d3Axc0[n] = (2 * InbJ * ((1 - n2 + 4 * n4) * cosnt1 * sint1 + n * (1 + n2 + 2 * n4) * cost1 * sinnt1)
+                        + (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) * Inp1bJ * sinnp1t1
+                        - (-1 + n) * (-1 + n) * Inm1bJ * ((1 + n) * sinnm1t1 + 2 * n3 * sinnm1t1)
+                ) * bmu / (1.0 + 4 * n4);
+
+                d3Axs0[n] = -(bJ * Inm1bJ * (n * (1 + n2 + 2 * n4) * cost1 * cosnt1 + (-1 + n2 - 4 * n4) * sint1 * sinnt1)
+                        + InbJ * (-n * cost1 * cosnt1 * ((1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) - bJ * (1 + n2 + 2 * n4)) + sint1 * sinnt1 * (n * (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (-1 + n2 - 4 * n4)))
+                ) * 2 * bmu / (bJ + 4 * bJ * n4);
+
+                d2Axc1[n] = 0.25 * bmu2 * (-(n - 2) * (n - 2) * Inm2bJ * cosnm2t1 / (2 - 2 * n + n2)
+                        + (bJ * (-bJ * (n - 2) * (n - 2) * n * (2 + 2 * n + n2) * I0bJ * cosnm2t1 * (2 * Inm1bJ + InbJ) + 4 * n * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
+                        - 2 * n * (2 + n) * (4 - 2 * n + n3) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
+                );
+
+                d2Axs1[n] = 0.25 * bmu2 * (-((n - 2) * (n - 2) * Inm2bJ * sinnm2t1) / (2 - 2 * n + n2)
+                        + (bJ * (-bJ * (n - 2) * (n - 2) * n * (2 + 2 * n + n2) * I0bJ * sinnm2t1 * (2 * Inm1bJ + InbJ) + 4 * n * (4 + n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
+                        - 2 * n * (n + 2) * (4 - 2 * n + n3) * I0bJ * sinnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
+                );
+
+                Ayc0[n] = (2 * bmu * cosnt1 * sint1 * ((bJ + 2 * bJ * n2) * Inm1bJ + (bJ - n + 2 * n2 + 2 * bJ * n2 - 2 * n3) * InbJ)
+                        - 2 * bmu * n * cost1 * sinnt1 * (2 * bJ * Inm1bJ + (1 + 2 * bJ + 2 * (-1 + n) * n) * InbJ)
+                ) / (bJ + 4 * bJ * n4);
+
+                dAyc0[n] = 2.0 * bmu * ((bJ * Inm1bJ + (bJ - n + n2 - 2 * n4) * InbJ) * cost1 * cosnt1
+                        + n * sint1 * sinnt1 * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (n - bJ) * InbJ))
+                ) / (bJ + 4 * bJ * n4);
+
+                Ays0[n] = (bJ * (1 - 2 * n + 2 * n2) * Inp1bJ * (-cosnp1t1 + coshnt1)
+                        + bJ * Inm1bJ * ((1 + 2 * n + 2 * n2) * cosnm1t1 + (-1 + 2 * n - 2 * n2) * coshnt1)
+                        + 2 * InbJ * (2 * bJ * n * cost1 * cosnt1 + n * (1 - 2 * n + 2 * n2) * coshnt1 + bJ * (1 + 2 * n2) * sint1 * sinnt1)
                 ) * bmu / (bJ + 4 * bJ * n4);
 
-                dAys0[n] = ((1 + n - 2 * n3) * Inm1bJ * Math.sin((n - 1) * t1)
-                        + 2 * InbJ * (n * (-1 + 2 * n2) * Math.cos(n * t1) * Math.sin(t1) + Math.cos(t1) * Math.sin(n * t1))
-                        + (1 - n + 2 * n3) * Inp1bJ * Math.sin((n + 1) * t1)
+                dAys0[n] = ((1 + n - 2 * n3) * Inm1bJ * sinnm1t1
+                        + 2 * InbJ * (n * (-1 + 2 * n2) * cosnt1 * sint1 + cost1 * sinnt1)
+                        + (1 - n + 2 * n3) * Inp1bJ * sinnp1t1
                 ) * bmu / (1.0 + 4 * n4);
 
 
-                Ayc1[n] = (n2 * Inm2bJ * (-Math.cos((n - 2) * t1) + Math.cosh(n * t1)) / (2 - 2 * n + n2)
-                        - (4 * bJ * (4 + n4) * Math.cos(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
-                        + 2 * n2 * (2 - 2 * n + n2) * I0bJ * Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-                        + bJ * n2 * (2 + 2 * n + n2) * I0bJ * (bJ * InbJ * (Math.cos((n - 2) * t1) + Math.cosh(n * t1)) + 2 * Inm1bJ * (bJ * Math.cos((n - 2) * t1) + (-1 + n) * Math.cosh(n * t1)))
+                Ayc1[n] = (n2 * Inm2bJ * (-cosnm2t1 + coshnt1) / (2 - 2 * n + n2)
+                        - (4 * bJ * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
+                        + 2 * n2 * (2 - 2 * n + n2) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                        + bJ * n2 * (2 + 2 * n + n2) * I0bJ * (bJ * InbJ * (cosnm2t1 + coshnt1) + 2 * Inm1bJ * (bJ * cosnm2t1 + (-1 + n) * coshnt1))
                 ) / (bJ * bJ * (4 + n4) * I0bJ)
-                ) * bmu * bmu / 4 / n2;
+                ) * bmu2 / 4 / n2;
 
-                dAyc1[n] = 0.25 * bmu * bmu * (((-2 + n) * Inm2bJ * Math.sin((n - 2) * t1)) / (2 - 2 * n + n2)
-                        + (bJ * (bJ * n * (-4 - 2 * n + n3) * I0bJ * Math.sin((n - 2) * t1) * (2 * Inm1bJ + InbJ) + (16 + 4 * n4) * Math.sin(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
-                        + 2 * n * (4 - 2 * n + n3) * I0bJ * Math.sin((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                dAyc1[n] = 0.25 * bmu2 * (((-2 + n) * Inm2bJ * sinnm2t1) / (2 - 2 * n + n2)
+                        + (bJ * (bJ * n * (-4 - 2 * n + n3) * I0bJ * sinnm2t1 * (2 * Inm1bJ + InbJ) + (16 + 4 * n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
+                        + 2 * n * (4 - 2 * n + n3) * I0bJ * sinnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
                 ) / (bJ * bJ * n * (4 + n4) * I0bJ)
                 );
 
-                Ays1[n] = (-bJ * n2 * (2 + n * (2 + n)) * I0bJ * Math.sin((n - 2) * t1) * ((-1 + bJ + n) * Inm1bJ + bJ * InbJ)
-                        - 2 * bJ * (4 + n4) * Math.sin(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
-                        - n2 * (2 - 2 * n + n2) * I0bJ * Math.sin((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n * (1 + n)) * InbJ)
-                ) * bmu * bmu / (2 * bJ * bJ * n2 * (4 + n4) * I0bJ);
+                Ays1[n] = (-bJ * n2 * (2 + n * (2 + n)) * I0bJ * sinnm2t1 * ((-1 + bJ + n) * Inm1bJ + bJ * InbJ)
+                        - 2 * bJ * (4 + n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
+                        - n2 * (2 - 2 * n + n2) * I0bJ * sinnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n * (1 + n)) * InbJ)
+                ) * bmu2 / (2 * bJ * bJ * n2 * (4 + n4) * I0bJ);
 
-                dAys1[n] = 0.25 * bmu * bmu * (-(-2 + n) * Inm2bJ * Math.cos((n - 2) * t1) / (2 - 2 * n + n2)
-                        + (bJ * (-bJ * n * (-4 - 2 * n + n3) * I0bJ * Math.cos((n - 2) * t1) * (2 * Inm1bJ + InbJ) - 4 * (4 + n4) * Math.cos(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
-                        - 2 * n * (4 - 2 * n + n3) * I0bJ * Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                dAys1[n] = 0.25 * bmu2 * (-(-2 + n) * Inm2bJ * cosnm2t1 / (2 - 2 * n + n2)
+                        + (bJ * (-bJ * n * (-4 - 2 * n + n3) * I0bJ * cosnm2t1 * (2 * Inm1bJ + InbJ) - 4 * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
+                        - 2 * n * (4 - 2 * n + n3) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
                 ) / (bJ * bJ * n * (4 + n4) * I0bJ)
                 );
 
 
-                d2Ayc0[n] = 2 * bmu * (-(bJ * Inm1bJ + (bJ + n * (-1 + n - 2 * n3)) * InbJ) * Math.cos(n * t1) * Math.sin(t1) + n2 * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (-bJ + n) * InbJ)) * Math.cos(n * t1) * Math.sin(t1) - n * (bJ * Inm1bJ + (bJ + n * (-1 + n - 2 * n3)) * InbJ) * Math.cos(t1) * Math.sin(n * t1) + n * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (-bJ + n) * InbJ)) * Math.cos(t1) * Math.sin(n * t1)) / (bJ + 4 * bJ * n4);
+                d2Ayc0[n] = 2 * bmu * (-(bJ * Inm1bJ + (bJ + n * (-1 + n - 2 * n3)) * InbJ) * cosnt1 * sint1 + n2 * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (-bJ + n) * InbJ)) * cosnt1 * sint1 - n * (bJ * Inm1bJ + (bJ + n * (-1 + n - 2 * n3)) * InbJ) * cost1 * sinnt1 + n * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (-bJ + n) * InbJ)) * cost1 * sinnt1) / (bJ + 4 * bJ * n4);
 
-                d2Ays0[n] = (bmu * ((-1 + n) * (1 + n - 2 * n3) * Inm1bJ * Math.cos((-1 + n) * t1) + (1 + n) * (1 - n + 2 * n3) * Inp1bJ * Math.cos(t1 + n * t1) + 2 * InbJ * (n * Math.cos(t1) * Math.cos(n * t1) + n * (-1 + 2 * n2) * Math.cos(t1) * Math.cos(n * t1) - Math.sin(t1) * Math.sin(n * t1) - n2 * (-1 + 2 * n2) * Math.sin(t1) * Math.sin(n * t1)))) / (1 + 4 * n4);
+                d2Ays0[n] = (bmu * ((-1 + n) * (1 + n - 2 * n3) * Inm1bJ * cosnm1t1 + (1 + n) * (1 - n + 2 * n3) * Inp1bJ * cosnp1t1 + 2 * InbJ * (n * cost1 * cosnt1 + n * (-1 + 2 * n2) * cost1 * cosnt1 - sint1 * sinnt1 - n2 * (-1 + 2 * n2) * sint1 * sinnt1))) / (1 + 4 * n4);
 
 
-                d3Ayc0[n] = 2 * bmu * (bJ * Inm1bJ * (-(1 - n2 + 4 * n4) * Math.cos(t1) * Math.cos(n * t1) + n * (1 + n2 + 2 * n4) * Math.sin(t1) * Math.sin(n * t1))
-                        + InbJ * (-(-n * (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (1 - n2 + 4 * n4)) * Math.cos(t1) * Math.cos(n * t1) + n * (-(1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (1 + n2 + 2 * n4)) * Math.sin(t1) * Math.sin(n * t1))
+                d3Ayc0[n] = 2 * bmu * (bJ * Inm1bJ * (-(1 - n2 + 4 * n4) * cost1 * cosnt1 + n * (1 + n2 + 2 * n4) * sint1 * sinnt1)
+                        + InbJ * (-(-n * (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (1 - n2 + 4 * n4)) * cost1 * cosnt1 + n * (-(1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (1 + n2 + 2 * n4)) * sint1 * sinnt1)
                 ) / (bJ + 4 * bJ * n4);
 
 
-                d3Ays0[n] = -bmu * (-(-1 + n) * (-1 + n) * (-1 + n) * (1 + 2 * n + 2 * n2) * Inm1bJ * Math.sin((n - 1) * t1)
-                        + 2 * InbJ * (n * (1 + n2 + 2 * n4) * Math.cos(n * t1) * Math.sin(t1) + (1 - n2 + 4 * n4) * Math.cos(t1) * Math.sin(n * t1))
-                        + (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) * Inp1bJ * Math.sin((n + 1) * t1)
+                d3Ays0[n] = -bmu * (-(-1 + n) * (-1 + n) * (-1 + n) * (1 + 2 * n + 2 * n2) * Inm1bJ * sinnm1t1
+                        + 2 * InbJ * (n * (1 + n2 + 2 * n4) * cosnt1 * sint1 + (1 - n2 + 4 * n4) * cost1 * sinnt1)
+                        + (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) * Inp1bJ * sinnp1t1
                 ) / (1 + 4 * n4);
 
-                d2Ayc1[n] = 0.25 * bmu * bmu * ((-2 + n) * (-2 + n) * Inm2bJ * Math.cos((n - 2) * t1) / (2 - 2 * n + n2)
-                        + (bJ * (bJ * (-2 + n) * (-2 + n) * n * (2 + 2 * n + n2) * I0bJ * Math.cos((n - 2) * t1) * (2 * Inm1bJ + InbJ)
-                        + 4 * n * (4 + n4) * Math.cos(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
+                d2Ayc1[n] = 0.25 * bmu2 * ((-2 + n) * (-2 + n) * Inm2bJ * cosnm2t1 / (2 - 2 * n + n2)
+                        + (bJ * (bJ * (-2 + n) * (-2 + n) * n * (2 + 2 * n + n2) * I0bJ * cosnm2t1 * (2 * Inm1bJ + InbJ)
+                        + 4 * n * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
                 )
-                        + 2 * n * (2 + n) * (4 - 2 * n + n3) * I0bJ * Math.cos((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                        + 2 * n * (2 + n) * (4 - 2 * n + n3) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
                 ) / (bJ * bJ * n * (4 + n4) * I0bJ)
                 );
 
 
-                d2Ays1[n] = 0.25 * bmu * bmu * ((n - 2) * (n - 2) * Inm2bJ * Math.sin((n - 2) * t1) / (2 - 2 * n + n2)
-                        + (bJ * (bJ * (n - 2) * (n - 2) * n * (2 + 2 * n + n2) * I0bJ * Math.sin((n - 2) * t1) * (2 * Inm1bJ + InbJ)
-                        + 4 * n * (4 + n4) * Math.sin(n * t1) * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
+                d2Ays1[n] = 0.25 * bmu2 * ((n - 2) * (n - 2) * Inm2bJ * sinnm2t1 / (2 - 2 * n + n2)
+                        + (bJ * (bJ * (n - 2) * (n - 2) * n * (2 + 2 * n + n2) * I0bJ * sinnm2t1 * (2 * Inm1bJ + InbJ)
+                        + 4 * n * (4 + n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
                 )
-                        + 2 * n * (2 + n) * (4 - 2 * n + n3) * I0bJ * Math.sin((n + 2) * t1) * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                        + 2 * n * (2 + n) * (4 - 2 * n + n3) * I0bJ * sinnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
                 ) / (bJ * bJ * n * (4 + n4) * I0bJ)
                 );
+
+
             }
         }
 
 
-        double p0 = Math.exp(bJ * Math.cos(t1 - t2));
+        double p0 = Math.exp(bJ * cost1mt2);
         double px0 = p0, py0 = p0;
-        double pM2 = 1 / p0 / p0;
-        double lnp1 = -bJ * Math.sin(t1 - t2);
-        double lnp11 = -bJ * Math.cos(t1 - t2);
-        double lnp2 = -lnp1;
-        double px1 = bmu * p0 * (Math.cos(t1) + Math.cos(t2));
-        double py1 = bmu * p0 * (Math.sin(t1) + Math.sin(t2));
-        double dRpx0dt1 = bJ * Math.sin(t1 - t2) / px0;//Rpx0 mean reverse of px0  D[1/px0, theta1]
+        double px1 = bmu * p0 * (cost1 + cost2);
+        double py1 = bmu * p0 * (sint1 + sint2);
+        double dRpx0dt1 = bJ * sint1mt2 / px0;//Rpx0 mean reverse of px0  D[1/px0, theta1]
         double dRpx0dt2 = -dRpx0dt1; // D[1/px0, theta2]
         double dpx1Rpx0dt1 = -bmu * sint1;//D[px1/px0, theta1]
         double dpx1Rpx0dt2 = -bmu * sint2;
-        double d2Rpx0dt1dt1 = bJ * (Math.cos(t1 - t2) + bJ * Math.sin(t1 - t2) * Math.sin(t1 - t2)) / px0;
-        double d2Rpx0dt1dt2 = -d2Rpx0dt1dt1;
+        double d2Rpx0dt1dt1 = bJ * (cost1mt2 + bJ * sint1mt2 * sint1mt2) / px0;
         double d2Rpx0dt2dt2 = d2Rpx0dt1dt1;
 
-        double dRpy0dt1 = bJ * Math.sin(t1 - t2) / py0;//Rpy0 mean reverse of py0  D[1/py0, theta1]
+        double dRpy0dt1 = bJ * sint1mt2 / py0;//Rpy0 mean reverse of py0  D[1/py0, theta1]
         double dRpy0dt2 = -dRpy0dt1; // D[1/py0, theta2]
         double dpy1Rpy0dt1 = bmu * cost1;//D[py1/py0, theta1]
         double dpy1Rpy0dt2 = bmu * cost2;
-        double d2Rpy0dt1dt1 = bJ * (Math.cos(t1 - t2) + bJ * Math.sin(t1 - t2) * Math.sin(t1 - t2)) / py0;
-        double d2Rpy0dt1dt2 = -d2Rpy0dt1dt1;
+        double d2Rpy0dt1dt1 = bJ * (cost1mt2 + bJ * sint1mt2 * sint1mt2) / py0;
         double d2Rpy0dt2dt2 = d2Rpy0dt1dt1;
 
 
@@ -609,7 +589,6 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
 //        System.out.println("d2vEy2dt2dt2Ideal  -(" + d2vEy2dt2dt2Ideal + ")");
 
 
-
         agentAtom2.vEx().PE(vEx2);
         agentAtom2.vEy().PE(vEy2);
         agentAtom2.vEEx().PE(vEEx2);
@@ -652,7 +631,7 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
 //        double f1 = bt * agentAtom1.torque.getX(0);
 //        double f2 = bt * agentAtom2.torque.getX(0);
 
-        if (debug ) {
+        if (debug) {
             if (atom2.getLeafIndex() == 1) {
 //                System.out.println("t2 = " + t1 );
                 System.out.println("t1 = " + t1 + ";");

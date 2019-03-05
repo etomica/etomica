@@ -74,7 +74,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
         energySum = new PotentialCalculationEnergySum();
         secondDerivativeSum = new PotentialCalculationPhiSum();
         secondDerivativeSum.setAgentManager(leafAgentManager);
-        int nMax = 10;
+        int nMax = 5;
 
 
         if (doIdeal) secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);
@@ -85,7 +85,6 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
             vSum = new PotentialCalculationMoleculeAgentSum(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         if (doVSumMI)
             vSumMinusIdeal = new PotentialCalculationMoleculeAgentSumMinusIdeal(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
-//        pair = new PotentialCalculationPair(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         if (doVSum)
             vSumPair = new PotentialCalculationMoleculeAgentSumPair(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         if (doVSumMI)
@@ -112,8 +111,6 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
             vSum.zeroSum();
             potentialMaster.calculate(box, allAtoms, vSum);
         }
-//        pair.zeroSum();
-//        potentialMaster.calculate(box, allAtoms, pair);
 
         if (doVSum) {
             vSumPair.zeroSum();
