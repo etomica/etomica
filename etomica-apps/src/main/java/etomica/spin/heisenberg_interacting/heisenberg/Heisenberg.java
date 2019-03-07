@@ -126,11 +126,12 @@ public class Heisenberg extends Simulation {
 
 
         int steps = params.steps;
+        int nMax = params.nMax;
         double interactionS = params.interactionS;
         double dipoleMagnitude = params.dipoleMagnitude;
 
-        System.out.println("numberMolecules= " + numberMolecules+" steps= " + steps
-                + " temperature= " + temperature +" interacitonS= " + interactionS  + " dipoleStrength= " + dipoleMagnitude);
+        System.out.println("numberMolecules= " + numberMolecules+" steps= " + steps + " nMax= " + nMax
+                + " \ntemperature= " + temperature +" interacitonS= " + interactionS  + " dipoleStrength= " + dipoleMagnitude);
 
         Space sp = Space2D.getInstance();
         Heisenberg sim = new Heisenberg(sp, nCells, temperature, interactionS, dipoleMagnitude);
@@ -173,7 +174,7 @@ public class Heisenberg extends Simulation {
         MeterMappedAveragingVSum AEEMeter = null;
         AccumulatorAverageCovariance AEEAccumulator = null;
         if (aEE) {
-            AEEMeter = new MeterMappedAveragingVSum(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster, doIdeal, doPair, doVSum, doVSumMI);
+            AEEMeter = new MeterMappedAveragingVSum(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster, doIdeal, doPair, doVSum, doVSumMI,nMax);
             AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
             DataPump AEEPump = new DataPump(AEEMeter, AEEAccumulator);
             IntegratorListenerAction AEEListener = new IntegratorListenerAction(AEEPump);
@@ -208,21 +209,6 @@ public class Heisenberg extends Simulation {
         long endTime = System.currentTimeMillis();
 
         double totalTime = (endTime - startTime) / (1000.0 * 60.0);
-        if (mSquare) {
-//            System.out.println("-<M^2>*bt*bt:\t" + (-dipoleSumSquared / temperature / temperature / nCells / nCells)
-//                    + " mSquareErr:\t" + (dipoleSumSquaredERR / temperature / temperature / nCells / nCells)
-//                    + " mSquareDifficulty:\t" + (dipoleSumSquaredERR / temperature / temperature / nCells / nCells) * Math.sqrt(totalTime)
-//                    + " dipolesumCor= " + dipoleSumCor);
-//            System.out.println("mSquare_Time: " + (endTime - startTime) / (1000.0 * 60.0));
-        }
-
-        if (aEE) {
-//            System.out.println("AEE_new:\t" + (AEE / nCells / nCells)
-//                    + " AEEErr:\t" + (AEEER / nCells / nCells)
-//                    + " AEEDifficulty:\t" + (AEEER * Math.sqrt(totalTime) / nCells / nCells)
-//                    + " AEECor= " + AEECor);
-//            System.out.println("AEE_Time: " + (endTime - startTime) / (1000.0 * 60.0));
-        }
 
         double sumIdeal = 0;
         double errSumIdeal = 0;
@@ -257,6 +243,7 @@ public class Heisenberg extends Simulation {
                     + " Difficulty:\t" + (dipoleSumSquaredERR * Math.sqrt(totalTime) / nCells / nCells));
         }
 //        if (doIdeal && !doPair) {//You need to uncomment this line if you make a jar
+        //TODO
         if (doIdeal ) {
             System.out.println("IdealMapping:\t" + (sumIdeal / numberMolecules)
                     + " Err:\t" + (errSumIdeal / numberMolecules) + " Cor:\t " + sumIdealCor
@@ -363,6 +350,7 @@ public class Heisenberg extends Simulation {
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
         public int nCells = 3;//number of atoms is nCells*nCells
-        public int steps = 5000;
+        public int steps = 50000;
+        public int nMax = 1;
     }
 }

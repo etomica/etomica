@@ -26,7 +26,6 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
     protected final PotentialMaster potentialMaster;
     protected final IteratorDirective allAtoms;
     protected PotentialCalculationEnergySum energySum;
-    //    protected PotentialCalculationFSum FSum;
     protected PotentialCalculationTorqueSum torqueSum;
     protected PotentialCalculationPhiSum secondDerivativeSum;
     protected PotentialCalculationPhiSumHeisenberg secondDerivativeSumIdeal;
@@ -34,19 +33,19 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
     protected PotentialCalculationMoleculeAgentSumMinusIdeal vSumMinusIdeal;
     protected PotentialCalculationMoleculeAgentSumPair vSumPair;
     protected PotentialCalculationMoleculeAgentSumMinusIdealPair vSumPairMinusIdeal;
-//    protected PotentialCalculationPair pair;
     protected double temperature;
     protected double J;
     protected double mu;
     protected double bt;
     protected boolean doIdeal, doPair, doVSum, doVSumMI;
+    protected int nMax;
     protected Vector dr, tmp;
     protected Vector work;
     protected AtomLeafAgentManager<MoleculeAgent> leafAgentManager;
     private Box box;
     protected PotentialCalculationHeisenberg Ans;
 
-    public MeterMappedAveragingVSum(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster, boolean doIdeal, boolean doPair, boolean doVSum, boolean doVSumMI) {
+    public MeterMappedAveragingVSum(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster, boolean doIdeal, boolean doPair, boolean doVSum, boolean doVSumMI,int nMax) {
         int nValues = 19;
         data = new DataDoubleArray(nValues);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nValues});
@@ -63,6 +62,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
         this.doPair = doPair;
         this.doVSum = doVSum;
         this.doVSumMI = doVSumMI;
+        this.nMax =nMax;
 
         dr = space.makeVector();
         work = space.makeVector();
@@ -74,8 +74,6 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
         energySum = new PotentialCalculationEnergySum();
         secondDerivativeSum = new PotentialCalculationPhiSum();
         secondDerivativeSum.setAgentManager(leafAgentManager);
-        int nMax = 5;
-
 
         if (doIdeal) secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);
 
@@ -212,6 +210,10 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
         }
 
         if (doVSumMI) {
+
+            //TODO
+
+
             vSumMinusIdeal.zeroSum();
             potentialMaster.calculate(box, allAtoms, vSumMinusIdeal);
 
@@ -238,16 +240,16 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
                 double d2vExidtidtiIdeal = bmu * sinti;
                 double d2vEyidtidtiIdeal = -bmu * costi;
 
-                agentAtomI.vEx().PE(vExiIdeal);
-                agentAtomI.vEy().PE(vEyiIdeal);
-                agentAtomI.vEEx().PE(vEExiIdeal);
-                agentAtomI.vEEy().PE(vEEyiIdeal);
-                agentAtomI.dvEx().PE(dvExidtiIdeal);
-                agentAtomI.dvEy().PE(dvEyidtiIdeal);
-                agentAtomI.dvEEx().PE(dvEExidtiIdeal);
-                agentAtomI.dvEEy().PE(dvEEyidtiIdeal);
-                agentAtomI.d2vEx().PE(d2vExidtidtiIdeal);
-                agentAtomI.d2vEy().PE(d2vEyidtidtiIdeal);
+                agentAtomI.vEx().PE(-3*vExiIdeal);
+                agentAtomI.vEy().PE(-3*vEyiIdeal);
+                agentAtomI.vEEx().PE(-3*vEExiIdeal);
+                agentAtomI.vEEy().PE(-3*vEEyiIdeal);
+                agentAtomI.dvEx().PE(-3*dvExidtiIdeal);
+                agentAtomI.dvEy().PE(-3*dvEyidtiIdeal);
+                agentAtomI.dvEEx().PE(-3*dvEExidtiIdeal);
+                agentAtomI.dvEEy().PE(-3*dvEEyidtiIdeal);
+                agentAtomI.d2vEx().PE(-3*d2vExidtidtiIdeal);
+                agentAtomI.d2vEy().PE(-3*d2vEyidtidtiIdeal);
 
             }
 
@@ -327,6 +329,11 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
     }
 
     public void releaseAgent(MoleculeAgent agent, IAtom a, Box box) {
+
+    }
+
+    public void getAns(IAtom a){
+
 
     }
 
