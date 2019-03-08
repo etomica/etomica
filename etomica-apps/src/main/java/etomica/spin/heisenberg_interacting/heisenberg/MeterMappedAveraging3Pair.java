@@ -31,13 +31,14 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
     protected double J;
     protected double mu;
     protected double bt;
+    protected int nMax;
     protected Vector dr;
     protected Vector work;
     protected AtomLeafAgentManager<MoleculeAgent> leafAgentManager;
     private Box box;
     protected PotentialCalculationHeisenberg Ans;
 
-    public MeterMappedAveraging3Pair(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, IPotentialAtomic p2) {
+    public MeterMappedAveraging3Pair(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, IPotentialAtomic p2, int nMax) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
         int nValues = 17;
         data = new DataDoubleArray(nValues);
@@ -49,6 +50,7 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
 
         this.space = space;
         this.temperature = temperature;
+        this.nMax = nMax;
         J = interactionS;
         bt = 1 / temperature;
         mu = dipoleMagnitude;
@@ -64,7 +66,6 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
         secondDerivativeSum.setAgentManager(leafAgentManager);
         secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);
 
-        int nMax = 3;
         Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         allAtoms = new IteratorDirective();
 
@@ -159,7 +160,7 @@ public class MeterMappedAveraging3Pair implements IDataSource, AgentSource<Molec
     }
 
     public MoleculeAgent makeAgent(IAtom a, Box box) {
-        return new MoleculeAgent();
+        return new MoleculeAgent(nMax);
     }
 
     public void releaseAgent(MoleculeAgent agent, IAtom a, Box box) {

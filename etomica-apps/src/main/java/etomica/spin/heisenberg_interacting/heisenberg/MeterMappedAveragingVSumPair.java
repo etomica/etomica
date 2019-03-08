@@ -39,13 +39,14 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
     protected double J;
     protected double mu;
     protected double bt;
+    protected int nMax;
     protected Vector dr;
     protected Vector work;
     protected AtomLeafAgentManager<MoleculeAgent> leafAgentManager;
     private Box box;
     protected PotentialCalculationHeisenberg Ans;
 
-    public MeterMappedAveragingVSumPair(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, IPotentialAtomic p2) {
+    public MeterMappedAveragingVSumPair(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, IPotentialAtomic p2, int nMax) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
         int nValues = 24;
         data = new DataDoubleArray(nValues);
@@ -54,7 +55,7 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
         dataInfo.addTag(tag);
         this.box = box;
         this.p2 = p2;
-
+        this.nMax = nMax;
         this.space = space;
         this.temperature = temperature;
         J = interactionS;
@@ -74,7 +75,6 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
         secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);
 
 
-        int nMax = 10;
         Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         vSum = new PotentialCalculationMoleculeAgentSum(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         vSumPair = new PotentialCalculationMoleculeAgentSumPair(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
@@ -314,7 +314,7 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
     }
 
     public MoleculeAgent makeAgent(IAtom a, Box box) {
-        return new MoleculeAgent();
+        return new MoleculeAgent(nMax);
     }
 
     public void releaseAgent(MoleculeAgent agent, IAtom a, Box box) {

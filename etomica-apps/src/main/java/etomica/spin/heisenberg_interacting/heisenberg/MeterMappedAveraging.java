@@ -34,13 +34,14 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MoleculeAg
     protected double J;
     protected double mu;
     protected double bt;
+    protected int nMax;
     protected Vector dr, tmp;
     protected Vector work;
     protected AtomLeafAgentManager<etomica.spin.heisenberg_interacting.heisenberg.MoleculeAgent> leafAgentManager;
     private Box box;
     protected PotentialCalculationHeisenberg Ans;
 
-    public MeterMappedAveraging(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster) {
+    public MeterMappedAveraging(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster,int nMax) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
         int nValues = 5;
         data = new DataDoubleArray(nValues);
@@ -54,7 +55,7 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MoleculeAg
         J = interactionS;
         bt = 1 / temperature;
         mu = dipoleMagnitude;
-
+        this.nMax = nMax;
         dr = space.makeVector();
         work = space.makeVector();
         tmp = space.makeVector();
@@ -67,7 +68,7 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MoleculeAg
         secondDerivativeSum.setAgentManager(leafAgentManager);
         secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);
 
-        int nMax = 5;
+        this.nMax = nMax;
         Ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         allAtoms = new IteratorDirective();
 
@@ -142,7 +143,7 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MoleculeAg
     }
 
     public etomica.spin.heisenberg_interacting.heisenberg.MoleculeAgent makeAgent(IAtom a, Box box) {
-        return new MoleculeAgent();
+        return new MoleculeAgent(nMax);
     }
 
     public void releaseAgent(etomica.spin.heisenberg_interacting.heisenberg.MoleculeAgent agent, IAtom a, Box box) {

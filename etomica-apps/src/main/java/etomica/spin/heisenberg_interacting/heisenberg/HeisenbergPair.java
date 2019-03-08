@@ -104,6 +104,7 @@ public class HeisenbergPair extends Simulation {
         int steps = params.steps;
         double interactionS = params.interactionS;
         double dipoleMagnitude = params.dipoleMagnitude;
+        int nMax = params.nMax;
 
         System.out.println("steps= " + steps);
         System.out.println("numberMolecules= " + numberMolecules);
@@ -150,7 +151,7 @@ public class HeisenbergPair extends Simulation {
         AccumulatorAverageCovariance AEEAccumulator = null;
         if (aEE) {
 //            AEEMeter = new MeterMappedAveragingPair(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potential);
-            AEEMeter = new MeterMappedAveragingVSumPair(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potential);
+            AEEMeter = new MeterMappedAveragingVSumPair(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potential,nMax);
 
             AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
             DataPump AEEPump = new DataPump(AEEMeter, AEEAccumulator);
@@ -374,6 +375,7 @@ public class HeisenbergPair extends Simulation {
         public double interactionS = 1.3;
         public double dipoleMagnitude = 1.6;
         public int steps = 5000;
+        public int nMax = 1;
 
     }
 }

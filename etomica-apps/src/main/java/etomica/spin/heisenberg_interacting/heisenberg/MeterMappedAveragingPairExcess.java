@@ -32,6 +32,7 @@ public class MeterMappedAveragingPairExcess implements IDataSource, AgentSource<
     protected double J;
     protected double mu;
     protected double bt;
+    protected int nMax;
     protected Vector dr;
     protected Vector work;
     protected AtomLeafAgentManager<MoleculeAgent> leafAgentManager;
@@ -40,7 +41,7 @@ public class MeterMappedAveragingPairExcess implements IDataSource, AgentSource<
     private final P2Spin p2Spin;
     protected final PotentialCalculationHeisenberg ans;
 
-    public MeterMappedAveragingPairExcess(AtomPair pair, final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster, P2Spin p2Spin) {
+    public MeterMappedAveragingPairExcess(AtomPair pair, final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster, P2Spin p2Spin, int nMax) {
 //        int a = 2*box.getLeafList().getAtomCount()+2;
         this.pair = pair;
         this.p2Spin = p2Spin;
@@ -66,7 +67,7 @@ public class MeterMappedAveragingPairExcess implements IDataSource, AgentSource<
         secondDerivativeSum.setAgentManager(leafAgentManager);
         secondDerivativeSumIdeal = new PotentialCalculationPhiSumHeisenberg(space);
 
-        int nMax = 5;
+        this.nMax = nMax;
         ans = new PotentialCalculationHeisenberg(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         allAtoms = new IteratorDirective();
 
@@ -125,7 +126,7 @@ public class MeterMappedAveragingPairExcess implements IDataSource, AgentSource<
     }
 
     public MoleculeAgent makeAgent(IAtom a, Box box) {
-        return new MoleculeAgent();
+        return new MoleculeAgent(nMax);
     }
 
     public void releaseAgent(MoleculeAgent agent, IAtom a, Box box) {
