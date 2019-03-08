@@ -18,6 +18,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
+import static etomica.math.SpecialFunctions.besselI;
+
 public class MeterMappedAveragingVSum implements IDataSource, AgentSource<MoleculeAgent> {
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
@@ -34,18 +36,20 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
     protected PotentialCalculationMoleculeAgentSumPair vSumPair;
     protected PotentialCalculationMoleculeAgentSumMinusIdealPair vSumPairMinusIdeal;
     protected double temperature;
-    protected double J;
+    protected double bJ;
     protected double mu;
     protected double bt;
+    double I0bJ, I1bJ, I2bJ;
+    double[] InbJArray, Inm1bJArray, Inm2bJArray, Inp1bJArray;
     protected boolean doIdeal, doPair, doVSum, doVSumMI;
     protected int nMax;
-    protected Vector dr, tmp;
-    protected Vector work;
+    protected Vector dr;
+    protected Vector work, tmp;
     protected AtomLeafAgentManager<MoleculeAgent> leafAgentManager;
     private Box box;
     protected PotentialCalculationHeisenberg Ans;
 
-    public MeterMappedAveragingVSum(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster, boolean doIdeal, boolean doPair, boolean doVSum, boolean doVSumMI,int nMax) {
+    public MeterMappedAveragingVSum(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster, boolean doIdeal, boolean doPair, boolean doVSum, boolean doVSumMI, int nMax) {
         int nValues = 19;
         data = new DataDoubleArray(nValues);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nValues});
@@ -55,14 +59,28 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
         this.space = space;
         this.temperature = temperature;
         this.potentialMaster = potentialMaster;
-        J = interactionS;
         bt = 1 / temperature;
+        bJ = interactionS * bt;
         mu = dipoleMagnitude;
         this.doIdeal = doIdeal;
         this.doPair = doPair;
         this.doVSum = doVSum;
         this.doVSumMI = doVSumMI;
-        this.nMax =nMax;
+        this.nMax = nMax;
+
+        I0bJ = besselI(0, bJ);
+        I1bJ = besselI(1, bJ);
+        I2bJ = besselI(2, bJ);
+        InbJArray = new double[nMax + 1];
+        Inm1bJArray = new double[nMax + 1];
+        Inm2bJArray = new double[nMax + 1];
+        Inp1bJArray = new double[nMax + 1];
+        for (int n = 1; n <= nMax; n++) {
+            InbJArray[n] = besselI(n, bJ);
+            Inm1bJArray[n] = besselI(n - 1, bJ);
+            Inm2bJArray[n] = besselI(n - 2, bJ);
+            Inp1bJArray[n] = besselI(n + 1, bJ);
+        }
 
         dr = space.makeVector();
         work = space.makeVector();
@@ -210,10 +228,9 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
         }
 
         if (doVSumMI) {
-
-            //TODO
-
-
+            for (int i = 0; i < nM; i++) {
+                getAns(leafList.getAtom(i));
+            }
             vSumMinusIdeal.zeroSum();
             potentialMaster.calculate(box, allAtoms, vSumMinusIdeal);
 
@@ -224,10 +241,9 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
 
                 dr.E(atom.getOrientation().getDirection());
 
-                double ti = Math.atan2(dr.getX(1), dr.getX(0));
-                double sinti = Math.sin(ti);
-                double costi = Math.cos(ti);
-                double cos2ti = Math.cos(2 * ti);
+                double sinti = dr.getX(1);
+                double costi = dr.getX(0);
+                double cos2ti = 2 * costi * costi - 1;
 
                 double vExiIdeal = -bmu * sinti;
                 double vEyiIdeal = bmu * costi;
@@ -240,27 +256,25 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
                 double d2vExidtidtiIdeal = bmu * sinti;
                 double d2vEyidtidtiIdeal = -bmu * costi;
 
-                agentAtomI.vEx().PE(-3*vExiIdeal);
-                agentAtomI.vEy().PE(-3*vEyiIdeal);
-                agentAtomI.vEEx().PE(-3*vEExiIdeal);
-                agentAtomI.vEEy().PE(-3*vEEyiIdeal);
-                agentAtomI.dvEx().PE(-3*dvExidtiIdeal);
-                agentAtomI.dvEy().PE(-3*dvEyidtiIdeal);
-                agentAtomI.dvEEx().PE(-3*dvEExidtiIdeal);
-                agentAtomI.dvEEy().PE(-3*dvEEyidtiIdeal);
-                agentAtomI.d2vEx().PE(-3*d2vExidtidtiIdeal);
-                agentAtomI.d2vEy().PE(-3*d2vEyidtidtiIdeal);
+                agentAtomI.vEx().PE(-3 * vExiIdeal);
+                agentAtomI.vEy().PE(-3 * vEyiIdeal);
+                agentAtomI.vEEx().PE(-3 * vEExiIdeal);
+                agentAtomI.vEEy().PE(-3 * vEEyiIdeal);
+                agentAtomI.dvEx().PE(-3 * dvExidtiIdeal);
+                agentAtomI.dvEy().PE(-3 * dvEyidtiIdeal);
+                agentAtomI.dvEEx().PE(-3 * dvEExidtiIdeal);
+                agentAtomI.dvEEy().PE(-3 * dvEEyidtiIdeal);
+                agentAtomI.d2vEx().PE(-3 * d2vExidtidtiIdeal);
+                agentAtomI.d2vEy().PE(-3 * d2vEyidtidtiIdeal);
 
             }
-
-            vSumPairMinusIdeal.zeroSum();
-            potentialMaster.calculate(box, allAtoms, vSumPairMinusIdeal);
-
             AEE = 0;
             JEMUEx = 0;
             JEMUEy = 0;
             JEEMJEJESelf = 0;
             UEESelf = 0;
+            vSumPairMinusIdeal.zeroSum();
+            potentialMaster.calculate(box, allAtoms, vSumPairMinusIdeal);
             for (int i = 0; i < nM; i++) {
                 MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
 
@@ -299,7 +313,6 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
                 JEMUEy += dvEyi + bmu * atom.getOrientation().getDirection().getX(1) + vEyi * fi;
 
             }
-
             AEE = -vSumPairMinusIdeal.getSumJEEMJEJE() - JEEMJEJESelf + UEESelf + vSumPairMinusIdeal.getSumUEE() - JEMUEx * JEMUEx - JEMUEy * JEMUEy;
 
 
@@ -325,15 +338,249 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
     }
 
     public MoleculeAgent makeAgent(IAtom a, Box box) {
-        return new MoleculeAgent();
+        return new MoleculeAgent(nMax);
     }
 
     public void releaseAgent(MoleculeAgent agent, IAtom a, Box box) {
 
     }
 
-    public void getAns(IAtom a){
+    public void getAns(IAtom atom) {
+//if(true )return;
+        MoleculeAgent agentAtom = leafAgentManager.getAgent(atom);
+        double bmu = bt * mu;
+        double bmu2 = bmu * bmu;
 
+        Vector ei = space.makeVector();
+        ei.E(((IAtomOriented) atom).getOrientation().getDirection());
+        double t1 = Math.atan2(ei.getX(1), ei.getX(0));
+
+
+        double cost1 = ei.getX(0);
+        double sint1 = ei.getX(1);
+        double cos2t1 = 2 * cost1 * cost1 - 1;
+        double sin2t1 = 2 * sint1 * cost1;
+
+
+        for (int n = 0; n <= nMax; n++) {
+
+            if (n == 0) {
+                agentAtom.Axc0[n] = bmu * (I0bJ + I1bJ) * (-1 + cost1);
+                agentAtom.dAxc0[n] = -bmu * (I0bJ + I1bJ) * sint1;
+                agentAtom.Axs0[n] = 0;
+                agentAtom.dAxs0[n] = 0;
+                agentAtom.Axc1[n] = -0.25 * bmu2 * sint1 * sint1 * (I0bJ + 2 * I1bJ + I2bJ);
+                agentAtom.dAxc1[n] = -0.25 * bmu2 * (I0bJ + 2 * I1bJ + I2bJ) * sin2t1;
+                agentAtom.Axs1[n] = 0;
+                agentAtom.dAxs1[n] = 0;
+
+                agentAtom.d2Axc0[n] = -bmu * cost1 * (I0bJ + I1bJ);
+                agentAtom.d2Axs0[n] = 0;
+                agentAtom.d3Axc0[n] = bmu * sint1 * (I0bJ + I1bJ);
+                agentAtom.d3Axs0[n] = 0;
+                agentAtom.d2Axc1[n] = -0.5 * bmu2 * cos2t1 * (I0bJ + 2 * I1bJ + I2bJ);
+                agentAtom.d2Axs1[n] = 0;
+
+
+                //y direction
+                agentAtom.Ayc0[n] = bmu * (I0bJ + I1bJ) * sint1;
+                agentAtom.dAyc0[n] = bmu * (I0bJ + I1bJ) * cost1;
+                agentAtom.Ays0[n] = 0;
+                agentAtom.dAys0[n] = 0;
+                agentAtom.Ayc1[n] = 0.25 * bmu2 * sint1 * sint1 * (I0bJ + 2 * I1bJ + I2bJ);
+                agentAtom.dAyc1[n] = 0.25 * bmu2 * sin2t1 * (I0bJ + 2 * I1bJ + I2bJ);
+                agentAtom.Ays1[n] = 0;
+                agentAtom.dAys1[n] = 0;
+
+                agentAtom.d2Ayc0[n] = -bmu * sint1 * (I0bJ + I1bJ);
+                agentAtom.d2Ays0[n] = 0;
+                agentAtom.d3Ayc0[n] = -bmu * cost1 * (I0bJ + I1bJ);
+                agentAtom.d3Ays0[n] = 0;
+                agentAtom.d2Ayc1[n] = 0.5 * bmu2 * (I0bJ + 2 * I1bJ + I2bJ) * cos2t1;
+                agentAtom.d2Ays1[n] = 0;
+            }
+
+
+            if (n > 0) {
+                int n2 = n * n;
+                int n3 = n2 * n;
+                int n4 = n2 * n2;
+                double InbJ = InbJArray[n];
+                double Inm1bJ = Inm1bJArray[n];
+                double Inm2bJ = Inm2bJArray[n];
+                double Inp1bJ = Inp1bJArray[n];
+                double sinnt1 = Math.sin(n * t1);
+                double cosnt1 = Math.cos(n * t1);
+                double sinnm1t1 = sinnt1 * cost1 - cosnt1 * sint1;
+                double sinnp1t1 = sinnt1 * cost1 + cosnt1 * sint1;
+                double coshnt1 = Math.cosh(n * t1);
+                double sinnm2t1 = sinnt1 * cos2t1 - cosnt1 * sin2t1;
+                double sinnp2t1 = sinnt1 * cos2t1 + cosnt1 * sin2t1;
+                double cosnm2t1 = cosnt1 * cos2t1 + sinnt1 * sin2t1;
+                double cosnp2t1 = cosnt1 * cos2t1 - sinnt1 * sin2t1;
+                double cosnm1t1 = cosnt1 * cost1 + sinnt1 * sint1;
+                double cosnp1t1 = cosnt1 * cost1 - sinnt1 * sint1;
+
+
+                agentAtom.Axc0[n] = 2 * bmu * (((bJ + 2 * bJ * n2) * Inm1bJ + (bJ - n + 2 * (1 + bJ) * n2 - 2 * n3) * InbJ) * cost1 * cosnt1
+                        + (2 * bJ * Inm1bJ + (1 + 2 * bJ - 2 * n + 2 * n2) * InbJ) * n * sint1 * sinnt1)
+                        / (bJ + 4 * bJ * n4);
+
+
+                agentAtom.dAxc0[n] = (2 * InbJ * (-cosnt1 * sint1 + (n - 2 * n3) * cost1 * sinnt1)
+                        + Inm1bJ * (1 + n - 2 * n3) * sinnm1t1
+                        + (-1 + n - 2 * n3) * Inp1bJ * sinnp1t1
+                ) * bmu / (1 + 4 * n4);
+
+                agentAtom.Axs0[n] = ((1 + 2 * n + 2 * n2) * Inm1bJ * sinnm1t1
+                        + 2 * InbJ * (-2 * n * cosnt1 * sint1 + (1 + 2 * n2) * cost1 * sinnt1)
+                        + (1 - 2 * n + 2 * n2) * Inp1bJ * sinnp1t1
+                ) * bmu / (1 + 4 * n4);
+
+                agentAtom.dAxs0[n] = (-2 * bmu * n * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (-bJ + n) * InbJ)) * cost1 * cosnt1
+                        - 2 * bmu * (bJ * Inm1bJ + (bJ - n + n2 - 2 * n4) * InbJ) * sint1 * sinnt1
+                ) / (bJ + 4 * bJ * n4);
+
+                agentAtom.Axc1[n] = (Inm2bJ * (cosnm2t1 - coshnt1) * n2 / (2 - 2 * n + n2)
+                        + (-4 * bJ * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
+                        + 2 * n2 * (2 + n2 - 2 * n) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                        + bJ * n2 * (2 + 2 * n + n2) * I0bJ * (bJ * InbJ * (cosnm2t1 + coshnt1) + 2 * Inm1bJ * (bJ * cosnm2t1 + (n - 1) * coshnt1))
+                ) / (bJ * bJ * (4 + n4) * I0bJ)
+                ) * bmu2 / 4.0 / n2;
+
+                agentAtom.dAxc1[n] = 0.25 * bmu2 * (
+                        -(n - 2) * Inm2bJ * sinnm2t1 / (2 - 2 * n + n2)
+                                +
+                                (bJ * (-bJ * n * (-4 - 2 * n + n3) * I0bJ * sinnm2t1 * (2 * Inm1bJ + InbJ) + (16 + 4 * n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
+                                        - 2 * n * (4 - 2 * n + n3) * I0bJ * sinnp2t1 * (bJ * (bJ - 1 - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+
+                                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
+                );
+
+                agentAtom.Axs1[n] = ((n2 * Inm2bJ * sinnm2t1) / (2 - 2 * n + n2)
+                        + (bJ * (bJ * n2 * (2 + 2 * n + n2) * I0bJ * sinnm2t1 * (2 * Inm1bJ + InbJ) - (16 + 4 * n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
+                        + 2 * n2 * (2 - 2 * n + n2) * I0bJ * sinnp2t1 * ((-bJ + bJ * bJ - n * bJ) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n2 + 2 * n) * InbJ)
+                ) / (bJ * bJ * (4 + n4) * I0bJ)
+                ) * bmu2 / 4.0 / n2;
+
+                agentAtom.dAxs1[n] = 0.25 * bmu2 * (((n - 2) * Inm2bJ * cosnm2t1) / (2 - 2 * n + n2)
+                        + (bJ * (bJ * n * (-4 - 2 * n + n3) * I0bJ * cosnm2t1 * (2 * Inm1bJ + InbJ)
+                        - 4 * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
+                )
+                        + 2 * n * (4 - 2 * n + n3) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
+                );
+
+
+                agentAtom.d2Axc0[n] = (-(1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) * Inp1bJ * cosnp1t1
+                        + (-1 + n) * Inm1bJ * ((1 + n) * cosnm1t1 - 2 * n3 * cosnm1t1)
+                        + InbJ * (-2 * (1 - n2 + 2 * n4) * cost1 * cosnt1 + 4 * n3 * sint1 * sinnt1)
+                ) * bmu / (1 + 4 * n4);
+
+                agentAtom.d2Axs0[n] = (-2 * bJ * bmu * Inm1bJ * (2 * n3 * cosnt1 * sint1 + (1 - n2 + 2 * n4) * cost1 * sinnt1)
+                        + 2 * bmu * InbJ * (n * (1 - n2 - 2 * bJ * n2 + 2 * n3 + 2 * n4) * cosnt1 * sint1 + (n * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (-1 + n2 - 2 * n4)) * cost1 * sinnt1)
+                ) / (bJ + 4 * bJ * n4);
+
+                agentAtom.d3Axc0[n] = (2 * InbJ * ((1 - n2 + 4 * n4) * cosnt1 * sint1 + n * (1 + n2 + 2 * n4) * cost1 * sinnt1)
+                        + (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) * Inp1bJ * sinnp1t1
+                        - (-1 + n) * (-1 + n) * Inm1bJ * ((1 + n) * sinnm1t1 + 2 * n3 * sinnm1t1)
+                ) * bmu / (1.0 + 4 * n4);
+
+                agentAtom.d3Axs0[n] = -(bJ * Inm1bJ * (n * (1 + n2 + 2 * n4) * cost1 * cosnt1 + (-1 + n2 - 4 * n4) * sint1 * sinnt1)
+                        + InbJ * (-n * cost1 * cosnt1 * ((1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) - bJ * (1 + n2 + 2 * n4)) + sint1 * sinnt1 * (n * (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (-1 + n2 - 4 * n4)))
+                ) * 2 * bmu / (bJ + 4 * bJ * n4);
+
+                agentAtom.d2Axc1[n] = 0.25 * bmu2 * (-(n - 2) * (n - 2) * Inm2bJ * cosnm2t1 / (2 - 2 * n + n2)
+                        + (bJ * (-bJ * (n - 2) * (n - 2) * n * (2 + 2 * n + n2) * I0bJ * cosnm2t1 * (2 * Inm1bJ + InbJ) + 4 * n * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
+                        - 2 * n * (2 + n) * (4 - 2 * n + n3) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
+                );
+
+                agentAtom.d2Axs1[n] = 0.25 * bmu2 * (-((n - 2) * (n - 2) * Inm2bJ * sinnm2t1) / (2 - 2 * n + n2)
+                        + (bJ * (-bJ * (n - 2) * (n - 2) * n * (2 + 2 * n + n2) * I0bJ * sinnm2t1 * (2 * Inm1bJ + InbJ) + 4 * n * (4 + n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
+                        - 2 * n * (n + 2) * (4 - 2 * n + n3) * I0bJ * sinnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
+                );
+
+                agentAtom.Ayc0[n] = (2 * bmu * cosnt1 * sint1 * ((bJ + 2 * bJ * n2) * Inm1bJ + (bJ - n + 2 * n2 + 2 * bJ * n2 - 2 * n3) * InbJ)
+                        - 2 * bmu * n * cost1 * sinnt1 * (2 * bJ * Inm1bJ + (1 + 2 * bJ + 2 * (-1 + n) * n) * InbJ)
+                ) / (bJ + 4 * bJ * n4);
+
+                agentAtom.dAyc0[n] = 2.0 * bmu * ((bJ * Inm1bJ + (bJ - n + n2 - 2 * n4) * InbJ) * cost1 * cosnt1
+                        + n * sint1 * sinnt1 * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (n - bJ) * InbJ))
+                ) / (bJ + 4 * bJ * n4);
+
+                agentAtom.Ays0[n] = (bJ * (1 - 2 * n + 2 * n2) * Inp1bJ * (-cosnp1t1 + coshnt1)
+                        + bJ * Inm1bJ * ((1 + 2 * n + 2 * n2) * cosnm1t1 + (-1 + 2 * n - 2 * n2) * coshnt1)
+                        + 2 * InbJ * (2 * bJ * n * cost1 * cosnt1 + n * (1 - 2 * n + 2 * n2) * coshnt1 + bJ * (1 + 2 * n2) * sint1 * sinnt1)
+                ) * bmu / (bJ + 4 * bJ * n4);
+
+                agentAtom.dAys0[n] = ((1 + n - 2 * n3) * Inm1bJ * sinnm1t1
+                        + 2 * InbJ * (n * (-1 + 2 * n2) * cosnt1 * sint1 + cost1 * sinnt1)
+                        + (1 - n + 2 * n3) * Inp1bJ * sinnp1t1
+                ) * bmu / (1.0 + 4 * n4);
+
+
+                agentAtom.Ayc1[n] = (n2 * Inm2bJ * (-cosnm2t1 + coshnt1) / (2 - 2 * n + n2)
+                        - (4 * bJ * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
+                        + 2 * n2 * (2 - 2 * n + n2) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                        + bJ * n2 * (2 + 2 * n + n2) * I0bJ * (bJ * InbJ * (cosnm2t1 + coshnt1) + 2 * Inm1bJ * (bJ * cosnm2t1 + (-1 + n) * coshnt1))
+                ) / (bJ * bJ * (4 + n4) * I0bJ)
+                ) * bmu2 / 4 / n2;
+
+                agentAtom.dAyc1[n] = 0.25 * bmu2 * (((-2 + n) * Inm2bJ * sinnm2t1) / (2 - 2 * n + n2)
+                        + (bJ * (bJ * n * (-4 - 2 * n + n3) * I0bJ * sinnm2t1 * (2 * Inm1bJ + InbJ) + (16 + 4 * n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
+                        + 2 * n * (4 - 2 * n + n3) * I0bJ * sinnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
+                );
+
+                agentAtom.Ays1[n] = (-bJ * n2 * (2 + n * (2 + n)) * I0bJ * sinnm2t1 * ((-1 + bJ + n) * Inm1bJ + bJ * InbJ)
+                        - 2 * bJ * (4 + n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
+                        - n2 * (2 - 2 * n + n2) * I0bJ * sinnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n * (1 + n)) * InbJ)
+                ) * bmu2 / (2 * bJ * bJ * n2 * (4 + n4) * I0bJ);
+
+                agentAtom.dAys1[n] = 0.25 * bmu2 * (-(-2 + n) * Inm2bJ * cosnm2t1 / (2 - 2 * n + n2)
+                        + (bJ * (-bJ * n * (-4 - 2 * n + n3) * I0bJ * cosnm2t1 * (2 * Inm1bJ + InbJ) - 4 * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
+                        - 2 * n * (4 - 2 * n + n3) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
+                );
+
+
+                agentAtom.d2Ayc0[n] = 2 * bmu * (-(bJ * Inm1bJ + (bJ + n * (-1 + n - 2 * n3)) * InbJ) * cosnt1 * sint1 + n2 * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (-bJ + n) * InbJ)) * cosnt1 * sint1 - n * (bJ * Inm1bJ + (bJ + n * (-1 + n - 2 * n3)) * InbJ) * cost1 * sinnt1 + n * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (-bJ + n) * InbJ)) * cost1 * sinnt1) / (bJ + 4 * bJ * n4);
+
+                agentAtom.d2Ays0[n] = (bmu * ((-1 + n) * (1 + n - 2 * n3) * Inm1bJ * cosnm1t1 + (1 + n) * (1 - n + 2 * n3) * Inp1bJ * cosnp1t1 + 2 * InbJ * (n * cost1 * cosnt1 + n * (-1 + 2 * n2) * cost1 * cosnt1 - sint1 * sinnt1 - n2 * (-1 + 2 * n2) * sint1 * sinnt1))) / (1 + 4 * n4);
+
+
+                agentAtom.d3Ayc0[n] = 2 * bmu * (bJ * Inm1bJ * (-(1 - n2 + 4 * n4) * cost1 * cosnt1 + n * (1 + n2 + 2 * n4) * sint1 * sinnt1)
+                        + InbJ * (-(-n * (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (1 - n2 + 4 * n4)) * cost1 * cosnt1 + n * (-(1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (1 + n2 + 2 * n4)) * sint1 * sinnt1)
+                ) / (bJ + 4 * bJ * n4);
+
+
+                agentAtom.d3Ays0[n] = -bmu * (-(-1 + n) * (-1 + n) * (-1 + n) * (1 + 2 * n + 2 * n2) * Inm1bJ * sinnm1t1
+                        + 2 * InbJ * (n * (1 + n2 + 2 * n4) * cosnt1 * sint1 + (1 - n2 + 4 * n4) * cost1 * sinnt1)
+                        + (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) * Inp1bJ * sinnp1t1
+                ) / (1 + 4 * n4);
+
+                agentAtom.d2Ayc1[n] = 0.25 * bmu2 * ((-2 + n) * (-2 + n) * Inm2bJ * cosnm2t1 / (2 - 2 * n + n2)
+                        + (bJ * (bJ * (-2 + n) * (-2 + n) * n * (2 + 2 * n + n2) * I0bJ * cosnm2t1 * (2 * Inm1bJ + InbJ)
+                        + 4 * n * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
+                )
+                        + 2 * n * (2 + n) * (4 - 2 * n + n3) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
+                );
+
+
+                agentAtom.d2Ays1[n] = 0.25 * bmu2 * ((n - 2) * (n - 2) * Inm2bJ * sinnm2t1 / (2 - 2 * n + n2)
+                        + (bJ * (bJ * (n - 2) * (n - 2) * n * (2 + 2 * n + n2) * I0bJ * sinnm2t1 * (2 * Inm1bJ + InbJ)
+                        + 4 * n * (4 + n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
+                )
+                        + 2 * n * (2 + n) * (4 - 2 * n + n3) * I0bJ * sinnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
+                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
+                );
+
+
+            }
+        }
 
     }
 

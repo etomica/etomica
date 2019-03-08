@@ -130,8 +130,8 @@ public class Heisenberg extends Simulation {
         double interactionS = params.interactionS;
         double dipoleMagnitude = params.dipoleMagnitude;
 
-        System.out.println("numberMolecules= " + numberMolecules+" steps= " + steps + " nMax= " + nMax
-                + " \ntemperature= " + temperature +" interacitonS= " + interactionS  + " dipoleStrength= " + dipoleMagnitude);
+        System.out.println("numberMolecules= " + numberMolecules + " steps= " + steps + " nMax= " + nMax
+                + " \ntemperature= " + temperature + " interacitonS= " + interactionS + " dipoleStrength= " + dipoleMagnitude);
 
         Space sp = Space2D.getInstance();
         Heisenberg sim = new Heisenberg(sp, nCells, temperature, interactionS, dipoleMagnitude);
@@ -174,7 +174,7 @@ public class Heisenberg extends Simulation {
         MeterMappedAveragingVSum AEEMeter = null;
         AccumulatorAverageCovariance AEEAccumulator = null;
         if (aEE) {
-            AEEMeter = new MeterMappedAveragingVSum(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster, doIdeal, doPair, doVSum, doVSumMI,nMax);
+            AEEMeter = new MeterMappedAveragingVSum(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster, doIdeal, doPair, doVSum, doVSumMI, nMax);
             AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
             DataPump AEEPump = new DataPump(AEEMeter, AEEAccumulator);
             IntegratorListenerAction AEEListener = new IntegratorListenerAction(AEEPump);
@@ -244,7 +244,7 @@ public class Heisenberg extends Simulation {
         }
 //        if (doIdeal && !doPair) {//You need to uncomment this line if you make a jar
         //TODO
-        if (doIdeal ) {
+        if (doIdeal) {
             System.out.println("IdealMapping:\t" + (sumIdeal / numberMolecules)
                     + " Err:\t" + (errSumIdeal / numberMolecules) + " Cor:\t " + sumIdealCor
                     + " Difficulty:\t" + (errSumIdeal * Math.sqrt(totalTime) / nCells / nCells));
@@ -346,11 +346,11 @@ public class Heisenberg extends Simulation {
         public boolean doIdeal = false;
         public boolean doVSum = false;
         public boolean doVSumMI = true;
-        public double temperature = 10;//Kelvin
+        public double temperature = 1;//Kelvin
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
         public int nCells = 3;//number of atoms is nCells*nCells
-        public int steps = 50000;
-        public int nMax = 1;
+        public int steps = 500000;
+        public int nMax = 2;
     }
 }

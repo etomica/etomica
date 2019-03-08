@@ -99,14 +99,17 @@ public class PotentialCalculationMoleculeAgentSumMinusIdealPair implements Poten
         if (!(potential instanceof IPotentialAtomicSecondDerivative)) {
             return;
         }
+
         IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
         IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
         ei.E(atom1.getOrientation().getDirection());
         ej.E(atom2.getOrientation().getDirection());
 //        System.out.println(ei);
-        double t1 = Math.atan2(ei.getX(1), ei.getX(0));
-        double t2 = Math.atan2(ej.getX(1), ej.getX(0));
+//        double t1 = Math.atan2(ei.getX(1), ei.getX(0));
+//        double t2 = Math.atan2(ej.getX(1), ej.getX(0));
 
+        MoleculeAgent agentAtom1 = leafAgentManager.getAgent(atom1);
+        MoleculeAgent agentAtom2 = leafAgentManager.getAgent(atom2);
 
 
 //        System.out.println("(*" + count + "th term*)");
@@ -119,8 +122,6 @@ public class PotentialCalculationMoleculeAgentSumMinusIdealPair implements Poten
 //            System.out.println("bJ= " + bJ + ";");
 //            System.out.println("bt = bJ/J;");
 //            System.out.println("bmu = bt*mu;");
-            System.out.println("t1 = " + t1 + ";");
-            System.out.println("t2 = " + t2 + ";");
         }
 
 //        if (count > 1000 && debug) System.exit(2);
@@ -137,251 +138,36 @@ public class PotentialCalculationMoleculeAgentSumMinusIdealPair implements Poten
         double sint1 = ei.getX(1);
         double sint2 = ej.getX(1);
         double cost2 = ej.getX(0);
-        double cos2t1 = 2 * cost1 - 1;
-        double sin2t1 = 2 * sint1 * cost1;
+        double cost1mt2 = cost1 * cost2 + sint1 * sint2;
+        double sint1mt2 = sint1 * cost2 - cost1 * sint2;
+//        double cos2t1 = 2 * cost1 - 1;
+//        double sin2t1 = 2 * sint1 * cost1;
 
 
-        for (int n = 0; n <= nMax; n++) {
-            if (n == 0) {
-                Axc0[n] = bmu * (I0bJ + I1bJ) * (-1 + cost1);
-                dAxc0[n] = -bmu * (I0bJ + I1bJ) * sint1;
-                Axs0[n] = 0;
-                dAxs0[n] = 0;
-                Axc1[n] = -0.25 * bmu * bmu * sint1 * sint1 * (I0bJ + 2 * I1bJ + I2bJ);
-                dAxc1[n] = -0.25 * bmu * bmu * (I0bJ + 2 * I1bJ + I2bJ) * Math.sin(2 * t1);
-                Axs1[n] = 0;
-                dAxs1[n] = 0;
 
-                d2Axc0[n] = -bmu * cost1 * (I0bJ + I1bJ);
-                d2Axs0[n] = 0;
-                d3Axc0[n] = bmu * sint1 * (I0bJ + I1bJ);
-                d3Axs0[n] = 0;
-                d2Axc1[n] = -0.5 * bmu * bmu * cos2t1 * (I0bJ + 2 * I1bJ + I2bJ);
-                d2Axs1[n] = 0;
-
-
-                //y direction
-                Ayc0[n] = bmu * (I0bJ + I1bJ) * sint1;
-                dAyc0[n] = bmu * (I0bJ + I1bJ) * cost1;
-                Ays0[n] = 0;
-                dAys0[n] = 0;
-                Ayc1[n] = 0.25 * bmu * bmu * sint1 * sint1 * (I0bJ + 2 * I1bJ + I2bJ);
-                dAyc1[n] = 0.25 * bmu * bmu * Math.sin(2 * t1) * (I0bJ + 2 * I1bJ + I2bJ);
-                Ays1[n] = 0;
-                dAys1[n] = 0;
-
-                d2Ayc0[n] = -bmu * sint1 * (I0bJ + I1bJ);
-                d2Ays0[n] = 0;
-                d3Ayc0[n] = -bmu * cost1 * (I0bJ + I1bJ);
-                d3Ays0[n] = 0;
-                d2Ayc1[n] = 0.5 * bmu * bmu * (I0bJ + 2 * I1bJ + I2bJ) * cos2t1;
-                d2Ays1[n] = 0;
-            }
-
-
-            if (n > 0) {
-                int n2 = n * n;
-                int n3 = n2 * n;
-                int n4 = n2 * n2;
-                double InbJ = InbJArray[n];
-                double Inm1bJ = Inm1bJArray[n];
-                double Inm2bJ = Inm2bJArray[n];
-                double Inp1bJ = Inp1bJArray[n];
-                double sinnt1 = Math.sin(n * t1);
-                double cosnt1 = Math.cos(n * t1);
-                double sinnm1t1 = sinnt1 * cost1 - cosnt1 * sint1;
-                double sinnp1t1 = sinnt1 * cost1 + cosnt1 * sint1;
-                double coshnt1 = Math.cosh(n * t1);
-                double sinnm2t1 = sinnt1 * cos2t1 - cosnt1 * sin2t1;
-                double sinnp2t1 = sinnt1 * cos2t1 + cosnt1 * sin2t1;
-                double cosnm2t1 = cosnt1 * cos2t1 + sinnt1 * sin2t1;
-                double cosnp2t1 = cosnt1 * cos2t1 - sinnt1 * sin2t1;
-                double cosnm1t1 = cosnt1 * cost1 + sinnt1 * sint1;
-                double cosnp1t1 = cosnt1 * cost1 - sinnt1 * sint1;
-
-
-                Axc0[n] = 2 * bmu * (((bJ + 2 * bJ * n2) * Inm1bJ + (bJ - n + 2 * (1 + bJ) * n2 - 2 * n3) * InbJ) * cost1 * cosnt1
-                        + (2 * bJ * Inm1bJ + (1 + 2 * bJ - 2 * n + 2 * n2) * InbJ) * n * sint1 * sinnt1)
-                        / (bJ + 4 * bJ * n4);
-
-                dAxc0[n] = (2 * InbJ * (-cosnt1 * sint1 + (n - 2 * n3) * cost1 * sinnt1)
-                        + Inm1bJ * (1 + n - 2 * n3) * sinnm1t1
-                        + (-1 + n - 2 * n3) * Inp1bJ * sinnp1t1
-                ) * bmu / (1 + 4 * n4);
-
-                Axs0[n] = ((1 + 2 * n + 2 * n2) * Inm1bJ * sinnm1t1
-                        + 2 * InbJ * (-2 * n * cosnt1 * sint1 + (1 + 2 * n2) * cost1 * sinnt1)
-                        + (1 - 2 * n + 2 * n2) * Inp1bJ * sinnp1t1
-                ) * bmu / (1 + 4 * n4);
-
-                dAxs0[n] = (-2 * bmu * n * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (-bJ + n) * InbJ)) * cost1 * cosnt1
-                        - 2 * bmu * (bJ * Inm1bJ + (bJ - n + n2 - 2 * n4) * InbJ) * sint1 * sinnt1
-                ) / (bJ + 4 * bJ * n4);
-
-                Axc1[n] = (Inm2bJ * (cosnm2t1 - coshnt1) * n2 / (2 - 2 * n + n2)
-                        + (-4 * bJ * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
-                        + 2 * n2 * (2 + n2 - 2 * n) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-                        + bJ * n2 * (2 + 2 * n + n2) * I0bJ * (bJ * InbJ * (cosnm2t1 + coshnt1) + 2 * Inm1bJ * (bJ * cosnm2t1 + (n - 1) * coshnt1))
-                ) / (bJ * bJ * (4 + n4) * I0bJ)
-                ) * bmu * bmu / 4.0 / n2;
-
-                dAxc1[n] = 0.25 * bmu * bmu * (
-                        -(n - 2) * Inm2bJ * sinnm2t1 / (2 - 2 * n + n2)
-                                +
-                                (bJ * (-bJ * n * (-4 - 2 * n + n3) * I0bJ * sinnm2t1 * (2 * Inm1bJ + InbJ) + (16 + 4 * n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
-                                        - 2 * n * (4 - 2 * n + n3) * I0bJ * sinnp2t1 * (bJ * (bJ - 1 - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-
-                                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
-                );
-
-                Axs1[n] = ((n2 * Inm2bJ * sinnm2t1) / (2 - 2 * n + n2)
-                        + (bJ * (bJ * n2 * (2 + 2 * n + n2) * I0bJ * sinnm2t1 * (2 * Inm1bJ + InbJ) - (16 + 4 * n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
-                        + 2 * n2 * (2 - 2 * n + n2) * I0bJ * sinnp2t1 * ((-bJ + bJ * bJ - n * bJ) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n2 + 2 * n) * InbJ)
-                ) / (bJ * bJ * (4 + n4) * I0bJ)
-                ) * bmu * bmu / 4.0 / n2;
-
-                dAxs1[n] = 0.25 * bmu * bmu * (((n - 2) * Inm2bJ * cosnm2t1) / (2 - 2 * n + n2)
-                        + (bJ * (bJ * n * (-4 - 2 * n + n3) * I0bJ * cosnm2t1 * (2 * Inm1bJ + InbJ)
-                        - 4 * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
-                )
-                        + 2 * n * (4 - 2 * n + n3) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
-                );
-
-
-                d2Axc0[n] = (-(1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) * Inp1bJ * cosnp1t1
-                        + (-1 + n) * Inm1bJ * ((1 + n) * cosnm1t1 - 2 * n3 * cosnm1t1)
-                        + InbJ * (-2 * (1 - n2 + 2 * n4) * cost1 * cosnt1 + 4 * n3 * sint1 * sinnt1)
-                ) * bmu / (1 + 4 * n4);
-
-                d2Axs0[n] = (-2 * bJ * bmu * Inm1bJ * (2 * n3 * cosnt1 * sint1 + (1 - n2 + 2 * n4) * cost1 * sinnt1)
-                        + 2 * bmu * InbJ * (n * (1 - n2 - 2 * bJ * n2 + 2 * n3 + 2 * n4) * cosnt1 * sint1 + (n * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (-1 + n2 - 2 * n4)) * cost1 * sinnt1)
-                ) / (bJ + 4 * bJ * n4);
-
-                d3Axc0[n] = (2 * InbJ * ((1 - n2 + 4 * n4) * cosnt1 * sint1 + n * (1 + n2 + 2 * n4) * cost1 * sinnt1)
-                        + (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) * Inp1bJ * sinnp1t1
-                        - (-1 + n) * (-1 + n) * Inm1bJ * ((1 + n) * sinnm1t1 + 2 * n3 * sinnm1t1)
-                ) * bmu / (1.0 + 4 * n4);
-
-                d3Axs0[n] = -(bJ * Inm1bJ * (n * (1 + n2 + 2 * n4) * cost1 * cosnt1 + (-1 + n2 - 4 * n4) * sint1 * sinnt1)
-                        + InbJ * (-n * cost1 * cosnt1 * ((1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) - bJ * (1 + n2 + 2 * n4)) + sint1 * sinnt1 * (n * (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (-1 + n2 - 4 * n4)))
-                ) * 2 * bmu / (bJ + 4 * bJ * n4);
-
-                d2Axc1[n] = 0.25 * bmu * bmu * (-(n - 2) * (n - 2) * Inm2bJ * cosnm2t1 / (2 - 2 * n + n2)
-                        + (bJ * (-bJ * (n - 2) * (n - 2) * n * (2 + 2 * n + n2) * I0bJ * cosnm2t1 * (2 * Inm1bJ + InbJ) + 4 * n * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
-                        - 2 * n * (2 + n) * (4 - 2 * n + n3) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
-                );
-
-                d2Axs1[n] = 0.25 * bmu * bmu * (-((n - 2) * (n - 2) * Inm2bJ * sinnm2t1) / (2 - 2 * n + n2)
-                        + (bJ * (-bJ * (n - 2) * (n - 2) * n * (2 + 2 * n + n2) * I0bJ * sinnm2t1 * (2 * Inm1bJ + InbJ) + 4 * n * (4 + n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
-                        - 2 * n * (n + 2) * (4 - 2 * n + n3) * I0bJ * sinnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
-                );
-
-                Ayc0[n] = (2 * bmu * cosnt1 * sint1 * ((bJ + 2 * bJ * n2) * Inm1bJ + (bJ - n + 2 * n2 + 2 * bJ * n2 - 2 * n3) * InbJ)
-                        - 2 * bmu * n * cost1 * sinnt1 * (2 * bJ * Inm1bJ + (1 + 2 * bJ + 2 * (-1 + n) * n) * InbJ)
-                ) / (bJ + 4 * bJ * n4);
-
-                dAyc0[n] = 2.0 * bmu * ((bJ * Inm1bJ + (bJ - n + n2 - 2 * n4) * InbJ) * cost1 * cosnt1
-                        + n * sint1 * sinnt1 * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (n - bJ) * InbJ))
-                ) / (bJ + 4 * bJ * n4);
-
-                Ays0[n] = (bJ * (1 - 2 * n + 2 * n2) * Inp1bJ * (-cosnp1t1 + coshnt1)
-                        + bJ * Inm1bJ * ((1 + 2 * n + 2 * n2) * cosnm1t1 + (-1 + 2 * n - 2 * n2) * coshnt1)
-                        + 2 * InbJ * (2 * bJ * n * cost1 * cosnt1 + n * (1 - 2 * n + 2 * n2) * coshnt1 + bJ * (1 + 2 * n2) * sint1 * sinnt1)
-                ) * bmu / (bJ + 4 * bJ * n4);
-
-                dAys0[n] = ((1 + n - 2 * n3) * Inm1bJ * sinnm1t1
-                        + 2 * InbJ * (n * (-1 + 2 * n2) * cosnt1 * sint1 + cost1 * sinnt1)
-                        + (1 - n + 2 * n3) * Inp1bJ * sinnp1t1
-                ) * bmu / (1.0 + 4 * n4);
-
-
-                Ayc1[n] = (n2 * Inm2bJ * (-cosnm2t1 + coshnt1) / (2 - 2 * n + n2)
-                        - (4 * bJ * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
-                        + 2 * n2 * (2 - 2 * n + n2) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-                        + bJ * n2 * (2 + 2 * n + n2) * I0bJ * (bJ * InbJ * (cosnm2t1 + coshnt1) + 2 * Inm1bJ * (bJ * cosnm2t1 + (-1 + n) * coshnt1))
-                ) / (bJ * bJ * (4 + n4) * I0bJ)
-                ) * bmu * bmu / 4 / n2;
-
-                dAyc1[n] = 0.25 * bmu * bmu * (((-2 + n) * Inm2bJ * sinnm2t1) / (2 - 2 * n + n2)
-                        + (bJ * (bJ * n * (-4 - 2 * n + n3) * I0bJ * sinnm2t1 * (2 * Inm1bJ + InbJ) + (16 + 4 * n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
-                        + 2 * n * (4 - 2 * n + n3) * I0bJ * sinnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
-                );
-
-                Ays1[n] = (-bJ * n2 * (2 + n * (2 + n)) * I0bJ * sinnm2t1 * ((-1 + bJ + n) * Inm1bJ + bJ * InbJ)
-                        - 2 * bJ * (4 + n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
-                        - n2 * (2 - 2 * n + n2) * I0bJ * sinnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n * (1 + n)) * InbJ)
-                ) * bmu * bmu / (2 * bJ * bJ * n2 * (4 + n4) * I0bJ);
-
-                dAys1[n] = 0.25 * bmu * bmu * (-(-2 + n) * Inm2bJ * cosnm2t1 / (2 - 2 * n + n2)
-                        + (bJ * (-bJ * n * (-4 - 2 * n + n3) * I0bJ * cosnm2t1 * (2 * Inm1bJ + InbJ) - 4 * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ)))
-                        - 2 * n * (4 - 2 * n + n3) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
-                );
-
-
-                d2Ayc0[n] = 2 * bmu * (-(bJ * Inm1bJ + (bJ + n * (-1 + n - 2 * n3)) * InbJ) * cosnt1 * sint1 + n2 * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (-bJ + n) * InbJ)) * cosnt1 * sint1 - n * (bJ * Inm1bJ + (bJ + n * (-1 + n - 2 * n3)) * InbJ) * cost1 * sinnt1 + n * (InbJ + (-1 + 2 * n2) * (-bJ * Inm1bJ + (-bJ + n) * InbJ)) * cost1 * sinnt1) / (bJ + 4 * bJ * n4);
-
-                d2Ays0[n] = (bmu * ((-1 + n) * (1 + n - 2 * n3) * Inm1bJ * cosnm1t1 + (1 + n) * (1 - n + 2 * n3) * Inp1bJ * cosnp1t1 + 2 * InbJ * (n * cost1 * cosnt1 + n * (-1 + 2 * n2) * cost1 * cosnt1 - sint1 * sinnt1 - n2 * (-1 + 2 * n2) * sint1 * sinnt1))) / (1 + 4 * n4);
-
-
-                d3Ayc0[n] = 2 * bmu * (bJ * Inm1bJ * (-(1 - n2 + 4 * n4) * cost1 * cosnt1 + n * (1 + n2 + 2 * n4) * sint1 * sinnt1)
-                        + InbJ * (-(-n * (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (1 - n2 + 4 * n4)) * cost1 * cosnt1 + n * (-(1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) + bJ * (1 + n2 + 2 * n4)) * sint1 * sinnt1)
-                ) / (bJ + 4 * bJ * n4);
-
-
-                d3Ays0[n] = -bmu * (-(-1 + n) * (-1 + n) * (-1 + n) * (1 + 2 * n + 2 * n2) * Inm1bJ * sinnm1t1
-                        + 2 * InbJ * (n * (1 + n2 + 2 * n4) * cosnt1 * sint1 + (1 - n2 + 4 * n4) * cost1 * sinnt1)
-                        + (1 + n) * (1 + n) * (1 + n) * (1 - 2 * n + 2 * n2) * Inp1bJ * sinnp1t1
-                ) / (1 + 4 * n4);
-
-                d2Ayc1[n] = 0.25 * bmu * bmu * ((-2 + n) * (-2 + n) * Inm2bJ * cosnm2t1 / (2 - 2 * n + n2)
-                        + (bJ * (bJ * (-2 + n) * (-2 + n) * n * (2 + 2 * n + n2) * I0bJ * cosnm2t1 * (2 * Inm1bJ + InbJ)
-                        + 4 * n * (4 + n4) * cosnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
-                )
-                        + 2 * n * (2 + n) * (4 - 2 * n + n3) * I0bJ * cosnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
-                );
-
-
-                d2Ays1[n] = 0.25 * bmu * bmu * ((n - 2) * (n - 2) * Inm2bJ * sinnm2t1 / (2 - 2 * n + n2)
-                        + (bJ * (bJ * (n - 2) * (n - 2) * n * (2 + 2 * n + n2) * I0bJ * sinnm2t1 * (2 * Inm1bJ + InbJ)
-                        + 4 * n * (4 + n4) * sinnt1 * (bJ * I1bJ * InbJ + I0bJ * (-bJ * Inm1bJ + n * InbJ))
-                )
-                        + 2 * n * (2 + n) * (4 - 2 * n + n3) * I0bJ * sinnp2t1 * (bJ * (-1 + bJ - n) * Inm1bJ + (bJ * bJ - 2 * bJ * n + 2 * n + 2 * n2) * InbJ)
-                ) / (bJ * bJ * n * (4 + n4) * I0bJ)
-                );
-
-
-            }
-        }
-
-        double p0 = Math.exp(bJ * Math.cos(t1 - t2));
+        double p0 = Math.exp(bJ * cost1mt2);
         double px0 = p0, py0 = p0;
-        double pM2 = 1 / p0 / p0;
-        double lnp1 = -bJ * Math.sin(t1 - t2);
-        double lnp11 = -bJ * Math.cos(t1 - t2);
-        double lnp2 = -lnp1;
-        double px1 = bmu * p0 * (Math.cos(t1) + Math.cos(t2));
-        double py1 = bmu * p0 * (Math.sin(t1) + Math.sin(t2));
-        double dRpx0dt1 = bJ * Math.sin(t1 - t2) / px0;//Rpx0 mean reverse of px0  D[1/px0, theta1]
+//        double pM2 = 1 / p0 / p0;
+//        double lnp1 = -bJ * sint1mt2;
+//        double lnp11 = -bJ * cost1mt2;
+//        double lnp2 = -lnp1;
+//        double px1 = bmu * p0 * (cost1 + cost2);
+//        double py1 = bmu * p0 * (sint1 + sint2);
+        double dRpx0dt1 = bJ * sint1mt2 / px0;//Rpx0 mean reverse of px0  D[1/px0, theta1]
         double dRpx0dt2 = -dRpx0dt1; // D[1/px0, theta2]
-        double dpx1Rpx0dt1 = -bmu * sint1;//D[px1/px0, theta1]
-        double dpx1Rpx0dt2 = -bmu * sint2;
-        double d2Rpx0dt1dt1 = bJ * (Math.cos(t1 - t2) + bJ * Math.sin(t1 - t2) * Math.sin(t1 - t2)) / px0;
+//        double dpx1Rpx0dt1 = -bmu * sint1;//D[px1/px0, theta1]
+//        double dpx1Rpx0dt2 = -bmu * sint2;
+        double d2Rpx0dt1dt1 = bJ * (cost1mt2 + bJ * sint1mt2 * sint1mt2) / px0;
         double d2Rpx0dt1dt2 = -d2Rpx0dt1dt1;
-        double d2Rpx0dt2dt2 = d2Rpx0dt1dt1;
+//        double d2Rpx0dt2dt2 = d2Rpx0dt1dt1;
 
-        double dRpy0dt1 = bJ * Math.sin(t1 - t2) / py0;//Rpy0 mean reverse of py0  D[1/py0, theta1]
+        double dRpy0dt1 = bJ * sint1mt2 / py0;//Rpy0 mean reverse of py0  D[1/py0, theta1]
         double dRpy0dt2 = -dRpy0dt1; // D[1/py0, theta2]
-        double dpy1Rpy0dt1 = bmu * cost1;//D[py1/py0, theta1]
-        double dpy1Rpy0dt2 = bmu * cost2;
-        double d2Rpy0dt1dt1 = bJ * (Math.cos(t1 - t2) + bJ * Math.sin(t1 - t2) * Math.sin(t1 - t2)) / py0;
+//        double dpy1Rpy0dt1 = bmu * cost1;//D[py1/py0, theta1]
+//        double dpy1Rpy0dt2 = bmu * cost2;
+        double d2Rpy0dt1dt1 = bJ * (cost1mt2 + bJ * sint1mt2 * sint1mt2) / py0;
         double d2Rpy0dt1dt2 = -d2Rpy0dt1dt1;
-        double d2Rpy0dt2dt2 = d2Rpy0dt1dt1;
+//        double d2Rpy0dt2dt2 = d2Rpy0dt1dt1;
 
         double pvx10, pvx20, dpvx10dt1, dpvx20dt1, d2pvx10dt1dt2, d2pvx20dt1dt2, dpvx20dt2, dpvx10dt2;
         double pvy10, pvy20, dpvy10dt1, dpvy20dt1, d2pvy10dt1dt2, d2pvy20dt1dt2, dpvy20dt2, dpvy10dt2;
@@ -404,45 +190,59 @@ public class PotentialCalculationMoleculeAgentSumMinusIdealPair implements Poten
         dpvy20dt2 = 0;
         d2pvy20dt1dt2 = 0;
 
-        for (int n = 0; n <= nMax; n++) {
-            double sinnt2 = Math.sin(n * t2);
-            double cosnt2 = Math.cos(n * t2);
-            double n2 = n * n;
-
-
-            pvx10 += dAxs0[n] * sinnt2 + dAxc0[n] * cosnt2;
-            pvy10 += dAys0[n] * sinnt2 + dAyc0[n] * cosnt2;
-
-
-            dpvx10dt1 += d2Axs0[n] * sinnt2 + d2Axc0[n] * cosnt2;
-            dpvy10dt1 += d2Ays0[n] * sinnt2 + d2Ayc0[n] * cosnt2;
-
-
-            dpvx10dt2 += n * dAxs0[n] * cosnt2 - n * dAxc0[n] * sinnt2;
-            dpvy10dt2 += n * dAys0[n] * cosnt2 - n * dAyc0[n] * sinnt2;
-
-            d2pvx10dt1dt2 += n * d2Axs0[n] * cosnt2 - n * d2Axc0[n] * sinnt2;
-            d2pvy10dt1dt2 += n * d2Ays0[n] * cosnt2 - n * d2Ayc0[n] * sinnt2;
-
-
-            if (n != 0) {
-                pvx20 += n * Axs0[n] * cosnt2 - n * Axc0[n] * sinnt2;
-                pvy20 += n * Ays0[n] * cosnt2 - n * Ayc0[n] * sinnt2;
-
-
-                dpvx20dt1 += n * dAxs0[n] * cosnt2 - n * dAxc0[n] * sinnt2;
-                dpvy20dt1 += n * dAys0[n] * cosnt2 - n * dAyc0[n] * sinnt2;
-
-                d2pvx20dt1dt2 += -n2 * dAxs0[n] * sinnt2 - n2 * dAxc0[n] * cosnt2;
-                d2pvy20dt1dt2 += -n2 * dAys0[n] * sinnt2 - n2 * dAyc0[n] * cosnt2;
-
-                dpvx20dt2 += -n2 * Axs0[n] * sinnt2 - n2 * Axc0[n] * cosnt2;
-                dpvy20dt2 += -n2 * Ays0[n] * sinnt2 - n2 * Ayc0[n] * cosnt2;
+        double[] sinxt2 = new double[nMax+1];
+        double[] cosxt2 = new double[nMax+1];
+        if (nMax>=0) {
+            cosxt2[0] = 1;
+            if (nMax >= 1) {
+                sinxt2[1] = sint2;
+                cosxt2[1] = cost2;
+                if (nMax >= 2) {
+                    sinxt2[2] = 2 * sint2 * cost2;
+                    cosxt2[2] = 2 * cost2 * cost2 - 1;
+                    if (nMax >= 3) throw new RuntimeException("fix me");
+                }
             }
         }
 
-        MoleculeAgent agentAtom1 = leafAgentManager.getAgent(atom1);
-        MoleculeAgent agentAtom2 = leafAgentManager.getAgent(atom2);
+        for (int n = 0; n <= nMax; n++) {
+            double sinnt2 = sinxt2[n];
+            double cosnt2 = cosxt2[n];
+            double n2 = n * n;
+
+
+            pvx10 += agentAtom1.dAxs0[n] * sinnt2 + agentAtom1.dAxc0[n] * cosnt2;
+            pvy10 += agentAtom1.dAys0[n] * sinnt2 + agentAtom1.dAyc0[n] * cosnt2;
+
+
+            dpvx10dt1 += agentAtom1.d2Axs0[n] * sinnt2 + agentAtom1.d2Axc0[n] * cosnt2;
+            dpvy10dt1 += agentAtom1.d2Ays0[n] * sinnt2 + agentAtom1.d2Ayc0[n] * cosnt2;
+
+
+            dpvx10dt2 += n * agentAtom1.dAxs0[n] * cosnt2 - n * agentAtom1.dAxc0[n] * sinnt2;
+            dpvy10dt2 += n * agentAtom1.dAys0[n] * cosnt2 - n * agentAtom1.dAyc0[n] * sinnt2;
+
+            d2pvx10dt1dt2 += n * agentAtom1.d2Axs0[n] * cosnt2 - n * agentAtom1.d2Axc0[n] * sinnt2;
+            d2pvy10dt1dt2 += n * agentAtom1.d2Ays0[n] * cosnt2 - n * agentAtom1.d2Ayc0[n] * sinnt2;
+
+
+            if (n != 0) {
+                pvx20 += n * agentAtom1.Axs0[n] * cosnt2 - n * agentAtom1.Axc0[n] * sinnt2;
+                pvy20 += n * agentAtom1.Ays0[n] * cosnt2 - n * agentAtom1.Ayc0[n] * sinnt2;
+
+
+                dpvx20dt1 += n * agentAtom1.dAxs0[n] * cosnt2 - n * agentAtom1.dAxc0[n] * sinnt2;
+                dpvy20dt1 += n * agentAtom1.dAys0[n] * cosnt2 - n * agentAtom1.dAyc0[n] * sinnt2;
+
+                d2pvx20dt1dt2 += -n2 * agentAtom1.dAxs0[n] * sinnt2 - n2 * agentAtom1.dAxc0[n] * cosnt2;
+                d2pvy20dt1dt2 += -n2 * agentAtom1.dAys0[n] * sinnt2 - n2 * agentAtom1.dAyc0[n] * cosnt2;
+
+                dpvx20dt2 += -n2 * agentAtom1.Axs0[n] * sinnt2 - n2 * agentAtom1.Axc0[n] * cosnt2;
+                dpvy20dt2 += -n2 * agentAtom1.Ays0[n] * sinnt2 - n2 * agentAtom1.Ayc0[n] * cosnt2;
+            }
+        }
+
+
 
         double dvEx1dt2 = dpvx10dt2 / px0 + pvx10 * dRpx0dt2;
         double dvEy1dt2 = dpvy10dt2 / py0 + pvy10 * dRpy0dt2;
@@ -462,7 +262,7 @@ public class PotentialCalculationMoleculeAgentSumMinusIdealPair implements Poten
         double f1 = bt * agentAtom1.torque.getX(0);
         double f2 = bt * agentAtom2.torque.getX(0);
         double p12 = -bJ * ei.dot(ej);
-        double p21 = p12;
+//        double p21 = p12;
 
 
         double vEx1 = agentAtom1.vEx().getX(0);
@@ -489,7 +289,7 @@ public class PotentialCalculationMoleculeAgentSumMinusIdealPair implements Poten
         UEE = 0;
         JEMUEx = 0;
         JEMUExIdeal = 0;
-        JEMUE = 0;//not used
+        JEMUE = 0;
         JEMUEy = 0;
         JEMUEyIdeal = 0;
         JEMUExSquare = 0;

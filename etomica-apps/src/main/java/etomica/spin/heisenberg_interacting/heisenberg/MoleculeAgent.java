@@ -24,7 +24,13 @@ public class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible 
     public final Vector vEy, vEEy, dvEy, dvEEy, d2vEy;
 
 
-    public MoleculeAgent() {
+    double[] Axc0, Axs0, dAxc0, dAxs0, Axc1, Axs1, dAxc1, dAxs1;
+    double[] d2Axc0, d2Axs0, d3Axc0, d3Axs0, d2Axc1, d2Axs1;
+    double[] Ayc0, Ays0, dAyc0, dAys0, Ayc1, Ays1, dAyc1, dAys1;
+    double[] d2Ayc0, d2Ays0, d3Ayc0, d3Ays0, d2Ayc1, d2Ays1;
+
+
+    public MoleculeAgent(int nMax) {
         phi = new Tensor1D();
         vEE = new Vector2D();
         force = new Vector2D();
@@ -41,6 +47,37 @@ public class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible 
         dvEy = new Vector1D();
         dvEEy = new Vector1D();
         d2vEy = new Vector1D();
+
+        Axc0 = new double[nMax + 1];
+        Axs0 = new double[nMax + 1];
+        dAxc0 = new double[nMax + 1];
+        dAxs0 = new double[nMax + 1];
+        Axc1 = new double[nMax + 1];
+        Axs1 = new double[nMax + 1];
+        dAxc1 = new double[nMax + 1];
+        dAxs1 = new double[nMax + 1];
+        d2Axc0 = new double[nMax + 1];
+        d2Axs0 = new double[nMax + 1];
+        d3Axc0 = new double[nMax + 1];
+        d3Axs0 = new double[nMax + 1];
+        d2Axc1 = new double[nMax + 1];
+        d2Axs1 = new double[nMax + 1];
+        Ayc0 = new double[nMax + 1];
+        Ays0 = new double[nMax + 1];
+        dAyc0 = new double[nMax + 1];
+        dAys0 = new double[nMax + 1];
+        Ayc1 = new double[nMax + 1];
+        Ays1 = new double[nMax + 1];
+        dAyc1 = new double[nMax + 1];
+        dAys1 = new double[nMax + 1];
+        d2Ayc0 = new double[nMax + 1];
+        d2Ays0 = new double[nMax + 1];
+        d3Ayc0 = new double[nMax + 1];
+        d3Ays0 = new double[nMax + 1];
+        d2Ayc1 = new double[nMax + 1];
+        d2Ays1 = new double[nMax + 1];
+
+
     }
 
     public Vector torque() {
@@ -55,10 +92,6 @@ public class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible 
     public Vector force() {
         return force;
     }
-
-//    public Vector btForce() {
-//        return btForce;
-//    }
 
 
     public Vector vE() {
