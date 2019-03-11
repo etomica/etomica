@@ -302,8 +302,6 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
                 double phiii = bt * agentAtomI.phi.component(0, 0);
                 UEESelf += vExi * phiii * vExi + vEyi * phiii * vEyi;
                 //-2*vEi*fEi
-                //fExi = -bmu Sin[thetai]
-                //fEyi = bmu Cos[thetai]
                 IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
                 double fExi = -bmu * atom.getOrientation().getDirection().getX(1);
                 double fEyi = bmu * atom.getOrientation().getDirection().getX(0);
@@ -346,7 +344,6 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
     }
 
     public void getAns(IAtom atom) {
-//if(true )return;
         MoleculeAgent agentAtom = leafAgentManager.getAgent(atom);
         double bmu = bt * mu;
         double bmu2 = bmu * bmu;
@@ -363,6 +360,36 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
 
 
         for (int n = 0; n <= nMax; n++) {
+            if (n == 0) {
+                agentAtom.sinntheta[n] = 0;
+                agentAtom.cosntheta[n] = 1;
+            }
+
+            if (n == 1) {
+                agentAtom.sinntheta[n] = sint1;
+                agentAtom.cosntheta[n] = cost1;
+            }
+
+            if (n == 2) {
+                agentAtom.sinntheta[n] = sin2t1;
+                agentAtom.cosntheta[n] = cos2t1;
+            }
+
+            if (n == 3) {
+                agentAtom.sinntheta[n] = sin2t1 * cost1 + cos2t1 * sint1;
+                agentAtom.cosntheta[n] = cos2t1 * cost1 - sin2t1 * sint1;
+            }
+
+            if (n == 4) {
+                agentAtom.sinntheta[n] = sin2t1 * cos2t1 + cos2t1 * sin2t1;
+                agentAtom.cosntheta[n] = cos2t1 * cos2t1 - sin2t1 * sin2t1;
+            }
+
+            if (n == 5) {
+                agentAtom.sinntheta[n] = agentAtom.sinntheta[3] * cos2t1 + agentAtom.cosntheta[3] * sin2t1;
+                agentAtom.cosntheta[n] = agentAtom.cosntheta[3] * cos2t1 - agentAtom.sinntheta[3] * sin2t1;
+            }
+
 
             if (n == 0) {
                 agentAtom.Axc0[n] = bmu * (I0bJ + I1bJ) * (-1 + cost1);
@@ -398,6 +425,8 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
                 agentAtom.d3Ays0[n] = 0;
                 agentAtom.d2Ayc1[n] = 0.5 * bmu2 * (I0bJ + 2 * I1bJ + I2bJ) * cos2t1;
                 agentAtom.d2Ays1[n] = 0;
+
+
             }
 
 

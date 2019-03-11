@@ -23,11 +23,11 @@ public class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible 
     public final Vector vEx, vEEx, dvEx, dvEEx, d2vEx;
     public final Vector vEy, vEEy, dvEy, dvEEy, d2vEy;
 
-
     double[] Axc0, Axs0, dAxc0, dAxs0, Axc1, Axs1, dAxc1, dAxs1;
     double[] d2Axc0, d2Axs0, d3Axc0, d3Axs0, d2Axc1, d2Axs1;
     double[] Ayc0, Ays0, dAyc0, dAys0, Ayc1, Ays1, dAyc1, dAys1;
     double[] d2Ayc0, d2Ays0, d3Ayc0, d3Ays0, d2Ayc1, d2Ays1;
+    double[] sinntheta, cosntheta;
 
 
     public MoleculeAgent(int nMax) {
@@ -47,6 +47,10 @@ public class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible 
         dvEy = new Vector1D();
         dvEEy = new Vector1D();
         d2vEy = new Vector1D();
+
+
+        sinntheta = new double[nMax + 1];
+        cosntheta = new double[nMax + 1];
 
         Axc0 = new double[nMax + 1];
         Axs0 = new double[nMax + 1];
@@ -93,14 +97,6 @@ public class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible 
         return force;
     }
 
-
-    public Vector vE() {
-        return vE;
-    }
-
-    public Vector vEE() {
-        return vEE;
-    }
 
     public Vector vEx() {
         return vEx;

@@ -9,7 +9,6 @@ import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
 import etomica.space.Vector;
 
-import static etomica.math.SpecialFunctions.besselI;
 
 /**
  * Anx expressions for computing v_E and v_EE in the mapping.
@@ -21,17 +20,9 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
     //public class PotentialCalculationHeisenberg {
     protected AtomLeafAgentManager.AgentIterator leafAgentIterator;
     protected Vector ei, ej;
-    protected double AEEJ0, JEMUExIdeal, JEMUEyIdeal, JEMUEIdealSquare, JEEMJEJE, UEE, JEMUExSquare, JEMUEySquare, JEMUEx, JEMUEy, dipolex, dipoley, JEEMJEJExtrying, UEEnow, JEMUE, dipoleconv;
     protected final double mu, J, bt, bJ, bmu;
-    //    I0bJ, I1bJ, I2bJ;
-//    protected double[] Axc0, Axs0, dAxc0, dAxs0, Axc1, Axs1, dAxc1, dAxs1;
-//    protected double[] d2Axc0, d2Axs0, d3Axc0, d3Axs0, d2Axc1, d2Axs1;
-//    protected double[] Ayc0, Ays0, dAyc0, dAys0, Ayc1, Ays1, dAyc1, dAys1;
-//    protected double[] d2Ayc0, d2Ays0, d3Ayc0, d3Ays0, d2Ayc1, d2Ays1;
-//    protected double[] InbJArray, Inm1bJArray, Inm2bJArray, Inp1bJArray;
 
     protected int nMax;
-    protected int count = 1;
     protected AtomLeafAgentManager<MoleculeAgent> leafAgentManager;
 
     public PotentialCalculationMoleculeAgentSumMinusIdeal(Space space, double dipoleMagnitude, double interactionS, double beta, int nMax, AtomLeafAgentManager<MoleculeAgent> leafAgentManager) {
@@ -58,40 +49,16 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
         ei.E(atom1.getOrientation().getDirection());
         ej.E(atom2.getOrientation().getDirection());
-//        System.out.println(ei);
-//        double t1 = Math.atan2(ei.getX(1), ei.getX(0));
-//        double t2 = Math.atan2(ej.getX(1), ej.getX(0));
-
-
-        count += 1;
-//        System.out.println("(*" + count + "th term*)");
-        boolean debug = false;
-        if (debug) {
-//            System.out.println("theta1 = " + t1 + ";");
-//            System.out.println("theta2 = " + t2 + ";");
-        }
-
-        if (count > 20 && debug) System.exit(2);
-
-
-//        System.out.println("ei={" + ei.getX(0) + "," + ei.getX(1) + "};");
-//        System.out.println("ej={" + ej.getX(0) + "," + ej.getX(1) + "};");
-//        System.out.println("theta1 = " + t1 + ";");
-//        System.out.println("theta2 = " + t2 + ";");
-//        System.out.println("t1 = " + t1 + " c1=" + c1);
-//System.out.println("Acos eix = " + Math.acos(ei.getX(0)));
 
         double cost1 = ei.getX(0);
         double sint1 = ei.getX(1);
 
-//        double cos2t1 = 2 * cost1 * cost1 - 1;
-//        double sin2t1 = 2 * sint1 * cost1;
 
         MoleculeAgent agentAtom1 = leafAgentManager.getAgent(atom1);
         MoleculeAgent agentAtom2 = leafAgentManager.getAgent(atom2);
 
-         double pvx10, pvx20, dpvx10dt1, d2pvx20dt2dt2, pvx11, pvx21, dpvx11dt1,   dpvx21dt2, dpvx20dt2, d2pvx10dt1dt1, dpvx10dt2;
-         double pvy10, pvy20, dpvy10dt1,  d2pvy20dt2dt2, pvy11, pvy21, dpvy11dt1,  dpvy21dt2, dpvy20dt2, d2pvy10dt1dt1, dpvy10dt2;
+         double pvx10, pvx20, dpvx10dt1, d2pvx20dt2dt2, pvx11, pvx21, dpvx11dt1,   dpvx21dt2, dpvx20dt2, d2pvx10dt1dt1;
+         double pvy10, pvy20, dpvy10dt1,  d2pvy20dt2dt2, pvy11, pvy21, dpvy11dt1,  dpvy21dt2, dpvy20dt2, d2pvy10dt1dt1;
 
 
         double sint2 = ej.getX(1);
@@ -123,8 +90,6 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         pvy11 = 0;
         dpvx10dt1 = 0;
         dpvy10dt1 = 0;
-        dpvx10dt2 = 0;
-        dpvy10dt2 = 0;
         dpvx11dt1 = 0;
         dpvy11dt1 = 0;
         pvx20 = 0;
@@ -141,77 +106,44 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         d2pvy20dt2dt2 = 0;
 
 
-        double[] sinxt2 = new double[nMax+1];
-        double[] cosxt2 = new double[nMax+1];
-        if (nMax>=0) {
-            cosxt2[0] = 1;
-            if (nMax >= 1) {
-                sinxt2[1] = sint2;
-                cosxt2[1] = cost2;
-                if (nMax >= 2) {
-                    sinxt2[2] = 2 * sint2 * cost2;
-                    cosxt2[2] = 2 * cost2 * cost2 - 1;
-                    if (nMax >= 3) throw new RuntimeException("fix me");
-                }
-            }
-        }
         for (int n = 0; n <= nMax; n++) {
-            double sinnt2 = sinxt2[n];
-            double cosnt2 = cosxt2[n];
             double n2 = n * n;
+            pvx10 += agentAtom1.dAxs0[n] * agentAtom2.sinntheta[n] + agentAtom1.dAxc0[n] * agentAtom2.cosntheta[n];
+            pvy10 += agentAtom1.dAys0[n] * agentAtom2.sinntheta[n] + agentAtom1.dAyc0[n] * agentAtom2.cosntheta[n];
+
+            pvx11 += agentAtom1.dAxs1[n] * agentAtom2.sinntheta[n] + agentAtom1.dAxc1[n] * agentAtom2.cosntheta[n];
+            pvy11 += agentAtom1.dAys1[n] * agentAtom2.sinntheta[n] + agentAtom1.dAyc1[n] * agentAtom2.cosntheta[n];
 
 
-            pvx10 += agentAtom1.dAxs0[n] * sinnt2 + agentAtom1.dAxc0[n] * cosnt2;
-            pvy10 += agentAtom1.dAys0[n] * sinnt2 + agentAtom1.dAyc0[n] * cosnt2;
+            dpvx10dt1 += agentAtom1.d2Axs0[n] * agentAtom2.sinntheta[n] + agentAtom1.d2Axc0[n] * agentAtom2.cosntheta[n];
+            dpvy10dt1 += agentAtom1.d2Ays0[n] * agentAtom2.sinntheta[n] + agentAtom1.d2Ayc0[n] * agentAtom2.cosntheta[n];
 
-            pvx11 += agentAtom1.dAxs1[n] * sinnt2 + agentAtom1.dAxc1[n] * cosnt2;
-            pvy11 += agentAtom1.dAys1[n] * sinnt2 + agentAtom1.dAyc1[n] * cosnt2;
-
-
-            dpvx10dt1 += agentAtom1.d2Axs0[n] * sinnt2 + agentAtom1.d2Axc0[n] * cosnt2;
-            dpvy10dt1 += agentAtom1.d2Ays0[n] * sinnt2 + agentAtom1.d2Ayc0[n] * cosnt2;
-
-            d2pvx10dt1dt1 += agentAtom1.d3Axs0[n] * sinnt2 + agentAtom1.d3Axc0[n] * cosnt2;
-            d2pvy10dt1dt1 += agentAtom1.d3Ays0[n] * sinnt2 + agentAtom1.d3Ayc0[n] * cosnt2;
+            d2pvx10dt1dt1 += agentAtom1.d3Axs0[n] * agentAtom2.sinntheta[n] + agentAtom1.d3Axc0[n] * agentAtom2.cosntheta[n];
+            d2pvy10dt1dt1 += agentAtom1.d3Ays0[n] * agentAtom2.sinntheta[n] + agentAtom1.d3Ayc0[n] * agentAtom2.cosntheta[n];
 
 
-//            dpvx10dt2 += n * agentAtom1.dAxs0[n] * cosnt2 - n * agentAtom1.dAxc0[n] * sinnt2;
-//            dpvy10dt2 += n * agentAtom1.dAys0[n] * cosnt2 - n * agentAtom1.dAyc0[n] * sinnt2;
 
-//            d2pvx10dt1dt2 += n * agentAtom1.d2Axs0[n] * cosnt2 - n * agentAtom1.d2Axc0[n] * sinnt2;
-//            d2pvy10dt1dt2 += n * agentAtom1.d2Ays0[n] * cosnt2 - n * agentAtom1.d2Ayc0[n] * sinnt2;
+            dpvx11dt1 += agentAtom1.d2Axs1[n] * agentAtom2.sinntheta[n] + agentAtom1.d2Axc1[n] * agentAtom2.cosntheta[n];
+            dpvy11dt1 += agentAtom1.d2Ays1[n] * agentAtom2.sinntheta[n] + agentAtom1.d2Ayc1[n] * agentAtom2.cosntheta[n];
 
-
-            dpvx11dt1 += agentAtom1.d2Axs1[n] * sinnt2 + agentAtom1.d2Axc1[n] * cosnt2;
-            dpvy11dt1 += agentAtom1.d2Ays1[n] * sinnt2 + agentAtom1.d2Ayc1[n] * cosnt2;
-
-//            dpvx11dt2 += n * agentAtom1.dAxs1[n] * cosnt2 - n * agentAtom1.dAxc1[n] * sinnt2;
-//            dpvy11dt2 += n * agentAtom1.dAys1[n] * cosnt2 - n * agentAtom1.dAyc1[n] * sinnt2;
 
             if (n != 0) {
-                pvx20 += n * agentAtom1.Axs0[n] * cosnt2 - n * agentAtom1.Axc0[n] * sinnt2;
-                pvy20 += n * agentAtom1.Ays0[n] * cosnt2 - n * agentAtom1.Ayc0[n] * sinnt2;
+                pvx20 += n * agentAtom1.Axs0[n] * agentAtom2.cosntheta[n] - n * agentAtom1.Axc0[n] * agentAtom2.sinntheta[n];
+                pvy20 += n * agentAtom1.Ays0[n] * agentAtom2.cosntheta[n] - n * agentAtom1.Ayc0[n] * agentAtom2.sinntheta[n];
 
-                pvx21 += n * agentAtom1.Axs1[n] * cosnt2 - n * agentAtom1.Axc1[n] * sinnt2;
-                pvy21 += n * agentAtom1.Ays1[n] * cosnt2 - n * agentAtom1.Ayc1[n] * sinnt2;
+                pvx21 += n * agentAtom1.Axs1[n] * agentAtom2.cosntheta[n] - n * agentAtom1.Axc1[n] * agentAtom2.sinntheta[n];
+                pvy21 += n * agentAtom1.Ays1[n] * agentAtom2.cosntheta[n] - n * agentAtom1.Ayc1[n] * agentAtom2.sinntheta[n];
 
-//                dpvx20dt1 += n * agentAtom1.dAxs0[n] * cosnt2 - n * agentAtom1.dAxc0[n] * sinnt2;
-//                dpvy20dt1 += n * agentAtom1.dAys0[n] * cosnt2 - n * agentAtom1.dAyc0[n] * sinnt2;
 
-//                d2pvx20dt1dt2 += -n2 * agentAtom1.dAxs0[n] * sinnt2 - n2 * agentAtom1.dAxc0[n] * cosnt2;
-//                d2pvy20dt1dt2 += -n2 * agentAtom1.dAys0[n] * sinnt2 - n2 * agentAtom1.dAyc0[n] * cosnt2;
+                dpvx20dt2 += -n2 * agentAtom1.Axs0[n] * agentAtom2.sinntheta[n] - n2 * agentAtom1.Axc0[n] * agentAtom2.cosntheta[n];
+                dpvy20dt2 += -n2 * agentAtom1.Ays0[n] * agentAtom2.sinntheta[n] - n2 * agentAtom1.Ayc0[n] * agentAtom2.cosntheta[n];
 
-                dpvx20dt2 += -n2 * agentAtom1.Axs0[n] * sinnt2 - n2 * agentAtom1.Axc0[n] * cosnt2;
-                dpvy20dt2 += -n2 * agentAtom1.Ays0[n] * sinnt2 - n2 * agentAtom1.Ayc0[n] * cosnt2;
+                d2pvx20dt2dt2 += -n2 * n * agentAtom1.Axs0[n] * agentAtom2.cosntheta[n] + n2 * n * agentAtom1.Axc0[n] * agentAtom2.sinntheta[n];
+                d2pvy20dt2dt2 += -n2 * n * agentAtom1.Ays0[n] * agentAtom2.cosntheta[n] + n2 * n * agentAtom1.Ayc0[n] * agentAtom2.sinntheta[n];
 
-                d2pvx20dt2dt2 += -n2 * n * agentAtom1.Axs0[n] * cosnt2 + n2 * n * agentAtom1.Axc0[n] * sinnt2;
-                d2pvy20dt2dt2 += -n2 * n * agentAtom1.Ays0[n] * cosnt2 + n2 * n * agentAtom1.Ayc0[n] * sinnt2;
 
-//                dpvx21dt1 += n * agentAtom1.dAxs1[n] * cosnt2 - n * agentAtom1.dAxc1[n] * sinnt2;
-//                dpvy21dt1 += n * agentAtom1.dAys1[n] * cosnt2 - n * agentAtom1.dAyc1[n] * sinnt2;
-
-                dpvx21dt2 += -n2 * agentAtom1.Axs1[n] * sinnt2 - n2 * agentAtom1.Axc1[n] * cosnt2;
-                dpvy21dt2 += -n2 * agentAtom1.Ays1[n] * sinnt2 - n2 * agentAtom1.Ayc1[n] * cosnt2;
+                dpvx21dt2 += -n2 * agentAtom1.Axs1[n] * agentAtom2.sinntheta[n] - n2 * agentAtom1.Axc1[n] * agentAtom2.cosntheta[n];
+                dpvy21dt2 += -n2 * agentAtom1.Ays1[n] * agentAtom2.sinntheta[n] - n2 * agentAtom1.Ayc1[n] * agentAtom2.cosntheta[n];
             }
         }
 
@@ -277,20 +209,6 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
 
 
     public void zeroSum() {
-        JEEMJEJE = 0;
-        UEE = 0;
-        JEMUEx = 0;
-        JEMUExIdeal = 0;
-        JEMUE = 0;//not used
-        JEMUEy = 0;
-        JEMUEyIdeal = 0;
-        JEMUExSquare = 0;
-        JEMUEySquare = 0;
-        AEEJ0 = 0;
-        JEMUEIdealSquare = 0;
-
-//        phi.E(0);
-
         if (leafAgentIterator != null) {
             leafAgentIterator.reset();
             while (leafAgentIterator.hasNext()) {
@@ -309,12 +227,5 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         }
     }
 
-    public double getSumJEEMJEJE() {
-        return JEEMJEJE;
-    }
-
-    public double getSumUEE() {
-        return UEE;
-    }
 
 }
