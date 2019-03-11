@@ -438,8 +438,10 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
                 double Inm1bJ = Inm1bJArray[n];
                 double Inm2bJ = Inm2bJArray[n];
                 double Inp1bJ = Inp1bJArray[n];
-                double sinnt1 = Math.sin(n * t1);
-                double cosnt1 = Math.cos(n * t1);
+                double sinnt1 = agentAtom.sinntheta[n];
+                double cosnt1 = agentAtom.cosntheta[n];
+
+
                 double sinnm1t1 = sinnt1 * cost1 - cosnt1 * sint1;
                 double sinnp1t1 = sinnt1 * cost1 + cosnt1 * sint1;
                 double coshnt1 = Math.cosh(n * t1);

@@ -270,13 +270,13 @@ public class Heisenberg extends Simulation {
 
     // ******************* parameters **********************//
     public static class Param extends ParameterBase {
-        public boolean mSquare = true;
+        public boolean mSquare = false;
         public boolean aEE = true;
         public boolean doPair = false;
-        public boolean doIdeal = true;
+        public boolean doIdeal = false;
         public boolean doVSum = false;
         public boolean doVSumMI = true;
-        public double temperature = 5;//Kelvin
+        public double temperature = 1;//Kelvin
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
         public int nCells = 3;//number of atoms is nCells*nCells
