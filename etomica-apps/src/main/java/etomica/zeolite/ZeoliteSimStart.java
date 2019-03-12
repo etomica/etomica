@@ -69,9 +69,8 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	sp = sim.getSpeciesRMS();
         	System.out.println(filename);
         	//sim.integrator.setTimeStep(0.00);
-            MSDCoordWriter coordWriter = new MSDCoordWriter(sim.integrator, sim.box, filename, 100);
+            MSDCoordWriter coordWriter = new MSDCoordWriter(sim.integrator, sim.box, filename, interval);
             coordWriter.setIterator(new AtomIteratorLeafFilteredType(sim.box, sp.getLeafType()));
-            coordWriter.setWriteInterval(interval);
             System.out.println("created MSDCoordWriter");
         	
         }
