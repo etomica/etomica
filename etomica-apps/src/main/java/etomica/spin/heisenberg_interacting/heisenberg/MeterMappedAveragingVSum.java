@@ -50,7 +50,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
     protected PotentialCalculationHeisenberg Ans;
 
     public MeterMappedAveragingVSum(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster, boolean doIdeal, boolean doPair, boolean doVSum, boolean doVSumMI, int nMax) {
-        int nValues = 19;
+        int nValues = 21;
         data = new DataDoubleArray(nValues);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nValues});
         tag = new DataTag();
@@ -231,6 +231,8 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
             for (int i = 0; i < nM; i++) {
                 getAns(leafList.getAtom(i));
             }
+
+            tmp.E(0);
             vSumMinusIdeal.zeroSum();
             potentialMaster.calculate(box, allAtoms, vSumMinusIdeal);
 
@@ -240,6 +242,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
                 IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
 
                 dr.E(atom.getOrientation().getDirection());
+                tmp.PE(atom.getOrientation().getDirection());
 
                 double sinti = dr.getX(1);
                 double costi = dr.getX(0);
@@ -321,7 +324,8 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
             x[16] = UEESelf + vSumPairMinusIdeal.getSumUEE();
             x[17] = JEMUEx * JEMUEx;
             x[18] = JEMUEy * JEMUEy;
-
+            x[19] = mu * tmp.getX(0);
+            x[20] = mu * tmp.getX(1);
         }
         return data;
     }

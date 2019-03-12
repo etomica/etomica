@@ -243,7 +243,7 @@ public class Heisenberg extends Simulation {
         }
 
         if (doIdeal && !doPair) {//You need to uncomment this line if you make a jar
-        //TODO
+            //TODO
 //        if (doIdeal) {
             System.out.println("IdealMapping:\t" + (sumIdeal / numberMolecules)
                     + " Err:\t" + (errSumIdeal / numberMolecules) + " Cor:\t " + sumIdealCor
@@ -264,23 +264,73 @@ public class Heisenberg extends Simulation {
                     + " Err:\t" + (AEEERVSumMinusIdeal / numberMolecules) + " Cor:\t " + AEECorVSumMinusIdeal
                     + " Difficulty:\t" + (AEEERVSumMinusIdeal * Math.sqrt(totalTime) / nCells / nCells));
         }
+
+        double JEMUEx = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(13);
+
+        double JEMUExError = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(13);
+        double JEMUExCor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(13);
+
+        if (doVSumMI) {
+            System.out.println("JEMUEx:\t" + (JEMUEx / numberMolecules)
+                    + " Err:\t" + (JEMUExError / numberMolecules) + " Cor:\t " + JEMUExCor
+                    + " Difficulty:\t" + (JEMUExError * Math.sqrt(totalTime) / nCells / nCells));
+        }
+
+        double Mx = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(19);
+
+        double MxError = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(19);
+        double MxCor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(19);
+
+        if (doVSumMI) {
+            System.out.println("Mx:\t" + (Mx / numberMolecules)
+                    + " Err:\t" + (MxError / numberMolecules) + " Cor:\t " + MxCor
+                    + " Difficulty:\t" + (MxError * Math.sqrt(totalTime) / nCells / nCells));
+        }
+
+
+        double JEMUEy = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(14);
+
+        double JEMUEyError = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(14);
+        double JEMUEyCor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(14);
+
+        if (doVSumMI) {
+            System.out.println("JEMUEy:\t" + (JEMUEy / numberMolecules)
+                    + " Err:\t" + (JEMUEyError / numberMolecules) + " Cor:\t " + JEMUEyCor
+                    + " Difficulty:\t" + (JEMUEyError * Math.sqrt(totalTime) / nCells / nCells));
+        }
+
+
+
+
+        double My = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(20);
+
+        double MyError = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(20);
+        double MyCor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(20);
+
+        if (doVSumMI) {
+            System.out.println("My:\t" + (My / numberMolecules)
+                    + " Err:\t" + (MyError / numberMolecules) + " Cor:\t " + MyCor
+                    + " Difficulty:\t" + (MyError * Math.sqrt(totalTime) / nCells / nCells));
+        }
+
+
         endTime = System.currentTimeMillis();
         System.out.println("Total_Time: " + (endTime - startTime) / (1000.0 * 60.0));
     }
 
     // ******************* parameters **********************//
     public static class Param extends ParameterBase {
-        public boolean mSquare = false;
+        public boolean mSquare = true;
         public boolean aEE = true;
         public boolean doPair = false;
-        public boolean doIdeal = false;
+        public boolean doIdeal = true;
         public boolean doVSum = false;
         public boolean doVSumMI = true;
-        public double temperature = 1;//Kelvin
+        public double temperature = 0.1;//Kelvin
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
         public int nCells = 3;//number of atoms is nCells*nCells
-        public int steps = 5000;
+        public int steps = 500000;
         public int nMax = 1;
     }
 }
