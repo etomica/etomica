@@ -4,40 +4,35 @@
 
 package etomica.spin.heisenberg_interacting.heisenberg;
 
-import etomica.action.IAction;
-import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
+import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
-import etomica.box.BoxAgentManager;
-import etomica.box.BoxCellManager;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.*;
+import etomica.config.ConfigurationLattice;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCovariance;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataPump;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
-import etomica.graphics.*;
+import etomica.graphics.DisplayBoxCanvas2D;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotate;
+import etomica.lattice.LatticeCubicSimple;
 import etomica.listener.IntegratorListenerAction;
-import etomica.nbr.site.Api1ASite;
-import etomica.nbr.site.NeighborSiteManager;
 import etomica.nbr.site.PotentialMasterSite;
-import etomica.potential.IPotentialAtomic;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculation;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
+import etomica.space2d.Vector2D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.units.systems.LJ;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomNumberGenerator;
 
+import java.awt.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -85,6 +80,9 @@ public class Heisenberg extends Simulation {
 
         addSpecies(spins);
         box.setNMolecules(spins, numAtoms);
+        box.getBoundary().setBoxSize(new Vector2D(nCells, nCells));
+        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(space, 1), space);
+        config.initializeCoordinates(box);
 
         potential = new P2Spin(space, interactionS);
         // the electric field is zero for now, maybe need to add electric field in the future.
@@ -135,6 +133,15 @@ public class Heisenberg extends Simulation {
 
         Space sp = Space2D.getInstance();
         Heisenberg sim = new Heisenberg(sp, nCells, temperature, interactionS, dipoleMagnitude);
+
+        if (false) {
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "XY", numberMolecules, sim.space, sim.getController());
+            ((DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.getSpecies(0).getAtomType(0), 0.4);
+            ((DisplayBoxCanvas2D) simGraphic.getDisplayBox(sim.box).canvas).setOrientationColor(Color.BLUE);
+            ((DisplayBoxCanvas2D) simGraphic.getDisplayBox(sim.box).canvas).setOrientationLength(2.5);
+            simGraphic.makeAndDisplayFrame();
+            return;
+        }
 
         MeterSpinMSquare meterMSquare = null;
         AccumulatorAverage dipoleSumSquaredAccumulator = null;
