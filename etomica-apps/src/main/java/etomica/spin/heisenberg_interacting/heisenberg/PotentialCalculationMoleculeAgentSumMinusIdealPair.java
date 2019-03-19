@@ -19,7 +19,7 @@ import etomica.space.Vector;
 public class PotentialCalculationMoleculeAgentSumMinusIdealPair implements PotentialCalculation {
     protected AtomLeafAgentManager.AgentIterator leafAgentIterator;
     protected Vector ei, ej;
-    protected double  JEEMJEJE, UEE;
+    protected double JEEMJEJE, UEE, U_Map, U_Con;
     protected final double mu, J, bt, bJ, bmu;
 
 
@@ -60,14 +60,12 @@ public class PotentialCalculationMoleculeAgentSumMinusIdealPair implements Poten
         MoleculeAgent agentAtom2 = leafAgentManager.getAgent(atom2);
 
 
-
         double cost1 = ei.getX(0);
         double sint1 = ei.getX(1);
         double sint2 = ej.getX(1);
         double cost2 = ej.getX(0);
         double cost1mt2 = cost1 * cost2 + sint1 * sint2;
         double sint1mt2 = sint1 * cost2 - cost1 * sint2;
-
 
 
         double p0 = Math.exp(bJ * cost1mt2);
@@ -105,7 +103,7 @@ public class PotentialCalculationMoleculeAgentSumMinusIdealPair implements Poten
 
 
         for (int n = 0; n <= nMax; n++) {
-             double n2 = n * n;
+            double n2 = n * n;
 
 
             pvx10 += agentAtom1.dAxs0[n] * agentAtom2.sinntheta[n] + agentAtom1.dAxc0[n] * agentAtom2.cosntheta[n];
@@ -138,7 +136,6 @@ public class PotentialCalculationMoleculeAgentSumMinusIdealPair implements Poten
                 dpvy20dt2 += -n2 * agentAtom1.Ays0[n] * agentAtom2.sinntheta[n] - n2 * agentAtom1.Ayc0[n] * agentAtom2.cosntheta[n];
             }
         }
-
 
 
         double dvEx1dt2 = dpvx10dt2 / px0 + pvx10 * dRpx0dt2;
@@ -177,12 +174,18 @@ public class PotentialCalculationMoleculeAgentSumMinusIdealPair implements Poten
         UEE += 2 * vEx1 * p12 * vEx2;
         UEE += 2 * vEy1 * p12 * vEy2;
 
+        U_Map += 0.5 * J * (f1-f2) * sint1mt2;
+
+        U_Con += -J * cost1mt2;
+
     }
 
 
     public void zeroSum() {
         JEEMJEJE = 0;
         UEE = 0;
+        U_Map = 0;
+        U_Con = 0;
     }
 
     public double getSumJEEMJEJE() {
@@ -191,6 +194,14 @@ public class PotentialCalculationMoleculeAgentSumMinusIdealPair implements Poten
 
     public double getSumUEE() {
         return UEE;
+    }
+
+    public double getSumU_Map() {
+        return U_Map;
+    }
+
+    public double getSumU_Con() {
+        return U_Con;
     }
 
 }
