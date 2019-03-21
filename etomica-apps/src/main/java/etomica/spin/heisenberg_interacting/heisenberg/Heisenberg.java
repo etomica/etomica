@@ -14,6 +14,7 @@ import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
+import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayBoxCanvas2D;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -29,7 +30,6 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomNumberGenerator;
 
 import java.awt.*;
 import java.text.DateFormat;
@@ -89,6 +89,8 @@ public class Heisenberg extends Simulation {
         integrator = new IntegratorMC(this, potentialMaster);
         mcMove = new MCMoveRotate(potentialMaster, random, space);
         integrator.getMoveManager().addMCMove(mcMove);
+        MCMoveSpinCluster spinMove = new MCMoveSpinCluster(space, random, potentialMaster, integrator, interactionS);
+        integrator.getMoveManager().addMCMove(spinMove);
         integrator.setTemperature(temperature);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
@@ -135,11 +137,24 @@ public class Heisenberg extends Simulation {
         Space sp = Space2D.getInstance();
         Heisenberg sim = new Heisenberg(sp, nCells, temperature, interactionS, dipoleMagnitude);
 
-        if (false) {
+        if (true) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "XY", numberMolecules, sim.space, sim.getController());
-            ((DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.getSpecies(0).getAtomType(0), 0.4);
+            ((DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.getSpecies(0).getAtomType(0), 0.2);
             ((DisplayBoxCanvas2D) simGraphic.getDisplayBox(sim.box).canvas).setOrientationColor(Color.BLUE);
-            ((DisplayBoxCanvas2D) simGraphic.getDisplayBox(sim.box).canvas).setOrientationLength(2.5);
+            ((DisplayBoxCanvas2D) simGraphic.getDisplayBox(sim.box).canvas).setOrientationLength(5);
+
+            DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integrator, "temperature");
+            temperatureSlider.setLabel("Temperature");
+            temperatureSlider.setShowBorder(true);
+            temperatureSlider.setMinimum(0);
+            temperatureSlider.setMaximum(10);
+            temperatureSlider.setPrecision(1);
+            temperatureSlider.setNMajor(5);
+            temperatureSlider.setNMinor(2);
+            temperatureSlider.setShowValues(true);
+            temperatureSlider.setEditValues(true);
+            simGraphic.add(temperatureSlider);
+
             simGraphic.makeAndDisplayFrame();
             return;
         }
@@ -441,11 +456,11 @@ public class Heisenberg extends Simulation {
 
         public boolean doConventionalE = true;
         public boolean doMappingE = true;
-        public double temperature = 1;//Kelvin
+        public double temperature = 0.8;//Kelvin
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
-        public int nCells = 3;//number of atoms is nCells*nCells
-        public int steps = 5000;
+        public int nCells = 50;//number of atoms is nCells*nCells
+        public int steps = 50000;
         public int nMax = 1;
     }
 }
