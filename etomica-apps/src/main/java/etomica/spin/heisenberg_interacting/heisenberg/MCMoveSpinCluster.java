@@ -16,9 +16,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 /**
  * Cluster move as described by Wolff in PRL v62 361 (1989)
@@ -27,8 +25,6 @@ public class MCMoveSpinCluster extends MCMoveBox {
 
     protected final Space space;
     protected final IRandom random;
-    protected final List<Vector> oldSpins;
-    protected final List<IAtom> movedAtoms;
     protected final HashSet<IAtom> clusterAtoms, jNeighbors;
     protected final Vector reflectionVector;
     protected final AtomArrayList atomPairs;
@@ -41,8 +37,6 @@ public class MCMoveSpinCluster extends MCMoveBox {
         super(potentialMaster);
         this.space = space;
         this.random = random;
-        oldSpins = new ArrayList<>();
-        movedAtoms = new ArrayList<>();
         clusterAtoms = new HashSet<>();
         jNeighbors = new HashSet<>();
         reflectionVector = space.makeVector();
