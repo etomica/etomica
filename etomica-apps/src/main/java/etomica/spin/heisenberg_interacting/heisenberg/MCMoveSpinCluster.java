@@ -43,6 +43,7 @@ public class MCMoveSpinCluster extends MCMoveBox {
         atomPairs = new AtomArrayList();
         this.integratorMC = integratorMC;
         neighbors = new Api1ASite(space.D(), potentialMaster.getCellAgentManager());
+        neighbors.setDirection(null);
         this.J = J;
         atomIterator = new AtomIteratorArrayListSimple();
     }
