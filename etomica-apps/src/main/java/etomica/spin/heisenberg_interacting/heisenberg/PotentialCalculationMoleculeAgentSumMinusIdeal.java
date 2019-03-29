@@ -57,8 +57,8 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         MoleculeAgent agentAtom1 = leafAgentManager.getAgent(atom1);
         MoleculeAgent agentAtom2 = leafAgentManager.getAgent(atom2);
 
-         double pvx10, pvx20, dpvx10dt1, d2pvx20dt2dt2, pvx11, pvx21, dpvx11dt1,   dpvx21dt2, dpvx20dt2, d2pvx10dt1dt1;
-         double pvy10, pvy20, dpvy10dt1,  d2pvy20dt2dt2, pvy11, pvy21, dpvy11dt1,  dpvy21dt2, dpvy20dt2, d2pvy10dt1dt1;
+        double pvx10, pvx20, dpvx10dt1, d2pvx20dt2dt2, pvx11, pvx21, dpvx11dt1, dpvx21dt2, dpvx20dt2, d2pvx10dt1dt1;
+        double pvy10, pvy20, dpvy10dt1, d2pvy20dt2dt2, pvy11, pvy21, dpvy11dt1, dpvy21dt2, dpvy20dt2, d2pvy10dt1dt1;
 
 
         double sint2 = ej.getX(1);
@@ -122,7 +122,6 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
             d2pvy10dt1dt1 += agentAtom1.d3Ays0[n] * agentAtom2.sinntheta[n] + agentAtom1.d3Ayc0[n] * agentAtom2.cosntheta[n];
 
 
-
             dpvx11dt1 += agentAtom1.d2Axs1[n] * agentAtom2.sinntheta[n] + agentAtom1.d2Axc1[n] * agentAtom2.cosntheta[n];
             dpvy11dt1 += agentAtom1.d2Ays1[n] * agentAtom2.sinntheta[n] + agentAtom1.d2Ayc1[n] * agentAtom2.cosntheta[n];
 
@@ -153,17 +152,14 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         double vEy2 = pvy20 / p0;
 
 
-
         double vEEx1 = pvx11 / p0 - px1 * vEx1 / p0;
         double vEEx2 = pvx21 / p0 - px1 * vEx2 / p0;
         double vEEy1 = pvy11 / p0 - py1 * vEy1 / p0;
         double vEEy2 = pvy21 / p0 - py1 * vEy2 / p0;
 
 
-
         double dvEx1dt1 = dpvx10dt1 / px0 + pvx10 * dRpx0dt1;
         double dvEy1dt1 = dpvy10dt1 / py0 + pvy10 * dRpy0dt1;
-
 
 
         double dvEEx1dt1 = dpvx11dt1 / px0 + pvx11 * dRpx0dt1 - dvEx1dt1 * px1 / px0 - vEx1 * dpx1Rpx0dt1;
@@ -184,7 +180,6 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         agentAtom1.d2vEy().PE(d2vEy1dt1dt1);
 
 
-
         double dvEx2dt2 = dpvx20dt2 / px0 + pvx20 * dRpx0dt2;
         double dvEy2dt2 = dpvy20dt2 / py0 + pvy20 * dRpy0dt2;
 
@@ -192,7 +187,6 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         double dvEEy2dt2 = dpvy21dt2 / py0 + pvy21 * dRpy0dt2 - (dvEy2dt2 * py1 / py0 + vEy2 * dpy1Rpy0dt2);
         double d2vEx2dt2dt2 = d2pvx20dt2dt2 / px0 + dpvx20dt2 * dRpx0dt2 + dpvx20dt2 * dRpx0dt2 + pvx20 * d2Rpx0dt2dt2;
         double d2vEy2dt2dt2 = d2pvy20dt2dt2 / py0 + dpvy20dt2 * dRpy0dt2 + dpvy20dt2 * dRpy0dt2 + pvy20 * d2Rpy0dt2dt2;
-
 
 
         agentAtom2.vEx().PE(vEx2);
@@ -213,16 +207,7 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
             leafAgentIterator.reset();
             while (leafAgentIterator.hasNext()) {
                 MoleculeAgent agent = (MoleculeAgent) leafAgentIterator.next();
-                agent.vEx().E(0);
-                agent.vEy().E(0);
-                agent.vEEx().E(0);
-                agent.vEEy().E(0);
-                agent.dvEx().E(0);
-                agent.dvEy().E(0);
-                agent.dvEEx().E(0);
-                agent.dvEEy().E(0);
-                agent.d2vEx().E(0);
-                agent.d2vEy().E(0);
+                agent.zeroSum();
             }
         }
     }

@@ -48,9 +48,9 @@ public class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible 
         dvEEy = new Vector1D();
         d2vEy = new Vector1D();
 
-
         sinntheta = new double[nMax + 1];
         cosntheta = new double[nMax + 1];
+
 
         Axc0 = new double[nMax + 1];
         Axs0 = new double[nMax + 1];
@@ -87,6 +87,7 @@ public class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible 
     public Vector torque() {
         return torque;
     }
+
 
     public Tensor phi() {
         return phi;
@@ -136,6 +137,20 @@ public class MoleculeAgent implements Integrator.Torquable, Integrator.Forcible 
 
     public Vector d2vEy() {
         return d2vEy;
+    }
+
+    public void zeroSum() {
+
+        vEx().E(0);
+        vEy().E(0);
+        vEEx().E(0);
+        vEEy().E(0);
+        dvEx().E(0);
+        dvEy().E(0);
+        dvEEx().E(0);
+        dvEEy().E(0);
+        d2vEx().E(0);
+        d2vEy().E(0);
     }
 
 
