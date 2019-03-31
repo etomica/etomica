@@ -115,6 +115,7 @@ public class VirialLJD {
             targetDiagrams[m-1]= new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes(targetCluster,m);
         }
         sim.setExtraTargetClusters(targetDiagrams);
+        targetCluster.setBDAccFrac(params.BDAccFrac, sim.getRandom());
         sim.init();
 
         if (doChainRef) {
@@ -173,12 +174,11 @@ public class VirialLJD {
         // if running interactively, don't use the file
         String refFileName = params.writeRefPref ? "refpref"+nPoints+"_"+temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
-        //sim.setRefPref(1.0082398078547523);
         sim.initRefPref(refFileName, (steps / subSteps) / 20);
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, (steps / subSteps) / 10);
-        
+
         System.out.println("equilibration finished");
         
         if (refFrac >= 0) {
@@ -290,5 +290,6 @@ public class VirialLJD {
         public boolean doHist = false;
         public boolean doChainRef = true;
         public long blockSize = 0;
+        public double BDAccFrac = 0.1;
     }
 }
