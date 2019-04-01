@@ -264,7 +264,7 @@ public class Heisenberg extends Simulation {
 
     // ******************* parameters **********************//
     public static class Param extends ParameterBase {
-        public boolean isGraphic = false;
+        public boolean isGraphic = true;
         public boolean mSquare = true;
         public boolean aEE = true;
         public double temperature = 5;// Kelvin

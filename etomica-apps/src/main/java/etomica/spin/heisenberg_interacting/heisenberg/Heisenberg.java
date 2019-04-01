@@ -134,7 +134,7 @@ public class Heisenberg extends Simulation {
         double dipoleMagnitude = params.dipoleMagnitude;
 
         System.out.println("numberMolecules= " + numberMolecules + " steps= " + steps + " nMax= " + nMax
-                + " \ntemperature= " + temperature + " interacitonS= " + interactionS + " dipoleStrength= " + dipoleMagnitude);
+                + " \ntemperature= " + temperature + " interactionS= " + interactionS + " dipoleStrength= " + dipoleMagnitude);
 
         Space sp = Space2D.getInstance();
         Heisenberg sim = new Heisenberg(sp, nCells, temperature, interactionS, dipoleMagnitude);
@@ -252,10 +252,14 @@ public class Heisenberg extends Simulation {
             System.out.println("CV0Err:\t" + CV0Err +  " CV1Err:\t"+ CV1Err);
 
             IData covariance = ((DataGroup) CVAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-            CV = CV0 + CV1 * CV1;
-            CVErr = Math.sqrt(CV1Err * CV1Err
-                    + 4 * CV0 * CV0 * CV0Err * CV0Err
-                    + 4 * CV1Err * CV0 * CV0Err * covariance.getValue(0 * 2 + 1) / Math.sqrt(covariance.getValue(0 * 2 + 0) * covariance.getValue(1 * 2 + 1))
+            CV = CV0 - CV1 * CV1;
+//            CVErr = Math.sqrt(CV1Err * CV1Err
+//                    + 4 * CV0 * CV0 * CV0Err * CV0Err
+//                    + 4 * CV1Err * CV0 * CV0Err * covariance.getValue(0 * 2 + 1) / Math.sqrt(covariance.getValue(0 * 2 + 0) * covariance.getValue(1 * 2 + 1))
+//            );
+            CVErr = Math.sqrt(4 * CV1 * CV1 * CV1Err * CV1Err
+                    + CV0Err * CV0Err
+                    - 4 * CV1 * CV0Err * CV1Err * covariance.getValue(0 * 2 + 1)/ Math.sqrt(covariance.getValue(0 * 2 + 0) * covariance.getValue(1 * 2 + 1))
             );
         }
 
@@ -494,11 +498,11 @@ public class Heisenberg extends Simulation {
         public boolean doMappingE = false;
         public boolean doCV = true;
         public boolean doGraphic = false;
-        public double temperature = 1/0.82;//Kelvin
+        public double temperature = 1/0.7;
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
-        public int nCells = 5;//number of atoms is nCells*nCells
-        public int steps = 500000;
+        public int nCells = 10;//number of atoms is nCells*nCells
+        public int steps = 50000000;
         public int nMax = 1;
     }
 }

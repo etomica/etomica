@@ -63,12 +63,10 @@ public class MeterMappedAveragingCV implements IDataSource {
     public IData getData() {
         double[] x = data.getData();
         IAtomList leafList = box.getLeafList();
-        int nM = leafList.getAtomCount();
+        double term1 = 0, term2 = 0, term2a = 0, term2b = 0, term2c = 0, term2d = 0, term3a = 0, term3b = 0, term4a = 0, term4b= 0, term5 = 0;
 
-
-
-
-        for (int i = 0; i < nM; i++) {
+        //compute neighbor sums
+        for (int i = 0; i < N; i++) {
             double costi = ((IAtomOriented) leafList.getAtom(i)).getOrientation().getDirection().getX(0);
             double sinti = ((IAtomOriented) leafList.getAtom(i)).getOrientation().getDirection().getX(1);
 
@@ -76,16 +74,21 @@ public class MeterMappedAveragingCV implements IDataSource {
             costiMtj1[i] = 0;
             sin2tiMtj1[i] = 0;
             sin2tiMtjtk1[i] = 0;
+            sintiMtj2[i] = 0;
+            sintiMtj3[i] = 0;
+
             getNeighbors(i);
+
+            //1st-neighbor loop
             for (int j = 0; j < 4; j++) {
                 double costj = ((IAtomOriented) leafList.getAtom(nbrs[0][j])).getOrientation().getDirection().getX(0);
                 double sintj = ((IAtomOriented) leafList.getAtom(nbrs[0][j])).getOrientation().getDirection().getX(1);
 
-                double s = sinti * costj - costi * sintj;
-                double c = costi * costj + sinti * sintj;
+                double s = sinti * costj - costi * sintj;//sin(ti-tj)
+                double c = costi * costj + sinti * sintj;//cos(ti-tj)
                 sintiMtj1[i] += s;
                 costiMtj1[i] += c;
-                sin2tiMtj1[i] += 2 * s * c;
+                sin2tiMtj1[i] += 2 * s * c;//sin(2(ti-tj))
 
                 for (int k = 0; k < j; k++) {
                     double costk = ((IAtomOriented) leafList.getAtom(nbrs[0][k])).getOrientation().getDirection().getX(0);
@@ -96,61 +99,80 @@ public class MeterMappedAveragingCV implements IDataSource {
                     double costjPtk = costj * costk - sintj * sintk;
                     double sintjPtk = sintj * costk + costj * sintk;
                     sin2tiMtjtk1[i] += 2 * sinti * costi * costjPtk - (2 * costi * costi - 1) * sintjPtk;
-
-
                 }
-
-
             }
 
+            //2nd-neighbor loop
             for (int j2 = 0; j2 < 4; j2++) {
                 double costj2 = ((IAtomOriented) leafList.getAtom(nbrs[1][j2])).getOrientation().getDirection().getX(0);
                 double sintj2 = ((IAtomOriented) leafList.getAtom(nbrs[1][j2])).getOrientation().getDirection().getX(1);
                 sintiMtj2[i] += sinti * costj2 - costi * sintj2;
             }
 
-
+            //3rd-neighbor loop
             for (int j3 = 0; j3 < 4; j3++) {
                 double costj3 = ((IAtomOriented) leafList.getAtom(nbrs[2][j3])).getOrientation().getDirection().getX(0);
                 double sintj3 = ((IAtomOriented) leafList.getAtom(nbrs[2][j3])).getOrientation().getDirection().getX(1);
                 sintiMtj3[i] += sinti * costj3 - costi * sintj3;
             }
-
         }
+
         double sumOverI = 0;
         double sumVar = 0;
         for (int i = 0; i < N; i++) {
             double costi = ((IAtomOriented) leafList.getAtom(i)).getOrientation().getDirection().getX(0);
             double sinti = ((IAtomOriented) leafList.getAtom(i)).getOrientation().getDirection().getX(1);
 
+            getNeighbors(i);
 
             double sum = 0;
-            getNeighbors(i);
             for (int j = 0; j < 4; j++) {
                 double costj = ((IAtomOriented) leafList.getAtom(nbrs[0][j])).getOrientation().getDirection().getX(0);
                 double sintj = ((IAtomOriented) leafList.getAtom(nbrs[0][j])).getOrientation().getDirection().getX(1);
                 sum += (costi * costj + sinti * sintj) * sintiMtj1[nbrs[0][j]];
-
-                sum += sintiMtj1[nbrs[0][j]] * (costi * costj + sinti * sintj);
             }
-//            sum += costiMtj1[i] * sintiMtj1[i];//phii
-//            sum -= sintiMtj1[i] * costiMtj1[i]; // come from a different line, cancel with phii
-            sum *= bJ * bJ * bJ * 0.25 * sintiMtj1[i];
+//            term3a += 0.25*sintiMtj1[i]*sum;
+//            term3b += -0.25*sintiMtj1[i]*sintiMtj1[i]*costiMtj1[i];
 
+            sum += -costiMtj1[i] * sintiMtj1[i];
+            sum *= bJ * bJ * bJ * 0.25 * sintiMtj1[i]; //multiply by -(bJ^3)/4 (fi/J)
+            sum *= 2; //phi contribution is the same, so add it in by doubling
 
             double tbb = 0.125 * (sin2tiMtj1[i] + 2 * sin2tiMtjtk1[i] - 4 * sintiMtj2[i] - 2 * sintiMtj3[i]);
-            sum -= bJ * bJ * bJ * sintiMtj1[i] * tbb;
-            sum += bJ * bJ * (1 - sintiMtj1[i] * sintiMtj1[i]);
 
-            sum += bJ*bJ*sintiMtj1[i]*sintiMtj1[i];
+//            term1 += -sintiMtj1[i]*sintiMtj1[i];
+//            term2 += -sintiMtj1[i] * tbb;
+//            term2a += -0.125 * sintiMtj1[i] * sin2tiMtj1[i];
+//            term2b += -0.125 * sintiMtj1[i] * 2 * sin2tiMtjtk1[i];
+//            term2c += -0.125 * sintiMtj1[i] * (-4) * sintiMtj2[i];
+//            term2d += -0.125 * sintiMtj1[i] * (-2) * sintiMtj3[i];
+//            term5 += sintiMtj1[i]*sintiMtj1[i];
+
+            sum += -bJ * bJ * bJ * sintiMtj1[i] * tbb;
+            //sum += bJ * bJ * (1 - sintiMtj1[i] * sintiMtj1[i]);
+            sum += bJ * bJ * (1);
+
             sumOverI += sum;
 
             sumVar += sintiMtj1[i]*sintiMtj1[i];
 
         }
 
-        x[0] = sumOverI-0.25*bJ*bJ*sumVar*sumVar;
-        x[1] = 0.5*bJ*sumVar;
+//        double value = N + term1 + term2 + 2*(term3a + term3b) + term5;
+
+//        if(100000 * Math.random() < 2) {
+//            System.out.println(sumOverI+" "+value);
+//            for(int i=0; i<N; i++) {
+//                double xx = ((IAtomOriented) leafList.getAtom(i)).getOrientation().getDirection().getX(0);
+//                double yy = ((IAtomOriented) leafList.getAtom(i)).getOrientation().getDirection().getX(1);
+//                double theta = Math.atan2(yy, xx);
+//                System.out.println("t["+(i+1)+"] = "+theta+";");
+//            }
+//            System.out.println(term1+" "+term2+" {"+term2a+" "+term2b+" "+term2c+" "+term2d+"} "+term3a+" "+term3b+" "+term5);
+//        }
+
+        x[0] = sumOverI+0.25*bJ*bJ*sumVar*sumVar;
+        x[1] = -0.5*bJ*sumVar;
 
         return data;
     }
