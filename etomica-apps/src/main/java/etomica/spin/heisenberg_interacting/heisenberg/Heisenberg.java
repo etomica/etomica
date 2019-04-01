@@ -134,7 +134,7 @@ public class Heisenberg extends Simulation {
         double dipoleMagnitude = params.dipoleMagnitude;
 
         System.out.println("numberMolecules= " + numberMolecules + " steps= " + steps + " nMax= " + nMax
-                + " \ntemperature= " + temperature + " interactionS= " + interactionS + " dipoleStrength= " + dipoleMagnitude);
+                + " \ntemperature= " + temperature + " interacitonS= " + interactionS + " dipoleStrength= " + dipoleMagnitude);
 
         Space sp = Space2D.getInstance();
         Heisenberg sim = new Heisenberg(sp, nCells, temperature, interactionS, dipoleMagnitude);
@@ -167,9 +167,9 @@ public class Heisenberg extends Simulation {
         sim.getController().reset();
         int blockNumber = 100;
 
-        //        System.out.println("equilibration finished");
+        System.out.println("equilibration finished");
         long equilibrationTime = System.currentTimeMillis();
-//        System.out.println("equilibrationTime: " + (equilibrationTime - startTime) / (1000.0 * 60.0));
+        System.out.println("equilibrationTime: " + (equilibrationTime - startTime) / (1000.0 * 60.0));
 
         int sampleAtInterval = numberMolecules;
         int samplePerBlock = steps / sampleAtInterval / blockNumber;
@@ -233,7 +233,8 @@ public class Heisenberg extends Simulation {
 
         sim.activityIntegrate.setMaxSteps(steps);
         sim.getController().actionPerformed();
-
+        long endTime = System.currentTimeMillis();
+        double totalTime = (endTime - startTime) / (1000.0 * 60.0);
 
         //******************************** simulation start ******************************** //
         double CV = 0;
@@ -249,14 +250,10 @@ public class Heisenberg extends Simulation {
             double CV1Err = ((DataGroup) CVAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
             double CV1Cor = ((DataGroup) CVAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(1);
 
-            System.out.println("CV0Err:\t" + CV0Err +  " CV1Err:\t"+ CV1Err);
+            System.out.println("CV0Err:\t" + CV0Err + " CV1Err:\t" + CV1Err);
 
             IData covariance = ((DataGroup) CVAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-            CV = CV0 - CV1 * CV1;
-//            CVErr = Math.sqrt(CV1Err * CV1Err
-//                    + 4 * CV0 * CV0 * CV0Err * CV0Err
-//                    + 4 * CV1Err * CV0 * CV0Err * covariance.getValue(0 * 2 + 1) / Math.sqrt(covariance.getValue(0 * 2 + 0) * covariance.getValue(1 * 2 + 1))
-//            );
+            CV = CV0 + CV1 * CV1;
             CVErr = Math.sqrt(4 * CV1 * CV1 * CV1Err * CV1Err
                     + CV0Err * CV0Err
                     - 4 * CV1 * CV0Err * CV1Err * covariance.getValue(0 * 2 + 1)/ Math.sqrt(covariance.getValue(0 * 2 + 0) * covariance.getValue(1 * 2 + 1))
@@ -264,179 +261,138 @@ public class Heisenberg extends Simulation {
         }
 
 
-        System.out.println("CV:\t" + CV + " CVErr:\t" + CVErr );
+        System.out.println("CV:\t" + CV + " CVErr:\t" + CVErr);
 
 
-
-
-        double dipoleSumSquared = 0;
-        double dipoleSumSquaredERR = 0;
-        double dipoleSumCor = 0;
         if (mSquare) {
+            double dipoleSumSquared = 0;
+            double dipoleSumSquaredERR = 0;
+            double dipoleSumCor = 0;
             dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
             dipoleSumSquaredERR = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x;
             dipoleSumCor = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index)).x;
-        }
-
-
-        double AEE = 0;
-        double AEEER = 0;
-        double AEECor = 0;
-        if (aEE) {
-            AEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
-            AEEER = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
-            AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
-
-        }
-        long endTime = System.currentTimeMillis();
-
-        double totalTime = (endTime - startTime) / (1000.0 * 60.0);
-
-        double sumIdeal = 0;
-        double errSumIdeal = 0;
-        double sumIdealCor = 0;
-        if (doIdeal) {
-            sumIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
-            errSumIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
-            sumIdealCor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(1);
-        }
-
-
-        double AEEVSum = 0;
-        double AEEERVSum = 0;
-        double AEECorVSum = 0;
-        if (doVSum) {
-            AEEVSum = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(5);
-            AEEERVSum = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(5);
-            AEECorVSum = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(5);
-        }
-
-        double AEEVSumMinusIdeal = 0;
-        double AEEERVSumMinusIdeal = 0;
-        double AEECorVSumMinusIdeal = 0;
-        if (doVSumMI) {
-            AEEVSumMinusIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(12);
-            AEEERVSumMinusIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(12);
-            AEECorVSumMinusIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(12);
-        }
-        if (mSquare) {
             System.out.println("Conventional:\t" + (-dipoleSumSquared / temperature / temperature / numberMolecules)
                     + " Err:\t" + (dipoleSumSquaredERR / temperature / temperature / numberMolecules) + " Cor:\t " + dipoleSumCor
                     + " Difficulty:\t" + (dipoleSumSquaredERR * Math.sqrt(totalTime) / nCells / nCells));
         }
 
+
+        if (aEE) {
+            double AEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
+            double AEEER = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
+            double AEECor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
+//            System.out.println("PairMapping:\t" + (AEE / numberMolecules)
+//                    + " Err:\t" + (AEEER / numberMolecules) + " Cor:\t " + AEECor
+//                    + " Difficulty:\t" + (AEEER * Math.sqrt(totalTime) / nCells / nCells));
+        }
+
+
         if (doIdeal) {
+            double sumIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
+            double errSumIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
+            double sumIdealCor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(1);
             System.out.println("IdealMapping:\t" + (sumIdeal / numberMolecules)
                     + " Err:\t" + (errSumIdeal / numberMolecules) + " Cor:\t " + sumIdealCor
                     + " Difficulty:\t" + (errSumIdeal * Math.sqrt(totalTime) / nCells / nCells));
         }
-        if (doPair) {
-            System.out.println("PairMapping:\t" + (AEE / numberMolecules)
-                    + " Err:\t" + (AEEER / numberMolecules) + " Cor:\t " + AEECor
-                    + " Difficulty:\t" + (AEEER * Math.sqrt(totalTime) / nCells / nCells));
-        }
-        if (doVSum) {
-            System.out.println("mappingvSum:\t" + (AEEVSum / numberMolecules)
-                    + " Err:\t" + (AEEERVSum / numberMolecules) + " Cor:\t " + AEECorVSum
-                    + " Difficulty:\t" + (AEEERVSum * Math.sqrt(totalTime) / nCells / nCells));
-        }
+
+
+
         if (doVSumMI) {
+            double AEEVSumMinusIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(12);
+            double AEEERVSumMinusIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(12);
+            double AEECorVSumMinusIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(12);
             System.out.println("mappingvSumMI:\t" + (AEEVSumMinusIdeal / numberMolecules)
                     + " Err:\t" + (AEEERVSumMinusIdeal / numberMolecules) + " Cor:\t " + AEECorVSumMinusIdeal
                     + " Difficulty:\t" + (AEEERVSumMinusIdeal * Math.sqrt(totalTime) / nCells / nCells));
         }
 
 
-//        double U_ConMC = 0;
-//        double U_ConMCERR = 0;
-//        double U_ConMCCor = 0;
-//        if (doConventionalE) {
-//            U_ConMC = ((DataDouble) ((DataGroup) FEConAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
-//            U_ConMCERR = ((DataDouble) ((DataGroup) FEConAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x;
-//            U_ConMCCor = ((DataDouble) ((DataGroup) FEConAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index)).x;
-//        }
-//
-//        double U_Map = 0;
-//        double U_MapERR = 0;
-//        double U_MapCor = 0;
-//        if (doMappingE) {
-//            U_Map = ((DataGroup) FEMapAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
-//            U_MapERR = ((DataGroup) FEMapAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
-//            U_MapCor = ((DataGroup) FEMapAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
-//        }
-//
-//
-//        if (doMappingE) {
-//            System.out.println("U_Map:\t\t" + (U_Map / numberMolecules)
-//                    + " Err:\t" + (U_MapERR / numberMolecules) + " Cor:\t " + U_MapCor
-//                    + " Difficulty:\t" + (U_MapERR * Math.sqrt(totalTime) / nCells / nCells));
-//        }
-//
-//        if (doConventionalE) {
-//            System.out.println("U_ConMC:\t" + (U_ConMC / numberMolecules)
-//                    + " Err:\t" + (U_ConMCERR / numberMolecules) + " Cor:\t " + U_ConMCCor
-//                    + " Difficulty:\t" + (U_ConMCERR * Math.sqrt(totalTime) / nCells / nCells));
-//        }
-//
-//
-//        double U_Con = 0;
-//        double U_ConError = 0;
-//        double U_ConCor = 0;
-//
-//        if (doConventionalE) {
-//         U_Con = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(23);
-//         U_ConError = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(23);
-//         U_ConCor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(23);
-//            System.out.println("U_Con:\t" + (U_Con / numberMolecules)
-//                    + " Err:\t" + (U_ConError / numberMolecules) + " Cor:\t " + U_ConCor
-//                    + " Difficulty:\t" + (U_ConError * Math.sqrt(totalTime) / nCells / nCells));
-//        }
-//
-//
-//        double U_MapSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(22);
-//        double U_MapSquareError = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(22);
-//        double U_MapSquareCor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(22);
-//
-//        if (doMappingE) {
-//            System.out.println("USquare_Map:\t" + (U_MapSquare / numberMolecules)
-//                    + " Err:\t" + (U_MapSquareError / numberMolecules) + " Cor:\t " + U_MapSquareCor
-//                    + " Difficulty:\t" + (U_MapSquareError * Math.sqrt(totalTime) / nCells / nCells));
-//        }
-//
-//
-//        double U_ConSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(24);
-//        double U_ConSquareError = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(24);
-//        double U_ConSquareCor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(24);
-//        if (doConventionalE) {
-//            System.out.println("USquare_Con:\t" + (U_ConSquare / numberMolecules)
-//                    + " Err:\t" + (U_ConSquareError / numberMolecules) + " Cor:\t " + U_ConSquareCor
-//                    + " Difficulty:\t" + (U_ConSquareError * Math.sqrt(totalTime) / nCells / nCells));
-//        }
-//
-//        IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-//        double CV_Map = U_MapSquare - U_Map * U_Map;
-//        double CV_MapErr = Math.sqrt(U_MapSquareError * U_MapSquareError
-//                + 4 * U_Map * U_Map * U_MapERR * U_MapERR
-//                - 4 * U_MapSquareError * U_Map  * U_MapERR * covariance.getValue(21 * 25 + 22) / Math.sqrt(covariance.getValue(21 * 25 + 21) * covariance.getValue(22 * 25 + 22))
-//        );
-//
-//        if (doVSumMI) {
-//            System.out.println("CV_Map:\t" + (CV_Map / numberMolecules)
-//                    + " Err:\t" + (CV_MapErr / numberMolecules)) ;
-//        }
-//
-//
-//        double CV_Con = U_ConSquare - U_ConMC * U_ConMC;
-//        double CV_ConErr = Math.sqrt(U_ConSquareError * U_ConSquareError
-//                + 4 * U_ConMC * U_ConMC * U_ConError * U_ConError
-//                - 4 * U_ConSquareError * U_ConMC  * U_ConError * covariance.getValue(23 * 25 + 24) / Math.sqrt(covariance.getValue(23 * 25 + 23) * covariance.getValue(24 * 25 + 24))
-//        );
-//        System.out.println("CV_Con:\t" + (CV_Con));
-//
-//        if (doVSumMI) {
-//            System.out.println("CV_Con:\t" + (CV_Con / numberMolecules)
-//                    + " Err:\t" + (CV_ConErr / numberMolecules)) ;
-//        }
+        //******************************** Energy part ******************************** //
+        if (doConventionalE) {
+            double U_ConREF = ((DataDouble) ((DataGroup) FEConAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
+            double U_ConREFERR = ((DataDouble) ((DataGroup) FEConAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x;
+            double U_ConREFCor = ((DataDouble) ((DataGroup) FEConAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index)).x;
+            System.out.println("U_ConREF:\t" + (U_ConREF / numberMolecules)
+                    + " Err:\t" + (U_ConREFERR / numberMolecules) + " Cor:\t " + U_ConREFCor
+                    + " Difficulty:\t" + (U_ConREFERR * Math.sqrt(totalTime) / nCells / nCells));
+        }
+
+        if (doMappingE) {
+            double UMapREF = ((DataGroup) FEMapAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
+            double UMapREFERR = ((DataGroup) FEMapAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
+            double UMapREFCor = ((DataGroup) FEMapAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
+            System.out.println("UMapREF:\t" + (UMapREF / numberMolecules)
+                    + " Err:\t" + (UMapREFERR / numberMolecules) + " Cor:\t " + UMapREFCor
+                    + " Difficulty:\t" + (UMapREFERR * Math.sqrt(totalTime) / nCells / nCells));
+            System.out.println("U_ConMC and UMapREF is for checking purposes only");
+        }
+
+
+        //Get FE from mapping meter
+        if (doMappingE) {
+            double UMap = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(21);
+            double UMapErr = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(21);
+            double UMapCor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(21);
+
+            System.out.println("UMap:\t\t" + (UMap / numberMolecules)
+                    + " Err:\t" + (UMapErr / numberMolecules) + " Cor:\t " + UMapCor
+                    + " Difficulty:\t" + (UMapErr * Math.sqrt(totalTime) / nCells / nCells));
+
+            double UMapSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(22);
+            double UMapSquareErr = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(22);
+            double UMapSquareCor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(22);
+
+            System.out.println("UMapSquare:\t" + (UMapSquare / numberMolecules)
+                    + " Err:\t" + (UMapSquareErr / numberMolecules) + " Cor:\t " + UMapSquareCor
+                    + " Difficulty:\t" + (UMapSquareErr * Math.sqrt(totalTime) / nCells / nCells));
+
+            IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+            double varUMap = UMapSquare - UMap * UMap;
+            double varUMapErr = Math.sqrt(UMapSquareErr * UMapSquareErr
+                    + 4 * UMap * UMap * UMapErr * UMapErr
+                    - 4 * UMapSquareErr * UMap * UMapErr * covariance.getValue(21 * 25 + 22) / Math.sqrt(covariance.getValue(21 * 25 + 21) * covariance.getValue(22 * 25 + 22))
+            );
+
+            System.out.println("varUMap:\t" + (varUMap / numberMolecules)
+                    + " Err:\t" + (varUMapErr / numberMolecules)
+                    + " Difficulty:\t" + (varUMapErr * Math.sqrt(totalTime) / nCells / nCells));
+
+        }
+
+        if (doConventionalE) {
+            double UCon = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(23);
+            double UConErr = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(23);
+            double UConCor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(23);
+            System.out.println("UCon:\t\t" + (UCon / numberMolecules)
+                    + " Err:\t" + (UConErr / numberMolecules) + " Cor:\t " + UConCor
+                    + " Difficulty:\t" + (UConErr * Math.sqrt(totalTime) / nCells / nCells));
+            double UConSquare = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(24);
+            double UConSquareErr = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(24);
+            double UConSquareCor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(24);
+            System.out.println("UConSquare:\t" + (UConSquare / numberMolecules)
+                    + " Err:\t" + (UConSquareErr / numberMolecules) + " Cor:\t " + UConSquareCor
+                    + " Difficulty:\t" + (UConSquareErr * Math.sqrt(totalTime) / nCells / nCells));
+
+            IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+            double varUCon = UConSquare - UCon * UCon;
+            double varUConErr = Math.sqrt(UConSquareErr * UConSquareErr
+                    + 4 * UCon * UCon * UConErr * UConErr
+                    - 4 * UConSquareErr * UCon * UConErr * covariance.getValue(21 * 25 + 22) / Math.sqrt(covariance.getValue(21 * 25 + 21) * covariance.getValue(22 * 25 + 22))
+            );
+
+            System.out.println("varUCon:\t" + (varUCon / numberMolecules)
+                    + " Err:\t" + (varUConErr / numberMolecules)
+                    + " Difficulty:\t" + (varUConErr * Math.sqrt(totalTime) / nCells / nCells));
+
+            System.out.println("CV:\t\t" + (varUCon / numberMolecules/temperature)
+                    + " Err:\t" + (varUConErr / numberMolecules/temperature));
+        }
+
+
+
+
+
 
 
 //        boolean printDipole = false;
@@ -488,21 +444,20 @@ public class Heisenberg extends Simulation {
     // ******************* parameters **********************//
     public static class Param extends ParameterBase {
         public boolean mSquare = false;
-        public boolean aEE = false;
+        public boolean aEE = true;
         public boolean doPair = false;
         public boolean doIdeal = false;
         public boolean doVSum = false;
-        public boolean doVSumMI = false;
-
-        public boolean doConventionalE = false;
-        public boolean doMappingE = false;
+        public boolean doVSumMI = true;
+        public boolean doConventionalE = true;
+        public boolean doMappingE = true;
         public boolean doCV = true;
         public boolean doGraphic = false;
-        public double temperature = 1/0.7;
+        public double temperature = 0.89;//Kelvin
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
-        public int nCells = 10;//number of atoms is nCells*nCells
-        public int steps = 50000000;
+        public int nCells = 64;//number of atoms is nCells*nCells
+        public int steps = 10000000;
         public int nMax = 1;
     }
 }
