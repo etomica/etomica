@@ -63,7 +63,7 @@ public class MeterMappedAveragingCV implements IDataSource {
     public IData getData() {
         double[] x = data.getData();
         IAtomList leafList = box.getLeafList();
-        double term1 = 0, term2 = 0, term2a = 0, term2b = 0, term2c = 0, term2d = 0, term3a = 0, term3b = 0, term4a = 0, term4b= 0, term5 = 0;
+        //double term1 = 0, term2 = 0, term2a = 0, term2b = 0, term2c = 0, term2d = 0, term3a = 0, term3b = 0, term4a = 0, term4b= 0, term5 = 0;
 
         //compute neighbor sums
         for (int i = 0; i < N; i++) {
@@ -95,7 +95,6 @@ public class MeterMappedAveragingCV implements IDataSource {
                     double sintk = ((IAtomOriented) leafList.getAtom(nbrs[0][k])).getOrientation().getDirection().getX(1);
 
 //                    sin(2ti-tj-tk) = sin(2ti)Cos(tj+tk) - cos(2ti)*sin(tj+tk)
-//
                     double costjPtk = costj * costk - sintj * sintk;
                     double sintjPtk = sintj * costk + costj * sintk;
                     sin2tiMtjtk1[i] += 2 * sinti * costi * costjPtk - (2 * costi * costi - 1) * sintjPtk;
@@ -131,26 +130,15 @@ public class MeterMappedAveragingCV implements IDataSource {
                 double sintj = ((IAtomOriented) leafList.getAtom(nbrs[0][j])).getOrientation().getDirection().getX(1);
                 sum += (costi * costj + sinti * sintj) * sintiMtj1[nbrs[0][j]];
             }
-//            term3a += 0.25*sintiMtj1[i]*sum;
-//            term3b += -0.25*sintiMtj1[i]*sintiMtj1[i]*costiMtj1[i];
 
             sum += -costiMtj1[i] * sintiMtj1[i];
             sum *= bJ * bJ * bJ * 0.25 * sintiMtj1[i]; //multiply by -(bJ^3)/4 (fi/J)
             sum *= 2; //phi contribution is the same, so add it in by doubling
 
+            //thetadot^beta_beta
             double tbb = 0.125 * (sin2tiMtj1[i] + 2 * sin2tiMtjtk1[i] - 4 * sintiMtj2[i] - 2 * sintiMtj3[i]);
 
-//            term1 += -sintiMtj1[i]*sintiMtj1[i];
-//            term2 += -sintiMtj1[i] * tbb;
-//            term2a += -0.125 * sintiMtj1[i] * sin2tiMtj1[i];
-//            term2b += -0.125 * sintiMtj1[i] * 2 * sin2tiMtjtk1[i];
-//            term2c += -0.125 * sintiMtj1[i] * (-4) * sintiMtj2[i];
-//            term2d += -0.125 * sintiMtj1[i] * (-2) * sintiMtj3[i];
-//            term5 += sintiMtj1[i]*sintiMtj1[i];
-
             sum += -bJ * bJ * bJ * sintiMtj1[i] * tbb;
-            //sum += bJ * bJ * (1 - sintiMtj1[i] * sintiMtj1[i]);
-            sum += bJ * bJ * (1);
 
             sumOverI += sum;
 
@@ -158,21 +146,8 @@ public class MeterMappedAveragingCV implements IDataSource {
 
         }
 
-//        double value = N + term1 + term2 + 2*(term3a + term3b) + term5;
-
-//        if(100000 * Math.random() < 2) {
-//            System.out.println(sumOverI+" "+value);
-//            for(int i=0; i<N; i++) {
-//                double xx = ((IAtomOriented) leafList.getAtom(i)).getOrientation().getDirection().getX(0);
-//                double yy = ((IAtomOriented) leafList.getAtom(i)).getOrientation().getDirection().getX(1);
-//                double theta = Math.atan2(yy, xx);
-//                System.out.println("t["+(i+1)+"] = "+theta+";");
-//            }
-//            System.out.println(term1+" "+term2+" {"+term2a+" "+term2b+" "+term2c+" "+term2d+"} "+term3a+" "+term3b+" "+term5);
-//        }
-
-        x[0] = sumOverI+0.25*bJ*bJ*sumVar*sumVar;
-        x[1] = -0.5*bJ*sumVar;
+        x[0] = N*bJ*bJ + sumOverI + 0.25*bJ*bJ*bJ*bJ*sumVar*sumVar;
+        x[1] = -0.5*bJ*bJ*sumVar;//part of variance contribution. The average of this is squared and subtracted from the x[0] average
 
         return data;
     }
@@ -187,6 +162,7 @@ public class MeterMappedAveragingCV implements IDataSource {
         return dataInfo;
     }
 
+    //creates arrays of first, second, and third neighbors from given site
     private void getNeighbors(int i) {
         boolean right = i % L == L - 1;
         boolean left = i % L == 0;
