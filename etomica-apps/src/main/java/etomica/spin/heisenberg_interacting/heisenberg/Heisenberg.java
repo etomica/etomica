@@ -253,15 +253,17 @@ public class Heisenberg extends Simulation {
             System.out.println("CV0Err:\t" + CV0Err + " CV1Err:\t" + CV1Err);
 
             IData covariance = ((DataGroup) CVAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-            CV = CV0 + CV1 * CV1;
+            CV = CV0 - CV1 * CV1;
             CVErr = Math.sqrt(4 * CV1 * CV1 * CV1Err * CV1Err
                     + CV0Err * CV0Err
                     - 4 * CV1 * CV0Err * CV1Err * covariance.getValue(0 * 2 + 1)/ Math.sqrt(covariance.getValue(0 * 2 + 0) * covariance.getValue(1 * 2 + 1))
             );
+            CV *= 1.0/numberMolecules;
+            CVErr *= 1.0/numberMolecules;
         }
 
 
-        System.out.println("CV:\t" + CV + " CVErr:\t" + CVErr);
+        System.out.println("CV/N:\t" + CV + " CVErr/N:\t" + CVErr);
 
 
         if (mSquare) {
@@ -385,9 +387,15 @@ public class Heisenberg extends Simulation {
                     + " Err:\t" + (varUConErr / numberMolecules)
                     + " Difficulty:\t" + (varUConErr * Math.sqrt(totalTime) / nCells / nCells));
 
-            System.out.println("CVCon:\t\t" + (varUCon / numberMolecules/temperature/temperature)
-                    + " Err:\t" + (varUConErr / numberMolecules/temperature/temperature));
+            System.out.println("CV:\t\t" + (varUCon / numberMolecules/temperature)
+                    + " Err:\t" + (varUConErr / numberMolecules/temperature));
         }
+
+
+
+
+
+
 
 //        boolean printDipole = false;
 //        if (printDipole) {
@@ -447,11 +455,11 @@ public class Heisenberg extends Simulation {
         public boolean doMappingE = true;
         public boolean doCV = true;
         public boolean doGraphic = false;
-        public double temperature = 1;//Kelvin
+        public double temperature = 1./0.74;
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
         public int nCells = 64;//number of atoms is nCells*nCells
-        public int steps = 10000000;
+        public int steps = 100000000;
         public int nMax = 1;
     }
 }
