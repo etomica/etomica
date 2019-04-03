@@ -385,15 +385,9 @@ public class Heisenberg extends Simulation {
                     + " Err:\t" + (varUConErr / numberMolecules)
                     + " Difficulty:\t" + (varUConErr * Math.sqrt(totalTime) / nCells / nCells));
 
-            System.out.println("CV:\t\t" + (varUCon / numberMolecules/temperature)
-                    + " Err:\t" + (varUConErr / numberMolecules/temperature));
+            System.out.println("CVCon:\t\t" + (varUCon / numberMolecules/temperature/temperature)
+                    + " Err:\t" + (varUConErr / numberMolecules/temperature/temperature));
         }
-
-
-
-
-
-
 
 //        boolean printDipole = false;
 //        if (printDipole) {
@@ -453,7 +447,7 @@ public class Heisenberg extends Simulation {
         public boolean doMappingE = true;
         public boolean doCV = true;
         public boolean doGraphic = false;
-        public double temperature = 0.89;//Kelvin
+        public double temperature = 1;//Kelvin
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
         public int nCells = 64;//number of atoms is nCells*nCells
