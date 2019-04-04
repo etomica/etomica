@@ -10,6 +10,9 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
+import etomica.data.DataPumpListener;
+import etomica.data.meter.MeterRDF;
+import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorListenerAction;
@@ -115,11 +118,30 @@ public class HSMDCavity extends Simulation {
         }
         final HSMDCavity sim = new HSMDCavity(params);
 
+        MeterRDF meterRDF = new MeterRDF(sim.space);
+        meterRDF.getXDataSource().setXMax(2);
+        meterRDF.setBox(sim.box);
+        MeterCavity meterCavity = new MeterCavity(sim.box, sim.potential);
+        MeterCavityMapped meterCavityMapped = new MeterCavityMapped(sim.integrator);
+
         if (params.doGraphics) {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
 
             ColorSchemePaired colorScheme = new ColorSchemePaired(sim.potential);
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
+
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, 10));
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterCavity, 1));
+            sim.integrator.addCollisionListener(meterCavityMapped);
+            DisplayPlot cavityPlot = new DisplayPlot();
+            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, cavityPlot.getDataSet().makeDataSink());
+            DataPumpListener pumpCavity = new DataPumpListener(meterCavity, cavityPlot.getDataSet().makeDataSink());
+            DataPumpListener pumpCavityMapped = new DataPumpListener(meterCavityMapped, cavityPlot.getDataSet().makeDataSink());
+            sim.integrator.getEventManager().addListener(pumpRDF);
+            sim.integrator.getEventManager().addListener(pumpCavity);
+            sim.integrator.getEventManager().addListener(pumpCavityMapped);
+            cavityPlot.setLabel("cavity");
+            simGraphic.add(cavityPlot);
             simGraphic.makeAndDisplayFrame(APP_NAME);
         }
     }
