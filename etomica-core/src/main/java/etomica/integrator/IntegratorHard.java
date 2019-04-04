@@ -545,7 +545,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
      * agents as needed.
      */
     public Agent makeAgent(IAtom a, Box agentBox) {
-        Agent agent = new Agent(a, this);
+        Agent agent = new Agent((IAtomKinetic) a, this);
         agent.setNullPotential(this.nullPotentialManager.get(a.getType()));
         return agent;
     }
@@ -603,7 +603,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
                     System.out.println("setting up time "+collisionTime+" for atom "+atoms);
                 }
                 minCollisionTime = collisionTime;
-                aia.setCollision(collisionTime, (atoms.size() == 2) ? atoms.get(1) : null, pHard);
+                aia.setCollision(collisionTime, (atoms.size() == 2) ? (IAtomKinetic) atoms.get(1) : null, pHard);
             }//end if
         }//end of calculate(AtomPair...
 
@@ -640,7 +640,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
                     if (aia.collisionPotential != null) {
                         aia.eventLinker.remove();
                     }
-                    aia.setCollision(collisionTime, atoms.get(1), pHard);
+                    aia.setCollision(collisionTime, (IAtomKinetic) atoms.get(1), pHard);
                     eventList.add(aia.eventLinker);
 				}
 			}
@@ -688,14 +688,14 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
     //Do not use encapsulation since the fields are for referencing by the integrator
     public static class Agent {  //need public so to use with instanceof
         protected final IntegratorHard integrator;
-        public IAtom atom, collisionPartner;
+        public IAtomKinetic atom, collisionPartner;
         public PotentialHard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
         public TreeLinker eventLinker;
         protected PotentialHard nullPotential;
         protected AtomSetSinglet atomSetSinglet;
         protected double nullCollisionTime;
 
-        public Agent(IAtom a, IntegratorHard integrator) {
+        public Agent(IAtomKinetic a, IntegratorHard integrator) {
             atom = a;
             eventLinker = new TreeLinker(this);
             eventLinker.sortKey = Double.POSITIVE_INFINITY;
@@ -768,7 +768,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
          * @param partner the atom this one will collide with next
          * @param p       the potential for interactions between this atom and its collision partner
          */
-        public final void setCollision(double time, IAtom partner, PotentialHard p) {
+        public final void setCollision(double time, IAtomKinetic partner, PotentialHard p) {
             collisionPartner = partner;
             collisionPotential = p;
             eventLinker.sortKey = time;
