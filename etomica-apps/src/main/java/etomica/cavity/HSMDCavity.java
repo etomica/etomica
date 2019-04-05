@@ -124,11 +124,10 @@ public class HSMDCavity extends Simulation {
         meterRDF.setBox(sim.box);
         DataFork forkRDF = new DataFork();
         DataProcessorRDF rdfProcessor = new DataProcessorRDF(sim.potential.getCollisionDiameter());
-        DataPumpListener pumpRDF = new DataPumpListener(meterRDF, rdfProcessor);
-        rdfProcessor.setDataSink(forkRDF);
+        DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF);
+        forkRDF.addDataSink(rdfProcessor);
 
-        MeterCavity meterCavity = new MeterCavity(sim.box, sim.potential);
-        DataProcessorCavity cavityProcessor = new DataProcessorCavity();
+        DataProcessorCavity cavityProcessor = new DataProcessorCavity(sim.integrator, sim.potential);
         MeterCavityMapped meterCavityMapped = new MeterCavityMapped(sim.integrator);
         DataProcessorCavityMapping mappingProcessor = new DataProcessorCavityMapping(sim.potential);
 
@@ -139,17 +138,14 @@ public class HSMDCavity extends Simulation {
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
 
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, 10));
-            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterCavity, 1));
             sim.integrator.addCollisionListener(meterCavityMapped);
             DisplayPlot cavityPlot = new DisplayPlot();
-            forkRDF.addDataSink(cavityProcessor.makeRDFReceiver());
-            DataPumpListener pumpCavity = new DataPumpListener(meterCavity, cavityProcessor);
+            forkRDF.addDataSink(cavityProcessor);
             DataPumpListener pumpCavityMapped = new DataPumpListener(meterCavityMapped, mappingProcessor);
             forkRDF.addDataSink(cavityPlot.getDataSet().makeDataSink());
             cavityProcessor.setDataSink(cavityPlot.getDataSet().makeDataSink());
             mappingProcessor.setDataSink(cavityPlot.getDataSet().makeDataSink());
             sim.integrator.getEventManager().addListener(pumpRDF);
-            sim.integrator.getEventManager().addListener(pumpCavity);
             sim.integrator.getEventManager().addListener(pumpCavityMapped);
             cavityPlot.setLabel("cavity");
             simGraphic.add(cavityPlot);
