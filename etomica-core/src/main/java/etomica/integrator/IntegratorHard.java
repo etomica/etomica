@@ -255,6 +255,11 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         throw new RuntimeException("this simulation is not a time machine");
     }
 
+    public void resetStepCount() {
+        super.resetStepCount();
+        collisionCount = 0;
+    }
+
     public long getCollisionCount() {
         return collisionCount;
     }
