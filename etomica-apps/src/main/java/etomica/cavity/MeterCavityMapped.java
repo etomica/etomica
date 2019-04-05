@@ -127,8 +127,9 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
 
         final double[] y = data.getData();
         int N = integratorHard.getBox().getLeafList().getAtoms().size();
+        double V = integratorHard.getBox().getBoundary().volume();
         for (int i = 0; i < y.length; i++) {
-            y[i] = gSum[i] / elapsedTime / N;
+            y[i] = gSum[i] / elapsedTime / (N * N / V);
         }
         return data;
     }
