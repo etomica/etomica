@@ -12,7 +12,7 @@ import etomica.space.Space;
 public class P2HardSphereCavity extends P2HardSphere {
 
     protected double pairWell;
-    protected IAtom pairedAtom1, pairedAtom2;
+    protected IAtomKinetic pairedAtom1, pairedAtom2;
     protected int idxSum, idxProduct;
 
     public P2HardSphereCavity(Space space) {

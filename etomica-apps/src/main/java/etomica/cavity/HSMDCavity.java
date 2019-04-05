@@ -123,6 +123,7 @@ public class HSMDCavity extends Simulation {
         meterRDF.setBox(sim.box);
         MeterCavity meterCavity = new MeterCavity(sim.box, sim.potential);
         MeterCavityMapped meterCavityMapped = new MeterCavityMapped(sim.integrator);
+        DataProcessorCavityMapping mappingProcessor = new DataProcessorCavityMapping(sim.potential);
 
         if (params.doGraphics) {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
@@ -136,7 +137,8 @@ public class HSMDCavity extends Simulation {
             DisplayPlot cavityPlot = new DisplayPlot();
             DataPumpListener pumpRDF = new DataPumpListener(meterRDF, cavityPlot.getDataSet().makeDataSink());
             DataPumpListener pumpCavity = new DataPumpListener(meterCavity, cavityPlot.getDataSet().makeDataSink());
-            DataPumpListener pumpCavityMapped = new DataPumpListener(meterCavityMapped, cavityPlot.getDataSet().makeDataSink());
+            DataPumpListener pumpCavityMapped = new DataPumpListener(meterCavityMapped, mappingProcessor);
+            mappingProcessor.setDataSink(cavityPlot.getDataSet().makeDataSink());
             sim.integrator.getEventManager().addListener(pumpRDF);
             sim.integrator.getEventManager().addListener(pumpCavity);
             sim.integrator.getEventManager().addListener(pumpCavityMapped);

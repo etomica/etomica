@@ -84,7 +84,7 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         dr.PEa1Tv1(-falseTime, atom2.getVelocity());
         Box box = integratorHard.getBox();
         box.getBoundary().nearestImage(dr);
-        lastCollisionVirial.Ea1Tv1(p2.lastCollisionVirial(), dr);
+        lastCollisionVirial.Ea1Tv1(p2.lastCollisionVirial() / dr.squared(), dr);
 
         if (atom1Paired) {
             if (atom1 == p2.pairedAtom1) {
@@ -106,9 +106,10 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         dr.PEa1Tv1(-falseTime, atom2.getVelocity());
         integratorHard.getBox().getBoundary().nearestImage(dr);
         double r2 = dr.squared();
-        int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
+        double r = Math.sqrt(r2);
+        int index = xDataSource.getIndex(r);  //determine histogram index
         if (atom2Paired) dr.TE(-1);
-        gSum[index] += lastCollisionVirial.dot(dr);                        //add once for each atom
+        gSum[index] += lastCollisionVirial.dot(dr) / (r * r2);
     }
 
     public IData getData() {
@@ -128,9 +129,10 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         double[] r = rData.getData();
         double dx2 = 0.5 * (xDataSource.getXMax() - xDataSource.getXMin()) / r.length;
         Space space = integratorHard.getBox().getSpace();
+        int N = integratorHard.getBox().getLeafList().getAtoms().size();
         for (int i = 0; i < r.length; i++) {
             double vShell = space.sphereVolume(r[i] + dx2) - space.sphereVolume(r[i] - dx2);
-            y[i] = gSum[i] / (vShell * elapsedTime);
+            y[i] = gSum[i] / (vShell * elapsedTime) / N;
         }
         return data;
     }
