@@ -10,6 +10,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
+import etomica.data.DataFork;
 import etomica.data.DataPumpListener;
 import etomica.data.meter.MeterRDF;
 import etomica.graphics.DisplayPlot;
@@ -121,7 +122,13 @@ public class HSMDCavity extends Simulation {
         MeterRDF meterRDF = new MeterRDF(sim.space);
         meterRDF.getXDataSource().setXMax(2);
         meterRDF.setBox(sim.box);
+        DataFork forkRDF = new DataFork();
+        DataProcessorRDF rdfProcessor = new DataProcessorRDF(sim.potential.getCollisionDiameter());
+        DataPumpListener pumpRDF = new DataPumpListener(meterRDF, rdfProcessor);
+        rdfProcessor.setDataSink(forkRDF);
+
         MeterCavity meterCavity = new MeterCavity(sim.box, sim.potential);
+        DataProcessorCavity cavityProcessor = new DataProcessorCavity();
         MeterCavityMapped meterCavityMapped = new MeterCavityMapped(sim.integrator);
         DataProcessorCavityMapping mappingProcessor = new DataProcessorCavityMapping(sim.potential);
 
@@ -135,9 +142,11 @@ public class HSMDCavity extends Simulation {
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterCavity, 1));
             sim.integrator.addCollisionListener(meterCavityMapped);
             DisplayPlot cavityPlot = new DisplayPlot();
-            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, cavityPlot.getDataSet().makeDataSink());
-            DataPumpListener pumpCavity = new DataPumpListener(meterCavity, cavityPlot.getDataSet().makeDataSink());
+            forkRDF.addDataSink(cavityProcessor.makeRDFReceiver());
+            DataPumpListener pumpCavity = new DataPumpListener(meterCavity, cavityProcessor);
             DataPumpListener pumpCavityMapped = new DataPumpListener(meterCavityMapped, mappingProcessor);
+            forkRDF.addDataSink(cavityPlot.getDataSet().makeDataSink());
+            cavityProcessor.setDataSink(cavityPlot.getDataSet().makeDataSink());
             mappingProcessor.setDataSink(cavityPlot.getDataSet().makeDataSink());
             sim.integrator.getEventManager().addListener(pumpRDF);
             sim.integrator.getEventManager().addListener(pumpCavity);
