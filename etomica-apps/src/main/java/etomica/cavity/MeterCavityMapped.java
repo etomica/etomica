@@ -31,6 +31,11 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
     protected double lastTime;
     protected final Vector dr;
     protected double[] gSum;
+    protected double lastSwitchTime;
+    protected boolean internal;
+    protected double tInternal, tExternal;
+    protected double sigma;
+    protected P2HardSphereCavity p2;
 
     public MeterCavityMapped(IntegratorHard integrator) {
 
@@ -65,12 +70,25 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         dataInfo.addTag(tag);
 
         lastTime = integratorHard.getCurrentTime();
+        tInternal = 0;
+        tExternal = 0;
+
     }
 
     public void collisionAction(IntegratorHard.Agent agent) {
         IAtomKinetic atom1 = agent.atom;
         IAtomKinetic atom2 = agent.collisionPartner;
-        P2HardSphereCavity p2 = (P2HardSphereCavity) agent.collisionPotential;
+        p2 = (P2HardSphereCavity) agent.collisionPotential;
+        P2HardSphereCavity.CollisionType cType = p2.getLastCollisionType();
+        sigma = p2.getCollisionDiameter();
+        if (cType == P2HardSphereCavity.CollisionType.CAPTURE) {
+            internal = true;
+            tExternal += integratorHard.getCurrentTime() - lastSwitchTime;
+        }
+        else if (cType == P2HardSphereCavity.CollisionType.ESCAPE) {
+            internal = false;
+            tInternal += integratorHard.getCurrentTime() - lastSwitchTime;
+        }
 
         boolean atom1Paired = atom1 == p2.pairedAtom1 || atom1 == p2.pairedAtom2;
         boolean atom2Paired = atom2 == p2.pairedAtom1 || atom2 == p2.pairedAtom2;
@@ -128,8 +146,57 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         final double[] y = data.getData();
         int N = integratorHard.getBox().getLeafList().getAtoms().size();
         double V = integratorHard.getBox().getBoundary().volume();
+        IData rData = xDataSource.getData();
+        double dx = rData.getValue(2) - rData.getValue(1);
+        double density = N / V;
         for (int i = 0; i < y.length; i++) {
-            y[i] = gSum[i] / elapsedTime / (N * N / V);
+            y[i] = gSum[i] / elapsedTime / (N * density * 4 * Math.PI);
+        }
+
+        for (int i = 0; i < y.length; i++) {
+            for (int j = i + 1; j < y.length; j++) {
+                y[i] += y[j];
+            }
+        }
+//        if (true) return data;
+        double yIntegral = 0;
+        for (int i = 0; i < y.length; i++) {
+            double r = rData.getValue(i);
+            yIntegral += r * r * y[i];
+        }
+
+        yIntegral *= 4 * Math.PI * N * density / 3 * dx / 2;
+//        System.out.println("yIntegral "+yIntegral);
+        // need to shift
+        double ti = tInternal, te = tExternal;
+        if (internal) ti += integratorHard.getCurrentTime() - lastSwitchTime;
+        else te += integratorHard.getCurrentTime() - lastSwitchTime;
+        if (ti * te > 0) {
+//            System.out.println("shifting so integral is "+ti/(te+ti));
+            double shift = ((ti / (te + ti)) - yIntegral) / (4 * Math.PI * N * density * sigma * sigma * sigma / 3 / 2);
+//            System.out.println("gonna shift by "+shift);
+            for (int i = 0; i < y.length; i++) {
+                y[i] += shift;
+            }
+        }
+//        yIntegral = 0;
+//        for (int i = 0; i < y.length; i++) {
+//            double r = rData.getValue(i);
+//            yIntegral += r*r*y[i];
+//        }
+//        yIntegral *= 4*Math.PI*N*density/3*dx/2;
+//        System.out.println("yIntegral => "+yIntegral);
+        if (p2 != null) {
+            long totalCollision = integratorHard.getCollisionCount();
+            long internalCollision = p2.getInternalCount();
+            double fac = 1;
+            if (internalCollision > 0) {
+                long externalCollision = totalCollision - internalCollision;
+                fac = externalCollision / (double) internalCollision;
+            }
+            for (int i = 0; i < y.length; i++) {
+                y[i] *= fac;
+            }
         }
         return data;
     }

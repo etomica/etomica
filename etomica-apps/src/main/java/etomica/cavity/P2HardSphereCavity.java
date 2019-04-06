@@ -16,6 +16,10 @@ public class P2HardSphereCavity extends P2HardSphere {
     protected int idxSum, idxProduct;
     protected long internalCount;
 
+    public enum CollisionType {INTERNAL_BOUNCE, ESCAPE, EXTERNAL_BOUNCE, CAPTURE}
+
+    protected CollisionType lastCollisionType;
+
     public P2HardSphereCavity(Space space) {
         this(space, 0);
     }
@@ -70,6 +74,7 @@ public class P2HardSphereCavity extends P2HardSphere {
         boolean paired = idx0 * idx1 == idxProduct && idx0 + idx1 == idxSum;
         if (paired) internalCount++;
         if (idxSum > 0 && (!paired || pairWell == Double.POSITIVE_INFINITY)) {
+            lastCollisionType = paired ? CollisionType.INTERNAL_BOUNCE : CollisionType.EXTERNAL_BOUNCE;
             super.bump(pair, falseTime);
             return;
         }
@@ -100,11 +105,13 @@ public class P2HardSphereCavity extends P2HardSphere {
             if (ke < pairWell) {     // Not enough kinetic energy to escape
                 lastCollisionVirial = 2.0 * reducedMass * bij;
                 nudge = -eps;
+                lastCollisionType = CollisionType.INTERNAL_BOUNCE;
             } else {                 // Escape
                 lastCollisionVirial = reducedMass * (bij - Math.sqrt(bij * bij - 2.0 * r2 * pairWell / reducedMass));
                 nudge = eps;
                 pairedAtom1 = pairedAtom2 = null;
                 idxSum = idxProduct = 0;
+                lastCollisionType = CollisionType.ESCAPE;
             }
         } else if (ke > -pairWell) {   // Approach/capture
             // core collision -- capture
@@ -114,10 +121,12 @@ public class P2HardSphereCavity extends P2HardSphere {
             pairedAtom2 = atom1;
             idxSum = idx0 + idx1;
             idxProduct = idx0 * idx1;
+            lastCollisionType = CollisionType.CAPTURE;
         } else {
             // not enough kinetic energy to overcome shoulder
             lastCollisionVirial = 2.0 * reducedMass * bij;
             nudge = eps;
+            lastCollisionType = CollisionType.EXTERNAL_BOUNCE;
         }
 
         lastCollisionVirialr2 = lastCollisionVirial / r2;
@@ -145,5 +154,9 @@ public class P2HardSphereCavity extends P2HardSphere {
 
     public long getInternalCount() {
         return internalCount;
+    }
+
+    public CollisionType getLastCollisionType() {
+        return lastCollisionType;
     }
 }

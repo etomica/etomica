@@ -124,12 +124,11 @@ public class HSMDCavity extends Simulation {
         meterRDF.setBox(sim.box);
         DataFork forkRDF = new DataFork();
         DataProcessorRDF rdfProcessor = new DataProcessorRDF(sim.potential.getCollisionDiameter());
-        DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF);
+        DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 100);
         forkRDF.addDataSink(rdfProcessor);
 
         DataProcessorCavity cavityProcessor = new DataProcessorCavity(sim.integrator, sim.potential);
         MeterCavityMapped meterCavityMapped = new MeterCavityMapped(sim.integrator);
-        DataProcessorCavityMapping mappingProcessor = new DataProcessorCavityMapping(sim.potential);
 
         if (params.doGraphics) {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
@@ -141,10 +140,9 @@ public class HSMDCavity extends Simulation {
             sim.integrator.addCollisionListener(meterCavityMapped);
             DisplayPlot cavityPlot = new DisplayPlot();
             forkRDF.addDataSink(cavityProcessor);
-            DataPumpListener pumpCavityMapped = new DataPumpListener(meterCavityMapped, mappingProcessor);
+            DataPumpListener pumpCavityMapped = new DataPumpListener(meterCavityMapped, cavityPlot.getDataSet().makeDataSink(), 100);
             forkRDF.addDataSink(cavityPlot.getDataSet().makeDataSink());
             cavityProcessor.setDataSink(cavityPlot.getDataSet().makeDataSink());
-            mappingProcessor.setDataSink(cavityPlot.getDataSet().makeDataSink());
             sim.integrator.getEventManager().addListener(pumpRDF);
             sim.integrator.getEventManager().addListener(pumpCavityMapped);
             cavityPlot.setLabel("cavity");
