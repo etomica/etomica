@@ -96,25 +96,20 @@ public class P2HardSphereCavity extends P2HardSphere {
         double rm1 = atom1.getType().rm();
         double reducedMass = 2.0 / (rm0 + rm1);
         double ke = bij * bij * reducedMass / (2.0 * r2);
-        double nudge = 0;
 
-        double eps = 1.0e-10;
         if (bij > 0) {
             if (ke < pairWell) {     // Not enough kinetic energy to escape
-                lastCollisionVirial = 2.0 * reducedMass * bij;
-                nudge = -eps;
+                lastCollisionVirial = reducedMass * bij;
                 lastCollisionType = CollisionType.INTERNAL_BOUNCE;
             } else {                 // Escape
-                lastCollisionVirial = reducedMass * (bij - Math.sqrt(bij * bij - 2.0 * r2 * pairWell / reducedMass));
-                nudge = eps;
+                lastCollisionVirial = 0;
                 pairedAtom1 = pairedAtom2 = null;
                 idxSum = idxProduct = 0;
                 lastCollisionType = CollisionType.ESCAPE;
             }
         } else if (ke > -pairWell) {   // Approach/capture
             // core collision -- capture
-            lastCollisionVirial = pairWell < Double.POSITIVE_INFINITY ? (reducedMass * (bij + Math.sqrt(bij * bij + 2.0 * r2 * pairWell / reducedMass))) : 0;
-            nudge = -eps;
+            lastCollisionVirial = 0;
             pairedAtom1 = atom0;
             pairedAtom2 = atom1;
             idxSum = idx0 + idx1;
@@ -122,8 +117,7 @@ public class P2HardSphereCavity extends P2HardSphere {
             lastCollisionType = CollisionType.CAPTURE;
         } else {
             // not enough kinetic energy to overcome shoulder
-            lastCollisionVirial = 2.0 * reducedMass * bij;
-            nudge = eps;
+            lastCollisionVirial = reducedMass * bij;
             lastCollisionType = CollisionType.EXTERNAL_BOUNCE;
         }
 
@@ -134,16 +128,6 @@ public class P2HardSphereCavity extends P2HardSphere {
         atom1.getVelocity().PEa1Tv1(-rm1, dv);
         atom0.getPosition().PEa1Tv1(-falseTime * rm0, dv);
         atom1.getPosition().PEa1Tv1(falseTime * rm1, dv);
-
-        if (nudge != 0) {
-            if (rm0 > 0) {
-                atom0.getPosition().PEa1Tv1(-nudge, dr);
-            }
-            if (rm1 > 0) {
-                atom1.getPosition().PEa1Tv1(nudge, dr);
-            }
-        }
-
     }
 
     public CollisionType getLastCollisionType() {
