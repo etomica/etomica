@@ -70,6 +70,27 @@ public class PolynomialFit {
         }
         return result;
     }
+
+    /**
+     * Returns average relative deviation (relative to the uncertainty) of the
+     * given fit from the given data.
+     * <p>
+     * chi = (<(diff/error)^2>/N)^.5
+     */
+    public static double getChi(int order, double[] x, double[] y, double[] w, double[] poly) {
+        double chiSqSum = 0, nData = 0;
+        for (int i = 0; i < x.length; i++) {
+            double xp = 1;
+            double yp = 0;
+            for (int ipower = 0; ipower <= order; ipower++) {
+                yp += poly[ipower] * xp;
+            }
+            double diff = y[i] - yp;
+            chiSqSum += diff * diff * w[i];
+            if (w[i] > 0) nData++;
+        }
+        return Math.sqrt(chiSqSum / nData);
+    }
     
     public static void main(String[] args) {
         double[] c = doFit(2, new double[]{1,2,3}, new double[]{9,6,1});
