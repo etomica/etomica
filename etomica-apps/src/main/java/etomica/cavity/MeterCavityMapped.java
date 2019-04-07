@@ -35,7 +35,8 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
     protected boolean internal;
     protected double tInternal, tExternal;
     protected double sigma;
-    protected P2HardSphereCavity p2;
+    protected boolean resetAfterData;
+    protected long internalCollisions, totalCollisions;
 
     public MeterCavityMapped(IntegratorHard integrator) {
 
@@ -65,22 +66,29 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
     public void reset() {
 
         rData = (DataDoubleArray) xDataSource.getData();
-        data = new DataFunction(new int[]{rData.getLength()});
+        if (data.getLength() != rData.getLength()) {
+            data = new DataFunction(new int[]{rData.getLength()});
+        }
         gSum = new double[rData.getLength()];
-        dataInfo = new DataFunction.DataInfoFunction("mapped cavity(r)", Null.DIMENSION, this);
+        dataInfo = new DataFunction.DataInfoFunction("mapped y(r)", Null.DIMENSION, this);
         dataInfo.addTag(tag);
 
         lastTime = integratorHard.getCurrentTime();
         lastSwitchTime = integratorHard.getCurrentTime();
         tInternal = 0;
         tExternal = 0;
+        internalCollisions = totalCollisions = 0;
+    }
 
+    public void setResetAfterData(boolean doResetAfterData) {
+        resetAfterData = doResetAfterData;
     }
 
     public void collisionAction(IntegratorHard.Agent agent) {
+        totalCollisions++;
         IAtomKinetic atom1 = agent.atom;
         IAtomKinetic atom2 = agent.collisionPartner;
-        p2 = (P2HardSphereCavity) agent.collisionPotential;
+        P2HardSphereCavity p2 = (P2HardSphereCavity) agent.collisionPotential;
         P2HardSphereCavity.CollisionType cType = p2.getLastCollisionType();
         sigma = p2.getCollisionDiameter();
         if (cType == P2HardSphereCavity.CollisionType.CAPTURE) {
@@ -90,10 +98,13 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
             lastSwitchTime = t;
         }
         else if (cType == P2HardSphereCavity.CollisionType.ESCAPE) {
+            internalCollisions++;
             internal = false;
             double t = integratorHard.getCurrentTime() + agent.collisionTime();
             tInternal += t - lastSwitchTime;
             lastSwitchTime = t;
+        } else if (cType == P2HardSphereCavity.CollisionType.INTERNAL_BOUNCE) {
+            internalCollisions++;
         }
 
         boolean atom1Paired = atom1 == p2.pairedAtom1 || atom1 == p2.pairedAtom2;
@@ -199,18 +210,14 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
             System.out.println("and we got integral " + yIntegral + " and nPairs " + nPairs);
         }
         // and now scale
-        if (p2 != null) {
-            long totalCollision = integratorHard.getCollisionCount();
-            long internalCollision = p2.getInternalCount();
-            double fac = 1;
-            if (internalCollision > 0) {
-                long externalCollision = totalCollision - internalCollision;
-                fac = externalCollision / (double) internalCollision;
-            }
+        if (internalCollisions > 0) {
+            long externalCollision = totalCollisions - internalCollisions;
+            double fac = externalCollision / (double) internalCollisions;
             for (int i = 0; i < y.length; i++) {
                 y[i] *= fac;
             }
         }
+        if (resetAfterData) reset();
         return data;
     }
 
