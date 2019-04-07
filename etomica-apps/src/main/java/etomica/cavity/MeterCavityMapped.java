@@ -40,8 +40,9 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
     public MeterCavityMapped(IntegratorHard integrator) {
 
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
-        xDataSource.setTypeMax(DataSourceUniform.LimitType.HALF_STEP);
-        xDataSource.setTypeMin(DataSourceUniform.LimitType.HALF_STEP);
+        xDataSource.setNValues(500);
+        xDataSource.setTypeMax(DataSourceUniform.LimitType.EXCLUSIVE);
+        xDataSource.setTypeMin(DataSourceUniform.LimitType.INCLUSIVE);
 
         rData = (DataDoubleArray) xDataSource.getData();
         data = new DataFunction(new int[]{rData.getLength()});
@@ -70,6 +71,7 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         dataInfo.addTag(tag);
 
         lastTime = integratorHard.getCurrentTime();
+        lastSwitchTime = integratorHard.getCurrentTime();
         tInternal = 0;
         tExternal = 0;
 
@@ -83,13 +85,13 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         sigma = p2.getCollisionDiameter();
         if (cType == P2HardSphereCavity.CollisionType.CAPTURE) {
             internal = true;
-            double t = integratorHard.getCurrentTime();
+            double t = integratorHard.getCurrentTime() + agent.collisionTime();
             tExternal += t - lastSwitchTime;
             lastSwitchTime = t;
         }
         else if (cType == P2HardSphereCavity.CollisionType.ESCAPE) {
             internal = false;
-            double t = integratorHard.getCurrentTime();
+            double t = integratorHard.getCurrentTime() + agent.collisionTime();
             tInternal += t - lastSwitchTime;
             lastSwitchTime = t;
         }
@@ -129,7 +131,7 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         integratorHard.getBox().getBoundary().nearestImage(dr);
         double r2 = dr.squared();
         double r = Math.sqrt(r2);
-        int index = xDataSource.getIndex(r);  //determine histogram index
+        int index = (int) (r / sigma * xDataSource.getNValues());
         if (atom2Paired) dr.TE(-1);
         gSum[index] += deltaMomentum.dot(dr) / (r * r2);
     }
@@ -175,12 +177,26 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         double ti = tInternal, te = tExternal;
         if (internal) ti += integratorHard.getCurrentTime() - lastSwitchTime;
         else te += integratorHard.getCurrentTime() - lastSwitchTime;
+        double shift = ((ti / (te + ti)) - nPairs) / (4.0 / 3.0 * Math.PI * N * density * sigma * sigma * sigma / 2);
         if (ti * te > 0) {
-            double shift = ((ti / (te + ti)) - nPairs) / (4 * Math.PI * N * density * sigma * sigma * sigma / 3);
-//            System.out.println("shift integral by "+shift+" to match "+(ti/(te+ti))+" "+ti+" "+te);
+//            System.out.println("shift by "+shift+" so nPairs "+nPairs+" matches "+(ti/(te+ti))+" "+ti+" "+te);
             for (int i = 0; i < y.length; i++) {
                 y[i] += shift;
             }
+        }
+        if (false) {
+            // recheck integral
+            yIntegral = 0;
+            for (int i = 0; i < y.length; i++) {
+                double r = rData.getValue(i);
+                yIntegral += r * r * y[i];
+            }
+            // our end point isn't 0 anymore
+            yIntegral += 0.5 * shift * sigma * sigma;
+
+            yIntegral *= 4 * Math.PI * dx;
+            nPairs = yIntegral * N * density / 2;
+            System.out.println("and we got integral " + yIntegral + " and nPairs " + nPairs);
         }
         // and now scale
         if (p2 != null) {
