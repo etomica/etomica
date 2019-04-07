@@ -3,6 +3,7 @@ package etomica.cavity;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
+import etomica.data.IDataInfoFactory;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.integrator.IntegratorHard;
@@ -43,7 +44,9 @@ public class DataProcessorCavity extends DataProcessor {
 
     @Override
     protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-        dataInfo = inputDataInfo.getFactory().makeDataInfo();
+        IDataInfoFactory factory = inputDataInfo.getFactory();
+        factory.setLabel("y(r)");
+        dataInfo = factory.makeDataInfo();
         dataInfo.addTag(tag);
         data = (DataFunction) inputDataInfo.makeData();
         return dataInfo;
