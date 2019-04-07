@@ -54,6 +54,7 @@ public class DataProcessorCavity extends DataProcessor implements IntegratorHard
             if (rData.getValue(i) > sigma) y[i] = 0;
             else y[i] = inputData.getValue(i) * fac;
         }
+        reset();
         return data;
     }
 
