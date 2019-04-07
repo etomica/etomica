@@ -83,11 +83,15 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         sigma = p2.getCollisionDiameter();
         if (cType == P2HardSphereCavity.CollisionType.CAPTURE) {
             internal = true;
-            tExternal += integratorHard.getCurrentTime() - lastSwitchTime;
+            double t = integratorHard.getCurrentTime();
+            tExternal += t - lastSwitchTime;
+            lastSwitchTime = t;
         }
         else if (cType == P2HardSphereCavity.CollisionType.ESCAPE) {
             internal = false;
-            tInternal += integratorHard.getCurrentTime() - lastSwitchTime;
+            double t = integratorHard.getCurrentTime();
+            tInternal += t - lastSwitchTime;
+            lastSwitchTime = t;
         }
 
         boolean atom1Paired = atom1 == p2.pairedAtom1 || atom1 == p2.pairedAtom2;
@@ -158,34 +162,27 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
                 y[i] += y[j];
             }
         }
-//        if (true) return data;
         double yIntegral = 0;
         for (int i = 0; i < y.length; i++) {
             double r = rData.getValue(i);
             yIntegral += r * r * y[i];
         }
 
-        yIntegral *= 4 * Math.PI * N * density / 3 * dx / 2;
-//        System.out.println("yIntegral "+yIntegral);
+        yIntegral *= 4 * Math.PI * dx;
+        double nPairs = yIntegral * N * density / 2;
+//        System.out.println("yIntegral "+yIntegral+" nPairs: "+nPairs);
         // need to shift
         double ti = tInternal, te = tExternal;
         if (internal) ti += integratorHard.getCurrentTime() - lastSwitchTime;
         else te += integratorHard.getCurrentTime() - lastSwitchTime;
         if (ti * te > 0) {
-//            System.out.println("shifting so integral is "+ti/(te+ti));
-            double shift = ((ti / (te + ti)) - yIntegral) / (4 * Math.PI * N * density * sigma * sigma * sigma / 3 / 2);
-//            System.out.println("gonna shift by "+shift);
+            double shift = ((ti / (te + ti)) - nPairs) / (4 * Math.PI * N * density * sigma * sigma * sigma / 3);
+//            System.out.println("shift integral by "+shift+" to match "+(ti/(te+ti))+" "+ti+" "+te);
             for (int i = 0; i < y.length; i++) {
                 y[i] += shift;
             }
         }
-//        yIntegral = 0;
-//        for (int i = 0; i < y.length; i++) {
-//            double r = rData.getValue(i);
-//            yIntegral += r*r*y[i];
-//        }
-//        yIntegral *= 4*Math.PI*N*density/3*dx/2;
-//        System.out.println("yIntegral => "+yIntegral);
+        // and now scale
         if (p2 != null) {
             long totalCollision = integratorHard.getCollisionCount();
             long internalCollision = p2.getInternalCount();
