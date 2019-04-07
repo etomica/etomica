@@ -6,6 +6,7 @@ package etomica.cavity;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
+import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -148,6 +149,16 @@ public class HSMDCavity extends Simulation {
             cavityPlot.setLabel("cavity");
             simGraphic.add(cavityPlot);
             simGraphic.makeAndDisplayFrame(APP_NAME);
+
+            simGraphic.getController().getResetAveragesButton().setPostAction(new IAction() {
+                @Override
+                public void actionPerformed() {
+                    sim.integrator.resetStepCount();
+                    sim.potential.resetInternalCount();
+                    meterRDF.reset();
+                    meterCavityMapped.reset();
+                }
+            });
         }
     }
 
