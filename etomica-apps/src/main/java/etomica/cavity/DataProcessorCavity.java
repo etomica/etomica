@@ -12,31 +12,46 @@ import etomica.integrator.IntegratorHard;
  * This processor scales up the measured cavity function so that its contact
  * value is equal to the RDF contact value.
  */
-public class DataProcessorCavity extends DataProcessor {
+public class DataProcessorCavity extends DataProcessor implements IntegratorHard.CollisionListener {
 
     protected DataFunction data;
     protected final IntegratorHard integrator;
-    protected final P2HardSphereCavity p2;
+    protected long internalCollisions, totalCollisions;
+    protected double sigma;
 
-    public DataProcessorCavity(IntegratorHard integrator, P2HardSphereCavity p2) {
+    public DataProcessorCavity(IntegratorHard integrator) {
         super();
         this.integrator = integrator;
-        this.p2 = p2;
+        integrator.addCollisionListener(this);
+    }
+
+    public void reset() {
+        totalCollisions = internalCollisions = 0;
+    }
+
+    public void collisionAction(IntegratorHard.Agent agent) {
+        totalCollisions++;
+        P2HardSphereCavity p2 = (P2HardSphereCavity) agent.collisionPotential;
+        P2HardSphereCavity.CollisionType cType = p2.getLastCollisionType();
+        sigma = p2.getCollisionDiameter();
+        if (cType == P2HardSphereCavity.CollisionType.ESCAPE) {
+            internalCollisions++;
+        } else if (cType == P2HardSphereCavity.CollisionType.INTERNAL_BOUNCE) {
+            internalCollisions++;
+        }
     }
 
     @Override
     protected IData processData(IData inputData) {
-        long totalCollision = integrator.getCollisionCount();
-        long internalCollision = p2.getInternalCount();
         double fac = 1;
-        if (internalCollision > 0) {
-            long externalCollision = totalCollision - internalCollision;
-            fac = externalCollision / (double) internalCollision;
+        if (internalCollisions > 0) {
+            long externalCollision = totalCollisions - internalCollisions;
+            fac = externalCollision / (double) internalCollisions;
         }
         DataDoubleArray rData = ((DataFunction.DataInfoFunction) dataInfo).getXDataSource().getIndependentData(0);
         double[] y = data.getData();
         for (int i = 0; i < inputData.getLength(); i++) {
-            if (rData.getValue(i) > p2.getCollisionDiameter()) y[i] = 0;
+            if (rData.getValue(i) > sigma) y[i] = 0;
             else y[i] = inputData.getValue(i) * fac;
         }
         return data;

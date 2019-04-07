@@ -14,7 +14,6 @@ public class P2HardSphereCavity extends P2HardSphere {
     protected double pairWell;
     protected IAtomKinetic pairedAtom1, pairedAtom2;
     protected int idxSum, idxProduct;
-    protected long internalCount;
 
     public enum CollisionType {INTERNAL_BOUNCE, ESCAPE, EXTERNAL_BOUNCE, CAPTURE}
 
@@ -72,7 +71,6 @@ public class P2HardSphereCavity extends P2HardSphere {
         int idx0 = pair.get(0).getLeafIndex();
         int idx1 = pair.get(1).getLeafIndex();
         boolean paired = idx0 * idx1 == idxProduct && idx0 + idx1 == idxSum;
-        if (paired) internalCount++;
         if (idxSum > 0 && (!paired || pairWell == Double.POSITIVE_INFINITY)) {
             lastCollisionType = paired ? CollisionType.INTERNAL_BOUNCE : CollisionType.EXTERNAL_BOUNCE;
             super.bump(pair, falseTime);
@@ -146,14 +144,6 @@ public class P2HardSphereCavity extends P2HardSphere {
             }
         }
 
-    }
-
-    public void resetInternalCount() {
-        internalCount = 0;
-    }
-
-    public long getInternalCount() {
-        return internalCount;
     }
 
     public CollisionType getLastCollisionType() {
