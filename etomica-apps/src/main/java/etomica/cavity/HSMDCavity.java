@@ -11,9 +11,10 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.DataFork;
-import etomica.data.DataPumpListener;
+import etomica.data.*;
 import etomica.data.meter.MeterRDF;
+import etomica.data.types.DataFunction;
+import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
@@ -129,6 +130,7 @@ public class HSMDCavity extends Simulation {
 
         DataProcessorCavity cavityProcessor = new DataProcessorCavity(sim.integrator, sim.potential);
         MeterCavityMapped meterCavityMapped = new MeterCavityMapped(sim.integrator);
+        meterCavityMapped.setResetAfterData(true);
 
         if (params.doGraphics) {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
@@ -139,8 +141,40 @@ public class HSMDCavity extends Simulation {
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, 10));
             sim.integrator.addCollisionListener(meterCavityMapped);
             DisplayPlot cavityPlot = new DisplayPlot();
+            cavityPlot.getDataSet().setUpdatingOnAnyChange(true);
             forkRDF.addDataSink(cavityProcessor);
-            DataPumpListener pumpCavityMapped = new DataPumpListener(meterCavityMapped, cavityPlot.getDataSet().makeDataSink(), 1000);
+            AccumulatorAverageFixed accMapped = new AccumulatorAverageFixed(1);
+            accMapped.setPushInterval(1);
+            DataPumpListener pumpCavityMapped = new DataPumpListener(meterCavityMapped, accMapped, 10000);
+            accMapped.addDataSink(cavityPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accMapped.AVERAGE});
+            DataProcessor mappedErr = new DataProcessor() {
+                protected DataFunction data;
+
+                @Override
+                protected IData processData(IData inputData) {
+                    IData avg = ((DataGroup) inputData).getData(0);
+                    IData err = ((DataGroup) inputData).getData(1);
+                    double[] y = data.getData();
+                    for (int i = 0; i < y.length; i++) {
+                        y[i] = avg.getValue(i) + err.getValue(i);
+                    }
+                    return data;
+                }
+
+                @Override
+                protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+                    inputDataInfo = ((DataGroup.DataInfoGroup) inputDataInfo).getSubDataInfo(0);
+                    data = (DataFunction) inputDataInfo.makeData();
+                    IDataInfoFactory factory = inputDataInfo.getFactory();
+                    factory.setLabel("mapped y(r)+e");
+                    dataInfo = factory.makeDataInfo();
+                    dataInfo.addTag(tag);
+                    return dataInfo;
+                }
+            };
+            accMapped.addDataSink(mappedErr, new AccumulatorAverage.StatType[]{accMapped.AVERAGE, accMapped.ERROR});
+            mappedErr.setDataSink(cavityPlot.getDataSet().makeDataSink());
+
             forkRDF.addDataSink(cavityPlot.getDataSet().makeDataSink());
             cavityProcessor.setDataSink(cavityPlot.getDataSet().makeDataSink());
             DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 1000);

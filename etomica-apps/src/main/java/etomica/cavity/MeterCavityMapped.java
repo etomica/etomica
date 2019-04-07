@@ -66,13 +66,15 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
     public void reset() {
 
         rData = (DataDoubleArray) xDataSource.getData();
-        if (data.getLength() != rData.getLength()) {
-            data = new DataFunction(new int[]{rData.getLength()});
-        }
+        data = new DataFunction(new int[]{rData.getLength()});
         gSum = new double[rData.getLength()];
         dataInfo = new DataFunction.DataInfoFunction("mapped y(r)", Null.DIMENSION, this);
         dataInfo.addTag(tag);
+        zeroData();
+    }
 
+    public void zeroData() {
+        for (int i = 0; i < gSum.length; i++) gSum[i] = 0;
         lastTime = integratorHard.getCurrentTime();
         lastSwitchTime = integratorHard.getCurrentTime();
         tInternal = 0;
@@ -217,7 +219,7 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
                 y[i] *= fac;
             }
         }
-        if (resetAfterData) reset();
+        if (resetAfterData) zeroData();
         return data;
     }
 
