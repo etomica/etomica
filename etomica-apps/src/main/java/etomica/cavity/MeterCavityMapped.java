@@ -42,7 +42,7 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
 
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
         xDataSource.setNValues(500);
-        xDataSource.setTypeMax(DataSourceUniform.LimitType.EXCLUSIVE);
+        xDataSource.setTypeMax(DataSourceUniform.LimitType.INCLUSIVE);
         xDataSource.setTypeMin(DataSourceUniform.LimitType.INCLUSIVE);
 
         rData = (DataDoubleArray) xDataSource.getData();
@@ -144,7 +144,7 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         integratorHard.getBox().getBoundary().nearestImage(dr);
         double r2 = dr.squared();
         double r = Math.sqrt(r2);
-        int index = (int) (r / sigma * xDataSource.getNValues());
+        int index = (int) (r / sigma * (xDataSource.getNValues() - 1));
         if (atom2Paired) dr.TE(-1);
         gSum[index] += deltaMomentum.dot(dr) / (r * r2);
     }
@@ -200,7 +200,8 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         if (false) {
             // recheck integral
             yIntegral = 0;
-            for (int i = 0; i < y.length; i++) {
+            // the last point is our endpoint.  skip and handle explicitly
+            for (int i = 0; i < y.length - 1; i++) {
                 double r = rData.getValue(i);
                 yIntegral += r * r * y[i];
             }
