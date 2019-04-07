@@ -123,7 +123,6 @@ public class HSMDCavity extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doGraphics = true;
-            params.eta = 0.4;
         }
         final HSMDCavity sim = new HSMDCavity(params);
 
@@ -169,16 +168,13 @@ public class HSMDCavity extends Simulation {
             DataFork cavityFork = new DataFork();
             cavityProcessor.setDataSink(cavityFork);
             cavityFork.addDataSink(accConv);
-            DataProcessorExtrapolation processorExtrapolation = new DataProcessorExtrapolation("y(0)", meterRDF.getXDataSource().getNValues() / 2 - 1, 4, true, true);
-            accConv.addDataSink(processorExtrapolation, new AccumulatorAverage.StatType[]{accConv.AVERAGE, accConv.ERROR});
-            processorExtrapolation.addDataSink(cavityPlot.getDataSet().makeDataSink());
+            DataProcessorExtrapolation processorFit = new DataProcessorExtrapolation("yFit(r)", meterRDF.getXDataSource().getNValues() / 2 - 1, 4, true);
+            accConv.addDataSink(processorFit, new AccumulatorAverage.StatType[]{accConv.AVERAGE, accConv.ERROR});
+            processorFit.addDataSink(cavityPlot.getDataSet().makeDataSink());
             accConv.addDataSink(cavityPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accConv.AVERAGE});
             DataProcessor convErr = new DataProcessorErrorBar("y(r)+e");
             accConv.addDataSink(convErr, new AccumulatorAverage.StatType[]{accConv.AVERAGE, accConv.ERROR});
             convErr.setDataSink(cavityPlot.getDataSet().makeDataSink());
-            DataProcessorExtrapolation processorExtrapolation1 = new DataProcessorExtrapolation("y(1)", meterRDF.getXDataSource().getNValues() / 2 - 1, 4, true, false);
-            accConv.addDataSink(processorExtrapolation1, new AccumulatorAverage.StatType[]{accConv.AVERAGE, accConv.ERROR});
-            processorExtrapolation1.addDataSink(cavityPlot.getDataSet().makeDataSink());
 
             DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 100000);
             sim.integrator.getEventManager().addListener(pumpRDF);
@@ -187,7 +183,7 @@ public class HSMDCavity extends Simulation {
 
             DisplayPlot y0Plot = new DisplayPlot();
             DataProcessorExtract0 y0Extractor = new DataProcessorExtract0("conv");
-            processorExtrapolation.addDataSink(y0Extractor);
+            processorFit.addDataSink(y0Extractor);
             DataSourceCountTime dsTime = new DataSourceCountTime(sim.integrator);
             AccumulatorHistory y0History = new AccumulatorHistory(new HistoryCollapsingDiscard());
             y0History.setTimeDataSource(dsTime);
@@ -266,23 +262,27 @@ public class HSMDCavity extends Simulation {
     private static class DataProcessorExtrapolation extends DataProcessorForked {
         protected String label;
         protected final int order;
-        protected final boolean log, zero;
+        protected final boolean log;
         protected final double[] x, y, w;
         protected final DataFunction data;
         protected DataDoubleArray xData;
 
-        public DataProcessorExtrapolation(String label, int nPoints, int order, boolean log, boolean zero) {
+        public DataProcessorExtrapolation(String label, int nPoints, int order, boolean log) {
             this.label = label;
             this.order = order;
             this.log = log;
-            this.zero = zero;
             x = new double[nPoints];
             y = new double[nPoints];
             w = new double[nPoints];
-            data = new DataFunction(new int[]{2});
-            double offset = zero ? 0 : 0.99;
-            double[] xOut = new double[]{0 + offset, 0.01 + offset};
-            DataSourceIndependentSimple rData = new DataSourceIndependentSimple(xOut, new DataDoubleArray.DataInfoDoubleArray("r", Length.DIMENSION, new int[]{2}));
+            DataSourceUniform xDataSource = new DataSourceUniform();
+            xDataSource.setTypeMin(DataSourceUniform.LimitType.INCLUSIVE);
+            xDataSource.setTypeMax(DataSourceUniform.LimitType.INCLUSIVE);
+            xDataSource.setNValues(101);
+            xDataSource.setXMin(0);
+            xDataSource.setXMax(1);
+            data = new DataFunction(new int[]{xDataSource.getNValues()});
+            double[] xOut = ((DataDoubleArray) xDataSource.getData()).getData();
+            DataSourceIndependentSimple rData = new DataSourceIndependentSimple(xOut, new DataDoubleArray.DataInfoDoubleArray("r", Length.DIMENSION, new int[]{xOut.length}));
             dataInfo = new DataFunction.DataInfoFunction(label, Null.DIMENSION, rData);
             dataInfo.addTag(tag);
         }
@@ -291,7 +291,6 @@ public class HSMDCavity extends Simulation {
         protected IData processData(IData inputData) {
             IData yData = ((DataGroup) inputData).getData(0);
             IData eData = ((DataGroup) inputData).getData(1);
-
 
             int i = 0;
             for (int j = 0; i < x.length && j < yData.getLength(); j++) {
@@ -305,23 +304,24 @@ public class HSMDCavity extends Simulation {
                     y[i] = yData.getValue(i);
                     w[i] = 1.0 / (eData.getValue(j) * eData.getValue(j));
                 }
+                if (Double.isNaN(w[i])) w[i] = 0;
                 i++;
             }
             for (; i < x.length; i++) {
                 x[i] = y[i] = w[i] = 0;
             }
             double[] poly = PolynomialFit.doFit(order, x, y, w);
-            if (zero) {
-                double y0 = poly[0];
-                if (log) y0 = Math.exp(y0);
-                data.getData()[0] = data.getData()[1] = y0;
-            } else {
-                double yLast = 0;
-                for (int j = 0; j < poly.length; j++) {
-                    yLast += poly[j];
+            DataDoubleArray rData = ((DataFunction.DataInfoFunction) dataInfo).getXDataSource().getIndependentData(0);
+            double[] yOut = data.getData();
+            for (int j = 0; j < data.getLength(); j++) {
+                double r = rData.getValue(j);
+                yOut[j] = 0;
+                double rPow = 1;
+                for (int k = 0; k <= order; k++) {
+                    yOut[j] += poly[k] * rPow;
+                    rPow *= r;
                 }
-                if (log) yLast = Math.exp(yLast);
-                data.getData()[0] = data.getData()[1] = yLast;
+                if (log) yOut[j] = Math.exp(yOut[j]);
             }
             return data;
         }
