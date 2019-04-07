@@ -12,7 +12,10 @@ import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterRDF;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
@@ -21,6 +24,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.math.numerical.PolynomialFit;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.PotentialMaster;
@@ -28,6 +32,8 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
+import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -118,17 +124,17 @@ public class HSMDCavity extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doGraphics = true;
+            params.eta = 0.4;
         }
         final HSMDCavity sim = new HSMDCavity(params);
 
         MeterRDF meterRDF = new MeterRDF(sim.space);
         meterRDF.getXDataSource().setXMax(2);
         meterRDF.setBox(sim.box);
+        meterRDF.setResetAfterData(true);
         DataFork forkRDF = new DataFork();
-        DataProcessorRDF rdfProcessor = new DataProcessorRDF(sim.potential.getCollisionDiameter());
-        forkRDF.addDataSink(rdfProcessor);
 
-        DataProcessorCavity cavityProcessor = new DataProcessorCavity(sim.integrator, sim.potential);
+        DataProcessorCavity cavityProcessor = new DataProcessorCavity(sim.integrator);
         MeterCavityMapped meterCavityMapped = new MeterCavityMapped(sim.integrator);
         meterCavityMapped.setResetAfterData(true);
 
@@ -143,54 +149,63 @@ public class HSMDCavity extends Simulation {
             DisplayPlot cavityPlot = new DisplayPlot();
             cavityPlot.getDataSet().setUpdatingOnAnyChange(true);
             forkRDF.addDataSink(cavityProcessor);
+
             AccumulatorAverageFixed accMapped = new AccumulatorAverageFixed(1);
             accMapped.setPushInterval(1);
             DataPumpListener pumpCavityMapped = new DataPumpListener(meterCavityMapped, accMapped, 10000);
             accMapped.addDataSink(cavityPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accMapped.AVERAGE});
-            DataProcessor mappedErr = new DataProcessor() {
-                protected DataFunction data;
-
-                @Override
-                protected IData processData(IData inputData) {
-                    IData avg = ((DataGroup) inputData).getData(0);
-                    IData err = ((DataGroup) inputData).getData(1);
-                    double[] y = data.getData();
-                    for (int i = 0; i < y.length; i++) {
-                        y[i] = avg.getValue(i) + err.getValue(i);
-                    }
-                    return data;
-                }
-
-                @Override
-                protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-                    inputDataInfo = ((DataGroup.DataInfoGroup) inputDataInfo).getSubDataInfo(0);
-                    data = (DataFunction) inputDataInfo.makeData();
-                    IDataInfoFactory factory = inputDataInfo.getFactory();
-                    factory.setLabel("mapped y(r)+e");
-                    dataInfo = factory.makeDataInfo();
-                    dataInfo.addTag(tag);
-                    return dataInfo;
-                }
-            };
+            DataProcessor mappedErr = new DataProcessorErrorBar("mapped y(r)+e");
             accMapped.addDataSink(mappedErr, new AccumulatorAverage.StatType[]{accMapped.AVERAGE, accMapped.ERROR});
             mappedErr.setDataSink(cavityPlot.getDataSet().makeDataSink());
 
             forkRDF.addDataSink(cavityPlot.getDataSet().makeDataSink());
-            cavityProcessor.setDataSink(cavityPlot.getDataSet().makeDataSink());
-            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 1000);
+
+            AccumulatorAverageFixed accConv = new AccumulatorAverageFixed(1);
+            accConv.setPushInterval(1);
+            DataFork cavityFork = new DataFork();
+            cavityProcessor.setDataSink(cavityFork);
+            cavityFork.addDataSink(accConv);
+            DataProcessorExtrapolation processorExtrapolation = new DataProcessorExtrapolation("y(0)", 30, 2, true);
+            accConv.addDataSink(processorExtrapolation, new AccumulatorAverage.StatType[]{accConv.AVERAGE, accConv.ERROR});
+            processorExtrapolation.addDataSink(cavityPlot.getDataSet().makeDataSink());
+            accConv.addDataSink(cavityPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accConv.AVERAGE});
+            DataProcessor convErr = new DataProcessorErrorBar("y(r)+e");
+            accConv.addDataSink(convErr, new AccumulatorAverage.StatType[]{accConv.AVERAGE, accConv.ERROR});
+            convErr.setDataSink(cavityPlot.getDataSet().makeDataSink());
+
+            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 10000);
             sim.integrator.getEventManager().addListener(pumpRDF);
             sim.integrator.getEventManager().addListener(pumpCavityMapped);
-            cavityPlot.setLabel("cavity");
+            cavityPlot.setLabel("y(r)");
+
+            DisplayPlot y0Plot = new DisplayPlot();
+            DataProcessorExtract0 y0Extractor = new DataProcessorExtract0("conv");
+            processorExtrapolation.addDataSink(y0Extractor);
+            DataSourceCountTime dsTime = new DataSourceCountTime(sim.integrator);
+            AccumulatorHistory y0History = new AccumulatorHistory(new HistoryCollapsingDiscard());
+            y0History.setTimeDataSource(dsTime);
+            y0Extractor.addDataSink(y0History);
+            y0History.addDataSink(y0Plot.getDataSet().makeDataSink());
+            y0Plot.setLabel("y(0)");
+            DataProcessorExtract0 map0Extractor = new DataProcessorExtract0("mapped");
+            accMapped.addDataSink(map0Extractor, new AccumulatorAverage.StatType[]{accMapped.AVERAGE});
+            AccumulatorHistory map0History = new AccumulatorHistory(new HistoryCollapsingDiscard());
+            map0History.setTimeDataSource(dsTime);
+            map0Extractor.addDataSink(map0History);
+            map0History.addDataSink(y0Plot.getDataSet().makeDataSink());
+
+
             simGraphic.add(cavityPlot);
+            simGraphic.add(y0Plot);
+
             simGraphic.makeAndDisplayFrame(APP_NAME);
 
             simGraphic.getController().getResetAveragesButton().setPostAction(new IAction() {
                 @Override
                 public void actionPerformed() {
-                    sim.integrator.resetStepCount();
-                    sim.potential.resetInternalCount();
                     meterRDF.reset();
                     meterCavityMapped.reset();
+                    cavityProcessor.reset();
                 }
             });
         }
@@ -215,4 +230,117 @@ public class HSMDCavity extends Simulation {
 
         public boolean doGraphics = false;
     }
+
+    private static class DataProcessorErrorBar extends DataProcessor {
+        protected DataFunction data;
+        protected String label;
+
+        public DataProcessorErrorBar(String label) {
+            this.label = label;
+        }
+
+        @Override
+        protected IData processData(IData inputData) {
+            IData avg = ((DataGroup) inputData).getData(0);
+            IData err = ((DataGroup) inputData).getData(1);
+            double[] y = data.getData();
+            for (int i = 0; i < y.length; i++) {
+                y[i] = avg.getValue(i) + err.getValue(i);
+            }
+            return data;
+        }
+
+        @Override
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+            inputDataInfo = ((DataGroup.DataInfoGroup) inputDataInfo).getSubDataInfo(0);
+            data = (DataFunction) inputDataInfo.makeData();
+            IDataInfoFactory factory = inputDataInfo.getFactory();
+            factory.setLabel(label);
+            dataInfo = factory.makeDataInfo();
+            dataInfo.addTag(tag);
+            return dataInfo;
+        }
+    }
+
+    private static class DataProcessorExtrapolation extends DataProcessorForked {
+        protected String label;
+        protected final int order;
+        protected final boolean log;
+        protected final double[] x, y, w;
+        protected final DataFunction data;
+        protected DataDoubleArray xData;
+
+        public DataProcessorExtrapolation(String label, int nPoints, int order, boolean log) {
+            this.label = label;
+            this.order = order;
+            this.log = log;
+            x = new double[nPoints];
+            y = new double[nPoints];
+            w = new double[nPoints];
+            data = new DataFunction(new int[]{2});
+            DataSourceIndependentSimple rData = new DataSourceIndependentSimple(new double[]{0, 0.01}, new DataDoubleArray.DataInfoDoubleArray("r", Length.DIMENSION, new int[]{2}));
+            dataInfo = new DataFunction.DataInfoFunction(label, Null.DIMENSION, rData);
+            dataInfo.addTag(tag);
+        }
+
+        @Override
+        protected IData processData(IData inputData) {
+            IData yData = ((DataGroup) inputData).getData(0);
+            IData eData = ((DataGroup) inputData).getData(1);
+
+
+            int i = 0;
+            for (int j = 0; i < x.length && j < yData.getLength(); j++) {
+                if (yData.getValue(j) == 0) continue;
+                x[i] = xData.getValue(j);
+                if (log) {
+                    y[i] = Math.log(yData.getValue(j));
+                    double ratio = eData.getValue(j) / yData.getValue(j);
+                    w[i] = 1 / (ratio * ratio);
+                } else {
+                    y[i] = yData.getValue(i);
+                    w[i] = 1.0 / (eData.getValue(j) * eData.getValue(j));
+                }
+                i++;
+            }
+            for (; i < x.length; i++) {
+                x[i] = y[i] = w[i] = 0;
+            }
+            double[] poly = PolynomialFit.doFit(order, x, y, w);
+            double y0 = poly[0];
+            if (log) y0 = Math.exp(y0);
+            data.getData()[0] = data.getData()[1] = y0;
+            return data;
+        }
+
+        @Override
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+            xData = ((DataFunction.DataInfoFunction) (((DataGroup.DataInfoGroup) inputDataInfo).getSubDataInfo(0))).getXDataSource().getIndependentData(0);
+            return dataInfo;
+        }
+    }
+
+    private static class DataProcessorExtract0 extends DataProcessorForked {
+        protected String label;
+        protected final DataDouble data;
+
+        public DataProcessorExtract0(String label) {
+            this.label = label;
+            data = new DataDouble();
+            dataInfo = new DataDouble.DataInfoDouble(label, Null.DIMENSION);
+            dataInfo.addTag(tag);
+        }
+
+        @Override
+        protected IData processData(IData inputData) {
+            data.x = inputData.getValue(0);
+            return data;
+        }
+
+        @Override
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+            return dataInfo;
+        }
+    }
+
 }
