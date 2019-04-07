@@ -50,7 +50,7 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         gSum = new double[rData.getLength()];
 
         data = new DataFunction(new int[]{rData.getLength()});
-        dataInfo = new DataFunction.DataInfoFunction("cavity function", Null.DIMENSION, this);
+        dataInfo = new DataFunction.DataInfoFunction("mapped y(r)", Null.DIMENSION, this);
         tag = new DataTag();
         dataInfo.addTag(tag);
         integratorHard = integrator;
