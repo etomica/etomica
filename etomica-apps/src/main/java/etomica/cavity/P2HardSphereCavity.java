@@ -109,7 +109,7 @@ public class P2HardSphereCavity extends P2HardSphere {
                 idxSum = idxProduct = 0;
                 lastCollisionType = CollisionType.ESCAPE;
             }
-        } else if (pairWell > 0 || random.nextDouble() < Math.exp(pairWell)) {   // Approach/capture
+        } else if (pairWell >= 0 || random.nextDouble() < Math.exp(pairWell)) {   // Approach/capture
             // core collision -- capture
             lastCollisionVirial = 0;
             pairedAtom1 = atom0;
