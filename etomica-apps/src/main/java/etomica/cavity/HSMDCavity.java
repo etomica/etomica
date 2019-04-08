@@ -89,10 +89,9 @@ public class HSMDCavity extends Simulation {
         integrator.setTimeStep(0.005);
 
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
 
-        potential = new P2HardSphereCavity(space, 1);
+        potential = new P2HardSphereCavity(space);
         AtomType leafType = species.getLeafType();
 
         potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
@@ -197,7 +196,6 @@ public class HSMDCavity extends Simulation {
             map0Extractor.addDataSink(map0History);
             map0History.addDataSink(y0Plot.getDataSet().makeDataSink());
 
-
             simGraphic.add(cavityPlot);
             simGraphic.add(y0Plot);
 
@@ -293,6 +291,7 @@ public class HSMDCavity extends Simulation {
             IData eData = ((DataGroup) inputData).getData(1);
 
             int i = 0;
+            int nGood = 0;
             for (int j = 0; i < x.length && j < yData.getLength(); j++) {
                 if (yData.getValue(j) == 0) continue;
                 x[i] = xData.getValue(j);
@@ -300,24 +299,37 @@ public class HSMDCavity extends Simulation {
                     y[i] = Math.log(yData.getValue(j));
                     double ratio = eData.getValue(j) / yData.getValue(j);
                     w[i] = 1 / (ratio * ratio);
+                    if (ratio > 0.2) w[i] = 0;
                 } else {
                     y[i] = yData.getValue(i);
                     w[i] = 1.0 / (eData.getValue(j) * eData.getValue(j));
                 }
-                if (Double.isNaN(w[i])) w[i] = 0;
+                if (Double.isNaN(w[i]) || w[i] == 0) w[i] = 0;
+                else nGood++;
                 i++;
+            }
+            double[] yOut = data.getData();
+//            System.out.println("Found "+nGood+" good points");
+            if (nGood < 4) {
+                for (int j = 0; j < yOut.length; j++) yOut[j] = Double.NaN;
+                return data;
             }
             for (; i < x.length; i++) {
                 x[i] = y[i] = w[i] = 0;
             }
-            double[] poly = PolynomialFit.doFit(order, x, y, w);
+            double[] poly = null;
+            for (int o = 1; o <= order && o < nGood * 2; o++) {
+                poly = PolynomialFit.doFit(o, x, y, w);
+                double chi = PolynomialFit.getChi(x, y, w, poly);
+//                System.out.println(o+" chi " + chi);
+                if (chi < 1) break;
+            }
             DataDoubleArray rData = ((DataFunction.DataInfoFunction) dataInfo).getXDataSource().getIndependentData(0);
-            double[] yOut = data.getData();
             for (int j = 0; j < data.getLength(); j++) {
                 double r = rData.getValue(j);
                 yOut[j] = 0;
                 double rPow = 1;
-                for (int k = 0; k <= order; k++) {
+                for (int k = 0; k < poly.length; k++) {
                     yOut[j] += poly[k] * rPow;
                     rPow *= r;
                 }
