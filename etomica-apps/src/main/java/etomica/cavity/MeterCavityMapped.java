@@ -184,13 +184,13 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         }
 
         yIntegral *= 4 * Math.PI * dx;
-        double nPairs = yIntegral * N * density / 2;
+        double nPairs = yIntegral * N * (N - 1) / V / 2;
 //        System.out.println("yIntegral "+yIntegral+" nPairs: "+nPairs);
         // need to shift
         double ti = tInternal, te = tExternal;
         if (internal) ti += integratorHard.getCurrentTime() - lastSwitchTime;
         else te += integratorHard.getCurrentTime() - lastSwitchTime;
-        double shift = ((ti / (te + ti)) - nPairs) / (4.0 / 3.0 * Math.PI * N * density * sigma * sigma * sigma / 2);
+        double shift = ((ti / (te + ti)) - nPairs) / (4.0 / 3.0 * Math.PI * N * (N - 1) / V * sigma * sigma * sigma / 2);
         if (ti * te > 0) {
 //            System.out.println("shift by "+shift+" so nPairs "+nPairs+" matches "+(ti/(te+ti))+" "+ti+" "+te);
             for (int i = 0; i < y.length; i++) {
