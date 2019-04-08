@@ -8,9 +8,11 @@ import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.potential.P2HardSphere;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 public class P2HardSphereCavity extends P2HardSphere {
 
+    protected final IRandom random;
     protected double pairWell;
     protected IAtomKinetic pairedAtom1, pairedAtom2;
     protected int idxSum, idxProduct;
@@ -20,11 +22,12 @@ public class P2HardSphereCavity extends P2HardSphere {
     protected CollisionType lastCollisionType;
 
     public P2HardSphereCavity(Space space) {
-        this(space, 0);
+        this(space, null, 0);
     }
 
-    public P2HardSphereCavity(Space space, double pairWell) {
+    public P2HardSphereCavity(Space space, IRandom random, double pairWell) {
         super(space, 1, false);
+        this.random = random;
         this.pairWell = pairWell;
     }
 
@@ -95,10 +98,9 @@ public class P2HardSphereCavity extends P2HardSphere {
         double rm0 = atom0.getType().rm();
         double rm1 = atom1.getType().rm();
         double reducedMass = 2.0 / (rm0 + rm1);
-        double ke = bij * bij * reducedMass / (2.0 * r2);
 
         if (bij > 0) {
-            if (ke < pairWell) {     // Not enough kinetic energy to escape
+            if (pairWell > 0 && random.nextDouble() < Math.exp(-pairWell)) {     // Not enough kinetic energy to escape
                 lastCollisionVirial = reducedMass * bij;
                 lastCollisionType = CollisionType.INTERNAL_BOUNCE;
             } else {                 // Escape
@@ -107,7 +109,7 @@ public class P2HardSphereCavity extends P2HardSphere {
                 idxSum = idxProduct = 0;
                 lastCollisionType = CollisionType.ESCAPE;
             }
-        } else if (ke > -pairWell) {   // Approach/capture
+        } else if (pairWell > 0 || random.nextDouble() < Math.exp(pairWell)) {   // Approach/capture
             // core collision -- capture
             lastCollisionVirial = 0;
             pairedAtom1 = atom0;
