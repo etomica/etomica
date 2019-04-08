@@ -6,6 +6,7 @@ package etomica.cavity;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
+import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -122,6 +123,7 @@ public class HSMDCavity extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doGraphics = true;
+            params.eta = 0.4;
         }
         final HSMDCavity sim = new HSMDCavity(params);
 
@@ -151,7 +153,7 @@ public class HSMDCavity extends Simulation {
 
             AccumulatorAverageFixed accMapped = new AccumulatorAverageFixed(1);
             accMapped.setPushInterval(1);
-            DataPumpListener pumpCavityMapped = new DataPumpListener(meterCavityMapped, accMapped, 100000);
+            DataPumpListener pumpCavityMapped = new DataPumpListener(meterCavityMapped, accMapped, 1000);
             accMapped.addDataSink(cavityPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accMapped.AVERAGE});
             DataProcessor mappedErr = new DataProcessorErrorBar("mapped y(r)+e");
             accMapped.addDataSink(mappedErr, new AccumulatorAverage.StatType[]{accMapped.AVERAGE, accMapped.ERROR});
@@ -167,7 +169,7 @@ public class HSMDCavity extends Simulation {
             DataFork cavityFork = new DataFork();
             cavityProcessor.setDataSink(cavityFork);
             cavityFork.addDataSink(accConv);
-            DataProcessorExtrapolation processorFit = new DataProcessorExtrapolation("yFit(r)", meterRDF.getXDataSource().getNValues() / 2 - 1, 4, true);
+            DataProcessorExtrapolation processorFit = new DataProcessorExtrapolation("yFit(r)", meterRDF.getXDataSource().getNValues() / 2 - 1, 8, true);
             accConv.addDataSink(processorFit, new AccumulatorAverage.StatType[]{accConv.AVERAGE, accConv.ERROR});
             processorFit.addDataSink(cavityPlot.getDataSet().makeDataSink());
             accConv.addDataSink(cavityPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accConv.AVERAGE});
@@ -175,7 +177,7 @@ public class HSMDCavity extends Simulation {
             accConv.addDataSink(convErr, new AccumulatorAverage.StatType[]{accConv.AVERAGE, accConv.ERROR});
             convErr.setDataSink(cavityPlot.getDataSet().makeDataSink());
 
-            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 100000);
+            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 1000);
             sim.integrator.getEventManager().addListener(pumpRDF);
             sim.integrator.getEventManager().addListener(pumpCavityMapped);
             cavityPlot.setLabel("y(r)");
@@ -196,6 +198,14 @@ public class HSMDCavity extends Simulation {
             map0Extractor.addDataSink(map0History);
             map0History.addDataSink(y0Plot.getDataSet().makeDataSink());
 
+            AccumulatorAverageFixed accForce = new AccumulatorAverageFixed(1);
+            accForce.setPushInterval(1);
+            meterCavityMapped.setForceSink(accForce);
+            DisplayPlot forcePlot = new DisplayPlot();
+            accForce.addDataSink(forcePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accForce.AVERAGE});
+            forcePlot.setLabel("force");
+            simGraphic.add(forcePlot);
+
             simGraphic.add(cavityPlot);
             simGraphic.add(y0Plot);
 
@@ -203,6 +213,12 @@ public class HSMDCavity extends Simulation {
 
             simGraphic.getController().getDataStreamPumps().add(pumpRDF);
             simGraphic.getController().getDataStreamPumps().add(pumpCavityMapped);
+            simGraphic.getController().getResetAveragesButton().setPostAction(new IAction() {
+                @Override
+                public void actionPerformed() {
+                    accForce.reset();
+                }
+            });
         }
     }
 

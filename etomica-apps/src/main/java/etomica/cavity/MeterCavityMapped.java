@@ -37,6 +37,10 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
     protected double sigma;
     protected boolean resetAfterData;
     protected long internalCollisions, totalCollisions;
+    protected IDataSink forceSink;
+    protected final DataTag forceTag;
+    protected DataFunction.DataInfoFunction forceDataInfo;
+    protected DataDoubleArray forceData;
 
     public MeterCavityMapped(IntegratorHard integrator) {
 
@@ -58,6 +62,20 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         lastTime = integratorHard.getCurrentTime();
         dr = integrator.getBox().getSpace().makeVector();
         deltaMomentum = integrator.getBox().getSpace().makeVector();
+        forceTag = new DataTag();
+    }
+
+    public void setForceSink(IDataSink forceSink) {
+        this.forceSink = forceSink;
+        if (forceSink == null) {
+            forceData = null;
+            forceDataInfo = null;
+            return;
+        }
+        forceData = new DataFunction(new int[]{rData.getLength()});
+        forceDataInfo = new DataFunction.DataInfoFunction("f(r)", Null.DIMENSION, this);
+        forceDataInfo.addTag(forceTag);
+        forceSink.putDataInfo(forceDataInfo);
     }
 
     /**
@@ -70,6 +88,9 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         gSum = new double[rData.getLength()];
         dataInfo = new DataFunction.DataInfoFunction("mapped y(r)", Null.DIMENSION, this);
         dataInfo.addTag(tag);
+        if (forceSink != null) {
+            setForceSink(forceSink);
+        }
         zeroData();
     }
 
@@ -170,6 +191,13 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         double density = N / V;
         for (int i = 0; i < y.length; i++) {
             y[i] = gSum[i] / elapsedTime / (N * density * 4 * Math.PI);
+        }
+        if (forceSink != null) {
+            double[] f = forceData.getData();
+            for (int i = 0; i < f.length; i++) {
+                f[i] = y[i];
+            }
+            forceSink.putData(forceData);
         }
 
         for (int i = 0; i < y.length; i++) {
