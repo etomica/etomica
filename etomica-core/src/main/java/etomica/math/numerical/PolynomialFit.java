@@ -48,16 +48,17 @@ public class PolynomialFit {
         double[][] M = new double[order+1][order+1];
         double[] b = new double[order+1];
         for (int i=0; i<x.length; i++) {
+            if (w[i] == 0) continue;
             double xp = w[i];
             for (int ipower = 0; ipower<2*order+1; ipower++) {
                 for (int irow=order; irow>-1; irow--) {
-                    int col = 2*order - irow - ipower;
+                    int col = ipower - irow;
                     if (col > -1 && col < order+1) {
                         M[irow][col] += xp;
                     }
                 }
-                if (order - ipower > -1) {
-                    b[order-ipower] += xp*y[i];
+                if (ipower <= order) {
+                    b[ipower] += xp * y[i];
                 }
                 xp *= x[i];
             }
@@ -66,7 +67,7 @@ public class PolynomialFit {
         Matrix sol = mat.solve(new Matrix(b,order+1));
         double[] result = new double[order+1];
         for (int i=0; i<result.length; i++) {
-            result[i] = sol.get(order-i,0);
+            result[i] = sol.get(i, 0);
         }
         return result;
     }
@@ -77,17 +78,19 @@ public class PolynomialFit {
      * <p>
      * chi = (<(diff/error)^2>/N)^.5
      */
-    public static double getChi(int order, double[] x, double[] y, double[] w, double[] poly) {
+    public static double getChi(double[] x, double[] y, double[] w, double[] poly) {
         double chiSqSum = 0, nData = 0;
         for (int i = 0; i < x.length; i++) {
+            if (w[i] == 0) continue;
             double xp = 1;
             double yp = 0;
-            for (int ipower = 0; ipower <= order; ipower++) {
+            for (int ipower = 0; ipower < poly.length; ipower++) {
                 yp += poly[ipower] * xp;
+                xp *= x[i];
             }
             double diff = y[i] - yp;
             chiSqSum += diff * diff * w[i];
-            if (w[i] > 0) nData++;
+            nData++;
         }
         return Math.sqrt(chiSqSum / nData);
     }
