@@ -154,6 +154,9 @@ public class HSMDWidom extends Simulation {
             gPlot.setLabel("g(r)");
             simGraphic.add(gPlot);
 
+            DataProcessorFit dpFit = new DataProcessorFit("g(r) fit", 100, 4, false, 1, 1.2);
+            accRDF.addDataSink(dpFit, new AccumulatorAverage.StatType[]{accRDF.AVERAGE, accRDF.ERROR});
+            dpFit.setDataSink(gPlot.getDataSet().makeDataSink());
 
             DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 1000);
             sim.integrator.getEventManager().addListener(pumpRDF);

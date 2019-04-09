@@ -15,11 +15,18 @@ class DataProcessorFit extends DataProcessorForked {
     protected final double[] x, y, w;
     protected final DataFunction data;
     protected DataDoubleArray xData;
+    protected double xMin, xMax;
 
     public DataProcessorFit(String label, int nPoints, int order, boolean log) {
+        this(label, nPoints, order, log, 0, 1);
+    }
+
+    public DataProcessorFit(String label, int nPoints, int order, boolean log, double xMin, double xMax) {
         this.label = label;
         this.order = order;
         this.log = log;
+        this.xMin = xMin;
+        this.xMax = xMax;
         x = new double[nPoints];
         y = new double[nPoints];
         w = new double[nPoints];
@@ -27,8 +34,8 @@ class DataProcessorFit extends DataProcessorForked {
         xDataSource.setTypeMin(DataSourceUniform.LimitType.INCLUSIVE);
         xDataSource.setTypeMax(DataSourceUniform.LimitType.INCLUSIVE);
         xDataSource.setNValues(101);
-        xDataSource.setXMin(0);
-        xDataSource.setXMax(1);
+        xDataSource.setXMin(xMin);
+        xDataSource.setXMax(xMax);
         data = new DataFunction(new int[]{xDataSource.getNValues()});
         double[] xOut = ((DataDoubleArray) xDataSource.getData()).getData();
         DataSourceIndependentSimple rData = new DataSourceIndependentSimple(xOut, new DataDoubleArray.DataInfoDoubleArray("r", Length.DIMENSION, new int[]{xOut.length}));
@@ -46,13 +53,14 @@ class DataProcessorFit extends DataProcessorForked {
         for (int j = 0; i < x.length && j < yData.getLength(); j++) {
             if (yData.getValue(j) == 0) continue;
             x[i] = xData.getValue(j);
+            if (x[i] < xMin || x[i] > xMax) continue;
             if (log) {
                 y[i] = Math.log(yData.getValue(j));
                 double ratio = eData.getValue(j) / yData.getValue(j);
                 w[i] = 1 / (ratio * ratio);
                 if (ratio > 0.2) w[i] = 0;
             } else {
-                y[i] = yData.getValue(i);
+                y[i] = yData.getValue(j);
                 w[i] = 1.0 / (eData.getValue(j) * eData.getValue(j));
             }
             if (Double.isNaN(w[i]) || w[i] == 0) w[i] = 0;
