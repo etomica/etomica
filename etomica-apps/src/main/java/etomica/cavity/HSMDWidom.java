@@ -126,6 +126,7 @@ public class HSMDWidom extends Simulation {
         final HSMDWidom sim = new HSMDWidom(params);
 
         MeterPressureHard meterP = new MeterPressureHard(sim.integrator);
+        MeterPressureCollisionCount meterPCC = new MeterPressureCollisionCount(sim.integrator);
 
         MeterRDF meterRDF = new MeterRDF(sim.space);
         meterRDF.getXDataSource().setNValues(1000);
@@ -172,7 +173,12 @@ public class HSMDWidom extends Simulation {
             dpPContact.addDataSink(displayContact);
             displayContact.setLabel("g(sigma)");
             simGraphic.add(displayContact);
-
+            AccumulatorAverageCollapsing accPCC = new AccumulatorAverageCollapsing(200);
+            DataPumpListener pumpPCC = new DataPumpListener(meterPCC, accPCC, 100);
+            sim.integrator.getEventManager().addListener(pumpPCC);
+            DisplayTextBoxesCAE displayPCC = new DisplayTextBoxesCAE();
+            displayPCC.setAccumulator(accPCC);
+            simGraphic.add(displayPCC);
 
             AccumulatorAverageCollapsing accWidom = new AccumulatorAverageCollapsing(200);
             DataPumpListener pumpWidom = new DataPumpListener(meterWidom, accWidom, 10);
