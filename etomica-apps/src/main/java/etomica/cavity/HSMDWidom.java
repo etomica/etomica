@@ -16,6 +16,7 @@ import etomica.data.meter.MeterRDF;
 import etomica.data.meter.MeterWidomInsertion;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
+import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
@@ -138,6 +139,8 @@ public class HSMDWidom extends Simulation {
         meterWidom.setNInsert(params.nAtoms / 5);
         meterWidom.setSpecies(sim.species);
 
+        DataProcessorGContactP dpPContact = new DataProcessorGContactP(sim.box);
+
         if (params.doGraphics) {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1000);
 
@@ -146,6 +149,11 @@ public class HSMDWidom extends Simulation {
             AccumulatorAverageFixed accRDF = new AccumulatorAverageFixed(10);
             accRDF.setPushInterval(1);
             forkRDF.addDataSink(accRDF);
+            DisplayPlot gPlot = new DisplayPlot();
+            accRDF.addDataSink(gPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accRDF.AVERAGE});
+            gPlot.setLabel("g(r)");
+            simGraphic.add(gPlot);
+
 
             DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 1000);
             sim.integrator.getEventManager().addListener(pumpRDF);
@@ -156,6 +164,12 @@ public class HSMDWidom extends Simulation {
             DisplayTextBoxesCAE displayP = new DisplayTextBoxesCAE();
             displayP.setAccumulator(accP);
             simGraphic.add(displayP);
+            accP.addDataSink(dpPContact, new AccumulatorAverage.StatType[]{accP.MOST_RECENT, accP.AVERAGE, accP.ERROR});
+            DisplayTextBoxesCAE displayContact = new DisplayTextBoxesCAE();
+            dpPContact.addDataSink(displayContact);
+            displayContact.setLabel("g(sigma)");
+            simGraphic.add(displayContact);
+
 
             AccumulatorAverageCollapsing accWidom = new AccumulatorAverageCollapsing(200);
             DataPumpListener pumpWidom = new DataPumpListener(meterWidom, accWidom, 10);
