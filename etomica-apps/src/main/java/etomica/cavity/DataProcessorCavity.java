@@ -15,13 +15,11 @@ import etomica.integrator.IntegratorHard;
 public class DataProcessorCavity extends DataProcessor implements IntegratorHard.CollisionListener {
 
     protected DataFunction data;
-    protected final IntegratorHard integrator;
     protected long internalCollisions, totalCollisions;
     protected double sigma;
 
     public DataProcessorCavity(IntegratorHard integrator) {
         super();
-        this.integrator = integrator;
         integrator.addCollisionListener(this);
     }
 
