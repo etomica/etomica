@@ -15,7 +15,6 @@ import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterRDF;
-import etomica.data.types.DataDouble;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
@@ -31,7 +30,6 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -182,7 +180,7 @@ public class HSMDCavity extends Simulation {
             cavityPlot.setLabel("y(r)");
 
             DisplayPlot y0Plot = new DisplayPlot();
-            DataProcessorExtract0 y0Extractor = new DataProcessorExtract0("conv");
+            DataProcessorExtract0 y0Extractor = new DataProcessorExtract0("conv", null);
             processorFit.addDataSink(y0Extractor);
             DataSourceCountTime dsTime = new DataSourceCountTime(sim.integrator);
             AccumulatorHistory y0History = new AccumulatorHistory(new HistoryCollapsingDiscard());
@@ -190,7 +188,7 @@ public class HSMDCavity extends Simulation {
             y0Extractor.addDataSink(y0History);
             y0History.addDataSink(y0Plot.getDataSet().makeDataSink());
             y0Plot.setLabel("y(0)");
-            DataProcessorExtract0 map0Extractor = new DataProcessorExtract0("mapped");
+            DataProcessorExtract0 map0Extractor = new DataProcessorExtract0("mapped", null);
             accMapped.addDataSink(map0Extractor, new AccumulatorAverage.StatType[]{accMapped.AVERAGE});
             AccumulatorHistory map0History = new AccumulatorHistory(new HistoryCollapsingDiscard());
             map0History.setTimeDataSource(dsTime);
@@ -278,29 +276,6 @@ public class HSMDCavity extends Simulation {
             factory.setLabel(label);
             dataInfo = factory.makeDataInfo();
             dataInfo.addTag(tag);
-            return dataInfo;
-        }
-    }
-
-    private static class DataProcessorExtract0 extends DataProcessorForked {
-        protected String label;
-        protected final DataDouble data;
-
-        public DataProcessorExtract0(String label) {
-            this.label = label;
-            data = new DataDouble();
-            dataInfo = new DataDouble.DataInfoDouble(label, Null.DIMENSION);
-            dataInfo.addTag(tag);
-        }
-
-        @Override
-        protected IData processData(IData inputData) {
-            data.x = inputData.getValue(0);
-            return data;
-        }
-
-        @Override
-        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
             return dataInfo;
         }
     }
