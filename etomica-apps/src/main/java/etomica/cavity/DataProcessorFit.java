@@ -16,6 +16,7 @@ class DataProcessorFit extends DataProcessorForked {
     protected final DataFunction data;
     protected DataDoubleArray xData;
     protected double xMin, xMax;
+    protected double[] eDataSave;
 
     public DataProcessorFit(String label, int nPoints, int order, boolean log) {
         this(label, nPoints, order, log, 0, 1);
@@ -54,6 +55,7 @@ class DataProcessorFit extends DataProcessorForked {
             if (yData.getValue(j) == 0) continue;
             x[i] = xData.getValue(j);
             if (x[i] < xMin || x[i] > xMax) continue;
+//            System.out.println(x[i]+" "+y[i]+" "+w[i]);
             if (log) {
                 y[i] = Math.log(yData.getValue(j));
                 double ratio = eData.getValue(j) / yData.getValue(j);
@@ -70,31 +72,37 @@ class DataProcessorFit extends DataProcessorForked {
         double[] yOut = data.getData();
 //            System.out.println("Found "+nGood+" good points");
         if (nGood < 4) {
-            for (int j = 0; j < yOut.length; j++) yOut[j] = Double.NaN;
+            eDataSave = new double[yOut.length];
+            for (int j = 0; j < yOut.length; j++) yOut[j] = eDataSave[j] = Double.NaN;
             return data;
         }
         for (; i < x.length; i++) {
             x[i] = y[i] = w[i] = 0;
         }
-        double[] poly = null;
+        PolynomialFit.FitResult fr = null;
         for (int o = 1; o <= order && o < nGood * 2; o++) {
-            poly = PolynomialFit.doFit(o, x, y, w);
+            fr = PolynomialFit.doFit(o, x, y, w, true);
+            double[] poly = fr.coeff;
             double chi = PolynomialFit.getChi(x, y, w, poly);
-//                System.out.println(o+" chi " + chi);
+//            System.out.println(o+" chi " + chi);
             if (chi < 1) break;
         }
         DataDoubleArray rData = ((DataFunction.DataInfoFunction) dataInfo).getXDataSource().getIndependentData(0);
+        double[][] yFit = PolynomialFit.getFit(rData.getData(), fr);
+        eDataSave = new double[yFit[1].length];
         for (int j = 0; j < data.getLength(); j++) {
-            double r = rData.getValue(j);
-            yOut[j] = 0;
-            double rPow = 1;
-            for (int k = 0; k < poly.length; k++) {
-                yOut[j] += poly[k] * rPow;
-                rPow *= r;
+            yOut[j] = yFit[0][j];
+            eDataSave[j] = yFit[1][j];
+            if (log) {
+                eDataSave[j] /= yOut[j];
+                yOut[j] = Math.exp(yOut[j]);
             }
-            if (log) yOut[j] = Math.exp(yOut[j]);
         }
         return data;
+    }
+
+    public double[] getLastErr() {
+        return eDataSave;
     }
 
     @Override
