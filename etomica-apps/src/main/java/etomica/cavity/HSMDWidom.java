@@ -141,13 +141,14 @@ public class HSMDWidom extends Simulation {
         meterWidom.setSpecies(sim.species);
 
         DataProcessorGContactP dpPContact = new DataProcessorGContactP(sim.box);
+        DataProcessorPContactG dpGContact = new DataProcessorPContactG(sim.box);
 
         if (params.doGraphics) {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1000);
 
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, 10));
 
-            AccumulatorAverageFixed accRDF = new AccumulatorAverageFixed(10);
+            AccumulatorAverageFixed accRDF = new AccumulatorAverageFixed(100);
             accRDF.setPushInterval(1);
             forkRDF.addDataSink(accRDF);
             DisplayPlot gPlot = new DisplayPlot();
@@ -155,9 +156,21 @@ public class HSMDWidom extends Simulation {
             gPlot.setLabel("g(r)");
             simGraphic.add(gPlot);
 
-            DataProcessorFit dpFit = new DataProcessorFit("g(r) fit", 100, 4, false, 1, 1.2);
+            DataProcessorFit dpFit = new DataProcessorFit("g(r) fit", 100, 3, false, 1, 1.1);
             accRDF.addDataSink(dpFit, new AccumulatorAverage.StatType[]{accRDF.AVERAGE, accRDF.ERROR});
             dpFit.setDataSink(gPlot.getDataSet().makeDataSink());
+
+            DataProcessorExtract0 gCExtractor = new DataProcessorExtract0("g(sigma)", dpFit);
+            dpFit.addDataSink(gCExtractor);
+            DisplayTextBoxesCAE gCDisplay = new DisplayTextBoxesCAE();
+            gCExtractor.addDataSink(gCDisplay);
+            gCDisplay.setDoShowCurrent(false);
+            simGraphic.add(gCDisplay);
+            gCExtractor.addDataSink(dpGContact);
+            DisplayTextBoxesCAE displayPfromGC = new DisplayTextBoxesCAE();
+            dpGContact.addDataSink(displayPfromGC);
+            displayPfromGC.setLabel("P from g(sigma)");
+
 
             DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 1000);
             sim.integrator.getEventManager().addListener(pumpRDF);
@@ -167,12 +180,13 @@ public class HSMDWidom extends Simulation {
             sim.integrator.getEventManager().addListener(pumpP);
             DisplayTextBoxesCAE displayP = new DisplayTextBoxesCAE();
             displayP.setAccumulator(accP);
-            simGraphic.add(displayP);
             accP.addDataSink(dpPContact, new AccumulatorAverage.StatType[]{accP.MOST_RECENT, accP.AVERAGE, accP.ERROR});
             DisplayTextBoxesCAE displayContact = new DisplayTextBoxesCAE();
             dpPContact.addDataSink(displayContact);
-            displayContact.setLabel("g(sigma)");
+            displayContact.setLabel("g(sigma) from P");
             simGraphic.add(displayContact);
+            simGraphic.add(displayP);
+            simGraphic.add(displayPfromGC);
             AccumulatorAverageCollapsing accPCC = new AccumulatorAverageCollapsing(200);
             DataPumpListener pumpPCC = new DataPumpListener(meterPCC, accPCC, 100);
             sim.integrator.getEventManager().addListener(pumpPCC);
