@@ -169,10 +169,11 @@ public class HSMDWidom extends Simulation {
             gCExtractor.addDataSink(dpGContact);
             DisplayTextBoxesCAE displayPfromGC = new DisplayTextBoxesCAE();
             dpGContact.addDataSink(displayPfromGC);
+            displayPfromGC.setDoShowCurrent(false);
             displayPfromGC.setLabel("P from g(sigma)");
 
 
-            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 1000);
+            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 100);
             sim.integrator.getEventManager().addListener(pumpRDF);
 
             AccumulatorAverageCollapsing accP = new AccumulatorAverageCollapsing(200);
@@ -180,10 +181,13 @@ public class HSMDWidom extends Simulation {
             sim.integrator.getEventManager().addListener(pumpP);
             DisplayTextBoxesCAE displayP = new DisplayTextBoxesCAE();
             displayP.setAccumulator(accP);
+            displayP.setDoShowCurrent(false);
+            displayP.setDoShowCorrelation(true);
             accP.addDataSink(dpPContact, new AccumulatorAverage.StatType[]{accP.MOST_RECENT, accP.AVERAGE, accP.ERROR});
             DisplayTextBoxesCAE displayContact = new DisplayTextBoxesCAE();
             dpPContact.addDataSink(displayContact);
             displayContact.setLabel("g(sigma) from P");
+            displayContact.setDoShowCurrent(false);
             simGraphic.add(displayContact);
             simGraphic.add(displayP);
             simGraphic.add(displayPfromGC);
@@ -191,6 +195,8 @@ public class HSMDWidom extends Simulation {
             DataPumpListener pumpPCC = new DataPumpListener(meterPCC, accPCC, 100);
             sim.integrator.getEventManager().addListener(pumpPCC);
             DisplayTextBoxesCAE displayPCC = new DisplayTextBoxesCAE();
+            displayPCC.setDoShowCurrent(false);
+            displayPCC.setDoShowCorrelation(true);
             displayPCC.setAccumulator(accPCC);
             simGraphic.add(displayPCC);
 
@@ -198,6 +204,8 @@ public class HSMDWidom extends Simulation {
             DataPumpListener pumpWidom = new DataPumpListener(meterWidom, accWidom, 10);
             DisplayTextBoxesCAE displayWidom = new DisplayTextBoxesCAE();
             displayWidom.setAccumulator(accWidom);
+            displayWidom.setDoShowCurrent(false);
+            displayWidom.setDoShowCorrelation(true);
             simGraphic.add(displayWidom);
             sim.integrator.getEventManager().addListener(pumpWidom);
             DataProcessorForked widomProcessor = new DataProcessorForked() {
