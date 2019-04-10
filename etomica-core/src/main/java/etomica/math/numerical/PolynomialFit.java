@@ -40,6 +40,15 @@ public class PolynomialFit {
      * r[i] is the coefficient for x^i
      */
     public static double[] doFit(int order, double[] x, double[] y, double[] w) {
+        return doFit(order, x, y, w, false).coeff;
+    }
+
+    public static class FitResult {
+        public double[] coeff;
+        public double[][] eCoeff;
+    }
+
+    public static FitResult doFit(int order, double[] x, double[] y, double[] w, boolean doFitErr) {
         if (x.length != y.length || x.length != w.length || x.length < order+1) {
             // We need at least order+1 data points to do a meaningful fit.
             return null;
@@ -47,11 +56,12 @@ public class PolynomialFit {
 
         double[][] M = new double[order+1][order+1];
         double[] b = new double[order+1];
-        for (int i=0; i<x.length; i++) {
+        double[][] B = new double[order + 1][x.length];
+        for (int i = 0; i<x.length; i++) {
             if (w[i] == 0) continue;
             double xp = w[i];
             for (int ipower = 0; ipower<2*order+1; ipower++) {
-                for (int irow=order; irow>-1; irow--) {
+                for (int irow = order; irow>-1; irow--) {
                     int col = ipower - irow;
                     if (col > -1 && col < order+1) {
                         M[irow][col] += xp;
@@ -59,17 +69,53 @@ public class PolynomialFit {
                 }
                 if (ipower <= order) {
                     b[ipower] += xp * y[i];
+                    B[ipower][i] = xp;
                 }
                 xp *= x[i];
             }
         }
-        Matrix mat = new Matrix(M);
-        Matrix sol = mat.solve(new Matrix(b,order+1));
-        double[] result = new double[order+1];
-        for (int i=0; i<result.length; i++) {
-            result[i] = sol.get(i, 0);
+        Matrix mat = new Matrix(M).inverse();
+        Matrix sol = mat.times(new Matrix(b, order + 1));
+        Matrix eSol = mat.times(new Matrix(B));
+        FitResult rv = new FitResult();
+        rv.coeff = new double[order + 1];
+        for (int i = 0; i < rv.coeff.length; i++) {
+            rv.coeff[i] = sol.get(i, 0);
         }
-        return result;
+        rv.eCoeff = eSol.getArray();
+        for (int i = 0; i < rv.eCoeff.length; i++) {
+            for (int j = 0; j < w.length; j++) {
+                if (w[j] > 0) {
+                    rv.eCoeff[i][j] /= Math.sqrt(w[j]);
+                }
+            }
+        }
+        return rv;
+    }
+
+    public static double[][] getFit(double[] x, FitResult fr) {
+        double[][] rv = new double[2][x.length];
+        for (int j = 0; j < x.length; j++) {
+            rv[0][j] = rv[1][j] = 0;
+            double xp = 1;
+            for (int k = 0; k < fr.coeff.length; k++) {
+                rv[0][j] += fr.coeff[k] * xp;
+                xp *= x[j];
+            }
+
+            for (int i = 0; i < fr.eCoeff[0].length; i++) {
+                xp = 1;
+                double sumi = 0;
+                for (int k = 0; k < fr.eCoeff.length; k++) {
+                    double e = fr.eCoeff[k][i];
+                    sumi += e * xp;
+                    xp *= x[j];
+                }
+                rv[1][j] += sumi * sumi;
+            }
+            rv[1][j] = Math.sqrt(rv[1][j]);
+        }
+        return rv;
     }
 
     /**
