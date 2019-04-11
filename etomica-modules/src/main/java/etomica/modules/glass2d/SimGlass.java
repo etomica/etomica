@@ -1,0 +1,131 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+package etomica.modules.glass2d;
+
+import etomica.action.BoxInflate;
+import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
+import etomica.box.Box;
+import etomica.config.ConfigurationLattice;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.lattice.LatticeCubicFcc;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphere;
+import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.P2SoftSphericalTruncatedForceShifted;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.species.SpeciesSpheresMono;
+import etomica.util.ParameterBase;
+import etomica.util.ParseArgs;
+
+public class SimGlass extends Simulation {
+
+    public SpeciesSpheresMono speciesA, speciesB;
+    public Box box;
+    public IntegratorVelocityVerlet integrator;
+    public ActivityIntegrate activityIntegrate;
+    public final MCMoveSwap swapMove;
+    public final IntegratorMC integratorMC;
+    public final boolean isLJ;
+
+    public SimGlass(int D, int nA, int nB, double density, boolean doSwap, boolean doLJ) {
+        super(Space.getInstance(D));
+        isLJ = doLJ;
+
+        //species
+        speciesA = new SpeciesSpheresMono(this, space);
+        speciesA.setIsDynamic(true);
+        addSpecies(speciesA);
+        speciesB = new SpeciesSpheresMono(this, space);
+        speciesB.setIsDynamic(true);
+        addSpecies(speciesB);
+
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.99, space);
+
+        //controller and integrator
+        box = this.makeBox();
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator.setIsothermal(true);
+        integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
+        integrator.setThermostatInterval(1);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+        integrator.setTimeStep(0.005);
+        integrator.setThermostatNoDrift(true);
+
+        if (doLJ) {
+
+            //instantiate several potentials for selection in combo-box
+            P2LennardJones potentialAA = new P2LennardJones(space);
+            P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(space, potentialAA, 2.5);
+            potentialMaster.addPotential(p2TruncatedAA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
+            P2LennardJones potentialAB = new P2LennardJones(space, 0.8, 1.5);
+            P2SoftSphericalTruncated p2TruncatedAB = new P2SoftSphericalTruncatedForceShifted(space, potentialAB, 2.5);
+            potentialMaster.addPotential(p2TruncatedAB, new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
+            P2LennardJones potentialBB = new P2LennardJones(space, 0.88, 0.5);
+            P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(space, potentialBB, 2.5);
+            potentialMaster.addPotential(p2TruncatedBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
+        } else {
+            // https://doi.org/10.1103/PhysRevLett.81.120 prescribes cut=4.5*(0.5+0.5/1.4)=3.85714
+            P2SoftSphere potentialAA = new P2SoftSphere(space, 1, 1, 12);
+            P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(space, potentialAA, 2.5);
+            potentialMaster.addPotential(p2TruncatedAA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
+            P2SoftSphere potentialAB = new P2SoftSphere(space, 0.5 + 0.5 / 1.4, 1, 12);
+            P2SoftSphericalTruncated p2TruncatedAB = new P2SoftSphericalTruncatedForceShifted(space, potentialAB, 2.5);
+            potentialMaster.addPotential(p2TruncatedAB, new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
+            P2SoftSphere potentialBB = new P2SoftSphere(space, 1.0 / 1.4, 1, 12);
+            P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(space, potentialBB, 2.5);
+            potentialMaster.addPotential(p2TruncatedBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
+        }
+
+        //construct box
+        box.setNMolecules(speciesA, nA);
+        box.setNMolecules(speciesB, nB);
+        BoxInflate boxInflate = new BoxInflate(box, box.getSpace(), density);
+        boxInflate.actionPerformed();
+        new ConfigurationLattice(space.D() == 2 ? (new LatticeOrthorhombicHexagonal(space)) : (new LatticeCubicFcc(space)), space).initializeCoordinates(box);
+
+        integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
+
+        swapMove = new MCMoveSwap(space, random, potentialMaster, speciesA, speciesB);
+        integratorMC = new IntegratorMC(potentialMaster, random, integrator.getTemperature(), box);
+        integratorMC.getMoveManager().addMCMove(swapMove);
+        if (doSwap) {
+            integrator.setThermostat(ThermostatType.HYBRID_MC);
+            integrator.setIntegratorMC(integratorMC, 10000);
+            integrator.setThermostatInterval(1000);
+        }
+
+        integrator.reset();
+        System.out.println("u0: " + integrator.getPotentialEnergy());
+    }
+
+    public static void main(String[] args) {
+
+        GlassParams params = new GlassParams();
+        if (args.length > 0) {
+            ParseArgs.doParseArgs(params, args);
+        } else {
+        }
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.doLJ);
+        sim.getController().actionPerformed();
+    }//end of main
+
+    public static class GlassParams extends ParameterBase {
+        public int D = 2;
+        public int nA = 130, nB = 70;
+        // rho=1000/29.34^2=1.16 (yields P=0 at T=0) for LJ http://dx.doi.org/10.1088/0953-8984/21/3/035117
+        // for SS, P=18.37 https://doi.org/10.1103/PhysRevLett.81.120
+        //    rho=1.35 at T=Tg=0.55
+        public double density = 1000 / (29.34 * 29.34);
+        public boolean doSwap = false;
+        public boolean doLJ = true;
+    }
+}
