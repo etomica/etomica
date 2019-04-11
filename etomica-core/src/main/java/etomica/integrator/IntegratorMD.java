@@ -117,6 +117,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
         if (thermostat == ThermostatType.HYBRID_MC && isothermal && oldPositionAgentManager == null) {
             oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), box);
         }
+        oldEnergy = Double.NaN;
     }
 
     protected void doStepInternal() {
@@ -176,6 +177,10 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
      * @throws RuntimeException if HYBRID_MC thermostat is not enabled or if isothermal is false
      */
     public void setIntegratorMC(IntegratorMC integratorMC, int mcSteps) {
+        if (integratorMC == null) {
+            this.integratorMC = integratorMC;
+            return;
+        }
         if (thermostat != ThermostatType.HYBRID_MC || !isothermal) {
             throw new RuntimeException("integratorMC only works with HYBRID MC thermostat");
         }
