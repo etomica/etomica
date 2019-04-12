@@ -14,6 +14,7 @@ public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D {
     protected final ConfigurationStorage configStorage;
     protected int configIndex;
     protected final Vector dr;
+    protected boolean drawDisplacement;
 
     public DisplayBoxCanvas2DGlass(DisplayBox _box, Space _space, Controller controller, ConfigurationStorage configStorage) {
         super(_box, _space, controller);
@@ -31,7 +32,19 @@ public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D {
         return configIndex;
     }
 
+    public void setDrawDisplacement(boolean doDrawDisplacement) {
+        this.drawDisplacement = doDrawDisplacement;
+    }
+
+    public boolean getDrawDisplacement() {
+        return drawDisplacement;
+    }
+
     protected void drawAtom(Graphics g, int[] origin, IAtom a) {
+        if (!drawDisplacement) {
+            super.drawAtom(g, origin, a);
+            return;
+        }
         int idx = configIndex;
         int lastIndex = configStorage.getLastConfigIndex();
         if (idx > lastIndex) idx = lastIndex;

@@ -41,7 +41,8 @@ public class GlassGraphic extends SimulationGraphic {
         ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.speciesA.getLeafType(), Color.red);
         colorScheme.setColor(sim.speciesB.getLeafType(), Color.blue);
-        getDisplayBox(sim.box).setColorScheme(colorScheme);
+//        DisplayBox dbox0 = getDisplayBox(sim.box);
+//        dbox0.setColorScheme(colorScheme);
         DiameterHashByType diameterHash = (DiameterHashByType) getDisplayBox(sim.box).getDiameterHash();
         diameterHash.setDiameter(sim.speciesB.getLeafType(), sim.isLJ ? 0.88 : 1 / 1.4);
         diameterHash.setDiameter(sim.speciesA.getLeafType(), 1);
@@ -72,6 +73,7 @@ public class GlassGraphic extends SimulationGraphic {
         DisplayBox dbox = new DisplayBox(sim, sim.box);
         dbox.setLabel("Displacement");
         DisplayBoxCanvas2DGlass canvas = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
+        remove(getDisplayBox(sim.box));
         dbox.setBoxCanvas(canvas);
         add(dbox);
         dbox.setColorScheme(colorScheme);
@@ -79,14 +81,7 @@ public class GlassGraphic extends SimulationGraphic {
         canvas.setVisible(false);
         canvas.setVisible(true);
 
-        DisplayBox dbox2 = new DisplayBox(sim, sim.box);
-        dbox2.setLabel("Colors");
-        add(dbox2);
         ColorSchemeDeviation colorSchemeDeviation = new ColorSchemeDeviation(sim.box, configStorage);
-        dbox2.setColorScheme(colorSchemeDeviation);
-        dbox2.setDiameterHash(diameterHash);
-        dbox2.canvas.setVisible(false);
-        dbox2.canvas.setVisible(true);
 
         DeviceSlider prevConfigSlider = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
@@ -94,7 +89,6 @@ public class GlassGraphic extends SimulationGraphic {
                 int idx = (int) Math.round(newValue);
                 canvas.setConfigIndex(idx);
                 colorSchemeDeviation.setConfigIndex(idx);
-                dbox2.repaint();
             }
 
             @Override
@@ -118,6 +112,42 @@ public class GlassGraphic extends SimulationGraphic {
         prevConfigSlider.setShowBorder(true);
         add(prevConfigSlider);
 
+        DeviceCheckBox colorCheckbox = new DeviceCheckBox("color by displacement", new ModifierBoolean() {
+            @Override
+            public void setBoolean(boolean b) {
+                if ((dbox.getColorScheme() == colorSchemeDeviation) == b) return;
+                if (b) {
+                    if (sim.integrator.isIsothermal()) return;
+                    dbox.setColorScheme(colorSchemeDeviation);
+                } else {
+                    dbox.setColorScheme(colorScheme);
+                }
+            }
+
+            @Override
+            public boolean getBoolean() {
+                return dbox.getColorScheme() == colorSchemeDeviation;
+            }
+        });
+        colorCheckbox.setController(sim.getController());
+        add(colorCheckbox);
+
+        DeviceCheckBox showDispCheckbox = new DeviceCheckBox("show displacement", new ModifierBoolean() {
+            @Override
+            public void setBoolean(boolean b) {
+                if (canvas.getDrawDisplacement() == b || sim.integrator.isIsothermal()) return;
+                canvas.setDrawDisplacement(b);
+            }
+
+            @Override
+            public boolean getBoolean() {
+                return canvas.getDrawDisplacement();
+            }
+        });
+
+        showDispCheckbox.setController(sim.getController());
+        add(showDispCheckbox);
+
         DeviceCheckBox swapCheckbox = new DeviceCheckBox("isothermal", new ModifierBoolean() {
             @Override
             public void setBoolean(boolean b) {
@@ -126,10 +156,14 @@ public class GlassGraphic extends SimulationGraphic {
                 if (b) {
                     sim.integrator.setIsothermal(true);
                     sim.integrator.setIntegratorMC(sim.integratorMC, 10000);
+                    dbox.setColorScheme(colorScheme);
+                    canvas.setDrawDisplacement(false);
                 } else {
                     sim.integrator.setIntegratorMC(null, 0);
                     sim.integrator.setIsothermal(false);
                     configStorage.reset();
+                    if (colorCheckbox.getState()) dbox.setColorScheme(colorSchemeDeviation);
+                    if (showDispCheckbox.getState()) canvas.setDrawDisplacement(true);
                 }
             }
 
@@ -144,9 +178,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         IAction repaintAction = new IAction() {
             public void actionPerformed() {
-                if (sim.integrator.isIsothermal()) return;
                 dbox.repaint();
-                dbox2.repaint();
             }
         };
         IntegratorListenerAction repaintAction2 = new IntegratorListenerAction(repaintAction);
@@ -275,7 +307,6 @@ public class GlassGraphic extends SimulationGraphic {
         });
         configStorage.reset();
         dbox.repaint();
-        dbox2.repaint();
 
         IAction resetAction = new IAction() {
             public void actionPerformed() {

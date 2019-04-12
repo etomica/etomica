@@ -49,7 +49,6 @@ public class ColorSchemeDeviation extends ColorScheme {
         Vector oldR = configStorage.getSavedConfig(idx)[a.getLeafIndex()];
 
         dr.Ev1Mv2(r, oldR);
-        if (dr.squared() > 6) throw new RuntimeException(a + " from " + oldR + " to " + r);
         return dr.squared();
     }
 
