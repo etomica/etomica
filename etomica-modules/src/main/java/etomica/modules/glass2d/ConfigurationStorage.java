@@ -96,8 +96,8 @@ public class ConfigurationStorage implements IntegratorListener {
             if (stepCount > 0) {
                 dri.Ev1Mv2(p, configList[1][i]);
                 dri.DE(boxDim);
-                for (int k = 0; k < 3; k++) {
-                    dri.setX(k, (int) Math.round(dri.getX(k)) * boxDim.getX(i));
+                for (int k = 0; k < 2; k++) {
+                    dri.setX(k, ((int) Math.round(dri.getX(k))) * boxDim.getX(k));
                 }
                 if (!dri.isZero()) {
                     for (int j = 1; j < configList.length; j++) {
@@ -130,6 +130,18 @@ public class ConfigurationStorage implements IntegratorListener {
         }
 
         stepCount++;
+    }
+
+    public int getLastConfigIndex() {
+        if (savedSteps[0] == -1) return -1;
+        for (int i = 0; i < savedSteps.length - 1; i++) {
+            if (savedSteps[i + 1] == -1) return i;
+        }
+        return savedSteps.length - 1;
+    }
+
+    public double[] getSavedTimes() {
+        return savedTimes;
     }
 
     public long[] getSavedSteps() {
