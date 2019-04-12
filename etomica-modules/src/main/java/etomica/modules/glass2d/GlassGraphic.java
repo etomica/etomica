@@ -12,7 +12,10 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataTensor;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
 import etomica.util.ParseArgs;
 
 import java.awt.*;
@@ -64,9 +67,11 @@ public class GlassGraphic extends SimulationGraphic {
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
+        ConfigurationStorage configStorage = new ConfigurationStorage(sim.box, false);
+        sim.integrator.getEventManager().addListener(configStorage);
         DisplayBox dbox = new DisplayBox(sim, sim.box);
         dbox.setLabel("Displacement");
-        DisplayBoxCanvas2DGlass canvas = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController());
+        DisplayBoxCanvas2DGlass canvas = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
         dbox.setBoxCanvas(canvas);
         add(dbox);
         dbox.setColorScheme(colorScheme);
@@ -77,11 +82,41 @@ public class GlassGraphic extends SimulationGraphic {
         DisplayBox dbox2 = new DisplayBox(sim, sim.box);
         dbox2.setLabel("Colors");
         add(dbox2);
-        ColorSchemeDeviation colorSchemeDeviation = new ColorSchemeDeviation(sim.box);
+        ColorSchemeDeviation colorSchemeDeviation = new ColorSchemeDeviation(sim.box, configStorage);
         dbox2.setColorScheme(colorSchemeDeviation);
         dbox2.setDiameterHash(diameterHash);
         dbox2.canvas.setVisible(false);
         dbox2.canvas.setVisible(true);
+
+        DeviceSlider prevConfigSlider = new DeviceSlider(sim.getController(), new Modifier() {
+            @Override
+            public void setValue(double newValue) {
+                int idx = (int) Math.round(newValue);
+                canvas.setConfigIndex(idx);
+                colorSchemeDeviation.setConfigIndex(idx);
+                dbox2.repaint();
+            }
+
+            @Override
+            public double getValue() {
+                return canvas.getConfigIndex();
+            }
+
+            @Override
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
+
+            @Override
+            public String getLabel() {
+                return "previous config (log2)";
+            }
+        });
+        prevConfigSlider.setMaximum(30);
+        prevConfigSlider.setNMajor(5);
+        prevConfigSlider.setShowValues(true);
+        prevConfigSlider.setShowBorder(true);
+        add(prevConfigSlider);
 
         DeviceCheckBox swapCheckbox = new DeviceCheckBox("isothermal", new ModifierBoolean() {
             @Override
@@ -94,8 +129,7 @@ public class GlassGraphic extends SimulationGraphic {
                 } else {
                     sim.integrator.setIntegratorMC(null, 0);
                     sim.integrator.setIsothermal(false);
-                    canvas.reset();
-                    colorSchemeDeviation.reset();
+                    configStorage.reset();
                 }
             }
 
@@ -239,9 +273,8 @@ public class GlassGraphic extends SimulationGraphic {
                 getDisplayBox(sim.box).repaint();
             }
         });
-        canvas.reset();
+        configStorage.reset();
         dbox.repaint();
-        colorSchemeDeviation.reset();
         dbox2.repaint();
 
         IAction resetAction = new IAction() {
@@ -286,7 +319,7 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.doLJ = false;
-            params.nA = params.nB = 400;
+            params.nA = params.nB = 40;
             params.density = 1.35;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.doLJ);

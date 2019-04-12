@@ -1,7 +1,6 @@
 package etomica.modules.glass2d;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.graphics.ColorScheme;
 import etomica.space.Space;
@@ -10,14 +9,16 @@ import etomica.space.Vector;
 import java.awt.*;
 
 public class ColorSchemeDeviation extends ColorScheme {
-    protected final Vector[] scaledCoords0;
+    protected final ConfigurationStorage configStorage;
+    protected int configIndex;
     protected final Box box;
     protected final Vector dr;
     protected final Color[] colors;
     protected double fac;
 
-    public ColorSchemeDeviation(Box box) {
+    public ColorSchemeDeviation(Box box, ConfigurationStorage configStorage) {
         this.box = box;
+        this.configStorage = configStorage;
         Space space = box.getSpace();
         dr = space.makeVector();
         colors = new Color[511];
@@ -27,31 +28,33 @@ public class ColorSchemeDeviation extends ColorScheme {
         for (int i = 1; i < 256; i++) {
             colors[255 + i] = new Color(i, 255 - i, 0);
         }
-        int numAtoms = box.getLeafList().size();
-        scaledCoords0 = space.makeVectorArray(numAtoms);
         setLengthFactor(1);
-        reset();
+        configIndex = 100;
     }
 
-    public void reset() {
-        IAtomList atoms = box.getLeafList();
-        for (IAtom a : atoms) {
-            scaledCoords0[a.getLeafIndex()].E(a.getPosition());
-        }
+    public void setConfigIndex(int idx) {
+        configIndex = idx;
     }
 
     public void setLengthFactor(double lenghtFactor) {
         this.fac = lenghtFactor;
     }
 
-    public Vector getDisplacement(IAtom a) {
-        dr.Ev1Mv2(a.getPosition(), scaledCoords0[a.getLeafIndex()]);
-        box.getBoundary().nearestImage(dr);
-        return dr;
+    public double getDisplacementSq(IAtom a) {
+        int idx = configIndex;
+        int lastIndex = configStorage.getLastConfigIndex();
+        if (idx > lastIndex) idx = lastIndex;
+        if (idx == -1) return 0;
+        Vector r = configStorage.getSavedConfig(0)[a.getLeafIndex()];
+        Vector oldR = configStorage.getSavedConfig(idx)[a.getLeafIndex()];
+
+        dr.Ev1Mv2(r, oldR);
+        if (dr.squared() > 6) throw new RuntimeException(a + " from " + oldR + " to " + r);
+        return dr.squared();
     }
 
     public double getRelativeDisplacement(IAtom a) {
-        return Math.sqrt(getDisplacement(a).squared()) / fac;
+        return Math.sqrt(getDisplacementSq(a)) / fac;
     }
 
     @Override

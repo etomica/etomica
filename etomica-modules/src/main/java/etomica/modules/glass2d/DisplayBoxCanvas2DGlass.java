@@ -8,30 +8,36 @@ import etomica.space.Space;
 import etomica.space.Vector;
 
 import java.awt.*;
-import java.util.ArrayList;
 
 public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D {
 
-    protected final java.util.List<Vector> oldPositions = new ArrayList<>();
+    protected final ConfigurationStorage configStorage;
+    protected int configIndex;
     protected final Vector dr;
 
-    public DisplayBoxCanvas2DGlass(DisplayBox _box, Space _space, Controller controller) {
+    public DisplayBoxCanvas2DGlass(DisplayBox _box, Space _space, Controller controller, ConfigurationStorage configStorage) {
         super(_box, _space, controller);
-        reset();
         dr = _space.makeVector();
+        this.configStorage = configStorage;
+        configIndex = 100;
     }
 
-    public void reset() {
-        oldPositions.clear();
-        for (IAtom a : displayBox.getBox().getLeafList()) {
-            Vector v = space.makeVector();
-            v.E(a.getPosition());
-            oldPositions.add(v);
-        }
+    public void setConfigIndex(int idx) {
+        configIndex = idx;
+        repaint();
+    }
+
+    public int getConfigIndex() {
+        return configIndex;
     }
 
     protected void drawAtom(Graphics g, int[] origin, IAtom a) {
-        Vector r = a.getPosition();
+        int idx = configIndex;
+        int lastIndex = configStorage.getLastConfigIndex();
+        if (idx > lastIndex) idx = lastIndex;
+        Vector[] oldPositions = idx == -1 ? null : configStorage.getSavedConfig(idx);
+        Vector r = idx == -1 ? a.getPosition() : configStorage.getSavedConfig(0)[a.getLeafIndex()];
+        Vector rOld = idx == -1 ? r : configStorage.getSavedConfig(idx)[a.getLeafIndex()];
         int sigmaP, xP, yP, baseXP, baseYP;
 
         g.setColor(displayBox.getColorScheme().getAtomColor(a));
@@ -51,8 +57,7 @@ public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D {
         g.fillOval(xP, yP, sigmaP, sigmaP);
         /* Draw the orientation line, if any */
 
-        dr.Ev1Mv2(r, oldPositions.get(a.getLeafIndex()));
-        displayBox.getBox().getBoundary().nearestImage(dr);
+        dr.Ev1Mv2(r, rOld);
         int dxy = (int) (toPixels * 0.5 * sigma);
         int dx = (int) (toPixels * dr.getX(0));
         int dy = (int) (toPixels * dr.getX(1));

@@ -104,7 +104,6 @@ public class SimGlass extends Simulation {
         }
 
         integrator.reset();
-        System.out.println("u0: " + integrator.getPotentialEnergy());
     }
 
     public static void main(String[] args) {
