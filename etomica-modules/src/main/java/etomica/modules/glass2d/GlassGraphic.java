@@ -65,6 +65,7 @@ public class GlassGraphic extends SimulationGraphic {
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
         DisplayBox dbox = new DisplayBox(sim, sim.box);
+        dbox.setLabel("Displacement");
         DisplayBoxCanvas2DGlass canvas = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController());
         dbox.setBoxCanvas(canvas);
         add(dbox);
@@ -72,6 +73,15 @@ public class GlassGraphic extends SimulationGraphic {
         dbox.setDiameterHash(diameterHash);
         canvas.setVisible(false);
         canvas.setVisible(true);
+
+        DisplayBox dbox2 = new DisplayBox(sim, sim.box);
+        dbox2.setLabel("Colors");
+        add(dbox2);
+        ColorSchemeDeviation colorSchemeDeviation = new ColorSchemeDeviation(sim.box);
+        dbox2.setColorScheme(colorSchemeDeviation);
+        dbox2.setDiameterHash(diameterHash);
+        dbox2.canvas.setVisible(false);
+        dbox2.canvas.setVisible(true);
 
         DeviceCheckBox swapCheckbox = new DeviceCheckBox("isothermal", new ModifierBoolean() {
             @Override
@@ -85,6 +95,7 @@ public class GlassGraphic extends SimulationGraphic {
                     sim.integrator.setIntegratorMC(null, 0);
                     sim.integrator.setIsothermal(false);
                     canvas.reset();
+                    colorSchemeDeviation.reset();
                 }
             }
 
@@ -101,6 +112,7 @@ public class GlassGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 if (sim.integrator.isIsothermal()) return;
                 dbox.repaint();
+                dbox2.repaint();
             }
         };
         IntegratorListenerAction repaintAction2 = new IntegratorListenerAction(repaintAction);
@@ -229,6 +241,8 @@ public class GlassGraphic extends SimulationGraphic {
         });
         canvas.reset();
         dbox.repaint();
+        colorSchemeDeviation.reset();
+        dbox2.repaint();
 
         IAction resetAction = new IAction() {
             public void actionPerformed() {
