@@ -68,10 +68,14 @@ public class GlassGraphic extends SimulationGraphic {
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
+        ConfigurationStorage configStorageMSD = new ConfigurationStorage(sim.box, true);
+        configStorageMSD.setEnabled(false); // start isothermal
+        sim.integrator.getEventManager().addListener(configStorageMSD);
+
         ConfigurationStorage configStorage = new ConfigurationStorage(sim.box, false);
+        configStorage.setEnabled(false); // start isothermal
         sim.integrator.getEventManager().addListener(configStorage);
         DisplayBox dbox = new DisplayBox(sim, sim.box);
-        dbox.setLabel("Displacement");
         DisplayBoxCanvas2DGlass canvas = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
         remove(getDisplayBox(sim.box));
         dbox.setBoxCanvas(canvas);
@@ -158,10 +162,17 @@ public class GlassGraphic extends SimulationGraphic {
                     sim.integrator.setIntegratorMC(sim.integratorMC, 10000);
                     dbox.setColorScheme(colorScheme);
                     canvas.setDrawDisplacement(false);
+                    configStorage.reset();
+                    configStorage.setEnabled(false);
+                    configStorageMSD.reset();
+                    configStorageMSD.setEnabled(false);
                 } else {
                     sim.integrator.setIntegratorMC(null, 0);
                     sim.integrator.setIsothermal(false);
                     configStorage.reset();
+                    configStorage.setEnabled(true);
+                    configStorageMSD.reset();
+                    configStorageMSD.setEnabled(true);
                     if (colorCheckbox.getState()) dbox.setColorScheme(colorSchemeDeviation);
                     if (showDispCheckbox.getState()) canvas.setDrawDisplacement(true);
                 }
@@ -282,6 +293,16 @@ public class GlassGraphic extends SimulationGraphic {
         final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
         peDisplay.setAccumulator(peAccumulator);
 
+        DataSourceMSD meterMSD = new DataSourceMSD(configStorageMSD);
+        configStorageMSD.addListener(meterMSD);
+        DisplayPlot plotMSD = new DisplayPlot();
+        DataPumpListener pumpMSD = new DataPumpListener(meterMSD, plotMSD.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpMSD);
+        plotMSD.setLabel("MSD");
+        plotMSD.getPlot().setYLog(true);
+        plotMSD.getPlot().setXLog(true);
+        add(plotMSD);
+
         //************* Lay out components ****************//
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
@@ -350,7 +371,7 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.doLJ = false;
-            params.nA = params.nB = 40;
+            params.nA = params.nB = 400;
             params.density = 1.35;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.doLJ);

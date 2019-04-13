@@ -12,6 +12,8 @@ import etomica.integrator.IntegratorMD;
 import etomica.space.Vector;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Listener that can store configurations.  For the purposes of MSD, it
@@ -28,6 +30,8 @@ public class ConfigurationStorage implements IntegratorListener {
     protected boolean msd;
     protected final Vector[] dr;
     protected final Vector dri;
+    protected final Set<ConfigurationStorageListener> listeners;
+    protected boolean enabled;
 
     public ConfigurationStorage(Box box, boolean storeForMSD) {
         this.box = box;
@@ -35,10 +39,25 @@ public class ConfigurationStorage implements IntegratorListener {
         for (int i = 0; i < savedSteps.length; i++) savedTimes[i] = savedSteps[i] = -1;
         dr = box.getSpace().makeVectorArray(box.getLeafList().size());
         dri = box.getSpace().makeVector();
+        listeners = new HashSet<>();
+        enabled = true;
+    }
+
+    public void setEnabled(boolean newEnabled) {
+        enabled = newEnabled;
+    }
+
+    public boolean getEnabled() {
+        return enabled;
     }
 
     public void reset() {
         for (int i = 0; i < savedSteps.length; i++) savedTimes[i] = savedSteps[i] = -1;
+        stepCount = 0;
+    }
+
+    public void addListener(ConfigurationStorageListener l) {
+        listeners.add(l);
     }
 
     @Override
@@ -47,6 +66,7 @@ public class ConfigurationStorage implements IntegratorListener {
 
     @Override
     public void integratorStepStarted(IntegratorEvent e) {
+        if (!enabled) return;
         IAtomList atoms = box.getLeafList();
         int n = atoms.size();
         if (configList == null) {
@@ -107,6 +127,9 @@ public class ConfigurationStorage implements IntegratorListener {
             }
             configList[0][i].E(p);
         }
+        for (ConfigurationStorageListener csl : listeners) {
+            csl.newConfigruation();
+        }
         if (msd) {
             // copy our new config forward to whatever power of 2 we are
             // at step 32, we will save 5 copies of our current config.
@@ -154,5 +177,9 @@ public class ConfigurationStorage implements IntegratorListener {
 
     @Override
     public void integratorStepFinished(IntegratorEvent e) {
+    }
+
+    public interface ConfigurationStorageListener {
+        void newConfigruation();
     }
 }
