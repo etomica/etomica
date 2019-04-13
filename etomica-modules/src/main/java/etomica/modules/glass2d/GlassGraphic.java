@@ -11,7 +11,9 @@ import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataTensor;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.units.dimensions.Dimension;
@@ -44,7 +46,7 @@ public class GlassGraphic extends SimulationGraphic {
 //        DisplayBox dbox0 = getDisplayBox(sim.box);
 //        dbox0.setColorScheme(colorScheme);
         DiameterHashByType diameterHash = (DiameterHashByType) getDisplayBox(sim.box).getDiameterHash();
-        diameterHash.setDiameter(sim.speciesB.getLeafType(), sim.isLJ ? 0.88 : 1 / 1.4);
+        diameterHash.setDiameter(sim.speciesB.getLeafType(), sim.potentialChoice == SimGlass.PotentialChoice.LJ ? 0.88 : 1 / 1.4);
         diameterHash.setDiameter(sim.speciesA.getLeafType(), 1);
 //        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayBoxPaintAction(sim.box)));
 
@@ -278,13 +280,19 @@ public class GlassGraphic extends SimulationGraphic {
         ePlot.setDoLegend(true);
         ePlot.setLabel("Energy");
 
-        MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator(space);
-        pMeter.setIntegrator(sim.integrator);
+        DataPumpListener pPump;
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
-        DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
-        final DataPump pPump = new DataPump(pMeter, tracer);
-        tracer.setDataSink(pAccumulator);
-        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pPump));
+        if (sim.integrator instanceof IntegratorVelocityVerlet) {
+            MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator(space);
+            pMeter.setIntegrator((IntegratorVelocityVerlet) sim.integrator);
+            DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
+            pPump = new DataPumpListener(pMeter, tracer);
+            tracer.setDataSink(pAccumulator);
+        } else {
+            MeterPressureHard pMeterHard = new MeterPressureHard((IntegratorHard) sim.integrator);
+            pPump = new DataPumpListener(pMeterHard, pAccumulator, 10);
+        }
+        sim.integrator.getEventManager().addListener(pPump);
         pAccumulator.setPushInterval(10);
         dataStreamPumps.add(pPump);
 
@@ -370,11 +378,11 @@ public class GlassGraphic extends SimulationGraphic {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doSwap = true;
-            params.doLJ = false;
+            params.potential = SimGlass.PotentialChoice.SS;
             params.nA = params.nB = 400;
             params.density = 1.35;
         }
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.doLJ);
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.potential);
 
         GlassGraphic ljmdGraphic = new GlassGraphic(sim);
         SimulationGraphic.makeAndDisplayFrame
