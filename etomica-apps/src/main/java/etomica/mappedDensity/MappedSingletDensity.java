@@ -28,6 +28,7 @@ import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
+import etomica.units.Bar;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -108,6 +109,8 @@ public class MappedSingletDensity extends Simulation {
     }
 
     public static void main(String[] args) {
+        System.out.println(Bar.UNIT.toSim(1));
+
         SimParams params = new SimParams();
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
@@ -625,7 +628,7 @@ public class MappedSingletDensity extends Simulation {
     }
 
     public static class SimParams extends ParameterBase {
-        public long steps = 100000000;
+        public long steps = 100;
         public double density = 0.125;
         public int bins = 1000;
         public double temperature = 5;
