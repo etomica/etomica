@@ -7,6 +7,7 @@ package etomica.modules.glass2d;
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
 import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataTensor;
@@ -89,12 +90,14 @@ public class GlassGraphic extends SimulationGraphic {
 
         ColorSchemeDeviation colorSchemeDeviation = new ColorSchemeDeviation(sim.box, configStorage);
 
+        DataSourcePrevTime dsPrevTime = new DataSourcePrevTime(configStorage);
         DeviceSlider prevConfigSlider = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
             public void setValue(double newValue) {
                 int idx = (int) Math.round(newValue);
                 canvas.setConfigIndex(idx);
                 colorSchemeDeviation.setConfigIndex(idx);
+                dsPrevTime.setPrevConfigIndex(idx);
             }
 
             @Override
@@ -114,9 +117,12 @@ public class GlassGraphic extends SimulationGraphic {
         });
         prevConfigSlider.setMaximum(30);
         prevConfigSlider.setNMajor(5);
-        prevConfigSlider.setShowValues(true);
         prevConfigSlider.setShowBorder(true);
         add(prevConfigSlider);
+        DisplayTextBox displayPrevTime = new DisplayTextBox();
+        DataPumpListener pumpPrevTime = new DataPumpListener(dsPrevTime, displayPrevTime, 1);
+        sim.integrator.getEventManager().addListener(pumpPrevTime);
+        add(displayPrevTime);
 
         DeviceCheckBox colorCheckbox = new DeviceCheckBox("color by displacement", new ModifierBoolean() {
             @Override
@@ -231,28 +237,35 @@ public class GlassGraphic extends SimulationGraphic {
         dataStreamPumps.add(densityPump);
         densityBox.setLabel("Number Density");
 
-        MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
-        AccumulatorHistory energyHistory = new AccumulatorHistory();
-        energyHistory.setTimeDataSource(timeCounter);
-        DataPump energyPump = new DataPump(eMeter, energyHistory);
-        IntegratorListenerAction energyPumpListener = new IntegratorListenerAction(energyPump);
-        sim.integrator.getEventManager().addListener(energyPumpListener);
-        energyPumpListener.setInterval(60);
-        energyHistory.setPushInterval(5);
-        dataStreamPumps.add(energyPump);
+        AccumulatorHistory energyHistory = null, peHistory = null;
+        final AccumulatorAverageCollapsing peAccumulator;
+        DataFork peFork = null;
+        if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
+            MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
+            energyHistory = new AccumulatorHistory();
+            energyHistory.setTimeDataSource(timeCounter);
+            DataPump energyPump = new DataPump(eMeter, energyHistory);
+            IntegratorListenerAction energyPumpListener = new IntegratorListenerAction(energyPump);
+            sim.integrator.getEventManager().addListener(energyPumpListener);
+            energyPumpListener.setInterval(60);
+            energyHistory.setPushInterval(5);
+            dataStreamPumps.add(energyPump);
 
-        MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
-        AccumulatorHistory peHistory = new AccumulatorHistory();
-        peHistory.setTimeDataSource(timeCounter);
-        final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
-        peAccumulator.setPushInterval(10);
-        DataFork peFork = new DataFork(new IDataSink[]{peHistory, peAccumulator});
-        DataPump pePump = new DataPump(peMeter, peFork);
-        IntegratorListenerAction pePumpListener = new IntegratorListenerAction(pePump);
-        sim.integrator.getEventManager().addListener(pePumpListener);
-        pePumpListener.setInterval(60);
-        peHistory.setPushInterval(5);
-        dataStreamPumps.add(pePump);
+            MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
+            peHistory = new AccumulatorHistory();
+            peHistory.setTimeDataSource(timeCounter);
+            peAccumulator = new AccumulatorAverageCollapsing();
+            peAccumulator.setPushInterval(10);
+            peFork = new DataFork(new IDataSink[]{peHistory, peAccumulator});
+            DataPump pePump = new DataPump(peMeter, peFork);
+            IntegratorListenerAction pePumpListener = new IntegratorListenerAction(pePump);
+            sim.integrator.getEventManager().addListener(pePumpListener);
+            pePumpListener.setInterval(60);
+            peHistory.setPushInterval(5);
+            dataStreamPumps.add(pePump);
+        } else {
+            peAccumulator = null;
+        }
 
         MeterKineticEnergy keMeter = new MeterKineticEnergy(sim.box);
         AccumulatorHistory keHistory = new AccumulatorHistory();
@@ -269,10 +282,12 @@ public class GlassGraphic extends SimulationGraphic {
         dataStreamPumps.add(kePump);
 
         DisplayPlot ePlot = new DisplayPlot();
-        energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
-        ePlot.setLegend(new DataTag[]{energyHistory.getTag()}, "Total");
-        peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
-        ePlot.setLegend(new DataTag[]{peHistory.getTag()}, "Potential");
+        if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
+            energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
+            ePlot.setLegend(new DataTag[]{energyHistory.getTag()}, "Total");
+            peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
+            ePlot.setLegend(new DataTag[]{peHistory.getTag()}, "Potential");
+        }
         keHistory.setDataSink(ePlot.getDataSet().makeDataSink());
         ePlot.setLegend(new DataTag[]{keHistory.getTag()}, "Kinetic");
 
@@ -281,25 +296,43 @@ public class GlassGraphic extends SimulationGraphic {
         ePlot.setLabel("Energy");
 
         DataPumpListener pPump;
-        final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
+        DataFork pFork = new DataFork();
         if (sim.integrator instanceof IntegratorVelocityVerlet) {
             MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator(space);
             pMeter.setIntegrator((IntegratorVelocityVerlet) sim.integrator);
             DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
             pPump = new DataPumpListener(pMeter, tracer);
-            tracer.setDataSink(pAccumulator);
+            tracer.setDataSink(pFork);
         } else {
             MeterPressureHard pMeterHard = new MeterPressureHard((IntegratorHard) sim.integrator);
-            pPump = new DataPumpListener(pMeterHard, pAccumulator, 10);
+            pPump = new DataPumpListener(pMeterHard, pFork, 10);
         }
         sim.integrator.getEventManager().addListener(pPump);
+        final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
+        pFork.addDataSink(pAccumulator);
         pAccumulator.setPushInterval(10);
         dataStreamPumps.add(pPump);
+        AccumulatorHistory historyP = new AccumulatorHistory(new HistoryCollapsingAverage());
+        pFork.addDataSink(historyP);
+        DisplayPlot plotP = new DisplayPlot();
+        historyP.addDataSink(plotP.getDataSet().makeDataSink());
+        plotP.setLabel("P");
+        add(plotP);
+
+        DisplayTextBoxesCAE peDisplay = null;
+        if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
+            AccumulatorHistory historyPE = new AccumulatorHistory(new HistoryCollapsingAverage());
+            peFork.addDataSink(historyPE);
+            DisplayPlot plotPE = new DisplayPlot();
+            historyPE.addDataSink(plotPE.getDataSet().makeDataSink());
+            plotPE.setLabel("PE");
+            add(plotPE);
+            peDisplay = new DisplayTextBoxesCAE();
+            peDisplay.setAccumulator(peAccumulator);
+        }
 
         final DisplayTextBoxesCAE pDisplay = new DisplayTextBoxesCAE();
         pDisplay.setAccumulator(pAccumulator);
-        final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
-        peDisplay.setAccumulator(peAccumulator);
 
         DataSourceMSD meterMSD = new DataSourceMSD(configStorageMSD);
         configStorageMSD.addListener(meterMSD);
@@ -341,20 +374,6 @@ public class GlassGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 rdfMeter.reset();
 
-                // Reset density (Density is set and won't change, but
-                // do this anyway)
-                densityPump.actionPerformed();
-                densityBox.repaint();
-
-                temperaturePump.actionPerformed();
-
-                // IS THIS WORKING?
-                pPump.actionPerformed();
-                pDisplay.putData(pAccumulator.getData());
-                pDisplay.repaint();
-                peDisplay.putData(peAccumulator.getData());
-                peDisplay.repaint();
-
                 getDisplayBox(sim.box).graphic().repaint();
             }
         };
@@ -368,7 +387,9 @@ public class GlassGraphic extends SimulationGraphic {
         add(ePlot);
         add(densityBox);
         add(pDisplay);
-        add(peDisplay);
+        if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
+            add(peDisplay);
+        }
 
     }
 
@@ -378,7 +399,7 @@ public class GlassGraphic extends SimulationGraphic {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doSwap = true;
-            params.potential = SimGlass.PotentialChoice.SS;
+            params.potential = SimGlass.PotentialChoice.HS;
             params.nA = params.nB = 400;
             params.density = 1.35;
         }
