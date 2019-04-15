@@ -120,6 +120,7 @@ public class AccumulatorAutocorrelationPTensor extends DataAccumulator implement
         double[] sum2 = new double[myMax + 1];
         double[] yErr = errData.getData();
         for (int b = 0; b < nBlocks; b++) {
+            for (int i = 0; i < sum.length; i++) sum[i] = 0;
             for (int j = 0; j <= myMax; j++) {
                 double[] sum0 = new double[n];
                 for (int i = b * samplesPerBlock; i < (b + 1) * samplesPerBlock; i++) {
@@ -133,7 +134,7 @@ public class AccumulatorAutocorrelationPTensor extends DataAccumulator implement
                 }
                 for (int k = 0; k < n; k++) {
                     sum[k] /= samplesPerBlock;
-                    sum0[k] /= samplesPerBlock;
+                    sum0[k] /= samplesPerBlock + j;
                 }
                 int i = 0;
                 for (int k = 0; k < dim; k++) {
