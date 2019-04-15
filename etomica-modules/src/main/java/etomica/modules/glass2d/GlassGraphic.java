@@ -295,18 +295,19 @@ public class GlassGraphic extends SimulationGraphic {
         ePlot.setDoLegend(true);
         ePlot.setLabel("Energy");
 
-        DataPumpListener pPump;
-        DataFork pFork = new DataFork();
+        IDataSource pMeter;
         if (sim.integrator instanceof IntegratorVelocityVerlet) {
-            MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator(space);
-            pMeter.setIntegrator((IntegratorVelocityVerlet) sim.integrator);
-            DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
-            pPump = new DataPumpListener(pMeter, tracer);
-            tracer.setDataSink(pFork);
+            pMeter = new MeterPressureTensorFromIntegrator(space);
+            ((MeterPressureTensorFromIntegrator) pMeter).setIntegrator((IntegratorVelocityVerlet) sim.integrator);
         } else {
-            MeterPressureHard pMeterHard = new MeterPressureHard((IntegratorHard) sim.integrator);
-            pPump = new DataPumpListener(pMeterHard, pFork, 10);
+            pMeter = new MeterPressureHardTensor(space);
+            ((MeterPressureHardTensor) pMeter).setIntegrator((IntegratorHard) sim.integrator);
+            new MeterPressureHard((IntegratorHard) sim.integrator);
         }
+        DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
+        DataPumpListener pPump = new DataPumpListener(pMeter, tracer);
+        DataFork pFork = new DataFork();
+        tracer.setDataSink(pFork);
         sim.integrator.getEventManager().addListener(pPump);
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
         pFork.addDataSink(pAccumulator);
