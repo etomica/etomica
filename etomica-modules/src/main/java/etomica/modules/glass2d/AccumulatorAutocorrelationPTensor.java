@@ -6,6 +6,7 @@ package etomica.modules.glass2d;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.data.types.DataGroup;
 import etomica.units.dimensions.Time;
 
 import java.util.ArrayList;
@@ -22,19 +23,34 @@ public class AccumulatorAutocorrelationPTensor extends DataAccumulator implement
     protected DataFunction data;
     protected DataDoubleArray tData;
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
-    protected DataTag tTag;
+    protected final DataTag tTag, errTag;
     protected int nMax;
     protected IDataInfo inputDataInfo;
     protected final List<double[]> savedData;
     protected IData sum, product;
     protected int dim;
     protected final double dt;
+    protected int nBlocks;
+    protected DataFunction errData;
+    protected DataFunction.DataInfoFunction errDataInfo;
+    protected DataFork avgErrFork;
+    protected DataGroup avgErrData;
+    protected DataGroup.DataInfoGroup avgErrDataInfo;
 
     public AccumulatorAutocorrelationPTensor(int nMax, double dt) {
         this.dt = dt;
         savedData = new ArrayList<>();
         this.nMax = nMax;
         data = new DataFunction(new int[]{nMax + 1});
+        errData = new DataFunction(new int[]{nMax + 1});
+        nBlocks = 30;
+        tTag = new DataTag();
+        errTag = new DataTag();
+        avgErrFork = new DataFork();
+    }
+
+    public DataFork getAvgErrFork() {
+        return avgErrFork;
     }
 
     @Override
@@ -56,8 +72,9 @@ public class AccumulatorAutocorrelationPTensor extends DataAccumulator implement
     public void reset() {
         savedData.clear();
         double[] y = data.getData();
+        double[] yErr = errData.getData();
         for (int i = 0; i < nMax; i++) {
-            y[i] = Double.NaN;
+            y[i] = yErr[i] = Double.NaN;
         }
     }
 
@@ -66,9 +83,11 @@ public class AccumulatorAutocorrelationPTensor extends DataAccumulator implement
         int n = (dim * dim - dim) / 2 + dim;
         double[] sum = new double[n];
 
+        int myMax = savedData.size() / 10;
+        if (myMax > nMax) myMax = nMax;
+
         double[] y = data.getData();
-        for (int j = 0; j <= nMax; j++) {
-            if (j >= savedData.size() / 2) break;
+        for (int j = 0; j <= myMax; j++) {
             double[] sum0 = new double[n];
             for (int i = 0; i < savedData.size() - j; i++) {
                 double[] iSaved = savedData.get(i);
@@ -95,6 +114,46 @@ public class AccumulatorAutocorrelationPTensor extends DataAccumulator implement
             y[j] = allSum / n;
         }
 
+        int samplesPerBlock = (savedData.size() - myMax) / nBlocks;
+        if (samplesPerBlock < 10 || avgErrFork.getDataSinks().length == 0) return data;
+        double[] sum1 = new double[myMax + 1];
+        double[] sum2 = new double[myMax + 1];
+        double[] yErr = errData.getData();
+        for (int b = 0; b < nBlocks; b++) {
+            for (int j = 0; j <= myMax; j++) {
+                double[] sum0 = new double[n];
+                for (int i = b * samplesPerBlock; i < (b + 1) * samplesPerBlock; i++) {
+                    double[] iSaved = savedData.get(i);
+                    double[] jSaved = savedData.get(i + j);
+                    for (int k = 0; k < n; k++) {
+                        sum0[k] += iSaved[k];
+                        sum[k] += iSaved[k] * jSaved[k];
+                        if (i + j >= (b + 1) * samplesPerBlock) sum0[k] += jSaved[k];
+                    }
+                }
+                for (int k = 0; k < n; k++) {
+                    sum[k] /= samplesPerBlock;
+                    sum0[k] /= samplesPerBlock;
+                }
+                int i = 0;
+                for (int k = 0; k < dim; k++) {
+                    // subtract avg squared value for diagonal components
+                    sum[i] -= sum0[i] * sum0[i];
+                    i += dim - k;
+                }
+                double allSum = 0;
+                for (int k = 0; k < n; k++) {
+                    allSum += sum[k];
+                }
+                sum1[j] += allSum / n;
+                sum2[j] += (allSum / n) * (allSum / n);
+            }
+        }
+        for (int j = 0; j <= myMax; j++) {
+            yErr[j] = Math.sqrt((nBlocks * sum2[j] - sum1[j] * sum1[j]) / (nBlocks * (nBlocks - 1)));
+//            y[j] = sum1[j]/nBlocks;
+        }
+        avgErrFork.putData(avgErrData);
         return data;
     }
 
@@ -115,6 +174,11 @@ public class AccumulatorAutocorrelationPTensor extends DataAccumulator implement
         tDataInfo.addTag(tTag);
         dataInfo = new DataFunction.DataInfoFunction(inputDataInfo.getLabel() + " autocorrelation", inputDataInfo.getDimension(), this);
         dataInfo.addTag(tag);
+        errDataInfo = new DataFunction.DataInfoFunction(inputDataInfo.getLabel() + " autocorrelation error", inputDataInfo.getDimension(), this);
+        errDataInfo.addTag(errTag);
+        avgErrData = new DataGroup(new IData[]{data, errData});
+        avgErrDataInfo = new DataGroup.DataInfoGroup("autocorrelation", inputDataInfo.getDimension(), new IDataInfo[]{dataInfo, errDataInfo});
+        avgErrFork.putDataInfo(avgErrDataInfo);
         return dataInfo;
     }
 

@@ -10,7 +10,7 @@ import etomica.data.IDataInfoFactory;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 
-class DataProcessorErrorBar extends DataProcessor {
+public class DataProcessorErrorBar extends DataProcessor {
     protected DataFunction data;
     protected String label;
 

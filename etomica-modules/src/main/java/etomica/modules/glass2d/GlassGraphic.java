@@ -6,6 +6,7 @@ package etomica.modules.glass2d;
 
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
+import etomica.cavity.DataProcessorErrorBar;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.*;
@@ -293,12 +294,16 @@ public class GlassGraphic extends SimulationGraphic {
         historyP.addDataSink(plotP.getDataSet().makeDataSink());
         plotP.setLabel("P");
         add(plotP);
+        DataProcessorErrorBar pAutoCorErr = new DataProcessorErrorBar("err+");
+        dpAutocor.getAvgErrFork().addDataSink(pAutoCorErr);
 
         DisplayPlot plotPTensorAutocor = new DisplayPlot();
         plotPTensorAutocor.setLabel("P Tensor autocor");
         plotPTensorAutocor.setLegend(new DataTag[]{dpAutocor.getTag()}, "avg");
         dpAutocor.addDataSink(plotPTensorAutocor.getDataSet().makeDataSink());
         add(plotPTensorAutocor);
+//        pAutoCorErr.setDataSink(plotPTensorAutocor.getDataSet().makeDataSink());
+        plotPTensorAutocor.setLegend(new DataTag[]{dpAutocor.getAvgErrFork().getTag(), pAutoCorErr.getTag()}, "err+");
 
         DisplayTextBoxesCAE peDisplay = null;
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
