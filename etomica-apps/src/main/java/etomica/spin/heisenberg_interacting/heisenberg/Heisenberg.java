@@ -126,6 +126,7 @@ public class Heisenberg extends Simulation {
         boolean doMappingE = params.doMappingE;
         boolean doCV = params.doCV;
         boolean doCorrelation = params.doCorrelation;
+        int formula = params.formula;
         boolean doGraphic = params.doGraphic;
 
 
@@ -172,7 +173,7 @@ public class Heisenberg extends Simulation {
         long equilibrationTime = System.currentTimeMillis();
         System.out.println("equilibrationTime: " + (equilibrationTime - startTime) / (1000.0 * 60.0));
 
-        int sampleAtInterval = numberMolecules;
+        int sampleAtInterval = numberMolecules*2;
         int samplePerBlock = steps / sampleAtInterval / blockNumber;
 
 
@@ -238,8 +239,8 @@ public class Heisenberg extends Simulation {
         AccumulatorAverageFixed CorrelationAccumulator = null;
 
         if (doCorrelation) {
-            int formula1 = 2;
-            CorrelationMeter = new MeterMappedAveragingCorrelation(sim, temperature, interactionS, sim.potentialMaster, formula1);
+
+            CorrelationMeter = new MeterMappedAveragingCorrelation(sim, temperature, interactionS, sim.potentialMaster, formula);
             CorrelationAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             DataPumpListener CorrelationPump = new DataPumpListener(CorrelationMeter, CorrelationAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(CorrelationPump);
@@ -264,11 +265,12 @@ public class Heisenberg extends Simulation {
         double[] xCor = new double[arraySize];
 
         if (doCorrelation) {
+            System.out.println("We're using formula********** " + formula + " ******************");
             for (int i = 0; i < arraySize; i++) {
                 xValue[i] = ((DataGroup) CorrelationAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(i);
                 xErr[i] = ((DataGroup) CorrelationAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(i);
                 xCor[i] = ((DataGroup) CorrelationAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(i);
-                System.out.println("x["+ i+"]\t" + xValue[i]+" Err\t" + xErr[i]+ " Cor\t"+ xCor[i]);
+                System.out.println("x[" + i + "]\t" + xValue[i] + " Err\t" + xErr[i] + " Cor\t" + xCor[i]);
             }
         }
 
@@ -299,7 +301,7 @@ public class Heisenberg extends Simulation {
         }
 
 
-        System.out.println("CV/N:\t" + CV + " CVErr/N:\t" + CVErr);
+//        System.out.println("CV/N:\t" + CV + " CVErr/N:\t" + CVErr);
 
         //******************************** Conventional var[M]******************************** //
         if (mSquare) {
@@ -488,11 +490,12 @@ public class Heisenberg extends Simulation {
         public boolean doMappingE = false;
         public boolean doCV = false;
         public boolean doCorrelation = true;
+        public int formula = 0;
         public boolean doGraphic = false;
         public double temperature = 1;
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
-        public int nCells = 5;//number of atoms is nCells*nCells
+        public int nCells = 64;//number of atoms is nCells*nCells
         public int steps = 10000000;
         public int nMax = 1;
     }
