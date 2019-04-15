@@ -274,9 +274,9 @@ public class GlassGraphic extends SimulationGraphic {
         }
         DataFork pTensorFork = new DataFork();
         DataPumpListener pPump = new DataPumpListener(pMeter, pTensorFork);
-        AccumulatorAutocorrelationPTensor dpAutocor = new AccumulatorAutocorrelationPTensor(100000, sim.integrator.getTimeStep());
+        AccumulatorAutocorrelationPTensor dpAutocor = new AccumulatorAutocorrelationPTensor(4000, sim.integrator.getTimeStep());
         pTensorFork.addDataSink(dpAutocor);
-        dpAutocor.setPushInterval(1000);
+        dpAutocor.setPushInterval(2000);
         DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
         pTensorFork.addDataSink(tracer);
         DataFork pFork = new DataFork();
