@@ -238,7 +238,7 @@ public class Heisenberg extends Simulation {
         AccumulatorAverageFixed CorrelationAccumulator = null;
 
         if (doCorrelation) {
-            boolean formula1 = true;
+            int formula1 = 2;
             CorrelationMeter = new MeterMappedAveragingCorrelation(sim, temperature, interactionS, sim.potentialMaster, formula1);
             CorrelationAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             DataPumpListener CorrelationPump = new DataPumpListener(CorrelationMeter, CorrelationAccumulator, sampleAtInterval);
@@ -479,20 +479,20 @@ public class Heisenberg extends Simulation {
     // ******************* parameters **********************//
     public static class Param extends ParameterBase {
         public boolean mSquare = false;
-        public boolean aEE = true;
+        public boolean aEE = false;
         public boolean doPair = false;
         public boolean doIdeal = false;
         public boolean doVSum = false;
-        public boolean doVSumMI = true;
-        public boolean doConventionalE = true;
-        public boolean doMappingE = true;
-        public boolean doCV = true;
+        public boolean doVSumMI = false;
+        public boolean doConventionalE = false;
+        public boolean doMappingE = false;
+        public boolean doCV = false;
         public boolean doCorrelation = true;
         public boolean doGraphic = false;
-        public double temperature = 5;
+        public double temperature = 1;
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
-        public int nCells = 64;//number of atoms is nCells*nCells
+        public int nCells = 5;//number of atoms is nCells*nCells
         public int steps = 10000000;
         public int nMax = 1;
     }
