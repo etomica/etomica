@@ -313,6 +313,7 @@ public class GlassGraphic extends SimulationGraphic {
         pAccumulator.setPushInterval(10);
         dataStreamPumps.add(pPump);
         AccumulatorHistory historyP = new AccumulatorHistory(new HistoryCollapsingAverage());
+        historyP.setTimeDataSource(timeCounter);
         pFork.addDataSink(historyP);
         DisplayPlot plotP = new DisplayPlot();
         historyP.addDataSink(plotP.getDataSet().makeDataSink());
@@ -322,6 +323,7 @@ public class GlassGraphic extends SimulationGraphic {
         DisplayTextBoxesCAE peDisplay = null;
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
             AccumulatorHistory historyPE = new AccumulatorHistory(new HistoryCollapsingAverage());
+            historyPE.setTimeDataSource(timeCounter);
             peFork.addDataSink(historyPE);
             DisplayPlot plotPE = new DisplayPlot();
             historyPE.addDataSink(plotPE.getDataSet().makeDataSink());
@@ -399,7 +401,7 @@ public class GlassGraphic extends SimulationGraphic {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doSwap = true;
-            params.potential = SimGlass.PotentialChoice.HS;
+            params.potential = SimGlass.PotentialChoice.SS;
             params.nA = params.nB = 400;
             params.density = 1.35;
         }
