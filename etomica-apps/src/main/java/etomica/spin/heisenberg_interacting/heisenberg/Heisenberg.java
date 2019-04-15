@@ -125,6 +125,7 @@ public class Heisenberg extends Simulation {
         boolean doConventionalE = params.doConventionalE;
         boolean doMappingE = params.doMappingE;
         boolean doCV = params.doCV;
+        boolean doCorrelation = params.doCorrelation;
         boolean doGraphic = params.doGraphic;
 
 
@@ -231,16 +232,51 @@ public class Heisenberg extends Simulation {
             sim.integrator.getEventManager().addListener(AEEListener);
         }
 
+
+        //Correlation
+        MeterMappedAveragingCorrelation CorrelationMeter = null;
+        AccumulatorAverageFixed CorrelationAccumulator = null;
+
+        if (doCorrelation) {
+            boolean formula1 = true;
+            CorrelationMeter = new MeterMappedAveragingCorrelation(sim, temperature, interactionS, sim.potentialMaster, formula1);
+            CorrelationAccumulator = new AccumulatorAverageFixed(samplePerBlock);
+            DataPumpListener CorrelationPump = new DataPumpListener(CorrelationMeter, CorrelationAccumulator, sampleAtInterval);
+            sim.integrator.getEventManager().addListener(CorrelationPump);
+        }
+
+
         sim.activityIntegrate.setMaxSteps(steps);
         sim.getController().actionPerformed();
         long endTime = System.currentTimeMillis();
         double totalTime = (endTime - startTime) / (1000.0 * 60.0);
 
         //******************************** simulation start ******************************** //
+        //******************************** simulation start ******************************** //
+        //******************************** simulation start ******************************** //
+        //******************************** simulation start ******************************** //
+
+        //******************************** Correlation ******************************** //
+        int distance = nCells / 2 + 1;
+        int arraySize = -1 + (distance + 1) * distance / 2;
+        double[] xValue = new double[arraySize];
+        double[] xErr = new double[arraySize];
+        double[] xCor = new double[arraySize];
+
+        if (doCorrelation) {
+            for (int i = 0; i < arraySize; i++) {
+                xValue[i] = ((DataGroup) CorrelationAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(i);
+                xErr[i] = ((DataGroup) CorrelationAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(i);
+                xCor[i] = ((DataGroup) CorrelationAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(i);
+                System.out.println("x["+ i+"]\t" + xValue[i]+" Err\t" + xErr[i]+ " Cor\t"+ xCor[i]);
+            }
+        }
+
+
+        //******************************** Heat capacity ******************************** //
         double CV = 0;
         double CVErr = 0;
         double CVCor = 0;
-
         if (doCV) {
             double CV0 = ((DataGroup) CVAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
             double CV0Err = ((DataGroup) CVAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
@@ -265,7 +301,7 @@ public class Heisenberg extends Simulation {
 
         System.out.println("CV/N:\t" + CV + " CVErr/N:\t" + CVErr);
 
-
+        //******************************** Conventional var[M]******************************** //
         if (mSquare) {
             double dipoleSumSquared = 0;
             double dipoleSumSquaredERR = 0;
@@ -278,6 +314,7 @@ public class Heisenberg extends Simulation {
                     + " Difficulty:\t" + (dipoleSumSquaredERR * Math.sqrt(totalTime) / nCells / nCells));
         }
 
+        //******************************** AEE vSum  ******************************** //
 
         if (aEE) {
             double AEE = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
@@ -298,6 +335,8 @@ public class Heisenberg extends Simulation {
                     + " Difficulty:\t" + (errSumIdeal * Math.sqrt(totalTime) / nCells / nCells));
         }
 
+
+        //********************************AEE vSumMinusIdeal******************************** //
 
         if (doVSumMI) {
             double AEEVSumMinusIdeal = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(12);
@@ -329,8 +368,7 @@ public class Heisenberg extends Simulation {
             System.out.println("U_ConMC and UMapREF is for checking purposes only");
         }
 
-
-        //Get FE from mapping meter
+        //******************************** Get FE from mapping meter ******************************** //
         if (doMappingE) {
             double UMap = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(21);
             double UMapErr = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(21);
@@ -391,6 +429,7 @@ public class Heisenberg extends Simulation {
         }
 
 
+        //******************************** print netDipole ******************************** //
 //        boolean printDipole = false;
 //        if (printDipole) {
 //            if (doVSumMI) {
@@ -448,6 +487,7 @@ public class Heisenberg extends Simulation {
         public boolean doConventionalE = true;
         public boolean doMappingE = true;
         public boolean doCV = true;
+        public boolean doCorrelation = true;
         public boolean doGraphic = false;
         public double temperature = 5;
         public double interactionS = 1;
