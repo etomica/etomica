@@ -716,8 +716,13 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
             return "Collider: "+atom+"; Partner: "+collisionPartner+"; Potential: "+collisionPotential;
         }
 
-        public final IAtom atom() {return atom;}
-        public final IAtom collisionPartner() {return collisionPartner;}
+        public final IAtomKinetic atom() {
+            return atom;
+        }
+
+        public final IAtomKinetic collisionPartner() {
+            return collisionPartner;
+        }
 
         /**
          * resets collision potential and partner.  If a null potnetial is in

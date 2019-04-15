@@ -40,12 +40,16 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
     public IData getData() {
         if (box == null || integratorHard == null) throw new IllegalStateException("must call setBox and integrator before using meter");
         double t = integratorHard.getCurrentTime();
+        data.x.E(0);
         data.x.PEa1Tt1(-1 / ((t - t0)), virialSum);
         virialSum.E(0);
         t0 = t;
 
         //We're using the instantaneous velocity tensor with the average virial tensor
-        //not quite right, but works out in the end.
+        //not quite right, but (so long as you need averages) it doesn't really matter
+        // if you want more "correct" properties (have both be an average), then you'll
+        // need to compute a correction in collisionAction based on the old and new
+        // velocities
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
