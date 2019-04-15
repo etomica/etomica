@@ -160,39 +160,7 @@ public class GlassGraphic extends SimulationGraphic {
         showDispCheckbox.setController(sim.getController());
         add(showDispCheckbox);
 
-        DeviceCheckBox swapCheckbox = new DeviceCheckBox("isothermal", new ModifierBoolean() {
-            @Override
-            public void setBoolean(boolean b) {
 
-                if (sim.integrator.isIsothermal() == b) return;
-                if (b) {
-                    sim.integrator.setIsothermal(true);
-                    sim.integrator.setIntegratorMC(sim.integratorMC, 10000);
-                    dbox.setColorScheme(colorScheme);
-                    canvas.setDrawDisplacement(false);
-                    configStorage.reset();
-                    configStorage.setEnabled(false);
-                    configStorageMSD.reset();
-                    configStorageMSD.setEnabled(false);
-                } else {
-                    sim.integrator.setIntegratorMC(null, 0);
-                    sim.integrator.setIsothermal(false);
-                    configStorage.reset();
-                    configStorage.setEnabled(true);
-                    configStorageMSD.reset();
-                    configStorageMSD.setEnabled(true);
-                    if (colorCheckbox.getState()) dbox.setColorScheme(colorSchemeDeviation);
-                    if (showDispCheckbox.getState()) canvas.setDrawDisplacement(true);
-                }
-            }
-
-            @Override
-            public boolean getBoolean() {
-                return sim.integrator.isIsothermal();
-            }
-        });
-        swapCheckbox.setController(sim.getController());
-        add(swapCheckbox);
 
 
         IAction repaintAction = new IAction() {
@@ -304,14 +272,19 @@ public class GlassGraphic extends SimulationGraphic {
             ((MeterPressureHardTensor) pMeter).setIntegrator((IntegratorHard) sim.integrator);
             new MeterPressureHard((IntegratorHard) sim.integrator);
         }
+        DataFork pTensorFork = new DataFork();
+        DataPumpListener pPump = new DataPumpListener(pMeter, pTensorFork);
+        AccumulatorAutocorrelationPTensor dpAutocor = new AccumulatorAutocorrelationPTensor(100000, sim.integrator.getTimeStep());
+        pTensorFork.addDataSink(dpAutocor);
+        dpAutocor.setPushInterval(1000);
         DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
-        DataPumpListener pPump = new DataPumpListener(pMeter, tracer);
+        pTensorFork.addDataSink(tracer);
         DataFork pFork = new DataFork();
         tracer.setDataSink(pFork);
         sim.integrator.getEventManager().addListener(pPump);
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
         pFork.addDataSink(pAccumulator);
-        pAccumulator.setPushInterval(10);
+        pAccumulator.setPushInterval(100);
         dataStreamPumps.add(pPump);
         AccumulatorHistory historyP = new AccumulatorHistory(new HistoryCollapsingAverage());
         historyP.setTimeDataSource(timeCounter);
@@ -320,6 +293,12 @@ public class GlassGraphic extends SimulationGraphic {
         historyP.addDataSink(plotP.getDataSet().makeDataSink());
         plotP.setLabel("P");
         add(plotP);
+
+        DisplayPlot plotPTensorAutocor = new DisplayPlot();
+        plotPTensorAutocor.setLabel("P Tensor autocor");
+        plotPTensorAutocor.setLegend(new DataTag[]{dpAutocor.getTag()}, "avg");
+        dpAutocor.addDataSink(plotPTensorAutocor.getDataSet().makeDataSink());
+        add(plotPTensorAutocor);
 
         DisplayTextBoxesCAE peDisplay = null;
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
@@ -348,6 +327,42 @@ public class GlassGraphic extends SimulationGraphic {
         add(plotMSD);
 
         //************* Lay out components ****************//
+
+        DeviceCheckBox swapCheckbox = new DeviceCheckBox("isothermal", new ModifierBoolean() {
+            @Override
+            public void setBoolean(boolean b) {
+
+                if (sim.integrator.isIsothermal() == b) return;
+                if (b) {
+                    sim.integrator.setIsothermal(true);
+                    sim.integrator.setIntegratorMC(sim.integratorMC, 10000);
+                    dbox.setColorScheme(colorScheme);
+                    canvas.setDrawDisplacement(false);
+                    configStorage.reset();
+                    configStorage.setEnabled(false);
+                    configStorageMSD.reset();
+                    configStorageMSD.setEnabled(false);
+                    dpAutocor.reset();
+                } else {
+                    sim.integrator.setIntegratorMC(null, 0);
+                    sim.integrator.setIsothermal(false);
+                    configStorage.reset();
+                    configStorage.setEnabled(true);
+                    configStorageMSD.reset();
+                    configStorageMSD.setEnabled(true);
+                    if (colorCheckbox.getState()) dbox.setColorScheme(colorSchemeDeviation);
+                    if (showDispCheckbox.getState()) canvas.setDrawDisplacement(true);
+                    dpAutocor.reset();
+                }
+            }
+
+            @Override
+            public boolean getBoolean() {
+                return sim.integrator.isIsothermal();
+            }
+        });
+        swapCheckbox.setController(sim.getController());
+        add(swapCheckbox);
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
