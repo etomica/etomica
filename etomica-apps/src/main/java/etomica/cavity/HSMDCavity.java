@@ -15,8 +15,6 @@ import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterRDF;
-import etomica.data.types.DataFunction;
-import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
@@ -247,37 +245,6 @@ public class HSMDCavity extends Simulation {
         public boolean useNeighborLists = true;
 
         public boolean doGraphics = false;
-    }
-
-    private static class DataProcessorErrorBar extends DataProcessor {
-        protected DataFunction data;
-        protected String label;
-
-        public DataProcessorErrorBar(String label) {
-            this.label = label;
-        }
-
-        @Override
-        protected IData processData(IData inputData) {
-            IData avg = ((DataGroup) inputData).getData(0);
-            IData err = ((DataGroup) inputData).getData(1);
-            double[] y = data.getData();
-            for (int i = 0; i < y.length; i++) {
-                y[i] = avg.getValue(i) + err.getValue(i);
-            }
-            return data;
-        }
-
-        @Override
-        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-            inputDataInfo = ((DataGroup.DataInfoGroup) inputDataInfo).getSubDataInfo(0);
-            data = (DataFunction) inputDataInfo.makeData();
-            IDataInfoFactory factory = inputDataInfo.getFactory();
-            factory.setLabel(label);
-            dataInfo = factory.makeDataInfo();
-            dataInfo.addTag(tag);
-            return dataInfo;
-        }
     }
 
 }
