@@ -173,7 +173,7 @@ public class Heisenberg extends Simulation {
         long equilibrationTime = System.currentTimeMillis();
         System.out.println("equilibrationTime: " + (equilibrationTime - startTime) / (1000.0 * 60.0));
 
-        int sampleAtInterval = numberMolecules*2;
+        int sampleAtInterval = numberMolecules * 2;
         int samplePerBlock = steps / sampleAtInterval / blockNumber;
 
 
@@ -261,6 +261,8 @@ public class Heisenberg extends Simulation {
         int distance = nCells / 2 + 1;
         int arraySize = -1 + (distance + 1) * distance / 2;
         double[] xValue = new double[arraySize];
+        double[] xRow = new double[arraySize];
+        double[] xCol = new double[arraySize];
         double[] xErr = new double[arraySize];
         double[] xCor = new double[arraySize];
 
@@ -268,9 +270,12 @@ public class Heisenberg extends Simulation {
             System.out.println("We're using formula********** " + formula + " ******************");
             for (int i = 0; i < arraySize; i++) {
                 xValue[i] = ((DataGroup) CorrelationAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(i);
+                xRow[i] = ((DataGroup) CorrelationAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(i + arraySize);
+                xCol[i] = ((DataGroup) CorrelationAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(i + 2 * arraySize);
+                xValue[i] = ((DataGroup) CorrelationAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(i);
                 xErr[i] = ((DataGroup) CorrelationAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(i);
                 xCor[i] = ((DataGroup) CorrelationAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(i);
-                System.out.println("x[" + i + "]\t" + xValue[i] + " Err\t" + xErr[i] + " Cor\t" + xCor[i]);
+                System.out.println("x[" + i + "]\t" + " row:\t"+ xRow[i]+ " col:\t" + xCol[i] + " "+ xValue[i] + " Err\t" + xErr[i] + " Cor\t" + xCor[i]);
             }
         }
 
@@ -495,7 +500,7 @@ public class Heisenberg extends Simulation {
         public double temperature = 1;
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
-        public int nCells = 64;//number of atoms is nCells*nCells
+        public int nCells = 10;//number of atoms is nCells*nCells
         public int steps = 10000000;
         public int nMax = 1;
     }

@@ -28,6 +28,7 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
     protected double bt;
     protected final int L;
     protected final int N;
+    protected final int arraySize;
     protected double temperature;
     private Box box;
     protected final Space space;
@@ -51,9 +52,13 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
         N = box.getLeafList().getAtomCount();
         L = (int) Math.round(Math.sqrt(N));
         int distance = L / 2 + 1;
-        nPairs = new int[-1 + (distance + 1) * distance / 2];
-        data = new DataDoubleArray(-1 + (distance + 1) * distance / 2);
-        dataInfo = new DataDoubleArray.DataInfoDoubleArray("CIJ", Null.DIMENSION, new int[]{-1 + (distance + 1) * distance / 2});
+//        nPairs = new int[-1 + (distance + 1) * distance / 2];
+//        data = new DataDoubleArray(-1 + (distance + 1) * distance / 2);
+//        dataInfo = new DataDoubleArray.DataInfoDoubleArray("CIJ", Null.DIMENSION, new int[]{-1 + (distance + 1) * distance / 2});
+        arraySize = -1 + (distance + 1) * distance / 2;
+        nPairs = new int[3 * arraySize];
+        data = new DataDoubleArray(3 * arraySize);
+        dataInfo = new DataDoubleArray.DataInfoDoubleArray("CIJ", Null.DIMENSION, new int[]{3 * arraySize});
         tag = new DataTag();
         dataInfo.addTag(tag);
         allAtoms = new IteratorDirective();
@@ -116,9 +121,12 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
                     x[index] -= fj * fk * (sintj * sintk + costj * costk);
                 }
                 nPairs[index] += 1;
+                x[index + arraySize] = JMKRow;
+                x[index + 2 * arraySize] = JMKCol;
             }
         }
-        for (int i = 0; i < x.length; i++) {
+//        for (int i = 0; i < x.length; i++) {
+        for (int i = 0; i < arraySize; i++) {
             x[i] /= nPairs[i];
         }
         return data;
