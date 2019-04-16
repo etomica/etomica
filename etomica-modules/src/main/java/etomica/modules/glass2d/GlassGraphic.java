@@ -331,6 +331,16 @@ public class GlassGraphic extends SimulationGraphic {
         plotMSD.getPlot().setXLog(true);
         add(plotMSD);
 
+        DataSourceAlpha2 meterAlpha2 = new DataSourceAlpha2(configStorageMSD);
+        configStorageMSD.addListener(meterAlpha2);
+        DisplayPlot plotAlpha2 = new DisplayPlot();
+        DataPumpListener pumpAlpha2 = new DataPumpListener(meterAlpha2, plotAlpha2.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpAlpha2);
+        plotAlpha2.setLabel("alpha2");
+        plotAlpha2.getPlot().setYLog(true);
+        plotAlpha2.getPlot().setXLog(true);
+        add(plotAlpha2);
+
         //************* Lay out components ****************//
 
         DeviceCheckBox swapCheckbox = new DeviceCheckBox("isothermal", new ModifierBoolean() {
