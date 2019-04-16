@@ -302,7 +302,7 @@ public class GlassGraphic extends SimulationGraphic {
         plotPTensorAutocor.setLegend(new DataTag[]{dpAutocor.getTag()}, "avg");
         dpAutocor.addDataSink(plotPTensorAutocor.getDataSet().makeDataSink());
         add(plotPTensorAutocor);
-//        pAutoCorErr.setDataSink(plotPTensorAutocor.getDataSet().makeDataSink());
+        pAutoCorErr.setDataSink(plotPTensorAutocor.getDataSet().makeDataSink());
         plotPTensorAutocor.setLegend(new DataTag[]{dpAutocor.getAvgErrFork().getTag(), pAutoCorErr.getTag()}, "err+");
 
         DisplayTextBoxesCAE peDisplay = null;

@@ -81,37 +81,42 @@ public class AccumulatorAutocorrelationPTensor extends DataAccumulator implement
     @Override
     public IData getData() {
         int n = (dim * dim - dim) / 2 + dim;
-        double[] sum = new double[n];
+        double[] sumij = new double[n];
+        double[] sumi = new double[n];
+        double[] sumj = new double[n];
 
-        int myMax = savedData.size() / 10;
+        int myMax = savedData.size() / 50;
         if (myMax > nMax) myMax = nMax;
 
         double[] y = data.getData();
         for (int j = 0; j <= myMax; j++) {
-            double[] sum0 = new double[n];
+            for (int k = 0; k < n; k++) sumij[k] = sumi[k] = sumj[k] = 0;
             for (int i = 0; i < savedData.size() - j; i++) {
                 double[] iSaved = savedData.get(i);
                 double[] jSaved = savedData.get(i + j);
                 for (int k = 0; k < n; k++) {
-                    sum0[k] += iSaved[k];
-                    sum[k] += iSaved[k] * jSaved[k];
-                    if (i + j >= savedData.size() - j) sum0[k] += jSaved[k];
+                    sumi[k] += iSaved[k];
+                    sumj[k] += jSaved[k];
+                    sumij[k] += iSaved[k] * jSaved[k];
                 }
             }
             for (int k = 0; k < n; k++) {
-                sum[k] /= savedData.size() - j;
-                sum0[k] /= savedData.size();
+                sumij[k] /= savedData.size() - j;
+                sumi[k] /= savedData.size() - j;
+                sumj[k] /= savedData.size() - j;
             }
             int i = 0;
             for (int k = 0; k < dim; k++) {
-                sum[i] -= sum0[i] * sum0[i];
+                sumij[i] -= sumi[i] * sumj[i];
                 i += dim - k;
             }
+//            System.out.println(j+" sum "+sum[0]+" "+sum[1]+" "+sum[2]);
             double allSum = 0;
             for (int k = 0; k < n; k++) {
-                allSum += sum[k];
+                allSum += sumij[k];
             }
             y[j] = allSum / n;
+//            System.out.println(j+" "+allSum+" "+n+" "+y[j]);
         }
 
         int samplesPerBlock = (savedData.size() - myMax) / nBlocks;
@@ -120,34 +125,36 @@ public class AccumulatorAutocorrelationPTensor extends DataAccumulator implement
         double[] sum2 = new double[myMax + 1];
         double[] yErr = errData.getData();
         for (int b = 0; b < nBlocks; b++) {
-            for (int i = 0; i < sum.length; i++) sum[i] = 0;
             for (int j = 0; j <= myMax; j++) {
-                double[] sum0 = new double[n];
+                for (int k = 0; k < n; k++) sumij[k] = sumi[k] = sumj[k] = 0;
                 for (int i = b * samplesPerBlock; i < (b + 1) * samplesPerBlock; i++) {
                     double[] iSaved = savedData.get(i);
                     double[] jSaved = savedData.get(i + j);
                     for (int k = 0; k < n; k++) {
-                        sum0[k] += iSaved[k];
-                        sum[k] += iSaved[k] * jSaved[k];
-                        if (i + j >= (b + 1) * samplesPerBlock) sum0[k] += jSaved[k];
+                        sumi[k] += iSaved[k];
+                        sumj[k] += jSaved[k];
+                        sumij[k] += iSaved[k] * jSaved[k];
                     }
                 }
                 for (int k = 0; k < n; k++) {
-                    sum[k] /= samplesPerBlock;
-                    sum0[k] /= samplesPerBlock + j;
+                    sumij[k] /= samplesPerBlock;
+                    sumi[k] /= samplesPerBlock;
+                    sumj[k] /= samplesPerBlock;
                 }
                 int i = 0;
                 for (int k = 0; k < dim; k++) {
                     // subtract avg squared value for diagonal components
-                    sum[i] -= sum0[i] * sum0[i];
+                    sumij[i] -= sumj[i] * sumi[i];
                     i += dim - k;
                 }
+//                if (b==0) System.out.println(j+" block "+b+" sum "+sum[0]+" "+sum[1]+" "+sum[2]);
                 double allSum = 0;
                 for (int k = 0; k < n; k++) {
-                    allSum += sum[k];
+                    allSum += sumij[k];
                 }
                 sum1[j] += allSum / n;
                 sum2[j] += (allSum / n) * (allSum / n);
+//                if (b==0) System.out.println(j+" block "+b+" "+allSum+" "+n+" "+sum1[j]);
             }
         }
         for (int j = 0; j <= myMax; j++) {
