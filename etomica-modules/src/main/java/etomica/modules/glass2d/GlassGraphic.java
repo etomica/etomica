@@ -337,7 +337,6 @@ public class GlassGraphic extends SimulationGraphic {
         DataPumpListener pumpAlpha2 = new DataPumpListener(meterAlpha2, plotAlpha2.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpAlpha2);
         plotAlpha2.setLabel("alpha2");
-        plotAlpha2.getPlot().setYLog(true);
         plotAlpha2.getPlot().setXLog(true);
         add(plotAlpha2);
 

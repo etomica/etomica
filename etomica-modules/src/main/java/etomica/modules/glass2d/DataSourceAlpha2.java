@@ -61,7 +61,8 @@ public class DataSourceAlpha2 implements IDataSource, ConfigurationStorage.Confi
         double[] y = data.getData();
         int nAtoms = configStorage.getSavedConfig(0).length;
         for (int i = 0; i < msdSum.length; i++) {
-            y[i] = (3.0 / 5.0) * m4dSum[i] / (msdSum[i] * msdSum[i]) * (nAtoms * nSamples[i]) - 1;
+            // (3/5) for 3D instead of (1/2) for 2D
+            y[i] = 0.5 * m4dSum[i] / (msdSum[i] * msdSum[i]) * (nAtoms * nSamples[i]) - 1;
         }
         return data;
     }
