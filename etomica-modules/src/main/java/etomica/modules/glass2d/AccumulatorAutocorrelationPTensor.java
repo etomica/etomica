@@ -49,6 +49,18 @@ public class AccumulatorAutocorrelationPTensor extends DataAccumulator implement
         avgErrFork = new DataFork();
     }
 
+    public void setNMax(int newNMax) {
+        nMax = newNMax;
+
+        data = new DataFunction(new int[]{nMax + 1});
+        errData = new DataFunction(new int[]{nMax + 1});
+        processDataInfo(inputDataInfo);
+    }
+
+    public int getNMax() {
+        return nMax;
+    }
+
     public DataFork getAvgErrFork() {
         return avgErrFork;
     }

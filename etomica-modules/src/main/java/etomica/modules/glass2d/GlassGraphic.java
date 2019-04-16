@@ -22,6 +22,7 @@ import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
 import etomica.util.ParseArgs;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -38,8 +39,6 @@ public class GlassGraphic extends SimulationGraphic {
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
         this.sim = simulation;
-
-        sim.activityIntegrate.setSleepPeriod(1);
 
         //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
@@ -275,9 +274,9 @@ public class GlassGraphic extends SimulationGraphic {
         }
         DataFork pTensorFork = new DataFork();
         DataPumpListener pPump = new DataPumpListener(pMeter, pTensorFork);
-        AccumulatorAutocorrelationPTensor dpAutocor = new AccumulatorAutocorrelationPTensor(4000, sim.integrator.getTimeStep());
+        AccumulatorAutocorrelationPTensor dpAutocor = new AccumulatorAutocorrelationPTensor(256, sim.integrator.getTimeStep());
         pTensorFork.addDataSink(dpAutocor);
-        dpAutocor.setPushInterval(2000);
+        dpAutocor.setPushInterval(16384);
         DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
         pTensorFork.addDataSink(tracer);
         DataFork pFork = new DataFork();
@@ -302,6 +301,87 @@ public class GlassGraphic extends SimulationGraphic {
         plotPTensorAutocor.setLegend(new DataTag[]{dpAutocor.getTag()}, "avg");
         dpAutocor.addDataSink(plotPTensorAutocor.getDataSet().makeDataSink());
         add(plotPTensorAutocor);
+        DeviceSlider nMaxSlider = new DeviceSlider(sim.getController(), new Modifier() {
+            @Override
+            public void setValue(double newValue) {
+                int log2nMax = (int) Math.round(newValue);
+                int nMax = 1 << log2nMax;
+                dpAutocor.setNMax(nMax);
+            }
+
+            @Override
+            public double getValue() {
+                int nMax = dpAutocor.getNMax();
+                for (int i = 0; i <= 30; i++) {
+                    if (1 << i >= nMax) return i;
+                }
+                throw new RuntimeException("oops");
+            }
+
+            @Override
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
+
+            @Override
+            public String getLabel() {
+                return null;
+            }
+        });
+        nMaxSlider.setShowBorder(true);
+        nMaxSlider.setShowValues(true);
+        nMaxSlider.setNMajor(5);
+        nMaxSlider.setMaximum(30);
+        nMaxSlider.setMinimum(0);
+        nMaxSlider.setLabel("log2(Max lag (steps))");
+        DeviceSlider pushIntervalSlider = new DeviceSlider(sim.getController(), new Modifier() {
+            @Override
+            public void setValue(double newValue) {
+                int log2pi = (int) Math.round(newValue);
+                int pi = 1 << log2pi;
+                dpAutocor.setPushInterval(pi);
+            }
+
+            @Override
+            public double getValue() {
+                long pi = dpAutocor.getPushInterval();
+                for (int i = 0; i <= 30; i++) {
+                    if (1 << i >= pi) return i;
+                }
+                throw new RuntimeException("oops");
+            }
+
+            @Override
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
+
+            @Override
+            public String getLabel() {
+                return null;
+            }
+        });
+        pushIntervalSlider.setShowBorder(true);
+        pushIntervalSlider.setShowValues(true);
+        pushIntervalSlider.setNMajor(5);
+        pushIntervalSlider.setMaximum(30);
+        pushIntervalSlider.setMinimum(0);
+        pushIntervalSlider.setLabel("log2(Push interval (steps))");
+        JPanel ptacPanel = (JPanel) plotPTensorAutocor.graphic();
+        ptacPanel.remove(plotPTensorAutocor.getPlot());
+        ptacPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridheight = 2;
+        ptacPanel.add(plotPTensorAutocor.getPlot(), gbc);
+        gbc.insets = new Insets(20, 0, 0, 0);
+        gbc.gridheight = 1;
+        gbc.gridx = 1;
+        ptacPanel.add(nMaxSlider.graphic(), gbc);
+        gbc.gridy = 1;
+        ptacPanel.add(pushIntervalSlider.graphic(), gbc);
+
         pAutoCorErr.setDataSink(plotPTensorAutocor.getDataSet().makeDataSink());
         plotPTensorAutocor.setLegend(new DataTag[]{dpAutocor.getAvgErrFork().getTag(), pAutoCorErr.getTag()}, "err+");
 
