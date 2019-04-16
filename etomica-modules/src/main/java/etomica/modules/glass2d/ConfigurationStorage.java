@@ -22,25 +22,49 @@ import java.util.Set;
  * 1, 2, 4, 8, 16... steps ago.
  */
 public class ConfigurationStorage implements IntegratorListener {
+
+    public enum StorageType {LOG2, MSD, LINEAR}
+
     protected final Box box;
     protected Vector[][] configList;
     protected long stepCount;
-    protected long[] savedSteps = new long[60]; // can handle up to 2^60 steps
-    protected double[] savedTimes = new double[60];
-    protected boolean msd;
+    protected final long[] savedSteps;
+    protected final double[] savedTimes;
+    protected StorageType storageType;
     protected final Vector[] dr;
     protected final Vector dri;
     protected final Set<ConfigurationStorageListener> listeners;
     protected boolean enabled;
+    protected int interval, intervalCountdown;
 
-    public ConfigurationStorage(Box box, boolean storeForMSD) {
+    public ConfigurationStorage(Box box, StorageType storageType) {
+        this(box, storageType, 60, 1);
+    }
+
+    public ConfigurationStorage(Box box, StorageType storageType, int maxStored, int interval) {
+        this.interval = interval;
+        intervalCountdown = interval;
         this.box = box;
-        this.msd = storeForMSD;
+        this.storageType = storageType;
+        savedSteps = new long[maxStored];
+        savedTimes = new double[maxStored];
         for (int i = 0; i < savedSteps.length; i++) savedTimes[i] = savedSteps[i] = -1;
         dr = box.getSpace().makeVectorArray(box.getLeafList().size());
         dri = box.getSpace().makeVector();
         listeners = new HashSet<>();
         enabled = true;
+    }
+
+    public void setSampleInterval(int newSampleInterval) {
+        interval = intervalCountdown = newSampleInterval;
+    }
+
+    public int getSampleInterval() {
+        return interval;
+    }
+
+    public Box getBox() {
+        return box;
     }
 
     public void setEnabled(boolean newEnabled) {
@@ -54,6 +78,7 @@ public class ConfigurationStorage implements IntegratorListener {
     public void reset() {
         for (int i = 0; i < savedSteps.length; i++) savedTimes[i] = savedSteps[i] = -1;
         stepCount = 0;
+        intervalCountdown = interval;
     }
 
     public void addListener(ConfigurationStorageListener l) {
@@ -67,12 +92,17 @@ public class ConfigurationStorage implements IntegratorListener {
     @Override
     public void integratorStepStarted(IntegratorEvent e) {
         if (!enabled) return;
+        intervalCountdown--;
+        if (intervalCountdown > 0) return;
+        intervalCountdown = interval;
         IAtomList atoms = box.getLeafList();
         int n = atoms.size();
         if (configList == null) {
             configList = new Vector[1][];
             configList[0] = box.getSpace().makeVectorArray(n);
-        } else if (!msd) {
+        } else if (storageType == StorageType.LOG2) {
+            // we need to copy existing configs forward to make way for our new config
+
             // element j stores the config that is at least 1<<(j-1) steps ago (1 step ago, 2 steps ago, 4 steps ago)
             // at some point (step 8) all configList will store what is exacly 1<<(j-1) steps ago (0, -1, -2, -4, -8...)
             // the next step (9) will need to copy all elements forward (0, -1, -2, -3, -5, -9)
@@ -96,9 +126,28 @@ public class ConfigurationStorage implements IntegratorListener {
                     }
                 }
             }
+        } else if (storageType == StorageType.LINEAR) {
+            if (configList.length < savedSteps.length) {
+                Vector[][] newConfigList = new Vector[configList.length + 1][];
+                for (int i = 0; i < configList.length; i++) {
+                    newConfigList[i + 1] = configList[i];
+                }
+                configList = newConfigList;
+                configList[0] = box.getSpace().makeVectorArray(n);
+            } else {
+                Vector[] tmp = configList[configList.length - 1];
+                for (int i = configList.length - 1; i > 0; i--) {
+                    configList[i] = configList[i - 1];
+                }
+                configList[0] = tmp;
+            }
+            for (int i = configList.length - 1; i > 0; i--) {
+                savedSteps[i] = savedSteps[i - 1];
+                savedTimes[i] = savedTimes[i - 1];
+            }
         }
 
-        if (msd && stepCount == 1) {
+        if (storageType == StorageType.MSD && stepCount == 1) {
             savedSteps[1] = savedSteps[0];
             savedTimes[1] = savedTimes[0];
             configList = Arrays.copyOf(configList, 2);
@@ -114,6 +163,8 @@ public class ConfigurationStorage implements IntegratorListener {
         for (int i = 0; i < n; i++) {
             Vector p = atoms.get(i).getPosition();
             if (stepCount > 0) {
+                // unwrap previously-stored configs to match current configs in terms
+                // of computing displacements without worying about PBC
                 dri.Ev1Mv2(p, configList[1][i]);
                 dri.DE(boxDim);
                 for (int k = 0; k < 2; k++) {
@@ -130,7 +181,7 @@ public class ConfigurationStorage implements IntegratorListener {
         for (ConfigurationStorageListener csl : listeners) {
             csl.newConfigruation();
         }
-        if (msd) {
+        if (storageType == StorageType.MSD) {
             // copy our new config forward to whatever power of 2 we are
             // at step 32, we will save 5 copies of our current config.
             // our previous configs (like
