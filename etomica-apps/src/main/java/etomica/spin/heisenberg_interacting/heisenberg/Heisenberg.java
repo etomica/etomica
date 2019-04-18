@@ -275,7 +275,9 @@ public class Heisenberg extends Simulation {
                 xValue[i] = ((DataGroup) CorrelationAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(i);
                 xErr[i] = ((DataGroup) CorrelationAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(i);
                 xCor[i] = ((DataGroup) CorrelationAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(i);
-                System.out.println("x[" + i + "]\t" + " row:\t"+ xRow[i]+ " col:\t" + xCol[i] + " "+ xValue[i] + " Err\t" + xErr[i] + " Cor\t" + xCor[i]);
+
+                System.out.println("x[" + i + "] " + " row:\t" + ((int) xRow[i]) + "\tcol:\t" + ((int) xCol[i])
+                        + "\t" + xValue[i] + " Err\t" + xErr[i] + " Cor\t" + xCor[i]);
             }
         }
 
@@ -495,13 +497,13 @@ public class Heisenberg extends Simulation {
         public boolean doMappingE = false;
         public boolean doCV = false;
         public boolean doCorrelation = true;
-        public int formula = 0;
+        public int formula = 2;
         public boolean doGraphic = false;
         public double temperature = 1;
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
-        public int nCells = 10;//number of atoms is nCells*nCells
-        public int steps = 10000000;
+        public int nCells = 5;//number of atoms is nCells*nCells
+        public int steps = 1000000;
         public int nMax = 1;
     }
 }
