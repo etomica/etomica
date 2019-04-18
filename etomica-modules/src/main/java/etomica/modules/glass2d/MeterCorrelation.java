@@ -29,11 +29,13 @@ import etomica.units.dimensions.Null;
  */
 public class MeterCorrelation implements ConfigurationStorage.ConfigurationStorageListener, IDataSource, DataSourceIndependent {
 
+    public enum CorrelationType {TOTAL, PARALLEL, PERPENDICULAR}
+
     protected final ConfigurationStorage configStorage;
-    protected final Space space;
+    protected final CorrelationType correlationType;
     protected final DataSourceUniform xDataSource;
     protected final DataTag tag;
-    protected final Vector dr, dri, drj;
+    protected final Vector dr, dri, drj, tmp;
     protected double[] corSum;
     protected long[] gSum;
     protected DataFunction data;
@@ -41,20 +43,18 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
     protected double xMax;
     protected AtomType type1, type2;
     private IDataInfo dataInfo;
-    protected boolean resetAfterData;
     protected int prevSampleIndex;
     protected double dr2SumA, dr2SumB;
     protected long dr2CountA, dr2CountB;
 
-    /**
-     * Creates meter with default to compute pair correlation for all
-     * leaf atoms in a box.
-     *
-     * @param space
-     */
-    public MeterCorrelation(ConfigurationStorage configStorage, Space space) {
+    public MeterCorrelation(ConfigurationStorage configStorage) {
+        this(configStorage, CorrelationType.TOTAL);
+    }
+
+    public MeterCorrelation(ConfigurationStorage configStorage, CorrelationType cType) {
         this.configStorage = configStorage;
-        this.space = space;
+        this.correlationType = cType;
+        Space space = configStorage.getBox().getSpace();
         prevSampleIndex = 0;
 
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
@@ -70,6 +70,7 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
         dr = space.makeVector();
         dri = space.makeVector();
         drj = space.makeVector();
+        tmp = space.makeVector();
         tag = new DataTag();
         dataInfo.addTag(tag);
     }
@@ -91,18 +92,9 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
         return tag;
     }
 
-    public void setAtomType(AtomType type) {
-        type1 = type;
-        type2 = type;
-    }
-
     public void setAtomTypes(AtomType type1, AtomType type2) {
         this.type1 = type1;
         this.type2 = type2;
-    }
-
-    public void setResetAfterData(boolean doResetAfterData) {
-        resetAfterData = doResetAfterData;
     }
 
 //    public void setPrevConfigIndex(int newPrevConfigIndex) {
@@ -151,10 +143,10 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
         final double[] y = data.getData();
         double[] r = rData.getData();
         double norm = Math.sqrt(dr2SumA / dr2CountA * dr2SumB / dr2CountB);
+        if (correlationType != CorrelationType.TOTAL) norm /= 2;
         for (int i = 0; i < r.length; i++) {
             y[i] = corSum[i] / (gSum[i] * norm);
         }
-        if (resetAfterData) zeroData();
         return data;
     }
 
@@ -228,9 +220,19 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
                 if (r2 < xMaxSquared) {
                     int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
                     gSum[index]++;                        //add once for each atom
-                    if (true) {
-                        corSum[index] += dri.dot(drj);
+                    if (correlationType != CorrelationType.TOTAL) {
+                        tmp.Ea1Tv1(drj.dot(dr) / r2, dr);
+                        if (correlationType == CorrelationType.PERPENDICULAR) {
+                            drj.ME(tmp);
+                        } else {
+                            drj.E(tmp);
+                        }
+                        tmp.Ea1Tv1(dri.dot(dr) / r2, dr);
+                        if (correlationType == CorrelationType.PERPENDICULAR) {
+                            tmp.Ev1Mv2(dri, tmp);
+                        }
                     }
+                    corSum[index] += dri.dot(drj);
                 }
             }
         }
