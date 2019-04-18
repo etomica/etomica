@@ -310,6 +310,7 @@ public class GlassGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(pumpCorrelation);
         correlationPlot.setLabel("cor");
         add(correlationPlot);
+
         MeterCorrelation meterCorrelationAA = new MeterCorrelation(configStorageLinear);
         meterCorrelationAA.setAtomTypes(sim.speciesA.getLeafType(), sim.speciesA.getLeafType());
         meterCorrelationAA.setPrevSampleIndex(128);
@@ -334,6 +335,7 @@ public class GlassGraphic extends SimulationGraphic {
         meterCorrelationBB.reset();
         DataPumpListener pumpCorrelationBB = new DataPumpListener(meterCorrelationBB, correlationPlot.getDataSet().makeDataSink(), 10000);
         sim.integrator.getEventManager().addListener(pumpCorrelationBB);
+
         correlationPlot.setLegend(new DataTag[]{meterCorrelation.getTag()}, "total");
         correlationPlot.setLegend(new DataTag[]{meterCorrelationAA.getTag()}, "AA");
         correlationPlot.setLegend(new DataTag[]{meterCorrelationAB.getTag()}, "AB");
@@ -346,7 +348,7 @@ public class GlassGraphic extends SimulationGraphic {
         meterCorrelationPerp.reset();
         DataPumpListener pumpCorrelationPerp = new DataPumpListener(meterCorrelationPerp, correlationPlot.getDataSet().makeDataSink(), 10000);
         sim.integrator.getEventManager().addListener(pumpCorrelationPerp);
-        correlationPlot.setLegend(new DataTag[]{meterCorrelationPerp.getTag()}, "perp");
+        correlationPlot.setLegend(new DataTag[]{meterCorrelationPerp.getTag()}, "_|_");
         MeterCorrelation meterCorrelationPar = new MeterCorrelation(configStorageLinear, MeterCorrelation.CorrelationType.PARALLEL);
         meterCorrelationPar.setPrevSampleIndex(128);
         configStorageLinear.addListener(meterCorrelationPar);
@@ -574,6 +576,37 @@ public class GlassGraphic extends SimulationGraphic {
         plotAlpha2.setLabel("alpha2");
         plotAlpha2.getPlot().setXLog(true);
         add(plotAlpha2);
+
+
+        //Fs: TOTAL
+        DataSourceFs meterFs = new DataSourceFs(configStorageMSD);
+        configStorageMSD.addListener(meterFs);
+        DisplayPlot plotFs = new DisplayPlot();
+        DataPumpListener pumpFs = new DataPumpListener(meterFs, plotFs.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpFs);
+        plotFs.setLabel("Fs");
+        plotFs.getPlot().setXLog(true);
+        add(plotFs);
+
+        //Fs: A
+        DataSourceFs meterFsA = new DataSourceFs(configStorageMSD);
+        meterFsA.setAtomType(sim.speciesA.getLeafType());
+        configStorageMSD.addListener(meterFsA);
+        DataPumpListener pumpFsA = new DataPumpListener(meterFsA, plotFs.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpFsA);
+
+        //Fs: B
+        DataSourceFs meterFsB = new DataSourceFs(configStorageMSD);
+        meterFsB.setAtomType(sim.speciesB.getLeafType());
+        configStorageMSD.addListener(meterFsB);
+        DataPumpListener pumpFsB = new DataPumpListener(meterFsB, plotFs.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpFsB);
+
+
+        plotFs.setLegend(new DataTag[]{meterFs.getTag()}, "total");
+        plotFs.setLegend(new DataTag[]{meterFsA.getTag()}, "A");
+        plotFs.setLegend(new DataTag[]{meterFsB.getTag()}, "B");
+
 
         //************* Lay out components ****************//
 
