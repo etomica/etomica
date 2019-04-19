@@ -119,6 +119,10 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
                     x[index] -= 0.5 * (fj - fk) * (sintj * costk - costj * sintk);
                 } else {
                     x[index] += fj * fk * (sintj * sintk + costj * costk);
+                    if (index == 0) {
+                        x[index] += bJ * (costj * costk + sintj * sintk) * (costj + sintj) * (costk + sintk);
+                    }
+
                 }
                 nPairs[index] += 1;
                 x[index + arraySize] = JMKRow;
