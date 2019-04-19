@@ -48,6 +48,6 @@ public class AtomFilterDeviation implements AtomFilter {
 
     @Override
     public boolean test(IAtom a) {
-        return getDisplacementSq(a) > minDistance*minDistance;
+        return getDisplacementSq(a) < minDistance * minDistance;
     }
 }
