@@ -143,7 +143,12 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
         final double[] y = data.getData();
         double[] r = rData.getData();
         double norm = Math.sqrt(dr2SumA / dr2CountA * dr2SumB / dr2CountB);
-        if (correlationType != CorrelationType.TOTAL) norm /= 2;
+        double D = dr.getD();
+        if (correlationType == CorrelationType.PERPENDICULAR) {
+            norm *= (D - 1.0) / D;
+        } else if (correlationType == CorrelationType.PARALLEL) {
+            norm *= 1.0 / D;
+        }
         for (int i = 0; i < r.length; i++) {
             y[i] = corSum[i] / (gSum[i] * norm);
         }

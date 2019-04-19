@@ -32,6 +32,10 @@ public class ColorSchemeDeviation extends ColorScheme {
         configIndex = 100;
     }
 
+    public int getConfigIndex() {
+        return configIndex;
+    }
+
     public void setConfigIndex(int idx) {
         configIndex = idx;
     }

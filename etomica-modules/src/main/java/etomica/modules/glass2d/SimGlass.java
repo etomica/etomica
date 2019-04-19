@@ -188,6 +188,7 @@ public class SimGlass extends Simulation {
         public int D = 2;
         public int nA = 130, nB = 70;
         // rho=1000/29.34^2=1.16 (yields P=0 at T=0) for LJ http://dx.doi.org/10.1088/0953-8984/21/3/035117
+        //     for 3D, 1000/8.88^3 = 1.43
         // for SS, P=18.37 https://doi.org/10.1103/PhysRevLett.81.120
         //    rho=1.35 at T=Tg=0.55
         // for HS, rho=1.35 is very high, but 1.30 is perhaps not high enough

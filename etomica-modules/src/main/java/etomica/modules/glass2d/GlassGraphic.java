@@ -82,15 +82,22 @@ public class GlassGraphic extends SimulationGraphic {
         ConfigurationStorage configStorage = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LOG2);
         configStorage.setEnabled(false); // start isothermal
         sim.integrator.getEventManager().addListener(configStorage);
-        DisplayBox dbox = new DisplayBox(sim, sim.box);
-        DisplayBoxCanvas2DGlass canvas = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
-        remove(getDisplayBox(sim.box));
-        dbox.setBoxCanvas(canvas);
-        add(dbox);
+        DisplayBox dbox;
+        DisplayBoxCanvas2DGlass canvas;
+        if (sim.getSpace().D() == 2) {
+            dbox = new DisplayBox(sim, sim.box);
+            canvas = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
+            remove(getDisplayBox(sim.box));
+            dbox.setBoxCanvas(canvas);
+            add(dbox);
+            canvas.setVisible(false);
+            canvas.setVisible(true);
+        } else {
+            canvas = null;
+            dbox = getDisplayBox(sim.box);
+        }
         dbox.setColorScheme(colorScheme);
         dbox.setDiameterHash(diameterHash);
-        canvas.setVisible(false);
-        canvas.setVisible(true);
 
         ColorSchemeDeviation colorSchemeDeviation = new ColorSchemeDeviation(sim.box, configStorage);
 
@@ -99,14 +106,14 @@ public class GlassGraphic extends SimulationGraphic {
             @Override
             public void setValue(double newValue) {
                 int idx = (int) Math.round(newValue);
-                canvas.setConfigIndex(idx);
+                if (canvas != null) canvas.setConfigIndex(idx);
                 colorSchemeDeviation.setConfigIndex(idx);
                 dsPrevTime.setPrevConfigIndex(idx);
             }
 
             @Override
             public double getValue() {
-                return canvas.getConfigIndex();
+                return colorSchemeDeviation.getConfigIndex();
             }
 
             @Override
@@ -138,6 +145,7 @@ public class GlassGraphic extends SimulationGraphic {
                 } else {
                     dbox.setColorScheme(colorScheme);
                 }
+                dbox.repaint();
             }
 
             @Override
@@ -151,12 +159,15 @@ public class GlassGraphic extends SimulationGraphic {
         DeviceCheckBox showDispCheckbox = new DeviceCheckBox("show displacement", new ModifierBoolean() {
             @Override
             public void setBoolean(boolean b) {
+                if (canvas == null) return;
                 if (canvas.getDrawDisplacement() == b || sim.integrator.isIsothermal()) return;
                 canvas.setDrawDisplacement(b);
+                dbox.repaint();
             }
 
             @Override
             public boolean getBoolean() {
+                if (canvas == null) return false;
                 return canvas.getDrawDisplacement();
             }
         });
@@ -619,7 +630,7 @@ public class GlassGraphic extends SimulationGraphic {
                     sim.integrator.setIsothermal(true);
                     sim.integrator.setIntegratorMC(sim.integratorMC, 10000);
                     dbox.setColorScheme(colorScheme);
-                    canvas.setDrawDisplacement(false);
+                    if (canvas != null) canvas.setDrawDisplacement(false);
                     configStorageLinear.reset();
                     configStorageLinear.setEnabled(false);
                     configStorage.reset();
@@ -638,7 +649,7 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageMSD.reset();
                     configStorageMSD.setEnabled(true);
                     if (colorCheckbox.getState()) dbox.setColorScheme(colorSchemeDeviation);
-                    if (showDispCheckbox.getState()) canvas.setDrawDisplacement(true);
+                    if (showDispCheckbox.getState() && canvas != null) canvas.setDrawDisplacement(true);
                     dpAutocor.reset();
                     meterCorrelation.reset();
                 }
@@ -707,9 +718,10 @@ public class GlassGraphic extends SimulationGraphic {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doSwap = true;
-            params.potential = SimGlass.PotentialChoice.SS;
+            params.potential = SimGlass.PotentialChoice.LJ;
             params.nA = params.nB = 400;
-            params.density = 1.35;
+            params.density = 1.421;
+            params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.potential);
 

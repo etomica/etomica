@@ -167,7 +167,7 @@ public class ConfigurationStorage implements IntegratorListener {
                 // of computing displacements without worying about PBC
                 dri.Ev1Mv2(p, configList[1][i]);
                 dri.DE(boxDim);
-                for (int k = 0; k < 2; k++) {
+                for (int k = 0; k < dri.getD(); k++) {
                     dri.setX(k, ((int) Math.round(dri.getX(k))) * boxDim.getX(k));
                 }
                 if (!dri.isZero()) {
