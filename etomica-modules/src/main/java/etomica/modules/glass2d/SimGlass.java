@@ -35,7 +35,7 @@ public class SimGlass extends Simulation {
     public final IntegratorMC integratorMC;
     public final PotentialChoice potentialChoice;
 
-    public enum PotentialChoice {LJ, SS, HS}
+    public enum PotentialChoice {LJ, WCA, SS, HS}
 
     ;
 
@@ -81,6 +81,14 @@ public class SimGlass extends Simulation {
             P2LennardJones potentialBB = new P2LennardJones(space, 0.88, 0.5);
             P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(space, potentialBB, 2.5);
             potentialMaster.addPotential(p2TruncatedBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
+        } else if (potentialChoice == PotentialChoice.WCA) {
+            // https://doi.org/10.1103/PhysRevX.1.021013
+            P2WCA potentialAA = new P2WCA(space, 1, 1);
+            potentialMaster.addPotential(potentialAA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
+            P2WCA potentialAB = new P2WCA(space, 0.5 + 0.5 / 1.4, 1);
+            potentialMaster.addPotential(potentialAB, new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
+            P2WCA potentialBB = new P2WCA(space, 1.0 / 1.4, 1);
+            potentialMaster.addPotential(potentialBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
         } else if (potentialChoice == PotentialChoice.SS) {
 
             // https://doi.org/10.1103/PhysRevLett.81.120 prescribes cut=4.5*(0.5+0.5/1.4)=3.85714
@@ -192,6 +200,7 @@ public class SimGlass extends Simulation {
         // for SS, P=18.37 https://doi.org/10.1103/PhysRevLett.81.120
         //    rho=1.35 at T=Tg=0.55
         // for HS, rho=1.35 is very high, but 1.30 is perhaps not high enough
+        // for WCA, rho=0.75*1.4*1.4 = 1.47
         public double density = 1000 / (29.34 * 29.34);
         public boolean doSwap = false;
         public PotentialChoice potential = PotentialChoice.LJ;
