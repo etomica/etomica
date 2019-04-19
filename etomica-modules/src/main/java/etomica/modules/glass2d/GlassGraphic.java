@@ -19,6 +19,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
 import etomica.util.ParseArgs;
 
@@ -100,7 +101,6 @@ public class GlassGraphic extends SimulationGraphic {
         dbox.setDiameterHash(diameterHash);
 
         AtomFilterDeviation atomFilterDeviation = new AtomFilterDeviation(sim.box, configStorage);
-        dbox.setAtomFilter(atomFilterDeviation);
 
         ColorSchemeDeviation colorSchemeDeviation = new ColorSchemeDeviation(sim.box, configStorage);
 
@@ -112,6 +112,7 @@ public class GlassGraphic extends SimulationGraphic {
                 if (canvas != null) canvas.setConfigIndex(idx);
                 colorSchemeDeviation.setConfigIndex(idx);
                 dsPrevTime.setPrevConfigIndex(idx);
+                atomFilterDeviation.setConfigIndex(idx);
             }
 
             @Override
@@ -137,6 +138,33 @@ public class GlassGraphic extends SimulationGraphic {
         DataPumpListener pumpPrevTime = new DataPumpListener(dsPrevTime, displayPrevTime, 1);
         sim.integrator.getEventManager().addListener(pumpPrevTime);
         add(displayPrevTime);
+
+        DeviceSlider filterSlider = new DeviceSlider(sim.getController(), new Modifier() {
+            @Override
+            public void setValue(double newValue) {
+                atomFilterDeviation.setMinDistance(newValue);
+            }
+
+            @Override
+            public double getValue() {
+                return atomFilterDeviation.getMinDistance();
+            }
+
+            @Override
+            public Dimension getDimension() {
+                return Length.DIMENSION;
+            }
+
+            @Override
+            public String getLabel() {
+                return "filter minDistance";
+            }
+        });
+        filterSlider.setMaximum(2);
+        filterSlider.setShowBorder(true);
+        filterSlider.setPrecision(1);
+        filterSlider.setNMajor(5);
+        add(filterSlider);
 
         DeviceCheckBox colorCheckbox = new DeviceCheckBox("color by displacement", new ModifierBoolean() {
             @Override
@@ -630,6 +658,7 @@ public class GlassGraphic extends SimulationGraphic {
 
                 if (sim.integrator.isIsothermal() == b) return;
                 if (b) {
+                    dbox.setAtomFilter(null);
                     sim.integrator.setIsothermal(true);
                     sim.integrator.setIntegratorMC(sim.integratorMC, 10000);
                     dbox.setColorScheme(colorScheme);
@@ -643,6 +672,7 @@ public class GlassGraphic extends SimulationGraphic {
                     dpAutocor.reset();
                     meterCorrelation.reset();
                 } else {
+                    dbox.setAtomFilter(atomFilterDeviation);
                     sim.integrator.setIntegratorMC(null, 0);
                     sim.integrator.setIsothermal(false);
                     configStorageLinear.reset();
@@ -722,7 +752,7 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.LJ;
-            params.nA = params.nB = 400;
+            params.nA = params.nB = 250;
             params.density = 1.421;
             params.D = 3;
         }

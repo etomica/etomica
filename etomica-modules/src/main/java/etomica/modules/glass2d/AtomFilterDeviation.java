@@ -27,6 +27,8 @@ public class AtomFilterDeviation implements AtomFilter {
         configIndex = idx;
     }
 
+    public double getMinDistance() { return this.minDistance;}
+
     public void setMinDistance(double minDistance) {
         this.minDistance = minDistance;
     }
@@ -46,6 +48,6 @@ public class AtomFilterDeviation implements AtomFilter {
 
     @Override
     public boolean test(IAtom a) {
-        return getDisplacementSq(a) < minDistance*minDistance;
+        return getDisplacementSq(a) > minDistance*minDistance;
     }
 }
