@@ -99,6 +99,9 @@ public class GlassGraphic extends SimulationGraphic {
         dbox.setColorScheme(colorScheme);
         dbox.setDiameterHash(diameterHash);
 
+        AtomFilterDeviation atomFilterDeviation = new AtomFilterDeviation(sim.box, configStorage);
+        dbox.setAtomFilter(atomFilterDeviation);
+
         ColorSchemeDeviation colorSchemeDeviation = new ColorSchemeDeviation(sim.box, configStorage);
 
         DataSourcePrevTime dsPrevTime = new DataSourcePrevTime(configStorage);
