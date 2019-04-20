@@ -50,6 +50,10 @@ public class ColorSchemeDirection extends ColorScheme {
         axis = i;
     }
 
+    public int getAxis() {
+        return axis;
+    }
+
     public int getConfigIndex() {
         return configIndex;
     }

@@ -77,9 +77,9 @@ public class DeviceCheckBox extends Device {
      */
     public void setModifier(ModifierBoolean newModifier) {
         modifier = newModifier;
-        modifier.setBoolean(currentValue);
-        modifyAction = new ModifyBooleanAction(modifier);
         currentValue = modifier.getBoolean();
+        modifyAction = new ModifyBooleanAction(modifier);
+        box.setSelected(currentValue);
     }
     
     /**
