@@ -5,7 +5,6 @@
 package etomica.modules.glass2d;
 
 import etomica.action.IAction;
-import etomica.atom.DiameterHashByType;
 import etomica.cavity.DataProcessorErrorBar;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
@@ -47,9 +46,6 @@ public class GlassGraphic extends SimulationGraphic {
         colorScheme.setColor(sim.speciesB.getLeafType(), Color.blue);
 //        DisplayBox dbox0 = getDisplayBox(sim.box);
 //        dbox0.setColorScheme(colorScheme);
-        DiameterHashByType diameterHash = (DiameterHashByType) getDisplayBox(sim.box).getDiameterHash();
-        diameterHash.setDiameter(sim.speciesB.getLeafType(), sim.potentialChoice == SimGlass.PotentialChoice.LJ ? 0.88 : 1 / 1.4);
-        diameterHash.setDiameter(sim.speciesA.getLeafType(), 1);
 //        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayBoxPaintAction(sim.box)));
 
         //meters and displays
@@ -84,20 +80,25 @@ public class GlassGraphic extends SimulationGraphic {
         configStorage.setEnabled(false); // start isothermal
         sim.integrator.getEventManager().addListener(configStorage);
         DisplayBox dbox;
-        DisplayBoxCanvas2DGlass canvas;
+        DisplayBoxCanvasGlass canvas;
+        DisplayCanvas c;
+        dbox = new DisplayBox(sim, sim.box);
         if (sim.getSpace().D() == 2) {
-            dbox = new DisplayBox(sim, sim.box);
-            canvas = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
-            remove(getDisplayBox(sim.box));
-            dbox.setBoxCanvas(canvas);
-            add(dbox);
-            canvas.setVisible(false);
-            canvas.setVisible(true);
+            c = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
         } else {
-            canvas = null;
-            dbox = getDisplayBox(sim.box);
+            c = new DisplayBoxCanvas3DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
         }
+        canvas = (DisplayBoxCanvasGlass) c;
+        remove(getDisplayBox(sim.box));
+        dbox.setBoxCanvas(c);
+        add(dbox);
+        c.setVisible(false);
+        c.setVisible(true);
         dbox.setColorScheme(colorScheme);
+
+        DiameterHashGlass diameterHash = new DiameterHashGlass();
+        diameterHash.setDiameter(sim.speciesB.getLeafType(), sim.potentialChoice == SimGlass.PotentialChoice.LJ ? 0.88 : 1 / 1.4);
+        diameterHash.setDiameter(sim.speciesA.getLeafType(), 1);
         dbox.setDiameterHash(diameterHash);
 
         AtomFilterDeviation atomFilterDeviation = new AtomFilterDeviation(sim.box, configStorage);
@@ -109,7 +110,7 @@ public class GlassGraphic extends SimulationGraphic {
             @Override
             public void setValue(double newValue) {
                 int idx = (int) Math.round(newValue);
-                if (canvas != null) canvas.setConfigIndex(idx);
+                canvas.setConfigIndex(idx);
                 colorSchemeDeviation.setConfigIndex(idx);
                 dsPrevTime.setPrevConfigIndex(idx);
                 atomFilterDeviation.setConfigIndex(idx);
@@ -143,6 +144,7 @@ public class GlassGraphic extends SimulationGraphic {
             @Override
             public void setValue(double newValue) {
                 atomFilterDeviation.setMinDistance(newValue);
+                dbox.repaint();
             }
 
             @Override
@@ -190,15 +192,14 @@ public class GlassGraphic extends SimulationGraphic {
         DeviceCheckBox showDispCheckbox = new DeviceCheckBox("show displacement", new ModifierBoolean() {
             @Override
             public void setBoolean(boolean b) {
-                if (canvas == null) return;
                 if (canvas.getDrawDisplacement() == b || sim.integrator.isIsothermal()) return;
                 canvas.setDrawDisplacement(b);
                 dbox.repaint();
+                diameterHash.setFac(b ? 0.5 : 1.0);
             }
 
             @Override
             public boolean getBoolean() {
-                if (canvas == null) return false;
                 return canvas.getDrawDisplacement();
             }
         });
@@ -662,7 +663,7 @@ public class GlassGraphic extends SimulationGraphic {
                     sim.integrator.setIsothermal(true);
                     sim.integrator.setIntegratorMC(sim.integratorMC, 10000);
                     dbox.setColorScheme(colorScheme);
-                    if (canvas != null) canvas.setDrawDisplacement(false);
+                    canvas.setDrawDisplacement(false);
                     configStorageLinear.reset();
                     configStorageLinear.setEnabled(false);
                     configStorage.reset();
@@ -671,6 +672,7 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageMSD.setEnabled(false);
                     dpAutocor.reset();
                     meterCorrelation.reset();
+                    diameterHash.setFac(1.0);
                 } else {
                     dbox.setAtomFilter(atomFilterDeviation);
                     sim.integrator.setIntegratorMC(null, 0);
@@ -685,6 +687,7 @@ public class GlassGraphic extends SimulationGraphic {
                     if (showDispCheckbox.getState() && canvas != null) canvas.setDrawDisplacement(true);
                     dpAutocor.reset();
                     meterCorrelation.reset();
+                    diameterHash.setFac(showDispCheckbox.getState() ? 0.5 : 1.0);
                 }
             }
 
@@ -752,8 +755,9 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.LJ;
-            params.nA = params.nB = 250;
-            params.density = 1.421;
+            params.nA = 400;
+            params.nB = 100;
+            params.density = 1.25;
             params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.potential);

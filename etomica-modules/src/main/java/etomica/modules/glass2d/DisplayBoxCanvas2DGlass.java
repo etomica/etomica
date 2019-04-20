@@ -9,7 +9,7 @@ import etomica.space.Vector;
 
 import java.awt.*;
 
-public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D {
+public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D implements DisplayBoxCanvasGlass {
 
     protected final ConfigurationStorage configStorage;
     protected int configIndex;
@@ -60,7 +60,7 @@ public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D {
         baseXP = origin[0] + (int) (toPixels * r.getX(0));
         baseYP = origin[1] + (int) (toPixels * r.getX(1));
         /* Draw the core of the atom, specific to the dimension */
-        double sigma = 0.5 * displayBox.getDiameterHash().getDiameter(a);
+        double sigma = displayBox.getDiameterHash().getDiameter(a);
         // default diameter
         if (sigma == -1) sigma = 1;
         sigmaP = (int) (toPixels * sigma);

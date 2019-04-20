@@ -19,7 +19,7 @@ public class AtomFilterDeviation implements AtomFilter {
         Space space = box.getSpace();
         dr = space.makeVector();
 
-        setMinDistance(1);
+        setMinDistance(0);
         configIndex = 100;
     }
 
