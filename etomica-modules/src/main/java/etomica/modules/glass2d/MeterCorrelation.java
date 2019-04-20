@@ -225,7 +225,9 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
                 if (r2 < xMaxSquared) {
                     int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
                     gSum[index]++;                        //add once for each atom
-                    if (correlationType != CorrelationType.TOTAL) {
+                    if (correlationType == CorrelationType.TOTAL) {
+                        corSum[index] += dri.dot(drj);
+                    } else {
                         tmp.Ea1Tv1(drj.dot(dr) / r2, dr);
                         if (correlationType == CorrelationType.PERPENDICULAR) {
                             drj.ME(tmp);
@@ -236,8 +238,8 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
                         if (correlationType == CorrelationType.PERPENDICULAR) {
                             tmp.Ev1Mv2(dri, tmp);
                         }
+                        corSum[index] += tmp.dot(drj);
                     }
-                    corSum[index] += dri.dot(drj);
                 }
             }
         }
