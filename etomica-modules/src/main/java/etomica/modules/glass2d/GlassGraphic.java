@@ -52,7 +52,7 @@ public class GlassGraphic extends SimulationGraphic {
         final MeterRDF rdfMeter = new MeterRDF(sim.getSpace());
         IntegratorListenerAction rdfMeterListener = new IntegratorListenerAction(rdfMeter);
         sim.integrator.getEventManager().addListener(rdfMeterListener);
-        rdfMeterListener.setInterval(10);
+        rdfMeterListener.setInterval(100);
         rdfMeter.getXDataSource().setXMax(4.0);
         rdfMeter.setBox(sim.box);
         DisplayPlot rdfPlot = new DisplayPlot();
@@ -68,7 +68,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
-        ConfigurationStorage configStorageLinear = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LINEAR, 1024, 10);
+        ConfigurationStorage configStorageLinear = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LINEAR, 1024, 32);
         configStorageLinear.setEnabled(false); // start isothermal
         sim.integrator.getEventManager().addListener(configStorageLinear);
 
@@ -215,6 +215,40 @@ public class GlassGraphic extends SimulationGraphic {
         add(colorCheckbox);
         colorDirectionCheckbox.setController(sim.getController());
         add(colorDirectionCheckbox);
+        if (sim.getSpace().getD() == 3) {
+            JPanel xyzPanel = new JPanel(new GridBagLayout());
+            GridBagConstraints h = SimulationPanel.getHorizGBC();
+            String[] labels = new String[]{"x", "y", "z"};
+            DeviceCheckBox[] axisCheckbox = new DeviceCheckBox[3];
+            for (int i = 0; i < labels.length; i++) {
+                axisCheckbox[i] = new DeviceCheckBox(labels[i], null);
+            }
+            for (int i = 0; i < labels.length; i++) {
+                final int k = i;
+                axisCheckbox[k].setModifier(new ModifierBoolean() {
+                    @Override
+                    public void setBoolean(boolean b) {
+                        if (!b) {
+                            if (colorSchemeDirection.getAxis() == k) throw new RuntimeException("oops");
+                            return;
+                        }
+                        colorSchemeDirection.setAxis(k);
+                        for (int j = 0; j < 3; j++) {
+                            if (k == j) continue;
+                            axisCheckbox[j].setState(false);
+                        }
+                        dbox.repaint();
+                    }
+
+                    @Override
+                    public boolean getBoolean() {
+                        return colorSchemeDirection.getAxis() == k;
+                    }
+                });
+                xyzPanel.add(axisCheckbox[k].graphic());
+            }
+            getPanel().controlPanel.add(xyzPanel, SimulationPanel.getVertGBC());
+        }
 
         DeviceCheckBox showDispCheckbox = new DeviceCheckBox("show displacement", new ModifierBoolean() {
             @Override
@@ -233,9 +267,6 @@ public class GlassGraphic extends SimulationGraphic {
 
         showDispCheckbox.setController(sim.getController());
         add(showDispCheckbox);
-
-
-
 
         IAction repaintAction = new IAction() {
             public void actionPerformed() {
