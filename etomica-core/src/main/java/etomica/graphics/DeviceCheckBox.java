@@ -35,8 +35,10 @@ public class DeviceCheckBox extends Device {
     
     private void init(String label, ModifierBoolean modifier) {
         this.modifier = modifier;
-        modifyAction = new ModifyBooleanAction(modifier);
-        currentValue = modifier.getBoolean();
+        if (modifier != null) {
+            modifyAction = new ModifyBooleanAction(modifier);
+            currentValue = modifier.getBoolean();
+        }
         box = new JCheckBox(label,currentValue);
         box.addActionListener( new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -76,6 +78,8 @@ public class DeviceCheckBox extends Device {
     public void setModifier(ModifierBoolean newModifier) {
         modifier = newModifier;
         modifier.setBoolean(currentValue);
+        modifyAction = new ModifyBooleanAction(modifier);
+        currentValue = modifier.getBoolean();
     }
     
     /**
