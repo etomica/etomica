@@ -104,6 +104,7 @@ public class GlassGraphic extends SimulationGraphic {
         AtomFilterDeviation atomFilterDeviation = new AtomFilterDeviation(sim.box, configStorage);
 
         ColorSchemeDeviation colorSchemeDeviation = new ColorSchemeDeviation(sim.box, configStorage);
+        ColorSchemeDirection colorSchemeDirection = new ColorSchemeDirection(sim.box, configStorage);
 
         DataSourcePrevTime dsPrevTime = new DataSourcePrevTime(configStorage);
         DeviceSlider prevConfigSlider = new DeviceSlider(sim.getController(), new Modifier() {
@@ -112,6 +113,7 @@ public class GlassGraphic extends SimulationGraphic {
                 int idx = (int) Math.round(newValue);
                 canvas.setConfigIndex(idx);
                 colorSchemeDeviation.setConfigIndex(idx);
+                colorSchemeDirection.setConfigIndex(idx);
                 dsPrevTime.setPrevConfigIndex(idx);
                 atomFilterDeviation.setConfigIndex(idx);
             }
@@ -168,12 +170,35 @@ public class GlassGraphic extends SimulationGraphic {
         filterSlider.setNMajor(5);
         add(filterSlider);
 
-        DeviceCheckBox colorCheckbox = new DeviceCheckBox("color by displacement", new ModifierBoolean() {
+        DeviceCheckBox colorCheckbox = new DeviceCheckBox("color by displacement", null);
+        colorCheckbox.setController(sim.getController());
+        add(colorCheckbox);
+        DeviceCheckBox colorDirectionCheckbox = new DeviceCheckBox("color by direction", new ModifierBoolean() {
+            @Override
+            public void setBoolean(boolean b) {
+                if ((dbox.getColorScheme() == colorSchemeDirection) == b) return;
+                if (b) {
+                    if (sim.integrator.isIsothermal()) return;
+                    colorCheckbox.setState(false);
+                    dbox.setColorScheme(colorSchemeDirection);
+                } else {
+                    dbox.setColorScheme(colorScheme);
+                }
+                dbox.repaint();
+            }
+
+            @Override
+            public boolean getBoolean() {
+                return dbox.getColorScheme() == colorSchemeDirection;
+            }
+        });
+        colorCheckbox.setModifier(new ModifierBoolean() {
             @Override
             public void setBoolean(boolean b) {
                 if ((dbox.getColorScheme() == colorSchemeDeviation) == b) return;
                 if (b) {
                     if (sim.integrator.isIsothermal()) return;
+                    colorDirectionCheckbox.setState(false);
                     dbox.setColorScheme(colorSchemeDeviation);
                 } else {
                     dbox.setColorScheme(colorScheme);
@@ -188,6 +213,8 @@ public class GlassGraphic extends SimulationGraphic {
         });
         colorCheckbox.setController(sim.getController());
         add(colorCheckbox);
+        colorDirectionCheckbox.setController(sim.getController());
+        add(colorDirectionCheckbox);
 
         DeviceCheckBox showDispCheckbox = new DeviceCheckBox("show displacement", new ModifierBoolean() {
             @Override
@@ -684,7 +711,8 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageMSD.reset();
                     configStorageMSD.setEnabled(true);
                     if (colorCheckbox.getState()) dbox.setColorScheme(colorSchemeDeviation);
-                    if (showDispCheckbox.getState() && canvas != null) canvas.setDrawDisplacement(true);
+                    else if (colorDirectionCheckbox.getState()) dbox.setColorScheme(colorSchemeDirection);
+                    if (showDispCheckbox.getState()) canvas.setDrawDisplacement(true);
                     dpAutocor.reset();
                     meterCorrelation.reset();
                     diameterHash.setFac(showDispCheckbox.getState() ? 0.5 : 1.0);
@@ -755,10 +783,10 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.LJ;
-            params.nA = 400;
-            params.nB = 100;
+            params.nA = 650;
+            params.nB = 350;
             params.density = 1.25;
-            params.D = 3;
+            params.D = 2;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.potential);
 
