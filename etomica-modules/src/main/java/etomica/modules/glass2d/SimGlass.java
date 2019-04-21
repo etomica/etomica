@@ -82,6 +82,7 @@ public class SimGlass extends Simulation {
             P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(space, potentialBB, 2.5);
             potentialMaster.addPotential(p2TruncatedBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
         } else if (potentialChoice == PotentialChoice.WCA) {
+            potentialMaster.setRange(2);
             // https://doi.org/10.1103/PhysRevX.1.021013
             P2WCA potentialAA = new P2WCA(space, 1, 1);
             potentialMaster.addPotential(potentialAA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
@@ -90,7 +91,6 @@ public class SimGlass extends Simulation {
             P2WCA potentialBB = new P2WCA(space, 1.0 / 1.4, 1);
             potentialMaster.addPotential(potentialBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
         } else if (potentialChoice == PotentialChoice.SS) {
-            potentialMaster.setRange(2);
             // https://doi.org/10.1103/PhysRevLett.81.120 prescribes cut=4.5*(0.5+0.5/1.4)=3.85714
             P2SoftSphere potentialAA = new P2SoftSphere(space, 1, 1, 12);
             P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(space, potentialAA, 2.5);
