@@ -29,7 +29,7 @@ import etomica.units.dimensions.Null;
  */
 public class MeterCorrelation implements ConfigurationStorage.ConfigurationStorageListener, IDataSource, DataSourceIndependent {
 
-    public enum CorrelationType {TOTAL, PARALLEL, PERPENDICULAR}
+    public enum CorrelationType {TOTAL, PARALLEL, PERPENDICULAR, MAGNITUDE}
 
     protected final ConfigurationStorage configStorage;
     protected final CorrelationType correlationType;
@@ -203,12 +203,13 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
             Vector ir0 = config0[i];
             Vector irPrev = configPrev[i];
             dri.Ev1Mv2(ir0, irPrev);
+            double dri2 = dri.squared();
             if (type1 == null || iAtom.getType() == type1) {
-                dr2SumA += dri.squared();
+                dr2SumA += dri2;
                 dr2CountA++;
             }
             if (type2 == null || iAtom.getType() == type2) {
-                dr2SumB += dri.squared();
+                dr2SumB += dri2;
                 dr2CountB++;
             }
             for (int j = i + 1; j < config0.length; j++) {
@@ -227,6 +228,8 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
                     gSum[index]++;                        //add once for each atom
                     if (correlationType == CorrelationType.TOTAL) {
                         corSum[index] += dri.dot(drj);
+                    } else if (correlationType == CorrelationType.MAGNITUDE) {
+                        corSum[index] += Math.sqrt(dri2 * drj.squared());
                     } else {
                         tmp.Ea1Tv1(drj.dot(dr) / r2, dr);
                         if (correlationType == CorrelationType.PERPENDICULAR) {
