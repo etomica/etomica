@@ -57,6 +57,7 @@ public class ConfigurationStorage implements IntegratorListener {
 
     public void setSampleInterval(int newSampleInterval) {
         interval = intervalCountdown = newSampleInterval;
+        reset();
     }
 
     public int getSampleInterval() {
