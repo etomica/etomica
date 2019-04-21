@@ -745,7 +745,12 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageMSD.reset();
                     configStorageMSD.setEnabled(false);
                     dpAutocor.reset();
+                    meterCorrelationAA.reset();
+                    meterCorrelationAB.reset();
+                    meterCorrelationBB.reset();
                     meterCorrelation.reset();
+                    meterCorrelationPerp.reset();
+                    meterCorrelationPar.reset();
                     diameterHash.setFac(1.0);
                 } else {
                     dbox.setAtomFilter(atomFilterDeviation);
@@ -761,7 +766,12 @@ public class GlassGraphic extends SimulationGraphic {
                     else if (colorDirectionCheckbox.getState()) dbox.setColorScheme(colorSchemeDirection);
                     if (showDispCheckbox.getState()) canvas.setDrawDisplacement(true);
                     dpAutocor.reset();
+                    meterCorrelationAA.reset();
+                    meterCorrelationAB.reset();
+                    meterCorrelationBB.reset();
                     meterCorrelation.reset();
+                    meterCorrelationPerp.reset();
+                    meterCorrelationPar.reset();
                     diameterHash.setFac(showDispCheckbox.getState() ? 0.5 : 1.0);
                 }
             }
