@@ -3,26 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.crystalviewer;
-import java.awt.Dimension;
-import java.awt.GridLayout;
 
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
-
-import etomica.simulation.Simulation;
 import etomica.data.types.DataDouble;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceCheckBox;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayTextBox;
+import etomica.graphics.*;
 import etomica.lattice.LatticePlane;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
+import etomica.simulation.Simulation;
 import etomica.space3d.Vector3D;
 import etomica.units.dimensions.Null;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 
 /**
  * Class that produces a panel with controls that presence, orientation
@@ -81,10 +74,12 @@ public class ClipPlaneEditor {
         
         //box that toggles clipping display of atoms on one side of plane
         DeviceCheckBox clipToggle = new DeviceCheckBox("Clip", new ModifierBoolean() {
-            public boolean getBoolean() {return display.getAtomFilter() != null;}
+            public boolean getBoolean() {
+                return display.setAtomTestDoDisplay() != null;
+            }
             public void setBoolean(boolean b) {
-                if(b) display.setAtomFilter(ClipPlaneEditor.this.latticePlane);
-                else  display.setAtomFilter(null);
+                if (b) display.setAtomTestDoDisplay(ClipPlaneEditor.this.latticePlane);
+                else display.setAtomTestDoDisplay(null);
                 display.repaint();
             }
         });

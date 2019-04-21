@@ -4,26 +4,20 @@
 
 package etomica.graphics;
 
-import java.awt.Component;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.util.LinkedList;
-
 import etomica.action.activity.Controller;
-import etomica.space.Vector;
-import etomica.box.Box;
-import etomica.simulation.Simulation;
-import etomica.atom.AtomFilter;
+import etomica.atom.AtomTest;
 import etomica.atom.DiameterHash;
 import etomica.atom.DiameterHashByElement;
 import etomica.atom.DiameterHashByElementType;
+import etomica.box.Box;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Pixel;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.util.LinkedList;
 
 /**
  * Displays a picture of a box, with configurations of molecules, boundaries, and other objects as appropriate, assuming 2-dimensional system.  
@@ -46,7 +40,7 @@ public class DisplayBox extends Display {
     private final int D = 2;
     protected ColorScheme colorScheme;
     protected DiameterHash diameterHash;
-    protected AtomFilter atomFilter = null;
+    protected AtomTest atomTestDoDisplay = null;
     protected boolean displayBoundary = true;
     LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
     private Box box;
@@ -456,8 +450,8 @@ public class DisplayBox extends Display {
      * are displayed.  Atoms for which the filter returns false are not displayed.
      * Default is null, meaning all atoms are displayed.
      */
-    public void setAtomFilter(AtomFilter filter) {
-        atomFilter = filter;
+    public void setAtomTestDoDisplay(AtomTest atomTest) {
+        atomTestDoDisplay = atomTest;
     }
 
     /**
@@ -466,7 +460,9 @@ public class DisplayBox extends Display {
      * Default is null, meaning all atoms are displayed.
      * @return Atomfilter
      */
-    public AtomFilter getAtomFilter() {return atomFilter;}
+    public AtomTest setAtomTestDoDisplay() {
+        return atomTestDoDisplay;
+    }
 
     /**
      *

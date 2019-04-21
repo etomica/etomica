@@ -4,17 +4,17 @@
 
 package etomica.modules.droplet;
 
-import etomica.atom.AtomFilterCollective;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomTestCollective;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 
-public class AtomFilterLiquidAtomic implements AtomFilterCollective, AtomLeafAgentManager.AgentSource<Boolean> {
-    
-    public AtomFilterLiquidAtomic(PotentialMasterList potentialMaster, Box box) {
+public class AtomTestLiquidAtomic implements AtomTestCollective, AtomLeafAgentManager.AgentSource<Boolean> {
+
+    public AtomTestLiquidAtomic(PotentialMasterList potentialMaster, Box box) {
         leafList = box.getLeafList();
         nbrListManager = potentialMaster.getNeighborManager(box);
         setMaxNbrsVapor(80);
@@ -28,8 +28,8 @@ public class AtomFilterLiquidAtomic implements AtomFilterCollective, AtomLeafAge
     public int getMaxNbrsVapor() {
         return maxNbrsVapor;
     }
-    
-    public void resetFilter() {
+
+    public void resetTest() {
 		//color all atoms according to their type
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {

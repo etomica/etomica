@@ -8,13 +8,12 @@ import java.util.function.Predicate;
 
 
 /**
- * Interface for a class that screens atoms according
- * to some criterion.
+ * Interface for a class that determines if an atom satisfies a test.
  */
-public interface AtomFilter extends Predicate<IAtom> {
+public interface AtomTest extends Predicate<IAtom> {
 
     /**
-     * Returns true if atom is passes test of filter.
+     * Returns true if atom passes the test.
      */
     boolean test(IAtom a);
 

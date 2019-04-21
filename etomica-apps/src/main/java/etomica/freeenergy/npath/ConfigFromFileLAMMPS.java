@@ -173,8 +173,8 @@ public class ConfigFromFileLAMMPS {
 
         ColorSchemeDeviation colorScheme = new ColorSchemeDeviation(box, space);
         graphic.getDisplayBox(box).setColorScheme(colorScheme);
-        final AtomFilterDeviation atomFilter = new AtomFilterDeviation(colorScheme);
-        display.setAtomFilter(atomFilter);
+        final AtomTestDeviation atomFilter = new AtomTestDeviation(colorScheme);
+        display.setAtomTestDoDisplay(atomFilter);
         modifierConfig.setColorScheme(colorScheme);
 
         DeviceSlider filterSlider = new DeviceSlider(sim.getController(), new Modifier() {
@@ -520,12 +520,12 @@ public class ConfigFromFileLAMMPS {
         }
     }
 
-    public static class AtomFilterDeviation implements AtomFilter {
+    public static class AtomTestDeviation implements AtomTest {
 
         protected final ColorSchemeDeviation colorScheme;
         protected double threshold = 0;
 
-        public AtomFilterDeviation(ColorSchemeDeviation colorScheme) {
+        public AtomTestDeviation(ColorSchemeDeviation colorScheme) {
             this.colorScheme = colorScheme;
         }
 
