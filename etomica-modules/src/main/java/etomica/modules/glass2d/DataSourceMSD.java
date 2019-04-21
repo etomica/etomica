@@ -1,5 +1,7 @@
 package etomica.modules.glass2d;
 
+import etomica.atom.AtomType;
+import etomica.atom.IAtomList;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -21,9 +23,15 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     protected double[] msdSum;
     protected final DataTag tTag, tag;
     protected long[] nSamples;
+    protected final AtomType type;
 
     public DataSourceMSD(ConfigurationStorage configStorage) {
+        this(configStorage, null);
+    }
+
+    public DataSourceMSD(ConfigurationStorage configStorage, AtomType type) {
         this.configStorage = configStorage;
+        this.type = type;
         msdSum = new double[0];
         nSamples = new long[0];
         tag = new DataTag();
@@ -41,7 +49,9 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         data = new DataFunction(new int[]{n});
         tData = new DataDoubleArray(new int[]{n});
         tDataInfo = new DataDoubleArray.DataInfoDoubleArray("t", Time.DIMENSION, new int[]{n});
+        tDataInfo.addTag(tTag);
         dataInfo = new DataFunction.DataInfoFunction("MSD", new CompoundDimension(new Dimension[]{Length.DIMENSION}, new double[]{2}), this);
+        dataInfo.addTag(tag);
         double[] t = tData.getData();
         if (t.length > 0) {
             double[] savedTimes = configStorage.getSavedTimes();
@@ -56,9 +66,8 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     public IData getData() {
         if (configStorage.getLastConfigIndex() < 1) return data;
         double[] y = data.getData();
-        int nAtoms = configStorage.getSavedConfig(0).length;
         for (int i = 0; i < msdSum.length; i++) {
-            y[i] = msdSum[i] / (nAtoms * nSamples[i]);
+            y[i] = msdSum[i] / nSamples[i];
         }
         return data;
     }
@@ -78,13 +87,15 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         reset(); // reallocates if needed
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
+        IAtomList atoms = configStorage.getBox().getLeafList();
         for (int i = 1; i < msdSum.length; i++) {
             if (step % (1L << (i - 1)) == 0) {
                 Vector[] iPositions = configStorage.getSavedConfig(i);
                 for (int j = 0; j < positions.length; j++) {
+                    if (type != null && atoms.get(j).getType() != type) continue;
                     msdSum[i - 1] += positions[j].Mv1Squared(iPositions[j]);
+                    nSamples[i - 1]++;
                 }
-                nSamples[i - 1]++;
             }
         }
     }
