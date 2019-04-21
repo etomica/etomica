@@ -4,15 +4,15 @@
 
 package etomica.modules.droplet;
 
-import etomica.atom.AtomFilterCollective;
+import etomica.atom.AtomTestCollective;
 import etomica.atom.IAtom;
 import etomica.data.IDataSource;
 import etomica.space.Space;
 import etomica.space.Vector;
 
-public class AtomFilterLiquid implements AtomFilterCollective {
-    
-    public AtomFilterLiquid(Space space, IDataSource meterDeformation) {
+public class AtomTestLiquid implements AtomTestCollective {
+
+    public AtomTestLiquid(Space space, IDataSource meterDeformation) {
         axis = space.makeVector();
         work = space.makeVector();
         meter = meterDeformation;
@@ -26,8 +26,8 @@ public class AtomFilterLiquid implements AtomFilterCollective {
     public double getCutoff() {
         return cutoff;
     }
-    
-    public void resetFilter() {
+
+    public void resetTest() {
         double deformation = meter.getData().getValue(1);
         double factor = (1+deformation) / (1-deformation);
         axis.E(Math.pow(factor, -1.0/3.0));

@@ -4,7 +4,7 @@
 
 package etomica.modules.droplet;
 
-import etomica.atom.AtomFilter;
+import etomica.atom.AtomTest;
 import etomica.atom.IAtomList;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.Potential2SoftSpherical;
@@ -115,7 +115,7 @@ public class P2Cohesion extends Potential2SoftSpherical implements
         return dv;
     }
 
-    public void setLiquidFilter(AtomFilter newLiquidFilter) {
+    public void setLiquidFilter(AtomTest newLiquidFilter) {
         liquidFilter = newLiquidFilter;
     }
 
@@ -134,5 +134,5 @@ public class P2Cohesion extends Potential2SoftSpherical implements
     protected double epsilon, epsilonSq;
     protected double fac, dv;
     protected boolean useSurfaceOnly;
-    protected AtomFilter liquidFilter;
+    protected AtomTest liquidFilter;
 }

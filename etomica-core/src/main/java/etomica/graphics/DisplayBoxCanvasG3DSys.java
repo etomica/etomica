@@ -259,9 +259,9 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         }
 */
 
-		AtomFilter atomFilter = displayBox.getAtomFilter();
-        if (atomFilter instanceof AtomFilterCollective) {
-            ((AtomFilterCollective)atomFilter).resetFilter();
+		AtomTest atomTest = displayBox.setAtomTestDoDisplay();
+		if (atomTest instanceof AtomTestCollective) {
+			((AtomTestCollective) atomTest).resetTest();
         }
         ColorScheme colorScheme = displayBox.getColorScheme();
 		if (colorScheme instanceof ColorSchemeCollective) {
@@ -302,7 +302,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			 * drawable flag. This makes it possible to filter bonds in
 			 * wireframe mode as well.
 			 */
-            boolean drawable = atomFilter == null || atomFilter.test(a);
+			boolean drawable = atomTest == null || atomTest.test(a);
             if (drawable && rMin != null) {
 			    for (int i=0; i<rMin.getD(); i++) {
 			        double x = a.getPosition().getX(i);
@@ -735,9 +735,9 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 				(float) coords[1], (float) coords[2], diameter);
 		gsys.addFig(newBall);
 
-        AtomFilter atomFilter = displayBox.getAtomFilter();
-        if (atomFilter instanceof AtomFilterCollective) {
-            ((AtomFilterCollective)atomFilter).resetFilter();
+		AtomTest atomFilter = displayBox.setAtomTestDoDisplay();
+		if (atomFilter instanceof AtomTestCollective) {
+			((AtomTestCollective) atomFilter).resetTest();
         }
         boolean drawable = atomFilter == null || atomFilter.test(a);
         if (drawable && rMin != null) {

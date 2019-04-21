@@ -5,10 +5,10 @@
 package etomica.graphics;
 
 import etomica.action.activity.Controller;
-import etomica.space.Boundary;
 import etomica.atom.*;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Pixel;
@@ -183,13 +183,13 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         }
         IAtomList leafList = displayBox.getBox().getLeafList();
         int nLeaf = leafList.size();
-        AtomFilter atomFilter = displayBox.getAtomFilter();
-        if (atomFilter instanceof AtomFilterCollective) {
-            ((AtomFilterCollective)atomFilter).resetFilter();
+        AtomTest atomTest = displayBox.setAtomTestDoDisplay();
+        if (atomTest instanceof AtomTestCollective) {
+            ((AtomTestCollective) atomTest).resetTest();
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom a = leafList.get(iLeaf);
-            if(atomFilter != null && atomFilter.test(a)) continue;
+            if (atomTest != null && !atomTest.test(a)) continue;
             if(this instanceof DisplayBoxSpin2D) {
             	drawAtom(g, origin, a);
             }
