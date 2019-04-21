@@ -44,7 +44,7 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
     protected AtomType type1, type2;
     private IDataInfo dataInfo;
     protected int prevSampleIndex;
-    protected double dr2SumA, dr2SumB;
+    protected double dr2SumA, dr2SumB, dr1SumA, dr1SumB;
     protected long dr2CountA, dr2CountB;
 
     public MeterCorrelation(ConfigurationStorage configStorage) {
@@ -118,12 +118,12 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
         dataInfo = new DataInfoFunction("c(r)", Null.DIMENSION, this);
         dataInfo.addTag(tag);
         zeroData();
-        dr2SumA = dr2SumB = 0;
-        dr2CountA = dr2CountB = 0;
     }
 
     public void zeroData() {
         for (int i = 0; i < gSum.length; i++) corSum[i] = gSum[i] = 0;
+        dr1SumA = dr1SumB = dr2SumA = dr2SumB = 0;
+        dr2CountA = dr2CountB = 0;
     }
 
     /**
@@ -143,6 +143,8 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
         final double[] y = data.getData();
         double[] r = rData.getData();
         double norm = Math.sqrt(dr2SumA / dr2CountA * dr2SumB / dr2CountB);
+        double avg1A = dr1SumA / dr2CountA;
+        double avg1B = dr1SumB / dr2CountB;
         double D = dr.getD();
         if (correlationType == CorrelationType.PERPENDICULAR) {
             norm *= (D - 1.0) / D;
@@ -150,7 +152,13 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
             norm *= 1.0 / D;
         }
         for (int i = 0; i < r.length; i++) {
-            y[i] = corSum[i] / (gSum[i] * norm);
+            if (correlationType == CorrelationType.MAGNITUDE) {
+                y[i] = (corSum[i] / gSum[i] - avg1A * avg1B) /
+                        Math.sqrt((dr2SumA / dr2CountA - avg1A * avg1A) *
+                                (dr2SumB / dr2CountB - avg1B * avg1B));
+            } else {
+                y[i] = corSum[i] / (gSum[i] * norm);
+            }
         }
         return data;
     }
@@ -207,23 +215,25 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
             if (type1 == null || iAtom.getType() == type1) {
                 dr2SumA += dri2;
                 dr2CountA++;
+                if (correlationType == CorrelationType.MAGNITUDE) dr1SumA += Math.sqrt(dri2);
             }
             if (type2 == null || iAtom.getType() == type2) {
                 dr2SumB += dri2;
                 dr2CountB++;
+                if (correlationType == CorrelationType.MAGNITUDE) dr1SumB += Math.sqrt(dri2);
             }
             for (int j = i + 1; j < config0.length; j++) {
                 IAtom jAtom = atoms.get(j);
                 int jTypeIdx = jAtom.getType().getIndex();
                 if (type1 != null && (iTypeIdx * jTypeIdx != idxProd || iTypeIdx + jTypeIdx != idxSum)) continue;
                 Vector jr0 = config0[j];
-                Vector jrPrev = configPrev[j];
-                drj.Ev1Mv2(jr0, jrPrev);
 
                 dr.Ev1Mv2(ir0, jr0);
                 boundary.nearestImage(dr);
                 double r2 = dr.squared();       //compute pair separation
                 if (r2 < xMaxSquared) {
+                    Vector jrPrev = configPrev[j];
+                    drj.Ev1Mv2(jr0, jrPrev);
                     int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
                     gSum[index]++;                        //add once for each atom
                     if (correlationType == CorrelationType.TOTAL) {
