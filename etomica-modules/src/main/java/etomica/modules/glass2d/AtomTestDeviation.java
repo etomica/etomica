@@ -1,19 +1,19 @@
 package etomica.modules.glass2d;
 
-import etomica.atom.AtomFilter;
+import etomica.atom.AtomTest;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Vector;
 
-public class AtomFilterDeviation implements AtomFilter {
+public class AtomTestDeviation implements AtomTest {
     protected final ConfigurationStorage configStorage;
     protected int configIndex;
     protected final Box box;
     protected final Vector dr;
     protected double minDistance;
 
-    public AtomFilterDeviation(Box box, ConfigurationStorage configStorage) {
+    public AtomTestDeviation(Box box, ConfigurationStorage configStorage) {
         this.box = box;
         this.configStorage = configStorage;
         Space space = box.getSpace();
@@ -45,9 +45,8 @@ public class AtomFilterDeviation implements AtomFilter {
         return dr.squared();
     }
 
-
     @Override
     public boolean test(IAtom a) {
-        return getDisplacementSq(a) < minDistance * minDistance;
+        return getDisplacementSq(a) > minDistance * minDistance;
     }
 }

@@ -103,7 +103,7 @@ public class GlassGraphic extends SimulationGraphic {
         diameterHash.setDiameter(sim.speciesA.getLeafType(), 1);
         dbox.setDiameterHash(diameterHash);
 
-        AtomFilterDeviation atomFilterDeviation = new AtomFilterDeviation(sim.box, configStorage);
+        AtomTestDeviation atomFilterDeviation = new AtomTestDeviation(sim.box, configStorage);
 
         ColorSchemeDeviation colorSchemeDeviation = new ColorSchemeDeviation(sim.box, configStorage);
         ColorSchemeDirection colorSchemeDirection = new ColorSchemeDirection(sim.box, configStorage);
@@ -746,7 +746,7 @@ public class GlassGraphic extends SimulationGraphic {
 
                 if (sim.integrator.isIsothermal() == b) return;
                 if (b) {
-                    dbox.setAtomFilter(null);
+                    dbox.setAtomTestDoDisplay(null);
                     sim.integrator.setIsothermal(true);
                     sim.integrator.setIntegratorMC(sim.integratorMC, 10000);
                     dbox.setColorScheme(colorScheme);
@@ -767,7 +767,7 @@ public class GlassGraphic extends SimulationGraphic {
                     meterCorrelationMag.reset();
                     diameterHash.setFac(1.0);
                 } else {
-                    dbox.setAtomFilter(atomFilterDeviation);
+                    dbox.setAtomTestDoDisplay(atomFilterDeviation);
                     sim.integrator.setIntegratorMC(null, 0);
                     sim.integrator.setIsothermal(false);
                     configStorageLinear.reset();
