@@ -7,6 +7,7 @@ import etomica.data.types.DataGroup;
 import etomica.math.numerical.PolynomialFit;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
+import etomica.units.dimensions.Quantity;
 
 class DataProcessorFit extends DataProcessorForked {
     protected String label;
@@ -17,6 +18,8 @@ class DataProcessorFit extends DataProcessorForked {
     protected DataDoubleArray xData;
     protected double xMin, xMax;
     protected double[] eDataSave;
+    protected int lastOrder;
+    protected double lastChi = Double.NaN;
 
     public DataProcessorFit(String label, int nPoints, int order, boolean log) {
         this(label, nPoints, order, log, 0, 1);
@@ -84,6 +87,8 @@ class DataProcessorFit extends DataProcessorForked {
             fr = PolynomialFit.doFit(o, x, y, w, true);
             double[] poly = fr.coeff;
             double chi = PolynomialFit.getChi(x, y, w, poly);
+            lastOrder = o;
+            lastChi = chi;
 //            System.out.println(o+" chi " + chi);
             if (chi < 1) break;
         }
@@ -109,5 +114,35 @@ class DataProcessorFit extends DataProcessorForked {
     protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         xData = ((DataFunction.DataInfoFunction) (((DataGroup.DataInfoGroup) inputDataInfo).getSubDataInfo(0))).getXDataSource().getIndependentData(0);
         return dataInfo;
+    }
+
+    public DataSourceLastOrder makeDataSourceLastOrder() {
+        return new DataSourceLastOrder();
+    }
+
+    public DataSourceChi makeDataSourceChi() {
+        return new DataSourceChi();
+    }
+
+    public class DataSourceLastOrder extends DataSourceScalar {
+        public DataSourceLastOrder() {
+            super("order", Quantity.DIMENSION);
+        }
+
+        @Override
+        public double getDataAsScalar() {
+            return lastOrder;
+        }
+    }
+
+    public class DataSourceChi extends DataSourceScalar {
+        public DataSourceChi() {
+            super("chi", Null.DIMENSION);
+        }
+
+        @Override
+        public double getDataAsScalar() {
+            return lastChi;
+        }
     }
 }
