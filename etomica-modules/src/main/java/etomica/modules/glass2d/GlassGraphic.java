@@ -172,6 +172,54 @@ public class GlassGraphic extends SimulationGraphic {
         filterSlider.setNMajor(5);
         add(filterSlider);
 
+
+
+
+        DeviceSlider stringSlider = new DeviceSlider(sim.getController(), new Modifier() {
+            @Override
+            public void setValue(double newValue) {
+                colorSchemeDeviation.setDrString(newValue);
+                dbox.repaint();
+            }
+
+            @Override
+            public double getValue() {
+                return colorSchemeDeviation.getDrString();
+            }
+
+            @Override
+            public Dimension getDimension() {
+                return Length.DIMENSION;
+            }
+
+            @Override
+            public String getLabel() {
+                return "filter strings";
+            }
+        });
+        stringSlider.setPrecision(1);
+        stringSlider.setMaximum(0.8);
+        stringSlider.setShowBorder(true);
+        stringSlider.setNMajor(4);
+        add(stringSlider);
+
+
+        DeviceCheckBox colorCheckboxStrings = new DeviceCheckBox("color strings", new ModifierBoolean() {
+            @Override
+            public void setBoolean(boolean b) {
+                colorSchemeDeviation.setIsString(b);
+            }
+
+            @Override
+            public boolean getBoolean() {
+                return colorSchemeDeviation.getIsString();
+            }
+        });
+        colorCheckboxStrings.setController(sim.getController());
+        add(colorCheckboxStrings);
+
+
+
         DeviceCheckBox colorCheckbox = new DeviceCheckBox("color by displacement", null);
         colorCheckbox.setController(sim.getController());
         add(colorCheckbox);
@@ -855,10 +903,10 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.LJ;
-            params.nA = 1600;
-            params.nB = 400;
-            params.density = 1.25;
-            params.D = 3;
+            params.nA = 200;
+            params.nB = 200;
+            params.density = 1.35; // 3D 1.25;
+            params.D = 2;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.potential);
 
@@ -895,5 +943,3 @@ public class GlassGraphic extends SimulationGraphic {
     }
 
 }
-
-
