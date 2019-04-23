@@ -5,21 +5,6 @@
 //This class includes a main method to demonstrate its use
 package etomica.graphics;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.util.Formatter;
-
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
 import etomica.modifier.Modifier;
@@ -28,6 +13,17 @@ import etomica.modifier.ModifyAction;
 import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
 import etomica.util.Strings;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.util.Formatter;
 
 /**
  * Device the changes a property using a graphical slider, via a Modifier.
@@ -176,8 +172,8 @@ public class DeviceSlider extends Device {
     }
 
     public void setModifier(Modifier m) {
-        if(m == null) throw new NullPointerException();
-        modifyAction = null;
+        targetAction = modifyAction = null;
+        if (m == null) return;
         if(unit == null) {
             setUnit(m.getDimension().getUnit(UnitSystem.SIM));
         }
