@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-package etomica.modules.glass2d;
+package etomica.modules.glass;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -57,6 +57,7 @@ public class ConfigurationStorage implements IntegratorListener {
 
     public void setSampleInterval(int newSampleInterval) {
         interval = intervalCountdown = newSampleInterval;
+        reset();
     }
 
     public int getSampleInterval() {
@@ -167,7 +168,7 @@ public class ConfigurationStorage implements IntegratorListener {
                 // of computing displacements without worying about PBC
                 dri.Ev1Mv2(p, configList[1][i]);
                 dri.DE(boxDim);
-                for (int k = 0; k < 2; k++) {
+                for (int k = 0; k < dri.getD(); k++) {
                     dri.setX(k, ((int) Math.round(dri.getX(k))) * boxDim.getX(k));
                 }
                 if (!dri.isZero()) {

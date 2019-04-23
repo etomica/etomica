@@ -12,6 +12,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorMD;
 import etomica.space.Vector;
 import etomica.util.IEvent;
 import etomica.util.IListener;
@@ -59,10 +60,11 @@ public class MSDCoordWriter implements IAction, IListener {
 		integrator.getEventManager().addListener(new IntegratorListenerAction(this));
 
 		setWriteInterval(writeInterval);
-
+		double timestep = ((IntegratorMD)integrator).getTimeStep();
 		try {
 			fileWriter = new FileWriter(fileName, false);
-			fileWriter.write(iterator.size() + "\n");
+//			fileWriter.write(iterator.size() + "\n");
+			fileWriter.write("   write_interval " + writeInterval + "      timestep " + timestep+ "\n");
 		} catch (IOException e) {
 			System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
 		}
@@ -117,13 +119,14 @@ public class MSDCoordWriter implements IAction, IListener {
 						actualDistance = atomPBIarray[i][j] * boxdim.getX(j) + atomPosition.getX(j);
 						fileWriter.write(""+actualDistance);
 						if(j!=boxdim.getD()-1){
-							fileWriter.write("\t");
+							fileWriter.write(" ");
 						}
 						
 					}
-					fileWriter.write("\n");
+					fileWriter.write(" ");
 					i++;
 				}
+				fileWriter.write("\n");
 			}
 			catch (IOException e) {
 	            throw new RuntimeException(e);

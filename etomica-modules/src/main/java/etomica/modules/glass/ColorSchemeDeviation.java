@@ -1,4 +1,4 @@
-package etomica.modules.glass2d;
+package etomica.modules.glass;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -9,12 +9,16 @@ import etomica.space.Vector;
 import java.awt.*;
 
 public class ColorSchemeDeviation extends ColorScheme {
-    protected final ConfigurationStorage configStorage;
+    protected ConfigurationStorage configStorage;
     protected int configIndex;
     protected final Box box;
     protected final Vector dr;
     protected final Color[] colors;
     protected double fac;
+    protected boolean isString;
+    protected AtomTestDeviation atomTest;
+    protected double dr2StringMax = 0.6*0.6;
+
 
     public ColorSchemeDeviation(Box box, ConfigurationStorage configStorage) {
         this.box = box;
@@ -32,6 +36,17 @@ public class ColorSchemeDeviation extends ColorScheme {
         configIndex = 100;
     }
 
+    public void setAtomTest(AtomTestDeviation atom) {atomTest = atom;}
+    public void setIsString(boolean isString) {this.isString = isString;}
+    public void setDrString(double drString) {this.dr2StringMax = drString*drString;}
+    public double getDrString() {return Math.sqrt(this.dr2StringMax);}
+
+    public boolean getIsString(){return isString;}
+
+    public int getConfigIndex() {
+        return configIndex;
+    }
+
     public void setConfigIndex(int idx) {
         configIndex = idx;
     }
@@ -39,6 +54,12 @@ public class ColorSchemeDeviation extends ColorScheme {
     public void setLengthFactor(double lenghtFactor) {
         this.fac = lenghtFactor;
     }
+
+    public void setConfigStorage(ConfigurationStorage configStorage){
+        this.configStorage = configStorage;
+    }
+
+    public ConfigurationStorage getConfigStorage(){return configStorage;}
 
     public double getDisplacementSq(IAtom a) {
         int idx = configIndex;
@@ -56,8 +77,29 @@ public class ColorSchemeDeviation extends ColorScheme {
         return Math.sqrt(getDisplacementSq(a)) / fac;
     }
 
+    public boolean isAtomInString(IAtom atom){
+        int idx = configIndex;
+        int lastIndex = configStorage.getLastConfigIndex();
+        if (idx > lastIndex) idx = lastIndex;
+        if (idx == -1) return false;
+        Vector r = configStorage.getSavedConfig(0)[atom.getLeafIndex()];
+        for(int j=0;j<box.getLeafList().size();j++){
+            Vector oldR = configStorage.getSavedConfig(idx)[j];
+            dr.Ev1Mv2(r,oldR);
+            box.getBoundary().nearestImage(dr);
+            double dr2 = dr.squared();
+            if(dr2 < dr2StringMax){
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public Color getAtomColor(IAtom a) {
+        if(isString && isAtomInString(a)){
+            return dr.getD()==3?Color.WHITE:Color.BLACK;
+        }
         double s = getRelativeDisplacement(a);
         if (s >= 2) return colors[510];
         int i = (int) (510.9999 * s / 2);

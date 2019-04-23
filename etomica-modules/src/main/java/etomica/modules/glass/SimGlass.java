@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.modules.glass2d;
+package etomica.modules.glass;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
@@ -35,7 +35,7 @@ public class SimGlass extends Simulation {
     public final IntegratorMC integratorMC;
     public final PotentialChoice potentialChoice;
 
-    public enum PotentialChoice {LJ, SS, HS}
+    public enum PotentialChoice {LJ, WCA, SS, HS}
 
     ;
 
@@ -81,8 +81,16 @@ public class SimGlass extends Simulation {
             P2LennardJones potentialBB = new P2LennardJones(space, 0.88, 0.5);
             P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(space, potentialBB, 2.5);
             potentialMaster.addPotential(p2TruncatedBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
+        } else if (potentialChoice == PotentialChoice.WCA) {
+            potentialMaster.setRange(2);
+            // https://doi.org/10.1103/PhysRevX.1.021013
+            P2WCA potentialAA = new P2WCA(space, 1, 1);
+            potentialMaster.addPotential(potentialAA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
+            P2WCA potentialAB = new P2WCA(space, 0.5 + 0.5 / 1.4, 1);
+            potentialMaster.addPotential(potentialAB, new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
+            P2WCA potentialBB = new P2WCA(space, 1.0 / 1.4, 1);
+            potentialMaster.addPotential(potentialBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
         } else if (potentialChoice == PotentialChoice.SS) {
-
             // https://doi.org/10.1103/PhysRevLett.81.120 prescribes cut=4.5*(0.5+0.5/1.4)=3.85714
             P2SoftSphere potentialAA = new P2SoftSphere(space, 1, 1, 12);
             P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(space, potentialAA, 2.5);
@@ -170,7 +178,6 @@ public class SimGlass extends Simulation {
             integrator.resetStepCount();
         }
 
-
     }
 
     public static void main(String[] args) {
@@ -188,9 +195,12 @@ public class SimGlass extends Simulation {
         public int D = 2;
         public int nA = 130, nB = 70;
         // rho=1000/29.34^2=1.16 (yields P=0 at T=0) for LJ http://dx.doi.org/10.1088/0953-8984/21/3/035117
+        //     for 3D, 1000/8.88^3 = 1.43
+        //       or (with xA=0.8), rho=1.25 yields T0=1.06 (http://dx.doi.org/10.1103/PhysRevX.1.021013)
         // for SS, P=18.37 https://doi.org/10.1103/PhysRevLett.81.120
         //    rho=1.35 at T=Tg=0.55
         // for HS, rho=1.35 is very high, but 1.30 is perhaps not high enough
+        // for WCA, rho=0.75*1.4*1.4 = 1.47
         public double density = 1000 / (29.34 * 29.34);
         public boolean doSwap = false;
         public PotentialChoice potential = PotentialChoice.LJ;

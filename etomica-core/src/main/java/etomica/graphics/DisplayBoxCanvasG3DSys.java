@@ -29,19 +29,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
-		AgentSource<Figure>, BondManager {
+        AgentSource<Ball>, BondManager {
 
 
     protected final Map<AtomType, OrientedSite[]> atomTypeOrientedManager;
     private final double[] coords;
     private final Space space;
-    protected AtomLeafAgentManager<Figure> aam;
+    protected AtomLeafAgentManager<Ball> aam;
     protected LineSegment[] lines;
     protected Line[] lineFigures;
     protected AtomLeafAgentManager<Ball[]> aamOriented;
     protected Vector rMin, rMax;
     // will handle all actual drawing
-    private G3DSys gsys;
+    protected G3DSys gsys;
     private Polytope oldPolytope;
 	private Line[] polytopeLines;
 	private boolean boundaryDisplayed = false;
@@ -82,7 +82,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         setPlaneColor(Color.YELLOW);
         // init AtomAgentManager, to sync G3DSys and Etomica models
         // this automatically adds the atoms
-        aam = new AtomLeafAgentManager<Figure>(this, displayBox.getBox());
+        aam = new AtomLeafAgentManager<Ball>(this, displayBox.getBox());
 		OrientedAgentSource oas = new OrientedAgentSource();
 		aamOriented = new AtomLeafAgentManager<Ball[]>(oas, displayBox.getBox());
 		atomTypeOrientedManager = new HashMap<>();
@@ -220,8 +220,8 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	public void refreshAtomAgentMgr() {
 
 		// Set new atom manager
-		aam = new AtomLeafAgentManager<Figure>(this, displayBox.getBox());
-		aamOriented = new AtomLeafAgentManager<Ball[]>(a -> null, displayBox.getBox());
+        aam = new AtomLeafAgentManager<>(this, displayBox.getBox());
+        aamOriented = new AtomLeafAgentManager<>(a -> null, displayBox.getBox());
 		initialOrient = true;
 	}
 
@@ -725,7 +725,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     /***************************************************************************
 	 * AgentSource methods
 	 **************************************************************************/
-	public Figure makeAgent(IAtom a, Box agentBox) {
+    public Ball makeAgent(IAtom a, Box agentBox) {
 		a.getPosition().assignTo(coords);
 
 		float diameter = (float) displayBox.getDiameterHash().getDiameter(a);
@@ -754,7 +754,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		return newBall;
 	}
 
-    public void releaseAgent(Figure agent, IAtom atom, Box agentBox) {
+    public void releaseAgent(Ball agent, IAtom atom, Box agentBox) {
         gsys.removeFig(agent);
     }
 

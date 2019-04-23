@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.modules.glass2d;
+package etomica.modules.glass;
 
 import etomica.action.IAction;
-import etomica.atom.DiameterHashByType;
 import etomica.cavity.DataProcessorErrorBar;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
@@ -18,7 +17,11 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
+import etomica.units.SimpleUnit;
+import etomica.units.Unit;
 import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Energy;
+import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
 import etomica.util.ParseArgs;
 
@@ -40,22 +43,18 @@ public class GlassGraphic extends SimulationGraphic {
 
         this.sim = simulation;
 
+        Unit peUnit = new SimpleUnit(Energy.DIMENSION, sim.box.getLeafList().size(), "u", "u", false);
+
         //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.speciesA.getLeafType(), Color.red);
         colorScheme.setColor(sim.speciesB.getLeafType(), Color.blue);
-//        DisplayBox dbox0 = getDisplayBox(sim.box);
-//        dbox0.setColorScheme(colorScheme);
-        DiameterHashByType diameterHash = (DiameterHashByType) getDisplayBox(sim.box).getDiameterHash();
-        diameterHash.setDiameter(sim.speciesB.getLeafType(), sim.potentialChoice == SimGlass.PotentialChoice.LJ ? 0.88 : 1 / 1.4);
-        diameterHash.setDiameter(sim.speciesA.getLeafType(), 1);
-//        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayBoxPaintAction(sim.box)));
 
         //meters and displays
         final MeterRDF rdfMeter = new MeterRDF(sim.getSpace());
         IntegratorListenerAction rdfMeterListener = new IntegratorListenerAction(rdfMeter);
         sim.integrator.getEventManager().addListener(rdfMeterListener);
-        rdfMeterListener.setInterval(10);
+        rdfMeterListener.setInterval(100);
         rdfMeter.getXDataSource().setXMax(4.0);
         rdfMeter.setBox(sim.box);
         DisplayPlot rdfPlot = new DisplayPlot();
@@ -71,7 +70,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
-        ConfigurationStorage configStorageLinear = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LINEAR, 1024, 10);
+        ConfigurationStorage configStorageLinear = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LINEAR, 1024, 32);
         configStorageLinear.setEnabled(false); // start isothermal
         sim.integrator.getEventManager().addListener(configStorageLinear);
 
@@ -82,31 +81,50 @@ public class GlassGraphic extends SimulationGraphic {
         ConfigurationStorage configStorage = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LOG2);
         configStorage.setEnabled(false); // start isothermal
         sim.integrator.getEventManager().addListener(configStorage);
-        DisplayBox dbox = new DisplayBox(sim, sim.box);
-        DisplayBoxCanvas2DGlass canvas = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
+        DisplayBox dbox;
+        DisplayBoxCanvasGlass canvas;
+        DisplayCanvas c;
+        dbox = new DisplayBox(sim, sim.box);
+        if (sim.getSpace().D() == 2) {
+            c = new DisplayBoxCanvas2DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
+        } else {
+            c = new DisplayBoxCanvas3DGlass(dbox, sim.getSpace(), sim.getController(), configStorage);
+        }
+        canvas = (DisplayBoxCanvasGlass) c;
         remove(getDisplayBox(sim.box));
-        dbox.setBoxCanvas(canvas);
+        dbox.setBoxCanvas(c);
         add(dbox);
+        c.setVisible(false);
+        c.setVisible(true);
         dbox.setColorScheme(colorScheme);
+
+        DiameterHashGlass diameterHash = new DiameterHashGlass();
+        diameterHash.setDiameter(sim.speciesB.getLeafType(), sim.potentialChoice == SimGlass.PotentialChoice.LJ ? 0.88 : 1 / 1.4);
+        diameterHash.setDiameter(sim.speciesA.getLeafType(), 1);
         dbox.setDiameterHash(diameterHash);
-        canvas.setVisible(false);
-        canvas.setVisible(true);
+
+        AtomTestDeviation atomFilterDeviation = new AtomTestDeviation(sim.box, configStorage);
 
         ColorSchemeDeviation colorSchemeDeviation = new ColorSchemeDeviation(sim.box, configStorage);
+        ColorSchemeDirection colorSchemeDirection = new ColorSchemeDirection(sim.box, configStorage);
 
         DataSourcePrevTime dsPrevTime = new DataSourcePrevTime(configStorage);
+
+
         DeviceSlider prevConfigSlider = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
             public void setValue(double newValue) {
                 int idx = (int) Math.round(newValue);
                 canvas.setConfigIndex(idx);
                 colorSchemeDeviation.setConfigIndex(idx);
+                colorSchemeDirection.setConfigIndex(idx);
                 dsPrevTime.setPrevConfigIndex(idx);
+                atomFilterDeviation.setConfigIndex(idx);
             }
 
             @Override
             public double getValue() {
-                return canvas.getConfigIndex();
+                return colorSchemeDeviation.getConfigIndex();
             }
 
             @Override
@@ -116,28 +134,174 @@ public class GlassGraphic extends SimulationGraphic {
 
             @Override
             public String getLabel() {
-                return "previous config (log2)";
+                return "previous config";
             }
         });
-        prevConfigSlider.setMaximum(30);
+
         prevConfigSlider.setNMajor(5);
+        prevConfigSlider.setMaximum(30);
+        prevConfigSlider.setShowValues(true);
+        prevConfigSlider.setEditValues(true);
+
+        DeviceCheckBox linearCheckbox = new DeviceCheckBox("linear", new ModifierBoolean() {
+            @Override
+            public void setBoolean(boolean b) {
+                if (b) {
+                    canvas.setConfigStorage(configStorageLinear);
+                    colorSchemeDeviation.setConfigStorage(configStorageLinear);
+                    colorSchemeDirection.setConfigStorage(configStorageLinear);
+                    dsPrevTime.setConfigStorage(configStorageLinear);
+                    atomFilterDeviation.setConfigStorage(configStorageLinear);
+                    prevConfigSlider.setMaximum(1000);
+                }else{
+                    canvas.setConfigStorage(configStorage);
+                    colorSchemeDeviation.setConfigStorage(configStorage);
+                    colorSchemeDirection.setConfigStorage(configStorage);
+                    dsPrevTime.setConfigStorage(configStorage);
+                    atomFilterDeviation.setConfigStorage(configStorage);
+                    prevConfigSlider.setMaximum(30);
+                }
+                dbox.repaint();
+            }
+
+            @Override
+            public boolean getBoolean() {
+                return dsPrevTime.getConfigStorage() == configStorageLinear;
+            }
+        });
+        linearCheckbox.setController(sim.getController());
+        add(linearCheckbox);
+
         prevConfigSlider.setShowBorder(true);
         add(prevConfigSlider);
+
+
+
         DisplayTextBox displayPrevTime = new DisplayTextBox();
         DataPumpListener pumpPrevTime = new DataPumpListener(dsPrevTime, displayPrevTime, 1);
         sim.integrator.getEventManager().addListener(pumpPrevTime);
         add(displayPrevTime);
 
-        DeviceCheckBox colorCheckbox = new DeviceCheckBox("color by displacement", new ModifierBoolean() {
+        DeviceSlider corIntervalSlider = new DeviceSlider(sim.getController(),null);
+        corIntervalSlider.setShowBorder(true);
+        corIntervalSlider.setNMajor(5);
+        corIntervalSlider.setMaximum(20);
+        corIntervalSlider.setMinimum(0);
+        corIntervalSlider.setLabel("log2(sample interval (steps))");
+        add(corIntervalSlider);
+
+
+        DeviceSlider filterSlider = new DeviceSlider(sim.getController(), new Modifier() {
+            @Override
+            public void setValue(double newValue) {
+                atomFilterDeviation.setMinDistance(newValue);
+                dbox.repaint();
+            }
+
+            @Override
+            public double getValue() {
+                return atomFilterDeviation.getMinDistance();
+            }
+
+            @Override
+            public Dimension getDimension() {
+                return Length.DIMENSION;
+            }
+
+            @Override
+            public String getLabel() {
+                return "filter minDistance";
+            }
+        });
+        filterSlider.setMaximum(2);
+        filterSlider.setShowBorder(true);
+        filterSlider.setPrecision(1);
+        filterSlider.setNMajor(5);
+        add(filterSlider);
+
+
+
+
+        DeviceSlider stringSlider = new DeviceSlider(sim.getController(), new Modifier() {
+            @Override
+            public void setValue(double newValue) {
+                colorSchemeDeviation.setDrString(newValue);
+                dbox.repaint();
+            }
+
+            @Override
+            public double getValue() {
+                return colorSchemeDeviation.getDrString();
+            }
+
+            @Override
+            public Dimension getDimension() {
+                return Length.DIMENSION;
+            }
+
+            @Override
+            public String getLabel() {
+                return "filter strings";
+            }
+        });
+        stringSlider.setPrecision(1);
+        stringSlider.setMaximum(0.8);
+        stringSlider.setShowBorder(true);
+        stringSlider.setNMajor(4);
+        add(stringSlider);
+
+
+        DeviceCheckBox colorCheckboxStrings = new DeviceCheckBox("color strings", new ModifierBoolean() {
+            @Override
+            public void setBoolean(boolean b) {
+                colorSchemeDeviation.setIsString(b);
+                dbox.repaint();
+            }
+
+            @Override
+            public boolean getBoolean() {
+                return colorSchemeDeviation.getIsString();
+            }
+        });
+        colorCheckboxStrings.setController(sim.getController());
+        add(colorCheckboxStrings);
+
+
+
+        DeviceCheckBox colorCheckbox = new DeviceCheckBox("color by displacement", null);
+        colorCheckbox.setController(sim.getController());
+        add(colorCheckbox);
+        DeviceCheckBox colorDirectionCheckbox = new DeviceCheckBox("color by direction", new ModifierBoolean() {
+            @Override
+            public void setBoolean(boolean b) {
+                if ((dbox.getColorScheme() == colorSchemeDirection) == b) return;
+                if (b) {
+                    if (sim.integrator.isIsothermal()) return;
+                    colorCheckbox.setState(false);
+                    dbox.setColorScheme(colorSchemeDirection);
+                } else {
+                    dbox.setColorScheme(colorScheme);
+                }
+                dbox.repaint();
+            }
+
+            @Override
+            public boolean getBoolean() {
+                return dbox.getColorScheme() == colorSchemeDirection;
+            }
+        });
+        colorCheckbox.setModifier(new ModifierBoolean() {
             @Override
             public void setBoolean(boolean b) {
                 if ((dbox.getColorScheme() == colorSchemeDeviation) == b) return;
                 if (b) {
                     if (sim.integrator.isIsothermal()) return;
+                    colorDirectionCheckbox.setState(false);
                     dbox.setColorScheme(colorSchemeDeviation);
                 } else {
                     dbox.setColorScheme(colorScheme);
                 }
+                dbox.repaint();
             }
 
             @Override
@@ -147,12 +311,50 @@ public class GlassGraphic extends SimulationGraphic {
         });
         colorCheckbox.setController(sim.getController());
         add(colorCheckbox);
+        colorDirectionCheckbox.setController(sim.getController());
+        add(colorDirectionCheckbox);
+        if (sim.getSpace().getD() == 3) {
+            JPanel xyzPanel = new JPanel(new GridBagLayout());
+            GridBagConstraints h = SimulationPanel.getHorizGBC();
+            String[] labels = new String[]{"x", "y", "z"};
+            DeviceCheckBox[] axisCheckbox = new DeviceCheckBox[3];
+            for (int i = 0; i < labels.length; i++) {
+                axisCheckbox[i] = new DeviceCheckBox(labels[i], null);
+            }
+            for (int i = 0; i < labels.length; i++) {
+                final int k = i;
+                axisCheckbox[k].setModifier(new ModifierBoolean() {
+                    @Override
+                    public void setBoolean(boolean b) {
+                        if (!b) {
+                            if (colorSchemeDirection.getAxis() == k) throw new RuntimeException("oops");
+                            return;
+                        }
+                        colorSchemeDirection.setAxis(k);
+                        for (int j = 0; j < 3; j++) {
+                            if (k == j) continue;
+                            axisCheckbox[j].setState(false);
+                        }
+                        dbox.repaint();
+                    }
+
+                    @Override
+                    public boolean getBoolean() {
+                        return colorSchemeDirection.getAxis() == k;
+                    }
+                });
+                xyzPanel.add(axisCheckbox[k].graphic());
+            }
+            getPanel().controlPanel.add(xyzPanel, SimulationPanel.getVertGBC());
+        }
 
         DeviceCheckBox showDispCheckbox = new DeviceCheckBox("show displacement", new ModifierBoolean() {
             @Override
             public void setBoolean(boolean b) {
                 if (canvas.getDrawDisplacement() == b || sim.integrator.isIsothermal()) return;
                 canvas.setDrawDisplacement(b);
+                dbox.repaint();
+                diameterHash.setFac(b ? 0.5 : 1.0);
             }
 
             @Override
@@ -164,16 +366,13 @@ public class GlassGraphic extends SimulationGraphic {
         showDispCheckbox.setController(sim.getController());
         add(showDispCheckbox);
 
-
-
-
         IAction repaintAction = new IAction() {
             public void actionPerformed() {
                 dbox.repaint();
             }
         };
         IntegratorListenerAction repaintAction2 = new IntegratorListenerAction(repaintAction);
-        repaintAction2.setInterval(100);
+        repaintAction2.setInterval(REPAINT_INTERVAL);
         sim.integrator.getEventManager().addListener(repaintAction2);
 
         final IAction resetDataAction = new IAction() {
@@ -300,40 +499,141 @@ public class GlassGraphic extends SimulationGraphic {
         DataProcessorErrorBar pAutoCorErr = new DataProcessorErrorBar("err+");
         dpAutocor.getAvgErrFork().addDataSink(pAutoCorErr);
 
+
+        //Gs: total
+        int gsUpdateInterval = sim.getSpace().D() == 2 ? 10000 : 2000;
+        double xGsMax = 2;
+        MeterGs meterGs = new MeterGs(configStorageLinear);
+        meterGs.setPrevSampleIndex(128);
+        configStorageLinear.addListener(meterGs);
+        meterGs.getXDataSource().setXMax(xGsMax);
+        meterGs.reset();
+        DisplayPlot gsPlot = new DisplayPlot();
+        DataPumpListener pumpGs = new DataPumpListener(meterGs, gsPlot.getDataSet().makeDataSink(), gsUpdateInterval);
+        sim.integrator.getEventManager().addListener(pumpGs);
+        gsPlot.setLabel(" Gs ");
+        add(gsPlot);
+        //Gs: A
+        MeterGs meterGsA = new MeterGs(configStorageLinear);
+        meterGsA.setPrevSampleIndex(128);
+        meterGsA.setAtomTypes(sim.speciesA.getLeafType());
+        configStorageLinear.addListener(meterGsA);
+        meterGsA.getXDataSource().setXMax(xGsMax);
+        meterGsA.reset();
+        DataPumpListener pumpGsA = new DataPumpListener(meterGsA, gsPlot.getDataSet().makeDataSink(), gsUpdateInterval);
+        sim.integrator.getEventManager().addListener(pumpGsA);
+
+        //Gs: B
+        MeterGs meterGsB = new MeterGs(configStorageLinear);
+        meterGsB.setPrevSampleIndex(128);
+        meterGsB.setAtomTypes(sim.speciesB.getLeafType());
+        configStorageLinear.addListener(meterGsB);
+        meterGsB.getXDataSource().setXMax(xGsMax);
+        meterGsB.reset();
+        DataPumpListener pumpGsB = new DataPumpListener(meterGsB, gsPlot.getDataSet().makeDataSink(), gsUpdateInterval);
+        sim.integrator.getEventManager().addListener(pumpGsB);
+
+        gsPlot.setLegend(new DataTag[]{meterGs.getTag()}, "total");
+        gsPlot.setLegend(new DataTag[]{meterGsA.getTag()}, "A");
+        gsPlot.setLegend(new DataTag[]{meterGsB.getTag()}, "B");
+
+
+        //Gs slider
+        DeviceSlider gsPrevSampleSlider = new DeviceSlider(sim.getController(), new Modifier() {
+            @Override
+            public void setValue(double newValue) {
+                if (newValue == getValue()) return;
+                int log2prevConfig = (int) Math.round(newValue);
+                int prevConfig = 1 << log2prevConfig;
+                meterGs.setPrevSampleIndex(prevConfig);
+                meterGsA.setPrevSampleIndex(prevConfig);
+                meterGsB.setPrevSampleIndex(prevConfig);
+            }
+
+            @Override
+            public double getValue() {
+                int prevConfig = meterGs.getPrevSampleIndex();
+                for (int i = 0; i <= 30; i++) {
+                    if (1 << i >= prevConfig) return i;
+                }
+                throw new RuntimeException("oops");
+            }
+
+            @Override
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
+
+            @Override
+            public String getLabel() {
+                return null;
+            }
+        });
+        gsPrevSampleSlider.setShowBorder(true);
+        gsPrevSampleSlider.setShowValues(true);
+        gsPrevSampleSlider.setNMajor(5);
+        gsPrevSampleSlider.setMaximum(20);
+        gsPrevSampleSlider.setMinimum(0);
+        gsPrevSampleSlider.setLabel("log2(previous sample)");
+
+
+        JPanel gsPanel = (JPanel) gsPlot.graphic();
+        gsPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridheight = 1;
+        gsPanel.add(gsPlot.getPlot(), gbc);
+        gbc.insets = new Insets(20, 0, 0, 0);
+        gbc.gridheight = 1;
+        gbc.gridx = 1;
+        gsPanel.add(gsPrevSampleSlider.graphic(), gbc);
+        gbc.gridy = 1;
+        gbc.gridx = gbc.gridy = 0;
+        gbc.gridheight = 1;
+        gbc.insets = new Insets(0, 0, 0, 0);
+
+
+
+        int corUpdateInterval = sim.getSpace().D() == 2 ? 10000 : 2000;
+        double xCorMax = 5;
+
         MeterCorrelation meterCorrelation = new MeterCorrelation(configStorageLinear);
         meterCorrelation.setPrevSampleIndex(128);
         configStorageLinear.addListener(meterCorrelation);
-        meterCorrelation.getXDataSource().setXMax(3);
+        meterCorrelation.getXDataSource().setXMax(xCorMax);
         meterCorrelation.reset();
         DisplayPlot correlationPlot = new DisplayPlot();
-        DataPumpListener pumpCorrelation = new DataPumpListener(meterCorrelation, correlationPlot.getDataSet().makeDataSink(), 10000);
+        DataPumpListener pumpCorrelation = new DataPumpListener(meterCorrelation, correlationPlot.getDataSet().makeDataSink(), corUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpCorrelation);
         correlationPlot.setLabel("cor");
         add(correlationPlot);
+
         MeterCorrelation meterCorrelationAA = new MeterCorrelation(configStorageLinear);
         meterCorrelationAA.setAtomTypes(sim.speciesA.getLeafType(), sim.speciesA.getLeafType());
         meterCorrelationAA.setPrevSampleIndex(128);
         configStorageLinear.addListener(meterCorrelationAA);
-        meterCorrelationAA.getXDataSource().setXMax(3);
+        meterCorrelationAA.getXDataSource().setXMax(xCorMax);
         meterCorrelationAA.reset();
-        DataPumpListener pumpCorrelationAA = new DataPumpListener(meterCorrelationAA, correlationPlot.getDataSet().makeDataSink(), 10000);
+        DataPumpListener pumpCorrelationAA = new DataPumpListener(meterCorrelationAA, correlationPlot.getDataSet().makeDataSink(), corUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpCorrelationAA);
         MeterCorrelation meterCorrelationAB = new MeterCorrelation(configStorageLinear);
         meterCorrelationAB.setAtomTypes(sim.speciesA.getLeafType(), sim.speciesB.getLeafType());
         meterCorrelationAB.setPrevSampleIndex(128);
         configStorageLinear.addListener(meterCorrelationAB);
-        meterCorrelationAB.getXDataSource().setXMax(3);
+        meterCorrelationAB.getXDataSource().setXMax(xCorMax);
         meterCorrelationAB.reset();
-        DataPumpListener pumpCorrelationAB = new DataPumpListener(meterCorrelationAB, correlationPlot.getDataSet().makeDataSink(), 10000);
+        DataPumpListener pumpCorrelationAB = new DataPumpListener(meterCorrelationAB, correlationPlot.getDataSet().makeDataSink(), corUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpCorrelationAB);
         MeterCorrelation meterCorrelationBB = new MeterCorrelation(configStorageLinear);
         meterCorrelationBB.setAtomTypes(sim.speciesB.getLeafType(), sim.speciesB.getLeafType());
         meterCorrelationBB.setPrevSampleIndex(128);
         configStorageLinear.addListener(meterCorrelationBB);
-        meterCorrelationBB.getXDataSource().setXMax(3);
+        meterCorrelationBB.getXDataSource().setXMax(xCorMax);
         meterCorrelationBB.reset();
-        DataPumpListener pumpCorrelationBB = new DataPumpListener(meterCorrelationBB, correlationPlot.getDataSet().makeDataSink(), 10000);
+        DataPumpListener pumpCorrelationBB = new DataPumpListener(meterCorrelationBB, correlationPlot.getDataSet().makeDataSink(), corUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpCorrelationBB);
+
         correlationPlot.setLegend(new DataTag[]{meterCorrelation.getTag()}, "total");
         correlationPlot.setLegend(new DataTag[]{meterCorrelationAA.getTag()}, "AA");
         correlationPlot.setLegend(new DataTag[]{meterCorrelationAB.getTag()}, "AB");
@@ -342,24 +642,34 @@ public class GlassGraphic extends SimulationGraphic {
         MeterCorrelation meterCorrelationPerp = new MeterCorrelation(configStorageLinear, MeterCorrelation.CorrelationType.PERPENDICULAR);
         meterCorrelationPerp.setPrevSampleIndex(128);
         configStorageLinear.addListener(meterCorrelationPerp);
-        meterCorrelationPerp.getXDataSource().setXMax(3);
+        meterCorrelationPerp.getXDataSource().setXMax(xCorMax);
         meterCorrelationPerp.reset();
-        DataPumpListener pumpCorrelationPerp = new DataPumpListener(meterCorrelationPerp, correlationPlot.getDataSet().makeDataSink(), 10000);
+        DataPumpListener pumpCorrelationPerp = new DataPumpListener(meterCorrelationPerp, correlationPlot.getDataSet().makeDataSink(), corUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpCorrelationPerp);
-        correlationPlot.setLegend(new DataTag[]{meterCorrelationPerp.getTag()}, "perp");
+        correlationPlot.setLegend(new DataTag[]{meterCorrelationPerp.getTag()}, "_|_");
         MeterCorrelation meterCorrelationPar = new MeterCorrelation(configStorageLinear, MeterCorrelation.CorrelationType.PARALLEL);
         meterCorrelationPar.setPrevSampleIndex(128);
         configStorageLinear.addListener(meterCorrelationPar);
-        meterCorrelationPar.getXDataSource().setXMax(3);
+        meterCorrelationPar.getXDataSource().setXMax(xCorMax);
         meterCorrelationPar.reset();
-        DataPumpListener pumpCorrelationPar = new DataPumpListener(meterCorrelationPar, correlationPlot.getDataSet().makeDataSink(), 10000);
+        DataPumpListener pumpCorrelationPar = new DataPumpListener(meterCorrelationPar, correlationPlot.getDataSet().makeDataSink(), corUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpCorrelationPar);
         correlationPlot.setLegend(new DataTag[]{meterCorrelationPar.getTag()}, "||");
 
+        MeterCorrelation meterCorrelationMag = new MeterCorrelation(configStorageLinear, MeterCorrelation.CorrelationType.MAGNITUDE);
+        meterCorrelationMag.setPrevSampleIndex(128);
+        configStorageLinear.addListener(meterCorrelationMag);
+        meterCorrelationMag.getXDataSource().setXMax(xCorMax);
+        meterCorrelationMag.reset();
+        DataPumpListener pumpCorrelationMag = new DataPumpListener(meterCorrelationMag, correlationPlot.getDataSet().makeDataSink(), corUpdateInterval);
+        sim.integrator.getEventManager().addListener(pumpCorrelationMag);
+        correlationPlot.setLegend(new DataTag[]{meterCorrelationMag.getTag()}, "|r|");
 
-        DeviceSlider corPrevConfigSlider = new DeviceSlider(sim.getController(), new Modifier() {
+
+        DeviceSlider corPrevSampleSlider = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
             public void setValue(double newValue) {
+                if (newValue == getValue()) return;
                 int log2prevConfig = (int) Math.round(newValue);
                 int prevConfig = 1 << log2prevConfig;
                 meterCorrelationAA.setPrevSampleIndex(prevConfig);
@@ -368,6 +678,7 @@ public class GlassGraphic extends SimulationGraphic {
                 meterCorrelation.setPrevSampleIndex(prevConfig);
                 meterCorrelationPerp.setPrevSampleIndex(prevConfig);
                 meterCorrelationPar.setPrevSampleIndex(prevConfig);
+                meterCorrelationMag.setPrevSampleIndex(prevConfig);
             }
 
             @Override
@@ -389,13 +700,14 @@ public class GlassGraphic extends SimulationGraphic {
                 return null;
             }
         });
-        corPrevConfigSlider.setShowBorder(true);
-        corPrevConfigSlider.setShowValues(true);
-        corPrevConfigSlider.setNMajor(5);
-        corPrevConfigSlider.setMaximum(15);
-        corPrevConfigSlider.setMinimum(0);
-        corPrevConfigSlider.setLabel("log2(previous config (samples))");
-        DeviceSlider corIntervalSlider = new DeviceSlider(sim.getController(), new Modifier() {
+        corPrevSampleSlider.setShowBorder(true);
+        corPrevSampleSlider.setShowValues(true);
+        corPrevSampleSlider.setNMajor(5);
+        corPrevSampleSlider.setMaximum(10);
+        corPrevSampleSlider.setMinimum(0);
+        corPrevSampleSlider.setLabel("log2(previous sample)");
+
+        corIntervalSlider.setModifier(new Modifier() {
             @Override
             public void setValue(double newValue) {
                 int log2interval = (int) Math.round(newValue);
@@ -407,6 +719,10 @@ public class GlassGraphic extends SimulationGraphic {
                 meterCorrelation.reset();
                 meterCorrelationPerp.reset();
                 meterCorrelationPar.reset();
+                meterCorrelationMag.reset();
+                meterGs.reset();
+                meterGsA.reset();
+                meterGsB.reset();
             }
 
             @Override
@@ -425,18 +741,12 @@ public class GlassGraphic extends SimulationGraphic {
 
             @Override
             public String getLabel() {
-                return null;
+                return "log2(sample interval (steps))";
             }
         });
-        corIntervalSlider.setShowBorder(true);
-        corIntervalSlider.setShowValues(true);
-        corIntervalSlider.setNMajor(5);
-        corIntervalSlider.setMaximum(10);
-        corIntervalSlider.setMinimum(0);
-        corIntervalSlider.setLabel("log2(sample interval (steps))");
+
         JPanel corPanel = (JPanel) correlationPlot.graphic();
         corPanel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridheight = 2;
@@ -444,9 +754,7 @@ public class GlassGraphic extends SimulationGraphic {
         gbc.insets = new Insets(20, 0, 0, 0);
         gbc.gridheight = 1;
         gbc.gridx = 1;
-        corPanel.add(corPrevConfigSlider.graphic(), gbc);
-        gbc.gridy = 1;
-        corPanel.add(corIntervalSlider.graphic(), gbc);
+        corPanel.add(corPrevSampleSlider.graphic(), gbc);
         gbc.gridx = gbc.gridy = 0;
         gbc.gridheight = 1;
         gbc.insets = new Insets(0, 0, 0, 0);
@@ -548,6 +856,7 @@ public class GlassGraphic extends SimulationGraphic {
             DisplayPlot plotPE = new DisplayPlot();
             historyPE.addDataSink(plotPE.getDataSet().makeDataSink());
             plotPE.setLabel("PE");
+            plotPE.setUnit(peUnit);
             add(plotPE);
             peDisplay = new DisplayTextBoxesCAE();
             peDisplay.setAccumulator(peAccumulator);
@@ -560,11 +869,23 @@ public class GlassGraphic extends SimulationGraphic {
         configStorageMSD.addListener(meterMSD);
         DisplayPlot plotMSD = new DisplayPlot();
         DataPumpListener pumpMSD = new DataPumpListener(meterMSD, plotMSD.getDataSet().makeDataSink(), 1000);
+        plotMSD.setLegend(new DataTag[]{meterMSD.getTag()}, "total");
         sim.integrator.getEventManager().addListener(pumpMSD);
         plotMSD.setLabel("MSD");
         plotMSD.getPlot().setYLog(true);
         plotMSD.getPlot().setXLog(true);
         add(plotMSD);
+        DataSourceMSD meterMSDA = new DataSourceMSD(configStorageMSD, sim.speciesA.getLeafType());
+        configStorageMSD.addListener(meterMSDA);
+        DataPumpListener pumpMSDA = new DataPumpListener(meterMSDA, plotMSD.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpMSDA);
+        plotMSD.setLegend(new DataTag[]{meterMSDA.getTag()}, "A");
+        DataSourceMSD meterMSDB = new DataSourceMSD(configStorageMSD, sim.speciesB.getLeafType());
+        configStorageMSD.addListener(meterMSDB);
+        DataPumpListener pumpMSDB = new DataPumpListener(meterMSDB, plotMSD.getDataSet().makeDataSink(), 1000);
+        plotMSD.setLegend(new DataTag[]{meterMSDB.getTag()}, "B");
+        sim.integrator.getEventManager().addListener(pumpMSDB);
+
 
         DataSourceAlpha2 meterAlpha2 = new DataSourceAlpha2(configStorageMSD);
         configStorageMSD.addListener(meterAlpha2);
@@ -575,6 +896,37 @@ public class GlassGraphic extends SimulationGraphic {
         plotAlpha2.getPlot().setXLog(true);
         add(plotAlpha2);
 
+
+        //Fs: TOTAL
+        DataSourceFs meterFs = new DataSourceFs(configStorageMSD);
+        configStorageMSD.addListener(meterFs);
+        DisplayPlot plotFs = new DisplayPlot();
+        DataPumpListener pumpFs = new DataPumpListener(meterFs, plotFs.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpFs);
+        plotFs.setLabel("Fs");
+        plotFs.getPlot().setXLog(true);
+        add(plotFs);
+
+        //Fs: A
+        DataSourceFs meterFsA = new DataSourceFs(configStorageMSD);
+        meterFsA.setAtomType(sim.speciesA.getLeafType());
+        configStorageMSD.addListener(meterFsA);
+        DataPumpListener pumpFsA = new DataPumpListener(meterFsA, plotFs.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpFsA);
+
+        //Fs: B
+        DataSourceFs meterFsB = new DataSourceFs(configStorageMSD);
+        meterFsB.setAtomType(sim.speciesB.getLeafType());
+        configStorageMSD.addListener(meterFsB);
+        DataPumpListener pumpFsB = new DataPumpListener(meterFsB, plotFs.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpFsB);
+
+
+        plotFs.setLegend(new DataTag[]{meterFs.getTag()}, "total");
+        plotFs.setLegend(new DataTag[]{meterFsA.getTag()}, "A");
+        plotFs.setLegend(new DataTag[]{meterFsB.getTag()}, "B");
+
+
         //************* Lay out components ****************//
 
         DeviceCheckBox swapCheckbox = new DeviceCheckBox("isothermal", new ModifierBoolean() {
@@ -583,6 +935,7 @@ public class GlassGraphic extends SimulationGraphic {
 
                 if (sim.integrator.isIsothermal() == b) return;
                 if (b) {
+                    dbox.setAtomTestDoDisplay(null);
                     sim.integrator.setIsothermal(true);
                     sim.integrator.setIntegratorMC(sim.integratorMC, 10000);
                     dbox.setColorScheme(colorScheme);
@@ -594,8 +947,16 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageMSD.reset();
                     configStorageMSD.setEnabled(false);
                     dpAutocor.reset();
+                    meterCorrelationAA.reset();
+                    meterCorrelationAB.reset();
+                    meterCorrelationBB.reset();
                     meterCorrelation.reset();
+                    meterCorrelationPerp.reset();
+                    meterCorrelationPar.reset();
+                    meterCorrelationMag.reset();
+                    diameterHash.setFac(1.0);
                 } else {
+                    dbox.setAtomTestDoDisplay(atomFilterDeviation);
                     sim.integrator.setIntegratorMC(null, 0);
                     sim.integrator.setIsothermal(false);
                     configStorageLinear.reset();
@@ -605,9 +966,17 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageMSD.reset();
                     configStorageMSD.setEnabled(true);
                     if (colorCheckbox.getState()) dbox.setColorScheme(colorSchemeDeviation);
+                    else if (colorDirectionCheckbox.getState()) dbox.setColorScheme(colorSchemeDirection);
                     if (showDispCheckbox.getState()) canvas.setDrawDisplacement(true);
                     dpAutocor.reset();
+                    meterCorrelationAA.reset();
+                    meterCorrelationAB.reset();
+                    meterCorrelationBB.reset();
                     meterCorrelation.reset();
+                    meterCorrelationPerp.reset();
+                    meterCorrelationPar.reset();
+                    meterCorrelationMag.reset();
+                    diameterHash.setFac(showDispCheckbox.getState() ? 0.5 : 1.0);
                 }
             }
 
@@ -674,9 +1043,11 @@ public class GlassGraphic extends SimulationGraphic {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doSwap = true;
-            params.potential = SimGlass.PotentialChoice.SS;
-            params.nA = params.nB = 400;
-            params.density = 1.35;
+            params.potential = SimGlass.PotentialChoice.LJ;
+            params.nA = 800;
+            params.nB = 200;
+            params.density = 1.25; // 3D 1.25;
+            params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.potential);
 
@@ -713,5 +1084,3 @@ public class GlassGraphic extends SimulationGraphic {
     }
 
 }
-
-

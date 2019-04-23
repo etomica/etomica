@@ -1,4 +1,4 @@
-package etomica.modules.glass2d;
+package etomica.modules.glass;
 
 import etomica.action.activity.Controller;
 import etomica.atom.IAtom;
@@ -9,9 +9,9 @@ import etomica.space.Vector;
 
 import java.awt.*;
 
-public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D {
+public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D implements DisplayBoxCanvasGlass {
 
-    protected final ConfigurationStorage configStorage;
+    protected ConfigurationStorage configStorage;
     protected int configIndex;
     protected final Vector dr;
     protected boolean drawDisplacement;
@@ -40,6 +40,13 @@ public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D {
         return drawDisplacement;
     }
 
+    public void setConfigStorage(ConfigurationStorage configStorage){
+        this.configStorage = configStorage;
+    }
+
+    public ConfigurationStorage getConfigStorage(){ return configStorage;}
+
+
     protected void drawAtom(Graphics g, int[] origin, IAtom a) {
         if (!drawDisplacement) {
             super.drawAtom(g, origin, a);
@@ -60,7 +67,7 @@ public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D {
         baseXP = origin[0] + (int) (toPixels * r.getX(0));
         baseYP = origin[1] + (int) (toPixels * r.getX(1));
         /* Draw the core of the atom, specific to the dimension */
-        double sigma = 0.5 * displayBox.getDiameterHash().getDiameter(a);
+        double sigma = displayBox.getDiameterHash().getDiameter(a);
         // default diameter
         if (sigma == -1) sigma = 1;
         sigmaP = (int) (toPixels * sigma);
