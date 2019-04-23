@@ -144,6 +144,16 @@ public class GlassGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(pumpPrevTime);
         add(displayPrevTime);
 
+        DeviceSlider corIntervalSlider = new DeviceSlider(sim.getController(),null);
+        corIntervalSlider.setShowBorder(true);
+        corIntervalSlider.setShowValues(true);
+        corIntervalSlider.setNMajor(5);
+        corIntervalSlider.setMaximum(20);
+        corIntervalSlider.setMinimum(0);
+        corIntervalSlider.setLabel("log2(sample interval (steps))");
+        add(corIntervalSlider);
+
+
         DeviceSlider filterSlider = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
             public void setValue(double newValue) {
@@ -451,8 +461,105 @@ public class GlassGraphic extends SimulationGraphic {
         DataProcessorErrorBar pAutoCorErr = new DataProcessorErrorBar("err+");
         dpAutocor.getAvgErrFork().addDataSink(pAutoCorErr);
 
+
+        //Gs: total
+        int gsUpdateInterval = sim.getSpace().D() == 2 ? 10000 : 2000;
+        double xGsMax = 2;
+        MeterGs meterGs = new MeterGs(configStorageLinear);
+        meterGs.setPrevSampleIndex(128);
+        configStorageLinear.addListener(meterGs);
+        meterGs.getXDataSource().setXMax(xGsMax);
+        meterGs.reset();
+        DisplayPlot gsPlot = new DisplayPlot();
+        DataPumpListener pumpGs = new DataPumpListener(meterGs, gsPlot.getDataSet().makeDataSink(), gsUpdateInterval);
+        sim.integrator.getEventManager().addListener(pumpGs);
+        gsPlot.setLabel(" Gs ");
+        add(gsPlot);
+        //Gs: A
+        MeterGs meterGsA = new MeterGs(configStorageLinear);
+        meterGsA.setPrevSampleIndex(128);
+        meterGsA.setAtomTypes(sim.speciesA.getLeafType());
+        configStorageLinear.addListener(meterGsA);
+        meterGsA.getXDataSource().setXMax(xGsMax);
+        meterGsA.reset();
+        DataPumpListener pumpGsA = new DataPumpListener(meterGsA, gsPlot.getDataSet().makeDataSink(), gsUpdateInterval);
+        sim.integrator.getEventManager().addListener(pumpGsA);
+
+        //Gs: B
+        MeterGs meterGsB = new MeterGs(configStorageLinear);
+        meterGsB.setPrevSampleIndex(128);
+        meterGsB.setAtomTypes(sim.speciesB.getLeafType());
+        configStorageLinear.addListener(meterGsB);
+        meterGsB.getXDataSource().setXMax(xGsMax);
+        meterGsB.reset();
+        DataPumpListener pumpGsB = new DataPumpListener(meterGsB, gsPlot.getDataSet().makeDataSink(), gsUpdateInterval);
+        sim.integrator.getEventManager().addListener(pumpGsB);
+
+        gsPlot.setLegend(new DataTag[]{meterGs.getTag()}, "total");
+        gsPlot.setLegend(new DataTag[]{meterGsA.getTag()}, "A");
+        gsPlot.setLegend(new DataTag[]{meterGsB.getTag()}, "B");
+
+
+        //Gs slider
+        DeviceSlider gsPrevSampleSlider = new DeviceSlider(sim.getController(), new Modifier() {
+            @Override
+            public void setValue(double newValue) {
+                if (newValue == getValue()) return;
+                int log2prevConfig = (int) Math.round(newValue);
+                int prevConfig = 1 << log2prevConfig;
+                meterGs.setPrevSampleIndex(prevConfig);
+                meterGsA.setPrevSampleIndex(prevConfig);
+                meterGsB.setPrevSampleIndex(prevConfig);
+            }
+
+            @Override
+            public double getValue() {
+                int prevConfig = meterGs.getPrevSampleIndex();
+                for (int i = 0; i <= 30; i++) {
+                    if (1 << i >= prevConfig) return i;
+                }
+                throw new RuntimeException("oops");
+            }
+
+            @Override
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
+
+            @Override
+            public String getLabel() {
+                return null;
+            }
+        });
+        gsPrevSampleSlider.setShowBorder(true);
+        gsPrevSampleSlider.setShowValues(true);
+        gsPrevSampleSlider.setNMajor(5);
+        gsPrevSampleSlider.setMaximum(20);
+        gsPrevSampleSlider.setMinimum(0);
+        gsPrevSampleSlider.setLabel("log2(previous sample)");
+
+
+        JPanel gsPanel = (JPanel) gsPlot.graphic();
+        gsPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridheight = 1;
+        gsPanel.add(gsPlot.getPlot(), gbc);
+        gbc.insets = new Insets(20, 0, 0, 0);
+        gbc.gridheight = 1;
+        gbc.gridx = 1;
+        gsPanel.add(gsPrevSampleSlider.graphic(), gbc);
+        gbc.gridy = 1;
+        gbc.gridx = gbc.gridy = 0;
+        gbc.gridheight = 1;
+        gbc.insets = new Insets(0, 0, 0, 0);
+
+
+
         int corUpdateInterval = sim.getSpace().D() == 2 ? 10000 : 2000;
         double xCorMax = 5;
+
         MeterCorrelation meterCorrelation = new MeterCorrelation(configStorageLinear);
         meterCorrelation.setPrevSampleIndex(128);
         configStorageLinear.addListener(meterCorrelation);
@@ -561,7 +668,8 @@ public class GlassGraphic extends SimulationGraphic {
         corPrevSampleSlider.setMaximum(10);
         corPrevSampleSlider.setMinimum(0);
         corPrevSampleSlider.setLabel("log2(previous sample)");
-        DeviceSlider corIntervalSlider = new DeviceSlider(sim.getController(), new Modifier() {
+
+        corIntervalSlider.setModifier(new Modifier() {
             @Override
             public void setValue(double newValue) {
                 int log2interval = (int) Math.round(newValue);
@@ -574,6 +682,9 @@ public class GlassGraphic extends SimulationGraphic {
                 meterCorrelationPerp.reset();
                 meterCorrelationPar.reset();
                 meterCorrelationMag.reset();
+                meterGs.reset();
+                meterGsA.reset();
+                meterGsB.reset();
             }
 
             @Override
@@ -595,15 +706,9 @@ public class GlassGraphic extends SimulationGraphic {
                 return null;
             }
         });
-        corIntervalSlider.setShowBorder(true);
-        corIntervalSlider.setShowValues(true);
-        corIntervalSlider.setNMajor(5);
-        corIntervalSlider.setMaximum(20);
-        corIntervalSlider.setMinimum(0);
-        corIntervalSlider.setLabel("log2(sample interval (steps))");
+
         JPanel corPanel = (JPanel) correlationPlot.graphic();
         corPanel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridheight = 2;
@@ -612,8 +717,6 @@ public class GlassGraphic extends SimulationGraphic {
         gbc.gridheight = 1;
         gbc.gridx = 1;
         corPanel.add(corPrevSampleSlider.graphic(), gbc);
-        gbc.gridy = 1;
-        corPanel.add(corIntervalSlider.graphic(), gbc);
         gbc.gridx = gbc.gridy = 0;
         gbc.gridheight = 1;
         gbc.insets = new Insets(0, 0, 0, 0);
