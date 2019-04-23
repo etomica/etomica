@@ -334,7 +334,7 @@ public class GlassGraphic extends SimulationGraphic {
             }
         };
         IntegratorListenerAction repaintAction2 = new IntegratorListenerAction(repaintAction);
-        repaintAction2.setInterval(100);
+        repaintAction2.setInterval(REPAINT_INTERVAL);
         sim.integrator.getEventManager().addListener(repaintAction2);
 
         final IAction resetDataAction = new IAction() {
