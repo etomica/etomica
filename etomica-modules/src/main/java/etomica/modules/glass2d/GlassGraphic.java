@@ -109,6 +109,8 @@ public class GlassGraphic extends SimulationGraphic {
         ColorSchemeDirection colorSchemeDirection = new ColorSchemeDirection(sim.box, configStorage);
 
         DataSourcePrevTime dsPrevTime = new DataSourcePrevTime(configStorage);
+
+
         DeviceSlider prevConfigSlider = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
             public void setValue(double newValue) {
@@ -132,13 +134,49 @@ public class GlassGraphic extends SimulationGraphic {
 
             @Override
             public String getLabel() {
-                return "previous config (log2)";
+                return "previous config";
             }
         });
-        prevConfigSlider.setMaximum(30);
+
         prevConfigSlider.setNMajor(5);
+        prevConfigSlider.setMaximum(30);
+        prevConfigSlider.setShowValues(true);
+        prevConfigSlider.setEditValues(true);
+
+        DeviceCheckBox linearCheckbox = new DeviceCheckBox("linear", new ModifierBoolean() {
+            @Override
+            public void setBoolean(boolean b) {
+                if (b) {
+                    canvas.setConfigStorage(configStorageLinear);
+                    colorSchemeDeviation.setConfigStorage(configStorageLinear);
+                    colorSchemeDirection.setConfigStorage(configStorageLinear);
+                    dsPrevTime.setConfigStorage(configStorageLinear);
+                    atomFilterDeviation.setConfigStorage(configStorageLinear);
+                    prevConfigSlider.setMaximum(1000);
+                }else{
+                    canvas.setConfigStorage(configStorage);
+                    colorSchemeDeviation.setConfigStorage(configStorage);
+                    colorSchemeDirection.setConfigStorage(configStorage);
+                    dsPrevTime.setConfigStorage(configStorage);
+                    atomFilterDeviation.setConfigStorage(configStorage);
+                    prevConfigSlider.setMaximum(30);
+                }
+                dbox.repaint();
+            }
+
+            @Override
+            public boolean getBoolean() {
+                return dsPrevTime.getConfigStorage() == configStorageLinear;
+            }
+        });
+        linearCheckbox.setController(sim.getController());
+        add(linearCheckbox);
+
         prevConfigSlider.setShowBorder(true);
         add(prevConfigSlider);
+
+
+
         DisplayTextBox displayPrevTime = new DisplayTextBox();
         DataPumpListener pumpPrevTime = new DataPumpListener(dsPrevTime, displayPrevTime, 1);
         sim.integrator.getEventManager().addListener(pumpPrevTime);
@@ -146,7 +184,6 @@ public class GlassGraphic extends SimulationGraphic {
 
         DeviceSlider corIntervalSlider = new DeviceSlider(sim.getController(),null);
         corIntervalSlider.setShowBorder(true);
-        corIntervalSlider.setShowValues(true);
         corIntervalSlider.setNMajor(5);
         corIntervalSlider.setMaximum(20);
         corIntervalSlider.setMinimum(0);
@@ -218,6 +255,7 @@ public class GlassGraphic extends SimulationGraphic {
             @Override
             public void setBoolean(boolean b) {
                 colorSchemeDeviation.setIsString(b);
+                dbox.repaint();
             }
 
             @Override
@@ -1006,10 +1044,10 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.LJ;
-            params.nA = 200;
+            params.nA = 800;
             params.nB = 200;
-            params.density = 1.35; // 3D 1.25;
-            params.D = 2;
+            params.density = 1.25; // 3D 1.25;
+            params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.potential);
 

@@ -11,4 +11,7 @@ public interface DisplayBoxCanvasGlass {
     void setDrawDisplacement(boolean doDrawDisplacement);
 
     boolean getDrawDisplacement();
+
+    void setConfigStorage(ConfigurationStorage configStorage);
+    ConfigurationStorage getConfigStorage();
 }

@@ -9,7 +9,7 @@ import etomica.space.Vector;
 import java.awt.*;
 
 public class ColorSchemeDeviation extends ColorScheme {
-    protected final ConfigurationStorage configStorage;
+    protected ConfigurationStorage configStorage;
     protected int configIndex;
     protected final Box box;
     protected final Vector dr;
@@ -54,6 +54,12 @@ public class ColorSchemeDeviation extends ColorScheme {
     public void setLengthFactor(double lenghtFactor) {
         this.fac = lenghtFactor;
     }
+
+    public void setConfigStorage(ConfigurationStorage configStorage){
+        this.configStorage = configStorage;
+    }
+
+    public ConfigurationStorage getConfigStorage(){return configStorage;}
 
     public double getDisplacementSq(IAtom a) {
         int idx = configIndex;

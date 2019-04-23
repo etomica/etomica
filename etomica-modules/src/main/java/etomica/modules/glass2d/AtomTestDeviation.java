@@ -7,7 +7,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 
 public class AtomTestDeviation implements AtomTest {
-    protected final ConfigurationStorage configStorage;
+    protected ConfigurationStorage configStorage;
     protected int configIndex;
     protected final Box box;
     protected final Vector dr;
@@ -32,6 +32,12 @@ public class AtomTestDeviation implements AtomTest {
     public void setMinDistance(double minDistance) {
         this.minDistance = minDistance;
     }
+
+    public void setConfigStorage(ConfigurationStorage configStorage){
+        this.configStorage = configStorage;
+    }
+
+    public ConfigurationStorage getConfigStorage(){ return configStorage; }
 
     public double getDisplacementSq(IAtom a) {
         int idx = configIndex;

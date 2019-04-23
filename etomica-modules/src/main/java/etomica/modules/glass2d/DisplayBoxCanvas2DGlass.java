@@ -11,7 +11,7 @@ import java.awt.*;
 
 public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D implements DisplayBoxCanvasGlass {
 
-    protected final ConfigurationStorage configStorage;
+    protected ConfigurationStorage configStorage;
     protected int configIndex;
     protected final Vector dr;
     protected boolean drawDisplacement;
@@ -39,6 +39,13 @@ public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D implements Displ
     public boolean getDrawDisplacement() {
         return drawDisplacement;
     }
+
+    public void setConfigStorage(ConfigurationStorage configStorage){
+        this.configStorage = configStorage;
+    }
+
+    public ConfigurationStorage getConfigStorage(){ return configStorage;}
+
 
     protected void drawAtom(Graphics g, int[] origin, IAtom a) {
         if (!drawDisplacement) {

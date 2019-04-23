@@ -7,7 +7,7 @@ import etomica.data.DataSourceScalar;
 import etomica.units.dimensions.Time;
 
 public class DataSourcePrevTime extends DataSourceScalar {
-    protected final ConfigurationStorage configStorage;
+    protected ConfigurationStorage configStorage;
     protected int prevConfigIndex;
 
     public DataSourcePrevTime(ConfigurationStorage configStorage) {
@@ -17,6 +17,14 @@ public class DataSourcePrevTime extends DataSourceScalar {
 
     public void setPrevConfigIndex(int idx) {
         prevConfigIndex = idx;
+    }
+
+    public void setConfigStorage(ConfigurationStorage configStorage){
+        this.configStorage = configStorage;
+    }
+
+    public ConfigurationStorage getConfigStorage(){
+        return configStorage;
     }
 
     @Override

@@ -15,7 +15,7 @@ import java.awt.*;
 
 public class DisplayBoxCanvas3DGlass extends DisplayBoxCanvasG3DSys implements DisplayBoxCanvasGlass {
 
-    protected final ConfigurationStorage configStorage;
+    protected ConfigurationStorage configStorage;
     protected int configIndex;
     protected final Vector dr;
     protected boolean drawDisplacement;
@@ -41,6 +41,13 @@ public class DisplayBoxCanvas3DGlass extends DisplayBoxCanvasG3DSys implements D
     public int getConfigIndex() {
         return configIndex;
     }
+
+    public void setConfigStorage(ConfigurationStorage configStorage){
+        this.configStorage = configStorage;
+    }
+
+    public ConfigurationStorage getConfigStorage(){return configStorage;}
+
 
     @Override
     public void setDrawDisplacement(boolean doDrawDisplacement) {
