@@ -228,7 +228,7 @@ public class HSMDCavity extends Simulation {
             cavityPlot.setLabel("y(r)");
 
             DisplayPlot y0Plot = new DisplayPlot();
-            DataProcessorExtract0 y0Extractor = new DataProcessorExtract0("conv", null);
+            DataProcessorExtract0 y0Extractor = new DataProcessorExtract0("conv", false);
             processorFit.addDataSink(y0Extractor);
             DataSourceCountTime dsTime = new DataSourceCountTime(sim.integrator);
             AccumulatorHistory y0History = new AccumulatorHistory(new HistoryCollapsingDiscard());
@@ -236,7 +236,7 @@ public class HSMDCavity extends Simulation {
             y0Extractor.addDataSink(y0History);
             y0History.addDataSink(y0Plot.getDataSet().makeDataSink());
             y0Plot.setLabel("y(0)");
-            DataProcessorExtract0 map0Extractor = new DataProcessorExtract0("mapped", null);
+            DataProcessorExtract0 map0Extractor = new DataProcessorExtract0("mapped", false);
             accMapped.addDataSink(map0Extractor, new AccumulatorAverage.StatType[]{accMapped.AVERAGE});
             AccumulatorHistory map0History = new AccumulatorHistory(new HistoryCollapsingDiscard());
             map0History.setTimeDataSource(dsTime);

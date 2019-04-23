@@ -156,10 +156,6 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
             for (int j = 0; j < atoms.size(); j++) {
                 IAtomKinetic a = (IAtomKinetic) atoms.get(j);
                 if (a == atom1 || a == atom2) continue;
-//                if (a.getLeafIndex()+atoms12[i].getLeafIndex() == P2HardSphereCavity.idxSum
-//                &&  a.getLeafIndex()*atoms12[i].getLeafIndex() == P2HardSphereCavity.idxProduct) {
-//                    System.out.println("here!");
-//                }
                 dr.Ev1Mv2(atoms12[i].getPosition(), a.getPosition());
                 dr.PEa1Tv1(falseTime, atoms12[i].getVelocity());
                 dr.PEa1Tv1(-falseTime, a.getVelocity());
@@ -222,48 +218,6 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
                 y[i] += y[j];
             }
             y[i] += 1;
-        }
-        if (true) return data;
-        double yIntegral = 0;
-        for (int i = 0; i < y.length; i++) {
-            double r = rData.getValue(i);
-            yIntegral += r * r * y[i];
-        }
-
-        yIntegral *= 4 * Math.PI * dx;
-        double nPairs = yIntegral * N * (N - 1) / V / 2;
-//        System.out.println("yIntegral "+yIntegral+" nPairs: "+nPairs);
-        // need to shift
-        double ti = tInternal, te = tExternal;
-        if (internal) ti += integratorHard.getCurrentTime() - lastSwitchTime;
-        else te += integratorHard.getCurrentTime() - lastSwitchTime;
-        double shift = ((ti / (te + ti)) - nPairs) / (4.0 / 3.0 * Math.PI * N * (N - 1) / V * sigma * sigma * sigma / 2);
-        if (ti * te > 0) {
-//            System.out.println("shift by "+shift+" so nPairs "+nPairs+" matches "+(ti/(te+ti))+" "+ti+" "+te);
-            for (int i = 0; i < y.length; i++) {
-                y[i] += shift;
-            }
-        }
-        if (false) {
-            // recheck integral
-            yIntegral = 0;
-            // the last point is our endpoint.  skip and handle explicitly
-            for (int i = 0; i < y.length - 1; i++) {
-                double r = rData.getValue(i);
-                yIntegral += r * r * y[i];
-            }
-            // our end point isn't 0 anymore
-            yIntegral += 0.5 * shift * sigma * sigma;
-
-            yIntegral *= 4 * Math.PI * dx;
-            nPairs = yIntegral * N * density / 2;
-            System.out.println("and we got integral " + yIntegral + " and nPairs " + nPairs);
-        }
-        // and now scale
-        if (internalCollisions > 0) {
-            for (int i = 0; i < y.length; i++) {
-                y[i] *= fac;
-            }
         }
         if (resetAfterData) zeroData();
         return data;

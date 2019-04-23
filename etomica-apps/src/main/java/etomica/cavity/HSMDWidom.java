@@ -170,12 +170,16 @@ public class HSMDWidom extends Simulation {
             accRDF.addDataSink(dpFit, new AccumulatorAverage.StatType[]{accRDF.AVERAGE, accRDF.ERROR});
             dpFit.setDataSink(gPlot.getDataSet().makeDataSink());
 
-            DataProcessorExtract0 gCExtractor = new DataProcessorExtract0("g(sigma)", dpFit);
+            DataProcessorExtract0 gCExtractor = new DataProcessorExtract0("g(sigma)", true);
+            gCExtractor.setErrorSource(dpFit);
             dpFit.addDataSink(gCExtractor);
             DisplayTextBoxesCAE gCDisplay = new DisplayTextBoxesCAE();
             gCExtractor.addDataSink(gCDisplay);
             gCDisplay.setDoShowCurrent(false);
             simGraphic.add(gCDisplay);
+            DisplayTextBoxesCAE displayGCMap = new DisplayTextBoxesCAE();
+            displayGCMap.setDoShowCurrent(false);
+            simGraphic.add(displayGCMap);
             gCExtractor.addDataSink(dpGContact);
             DisplayTextBoxesCAE displayPfromGC = new DisplayTextBoxesCAE();
             dpGContact.addDataSink(displayPfromGC);
@@ -215,6 +219,14 @@ public class HSMDWidom extends Simulation {
             DataPumpListener pumpRDFMapped = new DataPumpListener(meterRDFMapped, accRDFMapped, 10000);
             accRDFMapped.addDataSink(gPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accRDFMapped.AVERAGE});
             sim.integrator.getEventManager().addListener(pumpRDFMapped);
+
+            DataProcessorErrorBar rdfMappedError = new DataProcessorErrorBar("mapped g(r)+");
+            accRDFMapped.addDataSink(rdfMappedError, new AccumulatorAverage.StatType[]{accRDFMapped.AVERAGE, accRDFMapped.ERROR});
+            rdfMappedError.setDataSink(gPlot.getDataSet().makeDataSink());
+
+            DataProcessorExtract0 gMapCExtractor = new DataProcessorExtract0("mapped g(sigma)", true);
+            accRDFMapped.addDataSink(gMapCExtractor, new AccumulatorAverage.StatType[]{accRDFMapped.MOST_RECENT, accRDFMapped.AVERAGE, accRDFMapped.ERROR});
+            gMapCExtractor.addDataSink(displayGCMap);
 
             AccumulatorAverageCollapsing accWidom = new AccumulatorAverageCollapsing(200);
             DataPumpListener pumpWidom = new DataPumpListener(meterWidom, accWidom, 10);
