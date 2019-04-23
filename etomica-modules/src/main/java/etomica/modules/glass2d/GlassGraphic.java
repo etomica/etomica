@@ -703,7 +703,7 @@ public class GlassGraphic extends SimulationGraphic {
 
             @Override
             public String getLabel() {
-                return null;
+                return "log2(sample interval (steps))";
             }
         });
 
