@@ -128,12 +128,20 @@ public class HSMDWidom extends Simulation {
         MeterPressureHard meterP = new MeterPressureHard(sim.integrator);
         MeterPressureCollisionCount meterPCC = new MeterPressureCollisionCount(sim.integrator);
 
+        int xMax = (int) (sim.box.getBoundary().getBoxSize().getX(0) * 0.5);
+
         MeterRDF meterRDF = new MeterRDF(sim.space);
-        meterRDF.getXDataSource().setNValues(1000);
-        meterRDF.getXDataSource().setXMax(2);
+        meterRDF.getXDataSource().setNValues(500 * xMax);
+        meterRDF.getXDataSource().setXMax(xMax);
         meterRDF.setBox(sim.box);
         meterRDF.setResetAfterData(true);
         DataFork forkRDF = new DataFork();
+
+        MeterRDFMapped meterRDFMapped = new MeterRDFMapped(sim.integrator);
+        meterRDFMapped.getXDataSource().setNValues(xMax * 500 + 1);
+        meterRDFMapped.getXDataSource().setXMax(xMax);
+        meterRDFMapped.reset();
+        meterRDFMapped.setResetAfterData(true);
 
         MeterWidomInsertion meterWidom = new MeterWidomInsertion(sim.space, sim.getRandom());
         meterWidom.setIntegrator(sim.integrator);
@@ -144,9 +152,11 @@ public class HSMDWidom extends Simulation {
         DataProcessorPContactG dpGContact = new DataProcessorPContactG(sim.box);
 
         if (params.doGraphics) {
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1000);
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 100);
 
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, 10));
+
+            sim.integrator.addCollisionListener(meterRDFMapped);
 
             AccumulatorAverageFixed accRDF = new AccumulatorAverageFixed(100);
             accRDF.setPushInterval(1);
@@ -200,6 +210,12 @@ public class HSMDWidom extends Simulation {
             displayPCC.setAccumulator(accPCC);
             simGraphic.add(displayPCC);
 
+            AccumulatorAverageFixed accRDFMapped = new AccumulatorAverageFixed(1);
+            accRDFMapped.setPushInterval(1);
+            DataPumpListener pumpRDFMapped = new DataPumpListener(meterRDFMapped, accRDFMapped, 10000);
+            accRDFMapped.addDataSink(gPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accRDFMapped.AVERAGE});
+            sim.integrator.getEventManager().addListener(pumpRDFMapped);
+
             AccumulatorAverageCollapsing accWidom = new AccumulatorAverageCollapsing(200);
             DataPumpListener pumpWidom = new DataPumpListener(meterWidom, accWidom, 10);
             DisplayTextBoxesCAE displayWidom = new DisplayTextBoxesCAE();
@@ -238,6 +254,7 @@ public class HSMDWidom extends Simulation {
 
             simGraphic.getController().getDataStreamPumps().add(pumpRDF);
             simGraphic.getController().getDataStreamPumps().add(pumpP);
+            simGraphic.getController().getDataStreamPumps().add(pumpRDFMapped);
             simGraphic.getController().getDataStreamPumps().add(pumpWidom);
         }
     }

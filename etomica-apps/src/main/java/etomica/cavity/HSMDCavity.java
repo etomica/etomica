@@ -132,9 +132,11 @@ public class HSMDCavity extends Simulation {
         meterCavity.setResetAfterData(true);
         DataFork forkCavity = new DataFork();
 
+        int xMax = (int) (sim.box.getBoundary().getBoxSize().getX(0) * 0.5);
+
         MeterRDF meterRDF = new MeterRDF(sim.space);
-        meterRDF.getXDataSource().setNValues(2 * params.nBins);
-        meterRDF.getXDataSource().setXMax(2);
+        meterRDF.getXDataSource().setNValues(xMax * params.nBins);
+        meterRDF.getXDataSource().setXMax(xMax);
         meterRDF.setBox(sim.box);
         meterRDF.setResetAfterData(true);
         DataFork forkRDF = new DataFork();
@@ -143,6 +145,13 @@ public class HSMDCavity extends Simulation {
         MeterCavityMapped meterCavityMapped = new MeterCavityMapped(sim.integrator);
         meterCavityMapped.setResetAfterData(true);
         meterCavityMapped.getXDataSource().setNValues(params.nBins + 1);
+        meterCavityMapped.reset();
+
+        MeterRDFMapped meterRDFMapped = new MeterRDFMapped(sim.integrator);
+        meterRDFMapped.getXDataSource().setNValues(xMax * params.nBins + 1);
+        meterRDFMapped.getXDataSource().setXMax(xMax);
+        meterRDFMapped.reset();
+        meterRDFMapped.setResetAfterData(true);
 
         MeterContactRatio meterCR = new MeterContactRatio(sim.integrator);
 
@@ -155,6 +164,7 @@ public class HSMDCavity extends Simulation {
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, 10));
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterCavity, 1));
             sim.integrator.addCollisionListener(meterCavityMapped);
+            sim.integrator.addCollisionListener(meterRDFMapped);
             DisplayPlot cavityPlot = new DisplayPlot();
             cavityPlot.getDataSet().setUpdatingOnAnyChange(true);
             cavityPlot.getPlot().setYLog(true);
@@ -167,6 +177,11 @@ public class HSMDCavity extends Simulation {
             DataProcessor mappedErr = new DataProcessorErrorBar("mapped y(r)+e");
             accMapped.addDataSink(mappedErr, new AccumulatorAverage.StatType[]{accMapped.AVERAGE, accMapped.ERROR});
             mappedErr.setDataSink(cavityPlot.getDataSet().makeDataSink());
+
+            AccumulatorAverageFixed accRDFMapped = new AccumulatorAverageFixed(1);
+            accRDFMapped.setPushInterval(1);
+            DataPumpListener pumpRDFMapped = new DataPumpListener(meterRDFMapped, accRDFMapped, 100000);
+            accRDFMapped.addDataSink(cavityPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accRDFMapped.AVERAGE});
 
             AccumulatorAverageFixed accRDF = new AccumulatorAverageFixed(1);
             accRDF.setPushInterval(1);
@@ -209,6 +224,7 @@ public class HSMDCavity extends Simulation {
             DataPumpListener pumpCavity = new DataPumpListener(meterCavity, forkCavity, 100000);
             sim.integrator.getEventManager().addListener(pumpCavity);
             sim.integrator.getEventManager().addListener(pumpCavityMapped);
+            sim.integrator.getEventManager().addListener(pumpRDFMapped);
             cavityPlot.setLabel("y(r)");
 
             DisplayPlot y0Plot = new DisplayPlot();
@@ -227,14 +243,17 @@ public class HSMDCavity extends Simulation {
             map0Extractor.addDataSink(map0History);
             map0History.addDataSink(y0Plot.getDataSet().makeDataSink());
 
+            DisplayPlot forcePlot = new DisplayPlot();
             AccumulatorAverageFixed accForce = new AccumulatorAverageFixed(1);
             accForce.setPushInterval(1);
             meterCavityMapped.setForceSink(accForce);
-            DisplayPlot forcePlot = new DisplayPlot();
             accForce.addDataSink(forcePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accForce.AVERAGE});
+            AccumulatorAverageFixed accForce2 = new AccumulatorAverageFixed(1);
+            accForce2.setPushInterval(1);
+            meterRDFMapped.setForceSink(accForce2);
+            accForce2.addDataSink(forcePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accForce.AVERAGE});
             forcePlot.setLabel("force");
             simGraphic.add(forcePlot);
-            forcePlot.getPlot().setYLog(true);
 
             AccumulatorHistory accCR = new AccumulatorHistory(new HistoryCollapsingAverage());
             accCR.setPushInterval(1);
@@ -252,6 +271,7 @@ public class HSMDCavity extends Simulation {
 
             simGraphic.getController().getDataStreamPumps().add(pumpRDF);
             simGraphic.getController().getDataStreamPumps().add(pumpCavityMapped);
+            simGraphic.getController().getDataStreamPumps().add(pumpRDFMapped);
             simGraphic.getController().getResetAveragesButton().setPostAction(new IAction() {
                 @Override
                 public void actionPerformed() {
