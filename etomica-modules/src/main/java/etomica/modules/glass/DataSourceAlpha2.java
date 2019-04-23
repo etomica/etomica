@@ -1,4 +1,4 @@
-package etomica.modules.glass2d;
+package etomica.modules.glass;
 
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;

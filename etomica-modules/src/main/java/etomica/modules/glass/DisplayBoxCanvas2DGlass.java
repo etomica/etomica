@@ -1,4 +1,4 @@
-package etomica.modules.glass2d;
+package etomica.modules.glass;
 
 import etomica.action.activity.Controller;
 import etomica.atom.IAtom;
