@@ -142,6 +142,7 @@ public class HSMDWidom extends Simulation {
         meterRDFMapped.getXDataSource().setXMax(xMax);
         meterRDFMapped.reset();
         meterRDFMapped.setResetAfterData(true);
+        if (!params.doMapping) sim.integrator.removeCollisionListener(meterRDFMapped);
 
         MeterWidomInsertion meterWidom = new MeterWidomInsertion(sim.space, sim.getRandom());
         meterWidom.setIntegrator(sim.integrator);
@@ -155,8 +156,6 @@ public class HSMDWidom extends Simulation {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 100);
 
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, 10));
-
-            sim.integrator.addCollisionListener(meterRDFMapped);
 
             AccumulatorAverageFixed accRDF = new AccumulatorAverageFixed(100);
             accRDF.setPushInterval(1);
@@ -214,60 +213,65 @@ public class HSMDWidom extends Simulation {
             displayPCC.setAccumulator(accPCC);
             simGraphic.add(displayPCC);
 
-            AccumulatorAverageFixed accRDFMapped = new AccumulatorAverageFixed(1);
-            accRDFMapped.setPushInterval(1);
-            DataPumpListener pumpRDFMapped = new DataPumpListener(meterRDFMapped, accRDFMapped, 10000);
-            accRDFMapped.addDataSink(gPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accRDFMapped.AVERAGE});
-            sim.integrator.getEventManager().addListener(pumpRDFMapped);
+            if (params.doMapping) {
+                AccumulatorAverageFixed accRDFMapped = new AccumulatorAverageFixed(1);
+                accRDFMapped.setPushInterval(1);
+                DataPumpListener pumpRDFMapped = new DataPumpListener(meterRDFMapped, accRDFMapped, 10000);
+                accRDFMapped.addDataSink(gPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accRDFMapped.AVERAGE});
+                sim.integrator.getEventManager().addListener(pumpRDFMapped);
 
-            DataProcessorErrorBar rdfMappedError = new DataProcessorErrorBar("mapped g(r)+");
-            accRDFMapped.addDataSink(rdfMappedError, new AccumulatorAverage.StatType[]{accRDFMapped.AVERAGE, accRDFMapped.ERROR});
-            rdfMappedError.setDataSink(gPlot.getDataSet().makeDataSink());
+                DataProcessorErrorBar rdfMappedError = new DataProcessorErrorBar("mapped g(r)+");
+                accRDFMapped.addDataSink(rdfMappedError, new AccumulatorAverage.StatType[]{accRDFMapped.AVERAGE, accRDFMapped.ERROR});
+                rdfMappedError.setDataSink(gPlot.getDataSet().makeDataSink());
 
-            DataProcessorExtract0 gMapCExtractor = new DataProcessorExtract0("mapped g(sigma)", true);
-            accRDFMapped.addDataSink(gMapCExtractor, new AccumulatorAverage.StatType[]{accRDFMapped.MOST_RECENT, accRDFMapped.AVERAGE, accRDFMapped.ERROR});
-            gMapCExtractor.addDataSink(displayGCMap);
-
-            AccumulatorAverageCollapsing accWidom = new AccumulatorAverageCollapsing(200);
-            DataPumpListener pumpWidom = new DataPumpListener(meterWidom, accWidom, 10);
-            DisplayTextBoxesCAE displayWidom = new DisplayTextBoxesCAE();
-            displayWidom.setAccumulator(accWidom);
-            displayWidom.setDoShowCurrent(false);
-            displayWidom.setDoShowCorrelation(true);
-            simGraphic.add(displayWidom);
-            sim.integrator.getEventManager().addListener(pumpWidom);
-            DataProcessorForked widomProcessor = new DataProcessorForked() {
-                DataGroup data = new DataGroup(new DataDouble[]{new DataDouble(), new DataDouble(), new DataDouble()});
-
-                @Override
-                protected IData processData(IData inputData) {
-                    ((DataDouble) data.getData(0)).x = Double.NaN;
-                    ((DataDouble) data.getData(1)).x = -Math.log(inputData.getValue(0));
-                    ((DataDouble) data.getData(2)).x = inputData.getValue(1) / inputData.getValue(0);
-                    return data;
-                }
-
-                @Override
-                protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-                    DataDouble.DataInfoDouble subDataInfo = new DataDouble.DataInfoDouble("stuff", Null.DIMENSION);
-                    dataInfo = new DataGroup.DataInfoGroup("chemical potential", Energy.DIMENSION, new IDataInfo[]{subDataInfo, subDataInfo, subDataInfo});
-                    dataInfo.addTag(tag);
-                    return dataInfo;
-                }
-            };
-            accWidom.addDataSink(widomProcessor, new AccumulatorAverage.StatType[]{accWidom.AVERAGE, accWidom.ERROR});
-            DisplayTextBoxesCAE displayMu = new DisplayTextBoxesCAE();
-            widomProcessor.addDataSink(displayMu);
-            displayMu.setLabel("Chemical Potnetial");
-            displayMu.setDoShowCurrent(false);
-            simGraphic.add(displayMu);
-
-            simGraphic.makeAndDisplayFrame(APP_NAME);
+                DataProcessorExtract0 gMapCExtractor = new DataProcessorExtract0("mapped g(sigma)", true);
+                accRDFMapped.addDataSink(gMapCExtractor, new AccumulatorAverage.StatType[]{accRDFMapped.MOST_RECENT, accRDFMapped.AVERAGE, accRDFMapped.ERROR});
+                gMapCExtractor.addDataSink(displayGCMap);
+                simGraphic.getController().getDataStreamPumps().add(pumpRDFMapped);
+            }
 
             simGraphic.getController().getDataStreamPumps().add(pumpRDF);
             simGraphic.getController().getDataStreamPumps().add(pumpP);
-            simGraphic.getController().getDataStreamPumps().add(pumpRDFMapped);
-            simGraphic.getController().getDataStreamPumps().add(pumpWidom);
+
+            if (params.doWidom) {
+                AccumulatorAverageCollapsing accWidom = new AccumulatorAverageCollapsing(200);
+                DataPumpListener pumpWidom = new DataPumpListener(meterWidom, accWidom, 10);
+                DisplayTextBoxesCAE displayWidom = new DisplayTextBoxesCAE();
+                displayWidom.setAccumulator(accWidom);
+                displayWidom.setDoShowCurrent(false);
+                displayWidom.setDoShowCorrelation(true);
+                simGraphic.add(displayWidom);
+                sim.integrator.getEventManager().addListener(pumpWidom);
+                DataProcessorForked widomProcessor = new DataProcessorForked() {
+                    DataGroup data = new DataGroup(new DataDouble[]{new DataDouble(), new DataDouble(), new DataDouble()});
+
+                    @Override
+                    protected IData processData(IData inputData) {
+                        ((DataDouble) data.getData(0)).x = Double.NaN;
+                        ((DataDouble) data.getData(1)).x = -Math.log(inputData.getValue(0));
+                        ((DataDouble) data.getData(2)).x = inputData.getValue(1) / inputData.getValue(0);
+                        return data;
+                    }
+
+                    @Override
+                    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+                        DataDouble.DataInfoDouble subDataInfo = new DataDouble.DataInfoDouble("stuff", Null.DIMENSION);
+                        dataInfo = new DataGroup.DataInfoGroup("chemical potential", Energy.DIMENSION, new IDataInfo[]{subDataInfo, subDataInfo, subDataInfo});
+                        dataInfo.addTag(tag);
+                        return dataInfo;
+                    }
+                };
+                accWidom.addDataSink(widomProcessor, new AccumulatorAverage.StatType[]{accWidom.AVERAGE, accWidom.ERROR});
+                DisplayTextBoxesCAE displayMu = new DisplayTextBoxesCAE();
+                widomProcessor.addDataSink(displayMu);
+                displayMu.setLabel("Chemical Potnetial");
+                displayMu.setDoShowCurrent(false);
+                simGraphic.add(displayMu);
+                simGraphic.getController().getDataStreamPumps().add(pumpWidom);
+            }
+
+            simGraphic.makeAndDisplayFrame(APP_NAME);
+            return;
         }
     }
 
@@ -289,6 +293,8 @@ public class HSMDWidom extends Simulation {
         public boolean useNeighborLists = true;
 
         public boolean doGraphics = false;
+        public boolean doWidom = true;
+        public boolean doMapping = true;
     }
 
 }
