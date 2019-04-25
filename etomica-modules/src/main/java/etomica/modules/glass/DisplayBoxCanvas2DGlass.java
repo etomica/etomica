@@ -74,16 +74,21 @@ public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D implements Displ
         sigmaP = (sigmaP == 0) ? 1 : sigmaP;
         xP = baseXP - (sigmaP >> 1);
         yP = baseYP - (sigmaP >> 1);
-        g.fillOval(xP, yP, sigmaP, sigmaP);
-        /* Draw the orientation line, if any */
 
         dr.Ev1Mv2(r, rOld);
         int dxy = (int) (toPixels * 0.5 * sigma);
         int dx = (int) (toPixels * dr.getX(0));
         int dy = (int) (toPixels * dr.getX(1));
-        xP += dxy;
-        yP += dxy;
-        g.drawLine(xP, yP, xP - dx, yP - dy);
+        int xP1 = xP + dxy;
+        int yP1 = yP + dxy;
+        g.drawLine(xP1, yP1, xP1 - dx, yP1 - dy);
+
+        if (flipDisplacement) {
+            xP -= dx;
+            yP -= dy;
+        }
+        g.fillOval(xP, yP, sigmaP, sigmaP);
+
     }
 
     public void setFlipDisplacement(boolean flipDisplacement) {
