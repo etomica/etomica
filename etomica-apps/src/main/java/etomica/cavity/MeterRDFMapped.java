@@ -14,6 +14,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.potential.P2HardSphere;
 import etomica.space.Boundary;
 import etomica.space.Vector;
+import etomica.space3d.Vector3D;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
 
@@ -33,7 +34,7 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
     protected final IntegratorHard integratorHard;
     protected double lastTime;
     protected final Vector dr;
-    protected double[] gSum;
+    protected double[] gSum, gSum2;
     protected double lastSwitchTime;
     protected boolean internal;
     protected double tInternal, tExternal;
@@ -44,6 +45,7 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
     protected final DataTag forceTag;
     protected DataFunction.DataInfoFunction forceDataInfo;
     protected DataDoubleArray forceData;
+    protected final boolean foobar = false;
 
     public MeterRDFMapped(IntegratorHard integrator) {
 
@@ -55,6 +57,7 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
         rData = (DataDoubleArray) xDataSource.getData();
         data = new DataFunction(new int[]{rData.getLength()});
         gSum = new double[rData.getLength()];
+        gSum2 = new double[rData.getLength()];
 
         data = new DataFunction(new int[]{rData.getLength()});
         dataInfo = new DataFunction.DataInfoFunction("mapped g(r)", Null.DIMENSION, this);
@@ -89,6 +92,7 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
         rData = (DataDoubleArray) xDataSource.getData();
         data = new DataFunction(new int[]{rData.getLength()});
         gSum = new double[rData.getLength()];
+        gSum2 = new double[rData.getLength()];
         dataInfo = new DataFunction.DataInfoFunction("mapped g(r)", Null.DIMENSION, this);
         dataInfo.addTag(tag);
         if (forceSink != null) {
@@ -98,7 +102,7 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
     }
 
     public void zeroData() {
-        for (int i = 0; i < gSum.length; i++) gSum[i] = 0;
+        for (int i = 0; i < gSum.length; i++) gSum[i] = gSum2[i] = 0;
         lastTime = integratorHard.getCurrentTime();
         lastSwitchTime = integratorHard.getCurrentTime();
         tInternal = 0;
@@ -151,6 +155,13 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
         deltaMomentum.Ea1Tv1(agent.collisionPotential.lastCollisionVirial() / dr.squared(), dr);
 
 
+        Vector r12 = null;
+        if (foobar) {
+            r12 = new Vector3D();
+            r12.E(atom2.getPosition());
+            r12.PEa1Tv1(falseTime, atom2.getVelocity());
+            r12.PEa1Tv1(0.5, dr);
+        }
         IAtomList atoms = box.getLeafList();
         for (int i = 0; i < atoms12.length; i++) {
             for (int j = 0; j < atoms.size(); j++) {
@@ -165,7 +176,19 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
                 double r = Math.sqrt(r2);
                 int index = (int) (r / xDataSource.getXMax() * (xDataSource.getNValues() - 1));
                 if (index >= gSum.length) index = gSum.length - 1;
-                gSum[index] += deltaMomentum.dot(dr) / (r * r2);
+                double x = deltaMomentum.dot(dr) / (r * r2);
+                gSum[index] += x;
+
+                if (foobar) {
+                    dr.Ev1Mv2(a.getPosition(), r12);
+                    dr.PEa1Tv1(falseTime, a.getVelocity());
+                    boundary.nearestImage(dr);
+                    double foor2 = dr.squared();
+                    double foor = Math.sqrt(foor2);
+                    index = (int) (foor / xDataSource.getXMax() * (xDataSource.getNValues() - 1));
+                    if (index >= gSum.length) index = gSum.length - 1;
+                    gSum2[index] += x;
+                }
             }
             deltaMomentum.TE(-1);
         }
@@ -190,8 +213,10 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
         IData rData = xDataSource.getData();
         double dx = rData.getValue(2) - rData.getValue(1);
         double density = N / V;
+        double[] f = forceData == null ? null : forceData.getData();
         for (int i = 0; i < y.length; i++) {
             y[i] = gSum[i] / elapsedTime / (N * density * 4 * Math.PI);
+            if (foobar && f != null) f[i] = gSum2[i] / elapsedTime;
         }
 
         long externalCollision = totalCollisions - internalCollisions;
@@ -205,10 +230,11 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
         }
 
         if (forceSink != null) {
-            double[] f = forceData.getData();
-            for (int i = 0; i < f.length; i++) {
-                double r = rData.getValue(i) + dx * 0.5;
-                f[i] = y[i] * (r * r * N * density * 4 * Math.PI);
+            if (!foobar) {
+                for (int i = 0; i < f.length; i++) {
+                    double r = rData.getValue(i) + dx * 0.5;
+                    f[i] = y[i] * (r * r * N * density * 4 * Math.PI);
+                }
             }
             forceSink.putData(forceData);
         }
