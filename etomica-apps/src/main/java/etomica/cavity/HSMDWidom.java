@@ -130,6 +130,7 @@ public class HSMDWidom extends Simulation {
         final HSMDWidom sim = new HSMDWidom(params);
 
         int xMax = (int) (sim.box.getBoundary().getBoxSize().getX(0) * 0.5);
+        if (params.mappingCut > 0 && params.mappingCut < xMax) xMax = params.mappingCut;
 
         MeterRDF meterRDF = new MeterRDF(sim.space);
         meterRDF.getXDataSource().setNValues(500 * xMax);
@@ -149,7 +150,8 @@ public class HSMDWidom extends Simulation {
         if (params.doGraphics) {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 100);
 
-            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, 10));
+            int rdfInterval = (5 * 200 + params.nAtoms - 1) / params.nAtoms;
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, rdfInterval));
 
             AccumulatorAverageFixed accRDF = new AccumulatorAverageFixed(100);
             accRDF.setPushInterval(1);
@@ -287,6 +289,7 @@ public class HSMDWidom extends Simulation {
         AccumulatorAverageFixed accRDFMapped = new AccumulatorAverageFixed(1);
         if (params.doMappingRDF) {
             MeterRDFMapped meterRDFMapped = new MeterRDFMapped(sim.integrator);
+            if (params.mappingCut > 0) meterRDFMapped.setMappingCut(params.mappingCut);
             meterRDFMapped.getXDataSource().setNValues(xMax * 500 + 1);
             meterRDFMapped.getXDataSource().setXMax(xMax);
             meterRDFMapped.reset();
@@ -298,9 +301,16 @@ public class HSMDWidom extends Simulation {
 
         AccumulatorAverageFixed accRDF = new AccumulatorAverageFixed(1);
         if (params.doRDF) {
-            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, 10));
+            int rdfInterval = (30 * params.nAtoms + 199) / 200;
+            if (params.rdfInterval > 0) rdfInterval = params.rdfInterval;
+            int stepsPerBlock = (int) (steps / 100);
+            while (rdfInterval > stepsPerBlock && (steps % (stepsPerBlock * 2) == 0)) stepsPerBlock *= 2;
+            while (stepsPerBlock % rdfInterval != 0) rdfInterval--;
+            System.out.println("RDF interval: " + rdfInterval);
+            System.out.println("steps per block: " + stepsPerBlock);
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, rdfInterval));
 
-            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, accRDF, (int) (steps / 100));
+            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, accRDF, stepsPerBlock);
             sim.integrator.getEventManager().addListener(pumpRDF);
         }
 
@@ -361,10 +371,12 @@ public class HSMDWidom extends Simulation {
         public long steps = 1000000;
         public int nAtoms = 256;
         public double eta = 0.35;
+        public int mappingCut = 0;
         public boolean useNeighborLists = true;
         public boolean doGraphics = false;
-        public boolean doWidom = true;
-        public boolean doRDF = true;
+        public boolean doWidom = false;
+        public boolean doRDF = false;
+        public int rdfInterval = 0;
         public boolean doMappingRDF = false;
     }
 

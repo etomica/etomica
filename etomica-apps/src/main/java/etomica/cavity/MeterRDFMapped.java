@@ -46,6 +46,7 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
     protected DataFunction.DataInfoFunction forceDataInfo;
     protected DataDoubleArray forceData;
     protected final boolean foobar = false;
+    protected double mappingCut2;
 
     public MeterRDFMapped(IntegratorHard integrator) {
 
@@ -108,6 +109,10 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
         tInternal = 0;
         tExternal = 0;
         internalCollisions = totalCollisions = 0;
+    }
+
+    public void setMappingCut(double mappingCut) {
+        mappingCut2 = mappingCut * mappingCut;
     }
 
     public void setResetAfterData(boolean doResetAfterData) {
@@ -173,6 +178,7 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
                 boundary.nearestImage(dr);
 
                 double r2 = dr.squared();
+                if (r2 > mappingCut2) continue;
                 double r = Math.sqrt(r2);
                 int index = (int) (r / xDataSource.getXMax() * (xDataSource.getNValues() - 1));
                 if (index >= gSum.length) index = gSum.length - 1;
