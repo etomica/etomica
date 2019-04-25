@@ -460,7 +460,7 @@ public class DisplayBox extends Display {
      * Default is null, meaning all atoms are displayed.
      * @return Atomfilter
      */
-    public AtomTest setAtomTestDoDisplay() {
+    public AtomTest getAtomTestDoDisplay() {
         return atomTestDoDisplay;
     }
 

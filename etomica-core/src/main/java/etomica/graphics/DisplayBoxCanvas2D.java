@@ -183,7 +183,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         }
         IAtomList leafList = displayBox.getBox().getLeafList();
         int nLeaf = leafList.size();
-        AtomTest atomTest = displayBox.setAtomTestDoDisplay();
+        AtomTest atomTest = displayBox.getAtomTestDoDisplay();
         if (atomTest instanceof AtomTestCollective) {
             ((AtomTestCollective) atomTest).resetTest();
         }

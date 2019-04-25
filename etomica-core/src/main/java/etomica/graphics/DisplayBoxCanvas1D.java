@@ -166,7 +166,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         }
         IAtomList leafList = displayBox.getBox().getLeafList();
         int nLeaf = leafList.size();
-        AtomTest atomFilter = displayBox.setAtomTestDoDisplay();
+        AtomTest atomFilter = displayBox.getAtomTestDoDisplay();
         if (atomFilter instanceof AtomTestCollective) {
             ((AtomTestCollective) atomFilter).resetTest();
         }

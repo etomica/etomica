@@ -75,7 +75,7 @@ public class ClipPlaneEditor {
         //box that toggles clipping display of atoms on one side of plane
         DeviceCheckBox clipToggle = new DeviceCheckBox("Clip", new ModifierBoolean() {
             public boolean getBoolean() {
-                return display.setAtomTestDoDisplay() != null;
+                return display.getAtomTestDoDisplay() != null;
             }
             public void setBoolean(boolean b) {
                 if (b) display.setAtomTestDoDisplay(ClipPlaneEditor.this.latticePlane);
