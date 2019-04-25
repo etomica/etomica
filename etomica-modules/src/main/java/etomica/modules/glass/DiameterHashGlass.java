@@ -8,6 +8,7 @@ import etomica.atom.IAtom;
 
 public class DiameterHashGlass extends DiameterHashByType {
     protected double fac = 1;
+    protected boolean flipped = false;
 
     public void setFac(double fac) {
         this.fac = fac;
@@ -18,6 +19,18 @@ public class DiameterHashGlass extends DiameterHashByType {
     }
 
     public double getDiameter(IAtom a) {
+        return flipped ? 0 : getActualDiameter(a);
+    }
+
+    public void setFlipped(boolean flipped) {
+        this.flipped = flipped;
+    }
+
+    public boolean getFlipped() {
+        return flipped;
+    }
+
+    public double getActualDiameter(IAtom a) {
         return fac * super.getDiameter(a);
     }
 }

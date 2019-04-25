@@ -14,4 +14,9 @@ public interface DisplayBoxCanvasGlass {
 
     void setConfigStorage(ConfigurationStorage configStorage);
     ConfigurationStorage getConfigStorage();
+
+    void setFlipDisplacement(boolean flipDisplacement);
+
+    boolean getFlipDisplacement();
+
 }

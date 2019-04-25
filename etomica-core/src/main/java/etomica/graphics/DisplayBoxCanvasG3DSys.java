@@ -259,7 +259,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         }
 */
 
-		AtomTest atomTest = displayBox.setAtomTestDoDisplay();
+		AtomTest atomTest = displayBox.getAtomTestDoDisplay();
 		if (atomTest instanceof AtomTestCollective) {
 			((AtomTestCollective) atomTest).resetTest();
         }
@@ -735,7 +735,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 				(float) coords[1], (float) coords[2], diameter);
 		gsys.addFig(newBall);
 
-		AtomTest atomFilter = displayBox.setAtomTestDoDisplay();
+		AtomTest atomFilter = displayBox.getAtomTestDoDisplay();
 		if (atomFilter instanceof AtomTestCollective) {
 			((AtomTestCollective) atomFilter).resetTest();
         }

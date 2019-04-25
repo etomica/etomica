@@ -220,7 +220,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
             atomFilterButton.setAction(new IAction() {
                 public void actionPerformed() {
                     DisplayBox displayBox = getDisplayBox(sim.box);
-                    if (displayBox.setAtomTestDoDisplay() == null) {
+                    if (displayBox.getAtomTestDoDisplay() == null) {
                         displayBox.setAtomTestDoDisplay(atomFilter);
                         atomFilterButton.setLabel("Show all");
                     }

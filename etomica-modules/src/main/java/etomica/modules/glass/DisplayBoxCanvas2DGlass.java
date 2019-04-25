@@ -14,7 +14,7 @@ public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D implements Displ
     protected ConfigurationStorage configStorage;
     protected int configIndex;
     protected final Vector dr;
-    protected boolean drawDisplacement;
+    protected boolean drawDisplacement, flipDisplacement;
 
     public DisplayBoxCanvas2DGlass(DisplayBox _box, Space _space, Controller controller, ConfigurationStorage configStorage) {
         super(_box, _space, controller);
@@ -84,6 +84,14 @@ public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D implements Displ
         xP += dxy;
         yP += dxy;
         g.drawLine(xP, yP, xP - dx, yP - dy);
+    }
+
+    public void setFlipDisplacement(boolean flipDisplacement) {
+        this.flipDisplacement = flipDisplacement;
+    }
+
+    public boolean getFlipDisplacement() {
+        return flipDisplacement;
     }
 
 }
