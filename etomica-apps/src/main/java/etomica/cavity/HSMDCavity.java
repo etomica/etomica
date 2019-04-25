@@ -142,16 +142,6 @@ public class HSMDCavity extends Simulation {
         DataFork forkRDF = new DataFork();
 
         DataProcessorCavity cavityProcessor = new DataProcessorCavity(sim.integrator);
-        MeterCavityMapped meterCavityMapped = new MeterCavityMapped(sim.integrator);
-        meterCavityMapped.setResetAfterData(true);
-        meterCavityMapped.getXDataSource().setNValues(params.nBins + 1);
-        meterCavityMapped.reset();
-
-        MeterRDFMapped meterRDFMapped = new MeterRDFMapped(sim.integrator);
-        meterRDFMapped.getXDataSource().setNValues(xMax * params.nBins + 1);
-        meterRDFMapped.getXDataSource().setXMax(xMax);
-        meterRDFMapped.reset();
-        meterRDFMapped.setResetAfterData(true);
 
         MeterContactRatio meterCR = new MeterContactRatio(sim.integrator);
 
@@ -161,10 +151,21 @@ public class HSMDCavity extends Simulation {
             ColorSchemePaired colorScheme = new ColorSchemePaired(sim.potential);
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
 
+            MeterCavityMapped meterCavityMapped = new MeterCavityMapped(sim.integrator);
+            meterCavityMapped.setResetAfterData(true);
+            meterCavityMapped.getXDataSource().setNValues(params.nBins + 1);
+            meterCavityMapped.reset();
+
+            MeterRDFMapped meterRDFMapped = new MeterRDFMapped(sim.integrator);
+            meterRDFMapped.getXDataSource().setNValues(xMax * params.nBins + 1);
+            meterRDFMapped.getXDataSource().setXMax(xMax);
+            meterRDFMapped.reset();
+            meterRDFMapped.setResetAfterData(true);
+
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, 10));
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterCavity, 1));
-            sim.integrator.addCollisionListener(meterCavityMapped);
-            sim.integrator.addCollisionListener(meterRDFMapped);
+            if (params.doMapping) sim.integrator.addCollisionListener(meterCavityMapped);
+            if (params.doMapping) sim.integrator.addCollisionListener(meterRDFMapped);
             DisplayPlot cavityPlot = new DisplayPlot();
             cavityPlot.getDataSet().setUpdatingOnAnyChange(true);
             cavityPlot.getPlot().setYLog(true);
@@ -172,7 +173,7 @@ public class HSMDCavity extends Simulation {
 
             AccumulatorAverageFixed accMapped = new AccumulatorAverageFixed(1);
             accMapped.setPushInterval(1);
-            DataPumpListener pumpCavityMapped = new DataPumpListener(meterCavityMapped, accMapped, 100000);
+            DataPumpListener pumpCavityMapped = new DataPumpListener(meterCavityMapped, accMapped, 10000);
             accMapped.addDataSink(cavityPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accMapped.AVERAGE});
             DataProcessor mappedErr = new DataProcessorErrorBar("mapped y(r)+e");
             accMapped.addDataSink(mappedErr, new AccumulatorAverage.StatType[]{accMapped.AVERAGE, accMapped.ERROR});
@@ -180,7 +181,7 @@ public class HSMDCavity extends Simulation {
 
             AccumulatorAverageFixed accRDFMapped = new AccumulatorAverageFixed(1);
             accRDFMapped.setPushInterval(1);
-            DataPumpListener pumpRDFMapped = new DataPumpListener(meterRDFMapped, accRDFMapped, 100000);
+            DataPumpListener pumpRDFMapped = new DataPumpListener(meterRDFMapped, accRDFMapped, 10000);
             accRDFMapped.addDataSink(cavityPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accRDFMapped.AVERAGE});
 
             AccumulatorAverageFixed accRDF = new AccumulatorAverageFixed(1);
@@ -219,9 +220,9 @@ public class HSMDCavity extends Simulation {
             sim.integrator.getEventManager().addListener(pumpChi);
             simGraphic.add(displayChi);
 
-            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 100000);
+            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 10000);
             sim.integrator.getEventManager().addListener(pumpRDF);
-            DataPumpListener pumpCavity = new DataPumpListener(meterCavity, forkCavity, 100000);
+            DataPumpListener pumpCavity = new DataPumpListener(meterCavity, forkCavity, 10000);
             sim.integrator.getEventManager().addListener(pumpCavity);
             sim.integrator.getEventManager().addListener(pumpCavityMapped);
             sim.integrator.getEventManager().addListener(pumpRDFMapped);
@@ -284,6 +285,11 @@ public class HSMDCavity extends Simulation {
         long steps = params.steps;
         sim.activityIntegrate.setMaxSteps(steps / 10);
         sim.getController().actionPerformed();
+
+        MeterCavityMapped meterCavityMapped = new MeterCavityMapped(sim.integrator);
+        meterCavityMapped.setResetAfterData(true);
+        meterCavityMapped.getXDataSource().setNValues(params.nBins + 1);
+        meterCavityMapped.reset();
 
         if (params.doConv) {
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, 10));

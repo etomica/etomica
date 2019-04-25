@@ -15,6 +15,7 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.data.meter.MeterRDF;
 import etomica.data.meter.MeterWidomInsertion;
 import etomica.data.types.DataDouble;
+import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
@@ -43,6 +44,8 @@ import etomica.util.ParseArgs;
  * @author Andrew Schultz
  */
 public class HSMDWidom extends Simulation {
+
+    public final ActivityIntegrate activityIntegrate;
 
     /**
      * The Box holding the atoms.
@@ -88,7 +91,7 @@ public class HSMDWidom extends Simulation {
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.005);
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
         potential = new P2HardSphere(space);
@@ -121,12 +124,10 @@ public class HSMDWidom extends Simulation {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.doGraphics = true;
+            params.doGraphics = false;
+            params.steps = 1000000;
         }
         final HSMDWidom sim = new HSMDWidom(params);
-
-        MeterPressureHard meterP = new MeterPressureHard(sim.integrator);
-        MeterPressureCollisionCount meterPCC = new MeterPressureCollisionCount(sim.integrator);
 
         int xMax = (int) (sim.box.getBoundary().getBoxSize().getX(0) * 0.5);
 
@@ -136,13 +137,6 @@ public class HSMDWidom extends Simulation {
         meterRDF.setBox(sim.box);
         meterRDF.setResetAfterData(true);
         DataFork forkRDF = new DataFork();
-
-        MeterRDFMapped meterRDFMapped = new MeterRDFMapped(sim.integrator);
-        meterRDFMapped.getXDataSource().setNValues(xMax * 500 + 1);
-        meterRDFMapped.getXDataSource().setXMax(xMax);
-        meterRDFMapped.reset();
-        meterRDFMapped.setResetAfterData(true);
-        if (!params.doMapping) sim.integrator.removeCollisionListener(meterRDFMapped);
 
         MeterWidomInsertion meterWidom = new MeterWidomInsertion(sim.space, sim.getRandom());
         meterWidom.setIntegrator(sim.integrator);
@@ -189,6 +183,9 @@ public class HSMDWidom extends Simulation {
             DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 100);
             sim.integrator.getEventManager().addListener(pumpRDF);
 
+            MeterPressureHard meterP = new MeterPressureHard(sim.integrator);
+            MeterPressureCollisionCount meterPCC = new MeterPressureCollisionCount(sim.integrator);
+
             AccumulatorAverageCollapsing accP = new AccumulatorAverageCollapsing(200);
             DataPumpListener pumpP = new DataPumpListener(meterP, accP, 100);
             sim.integrator.getEventManager().addListener(pumpP);
@@ -213,7 +210,14 @@ public class HSMDWidom extends Simulation {
             displayPCC.setAccumulator(accPCC);
             simGraphic.add(displayPCC);
 
-            if (params.doMapping) {
+            if (params.doMappingRDF) {
+                MeterRDFMapped meterRDFMapped = new MeterRDFMapped(sim.integrator);
+                meterRDFMapped.getXDataSource().setNValues(xMax * 500 + 1);
+                meterRDFMapped.getXDataSource().setXMax(xMax);
+                meterRDFMapped.reset();
+                meterRDFMapped.setResetAfterData(true);
+                sim.integrator.removeCollisionListener(meterRDFMapped);
+
                 AccumulatorAverageFixed accRDFMapped = new AccumulatorAverageFixed(1);
                 accRDFMapped.setPushInterval(1);
                 DataPumpListener pumpRDFMapped = new DataPumpListener(meterRDFMapped, accRDFMapped, 10000);
@@ -273,28 +277,95 @@ public class HSMDWidom extends Simulation {
             simGraphic.makeAndDisplayFrame(APP_NAME);
             return;
         }
+
+        long steps = params.steps;
+        sim.activityIntegrate.setMaxSteps(steps / 10);
+        sim.activityIntegrate.actionPerformed();
+        sim.integrator.resetStepCount();
+
+
+        AccumulatorAverageFixed accRDFMapped = new AccumulatorAverageFixed(1);
+        if (params.doMappingRDF) {
+            MeterRDFMapped meterRDFMapped = new MeterRDFMapped(sim.integrator);
+            meterRDFMapped.getXDataSource().setNValues(xMax * 500 + 1);
+            meterRDFMapped.getXDataSource().setXMax(xMax);
+            meterRDFMapped.reset();
+            meterRDFMapped.setResetAfterData(true);
+
+            DataPumpListener pumpRDFMapped = new DataPumpListener(meterRDFMapped, accRDFMapped, (int) (steps / 100));
+            sim.integrator.getEventManager().addListener(pumpRDFMapped);
+        }
+
+        AccumulatorAverageFixed accRDF = new AccumulatorAverageFixed(1);
+        if (params.doRDF) {
+            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, 10));
+
+            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, accRDF, (int) (steps / 100));
+            sim.integrator.getEventManager().addListener(pumpRDF);
+        }
+
+        MeterPressureHard meterP = new MeterPressureHard(sim.integrator);
+        MeterPressureCollisionCount meterPCC = new MeterPressureCollisionCount(sim.integrator);
+
+        AccumulatorAverageFixed accP = new AccumulatorAverageFixed(1);
+        DataPumpListener pumpP = new DataPumpListener(meterP, accP, (int) (steps / 100));
+        sim.integrator.getEventManager().addListener(pumpP);
+
+        AccumulatorAverageFixed accPCC = new AccumulatorAverageFixed(1);
+        DataPumpListener pumpPCC = new DataPumpListener(meterPCC, accPCC, (int) (steps / 100));
+        sim.integrator.getEventManager().addListener(pumpPCC);
+
+        long t1 = System.nanoTime();
+        sim.activityIntegrate.setMaxSteps(steps);
+        sim.activityIntegrate.actionPerformed();
+        long t2 = System.nanoTime();
+
+
+        double avgP = accP.getData(accP.AVERAGE).getValue(0);
+        double errP = accP.getData(accP.ERROR).getValue(0);
+        double corP = accP.getData(accP.BLOCK_CORRELATION).getValue(0);
+        System.out.println("Pressure: " + avgP + " err: " + errP + " cor: " + corP);
+
+        double avgPCC = accPCC.getData(accPCC.AVERAGE).getValue(0);
+        double errPCC = accPCC.getData(accPCC.ERROR).getValue(0);
+        double corPCC = accPCC.getData(accPCC.BLOCK_CORRELATION).getValue(0);
+        System.out.println("Pressure(CC): " + avgPCC + " err: " + errPCC + " cor: " + corPCC);
+
+        if (params.doRDF) {
+            IData rData = ((DataFunction.DataInfoFunction) ((DataGroup.DataInfoGroup) accRDF.getDataInfo()).getSubDataInfo(0)).getXDataSource().getIndependentData(0);
+            IData rdfDataAvg = accRDF.getData(accRDF.AVERAGE);
+            IData rdfDataErr = accRDF.getData(accRDF.ERROR);
+            System.out.println("\nRDF");
+            for (int i = 0; i < rData.getLength(); i++) {
+                System.out.println(rData.getValue(i) + " " + rdfDataAvg.getValue(i) + " " + rdfDataErr.getValue(i));
+            }
+        }
+        if (params.doMappingRDF) {
+            IData rData = ((DataFunction.DataInfoFunction) ((DataGroup.DataInfoGroup) accRDFMapped.getDataInfo()).getSubDataInfo(0)).getXDataSource().getIndependentData(0);
+            IData rdfDataAvg = accRDFMapped.getData(accRDFMapped.AVERAGE);
+            IData rdfDataErr = accRDFMapped.getData(accRDFMapped.ERROR);
+            System.out.println("\nmapped RDF");
+            for (int i = 0; i < rData.getLength(); i++) {
+                System.out.println(rData.getValue(i) + " " + rdfDataAvg.getValue(i) + " " + rdfDataErr.getValue(i));
+            }
+        }
+
+        System.out.println("\ntime: " + (t2 - t1) / 1e9);
+
     }
 
     /**
      * Inner class for parameters understood by the HSMDCavity constructor
      */
     public static class HSMDParam extends ParameterBase {
-        /**
-         * Number of atoms, default = 256
-         */
+        public long steps = 1000000;
         public int nAtoms = 256;
-        /**
-         * Packing fraction, default = 0.35
-         */
         public double eta = 0.35;
-        /**
-         * Flag indicating whether neighbor list is to be used, default = true
-         */
         public boolean useNeighborLists = true;
-
         public boolean doGraphics = false;
         public boolean doWidom = true;
-        public boolean doMapping = true;
+        public boolean doRDF = true;
+        public boolean doMappingRDF = false;
     }
 
 }
