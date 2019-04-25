@@ -366,6 +366,23 @@ public class GlassGraphic extends SimulationGraphic {
         showDispCheckbox.setController(sim.getController());
         add(showDispCheckbox);
 
+        DeviceCheckBox flipDispCheckbox = new DeviceCheckBox("flip displacement", new ModifierBoolean() {
+            @Override
+            public void setBoolean(boolean b) {
+                if (canvas.getFlipDisplacement() == b || sim.integrator.isIsothermal()) return;
+                canvas.setFlipDisplacement(b);
+                dbox.repaint();
+            }
+
+            @Override
+            public boolean getBoolean() {
+                return canvas.getFlipDisplacement();
+            }
+        });
+
+        flipDispCheckbox.setController(sim.getController());
+        add(flipDispCheckbox);
+
         IAction repaintAction = new IAction() {
             public void actionPerformed() {
                 dbox.repaint();
@@ -968,6 +985,7 @@ public class GlassGraphic extends SimulationGraphic {
                     if (colorCheckbox.getState()) dbox.setColorScheme(colorSchemeDeviation);
                     else if (colorDirectionCheckbox.getState()) dbox.setColorScheme(colorSchemeDirection);
                     if (showDispCheckbox.getState()) canvas.setDrawDisplacement(true);
+                    if (flipDispCheckbox.getState()) canvas.setFlipDisplacement(true);
                     dpAutocor.reset();
                     meterCorrelationAA.reset();
                     meterCorrelationAB.reset();

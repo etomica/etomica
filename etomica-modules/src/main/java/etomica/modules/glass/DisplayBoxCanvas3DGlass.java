@@ -18,7 +18,7 @@ public class DisplayBoxCanvas3DGlass extends DisplayBoxCanvasG3DSys implements D
     protected ConfigurationStorage configStorage;
     protected int configIndex;
     protected final Vector dr;
-    protected boolean drawDisplacement;
+    protected boolean drawDisplacement, flipDisplacement;
     protected final Ball[] oldBalls;
     protected final Bond[] bonds;
 
@@ -53,6 +53,8 @@ public class DisplayBoxCanvas3DGlass extends DisplayBoxCanvasG3DSys implements D
     public void setDrawDisplacement(boolean doDrawDisplacement) {
         if (this.drawDisplacement == doDrawDisplacement) return;
         this.drawDisplacement = doDrawDisplacement;
+        DiameterHashGlass diameterHash = (DiameterHashGlass) displayBox.getDiameterHash();
+        diameterHash.setFlipped(drawDisplacement && flipDisplacement);
         if (doDrawDisplacement) {
             IAtomList atoms = displayBox.getBox().getLeafList();
             for (int i = 0; i < atoms.size(); i++) {
@@ -81,6 +83,29 @@ public class DisplayBoxCanvas3DGlass extends DisplayBoxCanvasG3DSys implements D
         }
     }
 
+    public void setFlipDisplacement(boolean flipDisplacement) {
+        if (this.flipDisplacement == flipDisplacement) return;
+        this.flipDisplacement = flipDisplacement;
+        DiameterHashGlass diameterHash = (DiameterHashGlass) displayBox.getDiameterHash();
+        diameterHash.setFlipped(drawDisplacement && flipDisplacement);
+        if (drawDisplacement) {
+            IAtomList atoms = displayBox.getBox().getLeafList();
+            for (int i = 0; i < atoms.size(); i++) {
+                if (flipDisplacement) {
+                    oldBalls[i].setD((float) diameterHash.getActualDiameter(atoms.get(i)));
+                    aam.getAgent(atoms.get(i)).setD(0);
+                } else {
+                    aam.getAgent(atoms.get(i)).setD((float) diameterHash.getActualDiameter(atoms.get(i)));
+                    oldBalls[i].setD(0);
+                }
+            }
+        }
+    }
+
+    public boolean getFlipDisplacement() {
+        return flipDisplacement;
+    }
+
     @Override
     public boolean getDrawDisplacement() {
         return drawDisplacement;
@@ -95,6 +120,7 @@ public class DisplayBoxCanvas3DGlass extends DisplayBoxCanvasG3DSys implements D
                 double[] coords = new double[3];
                 IAtomList atoms = displayBox.getBox().getLeafList();
                 Vector[] oldPositions = configStorage.getSavedConfig(idx);
+                AtomTestDeviation atomTest = (AtomTestDeviation) displayBox.getAtomTestDoDisplay();
                 for (int i = 0; i < atoms.size(); i++) {
                     IAtom a = atoms.get(i);
                     Vector rOld = oldPositions[a.getLeafIndex()];
@@ -103,6 +129,7 @@ public class DisplayBoxCanvas3DGlass extends DisplayBoxCanvasG3DSys implements D
                     oldBalls[i].setX((float) coords[0]);
                     oldBalls[i].setY((float) coords[1]);
                     oldBalls[i].setZ((float) coords[2]);
+                    oldBalls[i].setDrawable(atomTest == null || atomTest.test(a));
                 }
             }
         }
