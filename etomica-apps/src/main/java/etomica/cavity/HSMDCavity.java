@@ -132,7 +132,11 @@ public class HSMDCavity extends Simulation {
         meterCavity.setResetAfterData(true);
         DataFork forkCavity = new DataFork();
 
-        int xMax = (int) (sim.box.getBoundary().getBoxSize().getX(0) * 0.5);
+        double L = sim.box.getBoundary().getBoxSize().getX(0);
+        int xMax = (int) (L * 0.5);
+        double L3 = L * Math.sqrt(3);
+        int nBinsLong = (int) (params.nBins * L3 * 0.5 + 1);
+        double xMaxMap = nBinsLong / ((double) params.nBins);
 
         MeterRDF meterRDF = new MeterRDF(sim.space);
         meterRDF.getXDataSource().setNValues(xMax * params.nBins);
@@ -157,8 +161,8 @@ public class HSMDCavity extends Simulation {
             meterCavityMapped.reset();
 
             MeterRDFMapped meterRDFMapped = new MeterRDFMapped(sim.integrator);
-            meterRDFMapped.getXDataSource().setNValues(xMax * params.nBins + 1);
-            meterRDFMapped.getXDataSource().setXMax(xMax);
+            meterRDFMapped.getXDataSource().setNValues(nBinsLong + 1);
+            meterRDFMapped.getXDataSource().setXMax(xMaxMap);
             meterRDFMapped.reset();
             meterRDFMapped.setResetAfterData(true);
 
@@ -247,11 +251,11 @@ public class HSMDCavity extends Simulation {
             DisplayPlot forcePlot = new DisplayPlot();
             AccumulatorAverageFixed accForce = new AccumulatorAverageFixed(1);
             accForce.setPushInterval(1);
-            meterCavityMapped.setForceSink(accForce);
+            meterCavityMapped.setRawSink(accForce);
             accForce.addDataSink(forcePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accForce.AVERAGE});
             AccumulatorAverageFixed accForce2 = new AccumulatorAverageFixed(1);
             accForce2.setPushInterval(1);
-            meterRDFMapped.setForceSink(accForce2);
+            meterRDFMapped.setRawSink(accForce2);
             accForce2.addDataSink(forcePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accForce.AVERAGE});
             forcePlot.setLabel("force");
             simGraphic.add(forcePlot);
@@ -285,29 +289,48 @@ public class HSMDCavity extends Simulation {
         long steps = params.steps;
         sim.activityIntegrate.setMaxSteps(steps / 10);
         sim.getController().actionPerformed();
+        sim.integrator.resetStepCount();
 
-        MeterCavityMapped meterCavityMapped = new MeterCavityMapped(sim.integrator);
-        meterCavityMapped.setResetAfterData(true);
-        meterCavityMapped.getXDataSource().setNValues(params.nBins + 1);
-        meterCavityMapped.reset();
 
+        MeterCavityMapped meterCavityMapped = null;
+        AccumulatorAverageFixed accMapped = null;
+        AccumulatorAverageFixed accRDF = null;
         if (params.doConv) {
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, 10));
+
+            accRDF = new AccumulatorAverageFixed(1);
+            forkRDF.addDataSink(accRDF);
+
+            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, (int) (steps / 100));
+            sim.integrator.getEventManager().addListener(pumpRDF);
         }
         if (params.doMapping) {
-            sim.integrator.addCollisionListener(meterCavityMapped);
+            meterCavityMapped = new MeterCavityMapped(sim.integrator);
+            meterCavityMapped.setResetAfterData(true);
+            meterCavityMapped.getXDataSource().setNValues(params.nBins + 1);
+            meterCavityMapped.reset();
+
+            accMapped = new AccumulatorAverageFixed(1);
+            DataPumpListener pumpCavityMapped = new DataPumpListener(meterCavityMapped, null, (int) (steps / 100));
+            meterCavityMapped.setRawSink(accMapped);
+            sim.integrator.getEventManager().addListener(pumpCavityMapped);
         }
 
-        AccumulatorAverageFixed accMapped = new AccumulatorAverageFixed(1);
-        DataPumpListener pumpCavityMapped = new DataPumpListener(meterCavityMapped, null, (int) (steps / 100));
-        meterCavityMapped.setForceSink(accMapped);
+        AccumulatorAverageFixed accMappedRDF = null;
+        MeterRDFMapped meterMappedRDF = null;
+        if (params.doMappingRDF) {
+            meterMappedRDF = new MeterRDFMapped(sim.integrator);
+            meterMappedRDF.getXDataSource().setNValues(nBinsLong);
+            meterMappedRDF.getXDataSource().setXMax(xMaxMap);
+            meterMappedRDF.reset();
+            meterMappedRDF.setResetAfterData(true);
+            sim.integrator.addCollisionListener(meterMappedRDF);
+            accMappedRDF = new AccumulatorAverageFixed(1);
+            DataPumpListener pumpMappedRDF = new DataPumpListener(meterMappedRDF, null, (int) (steps / 100));
+            meterMappedRDF.setRawSink(accMappedRDF);
+            sim.integrator.getEventManager().addListener(pumpMappedRDF);
+        }
 
-        AccumulatorAverageFixed accRDF = new AccumulatorAverageFixed(1);
-        forkRDF.addDataSink(accRDF);
-
-        DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, (int) (steps / 100));
-        sim.integrator.getEventManager().addListener(pumpRDF);
-        sim.integrator.getEventManager().addListener(pumpCavityMapped);
 
         AccumulatorAverageFixed accCR = new AccumulatorAverageFixed(1);
         DataPumpListener pumpCR = new DataPumpListener(meterCR, accCR, (int) (steps / 100));
@@ -348,6 +371,18 @@ public class HSMDCavity extends Simulation {
             }
         }
 
+        if (params.doMappingRDF) {
+            DataGroup gMapData = (DataGroup) accMappedRDF.getData();
+            IData avgGMapData = gMapData.getData(accMappedRDF.AVERAGE.index);
+            IData errGMapData = gMapData.getData(accMappedRDF.ERROR.index);
+            IData corGMapData = gMapData.getData(accMappedRDF.BLOCK_CORRELATION.index);
+            IData rData = ((DataFunction.DataInfoFunction) meterMappedRDF.getDataInfo()).getXDataSource().getIndependentData(0);
+            System.out.println("\nmapped g(r)");
+            for (int i = 0; i < rData.getLength(); i++) {
+                System.out.println(rData.getValue(i) + " " + avgGMapData.getValue(i) + " " + errGMapData.getValue(i) + " " + corGMapData.getValue(i));
+            }
+        }
+
         System.out.println("time: " + (t2 - t1) / 1e9);
     }
 
@@ -361,8 +396,9 @@ public class HSMDCavity extends Simulation {
         public boolean doGraphics = false;
         public int nBins = 500;
         public long steps = 100000;
-        public boolean doConv = true;
-        public boolean doMapping = true;
+        public boolean doConv = false;
+        public boolean doMapping = false;
+        public boolean doMappingRDF = false;
     }
 
 }

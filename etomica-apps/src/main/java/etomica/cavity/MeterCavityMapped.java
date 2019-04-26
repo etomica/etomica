@@ -35,12 +35,14 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
     protected boolean internal;
     protected double tInternal, tExternal;
     protected double sigma;
+    protected double mappingCut2 = Double.POSITIVE_INFINITY;
     protected boolean resetAfterData;
     protected long internalCollisions, totalCollisions;
-    protected IDataSink forceSink;
-    protected final DataTag forceTag;
-    protected DataFunction.DataInfoFunction forceDataInfo;
-    protected DataDoubleArray forceData;
+    protected IDataSink rawSink;
+    protected final DataTag rawTag;
+    protected DataFunction.DataInfoFunction rawDataInfo;
+    protected DataDoubleArray rawData;
+    protected boolean useMomentum = false;
 
     public MeterCavityMapped(IntegratorHard integrator) {
 
@@ -62,20 +64,20 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         lastTime = integratorHard.getCurrentTime();
         dr = integrator.getBox().getSpace().makeVector();
         deltaMomentum = integrator.getBox().getSpace().makeVector();
-        forceTag = new DataTag();
+        rawTag = new DataTag();
     }
 
-    public void setForceSink(IDataSink forceSink) {
-        this.forceSink = forceSink;
-        if (forceSink == null) {
-            forceData = null;
-            forceDataInfo = null;
+    public void setRawSink(IDataSink rawSink) {
+        this.rawSink = rawSink;
+        if (rawSink == null) {
+            rawData = null;
+            rawDataInfo = null;
             return;
         }
-        forceData = new DataFunction(new int[]{rData.getLength()});
-        forceDataInfo = new DataFunction.DataInfoFunction("f(r)", Null.DIMENSION, this);
-        forceDataInfo.addTag(forceTag);
-        forceSink.putDataInfo(forceDataInfo);
+        rawData = new DataFunction(new int[]{rData.getLength()});
+        rawDataInfo = new DataFunction.DataInfoFunction("f(r)", Null.DIMENSION, this);
+        rawDataInfo.addTag(rawTag);
+        rawSink.putDataInfo(rawDataInfo);
     }
 
     /**
@@ -88,8 +90,8 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         gSum = new double[rData.getLength()];
         dataInfo = new DataFunction.DataInfoFunction("mapped y(r)", Null.DIMENSION, this);
         dataInfo.addTag(tag);
-        if (forceSink != null) {
-            setForceSink(forceSink);
+        if (rawSink != null) {
+            setRawSink(rawSink);
         }
         zeroData();
     }
@@ -101,6 +103,10 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         tInternal = 0;
         tExternal = 0;
         internalCollisions = totalCollisions = 0;
+    }
+
+    public void setMappingCut(double mappingCut) {
+        mappingCut2 = mappingCut * mappingCut;
     }
 
     public void setResetAfterData(boolean doResetAfterData) {
@@ -142,7 +148,11 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         Box box = integratorHard.getBox();
         box.getBoundary().nearestImage(dr);
 
-        deltaMomentum.Ea1Tv1(p2.lastCollisionVirial() / dr.squared(), dr);
+        if (useMomentum) {
+            deltaMomentum.Ea1Tv1(p2.lastCollisionVirial() / dr.squared(), dr);
+        } else {
+            deltaMomentum.Ea1Tv1(-1.0 / sigma, dr);
+        }
 
         if (atom1Paired) {
             if (atom1 == p2.pairedAtom1) {
@@ -164,7 +174,9 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         dr.PEa1Tv1(-falseTime, atom2.getVelocity());
         integratorHard.getBox().getBoundary().nearestImage(dr);
         double r2 = dr.squared();
+        if (r2 > mappingCut2) return;
         double r = Math.sqrt(r2);
+
         int index = (int) (r / sigma * (xDataSource.getNValues() - 1));
         if (atom2Paired) dr.TE(-1);
         gSum[index] += deltaMomentum.dot(dr) / (r * r2);
@@ -189,19 +201,26 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         IData rData = xDataSource.getData();
         double dx = rData.getValue(2) - rData.getValue(1);
         double density = N / V;
+        double sqrtPI = Math.sqrt(Math.PI);
         for (int i = 0; i < y.length; i++) {
-            y[i] = gSum[i] / elapsedTime / (N * density * 4 * Math.PI);
+            if (useMomentum) {
+                // also divide by T
+                y[i] = gSum[i] / elapsedTime / (N * density * 4 * Math.PI);
+            } else {
+                // also multiply by (T/mass)^.5
+                y[i] = gSum[i] / elapsedTime / (N * density * 4 * sqrtPI);
+            }
         }
         long externalCollision = totalCollisions - internalCollisions;
         double fac = externalCollision / (double) internalCollisions;
-        if (forceSink != null) {
-            double[] f = forceData.getData();
+        if (rawSink != null) {
+            double[] f = rawData.getData();
             for (int i = 0; i < f.length; i++) {
                 double r = rData.getValue(i) + dx * 0.5;
-                f[i] = y[i] * (r * r * N * density * 4 * Math.PI);
+                f[i] = y[i];
                 if (r < sigma) f[i] *= fac;
             }
-            forceSink.putData(forceData);
+            rawSink.putData(rawData);
         }
 
         for (int i = 0; i < y.length; i++) {

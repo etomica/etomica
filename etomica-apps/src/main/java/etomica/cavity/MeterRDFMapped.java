@@ -41,12 +41,13 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
     protected double sigma;
     protected boolean resetAfterData;
     protected long internalCollisions, totalCollisions;
-    protected IDataSink forceSink;
-    protected final DataTag forceTag;
-    protected DataFunction.DataInfoFunction forceDataInfo;
-    protected DataDoubleArray forceData;
+    protected IDataSink rawSink;
+    protected final DataTag rawTag;
+    protected DataFunction.DataInfoFunction rawDataInfo;
+    protected DataDoubleArray rawData;
     protected final boolean foobar = false;
-    protected double mappingCut2;
+    protected double mappingCut2 = Double.POSITIVE_INFINITY;
+    protected boolean useMomentum;
 
     public MeterRDFMapped(IntegratorHard integrator) {
 
@@ -69,20 +70,20 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
         lastTime = integratorHard.getCurrentTime();
         dr = integrator.getBox().getSpace().makeVector();
         deltaMomentum = integrator.getBox().getSpace().makeVector();
-        forceTag = new DataTag();
+        rawTag = new DataTag();
     }
 
-    public void setForceSink(IDataSink forceSink) {
-        this.forceSink = forceSink;
-        if (forceSink == null) {
-            forceData = null;
-            forceDataInfo = null;
+    public void setRawSink(IDataSink rawSink) {
+        this.rawSink = rawSink;
+        if (rawSink == null) {
+            rawData = null;
+            rawDataInfo = null;
             return;
         }
-        forceData = new DataFunction(new int[]{rData.getLength()});
-        forceDataInfo = new DataFunction.DataInfoFunction("f(r)", Null.DIMENSION, this);
-        forceDataInfo.addTag(forceTag);
-        forceSink.putDataInfo(forceDataInfo);
+        rawData = new DataFunction(new int[]{rData.getLength()});
+        rawDataInfo = new DataFunction.DataInfoFunction("f(r)", Null.DIMENSION, this);
+        rawDataInfo.addTag(rawTag);
+        rawSink.putDataInfo(rawDataInfo);
     }
 
     /**
@@ -96,8 +97,8 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
         gSum2 = new double[rData.getLength()];
         dataInfo = new DataFunction.DataInfoFunction("mapped g(r)", Null.DIMENSION, this);
         dataInfo.addTag(tag);
-        if (forceSink != null) {
-            setForceSink(forceSink);
+        if (rawSink != null) {
+            setRawSink(rawSink);
         }
         zeroData();
     }
@@ -157,8 +158,11 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
         dr.PEa1Tv1(-falseTime, atom2.getVelocity());
         boundary.nearestImage(dr);
 
-        deltaMomentum.Ea1Tv1(agent.collisionPotential.lastCollisionVirial() / dr.squared(), dr);
-
+        if (useMomentum) {
+            deltaMomentum.Ea1Tv1(agent.collisionPotential.lastCollisionVirial() / dr.squared(), dr);
+        } else {
+            deltaMomentum.Ea1Tv1(-1.0 / sigma, dr);
+        }
 
         Vector r12 = null;
         if (foobar) {
@@ -219,9 +223,16 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
         IData rData = xDataSource.getData();
         double dx = rData.getValue(2) - rData.getValue(1);
         double density = N / V;
-        double[] f = forceData == null ? null : forceData.getData();
+        double[] f = rawData == null ? null : rawData.getData();
+        double sqrtPI = Math.sqrt(Math.PI);
         for (int i = 0; i < y.length; i++) {
-            y[i] = gSum[i] / elapsedTime / (N * density * 4 * Math.PI);
+            if (useMomentum) {
+                // also divide by T
+                y[i] = gSum[i] / elapsedTime / (N * density * 4 * Math.PI);
+            } else {
+                // also multiply by (T/mass)^.5
+                y[i] = gSum[i] / elapsedTime / (N * density * 4 * sqrtPI);
+            }
             if (foobar && f != null) f[i] = gSum2[i] / elapsedTime;
         }
 
@@ -235,14 +246,13 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
             }
         }
 
-        if (forceSink != null) {
+        if (rawSink != null) {
             if (!foobar) {
                 for (int i = 0; i < f.length; i++) {
-                    double r = rData.getValue(i) + dx * 0.5;
-                    f[i] = y[i] * (r * r * N * density * 4 * Math.PI);
+                    f[i] = y[i];
                 }
             }
-            forceSink.putData(forceData);
+            rawSink.putData(rawData);
         }
 
         for (int i = 0; i < y.length; i++) {

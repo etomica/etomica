@@ -129,8 +129,13 @@ public class HSMDWidom extends Simulation {
         }
         final HSMDWidom sim = new HSMDWidom(params);
 
-        int xMax = (int) (sim.box.getBoundary().getBoxSize().getX(0) * 0.5);
-        if (params.mappingCut > 0 && params.mappingCut < xMax) xMax = params.mappingCut;
+        int nBins = 500;
+        double L = sim.box.getBoundary().getBoxSize().getX(0);
+        int xMax = (int) (L * 0.5);
+        double L3 = L * Math.sqrt(3);
+        int nBinsLong = (int) (nBins * L3 * 0.5 + 1);
+        double xMaxMap = nBinsLong / ((double) nBins);
+        if (params.mappingCut > 0 && params.mappingCut < xMaxMap) xMaxMap = params.mappingCut;
 
         MeterRDF meterRDF = new MeterRDF(sim.space);
         meterRDF.getXDataSource().setNValues(500 * xMax);
@@ -290,12 +295,13 @@ public class HSMDWidom extends Simulation {
         if (params.doMappingRDF) {
             MeterRDFMapped meterRDFMapped = new MeterRDFMapped(sim.integrator);
             if (params.mappingCut > 0) meterRDFMapped.setMappingCut(params.mappingCut);
-            meterRDFMapped.getXDataSource().setNValues(xMax * 500 + 1);
-            meterRDFMapped.getXDataSource().setXMax(xMax);
+            meterRDFMapped.getXDataSource().setNValues(nBinsLong);
+            meterRDFMapped.getXDataSource().setXMax(xMaxMap);
             meterRDFMapped.reset();
             meterRDFMapped.setResetAfterData(true);
 
-            DataPumpListener pumpRDFMapped = new DataPumpListener(meterRDFMapped, accRDFMapped, (int) (steps / 100));
+            DataPumpListener pumpRDFMapped = new DataPumpListener(meterRDFMapped, null, (int) (steps / 100));
+            meterRDFMapped.setRawSink(accRDFMapped);
             sim.integrator.getEventManager().addListener(pumpRDFMapped);
         }
 
@@ -312,6 +318,13 @@ public class HSMDWidom extends Simulation {
 
             DataPumpListener pumpRDF = new DataPumpListener(meterRDF, accRDF, stepsPerBlock);
             sim.integrator.getEventManager().addListener(pumpRDF);
+        }
+
+        AccumulatorAverageFixed accWidom = null;
+        if (params.doWidom) {
+            accWidom = new AccumulatorAverageFixed((int) (steps / 100));
+            DataPumpListener pumpWidom = new DataPumpListener(meterWidom, accWidom, 10);
+            sim.integrator.getEventManager().addListener(pumpWidom);
         }
 
         MeterPressureHard meterP = new MeterPressureHard(sim.integrator);
@@ -358,6 +371,15 @@ public class HSMDWidom extends Simulation {
             for (int i = 0; i < rData.getLength(); i++) {
                 System.out.println(rData.getValue(i) + " " + rdfDataAvg.getValue(i) + " " + rdfDataErr.getValue(i));
             }
+        }
+        if (params.doWidom) {
+            double avgExp = accWidom.getData(accWidom.AVERAGE).getValue(0);
+            double errExp = accWidom.getData(accWidom.ERROR).getValue(0);
+            double corExp = accWidom.getData(accWidom.BLOCK_CORRELATION).getValue(0);
+            System.out.println("Widom exp: " + avgExp + "  err: " + errExp + "  cor: " + corExp);
+            double mu = -Math.log(avgExp);
+            double errMu = errExp / avgExp;
+            System.out.println("Widom mu: " + mu + "  err: " + errMu);
         }
 
         System.out.println("\ntime: " + (t2 - t1) / 1e9);
