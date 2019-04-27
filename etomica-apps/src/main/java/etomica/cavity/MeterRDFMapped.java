@@ -45,7 +45,7 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
     protected final DataTag rawTag;
     protected DataFunction.DataInfoFunction rawDataInfo;
     protected DataDoubleArray rawData;
-    protected final boolean foobar = false;
+    public boolean foobar = false;
     protected double mappingCut2 = Double.POSITIVE_INFINITY;
     protected boolean useMomentum;
 
@@ -226,14 +226,17 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
         double[] f = rawData == null ? null : rawData.getData();
         double sqrtPI = Math.sqrt(Math.PI);
         for (int i = 0; i < y.length; i++) {
+            y[i] = gSum[i] / (elapsedTime * N * density * 4);
+            if (foobar) f[i] = gSum2[i] / (elapsedTime * N * density * 4);
             if (useMomentum) {
                 // also divide by T
-                y[i] = gSum[i] / elapsedTime / (N * density * 4 * Math.PI);
+                y[i] /= Math.PI;
+                if (foobar) f[i] /= Math.PI;
             } else {
                 // also multiply by (T/mass)^.5
-                y[i] = gSum[i] / elapsedTime / (N * density * 4 * sqrtPI);
+                y[i] = sqrtPI;
+                if (foobar) f[i] /= sqrtPI;
             }
-            if (foobar && f != null) f[i] = gSum2[i] / elapsedTime;
         }
 
         long externalCollision = totalCollisions - internalCollisions;

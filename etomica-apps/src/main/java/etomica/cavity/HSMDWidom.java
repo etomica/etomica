@@ -138,7 +138,7 @@ public class HSMDWidom extends Simulation {
         if (params.mappingCut > 0 && params.mappingCut < xMaxMap) xMaxMap = params.mappingCut;
 
         MeterRDF meterRDF = new MeterRDF(sim.space);
-        meterRDF.getXDataSource().setNValues(500 * xMax);
+        meterRDF.getXDataSource().setNValues(nBins * xMax);
         meterRDF.getXDataSource().setXMax(xMax);
         meterRDF.setBox(sim.box);
         meterRDF.setResetAfterData(true);
@@ -294,8 +294,9 @@ public class HSMDWidom extends Simulation {
         AccumulatorAverageFixed accRDFMapped = new AccumulatorAverageFixed(1);
         if (params.doMappingRDF) {
             MeterRDFMapped meterRDFMapped = new MeterRDFMapped(sim.integrator);
+            meterRDFMapped.foobar = params.doMappingFoobar;
             if (params.mappingCut > 0) meterRDFMapped.setMappingCut(params.mappingCut);
-            meterRDFMapped.getXDataSource().setNValues(nBinsLong);
+            meterRDFMapped.getXDataSource().setNValues(nBinsLong + 1);
             meterRDFMapped.getXDataSource().setXMax(xMaxMap);
             meterRDFMapped.reset();
             meterRDFMapped.setResetAfterData(true);
@@ -400,6 +401,7 @@ public class HSMDWidom extends Simulation {
         public boolean doRDF = false;
         public int rdfInterval = 0;
         public boolean doMappingRDF = false;
+        public boolean doMappingFoobar = false;
     }
 
 }
