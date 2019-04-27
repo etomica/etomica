@@ -101,7 +101,7 @@ public class HSMDWidom extends Simulation {
 
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
-        inflater.setTargetDensity(params.eta * 2 * space.D() / Math.PI);
+        inflater.setTargetDensity(params.density);
         inflater.actionPerformed();
         if (space.D() == 3) {
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
@@ -393,7 +393,7 @@ public class HSMDWidom extends Simulation {
     public static class HSMDParam extends ParameterBase {
         public long steps = 1000000;
         public int nAtoms = 256;
-        public double eta = 0.35;
+        public double density = 0.6;
         public int mappingCut = 0;
         public boolean useNeighborLists = true;
         public boolean doGraphics = false;

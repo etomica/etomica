@@ -98,7 +98,7 @@ public class HSMDCavity extends Simulation {
 
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
-        inflater.setTargetDensity(params.eta * 2 * space.D() / Math.PI);
+        inflater.setTargetDensity(params.density);
         inflater.actionPerformed();
         if (space.D() == 3) {
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
@@ -391,7 +391,7 @@ public class HSMDCavity extends Simulation {
      */
     public static class CavityParam extends ParameterBase {
         public int nAtoms = 256;
-        public double eta = 0.35;
+        public double density = 0.6;
         public boolean useNeighborLists = true;
         public boolean doGraphics = false;
         public int nBins = 500;
