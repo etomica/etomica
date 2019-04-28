@@ -320,7 +320,7 @@ public class HSMDCavity extends Simulation {
         MeterRDFMapped meterMappedRDF = null;
         if (params.doMappingRDF) {
             meterMappedRDF = new MeterRDFMapped(sim.integrator);
-            meterMappedRDF.getXDataSource().setNValues(nBinsLong);
+            meterMappedRDF.getXDataSource().setNValues(nBinsLong + 1);
             meterMappedRDF.getXDataSource().setXMax(xMaxMap);
             meterMappedRDF.reset();
             meterMappedRDF.setResetAfterData(true);
