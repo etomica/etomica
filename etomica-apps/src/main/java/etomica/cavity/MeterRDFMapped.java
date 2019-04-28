@@ -234,7 +234,7 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
                 if (foobar) f[i] /= Math.PI;
             } else {
                 // also multiply by (T/mass)^.5
-                y[i] = sqrtPI;
+                y[i] /= sqrtPI;
                 if (foobar) f[i] /= sqrtPI;
             }
         }
