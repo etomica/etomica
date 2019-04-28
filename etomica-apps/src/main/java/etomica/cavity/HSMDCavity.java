@@ -148,6 +148,7 @@ public class HSMDCavity extends Simulation {
         DataProcessorCavity cavityProcessor = new DataProcessorCavity(sim.integrator);
 
         MeterContactRatio meterCR = new MeterContactRatio(sim.integrator);
+        MeterPairedFraction meterPF = new MeterPairedFraction(sim.integrator);
 
         if (params.doGraphics) {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1000);
@@ -269,6 +270,15 @@ public class HSMDCavity extends Simulation {
             plotCR.setLabel("CR");
             simGraphic.add(plotCR);
 
+            AccumulatorHistory accPF = new AccumulatorHistory(new HistoryCollapsingAverage());
+            accPF.setPushInterval(1);
+            DataPumpListener pumpPF = new DataPumpListener(meterPF, accPF, 1000);
+            sim.integrator.getEventManager().addListener(pumpPF);
+            DisplayPlot plotPF = new DisplayPlot();
+            accPF.addDataSink(plotPF.getDataSet().makeDataSink());
+            plotPF.setLabel("PF");
+            simGraphic.add(plotPF);
+
             simGraphic.add(cavityPlot);
             simGraphic.add(y0Plot);
 
@@ -285,6 +295,10 @@ public class HSMDCavity extends Simulation {
             });
             return;
         }
+
+        System.out.println("N: " + params.nAtoms);
+        System.out.println("steps: " + params.steps);
+        System.out.println("density: " + params.density);
 
         long steps = params.steps;
         sim.activityIntegrate.setMaxSteps(steps / 10);
@@ -331,10 +345,13 @@ public class HSMDCavity extends Simulation {
             sim.integrator.getEventManager().addListener(pumpMappedRDF);
         }
 
-
         AccumulatorAverageFixed accCR = new AccumulatorAverageFixed(1);
         DataPumpListener pumpCR = new DataPumpListener(meterCR, accCR, (int) (steps / 100));
         sim.integrator.getEventManager().addListener(pumpCR);
+
+        AccumulatorAverageFixed accPF = new AccumulatorAverageFixed(1);
+        DataPumpListener pumpPF = new DataPumpListener(meterPF, accPF, (int) (steps / 100));
+        sim.integrator.getEventManager().addListener(pumpPF);
 
         sim.activityIntegrate.setMaxSteps(steps);
         sim.getController().reset();
@@ -346,6 +363,10 @@ public class HSMDCavity extends Simulation {
         double errCR = accCR.getData(accCR.ERROR).getValue(0);
         double corCR = accCR.getData(accCR.BLOCK_CORRELATION).getValue(0);
         System.out.println("contact ratio average: " + avgCR + "  error: " + errCR + " cor: " + corCR);
+        double avgPF = accPF.getData(accPF.AVERAGE).getValue(0);
+        double errPF = accPF.getData(accPF.ERROR).getValue(0);
+        double corPF = accPF.getData(accPF.BLOCK_CORRELATION).getValue(0);
+        System.out.println("paired fraction average: " + avgPF + "  error: " + errPF + " cor: " + corPF);
 
         if (params.doConv) {
             DataGroup rdfData = (DataGroup) accRDF.getData();

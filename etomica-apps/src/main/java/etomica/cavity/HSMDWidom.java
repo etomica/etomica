@@ -285,11 +285,14 @@ public class HSMDWidom extends Simulation {
             return;
         }
 
+        System.out.println("N: " + params.nAtoms);
+        System.out.println("steps: " + params.steps);
+        System.out.println("density: " + params.density);
+
         long steps = params.steps;
         sim.activityIntegrate.setMaxSteps(steps / 10);
         sim.activityIntegrate.actionPerformed();
         sim.integrator.resetStepCount();
-
 
         AccumulatorAverageFixed accRDFMapped = new AccumulatorAverageFixed(1);
         if (params.doMappingRDF) {
