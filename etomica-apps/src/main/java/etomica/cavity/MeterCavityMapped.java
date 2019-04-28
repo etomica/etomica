@@ -211,23 +211,14 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
                 y[i] = gSum[i] / elapsedTime / (N * density * 4 * sqrtPI);
             }
         }
-        long externalCollision = totalCollisions - internalCollisions;
-        double fac = externalCollision / (double) internalCollisions;
         if (rawSink != null) {
             double[] f = rawData.getData();
             for (int i = 0; i < f.length; i++) {
-                double r = rData.getValue(i) + dx * 0.5;
                 f[i] = y[i];
-                if (r < sigma) f[i] *= fac;
             }
             rawSink.putData(rawData);
         }
 
-        for (int i = 0; i < y.length; i++) {
-            for (int j = i + 1; j < y.length; j++) {
-                y[i] += y[j];
-            }
-        }
         double yIntegral = 0;
         for (int i = 0; i < y.length; i++) {
             double r = rData.getValue(i);
@@ -265,6 +256,13 @@ public class MeterCavityMapped implements IDataSource, IntegratorHard.CollisionL
         }
         // and now scale
         if (internalCollisions > 0) {
+            long externalCollision = totalCollisions - internalCollisions;
+            double fac = externalCollision / (double) internalCollisions;
+            for (int i = 0; i < y.length; i++) {
+                for (int j = i + 1; j < y.length; j++) {
+                    y[i] += y[j];
+                }
+            }
 
             for (int i = 0; i < y.length; i++) {
                 y[i] *= fac;
