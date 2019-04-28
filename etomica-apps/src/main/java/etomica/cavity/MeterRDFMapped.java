@@ -239,6 +239,15 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
             }
         }
 
+        if (rawSink != null) {
+            if (!foobar) {
+                for (int i = 0; i < f.length; i++) {
+                    f[i] = y[i];
+                }
+            }
+            rawSink.putData(rawData);
+        }
+
         long externalCollision = totalCollisions - internalCollisions;
         double fac = externalCollision / (double) internalCollisions;
 
@@ -247,15 +256,6 @@ public class MeterRDFMapped implements IDataSource, IntegratorHard.CollisionList
                 double r = rData.getValue(i) + dx * 0.5;
                 if (r < sigma) y[i] *= fac;
             }
-        }
-
-        if (rawSink != null) {
-            if (!foobar) {
-                for (int i = 0; i < f.length; i++) {
-                    f[i] = y[i];
-                }
-            }
-            rawSink.putData(rawData);
         }
 
         for (int i = 0; i < y.length; i++) {
