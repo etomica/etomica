@@ -362,18 +362,20 @@ public class HSMDWidom extends Simulation {
             IData rData = ((DataFunction.DataInfoFunction) ((DataGroup.DataInfoGroup) accRDF.getDataInfo()).getSubDataInfo(0)).getXDataSource().getIndependentData(0);
             IData rdfDataAvg = accRDF.getData(accRDF.AVERAGE);
             IData rdfDataErr = accRDF.getData(accRDF.ERROR);
+            IData rdfDataCor = accRDF.getData(accRDF.BLOCK_CORRELATION);
             System.out.println("\nRDF");
             for (int i = 0; i < rData.getLength(); i++) {
-                System.out.println(rData.getValue(i) + " " + rdfDataAvg.getValue(i) + " " + rdfDataErr.getValue(i));
+                System.out.println(rData.getValue(i) + " " + rdfDataAvg.getValue(i) + " " + rdfDataErr.getValue(i) + " " + rdfDataCor.getValue(i));
             }
         }
         if (params.doMappingRDF) {
             IData rData = ((DataFunction.DataInfoFunction) ((DataGroup.DataInfoGroup) accRDFMapped.getDataInfo()).getSubDataInfo(0)).getXDataSource().getIndependentData(0);
             IData rdfDataAvg = accRDFMapped.getData(accRDFMapped.AVERAGE);
             IData rdfDataErr = accRDFMapped.getData(accRDFMapped.ERROR);
+            IData rdfDataCor = accRDFMapped.getData(accRDFMapped.BLOCK_CORRELATION);
             System.out.println("\nmapped RDF");
             for (int i = 0; i < rData.getLength(); i++) {
-                System.out.println(rData.getValue(i) + " " + rdfDataAvg.getValue(i) + " " + rdfDataErr.getValue(i));
+                System.out.println(rData.getValue(i) + " " + rdfDataAvg.getValue(i) + " " + rdfDataErr.getValue(i) + " " + rdfDataCor.getValue(i));
             }
         }
         if (params.doWidom) {
