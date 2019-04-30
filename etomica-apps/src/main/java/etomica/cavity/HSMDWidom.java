@@ -154,6 +154,7 @@ public class HSMDWidom extends Simulation {
 
         MeterWidomCavity meterWC = new MeterWidomCavity(sim.box, sim.getRandom(), sim.potentialMaster);
         meterWC.setSpecies(sim.species);
+        meterWidom.setNInsert(params.nAtoms / 5);
 
         if (params.doGraphics) {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 100);
