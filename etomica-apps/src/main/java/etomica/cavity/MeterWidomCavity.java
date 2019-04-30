@@ -96,6 +96,7 @@ public class MeterWidomCavity implements IDataSource, DataSourceIndependent {
         IAtom testAtom = testMolecule.getChildList().get(0);
         energyMeter.setTarget(testAtom);
         Vector testR = testAtom.getPosition();
+        for (int j = 0; j < y.length; j++) y[j] = 0;
         for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
             IAtom atom0 = atoms.get(random.nextInt(atoms.size()));
             r0.E(atom0.getPosition());
