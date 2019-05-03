@@ -58,7 +58,7 @@ public class StarPolymerMC extends Simulation {
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector3D(1.5 * l * 2, 1.5 * l * 2, 1.5 * l * 2));
         box.setNMolecules(species, 1);
-        if (false) {
+        if (fromFile) {
             ConformationStarPolymerAll conf = new ConformationStarPolymerAll(this.getSpace(), "./resource/f5L40.xyz", 0);
             conf.initializePositions(box.getMoleculeList().get(0).getChildList());
         }
@@ -292,7 +292,7 @@ public class StarPolymerMC extends Simulation {
         for (int k = 1; k < f * l + 1; k++) {
             int[] temp = new int[]{0, k};
 
-            if (k % l == 1) {
+            if (k % l == 1 || l == 1) {
                 boundedPairArray.add(temp);
             } else {
                 nonBoundedPariArray.add(temp);
