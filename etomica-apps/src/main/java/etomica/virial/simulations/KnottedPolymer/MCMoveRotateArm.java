@@ -75,7 +75,7 @@ public class MCMoveRotateArm extends MCMoveMolecule {
         startAtom = random.nextInt(numChildren - 1) + 1;
 
         IAtom fixedAtom = childList.get(startAtom - 1);
-        if (startAtom % armLength == 1) fixedAtom = childList.get(0);
+        if (startAtom % armLength == 1 || armLength == 1) fixedAtom = childList.get(0);
         r0 = fixedAtom.getPosition();
 //            System.out.println(selectedAtoms[i]+" "+j+" before "+selectedAtoms[i].coord.position());
         axis.setRandomSphere(random);

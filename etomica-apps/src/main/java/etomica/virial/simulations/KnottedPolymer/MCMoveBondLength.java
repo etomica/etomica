@@ -69,14 +69,16 @@ public class MCMoveBondLength extends MCMoveMolecule {
         startAtom = random.nextInt(numChildren - 1) + 1;
 
         IAtom fixedAtom = childList.get(startAtom - 1);
-        if (startAtom % armLength == 1) {
+        if (startAtom % armLength == 1 || armLength == 1) {
 //            System.out.println("star atom " + startAtom);
             fixedAtom = childList.get(0);
         }
         r0 = fixedAtom.getPosition();
 //            System.out.println(selectedAtoms[i]+" "+j+" before "+selectedAtoms[i].coord.position());
         dr = stepSize * 2 * (random.nextDouble() - 0.5);
+        rejectme = false;
         doTransform();
+        if (rejectme) return false;
 
         return true;
     }
@@ -88,6 +90,10 @@ public class MCMoveBondLength extends MCMoveMolecule {
         Vector startPos = childList.get(startAtom).getPosition();
         translateVector.Ev1Mv2(startPos, r0);
         bl = Math.sqrt(translateVector.squared());
+        if (dr < -bl) {
+            rejectme = true;
+            return;
+        }
         translateVector.TE(dr / bl);
         for (int iChild = startAtom; iChild <= stopAtom; iChild++) {
             IAtom a = childList.get(iChild);
@@ -123,4 +129,5 @@ public class MCMoveBondLength extends MCMoveMolecule {
     protected final int armLength;
     protected final Vector translateVector;
     protected double bl;
+    protected boolean rejectme;
 }
