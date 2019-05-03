@@ -154,7 +154,16 @@ public class HSMDWidom extends Simulation {
 
         MeterWidomCavity meterWC = new MeterWidomCavity(sim.box, sim.getRandom(), sim.potentialMaster);
         meterWC.setSpecies(sim.species);
-        meterWidom.setNInsert(params.nAtoms / 5);
+        meterWC.setNInsert(params.nAtoms / 5);
+        double[] r;
+        if (params.doGraphics) {
+            r = new double[params.nWidomCavity + 1];
+            for (int ir = 0; ir < r.length; ir++) r[ir] = ir * (params.widomCavityMax / params.nWidomCavity);
+        } else {
+            r = new double[params.nWidomCavity];
+            for (int ir = 0; ir < r.length; ir++) r[ir] = (ir + 1) * (params.widomCavityMax / params.nWidomCavity);
+        }
+        meterWC.setInsertionDistances(r);
 
         if (params.doGraphics) {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 100);
@@ -372,9 +381,16 @@ public class HSMDWidom extends Simulation {
 
         AccumulatorAverageFixed accWidom = null;
         if (params.doWidom) {
-            accWidom = new AccumulatorAverageFixed((int) (steps / 100));
+            accWidom = new AccumulatorAverageFixed((int) (steps / 1000));
             DataPumpListener pumpWidom = new DataPumpListener(meterWidom, accWidom, 10);
             sim.integrator.getEventManager().addListener(pumpWidom);
+        }
+
+        AccumulatorAverageFixed accWC = null;
+        if (params.doWidomCavity) {
+            accWC = new AccumulatorAverageFixed((int) (steps / 1000));
+            DataPumpListener pumpWC = new DataPumpListener(meterWC, accWC, 10);
+            sim.integrator.getEventManager().addListener(pumpWC);
         }
 
         MeterPressureHard meterP = new MeterPressureHard(sim.integrator);
@@ -433,6 +449,16 @@ public class HSMDWidom extends Simulation {
             double errMu = errExp / avgExp;
             System.out.println("Widom mu: " + mu + "  err: " + errMu);
         }
+        if (params.doMappingRDF) {
+            IData rData = ((DataFunction.DataInfoFunction) ((DataGroup.DataInfoGroup) accWC.getDataInfo()).getSubDataInfo(0)).getXDataSource().getIndependentData(0);
+            IData wcDataAvg = accWC.getData(accWC.AVERAGE);
+            IData wcDataErr = accWC.getData(accWC.ERROR);
+            IData wcDataCor = accWC.getData(accWC.BLOCK_CORRELATION);
+            System.out.println("\nWidom cavity");
+            for (int i = 0; i < rData.getLength(); i++) {
+                System.out.println(rData.getValue(i) + " " + wcDataAvg.getValue(i) + " " + wcDataErr.getValue(i) + " " + wcDataCor.getValue(i));
+            }
+        }
 
         System.out.println("\ntime: " + (t2 - t1) / 1e9);
 
@@ -454,6 +480,8 @@ public class HSMDWidom extends Simulation {
         public boolean doMappingRDF = false;
         public boolean doMappingFoobar = false;
         public boolean doWidomCavity = false;
+        public int nWidomCavity = 10;
+        public double widomCavityMax = 1;
     }
 
 }
