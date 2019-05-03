@@ -95,8 +95,9 @@ public class MeterRadiusGyration extends DataSourceScalar {
             cm.TE(1.0 / nLeafAtoms);
             // calculate Rg^2 for this chain
             double r2 = 0.0;
+            prevPosition = firstAtom.getPosition();
             realPos.E(firstAtom.getPosition());
-            for (int iChild = 1; iChild < childList.size(); iChild++) {
+            for (int iChild = 0; iChild < childList.size(); iChild++) {
                 IAtom a = childList.get(iChild);
                 Vector position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
