@@ -109,6 +109,9 @@ public class GlassGraphic extends SimulationGraphic {
         ColorSchemeDirection colorSchemeDirection = new ColorSchemeDirection(sim.box, configStorage);
 
         DataSourcePrevTime dsPrevTime = new DataSourcePrevTime(configStorage);
+        DisplayTextBox displayPrevTime = new DisplayTextBox();
+        DataPumpListener pumpPrevTime = new DataPumpListener(dsPrevTime, displayPrevTime, 1);
+        sim.integrator.getEventManager().addListener(pumpPrevTime);
 
 
         DeviceSlider prevConfigSlider = new DeviceSlider(sim.getController(), new Modifier() {
@@ -120,6 +123,7 @@ public class GlassGraphic extends SimulationGraphic {
                 colorSchemeDirection.setConfigIndex(idx);
                 dsPrevTime.setPrevConfigIndex(idx);
                 atomFilterDeviation.setConfigIndex(idx);
+                pumpPrevTime.actionPerformed();
             }
 
             @Override
@@ -161,6 +165,7 @@ public class GlassGraphic extends SimulationGraphic {
                     atomFilterDeviation.setConfigStorage(configStorage);
                     prevConfigSlider.setMaximum(30);
                 }
+                pumpPrevTime.actionPerformed();
                 dbox.repaint();
             }
 
@@ -177,9 +182,6 @@ public class GlassGraphic extends SimulationGraphic {
 
 
 
-        DisplayTextBox displayPrevTime = new DisplayTextBox();
-        DataPumpListener pumpPrevTime = new DataPumpListener(dsPrevTime, displayPrevTime, 1);
-        sim.integrator.getEventManager().addListener(pumpPrevTime);
         add(displayPrevTime);
 
         DeviceSlider corIntervalSlider = new DeviceSlider(sim.getController(),null);
@@ -740,6 +742,7 @@ public class GlassGraphic extends SimulationGraphic {
                 meterGs.reset();
                 meterGsA.reset();
                 meterGsB.reset();
+                pumpPrevTime.actionPerformed();
             }
 
             @Override
