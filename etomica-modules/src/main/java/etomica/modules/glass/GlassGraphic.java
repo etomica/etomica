@@ -518,6 +518,8 @@ public class GlassGraphic extends SimulationGraphic {
         DataProcessorErrorBar pAutoCorErr = new DataProcessorErrorBar("err+");
         dpAutocor.getAvgErrFork().addDataSink(pAutoCorErr);
 
+        DataSourceMSDcorP dsMSDcorP = new DataSourceMSDcorP(sim.integrator);
+        pFork.addDataSink(dsMSDcorP);
 
         //Gs: total
         int gsUpdateInterval = sim.getSpace().D() == 2 ? 10000 : 2000;
@@ -946,6 +948,13 @@ public class GlassGraphic extends SimulationGraphic {
         plotFs.setLegend(new DataTag[]{meterFsA.getTag()}, "A");
         plotFs.setLegend(new DataTag[]{meterFsB.getTag()}, "B");
 
+        meterMSD.setMSDSink(dsMSDcorP);
+        DisplayPlot plotMSDcorP = new DisplayPlot();
+        plotMSDcorP.setLabel("MSD cor P");
+        plotMSDcorP.getPlot().setXLog(true);
+        plotMSDcorP.setDoLegend(false);
+        DataPumpListener pumpMSDcorP = new DataPumpListener(dsMSDcorP, plotMSDcorP.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpMSDcorP);
 
         //************* Lay out components ****************//
 
@@ -966,6 +975,7 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorage.setEnabled(false);
                     configStorageMSD.reset();
                     configStorageMSD.setEnabled(false);
+                    dsMSDcorP.setEnabled(false);
                     dpAutocor.reset();
                     meterCorrelationAA.reset();
                     meterCorrelationAB.reset();
@@ -985,6 +995,7 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorage.setEnabled(true);
                     configStorageMSD.reset();
                     configStorageMSD.setEnabled(true);
+                    dsMSDcorP.setEnabled(true);
                     if (colorCheckbox.getState()) dbox.setColorScheme(colorSchemeDeviation);
                     else if (colorDirectionCheckbox.getState()) dbox.setColorScheme(colorSchemeDirection);
                     if (showDispCheckbox.getState()) canvas.setDrawDisplacement(true);
@@ -1055,6 +1066,7 @@ public class GlassGraphic extends SimulationGraphic {
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
             add(peDisplay);
         }
+        add(plotMSDcorP);
 
     }
 

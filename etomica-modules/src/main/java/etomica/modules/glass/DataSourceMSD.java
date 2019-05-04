@@ -24,6 +24,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     protected final DataTag tTag, tag;
     protected long[] nSamples;
     protected final AtomType type;
+    protected MSDSink msdSink;
 
     public DataSourceMSD(ConfigurationStorage configStorage) {
         this(configStorage, null);
@@ -43,7 +44,6 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         int n = configStorage.getLastConfigIndex();
         if (n + 1 == msdSum.length && data != null) return;
         if (n < 1) n = 0;
-        else n--;
         msdSum = Arrays.copyOf(msdSum, n);
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
@@ -60,6 +60,10 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
                 t[i] = dt * (1L << i);
             }
         }
+    }
+
+    public void setMSDSink(MSDSink sink) {
+        this.msdSink = sink;
     }
 
     @Override
@@ -88,13 +92,20 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
         IAtomList atoms = configStorage.getBox().getLeafList();
-        for (int i = 1; i < msdSum.length; i++) {
+        for (int i = 1; i <= msdSum.length; i++) {
             if (step % (1L << (i - 1)) == 0) {
                 Vector[] iPositions = configStorage.getSavedConfig(i);
+                double iSum = 0;
+                int iSamples = 0;
                 for (int j = 0; j < positions.length; j++) {
                     if (type != null && atoms.get(j).getType() != type) continue;
-                    msdSum[i - 1] += positions[j].Mv1Squared(iPositions[j]);
-                    nSamples[i - 1]++;
+                    iSum += positions[j].Mv1Squared(iPositions[j]);
+                    iSamples++;
+                }
+                msdSum[i - 1] += iSum;
+                nSamples[i - 1] += iSamples;
+                if (msdSink != null) {
+                    msdSink.putMSD(i - 1, step, iSum / iSamples);
                 }
             }
         }
@@ -118,5 +129,9 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     @Override
     public DataTag getIndependentTag() {
         return tTag;
+    }
+
+    public interface MSDSink {
+        void putMSD(int log2interval, long step, double msd);
     }
 }
