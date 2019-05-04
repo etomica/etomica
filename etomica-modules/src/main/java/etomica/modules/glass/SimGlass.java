@@ -60,7 +60,7 @@ public class SimGlass extends Simulation {
                 new IntegratorHard(potentialMaster, random, 0.005, 1, box) :
                 new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setIsothermal(true);
-        integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
+        integrator.setThermostat(ThermostatType.ANDERSEN);
         integrator.setThermostatInterval(1);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
@@ -109,6 +109,7 @@ public class SimGlass extends Simulation {
             potentialMaster.addPotential(potentialAB, new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
             P2HardSphere potentialBB = new P2HardSphere(space, 1.0 / 1.4, false);
             potentialMaster.addPotential(potentialBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
+            integrator.setAlwaysScaleRandomizedMomenta(true);
         }
 
         //construct box
