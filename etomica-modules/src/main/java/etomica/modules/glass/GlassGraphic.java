@@ -1024,23 +1024,25 @@ public class GlassGraphic extends SimulationGraphic {
 
         getDisplayBox(sim.box).setScale(0.7);
 
-        //temperature selector
-        DeviceSlider temperatureSelect = new DeviceSlider(sim.getController(), sim.integrator, "temperature");
-        temperatureSelect.setPrecision(2);
-        temperatureSelect.setNMajor(4);
-        temperatureSelect.setMinimum(0.0);
-        temperatureSelect.setMaximum(2.0);
-        temperatureSelect.setLabel("Temperature");
-        temperatureSelect.setShowBorder(true);
-        temperatureSelect.setShowValues(true);
-        temperatureSelect.setEditValues(true);
+        DeviceSlider temperatureSelect = null;
+        if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
+            temperatureSelect = new DeviceSlider(sim.getController(), sim.integrator, "temperature");
+            temperatureSelect.setPrecision(2);
+            temperatureSelect.setNMajor(4);
+            temperatureSelect.setMinimum(0.0);
+            temperatureSelect.setMaximum(2.0);
+            temperatureSelect.setLabel("Temperature");
+            temperatureSelect.setShowBorder(true);
+            temperatureSelect.setShowValues(true);
+            temperatureSelect.setEditValues(true);
 
-        temperatureSelect.setPostAction(new IAction() {
-            public void actionPerformed() {
-                resetDataAction.actionPerformed();
-                getDisplayBox(sim.box).repaint();
-            }
-        });
+            temperatureSelect.setPostAction(new IAction() {
+                public void actionPerformed() {
+                    resetDataAction.actionPerformed();
+                    getDisplayBox(sim.box).repaint();
+                }
+            });
+        }
         configStorage.reset();
         configStorageLinear.reset();
         configStorageMSD.reset();
