@@ -427,8 +427,9 @@ public class GlassGraphic extends SimulationGraphic {
         dataStreamPumps.add(densityPump);
         densityBox.setLabel("Number Density");
 
-        AccumulatorHistory energyHistory = null, peHistory = null;
+        AccumulatorHistory energyHistory, peHistory;
         final AccumulatorAverageCollapsing peAccumulator;
+        DisplayPlot ePlot;
         DataFork peFork = null;
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
             MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
@@ -453,37 +454,36 @@ public class GlassGraphic extends SimulationGraphic {
             pePumpListener.setInterval(60);
             peHistory.setPushInterval(5);
             dataStreamPumps.add(pePump);
-        } else {
-            peAccumulator = null;
-        }
 
-        MeterKineticEnergy keMeter = new MeterKineticEnergy(sim.box);
-        AccumulatorHistory keHistory = new AccumulatorHistory();
-        keHistory.setTimeDataSource(timeCounter);
-        DataFork keFork = new DataFork();
-        DataPump kePump = new DataPump(keMeter, keFork);
-        keFork.addDataSink(keHistory);
-        final AccumulatorAverage keAvg = new AccumulatorAverageCollapsing();
-        keFork.addDataSink(keAvg);
-        IntegratorListenerAction kePumpListener = new IntegratorListenerAction(kePump);
-        sim.integrator.getEventManager().addListener(kePumpListener);
-        kePumpListener.setInterval(60);
-        keHistory.setPushInterval(5);
-        dataStreamPumps.add(kePump);
+            MeterKineticEnergy keMeter = new MeterKineticEnergy(sim.box);
+            AccumulatorHistory keHistory = new AccumulatorHistory();
+            keHistory.setTimeDataSource(timeCounter);
+            DataFork keFork = new DataFork();
+            DataPump kePump = new DataPump(keMeter, keFork);
+            keFork.addDataSink(keHistory);
+            final AccumulatorAverage keAvg = new AccumulatorAverageCollapsing();
+            keFork.addDataSink(keAvg);
+            IntegratorListenerAction kePumpListener = new IntegratorListenerAction(kePump);
+            sim.integrator.getEventManager().addListener(kePumpListener);
+            kePumpListener.setInterval(60);
+            keHistory.setPushInterval(5);
+            dataStreamPumps.add(kePump);
 
-        DisplayPlot ePlot = new DisplayPlot();
-        if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
+            ePlot = new DisplayPlot();
             energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
             ePlot.setLegend(new DataTag[]{energyHistory.getTag()}, "Total");
             peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
             ePlot.setLegend(new DataTag[]{peHistory.getTag()}, "Potential");
-        }
-        keHistory.setDataSink(ePlot.getDataSet().makeDataSink());
-        ePlot.setLegend(new DataTag[]{keHistory.getTag()}, "Kinetic");
+            keHistory.setDataSink(ePlot.getDataSet().makeDataSink());
+            ePlot.setLegend(new DataTag[]{keHistory.getTag()}, "Kinetic");
 
-        ePlot.getPlot().setTitle("Energy History");
-        ePlot.setDoLegend(true);
-        ePlot.setLabel("Energy");
+            ePlot.getPlot().setTitle("Energy History");
+            ePlot.setDoLegend(true);
+            ePlot.setLabel("Energy");
+        } else {
+            peAccumulator = null;
+            ePlot = null;
+        }
 
         IDataSource pMeter;
         if (sim.integrator instanceof IntegratorVelocityVerlet) {
@@ -1049,7 +1049,7 @@ public class GlassGraphic extends SimulationGraphic {
         getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
 
         add(rdfPlot);
-        add(ePlot);
+        if (sim.potentialChoice != SimGlass.PotentialChoice.HS) add(ePlot);
         add(densityBox);
         add(pDisplay);
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
