@@ -431,14 +431,13 @@ public class GlassGraphic extends SimulationGraphic {
         final AccumulatorAverageCollapsing peAccumulator;
         DisplayPlot ePlot;
         DataFork peFork = null;
+        int log2peInterval = 6;
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
             MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
             energyHistory = new AccumulatorHistory();
             energyHistory.setTimeDataSource(timeCounter);
-            DataPump energyPump = new DataPump(eMeter, energyHistory);
-            IntegratorListenerAction energyPumpListener = new IntegratorListenerAction(energyPump);
-            sim.integrator.getEventManager().addListener(energyPumpListener);
-            energyPumpListener.setInterval(60);
+            DataPumpListener energyPump = new DataPumpListener(eMeter, energyHistory, 1 << log2peInterval);
+            sim.integrator.getEventManager().addListener(energyPump);
             energyHistory.setPushInterval(5);
             dataStreamPumps.add(energyPump);
 
@@ -448,10 +447,8 @@ public class GlassGraphic extends SimulationGraphic {
             peAccumulator = new AccumulatorAverageCollapsing();
             peAccumulator.setPushInterval(10);
             peFork = new DataFork(new IDataSink[]{peHistory, peAccumulator});
-            DataPump pePump = new DataPump(peMeter, peFork);
-            IntegratorListenerAction pePumpListener = new IntegratorListenerAction(pePump);
-            sim.integrator.getEventManager().addListener(pePumpListener);
-            pePumpListener.setInterval(60);
+            DataPumpListener pePump = new DataPumpListener(peMeter, peFork, 1 << log2peInterval);
+            sim.integrator.getEventManager().addListener(pePump);
             peHistory.setPushInterval(5);
             dataStreamPumps.add(pePump);
 
@@ -459,13 +456,11 @@ public class GlassGraphic extends SimulationGraphic {
             AccumulatorHistory keHistory = new AccumulatorHistory();
             keHistory.setTimeDataSource(timeCounter);
             DataFork keFork = new DataFork();
-            DataPump kePump = new DataPump(keMeter, keFork);
+            DataPumpListener kePump = new DataPumpListener(keMeter, keFork, 1 << log2peInterval);
             keFork.addDataSink(keHistory);
             final AccumulatorAverage keAvg = new AccumulatorAverageCollapsing();
             keFork.addDataSink(keAvg);
-            IntegratorListenerAction kePumpListener = new IntegratorListenerAction(kePump);
-            sim.integrator.getEventManager().addListener(kePumpListener);
-            kePumpListener.setInterval(60);
+            sim.integrator.getEventManager().addListener(kePump);
             keHistory.setPushInterval(5);
             dataStreamPumps.add(kePump);
 
@@ -520,6 +515,15 @@ public class GlassGraphic extends SimulationGraphic {
 
         DataSourceMSDcorP dsMSDcorP = new DataSourceMSDcorP(sim.integrator);
         pFork.addDataSink(dsMSDcorP);
+
+        DataSourceMSDcorP dsMSDcorU;
+        if (sim.potentialChoice != SimGlass.PotentialChoice.HS && false) {
+            // disabled.  U is not differently correlated than P
+            dsMSDcorU = new DataSourceMSDcorP(sim.integrator, log2peInterval);
+            peFork.addDataSink(dsMSDcorU);
+        } else {
+            dsMSDcorU = null;
+        }
 
         //Gs: total
         int gsUpdateInterval = sim.getSpace().D() == 2 ? 10000 : 2000;
@@ -948,13 +952,20 @@ public class GlassGraphic extends SimulationGraphic {
         plotFs.setLegend(new DataTag[]{meterFsA.getTag()}, "A");
         plotFs.setLegend(new DataTag[]{meterFsB.getTag()}, "B");
 
-        meterMSD.setMSDSink(dsMSDcorP);
-        DisplayPlot plotMSDcorP = new DisplayPlot();
-        plotMSDcorP.setLabel("MSD cor P");
-        plotMSDcorP.getPlot().setXLog(true);
-        plotMSDcorP.setDoLegend(false);
-        DataPumpListener pumpMSDcorP = new DataPumpListener(dsMSDcorP, plotMSDcorP.getDataSet().makeDataSink(), 1000);
+        meterMSD.addMSDSink(dsMSDcorP);
+        DisplayPlot plotMSDcorUP = new DisplayPlot();
+        plotMSDcorUP.setLabel("MSD cor P");
+        plotMSDcorUP.getPlot().setXLog(true);
+        plotMSDcorUP.setLegend(new DataTag[]{dsMSDcorP.getTag()}, "P");
+        DataPumpListener pumpMSDcorP = new DataPumpListener(dsMSDcorP, plotMSDcorUP.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpMSDcorP);
+
+        if (dsMSDcorU != null) {
+            meterMSD.addMSDSink(dsMSDcorU);
+            plotMSDcorUP.setLegend(new DataTag[]{dsMSDcorU.getTag()}, "U");
+            DataPumpListener pumpMSDcorU = new DataPumpListener(dsMSDcorU, plotMSDcorUP.getDataSet().makeDataSink(), 1000);
+            sim.integrator.getEventManager().addListener(pumpMSDcorU);
+        }
 
         //************* Lay out components ****************//
 
@@ -977,6 +988,7 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageMSD.setEnabled(false);
                     dsMSDcorP.setEnabled(false);
                     dpAutocor.reset();
+                    if (dsMSDcorU != null) dsMSDcorU.setEnabled(false);
                     meterCorrelationAA.reset();
                     meterCorrelationAB.reset();
                     meterCorrelationBB.reset();
@@ -996,6 +1008,7 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageMSD.reset();
                     configStorageMSD.setEnabled(true);
                     dsMSDcorP.setEnabled(true);
+                    if (dsMSDcorU != null) dsMSDcorU.setEnabled(true);
                     if (colorCheckbox.getState()) dbox.setColorScheme(colorSchemeDeviation);
                     else if (colorDirectionCheckbox.getState()) dbox.setColorScheme(colorSchemeDirection);
                     if (showDispCheckbox.getState()) canvas.setDrawDisplacement(true);
@@ -1059,7 +1072,7 @@ public class GlassGraphic extends SimulationGraphic {
         this.getController().getReinitButton().setPostAction(resetAction);
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
-        getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
+        if (temperatureSelect != null) getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
 
         add(rdfPlot);
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) add(ePlot);
@@ -1068,7 +1081,7 @@ public class GlassGraphic extends SimulationGraphic {
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
             add(peDisplay);
         }
-        add(plotMSDcorP);
+        add(plotMSDcorUP);
 
     }
 
@@ -1078,11 +1091,11 @@ public class GlassGraphic extends SimulationGraphic {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doSwap = true;
-            params.potential = SimGlass.PotentialChoice.LJ;
-            params.nA = 800;
-            params.nB = 200;
-            params.density = 1.25; // 3D 1.25;
-            params.D = 3;
+            params.potential = SimGlass.PotentialChoice.WCA;
+            params.nA = 100;
+            params.nB = 100;
+            params.density = 0.75 * 1.4 * 1.4;
+            params.D = 2;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.potential);
 

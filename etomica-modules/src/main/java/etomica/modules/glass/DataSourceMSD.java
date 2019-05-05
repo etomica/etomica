@@ -11,7 +11,9 @@ import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Time;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class DataSourceMSD implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent {
 
@@ -24,7 +26,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     protected final DataTag tTag, tag;
     protected long[] nSamples;
     protected final AtomType type;
-    protected MSDSink msdSink;
+    protected List<MSDSink> msdSinks;
 
     public DataSourceMSD(ConfigurationStorage configStorage) {
         this(configStorage, null);
@@ -37,6 +39,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         nSamples = new long[0];
         tag = new DataTag();
         tTag = new DataTag();
+        msdSinks = new ArrayList<>();
         reset();
     }
 
@@ -62,8 +65,8 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         }
     }
 
-    public void setMSDSink(MSDSink sink) {
-        this.msdSink = sink;
+    public void addMSDSink(MSDSink sink) {
+        msdSinks.add(sink);
     }
 
     @Override
@@ -104,8 +107,8 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
                 }
                 msdSum[i - 1] += iSum;
                 nSamples[i - 1] += iSamples;
-                if (msdSink != null) {
-                    msdSink.putMSD(i - 1, step, iSum / iSamples);
+                for (MSDSink s : msdSinks) {
+                    s.putMSD(i - 1, step, iSum / iSamples);
                 }
             }
         }
