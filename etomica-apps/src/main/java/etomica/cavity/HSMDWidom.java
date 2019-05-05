@@ -449,7 +449,7 @@ public class HSMDWidom extends Simulation {
             double errMu = errExp / avgExp;
             System.out.println("Widom mu: " + mu + "  err: " + errMu);
         }
-        if (params.doMappingRDF) {
+        if (params.doWidomCavity) {
             IData rData = ((DataFunction.DataInfoFunction) ((DataGroup.DataInfoGroup) accWC.getDataInfo()).getSubDataInfo(0)).getXDataSource().getIndependentData(0);
             IData wcDataAvg = accWC.getData(accWC.AVERAGE);
             IData wcDataErr = accWC.getData(accWC.ERROR);
