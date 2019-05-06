@@ -133,7 +133,8 @@ public class HSMDWidom extends Simulation {
         double L = sim.box.getBoundary().getBoxSize().getX(0);
         int xMax = (int) (L * 0.5);
         double L3 = L * Math.sqrt(3);
-        int nBinsLong = (int) (nBins * L3 * 0.5 + 1);
+        if (params.mappingCut < L3) L3 = 2 * params.mappingCut;
+        int nBinsLong = (int) Math.ceil(nBins * L3 * 0.5);
         double xMaxMap = nBinsLong / ((double) nBins);
         if (params.mappingCut > 0 && params.mappingCut < xMaxMap) xMaxMap = params.mappingCut;
 
