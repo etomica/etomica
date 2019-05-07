@@ -83,7 +83,8 @@ public class ColorSchemeDeviation extends ColorScheme {
         if (idx > lastIndex) idx = lastIndex;
         if (idx == -1) return false;
         Vector r = configStorage.getSavedConfig(0)[atom.getLeafIndex()];
-        for(int j=0;j<box.getLeafList().size();j++){
+        for (int j = 0; j < box.getLeafList().size(); j++) {
+            if (atom.getLeafIndex() == j) continue;
             Vector oldR = configStorage.getSavedConfig(idx)[j];
             dr.Ev1Mv2(r,oldR);
             box.getBoundary().nearestImage(dr);
