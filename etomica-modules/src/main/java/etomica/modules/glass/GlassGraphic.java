@@ -401,21 +401,6 @@ public class GlassGraphic extends SimulationGraphic {
             }
         };
 
-
-        //add meter and display for current kinetic temperature
-
-        MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
-        DataFork temperatureFork = new DataFork();
-        final DataPump temperaturePump = new DataPump(thermometer, temperatureFork);
-        IntegratorListenerAction temperaturePumpListener = new IntegratorListenerAction(temperaturePump);
-        sim.integrator.getEventManager().addListener(temperaturePumpListener);
-        temperaturePumpListener.setInterval(10);
-        final AccumulatorHistory temperatureHistory = new AccumulatorHistory();
-        temperatureHistory.setTimeDataSource(timeCounter);
-        temperatureFork.setDataSinks(new IDataSink[]{temperatureHistory});
-
-        dataStreamPumps.add(temperaturePump);
-
         // Number density box
         MeterDensity densityMeter = new MeterDensity(sim.getSpace());
         densityMeter.setBox(sim.box);
@@ -515,6 +500,12 @@ public class GlassGraphic extends SimulationGraphic {
 
         DataSourceMSDcorP dsMSDcorP = new DataSourceMSDcorP(sim.integrator);
         pFork.addDataSink(dsMSDcorP);
+
+        DataSourceHisogram dsHistogramP = new DataSourceHisogram(sim.integrator);
+        pFork.addDataSink(dsHistogramP);
+
+        DataSourcePMSDHistory dsPMSDhistory = new DataSourcePMSDHistory(sim.integrator);
+        pFork.addDataSink(dsPMSDhistory);
 
         DataSourceMSDcorP dsMSDcorU;
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS && false) {
@@ -967,6 +958,33 @@ public class GlassGraphic extends SimulationGraphic {
             sim.integrator.getEventManager().addListener(pumpMSDcorU);
         }
 
+        meterMSD.addMSDSink(dsPMSDhistory);
+        DisplayPlot plotPMSDscatter = new DisplayPlot();
+        plotPMSDscatter.setLabel("MSD vs. P");
+        plotPMSDscatter.setXLabel("P");
+        DataPumpListener pumpPMSDhistory = new DataPumpListener(dsPMSDhistory, plotPMSDscatter.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpPMSDhistory);
+        plotPMSDscatter.setDoDrawLines(new DataTag[]{dsPMSDhistory.getTag()}, false);
+        plotPMSDscatter.getPlot().setYLabel("MSD");
+        plotPMSDscatter.setDoLegend(false);
+
+
+        DisplayPlot plotHistogramP = new DisplayPlot();
+        DataPumpListener pumpHistogramP = new DataPumpListener(dsHistogramP, plotHistogramP.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpHistogramP);
+        plotHistogramP.setXLabel("P");
+        plotHistogramP.setDoLegend(false);
+        plotHistogramP.getPlot().setYLog(true);
+
+        DataSourceHistogramMSD dsHistogramMSD = new DataSourceHistogramMSD(sim.integrator);
+        meterMSD.addMSDSink(dsHistogramMSD);
+        DisplayPlot plotHistogramMSD = new DisplayPlot();
+        DataPumpListener pumpHistogramMSD = new DataPumpListener(dsHistogramMSD, plotHistogramMSD.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpHistogramMSD);
+        plotHistogramMSD.setXLabel("MSD");
+        plotHistogramMSD.setDoLegend(false);
+        plotHistogramMSD.getPlot().setYLog(true);
+
         //************* Lay out components ****************//
 
         DeviceCheckBox swapCheckbox = new DeviceCheckBox("isothermal", new ModifierBoolean() {
@@ -987,6 +1005,8 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageMSD.reset();
                     configStorageMSD.setEnabled(false);
                     dsMSDcorP.setEnabled(false);
+                    dsHistogramP.setEnabled(false);
+                    dsPMSDhistory.setEnabled(false);
                     dpAutocor.reset();
                     if (dsMSDcorU != null) dsMSDcorU.setEnabled(false);
                     meterCorrelationAA.reset();
@@ -1008,6 +1028,8 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageMSD.reset();
                     configStorageMSD.setEnabled(true);
                     dsMSDcorP.setEnabled(true);
+                    dsHistogramP.setEnabled(true);
+                    dsPMSDhistory.setEnabled(true);
                     if (dsMSDcorU != null) dsMSDcorU.setEnabled(true);
                     if (colorCheckbox.getState()) dbox.setColorScheme(colorSchemeDeviation);
                     else if (colorDirectionCheckbox.getState()) dbox.setColorScheme(colorSchemeDirection);
@@ -1081,7 +1103,49 @@ public class GlassGraphic extends SimulationGraphic {
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
             add(peDisplay);
         }
-        add(plotMSDcorUP);
+        JPanel plotPMSDPanel = new JPanel();
+        plotPMSDPanel.setLayout(new BoxLayout(plotPMSDPanel, BoxLayout.Y_AXIS));
+        plotPMSDPanel.add(plotMSDcorUP.graphic());
+        DeviceSlider sliderPMSDinterval = new DeviceSlider(sim.getController(), new Modifier() {
+            @Override
+            public void setValue(double newValue) {
+                dsHistogramMSD.setInterval((int) newValue);
+                dsHistogramP.setInterval((int) newValue);
+                dsPMSDhistory.setInterval((int) newValue);
+                pumpHistogramMSD.actionPerformed();
+                pumpHistogramP.actionPerformed();
+                pumpPMSDhistory.actionPerformed();
+            }
+
+            @Override
+            public double getValue() {
+                return (double) dsHistogramP.getInterval();
+            }
+
+            @Override
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
+
+            @Override
+            public String getLabel() {
+                return "log2(interval)";
+            }
+        });
+        sliderPMSDinterval.setMinimum(0);
+        sliderPMSDinterval.setMaximum(30);
+        sliderPMSDinterval.setNMajor(5);
+        sliderPMSDinterval.setShowBorder(true);
+        sliderPMSDinterval.setLabel("log2(histogram interval)");
+        plotPMSDPanel.add(sliderPMSDinterval.graphic());
+        plotPMSDPanel.add(plotHistogramP.graphic());
+        plotPMSDPanel.add(plotHistogramMSD.graphic());
+        plotPMSDPanel.add(plotPMSDscatter.graphic());
+        JScrollPane plotsPane = new JScrollPane(plotPMSDPanel);
+        java.awt.Dimension d = plotHistogramMSD.getPlot().getPreferredSize();
+        d.height = 600;
+        plotsPane.setPreferredSize(d);
+        getPanel().tabbedPane.add("P cor MSD", plotsPane);
 
     }
 
@@ -1091,10 +1155,10 @@ public class GlassGraphic extends SimulationGraphic {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doSwap = true;
-            params.potential = SimGlass.PotentialChoice.WCA;
-            params.nA = 100;
-            params.nB = 100;
-            params.density = 0.75 * 1.4 * 1.4;
+            params.potential = SimGlass.PotentialChoice.HS;
+            params.nA = 25;
+            params.nB = 25;
+            params.density = 1.3;
             params.D = 2;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.potential);
