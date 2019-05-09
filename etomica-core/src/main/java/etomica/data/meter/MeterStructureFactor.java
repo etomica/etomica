@@ -64,10 +64,10 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
 	protected int makeWaveVector(double cutoff) {
         int nVec = 0;
         double[] x = xData == null ? null : xData.getData();
-        Vector[] edges = new Vector[3];
-        edges[0] = box.getBoundary().getEdgeVector(0);
-        edges[1] = box.getBoundary().getEdgeVector(1);
-        edges[2] = box.getBoundary().getEdgeVector(2);
+        Vector[] edges = new Vector[space.D()];
+        for (int i = 0; i < space.D(); i++) {
+            edges[i] = box.getBoundary().getEdgeVector(i);
+        }
         Primitive primitiveBox = new PrimitiveGeneral(space, edges);
         Primitive recip = primitiveBox.makeReciprocal();
         Vector[] basis = recip.vectors();
@@ -83,9 +83,6 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
         }
 
         int[] idx = new int[space.D()];
-        idx[0] = 0;
-        idx[1] = 0;
-        idx[2] = 1;
         while (true) {
             Vector v = space.makeVector();
             boolean success = false;
@@ -151,6 +148,7 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
     public IData getData() {
         long numAtoms = atomList.size();
         long n2 = numAtoms*numAtoms;
+        for (int i = 0; i < struct.length; i++) struct[i] = 0;
         for(int k=0; k<waveVec.length; k++){
             double term1 = 0;
             double term2 = 0;
