@@ -4,6 +4,8 @@
 
 package etomica.data.meter;
 
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.*;
@@ -16,6 +18,8 @@ import etomica.lattice.crystal.PrimitiveGeneral;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
+
+import java.util.Arrays;
 
 /**
  * Meter for calculation of structure factor of atoms for all wave vectors less
@@ -36,6 +40,8 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
     protected final DataTag tag, xTag;
     protected DataDoubleArray xData;
     protected DataInfoDoubleArray xDataInfo;
+    protected double[] atomTypeSignal;
+    protected double cutoff;
 
     /**
      * Creates meter with default to compute the structure factor for all atoms
@@ -49,6 +55,7 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
         tag = new DataTag();
         xTag = new DataTag();
 	    setCutoff(cutoff);
+        atomTypeSignal = new double[0];
 	}
 	
 	protected void resetData() {
@@ -124,7 +131,12 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
 	    waveVec = new Vector[nVec];
         resetData();
         makeWaveVector(cutoff);
-	}
+        this.cutoff = cutoff;
+    }
+
+    public double getCutoff() {
+        return cutoff;
+    }
 	
 	/**
 	 * @param waveVec Sets a custom wave vector array.
@@ -145,15 +157,32 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
 		this.atomList = atomList;
 	}
 
+    /**
+     * Sets the given atom type to have the given form factor
+     * https://en.wikipedia.org/wiki/Structure_factor
+     */
+    public void setAtomTypeFactor(AtomType atomType, double factor) {
+        int idx = atomType.getIndex();
+        if (idx >= atomTypeSignal.length) {
+            int oldLength = atomTypeSignal.length;
+            atomTypeSignal = Arrays.copyOf(atomTypeSignal, atomType.getIndex() + 1);
+            for (int i = oldLength; i < idx; i++) atomTypeSignal[i] = 1;
+        }
+        atomTypeSignal[idx] = factor;
+    }
+
     public IData getData() {
         long numAtoms = atomList.size();
         long n2 = numAtoms*numAtoms;
         for (int i = 0; i < struct.length; i++) struct[i] = 0;
-        for(int k=0; k<waveVec.length; k++){
+        for(int k = 0; k<waveVec.length; k++){
             double term1 = 0;
             double term2 = 0;
-            for(int i=0; i<numAtoms; i++){
-                double dotprod = waveVec[k].dot(atomList.get(i).getPosition());
+            for(int i = 0; i<numAtoms; i++){
+                IAtom atom = atomList.get(i);
+                int typeIdx = atom.getType().getIndex();
+                double signal = atomTypeSignal.length > typeIdx ? atomTypeSignal[typeIdx] : 1.0;
+                double dotprod = signal * waveVec[k].dot(atom.getPosition());
                 term1 += Math.cos(dotprod);
                 term2 += Math.sin(dotprod);
             }
