@@ -102,7 +102,11 @@ public class SimGlass extends Simulation {
             P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(space, potentialBB, 2.5);
             potentialMaster.addPotential(p2TruncatedBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
         } else if (potentialChoice == PotentialChoice.HS) {
-            potentialMaster.setRange(1.7);
+            double L = Math.pow((nA + nB) / density, 1.0 / 3.0);
+            if (L < 2.01) throw new RuntimeException("too small!");
+            double nbrCut = 1.7;
+            if (L < nbrCut * 2) nbrCut = L / 2.001;
+            potentialMaster.setRange(nbrCut);
             p2AA = new P2SquareWell(space, coreHS, 1 / coreHS, -100, false);
             potentialMaster.addPotential(p2AA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
             P2HardSphere potentialAB = new P2HardSphere(space, 0.5 + 0.5 / 1.4, false);
