@@ -5,6 +5,7 @@
 package etomica.modules.glass;
 
 import etomica.action.IAction;
+import etomica.atom.AtomType;
 import etomica.cavity.DataProcessorErrorBar;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
@@ -17,6 +18,7 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
+import etomica.modifier.ModifierGeneral;
 import etomica.units.SimpleUnit;
 import etomica.units.Unit;
 import etomica.units.dimensions.Dimension;
@@ -985,6 +987,41 @@ public class GlassGraphic extends SimulationGraphic {
         plotHistogramMSD.setDoLegend(false);
         plotHistogramMSD.getPlot().setYLog(true);
 
+        MeterStructureFactor meterSFac = new MeterStructureFactor(space, sim.box, 15);
+        AccumulatorAverageFixed accSFac = new AccumulatorAverageFixed(1);  // just average, no uncertainty
+        accSFac.setPushInterval(1);
+        DataPumpListener pumpSFac = new DataPumpListener(meterSFac, accSFac, 1000);
+        sim.integrator.getEventManager().addListener(pumpSFac);
+        dataStreamPumps.add(pumpSFac);
+        DisplayPlot plotSFac = new DisplayPlot();
+        accSFac.addDataSink(plotSFac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accSFac.AVERAGE});
+        plotSFac.setLabel("SFac");
+        plotSFac.setDoDrawLines(new DataTag[]{meterSFac.getTag()}, false);
+        meterSFac.setAtomTypeFactor(sim.speciesB.getAtomType(0), -1);
+
+        double L = sim.box.getBoundary().getBoxSize().getX(0);
+        double cut = 2.0 * Math.PI / L;
+
+        MeterStructureFactor meterSFacCluster = new MeterStructureFactor(space, sim.box, 3 * cut + 0.001);
+        DataClusterer sfacClusterer = new DataClusterer(100, sim.getRandom());
+        DataPumpListener pumpSFacCluster = new DataPumpListener(meterSFacCluster, sfacClusterer, 10);
+        sim.integrator.getEventManager().addListener(pumpSFacCluster);
+
+
+        DeviceButtonGroup sfacButtons = new DeviceButtonGroup(sim.getController(), 5);
+        sfacButtons.setLabel("B signal");
+        AtomType typeB = sim.speciesB.getLeafType();
+        MeterStructureFactor[] meters = new MeterStructureFactor[]{meterSFac, meterSFacCluster};
+        sfacButtons.addButton("+1", new SFacButtonAction(meters, accSFac, sfacClusterer, typeB, +1));
+        sfacButtons.addButton("-1", new SFacButtonAction(meters, accSFac, sfacClusterer, typeB, -1));
+        double sigmaB = 1 / 1.4;
+        if (sim.potentialChoice == SimGlass.PotentialChoice.LJ) sigmaB = 0.88;
+        double vB = sim.getSpace().powerD(sigmaB);
+        sfacButtons.addButton("+v", new SFacButtonAction(meters, accSFac, sfacClusterer, typeB, vB));
+        sfacButtons.addButton("-v", new SFacButtonAction(meters, accSFac, sfacClusterer, typeB, -vB));
+        sfacButtons.addButton("0", new SFacButtonAction(meters, accSFac, sfacClusterer, typeB, 0));
+        sfacButtons.setSelected("+v");
+
         //************* Lay out components ****************//
 
         DeviceCheckBox swapCheckbox = new DeviceCheckBox("isothermal", new ModifierBoolean() {
@@ -1017,6 +1054,8 @@ public class GlassGraphic extends SimulationGraphic {
                     meterCorrelationPar.reset();
                     meterCorrelationMag.reset();
                     diameterHash.setFac(1.0);
+                    accSFac.reset();
+                    sfacClusterer.reset();
                 } else {
                     dbox.setAtomTestDoDisplay(atomFilterDeviation);
                     sim.integrator.setIntegratorMC(null, 0);
@@ -1044,6 +1083,8 @@ public class GlassGraphic extends SimulationGraphic {
                     meterCorrelationPar.reset();
                     meterCorrelationMag.reset();
                     diameterHash.setFac(showDispCheckbox.getState() ? 0.5 : 1.0);
+                    accSFac.reset();
+                    sfacClusterer.reset();
                 }
             }
 
@@ -1147,6 +1188,66 @@ public class GlassGraphic extends SimulationGraphic {
         plotsPane.setPreferredSize(d);
         getPanel().tabbedPane.add("P cor MSD", plotsPane);
 
+        JPanel plotSFacPanel = new JPanel();
+        plotSFacPanel.setLayout(new BoxLayout(plotSFacPanel, BoxLayout.Y_AXIS));
+        plotSFacPanel.add(sfacButtons.graphic());
+        plotSFacPanel.add(plotSFac.graphic());
+        JPanel sfacWidgetPanel = new JPanel();
+
+        DeviceBox clusterIterBox = new DeviceBox();
+        clusterIterBox.setController(sim.getController());
+        clusterIterBox.setModifier(new ModifierGeneral(sfacClusterer, "maxIterations"));
+        clusterIterBox.setInteger(true);
+        clusterIterBox.setLabel("iterations");
+        sfacWidgetPanel.add(clusterIterBox.graphic());
+        DeviceButton clusterButton = new DeviceButton(sim.getController(), new IAction() {
+            @Override
+            public void actionPerformed() {
+                sfacClusterer.findClusters();
+            }
+        });
+        clusterButton.setLabel("Cluster");
+        sfacWidgetPanel.add(clusterButton.graphic());
+        DeviceSlider cutClusterSlider = new DeviceSlider(sim.getController(), meterSFacCluster, "cutoff");
+        cutClusterSlider.setLabel("SFac cutoff");
+        cutClusterSlider.setShowBorder(true);
+        cutClusterSlider.setMinimum(0);
+        cutClusterSlider.setPrecision(2);
+        cutClusterSlider.setMaximum(15);
+        cutClusterSlider.setNMajor(5);
+        cutClusterSlider.setShowValues(true);
+        cutClusterSlider.setEditValues(true);
+        sfacWidgetPanel.add(cutClusterSlider.graphic());
+        plotSFacPanel.add(sfacWidgetPanel);
+        sfacWidgetPanel = new JPanel();
+        DeviceSlider nbrClusterSlider = new DeviceSlider(sim.getController(), sfacClusterer, "clusterNeighborDistance");
+        nbrClusterSlider.setLabel("Cluster nbr distance");
+        nbrClusterSlider.setShowBorder(true);
+        nbrClusterSlider.setMinimum(0);
+        nbrClusterSlider.setPrecision(2);
+        nbrClusterSlider.setMaximum(3);
+        nbrClusterSlider.setNMajor(3);
+        nbrClusterSlider.setShowValues(true);
+        nbrClusterSlider.setEditValues(true);
+        sfacWidgetPanel.add(nbrClusterSlider.graphic());
+        DeviceSlider nClusterSlider = new DeviceSlider(sim.getController(), sfacClusterer, "numClusters");
+        nClusterSlider.setLabel("# of clusters");
+        nClusterSlider.setShowBorder(true);
+        nClusterSlider.setMinimum(0);
+        nClusterSlider.setMaximum(5000);
+        nClusterSlider.setPrecision(0);
+        nClusterSlider.setNMajor(5);
+        nClusterSlider.setShowValues(true);
+        nClusterSlider.setEditValues(true);
+        sfacWidgetPanel.add(nClusterSlider.graphic());
+        plotSFacPanel.add(sfacWidgetPanel);
+
+        JScrollPane plotsPaneSFac = new JScrollPane(plotSFacPanel);
+        d = plotSFac.getPlot().getPreferredSize();
+        d.height = 600;
+        plotsPaneSFac.setPreferredSize(d);
+        getPanel().tabbedPane.add("SFac", plotsPaneSFac);
+
     }
 
     public static void main(String[] args) {
@@ -1156,10 +1257,10 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 25;
-            params.nB = 25;
-            params.density = 1.3;
-            params.D = 2;
+            params.nA = 12;
+            params.nB = 12;
+            params.density = 1.65;
+            params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.potential);
 
@@ -1195,4 +1296,27 @@ public class GlassGraphic extends SimulationGraphic {
         protected final DataDouble data;
     }
 
+    public static class SFacButtonAction implements IAction {
+        protected final double value;
+        protected final AtomType type;
+        protected final MeterStructureFactor[] meters;
+        protected final AccumulatorAverageFixed acc;
+        protected final DataClusterer sfacClusterer;
+
+        public SFacButtonAction(MeterStructureFactor[] meters, AccumulatorAverageFixed acc, DataClusterer sfacClusterer, AtomType type, double value) {
+            this.meters = meters;
+            this.acc = acc;
+            this.sfacClusterer = sfacClusterer;
+            this.type = type;
+            this.value = value;
+        }
+
+        public void actionPerformed() {
+            for (MeterStructureFactor m : meters) {
+                m.setAtomTypeFactor(type, value);
+            }
+            acc.reset();
+            sfacClusterer.reset();
+        }
+    }
 }
