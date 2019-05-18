@@ -22,6 +22,9 @@ public class DataClusterer implements IDataSink {
     protected final IRandom random;
     protected double d2Max = Double.POSITIVE_INFINITY;
     protected int maxIterations = 10;
+    protected int nDataP, nSamplesP;
+    protected double pSum;
+    protected double[] pData;
 
     public DataClusterer(int nClusters, IRandom random) {
         centers = new double[nClusters][0];
@@ -29,6 +32,7 @@ public class DataClusterer implements IDataSink {
         clusterPop = new int[nClusters];
         clusters = new int[0];
         this.random = random;
+        pData = new double[0];
     }
 
     public void setNumClusters(int nClusters) {
@@ -59,10 +63,23 @@ public class DataClusterer implements IDataSink {
             x[i] = data.getValue(i);
         }
         allData.add(x);
+        if (nSamplesP > 0) {
+            if (allData.size() != nDataP + 1) {
+                throw new RuntimeException("P and sfac out of sync");
+            }
+            if (nDataP == pData.length) {
+                pData = Arrays.copyOf(pData, 2 * pData.length + 100);
+            }
+            pData[nDataP] = pSum / nSamplesP;
+            pSum = nSamplesP = 0;
+            nDataP++;
+        }
     }
 
     public void reset() {
         allData.clear();
+        nDataP = nSamplesP = 0;
+        pSum = 0;
     }
 
     public void setClusterNeighborDistance(double d) {
@@ -110,6 +127,7 @@ public class DataClusterer implements IDataSink {
         int[][] iBonds = null;
         int[][] iBondCount = null;
         int totalBondCount = 0;
+        double[] clusterP = new double[centers.length];
         for (int outer = 0; outer < maxIterations; outer++) {
             int nChanged = 0;
             for (int i = 0; i < centers.length; i++) clusterPop[i] = 0;
@@ -171,6 +189,7 @@ public class DataClusterer implements IDataSink {
             }
             for (int i = 0; i < centers.length; i++) {
                 for (int k = 0; k < dim; k++) centers[i][k] = 0;
+                clusterP[i] = 0;
             }
 
             for (int j = 0; j < allData.size(); j++) {
@@ -178,12 +197,15 @@ public class DataClusterer implements IDataSink {
                 int i = clusters[j];
                 if (i == -1) continue;
                 for (int k = 0; k < dim; k++) centers[i][k] += x[k];
+                clusterP[i] += pData[j];
             }
             int nEmpty = 0;
             for (int i = 0; i < centers.length; i++) {
                 if (clusterPop[i] > 0) {
                     for (int k = 0; k < dim; k++) centers[i][k] /= clusterPop[i];
+                    clusterP[i] /= clusterPop[i];
                 } else {
+                    clusterP[i] = Double.NaN;
                     nEmpty++;
                     // orphaned cluster.  move it to a center of a particle that was not
                     // the only one in a cluster
@@ -213,8 +235,8 @@ public class DataClusterer implements IDataSink {
             int nearHops = 0;
             for (int i = 0; i < centers.length; i++) {
                 int pop = 100 * clusterPop[i] * dim / allData.size();
-                int lnPop = (int) (10 * Math.log(clusterPop[i] / (allData.size() * Math.log(2))));
-                fw.write("c" + i + " [label=\"c" + i + "\",pop=\"" + lnPop + "\"]\n");
+                double lnPop = Math.log(clusterPop[i] / (allData.size() * Math.log(2)));
+                fw.write("c" + i + " [label=\"c" + i + "\",pop=\"" + String.format("%3.1f", lnPop) + "\",p=" + String.format("%3.1f", clusterP[i]) + "]\n");
                 for (int jj = 0; jj < iBonds[i].length; jj++) {
                     int j = iBonds[i][jj];
                     double d2 = 0;
@@ -312,6 +334,20 @@ public class DataClusterer implements IDataSink {
             }
             first = true;
             allData.clear();
+        }
+    }
+
+    public PressureSink makePressureSink() {
+        return new PressureSink();
+    }
+
+    public class PressureSink implements IDataSink {
+        public void putDataInfo(IDataInfo inputDataInfo) {
+        }
+
+        public void putData(IData data) {
+            pSum += data.getValue(0);
+            nSamplesP++;
         }
     }
 }

@@ -1006,7 +1006,7 @@ public class GlassGraphic extends SimulationGraphic {
         DataClusterer sfacClusterer = new DataClusterer(100, sim.getRandom());
         DataPumpListener pumpSFacCluster = new DataPumpListener(meterSFacCluster, sfacClusterer, 10);
         sim.integrator.getEventManager().addListener(pumpSFacCluster);
-
+        pFork.addDataSink(sfacClusterer.makePressureSink());
 
         DeviceButtonGroup sfacButtons = new DeviceButtonGroup(sim.getController(), 5);
         sfacButtons.setLabel("B signal");
@@ -1198,6 +1198,7 @@ public class GlassGraphic extends SimulationGraphic {
         clusterIterBox.setController(sim.getController());
         clusterIterBox.setModifier(new ModifierGeneral(sfacClusterer, "maxIterations"));
         clusterIterBox.setInteger(true);
+        clusterIterBox.setPrecision(0);
         clusterIterBox.setLabel("iterations");
         sfacWidgetPanel.add(clusterIterBox.graphic());
         DeviceButton clusterButton = new DeviceButton(sim.getController(), new IAction() {
@@ -1256,10 +1257,10 @@ public class GlassGraphic extends SimulationGraphic {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doSwap = true;
-            params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 12;
-            params.nB = 12;
-            params.density = 1.65;
+            params.potential = SimGlass.PotentialChoice.LJ;
+            params.nA = 800;
+            params.nB = 200;
+            params.density = 1.25;
             params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.potential);
