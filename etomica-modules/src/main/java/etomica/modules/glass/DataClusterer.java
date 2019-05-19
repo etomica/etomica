@@ -62,15 +62,24 @@ public class DataClusterer implements IDataSink {
         for (int i = 0; i < x.length; i++) {
             x[i] = data.getValue(i);
         }
+
+        if (nSamplesP > 0 && allData.size() != nDataP + 1) {
+            allData.clear();
+            nDataP = 0;
+        }
         allData.add(x);
         if (nSamplesP > 0) {
-            if (allData.size() != nDataP + 1) {
-                throw new RuntimeException("P and sfac out of sync");
-            }
             if (nDataP == pData.length) {
                 pData = Arrays.copyOf(pData, 2 * pData.length + 100);
             }
             pData[nDataP] = pSum / nSamplesP;
+            pSum = nSamplesP = 0;
+            nDataP++;
+        } else {
+            if (nDataP == pData.length) {
+                pData = Arrays.copyOf(pData, 2 * pData.length + 100);
+            }
+            pData[nDataP] = Double.NaN;
             pSum = nSamplesP = 0;
             nDataP++;
         }
@@ -80,6 +89,7 @@ public class DataClusterer implements IDataSink {
         allData.clear();
         nDataP = nSamplesP = 0;
         pSum = 0;
+        first = true;
     }
 
     public void setClusterNeighborDistance(double d) {
@@ -332,8 +342,7 @@ public class DataClusterer implements IDataSink {
             for (int i = 0; i < centers.length; i++) {
                 centers[i] = new double[n];
             }
-            first = true;
-            allData.clear();
+            reset();
         }
     }
 
