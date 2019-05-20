@@ -58,7 +58,7 @@ public class SimGlass extends Simulation {
 
         integrator = potentialChoice == PotentialChoice.HS ?
                 new IntegratorHard(potentialMaster, random, 0.005, 1, box) :
-                new IntegratorVelocityVerlet(this, potentialMaster, box);
+                new IntegratorVelocityVerlet(potentialMaster, random, 0.005, 1, box);
         integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN);
         integrator.setThermostatInterval(1);
