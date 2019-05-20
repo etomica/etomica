@@ -58,12 +58,16 @@ public class DataClusterer implements IDataSink {
 
     @Override
     public void putData(IData data) {
+        if (data.getLength() == 0) {
+            reset();
+            return;
+        }
         double[] x = new double[data.getLength()];
         for (int i = 0; i < x.length; i++) {
             x[i] = data.getValue(i);
         }
 
-        if (nSamplesP > 0 && allData.size() != nDataP + 1) {
+        if (nSamplesP > 0 && allData.size() != nDataP) {
             allData.clear();
             nDataP = 0;
         }
@@ -89,6 +93,7 @@ public class DataClusterer implements IDataSink {
         allData.clear();
         nDataP = nSamplesP = 0;
         pSum = 0;
+        if (pData.length > 0) pData = new double[0];
         first = true;
     }
 
