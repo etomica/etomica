@@ -479,7 +479,9 @@ public class GlassGraphic extends SimulationGraphic {
         DataFork pTensorFork = new DataFork();
         DataPumpListener pPump = new DataPumpListener(pMeter, pTensorFork);
         AccumulatorAutocorrelationPTensor dpAutocor = new AccumulatorAutocorrelationPTensor(256, sim.integrator.getTimeStep());
-        pTensorFork.addDataSink(dpAutocor);
+        if (sim.box.getLeafList().size() > 200) {
+            pTensorFork.addDataSink(dpAutocor);
+        }
         dpAutocor.setPushInterval(16384);
         DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
         pTensorFork.addDataSink(tracer);
@@ -949,7 +951,7 @@ public class GlassGraphic extends SimulationGraphic {
         DisplayPlot plotMSDcorUP = new DisplayPlot();
         plotMSDcorUP.setLabel("MSD cor P");
         plotMSDcorUP.getPlot().setXLog(true);
-        plotMSDcorUP.setLegend(new DataTag[]{dsMSDcorP.getTag()}, "P");
+        plotMSDcorUP.setDoLegend(false);
         DataPumpListener pumpMSDcorP = new DataPumpListener(dsMSDcorP, plotMSDcorUP.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpMSDcorP);
 
@@ -1264,10 +1266,10 @@ public class GlassGraphic extends SimulationGraphic {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doSwap = true;
-            params.potential = SimGlass.PotentialChoice.LJ;
-            params.nA = 320;
-            params.nB = 80;
-            params.density = 1.25;
+            params.potential = SimGlass.PotentialChoice.HS;
+            params.nA = 15;
+            params.nB = 15;
+            params.density = 1.65;
             params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.potential);
