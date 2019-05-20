@@ -64,7 +64,6 @@ public class SimGlass extends Simulation {
         integrator.setThermostatInterval(1);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        integrator.setTimeStep(0.005);
         integrator.setThermostatNoDrift(true);
 
         int chs = 85;
@@ -139,6 +138,7 @@ public class SimGlass extends Simulation {
         if (potentialChoice == PotentialChoice.HS) {
             boolean success = false;
             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
+            integrator.setTimeStep(0.001);
             for (; chs <= 100; chs++) {
                 p2AA.setCoreDiameter(chs * 0.01);
                 p2AA.setLambda(1 / (chs * 0.01));
@@ -181,6 +181,7 @@ public class SimGlass extends Simulation {
             }
             integrator.reset();
             integrator.resetStepCount();
+            integrator.setTimeStep(0.005);
         }
 
     }
