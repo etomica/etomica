@@ -143,7 +143,19 @@ public class LatticeSumMolecularCrystal {
     		Rk.setComponent(0,1, Xk.getX(2));  Rk.setComponent(1,0,-Xk.getX(2));   
     		Rk.setComponent(0,2,-Xk.getX(1));  Rk.setComponent(2,0, Xk.getX(1));
     		Rk.setComponent(1,2, Xk.getX(0));  Rk.setComponent(2,1,-Xk.getX(0));
-    		for (int atomkp=0; atomkp < numSites1; atomkp++){
+
+	//		System.out.println("Rk "+mol0+" "+atomk+" "+0+" "+0+" "+Rk.component(0,0));
+	//		System.out.println("Rk "+mol0+" "+atomk+" "+0+" "+1+" "+Rk.component(0,1));
+	//		System.out.println("Rk "+mol0+" "+atomk+" "+1+" "+0+" "+Rk.component(1,0));
+	//		System.out.println("Rk "+mol0+" "+atomk+" "+1+" "+1+" "+Rk.component(1,1));
+	//		System.out.println("Rk "+mol0+" "+atomk+" "+0+" "+2+" "+Rk.component(0,2));
+	//		System.out.println("Rk "+mol0+" "+atomk+" "+2+" "+0+" "+Rk.component(2,0));
+	//		System.out.println("Rk "+mol0+" "+atomk+" "+2+" "+2+" "+Rk.component(2,2));
+	//		System.out.println("Rk "+mol0+" "+atomk+" "+1+" "+2+" "+Rk.component(1,2));
+	//		System.out.println("Rk "+mol0+" "+atomk+" "+2+" "+1+" "+Rk.component(2,1));
+
+
+			for (int atomkp=0; atomkp < numSites1; atomkp++){
     			if(atomk == atomkp && mol0 == mol1) continue;//ADDED:: Non-self
         		Vector poskp = mol1.getChildList().get(atomkp).getPosition();
         		Xkp.Ev1Mv2(poskp, com1);
@@ -152,6 +164,16 @@ public class LatticeSumMolecularCrystal {
         		Rkp.setComponent(0,1, Xkp.getX(2));  Rkp.setComponent(1,0,-Xkp.getX(2));      
         		Rkp.setComponent(0,2,-Xkp.getX(1));  Rkp.setComponent(2,0, Xkp.getX(1));
         		Rkp.setComponent(1,2, Xkp.getX(0));  Rkp.setComponent(2,1,-Xkp.getX(0));
+
+		//		System.out.println("Rk "+mol1+" "+atomkp+" "+0+" "+0+" "+Rkp.component(0,0));
+		//		System.out.println("Rk "+mol1+" "+atomkp+" "+0+" "+1+" "+Rkp.component(0,1));
+		//		System.out.println("Rk "+mol1+" "+atomkp+" "+1+" "+0+" "+Rkp.component(1,0));
+		//		System.out.println("Rk "+mol1+" "+atomkp+" "+1+" "+1+" "+Rkp.component(1,1));
+		//		System.out.println("Rk "+mol1+" "+atomkp+" "+0+" "+2+" "+Rkp.component(0,2));
+		//		System.out.println("Rk "+mol1+" "+atomkp+" "+2+" "+0+" "+Rkp.component(2,0));
+		//		System.out.println("Rk "+mol1+" "+atomkp+" "+2+" "+2+" "+Rkp.component(2,2));
+		//		System.out.println("Rk "+mol1+" "+atomkp+" "+1+" "+2+" "+Rkp.component(1,2));
+		//		System.out.println("Rk "+mol1+" "+atomkp+" "+2+" "+1+" "+Rkp.component(2,1));
 
         		D3tt_.E(aTensor.atomicTensor(mol0.getChildList().get(atomk) , mol1.getChildList().get(atomkp)));
         		D3tt.PE(D3tt_);
@@ -203,9 +225,17 @@ public class LatticeSumMolecularCrystal {
         		D6mol.setComponent(i,  j+3, D3tr.component(i, j));
         		D6mol.setComponent(i+3,j, D3rt.component(i, j));
         		D6mol.setComponent(i+3,j+3, D3rr.component(i, j));
-        	}
+
+				System.out.println("Dtt "+mol0+" "+mol1+" "+i+" "+j+" "+D3tt.component(i,j));
+				System.out.println("Dtr "+mol0+" "+mol1+" "+i+" "+j+" "+D3tr.component(i,j));
+				System.out.println("Drt "+mol0+" "+mol1+" "+i+" "+j+" "+D3rt.component(i,j));
+				System.out.println("Drr "+mol0+" "+mol1+" "+i+" "+j+" "+D3rr.component(i,j));
+
+			}
     	}
     	return D6mol;
+
+
     }
     public WaveVectorFactorySimple getWaveVectorFactory(){
     	return kFactory;

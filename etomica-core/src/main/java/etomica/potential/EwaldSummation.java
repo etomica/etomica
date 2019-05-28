@@ -67,7 +67,7 @@ public class EwaldSummation implements PotentialSoft{
 
 		double s = Math.sqrt(rCutRealES*kCut/2);
 		
-		alpha = s/rCutRealES; //=0.2406189232882774  //nX=1
+		alpha = 0.233882; //=0.2406189232882774  //nX=1
 		alpha2 = alpha*alpha;
         alpha3 = alpha*alpha2;
 

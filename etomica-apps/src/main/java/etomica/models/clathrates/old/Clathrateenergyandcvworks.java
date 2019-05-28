@@ -360,6 +360,7 @@ public class Clathrateenergyandcvworks extends Simulation {
         DataPumpListener dataPumpListenerDADB = null;
         if (doMapping) {
             MeterDADBWaterTIP4P  meterDADB = new MeterDADBWaterTIP4P(nC,a0, rCutLJ,sim.potentialLJ, sim.potentialLJLS,sim.potentialES,sim.space,meterPE, sim.box, params.nBasis,sim.potentialMaster, temperature, sim.latticeCoordinates);
+       //     MeterDADBWaterTIP4P  meterDADB = new MeterDADBWaterTIP4P(nC,a0, rCutLJ,sim.potentialLJ, sim.potentialLJLS,sim.space,meterPE, sim.box, params.nBasis,sim.potentialMaster, temperature, sim.latticeCoordinates);
 
                   meterDADB.doTranslation = doTranslation;
             meterDADB.doRotation = doRotation;

@@ -57,8 +57,10 @@ public int basisDim;
     protected EwaldSummation potentialES;
     protected Box box;
     int[] nC; double[] a0; double rCutLJ;
+
     public MeterDADBWaterTIP4P(int[] nC,double[] a0, double rCutLJ, Potential2SoftSpherical potentialLJ,Potential2SoftSphericalLS potentialLJLS,EwaldSummation potentialES, Space space, DataSourceScalar meterPE, Box box, int basisDim, PotentialMaster potentialMaster, double temperature, MoleculeAgentManager latticeCoordinates) {
-        this.nC=nC;
+
+            this.nC=nC;
         this.a0=a0;
         this.rCutLJ=rCutLJ;
         this.potentialLJ = potentialLJ;
@@ -312,10 +314,10 @@ public int basisDim;
                                 D3tr.setComponent(ii, jj, D6mol.component(ii, jj + 3));
                                 D3rt.setComponent(ii, jj, D6mol.component(ii + 3, jj));
                                 D3rr.setComponent(ii, jj, D6mol.component(ii + 3, jj + 3));
- //                               System.out.println("Dtt "+i+" "+j+" "+ii+" "+jj+" "+D3tt.component(ii,jj));
-   //                             System.out.println("Dtr "+i+" "+j+" "+ii+" "+jj+" "+D3tr.component(ii,jj));
-     //                           System.out.println("Drt "+i+" "+j+" "+ii+" "+jj+" "+D3rt.component(ii,jj));
-                                System.out.println("Drr "+i+" "+j+" "+ii+" "+jj+" "+D3rr.component(ii,jj));
+                     //           System.out.println("Dtt "+i+" "+j+" "+ii+" "+jj+" "+D3tt.component(ii,jj));
+                     //           System.out.println("Dtr "+i+" "+j+" "+ii+" "+jj+" "+D3tr.component(ii,jj));
+                     //           System.out.println("Drt "+i+" "+j+" "+ii+" "+jj+" "+D3rt.component(ii,jj));
+                     //           System.out.println("Drr "+i+" "+j+" "+ii+" "+jj+" "+D3rr.component(ii,jj));
 
                             }
                         }
@@ -481,10 +483,10 @@ public int basisDim;
                         D3tr.setComponent(ii, jj, D6mol.component(ii, jj + 3));
                         D3rt.setComponent(ii, jj, D6mol.component(ii + 3, jj));
                         D3rr.setComponent(ii, jj, D6mol.component(ii + 3, jj + 3));
-     //                   System.out.println("Dtt "+i+" "+j+" "+ii+" "+jj+" "+D3tt.component(ii,jj));
-   //                     System.out.println("Dtr "+i+" "+j+" "+ii+" "+jj+" "+D3tr.component(ii,jj));
- //                       System.out.println("Drt "+i+" "+j+" "+ii+" "+jj+" "+D3rt.component(ii,jj));
-                        System.out.println("Drr "+i+" "+j+" "+ii+" "+jj+" "+D3rr.component(ii,jj));
+                 //       System.out.println("Dtt "+i+" "+j+" "+ii+" "+jj+" "+D3tt.component(ii,jj));
+                 //       System.out.println("Dtr "+i+" "+j+" "+ii+" "+jj+" "+D3tr.component(ii,jj));
+                 //       System.out.println("Drt "+i+" "+j+" "+ii+" "+jj+" "+D3rt.component(ii,jj));
+                 //       System.out.println("Drr "+i+" "+j+" "+ii+" "+jj+" "+D3rr.component(ii,jj));
 
                     }
                 }
@@ -585,8 +587,6 @@ public int basisDim;
 
 
                 }
-
-  //      x[2]=(fac * temperature) - ( (delrdotphidotdelr/4)+0.5*( 0.5 * fdotdeltar + orientationSum) ); //THIS ONE WORKS
 
               x[2]=(fac * temperature) - ( (sum/4)+0.5*( 0.5 * fdotdeltar + orientationSum) ); //THIS ONE WORKS
 

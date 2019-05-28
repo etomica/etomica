@@ -136,6 +136,11 @@ public class LatticeSumMolecularCrystal {
         		D6mol.setComponent(i+3,j+3, D3rr.component(i, j));
         	}
     	}
+	//	for (int i=0; i<6; i++) {
+	//		for (int j = 0; j < 6; j++) {
+	//			System.out.println( D6mol.component(4, 4) );
+	//		}
+	//	}
 		return D6mol;
     }
 	PotentialCalculationForceSum pcForce;

@@ -65,7 +65,7 @@ public class Clathrateenergyandcv extends Simulation {
         box.setNMolecules(species, 46 * numCells * numCells * numCells);
         box.setDensity(46 / 12.03 / 12.03 / 12.03);
         ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
-        AtomLeafAgentManager<EwaldSummation.MyCharge> atomAgentManager = new AtomLeafAgentManager<EwaldSummation.MyCharge>(agentSource, box);
+       AtomLeafAgentManager<EwaldSummation.MyCharge> atomAgentManager = new AtomLeafAgentManager<EwaldSummation.MyCharge>(agentSource, box);
         int[] nC = new int[]{numCells, numCells, numCells};
         if (unitCells) {
             numCells = 1;
@@ -80,25 +80,21 @@ public class Clathrateenergyandcv extends Simulation {
         double a0 = box.getBoundary().getBoxSize().getX(0);
         double[] rC = new double[]{a0, a0, a0};
         double sigma, epsilon; //TIP4P
-        if (isIce) {
-            sigma = 3.1668;
-            epsilon = 106.1;//TIP4P/Ice
-        } else {//TIP4P
+         //TIP4P
             double A = 600E3; // kcal A^12 / mol
             double C = 610.0; // kcal A^6 / mol
             double s6 = A / C;
             sigma = Math.pow(s6, 1.0 / 6.0);
             epsilon = Mole.UNIT.fromSim(Calorie.UNIT.toSim(C / s6 * 1000)) / 4.0;
-        }
+
 
         latticeCoordinates = new MoleculeAgentManager(this, box, new MoleculeSiteSource(space, new MoleculePositionCOM(space), new Clathrateenergyandcv.WaterOrientationDefinition(space)));
  //       AtomLeafAgentManager<Vector> atomLatticeCoordinates = new AtomLeafAgentManager<>(new AtomSiteSource(space), box, Vector.class);
 
-         potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
-
+        potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
         potentialLJ = new P2LennardJones(space, sigma, epsilon);
         potentialLJLS = new Potential2SoftSphericalLS(space, rCutLJ, rC, potentialLJ);
-         potentialMaster = new PotentialMaster();
+        potentialMaster = new PotentialMaster();
         potentialMaster.addPotential(potentialES, new AtomType[0]);
         potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
         int maxIterations = 100;
@@ -229,7 +225,6 @@ public class Clathrateenergyandcv extends Simulation {
                     System.out.println("totalForceOld ={ " + totalForce.getX(0) + "," + totalForce.getX(1) + "," + totalForce.getX(2) + "};");
                     System.out.println("totalForceNew ={ " + totalForceNew.getX(0) + "," + totalForceNew.getX(1) + "," + totalForceNew.getX(2) + "};");
 
-
                     //test for total torque
                     h1torque.E(h1Force);
                     h1torque.XE(h1Vector);
@@ -248,7 +243,6 @@ public class Clathrateenergyandcv extends Simulation {
                     System.exit(2);
                 }
 
-
                 //redistribute the forces s.t. only translation
                 if (!doRotation) {
                     totalForce.E(h1Force);
@@ -264,7 +258,6 @@ public class Clathrateenergyandcv extends Simulation {
                     oForce.PEa1Tv1(oMassPercent, totalForce);
                 }
 
-
                 //redistribute s.t. only rotation
                 if (!doTranslation) {
                     totalForce.E(h1Force);
@@ -275,7 +268,6 @@ public class Clathrateenergyandcv extends Simulation {
                     h2Force.PEa1Tv1(-1.0 * hMassPercent, totalForce);
                     oForce.PEa1Tv1(-1.0 * oMassPercent, totalForce);
                 }
-
             }
 
             public void relaxMolecule(IMolecule molecule) {
@@ -293,7 +285,6 @@ public class Clathrateenergyandcv extends Simulation {
                 m.PE(o);
 
             }
-
         };
         integrator.getShakeAgentManager().setAgent(species, bondConstraints);
         integrator.setTimeStep(timeInterval);
@@ -301,8 +292,6 @@ public class Clathrateenergyandcv extends Simulation {
 //        integrator.setOrientAtom((IAtom)((IMolecule)box.getMoleculeList(speciesOrient).getAtom(0)).getChildList().getAtom(0));
         integrator.setIsothermal(true);
         integrator.setTemperature(temperature);
-
-        // WHAT'S NEED TO CONVERT UNITS
 
         integrator.setThermostatInterval(100);
         integrator.setThermostatNoDrift(true);
@@ -316,12 +305,9 @@ public class Clathrateenergyandcv extends Simulation {
         getController().addAction(ai);
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
-
     }
 
-
     public static void main(String[] args) {
-
 
         final long startTime = System.currentTimeMillis();
         SimParams params = new SimParams();
@@ -360,7 +346,7 @@ public class Clathrateenergyandcv extends Simulation {
         if (doMapping) {
             MeterDADBWaterTIP4P  meterDADB = new MeterDADBWaterTIP4P(nC,a0, rCutLJ,sim.potentialLJ, sim.potentialLJLS,sim.potentialES,sim.space,meterPE, sim.box, params.nBasis,sim.potentialMaster, temperature, sim.latticeCoordinates);
 
-                  meterDADB.doTranslation = doTranslation;
+            meterDADB.doTranslation = doTranslation;
             meterDADB.doRotation = doRotation;
    //         meterDADB.getData();
    //         System.exit(0);
@@ -383,8 +369,8 @@ public class Clathrateenergyandcv extends Simulation {
             dataPumpListenerPEsquare = new DataPumpListener(meterPEsquare, accumulatorAverageFixedPEsquare, 10);
         }
 
- //      sim.ai.setMaxSteps(numSteps / 10);
- //       sim.getController().actionPerformed();
+       sim.ai.setMaxSteps(numSteps / 10);
+        sim.getController().actionPerformed();
 
         sim.ai.setMaxSteps(numSteps);
         if (doMapping) sim.integrator.getEventManager().addListener(dataPumpListenerDADB);
@@ -493,11 +479,11 @@ public class Clathrateenergyandcv extends Simulation {
   //          double mappingcovmatrix39 = accumulatorAverageFixedDADB.getData(accumulatorAverageFixedDADB.BLOCK_COVARIANCE).getValue(39);
   //          double mappingcovmatrix40 = accumulatorAverageFixedDADB.getData(accumulatorAverageFixedDADB.BLOCK_COVARIANCE).getValue(40);
 
-             System.out.println(" mappingAverageanh=\t" + mappingAverageanh + " mappingErroranh=\t" + mappingErroranh + " mappingCoranh=\t" + mappingCoranh + " mappingstdevanh=\t" + mappingStdevanh + " mappingAverageanhsquare=\t" + mappingAverageanhsquare + " mappingErroranhsquare=\t" + mappingErroranhsquare + " mappingCoranhsquare=\t" + mappingCoranhsquare + " mappingstdevanhsquare=\t" + mappingStdevanhsquare);
+            System.out.println(" mappingAverageanh=\t" + mappingAverageanh + " mappingErroranh=\t" + mappingErroranh + " mappingCoranh=\t" + mappingCoranh + " mappingstdevanh=\t" + mappingStdevanh + " mappingAverageanhsquare=\t" + mappingAverageanhsquare + " mappingErroranhsquare=\t" + mappingErroranhsquare + " mappingCoranhsquare=\t" + mappingCoranhsquare + " mappingstdevanhsquare=\t" + mappingStdevanhsquare);
             System.out.println(" conPEAverage=\t" + conPEAverage + " conPEError=\t" + conPEError + " conPECor=\t" + conPECor + " conPEStdev=\t" + conPEStdev + " conPEsquareAverage=\t" + conPEsquareAverage + " conPEsquareError=\t" + conPEsquareError + " conPEsquareCor=\t" + conPEsquareCor + " conPEsquareStdev=\t" + conPEsquareStdev );
             System.out.println(" mappingAveragedelrphidelr=\t" + mappingAveragedelrphidelr + " mappingerrordelrphidelr=\t" + mappingErrordelrphidelr + " mappingCordelrphidelr=\t" + mappingCordelrphidelr + " mappingStdevdelrphidelr=\t" +mappingStdevdelrphidelr);
 
-            System.out.println(" forcorr1=\t" +forcorr1+" forcorr2=\t" +forcorr2+" forcorr3=\t" +forcorr3+" forcorr4=\t" +forcorr4+" forcorr5=\t" +forcorr5+" forcorr6=\t" +forcorr6+" forcorr7=\t" +forcorr7);
+  //          System.out.println(" forcorr1=\t" +forcorr1+" forcorr2=\t" +forcorr2+" forcorr3=\t" +forcorr3+" forcorr4=\t" +forcorr4+" forcorr5=\t" +forcorr5+" forcorr6=\t" +forcorr6+" forcorr7=\t" +forcorr7);
                     //          System.out.println(" mappingcovmatrix0=" +mappingcovmatrix0+" mappingcovmatrix1=" +mappingcovmatrix1+" mappingcovmatrix2=" +mappingcovmatrix2+" mappingcovmatrix3=" +mappingcovmatrix3+" mappingcovmatrix4=" +mappingcovmatrix4+" mappingcovmatrix5=" +mappingcovmatrix5+" mappingcovmatrix6=" +mappingcovmatrix6+" mappingcovmatrix7=" +mappingcovmatrix7+" mappingcovmatrix8=" +mappingcovmatrix8+" mappingcovmatrix9=" +mappingcovmatrix9+" mappingcovmatrix10=" +mappingcovmatrix10);
   //          System.out.println(" mappingcovmatrix11=" +mappingcovmatrix11+" mappingcovmatrix12=" +mappingcovmatrix12+" mappingcovmatrix13=" +mappingcovmatrix13+" mappingcovmatrix14=" +mappingcovmatrix14+" mappingcovmatrix15=" +mappingcovmatrix15+" mappingcovmatrix16=" +mappingcovmatrix16+" mappingcovmatrix17=" +mappingcovmatrix17+" mappingcovmatrix18=" +mappingcovmatrix18+" mappingcovmatrix19=" +mappingcovmatrix19+" mappingcovmatrix20=" +mappingcovmatrix20);
   //          System.out.println(" mappingcovmatrix21=" +mappingcovmatrix21+" mappingcovmatrix22=" +mappingcovmatrix22+" mappingcovmatrix23=" +mappingcovmatrix23+" mappingcovmatrix24=" +mappingcovmatrix24+" mappingcovmatrix25=" +mappingcovmatrix25+" mappingcovmatrix26=" +mappingcovmatrix26+" mappingcovmatrix27=" +mappingcovmatrix27+" mappingcovmatrix28=" +mappingcovmatrix28+" mappingcovmatrix29=" +mappingcovmatrix29+" mappingcovmatrix30=" +mappingcovmatrix30);
@@ -510,8 +496,6 @@ public class Clathrateenergyandcv extends Simulation {
             double PEAError = accumulatorAverageFixedPE.getData(AccumulatorAverage.ERROR).getValue(0);
             double PEstdev = accumulatorAverageFixedPE.getData(AccumulatorAverage.STANDARD_DEVIATION).getValue(0);
             double PECor = accumulatorAverageFixedPE.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
-
-
 
             double PEAveragesquare = accumulatorAverageFixedPEsquare.getData(AccumulatorAverage.AVERAGE).getValue(0);
             double PEAErrorsquare = accumulatorAverageFixedPEsquare.getData(AccumulatorAverage.ERROR).getValue(0);
@@ -561,12 +545,12 @@ public class Clathrateenergyandcv extends Simulation {
         int nX = 1;
         public int[] nC = new int[]{nX, nX, nX};
         public int numCells = 1;
-        public int numSteps = 10;
-        public double timeInterval = 0.000000075;
+        public int numSteps = 100;
+        public double timeInterval = 0.00075;
         public double temperature = 50;
-        public double rCutLJ = 11;
-        public double rCutRealES = 11;
-        public double kCut = 1.5;
+        public double rCutLJ =  3.1536;
+        public double rCutRealES = 14.0;
+        public double kCut = 2.60;
         public boolean isIce = false;
         public double shakeTol = 1e-12;
          public boolean unitCells = false;
