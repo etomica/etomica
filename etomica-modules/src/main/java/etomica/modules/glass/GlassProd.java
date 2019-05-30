@@ -5,17 +5,13 @@
 package etomica.modules.glass;
 
 import etomica.data.*;
-import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.meter.MeterPressureHardTensor;
 import etomica.data.meter.MeterPressureTensorFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.simulation.Simulation;
-import etomica.space3d.Space3D;
 import etomica.util.ParseArgs;
 
 public class GlassProd {
@@ -35,12 +31,11 @@ public class GlassProd {
             params.numSteps =   100000;
         }
 
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.potential);
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);
 
         //Initialize
         sim.integrator.setIsothermal(true);
         sim.integrator.setIntegratorMC(sim.integratorMC, 10000);
-        sim.integrator.setTemperature(params.temperature);
         sim.activityIntegrate.setMaxSteps(params.numStepsEq);
         sim.getController().actionPerformed();
         sim.getController().reset();
