@@ -12,6 +12,7 @@ public class AtomTestDeviation implements AtomTest {
     protected final Box box;
     protected final Vector dr;
     protected double minDistance;
+    protected boolean doMobileOnly = true;
 
     public AtomTestDeviation(Box box, ConfigurationStorage configStorage) {
         this.box = box;
@@ -21,6 +22,14 @@ public class AtomTestDeviation implements AtomTest {
 
         setMinDistance(0);
         configIndex = 100;
+    }
+
+    public void setDoMobileOnly(boolean doMobileOnly) {
+        this.doMobileOnly = doMobileOnly;
+    }
+
+    public boolean getDoMobileOnly() {
+        return doMobileOnly;
     }
 
     public void setConfigIndex(int idx) {
@@ -53,6 +62,6 @@ public class AtomTestDeviation implements AtomTest {
 
     @Override
     public boolean test(IAtom a) {
-        return getDisplacementSq(a) > minDistance * minDistance;
+        return getDisplacementSq(a) > minDistance * minDistance == doMobileOnly;
     }
 }
