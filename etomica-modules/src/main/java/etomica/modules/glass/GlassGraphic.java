@@ -414,10 +414,13 @@ public class GlassGraphic extends SimulationGraphic {
         dataStreamPumps.add(densityPump);
         densityBox.setLabel("Number Density");
 
+        AccumulatorPTensor pTensorAccum = new AccumulatorPTensor(sim.integrator, sim.integrator.getTimeStep());
+
         AccumulatorHistory energyHistory, peHistory;
         final AccumulatorAverageCollapsing peAccumulator;
-        DisplayPlot ePlot;
+        DisplayPlot ePlot, tPlot;
         DataFork peFork = null;
+        DataFork tFork = null;
         int log2peInterval = 6;
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
             MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
@@ -462,9 +465,32 @@ public class GlassGraphic extends SimulationGraphic {
             ePlot.getPlot().setTitle("Energy History");
             ePlot.setDoLegend(true);
             ePlot.setLabel("Energy");
+
+
+            //Temperature:
+            MeterTemperature tMeter = new MeterTemperature(sim.box, sim.getSpace().getD());
+            AccumulatorHistory tHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+            tHistory.setTimeDataSource(timeCounter);
+            AccumulatorAverageCollapsing tAccumulator = new AccumulatorAverageCollapsing();
+            tAccumulator.setPushInterval(10);
+            tFork = new DataFork(new IDataSink[]{tHistory, tAccumulator});
+            DataPumpListener tPump = new DataPumpListener(tMeter, tFork, 1 << log2peInterval);
+            sim.integrator.getEventManager().addListener(tPump);
+            tHistory.setPushInterval(5);
+            dataStreamPumps.add(tPump);
+
+            tPlot = new DisplayPlot();
+            tHistory.setDataSink(tPlot.getDataSet().makeDataSink());
+            tPlot.setLegend(new DataTag[]{tHistory.getTag()}, "Temperature");
+            tPlot.setDoLegend(true);
+            tPlot.setLabel("T");
+
+            tAccumulator.addDataSink(pTensorAccum.makeTemperatureSink(), new AccumulatorAverage.StatType[]{tAccumulator.AVERAGE});
+
         } else {
             peAccumulator = null;
             ePlot = null;
+            tPlot = null;
         }
 
         IDataSource pMeter;
@@ -482,6 +508,17 @@ public class GlassGraphic extends SimulationGraphic {
         if (sim.box.getLeafList().size() > 200) {
             pTensorFork.addDataSink(dpAutocor);
         }
+
+        DisplayPlot plotPTensorAccum = new DisplayPlot();
+        plotPTensorAccum.setLabel("viscosity(t)");
+        plotPTensorAccum.setLegend(new DataTag[]{pTensorAccum.getTag()}, "stress");
+        plotPTensorAccum.getPlot().setXLog(true);
+        plotPTensorAccum.getPlot().setYLog(true);
+        add(plotPTensorAccum);
+        DataPumpListener pTensorAccumPump = new DataPumpListener(pTensorAccum,plotPTensorAccum.getDataSet().makeDataSink(),1000);
+        pTensorFork.addDataSink(pTensorAccum);
+        sim.integrator.getEventManager().addListener(pTensorAccumPump);
+
         dpAutocor.setPushInterval(16384);
         DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
         pTensorFork.addDataSink(tracer);
@@ -1052,6 +1089,8 @@ public class GlassGraphic extends SimulationGraphic {
                     dsHistogramP.setEnabled(false);
                     dsPMSDhistory.setEnabled(false);
                     dpAutocor.reset();
+                    pTensorAccum.setEnabled(false);
+                    pTensorAccum.reset();
                     if (dsMSDcorU != null) dsMSDcorU.setEnabled(false);
                     meterCorrelationAA.reset();
                     meterCorrelationAB.reset();
@@ -1082,6 +1121,8 @@ public class GlassGraphic extends SimulationGraphic {
                     if (showDispCheckbox.getState()) canvas.setDrawDisplacement(true);
                     if (flipDispCheckbox.getState()) canvas.setFlipDisplacement(true);
                     dpAutocor.reset();
+                    pTensorAccum.reset();
+                    pTensorAccum.setEnabled(true);
                     meterCorrelationAA.reset();
                     meterCorrelationAB.reset();
                     meterCorrelationBB.reset();
@@ -1110,7 +1151,7 @@ public class GlassGraphic extends SimulationGraphic {
         DeviceSlider temperatureSelect = null;
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
             temperatureSelect = new DeviceSlider(sim.getController(), sim.integrator, "temperature");
-            temperatureSelect.setPrecision(2);
+            temperatureSelect.setPrecision(3);
             temperatureSelect.setNMajor(4);
             temperatureSelect.setMinimum(0.0);
             temperatureSelect.setMaximum(2.0);
@@ -1145,7 +1186,7 @@ public class GlassGraphic extends SimulationGraphic {
         if (temperatureSelect != null) getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
 
         add(rdfPlot);
-        if (sim.potentialChoice != SimGlass.PotentialChoice.HS) add(ePlot);
+        if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {add(ePlot); add(tPlot);}
         add(densityBox);
         add(pDisplay);
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
