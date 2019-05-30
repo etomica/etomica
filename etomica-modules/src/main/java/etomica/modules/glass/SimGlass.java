@@ -208,6 +208,7 @@ public class SimGlass extends Simulation {
         // for HS, rho=1.35 is very high, but 1.30 is perhaps not high enough
         // for WCA, rho=0.75*1.4*1.4 = 1.47
         public double density = 1000 / (29.34 * 29.34);
+        public double temperature = 1.0;
         public boolean doSwap = false;
         public PotentialChoice potential = PotentialChoice.LJ;
     }
