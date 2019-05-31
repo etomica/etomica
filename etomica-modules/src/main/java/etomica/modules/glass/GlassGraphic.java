@@ -109,6 +109,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         ColorSchemeDeviation colorSchemeDeviation = new ColorSchemeDeviation(sim.box, configStorage);
         ColorSchemeDirection colorSchemeDirection = new ColorSchemeDirection(sim.box, configStorage);
+        ColorSchemeCluster colorSchemeCluster = new ColorSchemeCluster(sim.box, atomFilterDeviation);
 
         DataSourcePrevTime dsPrevTime = new DataSourcePrevTime(configStorage);
         DisplayTextBox displayPrevTime = new DisplayTextBox();
@@ -254,6 +255,9 @@ public class GlassGraphic extends SimulationGraphic {
         stringSlider.setNMajor(4);
         add(stringSlider);
 
+        DeviceCheckBox immobileCheckbox = new DeviceCheckBox("show immobile", null);
+        immobileCheckbox.setController(sim.getController());
+        add(immobileCheckbox);
 
         DeviceCheckBox colorCheckboxStrings = new DeviceCheckBox("color strings", new ModifierBoolean() {
             @Override
@@ -282,6 +286,7 @@ public class GlassGraphic extends SimulationGraphic {
                 if (b) {
                     if (sim.integrator.isIsothermal()) return;
                     colorCheckbox.setState(false);
+                    immobileCheckbox.setState(false);
                     dbox.setColorScheme(colorSchemeDirection);
                 } else {
                     dbox.setColorScheme(colorScheme);
@@ -301,6 +306,7 @@ public class GlassGraphic extends SimulationGraphic {
                 if (b) {
                     if (sim.integrator.isIsothermal()) return;
                     colorDirectionCheckbox.setState(false);
+                    immobileCheckbox.setState(false);
                     dbox.setColorScheme(colorSchemeDeviation);
                 } else {
                     dbox.setColorScheme(colorScheme);
@@ -351,6 +357,27 @@ public class GlassGraphic extends SimulationGraphic {
             }
             getPanel().controlPanel.add(xyzPanel, SimulationPanel.getVertGBC());
         }
+        immobileCheckbox.setModifier(new ModifierBoolean() {
+            @Override
+            public void setBoolean(boolean b) {
+                if ((dbox.getColorScheme() == colorSchemeCluster) == b) return;
+                atomFilterDeviation.setDoMobileOnly(!b);
+                if (b) {
+                    if (sim.integrator.isIsothermal()) return;
+                    colorDirectionCheckbox.setState(false);
+                    colorCheckbox.setState(false);
+                    dbox.setColorScheme(colorSchemeCluster);
+                } else {
+                    dbox.setColorScheme(colorScheme);
+                }
+                dbox.repaint();
+            }
+
+            @Override
+            public boolean getBoolean() {
+                return !atomFilterDeviation.getDoMobileOnly();
+            }
+        });
 
         DeviceCheckBox showDispCheckbox = new DeviceCheckBox("show displacement", new ModifierBoolean() {
             @Override
@@ -1308,9 +1335,9 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 15;
-            params.nB = 15;
-            params.density = 1.65;
+            params.nA = 400;
+            params.nB = 400;
+            params.density = 1.60;
             params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);
