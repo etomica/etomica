@@ -33,7 +33,7 @@ import java.util.ArrayList;
 
 public class GlassGraphic extends SimulationGraphic {
 
-    private final static String APP_NAME = "Lennard-Jones Molecular Dynamics";
+    private final static String APP_NAME = " Molecular Dynamics";
     private final static int REPAINT_INTERVAL = 20;
     protected SimGlass sim;
 
@@ -1344,7 +1344,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         GlassGraphic ljmdGraphic = new GlassGraphic(sim);
         SimulationGraphic.makeAndDisplayFrame
-                (ljmdGraphic.getPanel(), APP_NAME);
+                (ljmdGraphic.getPanel(), sim.potentialChoice+APP_NAME);
     }
 
     /**
