@@ -23,14 +23,14 @@ public class GlassProd {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doSwap = true;
-            params.potential = SimGlass.PotentialChoice.LJ;
-            params.nA = 256;
+            params.potential = SimGlass.PotentialChoice.HS;
+            params.nA = 128;
             params.nB = 0;
-            params.density = 0.95492965855;//0.8442;
+            params.density = 0.6;
             params.D = 3;
             params.temperature = 0.722;
-            params.numStepsEq = 1000;
-            params.numSteps =   10000;
+            params.numStepsEq = 10000;
+            params.numSteps =   1000000;
         }
 
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);
@@ -131,7 +131,7 @@ public class GlassProd {
                 phi = Math.PI/6*(params.nA+params.nB/(1.4*1.4*1.4))/volume;
             }
             System.out.println("phi: " + phi);
-            fileName = String.format("visc%1dDRho%1.3f", params.D,rho);
+            fileName = String.format("visc%1dDRho%1.3f.out", params.D,rho);
         }else{
             DataGroup dataT = (DataGroup)tAccumulator.getData();
             IData dataTAvg = dataT.getData(tAccumulator.AVERAGE.index);
@@ -141,7 +141,7 @@ public class GlassProd {
             double tErr  = dataTErr.getValue(0);
             double tCorr = dataTCorr.getValue(0);
             System.out.println("T: " + tAvg +"  "+ tErr +"  cor: "+tCorr);
-            fileName = String.format("visc%1dDPho%1.3fT%1.3f", params.D, rho, params.temperature);
+            fileName = String.format("visc%1dDPho%1.3fT%1.3f.out", params.D, rho, params.temperature);
             System.out.println("G: " + sim.box.getBoundary().volume()/tAvg*sd2PTensor+"\n");
         }
         System.out.println("P: " + pAvg +"  "+ pErr +"  cor: "+pCorr);
@@ -153,9 +153,11 @@ public class GlassProd {
             DataDoubleArray x = pTensorAccumVisc.getIndependentData(0);
             for (int i=0; i<pTensorAccumVisc.getData().getLength(); i++){
                 double yi = pTensorAccumVisc.getData().getValue(i);
+                double yiErr = pTensorAccumVisc.errData.getValue(i);
                 double xi = x.getValue(i);
                 if(!Double.isNaN(yi)){
-                    fileWriter.write(xi + " " + yi + "\n");
+                    fileWriter.write(xi + " " + yi + " " + yiErr + "\n");
+                    System.out.println(xi + " " + yi + " " + yiErr);
                 }
             }
             fileWriter.close();

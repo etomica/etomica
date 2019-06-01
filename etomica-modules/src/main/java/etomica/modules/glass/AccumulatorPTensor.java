@@ -16,14 +16,16 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
     protected DataDoubleArray.DataInfoDoubleArray xDataInfo;
     protected DataFunction data;
     protected DataFunction.DataInfoFunction dataInfo;
-    protected final DataTag xTag, tag;
+    protected DataFunction errData;
+    protected DataFunction.DataInfoFunction errDataInfo;
+    protected final DataTag xTag, tag, errTag;
     protected double[][] blockSumX;
     protected long[] nBlockSamplesX;
     protected final IntegratorMD integrator;
     protected long nSample = 0;
     protected boolean enabled;
     protected int interval;
-    protected double[] sumP2;
+    protected double[] sumP2, sumP4;
     protected int nP, dim;
     protected double volume, temperature, dt;
 
@@ -32,10 +34,12 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
         this.dt = dt;
         this.nP = integrator.getBox().getSpace().D() == 2 ? 1 : 3;
         tag = new DataTag();
+        errTag = new DataTag();
         xTag = new DataTag();
         nBlockSamplesX = new long[60];
         blockSumX = new double[60][nP];
         sumP2 = new double[60];
+        sumP4 = new double[60];
         volume = integrator.getBox().getBoundary().volume();
         temperature = 1;
         dim = integrator.getBox().getSpace().D();
@@ -46,12 +50,14 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
         for (int i = 0; i < nBlockSamplesX.length; i++) {
             nBlockSamplesX[i] = 0;
             sumP2[i] = 0;
+            sumP4[i] = 0;
             for(int k=0; k<nP; k++){
                 blockSumX[i][k] = 0;
             }
         }
 
         data = new DataFunction(new int[]{sumP2.length});
+        errData = new DataFunction(new int[]{sumP2.length});
         xData = new DataDoubleArray(new int[]{sumP2.length});
         double[] x = xData.getData();
         for(int i=0; i<xData.getLength(); i++){
@@ -61,6 +67,8 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
         xDataInfo.addTag(xTag);
         dataInfo = new DataFunction.DataInfoFunction("viscosity", Null.DIMENSION, this);
         dataInfo.addTag(tag);
+        errDataInfo = new DataFunction.DataInfoFunction("viscosity error", Null.DIMENSION, this);
+        errDataInfo.addTag(errTag);
     }
 
 
@@ -98,10 +106,12 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
             }
             if (nSample % (1L << i) == 0) {
                 for(int k=0; k<nP; k++){
-                    sumP2[i] += blockSumX[i][k]*blockSumX[i][k];
+                    double p2 = blockSumX[i][k]*blockSumX[i][k];
+                    sumP2[i] += p2;
+                    sumP4[i] += p2*p2;
                     blockSumX[i][k] = 0;
                 }
-                nBlockSamplesX[i]++;
+                nBlockSamplesX[i]+=nP;
             }
         }
     }
@@ -109,10 +119,17 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
 
     public IData getData() {
         double[] y = data.getData();
-        double fac = dt*volume/(2*nP*temperature);
+        double[] yErr = errData.getData();
+
+        double fac = dt*volume/(2*temperature);
 
         for(int i=0; i<sumP2.length; i++){
-            y[i] = fac*sumP2[i]/nBlockSamplesX[i]/(1L<<i);
+            long n = 1L<<i;
+            long M = nBlockSamplesX[i];
+            y[i] = fac/M/n*sumP2[i];
+            if(M != 0){
+                yErr[i] = fac/M/n*Math.sqrt((M*sumP4[i] - sumP2[i]*sumP2[i])/(M-1));
+            }
         }
         return data;
     }
