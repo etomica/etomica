@@ -23,9 +23,9 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
-    protected DataFunction data;
+    protected DataFunction data, errData;
     protected DataFunction.DataInfoFunction dataInfo;
-    protected double[] msdSum;
+    protected double[] msdSum, msd2Sum;
     protected final DataTag tTag, tag;
     protected long[] nSamples;
     protected final AtomType type;
@@ -39,6 +39,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         this.configStorage = configStorage;
         this.type = type;
         msdSum = new double[0];
+        msd2Sum = new double[0];
         nSamples = new long[0];
         tag = new DataTag();
         tTag = new DataTag();
@@ -51,8 +52,10 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         if (n + 1 == msdSum.length && data != null) return;
         if (n < 1) n = 0;
         msdSum = Arrays.copyOf(msdSum, n);
+        msd2Sum = Arrays.copyOf(msd2Sum, n);
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
+        errData = new DataFunction(new int[]{n});
         tData = new DataDoubleArray(new int[]{n});
         tDataInfo = new DataDoubleArray.DataInfoDoubleArray("t", Time.DIMENSION, new int[]{n});
         tDataInfo.addTag(tTag);
@@ -76,8 +79,11 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     public IData getData() {
         if (configStorage.getLastConfigIndex() < 1) return data;
         double[] y = data.getData();
+        double[] yErr = errData.getData();
         for (int i = 0; i < msdSum.length; i++) {
-            y[i] = msdSum[i] / nSamples[i];
+            long M = nSamples[i];
+            y[i] = msdSum[i] / M;
+            yErr[i] = Math.sqrt((msd2Sum[i]/M - y[i]*y[i]) / (M - 1));
         }
         return data;
     }
@@ -108,10 +114,12 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
                     iSum += positions[j].Mv1Squared(iPositions[j]);
                     iSamples++;
                 }
-                msdSum[i - 1] += iSum;
-                nSamples[i - 1] += iSamples;
+                double iAvg = iSum/iSamples;
+                msdSum[i - 1] += iAvg;
+                msd2Sum[i - 1] += iAvg*iAvg;
+                nSamples[i - 1]++;
                 for (MSDSink s : msdSinks) {
-                    s.putMSD(i - 1, step, iSum / iSamples);
+                    s.putMSD(i - 1, step, iAvg);
                 }
             }
         }
