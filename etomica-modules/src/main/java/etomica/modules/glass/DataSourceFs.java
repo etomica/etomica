@@ -50,7 +50,7 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
         int n = configStorage.getLastConfigIndex();
         if (n + 1 == fsSum.length && data != null) return;
         if (n < 1) n = 0;
-        else n--;
+//        else n--;
         fsSum = Arrays.copyOf(fsSum, n);
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
