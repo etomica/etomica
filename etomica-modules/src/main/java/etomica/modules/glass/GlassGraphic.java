@@ -981,6 +981,18 @@ public class GlassGraphic extends SimulationGraphic {
         plotAlpha2.getPlot().setXLog(true);
         add(plotAlpha2);
 
+        //F
+        //Fs: TOTAL
+        DataSourceF meterF = new DataSourceF(configStorageMSD);
+        configStorageMSD.addListener(meterF);
+        DisplayPlot plotF = new DisplayPlot();
+        DataPumpListener pumpF = new DataPumpListener(meterF, plotF.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpF);
+        plotF.setLabel("F");
+        plotF.getPlot().setXLog(true);
+        add(plotF);
+
+
 
         //Fs: TOTAL
         DataSourceFs meterFs = new DataSourceFs(configStorageMSD);
@@ -1010,6 +1022,7 @@ public class GlassGraphic extends SimulationGraphic {
         plotFs.setLegend(new DataTag[]{meterFs.getTag()}, "total");
         plotFs.setLegend(new DataTag[]{meterFsA.getTag()}, "A");
         plotFs.setLegend(new DataTag[]{meterFsB.getTag()}, "B");
+
 
         meterMSD.addMSDSink(dsMSDcorP);
         DisplayPlot plotMSDcorUP = new DisplayPlot();
@@ -1335,9 +1348,9 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 400;
-            params.nB = 400;
-            params.density = 1.60;
+            params.nA = 100;
+            params.nB = 100;
+            params.density = 1.6;
             params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);
