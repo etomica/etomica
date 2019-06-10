@@ -10,7 +10,6 @@ import etomica.data.meter.MeterPressureTensorFromIntegrator;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.util.ParseArgs;
@@ -25,17 +24,21 @@ public class GlassProd {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 50;
-            params.nB = 50;
-            params.density = 1;
+            params.nA = 100;
+            params.nB = 100;
+            params.density = 0.7;
             params.D = 3;
-            params.temperature = 0.722;
+            params.temperature = 1.0;
             params.numStepsEq = 10000;
-            params.numSteps =   100000;
+            params.numSteps =   1000000;
         }
 
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);
-        System.out.println(sim.potentialChoice);
+        System.out.println(params.D +"D " + sim.potentialChoice);
+        System.out.println("nA:nB = " + params.nA + ":" + params.nB);
+        double volume = sim.box.getBoundary().volume();
+        int numAtoms = params.nA + params.nB;
+        double rho= numAtoms/volume;
         System.out.println( params.numSteps + " MD steps after " + params.numStepsEq + " equilibaration steps");
 
         //Initialize
@@ -109,7 +112,40 @@ public class GlassProd {
 
         sim.integrator.getEventManager().addListener(configStorageMSD);
 
+
+
+
+
+
+
+
+
+
+
+        //Percolation
+        ConfigurationStorage configStorage = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LOG2);
+        configStorage.setEnabled(true);
+        sim.integrator.getEventManager().addListener(configStorage);
+
+        AtomTestDeviation atomFilterDeviation = new AtomTestDeviation(sim.box, configStorage);
+        atomFilterDeviation.setMinDistance(0.1);
+        atomFilterDeviation.setDoMobileOnly(false);
+        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorage,atomFilterDeviation);
+        configStorage.addListener(meterPerc);
+
+
+
+
+
+
+
+
+
+
+
+
         //Run
+        double time0 = System.currentTimeMillis();
         sim.getController().actionPerformed();
 
         int[] pIndex;
@@ -136,11 +172,8 @@ public class GlassProd {
         for(int i=0; i<pIndex.length; i++){sd2PTensor += dataPTensorSD.getValue(pIndex[i])*dataPTensorSD.getValue(pIndex[i]);}
         sd2PTensor/=pIndex.length;
 
-        double volume = sim.box.getBoundary().volume();
-        int numAtoms = params.nA + params.nB;
-        double rho= numAtoms/volume;
-        System.out.println("rho: " + rho);
-        String filenameVisc, filenameMSD, filenameD, filenameFs, filenameF;
+
+        String filenameVisc, filenameMSD, filenameD, filenameFs, filenameF, filenamePerc;
 
         if(sim.potentialChoice == SimGlass.PotentialChoice.HS){
             double phi;
@@ -149,12 +182,14 @@ public class GlassProd {
             }else{
                 phi = Math.PI/6*(params.nA+params.nB/(1.4*1.4*1.4))/volume;
             }
-            System.out.println("phi: " + phi);
-            filenameVisc = String.format("Visc%1dDRho%1.3f.out", params.D,rho);
-            filenameMSD = String.format("MSD%1dDRho%1.3f.out", params.D,rho);
-            filenameD = String.format("D%1dDRho%1.3f.out", params.D,rho);
-            filenameFs = String.format("Fs%1dDRho%1.3f.out", params.D,rho);
-            filenameF = String.format("F%1dDRho%1.3f.out", params.D,rho);
+            System.out.println("rho: " + params.density + "  phi: " + phi+"\n");
+            System.out.println("Z: " + pAvg/params.density/params.temperature +"  "+ pErr/params.density/params.temperature  +"  cor: "+pCorr);
+            filenameVisc = String.format("viscRho%1.3f.out",rho);
+            filenameMSD = String.format("msdRho%1.3f.out", rho);
+            filenameD = String.format("dRho%1.3f.out", rho);
+            filenameFs = String.format("fsRho%1.3f.out", rho);
+            filenameF = String.format("fRho%1.3f.out", rho);
+            filenamePerc = String.format("percRho%1.3f.out", rho);
         }else{
             DataGroup dataT = (DataGroup)tAccumulator.getData();
             IData dataTAvg = dataT.getData(tAccumulator.AVERAGE.index);
@@ -163,16 +198,18 @@ public class GlassProd {
             double tAvg  = dataTAvg.getValue(0);
             double tErr  = dataTErr.getValue(0);
             double tCorr = dataTCorr.getValue(0);
+            System.out.println("rho: " + params.density+"\n");
             System.out.println("T: " + tAvg +"  "+ tErr +"  cor: "+tCorr);
-            filenameVisc = String.format("Visc%1dDPho%1.3fT%1.3f.out", params.D, rho, params.temperature);
-            filenameMSD = String.format("MSD%1dDPho%1.3fT%1.3f.out", params.D, rho, params.temperature);
-            filenameD = String.format("D%1dDPho%1.3fT%1.3f.out", params.D, rho, params.temperature);
-            filenameFs = String.format("Fs%1dDPho%1.3fT%1.3f.out", params.D, rho, params.temperature);
-            filenameF = String.format("F%1dDPho%1.3fT%1.3f.out", params.D, rho, params.temperature);
+            System.out.println("Z: " + pAvg/params.density/tAvg +"  "+ pErr/params.density/tAvg  +"  cor: "+pCorr);
+            filenameVisc = String.format("viscPho%1.3fT%1.3f.out",  rho, params.temperature);
+            filenameMSD = String.format("msdPho%1.3fT%1.3f.out",  rho, params.temperature);
+            filenameD = String.format("dPho%1.3fT%1.3f.out",  rho, params.temperature);
+            filenameFs = String.format("fsPho%1.3fT%1.3f.out", rho, params.temperature);
+            filenameF = String.format("fPho%1.3fT%1.3f.out",  rho, params.temperature);
+            filenamePerc = String.format("percPho%1.3fT%1.3f.out",  rho, params.temperature);
             System.out.println("G: " + sim.box.getBoundary().volume()/tAvg*sd2PTensor+"\n");
         }
         System.out.println("P: " + pAvg +"  "+ pErr +"  cor: "+pCorr);
-        System.out.println("Z: " + pAvg/sim.box.getBoundary().volume() +"  "+ pErr +"  cor: "+pCorr);
 
         //Viscosity
         FileWriter fileWriterVisc;
@@ -193,12 +230,13 @@ public class GlassProd {
         }
 
         //MSD
-        FileWriter fileWriterMSD, fileWriterD, fileWriterFs, fileWriterF;
+        FileWriter fileWriterMSD, fileWriterD, fileWriterFs, fileWriterF, fileWriterPerc;
         try {
-            fileWriterMSD = new FileWriter(filenameMSD, false);
-            fileWriterD = new FileWriter(filenameD, false);
-            fileWriterFs = new FileWriter(filenameFs, false);
-            fileWriterF = new FileWriter(filenameF, false);
+            fileWriterMSD = new FileWriter(filenameMSD,false);
+            fileWriterD   = new FileWriter(filenameD,  false);
+            fileWriterFs  = new FileWriter(filenameFs, false);
+            fileWriterF   = new FileWriter(filenameF,  false);
+            fileWriterPerc   = new FileWriter(filenamePerc,  false);
             DataDoubleArray x = meterMSD.getIndependentData(0);
             DataDoubleArray x2 = meterMSD.getIndependentData(0);
             for (int i=0; i<meterMSD.getData().getLength(); i++){
@@ -207,20 +245,25 @@ public class GlassProd {
                 double yiErr = meterMSD.errData.getValue(i);
                 double yiFs = meterFs.getData().getValue(i);
                 double yiF  = meterF.getData().getValue(i);
+                double yiPerc  = meterPerc.getData().getValue(i);
                 if( !Double.isNaN(yi) && !Double.isNaN(yiErr) && !Double.isNaN(yiFs)){
                     fileWriterMSD.write(xi + " " + yi + " " + yiErr+"\n");
                     fileWriterD.write(xi + " " + yi/6/xi + " " + yiErr/6/xi + "\n");
                     fileWriterFs.write(xi + " " + yiFs + "\n");
                     fileWriterF.write(xi + " " + yiF + "\n");
+                    fileWriterPerc.write(xi + " " + yiPerc + "\n");
                 }
             }
             fileWriterMSD.close();
             fileWriterD.close();
             fileWriterFs.close();
             fileWriterF.close();
+            fileWriterPerc.close();
         } catch (IOException e) {
             System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
         }
+        double time1 = System.currentTimeMillis();
+        System.out.println("\ntime: " + (time1-time0)/1000/3600 + " hrs");
     }
 
     public static class SimParams extends SimGlass.GlassParams {

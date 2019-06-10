@@ -16,12 +16,19 @@ public class AtomNbrClusterer {
     protected double nbrMax2 = 1.5 * 1.5;
     protected final AtomTestDeviation atomTestDeviation;
     protected final int[] clusters;
+    protected final int[][] nbrList;
     protected final int[] nextAtom, firstAtoms, lastAtoms;
     protected final int[] skip;
+    protected final boolean doNbrs;
 
-    public AtomNbrClusterer(Box box, AtomTestDeviation atomTest) {
+    public AtomNbrClusterer(Box box, AtomTestDeviation atomTest){
+        this(box, atomTest, false);
+    }
+
+    public AtomNbrClusterer(Box box, AtomTestDeviation atomTest, boolean doNbrs) {
         this.box = box;
         atomTestDeviation = atomTest;
+        this.doNbrs = doNbrs;
         Space space = box.getSpace();
         dr = space.makeVector();
         int n = box.getLeafList().size();
@@ -29,6 +36,7 @@ public class AtomNbrClusterer {
         firstAtoms = new int[n];
         lastAtoms = new int[n];
         nextAtom = new int[n];
+        nbrList = new int[n][n];
         skip = new int[n];
     }
 
@@ -36,9 +44,7 @@ public class AtomNbrClusterer {
         return clusters;
     }
 
-    public int[] getNextAtom() {
-        return nextAtom;
-    }
+    public int[] getNextAtom() { return nextAtom; }
 
     public int[] getFirstAtom() {
         return firstAtoms;
@@ -56,8 +62,14 @@ public class AtomNbrClusterer {
         IAtomList atoms = box.getLeafList();
         for (int i = 0; i < atoms.size(); i++) {
             skip[i] = nextAtom[i] = clusters[i] = -1;
+            for(int j=0; j<atoms.size(); j++){
+                nbrList[i][j] = -1;
+            }
         }
         int nClusters = 0;
+
+
+        //i
         for (int i = 0; i < atoms.size(); i++) {
             IAtom a = atoms.get(i);
             if (skip[i] == -1) {
@@ -78,8 +90,10 @@ public class AtomNbrClusterer {
                 iCluster = clusters[i];
             }
             Vector ri = a.getPosition();
+
+            //j
             for (int j = i + 1; j < atoms.size(); j++) {
-                if (clusters[j] == clusters[i] || skip[j] == 1) continue;
+                if ((!doNbrs && clusters[j] == clusters[i]) || skip[j] == 1) continue;
                 IAtom aj = atoms.get(j);
                 if (skip[j] == -1) {
                     // check if j is immobile
@@ -90,6 +104,25 @@ public class AtomNbrClusterer {
                 dr.Ev1Mv2(rj, ri);
                 box.getBoundary().nearestImage(dr);
                 if (dr.squared() > nbrMax2) continue;
+
+                if(doNbrs) {
+                    for (int k = 0; k < nbrList[i].length; k++) {
+                        if (nbrList[i][k] == -1) {
+                            nbrList[i][k] = j;
+                            break;
+                        }
+                    }
+                    for (int kk = 0; kk < nbrList[j].length; kk++) {
+                        if (nbrList[j][kk] == -1) {
+                            nbrList[j][kk] = i;
+                            break;
+                        }
+                    }
+
+
+                    if (clusters[j] == clusters[i]) continue;
+                }
+
                 if (clusters[j] == -1) {
                     // add j to iCluster
                     nextAtom[j] = firstAtoms[iCluster];
@@ -126,5 +159,11 @@ public class AtomNbrClusterer {
                 nClusters--;
             }
         }
+        System.out.println("");
     }
 }
+
+
+
+
+

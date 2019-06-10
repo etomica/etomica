@@ -982,7 +982,6 @@ public class GlassGraphic extends SimulationGraphic {
         add(plotAlpha2);
 
         //F
-        //Fs: TOTAL
         DataSourceF meterF = new DataSourceF(configStorageMSD);
         configStorageMSD.addListener(meterF);
         DisplayPlot plotF = new DisplayPlot();
@@ -1350,7 +1349,7 @@ public class GlassGraphic extends SimulationGraphic {
             params.potential = SimGlass.PotentialChoice.HS;
             params.nA = 100;
             params.nB = 100;
-            params.density = 1.6;
+            params.density = 1.5;
             params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);
