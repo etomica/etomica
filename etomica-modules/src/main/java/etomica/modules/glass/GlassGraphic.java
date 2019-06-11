@@ -106,16 +106,29 @@ public class GlassGraphic extends SimulationGraphic {
         dbox.setDiameterHash(diameterHash);
 
         AtomTestDeviation atomFilterDeviation = new AtomTestDeviation(sim.box, configStorage);
+        AtomTestDeviation atomFilterDeviationPerc = new AtomTestDeviation(sim.box, configStorage);
 
         ColorSchemeDeviation colorSchemeDeviation = new ColorSchemeDeviation(sim.box, configStorage);
         ColorSchemeDirection colorSchemeDirection = new ColorSchemeDirection(sim.box, configStorage);
         ColorSchemeCluster colorSchemeCluster = new ColorSchemeCluster(sim.box, atomFilterDeviation);
 
+        //Percolation
+        atomFilterDeviationPerc.setDoMobileOnly(false);
+        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorage, atomFilterDeviationPerc);
+        configStorage.addListener(meterPerc);
+        DisplayPlot plotPerc = new DisplayPlot();
+        DataPumpListener pumpPerc = new DataPumpListener(meterPerc, plotPerc.getDataSet().makeDataSink(), 1000);
+        plotPerc.setLegend(new DataTag[]{meterPerc.getTag()}, "perc. prob.");
+        sim.integrator.getEventManager().addListener(pumpPerc);
+        plotPerc.setLabel("perc");
+        plotPerc.getPlot().setXLog(true);
+        add(plotPerc);
+
+
         DataSourcePrevTime dsPrevTime = new DataSourcePrevTime(configStorage);
         DisplayTextBox displayPrevTime = new DisplayTextBox();
         DataPumpListener pumpPrevTime = new DataPumpListener(dsPrevTime, displayPrevTime, 1);
         sim.integrator.getEventManager().addListener(pumpPrevTime);
-
 
         DeviceSlider prevConfigSlider = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
@@ -159,6 +172,7 @@ public class GlassGraphic extends SimulationGraphic {
                     colorSchemeDirection.setConfigStorage(configStorageLinear);
                     dsPrevTime.setConfigStorage(configStorageLinear);
                     atomFilterDeviation.setConfigStorage(configStorageLinear);
+                    atomFilterDeviationPerc.setConfigStorage(configStorageLinear);
                     prevConfigSlider.setMaximum(1000);
                 }else{
                     canvas.setConfigStorage(configStorage);
@@ -166,6 +180,7 @@ public class GlassGraphic extends SimulationGraphic {
                     colorSchemeDirection.setConfigStorage(configStorage);
                     dsPrevTime.setConfigStorage(configStorage);
                     atomFilterDeviation.setConfigStorage(configStorage);
+                    atomFilterDeviationPerc.setConfigStorage(configStorage);
                     prevConfigSlider.setMaximum(30);
                 }
                 pumpPrevTime.actionPerformed();
@@ -200,7 +215,9 @@ public class GlassGraphic extends SimulationGraphic {
             @Override
             public void setValue(double newValue) {
                 atomFilterDeviation.setMinDistance(newValue);
+                atomFilterDeviationPerc.setMinDistance(newValue);
                 dbox.repaint();
+                meterPerc.reset();
             }
 
             @Override
@@ -950,6 +967,10 @@ public class GlassGraphic extends SimulationGraphic {
         final DisplayTextBoxesCAE pDisplay = new DisplayTextBoxesCAE();
         pDisplay.setAccumulator(pAccumulator);
 
+
+
+
+        //MSD
         DataSourceMSD meterMSD = new DataSourceMSD(configStorageMSD);
         configStorageMSD.addListener(meterMSD);
         DisplayPlot plotMSD = new DisplayPlot();
@@ -1141,6 +1162,7 @@ public class GlassGraphic extends SimulationGraphic {
                     diameterHash.setFac(1.0);
                     accSFac.reset();
                     sfacClusterer.reset();
+                    meterPerc.reset();
                 } else {
                     dbox.setAtomTestDoDisplay(atomFilterDeviation);
                     sim.integrator.setIntegratorMC(null, 0);
@@ -1172,6 +1194,7 @@ public class GlassGraphic extends SimulationGraphic {
                     diameterHash.setFac(showDispCheckbox.getState() ? 0.5 : 1.0);
                     accSFac.reset();
                     sfacClusterer.reset();
+                    meterPerc.reset();
                 }
             }
 
@@ -1349,7 +1372,7 @@ public class GlassGraphic extends SimulationGraphic {
             params.potential = SimGlass.PotentialChoice.HS;
             params.nA = 100;
             params.nB = 100;
-            params.density = 1.5;
+            params.density = 1.55;
             params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);

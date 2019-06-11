@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
-import etomica.atom.IAtomList;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -32,9 +31,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     protected final int numAtoms;
     protected final int[] clusterStack;
     protected final boolean[] isVisited;
-    protected final Vector[] dr;
     protected final Space space;
-    protected final Vector L;
 
 
     public DataSourcePercolation(ConfigurationStorage configStorage, AtomTestDeviation atomTest) {
@@ -45,10 +42,8 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         numAtoms = configStorage.getBox().getLeafList().size();
         clusterSize = new int[numAtoms][2];
         clusterStack = new int[numAtoms];
-        dr = new Vector[numAtoms];
         isVisited= new boolean[numAtoms];
         space = configStorage.box.getSpace();
-        L = configStorage.box.getBoundary().getBoxSize();
         percP = new double[0];
         nSamples = new long[0];
         tag = new DataTag();
@@ -74,7 +69,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         tData = new DataDoubleArray(new int[]{n});
         tDataInfo = new DataDoubleArray.DataInfoDoubleArray("t", Time.DIMENSION, new int[]{n});
         tDataInfo.addTag(tTag);
-        dataInfo = new DataFunction.DataInfoFunction("MSD", new CompoundDimension(new Dimension[]{Length.DIMENSION}, new double[]{2}), this);
+        dataInfo = new DataFunction.DataInfoFunction("percProb", new CompoundDimension(new Dimension[]{Length.DIMENSION}, new double[]{2}), this);
         dataInfo.addTag(tag);
         double[] t = tData.getData();
         if (t.length > 0) {
@@ -86,7 +81,6 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         }
         for(int i=0; i<numAtoms; i++){
             clusterStack[i] = -1;
-            dr[i] = space.makeVector();
             isVisited[i] = false;
         }
     }
@@ -118,10 +112,8 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         reset(); // reallocates if needed
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
-        IAtomList atoms = configStorage.getBox().getLeafList();
-        for (int i = 0; i <= percP.length; i++) {
-            if (step % (1L << i) == 0) {
-                Vector[] iPositions = configStorage.getSavedConfig(i);
+        for (int i = 1; i <= percP.length; i++) {
+            if (step % (1L << (i-1)) == 0) {
                 atomTest.setConfigIndex(i);
                 clusterer.findClusters();
                 int[] firstAtom = clusterer.getFirstAtom();
@@ -143,64 +135,47 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                 });
 
                 if(nClusters == 0) continue;
-
+                outer:
                 for (int j = 0; j < nClusters; j++) {
                     if(clusterSize[j][1] > numAtoms/2) {
-                        percP[i]++;
-                        break; //do not look for further clusters; go to next time interval i.
+                        percP[i-1]++;
+                        nSamples[i-1]++;
+                        break outer; //do not look for further clusters; go to next i.
                     }
-                    int c = clusterSize[j][0];
-                    int a = firstAtom[c];
-                    isVisited[a] = true;
-                    clusterStack[0] = a;
-                    dr[0] = space.makeVector();
-                    boolean test = true;
-                    Vector sumDr = space.makeVector();
-                    boolean isNewNbrs = true;
-
-                    int[] nbrs0 = clusterer.nbrList[a];
-
-                    int k = 0;
-                    outer:
-                    while(true){//DBS
+                    int c = clusterSize[j][0]; //cluster No.
+                    int a = firstAtom[c]; // a is 1st atom in cluster
+                    clusterStack[0] = a; //push a
+                    isVisited[a] = true; // a is visited
+                    Vector tmp = space.makeVector();
+                    int k_top = 0;
+                    while(true){//BFS
+                        clusterStack[k_top] = -1; // pop a
                         int[] nbrs = clusterer.nbrList[a];
-                        for(int n=0; (n<numAtoms && nbrs[n] !=-1); n++){//loop over nbrs of a
-                            int b = nbrs[n];//b=6
-                            if(isVisited[b] == false){// 4 is not visited
-                                dr[k].Ev1Mv2(positions[a], iPositions[b]);
-                                sumDr.PE(dr[k]);
-                                int m = 0;
-                                while(nbrs0[m] != -1){//loop over nbrs of a0
-                                    if(b == nbrs0[m] && Math.abs(sumDr.getX(0))>L.getX(0)/2 && Math.abs(sumDr.getX(1))>L.getX(1)/2 && Math.abs(sumDr.getX(2))>L.getX(2)/2){
-                                        percP[i]+=1;
-                                        nSamples[i - 1]++;
-                                        break outer;
-                                    }
-                                    m++;
-                                }
-                                isVisited[b] = true;
-                                clusterStack[k] = b;
-                                a = b;
-                                k++;
-                                isNewNbrs = true;
-                                break;// go to next k
+                        for(int m=0; nbrs[m]!=-1 && m<nbrs.length; m++){
+                            int b = nbrs[m];
+                            tmp.Ev1Mv2(positions[b], positions[a]);
+                            configStorage.getBox().getBoundary().nearestImage(tmp);
+                            tmp.PE(positions[a]);
+                            if(isVisited[b] && positions[b].Mv1Squared(tmp) < 1e-8){//percolation
+                                percP[i-1]++;
+                                break outer;//
                             }
-                            isNewNbrs = false;
+                            if(!isVisited[b]){//New nbrs
+                                clusterStack[k_top] = b; //push b
+                                isVisited[b] = true; // b is visited
+                                k_top++;
+                            }
+                            positions[b].E(tmp);
                         }
-                        if(isNewNbrs == false){//no new
-                            clusterStack[k] = -1;
-                            sumDr.ME(dr[k]);
-                            k--;
-                            a = clusterStack[k];
-                            if(k == -1){
-                                nSamples[i - 1]++;
-                                break outer;//visited all possible paths, but no percolation detected
-                            }
+                        k_top--;
+                        if(k_top == -1){//empty stack. no percolation percP[i]+=0
+                            break outer;
                         }
                     }
-                }
-            }
-        }
+                }//loop over clusters
+                nSamples[i-1]++;
+            }//2^i check
+        }// loop over i
     }
 
     @Override
@@ -223,7 +198,4 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         return tTag;
     }
 
-    public interface MSDSink {
-        void putMSD(int log2interval, long step, double msd);
-    }
 }
