@@ -36,7 +36,7 @@ public class GlassProd {
             params.minDrFilter = 0.5;
         }
 
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.log2StepS, params.log2StepE, params.minDrFilter);
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);
         System.out.println(params.D +"D " + sim.potentialChoice);
         System.out.println("nA:nB = " + params.nA + ":" + params.nB);
         double volume = sim.box.getBoundary().volume();
@@ -115,7 +115,7 @@ public class GlassProd {
 
         //Percolation
         AtomTestDeviation atomFilterDeviation = new AtomTestDeviation(sim.box, configStorageMSD);
-        atomFilterDeviation.setMinDistance(sim.minDrFilter);
+        atomFilterDeviation.setMinDistance(params.minDrFilter);
         atomFilterDeviation.setDoMobileOnly(false);
         DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSD, atomFilterDeviation, params.log2StepS, params.log2StepE);
         configStorageMSD.addListener(meterPerc);

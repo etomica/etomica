@@ -56,6 +56,22 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         reset();
     }
 
+    public void setLog2StepStart(int newStart) {
+        log2StepS = newStart;
+    }
+
+    public int getLog2StepStart() {
+        return log2StepS;
+    }
+
+    public void setLog2StepEnd(int newEnd) {
+        log2StepE = newEnd;
+    }
+
+    public int getLog2StepEnd() {
+        return log2StepE;
+    }
+
     public void setNbrMax(double nbrMax) { clusterer.setNbrMax(nbrMax);}
 
     public double getNbrMax() {

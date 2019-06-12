@@ -681,7 +681,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         //Percolation
         atomFilterDeviationPerc.setDoMobileOnly(false);
-        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSDPerc, atomFilterDeviationPerc, sim.log2StepS, sim.log2StepE);
+        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSDPerc, atomFilterDeviationPerc, 10, 30);
         configStorageMSDPerc.addListener(meterPerc);
         DisplayPlot plotPerc = new DisplayPlot();
         DataPumpListener pumpPerc = new DataPumpListener(meterPerc, plotPerc.getDataSet().makeDataSink(), 1000);
@@ -722,7 +722,7 @@ public class GlassGraphic extends SimulationGraphic {
         percDrSlider.setNMajor(5);
         percDrSlider.setMaximum(2);
         percDrSlider.setMinimum(0);
-        percDrSlider.setValue(sim.minDrFilter);
+        percDrSlider.setValue(0.4);
         percDrSlider.setLabel("immobile minDistance");
 
         //MinTime slider
@@ -730,14 +730,13 @@ public class GlassGraphic extends SimulationGraphic {
             @Override
             public void setValue(double newValue) {
                 if (newValue == getValue()) return;
+                meterPerc.setLog2StepStart((int) newValue);
                 configStorageMSDPerc.reset();
-                sim.log2StepS = (int)newValue;
-                meterPerc.reset(); //Needed ??
             }
 
             @Override
             public double getValue() {
-                return (double)sim.log2StepS;
+                return meterPerc.getLog2StepStart();
             }
 
             @Override
@@ -764,14 +763,13 @@ public class GlassGraphic extends SimulationGraphic {
             @Override
             public void setValue(double newValue) {
                 if (newValue == getValue()) return;
+                meterPerc.setLog2StepEnd((int) newValue);
                 configStorageMSDPerc.reset();
-                sim.log2StepE = (int)newValue;
-                meterPerc.reset();
             }
 
             @Override
             public double getValue() {
-                return (double)sim.log2StepE;
+                return meterPerc.getLog2StepEnd();
             }
 
             @Override
@@ -1501,7 +1499,7 @@ public class GlassGraphic extends SimulationGraphic {
             params.log2StepE = 20;
             params.minDrFilter = 0.4;
         }
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.log2StepS, params.log2StepE, params.minDrFilter);
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);
 
         GlassGraphic ljmdGraphic = new GlassGraphic(sim);
         SimulationGraphic.makeAndDisplayFrame
