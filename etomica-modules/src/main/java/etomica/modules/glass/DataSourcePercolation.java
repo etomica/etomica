@@ -167,10 +167,10 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                     r[a].E(positions[a]);
                     Vector tmp = space.makeVector();
                     int k_top = 0;
-                    while(true){//BFS
+                    while (k_top > -1) {//BFS
                         clusterStack[k_top] = -1; // pop a
                         int[] nbrs = clusterer.nbrList[a];
-                        for(int m=0; nbrs[m]!=-1 && m<nbrs.length; m++){
+                        for (int m = 0; m < nbrs.length && nbrs[m] != -1; m++) {
                             int b = nbrs[m];
                             tmp.Ev1Mv2(positions[b], positions[a]);
                             configStorage.getBox().getBoundary().nearestImage(tmp);
@@ -187,9 +187,6 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                             r[b].E(tmp);
                         }
                         k_top--;
-                        if(k_top == -1){//empty stack. no percolation percP[i]+=0
-                            break outer;
-                        }
                     }
                 }//loop over clusters
                 nSamples[i]++;
