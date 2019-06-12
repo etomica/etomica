@@ -150,7 +150,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                 }
                 java.util.Arrays.sort(clusterSize, 0, nClusters, new java.util.Comparator<int[]>() {
                     public int compare(int[] a, int[] b) {
-                        return Integer.compare(a[1], b[1]);
+                        return Integer.compare(b[1], a[1]);
                     }
                 });
 
