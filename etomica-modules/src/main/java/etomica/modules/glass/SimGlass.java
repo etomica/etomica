@@ -34,15 +34,15 @@ public class SimGlass extends Simulation {
     public final MCMoveSwap swapMove;
     public final IntegratorMC integratorMC;
     public final PotentialChoice potentialChoice;
+    public final int log2StepS, log2StepE;
 
     public enum PotentialChoice {LJ, WCA, SS, HS}
 
-    ;
-
-    public SimGlass(int D, int nA, int nB, double density, boolean doSwap, PotentialChoice pc) {
+    public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc, int log2StepS, int log2StepE) {
         super(Space.getInstance(D));
         this.potentialChoice = pc;
-
+        this.log2StepS = log2StepS;
+        this.log2StepE = log2StepE;
         //species
         speciesA = new SpeciesSpheresMono(this, space);
         speciesA.setIsDynamic(true);
@@ -57,14 +57,13 @@ public class SimGlass extends Simulation {
         box = this.makeBox();
 
         integrator = potentialChoice == PotentialChoice.HS ?
-                new IntegratorHard(potentialMaster, random, 0.005, 1, box) :
-                new IntegratorVelocityVerlet(this, potentialMaster, box);
+                new IntegratorHard(potentialMaster, random, 0.005, temperature, box) :
+                new IntegratorVelocityVerlet(potentialMaster, random, 0.005, temperature, box);
         integrator.setIsothermal(true);
-        integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
+        integrator.setThermostat(ThermostatType.ANDERSEN);
         integrator.setThermostatInterval(1);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        integrator.setTimeStep(0.005);
         integrator.setThermostatNoDrift(true);
 
         int chs = 85;
@@ -102,13 +101,18 @@ public class SimGlass extends Simulation {
             P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(space, potentialBB, 2.5);
             potentialMaster.addPotential(p2TruncatedBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
         } else if (potentialChoice == PotentialChoice.HS) {
-            potentialMaster.setRange(1.7);
+            double L = Math.pow((nA + nB) / density, 1.0 / 3.0);
+            if (L < 2.01) throw new RuntimeException("too small!");
+            double nbrCut = 1.7;
+            if (L < nbrCut * 2) nbrCut = L / 2.001;
+            potentialMaster.setRange(nbrCut);
             p2AA = new P2SquareWell(space, coreHS, 1 / coreHS, -100, false);
             potentialMaster.addPotential(p2AA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
             P2HardSphere potentialAB = new P2HardSphere(space, 0.5 + 0.5 / 1.4, false);
             potentialMaster.addPotential(potentialAB, new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
             P2HardSphere potentialBB = new P2HardSphere(space, 1.0 / 1.4, false);
             potentialMaster.addPotential(potentialBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
+            integrator.setAlwaysScaleRandomizedMomenta(true);
         }
 
         //construct box
@@ -134,6 +138,7 @@ public class SimGlass extends Simulation {
         if (potentialChoice == PotentialChoice.HS) {
             boolean success = false;
             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
+            integrator.setTimeStep(0.001);
             for (; chs <= 100; chs++) {
                 p2AA.setCoreDiameter(chs * 0.01);
                 p2AA.setLambda(1 / (chs * 0.01));
@@ -176,6 +181,7 @@ public class SimGlass extends Simulation {
             }
             integrator.reset();
             integrator.resetStepCount();
+            integrator.setTimeStep(0.005);
         }
 
     }
@@ -187,7 +193,7 @@ public class SimGlass extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
         }
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.doSwap, params.potential);
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.log2StepS, params.log2StepE);
         sim.getController().actionPerformed();
     }//end of main
 
@@ -202,7 +208,10 @@ public class SimGlass extends Simulation {
         // for HS, rho=1.35 is very high, but 1.30 is perhaps not high enough
         // for WCA, rho=0.75*1.4*1.4 = 1.47
         public double density = 1000 / (29.34 * 29.34);
-        public boolean doSwap = false;
+        public double temperature = 1.0;
+        public boolean doSwap = true;
         public PotentialChoice potential = PotentialChoice.LJ;
+        public int log2StepS =  1;
+        public int log2StepE = 40;
     }
 }

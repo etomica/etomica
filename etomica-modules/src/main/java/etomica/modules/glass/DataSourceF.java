@@ -4,63 +4,75 @@
 package etomica.modules.glass;
 
 import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.dimensions.CompoundDimension;
-import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.Length;
+import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-public class DataSourceMSD implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent {
+/**
+ * Computes the excess kurtosis (alpha2) for the distribution of displacements
+ */
+public class DataSourceF implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent {
 
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
-    protected DataFunction data, errData;
+    protected DataFunction data;
     protected DataFunction.DataInfoFunction dataInfo;
-    protected double[] msdSum, msd2Sum;
+    protected double[] fsSum;
     protected final DataTag tTag, tag;
     protected long[] nSamples;
-    protected final AtomType type;
-    protected List<MSDSink> msdSinks;
+    protected final Vector dr, q;
+    protected AtomType type;
+    protected double strucFac =0;
+    protected double[] cSum;
+    protected double[] sSum;
 
-    public DataSourceMSD(ConfigurationStorage configStorage) {
-        this(configStorage, null);
-    }
 
-    public DataSourceMSD(ConfigurationStorage configStorage, AtomType type) {
+    public DataSourceF(ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
-        this.type = type;
-        msdSum = new double[0];
-        msd2Sum = new double[0];
+        Space space = configStorage.getBox().getSpace();
+        fsSum = new double[0];
         nSamples = new long[0];
         tag = new DataTag();
         tTag = new DataTag();
-        msdSinks = new ArrayList<>();
+        dr = space.makeVector();
+        q = space.makeVector();
+        q.setX(0,7.0);
+        cSum = new double[0];
+        sSum = new double[0];
         reset();
     }
 
     public void reset() {
         int n = configStorage.getLastConfigIndex();
-        if (n == msdSum.length && data != null) return;
+        if (n == fsSum.length && data != null) return;
         if (n < 1) n = 0;
-        msdSum = Arrays.copyOf(msdSum, n);
-        msd2Sum = Arrays.copyOf(msd2Sum, n);
+        if(n==0){
+            strucFac = 0;
+        }
+        fsSum = Arrays.copyOf(fsSum, n);
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
-        errData = new DataFunction(new int[]{n});
         tData = new DataDoubleArray(new int[]{n});
         tDataInfo = new DataDoubleArray.DataInfoDoubleArray("t", Time.DIMENSION, new int[]{n});
-        tDataInfo.addTag(tTag);
-        dataInfo = new DataFunction.DataInfoFunction("MSD", new CompoundDimension(new Dimension[]{Length.DIMENSION}, new double[]{2}), this);
+        dataInfo = new DataFunction.DataInfoFunction("F(t)", Null.DIMENSION, this);
         dataInfo.addTag(tag);
+        cSum = Arrays.copyOf(cSum, n+1);
+        sSum = Arrays.copyOf(sSum, n+1);
+        if(n != 0){
+            cSum[n] = cSum[n-1];
+            sSum[n] = sSum[n-1];
+        }
+
         double[] t = tData.getData();
         if (t.length > 0) {
             double[] savedTimes = configStorage.getSavedTimes();
@@ -71,19 +83,18 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         }
     }
 
-    public void addMSDSink(MSDSink sink) {
-        msdSinks.add(sink);
-    }
-
     @Override
     public IData getData() {
         if (configStorage.getLastConfigIndex() < 1) return data;
         double[] y = data.getData();
-        double[] yErr = errData.getData();
-        for (int i = 0; i < msdSum.length; i++) {
-            long M = nSamples[i];
-            y[i] = msdSum[i] / M;
-            yErr[i] = Math.sqrt((msd2Sum[i]/M - y[i]*y[i]) / (M - 1));
+        int nAtoms = configStorage.getSavedConfig(0).length;
+        if(type != null){
+            Box box = configStorage.getBox();
+            nAtoms = box.getNMolecules(type.getSpecies());
+        }
+
+        for (int i = 0; i < fsSum.length; i++) {
+            y[i] = fsSum[i] / (strucFac/nSamples[0])/nSamples[i];
         }
         return data;
     }
@@ -98,31 +109,39 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         return dataInfo;
     }
 
+    public void setAtomType(AtomType type) {
+        this.type = type;
+    }
+
     @Override
     public void newConfigruation() {
         reset(); // reallocates if needed
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
-        IAtomList atoms = configStorage.getBox().getLeafList();
-        for (int i = 1; i <= msdSum.length; i++) {
-            if (step % (1L << (i - 1)) == 0) {
-                Vector[] iPositions = configStorage.getSavedConfig(i);
-                double iSum = 0;
-                int iSamples = 0;
-                for (int j = 0; j < positions.length; j++) {
-                    if (type != null && atoms.get(j).getType() != type) continue;
-                    iSum += positions[j].Mv1Squared(iPositions[j]);
-                    iSamples++;
-                }
-                double iAvg = iSum/iSamples;
-                msdSum[i - 1] += iAvg;
-                msd2Sum[i - 1] += iAvg*iAvg;
-                nSamples[i - 1]++;
-                for (MSDSink s : msdSinks) {
-                    s.putMSD(i - 1, step, iAvg);
-                }
-            }
+        double c0Sum =0 , s0Sum = 0;
+        for (int j = 0; j < positions.length; j++) {
+            double qdotr0 = q.dot(positions[j]);
+            c0Sum += Math.cos(qdotr0);
+            s0Sum += Math.sin(qdotr0);
         }
+        strucFac += c0Sum*c0Sum + s0Sum*s0Sum;
+
+        for (int i = 1, d = 1; d < step && (step-1) % d == 0; i++, d *= 2) {
+            cSum[i] = cSum[0];
+            sSum[i] = sSum[0];
+        }
+
+
+        cSum[0] = c0Sum;
+        sSum[0] = s0Sum;
+
+
+        for (int i = 1, d = 1; d < step + 1 && step % d == 0; i++, d *= 2) {
+            fsSum[i-1] += c0Sum*cSum[i-1] + s0Sum*sSum[i-1];
+            nSamples[i-1]++;
+        }
+
+
     }
 
     @Override
@@ -143,9 +162,5 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     @Override
     public DataTag getIndependentTag() {
         return tTag;
-    }
-
-    public interface MSDSink {
-        void putMSD(int log2interval, long step, double msd);
     }
 }

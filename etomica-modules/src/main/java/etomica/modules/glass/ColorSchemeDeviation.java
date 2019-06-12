@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
 import etomica.atom.IAtom;
@@ -16,7 +19,6 @@ public class ColorSchemeDeviation extends ColorScheme {
     protected final Color[] colors;
     protected double fac;
     protected boolean isString;
-    protected AtomTestDeviation atomTest;
     protected double dr2StringMax = 0.6*0.6;
 
 
@@ -36,9 +38,10 @@ public class ColorSchemeDeviation extends ColorScheme {
         configIndex = 100;
     }
 
-    public void setAtomTest(AtomTestDeviation atom) {atomTest = atom;}
     public void setIsString(boolean isString) {this.isString = isString;}
+
     public void setDrString(double drString) {this.dr2StringMax = drString*drString;}
+
     public double getDrString() {return Math.sqrt(this.dr2StringMax);}
 
     public boolean getIsString(){return isString;}
@@ -83,7 +86,8 @@ public class ColorSchemeDeviation extends ColorScheme {
         if (idx > lastIndex) idx = lastIndex;
         if (idx == -1) return false;
         Vector r = configStorage.getSavedConfig(0)[atom.getLeafIndex()];
-        for(int j=0;j<box.getLeafList().size();j++){
+        for (int j = 0; j < box.getLeafList().size(); j++) {
+            if (atom.getLeafIndex() == j) continue;
             Vector oldR = configStorage.getSavedConfig(idx)[j];
             dr.Ev1Mv2(r,oldR);
             box.getBoundary().nearestImage(dr);

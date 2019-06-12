@@ -8,7 +8,7 @@ import etomica.units.dimensions.Time;
 
 public class DataSourcePrevTime extends DataSourceScalar {
     protected ConfigurationStorage configStorage;
-    protected int prevConfigIndex;
+    protected int prevConfigIndex = 30;
 
     public DataSourcePrevTime(ConfigurationStorage configStorage) {
         super("previous time", Time.DIMENSION);

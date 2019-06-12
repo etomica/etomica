@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
 import etomica.atom.AtomType;
@@ -45,9 +48,8 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
 
     public void reset() {
         int n = configStorage.getLastConfigIndex();
-        if (n + 1 == fsSum.length && data != null) return;
+        if (n  == fsSum.length && data != null) return;
         if (n < 1) n = 0;
-        else n--;
         fsSum = Arrays.copyOf(fsSum, n);
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
