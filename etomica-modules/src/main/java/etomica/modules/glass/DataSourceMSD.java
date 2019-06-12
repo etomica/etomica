@@ -49,7 +49,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
 
     public void reset() {
         int n = configStorage.getLastConfigIndex();
-        if (n + 1 == msdSum.length && data != null) return;
+        if (n == msdSum.length && data != null) return;
         if (n < 1) n = 0;
         msdSum = Arrays.copyOf(msdSum, n);
         msd2Sum = Arrays.copyOf(msd2Sum, n);

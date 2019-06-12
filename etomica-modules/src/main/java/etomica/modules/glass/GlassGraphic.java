@@ -80,6 +80,10 @@ public class GlassGraphic extends SimulationGraphic {
         configStorageMSD.setEnabled(false); // start isothermal
         sim.integrator.getEventManager().addListener(configStorageMSD);
 
+        ConfigurationStorage configStorageMSDPerc = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.MSD);
+        configStorageMSDPerc.setEnabled(false); // start isothermal
+        sim.integrator.getEventManager().addListener(configStorageMSDPerc);
+
         ConfigurationStorage configStorage = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LOG2);
         configStorage.setEnabled(false); // start isothermal
         sim.integrator.getEventManager().addListener(configStorage);
@@ -106,24 +110,11 @@ public class GlassGraphic extends SimulationGraphic {
         dbox.setDiameterHash(diameterHash);
 
         AtomTestDeviation atomFilterDeviation = new AtomTestDeviation(sim.box, configStorage);
-        AtomTestDeviation atomFilterDeviationPerc = new AtomTestDeviation(sim.box, configStorage);
+        AtomTestDeviation atomFilterDeviationPerc = new AtomTestDeviation(sim.box, configStorageMSDPerc);
 
         ColorSchemeDeviation colorSchemeDeviation = new ColorSchemeDeviation(sim.box, configStorage);
         ColorSchemeDirection colorSchemeDirection = new ColorSchemeDirection(sim.box, configStorage);
         ColorSchemeCluster colorSchemeCluster = new ColorSchemeCluster(sim.box, atomFilterDeviation);
-
-        //Percolation
-        atomFilterDeviationPerc.setDoMobileOnly(false);
-        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorage, atomFilterDeviationPerc);
-        configStorage.addListener(meterPerc);
-        DisplayPlot plotPerc = new DisplayPlot();
-        DataPumpListener pumpPerc = new DataPumpListener(meterPerc, plotPerc.getDataSet().makeDataSink(), 1000);
-        plotPerc.setLegend(new DataTag[]{meterPerc.getTag()}, "perc. prob.");
-        sim.integrator.getEventManager().addListener(pumpPerc);
-        plotPerc.setLabel("perc");
-        plotPerc.getPlot().setXLog(true);
-        add(plotPerc);
-
 
         DataSourcePrevTime dsPrevTime = new DataSourcePrevTime(configStorage);
         DisplayTextBox displayPrevTime = new DisplayTextBox();
@@ -172,7 +163,6 @@ public class GlassGraphic extends SimulationGraphic {
                     colorSchemeDirection.setConfigStorage(configStorageLinear);
                     dsPrevTime.setConfigStorage(configStorageLinear);
                     atomFilterDeviation.setConfigStorage(configStorageLinear);
-                    atomFilterDeviationPerc.setConfigStorage(configStorageLinear);
                     prevConfigSlider.setMaximum(1000);
                 }else{
                     canvas.setConfigStorage(configStorage);
@@ -180,7 +170,6 @@ public class GlassGraphic extends SimulationGraphic {
                     colorSchemeDirection.setConfigStorage(configStorage);
                     dsPrevTime.setConfigStorage(configStorage);
                     atomFilterDeviation.setConfigStorage(configStorage);
-                    atomFilterDeviationPerc.setConfigStorage(configStorage);
                     prevConfigSlider.setMaximum(30);
                 }
                 pumpPrevTime.actionPerformed();
@@ -197,9 +186,6 @@ public class GlassGraphic extends SimulationGraphic {
 
         prevConfigSlider.setShowBorder(true);
         add(prevConfigSlider);
-
-
-
         add(displayPrevTime);
 
         DeviceSlider corIntervalSlider = new DeviceSlider(sim.getController(),null);
@@ -215,9 +201,7 @@ public class GlassGraphic extends SimulationGraphic {
             @Override
             public void setValue(double newValue) {
                 atomFilterDeviation.setMinDistance(newValue);
-                atomFilterDeviationPerc.setMinDistance(newValue);
                 dbox.repaint();
-                meterPerc.reset();
             }
 
             @Override
@@ -677,7 +661,6 @@ public class GlassGraphic extends SimulationGraphic {
         gsPrevSampleSlider.setMinimum(0);
         gsPrevSampleSlider.setLabel("log2(previous sample)");
 
-
         JPanel gsPanel = (JPanel) gsPlot.graphic();
         gsPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -693,6 +676,71 @@ public class GlassGraphic extends SimulationGraphic {
         gbc.gridx = gbc.gridy = 0;
         gbc.gridheight = 1;
         gbc.insets = new Insets(0, 0, 0, 0);
+
+
+        //Percolation
+        atomFilterDeviationPerc.setDoMobileOnly(false);
+        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSDPerc, atomFilterDeviationPerc, sim.log2StepS, sim.log2StepE);
+        configStorageMSDPerc.addListener(meterPerc);
+        DisplayPlot plotPerc = new DisplayPlot();
+        DataPumpListener pumpPerc = new DataPumpListener(meterPerc, plotPerc.getDataSet().makeDataSink(), 1000);
+        plotPerc.setLegend(new DataTag[]{meterPerc.getTag()}, "percolation prob.");
+        sim.integrator.getEventManager().addListener(pumpPerc);
+        plotPerc.setLabel("perc");
+        plotPerc.getPlot().setXLog(true);
+        add(plotPerc);
+
+
+
+        //Percolation slider
+        DeviceSlider percDrSlider = new DeviceSlider(sim.getController(), new Modifier() {
+            @Override
+            public void setValue(double newValue) {
+                if (newValue == getValue()) return;
+                configStorageMSDPerc.reset();
+                atomFilterDeviationPerc.setMinDistance(newValue);
+                meterPerc.reset();
+            }
+
+            @Override
+            public double getValue() {
+                return atomFilterDeviationPerc.getMinDistance();
+            }
+
+            @Override
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
+
+            @Override
+            public String getLabel() {
+                return "filter perc. minDistance";
+            }
+        });
+        percDrSlider.setMaximum(2);
+        percDrSlider.setShowBorder(true);
+        percDrSlider.setShowValues(true);
+        percDrSlider.setPrecision(1);
+        percDrSlider.setNMajor(5);
+        percDrSlider.setMinimum(0);
+        percDrSlider.setLabel("immobile minDistance");
+
+        JPanel percPanel = (JPanel) plotPerc.graphic();
+        percPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbcPerc = new GridBagConstraints();
+        gbcPerc.gridx = 0;
+        gbcPerc.gridy = 0;
+        gbcPerc.gridheight = 1;
+        percPanel.add(plotPerc.getPlot(), gbcPerc);
+        gbcPerc.insets = new Insets(20, 0, 0, 0);
+        gbcPerc.gridheight = 1;
+        gbcPerc.gridx = 1;
+        percPanel.add(percDrSlider.graphic(), gbcPerc);
+        gbcPerc.gridy = 1;
+        gbcPerc.gridx = gbcPerc.gridy = 0;
+        gbcPerc.gridheight = 1;
+        gbcPerc.insets = new Insets(0, 0, 0, 0);
+
 
 
 
@@ -1145,6 +1193,8 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorage.setEnabled(false);
                     configStorageMSD.reset();
                     configStorageMSD.setEnabled(false);
+                    configStorageMSDPerc.reset();
+                    configStorageMSDPerc.setEnabled(false);
                     dsMSDcorP.setEnabled(false);
                     dsHistogramP.setEnabled(false);
                     dsPMSDhistory.setEnabled(false);
@@ -1162,7 +1212,6 @@ public class GlassGraphic extends SimulationGraphic {
                     diameterHash.setFac(1.0);
                     accSFac.reset();
                     sfacClusterer.reset();
-                    meterPerc.reset();
                 } else {
                     dbox.setAtomTestDoDisplay(atomFilterDeviation);
                     sim.integrator.setIntegratorMC(null, 0);
@@ -1173,6 +1222,8 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorage.setEnabled(true);
                     configStorageMSD.reset();
                     configStorageMSD.setEnabled(true);
+                    configStorageMSDPerc.reset();
+                    configStorageMSDPerc.setEnabled(true);
                     dsMSDcorP.setEnabled(true);
                     dsHistogramP.setEnabled(true);
                     dsPMSDhistory.setEnabled(true);
@@ -1194,7 +1245,6 @@ public class GlassGraphic extends SimulationGraphic {
                     diameterHash.setFac(showDispCheckbox.getState() ? 0.5 : 1.0);
                     accSFac.reset();
                     sfacClusterer.reset();
-                    meterPerc.reset();
                 }
             }
 
@@ -1232,6 +1282,7 @@ public class GlassGraphic extends SimulationGraphic {
         configStorage.reset();
         configStorageLinear.reset();
         configStorageMSD.reset();
+        configStorageMSDPerc.reset();
         dbox.repaint();
 
         IAction resetAction = new IAction() {
@@ -1370,12 +1421,14 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 100;
-            params.nB = 100;
-            params.density = 1.55;
+            params.nA = 125;
+            params.nB = 125;
+            params.density = 1.5;
             params.D = 3;
+            params.log2StepS = 5;
+            params.log2StepE = 30;
         }
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.log2StepS, params.log2StepE);
 
         GlassGraphic ljmdGraphic = new GlassGraphic(sim);
         SimulationGraphic.makeAndDisplayFrame

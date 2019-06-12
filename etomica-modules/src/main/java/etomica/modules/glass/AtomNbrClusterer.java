@@ -159,7 +159,6 @@ public class AtomNbrClusterer {
                 nClusters--;
             }
         }
-        System.out.println("");
     }
 }
 

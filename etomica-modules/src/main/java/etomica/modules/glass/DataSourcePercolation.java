@@ -32,13 +32,17 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     protected final int[] clusterStack;
     protected final boolean[] isVisited;
     protected final Space space;
+    protected final Vector[] r;
+    protected int log2StepS, log2StepE;
 
 
-    public DataSourcePercolation(ConfigurationStorage configStorage, AtomTestDeviation atomTest) {
+    public DataSourcePercolation(ConfigurationStorage configStorage, AtomTestDeviation atomTest, int log2StepS, int log2StepE) {
         this.configStorage = configStorage;
 
-        clusterer = new AtomNbrClusterer(configStorage.getBox(), atomTest,true);
+        clusterer = new AtomNbrClusterer(configStorage.getBox(), atomTest,!true);
         this.atomTest = atomTest;
+        this.log2StepS = log2StepS;
+        this.log2StepE = log2StepE;
         numAtoms = configStorage.getBox().getLeafList().size();
         clusterSize = new int[numAtoms][2];
         clusterStack = new int[numAtoms];
@@ -48,6 +52,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         nSamples = new long[0];
         tag = new DataTag();
         tTag = new DataTag();
+        r = space.makeVectorArray(numAtoms);
         reset();
     }
 
@@ -60,7 +65,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
 
     public void reset() {
         int n = configStorage.getLastConfigIndex();
-        if (n + 1 == percP.length && data != null) return;
+        if (n == percP.length && data != null) return;
         if (n < 1) n = 0;
         percP = Arrays.copyOf(percP, n);
         nSamples = Arrays.copyOf(nSamples, n);
@@ -79,17 +84,12 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                 t[i] = dt * (1L << i);
             }
         }
-        for(int i=0; i<numAtoms; i++){
-            clusterStack[i] = -1;
-            isVisited[i] = false;
-        }
     }
 
     @Override
     public IData getData() {
         if (configStorage.getLastConfigIndex() < 1) return data;
         double[] y = data.getData();
-        double[] yErr = errData.getData();
         for (int i = 0; i < percP.length; i++) {
             long M = nSamples[i];
             y[i] = percP[i] / M;
@@ -110,17 +110,21 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     @Override
     public void newConfigruation() {
         reset(); // reallocates if needed
+        for(int i=0; i<numAtoms; i++){
+            clusterStack[i] = -1;
+            isVisited[i] = false;
+        }
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
-        for (int i = 1; i <= percP.length; i++) {
-            if (step % (1L << (i-1)) == 0) {
+        for (int i = log2StepS; i < log2StepE; i++) {
+            if (step % (1L << i) == 0) {
                 atomTest.setConfigIndex(i);
                 clusterer.findClusters();
                 int[] firstAtom = clusterer.getFirstAtom();
                 int[] nextAtom = clusterer.getNextAtom();
                 int nClusters = 0;
                 for (int j = 0; j < firstAtom.length; j++) {
-                    if (firstAtom[j] == -1) break; //
+                    if (firstAtom[j] == -1) break;
                     nClusters++;
                     clusterSize[j][0] = j;
                     clusterSize[j][1] = 0;
@@ -134,18 +138,17 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                     }
                 });
 
-                if(nClusters == 0) continue;
                 outer:
                 for (int j = 0; j < nClusters; j++) {
                     if(clusterSize[j][1] > numAtoms/2) {
-                        percP[i-1]++;
-                        nSamples[i-1]++;
+                        percP[i]++;
                         break outer; //do not look for further clusters; go to next i.
                     }
                     int c = clusterSize[j][0]; //cluster No.
                     int a = firstAtom[c]; // a is 1st atom in cluster
                     clusterStack[0] = a; //push a
                     isVisited[a] = true; // a is visited
+                    r[a].E(positions[a]);
                     Vector tmp = space.makeVector();
                     int k_top = 0;
                     while(true){//BFS
@@ -155,9 +158,9 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                             int b = nbrs[m];
                             tmp.Ev1Mv2(positions[b], positions[a]);
                             configStorage.getBox().getBoundary().nearestImage(tmp);
-                            tmp.PE(positions[a]);
-                            if(isVisited[b] && positions[b].Mv1Squared(tmp) < 1e-8){//percolation
-                                percP[i-1]++;
+                            tmp.PE(r[a]);
+                            if(isVisited[b] && r[b].Mv1Squared(tmp) < 1e-8){//percolation
+                                percP[i]++;
                                 break outer;//
                             }
                             if(!isVisited[b]){//New nbrs
@@ -165,7 +168,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                                 isVisited[b] = true; // b is visited
                                 k_top++;
                             }
-                            positions[b].E(tmp);
+                            r[b].E(tmp);
                         }
                         k_top--;
                         if(k_top == -1){//empty stack. no percolation percP[i]+=0
@@ -173,7 +176,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                         }
                     }
                 }//loop over clusters
-                nSamples[i-1]++;
+                nSamples[i]++;
             }//2^i check
         }// loop over i
     }
