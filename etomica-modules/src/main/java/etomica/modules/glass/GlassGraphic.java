@@ -223,6 +223,7 @@ public class GlassGraphic extends SimulationGraphic {
         filterSlider.setShowBorder(true);
         filterSlider.setPrecision(1);
         filterSlider.setNMajor(5);
+        filterSlider.setValue(0.5);
         add(filterSlider);
 
 
@@ -690,8 +691,6 @@ public class GlassGraphic extends SimulationGraphic {
         plotPerc.getPlot().setXLog(true);
         add(plotPerc);
 
-
-
         //Percolation slider
         DeviceSlider percDrSlider = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
@@ -699,7 +698,7 @@ public class GlassGraphic extends SimulationGraphic {
                 if (newValue == getValue()) return;
                 configStorageMSDPerc.reset();
                 atomFilterDeviationPerc.setMinDistance(newValue);
-                meterPerc.reset();
+                meterPerc.reset(); // Needed ???
             }
 
             @Override
@@ -717,31 +716,104 @@ public class GlassGraphic extends SimulationGraphic {
                 return "filter perc. minDistance";
             }
         });
-        percDrSlider.setMaximum(2);
         percDrSlider.setShowBorder(true);
         percDrSlider.setShowValues(true);
         percDrSlider.setPrecision(1);
         percDrSlider.setNMajor(5);
+        percDrSlider.setMaximum(2);
         percDrSlider.setMinimum(0);
+        percDrSlider.setValue(sim.minDrFilter);
         percDrSlider.setLabel("immobile minDistance");
 
+        //MinTime slider
+        DeviceSlider percMinLog2StepSlider = new DeviceSlider(sim.getController(), new Modifier() {
+            @Override
+            public void setValue(double newValue) {
+                if (newValue == getValue()) return;
+                configStorageMSDPerc.reset();
+                sim.log2StepS = (int)newValue;
+                meterPerc.reset(); //Needed ??
+            }
+
+            @Override
+            public double getValue() {
+                return (double)sim.log2StepS;
+            }
+
+            @Override
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
+
+            @Override
+            public String getLabel() {
+                return "log2(min time (steps))";
+            }
+        });
+        percMinLog2StepSlider.setShowBorder(true);
+        percMinLog2StepSlider.setShowValues(true);
+        percMinLog2StepSlider.setNMajor(6);
+        percMinLog2StepSlider.setMaximum(30);
+        percMinLog2StepSlider.setMinimum(0);
+        percMinLog2StepSlider.setValue(5);
+        percMinLog2StepSlider.setLabel("log2(min time (steps))");
+
+
+        //MinTime slider
+        DeviceSlider percMaxLog2StepSlider = new DeviceSlider(sim.getController(), new Modifier() {
+            @Override
+            public void setValue(double newValue) {
+                if (newValue == getValue()) return;
+                configStorageMSDPerc.reset();
+                sim.log2StepE = (int)newValue;
+                meterPerc.reset();
+            }
+
+            @Override
+            public double getValue() {
+                return (double)sim.log2StepE;
+            }
+
+            @Override
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
+
+            @Override
+            public String getLabel() {
+                return "log2(max time (steps))";
+            }
+        });
+        percMaxLog2StepSlider.setShowBorder(true);
+        percMaxLog2StepSlider.setShowValues(true);
+        percMaxLog2StepSlider.setNMajor(6);
+        percMaxLog2StepSlider.setMaximum(30);
+        percMaxLog2StepSlider.setMinimum(0);
+        percMaxLog2StepSlider.setValue(20);
+        percMaxLog2StepSlider.setLabel("log2(max time (steps))");
+
+
         JPanel percPanel = (JPanel) plotPerc.graphic();
+        percPanel.remove(plotPerc.getPlot());
         percPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbcPerc = new GridBagConstraints();
         gbcPerc.gridx = 0;
         gbcPerc.gridy = 0;
-        gbcPerc.gridheight = 1;
+        gbcPerc.gridheight = 3;
         percPanel.add(plotPerc.getPlot(), gbcPerc);
         gbcPerc.insets = new Insets(20, 0, 0, 0);
+        gbcPerc.gridheight = 2;
+        gbcPerc.gridx = 1;
+        gbcPerc.gridy = 1;
+        percPanel.add(percMinLog2StepSlider.getPanel(), gbcPerc);
         gbcPerc.gridheight = 1;
         gbcPerc.gridx = 1;
-        percPanel.add(percDrSlider.graphic(), gbcPerc);
         gbcPerc.gridy = 1;
-        gbcPerc.gridx = gbcPerc.gridy = 0;
-        gbcPerc.gridheight = 1;
-        gbcPerc.insets = new Insets(0, 0, 0, 0);
-
-
+        percPanel.add(percDrSlider.graphic(), gbcPerc);
+        gbcPerc.gridheight = 0;
+        gbcPerc.gridx = 1;
+        gbcPerc.gridy = 3;
+        percPanel.add(percMaxLog2StepSlider.graphic(), gbcPerc);
 
 
         int corUpdateInterval = sim.getSpace().D() == 2 ? 10000 : 2000;
@@ -1421,14 +1493,15 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 125;
-            params.nB = 125;
+            params.nA = 100;
+            params.nB = 100;
             params.density = 1.5;
             params.D = 3;
             params.log2StepS = 5;
-            params.log2StepE = 30;
+            params.log2StepE = 20;
+            params.minDrFilter = 0.4;
         }
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.log2StepS, params.log2StepE);
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.log2StepS, params.log2StepE, params.minDrFilter);
 
         GlassGraphic ljmdGraphic = new GlassGraphic(sim);
         SimulationGraphic.makeAndDisplayFrame

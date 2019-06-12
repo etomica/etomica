@@ -116,7 +116,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         }
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
-        for (int i = log2StepS; i < log2StepE; i++) {
+        for (int i = log2StepS; i < percP.length && i <= log2StepE; i++) {
             if (step % (1L << i) == 0) {
                 atomTest.setConfigIndex(i);
                 clusterer.findClusters();
