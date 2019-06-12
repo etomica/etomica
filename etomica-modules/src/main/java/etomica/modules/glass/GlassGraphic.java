@@ -689,6 +689,7 @@ public class GlassGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(pumpPerc);
         plotPerc.setLabel("perc");
         plotPerc.getPlot().setXLog(true);
+        plotPerc.setDoLegend(false);
         add(plotPerc);
 
         //Percolation slider
@@ -800,17 +801,12 @@ public class GlassGraphic extends SimulationGraphic {
         gbcPerc.gridheight = 3;
         percPanel.add(plotPerc.getPlot(), gbcPerc);
         gbcPerc.insets = new Insets(20, 0, 0, 0);
-        gbcPerc.gridheight = 2;
-        gbcPerc.gridx = 1;
-        gbcPerc.gridy = 1;
-        percPanel.add(percMinLog2StepSlider.getPanel(), gbcPerc);
         gbcPerc.gridheight = 1;
         gbcPerc.gridx = 1;
-        gbcPerc.gridy = 1;
         percPanel.add(percDrSlider.graphic(), gbcPerc);
-        gbcPerc.gridheight = 0;
-        gbcPerc.gridx = 1;
-        gbcPerc.gridy = 3;
+        gbcPerc.gridy = 1;
+        percPanel.add(percMinLog2StepSlider.getPanel(), gbcPerc);
+        gbcPerc.gridy = 2;
         percPanel.add(percMaxLog2StepSlider.graphic(), gbcPerc);
 
 
