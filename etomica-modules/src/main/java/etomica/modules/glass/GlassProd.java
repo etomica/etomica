@@ -33,7 +33,7 @@ public class GlassProd {
             params.numSteps =   1000000;
             params.log2StepS = 5;
             params.log2StepE = 20;
-            params.minDrFilter = 0.5;
+            params.minDrFilter = 0.4;
         }
 
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);

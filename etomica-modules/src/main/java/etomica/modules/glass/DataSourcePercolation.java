@@ -39,7 +39,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     public DataSourcePercolation(ConfigurationStorage configStorage, AtomTestDeviation atomTest, int log2StepS, int log2StepE) {
         this.configStorage = configStorage;
 
-        clusterer = new AtomNbrClusterer(configStorage.getBox(), atomTest,!true);
+        clusterer = new AtomNbrClusterer(configStorage.getBox(), atomTest, true);
         this.atomTest = atomTest;
         this.log2StepS = log2StepS;
         this.log2StepE = log2StepE;
@@ -107,8 +107,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         if (configStorage.getLastConfigIndex() < 1) return data;
         double[] y = data.getData();
         for (int i = 0; i < percP.length; i++) {
-            long M = nSamples[i];
-            y[i] = percP[i] / M;
+            y[i] = percP[i]/nSamples[i];
         }
         return data;
     }
@@ -156,11 +155,12 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
 
                 outer:
                 for (int j = 0; j < nClusters; j++) {
-                    if(clusterSize[j][1] > numAtoms/2) {
+                    if(clusterSize[j][1] > 2*numAtoms/3) {
                         percP[i]++;
                         break outer; //do not look for further clusters; go to next i.
                     }
                     int c = clusterSize[j][0]; //cluster No.
+                    if(clusterSize[j][1] == 1) break;
                     int a = firstAtom[c]; // a is 1st atom in cluster
                     clusterStack[0] = a; //push a
                     isVisited[a] = true; // a is visited

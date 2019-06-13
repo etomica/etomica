@@ -223,7 +223,7 @@ public class GlassGraphic extends SimulationGraphic {
         filterSlider.setShowBorder(true);
         filterSlider.setPrecision(1);
         filterSlider.setNMajor(5);
-        filterSlider.setValue(0.5);
+        filterSlider.setValue(0.4);
         add(filterSlider);
 
 
@@ -1487,10 +1487,10 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 100;
-            params.nB = 100;
-            params.density = 1.5;
-            params.D = 3;
+            params.nA = 250;
+            params.nB = 250;
+            params.density = 1.3;
+            params.D = 2;
             params.log2StepS = 5;
             params.log2StepE = 20;
             params.minDrFilter = 0.4;

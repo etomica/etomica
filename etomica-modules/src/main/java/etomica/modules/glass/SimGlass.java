@@ -209,6 +209,6 @@ public class SimGlass extends Simulation {
         public PotentialChoice potential = PotentialChoice.LJ;
         public int log2StepS =  1;
         public int log2StepE = 40;
-        public double minDrFilter = 0.5;
+        public double minDrFilter = 0.4;
     }
 }
