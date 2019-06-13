@@ -34,15 +34,11 @@ public class SimGlass extends Simulation {
     public final MCMoveSwap swapMove;
     public final IntegratorMC integratorMC;
     public final PotentialChoice potentialChoice;
-    public final int log2StepS, log2StepE;
-
     public enum PotentialChoice {LJ, WCA, SS, HS}
 
-    public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc, int log2StepS, int log2StepE) {
+    public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc) {
         super(Space.getInstance(D));
         this.potentialChoice = pc;
-        this.log2StepS = log2StepS;
-        this.log2StepE = log2StepE;
         //species
         speciesA = new SpeciesSpheresMono(this, space);
         speciesA.setIsDynamic(true);
@@ -193,7 +189,7 @@ public class SimGlass extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
         }
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.log2StepS, params.log2StepE);
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);
         sim.getController().actionPerformed();
     }//end of main
 
@@ -213,5 +209,6 @@ public class SimGlass extends Simulation {
         public PotentialChoice potential = PotentialChoice.LJ;
         public int log2StepS =  1;
         public int log2StepE = 40;
+        public double minDrFilter = 0.4;
     }
 }

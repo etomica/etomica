@@ -39,7 +39,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     public DataSourcePercolation(ConfigurationStorage configStorage, AtomTestDeviation atomTest, int log2StepS, int log2StepE) {
         this.configStorage = configStorage;
 
-        clusterer = new AtomNbrClusterer(configStorage.getBox(), atomTest,!true);
+        clusterer = new AtomNbrClusterer(configStorage.getBox(), atomTest, true);
         this.atomTest = atomTest;
         this.log2StepS = log2StepS;
         this.log2StepE = log2StepE;
@@ -54,6 +54,22 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         tTag = new DataTag();
         r = space.makeVectorArray(numAtoms);
         reset();
+    }
+
+    public void setLog2StepStart(int newStart) {
+        log2StepS = newStart;
+    }
+
+    public int getLog2StepStart() {
+        return log2StepS;
+    }
+
+    public void setLog2StepEnd(int newEnd) {
+        log2StepE = newEnd;
+    }
+
+    public int getLog2StepEnd() {
+        return log2StepE;
     }
 
     public void setNbrMax(double nbrMax) { clusterer.setNbrMax(nbrMax);}
@@ -91,8 +107,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         if (configStorage.getLastConfigIndex() < 1) return data;
         double[] y = data.getData();
         for (int i = 0; i < percP.length; i++) {
-            long M = nSamples[i];
-            y[i] = percP[i] / M;
+            y[i] = percP[i]/nSamples[i];
         }
         return data;
     }
@@ -116,7 +131,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         }
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
-        for (int i = log2StepS; i < log2StepE; i++) {
+        for (int i = log2StepS; i < percP.length && i <= log2StepE; i++) {
             if (step % (1L << i) == 0) {
                 atomTest.setConfigIndex(i);
                 clusterer.findClusters();
@@ -134,27 +149,28 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                 }
                 java.util.Arrays.sort(clusterSize, 0, nClusters, new java.util.Comparator<int[]>() {
                     public int compare(int[] a, int[] b) {
-                        return Integer.compare(a[1], b[1]);
+                        return Integer.compare(b[1], a[1]);
                     }
                 });
 
                 outer:
                 for (int j = 0; j < nClusters; j++) {
-                    if(clusterSize[j][1] > numAtoms/2) {
+                    if(clusterSize[j][1] > 2*numAtoms/3) {
                         percP[i]++;
                         break outer; //do not look for further clusters; go to next i.
                     }
                     int c = clusterSize[j][0]; //cluster No.
+                    if(clusterSize[j][1] == 1) break;
                     int a = firstAtom[c]; // a is 1st atom in cluster
                     clusterStack[0] = a; //push a
                     isVisited[a] = true; // a is visited
                     r[a].E(positions[a]);
                     Vector tmp = space.makeVector();
                     int k_top = 0;
-                    while(true){//BFS
+                    while (k_top > -1) {//BFS
                         clusterStack[k_top] = -1; // pop a
                         int[] nbrs = clusterer.nbrList[a];
-                        for(int m=0; nbrs[m]!=-1 && m<nbrs.length; m++){
+                        for (int m = 0; m < nbrs.length && nbrs[m] != -1; m++) {
                             int b = nbrs[m];
                             tmp.Ev1Mv2(positions[b], positions[a]);
                             configStorage.getBox().getBoundary().nearestImage(tmp);
@@ -171,9 +187,6 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                             r[b].E(tmp);
                         }
                         k_top--;
-                        if(k_top == -1){//empty stack. no percolation percP[i]+=0
-                            break outer;
-                        }
                     }
                 }//loop over clusters
                 nSamples[i]++;
