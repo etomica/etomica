@@ -26,13 +26,11 @@ public class GlassProd {
             params.potential = SimGlass.PotentialChoice.HS;
             params.nA = 100;
             params.nB = 100;
-            params.density = 1.;
-            params.D = 3;
+            params.density = 1.3;
+            params.D = 2;
             params.temperature = 1.0;
-            params.numStepsEq = 100000;
-            params.numSteps =   1000000;
-            params.log2StepS = 5;
-            params.log2StepE = 20;
+            params.numStepsEq = 10000;
+            params.numSteps =   100000;
             params.minDrFilter = 0.4;
         }
 
@@ -117,7 +115,7 @@ public class GlassProd {
         AtomTestDeviation atomFilterDeviation = new AtomTestDeviation(sim.box, configStorageMSD);
         atomFilterDeviation.setMinDistance(params.minDrFilter);
         atomFilterDeviation.setDoMobileOnly(false);
-        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSD, atomFilterDeviation, params.log2StepS, params.log2StepE);
+        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSD, atomFilterDeviation, 5, 30);
         configStorageMSD.addListener(meterPerc);
 
         sim.integrator.getEventManager().addListener(configStorageMSD);
@@ -228,8 +226,8 @@ public class GlassProd {
                     fileWriterD.write(xi + " " + yi/6/xi + " " + yiErr/6/xi + "\n");
                     fileWriterFs.write(xi + " " + yiFs + "\n");
                     fileWriterF.write(xi + " " + yiF + "\n");
-                    if(i >= params.log2StepS && i <= params.log2StepE){
-                        double yiPerc  = meterPerc.getData().getValue(i);
+                    double yiPerc  = meterPerc.getData().getValue(i);
+                    if(!Double.isNaN(yiPerc)){
                         fileWriterPerc.write(xi + " " + yiPerc + "\n");
                     }
                 }

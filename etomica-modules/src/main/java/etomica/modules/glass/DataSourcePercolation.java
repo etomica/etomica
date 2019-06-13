@@ -125,14 +125,14 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     @Override
     public void newConfigruation() {
         reset(); // reallocates if needed
-        for(int i=0; i<numAtoms; i++){
-            clusterStack[i] = -1;
-            isVisited[i] = false;
-        }
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
         for (int i = log2StepS; i < percP.length && i <= log2StepE; i++) {
             if (step % (1L << i) == 0) {
+                for(int j=0; j<numAtoms; j++){
+                    isVisited[j] = false;
+                }
+
                 atomTest.setConfigIndex(i);
                 clusterer.findClusters();
                 int[] firstAtom = clusterer.getFirstAtom();
@@ -168,25 +168,25 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                     Vector tmp = space.makeVector();
                     int k_top = 0;
                     while (k_top > -1) {//BFS
-                        clusterStack[k_top] = -1; // pop a
+                        a = clusterStack[k_top];
+                        k_top--;
                         int[] nbrs = clusterer.nbrList[a];
                         for (int m = 0; m < nbrs.length && nbrs[m] != -1; m++) {
                             int b = nbrs[m];
                             tmp.Ev1Mv2(positions[b], positions[a]);
                             configStorage.getBox().getBoundary().nearestImage(tmp);
                             tmp.PE(r[a]);
-                            if(isVisited[b] && r[b].Mv1Squared(tmp) < 1e-8){//percolation
+                            if(isVisited[b] && r[b].Mv1Squared(tmp) > 1e-8){//percolation
                                 percP[i]++;
                                 break outer;//
                             }
                             if(!isVisited[b]){//New nbrs
+                                k_top++;
                                 clusterStack[k_top] = b; //push b
                                 isVisited[b] = true; // b is visited
-                                k_top++;
                             }
                             r[b].E(tmp);
                         }
-                        k_top--;
                     }
                 }//loop over clusters
                 nSamples[i]++;

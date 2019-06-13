@@ -681,7 +681,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         //Percolation
         atomFilterDeviationPerc.setDoMobileOnly(false);
-        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSDPerc, atomFilterDeviationPerc, 10, 30);
+        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSDPerc, atomFilterDeviationPerc, 5, 30);
         configStorageMSDPerc.addListener(meterPerc);
         DisplayPlot plotPerc = new DisplayPlot();
         DataPumpListener pumpPerc = new DataPumpListener(meterPerc, plotPerc.getDataSet().makeDataSink(), 1000);
@@ -759,7 +759,7 @@ public class GlassGraphic extends SimulationGraphic {
         percMinLog2StepSlider.setLabel("log2(min time (steps))");
 
 
-        //MinTime slider
+        //MaxTime slider
         DeviceSlider percMaxLog2StepSlider = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
             public void setValue(double newValue) {
@@ -788,7 +788,7 @@ public class GlassGraphic extends SimulationGraphic {
         percMaxLog2StepSlider.setNMajor(6);
         percMaxLog2StepSlider.setMaximum(30);
         percMaxLog2StepSlider.setMinimum(0);
-        percMaxLog2StepSlider.setValue(20);
+        percMaxLog2StepSlider.setValue(30);
         percMaxLog2StepSlider.setLabel("log2(max time (steps))");
 
 
@@ -1046,6 +1046,7 @@ public class GlassGraphic extends SimulationGraphic {
         pushIntervalSlider.setNMajor(5);
         pushIntervalSlider.setMaximum(30);
         pushIntervalSlider.setMinimum(0);
+        pushIntervalSlider.setValue(20);
         pushIntervalSlider.setLabel("log2(Push interval (steps))");
         JPanel ptacPanel = (JPanel) plotPTensorAutocor.graphic();
         ptacPanel.remove(plotPTensorAutocor.getPlot());
@@ -1487,12 +1488,10 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 250;
-            params.nB = 250;
-            params.density = 1.3;
-            params.D = 2;
-            params.log2StepS = 5;
-            params.log2StepE = 20;
+            params.nA = 150;
+            params.nB = 150;
+            params.density = 1.2;
+            params.D = 3;
             params.minDrFilter = 0.4;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);
