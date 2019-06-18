@@ -8,10 +8,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.dimensions.CompoundDimension;
-import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.Length;
-import etomica.units.dimensions.Time;
+import etomica.units.dimensions.*;
 
 import java.util.Arrays;
 
@@ -21,10 +18,11 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     protected DataDoubleArray tData;
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
     protected DataFunction data, immFracData;
-    protected DataFunction.DataInfoFunction dataInfo;
+    protected DataFunction.DataInfoFunction dataInfo, immFracDataInfo;
     protected double[] percP;
     protected long[] immFraction;
-    protected final DataTag tTag, tag, tagImmFrac;
+    protected final DataTag tTag, tag, immFracTag;
+
     protected long[] nSamples;
     protected final AtomNbrClusterer clusterer;
     protected AtomTestDeviation atomTest;
@@ -53,7 +51,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         immFraction = new long[0];
         nSamples = new long[0];
         tag = new DataTag();
-        tagImmFrac = new DataTag();
+        immFracTag = new DataTag();
         tTag = new DataTag();
         r = space.makeVectorArray(numAtoms);
         reset();
@@ -96,6 +94,9 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         tDataInfo.addTag(tTag);
         dataInfo = new DataFunction.DataInfoFunction("percProb", new CompoundDimension(new Dimension[]{Length.DIMENSION}, new double[]{2}), this);
         dataInfo.addTag(tag);
+        immFracDataInfo = new DataFunction.DataInfoFunction("immFraction", Null.DIMENSION, this);
+        immFracDataInfo.addTag(immFracTag);
+
 
         double[] t = tData.getData();
         if (t.length > 0) {
@@ -130,6 +131,8 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                     clusterSize[j][1] = 0;
                     for (int ii = firstAtom[j]; ii != -1; ii = nextAtom[ii]) {
                         clusterSize[j][1]++;
+                        immFraction[i]++;
+
                     }
                 }
                 java.util.Arrays.sort(clusterSize, 0, nClusters, new java.util.Comparator<int[]>() {
@@ -138,7 +141,6 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                     }
                 });
 
-                getImmFraction(i, nClusters);
 
 
                 outer:
@@ -182,23 +184,13 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         }// loop over i
     }
 
-    //Immobile Fraction
-    private void getImmFraction(int i, int nClusters) {
-        for(int c=0; c<nClusters; c++){
-            if(clusterSize[c][1] == 0) break;
-            immFraction[i] += clusterSize[c][1];
-        }
-    }
 
     @Override
     public IData getData() {
         if (configStorage.getLastConfigIndex() < 1) return data;
         double[] y = data.getData();
-        double[] yImmFrac = immFracData.getData();
-
         for (int i = 0; i < percP.length; i++) {
             y[i] = percP[i]/nSamples[i];
-            yImmFrac[i] = (double)immFraction[i]/(double)nSamples[i]/(double)numAtoms;
         }
         return data;
     }
@@ -235,6 +227,35 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         return tTag;
     }
 
+
+
+
+
+    public ImmFractionSource makeImmFractionSource () {return new ImmFractionSource();}
+
+    public class ImmFractionSource implements IDataSource {
+        @Override
+        public IData getData() {
+            if (configStorage.getLastConfigIndex() < 1) return immFracData;
+            double[] yImmFrac = immFracData.getData();
+            for (int i = 0; i < immFraction.length; i++) {
+                yImmFrac[i] = (double)immFraction[i]/nSamples[i]/numAtoms;
+
+            }
+            return immFracData;
+        }
+
+        @Override
+        public DataTag getTag() {
+            return immFracTag;
+        }
+
+        @Override
+        public IDataInfo getDataInfo() {
+            return immFracDataInfo;
+        }
+    }
+
 }
 
 
@@ -243,26 +264,3 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
 
 
 
-//    public ImmFractionSource makeImmFractionSource () {return new ImmFractionSource();}
-//
-//    public class ImmFractionSource implements IDataSource {
-//        @Override
-//        public IData getData() {
-//            if (configStorage.getLastConfigIndex() < 1) return immFracData;
-//            double[] yImmFrac = immFracData.getData();
-//            for (int i = 0; i < immFraction.length; i++) {
-//                yImmFrac[i] = immFraction[i]/nSamples[i];
-//            }
-//            return immFracData;
-//        }
-//
-//        @Override
-//        public DataTag getTag() {
-//            return null;
-//        }
-//
-//        @Override
-//        public IDataInfo getDataInfo() {
-//            return null;
-//        }
-//    }

@@ -68,7 +68,7 @@ public class AtomNbrClusterer {
         }
         int nClusters = 0;
 
-
+        firstAtoms[0] = -1;
         //i
         for (int i = 0; i < atoms.size(); i++) {
             IAtom a = atoms.get(i);

@@ -685,11 +685,16 @@ public class GlassGraphic extends SimulationGraphic {
         configStorageMSDPerc.addListener(meterPerc);
         DisplayPlot plotPerc = new DisplayPlot();
         DataPumpListener pumpPerc = new DataPumpListener(meterPerc, plotPerc.getDataSet().makeDataSink(), 1000);
-        plotPerc.setLegend(new DataTag[]{meterPerc.getTag()}, "percolation prob.");
         sim.integrator.getEventManager().addListener(pumpPerc);
+
+        DataPumpListener pumpImmFrac = new DataPumpListener(meterPerc.makeImmFractionSource(), plotPerc.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpImmFrac);
+
+
+        plotPerc.setLegend(new DataTag[]{meterPerc.getTag()},"perc. prob.");
+        plotPerc.setLegend(new DataTag[]{meterPerc.makeImmFractionSource().getTag()},"imm. frac.");
         plotPerc.setLabel("perc");
         plotPerc.getPlot().setXLog(true);
-        plotPerc.setDoLegend(false);
         add(plotPerc);
 
         //Percolation slider
@@ -1488,9 +1493,9 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 150;
-            params.nB = 150;
-            params.density = 1.2;
+            params.nA = 100;
+            params.nB = 100;
+            params.density = 1.0;
             params.D = 3;
             params.minDrFilter = 0.4;
         }
