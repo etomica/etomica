@@ -679,6 +679,16 @@ public class GlassGraphic extends SimulationGraphic {
         gbc.insets = new Insets(0, 0, 0, 0);
 
 
+        //Strings
+        DataSourceStrings meterStrings = new DataSourceStrings(configStorageMSD);
+        configStorageMSD.addListener(meterStrings);
+        DisplayPlot plotStrings = new DisplayPlot();
+        DataPumpListener pumpStrings = new DataPumpListener(meterStrings, plotStrings.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpStrings);
+        plotStrings.setLabel("strings");
+        plotStrings.getPlot().setXLog(true);
+        add(plotStrings);
+
         //Percolation
         atomFilterDeviationPerc.setDoMobileOnly(false);
         DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSDPerc, atomFilterDeviationPerc, 5, 30);
@@ -1466,7 +1476,7 @@ public class GlassGraphic extends SimulationGraphic {
             nbrClusterSlider.setEditValues(true);
             sfacWidgetPanel.add(nbrClusterSlider.graphic());
             DeviceSlider nClusterSlider = new DeviceSlider(sim.getController(), sfacClusterer, "numClusters");
-            nClusterSlider.setLabel("# of clusters");
+            nClusterSlider.setLabel("# of strings");
             nClusterSlider.setShowBorder(true);
             nClusterSlider.setMinimum(0);
             nClusterSlider.setMaximum(5000);
@@ -1493,9 +1503,9 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 100;
-            params.nB = 100;
-            params.density = 1.0;
+            params.nA = 125;
+            params.nB = 125;
+            params.density = 1.5;
             params.D = 3;
             params.minDrFilter = 0.4;
         }
