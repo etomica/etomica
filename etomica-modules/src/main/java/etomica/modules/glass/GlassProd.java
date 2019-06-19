@@ -27,11 +27,11 @@ public class GlassProd {
             params.potential = SimGlass.PotentialChoice.HS;
             params.nA = 125;
             params.nB = 125;
-            params.density = 1.5;
+            params.density = 1.64;
             params.D = 3;
             params.temperature = 0.1;
-            params.numStepsEq = 1000;
-            params.numSteps =   10000;
+            params.numStepsEq = 100000;
+            params.numSteps =   1000000;
             params.minDrFilter = 0.4;
         }
 
@@ -56,7 +56,7 @@ public class GlassProd {
         sim.integrator.setIsothermal(false);
         sim.activityIntegrate.setMaxSteps(params.numSteps);
 
-        //G
+        //P
         IDataSource pTensorMeter;
         if (sim.integrator instanceof IntegratorVelocityVerlet) {
             pTensorMeter = new MeterPressureTensorFromIntegrator(sim.getSpace());

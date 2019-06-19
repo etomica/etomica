@@ -1132,15 +1132,26 @@ public class GlassGraphic extends SimulationGraphic {
         plotAlpha2.getPlot().setXLog(true);
         add(plotAlpha2);
 
-        //F
+        //FOld
+        DataSourceFOld meterFOld = new DataSourceFOld(configStorageMSD);
+        configStorageMSD.addListener(meterFOld);
+        DisplayPlot plotF = new DisplayPlot();
+        DataPumpListener pumpFOld = new DataPumpListener(meterFOld, plotF.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpFOld);
+
+
+        //F - new
         DataSourceF meterF = new DataSourceF(configStorageMSD);
         configStorageMSD.addListener(meterF);
-        DisplayPlot plotF = new DisplayPlot();
         DataPumpListener pumpF = new DataPumpListener(meterF, plotF.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpF);
         plotF.setLabel("F");
         plotF.getPlot().setXLog(true);
         add(plotF);
+
+
+        plotF.setLegend(new DataTag[]{meterFOld.getTag()}, "old");
+        plotF.setLegend(new DataTag[]{meterF.getTag()}, "new");
 
 
 
@@ -1503,9 +1514,9 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 500;
-            params.nB = 500;
-            params.density = 1.5;
+            params.nA = 125;
+            params.nB = 125;
+            params.density = 0.8;
             params.D = 3;
             params.minDrFilter = 0.4;
         }

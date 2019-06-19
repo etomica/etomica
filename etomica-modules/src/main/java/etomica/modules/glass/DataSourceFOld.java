@@ -18,7 +18,7 @@ import java.util.Arrays;
 /**
  * Computes the excess kurtosis (alpha2) for the distribution of displacements
  */
-public class DataSourceF implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent {
+public class DataSourceFOld implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent {
 
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;
@@ -35,7 +35,7 @@ public class DataSourceF implements IDataSource, ConfigurationStorage.Configurat
     protected double[] sSum;
 
 
-    public DataSourceF(ConfigurationStorage configStorage) {
+    public DataSourceFOld(ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
         Space space = configStorage.getBox().getSpace();
         fSum = new double[0];
@@ -66,11 +66,6 @@ public class DataSourceF implements IDataSource, ConfigurationStorage.Configurat
         dataInfo.addTag(tag);
         cSum = Arrays.copyOf(cSum, n+1);
         sSum = Arrays.copyOf(sSum, n+1);
-
-        if(n != 0){
-            cSum[n] = cSum[n-1];
-            sSum[n] = sSum[n-1];
-        }
 
         double[] t = tData.getData();
         if (t.length > 0) {
@@ -110,27 +105,26 @@ public class DataSourceF implements IDataSource, ConfigurationStorage.Configurat
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
         double c0Sum =0 , s0Sum = 0;
-        for (int j = 0; j < positions.length; j++) {
-            double qdotr0 = q.dot(positions[j]);
+        for(int i=0; i<positions.length; i++){
+            double qdotr0 = q.dot(positions[i]);
             c0Sum += Math.cos(qdotr0);
             s0Sum += Math.sin(qdotr0);
         }
         strucFac += c0Sum*c0Sum + s0Sum*s0Sum;
 
-        for (int i = 1, d = 1; d < step && (step-1) % d == 0; i++, d *= 2) {
-            cSum[i] = cSum[0];
-            sSum[i] = sSum[0];
+        for (int i = 1; i <= fSum.length; i++) {
+            if (step % (1L << (i - 1)) == 0) {
+                Vector[] iPositions = configStorage.getSavedConfig(i);
+                double cSum = 0, sSum = 0;
+                for (int j = 0; j < iPositions.length; j++) {
+                    double qdotr = q.dot(iPositions[j]);
+                    cSum += Math.cos(qdotr);
+                    sSum += Math.sin(qdotr);
+                }
+                fSum[i - 1] += c0Sum * cSum + s0Sum * sSum;
+                nSamples[i - 1]++;
+            }
         }
-
-        cSum[0] = c0Sum;
-        sSum[0] = s0Sum;
-
-        for (int i = 1, d = 1; d < step + 1 && step % d == 0; i++, d *= 2) {
-            fSum[i-1] += c0Sum*cSum[i-1] + s0Sum*sSum[i-1];
-            nSamples[i-1]++;
-        }
-
-
     }
 
     @Override
@@ -153,3 +147,8 @@ public class DataSourceF implements IDataSource, ConfigurationStorage.Configurat
         return tTag;
     }
 }
+
+
+
+
+
