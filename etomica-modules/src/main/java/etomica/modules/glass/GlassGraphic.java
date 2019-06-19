@@ -680,7 +680,7 @@ public class GlassGraphic extends SimulationGraphic {
 
 
         //Strings
-        DataSourceStrings meterStrings = new DataSourceStrings(configStorageMSD);
+        DataSourceStrings meterStrings = new DataSourceStrings(configStorageMSD, 3, 30);
         configStorageMSD.addListener(meterStrings);
         DisplayPlot plotStrings = new DisplayPlot();
         DataPumpListener pumpStrings = new DataPumpListener(meterStrings, plotStrings.getDataSet().makeDataSink(), 1000);
@@ -1503,8 +1503,8 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 125;
-            params.nB = 125;
+            params.nA = 500;
+            params.nB = 500;
             params.density = 1.5;
             params.D = 3;
             params.minDrFilter = 0.4;

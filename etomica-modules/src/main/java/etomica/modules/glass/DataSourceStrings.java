@@ -25,7 +25,6 @@ public class DataSourceStrings implements IDataSource, ConfigurationStorage.Conf
     protected DataFunction data;
     protected DataFunction.DataInfoFunction dataInfo;
     protected final DataTag tTag, tag;
-    protected final AtomType type;
     protected final AtomTestDeviation atomTestDeviation;
     protected final double[][] dr2;
     protected final int numAtoms;
@@ -33,20 +32,18 @@ public class DataSourceStrings implements IDataSource, ConfigurationStorage.Conf
     protected final Box box;
     protected long[] nStrings;
     protected long[] numAtomInString;
-
     protected final Vector dr;
     protected double nbrMax2 = 1.5 * 1.5;
     protected final int[] strings;
     protected final int[] nextAtom, firstAtoms;
+    protected int log2StepS, log2StepE;
 
 
-    public DataSourceStrings(ConfigurationStorage configStorage) {
-        this(configStorage, null);
-    }
 
-    public DataSourceStrings(ConfigurationStorage configStorage, AtomType type) {
+    public DataSourceStrings(ConfigurationStorage configStorage, int log2StepS, int log2StepE) {
         this.configStorage = configStorage;
-        this.type = type;
+        this.log2StepS = log2StepS;
+        this.log2StepE = log2StepE;
         box = configStorage.getBox();
         numAtoms = box.getLeafList().size();
         nStrings = new long[0];
@@ -62,7 +59,6 @@ public class DataSourceStrings implements IDataSource, ConfigurationStorage.Conf
         strings = new int[n];
         firstAtoms = new int[n];
         nextAtom = new int[n];
-
         reset();
     }
 
@@ -116,8 +112,8 @@ public class DataSourceStrings implements IDataSource, ConfigurationStorage.Conf
         IAtomList atoms = box.getLeafList();
 
 //Change the 3
-        for (int i = 3; i <= numAtomInString.length; i++) {
-            if (step % (1L << (i - 1)) == 0) {
+        for (int i = log2StepS; i < numAtomInString.length && i <= log2StepE; i++) {
+                if (step % (1L << (i - 1)) == 0) {
                 atomTestDeviation.setConfigIndex(i);
                 for(int j=0; j<numAtoms; j++){
                     dr2[j][0] = j;
