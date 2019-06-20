@@ -679,17 +679,32 @@ public class GlassGraphic extends SimulationGraphic {
         gbc.insets = new Insets(0, 0, 0, 0);
 
 
+        //Strings
+        DataSourceStrings meterStrings = new DataSourceStrings(configStorageMSD, 3, 30);
+        configStorageMSD.addListener(meterStrings);
+        DisplayPlot plotStrings = new DisplayPlot();
+        DataPumpListener pumpStrings = new DataPumpListener(meterStrings, plotStrings.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpStrings);
+        plotStrings.setLabel("strings");
+        plotStrings.getPlot().setXLog(true);
+        add(plotStrings);
+
         //Percolation
         atomFilterDeviationPerc.setDoMobileOnly(false);
-        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSDPerc, atomFilterDeviationPerc, 10, 30);
+        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSDPerc, atomFilterDeviationPerc, 5, 30);
         configStorageMSDPerc.addListener(meterPerc);
         DisplayPlot plotPerc = new DisplayPlot();
         DataPumpListener pumpPerc = new DataPumpListener(meterPerc, plotPerc.getDataSet().makeDataSink(), 1000);
-        plotPerc.setLegend(new DataTag[]{meterPerc.getTag()}, "percolation prob.");
         sim.integrator.getEventManager().addListener(pumpPerc);
+
+        DataPumpListener pumpImmFrac = new DataPumpListener(meterPerc.makeImmFractionSource(), plotPerc.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpImmFrac);
+
+
+        plotPerc.setLegend(new DataTag[]{meterPerc.getTag()},"perc. prob.");
+        plotPerc.setLegend(new DataTag[]{meterPerc.makeImmFractionSource().getTag()},"imm. frac.");
         plotPerc.setLabel("perc");
         plotPerc.getPlot().setXLog(true);
-        plotPerc.setDoLegend(false);
         add(plotPerc);
 
         //Percolation slider
@@ -759,7 +774,7 @@ public class GlassGraphic extends SimulationGraphic {
         percMinLog2StepSlider.setLabel("log2(min time (steps))");
 
 
-        //MinTime slider
+        //MaxTime slider
         DeviceSlider percMaxLog2StepSlider = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
             public void setValue(double newValue) {
@@ -788,7 +803,7 @@ public class GlassGraphic extends SimulationGraphic {
         percMaxLog2StepSlider.setNMajor(6);
         percMaxLog2StepSlider.setMaximum(30);
         percMaxLog2StepSlider.setMinimum(0);
-        percMaxLog2StepSlider.setValue(20);
+        percMaxLog2StepSlider.setValue(30);
         percMaxLog2StepSlider.setLabel("log2(max time (steps))");
 
 
@@ -1046,6 +1061,7 @@ public class GlassGraphic extends SimulationGraphic {
         pushIntervalSlider.setNMajor(5);
         pushIntervalSlider.setMaximum(30);
         pushIntervalSlider.setMinimum(0);
+        pushIntervalSlider.setValue(20);
         pushIntervalSlider.setLabel("log2(Push interval (steps))");
         JPanel ptacPanel = (JPanel) plotPTensorAutocor.graphic();
         ptacPanel.remove(plotPTensorAutocor.getPlot());
@@ -1116,15 +1132,26 @@ public class GlassGraphic extends SimulationGraphic {
         plotAlpha2.getPlot().setXLog(true);
         add(plotAlpha2);
 
-        //F
+        //FOld
+        DataSourceFOld meterFOld = new DataSourceFOld(configStorageMSD);
+        configStorageMSD.addListener(meterFOld);
+        DisplayPlot plotF = new DisplayPlot();
+        DataPumpListener pumpFOld = new DataPumpListener(meterFOld, plotF.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpFOld);
+
+
+        //F - new
         DataSourceF meterF = new DataSourceF(configStorageMSD);
         configStorageMSD.addListener(meterF);
-        DisplayPlot plotF = new DisplayPlot();
         DataPumpListener pumpF = new DataPumpListener(meterF, plotF.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpF);
         plotF.setLabel("F");
         plotF.getPlot().setXLog(true);
         add(plotF);
+
+
+        plotF.setLegend(new DataTag[]{meterFOld.getTag()}, "old");
+        plotF.setLegend(new DataTag[]{meterF.getTag()}, "new");
 
 
 
@@ -1460,7 +1487,7 @@ public class GlassGraphic extends SimulationGraphic {
             nbrClusterSlider.setEditValues(true);
             sfacWidgetPanel.add(nbrClusterSlider.graphic());
             DeviceSlider nClusterSlider = new DeviceSlider(sim.getController(), sfacClusterer, "numClusters");
-            nClusterSlider.setLabel("# of clusters");
+            nClusterSlider.setLabel("# of strings");
             nClusterSlider.setShowBorder(true);
             nClusterSlider.setMinimum(0);
             nClusterSlider.setMaximum(5000);
@@ -1487,12 +1514,10 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 250;
-            params.nB = 250;
-            params.density = 1.3;
-            params.D = 2;
-            params.log2StepS = 5;
-            params.log2StepE = 20;
+            params.nA = 125;
+            params.nB = 125;
+            params.density = 0.8;
+            params.D = 3;
             params.minDrFilter = 0.4;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);

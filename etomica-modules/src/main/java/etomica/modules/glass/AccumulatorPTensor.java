@@ -14,10 +14,8 @@ public class AccumulatorPTensor implements IDataSink, IDataSource, DataSourceInd
 
     protected DataDoubleArray xData;
     protected DataDoubleArray.DataInfoDoubleArray xDataInfo;
-    protected DataFunction data;
-    protected DataFunction.DataInfoFunction dataInfo;
-    protected DataFunction errData;
-    protected DataFunction.DataInfoFunction errDataInfo;
+    protected DataFunction data, errData;
+    protected DataFunction.DataInfoFunction dataInfo, errDataInfo;
     protected final DataTag xTag, tag, errTag;
     protected double[][] blockSumX;
     protected long[] nBlockSamplesX;
