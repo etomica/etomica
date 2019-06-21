@@ -132,6 +132,14 @@ public class P2HardSphereCavity extends P2HardSphere {
         atom1.getPosition().PEa1Tv1(falseTime * rm1, dv);
     }
 
+    public double energy(IAtomList pair) {
+        int idx0 = pair.get(0).getLeafIndex();
+        int idx1 = pair.get(1).getLeafIndex();
+        boolean paired = idx0 * idx1 == idxProduct && idx0 + idx1 == idxSum;
+        if (paired) return 0;
+        return super.energy(pair);
+    }
+
     public CollisionType getLastCollisionType() {
         return lastCollisionType;
     }
