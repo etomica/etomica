@@ -126,6 +126,7 @@ public class Heisenberg extends Simulation {
         boolean doMappingE = params.doMappingE;
         boolean doCV = params.doCV;
         boolean doCorrelation = params.doCorrelation;
+        boolean doDipole = params.doDipole;
         int formula = params.formula;
         boolean doGraphic = params.doGraphic;
 
@@ -246,6 +247,21 @@ public class Heisenberg extends Simulation {
             sim.integrator.getEventManager().addListener(CorrelationPump);
         }
 
+        MeterDipoleMoment dipoleMeter = null;
+        MeterMeanField meterMeanField = null;
+        AccumulatorAverageFixed dipoleAccumulator = null;
+        AccumulatorAverageFixed meanFieldAccumulator = null;
+
+        if (doDipole) {
+            dipoleMeter = new MeterDipoleMoment(sim.box);
+            meterMeanField = new MeterMeanField(sim.space, sim.box, interactionS, sim.potentialMaster, temperature);
+            dipoleAccumulator = new AccumulatorAverageFixed(samplePerBlock);
+            meanFieldAccumulator = new AccumulatorAverageFixed(samplePerBlock);
+            DataPumpListener pumpDipole = new DataPumpListener(dipoleMeter, dipoleAccumulator, sampleAtInterval);
+            DataPumpListener pumpMeanField = new DataPumpListener(meterMeanField, meanFieldAccumulator, sampleAtInterval);
+            sim.integrator.getEventManager().addListener(pumpDipole);
+            sim.integrator.getEventManager().addListener(pumpMeanField);
+        }
 
         sim.activityIntegrate.setMaxSteps(steps);
         sim.getController().actionPerformed();
@@ -256,6 +272,28 @@ public class Heisenberg extends Simulation {
         //******************************** simulation start ******************************** //
         //******************************** simulation start ******************************** //
         //******************************** simulation start ******************************** //
+
+        if (doDipole) {
+            IData dipoleAvg = dipoleAccumulator.getData(dipoleAccumulator.AVERAGE);
+            IData dipoleErr = dipoleAccumulator.getData(dipoleAccumulator.ERROR);
+            IData dipoleCor = dipoleAccumulator.getData(dipoleAccumulator.BLOCK_CORRELATION);
+            System.out.println("dipoleX:\t" + dipoleAvg.getValue(0)
+                    + " Err:\t" + dipoleErr.getValue(0) + " Cor:\t " + dipoleCor.getValue(0)
+                    + " Difficulty:\t" + (dipoleErr.getValue(0) * Math.sqrt(totalTime)));
+            System.out.println("dipoleY:\t" + dipoleAvg.getValue(1)
+                    + " Err:\t" + dipoleErr.getValue(1) + " Cor:\t " + dipoleCor.getValue(1)
+                    + " Difficulty:\t" + (dipoleErr.getValue(1) * Math.sqrt(totalTime)));
+
+            IData mapDipoleAvg = meanFieldAccumulator.getData(meanFieldAccumulator.AVERAGE);
+            IData mapDipoleErr = meanFieldAccumulator.getData(meanFieldAccumulator.ERROR);
+            IData mapDipoleCor = meanFieldAccumulator.getData(meanFieldAccumulator.BLOCK_CORRELATION);
+            System.out.println("mapped dipoleX:\t" + mapDipoleAvg.getValue(0)
+                    + " Err:\t" + mapDipoleErr.getValue(0) + " Cor:\t " + mapDipoleCor.getValue(0)
+                    + " Difficulty:\t" + (mapDipoleErr.getValue(0) * Math.sqrt(totalTime)));
+            System.out.println("mapped dipoleY:\t" + mapDipoleAvg.getValue(1)
+                    + " Err:\t" + mapDipoleErr.getValue(1) + " Cor:\t " + mapDipoleCor.getValue(1)
+                    + " Difficulty:\t" + (mapDipoleErr.getValue(1) * Math.sqrt(totalTime)));
+        }
 
         //******************************** Correlation ******************************** //
         int distance = nCells / 2 + 1;
@@ -496,7 +534,8 @@ public class Heisenberg extends Simulation {
         public boolean doConventionalE = false;
         public boolean doMappingE = false;
         public boolean doCV = false;
-        public boolean doCorrelation = true;
+        public boolean doCorrelation = false;
+        public boolean doDipole = false;
         public int formula = 2;
         public boolean doGraphic = false;
         public double temperature = 1;
