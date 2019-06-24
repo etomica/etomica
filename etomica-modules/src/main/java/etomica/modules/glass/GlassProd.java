@@ -149,15 +149,6 @@ public class GlassProd {
         double pErr  = dataPErr.getValue(0);
         double pCorr = dataPCorr.getValue(0);
 
-        //Pressure Tensor (G_inf)
-        DataGroup dataPTensor = (DataGroup)pTensorAccumulator.getData();
-        IData dataPTensorAvg = dataPTensor.getData(pTensorAccumulator.AVERAGE.index);
-        IData dataPTensorSD = dataPTensor.getData(pTensorAccumulator.STANDARD_DEVIATION.index);
-        double sd2PTensor = 0;
-        for(int i=0; i<pIndex.length; i++){sd2PTensor += dataPTensorSD.getValue(pIndex[i])*dataPTensorSD.getValue(pIndex[i]);}
-        sd2PTensor/=pIndex.length;
-
-
         String filenameVisc, filenameMSD, filenameD, filenameFs, filenameF, filenamePerc, filenameImmFrac, filenameL;
 
         if(sim.potentialChoice == SimGlass.PotentialChoice.HS){
@@ -178,6 +169,15 @@ public class GlassProd {
             filenameL = String.format("lRho%1.3f.out", rho);
             filenameImmFrac = String.format("immFracRho%1.3f.out", rho);
         }else{
+            //Pressure Tensor (G_inf)
+            DataGroup dataPTensor = (DataGroup) pTensorAccumulator.getData();
+            IData dataPTensorSD = dataPTensor.getData(pTensorAccumulator.STANDARD_DEVIATION.index);
+            double sd2PTensor = 0;
+            for (int i = 0; i < pIndex.length; i++) {
+                sd2PTensor += dataPTensorSD.getValue(pIndex[i]) * dataPTensorSD.getValue(pIndex[i]);
+            }
+            sd2PTensor /= pIndex.length;
+
             DataGroup dataT = (DataGroup)tAccumulator.getData();
             IData dataTAvg = dataT.getData(tAccumulator.AVERAGE.index);
             IData dataTErr = dataT.getData(tAccumulator.ERROR.index);
@@ -229,7 +229,6 @@ public class GlassProd {
             fileWriterImmFrac   = new FileWriter(filenameImmFrac ,  false);
             fileWriterL   = new FileWriter(filenameL ,  false);
             DataDoubleArray x = meterMSD.getIndependentData(0);
-            DataDoubleArray x2 = meterMSD.getIndependentData(0);
             for (int i=0; i<meterMSD.getData().getLength(); i++){
                 double xi = x.getValue(i);
                 double yi = meterMSD.getData().getValue(i);
