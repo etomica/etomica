@@ -1518,7 +1518,6 @@ public class GlassGraphic extends SimulationGraphic {
             params.nB = 125;
             params.density = 0.8;
             params.D = 3;
-            params.minDrFilter = 0.4;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);
 

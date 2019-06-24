@@ -207,8 +207,5 @@ public class SimGlass extends Simulation {
         public double temperature = 1.0;
         public boolean doSwap = true;
         public PotentialChoice potential = PotentialChoice.LJ;
-        public int log2StepS =  1;
-        public int log2StepE = 40;
-        public double minDrFilter = 0.4;
     }
 }

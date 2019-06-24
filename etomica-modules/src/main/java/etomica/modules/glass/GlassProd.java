@@ -10,7 +10,6 @@ import etomica.data.meter.MeterPressureTensorFromIntegrator;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.util.ParseArgs;
@@ -273,5 +272,6 @@ public class GlassProd {
     public static class SimParams extends SimGlass.GlassParams {
         public int numStepsEq = 10000;
         public int numSteps =   1000000;
+        public double minDrFilter = 0.4;
     }
 }
