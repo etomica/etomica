@@ -7,7 +7,6 @@ import etomica.data.*;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.meter.MeterPressureHardTensor;
 import etomica.data.meter.MeterPressureTensorFromIntegrator;
-import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
@@ -32,7 +31,6 @@ public class GlassProdF {
             params.temperature = 0.1;
             params.numStepsEq = 100000;
             params.numSteps =   1000000;
-            params.minDrFilter = 0.4;
         }
 
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);
