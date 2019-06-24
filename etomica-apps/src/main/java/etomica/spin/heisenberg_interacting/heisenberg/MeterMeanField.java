@@ -95,9 +95,10 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
             double dtheta = Math.atan2(sindtheta, cosdtheta);
             double theta0 = Math.atan2(h.getX(1), h.getX(0));
             double[] v = getVelocity(dtheta, hmag / temperature, h.getX(0), h.getX(1));
-            double[] vs = getVelocity(theta0, hmag / temperature, h.getX(0), h.getX(1));
+            double[] vc = getVelocity(0 - theta0, hmag / temperature, h.getX(0), h.getX(1));
+            double[] vs = getVelocity(Math.PI / 2 - theta0, hmag / temperature, h.getX(0), h.getX(1));
             Vector s = spins.get(i);
-            s.setX(0, h.getX(0) * x + y * (v[0] - vs[0]));
+            s.setX(0, h.getX(0) * x + y * (v[0] - vc[0]));
             s.setX(1, h.getX(1) * x + y * (v[1] - vs[1]));
 
             d[0] += s.getX(0);
