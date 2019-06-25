@@ -60,7 +60,7 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
         double S1 = FunctionCosIntegral.sincosInt(dtheta, b);
         double A = Math.exp(-b * Math.cos(dtheta));
         return new double[]{A * (aC0 * cosTheta0 - C1 * cosTheta0 + S1 * sinTheta0),
-                A * (aC0 * sinTheta0 - C1 * sinTheta0 + S1 * cosTheta0)};
+                A * (aC0 * sinTheta0 - C1 * sinTheta0 - S1 * cosTheta0)};
     }
 
 
