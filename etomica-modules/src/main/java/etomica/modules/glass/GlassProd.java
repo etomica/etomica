@@ -4,10 +4,7 @@
 package etomica.modules.glass;
 
 import etomica.data.*;
-import etomica.data.meter.MeterPressureHard;
-import etomica.data.meter.MeterPressureHardTensor;
-import etomica.data.meter.MeterPressureTensorFromIntegrator;
-import etomica.data.meter.MeterTemperature;
+import etomica.data.meter.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
@@ -26,11 +23,11 @@ public class GlassProd {
             params.potential = SimGlass.PotentialChoice.HS;
             params.nA = 125;
             params.nB = 125;
-            params.density = 1.64;
+            params.density = 1.25;
             params.D = 3;
-            params.temperature = 0.1;
-            params.numStepsEq = 100000;
-            params.numSteps =   1000000;
+            params.temperature = 1;
+            params.numStepsEq = 1000;
+            params.numSteps = 10000;
             params.minDrFilter = 0.4;
         }
 
@@ -55,9 +52,20 @@ public class GlassProd {
         sim.integrator.setIsothermal(false);
         sim.activityIntegrate.setMaxSteps(params.numSteps);
 
+        long blocksize = params.numSteps / 100;
+
+        AccumulatorAverageFixed accPE = null;
+
         //P
         IDataSource pTensorMeter;
         if (sim.integrator instanceof IntegratorVelocityVerlet) {
+            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
+            long bs = blocksize / numAtoms;
+            if (bs == 0) bs = 1;
+            accPE = new AccumulatorAverageFixed(bs);
+            DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, numAtoms);
+            sim.integrator.getEventManager().addListener(pumpPE);
+
             pTensorMeter = new MeterPressureTensorFromIntegrator(sim.getSpace());
             ((MeterPressureTensorFromIntegrator) pTensorMeter).setIntegrator((IntegratorVelocityVerlet) sim.integrator);
         } else {
@@ -79,7 +87,6 @@ public class GlassProd {
 
         sim.integrator.getEventManager().addListener(pTensorAccumViscPump);
 
-        long blocksize = params.numSteps/100;
         GlassGraphic.DataProcessorTensorTrace tracer = new GlassGraphic.DataProcessorTensorTrace();
         pTensorFork.addDataSink(tracer);
         DataFork pFork = new DataFork();
@@ -169,6 +176,15 @@ public class GlassProd {
             filenameL = String.format("lRho%1.3f.out", rho);
             filenameImmFrac = String.format("immFracRho%1.3f.out", rho);
         }else{
+            // Energy
+            DataGroup dataU = (DataGroup) accPE.getData();
+            IData dataUAvg = dataU.getData(accPE.AVERAGE.index);
+            IData dataUErr = dataU.getData(accPE.ERROR.index);
+            IData dataUCorr = dataU.getData(accPE.BLOCK_CORRELATION.index);
+            double uAvg = dataUAvg.getValue(0);
+            double uErr = dataUErr.getValue(0);
+            double uCorr = dataUCorr.getValue(0);
+
             //Pressure Tensor (G_inf)
             DataGroup dataPTensor = (DataGroup) pTensorAccumulator.getData();
             IData dataPTensorSD = dataPTensor.getData(pTensorAccumulator.STANDARD_DEVIATION.index);
@@ -188,6 +204,7 @@ public class GlassProd {
             System.out.println("rho: " + params.density+"\n");
             System.out.println("T: " + tAvg +"  "+ tErr +"  cor: "+tCorr);
             System.out.println("Z: " + pAvg/params.density/tAvg +"  "+ pErr/params.density/tAvg  +"  cor: "+pCorr);
+            System.out.println("U: " + uAvg / numAtoms + "  " + uErr / numAtoms + "  cor: " + uCorr);
             filenameVisc = String.format("viscRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameMSD = String.format("msdRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameD = String.format("dRho%1.3fT%1.3f.out",  rho, params.temperature);
