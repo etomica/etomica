@@ -54,18 +54,9 @@ public class GlassProd {
 
         long blocksize = params.numSteps / 100;
 
-        AccumulatorAverageFixed accPE = null;
-
         //P
         IDataSource pTensorMeter;
         if (sim.integrator instanceof IntegratorVelocityVerlet) {
-            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
-            long bs = blocksize / numAtoms;
-            if (bs == 0) bs = 1;
-            accPE = new AccumulatorAverageFixed(bs);
-            DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, numAtoms);
-            sim.integrator.getEventManager().addListener(pumpPE);
-
             pTensorMeter = new MeterPressureTensorFromIntegrator(sim.getSpace());
             ((MeterPressureTensorFromIntegrator) pTensorMeter).setIntegrator((IntegratorVelocityVerlet) sim.integrator);
         } else {
@@ -95,10 +86,19 @@ public class GlassProd {
         pFork.addDataSink(pAccumulator);
 
         AccumulatorAverageFixed tAccumulator = null;
+        AccumulatorAverageFixed accPE = null;
+
         if(sim.potentialChoice != SimGlass.PotentialChoice.HS){
+            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
+            long bs = blocksize / 5;
+            if (bs == 0) bs = 1;
+            accPE = new AccumulatorAverageFixed(bs);
+            DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, 5);
+            sim.integrator.getEventManager().addListener(pumpPE);
+
             MeterTemperature tMeter = new MeterTemperature(sim, sim.box, params.D);
-            tAccumulator = new AccumulatorAverageFixed(blocksize);
-            DataPumpListener tPump = new DataPumpListener(tMeter, tAccumulator, 10);
+            tAccumulator = new AccumulatorAverageFixed(blocksize / 5);
+            DataPumpListener tPump = new DataPumpListener(tMeter, tAccumulator, 5);
             tAccumulator.addDataSink(pTensorAccumVisc.makeTemperatureSink(),  new AccumulatorAverage.StatType[]{tAccumulator.AVERAGE});
             sim.integrator.getEventManager().addListener(tPump);
         }
