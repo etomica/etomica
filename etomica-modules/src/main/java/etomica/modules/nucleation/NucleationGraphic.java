@@ -10,6 +10,7 @@ import etomica.action.SimulationRestart;
 import etomica.atom.DiameterHashByType;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
+import etomica.data.histogram.HistogramDiscrete;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressureHard;
@@ -78,6 +79,7 @@ public class NucleationGraphic extends SimulationGraphic {
         }
 
         ((P2SquareWell) sim.potentialWrapper.getWrappedPotential()).setEpsilon(eUnit.toSim(5000));
+        ((P2SquareWell) sim.potentialWrapper.getWrappedPotential()).setLambda(1.5);
 
         if (sim.getSpace().D() == 2) {
             int N = 400;
@@ -119,9 +121,6 @@ public class NucleationGraphic extends SimulationGraphic {
         tempSlider.setSliderMajorValues(3);
         tempSlider.setAdiabatic();
 
-        GridBagConstraints gbc2 = new GridBagConstraints();
-        gbc2.gridx = 0;
-        gbc2.gridy = 0;
         add(tempSlider);
 
         //display of box, timer
@@ -196,6 +195,24 @@ public class NucleationGraphic extends SimulationGraphic {
         peDisplay.setLabel("Potential Energy (J/mol)");
         peDisplay.setUnit(eUnit);
 
+        MeterLargestCluster meterLargestCluster = new MeterLargestCluster(sim.box);
+        DataFork forkCluster = new DataFork();
+        DataPumpListener pumpCluster = new DataPumpListener(meterLargestCluster, forkCluster, 10);
+        sim.integrator.getEventManager().addListener(pumpCluster);
+        AccumulatorHistory clusterHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        forkCluster.addDataSink(clusterHistory);
+        DisplayPlot clusterHistoryPlot = new DisplayPlot();
+        clusterHistory.addDataSink(clusterHistoryPlot.getDataSet().makeDataSink());
+        clusterHistoryPlot.setLabel("cluster history");
+        add(clusterHistoryPlot);
+
+        AccumulatorHistogram clusterHistogram = new AccumulatorHistogram(new HistogramDiscrete(1e-10));
+        forkCluster.addDataSink(clusterHistogram);
+        DisplayPlot clusterHistogramPlot = new DisplayPlot();
+        clusterHistogram.addDataSink(clusterHistogramPlot.getDataSet().makeDataSink());
+        clusterHistogramPlot.setLabel("cluster histogram");
+        add(clusterHistogramPlot);
+
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setResetAction(new SimulationRestart(sim));
         nSlider.setSpecies(sim.species);
@@ -224,8 +241,6 @@ public class NucleationGraphic extends SimulationGraphic {
         nSlider.setShowBorder(false);
         nSlider.setNMajor(4);
         nSliderPanel.add(nSlider.graphic());
-        gbc2.gridx = 0;
-        gbc2.gridy = 1;
 
         //************* Lay out components ****************//
 
