@@ -78,7 +78,7 @@ public class NucleationGraphic extends SimulationGraphic {
             pUnit = Bar.UNIT;
         }
 
-        ((P2SquareWell) sim.potentialWrapper.getWrappedPotential()).setEpsilon(eUnit.toSim(5000));
+        ((P2SquareWell) sim.potentialWrapper.getWrappedPotential()).setEpsilon(tUnit.toSim(600));
         ((P2SquareWell) sim.potentialWrapper.getWrappedPotential()).setLambda(1.5);
 
         if (sim.getSpace().D() == 2) {
@@ -96,9 +96,9 @@ public class NucleationGraphic extends SimulationGraphic {
         densitySlider.setShowBorder(true);
         densitySlider.setMinimum(0);
         densitySlider.setPrecision(3);
-        densitySlider.setMaximum(0.1);
+        densitySlider.setMaximum(0.05);
         densitySlider.setNMajor(5);
-        densitySlider.setValue(400.0 / (100.0 * 100.0));
+        densitySlider.setValue(0.02);
         add(densitySlider);
 
         sim.activityIntegrate.setSleepPeriod(0);
@@ -117,7 +117,7 @@ public class NucleationGraphic extends SimulationGraphic {
         tempSlider.setUnit(tUnit);
 //        tempSlider.setPrecision(1);
         tempSlider.setMinimum(0.0);
-        tempSlider.setMaximum(1500.0);
+        tempSlider.setMaximum(600.0);
         tempSlider.setSliderMajorValues(3);
         tempSlider.setAdiabatic();
 
@@ -204,6 +204,7 @@ public class NucleationGraphic extends SimulationGraphic {
         DisplayPlot clusterHistoryPlot = new DisplayPlot();
         clusterHistory.addDataSink(clusterHistoryPlot.getDataSet().makeDataSink());
         clusterHistoryPlot.setLabel("cluster history");
+        clusterHistoryPlot.setDoLegend(false);
         add(clusterHistoryPlot);
 
         AccumulatorHistogram clusterHistogram = new AccumulatorHistogram(new HistogramDiscrete(1e-10));
@@ -211,6 +212,7 @@ public class NucleationGraphic extends SimulationGraphic {
         DisplayPlot clusterHistogramPlot = new DisplayPlot();
         clusterHistogram.addDataSink(clusterHistogramPlot.getDataSet().makeDataSink());
         clusterHistogramPlot.setLabel("cluster histogram");
+        clusterHistogramPlot.setDoLegend(false);
         add(clusterHistogramPlot);
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
