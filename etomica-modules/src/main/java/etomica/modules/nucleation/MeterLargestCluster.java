@@ -27,6 +27,10 @@ public class MeterLargestCluster extends DataSourceScalar {
         clusterer.setNbrMax(1.5);
     }
 
+    public AtomNbrClusterer getClusterer() {
+        return clusterer;
+    }
+
     public double getDataAsScalar() {
         clusterer.findClusters();
         int[] firstAtom = clusterer.getFirstAtom();

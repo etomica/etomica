@@ -6,7 +6,6 @@ package etomica.modules.nucleation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
-import etomica.action.SimulationRestart;
 import etomica.atom.DiameterHashByType;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
@@ -34,10 +33,6 @@ import etomica.units.dimensions.Length;
 import etomica.units.systems.MKS;
 import etomica.util.Constants.CompassDirection;
 
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -160,6 +155,7 @@ public class NucleationGraphic extends SimulationGraphic {
         DataFork peFork = new DataFork(new IDataSink[]{peHistory, peAccumulator});
         final DataSinkExcludeOverlap peExcludeOverlap = new DataSinkExcludeOverlap();
         peExcludeOverlap.setDataSink(peFork);
+        peExcludeOverlap.numAtoms = sim.box.getLeafList().size();
         final DataPump pePump = new DataPump(peMeter, peExcludeOverlap);
         IntegratorListenerAction pePumpListener = new IntegratorListenerAction(pePump);
         sim.integrator.getEventManager().addListener(pePumpListener);
@@ -215,34 +211,8 @@ public class NucleationGraphic extends SimulationGraphic {
         clusterHistogramPlot.setDoLegend(false);
         add(clusterHistogramPlot);
 
-        final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
-        nSlider.setResetAction(new SimulationRestart(sim));
-        nSlider.setSpecies(sim.species);
-        nSlider.setBox(sim.box);
-        nSlider.setMinimum(0);
-        nSlider.setMaximum(sim.getSpace().D() == 3 ? 500 : 168);
-        nSlider.setLabel("Number of Atoms");
-        nSlider.setShowBorder(true);
-        nSlider.setShowValues(true);
-        // add a listener to adjust the thermostat interval for different
-        // system sizes (since we're using ANDERSEN_SINGLE.  Smaller systems
-        // don't need as much thermostating.
-        ChangeListener nListener = new ChangeListener() {
-            public void stateChanged(ChangeEvent evt) {
-                final int n = (int) nSlider.getValue() > 0 ? (int) nSlider.getValue() : 1;
-                sim.integrator.setThermostatInterval(n > 40 ? 1 : 40 / n);
-                peExcludeOverlap.numAtoms = n;
-
-                getDisplayBox(sim.box).repaint();
-            }
-        };
-        nSlider.getSlider().addChangeListener(nListener);
-        nListener.stateChanged(null);
-        JPanel nSliderPanel = new JPanel(new GridLayout(0, 1));
-        nSliderPanel.setBorder(new TitledBorder(null, "Number of Molecules", TitledBorder.CENTER, TitledBorder.TOP));
-        nSlider.setShowBorder(false);
-        nSlider.setNMajor(4);
-        nSliderPanel.add(nSlider.graphic());
+        sim.integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SCALING);
+        sim.integrator.setThermostatInterval(100);
 
         //************* Lay out components ****************//
 
@@ -261,12 +231,10 @@ public class NucleationGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 sim.integrator.reset();
 
-                // Reset temperature (THIS IS NOT WORKING)
                 temperaturePump.actionPerformed();
                 tBox.putData(temperatureAverage.getData());
                 tBox.repaint();
 
-                // IS THIS WORKING?
                 pPump.actionPerformed();
                 pDisplay.putData(pAccumulator.getData());
                 pDisplay.repaint();
@@ -280,14 +248,7 @@ public class NucleationGraphic extends SimulationGraphic {
             }
         };
 
-        this.getController().getReinitButton().setPostAction(new IAction() {
-            public void actionPerformed() {
-                sim.integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN);
-                sim.integrator.doThermostat();
-                sim.integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SINGLE);
-                resetAction.actionPerformed();
-            }
-        });
+        this.getController().getReinitButton().setPostAction(resetAction);
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
@@ -313,8 +274,8 @@ public class NucleationGraphic extends SimulationGraphic {
             int N = sim.box.getLeafList().size();
             double rho = N / sim.box.getBoundary().volume();
             double d = Math.pow(density / rho, 1.0 / sim.getSpace().D());
-            if (d > 10.0) {
-                throw new IllegalArgumentException("diameter can't exceed 10.0A");
+            if (d > 1) {
+                throw new IllegalArgumentException("diameter can't exceed 1");
             }
             //assume one type of atom
             ((DiameterHashByType) getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), d);
@@ -337,7 +298,7 @@ public class NucleationGraphic extends SimulationGraphic {
         }
 
         public String getLabel() {
-            return "Atom Diameter";
+            return "Density";
         }
 
         public String toString() {
