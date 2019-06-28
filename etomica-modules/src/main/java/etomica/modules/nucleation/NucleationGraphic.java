@@ -6,7 +6,9 @@ package etomica.modules.nucleation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
+import etomica.atom.AtomTest;
 import etomica.atom.DiameterHashByType;
+import etomica.atom.IAtom;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.histogram.HistogramDiscrete;
@@ -21,6 +23,8 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
+import etomica.modifier.ModifierBoolean;
+import etomica.modules.glass.ColorSchemeCluster;
 import etomica.modules.swmd.Swmd;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
@@ -85,6 +89,27 @@ public class NucleationGraphic extends SimulationGraphic {
         } else {
             getDisplayBox(sim.box).setPixelUnit(new Pixel(40 / sim.box.getBoundary().getBoxSize().getX(1)));
         }
+
+        ColorScheme colorSchemeRed = getDisplayBox(sim.box).getColorScheme();
+        ColorSchemeCluster colorSchemeCluster = new ColorSchemeCluster(sim.box, new AtomTest() {
+            @Override
+            public boolean test(IAtom a) {
+                return true;
+            }
+        });
+        DeviceCheckBox colorCheckbox = new DeviceCheckBox("color clusters", new ModifierBoolean() {
+            @Override
+            public void setBoolean(boolean b) {
+                getDisplayBox(sim.box).setColorScheme(b ? colorSchemeCluster : colorSchemeRed);
+            }
+
+            @Override
+            public boolean getBoolean() {
+                return getDisplayBox(sim.box).getColorScheme() == colorSchemeCluster;
+            }
+        });
+        add(colorCheckbox);
+
         ModifierDensity modifierDensity = new ModifierDensity();
         DeviceSlider densitySlider = new DeviceSlider(sim.getController(), modifierDensity);
         densitySlider.setLabel("Density");
@@ -117,11 +142,6 @@ public class NucleationGraphic extends SimulationGraphic {
         tempSlider.setAdiabatic();
 
         add(tempSlider);
-
-        //display of box, timer
-        ColorSchemeByType colorScheme = new ColorSchemeByType();
-        colorScheme.setColor(sim.species.getLeafType(), Color.red);
-        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 
         //meters and displays
 
