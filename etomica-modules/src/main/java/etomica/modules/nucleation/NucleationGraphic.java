@@ -216,6 +216,7 @@ public class NucleationGraphic extends SimulationGraphic {
         DataPumpListener pumpCluster = new DataPumpListener(meterLargestCluster, forkCluster, 10);
         sim.integrator.getEventManager().addListener(pumpCluster);
         AccumulatorHistory clusterHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
+        clusterHistory.setTimeDataSource(timeCounter);
         forkCluster.addDataSink(clusterHistory);
         DisplayPlot clusterHistoryPlot = new DisplayPlot();
         clusterHistory.addDataSink(clusterHistoryPlot.getDataSet().makeDataSink());
