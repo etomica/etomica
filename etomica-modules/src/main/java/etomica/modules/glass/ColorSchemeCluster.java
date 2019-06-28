@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
+import etomica.atom.AtomTest;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.graphics.ColorScheme;
@@ -17,7 +18,7 @@ public class ColorSchemeCluster extends ColorScheme implements ColorSchemeCollec
     protected final int[][] clusterSize;
     protected final int[] clusterSizeOrder;
 
-    public ColorSchemeCluster(Box box, AtomTestDeviation atomTest) {
+    public ColorSchemeCluster(Box box, AtomTest atomTest) {
         this.box = box;
         clusterer = new AtomNbrClusterer(box, atomTest);
         colors = new Color[]{Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.CYAN, Color.MAGENTA};
@@ -61,7 +62,7 @@ public class ColorSchemeCluster extends ColorScheme implements ColorSchemeCollec
     @Override
     public Color getAtomColor(IAtom a) {
         int c = clusterSizeOrder[clusterer.getClusters()[a.getLeafIndex()]];
-        if (c >= colors.length) return Color.WHITE;
+        if (c >= colors.length) return box.getSpace().D() == 2 ? Color.BLACK : Color.WHITE;
         return colors[c];
     }
 }
