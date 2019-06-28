@@ -19,7 +19,6 @@ import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
@@ -37,6 +36,7 @@ import etomica.units.dimensions.Length;
 import etomica.units.systems.MKS;
 import etomica.util.Constants.CompassDirection;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -118,7 +118,7 @@ public class NucleationGraphic extends SimulationGraphic {
         densitySlider.setPrecision(3);
         densitySlider.setMaximum(0.05);
         densitySlider.setNMajor(5);
-        densitySlider.setValue(0.02);
+        densitySlider.setValue(0.04);
         add(densitySlider);
 
         sim.activityIntegrate.setSleepPeriod(0);
@@ -128,8 +128,8 @@ public class NucleationGraphic extends SimulationGraphic {
 
         final DataSourceCountTime meterCycles = new DataSourceCountTime(sim.integrator);
         displayCycles.setPrecision(6);
-        DataPump pump = new DataPump(meterCycles, displayCycles);
-        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
+        DataPumpListener pump = new DataPumpListener(meterCycles, displayCycles);
+        sim.integrator.getEventManager().addListener(pump);
         displayCycles.setLabel("Simulation time");
 
         //temperature selector
@@ -151,10 +151,8 @@ public class NucleationGraphic extends SimulationGraphic {
 
         MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
         DataFork temperatureFork = new DataFork();
-        final DataPump temperaturePump = new DataPump(thermometer, temperatureFork);
-        IntegratorListenerAction temperaturePumpListener = new IntegratorListenerAction(temperaturePump);
-        sim.integrator.getEventManager().addListener(temperaturePumpListener);
-        temperaturePumpListener.setInterval(1);
+        final DataPumpListener temperaturePump = new DataPumpListener(thermometer, temperatureFork);
+        sim.integrator.getEventManager().addListener(temperaturePump);
         final AccumulatorAverageCollapsing temperatureAverage = new AccumulatorAverageCollapsing();
         temperatureAverage.setPushInterval(20);
         final AccumulatorHistory temperatureHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -176,24 +174,29 @@ public class NucleationGraphic extends SimulationGraphic {
         final DataSinkExcludeOverlap peExcludeOverlap = new DataSinkExcludeOverlap();
         peExcludeOverlap.setDataSink(peFork);
         peExcludeOverlap.numAtoms = sim.box.getLeafList().size();
-        final DataPump pePump = new DataPump(peMeter, peExcludeOverlap);
-        IntegratorListenerAction pePumpListener = new IntegratorListenerAction(pePump);
-        sim.integrator.getEventManager().addListener(pePumpListener);
+        final DataPumpListener pePump = new DataPumpListener(peMeter, peExcludeOverlap);
+        sim.integrator.getEventManager().addListener(pePump);
         dataStreamPumps.add(pePump);
 
         // we do this for the scaling by numAtoms rather than for the overlap exclusion
         int numAtoms = sim.box.getLeafList().size();
-        pePumpListener.setInterval(numAtoms > 120 ? 1 : 120 / numAtoms);
+        pePump.setInterval(numAtoms > 120 ? 1 : 120 / numAtoms);
 
         final DisplayPlot ePlot = new DisplayPlot();
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
         ePlot.setDoLegend(false);
 
         ePlot.getPlot().setTitle("Energy History (J/mol)");
-        ePlot.setDoLegend(true);
         ePlot.setLabel("Energy");
         ePlot.setUnit(eUnit);
-        ePlot.setXUnit(Picosecond.UNIT);
+
+        final DisplayPlot tPlot = new DisplayPlot();
+        temperatureHistory.setDataSink(tPlot.getDataSet().makeDataSink());
+        tPlot.setDoLegend(false);
+
+        tPlot.getPlot().setTitle("Temperature History (K)");
+        tPlot.setLabel("Temperature");
+        tPlot.setUnit(tUnit);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
@@ -278,6 +281,11 @@ public class NucleationGraphic extends SimulationGraphic {
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
 
         add(ePlot);
+        JPanel etPanel = new JPanel(new GridBagLayout());
+        etPanel.add(ePlot.getPlot(), vertGBC);
+        etPanel.add(tPlot.getPlot(), vertGBC);
+        addAsTab(etPanel, "Energy", true);
+
         add(displayCycles);
         add(tBox);
         add(pDisplay);
