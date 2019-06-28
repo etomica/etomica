@@ -11,7 +11,6 @@ import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
-import etomica.data.histogram.HistogramDiscrete;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressureHard;
@@ -23,7 +22,6 @@ import etomica.integrator.IntegratorMD;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
-import etomica.modules.glass.ColorSchemeCluster;
 import etomica.modules.swmd.Swmd;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
@@ -227,12 +225,14 @@ public class NucleationGraphic extends SimulationGraphic {
         clusterHistoryPlot.setDoLegend(false);
         add(clusterHistoryPlot);
 
-        AccumulatorHistogram clusterHistogram = new AccumulatorHistogram(new HistogramDiscrete(1e-10));
-        forkCluster.addDataSink(clusterHistogram);
+        MeterClusterSizes meterClusterSizes = new MeterClusterSizes(sim.box);
         DisplayPlot clusterHistogramPlot = new DisplayPlot();
-        clusterHistogram.addDataSink(clusterHistogramPlot.getDataSet().makeDataSink());
+        DataPumpListener pumpClusterHistogram = new DataPumpListener(meterClusterSizes, clusterHistogramPlot.getDataSet().makeDataSink(), 10);
+        sim.integrator.getEventManager().addListener(pumpClusterHistogram);
         clusterHistogramPlot.setLabel("cluster histogram");
         clusterHistogramPlot.setDoLegend(false);
+        clusterHistogramPlot.getPlot().setXLog(true);
+        clusterHistogramPlot.getPlot().setXRange(0, Math.log(sim.box.getLeafList().size()) / Math.log(10));
         add(clusterHistogramPlot);
 
         sim.integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SCALING);
@@ -259,6 +259,7 @@ public class NucleationGraphic extends SimulationGraphic {
                 tBox.putData(temperatureAverage.getData());
                 tBox.repaint();
 
+                pMeter.reset();
                 pPump.actionPerformed();
                 pDisplay.putData(pAccumulator.getData());
                 pDisplay.repaint();
