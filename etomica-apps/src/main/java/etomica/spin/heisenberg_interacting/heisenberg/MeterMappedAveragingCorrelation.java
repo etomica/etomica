@@ -91,16 +91,17 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
             int jRow = j / L, jCol = j % L;
             IAtom aj = leafList.getAtom(j);
             CorrelationAgent agentAtomJ = leafAgentManager.getAgent(aj);
-            double fj = bt * agentAtomJ.torque().getX(0);
+            double bfj = bt * agentAtomJ.torque().getX(0);
             double costj = ((IAtomOriented) leafList.getAtom(j)).getOrientation().getDirection().getX(0);
             double sintj = ((IAtomOriented) leafList.getAtom(j)).getOrientation().getDirection().getX(1);
             Vector sj = formula == 3 ? meterMeanField.getSpin(aj) : null;
+            Vector tDotj = formula == 3 ? meterMeanField.getThetaDot(aj) : null;
 
             for (int k = 0; k < j; k++) {
                 int kRow = k / L, kCol = k % L;
                 IAtom ak = leafList.getAtom(k);
                 CorrelationAgent agentAtomK = leafAgentManager.getAgent(ak);
-                double fk = bt * agentAtomK.torque().getX(0);
+                double bfk = bt * agentAtomK.torque().getX(0);
                 double costk = ((IAtomOriented) leafList.getAtom(k)).getOrientation().getDirection().getX(0);
                 double sintk = ((IAtomOriented) leafList.getAtom(k)).getOrientation().getDirection().getX(1);
                 int JMKRow = jRow - kRow;
@@ -120,20 +121,21 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
                     JMKRow = tmp;
                 }
                 int index = offset[JMKRow] + JMKCol;
-                if (formula == 0) {
+                if (formula == 0) {//conventional
                     x[index] += costj * costk + sintj * sintk;
-                } else if (formula == 1) {
-                    x[index] -= 0.5 * (fj - fk) * (sintj * costk - costj * sintk);
+                } else if (formula == 1) { //effective-field, first derivative, high temperature
+                    x[index] -= 0.5 * (bfj - bfk) * (sintj * costk - costj * sintk);
                 } else if (formula == 2) {
-                    x[index] += fj * fk * (sintj * sintk + costj * costk);
+                    x[index] += bfj * bfk * (sintj * sintk + costj * costk);
                     if (index == 0) {
                         x[index] += bJ * (costj * costk + sintj * sintk) * (costj + sintj) * (costk + sintk);
                     }
-                } else {
+                } else { //effective field, second derivative
                     Vector sk = meterMeanField.getSpin(ak);
                     x[index] += sj.dot(sk);
                     if (index == 0) {
-                        x[index] += bJ * (costj * costk + sintj * sintk) * (costj + sintj) * (costk + sintk);
+                        // thetaDotj thetaDotk phi_jk contribution
+                        x[index] += meterMeanField.getThetaDot(ak).dot(tDotj) * (costj * costk + sintj * sintk)/temperature;
                     }
                 }
                 nPairs[index] += 1;

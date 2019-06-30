@@ -36,7 +36,7 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
     protected final IteratorDirective allAtoms;
     protected double temperature;
     protected final AtomLeafAgentManager<ForceTorque> torqueAgentManager;
-    protected final List<Vector> spins;
+    protected final List<Vector> spins, thetaDot;
 
     public MeterMeanField(Space space, Box box, double J, PotentialMaster potentialMaster, double temperature) {
         this.potentialMaster = potentialMaster;
@@ -52,6 +52,7 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
         this.box = box;
         allAtoms = new IteratorDirective();
         spins = new ArrayList<>();
+        thetaDot = new ArrayList<>();
     }
 
     public static double[] getpVelocity(double dtheta, double b, double cosTheta0, double sinTheta0) {
@@ -76,6 +77,7 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
         if (spins.size() < atoms.getAtomCount()) {
             for (int i = spins.size(); i < atoms.getAtomCount(); i++) {
                 spins.add(new Vector2D());
+                thetaDot.add(new Vector2D());
             }
         }
         data.E(0);
@@ -98,8 +100,11 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
             double[] vs = getpVelocity(Math.PI / 2 - theta0, hmag / temperature, h.getX(0), h.getX(1));
             double pInv = Math.exp(-hmag/temperature * cosdtheta);
             Vector s = spins.get(i);
-            s.setX(0, h.getX(0) * x + y * pInv * (v[0] - vc[0]));
-            s.setX(1, h.getX(1) * x + y * pInv * (v[1] - vs[1]));
+            Vector tDot = thetaDot.get(i);
+            tDot.setX(0,pInv * (v[0] - vc[0]));
+            tDot.setX(1,pInv * (v[1] - vs[1]));
+            s.setX(0, h.getX(0) * x + y * tDot.getX(0));
+            s.setX(1, h.getX(1) * x + y * tDot.getX(1));
 
             d[0] += s.getX(0);
             d[1] += s.getX(1);
@@ -111,6 +116,8 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
     public Vector getSpin(IAtom a) {
         return spins.get(a.getLeafIndex());
     }
+
+    public Vector getThetaDot(IAtom a) {return thetaDot.get(a.getLeafIndex()); }
 
     @Override
     public DataTag getTag() {

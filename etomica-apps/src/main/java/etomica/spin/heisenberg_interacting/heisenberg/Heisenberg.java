@@ -534,11 +534,11 @@ public class Heisenberg extends Simulation {
         public boolean doConventionalE = false;
         public boolean doMappingE = false;
         public boolean doCV = false;
-        public boolean doCorrelation = false;
-        public boolean doDipole = false;
-        public int formula = 2;
+        public boolean doCorrelation = true;
+        public boolean doDipole = true;
+        public int formula = 0;
         public boolean doGraphic = false;
-        public double temperature = 1;
+        public double temperature = .5;
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
         public int nCells = 5;//number of atoms is nCells*nCells
