@@ -127,6 +127,7 @@ public class Heisenberg extends Simulation {
         boolean doCV = params.doCV;
         boolean doCorrelation = params.doCorrelation;
         boolean doDipole = params.doDipole;
+        boolean doEnergyMF = params.doEnergyMF;
         int formula = params.formula;
         boolean doGraphic = params.doGraphic;
 
@@ -247,20 +248,27 @@ public class Heisenberg extends Simulation {
             sim.integrator.getEventManager().addListener(CorrelationPump);
         }
 
-        MeterDipoleMoment dipoleMeter = null;
-        MeterMeanField meterMeanField = null;
         AccumulatorAverageFixed dipoleAccumulator = null;
         AccumulatorAverageFixed meanFieldAccumulator = null;
 
         if (doDipole) {
-            dipoleMeter = new MeterDipoleMoment(sim.box);
-            meterMeanField = new MeterMeanField(sim.space, sim.box, interactionS, sim.potentialMaster, temperature);
+            MeterDipoleMoment dipoleMeter = new MeterDipoleMoment(sim.box);
+            MeterMeanField meterMeanField = new MeterMeanField(sim.space, sim.box, interactionS, sim.potentialMaster, temperature);
             dipoleAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             meanFieldAccumulator = new AccumulatorAverageFixed(samplePerBlock);
             DataPumpListener pumpDipole = new DataPumpListener(dipoleMeter, dipoleAccumulator, sampleAtInterval);
             DataPumpListener pumpMeanField = new DataPumpListener(meterMeanField, meanFieldAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(pumpDipole);
             sim.integrator.getEventManager().addListener(pumpMeanField);
+        }
+
+        AccumulatorAverageFixed energyMFAccumulator = null;
+
+        if (doEnergyMF) {
+            MeterEnergyMeanField meterEnergyMF = new MeterEnergyMeanField(sim.space, sim.box, interactionS, sim.potentialMaster, temperature);
+            energyMFAccumulator = new AccumulatorAverageFixed(samplePerBlock);
+            DataPumpListener pumpEnergyMF = new DataPumpListener(meterEnergyMF, energyMFAccumulator, sampleAtInterval);
+            sim.integrator.getEventManager().addListener(pumpEnergyMF);
         }
 
         sim.activityIntegrate.setMaxSteps(steps);
@@ -272,6 +280,15 @@ public class Heisenberg extends Simulation {
         //******************************** simulation start ******************************** //
         //******************************** simulation start ******************************** //
         //******************************** simulation start ******************************** //
+
+        if (doEnergyMF) {
+            double energyMFAvg = energyMFAccumulator.getData(energyMFAccumulator.AVERAGE).getValue(0);
+            double energyMFErr = energyMFAccumulator.getData(energyMFAccumulator.ERROR).getValue(0);
+            double energyMFCor = energyMFAccumulator.getData(energyMFAccumulator.BLOCK_CORRELATION).getValue(0);
+            System.out.println("energyMF:\t" + energyMFAvg / (nCells * nCells)
+                    + " Err:\t" + energyMFErr / (nCells * nCells) + " Cor:\t " + energyMFCor
+                    + " Difficulty:\t" + (energyMFErr * Math.sqrt(totalTime)));
+        }
 
         if (doDipole) {
             IData dipoleAvg = dipoleAccumulator.getData(dipoleAccumulator.AVERAGE);
@@ -534,11 +551,12 @@ public class Heisenberg extends Simulation {
         public boolean doConventionalE = false;
         public boolean doMappingE = false;
         public boolean doCV = false;
-        public boolean doCorrelation = true;
-        public boolean doDipole = true;
+        public boolean doCorrelation = false;
+        public boolean doDipole = false;
+        public boolean doEnergyMF = false;
         public int formula = 0;
         public boolean doGraphic = false;
-        public double temperature = .5;
+        public double temperature = 1;
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
         public int nCells = 5;//number of atoms is nCells*nCells
