@@ -48,9 +48,7 @@ public class PotentialCalculationMeanField implements PotentialCalculation, Atom
     public void reset() {
         AtomLeafAgentManager.AgentIterator<Vector> it = leafAgentManager.makeIterator();
         it.reset();
-        for (Vector h = it.next(); it.hasNext(); h = it.next()) {
-            h.E(0);
-        }
+        while (it.hasNext()) it.next().E(0);
     }
 
     public AtomLeafAgentManager<Vector> getAgentManager() {
