@@ -88,7 +88,7 @@ public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.A
             double pInv = Math.exp(-hmag / temperature * cosdtheta);
             double v = getpVelocity(dtheta, hmag / temperature) * pInv;
 
-            sum += hmag / temperature * (-x + cosdtheta - v * (f + hmag * sindtheta) / temperature);
+            sum += hmag  * (-x + cosdtheta - v * (f + hmag * sindtheta) / temperature);
         }
 
         data.E(u + sum);
