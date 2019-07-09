@@ -17,6 +17,7 @@ module etomica.apps {
     exports etomica.mappedvirial;
     exports etomica.virial;
     exports etomica.virial.simulations;
+    exports etomica.cavity;
     requires etomica.core;
     requires etomica.graph;
     requires java.desktop;
