@@ -510,8 +510,7 @@ public class GlassGraphic extends SimulationGraphic {
 
             tPlot = new DisplayPlot();
             tHistory.setDataSink(tPlot.getDataSet().makeDataSink());
-            tPlot.setLegend(new DataTag[]{tHistory.getTag()}, "Temperature");
-            tPlot.setDoLegend(true);
+            tPlot.setDoLegend(false);
             tPlot.setLabel("T");
 
             tAccumulator.addDataSink(pTensorAccum.makeTemperatureSink(), new AccumulatorAverage.StatType[]{tAccumulator.AVERAGE});
@@ -540,7 +539,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         DisplayPlot plotPTensorAccum = new DisplayPlot();
         plotPTensorAccum.setLabel("viscosity(t)");
-        plotPTensorAccum.setLegend(new DataTag[]{pTensorAccum.getTag()}, "stress");
+        plotPTensorAccum.setDoLegend(false);
         plotPTensorAccum.getPlot().setXLog(true);
         plotPTensorAccum.getPlot().setYLog(true);
         add(plotPTensorAccum);
@@ -564,6 +563,7 @@ public class GlassGraphic extends SimulationGraphic {
         DisplayPlot plotP = new DisplayPlot();
         historyP.addDataSink(plotP.getDataSet().makeDataSink());
         plotP.setLabel("P");
+        plotP.setDoLegend(false);
         add(plotP);
         DataProcessorErrorBar pAutoCorErr = new DataProcessorErrorBar("err+");
         dpAutocor.getAvgErrFork().addDataSink(pAutoCorErr);
@@ -687,6 +687,7 @@ public class GlassGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(pumpStrings);
         plotStrings.setLabel("strings");
         plotStrings.getPlot().setXLog(true);
+        plotStrings.setDoLegend(false);
         add(plotStrings);
 
         //Percolation
@@ -1089,6 +1090,7 @@ public class GlassGraphic extends SimulationGraphic {
             historyPE.addDataSink(plotPE.getDataSet().makeDataSink());
             plotPE.setLabel("PE");
             plotPE.setUnit(peUnit);
+            plotPE.setDoLegend(false);
             add(plotPE);
             peDisplay = new DisplayTextBoxesCAE();
             peDisplay.setAccumulator(peAccumulator);
@@ -1130,6 +1132,7 @@ public class GlassGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(pumpAlpha2);
         plotAlpha2.setLabel("alpha2");
         plotAlpha2.getPlot().setXLog(true);
+        plotAlpha2.setDoLegend(false);
         add(plotAlpha2);
 
         //FOld
