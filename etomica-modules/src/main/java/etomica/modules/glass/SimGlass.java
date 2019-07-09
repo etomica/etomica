@@ -39,7 +39,7 @@ public class SimGlass extends Simulation {
 
     public double sigmaB;
 
-    public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc) {
+    public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc, double tStep) {
         super(Space.getInstance(D));
         this.potentialChoice = pc;
         //species
@@ -56,8 +56,8 @@ public class SimGlass extends Simulation {
         box = this.makeBox();
 
         integrator = potentialChoice == PotentialChoice.HS ?
-                new IntegratorHard(potentialMaster, random, 0.005, temperature, box) :
-                new IntegratorVelocityVerlet(potentialMaster, random, 0.005, temperature, box);
+                new IntegratorHard(potentialMaster, random, tStep, temperature, box) :
+                new IntegratorVelocityVerlet(potentialMaster, random, tStep, temperature, box);
         integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN);
         integrator.setThermostatInterval(1);
@@ -197,7 +197,7 @@ public class SimGlass extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
         }
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
         sim.getController().actionPerformed();
     }//end of main
 
@@ -216,5 +216,6 @@ public class SimGlass extends Simulation {
         public double temperature = 1.0;
         public boolean doSwap = true;
         public PotentialChoice potential = PotentialChoice.LJ;
+        public double tStep = 0.005;
     }
 }
