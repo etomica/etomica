@@ -105,7 +105,7 @@ public class GlassGraphic extends SimulationGraphic {
         dbox.setColorScheme(colorScheme);
 
         DiameterHashGlass diameterHash = new DiameterHashGlass();
-        diameterHash.setDiameter(sim.speciesB.getLeafType(), sim.potentialChoice == SimGlass.PotentialChoice.LJ ? 0.88 : 1 / 1.4);
+        diameterHash.setDiameter(sim.speciesB.getLeafType(), sim.sigmaB);
         diameterHash.setDiameter(sim.speciesA.getLeafType(), 1);
         dbox.setDiameterHash(diameterHash);
 
@@ -1258,9 +1258,7 @@ public class GlassGraphic extends SimulationGraphic {
             MeterStructureFactor[] meters = new MeterStructureFactor[]{meterSFac, meterSFacCluster};
             sfacButtons.addButton("+1", new SFacButtonAction(meters, accSFac, sfacClusterer, typeB, +1));
             sfacButtons.addButton("-1", new SFacButtonAction(meters, accSFac, sfacClusterer, typeB, -1));
-            double sigmaB = 1 / 1.4;
-            if (sim.potentialChoice == SimGlass.PotentialChoice.LJ) sigmaB = 0.88;
-            double vB = sim.getSpace().powerD(sigmaB);
+            double vB = sim.getSpace().powerD(sim.sigmaB);
             sfacButtons.addButton("+v", new SFacButtonAction(meters, accSFac, sfacClusterer, typeB, vB));
             sfacButtons.addButton("-v", new SFacButtonAction(meters, accSFac, sfacClusterer, typeB, -vB));
             sfacButtons.addButton("0", new SFacButtonAction(meters, accSFac, sfacClusterer, typeB, 0));
@@ -1513,10 +1511,10 @@ public class GlassGraphic extends SimulationGraphic {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doSwap = true;
-            params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 125;
-            params.nB = 125;
-            params.density = 0.8;
+            params.potential = SimGlass.PotentialChoice.WCA;
+            params.nA = 200;
+            params.nB = 200;
+            params.density = 1.2;
             params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);
