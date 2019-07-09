@@ -5,6 +5,7 @@
 package etomica.virial;
 
 import etomica.math.SpecialFunctions;
+import etomica.util.random.IRandom;
 
 
 /**
@@ -30,6 +31,8 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
     protected boolean doCaching = true;
     protected final int[][] binomial;
     protected long SoftBDcount = 0;
+    protected double BDAccFrac = 1;
+    protected IRandom random;
     protected int stepcount = 0;
     protected long totcount = 0;
     protected boolean count=false;
@@ -50,7 +53,7 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         fA = new double[nf][nDer+1];
         fB = new double[nf][nDer+1];
         this.nDer = nDer;
-        if(tol!=0){setTolerance(tol);}
+        setTolerance(tol);
         this.binomial = new int[nDer+1][]; 
         for(int m=0;m<=nDer;m++){
             binomial[m] = new int[m+1];
@@ -61,16 +64,29 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
     }
 
     public void setTolerance(double newTol) {
-        if(newTol!=0){
+        if (newTol > 0) {
             clusterBD = new ClusterWheatleySoftDerivativesBD(n, f, -3*(int)Math.log10(newTol),nDer);
             clusterBD.setDoCaching(false);
             clusterBD.setPrecisionLimit(300);
-        }
-        else{
+        } else {
             clusterBD = null;
         }
         tol = newTol;
     }
+
+    /**
+     * Directs this cluster to only compute p fraction of the time when the
+     * value is too small (below tol).  When it is computed, the value will be
+     * boosted by 1/p.
+     *
+     * @param p   the fraction of time BD values will be computed
+     * @param rng the random number generated used to decide to do BD or not
+     */
+    public void setBDAccFrac(double p, IRandom rng) {
+        BDAccFrac = p;
+        random = rng;
+    }
+
 
     public void setDoCaching(boolean newDoCaching) {
         doCaching = newDoCaching;
@@ -83,6 +99,9 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         ClusterWheatleySoftDerivatives c = new ClusterWheatleySoftDerivatives(n, f, tol, nDer);
         c.setTemperature(1/beta);
         c.setDoCaching(doCaching);
+        if (BDAccFrac < 1) {
+            c.setBDAccFrac(BDAccFrac, random);
+        }
         return c;
     }
 
@@ -380,11 +399,16 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         }
         double bfac = (1.0-n)/SpecialFunctions.factorial(n);     
         totcount++;
-        if (Math.abs(fB[nf-1][0]) < tol) {
-            boolean returnDoubleVal = Math.abs(fB[nf-1][0]) >= tol;
-            if (clusterBD != null) {
-                for(int m=0;m<=nDer;m++){
-                    value[m] = bfac*fB[nf-1][m];
+        double r = BDAccFrac < 1 ? random.nextDouble() : 1;
+        if (Math.abs(fB[nf - 1][0]) < Math.abs(tol)) {
+            // integrand is too small for recursion to compute accurately.  we ought to do
+            // BD, but it's expensive.  only do BD BDAccFrac of the time.  If we do it, then
+            // boost the returned value by 1/BDAccFrac to account for the missed configurations
+            boolean doBD = clusterBD != null && (BDAccFrac == 1 || r < BDAccFrac);
+            boolean returnDoubleVal = false;
+            if (doBD) {
+                for(int m = 0; m<=nDer; m++) {
+                    value[m] = bfac * fB[nf - 1][m] / BDAccFrac;
                 }
                 double[] foo = value.clone();                            
                 SoftBDcount+=1;                

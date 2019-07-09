@@ -29,7 +29,7 @@ public class Droplet extends Simulation {
     public final P2Cohesion p2;
     public final P1Smash p1Smash;
     public final ConfigurationDroplet config;
-    public final AtomFilterLiquid liquidFilter;
+    public final AtomTestLiquid liquidFilter;
     public final MeterDeformation meterDeformation;
 
     public Droplet() {
@@ -77,7 +77,7 @@ public class Droplet extends Simulation {
         meterDeformation = new MeterDeformation(space);
         meterDeformation.setBox(box);
 
-        liquidFilter = new AtomFilterLiquid(space, meterDeformation);
+        liquidFilter = new AtomTestLiquid(space, meterDeformation);
         liquidFilter.setCutoff(0.9);
 
         p2.setLiquidFilter(liquidFilter);

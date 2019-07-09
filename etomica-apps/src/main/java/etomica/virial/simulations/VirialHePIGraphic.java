@@ -76,14 +76,14 @@ public class VirialHePIGraphic {
                 sigmaHSRef += 0.6;
             }
         }
-        final boolean calcApprox = params.calcApprox;
+        final boolean calcApprox = params.potentialChoice == VirialHePI.PotentialChoice.APPROX;
         final int beadFac = subtractHalf ? 2 : 1;
         final double[] HSB = new double[8];
         if (params.nBeads>-1) System.out.println("nSpheres set explicitly");
         int nb = (params.nBeads > -1) ? params.nBeads : ((int)(1200/temperatureK) + 7);
         final boolean doDiff = !subtractHalf && params.doDiff;
         final boolean semiClassical = params.semiClassical;
-        final boolean subtractApprox = !calcApprox && !subtractHalf && params.subtractApprox;
+        final boolean subtractApprox = !calcApprox && !subtractHalf && (params.subtractPotential != null);
         final boolean doTotal = params.doTotal;
         if (pairOnly && doTotal) {
             throw new RuntimeException("pairOnly needs to be off to do total");

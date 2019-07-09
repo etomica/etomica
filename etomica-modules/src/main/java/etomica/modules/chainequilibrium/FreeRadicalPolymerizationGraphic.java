@@ -16,8 +16,8 @@ import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifierNMolecule;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.units.dimensions.Dimension;
 import etomica.units.*;
+import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Quantity;
 import etomica.util.Constants.CompassDirection;
 
@@ -214,18 +214,18 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         
         final DeviceButton atomFilterButton;
         if (space.D() == 3) {
-            final AtomFilterChainLength atomFilter = new AtomFilterChainLength(sim.agentManager);
+            final AtomTestChainLength atomFilter = new AtomTestChainLength(sim.agentManager);
             atomFilter.setBox(sim.box);
             atomFilterButton = new DeviceButton(sim.getController());
             atomFilterButton.setAction(new IAction() {
                 public void actionPerformed() {
                     DisplayBox displayBox = getDisplayBox(sim.box);
-                    if (displayBox.getAtomFilter() == null) {
-                        displayBox.setAtomFilter(atomFilter);
+                    if (displayBox.getAtomTestDoDisplay() == null) {
+                        displayBox.setAtomTestDoDisplay(atomFilter);
                         atomFilterButton.setLabel("Show all");
                     }
                     else {
-                        displayBox.setAtomFilter(null);
+                        displayBox.setAtomTestDoDisplay(null);
                         atomFilterButton.setLabel("Show only longest chain");
                     }
                     displayBox.repaint();

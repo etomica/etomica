@@ -29,9 +29,8 @@ import etomica.units.dimensions.Null;
  *
  * @author David Kofke
  */
-public class MeterRDF implements IAction, IDataSource, DataSourceIndependent, java.io.Serializable {
+public class MeterRDF implements IAction, IDataSource, DataSourceIndependent {
 
-    private static final long serialVersionUID = 1L;
     protected final Space space;
     protected final DataSourceUniform xDataSource;
     protected final DataTag tag;
@@ -46,6 +45,7 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent, ja
     protected AtomType type1, type2;
     private IDataInfo dataInfo;
     private String name;
+    protected boolean resetAfterData;
 
 	/**
 	 * Creates meter with default to compute pair correlation for all
@@ -88,16 +88,25 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent, ja
         this.type2 = type2;
     }
 
+    public void setResetAfterData(boolean doResetAfterData) {
+        resetAfterData = doResetAfterData;
+    }
+
     /**
      * Zero's out the RDF sum tracked by this meter.
      */
     public void reset() {
-        rData = (DataDoubleArray)xDataSource.getData();
+        rData = (DataDoubleArray) xDataSource.getData();
         xMax = xDataSource.getXMax();
-        data = new DataFunction(new int[] {rData.getLength()});
+        data = new DataFunction(new int[]{rData.getLength()});
         gSum = new long[rData.getLength()];
         dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, this);
         dataInfo.addTag(tag);
+        zeroData();
+    }
+
+    public void zeroData() {
+        for (int i = 0; i < gSum.length; i++) gSum[i] = 0;
         callCount = 0;
     }
 
@@ -164,6 +173,7 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent, ja
 	        double vShell = space.sphereVolume(r[i]+dx2)-space.sphereVolume(r[i]-dx2);
 	        y[i] = gSum[i] / (norm*vShell);
 	    }
+        if (resetAfterData) zeroData();
 	    return data;
 	}
 
