@@ -33,7 +33,7 @@ public class GlassProdF {
             params.numSteps =   1000000;
         }
 
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential);
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.temperature);
         System.out.println(params.D +"D " + sim.potentialChoice);
         System.out.println("nA:nB = " + params.nA + ":" + params.nB);
         double volume = sim.box.getBoundary().volume();
