@@ -65,8 +65,7 @@ public class NucleationGraphic extends SimulationGraphic {
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
         mUnit = new UnitRatio(Gram.UNIT, Mole.UNIT);
         if (sim.getSpace().D() == 2) {
-            dUnit = new UnitRatio(Mole.UNIT,
-                    new MKS().area());
+            dUnit = new UnitRatio(Mole.UNIT, new MKS().area());
             Unit[] units = new Unit[]{Bar.UNIT, new PrefixedUnit(Prefix.NANO, Meter.UNIT)};
             double[] exponents = new double[]{1.0, 1.0};
             pUnit = new CompoundUnit(units, exponents);
@@ -235,6 +234,7 @@ public class NucleationGraphic extends SimulationGraphic {
         clusterHistogramPlot.getPlot().setXRange(0, Math.log(sim.box.getLeafList().size()) / Math.log(10));
         add(clusterHistogramPlot);
 
+        sim.integrator.setTimeStep(0.1);
         sim.integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SCALING);
         sim.integrator.setThermostatInterval(100);
 
@@ -281,7 +281,6 @@ public class NucleationGraphic extends SimulationGraphic {
 
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
 
-        add(ePlot);
         JPanel etPanel = new JPanel(new GridBagLayout());
         etPanel.add(ePlot.getPlot(), vertGBC);
         etPanel.add(tPlot.getPlot(), vertGBC);
