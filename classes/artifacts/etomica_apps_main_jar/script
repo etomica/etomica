@@ -1,13 +1,13 @@
 #$ -S /bin/bash
-# /usr/users/apoorvap/myfiles/newshiftedsimulatn-10power8steps/one
-# /usr/users/apoorvap/myfiles/newshiftedsimulatn-10power8steps/one
+# /usr/users/apoorvap/myfiles/densityfromlatticesite/250bins
+# /usr/users/apoorvap/myfiles/densityfromlatticesite/250bins
 #$ -cwd
  
 echo $JOB_NAME $JOB_ID `hostname` `date` >> ~/q.log
 
-java -cp etomica-apps_main.jar etomica.normalmode.SimLJHTTISuperVac -temperature $1 -density $2 -doVac > simT${1}rho${2}vac.out
+java -cp etomica-apps_main.jar etomica.mappedDensity.mappedDensityfromlatticesite.MappedDensityfromlattice -temperature $1 -density $2 > simT${1}rho${2}.out
 
 echo $JOB_NAME $JOB_ID `hostname` `date` >> ~/q2.log
  
 
- 
+    

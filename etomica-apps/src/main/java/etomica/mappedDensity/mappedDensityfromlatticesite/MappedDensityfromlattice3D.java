@@ -143,6 +143,7 @@ public class MappedDensityfromlattice3D extends Simulation {
         long numSteps = params.numSteps;
         final int numAtoms = params.numAtoms;
         double temperature = params.temperature;
+        double msddependence = params.msddependence;
         double rc = params.rc;
         double rc0 = params.rc0;
         double rcMax0 = params.rcMax0;
@@ -320,11 +321,12 @@ public class MappedDensityfromlattice3D extends Simulation {
         sim.getController().actionPerformed();
         sim.getController().reset();
         double [] arraymsd =( (DataDoubleArray) Msd.getData()).getData();
-
-                for (int k = 0; k < arraymsd.length; k++) { System.out.println(arraymsd[k]); }
+        double [] arraymsdnew=( (DataDoubleArray) Msd.getData()).getData();
+                for (int k = 0; k < arraymsd.length; k++) {  arraymsdnew[k]=msddependence*arraymsd[k]; System.out.println(arraymsdnew[k]);}
 ///////////////////////////////////////MSD ARRAY DONE///////////////////////////////////////////////////////
 
-        MeterConventional3D meterConventional3D = new MeterConventional3D(arraymsd,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.coordinateDefinition);
+ //       MeterConventional3D meterConventional3D = new MeterConventional3D(arraymsd,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.coordinateDefinition);
+        MeterConventional3D meterConventional3D = new MeterConventional3D(arraymsdnew,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.coordinateDefinition);
         long steps = params.numSteps;
         int blocks = 100;
         long blockSize = steps / (interval * blocks);
@@ -334,7 +336,7 @@ public class MappedDensityfromlattice3D extends Simulation {
         sim.getIntegrator().getEventManager().addListener(pumpCon);
 
 
-      MeterMappedAvg3D meterMappedAvg3D = new MeterMappedAvg3D(arraymsd,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.potentialMaster, params.temperature, sim.coordinateDefinition);
+      MeterMappedAvg3D meterMappedAvg3D = new MeterMappedAvg3D(arraymsdnew,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.potentialMaster, params.temperature, sim.coordinateDefinition);
      //  double [] hey=new double[params.thetaphinumberofbins*params.thetaphinumberofbins] ;
      //  for (int i = 0; i < hey.length; i++) {
       //          hey[i] = 0.0391218;
@@ -403,7 +405,7 @@ public class MappedDensityfromlattice3D extends Simulation {
             }
         }
 
-
+        System.out.println("time taken"+endTime+"-"+startTime);
     }
 
     public void initialize(long initSteps) {
@@ -421,11 +423,12 @@ public class MappedDensityfromlattice3D extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numAtoms = 500;
-         public int rnumberofbins = 5;
+         public int rnumberofbins = 100;
         public int thetaphinumberofbins=1;
-        public double density = 4;
-        public long numSteps = 500000;
-        public double temperature = 1;
+        public double density = 1.29;
+        public long numSteps = 250000;
+        public double temperature = 2.11;
+        public double msddependence=2.0;
         public double rc = 3;
         public double rc0 = rc;
         public double rcMax1 = 3;
