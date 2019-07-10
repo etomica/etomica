@@ -37,15 +37,25 @@ public class GlassProd {
         double volume = sim.box.getBoundary().volume();
         int numAtoms = params.nA + params.nB;
         double rho= numAtoms/volume;
+        System.out.println("T = " + params.temperature);
         System.out.println( params.numSteps + " MD steps after " + params.numStepsEq + " equilibaration steps");
 
         //Equilibration
+        double temperature0 = params.temperatureMelt > params.temperature ? params.temperatureMelt : params.temperature;
+        if (temperature0 > params.temperature) System.out.println("Equilibrating at T=" + temperature0);
         sim.integrator.setIsothermal(true);
         sim.integrator.setIntegratorMC(sim.integratorMC, 1000);
-        sim.integrator.setTemperature(params.temperature);
+        sim.integrator.setTemperature(temperature0);
         sim.activityIntegrate.setMaxSteps(params.numStepsEq);
         sim.getController().actionPerformed();
         sim.getController().reset();
+
+        if (temperature0 > params.temperature) {
+            System.out.println("Equilibrating at T=" + params.temperature);
+            sim.integrator.setTemperature(params.temperature);
+            sim.getController().actionPerformed();
+            sim.getController().reset();
+        }
 
         //Production
         sim.integrator.setIntegratorMC(null, 0);
@@ -289,5 +299,6 @@ public class GlassProd {
         public int numStepsEq = 10000;
         public int numSteps =   1000000;
         public double minDrFilter = 0.4;
+        public double temperatureMelt = 0;
     }
 }
