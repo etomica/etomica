@@ -5,10 +5,13 @@ package etomica.modules.glass;
 
 import etomica.data.*;
 import etomica.data.meter.*;
+import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.data.types.DataTensor;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.units.dimensions.Null;
 import etomica.util.ParseArgs;
 
 import java.io.FileWriter;
@@ -82,9 +85,34 @@ public class GlassProd {
         pTensorFork.addDataSink(pTensorAccumVisc);
         DataPumpListener pTensorAccumViscPump = new DataPumpListener(pTensorMeter, pTensorFork);
 
+        DataProcessor dpSquared = new DataProcessor() {
+            DataDouble data = new DataDouble();
 
-        AccumulatorAverageFixed pTensorAccumulator = new AccumulatorAverageFixed(1);
-        pTensorFork.addDataSink(pTensorAccumulator);
+            @Override
+            protected IData processData(IData inputData) {
+                data.x = 0;
+                int n = 0;
+                for (int i = 0; i < params.D; i++) {
+                    for (int j = i + 1; j < params.D; j++) {
+                        double c = ((DataTensor) inputData).x.component(i, j);
+                        data.x += c * c;
+                        n++;
+                    }
+                }
+                data.x /= n;
+                return data;
+            }
+
+            @Override
+            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+                dataInfo = new DataDouble.DataInfoDouble("G", Null.DIMENSION);
+                return dataInfo;
+            }
+        };
+        pTensorFork.addDataSink(dpSquared);
+
+        AccumulatorAverageFixed gTensorAccumulator = new AccumulatorAverageFixed(blocksize);
+        dpSquared.setDataSink(gTensorAccumulator);
 
         sim.integrator.getEventManager().addListener(pTensorAccumViscPump);
 
@@ -150,13 +178,6 @@ public class GlassProd {
         double time0 = System.currentTimeMillis();
         sim.getController().actionPerformed();
 
-        int[] pIndex;
-        if(params.D==2){
-            pIndex = new int[] {1};
-        }else{
-            pIndex = new int[] {1,2,5};
-        }
-
         //Pressure
         DataGroup dataP = (DataGroup)pAccumulator.getData();
         IData dataPAvg = dataP.getData(pAccumulator.AVERAGE.index);
@@ -196,13 +217,10 @@ public class GlassProd {
             double uCorr = dataUCorr.getValue(0);
 
             //Pressure Tensor (G_inf)
-            DataGroup dataPTensor = (DataGroup) pTensorAccumulator.getData();
-            IData dataPTensorSD = dataPTensor.getData(pTensorAccumulator.STANDARD_DEVIATION.index);
-            double sd2PTensor = 0;
-            for (int i = 0; i < pIndex.length; i++) {
-                sd2PTensor += dataPTensorSD.getValue(pIndex[i]) * dataPTensorSD.getValue(pIndex[i]);
-            }
-            sd2PTensor /= pIndex.length;
+            IData dataG = gTensorAccumulator.getData();
+            double avgG = dataG.getValue(gTensorAccumulator.AVERAGE.index);
+            double errG = dataG.getValue(gTensorAccumulator.ERROR.index);
+            double corG = dataG.getValue(gTensorAccumulator.BLOCK_CORRELATION.index);
 
             DataGroup dataT = (DataGroup)tAccumulator.getData();
             IData dataTAvg = dataT.getData(tAccumulator.AVERAGE.index);
@@ -223,7 +241,8 @@ public class GlassProd {
             filenamePerc = String.format("percRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameL = String.format("lRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameImmFrac = String.format("immFracRho%1.3fT%1.3f.out",  rho, params.temperature);
-            System.out.println("G: " + sim.box.getBoundary().volume()/tAvg*sd2PTensor+"\n");
+            double V = sim.box.getBoundary().volume();
+            System.out.println("G: " + V * avgG / tAvg + " " + V * errG / tAvg + " cor: " + corG + "\n");
         }
         System.out.println("P: " + pAvg +"  "+ pErr +"  cor: "+pCorr);
 
