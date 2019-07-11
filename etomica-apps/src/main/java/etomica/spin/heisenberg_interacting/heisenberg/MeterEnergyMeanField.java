@@ -66,9 +66,9 @@ public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.A
         pce.zeroSum();
 
         potentialMaster.calculate(box, allAtoms, pc);
-        potentialMaster.calculate(box, allAtoms, torqueSum);
-        potentialMaster.calculate(box, allAtoms, pce);
-        double u = pce.getSum();
+//        potentialMaster.calculate(box, allAtoms, torqueSum);
+//        potentialMaster.calculate(box, allAtoms, pce);
+//        double u = pce.getSum();
 
         AtomLeafAgentManager<Vector> agentManager = pc.getAgentManager();
         IAtomList atoms = box.getLeafList();
@@ -79,8 +79,7 @@ public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.A
             Vector h = agentManager.getAgent(a);
             double hmag = Math.sqrt(h.squared());
             h.TE(1.0 / hmag);
-            double x = BesselFunction.I(1, hmag / temperature) / BesselFunction.I(0, hmag / temperature);
-            double f = torqueAgentManager.getAgent(a).torque().getX(0);
+            double I1I0 = BesselFunction.I(1, hmag / temperature) / BesselFunction.I(0, hmag / temperature);
             Vector o = a.getOrientation().getDirection();
             double sindtheta = h.getX(0) * o.getX(1) - o.getX(0) * h.getX(1);
             double cosdtheta = h.dot(o);
@@ -88,10 +87,13 @@ public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.A
             double pInv = Math.exp(-hmag / temperature * cosdtheta);
             double v = getpVelocity(dtheta, hmag / temperature) * pInv;
 
-            sum += hmag  * (-x + cosdtheta - v * (f + hmag * sindtheta) / temperature);
+//            sum += hmag  * (-x + cosdtheta - v * (f + hmag * sindtheta) / temperature);
+//            sum += hmag  * (-x - v * (f + hmag * sindtheta) / temperature);
+            sum += hmag  * (-I1I0 + v *  hmag * sindtheta / temperature);
+//            usum+= hmag * cosdtheta;
         }
 
-        data.E(u + sum);
+        data.E(sum);
         return data;
     }
 

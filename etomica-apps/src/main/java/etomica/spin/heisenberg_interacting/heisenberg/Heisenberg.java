@@ -281,9 +281,11 @@ public class Heisenberg extends Simulation {
         //******************************** simulation start ******************************** //
         //******************************** simulation start ******************************** //
 
+        double energyMFAvg = 0;
+        double energyMFErr = 0;
         if (doEnergyMF) {
-            double energyMFAvg = energyMFAccumulator.getData(energyMFAccumulator.AVERAGE).getValue(0);
-            double energyMFErr = energyMFAccumulator.getData(energyMFAccumulator.ERROR).getValue(0);
+            energyMFAvg = energyMFAccumulator.getData(energyMFAccumulator.AVERAGE).getValue(0);
+            energyMFErr = energyMFAccumulator.getData(energyMFAccumulator.ERROR).getValue(0);
             double energyMFCor = energyMFAccumulator.getData(energyMFAccumulator.BLOCK_CORRELATION).getValue(0);
             System.out.println("energyMF:\t" + energyMFAvg / (nCells * nCells)
                     + " Err:\t" + energyMFErr / (nCells * nCells) + " Cor:\t " + energyMFCor
@@ -413,23 +415,38 @@ public class Heisenberg extends Simulation {
 
 
         //******************************** Energy part ******************************** //
+
+        double U_ConREF = 0;
+        double U_ConREFERR = 0;
         if (doConventionalE) {
-            double U_ConREF = ((DataDouble) ((DataGroup) FEConAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
-            double U_ConREFERR = ((DataDouble) ((DataGroup) FEConAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x;
+             U_ConREF = ((DataDouble) ((DataGroup) FEConAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
+             U_ConREFERR = ((DataDouble) ((DataGroup) FEConAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x;
             double U_ConREFCor = ((DataDouble) ((DataGroup) FEConAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index)).x;
             System.out.println("U_ConREF:\t" + (U_ConREF / numberMolecules)
                     + " Err:\t" + (U_ConREFERR / numberMolecules) + " Cor:\t " + U_ConREFCor
                     + " Difficulty:\t" + (U_ConREFERR * Math.sqrt(totalTime) / nCells / nCells));
         }
 
+        double UMapREF = 0;
+        double UMapREFERR = 0;
         if (doMappingE) {
-            double UMapREF = ((DataGroup) FEMapAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
-            double UMapREFERR = ((DataGroup) FEMapAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
+            UMapREF = ((DataGroup) FEMapAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
+            UMapREFERR = ((DataGroup) FEMapAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
             double UMapREFCor = ((DataGroup) FEMapAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(0);
             System.out.println("UMapREF:\t" + (UMapREF / numberMolecules)
                     + " Err:\t" + (UMapREFERR / numberMolecules) + " Cor:\t " + UMapREFCor
                     + " Difficulty:\t" + (UMapREFERR * Math.sqrt(totalTime) / nCells / nCells));
             System.out.println("U_ConMC and UMapREF is for checking purposes only");
+        }
+
+        if(doEnergyMF && (doConventionalE || doMappingE)) {
+            System.out.println("Consistency check of MF energy with other formulas for energy (difference/uncertainty):");
+            if (doConventionalE) {
+                System.out.println("Conventional: " + (U_ConREF - energyMFAvg) / Math.sqrt(U_ConREFERR * U_ConREFERR + energyMFErr * energyMFErr));
+            }
+            if (doMappingE) {
+                System.out.println("  High-T map: " + (UMapREF - energyMFAvg) / Math.sqrt(UMapREFERR * UMapREFERR + energyMFErr * energyMFErr));
+            }
         }
 
         //******************************** Get FE from mapping meter ******************************** //
@@ -548,15 +565,15 @@ public class Heisenberg extends Simulation {
         public boolean doIdeal = false;
         public boolean doVSum = false;
         public boolean doVSumMI = false;
-        public boolean doConventionalE = false;
-        public boolean doMappingE = false;
+        public boolean doConventionalE = true;
+        public boolean doMappingE = true;
         public boolean doCV = false;
         public boolean doCorrelation = false;
         public boolean doDipole = false;
-        public boolean doEnergyMF = false;
-        public int formula = 0;
+        public boolean doEnergyMF = true;
+        public int formula = 3;
         public boolean doGraphic = false;
-        public double temperature = 1;
+        public double temperature = .1;
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
         public int nCells = 5;//number of atoms is nCells*nCells
