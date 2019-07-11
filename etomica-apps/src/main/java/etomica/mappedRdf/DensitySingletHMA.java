@@ -105,22 +105,22 @@ public class DensitySingletHMA {
     /**
      * The function exp(+x^2) erfc(x). Uses asymptotic expansion for x > 5, and explicit function calls for x < 5.
      * Not well tested for negative x (explicit calls are used, so result should be correct)
-     * For x > 5, results are accurate within 10^-9 for n = 10, and 10^-6 for n = 5
-     * @param n number of terms in asymptotic series.
+     * For x > 5, results are accurate within 10^-9 for n = 10, and 10^-7 for n = 5
+     * @param nmax number of terms in asymptotic series.
      * @param x argument of function
      * @return
      */
-    public static double ex2erfc(int n, double x) {
+    public static double ex2erfc(int nmax, double x) {
 
         //if (x < 5.) return Math.exp(x * x) * SpecialFunctions.erfc(x);
 
-        if (x < 5.) return Math.exp(x * x) * erfc(x);
+        if (x < 5.) return Math.exp(x * x) * erfc(x);//apache version of erfc, slower than SpecialFunctions, but more accurate
 
         double sum = 1.0;
         double prod = 1.0;
         double x2 = 2 * x * x;
 
-        for (n = 1; n < 11; n++) {
+        for (int n = 1; n <= nmax; n++) {
             prod *= -(2 * n - 1) / x2;
             sum += prod;
         }
@@ -139,15 +139,15 @@ public class DensitySingletHMA {
     }
 
     public static void main(String[] args) {
-        //ex2erfc(10, 10);
+        System.out.println(ex2erfc(10, -10.01));
 
-        double ri = 0.05;
-        double r = 1.3;
-        double sigma = 1.8;
-        double thetai = 2 * Math.PI / 6.;
-
-        double[] result = xyzDot(10,ri, thetai,0,r,sigma);
-        System.out.println(result[0]+", "+result[1]+", "+result[2]);
+//        double ri = 0.05;
+//        double r = 1.3;
+//        double sigma = 1.8;
+//        double thetai = 2 * Math.PI / 6.;
+//
+//        double[] result = xyzDot(10,ri, thetai,0,r,sigma);
+//        System.out.println(result[0]+", "+result[1]+", "+result[2]);
     }
 
 }
