@@ -31,7 +31,8 @@ import etomica.space3d.Space3D;
 import etomica.units.*;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
-import etomica.units.systems.MKS;
+import etomica.units.dimensions.Null;
+import etomica.units.dimensions.Pressure2D;
 import etomica.util.Constants.CompassDirection;
 
 import javax.swing.*;
@@ -43,7 +44,7 @@ public class NucleationGraphic extends SimulationGraphic {
     private final static String APP_NAME = "Nucleation";
     private final static int REPAINT_INTERVAL = 1;
     protected DeviceThermoSlider tempSlider;
-    protected Unit tUnit, eUnit, dUnit, pUnit, mUnit;
+    protected Unit tUnit, eUnit, dUnit, pUnit;
     protected Swmd sim;
 
     public NucleationGraphic(final Swmd simulation) {
@@ -62,13 +63,10 @@ public class NucleationGraphic extends SimulationGraphic {
 
         tUnit = Kelvin.UNIT;
 
-        eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
-        mUnit = new UnitRatio(Gram.UNIT, Mole.UNIT);
+        eUnit = tUnit;
         if (sim.getSpace().D() == 2) {
-            dUnit = new UnitRatio(Mole.UNIT, new MKS().area());
-            Unit[] units = new Unit[]{Bar.UNIT, new PrefixedUnit(Prefix.NANO, Meter.UNIT)};
-            double[] exponents = new double[]{1.0, 1.0};
-            pUnit = new CompoundUnit(units, exponents);
+            dUnit = new SimpleUnit(Null.DIMENSION, 0.344, "Reduced Density", "x", false);
+            pUnit = new SimpleUnit(Pressure2D.DIMENSION, 0.173, "Reduced Pressure", "P/Pc", false);
         } else {
             dUnit = new UnitRatio(Mole.UNIT, Liter.UNIT);
             pUnit = Bar.UNIT;
@@ -109,13 +107,16 @@ public class NucleationGraphic extends SimulationGraphic {
 
         ModifierDensity modifierDensity = new ModifierDensity();
         DeviceSlider densitySlider = new DeviceSlider(sim.getController(), modifierDensity);
-        densitySlider.setLabel("Density");
+        densitySlider.setUnit(dUnit);
+        densitySlider.setLabel("Reduced Density");
         densitySlider.setShowBorder(true);
         densitySlider.setMinimum(0);
         densitySlider.setPrecision(3);
-        densitySlider.setMaximum(0.05);
+        densitySlider.setMaximum(1);
         densitySlider.setNMajor(5);
         densitySlider.setValue(0.04);
+        densitySlider.setShowValues(true);
+        densitySlider.setEditValues(true);
         add(densitySlider);
 
         sim.activityIntegrate.setSleepPeriod(0);
@@ -183,9 +184,10 @@ public class NucleationGraphic extends SimulationGraphic {
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
         ePlot.setDoLegend(false);
 
-        ePlot.getPlot().setTitle("Energy History (J/mol)");
+        ePlot.getPlot().setTitle("Energy History (K)");
         ePlot.setLabel("Energy");
         ePlot.setUnit(eUnit);
+        ePlot.setXLabel("Simulation Time (ps)");
 
         final DisplayPlot tPlot = new DisplayPlot();
         temperatureHistory.setDataSink(tPlot.getDataSet().makeDataSink());
@@ -194,6 +196,7 @@ public class NucleationGraphic extends SimulationGraphic {
         tPlot.getPlot().setTitle("Temperature History (K)");
         tPlot.setLabel("Temperature");
         tPlot.setUnit(tUnit);
+        tPlot.setXLabel("Simulation Time (ps)");
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
@@ -203,12 +206,12 @@ public class NucleationGraphic extends SimulationGraphic {
         dataStreamPumps.add(pPump);
 
         final DisplayTextBoxesCAE pDisplay = new DisplayTextBoxesCAE();
-        pDisplay.setLabel(sim.getSpace().D() == 3 ? "Pressure (bar)" : "Pressure (bar-nm)");
+        pDisplay.setLabel("Reduced Pressure");
         pDisplay.setAccumulator(pAccumulator);
         pDisplay.setUnit(pUnit);
         final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
         peDisplay.setAccumulator(peAccumulator);
-        peDisplay.setLabel("Potential Energy (J/mol)");
+        peDisplay.setLabel("Potential Energy (K)");
         peDisplay.setUnit(eUnit);
 
         MeterLargestCluster meterLargestCluster = new MeterLargestCluster(sim.box);
@@ -220,18 +223,20 @@ public class NucleationGraphic extends SimulationGraphic {
         forkCluster.addDataSink(clusterHistory);
         DisplayPlot clusterHistoryPlot = new DisplayPlot();
         clusterHistory.addDataSink(clusterHistoryPlot.getDataSet().makeDataSink());
-        clusterHistoryPlot.setLabel("cluster history");
+        clusterHistoryPlot.setLabel("Cluster History");
         clusterHistoryPlot.setDoLegend(false);
+        clusterHistoryPlot.setXLabel("Simulation Time (ps)");
         add(clusterHistoryPlot);
 
         MeterClusterSizes meterClusterSizes = new MeterClusterSizes(sim.box);
         DisplayPlot clusterHistogramPlot = new DisplayPlot();
-        DataPumpListener pumpClusterHistogram = new DataPumpListener(meterClusterSizes, clusterHistogramPlot.getDataSet().makeDataSink(), 10);
+        DataPumpListener pumpClusterHistogram = new DataPumpListener(meterClusterSizes, clusterHistogramPlot.getDataSet().makeDataSink(), 100);
         sim.integrator.getEventManager().addListener(pumpClusterHistogram);
-        clusterHistogramPlot.setLabel("cluster histogram");
+        clusterHistogramPlot.setLabel("Cluster Histogram");
         clusterHistogramPlot.setDoLegend(false);
         clusterHistogramPlot.getPlot().setXLog(true);
         clusterHistogramPlot.getPlot().setXRange(0, Math.log(sim.box.getLeafList().size()) / Math.log(10));
+        clusterHistogramPlot.getPlot().setYRange(0, 1);
         add(clusterHistogramPlot);
 
         sim.integrator.setTimeStep(0.1);
@@ -291,21 +296,18 @@ public class NucleationGraphic extends SimulationGraphic {
         add(pDisplay);
         add(peDisplay);
 
-        java.awt.Dimension d = ePlot.getPlot().getPreferredSize();
-        d.width -= 50;
-        ePlot.getPlot().setSize(d);
     }
 
     protected class ModifierDensity implements Modifier {
 
         public void setValue(double density) {
-            if (density == 0) throw new IllegalArgumentException("density must be positive");
+            if (density == 0) {
+                throw new IllegalArgumentException("density must be positive");
+            }
             int N = sim.box.getLeafList().size();
             double rho = N / sim.box.getBoundary().volume();
             double d = Math.pow(density / rho, 1.0 / sim.getSpace().D());
-            if (d > 1) {
-                throw new IllegalArgumentException("diameter can't exceed 1");
-            }
+//            if (d > 1) {3
             //assume one type of atom
             ((DiameterHashByType) getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), d);
             ((P2SquareWell) sim.potentialWrapper.getWrappedPotential()).setCoreDiameter(d);
@@ -319,7 +321,11 @@ public class NucleationGraphic extends SimulationGraphic {
         }
 
         public double getValue() {
-            return ((P2SquareWell) sim.potentialWrapper.getWrappedPotential()).getCoreDiameter();
+            double sigma = ((P2SquareWell) sim.potentialWrapper.getWrappedPotential()).getCoreDiameter();
+            int N = sim.box.getLeafList().size();
+            double rho = N / sim.box.getBoundary().volume();
+            double density = rho * sigma * sigma * sigma;
+            return density;
         }
 
         public Dimension getDimension() {
