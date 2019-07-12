@@ -78,6 +78,14 @@ public class FunctionCosIntegral {
         return coscosIntLargebB(x, b);
     }
 
+    /**
+     * Integral of cos(t)^2 Exp(b cos(t)) for t from 0 to x.  Evaluates via integration by parts using cosInt and coscosInt.
+     * Accurate to within 0.015% for b > 0 and x between 0 and 2pi.
+     */
+    public static double cos2cosInt(double x, double b) {
+        return cosInt(x,b) - (coscosInt(x,b) - Math.sin(x)*Math.exp(b*Math.cos(x))) / b;
+    }
+
 
     /**
      * Integral of Exp(b cos(t)) from 0 to x, accurate to within 0.01% for b < 1.
@@ -255,13 +263,13 @@ public class FunctionCosIntegral {
 
 
     public static void main(String[] args) {
-        double b = 1.5;
+        double b = 10;
         double theta0 = 2*Math.PI;
 
         // Print results to check against Mathematica
         for(double x = 0; x < 2*Math.PI; x+=0.1) {
-            System.out.println("{" + x + ", " + getValue(x, b,theta0)[0]+"},");
-           // System.out.println("{" + x + ", " + Math.exp(-b)* coscosInt(x, b)+"},");
+           // System.out.println("{" + x + ", " + getValue(x, b,theta0)[0]+"},");
+            System.out.println("{" + x + ", " +  cos2cosInt(x, b)+"},");
         }
 //        System.out.println(cosIntSmallb(-5.7, .52));
 //        System.out.println(cosIntLargebA(1.5, 5.52));
