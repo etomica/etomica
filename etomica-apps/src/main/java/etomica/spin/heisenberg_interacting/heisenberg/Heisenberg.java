@@ -262,11 +262,11 @@ public class Heisenberg extends Simulation {
             sim.integrator.getEventManager().addListener(pumpMeanField);
         }
 
-        AccumulatorAverageFixed energyMFAccumulator = null;
+        AccumulatorAverageCovariance energyMFAccumulator = null;
 
         if (doEnergyMF) {
             MeterEnergyMeanField meterEnergyMF = new MeterEnergyMeanField(sim.space, sim.box, interactionS, sim.potentialMaster, temperature);
-            energyMFAccumulator = new AccumulatorAverageFixed(samplePerBlock);
+            energyMFAccumulator = new AccumulatorAverageCovariance(samplePerBlock);
             DataPumpListener pumpEnergyMF = new DataPumpListener(meterEnergyMF, energyMFAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(pumpEnergyMF);
         }
@@ -290,6 +290,18 @@ public class Heisenberg extends Simulation {
             System.out.println("energyMF:\t" + energyMFAvg / (nCells * nCells)
                     + " Err:\t" + energyMFErr / (nCells * nCells) + " Cor:\t " + energyMFCor
                     + " Difficulty:\t" + (energyMFErr * Math.sqrt(totalTime)));
+
+            double cvMFAvg = energyMFAccumulator.getData(energyMFAccumulator.AVERAGE).getValue(1) - energyMFAvg * energyMFAvg;
+            double cv1Err = energyMFAccumulator.getData(energyMFAccumulator.ERROR).getValue(1);
+            IData covariance = ((DataGroup) energyMFAccumulator.getData()).getData(energyMFAccumulator.BLOCK_COVARIANCE.index);
+
+            double cvMFErr = Math.sqrt(cv1Err * cv1Err
+                    + 4 * energyMFAvg * energyMFAvg * energyMFErr * energyMFErr
+                    - 4 * cv1Err * energyMFAvg * energyMFErr * covariance.getValue(0 * 2 + 1) / Math.sqrt(covariance.getValue(0 * 2 + 0) * covariance.getValue(1 * 2 + 1))
+            );
+            System.out.println("CvMF:\t" + cvMFAvg / (nCells * nCells)
+                    + " Err:\t" + cvMFErr / (nCells * nCells));
+
         }
 
         if (doDipole) {
@@ -362,10 +374,10 @@ public class Heisenberg extends Simulation {
             );
             CV *= 1.0 / numberMolecules;
             CVErr *= 1.0 / numberMolecules;
+            System.out.println("high-T CV/N:\t" + CV + " CVErr/N:\t" + CVErr);
         }
 
 
-//        System.out.println("CV/N:\t" + CV + " CVErr/N:\t" + CVErr);
 
         //******************************** Conventional var[M]******************************** //
         if (mSquare) {
@@ -450,7 +462,7 @@ public class Heisenberg extends Simulation {
         }
 
         //******************************** Get FE from mapping meter ******************************** //
-        if (doMappingE) {
+        if (aEE && doVSumMI) {
             double UMap = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(21);
             double UMapErr = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(21);
             double UMapCor = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.BLOCK_CORRELATION.index).getValue(21);
@@ -505,7 +517,7 @@ public class Heisenberg extends Simulation {
                     + " Err:\t" + (varUConErr / numberMolecules)
                     + " Difficulty:\t" + (varUConErr * Math.sqrt(totalTime) / nCells / nCells));
 
-            System.out.println("CV:\t\t" + (varUCon / numberMolecules / temperature / temperature)
+            System.out.println("CVCon:\t\t" + (varUCon / numberMolecules / temperature / temperature)
                     + " Err:\t" + (varUConErr / numberMolecules / temperature / temperature));
         }
 
@@ -565,15 +577,15 @@ public class Heisenberg extends Simulation {
         public boolean doIdeal = false;
         public boolean doVSum = false;
         public boolean doVSumMI = false;
-        public boolean doConventionalE = true;
-        public boolean doMappingE = true;
+        public boolean doConventionalE = false;
+        public boolean doMappingE = false;
         public boolean doCV = false;
         public boolean doCorrelation = false;
         public boolean doDipole = false;
-        public boolean doEnergyMF = true;
+        public boolean doEnergyMF = false;
         public int formula = 3;
         public boolean doGraphic = false;
-        public double temperature = .1;
+        public double temperature = 1;
         public double interactionS = 1;
         public double dipoleMagnitude = 1;
         public int nCells = 5;//number of atoms is nCells*nCells
