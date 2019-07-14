@@ -23,4 +23,5 @@ module etomica.apps {
     requires java.desktop;
 //    requires jackson.databind;
     requires Jama;
+    requires commons.math3;
 }
