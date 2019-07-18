@@ -336,9 +336,9 @@ public class DebyeWallerFactor extends Simulation {
         IData dataMappedAvgxyz =  accMappedAvgDebyeWallerxyz.getData(accMappedAvgDebyeWallerxyz.AVERAGE);
         IData dataMappedAvguncxyz =  accMappedAvgDebyeWallerxyz.getData(accMappedAvgDebyeWallerxyz.ERROR);
 
-        System.out.println(data.getValue(0)+" "+dataunc.getValue(0)+" "+dataMappedAvgr.getValue(0)+" "+dataMappedAvguncr.getValue(0)+" "+dataMappedAvgxyz.getValue(0)+" "+dataMappedAvguncxyz.getValue(0));
+        System.out.println(data.getValue(0)+" "+dataunc.getValue(0)+" "+dataMappedAvgr.getValue(0)+" "+dataMappedAvguncr.getValue(0));
 
-        System.out.println(Math.exp(-data.getValue(0))+" "+dataunc.getValue(0)*Math.exp(-data.getValue(0))+" "+Math.exp(-dataMappedAvgr.getValue(0))+" "+dataMappedAvguncr.getValue(0)*Math.exp(-dataMappedAvgr.getValue(0))+" "+Math.exp(-dataMappedAvgxyz.getValue(0))+" "+dataMappedAvguncxyz.getValue(0)*Math.exp(-dataMappedAvgxyz.getValue(0)));
+        System.out.println(Math.exp(-data.getValue(0))+" "+dataunc.getValue(0)*Math.exp(-data.getValue(0))+" "+Math.exp(-dataMappedAvgr.getValue(0))+" "+dataMappedAvguncr.getValue(0)*Math.exp(-dataMappedAvgr.getValue(0)));
     }
 
     public void initialize(long initSteps) {
@@ -355,12 +355,14 @@ public class DebyeWallerFactor extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numAtoms = 500;
-        public double msd = 0.00209;
+        public double msd = 0.0209;
         public int bins = 1;
         public double density = 1;
-        public double[] qvector ={60, 30, -30};
+    //    public double[] qvector ={60, 30, -30};
+        public double[] qvector ={100000, 100000, 100000};
+
         public long numSteps = 500000;
-        public double temperature = 1.0;
+        public double temperature = 0.1;
         public double rc = 2.5;
         public double rc0 = rc;
         public double rcMax1 = 2.5;
