@@ -54,7 +54,16 @@ public class FunctionCosIntegral {
     }
 
 
-        /**
+    /**
+     * Integral of sin(t) cos(t) Exp(b cos(t)) for t from 0 to x, accurate to within 0.01% for all b > 0 and -2Pi < x < 2Pi.
+     */
+    public static double sincoscosInt(double x, double b) {
+        double cx = Math.cos(x);
+        return ((b-1)*Math.exp(b) + (1-b*cx)*Math.exp(b*cx))/(b*b);
+    }
+
+
+    /**
          * Integral of cos(t) Exp(b cos(t)) for t from 0 to x, accurate to within 0.01% for all b > 0 and -2Pi < x < 2Pi.
          */
     public static double coscosInt(double x, double b) {

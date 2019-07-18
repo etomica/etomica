@@ -106,6 +106,14 @@ public class Heisenberg extends Simulation {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
+            params.doConventionalE = true;
+            params.doMappingE = true;
+            params.doEnergyMF = true;
+            params.doCV = true;
+            params.aEE = true;
+            params.doVSumMI = true;
+            params.doIdeal = true;
+            params.temperature = 1.0;
 
         }
         final long startTime = System.currentTimeMillis();
@@ -291,7 +299,7 @@ public class Heisenberg extends Simulation {
                     + " Err:\t" + energyMFErr / (nCells * nCells) + " Cor:\t " + energyMFCor
                     + " Difficulty:\t" + (energyMFErr * Math.sqrt(totalTime)));
 
-            double cvMFAvg = energyMFAccumulator.getData(energyMFAccumulator.AVERAGE).getValue(1) - energyMFAvg * energyMFAvg;
+            double cvMFAvg = energyMFAccumulator.getData(energyMFAccumulator.AVERAGE).getValue(1) - energyMFAvg * energyMFAvg / (temperature*temperature);
             double cv1Err = energyMFAccumulator.getData(energyMFAccumulator.ERROR).getValue(1);
             IData covariance = ((DataGroup) energyMFAccumulator.getData()).getData(energyMFAccumulator.BLOCK_COVARIANCE.index);
 

@@ -135,7 +135,7 @@ public class MeterMappedAveragingCV implements IDataSource {
             sum *= bJ * bJ * bJ * 0.25 * sintiMtj1[i]; //multiply by -(bJ^3)/4 (fi/J)
             sum *= 2; //phi contribution is the same, so add it in by doubling
 
-            //thetadot^beta_beta
+            //bThetadot^beta_beta
             double tbb = 0.125 * (sin2tiMtj1[i] + 2 * sin2tiMtjtk1[i] - 4 * sintiMtj2[i] - 2 * sintiMtj3[i]);
 
             sum += -bJ * bJ * bJ * sintiMtj1[i] * tbb;

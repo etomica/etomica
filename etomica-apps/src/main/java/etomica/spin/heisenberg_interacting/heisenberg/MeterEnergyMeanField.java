@@ -30,18 +30,31 @@ public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.A
     protected final PotentialMaster potentialMaster;
     protected final Box box;
     protected final IteratorDirective allAtoms;
-    protected double temperature;
+    protected final double beta;
     protected final AtomLeafAgentManager<ForceTorque> torqueAgentManager;
-    protected final PotentialCalculationStuff pcExtra;
-    protected double[] thetadot = new double[0];
+    protected final PotentialCalculationPhiij pcExtra;
+    protected final PotentialCalculationCSsum pcCSsum;
+    protected final PotentialCalculationCvij pcCvij;
+    protected double[] bThetadot = new double[0];
     protected double cvSumExtra;
+    protected double cvij;
+    protected double[] nbrSsum = new double[0];//nbrSsum[i] holds sum sin(thetaj) for nbrs j of atom i
+    protected double[] nbrCsum = new double[0];//same but cos(thetaj)
+
+    protected double[] dJdeta = new double[0];
+    protected double[] dJdtheta0 = new double[0];
+    //    protected double[] dtdotdeta = new double[0];
+//    protected double[] dtdotdtheta0 = new double[0];
+    protected double[] eta = new double[0];
 
     public MeterEnergyMeanField(Space space, Box box, double J, PotentialMaster potentialMaster, double temperature) {
         this.potentialMaster = potentialMaster;
-        this.temperature = temperature;
+        beta = 1 / temperature;
         this.J = J;
         pc = new PotentialCalculationMeanField(space, J, box);
-        pcExtra = new PotentialCalculationStuff();
+        pcCSsum = new PotentialCalculationCSsum();
+        pcExtra = new PotentialCalculationPhiij();
+        pcCvij = new PotentialCalculationCvij();
         torqueSum = new PotentialCalculationTorqueSum();
         torqueAgentManager = new AtomLeafAgentManager<ForceTorque>(this, box, ForceTorque.class);
         torqueSum.setAgentManager(torqueAgentManager);
@@ -55,15 +68,25 @@ public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.A
 
     @Override
     public IData getData() {
-        if (thetadot.length != box.getLeafList().getAtomCount()) {
-            thetadot = new double[box.getLeafList().getAtomCount()];
+        IAtomList atoms = box.getLeafList();
+        int atomCount = atoms.getAtomCount();
+        if (bThetadot.length != atomCount) {
+            bThetadot = new double[atomCount];
+            nbrCsum = new double[atomCount];
+            nbrSsum = new double[atomCount];
+            dJdeta = new double[atomCount];
+            dJdtheta0 = new double[atomCount];
+//            dtdotdeta = new double[atomCount];
+//            dtdotdtheta0 = new double[atomCount];
+            eta = new double[atomCount];
         }
         pc.reset();
+        pcCSsum.reset();
 
         potentialMaster.calculate(box, allAtoms, pc);
+        potentialMaster.calculate(box, allAtoms, pcCSsum);
 
         AtomLeafAgentManager<Vector> agentManager = pc.getAgentManager();
-        IAtomList atoms = box.getLeafList();
         data.E(0);
         double sum = 0;
         double cvSum = 0;
@@ -71,44 +94,84 @@ public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.A
             IAtomOriented a = (IAtomOriented) atoms.getAtom(i);
             Vector h = agentManager.getAgent(a);
             double hmag = Math.sqrt(h.squared());
+            eta[i] = hmag;
+            double bh = beta * hmag;
             h.TE(1.0 / hmag);
-            double I1 = BesselFunction.I(1, hmag / temperature);
-            double I0 = BesselFunction.I(0, hmag / temperature);
-            double I2 = BesselFunction.I(2, hmag / temperature);
+
+            double I0 = BesselFunction.I(0, bh);
+            double I1 = BesselFunction.I(1, bh);
+            double I2 = BesselFunction.I(2, bh);
+            double I1I0 = I1 / I0;
+            double I2etc = 0.5 * (I2 / I0 - 2 * I1I0 * I1I0 + 1);
+
             Vector o = a.getOrientation().getDirection();
             double sindtheta = h.getX(0) * o.getX(1) - o.getX(0) * h.getX(1);
             double cosdtheta = h.dot(o);
             double dtheta = Math.atan2(sindtheta, cosdtheta);
-            double pInv = Math.exp(-hmag / temperature * cosdtheta);
+            double pInv = Math.exp(-bh * cosdtheta);
 
-            double I1I0 = I1 / I0;
-            double C0 = FunctionCosIntegral.cosInt(dtheta, hmag / temperature);
-            double C1 = FunctionCosIntegral.coscosInt(dtheta, hmag / temperature);
+            double C0 = FunctionCosIntegral.cosInt(dtheta, bh);
+            double C1 = FunctionCosIntegral.coscosInt(dtheta, bh);
+            double C2 = FunctionCosIntegral.cos2cosInt(dtheta, bh);
+            double SC0 = FunctionCosIntegral.sincosInt(dtheta, bh);
+            double SC1 = FunctionCosIntegral.sincoscosInt(dtheta, bh);
 
-            double v = (C0 * I1I0 - C1) * pInv;
-            thetadot[i] = v;
+            // beta * thetaDot^beta
+            double bvb = bh * (C0 * I1I0 - C1) * pInv;
+            bThetadot[i] = bvb;
 
 //            sum += hmag  * (-x + cosdtheta - v * (f + hmag * sindtheta) / temperature);
 //            sum += hmag  * (-x - v * (f + hmag * sindtheta) / temperature);
-            double x = hmag * (-I1I0 + v * hmag * sindtheta / temperature);
-            sum += x;
+            double ui = hmag * (-I1I0 + bvb * sindtheta);
+            sum += ui;
 //            usum+= hmag * cosdtheta;
 
-            double vbb = hmag * hmag * ((C1 * (I1I0 + cosdtheta) - C0 * I1I0 - FunctionCosIntegral.cos2cosInt(dtheta, hmag / temperature))
-                    + (I2 / I0 - 2 * I1I0 * I1I0 + 1) * C0) * pInv;
+            // beta^2 * thetaDot^beta_beta
+            double bbvbb = bh * bh * ((C1 * (I1I0 + cosdtheta) - C0 * I1I0 * cosdtheta - C2)
+                    + I2etc * C0) * pInv;
 
-            cvSum += hmag * hmag * 0.5 * (I2 / I0 - 2 * I1I0 * I1I0 + 1);
-            cvSum += hmag / temperature * (-vbb + x - hmag * cosdtheta + 5 * temperature) * sindtheta
-                    + v * cosdtheta - v * v * 2 * hmag * cosdtheta;
+            double bJbeta = bh * (I1I0 - cosdtheta + bh * bvb * sindtheta);
+
+//            cvSum += bh * bh * 0.5 * (I2 / I0 - 2 * I1I0 * I1I0 + 1);
+//            cvSum += -bh * bvbb * sindtheta;
+//            cvSum += -2 * bh * bv * sindtheta;
+//            cvSum += -bh * bv * bJbeta * sindtheta;
+//            cvSum += -bv * bv * bh * cosdtheta;
+
+            double term1 = bh * bh * I2etc;
+            double term2 = -bh * bbvbb * sindtheta;
+            double term3 = -2 * bh * bvb * sindtheta;
+            double term4 = -bh * bvb * bJbeta * sindtheta;
+            double term5 = -bvb * bvb * bh * cosdtheta;
+
+            cvSum += term1 + term2 + term3 + term4 + term5;
+
+            //ij terms for cv
+            dJdeta[i] = I1I0 - cosdtheta + bh * I2etc + bvb * sindtheta;
+            dJdtheta0[i] = -hmag * sindtheta - bvb * hmag * cosdtheta;
+            double dtdotdeta = (bbvbb + bvb) / bh;
+            double dtdotdtheta0 = hmag * pInv * (-Math.exp(bh) * (I1I0 - 1)
+                    + bh * (SC0 * I1I0 - C0 * sindtheta * I1I0 - SC1 + C1 * sindtheta)
+                    - SC0);
+            dJdeta[i] += -bh * sindtheta * dtdotdeta;
+            dJdtheta0[i] += -bh * sindtheta * dtdotdtheta0;
+
         }
 
         cvSumExtra = 0;
-        potentialMaster.calculate(box, allAtoms, pc);
+        potentialMaster.calculate(box, allAtoms, pcExtra);
         cvSum += J * cvSumExtra;
         double[] y = data.getData();
 
+        cvij = 0;
+        potentialMaster.calculate(box, allAtoms, pcCvij);
+
+//        PotentialCalculationNbrCounter pcCount = new PotentialCalculationNbrCounter();
+//        potentialMaster.calculate(box, allAtoms, pcCount);
+//        System.out.println("Neighbor count: "+pcCount.nbrCount+", compare to: "+4*atomCount/2);
+
         y[0] = sum;
-        y[1] = sum * sum + cvSum;
+        y[1] = beta * beta * sum * sum + cvSum + beta * beta * cvij/beta;
         return data;
     }
 
@@ -149,14 +212,71 @@ public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.A
         }
     }
 
-    public class PotentialCalculationStuff implements PotentialCalculation {
+    public class PotentialCalculationPhiij implements PotentialCalculation {
         @Override
         public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
             IAtomOriented iatom = (IAtomOriented) atoms.getAtom(0);
             IAtomOriented jatom = (IAtomOriented) atoms.getAtom(1);
             Vector io = iatom.getOrientation().getDirection();
             Vector jo = jatom.getOrientation().getDirection();
-            cvSumExtra += io.dot(jo) * thetadot[iatom.getLeafIndex()] * thetadot[jatom.getLeafIndex()];
+            cvSumExtra += io.dot(jo) * bThetadot[iatom.getLeafIndex()] * bThetadot[jatom.getLeafIndex()];
         }
     }
+
+    /**
+     * Used to compute and store sums of cos(theta) and sin(theta) over neighbors of each atom.
+     * Needed for mapped-averaging calculation of heat capacity.
+     */
+    public class PotentialCalculationCSsum implements PotentialCalculation {
+        public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
+            IAtomOriented iatom = (IAtomOriented) atoms.getAtom(0);
+            IAtomOriented jatom = (IAtomOriented) atoms.getAtom(1);
+            int i = iatom.getLeafIndex();
+            int j = jatom.getLeafIndex();
+            Vector io = iatom.getOrientation().getDirection();
+            Vector jo = jatom.getOrientation().getDirection();
+            nbrCsum[i] += jo.getX(0);
+            nbrCsum[j] += io.getX(0);
+            nbrSsum[i] += jo.getX(1);
+            nbrSsum[j] += io.getX(1);
+        }
+
+        public void reset() {
+            for (int i = 0; i < nbrCsum.length; i++) {
+                nbrCsum[i] = 0;
+                nbrSsum[i] = 0;
+            }
+        }
+    }
+
+    public class PotentialCalculationCvij implements PotentialCalculation {
+        public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
+            IAtomOriented atom0 = (IAtomOriented) atoms.getAtom(0);
+            IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(1);
+
+            cvij += ijContribution(atom0, atom1) + ijContribution(atom1, atom0);
+        }
+
+        private double ijContribution(IAtomOriented iatom, IAtomOriented jatom) {
+            int i = iatom.getLeafIndex();
+            int j = jatom.getLeafIndex();
+            Vector io = iatom.getOrientation().getDirection();
+            Vector jo = jatom.getOrientation().getDirection();
+            double costi = io.getX(0);
+            double sinti = io.getX(1);
+
+            double dEtajdThetai = 0.25 * (-sinti * nbrCsum[j] + costi * nbrSsum[j]) / eta[j];
+            double dt0jdThetai = 0.25 * (costi * nbrCsum[j] + sinti * nbrSsum[j])/ (eta[j] * eta[j]);
+
+            return bThetadot[i] * (dJdtheta0[j] * dt0jdThetai + dJdeta[j] * dEtajdThetai);
+        }
+    }
+
+//    public class PotentialCalculationNbrCounter implements PotentialCalculation {
+//        int nbrCount = 0;
+//
+//        public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
+//            nbrCount++;
+//        }
+//    }
 }
