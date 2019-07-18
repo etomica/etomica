@@ -457,13 +457,13 @@ public int basisDim;
                 sum += dri.dot(drjj);
 
                 D3tr.transform(axisjj);
-                sum += orientationSumj*dri.dot(axisjj);
+                sum += orientationSumj*dri.dot(axisjj)*Math.sin(betaj);
 
                 D3rt.transform(drjj2);
-                sum += orientationSumi*axisi.dot(drjj2);
+                sum += orientationSumi*axisi.dot(drjj2)*Math.sin(betai);
 
                 D3rr.transform(axisjj2);
-                sum += orientationSumj*orientationSumi*axisi.dot(axisjj2);    //sum is deltar.phi.delr/theta sum
+                sum += Math.sin(betai)*orientationSumj*orientationSumi*axisi.dot(axisjj2)*Math.sin(betaj);    //sum is deltar.phi.delr/theta sum
 
                     }
 
@@ -575,13 +575,13 @@ public int basisDim;
                 sum += dri.dot(drjj);
 
                 D3tr.transform(axisjj);
-                sum += orientationSumj*dri.dot(axisjj);
+                sum += orientationSumj*dri.dot(axisjj)*Math.sin(betai);
 
                 D3rt.transform(drjj2);
-                sum += orientationSumi*axisi.dot(drjj2);
+                sum += orientationSumi*axisi.dot(drjj2)*Math.sin(betai);
 
                 D3rr.transform(axisjj2);
-                sum += orientationSumj*orientationSumi*axisi.dot(axisjj2);    //sum is deltar.phi.delr/theta sum
+                sum += orientationSumj*orientationSumi*axisi.dot(axisjj2)*Math.sin(betai)*Math.sin(betai);    //sum is deltar.phi.delr/theta sum
 
             }
 

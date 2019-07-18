@@ -548,9 +548,9 @@ public class Clathrateenergyandcv extends Simulation {
         public int numSteps = 100;
         public double timeInterval = 0.00075;
         public double temperature = 50;
-        public double rCutLJ =  3.1536;
-        public double rCutRealES = 14.0;
-        public double kCut = 2.60;
+        public double rCutLJ =  3.0;
+        public double rCutRealES = 4.0;
+        public double kCut = 2.00;
         public boolean isIce = false;
         public double shakeTol = 1e-12;
          public boolean unitCells = false;
