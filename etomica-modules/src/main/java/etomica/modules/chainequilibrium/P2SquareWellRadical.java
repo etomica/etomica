@@ -4,13 +4,13 @@
 
 package etomica.modules.chainequilibrium;
 
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.util.random.IRandom;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
+import etomica.util.random.IRandom;
 
 
 /**
@@ -41,7 +41,7 @@ public class P2SquareWellRadical extends P2SquareWell {
      * unreactive.
      */
     public void setCombinationProbability(double newCombinationProbability) {
-        if (combinationProbability < 0 || combinationProbability > 1) {
+        if (newCombinationProbability < 0 || newCombinationProbability > 1) {
             throw new IllegalArgumentException("invalid probability");
         }
         combinationProbability = newCombinationProbability;
