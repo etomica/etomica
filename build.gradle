@@ -224,6 +224,7 @@ task linkModules(type: Exec, dependsOn: ':etomica-modules:jar') {
             "droplet=etomica.modules/etomica.modules.droplet.DropletGraphic",
             "droplet_atomic=etomica.modules/etomica.modules.droplet.DropletAtomicGraphic",
             "ensembles=etomica.modules/etomica.modules.ensembles.LJMCGraphic",
+            "free_radical=etomica.modules/etomica.modules.chainequilibrium.FreeRadicalPolymerizationGraphic",
             "glass=etomica.modules/etomica.modules.glass.GlassGraphic",
             "insertion=etomica.modules/etomica.modules.insertion.InsertionGraphic",
             "interfacial=etomica.modules/etomica.modules.interfacial.InterfacialSWGraphic",
