@@ -4,7 +4,6 @@
 package etomica.modules.glass;
 
 import etomica.atom.AtomType;
-import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -117,7 +116,7 @@ public class DataSourceF implements IDataSource, ConfigurationStorage.Configurat
         }
         strucFac += c0Sum*c0Sum + s0Sum*s0Sum;
 
-        for (int i = 1, d = 1; d < step && (step-1) % d == 0; i++, d *= 2) {
+        for (int i = 1, d = 1; d <= step && (step - 1) % d == 0; i++, d *= 2) {
             cSum[i] = cSum[0];
             sSum[i] = sSum[0];
         }
@@ -126,11 +125,9 @@ public class DataSourceF implements IDataSource, ConfigurationStorage.Configurat
         sSum[0] = s0Sum;
 
         for (int i = 1, d = 1; d < step + 1 && step % d == 0; i++, d *= 2) {
-            fSum[i-1] += c0Sum*cSum[i-1] + s0Sum*sSum[i-1];
+            fSum[i - 1] += c0Sum * cSum[i] + s0Sum * sSum[i];
             nSamples[i-1]++;
         }
-
-
     }
 
     @Override
