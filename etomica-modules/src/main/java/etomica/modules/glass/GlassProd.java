@@ -23,10 +23,10 @@ public class GlassProd {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doSwap = true;
-            params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 125;
-            params.nB = 125;
-            params.density = 1.25;
+            params.potential = SimGlass.PotentialChoice.WCA;
+            params.nA = 111;
+            params.nB = 111;
+            params.density = 1.;
             params.D = 3;
             params.temperature = 1;
             params.numStepsEq = 1000;
@@ -142,6 +142,14 @@ public class GlassProd {
         }
 
 
+        //normalized AC of shear stress components
+        AccumulatorAutocorrelationShearStress dpxyAutocor = new AccumulatorAutocorrelationShearStress(256, sim.integrator.getTimeStep());
+        if (sim.box.getLeafList().size() > 200 && sim.potentialChoice != SimGlass.PotentialChoice.HS) {
+            pTensorFork.addDataSink(dpxyAutocor);
+        }
+        dpxyAutocor.setPushInterval(16384);
+
+
         //MSD
         ConfigurationStorage configStorageMSD = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.MSD);
         configStorageMSD.setEnabled(true);
@@ -188,7 +196,7 @@ public class GlassProd {
         double pCorr = dataPCorr.getValue(0);
 
         String filenameVisc, filenameMSD, filenameD, filenameFs, filenameF, filenamePerc, filenameImmFrac, filenameL;
-
+        String filenamePxyAC = "";
         if(sim.potentialChoice == SimGlass.PotentialChoice.HS){
             double phi;
             if(params.D == 2){
@@ -241,10 +249,33 @@ public class GlassProd {
             filenamePerc = String.format("percRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameL = String.format("lRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameImmFrac = String.format("immFracRho%1.3fT%1.3f.out",  rho, params.temperature);
+            filenamePxyAC = String.format("acPxyRho%1.3fT%1.3f.out",  rho, params.temperature);
             double V = sim.box.getBoundary().volume();
             System.out.println("G: " + V * avgG / tAvg + " " + V * errG / tAvg + " cor: " + corG + "\n");
         }
         System.out.println("P: " + pAvg +"  "+ pErr +"  cor: "+pCorr);
+
+
+        // normalized shear stress AC
+        if(sim.potentialChoice != SimGlass.PotentialChoice.HS){
+            FileWriter fileWriterPxyAC;
+            try {
+                fileWriterPxyAC = new FileWriter(filenamePxyAC, false);
+                DataDoubleArray x = dpxyAutocor.getIndependentData(0);
+                for (int i=0; i<dpxyAutocor.getData().getLength(); i++){
+                    double yi = dpxyAutocor.getData().getValue(i);
+                    double xi = x.getValue(i);
+                    if(!Double.isNaN(yi)){
+                        fileWriterPxyAC.write(xi + " " + yi + "\n");
+                    }
+                }
+                fileWriterPxyAC.close();
+            } catch (IOException e) {
+                System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
+            }
+        }
+
+
 
         //Viscosity
         FileWriter fileWriterVisc;

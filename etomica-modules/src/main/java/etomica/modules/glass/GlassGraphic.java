@@ -532,10 +532,19 @@ public class GlassGraphic extends SimulationGraphic {
         }
         DataFork pTensorFork = new DataFork();
         DataPumpListener pPump = new DataPumpListener(pMeter, pTensorFork);
+
+        //unnormalized AC of all stress tensor components
         AccumulatorAutocorrelationPTensor dpAutocor = new AccumulatorAutocorrelationPTensor(256, sim.integrator.getTimeStep());
         if (sim.box.getLeafList().size() > 200 && sim.potentialChoice != SimGlass.PotentialChoice.HS) {
             pTensorFork.addDataSink(dpAutocor);
         }
+
+        //normalized AC of shear stress components
+        AccumulatorAutocorrelationShearStress dpxyAutocor = new AccumulatorAutocorrelationShearStress(256, sim.integrator.getTimeStep());
+        if (sim.box.getLeafList().size() > 200 && sim.potentialChoice != SimGlass.PotentialChoice.HS) {
+            pTensorFork.addDataSink(dpxyAutocor);
+        }
+
 
         DisplayPlot plotPTensorAccum = new DisplayPlot();
         plotPTensorAccum.setLabel("viscosity(t)");
@@ -548,6 +557,7 @@ public class GlassGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(pTensorAccumPump);
 
         dpAutocor.setPushInterval(16384);
+        dpxyAutocor.setPushInterval(16384);
         DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
         pTensorFork.addDataSink(tracer);
         DataFork pFork = new DataFork();
@@ -992,6 +1002,7 @@ public class GlassGraphic extends SimulationGraphic {
         gbc.insets = new Insets(0, 0, 0, 0);
 
 
+        //unnormalized AC of all stress tensor components
         DisplayPlot plotPTensorAutocor = new DisplayPlot();
         plotPTensorAutocor.setLabel("P Tensor autocor");
         plotPTensorAutocor.setLegend(new DataTag[]{dpAutocor.getTag()}, "avg");
@@ -1081,6 +1092,105 @@ public class GlassGraphic extends SimulationGraphic {
         pAutoCorErr.setDataSink(plotPTensorAutocor.getDataSet().makeDataSink());
         plotPTensorAutocor.setLegend(new DataTag[]{dpAutocor.getAvgErrFork().getTag(), pAutoCorErr.getTag()}, "err+");
 
+
+
+
+
+
+        //normalized AC of shear stress components
+        DisplayPlot plotPxyTensorAutocor = new DisplayPlot();
+        plotPxyTensorAutocor.setLabel("Pxy autocor");
+        plotPxyTensorAutocor.setLegend(new DataTag[]{dpxyAutocor.getTag()}, "avg");
+        dpxyAutocor.addDataSink(plotPxyTensorAutocor.getDataSet().makeDataSink());
+        add(plotPxyTensorAutocor);
+        DeviceSlider nMaxSliderShear = new DeviceSlider(sim.getController(), new Modifier() {
+            @Override
+            public void setValue(double newValue) {
+                int log2nMax = (int) Math.round(newValue);
+                int nMax = 1 << log2nMax;
+                dpxyAutocor.setNMax(nMax);
+            }
+
+            @Override
+            public double getValue() {
+                int nMax = dpxyAutocor.getNMax();
+                for (int i = 0; i <= 30; i++) {
+                    if (1 << i >= nMax) return i;
+                }
+                throw new RuntimeException("oops!");
+            }
+
+            @Override
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
+
+            @Override
+            public String getLabel() {
+                return null;
+            }
+        });
+        nMaxSliderShear.setShowBorder(true);
+        nMaxSliderShear.setShowValues(true);
+        nMaxSliderShear.setNMajor(5);
+        nMaxSliderShear.setMaximum(30);
+        nMaxSliderShear.setMinimum(0);
+        nMaxSliderShear.setLabel("log2(Max lag (steps))");
+        DeviceSlider pushIntervalSliderShear = new DeviceSlider(sim.getController(), new Modifier() {
+            @Override
+            public void setValue(double newValue) {
+                int log2pi = (int) Math.round(newValue);
+                int pi = 1 << log2pi;
+                dpxyAutocor.setPushInterval(pi);
+            }
+
+            @Override
+            public double getValue() {
+                long pi = dpxyAutocor.getPushInterval();
+                for (int i = 0; i <= 30; i++) {
+                    if (1 << i >= pi) return i;
+                }
+                throw new RuntimeException("oops!");
+            }
+
+            @Override
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
+
+            @Override
+            public String getLabel() {
+                return null;
+            }
+        });
+        pushIntervalSliderShear.setShowBorder(true);
+        pushIntervalSliderShear.setShowValues(true);
+        pushIntervalSliderShear.setNMajor(5);
+        pushIntervalSliderShear.setMaximum(30);
+        pushIntervalSliderShear.setMinimum(0);
+        pushIntervalSliderShear.setValue(10);
+        pushIntervalSliderShear.setLabel("log2(Push interval (steps))");
+        JPanel shearacPanel = (JPanel) plotPxyTensorAutocor.graphic();
+        shearacPanel.remove(plotPxyTensorAutocor.getPlot());
+        shearacPanel.setLayout(new GridBagLayout());
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridheight = 2;
+        shearacPanel.add(plotPxyTensorAutocor.getPlot(), gbc);
+        gbc.insets = new Insets(20, 0, 0, 0);
+        gbc.gridheight = 1;
+        gbc.gridx = 1;
+        shearacPanel.add(nMaxSliderShear.graphic(), gbc);
+        gbc.gridy = 1;
+        shearacPanel.add(pushIntervalSliderShear.graphic(), gbc);
+
+
+
+
+
+
+
+        //Potential energy
         DisplayTextBoxesCAE peDisplay = null;
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
             AccumulatorHistory historyPE = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -1293,6 +1403,7 @@ public class GlassGraphic extends SimulationGraphic {
                     dsHistogramP.setEnabled(false);
                     dsPMSDhistory.setEnabled(false);
                     dpAutocor.reset();
+                    dpxyAutocor.reset();
                     pTensorAccum.setEnabled(false);
                     pTensorAccum.reset();
                     if (dsMSDcorU != null) dsMSDcorU.setEnabled(false);
@@ -1327,6 +1438,7 @@ public class GlassGraphic extends SimulationGraphic {
                     if (showDispCheckbox.getState()) canvas.setDrawDisplacement(true);
                     if (flipDispCheckbox.getState()) canvas.setFlipDisplacement(true);
                     dpAutocor.reset();
+                    dpxyAutocor.reset();
                     pTensorAccum.reset();
                     pTensorAccum.setEnabled(true);
                     meterCorrelationAA.reset();
@@ -1515,9 +1627,9 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.WCA;
-            params.nA = 200;
-            params.nB = 200;
-            params.density = 1.2;
+            params.nA = 111;
+            params.nB = 111;
+            params.density = 1.3;
             params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
