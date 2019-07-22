@@ -550,7 +550,7 @@ public class Clathrateenergyandcv extends Simulation {
         public double temperature = 50;
         public double rCutLJ =  3.0;
         public double rCutRealES = 4.0;
-        public double kCut = 2.00;
+        public double kCut = 2.6;
         public boolean isIce = false;
         public double shakeTol = 1e-12;
          public boolean unitCells = false;
