@@ -46,6 +46,8 @@ public class NucleationGraphic extends SimulationGraphic {
     protected DeviceThermoSlider tempSlider;
     protected Unit tUnit, eUnit, dUnit, pUnit;
     protected Swmd sim;
+    protected final MeterClusterSizes meterClusterSizes;
+    protected final MeterLargestCluster meterLargestCluster;
 
     public NucleationGraphic(final Swmd simulation) {
 
@@ -214,7 +216,7 @@ public class NucleationGraphic extends SimulationGraphic {
         peDisplay.setLabel("Potential Energy (K)");
         peDisplay.setUnit(eUnit);
 
-        MeterLargestCluster meterLargestCluster = new MeterLargestCluster(sim.box);
+        meterLargestCluster = new MeterLargestCluster(sim.box);
         DataFork forkCluster = new DataFork();
         DataPumpListener pumpCluster = new DataPumpListener(meterLargestCluster, forkCluster, 10);
         sim.integrator.getEventManager().addListener(pumpCluster);
@@ -228,7 +230,7 @@ public class NucleationGraphic extends SimulationGraphic {
         clusterHistoryPlot.setXLabel("Simulation Time (ps)");
         add(clusterHistoryPlot);
 
-        MeterClusterSizes meterClusterSizes = new MeterClusterSizes(sim.box);
+        meterClusterSizes = new MeterClusterSizes(sim.box);
         DisplayPlot clusterHistogramPlot = new DisplayPlot();
         DataPumpListener pumpClusterHistogram = new DataPumpListener(meterClusterSizes, clusterHistogramPlot.getDataSet().makeDataSink(), 100);
         sim.integrator.getEventManager().addListener(pumpClusterHistogram);
@@ -317,6 +319,8 @@ public class NucleationGraphic extends SimulationGraphic {
             } catch (ConfigurationOverlapException e) {
                 // can happen when increasing diameter
             }
+            meterClusterSizes.clusterer.setNbrMax(d * 1.5);
+            meterLargestCluster.clusterer.setNbrMax(d * 1.5);
             getDisplayBox(sim.box).repaint();
         }
 
