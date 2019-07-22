@@ -24,15 +24,16 @@ import etomica.util.random.IRandom;
  */
 public class P2SquareWellRadical extends P2SquareWell {
 
-    private static final long serialVersionUID = 1L;
     protected final AtomLeafAgentManager agentManager;
     protected final IRandom random;
     protected double combinationProbability;
+    protected double solventThermoFrac;
 
     public P2SquareWellRadical(Space space, AtomLeafAgentManager aam,
                                double coreDiameter, double lambda, double epsilon, IRandom random) {
         super(space, coreDiameter, lambda, epsilon, true);
         agentManager = aam;
+        setSolventThermoFrac(0);
         this.random = random;
     }
 
@@ -171,9 +172,7 @@ public class P2SquareWellRadical extends P2SquareWell {
         
         double reduced_m = 2.0 /  + (rm0 + rm1);
 
-        IAtom atomLeaf0 = atom0;
-        IAtom atomLeaf1 = atom1;
-        if (areBonded(atomLeaf0,atomLeaf1)) {		//atoms are bonded to each other
+        if (areBonded(atom0, atom1)) {        //atoms are bonded to each other
             lastCollisionVirial = reduced_m * bij;
             if (2 * r2 > (coreDiameterSquared + wellDiameterSquared)) {															
                 // there is no escape (Mu Ha Ha Ha!), nudge back inside
@@ -183,10 +182,10 @@ public class P2SquareWellRadical extends P2SquareWell {
         else { 	//not bonded to each other
             //well collision; decide whether to a) bond b) hard core repulsion
             // c) disproportionate
-            boolean radical0 = isRadical(atomLeaf0);
-            boolean radical1 = isRadical(atomLeaf1);
-            boolean empty0 = isEmpty(atomLeaf0);
-            boolean empty1 = isEmpty(atomLeaf1);
+            boolean radical0 = isRadical(atom0);
+            boolean radical1 = isRadical(atom1);
+            boolean empty0 = isEmpty(atom0);
+            boolean empty1 = isEmpty(atom1);
             if (!radical0 && !radical1) {
                 lastCollisionVirial = reduced_m * bij;
                 nudge = eps;
@@ -197,21 +196,21 @@ public class P2SquareWellRadical extends P2SquareWell {
                 // has to be monomer radical
                 if ((!empty0 || !empty1) && random.nextDouble() < combinationProbability) {
                     // react (bond)
-                    lastCollisionVirial = 0.5* reduced_m* (bij + Math.sqrt(bij * bij + 4.0 * r2 *2* epsilon/ reduced_m));
-                    bond(atomLeaf0, atomLeaf1);
+                    lastCollisionVirial = 0.5 * reduced_m * (bij + Math.sqrt(bij * bij + 4.0 * r2 * 2 * epsilon * solventThermoFrac / reduced_m));
+                    bond(atom0, atom1);
                     nudge = -eps;
 			    }
                 else {
                     // disproportionate
                     lastCollisionVirial = reduced_m * bij;
-                    disproportionate(atomLeaf0, atomLeaf1);
+                    disproportionate(atom0, atom1);
                     nudge = eps;
                 }
             }
             else if ((radical0 && empty1) || (radical1 && empty0)) {
                 //one is a radical, the other is a monomer.
-                lastCollisionVirial = 0.5* reduced_m* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon/ reduced_m));
-                bond(atomLeaf0, atomLeaf1);
+                lastCollisionVirial = 0.5 * reduced_m * (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon * solventThermoFrac / reduced_m));
+                bond(atom0, atom1);
                 nudge = -eps;
             }
             else {
@@ -232,5 +231,26 @@ public class P2SquareWellRadical extends P2SquareWell {
             atom0.getPosition().PEa1Tv1(-nudge, dr);
             atom1.getPosition().PEa1Tv1(nudge, dr);
         }
+    }
+
+    /**
+     * Returns the fraction of well energy that is gained or lost by an atom
+     * pair when they hop in or leave their well.
+     */
+    public double getSolventThermoFrac() {
+        return 1 - solventThermoFrac;
+    }
+
+    /**
+     * Sets the fraction of well energy that is gained by an atom pair when
+     * they hop in their well.  This is also the fraction of energy they give
+     * up when they leave the well.  The pair does still need to have
+     * sufficient energy to escape the well at its full strength.
+     */
+    public void setSolventThermoFrac(double newSolventThermoFrac) {
+        if (newSolventThermoFrac < 0 || newSolventThermoFrac > 1) {
+            throw new IllegalArgumentException("0 <= value <= 1");
+        }
+        solventThermoFrac = 1 - newSolventThermoFrac;
     }
 }
