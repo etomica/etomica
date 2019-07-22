@@ -14,6 +14,7 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifierNMolecule;
+import etomica.potential.P2SquareWell;
 import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.units.*;
@@ -72,7 +73,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         
         DeviceBox solventThermoFrac = new DeviceBox();
         solventThermoFrac.setController(sim.getController());
-        solventThermoFrac.setModifier(new ModifierGeneral(sim.p2AA, "solventThermoFrac"));
+        solventThermoFrac.setModifier(new ModifierGeneral(new P2SquareWell[]{sim.p2AA, sim.p2AB, sim.p2BB}, "solventThermoFrac"));
         solventThermoFrac.setLabel("fraction heat transfer to solvent");
         DisplayTextBox tBox = new DisplayTextBox();
 
