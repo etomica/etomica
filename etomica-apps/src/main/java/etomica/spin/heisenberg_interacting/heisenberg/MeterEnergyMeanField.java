@@ -19,19 +19,20 @@ import etomica.space2d.Vector2D;
 import etomica.units.dimensions.Null;
 import etomica.util.numerical.BesselFunction;
 
-public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.AgentSource<MeterEnergyMeanField.ForceTorque> {
+//public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.AgentSource<MeterEnergyMeanField.ForceTorque> {
+public class MeterEnergyMeanField implements IDataSource {
 
     protected final double J;
     protected final DataDoubleArray data;
     protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
-    protected final PotentialCalculationTorqueSum torqueSum;
+//    protected final PotentialCalculationTorqueSum torqueSum;
     protected final PotentialCalculationMeanField pc;
     protected final PotentialMaster potentialMaster;
     protected final Box box;
     protected final IteratorDirective allAtoms;
     protected final double beta;
-    protected final AtomLeafAgentManager<ForceTorque> torqueAgentManager;
+//    protected final AtomLeafAgentManager<ForceTorque> torqueAgentManager;
     protected final PotentialCalculationPhiij pcExtra;
     protected final PotentialCalculationCSsum pcCSsum;
     protected final PotentialCalculationCvij pcCvij;
@@ -55,9 +56,9 @@ public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.A
         pcCSsum = new PotentialCalculationCSsum();
         pcExtra = new PotentialCalculationPhiij();
         pcCvij = new PotentialCalculationCvij();
-        torqueSum = new PotentialCalculationTorqueSum();
-        torqueAgentManager = new AtomLeafAgentManager<ForceTorque>(this, box, ForceTorque.class);
-        torqueSum.setAgentManager(torqueAgentManager);
+//        torqueSum = new PotentialCalculationTorqueSum();
+//        torqueAgentManager = new AtomLeafAgentManager<ForceTorque>(this, box, ForceTorque.class);
+//        torqueSum.setAgentManager(torqueAgentManager);
         data = new DataDoubleArray(2);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{2});
         tag = new DataTag();
@@ -130,7 +131,7 @@ public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.A
             double bbvbb = bh * bh * ((C1 * (I1I0 + cosdtheta) - C0 * I1I0 * cosdtheta - C2)
                     + I2etc * C0) * pInv;
 
-            double bJbeta = bh * (I1I0 - cosdtheta + bh * bvb * sindtheta);
+            double bJbeta = bh * (I1I0 - cosdtheta + bvb * sindtheta);
 
 //            cvSum += bh * bh * 0.5 * (I2 / I0 - 2 * I1I0 * I1I0 + 1);
 //            cvSum += -bh * bvbb * sindtheta;
@@ -158,11 +159,12 @@ public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.A
 
         }
 
+        //handle phi_ij contribution
         cvSumExtra = 0;
         potentialMaster.calculate(box, allAtoms, pcExtra);
-        cvSum += J * cvSumExtra;
-        double[] y = data.getData();
+        cvSum += 2 * beta * J * cvSumExtra;// 2 is to count each ij twice for phi_ij multiplication
 
+        //handle ij contributions
         cvij = 0;
         potentialMaster.calculate(box, allAtoms, pcCvij);
 
@@ -170,6 +172,7 @@ public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.A
 //        potentialMaster.calculate(box, allAtoms, pcCount);
 //        System.out.println("Neighbor count: "+pcCount.nbrCount+", compare to: "+4*atomCount/2);
 
+        double[] y = data.getData();
         y[0] = sum;
         y[1] = beta * beta * sum * sum + cvSum + beta * beta * cvij/beta;
         return data;
@@ -185,34 +188,34 @@ public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.A
         return dataInfo;
     }
 
-    @Override
-    public ForceTorque makeAgent(IAtom a, Box agentBox) {
-        return new ForceTorque();
-    }
+//    @Override
+//    public ForceTorque makeAgent(IAtom a, Box agentBox) {
+//        return new ForceTorque();
+//    }
+//
+//    @Override
+//    public void releaseAgent(ForceTorque agent, IAtom atom, Box agentBox) {
+//
+//    }
+//
+//    public static class ForceTorque implements Integrator.Forcible, Integrator.Torquable {
+//        protected final Vector f, t;
+//
+//        public ForceTorque() {
+//            f = new Vector2D();
+//            t = new Vector1D();
+//        }
+//
+//        public Vector force() {
+//            return f;
+//        }
+//
+//        public Vector torque() {
+//            return t;
+//        }
+//    }
 
-    @Override
-    public void releaseAgent(ForceTorque agent, IAtom atom, Box agentBox) {
-
-    }
-
-    public static class ForceTorque implements Integrator.Forcible, Integrator.Torquable {
-        protected final Vector f, t;
-
-        public ForceTorque() {
-            f = new Vector2D();
-            t = new Vector1D();
-        }
-
-        public Vector force() {
-            return f;
-        }
-
-        public Vector torque() {
-            return t;
-        }
-    }
-
-    public class PotentialCalculationPhiij implements PotentialCalculation {
+    private class PotentialCalculationPhiij implements PotentialCalculation {
         @Override
         public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
             IAtomOriented iatom = (IAtomOriented) atoms.getAtom(0);
@@ -227,7 +230,7 @@ public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.A
      * Used to compute and store sums of cos(theta) and sin(theta) over neighbors of each atom.
      * Needed for mapped-averaging calculation of heat capacity.
      */
-    public class PotentialCalculationCSsum implements PotentialCalculation {
+    private class PotentialCalculationCSsum implements PotentialCalculation {
         public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
             IAtomOriented iatom = (IAtomOriented) atoms.getAtom(0);
             IAtomOriented jatom = (IAtomOriented) atoms.getAtom(1);
@@ -261,7 +264,6 @@ public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.A
             int i = iatom.getLeafIndex();
             int j = jatom.getLeafIndex();
             Vector io = iatom.getOrientation().getDirection();
-            Vector jo = jatom.getOrientation().getDirection();
             double costi = io.getX(0);
             double sinti = io.getX(1);
 

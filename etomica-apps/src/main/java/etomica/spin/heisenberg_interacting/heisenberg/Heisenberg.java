@@ -113,7 +113,10 @@ public class Heisenberg extends Simulation {
             params.aEE = true;
             params.doVSumMI = true;
             params.doIdeal = true;
-            params.temperature = 1.0;
+            params.temperature = 1;
+            params.nCells = 5;
+            params.steps = 1000000;
+
 
         }
         final long startTime = System.currentTimeMillis();
