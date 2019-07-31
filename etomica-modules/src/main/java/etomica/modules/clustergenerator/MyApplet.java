@@ -126,7 +126,7 @@ public class MyApplet extends javax.swing.JApplet {
         gbConst.fill = GridBagConstraints.BOTH;
         addComponent(pointSelectorPanel, managerPanel, 0,1,1,1); // the panel of number of points is added to the manager panel       
 
-        JPanel clusterTypePanel = new JPanel(new GridLayout(3,1)); // option panel of graphics of clusters
+        JPanel clusterTypePanel = new JPanel(new GridLayout(3,1)); // option panel of graphics of strings
         clusterTypePanel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.RAISED, Color.red, Color.blue) 
                 ,"Display Option ",TitledBorder.LEFT,TitledBorder.TOP
                 ,new Font(null,Font.BOLD,12),Color.black));
@@ -190,11 +190,11 @@ public class MyApplet extends javax.swing.JApplet {
         onlySinglyConnectedCB.setBackground(Color.lightGray);
         onlyDoublyConnectedCB = new Checkbox("Doubly Connected Clusters");        
         onlyDoublyConnectedCB.setBackground(Color.lightGray);
-        excludeNodalPointCB = new Checkbox("Exclude clusters with a nodal point");
+        excludeNodalPointCB = new Checkbox("Exclude strings with a nodal point");
         excludeNodalPointCB.setBackground(Color.lightGray);
-        excludeArticulationPointCB = new Checkbox("Exclude clusters with an articulation point");
+        excludeArticulationPointCB = new Checkbox("Exclude strings with an articulation point");
         excludeArticulationPointCB.setBackground(Color.lightGray);
-        excludeArticulationPairCB = new Checkbox("Exclude clusters with an articulation pair");
+        excludeArticulationPairCB = new Checkbox("Exclude strings with an articulation pair");
         excludeArticulationPairCB.setBackground(Color.lightGray);
         reeHooverCB = new Checkbox("Use Ree-Hoover diagrams");
         reeHooverCB.setBackground(Color.lightGray);

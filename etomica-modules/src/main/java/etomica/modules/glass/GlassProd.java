@@ -11,6 +11,7 @@ import etomica.data.types.DataGroup;
 import etomica.data.types.DataTensor;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 import etomica.util.ParseArgs;
 
@@ -23,15 +24,16 @@ public class GlassProd {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doSwap = true;
-            params.potential = SimGlass.PotentialChoice.WCA;
-            params.nA = 111;
-            params.nB = 111;
-            params.density = 1.;
+            params.potential = SimGlass.PotentialChoice.HS;
+            params.nA = 50;
+            params.nB = 50;
+            params.density = 1.0;
             params.D = 3;
-            params.temperature = 1;
-            params.numStepsEq = 1000;
-            params.numSteps = 10000;
+            params.temperature = 1.0;
+            params.numStepsEq = 1000000;
+            params.numSteps = 10000000;
             params.minDrFilter = 0.4;
+            params.qx = 7.0;
         }
 
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
@@ -158,6 +160,9 @@ public class GlassProd {
 
         //Fs
         DataSourceFs meterFs = new DataSourceFs(configStorageMSD);
+        Vector q = sim.getSpace().makeVector();
+        q.setX(0, params.qx);
+        meterFs.setQ(q);
         configStorageMSD.addListener(meterFs);
 
         //F
@@ -179,6 +184,9 @@ public class GlassProd {
         DataSourceStrings meterL = new DataSourceStrings(configStorageMSD, 3, 30);
         configStorageMSD.addListener(meterL);
 
+        //Alpha2
+        DataSourceAlpha2 meterAlpha2 = new DataSourceAlpha2(configStorageMSD);
+        configStorageMSD.addListener(meterAlpha2);
 
         sim.integrator.getEventManager().addListener(configStorageMSD);
 
@@ -195,7 +203,7 @@ public class GlassProd {
         double pErr  = dataPErr.getValue(0);
         double pCorr = dataPCorr.getValue(0);
 
-        String filenameVisc, filenameMSD, filenameD, filenameFs, filenameF, filenamePerc, filenameImmFrac, filenameL;
+        String filenameVisc, filenameMSD, filenameD, filenameFs, filenameF, filenamePerc, filenameImmFrac, filenameL, filenameAlpha2;
         String filenamePxyAC = "";
         if(sim.potentialChoice == SimGlass.PotentialChoice.HS){
             double phi;
@@ -209,11 +217,12 @@ public class GlassProd {
             filenameVisc = String.format("viscRho%1.3f.out",rho);
             filenameMSD = String.format("msdRho%1.3f.out", rho);
             filenameD = String.format("dRho%1.3f.out", rho);
-            filenameFs = String.format("fsRho%1.3f.out", rho);
+            filenameFs = String.format("fsRho%1.3fQ%1.2f.out", rho, params.qx);
             filenameF = String.format("fRho%1.3f.out", rho);
             filenamePerc = String.format("percRho%1.3f.out", rho);
             filenameL = String.format("lRho%1.3f.out", rho);
             filenameImmFrac = String.format("immFracRho%1.3f.out", rho);
+            filenameAlpha2 = String.format("alpha2Rho%1.3f.out", rho);
         }else{
             // Energy
             DataGroup dataU = (DataGroup) accPE.getData();
@@ -244,11 +253,12 @@ public class GlassProd {
             filenameVisc = String.format("viscRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameMSD = String.format("msdRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameD = String.format("dRho%1.3fT%1.3f.out",  rho, params.temperature);
-            filenameFs = String.format("fsRho%1.3fT%1.3f.out", rho, params.temperature);
+            filenameFs = String.format("fsRho%1.3fT%1.3f%Q1.2f.out", rho, params.temperature, params.qx);
             filenameF = String.format("fRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenamePerc = String.format("percRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameL = String.format("lRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameImmFrac = String.format("immFracRho%1.3fT%1.3f.out",  rho, params.temperature);
+            filenameAlpha2 = String.format("alpha2Rho%1.3fT%1.3f.out",  rho, params.temperature);
             filenamePxyAC = String.format("acPxyRho%1.3fT%1.3f.out",  rho, params.temperature);
             double V = sim.box.getBoundary().volume();
             System.out.println("G: " + V * avgG / tAvg + " " + V * errG / tAvg + " cor: " + corG + "\n");
@@ -296,7 +306,7 @@ public class GlassProd {
         }
 
         //MSD
-        FileWriter fileWriterMSD, fileWriterD, fileWriterFs, fileWriterF, fileWriterPerc, fileWriterImmFrac, fileWriterL;
+        FileWriter fileWriterMSD, fileWriterD, fileWriterFs, fileWriterF, fileWriterPerc, fileWriterImmFrac, fileWriterL, fileWriterAlpha2;
         try {
             fileWriterMSD = new FileWriter(filenameMSD,false);
             fileWriterD   = new FileWriter(filenameD,  false);
@@ -305,6 +315,7 @@ public class GlassProd {
             fileWriterPerc   = new FileWriter(filenamePerc,  false);
             fileWriterImmFrac   = new FileWriter(filenameImmFrac ,  false);
             fileWriterL   = new FileWriter(filenameL ,  false);
+            fileWriterAlpha2   = new FileWriter(filenameAlpha2 ,  false);
             DataDoubleArray x = meterMSD.getIndependentData(0);
             for (int i=0; i<meterMSD.getData().getLength(); i++){
                 double xi = x.getValue(i);
@@ -320,6 +331,8 @@ public class GlassProd {
                     fileWriterF.write(xi + " " + yiF + "\n");
                     double yiPerc  = meterPerc.getData().getValue(i);
                     double yiImmFrac  = meterImmFraction.getData().getValue(i);
+                    double yiAlpha2  = meterAlpha2.getData().getValue(i);
+
                     if(!Double.isNaN(yiPerc)){
                         fileWriterPerc.write(xi + " " + yiPerc + "\n");
                     }
@@ -329,6 +342,10 @@ public class GlassProd {
                     if(!Double.isNaN(yiL)){
                         fileWriterL.write(xi + " " + yiL + "\n");
                     }
+                    if(!Double.isNaN(yiAlpha2)){
+                        fileWriterAlpha2.write(xi + " " + yiAlpha2 + "\n");
+                    }
+
                 }
             }
             fileWriterMSD.close();
@@ -338,6 +355,7 @@ public class GlassProd {
             fileWriterPerc.close();
             fileWriterImmFrac.close();
             fileWriterL.close();
+            fileWriterAlpha2.close();
         } catch (IOException e) {
             System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
         }
@@ -350,5 +368,6 @@ public class GlassProd {
         public int numSteps =   1000000;
         public double minDrFilter = 0.4;
         public double temperatureMelt = 0;
+        public double qx = 7.0;
     }
 }
