@@ -4,7 +4,6 @@
 
 package etomica.mappedDensity.mappedDensityfromlatticesite;
 
-import Jama.Matrix;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -24,13 +23,14 @@ import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
 
-public class MeterHMASinglet3Dmapping implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
+public class MeterMappedAvg3Dmapping implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
     protected final PotentialMaster potentialMaster;
     protected final IteratorDirective id;
     protected DataSourceUniform xDataSourcer;
     protected DataSourceUniform xDataSourcetheta;
     protected DataSourceUniform xDataSourcephi;
+
     protected final PotentialCalculationForceSum pc;
     protected final AtomLeafAgentManager<Vector> agentManager;
     protected final Box box;
@@ -38,8 +38,6 @@ public class MeterHMASinglet3Dmapping implements IDataSource, DataSourceIndepend
     protected IDataInfo dataInfo;
     protected double Rmax;
     protected Vector rivector;
-    protected Vector rvector;
-    protected Vector positionvector;
 
     protected int profileDim;
     /**
@@ -55,7 +53,7 @@ protected CoordinateDefinition latticesite;
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
-    public MeterHMASinglet3Dmapping(double [] arraymsd, int rnumberofbins, int thetaphinumberofbins, Box box, PotentialMaster potentialMaster, double temperature, CoordinateDefinition latticesite) {
+    public MeterMappedAvg3Dmapping(double [] arraymsd, int rnumberofbins, int thetaphinumberofbins, Box box, PotentialMaster potentialMaster, double temperature, CoordinateDefinition latticesite) {
         this.box = box;
         this.temperature = temperature;
          this.arraymsd = arraymsd;
@@ -138,7 +136,6 @@ this.rivector =box.getSpace().makeVector();
         for (IAtom atom : atoms) {
                  rivector.Ev1Mv2(atom.getPosition(), latticesite.getLatticePosition(atom));
                  box.getBoundary().nearestImage(rivector);
-
                  double ri = Math.sqrt(rivector.squared());
                  double fr = agentManager.getAgent(atom).dot(rivector) / ri;
                  double thetai = Math.acos(rivector.getX(2) / ri);
@@ -151,38 +148,12 @@ this.rivector =box.getSpace().makeVector();
                             int j = (int) (thetai*thetaphinumberofbins/Math.PI);
                      double thetabegin = j * Math.PI / thetaphinumberofbins;
                      double thetaend = (j + 1) * Math.PI / thetaphinumberofbins;
-double thetahere=(thetabegin+thetaend)/2;
-                     int k = (int) (phii*thetaphinumberofbins/(2*Math.PI));
+
+                            int k = (int) (phii*thetaphinumberofbins/(2*Math.PI));
                      double phibegin = k * 2 * Math.PI / thetaphinumberofbins;
                      double phiend = (k + 1) * 2 * Math.PI / thetaphinumberofbins;
-double phihere=(phibegin+phiend)/2;
-positionvector.setX(0,r*Math.sin(thetahere)*Math.cos(phihere));positionvector.setX(1,r*Math.sin(thetahere)*Math.sin(phihere));
-positionvector.setX(2,r*Math.cos(thetahere));
 
-rvector.Ev1Mv2(positionvector, latticesite.getLatticePosition(atom));
-box.getBoundary().nearestImage(rvector);
-rvector.normalize();
-
-                      perpendtorvectorinriplane.normalize();
-
-                      crossprodrandri.normalize();
-
-                      double[][] array = new double[3][3];
-                      rvector.assignTo(array[0]);
-                      perpendtorvectorinriplane.assignTo(array[1]);
-                      crossprodrandri.assignTo(array[2]);
-                      Matrix a = new Matrix(array).transpose();
-
-double ritransformed=;
-double titransformed=;
-double phiitransformed=;
-double rtransformed=;
-int nmax=10;
-
-                      int mm=j*thetaphinumberofbins+k;
-Singlet3Dmapping singlet3Dmapping = new Singlet3Dmapping();
-double[] mappingvelocitytransformed=singlet3Dmapping.xyzDot(nmax, ritransformed, titransformed, phiitransformed, rtransformed, Math.sqrt(arraymsd[mm]/3.0));
-
+                     int mm=j*thetaphinumberofbins+k;
 
                      double pri = (4.14593*Math.exp(-3 * ri * ri / (2 * arraymsd[mm]))) / ((Math.pow(arraymsd[mm], 1.5))*((phiend-phibegin)*(Math.cos(thetabegin)-Math.cos(thetaend))));
                              double pr = (4.14593*Math.exp(-3 * r * r / (2 * arraymsd[mm]))) / ((Math.pow(arraymsd[mm], 1.5))*((phiend-phibegin)*(Math.cos(thetabegin)-Math.cos(thetaend))));

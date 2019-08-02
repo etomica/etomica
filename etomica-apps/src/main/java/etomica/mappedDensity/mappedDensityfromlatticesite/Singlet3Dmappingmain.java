@@ -338,7 +338,7 @@ public class Singlet3Dmappingmain extends Simulation {
         sim.getIntegrator().getEventManager().addListener(pumpCon);
 
 
-      MeterMappedAvg3D meterMappedAvg3D = new MeterMappedAvg3D(arraymsdnew,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.potentialMaster, params.temperature, sim.coordinateDefinition);
+      MeterMappedAvg3Dmapping meterMappedAvg3Dmapping = new MeterMappedAvg3Dmapping(arraymsdnew,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.potentialMaster, params.temperature, sim.coordinateDefinition);
      //  double [] hey=new double[params.thetaphinumberofbins*params.thetaphinumberofbins] ;
      //  for (int i = 0; i < hey.length; i++) {
       //          hey[i] = 0.0391218;
@@ -346,9 +346,9 @@ public class Singlet3Dmappingmain extends Simulation {
        //}
  //      MeterMappedAvg3D meterMappedAvg3D = new MeterMappedAvg3D(hey,params.rnumberofbins,params.thetaphinumberofbins,params.msd,sim.box(), sim.potentialMaster, params.temperature, sim.coordinateDefinition);
 
-        meterMappedAvg3D.reset();
+        meterMappedAvg3Dmapping.reset();
         AccumulatorAverageFixed accMappedAvg = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener pumpMappedAvg = new DataPumpListener(meterMappedAvg3D, accMappedAvg, interval);
+        DataPumpListener pumpMappedAvg = new DataPumpListener(meterMappedAvg3Dmapping, accMappedAvg, interval);
         sim.getIntegrator().getEventManager().addListener(pumpMappedAvg);
 
         AccumulatorAverageFixed pe = new AccumulatorAverageFixed(blockSize);
@@ -425,7 +425,7 @@ public class Singlet3Dmappingmain extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numAtoms = 500;
-         public int rnumberofbins = 100;
+         public int rnumberofbins = 50;
         public int thetaphinumberofbins=1;
         public double density = 1.29;
         public long numSteps = 250000;
