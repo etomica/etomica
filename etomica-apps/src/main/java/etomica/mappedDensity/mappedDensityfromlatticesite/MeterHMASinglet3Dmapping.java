@@ -40,7 +40,12 @@ public class MeterHMASinglet3Dmapping implements IDataSource, DataSourceIndepend
     protected Vector rivector;
     protected Vector rvector;
     protected Vector positionvector;
-
+    protected Vector perpendtorvectorinriplane;
+    protected Vector crossprodrandri;
+    protected Vector temporary;
+    protected Vector rivectortransformed;
+    protected Vector fivectortransformed;
+    protected Vector rvectortransformed;
     protected int profileDim;
     /**
      * Meter that defines the property being profiled.
@@ -161,11 +166,18 @@ positionvector.setX(2,r*Math.cos(thetahere));
 
 rvector.Ev1Mv2(positionvector, latticesite.getLatticePosition(atom));
 box.getBoundary().nearestImage(rvector);
+double dotproduct=(rvector.getX(0)*rivector.getX(0)+rvector.getX(1)*rivector.getX(1)+rvector.getX(2)*rivector.getX(2))/(Math.sqrt(rvector.squared()));
+temporary.setX(0,dotproduct*rvector.getX(0)/Math.sqrt(rvector.squared()));
+temporary.setX(1,dotproduct*rvector.getX(1)/Math.sqrt(rvector.squared()));
+temporary.setX(2,dotproduct*rvector.getX(2)/Math.sqrt(rvector.squared()));
+perpendtorvectorinriplane.Ev1Mv2(rvector, temporary);
+
+crossprodrandri.E(rvector);
+crossprodrandri.XE(perpendtorvectorinriplane);
+
 rvector.normalize();
-
-                      perpendtorvectorinriplane.normalize();
-
-                      crossprodrandri.normalize();
+perpendtorvectorinriplane.normalize();
+crossprodrandri.normalize();
 
                       double[][] array = new double[3][3];
                       rvector.assignTo(array[0]);
@@ -173,11 +185,19 @@ rvector.normalize();
                       crossprodrandri.assignTo(array[2]);
                       Matrix a = new Matrix(array).transpose();
 
-double ritransformed=;
-double titransformed=;
-double phiitransformed=;
-double rtransformed=;
-int nmax=10;
+rivectortransformed.setX(0,a.get(0,0)*rivector.getX(0)+a.get(0,1)*rivector.getX(1)+a.get(0,2)*rivector.getX(2));
+rivectortransformed.setX(1,a.get(1,0)*rivector.getX(0)+a.get(1,1)*rivector.getX(1)+a.get(1,2)*rivector.getX(2));
+rivectortransformed.setX(2,a.get(2,0)*rivector.getX(0)+a.get(2,1)*rivector.getX(1)+a.get(2,2)*rivector.getX(2));
+
+rvectortransformed.setX(0,a.get(0,0)*rvector.getX(0)+a.get(0,1)*rvector.getX(1)+a.get(0,2)*rvector.getX(2));
+rvectortransformed.setX(1,a.get(1,0)*rvector.getX(0)+a.get(1,1)*rvector.getX(1)+a.get(1,2)*rvector.getX(2));
+rvectortransformed.setX(2,a.get(2,0)*rvector.getX(0)+a.get(2,1)*rvector.getX(1)+a.get(2,2)*rvector.getX(2));
+
+double ritransformed=Math.sqrt((rivectortransformed.getX(0))*(rivectortransformed.getX(0))+(rivectortransformed.getX(1))*(rivectortransformed.getX(1))+(rivectortransformed.getX(2))*(rivectortransformed.getX(2)));
+double rtransformed=Math.sqrt((rvectortransformed.getX(0))*(rvectortransformed.getX(0))+(rvectortransformed.getX(1))*(rvectortransformed.getX(1))+(rvectortransformed.getX(2))*(rvectortransformed.getX(2)));
+double titransformed=Math.atan(Math.sqrt((rivectortransformed.getX(0))*(rivectortransformed.getX(0))+(rivectortransformed.getX(1))*(rivectortransformed.getX(1)))/rivectortransformed.getX(2));
+double phiitransformed=Math.atan(rivectortransformed.getX(1)/rivectortransformed.getX(0));
+                      int nmax=10;
 
                       int mm=j*thetaphinumberofbins+k;
 Singlet3Dmapping singlet3Dmapping = new Singlet3Dmapping();
@@ -191,18 +211,16 @@ double[] mappingvelocitytransformed=singlet3Dmapping.xyzDot(nmax, ritransformed,
                              double q =1;
                              double dpribydri =-((12.4378*ri*(Math.exp(-3 * ri * ri / (2 * arraymsd[mm]))))/((Math.pow(arraymsd[mm], 2.5))*(phiend-phibegin)*(Math.cos(thetabegin)-Math.cos(thetaend))));
 
-
                              double heavisideri;
                              if (ri >= r) { heavisideri = 1; } else { heavisideri = 0; }
-                             double diffheavisidethetaend;
+                       //   double ridot = (pr * (((heavisideri ) / ((-phibegin + phiend) * (Math.cos(thetabegin) - Math.cos(thetaend)))) - cri / q)) / (temperature * ri * ri * pri);
+                      //       ytemporary[i][j][k] = ytemporary[i][j][k] +  (pr / q) - (fr - (temperature * dpribydri / pri)) * ridot;
+fivectortransformed.setX(0,a.get(0,0)*agentManager.getAgent(atom).getX(0)+a.get(0,1)*agentManager.getAgent(atom).getX(1)+a.get(0,2)*agentManager.getAgent(atom).getX(2));
+fivectortransformed.setX(1,a.get(1,0)*agentManager.getAgent(atom).getX(0)+a.get(1,1)*agentManager.getAgent(atom).getX(1)+a.get(1,2)*agentManager.getAgent(atom).getX(2));
+fivectortransformed.setX(2,a.get(2,0)*agentManager.getAgent(atom).getX(0)+a.get(2,1)*agentManager.getAgent(atom).getX(1)+a.get(2,2)*agentManager.getAgent(atom).getX(2));
+double fidotmapvelocity=fivectortransformed.getX(0)*mappingvelocitytransformed[0]+fivectortransformed.getX(1)*mappingvelocitytransformed[1]+fivectortransformed.getX(2)*mappingvelocitytransformed[2];
+                      ytemporary[i][j][k] = ytemporary[i][j][k] +  (pr / q) - fidotmapvelocity;
 
-                            //UNIFORM MAPPING
-                        //     pr=1;pri=1;cri=ri*ri*ri/3;q=500/1.29;dpribydri=0;
-
-                          double ridot = (pr * (((heavisideri ) / ((-phibegin + phiend) * (Math.cos(thetabegin) - Math.cos(thetaend)))) - cri / q)) / (temperature * ri * ri * pri);
-
-                 //           y[n] = y[n] + (pr / q) - (fr - (temperature * dpribydri / pri)) * ridot;
-                             ytemporary[i][j][k] = ytemporary[i][j][k] +  (pr / q) - (fr - (temperature * dpribydri / pri)) * ridot;
                  //              System.out.println("n "+n+" "+y[n]+" "+i+" "+j+" "+k );
 
                  }
