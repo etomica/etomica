@@ -1686,7 +1686,7 @@ public class GlassGraphic extends SimulationGraphic {
             nbrClusterSlider.setEditValues(true);
             sfacWidgetPanel.add(nbrClusterSlider.graphic());
             DeviceSlider nClusterSlider = new DeviceSlider(sim.getController(), sfacClusterer, "numClusters");
-            nClusterSlider.setLabel("# of strings");
+            nClusterSlider.setLabel("# of clusters");
             nClusterSlider.setShowBorder(true);
             nClusterSlider.setMinimum(0);
             nClusterSlider.setMaximum(5000);
