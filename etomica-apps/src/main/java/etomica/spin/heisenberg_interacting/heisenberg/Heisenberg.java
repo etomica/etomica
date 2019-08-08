@@ -106,16 +106,18 @@ public class Heisenberg extends Simulation {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.doConventionalE = true;
-            params.doMappingE = true;
-            params.doEnergyMF = true;
+            params.doConventionalE = false;
+            params.doMappingE = false;
+            params.doEnergyMF = false;
+            params.doCorrelation = true;
+            params.formula = 3;
             params.doCV = true;
             params.aEE = true;
             params.doVSumMI = true;
             params.doIdeal = true;
-            params.temperature = 1;
+            params.temperature = .1;
             params.nCells = 5;
-            params.steps = 1000000;
+            params.steps = 10000000;
 
 
         }
@@ -149,7 +151,7 @@ public class Heisenberg extends Simulation {
         double dipoleMagnitude = params.dipoleMagnitude;
 
         System.out.println("numberMolecules= " + numberMolecules + " steps= " + steps + " nMax= " + nMax
-                + " \ntemperature= " + temperature + " interacitonS= " + interactionS + " dipoleStrength= " + dipoleMagnitude);
+                + " \ntemperature= " + temperature + " interactionS= " + interactionS + " dipoleStrength= " + dipoleMagnitude);
 
         Space sp = Space2D.getInstance();
         Heisenberg sim = new Heisenberg(sp, nCells, temperature, interactionS, dipoleMagnitude);
@@ -306,9 +308,10 @@ public class Heisenberg extends Simulation {
             double cv1Err = energyMFAccumulator.getData(energyMFAccumulator.ERROR).getValue(1);
             IData covariance = ((DataGroup) energyMFAccumulator.getData()).getData(energyMFAccumulator.BLOCK_COVARIANCE.index);
 
+            double beta2 = 1.0/(temperature * temperature);
             double cvMFErr = Math.sqrt(cv1Err * cv1Err
-                    + 4 * energyMFAvg * energyMFAvg * energyMFErr * energyMFErr
-                    - 4 * cv1Err * energyMFAvg * energyMFErr * covariance.getValue(0 * 2 + 1) / Math.sqrt(covariance.getValue(0 * 2 + 0) * covariance.getValue(1 * 2 + 1))
+                    + 4 * beta2 * beta2 * energyMFAvg * energyMFAvg * energyMFErr * energyMFErr
+                    - 4 * beta2 * cv1Err * energyMFAvg * energyMFErr * covariance.getValue(0 * 2 + 1) / Math.sqrt(covariance.getValue(0 * 2 + 0) * covariance.getValue(1 * 2 + 1))
             );
             System.out.println("CvMF:\t" + cvMFAvg / (nCells * nCells)
                     + " Err:\t" + cvMFErr / (nCells * nCells));

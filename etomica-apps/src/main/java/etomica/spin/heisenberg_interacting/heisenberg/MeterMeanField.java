@@ -35,6 +35,7 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
     protected final Box box;
     protected final IteratorDirective allAtoms;
     protected double temperature;
+    protected double[] I1I0, I2etc, eta, cost0, sint0, cosdtheta, sindtheta, dtheta, theta0;
     protected final AtomLeafAgentManager<ForceTorque> torqueAgentManager;
     protected final List<Vector> spins, thetaDot;
 
@@ -74,37 +75,53 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
 
         AtomLeafAgentManager<Vector> agentManager = pc.getAgentManager();
         IAtomList atoms = box.getLeafList();
-        if (spins.size() < atoms.getAtomCount()) {
-            for (int i = spins.size(); i < atoms.getAtomCount(); i++) {
+        int atomCount = atoms.getAtomCount();
+        if (spins.size() < atomCount) {
+            for (int i = spins.size(); i < atomCount; i++) {
                 spins.add(new Vector2D());
                 thetaDot.add(new Vector2D());
             }
+            I1I0 = new double[atomCount];
+            I2etc = new double[atomCount];
+            eta = new double[atomCount];
+            cost0 = new double[atomCount];
+            sint0 = new double[atomCount];
+            cosdtheta = new double[atomCount];
+            sindtheta = new double[atomCount];
+            dtheta = new double[atomCount];
+            theta0 = new double[atomCount];
         }
         data.E(0);
         double[] d = data.getData();
         for (int i = 0; i < atoms.getAtomCount(); i++) {
             IAtomOriented a = (IAtomOriented) atoms.getAtom(i);
             Vector h = agentManager.getAgent(a);
-            double hmag = Math.sqrt(h.squared());
-            h.TE(1.0 / hmag);
-            double x = BesselFunction.I(1, hmag / temperature) / BesselFunction.I(0, hmag / temperature);
-            double f = torqueAgentManager.getAgent(a).torque().getX(0);
+            eta[i] = Math.sqrt(h.squared());
+            cost0[i] = h.getX(0)/eta[i];
+            sint0[i] = h.getX(1)/eta[i];
+            double bh = eta[i] / temperature;
+
+            double I0 = BesselFunction.I(0, bh);
+            double I1 = BesselFunction.I(1, bh);
+            double I2 = BesselFunction.I(2, bh);
+            I1I0[i] = I1 / I0;
+            I2etc[i] = 0.5 * (I2 / I0 - 2 * I1I0[i] * I1I0[i] + 1);
+
             Vector o = a.getOrientation().getDirection();
-            double sindtheta = h.getX(0) * o.getX(1) - o.getX(0) * h.getX(1);
-            double cosdtheta = h.dot(o);
-            double y = (f + hmag * sindtheta) / temperature;
-            double dtheta = Math.atan2(sindtheta, cosdtheta);
-            double theta0 = Math.atan2(h.getX(1), h.getX(0));
-            double[] v = getpVelocity(dtheta, hmag / temperature, h.getX(0), h.getX(1));
-            double[] vc = getpVelocity(0 - theta0, hmag / temperature, h.getX(0), h.getX(1));
-            double[] vs = getpVelocity(Math.PI / 2 - theta0, hmag / temperature, h.getX(0), h.getX(1));
-            double pInv = Math.exp(-hmag/temperature * cosdtheta);
+            sindtheta[i] = cost0[i] * o.getX(1) - sint0[i] * o.getX(0);
+            cosdtheta[i] = cost0[i] * o.getX(0) + sint0[i] * o.getX(1);
+            dtheta[i] = Math.atan2(sindtheta[i], cosdtheta[i]);
+            theta0[i] = Math.atan2(sint0[i], cost0[i]);
+            double[] v = getpVelocity(dtheta[i], bh, cost0[i], sint0[i]);
+            double[] vc = getpVelocity(0 - theta0[i], bh, cost0[i], sint0[i]);
+            double[] vs = getpVelocity(Math.PI / 2 - theta0[i], bh, cost0[i], sint0[i]);
+            double pInv = Math.exp(-bh * cosdtheta[i]);
             Vector s = spins.get(i);
             Vector tDot = thetaDot.get(i);
             tDot.setX(0,pInv * (v[0] - vc[0]));
             tDot.setX(1,pInv * (v[1] - vs[1]));
-            s.setX(0, h.getX(0) * x + y * tDot.getX(0));
-            s.setX(1, h.getX(1) * x + y * tDot.getX(1));
+            s.setX(0, cost0[i] * I1I0[i] - bh * sindtheta[i] * tDot.getX(0));//mapped-average estimate of spin orientation
+            s.setX(1, sint0[i] * I1I0[i] - bh * sindtheta[i] * tDot.getX(1));
 
             d[0] += s.getX(0);
             d[1] += s.getX(1);
@@ -118,6 +135,25 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
     }
 
     public Vector getThetaDot(IAtom a) {return thetaDot.get(a.getLeafIndex()); }
+
+    public double[] getI1I0() {return I1I0;}
+
+    public double[] getI2etc() {return I2etc;}
+
+    public double[] getEta() {return eta;}
+
+    public double[] getCost0() {return cost0;}
+
+    public double[] getSint0() {return sint0;}
+
+    public double[] getSindtheta() {return sindtheta;}
+
+    public double[] getCosdtheta() {return cosdtheta;}
+
+    public double[] getDtheta() {return dtheta;}
+
+    public double[] getTheta0() {return theta0;}
+
 
     @Override
     public DataTag getTag() {

@@ -24,12 +24,12 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
     protected final DataDoubleArray data;
     protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
-    protected double bJ;
+    protected double J, bJ, J2;
     protected double bt;
     protected final int L;
     protected final int N;
     protected final int arraySize;
-    protected double temperature;
+    protected double temperature, beta;
     private Box box;
     protected final Space space;
     protected final PotentialMaster potentialMaster;
@@ -40,15 +40,23 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
     protected final int[] nPairs;
     protected AtomLeafAgentManager<CorrelationAgent> leafAgentManager;
     protected final MeterMeanField meterMeanField;
+    protected MeterEnergyMeanField.PotentialCalculationCSsum pcCSsum;
+    protected double[] nbrSsum = new double[0];//nbrSsum[i] holds sum sin(thetaj) for nbrs j of atom i
+    protected double[] nbrCsum = new double[0];//same but cos(thetaj)
+    protected final Vector[] dtdotkdt0k, dtdotkdetak;
+
 
     public MeterMappedAveragingCorrelation(Simulation sim, double temperature, double interactionS, PotentialMaster potentialMaster, int formula) {
         this.box = sim.getBox(0);
         this.space = sim.getSpace();
         this.temperature = temperature;
+        beta = 1/temperature;
         this.potentialMaster = potentialMaster;
         this.formula = formula;
         bt = 1 / temperature;
-        bJ = interactionS * bt;
+        J = interactionS;
+        bJ = bt * J;
+        J2 = J * J;
         N = box.getLeafList().getAtomCount();
         L = (int) Math.round(Math.sqrt(N));
         int distance = L / 2 + 1;
@@ -72,6 +80,19 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
         meterMeanField = formula == 3 ? new MeterMeanField(space, box, interactionS, potentialMaster, temperature) : null;
+
+        nbrCsum = new double[N];
+        nbrSsum = new double[N];
+        pcCSsum = new MeterEnergyMeanField.PotentialCalculationCSsum(nbrCsum, nbrSsum);
+
+        dtdotkdt0k = new Vector[N];
+        dtdotkdetak = new Vector[N];
+        for(int k=0; k<N; k++) {
+            dtdotkdetak[k] = space.makeVector();
+            dtdotkdt0k[k] = space.makeVector();
+        }
+
+
     }
 
     public IData getData() {
@@ -85,8 +106,97 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
             nPairs[i] = 0;
         }
         if (formula == 3) {
+            //set up meterMeanField to provide terms needed for further calculation
             meterMeanField.getData();
+
+            //compute terms needed to evaluate d(eta_k)/d(theta_i) and d(theta0_k)/d(theta_i) for i nbr of k
+            pcCSsum.reset();
+            potentialMaster.calculate(box, allAtoms, pcCSsum);
+
+            //compute derivatives of tDot_k with respect to eta_k and theta0_k
+            for(int k=0; k < N; k++) {
+                double dtheta = meterMeanField.getDtheta()[k];
+                double cosdtheta = meterMeanField.getCosdtheta()[k];
+                double sindtheta = meterMeanField.getSindtheta()[k];
+                double t0 = meterMeanField.getTheta0()[k];
+                double cost0 = meterMeanField.getCost0()[k];
+                double sint0 = meterMeanField.getSint0()[k];
+                double I1I0 = meterMeanField.getI1I0()[k];
+                double I2etc = meterMeanField.getI2etc()[k];
+                double bh = beta * meterMeanField.getEta()[k];
+                double pInv = Math.exp(-bh * cosdtheta);
+
+                // Cmn is integral of (cos(t-t0))^m (sin(t-t0))^n Exp[bh cos(t-t0)] for t = t0 to theta
+                // Cmnc is integral from 0 to theta
+                // Cmns is integral from Pi/2 to theta
+                // integrals are computed using functions that return integral of cosx^m sinx^n Exp[bh cosx] for x = 0 to [first argument]
+                double C00 = FunctionCosIntegral.cosInt(dtheta, bh);
+                double C00c = C00 - FunctionCosIntegral.cosInt(0 - t0, bh);
+                double C00s = C00 - FunctionCosIntegral.cosInt(Math.PI/2. - t0, bh);
+
+                double C10 = FunctionCosIntegral.coscosInt(dtheta, bh);
+                double C10c = C10 - FunctionCosIntegral.coscosInt(0 - t0, bh);
+                double C10s = C10 - FunctionCosIntegral.coscosInt(Math.PI/2. - t0, bh);
+
+                double C20 = FunctionCosIntegral.cos2cosInt(dtheta, bh);
+                double C20c = C20 - FunctionCosIntegral.cos2cosInt(0 - t0, bh);
+                double C20s = C20 - FunctionCosIntegral.cos2cosInt(Math.PI/2. - t0, bh);
+
+                double C11 = FunctionCosIntegral.sincoscosInt(dtheta, bh);
+                double C11c = C11 - FunctionCosIntegral.sincoscosInt(0 - t0, bh);
+                double C11s = C11 - FunctionCosIntegral.sincoscosInt(Math.PI/2. - t0, bh);
+
+                double C01 = FunctionCosIntegral.sincosInt(dtheta, bh);
+                double C01c = C01 - FunctionCosIntegral.sincosInt(0 - t0, bh);
+                double C01s = C01 - FunctionCosIntegral.sincosInt(Math.PI/2. - t0, bh);
+
+                double C02c = C00c - C20c;//integral of sin^2 is integral of 1 - cos^2
+                double C02s = C00s - C20s;
+
+                //compute d(thetaDot_k)/d(eta_k)
+                double c = -I2etc * C00c * cost0;
+                double s = -I2etc * C00s * sint0;
+
+                c += cost0 * C20c - sint0 * C11c;
+                s += cost0 * C11s + sint0 * C20s;
+
+                c -= cost0 * I1I0 * C10c;
+                s -= sint0 * I1I0 * C10s;
+
+                c -= cosdtheta * (cost0 * C10c - sint0 * C01c);
+                s -= cosdtheta * (cost0 * C01s + sint0 * C10s);
+
+                c += cosdtheta * I1I0 * cost0 * C00c;
+                s += cosdtheta * I1I0 * sint0 * C00s;
+
+                dtdotkdetak[k].setX(0, c);
+                dtdotkdetak[k].setX(1, s);
+                dtdotkdetak[k].TE(-beta * pInv);
+
+                //compute d(thetaDot_k)/d(theta0_k)
+                c = + I1I0 * sint0 * C00c;
+                s = - I1I0 * cost0 * C00s;
+
+                c += bh * (cost0 * C11c - sint0 * C02c);
+                s += bh * (cost0 * C02s + sint0 * C11s);
+
+                c -= bh * cost0 * I1I0 * C01c;
+                s -= bh * sint0 * I1I0 * C01s;
+
+                c -= bh * sindtheta * (cost0 * C10c - sint0 * C01c);
+                s -= bh * sindtheta * (cost0 * C01s + sint0 * C10s);
+
+                c += bh * sindtheta * I1I0 * cost0 * C00c;
+                s += bh * sindtheta * I1I0 * sint0 * C00s;
+
+                dtdotkdt0k[k].setX(0, c);
+                dtdotkdt0k[k].setX(1, s);
+                dtdotkdt0k[k].TE(-pInv);
+            }
+
         }
+
+        //loop over pairs j and k
         for (int j = 0; j < N; j++) {
             int jRow = j / L, jCol = j % L;
             IAtom aj = leafList.getAtom(j);
@@ -96,6 +206,9 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
             double sintj = ((IAtomOriented) leafList.getAtom(j)).getOrientation().getDirection().getX(1);
             Vector sj = formula == 3 ? meterMeanField.getSpin(aj) : null;
             Vector tDotj = formula == 3 ? meterMeanField.getThetaDot(aj) : null;
+            Vector sumk = formula == 3 ? space.makeVector() : null;
+            Vector workVector = formula == 3 ? space.makeVector() : null;
+
 
             for (int k = 0; k < j; k++) {
                 int kRow = k / L, kCol = k % L;
@@ -132,10 +245,41 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
                     }
                 } else { //effective field, second derivative
                     Vector sk = meterMeanField.getSpin(ak);
-                    x[index] += sj.dot(sk);
-                    if (index == 0) {
+                    x[index] += sj.dot(sk);//covariance contribution
+                    if (index == 0) { //neighboring spins
                         // thetaDotj thetaDotk phi_jk contribution
-                        x[index] += meterMeanField.getThetaDot(ak).dot(tDotj) * (costj * costk + sintj * sintk)/temperature;
+                        sumk.Ea1Tv1(bJ * (costj * costk + sintj * sintk), meterMeanField.getThetaDot(ak));//-beta*phiij = +beta J cos(tj - tk)
+
+                        double etak = meterMeanField.getEta()[k];
+                        double sindthetak = meterMeanField.getSindtheta()[k];
+                        double cosdthetak = meterMeanField.getCosdtheta()[k];
+                        double I2etc = meterMeanField.I2etc[k];
+                        double I1I0 = meterMeanField.I1I0[k];
+                        double cost0 = meterMeanField.getCost0()[k];
+                        double sint0 = meterMeanField.getSint0()[k];
+                        Vector thetaDotk = meterMeanField.getThetaDot(ak);
+
+                        double bdEtakdthetaj = 0.25 * beta * J2 * (-sintj * nbrCsum[k] + costj * nbrSsum[k]) / etak;
+                        double dtheta0kdthetaj = 0.25 * J2 * (costj * nbrCsum[k] + sintj * nbrSsum[k])/ (etak * etak);
+
+                        workVector.setX(0,I2etc * cost0);
+                        workVector.setX(1,I2etc * sint0);
+
+                        workVector.PEa1Tv1(-etak * sindthetak, dtdotkdetak[k]);
+                        workVector.PEa1Tv1(sindthetak, thetaDotk);
+
+                        sumk.PEa1Tv1(bdEtakdthetaj, workVector);
+
+                        workVector.setX(0,-I1I0 * sint0);
+                        workVector.setX(1, I1I0 * cost0);
+
+                        workVector.PEa1Tv1(-beta * etak * sindthetak, dtdotkdt0k[k]);
+                        workVector.PEa1Tv1(-beta * etak * cosdthetak, thetaDotk);
+
+                        sumk.PEa1Tv1(dtheta0kdthetaj, workVector);
+
+                        x[index] += sumk.dot(tDotj);
+
                     }
                 }
                 nPairs[index] += 1;

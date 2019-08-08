@@ -22,7 +22,7 @@ import etomica.util.numerical.BesselFunction;
 //public class MeterEnergyMeanField implements IDataSource, AtomLeafAgentManager.AgentSource<MeterEnergyMeanField.ForceTorque> {
 public class MeterEnergyMeanField implements IDataSource {
 
-    protected final double J;
+    protected final double J, J2;
     protected final DataDoubleArray data;
     protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
@@ -34,7 +34,7 @@ public class MeterEnergyMeanField implements IDataSource {
     protected final double beta;
 //    protected final AtomLeafAgentManager<ForceTorque> torqueAgentManager;
     protected final PotentialCalculationPhiij pcExtra;
-    protected final PotentialCalculationCSsum pcCSsum;
+    protected PotentialCalculationCSsum pcCSsum;
     protected final PotentialCalculationCvij pcCvij;
     protected double[] bThetadot = new double[0];
     protected double cvSumExtra;
@@ -43,7 +43,7 @@ public class MeterEnergyMeanField implements IDataSource {
     protected double[] nbrCsum = new double[0];//same but cos(thetaj)
 
     protected double[] dJdeta = new double[0];
-    protected double[] dJdtheta0 = new double[0];
+    protected double[] bdJdtheta0 = new double[0];
     //    protected double[] dtdotdeta = new double[0];
 //    protected double[] dtdotdtheta0 = new double[0];
     protected double[] eta = new double[0];
@@ -52,8 +52,8 @@ public class MeterEnergyMeanField implements IDataSource {
         this.potentialMaster = potentialMaster;
         beta = 1 / temperature;
         this.J = J;
+        J2 = J * J;
         pc = new PotentialCalculationMeanField(space, J, box);
-        pcCSsum = new PotentialCalculationCSsum();
         pcExtra = new PotentialCalculationPhiij();
         pcCvij = new PotentialCalculationCvij();
 //        torqueSum = new PotentialCalculationTorqueSum();
@@ -75,10 +75,9 @@ public class MeterEnergyMeanField implements IDataSource {
             bThetadot = new double[atomCount];
             nbrCsum = new double[atomCount];
             nbrSsum = new double[atomCount];
+            pcCSsum = new PotentialCalculationCSsum(nbrCsum, nbrSsum);
             dJdeta = new double[atomCount];
-            dJdtheta0 = new double[atomCount];
-//            dtdotdeta = new double[atomCount];
-//            dtdotdtheta0 = new double[atomCount];
+            bdJdtheta0 = new double[atomCount];
             eta = new double[atomCount];
         }
         pc.reset();
@@ -149,13 +148,13 @@ public class MeterEnergyMeanField implements IDataSource {
 
             //ij terms for cv
             dJdeta[i] = I1I0 - cosdtheta + bh * I2etc + bvb * sindtheta;
-            dJdtheta0[i] = -hmag * sindtheta - bvb * hmag * cosdtheta;
-            double dtdotdeta = (bbvbb + bvb) / bh;
-            double dtdotdtheta0 = hmag * pInv * (-Math.exp(bh) * (I1I0 - 1)
+            bdJdtheta0[i] = -bh * (sindtheta + bvb * cosdtheta);
+            double bhdtdotdeta = (bbvbb + bvb);
+            double dtdotdtheta0 = bh * pInv * (-Math.exp(bh) * (I1I0 - 1)
                     + bh * (SC0 * I1I0 - C0 * sindtheta * I1I0 - SC1 + C1 * sindtheta)
                     - SC0);
-            dJdeta[i] += -bh * sindtheta * dtdotdeta;
-            dJdtheta0[i] += -bh * sindtheta * dtdotdtheta0;
+            dJdeta[i] += -sindtheta * bhdtdotdeta;
+            bdJdtheta0[i] += -bh * sindtheta * dtdotdtheta0;
 
         }
 
@@ -174,7 +173,7 @@ public class MeterEnergyMeanField implements IDataSource {
 
         double[] y = data.getData();
         y[0] = sum;
-        y[1] = beta * beta * sum * sum + cvSum + beta * beta * cvij/beta;
+        y[1] = beta * beta * sum * sum + cvSum + cvij;
         return data;
     }
 
@@ -187,33 +186,6 @@ public class MeterEnergyMeanField implements IDataSource {
     public IDataInfo getDataInfo() {
         return dataInfo;
     }
-
-//    @Override
-//    public ForceTorque makeAgent(IAtom a, Box agentBox) {
-//        return new ForceTorque();
-//    }
-//
-//    @Override
-//    public void releaseAgent(ForceTorque agent, IAtom atom, Box agentBox) {
-//
-//    }
-//
-//    public static class ForceTorque implements Integrator.Forcible, Integrator.Torquable {
-//        protected final Vector f, t;
-//
-//        public ForceTorque() {
-//            f = new Vector2D();
-//            t = new Vector1D();
-//        }
-//
-//        public Vector force() {
-//            return f;
-//        }
-//
-//        public Vector torque() {
-//            return t;
-//        }
-//    }
 
     private class PotentialCalculationPhiij implements PotentialCalculation {
         @Override
@@ -230,7 +202,12 @@ public class MeterEnergyMeanField implements IDataSource {
      * Used to compute and store sums of cos(theta) and sin(theta) over neighbors of each atom.
      * Needed for mapped-averaging calculation of heat capacity.
      */
-    private class PotentialCalculationCSsum implements PotentialCalculation {
+    public static class PotentialCalculationCSsum implements PotentialCalculation {
+        protected final double[] nbrCsum, nbrSsum;
+        public PotentialCalculationCSsum(double[] nbrCsum, double[] nbrSsum) {
+            this.nbrCsum = nbrCsum;
+            this.nbrSsum = nbrSsum;
+        }
         public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
             IAtomOriented iatom = (IAtomOriented) atoms.getAtom(0);
             IAtomOriented jatom = (IAtomOriented) atoms.getAtom(1);
@@ -252,7 +229,7 @@ public class MeterEnergyMeanField implements IDataSource {
         }
     }
 
-    public class PotentialCalculationCvij implements PotentialCalculation {
+    private class PotentialCalculationCvij implements PotentialCalculation {
         public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
             IAtomOriented atom0 = (IAtomOriented) atoms.getAtom(0);
             IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(1);
@@ -267,10 +244,10 @@ public class MeterEnergyMeanField implements IDataSource {
             double costi = io.getX(0);
             double sinti = io.getX(1);
 
-            double dEtajdThetai = 0.25 * (-sinti * nbrCsum[j] + costi * nbrSsum[j]) / eta[j];
-            double dt0jdThetai = 0.25 * (costi * nbrCsum[j] + sinti * nbrSsum[j])/ (eta[j] * eta[j]);
+            double bdEtajdThetai = 0.25 * beta * J2 * (-sinti * nbrCsum[j] + costi * nbrSsum[j]) / eta[j];
+            double dtheta0jdthetai = 0.25 * J2 * (costi * nbrCsum[j] + sinti * nbrSsum[j])/ (eta[j] * eta[j]);
 
-            return bThetadot[i] * (dJdtheta0[j] * dt0jdThetai + dJdeta[j] * dEtajdThetai);
+            return bThetadot[i] * (bdJdtheta0[j] * dtheta0jdthetai + dJdeta[j] * bdEtajdThetai);
         }
     }
 
