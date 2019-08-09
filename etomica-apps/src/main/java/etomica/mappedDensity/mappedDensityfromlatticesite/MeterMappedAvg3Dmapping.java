@@ -169,10 +169,8 @@ this.crossprodrandri=box.getSpace().makeVector();this.temporary=box.getSpace().m
                         double q = Math.pow(2 * Math.PI * arraymsd[mm] / 3, 1.5);
                         int nmax = 5;
                         Singlet3Dmapping singlet3Dmapping = new Singlet3Dmapping();
-// THETA AND PHI IS ALWAYS 0 - CORRECT IT
-//point where density is measured from lattice site
                     //    System.out.println(j + k + "r" + r + "theta" + theta + "phi" + phi + " " + "ri" + ri + "thetai" + thetai + "phii" + phii);
-
+//point where dens measured from lat site
                         rvector.setX(0, r * Math.sin(theta) * Math.cos(phi));
                         rvector.setX(1, r * Math.sin(theta) * Math.sin(phi));
                         rvector.setX(2, r * Math.cos(theta));
@@ -192,30 +190,34 @@ this.crossprodrandri=box.getSpace().makeVector();this.temporary=box.getSpace().m
                         crossprodrandri.normalize();
 //WANT EACH ROW AS THE AXIS OF 3 ORTHOGONAL VECTORS
                         double[][] array = new double[3][3];
-                        rvector.assignTo(array[0]);
-                        perpendtorvectorinriplane.assignTo(array[1]);
-                        crossprodrandri.assignTo(array[2]);
-                        Matrix a = new Matrix(array); //REMOVE TRANSPOSE FAST --------------------
-                    //    System.out.println("array[0][0]"+array[0][0]+"array[0][1]"+array[0][1]+"array[0][2]"+array[0][2]+" "+a.get(0,0)+" "+a.get(0,1)+" "+a.get(0,2)+" "+a.get(2,0) );
+                        rvector.assignTo(array[2]);
+                        perpendtorvectorinriplane.assignTo(array[0]);
+                        crossprodrandri.assignTo(array[1]);
+                        Matrix a = new Matrix(array).transpose();
+                               a= a.inverse();
+//ri in xz plane
+                        //    System.out.println("array[0][0]"+array[0][0]+"array[0][1]"+array[0][1]+"array[0][2]"+array[0][2]+" "+a.get(0,0)+" "+a.get(0,1)+" "+a.get(0,2)+" "+a.get(2,0) );
                     //    System.out.println("array[1][0]"+array[1][0]+"array[1][1]"+array[1][1]+"array[1][2]"+array[1][2]+" "+a.get(1,0)+" "+a.get(1,1)+" "+a.get(1,2)+" "+a.get(2,1) );
                    //     System.out.println("array[2][0]" + array[2][0] + "array[2][1]" + array[2][1] + "array[2][2]" + array[2][2] + " " + a.get(2, 0) + " " + a.get(2, 1) + " " + a.get(2, 2) + " " + a.get(1, 2));
 
                         rivectortransformed.setX(0, a.get(0, 0) * rivector.getX(0) + a.get(0, 1) * rivector.getX(1) + a.get(0, 2) * rivector.getX(2));
                         rivectortransformed.setX(1, a.get(1, 0) * rivector.getX(0) + a.get(1, 1) * rivector.getX(1) + a.get(1, 2) * rivector.getX(2));
                         rivectortransformed.setX(2, a.get(2, 0) * rivector.getX(0) + a.get(2, 1) * rivector.getX(1) + a.get(2, 2) * rivector.getX(2));
-                        box.getBoundary().nearestImage(rivectortransformed);
-
+                     //   box.getBoundary().nearestImage(rivectortransformed);
+                        rvector.TE(r);
                         rvectortransformed.setX(0, a.get(0, 0) * rvector.getX(0) + a.get(0, 1) * rvector.getX(1) + a.get(0, 2) * rvector.getX(2));
                         rvectortransformed.setX(1, a.get(1, 0) * rvector.getX(0) + a.get(1, 1) * rvector.getX(1) + a.get(1, 2) * rvector.getX(2));
                         rvectortransformed.setX(2, a.get(2, 0) * rvector.getX(0) + a.get(2, 1) * rvector.getX(1) + a.get(2, 2) * rvector.getX(2));
-                        box.getBoundary().nearestImage(rvectortransformed);
+                     //   box.getBoundary().nearestImage(rvectortransformed);
+    //    System.out.println(rivectortransformed.getX(0)+" "+rivectortransformed.getX(1)+" "+rivectortransformed.getX(2));
 
                         double ritransformed = Math.sqrt((rivectortransformed.getX(0)) * (rivectortransformed.getX(0)) + (rivectortransformed.getX(1)) * (rivectortransformed.getX(1)) + (rivectortransformed.getX(2)) * (rivectortransformed.getX(2)));
                         double rtransformed = Math.sqrt((rvectortransformed.getX(0)) * (rvectortransformed.getX(0)) + (rvectortransformed.getX(1)) * (rvectortransformed.getX(1)) + (rvectortransformed.getX(2)) * (rvectortransformed.getX(2)));
-                        double titransformed = Math.atan(Math.sqrt((rivectortransformed.getX(0)) * (rivectortransformed.getX(0)) + (rivectortransformed.getX(1)) * (rivectortransformed.getX(1))) / rivectortransformed.getX(2));
-                        double phiitransformed = Math.atan(rivectortransformed.getX(1) / rivectortransformed.getX(0));
+                        double titransformed = Math.acos(rivectortransformed.getX(2) / ritransformed);
+                         double phiitransformed = Math.atan2(rivectortransformed.getX(1) , rivectortransformed.getX(0));
+                        if (phiitransformed < 0) { phiitransformed = phiitransformed + 2 * Math.PI; }
 
-                        double[] mappingvelocitytransformed = singlet3Dmapping.xyzDot(nmax, ritransformed, titransformed, phiitransformed, rtransformed, Math.sqrt(arraymsd[mm] / 3.0));
+                        double[] mappingvelocitytransformed = singlet3Dmapping.xyzDot(nmax, ritransformed, titransformed, phiitransformed, rtransformed, (Math.sqrt(arraymsd[mm] / 3.0)));
 
                         fivectortransformed.setX(0, a.get(0, 0) * agentManager.getAgent(atom).getX(0) + a.get(0, 1) * agentManager.getAgent(atom).getX(1) + a.get(0, 2) * agentManager.getAgent(atom).getX(2));
                         fivectortransformed.setX(1, a.get(1, 0) * agentManager.getAgent(atom).getX(0) + a.get(1, 1) * agentManager.getAgent(atom).getX(1) + a.get(1, 2) * agentManager.getAgent(atom).getX(2));
@@ -228,7 +230,9 @@ double dpridzitransformed=a.get(2, 0) *dpridxi + a.get(2, 1) *dpridyi + a.get(2,
 
 double mappingveldotgradientpri=mappingvelocitytransformed[0]*dpridxitransformed+mappingvelocitytransformed[1]*dpridyitransformed+mappingvelocitytransformed[2]*dpridzitransformed;
          ytemporary[i][j][k] = ytemporary[i][j][k] +  (pr / q) - fidotmapvelocity+(temperature*mappingveldotgradientpri/pri) ;
-  //   System.out.println((pr / q)+" "+fidotmapvelocity+" "+(temperature*mappingveldotgradientpri/pri) );
+//  System.out.println(ritransformed+" "+ri+" "+rtransformed+" "+r+" "+phiitransformed);
+  //   System.out.println(titransformed+" "+Math.acos(rivector.getX(2) / ri)+" "+theta+" "+Math.acos(rvectortransformed.getX(2) / rtransformed)  );
+
                     }
                 }
             }

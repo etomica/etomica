@@ -88,9 +88,7 @@ public class Singlet3Dmapping {
         // riDot here is already times ri^2 sin(theta)
         double xyDot = riDot / (ri*ri) + thetaiDot * costi / sinti;
         double zDot =  riDot * costi / (ri*ri*sinti) - thetaiDot;
-
         return new double[] { xyDot * Math.cos(phii), xyDot * Math.sin(phii), zDot};
-
     }
 
     /**

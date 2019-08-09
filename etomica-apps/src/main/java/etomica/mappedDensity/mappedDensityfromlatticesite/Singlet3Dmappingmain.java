@@ -425,8 +425,8 @@ public class Singlet3Dmappingmain extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numAtoms = 500;
-         public int rnumberofbins = 10;
-        public int thetaphinumberofbins=6;
+         public int rnumberofbins = 20;
+        public int thetaphinumberofbins=1;
         public double density = 1.29;
         public long numSteps = 100000;
         public double temperature = 2.11;
