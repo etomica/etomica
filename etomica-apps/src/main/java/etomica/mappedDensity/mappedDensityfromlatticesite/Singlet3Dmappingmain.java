@@ -330,7 +330,7 @@ public class Singlet3Dmappingmain extends Simulation {
  //       MeterConventional3D meterConventional3D = new MeterConventional3D(arraymsd,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.coordinateDefinition);
         MeterConventional3D meterConventional3D = new MeterConventional3D(arraymsdnew,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.coordinateDefinition);
         long steps = params.numSteps;
-        int blocks = 100;
+        int blocks = 10;
         long blockSize = steps / (interval * blocks);
         meterConventional3D.reset();
         AccumulatorAverageFixed accCon = new AccumulatorAverageFixed(blockSize);
@@ -356,7 +356,7 @@ public class Singlet3Dmappingmain extends Simulation {
         sim.getIntegrator().getEventManager().addListener(pumppe);
 
 
-        int numBlocks = 100;
+        int numBlocks = 10;
          int intervalLS = 5*interval;
          if (blockSize == 0) blockSize = 1;
         long blockSizeLS = numSteps/(numBlocks*intervalLS);
@@ -425,10 +425,10 @@ public class Singlet3Dmappingmain extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numAtoms = 500;
-         public int rnumberofbins = 50;
-        public int thetaphinumberofbins=1;
+         public int rnumberofbins = 10;
+        public int thetaphinumberofbins=6;
         public double density = 1.29;
-        public long numSteps = 250000;
+        public long numSteps = 100000;
         public double temperature = 2.11;
         public double msddependence=2.0;
         public double rc = 3;
