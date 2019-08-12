@@ -45,7 +45,7 @@ import java.awt.*;
 import java.util.Arrays;
 
 
-public class Singlet3Dmappingmain extends Simulation {
+public class SimSinglet3Dmapping extends Simulation {
 
     public final CoordinateDefinitionLeaf coordinateDefinition;
     public IntegratorMC integrator;
@@ -59,7 +59,8 @@ public class Singlet3Dmappingmain extends Simulation {
     public PotentialMasterList potentialMaster;
     public Potential2SoftSpherical potential;
     public SpeciesSpheresMono species;
-    public Singlet3Dmappingmain(Space _space, int numAtoms, double density, double temperature, double rc, boolean ss, int[] seeds) {
+
+    public SimSinglet3Dmapping(Space _space, int numAtoms, double density, double temperature, double rc, boolean ss, int[] seeds) {
         super(_space);
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
@@ -159,7 +160,7 @@ public class Singlet3Dmappingmain extends Simulation {
         System.out.println(numSteps+" steps");
 
         //instantiate simulation
-        final Singlet3Dmappingmain sim = new Singlet3Dmappingmain(Space.getInstance(3), numAtoms, density, temperature, rc*Math.pow(density, -1.0/3.0), ss, seeds);
+        final SimSinglet3Dmapping sim = new SimSinglet3Dmapping(Space.getInstance(3), numAtoms, density, temperature, rc * Math.pow(density, -1.0 / 3.0), ss, seeds);
         if (seeds == null) {
             seeds = ((RandomMersenneTwister)sim.getRandom()).getSeedArray();
         }
