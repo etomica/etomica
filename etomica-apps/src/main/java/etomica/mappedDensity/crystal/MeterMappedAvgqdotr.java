@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.mappedDensity.mappedDensityfromlatticesite;
+package etomica.mappedDensity.crystal;
 
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
@@ -23,7 +23,7 @@ import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
 
-public class MeterMappedAvg implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
+public class MeterMappedAvgqdotr implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
     protected final PotentialMaster potentialMaster;
     protected final IteratorDirective id;
@@ -50,7 +50,7 @@ protected CoordinateDefinition latticesite;
     protected Behavior behavior;
     protected double zidotz;
     protected double msd;
-
+    protected double[] qvector;
     public enum Behavior {
         NORMAL, P, ZIDOT, DZIDOT
     }
@@ -58,10 +58,12 @@ protected CoordinateDefinition latticesite;
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
-    public MeterMappedAvg(double msd,Box box, PotentialMaster potentialMaster, double temperature, FunctionDifferentiable c, CoordinateDefinition latticesite) {
+    public MeterMappedAvgqdotr(double[] qvector,double msd, Box box, PotentialMaster potentialMaster, double temperature, FunctionDifferentiable c, CoordinateDefinition latticesite) {
         this.box = box;
         this.temperature = temperature;
         this.c = c;
+        this.qvector = qvector;
+
         this.msd = msd;
         this.Rmax = Math.sqrt(msd)*6;
 this.latticesite=latticesite;

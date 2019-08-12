@@ -2,29 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.mappedDensity.mappedDensityfromlatticesite;
+package etomica.mappedDensity.crystal;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountSteps;
 import etomica.data.IData;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataFunction;
-import etomica.data.types.DataGroup;
-import etomica.graphics.ColorScheme;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
-import etomica.math.SpecialFunctions;
 import etomica.math.function.FunctionDifferentiable;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.BasisBigCell;
@@ -41,11 +33,10 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
 
-import java.awt.*;
 import java.util.Arrays;
 
 
-public class Densityqdotrfromlattice extends Simulation {
+public class DebyeWallerFactor extends Simulation {
 
     public final CoordinateDefinitionLeaf coordinateDefinition;
     public IntegratorMC integrator;
@@ -59,7 +50,7 @@ public class Densityqdotrfromlattice extends Simulation {
     public PotentialMasterList potentialMaster;
     public Potential2SoftSpherical potential;
     public SpeciesSpheresMono species;
-    public Densityqdotrfromlattice(Space _space, int numAtoms, double density, double temperature, double rc, boolean ss, int[] seeds) {
+    public DebyeWallerFactor(Space _space, int numAtoms, double density, double temperature, double rc, boolean ss, int[] seeds) {
         super(_space);
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
@@ -83,7 +74,6 @@ public class Densityqdotrfromlattice extends Simulation {
         atomMove.setStepSizeMax(0.5);
         atomMove.setDoExcludeNonNeighbors(true);
         integrator.getMoveManager().addMCMove(atomMove);
-//        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
 
         primitive = new PrimitiveCubic(space, n * L);
 
@@ -99,14 +89,11 @@ public class Densityqdotrfromlattice extends Simulation {
         atomMove.setPotential(potential);
         AtomType sphereType = species.getLeafType();
         potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
-
         potentialMaster.lrcMaster().setEnabled(false);
-
         int cellRange = 2;
         potentialMaster.setRange(rc);
         potentialMaster.setCellRange(cellRange); // NeighborCellManager handles this even if cells are a bit small
-        // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-        potentialMaster.getNeighborManager(box).reset();
+         potentialMaster.getNeighborManager(box).reset();
         int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
         if (potentialCells < cellRange * 2 + 1) {
             throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
@@ -149,81 +136,53 @@ public class Densityqdotrfromlattice extends Simulation {
         double rcMax0 = params.rcMax0;
         double rcMax1 = params.rcMax1;
         if (rcMax1 > rcMax0) rcMax1 = rcMax0;
-//        double[] bpharm = params.bpharm;
-        double[] bpharmLJ = params.bpharmLJ;
-        int[] seeds = params.randomSeeds;
+         int[] seeds = params.randomSeeds;
 
         System.out.println(numAtoms+" atoms at density "+density+" and temperature "+temperature);
         System.out.println(numSteps+" steps");
+        System.out.println(params.qvector[0]+" "+params.qvector[1]+" "+params.qvector[2]);
 
-        if(params.temperature==0.1 && params.density==1) {params.msd=0.00444872;}
-        if(params.temperature==0.2 && params.density==1) {params.msd= 0.00882799;}
-        if(params.temperature==0.3 && params.density==1) {params.msd=0.0124214 ;}
-        if(params.temperature==0.4 && params.density==1) {params.msd=0.0176487 ;}
-        if(params.temperature==0.5 && params.density==1) {params.msd= 0.0206668;}
-        if(params.temperature==0.6 && params.density==1) {params.msd= 0.0246517;}
-        if(params.temperature==0.7 && params.density==1) {params.msd= 0.0298408;}
-        if(params.temperature==0.8 && params.density==1) {params.msd= 0.0337209;}
-        if(params.temperature==0.9 && params.density==1) {params.msd= 0.0371567;}
-        if(params.temperature==1.0 && params.density==1) {params.msd= 0.0413929;}
-        if(params.temperature==0.55555556 && params.density==1.29) {params.msd=0.00551846 ;}
-        if(params.temperature==1.11111111 && params.density==1.29) {params.msd=0.011446 ;}
-        if(params.temperature==1.66666667 && params.density==1.29) {params.msd=0.0168222 ;}
-        if(params.temperature==2.22222222 && params.density==1.29) {params.msd=0.0225697 ;}
-        if(params.temperature==2.77777778 && params.density==1.29) {params.msd=0.0277941 ;}
-        if(params.temperature==3.33333333 && params.density==1.29) {params.msd=0.0346079 ;}
+    if(params.temperature==0.1 && params.density==1) {params.msd=0.00209;}
+    if(params.temperature==1.0 && params.density==1) {params.msd=0.02087467244330456;}
+    if(params.temperature==1.0 && params.density==1.29) {params.msd=0.0048534350128924325;}
+    if(params.temperature==1.0 && params.density==2.23) {params.msd=3.148736764595765E-4;}
+    if(params.temperature==1.0 && params.density==3.16) {params.msd=5.9164815687942386E-5;}
+    if(params.temperature==1.0 && params.density==4) {params.msd=1.9425724904833156E-5;}
+
+
+
+
+        //    if(params.temperature==0.2 && params.density==1) {params.msd= 0.00882799;}
+    //    if(params.temperature==0.3 && params.density==1) {params.msd=0.0124214 ;}
+    //    if(params.temperature==0.4 && params.density==1) {params.msd=0.0176487 ;}
+    //    if(params.temperature==0.5 && params.density==1) {params.msd= 0.0206668;}
+   //     if(params.temperature==0.6 && params.density==1) {params.msd= 0.0246517;}
+   //     if(params.temperature==0.7 && params.density==1) {params.msd= 0.0298408;}
+   //     if(params.temperature==0.8 && params.density==1) {params.msd= 0.0337209;}
+   //     if(params.temperature==0.9 && params.density==1) {params.msd= 0.0371567;}
+   //     if(params.temperature==1.0 && params.density==1) {params.msd= 0.0413929;}
+   //     if(params.temperature==0.55555556 && params.density==1.29) {params.msd=0.00551846 ;}
+   //     if(params.temperature==1.11111111 && params.density==1.29) {params.msd=0.011446 ;}
+   //     if(params.temperature==1.66666667 && params.density==1.29) {params.msd=0.0168222 ;}
+   //     if(params.temperature==2.22222222 && params.density==1.29) {params.msd=0.0225697 ;}
+   //     if(params.temperature==2.77777778 && params.density==1.29) {params.msd=0.0277941 ;}
+   //     if(params.temperature==3.33333333 && params.density==1.29) {params.msd=0.0346079 ;}
   //      if(params.temperature==3.88888889 && params.density==1.29) {params.msd=0.0391218 ;}
-          if(params.temperature==3.88888889 && params.density==1.29) {params.msd=0.019958926856778678 ;}
-
-        if(params.temperature==4.22222222 && params.density==1.29) {params.msd=0.0434448 ;}
-        if(params.temperature==1.0 && params.density==3.16) {params.msd= 0.00012008;}
-        if(params.temperature==1.0 && params.density==2.23) {params.msd= 0.000636781;}
-        if(params.temperature==1.0 && params.density==1.58) {params.msd= 0.0034778;}
-        if(params.temperature==1.0 && params.density==1.29) {params.msd= 0.00988742;}
-
+    //      if(params.temperature==3.88888889 && params.density==1.29) {params.msd=0.019958926856778678 ;}
+    //    if(params.temperature==4.22222222 && params.density==1.29) {params.msd=0.0434448 ;}
+    //    if(params.temperature==1.0 && params.density==3.16) {params.msd= 0.00012008;}
+    //    if(params.temperature==1.0 && params.density==2.23) {params.msd= 0.000636781;}
+    //    if(params.temperature==1.0 && params.density==1.58) {params.msd= 0.0034778;}
+    //    if(params.temperature==1.0 && params.density==1.29) {params.msd= 0.00988742;}
 
         System.out.println(params.msd+" =msd here");
 
         //instantiate simulation
-        final Densityqdotrfromlattice sim = new Densityqdotrfromlattice(Space.getInstance(3), numAtoms, density, temperature, rc*Math.pow(density, -1.0/3.0), ss, seeds);
+        final DebyeWallerFactor sim = new DebyeWallerFactor(Space.getInstance(3), numAtoms, density, temperature, rc*Math.pow(density, -1.0/3.0), ss, seeds);
         if (seeds == null) {
             seeds = ((RandomMersenneTwister)sim.getRandom()).getSeedArray();
         }
         System.out.println("Random seeds: "+Arrays.toString(seeds));
-        if (false) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            simGraphic.setPaintInterval(sim.box, 1000);
-            ColorScheme colorScheme = new ColorScheme() {
-                protected Color[] allColors;
-
-                public Color getAtomColor(IAtom a) {
-                    if (allColors==null) {
-                        allColors = new Color[768];
-                        for (int i=0; i<256; i++) {
-                            allColors[i] = new Color(255-i,i,0);
-                        }
-                        for (int i=0; i<256; i++) {
-                            allColors[i+256] = new Color(0,255-i,i);
-                        }
-                        for (int i=0; i<256; i++) {
-                            allColors[i+512] = new Color(i,0,255-i);
-                        }
-                    }
-                    return allColors[(2*a.getLeafIndex()) % 768];
-                }
-            };
-            simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
-
-            DisplayTextBox timer = new DisplayTextBox();
-            DataSourceCountSteps counter = new DataSourceCountSteps(sim.integrator);
-            DataPumpListener counterPump = new DataPumpListener(counter, timer, 100);
-            sim.integrator.getEventManager().addListener(counterPump);
-            simGraphic.getPanel().controlPanel.add(timer.graphic());
-
-            simGraphic.makeAndDisplayFrame((ss?"SS":"LJ")+" FCC");
-
-            return;
-        }
 
         //start simulation
 
@@ -251,8 +210,7 @@ public class Densityqdotrfromlattice extends Simulation {
         PotentialMasterList potentialMasterData;
         Potential2SoftSpherical potential = ss ? new P2SoftSphere(sim.getSpace(), 1.0, 4.0, 12) : new P2LennardJones(sim.getSpace(), 1.0, 1.0);
         {
-            // |potential| is our local potential used for data collection.
-            potentialMasterData = new PotentialMasterList(sim, cutoffs[nCutoffs-1], sim.getSpace());
+             potentialMasterData = new PotentialMasterList(sim, cutoffs[nCutoffs-1], sim.getSpace());
             P2SoftSphericalTruncated potentialT = new P2SoftSphericalTruncated(sim.getSpace(), potential, cutoffs[nCutoffs-1]-0.01);
             AtomType sphereType = sim.species.getLeafType();
             potentialMasterData.addPotential(potentialT, new AtomType[]{sphereType, sphereType});
@@ -271,36 +229,6 @@ public class Densityqdotrfromlattice extends Simulation {
             // atoms that move in will not interact since they won't be neighbors
             potentialT.setTruncationRadius(0.6*sim.box.getBoundary().getBoxSize().getX(0));
         }
-
-        PotentialMasterList potentialMasterDataLJ = null;
-        P2LennardJones p2LJ = null;
-        Potential2SoftSpherical potentialLJ = null;
-        if (ss) {
-            // |potential| is our local potential used for data collection.
-            potentialMasterDataLJ = new PotentialMasterList(sim, cutoffs[nCutoffs-1], sim.getSpace());
-            p2LJ = new P2LennardJones(sim.getSpace());
-
-            potentialLJ = new P2SoftSphericalTruncated(sim.getSpace(), p2LJ, cutoffs[nCutoffs-1]-0.01);
-            AtomType sphereType = sim.species.getLeafType();
-            potentialMasterDataLJ.addPotential(potentialLJ, new AtomType[]{sphereType, sphereType});
-            potentialMasterDataLJ.lrcMaster().setEnabled(false);
-
-            int cellRange = 2;
-            potentialMasterDataLJ.setCellRange(cellRange);
-            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            potentialMasterDataLJ.getNeighborManager(sim.box).reset();
-            int potentialCells = potentialMasterDataLJ.getNbrCellManager(sim.box).getLattice().getSize()[0];
-            if (potentialCells < cellRange*2+1) {
-                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-            }
-
-            // extend potential range, so that atoms that move outside the truncation range will still interact
-            // atoms that move in will not interact since they won't be neighbors
-            ((P2SoftSphericalTruncated)potentialLJ).setTruncationRadius(0.6*sim.box.getBoundary().getBoxSize().getX(0));
-        }
-
-        // meter needs lattice energy, so make it now
-
 
         double rcMaxLS = 3*0.494*L;
         if (rcMaxLS>rcMax0) rcMaxLS = rcMax0;
@@ -333,28 +261,33 @@ public class Densityqdotrfromlattice extends Simulation {
             sim.initialize(nSteps);
         }
 
-        MeterConventionalqdotr meterConventionalqdotr = new MeterConventionalqdotr(params.qvector,params.msd,sim.box, sim.coordinateDefinition);
+        MeterConventionalDebyeWaller meterConventionalDebyeWaller = new MeterConventionalDebyeWaller(params.numAtoms,params.qvector,params.msd,sim.box, sim.coordinateDefinition);
         long steps = params.numSteps;
         int interval = 5* params.numAtoms;
         int blocks = 100;
         long blockSize = steps / (interval * blocks);
-        meterConventionalqdotr.getXDataSource().setNValues(params.bins);  //con bins=1000
-        meterConventionalqdotr.reset();
-        AccumulatorAverageFixed accConqdotr = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener pumpConqdotr = new DataPumpListener(meterConventionalqdotr, accConqdotr, interval);
-        sim.getIntegrator().getEventManager().addListener(pumpConqdotr);
+        meterConventionalDebyeWaller.getXDataSource().setNValues(params.bins);  //con bins=1000
+        meterConventionalDebyeWaller.reset();
+        AccumulatorAverageFixed accConDebyeWaller = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener pumpConDebyeWaller = new DataPumpListener(meterConventionalDebyeWaller, accConDebyeWaller, interval);
+        sim.getIntegrator().getEventManager().addListener(pumpConDebyeWaller);
 
-//do for mapped
-        FunctionDifferentiable f;
+         FunctionDifferentiable f;
        f = new Function(params.msd);
-   //     f = new FunctionUniform(params.msd);
 
-        MeterMappedAvgqdotr meterMappedAvgqdotr = new MeterMappedAvgqdotr(params.qvector,params.msd,sim.box(), sim.potentialMaster, params.temperature, f, sim.coordinateDefinition);
-        meterMappedAvgqdotr.getXDataSource().setNValues(params.bins);  //map bins=1000
-        meterMappedAvgqdotr.reset();
-        AccumulatorAverageFixed accMappedAvgqdotr = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener pumpMappedAvgqdotr = new DataPumpListener(meterMappedAvgqdotr, accMappedAvgqdotr, interval);
-        sim.getIntegrator().getEventManager().addListener(pumpMappedAvgqdotr);
+        MeterMappedAvgDebyeWallerr meterMappedAvgDebyeWallerr = new MeterMappedAvgDebyeWallerr(params.numAtoms,params.qvector,params.msd,sim.box(), sim.potentialMaster, params.temperature, f, sim.coordinateDefinition);
+        meterMappedAvgDebyeWallerr.getXDataSource().setNValues(params.bins);  //map bins=1000
+        meterMappedAvgDebyeWallerr.reset();
+        AccumulatorAverageFixed accMappedAvgDebyeWallerr = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener pumpMappedAvgDebyeWallerr = new DataPumpListener(meterMappedAvgDebyeWallerr, accMappedAvgDebyeWallerr, interval);
+        sim.getIntegrator().getEventManager().addListener(pumpMappedAvgDebyeWallerr);
+
+        MeterMappedAvgDebyeWallerxyz meterMappedAvgDebyeWallerxyz = new MeterMappedAvgDebyeWallerxyz(params.numAtoms,params.qvector,params.msd,sim.box(), sim.potentialMaster, params.temperature, f, sim.coordinateDefinition);
+        meterMappedAvgDebyeWallerxyz.getXDataSource().setNValues(params.bins);  //map bins=1000
+        meterMappedAvgDebyeWallerxyz.reset();
+        AccumulatorAverageFixed accMappedAvgDebyeWallerxyz = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener pumpMappedAvgDebyeWallerxyz = new DataPumpListener(meterMappedAvgDebyeWallerxyz, accMappedAvgDebyeWallerxyz, interval);
+        sim.getIntegrator().getEventManager().addListener(pumpMappedAvgDebyeWallerxyz);
 
         int numBlocks = 100;
          int intervalLS = 5*interval;
@@ -378,7 +311,6 @@ public class Densityqdotrfromlattice extends Simulation {
         if (numSteps != numBlocks*intervalLS*blockSizeLS || numSteps != numBlocks*interval*blockSize) {
             throw new RuntimeException("unable to find appropriate intervals");
         }
- //       System.out.println("block size "+blockSize+" interval "+interval);
 
         final long startTime = System.currentTimeMillis();
 
@@ -387,21 +319,20 @@ public class Densityqdotrfromlattice extends Simulation {
         sim.getController().actionPerformed();
         long endTime = System.currentTimeMillis();
 
-        IData data =  accConqdotr.getData(accConqdotr.AVERAGE);
-        IData dataunc =  accConqdotr.getData(accConqdotr.ERROR);
-        IData dataMappedAvg =  accMappedAvgqdotr.getData(accMappedAvgqdotr.AVERAGE);
-        IData dataMappedAvgunc =  accMappedAvgqdotr.getData(accMappedAvgqdotr.ERROR);
+        IData data =  accConDebyeWaller.getData(accConDebyeWaller.AVERAGE);
+        IData dataunc =  accConDebyeWaller.getData(accConDebyeWaller.ERROR);
+        IData dataMappedAvgr =  accMappedAvgDebyeWallerr.getData(accMappedAvgDebyeWallerr.AVERAGE);
+        IData dataMappedAvguncr =  accMappedAvgDebyeWallerr.getData(accMappedAvgDebyeWallerr.ERROR);
+        IData dataMappedAvgxyz =  accMappedAvgDebyeWallerxyz.getData(accMappedAvgDebyeWallerxyz.AVERAGE);
+        IData dataMappedAvguncxyz =  accMappedAvgDebyeWallerxyz.getData(accMappedAvgDebyeWallerxyz.ERROR);
 
-        IData rdata= ((DataFunction.DataInfoFunction)((DataGroup.DataInfoGroup)accConqdotr.getDataInfo()).getSubDataInfo(0)).getXDataSource().getIndependentData(0);
-        for (int i=0;i<rdata.getLength();i++){
-            System.out.println(rdata.getValue(i)+" "+data.getValue(i)+" "+dataunc.getValue(i)+" "+dataMappedAvg.getValue(i)+" "+dataMappedAvgunc.getValue(i));
-        }
+        System.out.println(data.getValue(0)+" "+dataunc.getValue(0)+" "+dataMappedAvgr.getValue(0)+" "+dataMappedAvguncr.getValue(0));
 
+        System.out.println(Math.exp(-data.getValue(0))+" "+dataunc.getValue(0)*Math.exp(-data.getValue(0))+" "+Math.exp(-dataMappedAvgr.getValue(0))+" "+dataMappedAvguncr.getValue(0)*Math.exp(-dataMappedAvgr.getValue(0)));
     }
 
     public void initialize(long initSteps) {
-        // equilibrate off the lattice to avoid anomalous contributions
-        activityIntegrate.setMaxSteps(initSteps);
+         activityIntegrate.setMaxSteps(initSteps);
         getController().actionPerformed();
         getController().reset();
         integrator.getMoveManager().setEquilibrating(false);
@@ -414,16 +345,18 @@ public class Densityqdotrfromlattice extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numAtoms = 500;
-        public double msd = 0.00205;
+        public double msd = 0.0209;
         public int bins = 1;
         public double density = 1;
-        public double[] qvector ={30, 30, 30};
-        public long numSteps = 250000;
+    //    public double[] qvector ={60, 30, -30};
+        public double[] qvector ={100000, 100000, 100000};
+
+        public long numSteps = 500000;
         public double temperature = 0.1;
-        public double rc = 3;
+        public double rc = 2.5;
         public double rc0 = rc;
-        public double rcMax1 = 3;
-        public double rcMax0 = 3;
+        public double rcMax1 = 2.5;
+        public double rcMax0 = 2.5;
         public double[] bpharm = new double[0];
         public double[] bpharmLJ = new double[0];
         public boolean ss = false;

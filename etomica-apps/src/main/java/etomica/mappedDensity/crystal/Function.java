@@ -1,8 +1,7 @@
-package etomica.mappedDensity.mappedDensityfromlatticesite;
+package etomica.mappedDensity.crystal;
 
 import etomica.math.SpecialFunctions;
 import etomica.math.function.FunctionDifferentiable;
-import org.apache.commons.math3.special.Erf;
 
 public class Function implements FunctionDifferentiable  {
 

@@ -2,13 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.mappedDensity.mappedDensityfromlatticesite;
+package etomica.mappedDensity.crystal;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.data.*;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataPumpListener;
+import etomica.data.DataSourceCountSteps;
+import etomica.data.IData;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
@@ -20,11 +23,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.liquidLJ.DataProcessorReweight;
-import etomica.liquidLJ.DataProcessorReweightRatio;
 import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
-import etomica.liquidLJ.ValueCache;
-import etomica.mappedDensity.FunctionPhilnparabolicpfouriersum;
 import etomica.math.SpecialFunctions;
 import etomica.math.function.FunctionDifferentiable;
 import etomica.nbr.list.PotentialMasterList;
@@ -41,7 +40,6 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
-import org.apache.commons.math3.special.Erf;
 
 import java.awt.*;
 import java.util.Arrays;

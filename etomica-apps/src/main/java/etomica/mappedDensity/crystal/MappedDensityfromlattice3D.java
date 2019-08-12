@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.mappedDensity.mappedDensityfromlatticesite;
+package etomica.mappedDensity.crystal;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
@@ -26,9 +26,11 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.liquidLJ.Potential2SoftSphericalLSMultiLat;
-import etomica.math.function.FunctionDifferentiable;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.normalmode.*;
+import etomica.normalmode.BasisBigCell;
+import etomica.normalmode.CoordinateDefinitionLeaf;
+import etomica.normalmode.MCMoveAtomCoupled;
+import etomica.normalmode.MeterSolidDACut;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;

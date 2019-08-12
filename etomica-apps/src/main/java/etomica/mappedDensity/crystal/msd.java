@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.mappedDensity.mappedDensityfromlatticesite;
+package etomica.mappedDensity.crystal;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -14,24 +14,22 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
 
-public class MeterConventional3D implements IDataSource, DataSourceIndependent {
+public class msd implements IDataSource, DataSourceIndependent {
 
 
     protected final Box box;
-    protected DataSourceUniform xDataSourcer;
     protected DataSourceUniform xDataSourcetheta;
     protected DataSourceUniform xDataSourcephi;
-
     protected DataFunction data;
     protected IDataInfo dataInfo;
-    protected double Rmax;
     protected Vector rivector;
-     protected int rnumberofbins;
     protected int thetaphinumberofbins;
+    protected double ytemporary[][];
+    protected int num[][];
+
     /**
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.
@@ -45,20 +43,14 @@ public class MeterConventional3D implements IDataSource, DataSourceIndependent {
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
-    public MeterConventional3D(double [] arraymsd,int rnumberofbins,int thetaphinumberofbins, Box box, CoordinateDefinition latticesite) {
+    public msd(int thetaphinumberofbins,  Box box, CoordinateDefinition latticesite) {
         this.box = box;
-         this.rnumberofbins = rnumberofbins;
         this.thetaphinumberofbins = thetaphinumberofbins;
-        this.Rmax = Math.sqrt(arraymsd[0])*4;
         this.latticesite = latticesite;
         this.rivector = box.getSpace().makeVector();
-        xDataSourcer = new DataSourceUniform("r", Length.DIMENSION);
         tag = new DataTag();
-        xDataSourcer.setTypeMax(LimitType.HALF_STEP);
-        xDataSourcer.setTypeMin(LimitType.HALF_STEP);
-        xDataSourcer.setXMin(0);
-        xDataSourcer.setXMax(Rmax);
-
+        ytemporary=new double[thetaphinumberofbins][thetaphinumberofbins];
+        num=new int[thetaphinumberofbins][thetaphinumberofbins];
 
         xDataSourcetheta = new DataSourceUniform("theta", Length.DIMENSION);
         xDataSourcetheta.setTypeMax(LimitType.HALF_STEP);
@@ -72,7 +64,6 @@ public class MeterConventional3D implements IDataSource, DataSourceIndependent {
         xDataSourcetheta.setXMax(Math.PI);
         xDataSourcephi.setXMin(0);
         xDataSourcephi.setXMax(2*Math.PI);
-        xDataSourcer.setNValues(rnumberofbins);
         xDataSourcetheta.setNValues(thetaphinumberofbins);
         xDataSourcephi.setNValues(thetaphinumberofbins);
     }
@@ -103,87 +94,70 @@ public class MeterConventional3D implements IDataSource, DataSourceIndependent {
     //      return ((pminusLby2*zidotminusLby2/pzi)+(pz*((heavisidei)-(czi/q))/(temperature*pzi)));
     //    return ((((heavisidei)-(zi/L))/(temperature)));
 
-
     /**
      * Returns the profile for the current configuration.
      */
     public IData getData() {
         data.E(0);
         double[] y = data.getData();
-        double [][][] ytemporary=new double[rnumberofbins][thetaphinumberofbins][thetaphinumberofbins];
 
-    //    for (int i = 0; i < rnumberofbins; i++) {
-    //        for (int j = 0; j < thetaphinumberofbins; j++) {
-    //            for (int k = 0; k < thetaphinumberofbins; k++) {
-    //                ytemporary[i][j][k]=0;
-    //            }
-    //        }
-    //    }
-            IAtomList atoms = box.getLeafList();
-        double dz = Rmax / xDataSourcer.getNValues();
-
+        IAtomList atoms = box.getLeafList();
+  //      FileWriter fw = null;
+  //  try {
+  //      fw = new FileWriter("foo.dat",true);
+  //  }
+  //  catch (IOException e) {throw new RuntimeException(e);}
          for (IAtom atom : atoms) {
             rivector.Ev1Mv2(atom.getPosition(), latticesite.getLatticePosition(atom));
             box.getBoundary().nearestImage(rivector);
-            double ri = Math.sqrt(rivector.squared());
-            double thetai= Math.acos(rivector.getX(2)/ri);
+             double r2i = rivector.squared();
+      //       try {fw.write(""+r2i+"\n");}catch (IOException ex){throw new RuntimeException(ex);}
+            double thetai= Math.acos(rivector.getX(2)/Math.sqrt(r2i));
              double phii=Math.atan2(rivector.getX(1),rivector.getX(0));
             if(phii<0){phii=phii+2*Math.PI;}
-            int i = (int) (ri/dz);
             int j = (int) (thetai*thetaphinumberofbins/Math.PI);
             int k = (int) (phii*thetaphinumberofbins/(2*Math.PI));
-            ytemporary[i][j][k]=ytemporary[i][j][k]+1;
-        }
+            ytemporary[j][k]=ytemporary[j][k]+r2i;
+            num[j][k]++;
+         }
+  //      try {
+  //          fw.close();
+  //      }
+  //      catch (IOException e) {throw new RuntimeException(e);}
 
         int n=0;
-        int numAtoms = box.getLeafList().size();
-     for (int i = 0; i < rnumberofbins; i++)   {
-            double Rbinstart=i*dz;
-         double Rbinend=(i+1)*dz;
 
          for (int j = 0; j < thetaphinumberofbins; j++) {
-             double thetabegin = j * Math.PI / thetaphinumberofbins;
-             double thetaend = (j + 1) * Math.PI / thetaphinumberofbins;
-
              for (int k = 0; k < thetaphinumberofbins; k++) {
-                 double phibegin = k * 2 * Math.PI / thetaphinumberofbins;
-                 double phiend = (k + 1) * 2 * Math.PI / thetaphinumberofbins;
-
-                 y[n] = ytemporary[i][j][k] / numAtoms / (((-phibegin + phiend) * (Math.cos(thetabegin) - Math.cos(thetaend))) * (Rbinend * Rbinend * Rbinend - Rbinstart * Rbinstart * Rbinstart) / 3);
+                 y[n] =ytemporary[j][k]/num[j][k];
                  n=n+1;
-
-                 //   System.out.println("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq "+q);
-             }
+              }
          }
 
-     }
          return data;
     }
 
     public DataDoubleArray getIndependentData(int i) {
-        if(i==0){return (DataDoubleArray) xDataSourcer.getData();}
-        if(i==1){return (DataDoubleArray) xDataSourcetheta.getData();}
-        if(i==2){return (DataDoubleArray) xDataSourcephi.getData();}
-        throw new RuntimeException();
+        if(i==0){return (DataDoubleArray) xDataSourcetheta.getData();}
+        if(i==1){return (DataDoubleArray) xDataSourcephi.getData();}
+         throw new RuntimeException();
     }
 
     public DataInfoDoubleArray getIndependentDataInfo(int i) {
 
-        if(i==0){return (DataInfoDoubleArray) xDataSourcer.getDataInfo();}
-        if(i==1){return (DataInfoDoubleArray) xDataSourcetheta.getDataInfo();}
-        if(i==2){return (DataInfoDoubleArray) xDataSourcephi.getDataInfo();}
+         if(i==0){return (DataInfoDoubleArray) xDataSourcetheta.getDataInfo();}
+        if(i==1){return (DataInfoDoubleArray) xDataSourcephi.getDataInfo();}
         throw new RuntimeException();
     }
 
     public int getIndependentArrayDimension() {
-        return 3;
+        return 2;
     }
 
     public DataTag getIndependentTag(int i) {
 
-        if(i==0){return xDataSourcer.getTag();}
-        if(i==1){return xDataSourcetheta.getTag();}
-        if(i==2){return xDataSourcephi.getTag();}
+         if(i==0){return xDataSourcetheta.getTag();}
+        if(i==1){return xDataSourcephi.getTag();}
         throw new RuntimeException();
 
 
@@ -200,24 +174,22 @@ public class MeterConventional3D implements IDataSource, DataSourceIndependent {
     public void reset() {
         if (box == null) return;
 
-        Boundary boundary = box.getBoundary();
-        xDataSourcer.setXMin(0);
-        xDataSourcer.setXMax(Rmax);
+         ytemporary=new double[thetaphinumberofbins][thetaphinumberofbins];
+        num=new int[thetaphinumberofbins][thetaphinumberofbins];
+
         xDataSourcetheta.setXMin(0);
         xDataSourcetheta.setXMax(Math.PI);
         xDataSourcephi.setXMin(0);
         xDataSourcephi.setXMax(2*Math.PI);
- //       xDataSource.setYMin(0);
 
-        data = new DataFunction(new int[]{xDataSourcer.getNValues(),xDataSourcetheta.getNValues(),xDataSourcephi.getNValues()});
+        data = new DataFunction(new int[]{xDataSourcetheta.getNValues(),xDataSourcephi.getNValues()});
         dataInfo = new DataInfoFunction("Mapped Average Profile", new CompoundDimension(new Dimension[]{Quantity.DIMENSION, Volume.DIMENSION}, new double[]{1, -1}), this);
         dataInfo.addTag(tag);
     }
 
     public DataSourceUniform getXDataSource(int i) {
-        if(i==0)return xDataSourcer;
-        if(i==1)return xDataSourcetheta;
-        if(i==2)return xDataSourcephi;
+         if(i==0)return xDataSourcetheta;
+        if(i==1)return xDataSourcephi;
         throw new RuntimeException();
 
     }

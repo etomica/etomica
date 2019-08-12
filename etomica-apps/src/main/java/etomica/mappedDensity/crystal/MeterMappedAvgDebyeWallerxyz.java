@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.mappedDensity.mappedDensityfromlatticesite;
+package etomica.mappedDensity.crystal;
 
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
@@ -14,16 +14,16 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.math.SpecialFunctions;
 import etomica.math.function.FunctionDifferentiable;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
 
-public class MeterMappedAvgqdotr implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
+public class MeterMappedAvgDebyeWallerxyz implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
     protected final PotentialMaster potentialMaster;
     protected final IteratorDirective id;
@@ -33,8 +33,7 @@ public class MeterMappedAvgqdotr implements IDataSource, DataSourceIndependent, 
     protected DataSourceUniform xDataSource;
     protected DataFunction data;
     protected IDataInfo dataInfo;
-    protected double Rmax;
-    protected Vector rivector;
+     protected Vector rivector;
      /**
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.
@@ -51,6 +50,7 @@ protected CoordinateDefinition latticesite;
     protected double zidotz;
     protected double msd;
     protected double[] qvector;
+protected int numAtoms;
     public enum Behavior {
         NORMAL, P, ZIDOT, DZIDOT
     }
@@ -58,15 +58,14 @@ protected CoordinateDefinition latticesite;
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
-    public MeterMappedAvgqdotr(double[] qvector,double msd, Box box, PotentialMaster potentialMaster, double temperature, FunctionDifferentiable c, CoordinateDefinition latticesite) {
+    public MeterMappedAvgDebyeWallerxyz(int numAtoms, double[] qvector, double msd, Box box, PotentialMaster potentialMaster, double temperature, FunctionDifferentiable c, CoordinateDefinition latticesite) {
         this.box = box;
         this.temperature = temperature;
         this.c = c;
         this.qvector = qvector;
-
+this.numAtoms=numAtoms;
         this.msd = msd;
-        this.Rmax = Math.sqrt(msd)*6;
-this.latticesite=latticesite;
+ this.latticesite=latticesite;
 this.rivector =box.getSpace().makeVector();
         xDataSource = new DataSourceUniform("x", Length.DIMENSION);
         tag = new DataTag();
@@ -83,49 +82,12 @@ this.rivector =box.getSpace().makeVector();
         behavior = b;
     }
 
-    public void setZidotZ(double z) {
-        zidotz = z;
-    }
-
     public IDataInfo getDataInfo() {
         return dataInfo;
     }
 
     public DataTag getTag() {
         return tag;
-    }
-//sim.coordinateDefinition - latticesites
-    /**
-     * Accessor method for vector describing the direction along which the profile is measured.
-     * Each atom position is dotted along this vector to obtain its profile abscissa value.
-     */
-    public int getProfileDim() {
-        return profileDim;
-    }
-
-    /**
-     * Accessor method for vector describing the direction along which the profile is measured.
-     * Each atom position is dotted along this vector to obtain its profile abscissa value.
-     * The given vector is converted to a unit vector, if not already.
-     */
-    public void setProfileDim(int dim) {
-        profileDim = dim;
-        reset();
-    }
-
-    public double ridot(double r, double ri) {
-        double pri = c.df(1, ri);
-        double pr = c.df(1, r);
-        double q = 1;
-        double cri = c.f(ri);
-//////////////////////////
-        double heavisidei;
-        if (ri >= r) {heavisidei=1;} else {heavisidei=0;}
-
-    //    System.out.println(" r: " + r+" ri: " + ri+" rsqp*ridot: " +  (r*r*pr*pr* ((heavisidei/(4*Math.PI)) - cri/q)) / (temperature*ri*ri*pri) );
-
-        return (pr  * ((heavisidei/(4*Math.PI)) - cri/q)) / (temperature*ri*ri*pri);
-
     }
 
     /**
@@ -137,70 +99,45 @@ this.rivector =box.getSpace().makeVector();
         data.E(0);
         double[] y = data.getData();
         IAtomList atoms = box.getLeafList();
-        double L = box.getBoundary().getBoxSize().getX(profileDim);
-        double dz = Rmax / xDataSource.getNValues();
-        if (behavior == Behavior.ZIDOT) {
-            for (int i = 0; i < y.length; i++) {
-                double zi = i * dz;
-                if (Math.abs(zidotz - zi) < dz * 0.01) {
-                    y[i] = Double.NaN;
-                    continue;
-                }
 
-                y[i] = ridot(zidotz, zi);
-                System.out.println(" i "+i+" y[i] "+y[i]);
-
-            }
-            return data;
-        }
-        if (behavior == Behavior.DZIDOT) {
-            for (int i = 0; i < y.length; i++) {
-                double zi =  i * dz;
-                if (Math.abs(zidotz - zi) < dz * 0.01) {
-                    y[i] = Double.NaN;
-                    continue;
-                }
-                y[i] = -(c.df(1, zi + dz * 0.01) * ridot(zidotz, zi + dz * 0.01) - c.df(1, zi - dz * 0.01) * ridot(zidotz, zi - dz * 0.01)) / (0.02 * dz) / c.df(1, zi);
-
-                System.out.println(" i "+i+" y[i] "+y[i]);
-
-            }
-
-            return data;
-        }
-        if (behavior != Behavior.P) {
-            for (IAtom atom : atoms) {
+             for (IAtom atom : atoms) {
                  rivector.Ev1Mv2(atom.getPosition(),latticesite.getLatticePosition(atom)) ;
                  box.getBoundary().nearestImage(rivector);
                 double ri = Math.sqrt(rivector.squared()) ;
                 double fr = agentManager.getAgent(atom).dot(rivector)/ri;
+                double beta=1/temperature;
+                double erfx = 1- SpecialFunctions.erfc(ri*Math.sqrt(3/(2*msd)));
+                double qdotrcap =0.0;
 
-     //           System.out.println(y[0]);
-
-
-                for (int i = 0; i < y.length; i++) {
-                    double r =  (i + 0.5) * dz;
-
-         //      System.out.println(" r "+r+ " ri "+ri+ " ensemble "+(fr - c.df(2, ri) / c.df(1, ri) * temperature) * ridot(r, ri)/(r*r)+ " y[i] "+y[i]);
-
-
-               //     y[i] -= (fr - (temperature*c.df(2, ri) / c.df(1, ri)) ) * ridot(r, ri);
-
-
+                for (int i=0;i<3;i++){
+                    qdotrcap =qdotrcap +(qvector[i]*rivector.getX(i))/ri;         //  double qdotrcap = qvector.dot(rivector)/ri;
                 }
+
+
+double er5 = 1- SpecialFunctions.erfc(5*Math.sqrt(3.0/(2.0*msd)));
+double ex=Math.exp(3*ri*ri/(2*msd));
+
+double Drxyz=1;
+                 double Nrxyz=qdotrcap*qdotrcap*(msd*ri +ri*ri*ri+ beta*fr*0.3333333333333333*msd*ri*ri  )/ri;
+//double Nrxyz=qdotrcap*qdotrcap*( 0.9999999999999999*msd*ri + 1.6825506805955375*Math.pow(10,-16)*msd*ri + 0.9999999999999999*ri*ri*ri + beta*fr*(0.3333333333333333*msd*ri*ri) )/ri;
+//double Nrxyznew=( 2*Math.PI*qdotrcap*qdotrcap* (ri*(0.15915494309189532*msd*ri + 2.6778625781941256*Math.pow(10,-17)*msd*ri + 0.15915494309189532*ri*ri*ri + beta*fr*(0.05305164769729844*msd* ri*ri))) )/(ri*ri);
+
+//double Nrxyznewnew=3*qdotrcap*qdotrcap*(ri *(-0.111111*beta*fr*msd*msd + 4.54608*Math.pow(10,-17)*msd*ri) + ex*(0.0804001*beta*fr*Math.pow(msd,2.5)+ 0.2412*Math.pow(msd,1.5)*ri) *erfx)/(ri*ri);
+
+double Drxyzminus5to5=er5*er5*er5*(ri*(-0.333333*beta*fr*Math.pow(msd,2.5) + 1.36382*Math.pow(10,-16)*Math.pow(msd,1.5)*ri) +  ex*erfx*(0.2412*beta*fr*msd*msd*msd + 0.723601* msd*msd *ri)  )/(ri*ri*Math.pow(msd,1.5));
+
+//double Nrxyzminus5to5=;
+
+//System.out.println(Nrwithr2tillinfinity+" "+Nrwithr2till5+" "+Drwithr2tillinfinity+" "+Drwithr2till5+" "+Nrxyz+" "+Drxyzminus5to5+" "+Nrxyznewnew);
+
+  //              y[0]=y[0]+ (Nrxyzminus5to5/Drxyzminus5to5);
+
+                y[0]=y[0]+ (Nrxyz/Drxyz);
+
+                 //            System.out.println(y[0]);
+
             }
-
-        }
-//        data.TE(0);
-
-        int N = atoms.size();
-        double q = 1;
-        for (int i = 0; i < y.length; i++) {
-            double r =  (i + 0.5) * dz;
-            y[i] += N * c.df(1, r) / q;
-
-        }
-
+        y[0]=y[0]/numAtoms;
         return data;
     }
 
@@ -230,9 +167,7 @@ this.rivector =box.getSpace().makeVector();
     public void reset() {
         if (box == null) return;
 
-        Boundary boundary = box.getBoundary();
-        xDataSource.setXMin(0);
-        xDataSource.setXMax(Rmax);
+         xDataSource.setXMin(0);
 
         data = new DataFunction(new int[]{xDataSource.getNValues()});
         dataInfo = new DataInfoFunction("Mapped Average Profile", new CompoundDimension(new Dimension[]{Quantity.DIMENSION, Volume.DIMENSION}, new double[]{1, -1}), this);

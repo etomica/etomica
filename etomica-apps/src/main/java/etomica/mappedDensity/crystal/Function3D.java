@@ -1,4 +1,4 @@
-package etomica.mappedDensity.mappedDensityfromlatticesite;
+package etomica.mappedDensity.crystal;
 
 import etomica.math.SpecialFunctions;
 import etomica.math.function.FunctionDifferentiable;
