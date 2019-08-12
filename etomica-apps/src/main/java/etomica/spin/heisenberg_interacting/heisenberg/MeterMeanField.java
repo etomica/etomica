@@ -39,6 +39,7 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
     protected final AtomLeafAgentManager<ForceTorque> torqueAgentManager;
     protected final List<Vector> spins, thetaDot;
 
+
     public MeterMeanField(Space space, Box box, double J, PotentialMaster potentialMaster, double temperature) {
         this.potentialMaster = potentialMaster;
         this.temperature = temperature;

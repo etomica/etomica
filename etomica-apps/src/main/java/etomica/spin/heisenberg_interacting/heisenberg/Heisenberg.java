@@ -109,13 +109,15 @@ public class Heisenberg extends Simulation {
             params.doConventionalE = false;
             params.doMappingE = false;
             params.doEnergyMF = false;
-            params.doCorrelation = true;
+            params.doCorrelation = false;
             params.formula = 3;
             params.doCV = true;
             params.aEE = true;
+            params.mSquare = true;
             params.doVSumMI = true;
             params.doIdeal = true;
-            params.temperature = .1;
+            params.doAEEMF = true;
+            params.temperature = 5;
             params.nCells = 5;
             params.steps = 10000000;
 
@@ -141,6 +143,7 @@ public class Heisenberg extends Simulation {
         boolean doCorrelation = params.doCorrelation;
         boolean doDipole = params.doDipole;
         boolean doEnergyMF = params.doEnergyMF;
+        boolean doAEEMF = params.doAEEMF;
         int formula = params.formula;
         boolean doGraphic = params.doGraphic;
 
@@ -242,7 +245,7 @@ public class Heisenberg extends Simulation {
         MeterMappedAveragingVSum AEEMeter = null;
         AccumulatorAverageCovariance AEEAccumulator = null;
         if (aEE) {
-            AEEMeter = new MeterMappedAveragingVSum(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster, doIdeal, doPair, doVSum, doVSumMI, nMax);
+            AEEMeter = new MeterMappedAveragingVSum(sim.space, sim.box, sim, temperature, interactionS, dipoleMagnitude, sim.potentialMaster, doIdeal, doPair, doVSum, doVSumMI, doAEEMF, nMax);
             AEEAccumulator = new AccumulatorAverageCovariance(samplePerBlock, true);
             DataPumpListener AEEListener = new DataPumpListener(AEEMeter, AEEAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(AEEListener);
@@ -597,6 +600,7 @@ public class Heisenberg extends Simulation {
         public boolean doCorrelation = false;
         public boolean doDipole = false;
         public boolean doEnergyMF = false;
+        public boolean doAEEMF = false;
         public int formula = 3;
         public boolean doGraphic = false;
         public double temperature = 1;

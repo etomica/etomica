@@ -16,9 +16,11 @@ import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.space2d.Vector2D;
 import etomica.units.dimensions.Null;
 
 import static etomica.math.SpecialFunctions.besselI;
+import static etomica.spin.heisenberg_interacting.heisenberg.MeterMappedAveragingCorrelation.computeTdotDerivs;
 
 public class MeterMappedAveragingVSum implements IDataSource, AgentSource<MoleculeAgent> {
     protected final DataDoubleArray data;
@@ -35,22 +37,32 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
     protected PotentialCalculationMoleculeAgentSumMinusIdeal vSumMinusIdeal;
     protected PotentialCalculationMoleculeAgentSumPair vSumPair;
     protected PotentialCalculationMoleculeAgentSumMinusIdealPair vSumPairMinusIdeal;
-    protected double temperature;
-    protected double bJ;
-    protected double mu;
-    protected double bt;
+    protected final double temperature;
+    protected final double bJ;
+    protected final double mu;
+    protected final double bt;
     double I0bJ, I1bJ, I2bJ;
     double[] InbJArray, Inm1bJArray, Inm2bJArray, Inp1bJArray;
-    protected boolean doIdeal, doPair, doVSum, doVSumMI;
+    protected boolean doIdeal, doPair, doVSum, doVSumMI, doAEEMF;
     protected int nMax;
     protected Vector dr;
-    protected Vector work, tmp;
+    protected Vector tmp, workVector;
     protected AtomLeafAgentManager<MoleculeAgent> leafAgentManager;
     private Box box;
-    protected PotentialCalculationHeisenberg Ans;
 
-    public MeterMappedAveragingVSum(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster, boolean doIdeal, boolean doPair, boolean doVSum, boolean doVSumMI, int nMax) {
-        int nValues = 25;
+    protected final int N;
+    protected final MeterMeanField meterMeanField;
+    protected double[] nbrSsum = new double[0];//nbrSsum[i] holds sum sin(thetaj) for nbrs j of atom i
+    protected double[] nbrCsum = new double[0];//same but cos(thetaj)
+    protected final Vector[] dtdotkdt0k, dtdotkdetak;
+    protected MeterEnergyMeanField.PotentialCalculationCSsum pcCSsum;
+
+    protected PotentialCalculationHeisenberg Ans;
+    protected PotentialCalculationPhiijMF pcPhiIJ;
+    protected double phiIJsum;
+
+    public MeterMappedAveragingVSum(final Space space, Box box, Simulation sim, double temperature, double interactionS, double dipoleMagnitude, PotentialMaster potentialMaster, boolean doIdeal, boolean doPair, boolean doVSum, boolean doVSumMI, boolean doAEEMF, int nMax) {
+        int nValues = 28;
         data = new DataDoubleArray(nValues);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nValues});
         tag = new DataTag();
@@ -66,6 +78,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
         this.doPair = doPair;
         this.doVSum = doVSum;
         this.doVSumMI = doVSumMI;
+        this.doAEEMF = doAEEMF;
         this.nMax = nMax;
 
         I0bJ = besselI(0, bJ);
@@ -83,7 +96,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
         }
 
         dr = space.makeVector();
-        work = space.makeVector();
+        workVector = space.makeVector();
         tmp = space.makeVector();
         leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box, MoleculeAgent.class);
         torqueSum = new PotentialCalculationTorqueSum();
@@ -105,6 +118,20 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
             vSumPair = new PotentialCalculationMoleculeAgentSumPair(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
         if (doVSumMI)
             vSumPairMinusIdeal = new PotentialCalculationMoleculeAgentSumMinusIdealPair(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
+
+        N = box.getLeafList().getAtomCount();
+        meterMeanField = doAEEMF ? new MeterMeanField(space, box, interactionS, potentialMaster, temperature) : null;
+        nbrCsum = new double[N];
+        nbrSsum = new double[N];
+        pcCSsum = new MeterEnergyMeanField.PotentialCalculationCSsum(nbrCsum, nbrSsum);
+
+        dtdotkdt0k = new Vector[N];
+        dtdotkdetak = new Vector[N];
+        for(int k=0; k<N; k++) {
+            dtdotkdetak[k] = space.makeVector();
+            dtdotkdt0k[k] = space.makeVector();
+        }
+
         allAtoms = new IteratorDirective();
 
     }
@@ -334,6 +361,28 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
             x[23] = vSumPairMinusIdeal.getSumU_Con();
             x[24] = x[23] * x[23];
         }
+
+        if(doAEEMF) {
+            meterMeanField.getData();
+            pcCSsum.reset();
+            potentialMaster.calculate(box, allAtoms, pcCSsum);
+
+            computeTdotDerivs(bt, meterMeanField, dtdotkdetak, dtdotkdt0k);
+
+            x[25] = 0.0;
+            x[26] = 0.0;
+            for(int k  = 0; k < N; k++) {
+                Vector s =  meterMeanField.getSpin(box.getLeafList().getAtom(k));
+                x[25] += s.getX(0);
+                x[26] += s.getX(1);
+            }
+            x[27] = x[25] * x[25] + x[26] * x[26]; //variance contribution
+
+            workVector.E(0.0);
+            potentialMaster.calculate(box, allAtoms, pcPhiIJ);
+
+        }
+
         return data;
     }
 
@@ -625,5 +674,20 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
         }
 
     }
+
+    private class PotentialCalculationPhiijMF implements PotentialCalculation {
+        private final Vector myWorkVector = space.makeVector();
+        public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
+            IAtomOriented iatom = (IAtomOriented) atoms.getAtom(0);
+            IAtomOriented jatom = (IAtomOriented) atoms.getAtom(1);
+            Vector io = iatom.getOrientation().getDirection();
+            Vector jo = jatom.getOrientation().getDirection();
+            myWorkVector.E(meterMeanField.getThetaDot(iatom));
+            myWorkVector.ME(meterMeanField.getThetaDot(jatom));
+            myWorkVector.TE(myWorkVector);
+            workVector.PEa1Tv1(bJ * io.dot(jo), myWorkVector);//(thetaDot_i - thetaDot_j)^2 phi_ij
+        }
+    }
+
 
 }
