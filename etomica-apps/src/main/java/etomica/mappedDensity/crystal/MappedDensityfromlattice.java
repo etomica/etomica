@@ -346,7 +346,7 @@ public class MappedDensityfromlattice extends Simulation {
 
 //do for mapped
         FunctionDifferentiable f;
-       f = new Function(params.msd);
+        f = new ErrorFunctionMSD(params.msd);
    //     f = new FunctionUniform(params.msd);
 
         MeterMappedAvg meterMappedAvg = new MeterMappedAvg(params.msd,sim.box(), sim.potentialMaster, params.temperature, f, sim.coordinateDefinition);

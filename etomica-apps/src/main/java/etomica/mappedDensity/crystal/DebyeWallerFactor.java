@@ -273,7 +273,7 @@ public class DebyeWallerFactor extends Simulation {
         sim.getIntegrator().getEventManager().addListener(pumpConDebyeWaller);
 
          FunctionDifferentiable f;
-       f = new Function(params.msd);
+        f = new ErrorFunctionMSD(params.msd);
 
         MeterMappedAvgDebyeWallerr meterMappedAvgDebyeWallerr = new MeterMappedAvgDebyeWallerr(params.numAtoms,params.qvector,params.msd,sim.box(), sim.potentialMaster, params.temperature, f, sim.coordinateDefinition);
         meterMappedAvgDebyeWallerr.getXDataSource().setNValues(params.bins);  //map bins=1000

@@ -3,11 +3,11 @@ package etomica.mappedDensity.crystal;
 import etomica.math.SpecialFunctions;
 import etomica.math.function.FunctionDifferentiable;
 
-public class Function implements FunctionDifferentiable  {
+public class ErrorFunctionMSD implements FunctionDifferentiable {
 
     private final double msd;
 
-    public Function(double msd) {
+    public ErrorFunctionMSD(double msd) {
         this.msd = msd;
     }
 
