@@ -315,15 +315,15 @@ public class MappedDensityfromlattice3D extends Simulation {
         }
         int interval = 5* params.numAtoms;
 
-        msd Msd = new msd(params.thetaphinumberofbins,  sim.box, sim.coordinateDefinition);
-        Msd.reset();
-        DataPumpListener pumpmsd = new DataPumpListener(Msd, null, interval);
+        MeterMSDGrid meterMSD = new MeterMSDGrid(params.thetaphinumberofbins, sim.box, sim.coordinateDefinition);
+        meterMSD.reset();
+        DataPumpListener pumpmsd = new DataPumpListener(meterMSD, null, interval);
         sim.getIntegrator().getEventManager().addListener(pumpmsd);
         sim.activityIntegrate.setMaxSteps(params.numSteps);
         sim.getController().actionPerformed();
         sim.getController().reset();
-        double [] arraymsd =( (DataDoubleArray) Msd.getData()).getData();
-        double [] arraymsdnew=( (DataDoubleArray) Msd.getData()).getData();
+        double[] arraymsd = ((DataDoubleArray) meterMSD.getData()).getData();
+        double[] arraymsdnew = ((DataDoubleArray) meterMSD.getData()).getData();
                 for (int k = 0; k < arraymsd.length; k++) {  arraymsdnew[k]=msddependence*arraymsd[k]; System.out.println(arraymsdnew[k]);}
 ///////////////////////////////////////MSD ARRAY DONE///////////////////////////////////////////////////////
 

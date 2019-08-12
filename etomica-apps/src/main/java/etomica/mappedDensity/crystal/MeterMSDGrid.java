@@ -17,7 +17,7 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
 
-public class msd implements IDataSource, DataSourceIndependent {
+public class MeterMSDGrid implements IDataSource, DataSourceIndependent {
 
 
     protected final Box box;
@@ -43,7 +43,7 @@ public class msd implements IDataSource, DataSourceIndependent {
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
      */
-    public msd(int thetaphinumberofbins,  Box box, CoordinateDefinition latticesite) {
+    public MeterMSDGrid(int thetaphinumberofbins, Box box, CoordinateDefinition latticesite) {
         this.box = box;
         this.thetaphinumberofbins = thetaphinumberofbins;
         this.latticesite = latticesite;
