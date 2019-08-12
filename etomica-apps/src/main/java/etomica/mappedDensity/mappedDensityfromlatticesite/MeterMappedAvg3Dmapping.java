@@ -4,7 +4,6 @@
 
 package etomica.mappedDensity.mappedDensityfromlatticesite;
 
-import Jama.Matrix;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -15,13 +14,16 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.math.SpecialFunctions;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Boundary;
 import etomica.space.Vector;
+import etomica.space3d.OrientationFull3D;
+import etomica.space3d.RotationTensor3D;
+import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 import etomica.units.dimensions.*;
 
 public class MeterMappedAvg3Dmapping implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
@@ -47,6 +49,9 @@ public class MeterMappedAvg3Dmapping implements IDataSource, DataSourceIndepende
     protected Vector fivectortransformed;
     protected Vector rvectortransformed;
     protected int profileDim;
+    protected final OrientationFull3D orientation;
+    protected final RotationTensor3D rotationTensor;
+    protected final Vector vel;
     /**
      * Meter that defines the property being profiled.
      */
@@ -101,6 +106,10 @@ this.crossprodrandri=box.getSpace().makeVector();this.temporary=box.getSpace().m
         xDataSourcer.setNValues(rnumberofbins);
         xDataSourcetheta.setNValues(thetaphinumberofbins);
         xDataSourcephi.setNValues(thetaphinumberofbins);
+
+        rotationTensor = new RotationTensor3D();
+        orientation = new OrientationFull3D(Space3D.getInstance());
+        vel = new Vector3D();
     }
 
     public IDataInfo getDataInfo() {
@@ -164,75 +173,36 @@ this.crossprodrandri=box.getSpace().makeVector();this.temporary=box.getSpace().m
                         double phi = (k+0.5) * 2 * Math.PI / thetaphinumberofbins;
 
                         int mm = j * thetaphinumberofbins + k;
-                        double pri = (Math.exp(-3 * ri * ri / (2 * arraymsd[mm])));
                         double pr = (Math.exp(-3 * r * r / (2 * arraymsd[mm])));
                         double q = Math.pow(2 * Math.PI * arraymsd[mm] / 3, 1.5);
                         int nmax = 5;
-                        Singlet3Dmapping singlet3Dmapping = new Singlet3Dmapping();
                     //    System.out.println(j + k + "r" + r + "theta" + theta + "phi" + phi + " " + "ri" + ri + "thetai" + thetai + "phii" + phii);
 //point where dens measured from lat site
-                        rvector.setX(0, r * Math.sin(theta) * Math.cos(phi));
-                        rvector.setX(1, r * Math.sin(theta) * Math.sin(phi));
-                        rvector.setX(2, r * Math.cos(theta));
+                        rvector.setX(0, Math.sin(theta) * Math.cos(phi));
+                        rvector.setX(1, Math.sin(theta) * Math.sin(phi));
+                        rvector.setX(2, Math.cos(theta));
 
-                        box.getBoundary().nearestImage(rvector);
                         //projection of rivector on rvector
-                        double dotproduct = (rvector.getX(0) * rivector.getX(0) + rvector.getX(1) * rivector.getX(1) + rvector.getX(2) * rivector.getX(2)) / (Math.sqrt(rvector.squared()));
-                        temporary.setX(0, dotproduct * rvector.getX(0) / Math.sqrt(rvector.squared()));
-                        temporary.setX(1, dotproduct * rvector.getX(1) / Math.sqrt(rvector.squared()));
-                        temporary.setX(2, dotproduct * rvector.getX(2) / Math.sqrt(rvector.squared()));
+                        double dotproduct = rvector.dot(rivector);
+                        temporary.Ea1Tv1(dotproduct, rvector);
                         perpendtorvectorinriplane.Ev1Mv2(rivector, temporary);
+                        perpendtorvectorinriplane.normalize();
                         crossprodrandri.E(rvector);
                         crossprodrandri.XE(perpendtorvectorinriplane);
 
-                        rvector.normalize();
-                        perpendtorvectorinriplane.normalize();
-                        crossprodrandri.normalize();
-//WANT EACH ROW AS THE AXIS OF 3 ORTHOGONAL VECTORS
-                        double[][] array = new double[3][3];
-                        rvector.assignTo(array[2]);
-                        perpendtorvectorinriplane.assignTo(array[0]);
-                        crossprodrandri.assignTo(array[1]);
-                        Matrix a = new Matrix(array).transpose();
-                               a= a.inverse();
-//ri in xz plane
-                        //    System.out.println("array[0][0]"+array[0][0]+"array[0][1]"+array[0][1]+"array[0][2]"+array[0][2]+" "+a.get(0,0)+" "+a.get(0,1)+" "+a.get(0,2)+" "+a.get(2,0) );
-                    //    System.out.println("array[1][0]"+array[1][0]+"array[1][1]"+array[1][1]+"array[1][2]"+array[1][2]+" "+a.get(1,0)+" "+a.get(1,1)+" "+a.get(1,2)+" "+a.get(2,1) );
-                   //     System.out.println("array[2][0]" + array[2][0] + "array[2][1]" + array[2][1] + "array[2][2]" + array[2][2] + " " + a.get(2, 0) + " " + a.get(2, 1) + " " + a.get(2, 2) + " " + a.get(1, 2));
+                        orientation.setDirections(perpendtorvectorinriplane, crossprodrandri);
+                        rotationTensor.setOrientation(orientation);
+                        rotationTensor.invert();
 
-                        rivectortransformed.setX(0, a.get(0, 0) * rivector.getX(0) + a.get(0, 1) * rivector.getX(1) + a.get(0, 2) * rivector.getX(2));
-                        rivectortransformed.setX(1, a.get(1, 0) * rivector.getX(0) + a.get(1, 1) * rivector.getX(1) + a.get(1, 2) * rivector.getX(2));
-                        rivectortransformed.setX(2, a.get(2, 0) * rivector.getX(0) + a.get(2, 1) * rivector.getX(1) + a.get(2, 2) * rivector.getX(2));
-                     //   box.getBoundary().nearestImage(rivectortransformed);
-                        rvector.TE(r);
-                        rvectortransformed.setX(0, a.get(0, 0) * rvector.getX(0) + a.get(0, 1) * rvector.getX(1) + a.get(0, 2) * rvector.getX(2));
-                        rvectortransformed.setX(1, a.get(1, 0) * rvector.getX(0) + a.get(1, 1) * rvector.getX(1) + a.get(1, 2) * rvector.getX(2));
-                        rvectortransformed.setX(2, a.get(2, 0) * rvector.getX(0) + a.get(2, 1) * rvector.getX(1) + a.get(2, 2) * rvector.getX(2));
-                     //   box.getBoundary().nearestImage(rvectortransformed);
-    //    System.out.println(rivectortransformed.getX(0)+" "+rivectortransformed.getX(1)+" "+rivectortransformed.getX(2));
+                        double ti = Math.acos(dotproduct / ri);
+                        double[] mappingvelocitytransformed = Singlet3Dmapping.xyzDot(nmax, ri, ti, 0, r, Math.sqrt(arraymsd[mm] / 3.0));
+                        vel.E(mappingvelocitytransformed);
+                        rotationTensor.transform(vel);
 
-                        double ritransformed = Math.sqrt((rivectortransformed.getX(0)) * (rivectortransformed.getX(0)) + (rivectortransformed.getX(1)) * (rivectortransformed.getX(1)) + (rivectortransformed.getX(2)) * (rivectortransformed.getX(2)));
-                        double rtransformed = Math.sqrt((rvectortransformed.getX(0)) * (rvectortransformed.getX(0)) + (rvectortransformed.getX(1)) * (rvectortransformed.getX(1)) + (rvectortransformed.getX(2)) * (rvectortransformed.getX(2)));
-                        double titransformed = Math.acos(rivectortransformed.getX(2) / ritransformed);
-                         double phiitransformed = Math.atan2(rivectortransformed.getX(1) , rivectortransformed.getX(0));
-                        if (phiitransformed < 0) { phiitransformed = phiitransformed + 2 * Math.PI; }
+                        double rdot = vel.dot(rivector);
+                        double dlnpridr = -3 * ri / arraymsd[mm];
 
-                        double[] mappingvelocitytransformed = singlet3Dmapping.xyzDot(nmax, ritransformed, titransformed, phiitransformed, rtransformed, (Math.sqrt(arraymsd[mm] / 3.0)));
-
-                        fivectortransformed.setX(0, a.get(0, 0) * agentManager.getAgent(atom).getX(0) + a.get(0, 1) * agentManager.getAgent(atom).getX(1) + a.get(0, 2) * agentManager.getAgent(atom).getX(2));
-                        fivectortransformed.setX(1, a.get(1, 0) * agentManager.getAgent(atom).getX(0) + a.get(1, 1) * agentManager.getAgent(atom).getX(1) + a.get(1, 2) * agentManager.getAgent(atom).getX(2));
-                        fivectortransformed.setX(2, a.get(2, 0) * agentManager.getAgent(atom).getX(0) + a.get(2, 1) * agentManager.getAgent(atom).getX(1) + a.get(2, 2) * agentManager.getAgent(atom).getX(2));
-                        double fidotmapvelocity = fivectortransformed.getX(0) * mappingvelocitytransformed[0] + fivectortransformed.getX(1) * mappingvelocitytransformed[1] + fivectortransformed.getX(2) * mappingvelocitytransformed[2];
-double dpridxi=-3*pri*rivector.getX(0)/arraymsd[mm];double dpridyi=-3*pri*rivector.getX(1)/arraymsd[mm];double dpridzi=-3*pri*rivector.getX(2)/arraymsd[mm];
-double dpridxitransformed=a.get(0, 0) *dpridxi + a.get(0, 1) *dpridyi + a.get(0, 2) *dpridzi;
-double dpridyitransformed=a.get(1, 0) *dpridxi + a.get(1, 1) *dpridyi + a.get(1, 2) *dpridzi;
-double dpridzitransformed=a.get(2, 0) *dpridxi + a.get(2, 1) *dpridyi + a.get(2, 2) *dpridzi;
-
-double mappingveldotgradientpri=mappingvelocitytransformed[0]*dpridxitransformed+mappingvelocitytransformed[1]*dpridyitransformed+mappingvelocitytransformed[2]*dpridzitransformed;
-         ytemporary[i][j][k] = ytemporary[i][j][k] +  (pr / q) - fidotmapvelocity+(temperature*mappingveldotgradientpri/pri) ;
-//  System.out.println(ritransformed+" "+ri+" "+rtransformed+" "+r+" "+phiitransformed);
-  //   System.out.println(titransformed+" "+Math.acos(rivector.getX(2) / ri)+" "+theta+" "+Math.acos(rvectortransformed.getX(2) / rtransformed)  );
-
+                        ytemporary[i][j][k] += (pr / q) - agentManager.getAgent(atom).dot(vel) + (temperature * rdot * dlnpridr);
                     }
                 }
             }
@@ -241,7 +211,7 @@ double mappingveldotgradientpri=mappingvelocitytransformed[0]*dpridxitransformed
                 for (int i = 0; i < rnumberofbins; i++) {
                     for (int j = 0; j < thetaphinumberofbins; j++) {
                         for (int k = 0; k < thetaphinumberofbins; k++) {
-                            y[n] = ytemporary[i][j][k];
+                            y[n] = ytemporary[i][j][k] / box.getLeafList().size();
                             n = n + 1;
                         }
                     }

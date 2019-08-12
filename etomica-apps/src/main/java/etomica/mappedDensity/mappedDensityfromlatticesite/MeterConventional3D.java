@@ -136,6 +136,7 @@ public class MeterConventional3D implements IDataSource, DataSourceIndependent {
         }
 
         int n=0;
+        int numAtoms = box.getLeafList().size();
      for (int i = 0; i < rnumberofbins; i++)   {
             double Rbinstart=i*dz;
          double Rbinend=(i+1)*dz;
@@ -148,7 +149,7 @@ public class MeterConventional3D implements IDataSource, DataSourceIndependent {
                  double phibegin = k * 2 * Math.PI / thetaphinumberofbins;
                  double phiend = (k + 1) * 2 * Math.PI / thetaphinumberofbins;
 
-                 y[n] = ytemporary[i][j][k] / (((-phibegin + phiend) * (Math.cos(thetabegin) - Math.cos(thetaend))) * (Rbinend * Rbinend * Rbinend - Rbinstart * Rbinstart * Rbinstart) / 3);
+                 y[n] = ytemporary[i][j][k] / numAtoms / (((-phibegin + phiend) * (Math.cos(thetabegin) - Math.cos(thetaend))) * (Rbinend * Rbinend * Rbinend - Rbinstart * Rbinstart * Rbinstart) / 3);
                  n=n+1;
 
                  //   System.out.println("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq "+q);
