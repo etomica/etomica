@@ -24,6 +24,8 @@ import etomica.util.ParseArgs;
 
 import java.io.IOException;
 
+// Main class that calculates conventional and mapped average pair distribution function for fluids
+
 public class MappedRdf extends Simulation {
 
     public SpeciesSpheresMono species;
