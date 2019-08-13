@@ -20,7 +20,6 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
     protected double[] gSum2;
     protected double[] newgSum;
     protected double[] newestgSum;
-
     protected double[] thirdterm;
     protected double rcforHandfinmap;
     protected IBoundary boundary;
