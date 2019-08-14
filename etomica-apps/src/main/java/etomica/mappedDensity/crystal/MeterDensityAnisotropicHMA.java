@@ -4,6 +4,7 @@
 
 package etomica.mappedDensity.crystal;
 
+import Jama.Matrix;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -24,17 +25,17 @@ import etomica.space.Vector;
 import etomica.units.dimensions.*;
 
 /**
- * Meter for calculating three dimensional mapped averaging averaging singlet density with one dimensional mapping
- * probability=gaussian
+ *
+ * Calculates orientation-dependent density around the lattice sites of a crystal with harmonically mapped averaging
  */
-public class MeterMappedAvg3D implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
+
+public class MeterDensityAnisotropicHMA implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
     protected final PotentialMaster potentialMaster;
     protected final IteratorDirective id;
     protected DataSourceUniform xDataSourcer;
     protected DataSourceUniform xDataSourcetheta;
     protected DataSourceUniform xDataSourcephi;
-
     protected final PotentialCalculationForceSum pc;
     protected final AtomLeafAgentManager<Vector> agentManager;
     protected final Box box;
@@ -42,31 +43,32 @@ public class MeterMappedAvg3D implements IDataSource, DataSourceIndependent, Ato
     protected IDataInfo dataInfo;
     protected double Rmax;
     protected Vector rivector;
+    protected Vector rvector;
+    protected Vector positionvector;
+    protected Vector perpendtorvectorinriplane;
+    protected Vector crossprodrandri;
+    protected Vector temporary;
+    protected Vector rivectortransformed;
+    protected Vector fivectortransformed;
+    protected Vector rvectortransformed;
 
-    protected int profileDim;
-    /**
-     * Meter that defines the property being profiled.
-     */
     protected final DataTag tag;
     protected double temperature;
-protected CoordinateDefinition latticesite;
-     protected double [] arraymsd;
+    protected CoordinateDefinition latticesite;
+    protected double[] arraymsd;
     protected int rnumberofbins;
     protected int thetaphinumberofbins;
 
-    /**
-     * Default constructor sets profile along the y-axis, with 100 histogram points.
-     */
-    public MeterMappedAvg3D(double [] arraymsd, int rnumberofbins,int thetaphinumberofbins, Box box, PotentialMaster potentialMaster, double temperature, CoordinateDefinition latticesite) {
+    public MeterDensityAnisotropicHMA(double[] arraymsd, int rnumberofbins, int thetaphinumberofbins, Box box, PotentialMaster potentialMaster, double temperature, CoordinateDefinition latticesite) {
         this.box = box;
         this.temperature = temperature;
-         this.arraymsd = arraymsd;
+        this.arraymsd = arraymsd;
         this.rnumberofbins = rnumberofbins;
         this.thetaphinumberofbins = thetaphinumberofbins;
 
         this.Rmax = Math.sqrt(arraymsd[0])*4;
-this.latticesite=latticesite;
-this.rivector =box.getSpace().makeVector();
+        this.latticesite = latticesite;
+        this.rivector = box.getSpace().makeVector();
         xDataSourcer = new DataSourceUniform("r", Length.DIMENSION);
         tag = new DataTag();
         xDataSourcer.setTypeMax(LimitType.HALF_STEP);
@@ -104,24 +106,6 @@ this.rivector =box.getSpace().makeVector();
     public DataTag getTag() {
         return tag;
     }
-//sim.coordinateDefinition - latticesites
-    /**
-     * Accessor method for vector describing the direction along which the profile is measured.
-     * Each atom position is dotted along this vector to obtain its profile abscissa value.
-     */
-    public int getProfileDim() {
-        return profileDim;
-    }
-
-    /**
-     * Accessor method for vector describing the direction along which the profile is measured.
-     * Each atom position is dotted along this vector to obtain its profile abscissa value.
-     * The given vector is converted to a unit vector, if not already.
-     */
-    public void setProfileDim(int dim) {
-        profileDim = dim;
-        reset();
-    }
 
     /**
      * Returns the profile for the current configuration.
@@ -133,13 +117,13 @@ this.rivector =box.getSpace().makeVector();
         double[] y = data.getData();
 
         IAtomList atoms = box.getLeafList();
-        double L = box.getBoundary().getBoxSize().getX(profileDim);
         double dz = Rmax / xDataSourcer.getNValues();
          double [][][] ytemporary=new double[rnumberofbins][thetaphinumberofbins][thetaphinumberofbins];
 
         for (IAtom atom : atoms) {
                  rivector.Ev1Mv2(atom.getPosition(), latticesite.getLatticePosition(atom));
                  box.getBoundary().nearestImage(rivector);
+
                  double ri = Math.sqrt(rivector.squared());
                  double fr = agentManager.getAgent(atom).dot(rivector) / ri;
                  double thetai = Math.acos(rivector.getX(2) / ri);
@@ -152,12 +136,53 @@ this.rivector =box.getSpace().makeVector();
                             int j = (int) (thetai*thetaphinumberofbins/Math.PI);
                      double thetabegin = j * Math.PI / thetaphinumberofbins;
                      double thetaend = (j + 1) * Math.PI / thetaphinumberofbins;
-
-                            int k = (int) (phii*thetaphinumberofbins/(2*Math.PI));
+double thetahere=(thetabegin+thetaend)/2;
+                     int k = (int) (phii*thetaphinumberofbins/(2*Math.PI));
                      double phibegin = k * 2 * Math.PI / thetaphinumberofbins;
                      double phiend = (k + 1) * 2 * Math.PI / thetaphinumberofbins;
+double phihere=(phibegin+phiend)/2;
+positionvector.setX(0,r*Math.sin(thetahere)*Math.cos(phihere));positionvector.setX(1,r*Math.sin(thetahere)*Math.sin(phihere));
+positionvector.setX(2,r*Math.cos(thetahere));
 
-                     int mm=j*thetaphinumberofbins+k;
+rvector.Ev1Mv2(positionvector, latticesite.getLatticePosition(atom));
+box.getBoundary().nearestImage(rvector);
+double dotproduct=(rvector.getX(0)*rivector.getX(0)+rvector.getX(1)*rivector.getX(1)+rvector.getX(2)*rivector.getX(2))/(Math.sqrt(rvector.squared()));
+temporary.setX(0,dotproduct*rvector.getX(0)/Math.sqrt(rvector.squared()));
+temporary.setX(1,dotproduct*rvector.getX(1)/Math.sqrt(rvector.squared()));
+temporary.setX(2,dotproduct*rvector.getX(2)/Math.sqrt(rvector.squared()));
+perpendtorvectorinriplane.Ev1Mv2(rvector, temporary);
+
+crossprodrandri.E(rvector);
+crossprodrandri.XE(perpendtorvectorinriplane);
+
+rvector.normalize();
+perpendtorvectorinriplane.normalize();
+crossprodrandri.normalize();
+
+                      double[][] array = new double[3][3];
+                      rvector.assignTo(array[0]);
+                      perpendtorvectorinriplane.assignTo(array[1]);
+                      crossprodrandri.assignTo(array[2]);
+                      Matrix a = new Matrix(array).transpose();
+
+rivectortransformed.setX(0,a.get(0,0)*rivector.getX(0)+a.get(0,1)*rivector.getX(1)+a.get(0,2)*rivector.getX(2));
+rivectortransformed.setX(1,a.get(1,0)*rivector.getX(0)+a.get(1,1)*rivector.getX(1)+a.get(1,2)*rivector.getX(2));
+rivectortransformed.setX(2,a.get(2,0)*rivector.getX(0)+a.get(2,1)*rivector.getX(1)+a.get(2,2)*rivector.getX(2));
+
+rvectortransformed.setX(0,a.get(0,0)*rvector.getX(0)+a.get(0,1)*rvector.getX(1)+a.get(0,2)*rvector.getX(2));
+rvectortransformed.setX(1,a.get(1,0)*rvector.getX(0)+a.get(1,1)*rvector.getX(1)+a.get(1,2)*rvector.getX(2));
+rvectortransformed.setX(2,a.get(2,0)*rvector.getX(0)+a.get(2,1)*rvector.getX(1)+a.get(2,2)*rvector.getX(2));
+
+double ritransformed=Math.sqrt((rivectortransformed.getX(0))*(rivectortransformed.getX(0))+(rivectortransformed.getX(1))*(rivectortransformed.getX(1))+(rivectortransformed.getX(2))*(rivectortransformed.getX(2)));
+double rtransformed=Math.sqrt((rvectortransformed.getX(0))*(rvectortransformed.getX(0))+(rvectortransformed.getX(1))*(rvectortransformed.getX(1))+(rvectortransformed.getX(2))*(rvectortransformed.getX(2)));
+double titransformed=Math.atan(Math.sqrt((rivectortransformed.getX(0))*(rivectortransformed.getX(0))+(rivectortransformed.getX(1))*(rivectortransformed.getX(1)))/rivectortransformed.getX(2));
+double phiitransformed=Math.atan(rivectortransformed.getX(1)/rivectortransformed.getX(0));
+                      int nmax=10;
+
+                      int mm=j*thetaphinumberofbins+k;
+Singlet3Dmapping singlet3Dmapping = new Singlet3Dmapping();
+double[] mappingvelocitytransformed=singlet3Dmapping.xyzDot(nmax, ritransformed, titransformed, phiitransformed, rtransformed, Math.sqrt(arraymsd[mm]/3.0));
+
 
                      double pri = (4.14593*Math.exp(-3 * ri * ri / (2 * arraymsd[mm]))) / ((Math.pow(arraymsd[mm], 1.5))*((phiend-phibegin)*(Math.cos(thetabegin)-Math.cos(thetaend))));
                              double pr = (4.14593*Math.exp(-3 * r * r / (2 * arraymsd[mm]))) / ((Math.pow(arraymsd[mm], 1.5))*((phiend-phibegin)*(Math.cos(thetabegin)-Math.cos(thetaend))));
@@ -166,18 +191,16 @@ this.rivector =box.getSpace().makeVector();
                              double q =1;
                              double dpribydri =-((12.4378*ri*(Math.exp(-3 * ri * ri / (2 * arraymsd[mm]))))/((Math.pow(arraymsd[mm], 2.5))*(phiend-phibegin)*(Math.cos(thetabegin)-Math.cos(thetaend))));
 
-
                              double heavisideri;
                              if (ri >= r) { heavisideri = 1; } else { heavisideri = 0; }
-                             double diffheavisidethetaend;
+                       //   double ridot = (pr * (((heavisideri ) / ((-phibegin + phiend) * (Math.cos(thetabegin) - Math.cos(thetaend)))) - cri / q)) / (temperature * ri * ri * pri);
+                      //       ytemporary[i][j][k] = ytemporary[i][j][k] +  (pr / q) - (fr - (temperature * dpribydri / pri)) * ridot;
+fivectortransformed.setX(0,a.get(0,0)*agentManager.getAgent(atom).getX(0)+a.get(0,1)*agentManager.getAgent(atom).getX(1)+a.get(0,2)*agentManager.getAgent(atom).getX(2));
+fivectortransformed.setX(1,a.get(1,0)*agentManager.getAgent(atom).getX(0)+a.get(1,1)*agentManager.getAgent(atom).getX(1)+a.get(1,2)*agentManager.getAgent(atom).getX(2));
+fivectortransformed.setX(2,a.get(2,0)*agentManager.getAgent(atom).getX(0)+a.get(2,1)*agentManager.getAgent(atom).getX(1)+a.get(2,2)*agentManager.getAgent(atom).getX(2));
+double fidotmapvelocity=fivectortransformed.getX(0)*mappingvelocitytransformed[0]+fivectortransformed.getX(1)*mappingvelocitytransformed[1]+fivectortransformed.getX(2)*mappingvelocitytransformed[2];
+                      ytemporary[i][j][k] = ytemporary[i][j][k] +  (pr / q) - fidotmapvelocity;
 
-                            //UNIFORM MAPPING
-                        //     pr=1;pri=1;cri=ri*ri*ri/3;q=500/1.29;dpribydri=0;
-
-                          double ridot = (pr * (((heavisideri ) / ((-phibegin + phiend) * (Math.cos(thetabegin) - Math.cos(thetaend)))) - cri / q)) / (temperature * ri * ri * pri);
-
-                 //           y[n] = y[n] + (pr / q) - (fr - (temperature * dpribydri / pri)) * ridot;
-                             ytemporary[i][j][k] = ytemporary[i][j][k] +  (pr / q) - (fr - (temperature * dpribydri / pri)) * ridot;
                  //              System.out.println("n "+n+" "+y[n]+" "+i+" "+j+" "+k );
 
                  }

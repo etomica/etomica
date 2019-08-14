@@ -22,9 +22,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.math.function.FunctionDifferentiable;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
-import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -36,11 +34,11 @@ import java.util.List;
 
 /**
  *
- * Main class that evaluates mapped averaging singlet density
+ * Main class that evaluates 1D density profile in a box using mapped averaging
  *
  */
 
-public class MappedSingletDensity extends Simulation {
+public class SimSingletDensityProfile extends Simulation {
 
     public final PotentialMasterCell potentialMaster;
     public final ActivityIntegrate activityIntegrate;
@@ -49,14 +47,14 @@ public class MappedSingletDensity extends Simulation {
     /**
      * Creates simulation with default parameters from {@link SimParams}
      */
-    public MappedSingletDensity() {
+    public SimSingletDensityProfile() {
         this(new SimParams());
     }
 
     /**
      * Creates simulation with the given parameters
      */
-    public MappedSingletDensity(SimParams params) {
+    public SimSingletDensityProfile(SimParams params) {
         super(Space3D.getInstance());
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
@@ -250,7 +248,7 @@ public class MappedSingletDensity extends Simulation {
         if(params.temperature==5.0 && params.density==1.0) { sa1	=	1.568;sb1	=	0.9074;sc1	=	1.568;sa2	=	0.6369;sb2	=	1.819;sc2	=	-1.575;sa3	=	0.1242;sb3	=	3.63;sc3	=	1.569;sa4	=	0.05096;sb4	=	5.453;sc4	=	-1.598;sa5	=	0.03115;sb5	=	7.265;sc5	=	1.507;sa6	=	0.01709;sb6	=	9.083;sc6	=	-1.713;sa7	=	0.01261;sb7	=	16.35;sc7	=	1.994;sa8	=	0.0115;sb8	=	10.9;sc8	=	1.644; }
 
 
-            MappedSingletDensity sim = new MappedSingletDensity(params);
+        SimSingletDensityProfile sim = new SimSingletDensityProfile(params);
         long steps = params.steps;
         int interval = 5* params.numAtoms;
         int blocks = 100;
@@ -463,7 +461,7 @@ public class MappedSingletDensity extends Simulation {
             if(params.temperature==5.0 && params.density==1.0) { sa1	=	1.568;sb1	=	0.9074;sc1	=	1.568;sa2	=	0.6369;sb2	=	1.819;sc2	=	-1.575;sa3	=	0.1242;sb3	=	3.63;sc3	=	1.569;sa4	=	0.05096;sb4	=	5.453;sc4	=	-1.598;sa5	=	0.03115;sb5	=	7.265;sc5	=	1.507;sa6	=	0.01709;sb6	=	9.083;sc6	=	-1.713;sa7	=	0.01261;sb7	=	16.35;sc7	=	1.994;sa8	=	0.0115;sb8	=	10.9;sc8	=	1.644; }
 
 
-            MappedSingletDensity sim = new MappedSingletDensity(params);
+            SimSingletDensityProfile sim = new SimSingletDensityProfile(params);
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 
             int blockSize = 100;

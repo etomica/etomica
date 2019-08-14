@@ -43,11 +43,12 @@ import etomica.util.random.RandomMersenneTwister;
 
 import java.awt.*;
 import java.util.Arrays;
-/**
- * Main class for calculating three dimensional singlet density using three dimensional mapping
- */
 
-public class SimSinglet3Dmapping extends Simulation {
+/**
+ *
+ * Simulation that computes orientation-dependent singlet density using histogramming and radial HMA.
+ */
+public class SimDensityAnisotropicRadial extends Simulation {
 
     public final CoordinateDefinitionLeaf coordinateDefinition;
     public IntegratorMC integrator;
@@ -62,7 +63,7 @@ public class SimSinglet3Dmapping extends Simulation {
     public Potential2SoftSpherical potential;
     public SpeciesSpheresMono species;
 
-    public SimSinglet3Dmapping(Space _space, int numAtoms, double density, double temperature, double rc, boolean ss, int[] seeds) {
+    public SimDensityAnisotropicRadial(Space _space, int numAtoms, double density, double temperature, double rc, boolean ss, int[] seeds) {
         super(_space);
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
@@ -162,7 +163,7 @@ public class SimSinglet3Dmapping extends Simulation {
         System.out.println(numSteps+" steps");
 
         //instantiate simulation
-        final SimSinglet3Dmapping sim = new SimSinglet3Dmapping(Space.getInstance(3), numAtoms, density, temperature, rc * Math.pow(density, -1.0 / 3.0), ss, seeds);
+        final SimDensityAnisotropicRadial sim = new SimDensityAnisotropicRadial(Space.getInstance(3), numAtoms, density, temperature, rc * Math.pow(density, -1.0 / 3.0), ss, seeds);
         if (seeds == null) {
             seeds = ((RandomMersenneTwister)sim.getRandom()).getSeedArray();
         }
@@ -331,9 +332,9 @@ public class SimSinglet3Dmapping extends Simulation {
 ///////////////////////////////////////MSD ARRAY DONE///////////////////////////////////////////////////////
 
  //       MeterConventional3D meterConventional3D = new MeterConventional3D(arraymsd,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.coordinateDefinition);
-        MeterConventional3D meterConventional3D = new MeterConventional3D(arraymsdnew,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.coordinateDefinition);
+        MeterDensityAnisotropic meterConventional3D = new MeterDensityAnisotropic(arraymsdnew, params.rnumberofbins, params.thetaphinumberofbins, sim.box(), sim.coordinateDefinition);
         long steps = params.numSteps;
-        int blocks = 10;
+        int blocks = 100;
         long blockSize = steps / (interval * blocks);
         meterConventional3D.reset();
         AccumulatorAverageFixed accCon = new AccumulatorAverageFixed(blockSize);
@@ -341,7 +342,7 @@ public class SimSinglet3Dmapping extends Simulation {
         sim.getIntegrator().getEventManager().addListener(pumpCon);
 
 
-      MeterHMASinglet3Dmapping meterMappedAvg3Dmapping = new MeterHMASinglet3Dmapping(arraymsdnew,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.potentialMaster, params.temperature, sim.coordinateDefinition);
+        MeterDensityAnisotropicRadialHMA meterMappedAvg3D = new MeterDensityAnisotropicRadialHMA(arraymsdnew, params.rnumberofbins, params.thetaphinumberofbins, sim.box(), sim.potentialMaster, params.temperature, sim.coordinateDefinition);
      //  double [] hey=new double[params.thetaphinumberofbins*params.thetaphinumberofbins] ;
      //  for (int i = 0; i < hey.length; i++) {
       //          hey[i] = 0.0391218;
@@ -349,9 +350,9 @@ public class SimSinglet3Dmapping extends Simulation {
        //}
  //      MeterMappedAvg3D meterMappedAvg3D = new MeterMappedAvg3D(hey,params.rnumberofbins,params.thetaphinumberofbins,params.msd,sim.box(), sim.potentialMaster, params.temperature, sim.coordinateDefinition);
 
-        meterMappedAvg3Dmapping.reset();
+        meterMappedAvg3D.reset();
         AccumulatorAverageFixed accMappedAvg = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener pumpMappedAvg = new DataPumpListener(meterMappedAvg3Dmapping, accMappedAvg, interval);
+        DataPumpListener pumpMappedAvg = new DataPumpListener(meterMappedAvg3D, accMappedAvg, interval);
         sim.getIntegrator().getEventManager().addListener(pumpMappedAvg);
 
         AccumulatorAverageFixed pe = new AccumulatorAverageFixed(blockSize);
@@ -359,7 +360,7 @@ public class SimSinglet3Dmapping extends Simulation {
         sim.getIntegrator().getEventManager().addListener(pumppe);
 
 
-        int numBlocks = 10;
+        int numBlocks = 100;
          int intervalLS = 5*interval;
          if (blockSize == 0) blockSize = 1;
         long blockSizeLS = numSteps/(numBlocks*intervalLS);
@@ -428,10 +429,10 @@ public class SimSinglet3Dmapping extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numAtoms = 500;
-         public int rnumberofbins = 20;
+         public int rnumberofbins = 100;
         public int thetaphinumberofbins=1;
         public double density = 1.29;
-        public long numSteps = 100000;
+        public long numSteps = 250000;
         public double temperature = 2.11;
         public double msddependence=2.0;
         public double rc = 3;

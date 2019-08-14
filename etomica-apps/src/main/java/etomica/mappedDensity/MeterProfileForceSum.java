@@ -25,7 +25,7 @@ import etomica.units.dimensions.*;
 /**
  *
  * Meter for calculating force sampling singlet density of fluids
- *
+ * https://doi.org/10.1103/PhysRevLett.120.218001
  */
 public class MeterProfileForceSum implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
@@ -42,9 +42,6 @@ public class MeterProfileForceSum implements IDataSource, DataSourceIndependent,
      * For example, (1,0) is along the x-axis.
      */
     protected int profileDim;
-    /**
-     * Meter that defines the property being profiled.
-     */
     protected final DataTag tag;
     protected double temperature;
 

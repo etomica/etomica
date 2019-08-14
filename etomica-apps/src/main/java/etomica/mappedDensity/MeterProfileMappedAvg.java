@@ -23,7 +23,7 @@ import etomica.space.Vector;
 import etomica.units.dimensions.*;
  /**
  *
- * Meter for calculating mapped averaging singlet density of fluids
+  * Meter for calculating 1D density profile using mapped averaging
  *
  */
 public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
@@ -41,9 +41,6 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
      * For example, (1,0) is along the x-axis.
      */
     protected int profileDim;
-    /**
-     * Meter that defines the property being profiled.
-     */
     protected final DataTag tag;
     protected double temperature;
 
@@ -55,9 +52,9 @@ public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent
         NORMAL, P, ZIDOT, DZIDOT
     }
 
-    /**
-     * Default constructor sets profile along the y-axis, with 100 histogram points.
-     */
+     /**
+      * @param c cumulative integral of the mapped averaging reference probability such that p(x)=c.df(1,x)
+      */
     public MeterProfileMappedAvg(Box box, PotentialMaster potentialMaster, double temperature, FunctionDifferentiable c) {
         this.box = box;
         this.temperature = temperature;

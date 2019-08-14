@@ -20,10 +20,10 @@ import etomica.units.dimensions.*;
 
 /**
  *
- * Meter for calculating three dimensional conventional averaging singlet density with one dimensional mapping
+ * Histograms orientation-dependent density around the lattice sites of a crystal
  */
 
-public class MeterConventional3D implements IDataSource, DataSourceIndependent {
+public class MeterDensityAnisotropic implements IDataSource, DataSourceIndependent {
 
 
     protected final Box box;
@@ -35,22 +35,13 @@ public class MeterConventional3D implements IDataSource, DataSourceIndependent {
     protected IDataInfo dataInfo;
     protected double Rmax;
     protected Vector rivector;
-     protected int rnumberofbins;
+    protected int rnumberofbins;
     protected int thetaphinumberofbins;
-    /**
-     * Vector describing the orientation of the profile.
-     * For example, (1,0) is along the x-axis.
-     */
-    /**
-     * Meter that defines the property being profiled.
-     */
+
     protected final DataTag tag;
     protected CoordinateDefinition latticesite;
 
-    /**
-     * Default constructor sets profile along the y-axis, with 100 histogram points.
-     */
-    public MeterConventional3D(double [] arraymsd,int rnumberofbins,int thetaphinumberofbins, Box box, CoordinateDefinition latticesite) {
+    public MeterDensityAnisotropic(double[] arraymsd, int rnumberofbins, int thetaphinumberofbins, Box box, CoordinateDefinition latticesite) {
         this.box = box;
          this.rnumberofbins = rnumberofbins;
         this.thetaphinumberofbins = thetaphinumberofbins;
