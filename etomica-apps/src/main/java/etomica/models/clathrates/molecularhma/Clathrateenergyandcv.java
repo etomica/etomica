@@ -39,7 +39,7 @@ import etomica.util.ParseArgs;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
+//Main class that calculates HMA energy and heat capacity for type 1 clathrate hydrates (tip4p potential)
 public class Clathrateenergyandcv extends Simulation {
     protected static double[] initialU;
     protected Box box;

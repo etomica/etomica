@@ -21,8 +21,9 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
 import etomica.units.dimensions.Null;
 
-public class MeterDADBWaterTIP4P implements IDataSource {
+//Meter that calculates HMA energy and heat capacity for type 1 clathrate hydrates
 
+public class MeterDADBWaterTIP4P implements IDataSource {
 
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;

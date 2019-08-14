@@ -32,6 +32,8 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
+//Energy minimization for tip4p
+
 public class MinimizationTIP4P extends Simulation {
     private static final long serialVersionUID = 1L;
     protected static double[] initialU;

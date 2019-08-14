@@ -8,8 +8,9 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.OrientationFull3D;
 
-public class MoleculeSiteSource implements MoleculeAgentManager.MoleculeAgentSource {
+//tip4p
 
+public class MoleculeSiteSource implements MoleculeAgentManager.MoleculeAgentSource {
 
     public MoleculeSiteSource(Space space, IMoleculePositionDefinition positionDefinition, MoleculeOrientationDefinition  moleculeOrientationDefinition) {
         this.space = space;
