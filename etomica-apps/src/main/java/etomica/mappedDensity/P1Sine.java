@@ -7,8 +7,11 @@ import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
-//sinusoidal external field
-
+ /**
+ *
+ * sinusoidal external field
+ *
+ */
 public class P1Sine implements IPotentialAtomic, PotentialSoft {
 //defines the external potential that will be added
     private final int n;

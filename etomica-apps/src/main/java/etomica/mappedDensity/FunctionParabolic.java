@@ -3,7 +3,12 @@ package etomica.mappedDensity;
 import etomica.math.SpecialFunctions;
 import etomica.math.function.FunctionDifferentiable;
 import org.apache.commons.math3.special.Erf;
-//parabolic external field
+
+/**
+ *
+ * parabolic external field
+ * expressions for p, q, dp/dz
+ */
 public class FunctionParabolic implements FunctionDifferentiable {
     double arg = 1;  //Vo
     private final double L;

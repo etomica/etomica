@@ -23,9 +23,10 @@ import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
 
-//Meter for calculating 1D mapped averaging averaging sdf with 1D mapping
-//probability=gaussian
-
+/**
+ *
+ * Meter for calculating one dimensional mapped averaging averaging singlet density with one dimensional mapping
+ */
 public class MeterMappedAvg implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
     protected final PotentialMaster potentialMaster;

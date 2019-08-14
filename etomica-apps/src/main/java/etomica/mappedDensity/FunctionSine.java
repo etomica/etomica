@@ -1,8 +1,11 @@
 package etomica.mappedDensity;
 
 import etomica.math.function.FunctionDifferentiable;
-//sinusoidal external field
-
+ /**
+ *
+ * sinusoidal external field
+ * expressions for p, q, dp/dz
+ */
 public class FunctionSine implements FunctionDifferentiable {
 
     private final int n;

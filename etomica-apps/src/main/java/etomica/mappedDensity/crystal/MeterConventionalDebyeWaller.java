@@ -17,7 +17,11 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
 
-//Meter for calculating conventional averaging debye waller factor with 1D mapping
+/**
+ *
+ * Meter for calculating conventional averaging debye waller factor with one dimensional mapping
+ */
+
 public class MeterConventionalDebyeWaller implements IDataSource, DataSourceIndependent {
 
 

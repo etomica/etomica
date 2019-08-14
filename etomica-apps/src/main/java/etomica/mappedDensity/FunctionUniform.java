@@ -1,8 +1,11 @@
 package etomica.mappedDensity;
 
 import etomica.math.function.FunctionDifferentiable;
-//uniform external field
-
+ /**
+ *
+ * uniform external field
+ * expressions for p, q, dp/dz
+ */
 public class FunctionUniform implements FunctionDifferentiable {
 
     private final double L;

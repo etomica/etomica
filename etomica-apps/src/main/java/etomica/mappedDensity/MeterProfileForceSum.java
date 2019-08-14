@@ -21,8 +21,12 @@ import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
-//Meter for calculating force sampling sdf of fluids
 
+/**
+ *
+ * Meter for calculating force sampling singlet density of fluids
+ *
+ */
 public class MeterProfileForceSum implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
     protected final PotentialMaster potentialMaster;

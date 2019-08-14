@@ -17,8 +17,9 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
 
-//Meter for calculating 3D MSD
-
+/**
+ * Meter for calculating three dimensional MSD
+ */
 public class MeterMSDGrid implements IDataSource, DataSourceIndependent {
 
 

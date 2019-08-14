@@ -44,9 +44,11 @@ import etomica.util.random.RandomMersenneTwister;
 import java.awt.*;
 import java.util.Arrays;
 
-//Main class for calculating 3D singlet density with 1D mapping
-//probability=gaussian
-
+/**
+ *
+ * Main class for calculating three dimensional singlet density with one dimensional mapping
+ *probability=gaussian
+ */
 public class MappedDensityfromlattice3D extends Simulation {
 
     public final CoordinateDefinitionLeaf coordinateDefinition;

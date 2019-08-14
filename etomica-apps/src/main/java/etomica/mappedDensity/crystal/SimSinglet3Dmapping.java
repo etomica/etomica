@@ -43,8 +43,10 @@ import etomica.util.random.RandomMersenneTwister;
 
 import java.awt.*;
 import java.util.Arrays;
+/**
+ * Main class for calculating three dimensional singlet density using three dimensional mapping
+ */
 
-//Main class for calculating 3D sdf using 3D mapping
 public class SimSinglet3Dmapping extends Simulation {
 
     public final CoordinateDefinitionLeaf coordinateDefinition;

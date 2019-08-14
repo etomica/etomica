@@ -35,10 +35,9 @@ import etomica.util.ParseArgs;
 import java.util.List;
 
 /**
- * Simple Simulation for Monte Carlo simulation of Lennard-Jonesium.  Interactions are
- * tracked with cell lists.
  *
- * @author Andrew Schultz
+ * Main class that evaluates mapped averaging singlet density
+ *
  */
 
 public class MappedSingletDensity extends Simulation {

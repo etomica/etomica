@@ -35,8 +35,13 @@ import etomica.util.random.RandomMersenneTwister;
 
 import java.util.Arrays;
 
-//Main class for calculating conventional and mapped average debye waller factor with 1D radial mapping
-//probability=gaussian
+/**
+ *
+ * Main class for calculating conventional and mapped average debye waller factor with one dimensional radial mapping
+ * probability=gaussian
+ *
+ */
+
 public class DebyeWallerFactor extends Simulation {
 
     public final CoordinateDefinitionLeaf coordinateDefinition;
