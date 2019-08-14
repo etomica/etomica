@@ -16,9 +16,10 @@ import etomica.units.Null;
 
 import java.io.Serializable;
 
-// Meter that calculates mapped average pair distribution function for fluids
-
-public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent, Serializable, AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> {
+/**
+ * Calculates pair distribution using mapped averaging
+ */
+public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> {
 
     protected final PotentialCalculationForceSum pcForce;
     protected final AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager;
@@ -28,7 +29,7 @@ public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent
     public MeterMappedRdf(double rcforHandfinmap,Space space, PotentialMaster potentialMaster, Box box, int nbins,double density) {
         this.space = space;
         this.box = box;
-this.density=density;
+        this.density=density;
         this.potentialMaster = potentialMaster;
         this.rcforHandfinmap = rcforHandfinmap;
 

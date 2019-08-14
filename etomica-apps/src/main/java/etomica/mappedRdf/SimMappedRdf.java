@@ -5,7 +5,10 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IAtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.*;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
+import etomica.data.IData;
 import etomica.data.meter.MeterRDF;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
@@ -22,11 +25,10 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
-import java.io.IOException;
-
-// Main class that calculates conventional and mapped average pair distribution function for fluids
-
-public class MappedRdf extends Simulation {
+/**
+ * Calculates pair distribution using histograms and mapped averaging
+ */
+public class SimMappedRdf extends Simulation {
 
     public SpeciesSpheresMono species;
     public Box box;
@@ -36,7 +38,7 @@ public class MappedRdf extends Simulation {
     //   public P2SoftSphericalTruncatedForceShifted p2Truncated;
     public P2SoftSphericalTruncatedShifted p2Truncated;
 
-    public MappedRdf(Space _space, int numAtoms, double temperature, double density, double rc) {
+    public SimMappedRdf(Space _space, int numAtoms, double temperature, double density, double rc) {
         super(_space);
 
         //species and potentials
@@ -77,9 +79,9 @@ public class MappedRdf extends Simulation {
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
-        MappedRdf.LJMDParams params = new MappedRdf.LJMDParams();
+        SimMappedRdf.LJMDParams params = new SimMappedRdf.LJMDParams();
 
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
@@ -102,7 +104,7 @@ public class MappedRdf extends Simulation {
 
         Space space = Space.getInstance(3);
 
-        MappedRdf sim = new MappedRdf(space, numAtoms, temperature, density, rc);
+        SimMappedRdf sim = new SimMappedRdf(space, numAtoms, temperature, density, rc);
 
         MeterRDF  meterRDF = null;
         MeterMappedRdf meterMappedRdf = null;
