@@ -16,8 +16,11 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Tensor3D;
 import etomica.spaceNd.TensorND;
-//calculates dynamical matrix for tip4p
 
+/**
+ *
+ * calculates dynamical matrix for rigid molecular crystal
+ */
 public class LatticeSumMolecularCrystal {
 
     public LatticeSumMolecularCrystal(PotentialMaster potentialMaster, Box box, final Space space, int basisDim) {

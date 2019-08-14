@@ -8,7 +8,10 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.OrientationFull3D;
 
-//tip4p
+/**
+ *
+ * tip4p potential
+ */
 
 public class MoleculeSiteSource implements MoleculeAgentManager.MoleculeAgentSource {
 
