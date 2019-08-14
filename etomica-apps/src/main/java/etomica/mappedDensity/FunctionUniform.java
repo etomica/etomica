@@ -1,6 +1,7 @@
 package etomica.mappedDensity;
 
 import etomica.math.function.FunctionDifferentiable;
+//uniform external field
 
 public class FunctionUniform implements FunctionDifferentiable {
 

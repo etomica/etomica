@@ -23,6 +23,9 @@ import etomica.potential.PotentialMaster;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
 
+//Meter for calculating mapped averaging debye waller factor with 1D mapping
+//probability=gaussian
+
 public class MeterMappedAvgDebyeWallerr implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
     protected final PotentialMaster potentialMaster;

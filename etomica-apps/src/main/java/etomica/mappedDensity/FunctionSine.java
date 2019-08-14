@@ -1,6 +1,7 @@
 package etomica.mappedDensity;
 
 import etomica.math.function.FunctionDifferentiable;
+//sinusoidal external field
 
 public class FunctionSine implements FunctionDifferentiable {
 

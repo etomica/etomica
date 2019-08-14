@@ -1,6 +1,9 @@
 package etomica.mappedDensity.crystal;
 
 import static org.apache.commons.math3.special.Erf.erfc;
+
+//Returns 3D mapping velocity
+
 public class Singlet3Dmapping {
 
     private static final double sqrtPi = Math.sqrt(Math.PI);

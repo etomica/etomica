@@ -18,6 +18,7 @@ import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
 
+//Meter for calculating 1D conventional averaging sdf with 1D mapping
 public class MeterConventional implements IDataSource, DataSourceIndependent {
 
 

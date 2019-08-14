@@ -44,7 +44,7 @@ import etomica.util.random.RandomMersenneTwister;
 import java.awt.*;
 import java.util.Arrays;
 
-
+//Main class for calculating 3D sdf using 3D mapping
 public class SimSinglet3Dmapping extends Simulation {
 
     public final CoordinateDefinitionLeaf coordinateDefinition;
@@ -339,7 +339,7 @@ public class SimSinglet3Dmapping extends Simulation {
         sim.getIntegrator().getEventManager().addListener(pumpCon);
 
 
-      MeterMappedAvg3Dmapping meterMappedAvg3Dmapping = new MeterMappedAvg3Dmapping(arraymsdnew,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.potentialMaster, params.temperature, sim.coordinateDefinition);
+      MeterHMASinglet3Dmapping meterMappedAvg3Dmapping = new MeterHMASinglet3Dmapping(arraymsdnew,params.rnumberofbins,params.thetaphinumberofbins,sim.box(),sim.potentialMaster, params.temperature, sim.coordinateDefinition);
      //  double [] hey=new double[params.thetaphinumberofbins*params.thetaphinumberofbins] ;
      //  for (int i = 0; i < hey.length; i++) {
       //          hey[i] = 0.0391218;

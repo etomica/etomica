@@ -21,6 +21,7 @@ import etomica.potential.PotentialMaster;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
+//Meter for calculating mapped averaging sdf of fluids
 
 public class MeterProfileMappedAvg implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 

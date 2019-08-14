@@ -24,6 +24,7 @@ import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
 
+//Meter for calculating mapped averaging sdf using 3D mapping
 public class MeterHMASinglet3Dmapping implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
     protected final PotentialMaster potentialMaster;

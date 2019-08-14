@@ -7,6 +7,7 @@ import etomica.potential.PotentialSoft;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
+//parabolic external field
 
 public class P1Parabolic implements IPotentialAtomic, PotentialSoft {
     double arg = 1;  //Vo

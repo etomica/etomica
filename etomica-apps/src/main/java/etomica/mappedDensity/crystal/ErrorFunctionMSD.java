@@ -2,7 +2,7 @@ package etomica.mappedDensity.crystal;
 
 import etomica.math.SpecialFunctions;
 import etomica.math.function.FunctionDifferentiable;
-
+//Gaussian probability - expressions of cr, q, dp/dr
 public class ErrorFunctionMSD implements FunctionDifferentiable {
 
     private final double msd;

@@ -35,7 +35,8 @@ import etomica.util.random.RandomMersenneTwister;
 
 import java.util.Arrays;
 
-
+//Main class for calculating conventional and mapped average debye waller factor with 1D radial mapping
+//probability=gaussian
 public class DebyeWallerFactor extends Simulation {
 
     public final CoordinateDefinitionLeaf coordinateDefinition;
@@ -282,13 +283,6 @@ public class DebyeWallerFactor extends Simulation {
         DataPumpListener pumpMappedAvgDebyeWallerr = new DataPumpListener(meterMappedAvgDebyeWallerr, accMappedAvgDebyeWallerr, interval);
         sim.getIntegrator().getEventManager().addListener(pumpMappedAvgDebyeWallerr);
 
-        MeterMappedAvgDebyeWallerxyz meterMappedAvgDebyeWallerxyz = new MeterMappedAvgDebyeWallerxyz(params.numAtoms,params.qvector,params.msd,sim.box(), sim.potentialMaster, params.temperature, f, sim.coordinateDefinition);
-        meterMappedAvgDebyeWallerxyz.getXDataSource().setNValues(params.bins);  //map bins=1000
-        meterMappedAvgDebyeWallerxyz.reset();
-        AccumulatorAverageFixed accMappedAvgDebyeWallerxyz = new AccumulatorAverageFixed(blockSize);
-        DataPumpListener pumpMappedAvgDebyeWallerxyz = new DataPumpListener(meterMappedAvgDebyeWallerxyz, accMappedAvgDebyeWallerxyz, interval);
-        sim.getIntegrator().getEventManager().addListener(pumpMappedAvgDebyeWallerxyz);
-
         int numBlocks = 100;
          int intervalLS = 5*interval;
          if (blockSize == 0) blockSize = 1;
@@ -323,8 +317,6 @@ public class DebyeWallerFactor extends Simulation {
         IData dataunc =  accConDebyeWaller.getData(accConDebyeWaller.ERROR);
         IData dataMappedAvgr =  accMappedAvgDebyeWallerr.getData(accMappedAvgDebyeWallerr.AVERAGE);
         IData dataMappedAvguncr =  accMappedAvgDebyeWallerr.getData(accMappedAvgDebyeWallerr.ERROR);
-        IData dataMappedAvgxyz =  accMappedAvgDebyeWallerxyz.getData(accMappedAvgDebyeWallerxyz.AVERAGE);
-        IData dataMappedAvguncxyz =  accMappedAvgDebyeWallerxyz.getData(accMappedAvgDebyeWallerxyz.ERROR);
 
         System.out.println(data.getValue(0)+" "+dataunc.getValue(0)+" "+dataMappedAvgr.getValue(0)+" "+dataMappedAvguncr.getValue(0));
 

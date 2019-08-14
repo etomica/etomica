@@ -86,13 +86,7 @@ public class MappedSingletDensity extends Simulation {
         } else if (params.field == Field.PARABOLIC || params.field == Field.UNIFORM || params.field == Field.PHIPARABOLICPSUMOFGAUSSIANS || params.field==Field.PHIARGPT5PARABOLICPSINESUM) {
             P1Parabolic p1 = new P1Parabolic(space);
             potentialMaster.addPotential(p1, new AtomType[]{atomType});
-        } else if (params.field == Field.LNPARABOLIC  || params.field==Field.PHILNPARABOLICPFOURIERSUM) {
-             P1Lnparabolic p1 = new P1Lnparabolic(space, params.temperature);
-             potentialMaster.addPotential(p1, new AtomType[]{atomType});
-         } else if (params.field == Field.EXPMINUSZSQ) {
-             P1EXP p1 = new P1EXP(space);
-             potentialMaster.addPotential(p1, new AtomType[]{atomType});
-         }
+        }
 
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(params.temperature);
@@ -308,21 +302,6 @@ public class MappedSingletDensity extends Simulation {
             case UNIFORM:
                 f = new FunctionUniform(L);
                 break;
-            case LNPARABOLIC:
-                f = new FunctionLnparabolic(L);
-                break;
-            case PHIPARABOLICPSUMOFGAUSSIANS:
-                f = new FunctionPhiparabolicpsumofgaussians(L,a1,b1,c1,a2,b2,c2,a3,b3,c3,a4,b4,c4,a5,b5,c5);
-                break;
-            case PHISINEPSINESUM:
-                f = new FunctionPhisinepsinesum(L,aa,bb,cc);
-                break;
-            case EXPMINUSZSQ:
-                f = new FunctionExpminuszsq(L,aa0,aa1,aa2,aa3,aa4,aa5,aa6,aa7,aa8,bb1,bb2,bb3,bb4,bb5,bb6,bb7,bb8,w);
-                break;
-            case PHIARGPT5PARABOLICPSINESUM:
-                f = new FunctionPhiargpt5parabolicpsinesum(L,sa1,sb1,sc1,sa2,sb2,sc2,sa3,sb3,sc3,sa4,sb4,sc4,sa5,sb5,sc5,sa6,sb6,sc6,sa7,sb7,sc7,sa8,sb8,sc8);
-                break;
             default:
                 throw new RuntimeException("not yet");
         }
@@ -515,21 +494,6 @@ public class MappedSingletDensity extends Simulation {
                     break;
                 case UNIFORM:
                     f = new FunctionUniform(L);
-                    break;
-                case LNPARABOLIC:
-                    f = new FunctionLnparabolic(L);
-                    break;
-                case PHISINEPSINESUM:
-                    f = new FunctionPhisinepsinesum(L,aa,bb,cc);
-                    break;
-                case PHIPARABOLICPSUMOFGAUSSIANS:
-                    f = new FunctionPhiparabolicpsumofgaussians(L,a1,b1,c1,a2,b2,c2,a3,b3,c3,a4,b4,c4,a5,b5,c5);
-                    break;
-                case EXPMINUSZSQ:
-                    f = new FunctionExpminuszsq(L,aa0,aa1,aa2,aa3,aa4,aa5,aa6,aa7,aa8,bb1,bb2,bb3,bb4,bb5,bb6,bb7,bb8,w);
-                    break;
-                case PHIARGPT5PARABOLICPSINESUM:
-                    f = new FunctionPhiargpt5parabolicpsinesum(L,sa1,sb1,sc1,sa2,sb2,sc2,sa3,sb3,sc3,sa4,sb4,sc4,sa5,sb5,sc5,sa6,sb6,sc6,sa7,sb7,sc7,sa8,sb8,sc8);
                     break;
                 default:
                     throw new RuntimeException("not yet");
