@@ -129,7 +129,6 @@ public class HSMDCavity extends Simulation {
         meterCavity.getXDataSource().setNValues(params.nBins);
         meterCavity.getXDataSource().setXMax(1);
         meterCavity.setBox(sim.box);
-        meterCavity.setResetAfterData(true);
         DataFork forkCavity = new DataFork();
 
         double L = sim.box.getBoundary().getBoxSize().getX(0);
@@ -138,11 +137,10 @@ public class HSMDCavity extends Simulation {
         int nBinsLong = (int) (params.nBins * L3 * 0.5 + 1);
         double xMaxMap = nBinsLong / ((double) params.nBins);
 
-        MeterRDF meterRDF = new MeterRDF(sim.space);
+        MeterRDF meterRDF = new MeterRDF(sim.space, true);
         meterRDF.getXDataSource().setNValues(xMax * params.nBins);
         meterRDF.getXDataSource().setXMax(xMax);
         meterRDF.setBox(sim.box);
-        meterRDF.setResetAfterData(true);
         DataFork forkRDF = new DataFork();
 
         DataProcessorCavity cavityProcessor = new DataProcessorCavity(sim.integrator);
@@ -167,14 +165,11 @@ public class HSMDCavity extends Simulation {
             meterRDFMapped.reset();
             meterRDFMapped.setResetAfterData(true);
 
-            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, 10));
-            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterCavity, 1));
             if (params.doMapping) sim.integrator.addCollisionListener(meterCavityMapped);
             if (params.doMapping) sim.integrator.addCollisionListener(meterRDFMapped);
             DisplayPlot cavityPlot = new DisplayPlot();
             cavityPlot.getDataSet().setUpdatingOnAnyChange(true);
             cavityPlot.getPlot().setYLog(true);
-            forkCavity.addDataSink(cavityProcessor);
 
             AccumulatorAverageFixed accMapped = new AccumulatorAverageFixed(1);
             accMapped.setPushInterval(1);
@@ -189,16 +184,17 @@ public class HSMDCavity extends Simulation {
             DataPumpListener pumpRDFMapped = new DataPumpListener(meterRDFMapped, accRDFMapped, 10000);
             accRDFMapped.addDataSink(cavityPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accRDFMapped.AVERAGE});
 
-            AccumulatorAverageFixed accRDF = new AccumulatorAverageFixed(1);
-            accRDF.setPushInterval(1);
+            AccumulatorAverageFixed accRDF = new AccumulatorAverageFixed(1000);
+            accRDF.setPushInterval(1000);
             forkRDF.addDataSink(accRDF);
             accRDF.addDataSink(cavityPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accRDF.AVERAGE});
 
-            AccumulatorAverageFixed accCavity = new AccumulatorAverageFixed(1);
+            AccumulatorAverageFixed accCavity = new AccumulatorAverageFixed(10000);
             accCavity.setPushInterval(1);
             forkCavity.addDataSink(accCavity);
             accCavity.addDataSink(cavityPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accCavity.AVERAGE});
             cavityPlot.setLegend(new DataTag[]{accCavity.getTag()}, "g(r<1)");
+            accCavity.setBlockDataSink(cavityProcessor);
 
             AccumulatorAverageFixed accConv = new AccumulatorAverageFixed(1);
             accConv.setPushInterval(1);
@@ -225,9 +221,9 @@ public class HSMDCavity extends Simulation {
             sim.integrator.getEventManager().addListener(pumpChi);
             simGraphic.add(displayChi);
 
-            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 10000);
+            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 10);
             sim.integrator.getEventManager().addListener(pumpRDF);
-            DataPumpListener pumpCavity = new DataPumpListener(meterCavity, forkCavity, 10000);
+            DataPumpListener pumpCavity = new DataPumpListener(meterCavity, forkCavity, 1);
             sim.integrator.getEventManager().addListener(pumpCavity);
             sim.integrator.getEventManager().addListener(pumpCavityMapped);
             sim.integrator.getEventManager().addListener(pumpRDFMapped);
@@ -310,12 +306,10 @@ public class HSMDCavity extends Simulation {
         AccumulatorAverageFixed accMapped = null;
         AccumulatorAverageFixed accRDF = null;
         if (params.doConv) {
-            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, 10));
-
-            accRDF = new AccumulatorAverageFixed(1);
+            accRDF = new AccumulatorAverageFixed(steps / 1000);
             forkRDF.addDataSink(accRDF);
 
-            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, (int) (steps / 100));
+            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, forkRDF, 10);
             sim.integrator.getEventManager().addListener(pumpRDF);
         }
         if (params.doMapping) {

@@ -138,11 +138,10 @@ public class HSMDWidom extends Simulation {
         double xMaxMap = nBinsLong / ((double) nBins);
         if (params.mappingCut > 0 && params.mappingCut < xMaxMap) xMaxMap = params.mappingCut;
 
-        MeterRDF meterRDF = new MeterRDF(sim.space);
+        MeterRDF meterRDF = new MeterRDF(sim.space, true);
         meterRDF.getXDataSource().setNValues(nBins * xMax);
         meterRDF.getXDataSource().setXMax(xMax);
         meterRDF.setBox(sim.box);
-        meterRDF.setResetAfterData(true);
         DataFork forkRDF = new DataFork();
 
         MeterWidomInsertion meterWidom = new MeterWidomInsertion(sim.space, sim.getRandom());
@@ -181,9 +180,8 @@ public class HSMDWidom extends Simulation {
             DataProcessorExtract0 gCExtractor = null;
             if (params.doRDF) {
                 int rdfInterval = (5 * 200 + params.nAtoms - 1) / params.nAtoms;
-                sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, rdfInterval));
 
-                AccumulatorAverageFixed accRDF = new AccumulatorAverageFixed(100);
+                AccumulatorAverageFixed accRDF = new AccumulatorAverageFixed(10000 / rdfInterval);
                 accRDF.setPushInterval(1);
                 forkRDF.addDataSink(accRDF);
                 accRDF.addDataSink(gPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accRDF.AVERAGE});
@@ -210,7 +208,7 @@ public class HSMDWidom extends Simulation {
                 displayPfromGC.setDoShowCurrent(false);
                 displayPfromGC.setLabel("P from g(sigma)");
 
-                pumpRDF = new DataPumpListener(meterRDF, forkRDF, 100);
+                pumpRDF = new DataPumpListener(meterRDF, forkRDF, rdfInterval);
                 sim.integrator.getEventManager().addListener(pumpRDF);
             } else if (params.doMappingRDF) {
                 displayGCMap = new DisplayTextBoxesCAE();
@@ -374,9 +372,9 @@ public class HSMDWidom extends Simulation {
             while (stepsPerBlock % rdfInterval != 0) rdfInterval--;
             System.out.println("RDF interval: " + rdfInterval);
             System.out.println("steps per block: " + stepsPerBlock);
-            sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, rdfInterval));
+            accRDF.setBlockSize(stepsPerBlock / rdfInterval);
 
-            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, accRDF, stepsPerBlock);
+            DataPumpListener pumpRDF = new DataPumpListener(meterRDF, accRDF, rdfInterval);
             sim.integrator.getEventManager().addListener(pumpRDF);
         }
 
