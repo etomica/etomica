@@ -2,7 +2,7 @@ package etomica.mappedRdf;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.api.IAtomType;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageFixed;
@@ -12,10 +12,10 @@ import etomica.data.IData;
 import etomica.data.meter.MeterRDF;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
@@ -58,7 +58,7 @@ public class SimMappedRdf extends Simulation {
         potentialMaster.lrcMaster().setEnabled(false);
 
         //controller and integrator
-        integrator = new IntegratorMC(potentialMaster, random, temperature);
+        integrator = new IntegratorMC(potentialMaster, random, temperature, box);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         move = new MCMoveAtom(random, potentialMaster, space);
@@ -68,10 +68,9 @@ public class SimMappedRdf extends Simulation {
         //   p2Truncated = new P2SoftSphericalTruncatedForceShifted(space, potential, rc);
         p2Truncated = new P2SoftSphericalTruncatedShifted(space, potential, rc);
 
-        potentialMaster.addPotential(p2Truncated, new IAtomType[]{species.getLeafType(), species.getLeafType()});
+        potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
-        integrator.setBox(box);
         potentialMaster.setCellRange(2);
 
         potentialMaster.getNbrCellManager(box).assignCellAll();
@@ -128,7 +127,7 @@ public class SimMappedRdf extends Simulation {
             sim.integrator.getEventManager().addListener(rdfPumpListener);
             rdfPumpListener.setInterval(10 * numAtoms);
 
-            SimulationGraphic gsim = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space, sim.getController());
+            SimulationGraphic gsim = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 
             rdfPlot.setDoLegend(false);
             rdfPlot.getPlot().setTitle("Radial Distribution Function");

@@ -1,18 +1,17 @@
 package etomica.mappedRdf;
 
-import etomica.api.IAtom;
-import etomica.api.IAtomList;
-import etomica.api.IBoundary;
-import etomica.api.IPotentialAtomic;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataSourceUniform;
-import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.potential.IPotentialAtomic;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialCalculation;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.Length;
+import etomica.units.dimensions.Length;
 
 public class PotentialCalculationMappedRdf implements PotentialCalculation {
     protected final Vector dr;
@@ -22,7 +21,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
     protected double[] newestgSum;
     protected double[] thirdterm;
     protected double rcforHandfinmap;
-    protected IBoundary boundary;
+    protected Boundary boundary;
     protected final DataSourceUniform xDataSource;
     protected double xMax;
     protected double vol;
@@ -36,11 +35,11 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
     protected final int nbins;
     protected final Space space;
     protected final double[] cumint;
-    protected final AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager;
+    protected final AtomLeafAgentManager<Vector> forceManager;
     protected Potential2SoftSpherical p2;
 
 
-    public PotentialCalculationMappedRdf(double rcforHandfinmap,Space space, Box box, int nbins, AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager) {
+    public PotentialCalculationMappedRdf(double rcforHandfinmap, Space space, Box box, int nbins, AtomLeafAgentManager<Vector> forceManager) {
         dr = space.makeVector();
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
         xDataSource.setTypeMax(DataSourceUniform.LimitType.HALF_STEP);
@@ -116,9 +115,8 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
                 r2 = r * r;
             }
             double u = p2.u(r2);
-            double evm1 = 0;
             double v = calcV(r, u);
-            evm1 = Math.exp(-beta * v);
+            double evm1 = Math.exp(-beta * v);
             q += (D == 2 ? r : r2) * (evm1 - 1) * c1 * (r + 1);
 
         }
@@ -135,28 +133,11 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
                 r2 = r * r;
             }
             double u = p2.u(r2);
-            double evm1 = 0;
             double v = calcV(r, u);
-            evm1 = Math.exp(-beta * v);
+            double evm1 = Math.exp(-beta * v);
             cumint[i] = cumint[i - 1] + (D == 2 ? r : r2) * (evm1) * c1 * (r + 1);
 
         }
-
-    }
-
-    protected double calcXu(double r, double u, double R) {
-
-        double y = cumint(r);
-        double v = calcV(r, u);
-        double uR = p2.u(R);
-        double vR = calcV(R, uR);
-        double evm1 = Math.exp(-beta * v);
-        double evmR = Math.exp(-beta * vR);
-
-        if (r < R)
-            return 0; //y*(evmR/evm1)*(R/r)*(R/r)*beta*4*Math.PI/q*-1;
-        else
-            return 1; //beta*(R/r)*(R/r)*(evmR/evm1)*(1-(4*Math.PI/q*y));
 
     }
 
@@ -165,15 +146,6 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
         if (r > vCut)
             return 0;
         return 0; //u+vShift;
-    }
-
-    protected double cumint(double r) {
-        // r = (exp(c1*i) - 1)
-        double i = Math.log(r + 1) / c1;
-        int ii = (int) i;
-        double y = cumint[ii] + (cumint[ii + 1] - cumint[ii]) * (i - ii);
-        // System.out.println("y "+y);
-        return y;
     }
 
     public double[] gR() {
@@ -205,9 +177,8 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
 
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         if (!(potential instanceof Potential2SoftSpherical)) return;
-        Potential2SoftSpherical p2 = (Potential2SoftSpherical) potential;
-        IAtom atom0 = atoms.getAtom(0);
-        IAtom atom1 = atoms.getAtom(1);
+        IAtom atom0 = atoms.get(0);
+        IAtom atom1 = atoms.get(1);
         dr.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
 
         double xMaxSquared = xMax * xMax;
@@ -217,11 +188,10 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
         if (r > rcforHandfinmap) return;//<l/2
 
         if (r2 < xMaxSquared) {
-            int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
             for (int k = 0; k < xDataSource.getData().getLength(); k++) {
                 double R = xDataSource.getData().getValue(k);
-                     Vector fi = forceManager.getAgent(atom0).force;
-                    Vector fj = forceManager.getAgent(atom1).force;
+                Vector fi = forceManager.getAgent(atom0);
+                Vector fj = forceManager.getAgent(atom1);
                      double xu = R < r ? 1 : 0; //calcXu(r, u, R);
                //      gSum[k] -= ((xu/(4 * Math.PI)))* wp*beta;               //add once for each atom
                      //replaced fi.dot(dr)-fj.dot(dr) terms with fi.dot(dr)

@@ -1,47 +1,46 @@
 package etomica.mappedRdf;
 
-import etomica.api.IAtom;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
-import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.units.Null;
-
-import java.io.Serializable;
+import etomica.space.Vector;
+import etomica.units.dimensions.Null;
 
 /**
  * Calculates pair distribution using mapped averaging
  */
-public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<IntegratorVelocityVerlet.MyAgent> {
+public class MeterMappedRdf implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
     protected final PotentialCalculationForceSum pcForce;
-    protected final AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent> forceManager;
+    protected final AtomLeafAgentManager<Vector> forceManager;
     protected double density;
     protected double rcforHandfinmap;
 
-    public MeterMappedRdf(double rcforHandfinmap,Space space, PotentialMaster potentialMaster, Box box, int nbins,double density) {
+    public MeterMappedRdf(double rcforHandfinmap, Space space, PotentialMaster potentialMaster, Box box, int nbins, double density) {
         this.space = space;
         this.box = box;
-        this.density=density;
+        this.density = density;
         this.potentialMaster = potentialMaster;
         this.rcforHandfinmap = rcforHandfinmap;
 
         pcForce = new PotentialCalculationForceSum();
         if (box != null) {
-            forceManager = new AtomLeafAgentManager<IntegratorVelocityVerlet.MyAgent>(this, box, IntegratorVelocityVerlet.MyAgent.class);
+            forceManager = new AtomLeafAgentManager<>(this, box);
             pcForce.setAgentManager(forceManager);
-        } else {
+        }
+        else {
             forceManager = null;
         }
 
-        pc = new PotentialCalculationMappedRdf(rcforHandfinmap,space, box, nbins, forceManager);
+        pc = new PotentialCalculationMappedRdf(rcforHandfinmap, space, box, nbins, forceManager);
 
         xDataSource = pc.getXDataSource();
 
@@ -55,7 +54,7 @@ public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent
         dataInfo.addTag(tag);
     }
 
-    public IEtomicaDataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 
@@ -89,36 +88,35 @@ public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent
         pcForce.reset();
         pc.reset();
         potentialMaster.calculate(box, allAtoms, pcForce);
-        long numAtoms = box.getLeafList().getAtomCount();
+        long numAtoms = box.getLeafList().size();
 
-       potentialMaster.calculate(box, allAtoms, pc);
-    AtomPair foo=new AtomPair();
-    for (int i=0;i<numAtoms;i++){
-        foo.atom0=box.getLeafList().getAtom(i);
-         for (int j=i+1;j<numAtoms;j++){
-          foo.atom1=box.getLeafList().getAtom(j);
-            pc.doCalculation(foo,null);
-    }
-}
+        potentialMaster.calculate(box, allAtoms, pc);
+        AtomPair foo = new AtomPair();
+        for (int i = 0; i < numAtoms; i++) {
+
+            foo.atom0 = box.getLeafList().get(i);
+            for (int j = i + 1; j < numAtoms; j++) {
+                foo.atom1 = box.getLeafList().get(j);
+                pc.doCalculation(foo, null);
+            }
+        }
 
         final double[] y = data.getData();
 
         double[] r = rData.getData();
-        double dx2 = 0.5 * (xMax - xDataSource.getXMin()) / r.length;
         double[] gSum = pc.getGSum();
-        double[] gR = pc.gR();
         double vol = box.getBoundary().volume();
-  //      System.out.println("metervol " + box.getBoundary().volume());
+        //      System.out.println("metervol " + box.getBoundary().volume());
 
         for (int i = 0; i < r.length; i++) {
 //            double vShell = space.sphereVolume(r[i]+dx2)-space.sphereVolume(r[i]-dx2);
             // y[i] = (gR[i]*callCount+gSum[i])*01/(norm*vShell);
 
-              y[i] =  numAtoms * (numAtoms - 1)/(vol*vol) + (gSum[i]) ;
-        //    y[i] =  (gSum[i] / (norm)) ;
+            y[i] = numAtoms * (numAtoms - 1) / (vol * vol) + (gSum[i]);
+            //    y[i] =  (gSum[i] / (norm)) ;
 
         }
- //       System.out.println(y[10]);
+        //       System.out.println(y[10]);
         return data;
     }
 
@@ -173,7 +171,7 @@ public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent
     protected Box box;
     protected final Space space;
     protected DataFunction data;
-    private IEtomicaDataInfo dataInfo;
+    private IDataInfo dataInfo;
     protected DataDoubleArray rData;
     protected IteratorDirective allAtoms;
     protected final DataSourceUniform xDataSource;
@@ -183,11 +181,11 @@ public class MeterMappedRdf implements IEtomicaDataSource, DataSourceIndependent
     protected final PotentialMaster potentialMaster;
     protected final PotentialCalculationMappedRdf pc;
 
-    public IntegratorVelocityVerlet.MyAgent makeAgent(IAtom a, Box agentBox) {
-        return new IntegratorVelocityVerlet.MyAgent(space);
+    public Vector makeAgent(IAtom a, Box agentBox) {
+        return space.makeVector();
     }
 
-    public void releaseAgent(IntegratorVelocityVerlet.MyAgent agent, IAtom atom, Box agentBox) {
+    public void releaseAgent(Vector agent, IAtom atom, Box agentBox) {
     }
 
 }
