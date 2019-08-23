@@ -3,14 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
+import etomica.atom.AtomType;
+import etomica.atom.iterator.AtomIteratorLeafFilteredType;
 import etomica.data.*;
 import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTensor;
+import etomica.graphics.DeviceButtonGroup;
+import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.polydisperseHS.VelocityWriter;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 import etomica.util.ParseArgs;
@@ -27,13 +33,14 @@ public class GlassProd {
             params.potential = SimGlass.PotentialChoice.HS;
             params.nA = 50;
             params.nB = 50;
-            params.density = 1.0;
+            params.density = 1.62; // 2D params.density = 0.509733; //3D  = 0.69099;
             params.D = 3;
             params.temperature = 1.0;
-            params.numStepsEq = 1000000;
-            params.numSteps = 10000000;
+            params.numStepsEq = 100000;
+            params.numSteps =   1000000;
             params.minDrFilter = 0.4;
             params.qx = 7.0;
+            params.log2StepMin = 10;
         }
 
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
@@ -43,7 +50,7 @@ public class GlassProd {
         int numAtoms = params.nA + params.nB;
         double rho= numAtoms/volume;
         System.out.println("T = " + params.temperature);
-        System.out.println( params.numSteps + " MD steps after " + params.numStepsEq + " equilibaration steps");
+        System.out.println( params.numSteps + " MD steps after " + params.numStepsEq + " equilibaration steps , using dt = " + sim.integrator.getTimeStep());
 
         //Equilibration
         double temperature0 = params.temperatureMelt > params.temperature ? params.temperatureMelt : params.temperature;
@@ -61,6 +68,7 @@ public class GlassProd {
             sim.getController().actionPerformed();
             sim.getController().reset();
         }
+
 
         //Production
         sim.integrator.setIntegratorMC(null, 0);
@@ -82,10 +90,11 @@ public class GlassProd {
 
         //Viscosity
         DataFork pTensorFork = new DataFork();
-        AccumulatorPTensor pTensorAccumVisc = new AccumulatorPTensor(sim.integrator, sim.integrator.getTimeStep());
+        int dn = 1;
+        AccumulatorPTensor pTensorAccumVisc = new AccumulatorPTensor(sim.integrator, dn*sim.integrator.getTimeStep());
         pTensorAccumVisc.setEnabled(true);
         pTensorFork.addDataSink(pTensorAccumVisc);
-        DataPumpListener pTensorAccumViscPump = new DataPumpListener(pTensorMeter, pTensorFork);
+        DataPumpListener pTensorAccumViscPump = new DataPumpListener(pTensorMeter, pTensorFork, dn);
 
         DataProcessor dpSquared = new DataProcessor() {
             DataDouble data = new DataDouble();
@@ -158,6 +167,10 @@ public class GlassProd {
         DataSourceMSD meterMSD = new DataSourceMSD(configStorageMSD);
         configStorageMSD.addListener(meterMSD);
 
+        //VAC
+        DataSourceVAC meterVAC = new DataSourceVAC(configStorageMSD);
+        configStorageMSD.addListener(meterVAC);
+
         //Fs
         DataSourceFs meterFs = new DataSourceFs(configStorageMSD);
         Vector q = sim.getSpace().makeVector();
@@ -173,7 +186,7 @@ public class GlassProd {
         AtomTestDeviation atomFilterDeviation = new AtomTestDeviation(sim.box, configStorageMSD);
         atomFilterDeviation.setMinDistance(params.minDrFilter);
         atomFilterDeviation.setDoMobileOnly(false);
-        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSD, atomFilterDeviation, 5, 30);
+        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSD, atomFilterDeviation, params.log2StepMin, 30);
 
         //Immobile fraction
         DataSourcePercolation.ImmFractionSource meterImmFraction = meterPerc.makeImmFractionSource();
@@ -187,6 +200,18 @@ public class GlassProd {
         //Alpha2
         DataSourceAlpha2 meterAlpha2 = new DataSourceAlpha2(configStorageMSD);
         configStorageMSD.addListener(meterAlpha2);
+
+
+        //S(q)
+
+        AccumulatorAverageFixed accSFac = new AccumulatorAverageFixed(1);  // just average, no uncertainty
+        accSFac.setPushInterval(1);
+        MeterStructureFactor meterSFac = new MeterStructureFactor(sim.getSpace(), sim.box, 15);
+        DataPumpListener pumpSFac = new DataPumpListener(meterSFac, accSFac, 1000);
+        sim.integrator.getEventManager().addListener(pumpSFac);
+        double vB = sim.getSpace().powerD(sim.sigmaB);
+        meterSFac.setAtomTypeFactor(sim.speciesB.getAtomType(0), vB);
+
 
         sim.integrator.getEventManager().addListener(configStorageMSD);
 
@@ -203,7 +228,16 @@ public class GlassProd {
         double pErr  = dataPErr.getValue(0);
         double pCorr = dataPCorr.getValue(0);
 
-        String filenameVisc, filenameMSD, filenameD, filenameFs, filenameF, filenamePerc, filenameImmFrac, filenameL, filenameAlpha2;
+        //S(q)
+        DataGroup dataSF = (DataGroup)accSFac.getData();
+        IData dataSFAvg = dataSF.getData(accSFac.AVERAGE.index);
+        int nSF  = dataSFAvg.getLength();
+        IData xData = meterSFac.getIndependentData(0);
+        for(int i=0;i<nSF; i++){
+            System.out.println(xData.getValue(i) + " "+ dataSFAvg.getValue(i));
+        }
+
+        String filenameVisc, filenameMSD, filenameVAC, filenameD, filenameFs, filenameF, filenamePerc, filenameImmFrac, filenameL, filenameAlpha2;
         String filenamePxyAC = "";
         if(sim.potentialChoice == SimGlass.PotentialChoice.HS){
             double phi;
@@ -217,6 +251,7 @@ public class GlassProd {
             filenameVisc = String.format("viscRho%1.3f.out",rho);
             filenameMSD = String.format("msdRho%1.3f.out", rho);
             filenameD = String.format("dRho%1.3f.out", rho);
+            filenameVAC = String.format("vacRho%1.3f.out", rho);
             filenameFs = String.format("fsRho%1.3fQ%1.2f.out", rho, params.qx);
             filenameF = String.format("fRho%1.3f.out", rho);
             filenamePerc = String.format("percRho%1.3f.out", rho);
@@ -253,6 +288,7 @@ public class GlassProd {
             filenameVisc = String.format("viscRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameMSD = String.format("msdRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameD = String.format("dRho%1.3fT%1.3f.out",  rho, params.temperature);
+            filenameVAC = String.format("vacRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameFs = String.format("fsRho%1.3fT%1.3f%Q1.2f.out", rho, params.temperature, params.qx);
             filenameF = String.format("fRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenamePerc = String.format("percRho%1.3fT%1.3f.out",  rho, params.temperature);
@@ -306,10 +342,11 @@ public class GlassProd {
         }
 
         //MSD
-        FileWriter fileWriterMSD, fileWriterD, fileWriterFs, fileWriterF, fileWriterPerc, fileWriterImmFrac, fileWriterL, fileWriterAlpha2;
+        FileWriter fileWriterMSD, fileWriterVAC, fileWriterD, fileWriterFs, fileWriterF, fileWriterPerc, fileWriterImmFrac, fileWriterL, fileWriterAlpha2;
         try {
             fileWriterMSD = new FileWriter(filenameMSD,false);
             fileWriterD   = new FileWriter(filenameD,  false);
+            fileWriterVAC = new FileWriter(filenameVAC,false);
             fileWriterFs  = new FileWriter(filenameFs, false);
             fileWriterF   = new FileWriter(filenameF,  false);
             fileWriterPerc   = new FileWriter(filenamePerc,  false);
@@ -323,10 +360,13 @@ public class GlassProd {
                 double yiErr = meterMSD.errData.getValue(i);
                 double yiFs = meterFs.getData().getValue(i);
                 double yiF  = meterF.getData().getValue(i);
+                double yiVAC = meterVAC.getData().getValue(i);
+                double yiVACErr = meterVAC.errData.getValue(i);
                 double yiL  = meterL.getData().getValue(i);
                 if( !Double.isNaN(yi) && !Double.isNaN(yiErr) && !Double.isNaN(yiFs)){
                     fileWriterMSD.write(xi + " " + yi + " " + yiErr+"\n");
-                    fileWriterD.write(xi + " " + yi/6/xi + " " + yiErr/6/xi + "\n");
+                    fileWriterD.write(xi + " " + yi/2/params.D/xi + " " + yiErr/2/params.D/xi + "\n");
+                    fileWriterVAC.write(xi + " " + yiVAC + " " + yiVACErr +"\n");
                     fileWriterFs.write(xi + " " + yiFs + "\n");
                     fileWriterF.write(xi + " " + yiF + "\n");
                     double yiPerc  = meterPerc.getData().getValue(i);
@@ -349,6 +389,7 @@ public class GlassProd {
                 }
             }
             fileWriterMSD.close();
+            fileWriterVAC.close();
             fileWriterD.close();
             fileWriterFs.close();
             fileWriterF.close();
@@ -360,13 +401,21 @@ public class GlassProd {
             System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
         }
         double time1 = System.currentTimeMillis();
-        System.out.println("\ntime: " + (time1-time0)/1000/3600 + " hrs");
+        double sim_time = (time1-time0)/1000/3600;
+        if(sim_time > 1.0){
+            System.out.println("\ntime: " + sim_time + " hrs");
+        }else{
+            System.out.println("\ntime: " + (sim_time*60) + " mins");
+        }
+
+
     }
 
     public static class SimParams extends SimGlass.GlassParams {
         public int numStepsEq = 10000;
         public int numSteps =   1000000;
         public double minDrFilter = 0.4;
+        public int log2StepMin = 5;
         public double temperatureMelt = 0;
         public double qx = 7.0;
     }

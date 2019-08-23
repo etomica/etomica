@@ -369,7 +369,7 @@ public class PolydisperseHS extends Simulation {
     }
 
     public static class HSPolyParam extends ParameterBase {
-        public boolean isGraphics = true;
+        public boolean isGraphics = !true;
         public int nC = 4;
         public int numAtoms = 4*nC*nC*nC;
 
@@ -390,7 +390,7 @@ public class PolydisperseHS extends Simulation {
         public long numStepsComp = 10000;
         public long numStepsEqu  = 10000;
 
-        public double timestep   = 0.01;
+        public double timestep   = 0.001;
         public long numStepsProd = 100000;
 
         //RDF

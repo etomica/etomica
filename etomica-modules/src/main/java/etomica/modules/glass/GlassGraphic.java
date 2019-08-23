@@ -1,6 +1,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.glass;
 
@@ -1212,9 +1215,6 @@ public class GlassGraphic extends SimulationGraphic {
         final DisplayTextBoxesCAE pDisplay = new DisplayTextBoxesCAE();
         pDisplay.setAccumulator(pAccumulator);
 
-
-
-
         //MSD
         DataSourceMSD meterMSD = new DataSourceMSD(configStorageMSD);
         configStorageMSD.addListener(meterMSD);
@@ -1236,6 +1236,16 @@ public class GlassGraphic extends SimulationGraphic {
         DataPumpListener pumpMSDB = new DataPumpListener(meterMSDB, plotMSD.getDataSet().makeDataSink(), 1000);
         plotMSD.setLegend(new DataTag[]{meterMSDB.getTag()}, "B");
         sim.integrator.getEventManager().addListener(pumpMSDB);
+
+        //VAC
+        DataSourceVAC meterVAC = new DataSourceVAC(configStorageMSD);
+        configStorageMSD.addListener(meterVAC);
+        DisplayPlot plotVAC = new DisplayPlot();
+        DataPumpListener pumpVAC = new DataPumpListener(meterVAC, plotVAC.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpVAC);
+        plotVAC.setLabel("VAC");
+        plotVAC.getPlot().setXLog(true);
+        add(plotVAC);
 
 
         DataSourceAlpha2 meterAlpha2 = new DataSourceAlpha2(configStorageMSD);
@@ -1487,6 +1497,7 @@ public class GlassGraphic extends SimulationGraphic {
                     meterFsB.reset();
                     meterFOld.reset();
                     meterF.reset();
+                    meterVAC.reset();
                     meterCorrelationAA.reset();
                     meterCorrelationAB.reset();
                     meterCorrelationBB.reset();
@@ -1527,6 +1538,7 @@ public class GlassGraphic extends SimulationGraphic {
                     meterFsB.reset();
                     meterF.reset();
                     meterFOld.reset();
+                    meterVAC.reset();
                     meterCorrelationAA.reset();
                     meterCorrelationAB.reset();
                     meterCorrelationBB.reset();
@@ -1715,7 +1727,7 @@ public class GlassGraphic extends SimulationGraphic {
             params.potential = SimGlass.PotentialChoice.HS;
             params.nA = 100;
             params.nB = 100;
-            params.density = 1.6;
+            params.density = 1.0;
             params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);

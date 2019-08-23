@@ -185,7 +185,7 @@ public class SimGlass extends Simulation {
             }
             integrator.reset();
             integrator.resetStepCount();
-            integrator.setTimeStep(0.005);
+            integrator.setTimeStep(tStep);
         }
 
     }

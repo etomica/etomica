@@ -54,7 +54,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         if (n < 1) n = 0;
         msdSum = Arrays.copyOf(msdSum, n);
         msd2Sum = Arrays.copyOf(msd2Sum, n);
-        msdSumBlock = Arrays.copyOf(msdSum, n);
+        msdSumBlock = Arrays.copyOf(msdSumBlock, n);
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
         errData = new DataFunction(new int[]{n});
@@ -103,7 +103,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     @Override
     public void newConfigruation() {
         reset(); // reallocates if needed
-        int blockSize = 10;
+        int blockSize = 1;
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
         IAtomList atoms = configStorage.getBox().getLeafList();
@@ -119,11 +119,12 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
                 }
                 double iAvg = iSum/iSamples;
                 msdSumBlock[i-1] += iAvg;
-                if(step % blockSize*(1L << (i - 1)) == 0){
-                    msdSum[i-1] += msdSumBlock[i-1]/blockSize;
-                    msd2Sum[i-1] += msdSumBlock[i-1]/blockSize * msdSumBlock[i-1]/blockSize;
+                if(step % (blockSize*(1L << (i - 1))) == 0){
+                    double xb = msdSumBlock[i-1]/blockSize;
+                    msdSum[i-1] += xb;
+                    msd2Sum[i-1] += xb*xb;
+                    nSamples[i-1]++;
                     msdSumBlock[i-1] = 0;
-                    nSamples[i - 1]++;
                 }
                 for (MSDSink s : msdSinks) {
                     s.putMSD(i - 1, step, iAvg);

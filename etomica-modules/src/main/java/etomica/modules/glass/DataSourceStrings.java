@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
-import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.*;
@@ -36,14 +35,14 @@ public class DataSourceStrings implements IDataSource, ConfigurationStorage.Conf
     protected double nbrMax2 = 1.5 * 1.5;
     protected final int[] strings;
     protected final int[] nextAtom, firstAtoms;
-    protected int log2StepS, log2StepE;
+    protected int log2StepMin, log2StepMax;
 
 
 
-    public DataSourceStrings(ConfigurationStorage configStorage, int log2StepS, int log2StepE) {
+    public DataSourceStrings(ConfigurationStorage configStorage, int log2StepMin, int log2StepMax) {
         this.configStorage = configStorage;
-        this.log2StepS = log2StepS;
-        this.log2StepE = log2StepE;
+        this.log2StepMin = log2StepMin;
+        this.log2StepMax = log2StepMax;
         box = configStorage.getBox();
         numAtoms = box.getLeafList().size();
         nStrings = new long[0];
@@ -112,7 +111,7 @@ public class DataSourceStrings implements IDataSource, ConfigurationStorage.Conf
         IAtomList atoms = box.getLeafList();
 
 //Change the 3
-        for (int i = log2StepS; i < numAtomInString.length && i <= log2StepE; i++) {
+        for (int i = log2StepMin; i < numAtomInString.length && i <= log2StepMax; i++) {
                 if (step % (1L << (i - 1)) == 0) {
                 atomTestDeviation.setConfigIndex(i);
                 for(int j=0; j<numAtoms; j++){

@@ -91,7 +91,6 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
         }
 
         for (int i = 0; i < fsSum.length; i++) {
-            // (3/5) for 3D instead of (1/2) for 2D
             y[i] = fsSum[i] / (nAtoms * nSamples[i]) ; // Why subtract "-1" ?
         }
         return data;
