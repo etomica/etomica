@@ -4,6 +4,9 @@
 package etomica.modules.glass;
 
 import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -17,59 +20,44 @@ import java.util.Arrays;
 /**
  * Computes the excess kurtosis (alpha2) for the distribution of displacements
  */
-public class DataSourceF implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent {
+public class DataSourceVAC implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent {
 
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
-    protected DataFunction data;
+    protected DataFunction data, errData;
     protected DataFunction.DataInfoFunction dataInfo;
-    protected double[] fSum;
+    protected double[] vacSum, vac2Sum;
     protected final DataTag tTag, tag;
     protected long[] nSamples;
-    protected final Vector dr, q;
     protected AtomType type;
-    protected double strucFac =0;
-    protected double[] cSum;
-    protected double[] sSum;
+    protected Space space;
 
-
-    public DataSourceF(ConfigurationStorage configStorage) {
+    public DataSourceVAC(ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
-        Space space = configStorage.getBox().getSpace();
-        fSum = new double[0];
+        space = configStorage.getBox().getSpace();
+        vacSum = new double[0];
+        vac2Sum = new double[0];
         nSamples = new long[0];
         tag = new DataTag();
         tTag = new DataTag();
-        dr = space.makeVector();
-        q = space.makeVector();
-        q.setX(0,7.0);
-        cSum = new double[0];
-        sSum = new double[0];
         reset();
     }
 
+
     public void reset() {
         int n = configStorage.getLastConfigIndex();
-        if (n == fSum.length && data != null) return;
+        if (n  == vacSum.length && data != null) return;
         if (n < 1) n = 0;
-        if(n==0){
-            strucFac = 0;
-        }
-        fSum = Arrays.copyOf(fSum, n);
+        vacSum = Arrays.copyOf(vacSum, n);
+        vac2Sum = Arrays.copyOf(vac2Sum, n);
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
+        errData = new DataFunction(new int[]{n});
         tData = new DataDoubleArray(new int[]{n});
         tDataInfo = new DataDoubleArray.DataInfoDoubleArray("t", Time.DIMENSION, new int[]{n});
-        dataInfo = new DataFunction.DataInfoFunction("F(t)", Null.DIMENSION, this);
+        dataInfo = new DataFunction.DataInfoFunction("VAC(t)", Null.DIMENSION, this);
         dataInfo.addTag(tag);
-        cSum = Arrays.copyOf(cSum, n+1);
-        sSum = Arrays.copyOf(sSum, n+1);
-
-        if(n != 0){
-            cSum[n] = cSum[n-1];
-            sSum[n] = sSum[n-1];
-        }
 
         double[] t = tData.getData();
         if (t.length > 0) {
@@ -85,9 +73,17 @@ public class DataSourceF implements IDataSource, ConfigurationStorage.Configurat
     public IData getData() {
         if (configStorage.getLastConfigIndex() < 1) return data;
         double[] y = data.getData();
+        double[] yErr = errData.getData();
+        int nAtoms = configStorage.getSavedConfig(0).length;
+        if(type != null){
+            Box box = configStorage.getBox();
+            nAtoms = box.getNMolecules(type.getSpecies());
+        }
 
-        for (int i = 0; i < fSum.length; i++) {
-            y[i] = fSum[i] / (strucFac/nSamples[0])/nSamples[i];
+        for (int i = 0; i < vacSum.length; i++) {
+            long M = nAtoms*nSamples[i];
+            y[i] = vacSum[i]/M;
+            yErr[i] = Math.sqrt((vac2Sum[i]/M - y[i]*y[i]) / (M - 1));
         }
         return data;
     }
@@ -102,31 +98,30 @@ public class DataSourceF implements IDataSource, ConfigurationStorage.Configurat
         return dataInfo;
     }
 
+    public void setAtomType(AtomType type) {
+        this.type = type;
+    }
 
     @Override
     public void newConfigruation() {
         reset(); // reallocates if needed
         long step = configStorage.getSavedSteps()[0];
-        Vector[] positions = configStorage.getSavedConfig(0);
-        double c0Sum =0 , s0Sum = 0;
-        for (int j = 0; j < positions.length; j++) {
-            double qdotr0 = q.dot(positions[j]);
-            c0Sum += Math.cos(qdotr0);
-            s0Sum += Math.sin(qdotr0);
-        }
-        strucFac += c0Sum*c0Sum + s0Sum*s0Sum;
-
-        for (int i = 1, d = 1; d <= step && (step - 1) % d == 0; i++, d *= 2) {
-            cSum[i] = cSum[0];
-            sSum[i] = sSum[0];
-        }
-
-        cSum[0] = c0Sum;
-        sSum[0] = s0Sum;
-
-        for (int i = 1, d = 1; d < step + 1 && step % d == 0; i++, d *= 2) {
-            fSum[i - 1] += c0Sum * cSum[i] + s0Sum * sSum[i];
-            nSamples[i-1]++;
+        Vector[] velocities = configStorage.getSavedVel(0);
+        Box box = configStorage.getBox();
+        IAtomList atoms = box.getLeafList();
+        for (int i = 1; i < vacSum.length; i++) {
+            if (step % (1L << (i - 1)) == 0) {
+                Vector[] iVelocities = configStorage.getSavedVel(i);
+                for (int j = 0; j < velocities.length; j++) {
+                    IAtom jAtom = atoms.get(j);
+                    if(type == null || jAtom.getType() == type){
+                        double vaci = velocities[j].dot(iVelocities[j]);
+                        vacSum[i-1] += vaci;
+                        vac2Sum[i-1] += vaci*vaci;
+                    }
+                }
+                nSamples[i - 1]++;
+            }
         }
     }
 

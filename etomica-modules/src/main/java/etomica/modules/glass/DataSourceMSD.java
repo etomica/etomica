@@ -25,7 +25,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
     protected DataFunction data, errData;
     protected DataFunction.DataInfoFunction dataInfo;
-    protected double[] msdSum, msd2Sum;
+    protected double[] msdSum, msd2Sum, msdSumBlock;
     protected final DataTag tTag, tag;
     protected long[] nSamples;
     protected final AtomType type;
@@ -40,6 +40,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         this.type = type;
         msdSum = new double[0];
         msd2Sum = new double[0];
+        msdSumBlock = new double[0];
         nSamples = new long[0];
         tag = new DataTag();
         tTag = new DataTag();
@@ -53,6 +54,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         if (n < 1) n = 0;
         msdSum = Arrays.copyOf(msdSum, n);
         msd2Sum = Arrays.copyOf(msd2Sum, n);
+        msdSumBlock = Arrays.copyOf(msdSumBlock, n);
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
         errData = new DataFunction(new int[]{n});
@@ -101,6 +103,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     @Override
     public void newConfigruation() {
         reset(); // reallocates if needed
+        int blockSize = 1;
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
         IAtomList atoms = configStorage.getBox().getLeafList();
@@ -115,12 +118,18 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
                     iSamples++;
                 }
                 double iAvg = iSum/iSamples;
-                msdSum[i - 1] += iAvg;
-                msd2Sum[i - 1] += iAvg*iAvg;
-                nSamples[i - 1]++;
+                msdSumBlock[i-1] += iAvg;
+                if(step % (blockSize*(1L << (i - 1))) == 0){
+                    double xb = msdSumBlock[i-1]/blockSize;
+                    msdSum[i-1] += xb;
+                    msd2Sum[i-1] += xb*xb;
+                    nSamples[i-1]++;
+                    msdSumBlock[i-1] = 0;
+                }
                 for (MSDSink s : msdSinks) {
                     s.putMSD(i - 1, step, iAvg);
                 }
+
             }
         }
     }

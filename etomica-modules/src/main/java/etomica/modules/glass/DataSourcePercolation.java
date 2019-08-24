@@ -32,16 +32,16 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     protected final boolean[] isVisited;
     protected final Space space;
     protected final Vector[] r;
-    protected int log2StepS, log2StepE;
+    protected int log2StepMin, log2StepMax;
 
 
-    public DataSourcePercolation(ConfigurationStorage configStorage, AtomTestDeviation atomTest, int log2StepS, int log2StepE) {
+    public DataSourcePercolation(ConfigurationStorage configStorage, AtomTestDeviation atomTest, int log2StepMin, int log2StepMax) {
         this.configStorage = configStorage;
 
         clusterer = new AtomNbrClusterer(configStorage.getBox(), atomTest, true);
         this.atomTest = atomTest;
-        this.log2StepS = log2StepS;
-        this.log2StepE = log2StepE;
+        this.log2StepMin = log2StepMin;
+        this.log2StepMax = log2StepMax;
         numAtoms = configStorage.getBox().getLeafList().size();
         clusterSize = new int[numAtoms][2];
         clusterStack = new int[numAtoms];
@@ -58,19 +58,19 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     }
 
     public void setLog2StepStart(int newStart) {
-        log2StepS = newStart;
+        log2StepMin = newStart;
     }
 
     public int getLog2StepStart() {
-        return log2StepS;
+        return log2StepMin;
     }
 
     public void setLog2StepEnd(int newEnd) {
-        log2StepE = newEnd;
+        log2StepMax = newEnd;
     }
 
     public int getLog2StepEnd() {
-        return log2StepE;
+        return log2StepMax;
     }
 
     public void setNbrMax(double nbrMax) { clusterer.setNbrMax(nbrMax);}
@@ -113,7 +113,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         reset(); // reallocates if needed
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
-        for (int i = log2StepS; i < percP.length && i <= log2StepE; i++) {
+        for (int i = log2StepMin; i < percP.length && i <= log2StepMax; i++) {
             if (step % (1L << i) == 0) {
                 for(int j=0; j<numAtoms; j++){
                     isVisited[j] = false;

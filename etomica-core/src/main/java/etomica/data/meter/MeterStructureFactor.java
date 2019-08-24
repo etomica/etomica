@@ -182,9 +182,9 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
                 IAtom atom = atomList.get(i);
                 int typeIdx = atom.getType().getIndex();
                 double signal = atomTypeSignal.length > typeIdx ? atomTypeSignal[typeIdx] : 1.0;
-                double dotprod = signal * waveVec[k].dot(atom.getPosition());
-                term1 += Math.cos(dotprod);
-                term2 += Math.sin(dotprod);
+                double dotprod = waveVec[k].dot(atom.getPosition());
+                term1 += signal * Math.cos(dotprod);
+                term2 += signal * Math.sin(dotprod);
             }
             struct[k] = ((term1*term1) + (term2*term2))/n2;
         }

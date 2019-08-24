@@ -15,6 +15,7 @@ import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
 
+import java.security.ProtectionDomain;
 import java.util.Arrays;
 
 /**
@@ -30,12 +31,13 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
     protected double[] fsSum;
     protected final DataTag tTag, tag;
     protected long[] nSamples;
-    protected final Vector dr, q;
+    protected Vector dr, q;
     protected AtomType type;
+    protected Space space;
 
     public DataSourceFs(ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
-        Space space = configStorage.getBox().getSpace();
+        space = configStorage.getBox().getSpace();
         fsSum = new double[0];
         nSamples = new long[0];
         tag = new DataTag();
@@ -45,6 +47,16 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
         q.setX(0,7.0);
         reset();
     }
+
+    public void setQ(Vector q) {
+        this.q = space.makeVector();
+        for (int i = 0; i < q.getD(); i++) {
+            this.q.setX(i, q.getX(i));
+        }
+    }
+
+
+    public Vector getQ(){return  this.q;}
 
     public void reset() {
         int n = configStorage.getLastConfigIndex();
@@ -79,7 +91,6 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
         }
 
         for (int i = 0; i < fsSum.length; i++) {
-            // (3/5) for 3D instead of (1/2) for 2D
             y[i] = fsSum[i] / (nAtoms * nSamples[i]) ; // Why subtract "-1" ?
         }
         return data;
