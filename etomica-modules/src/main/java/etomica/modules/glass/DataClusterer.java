@@ -451,7 +451,7 @@ public class DataClusterer implements IDataSink {
             }
             if (nEmpty > 0) System.out.println(nEmpty + " empty");
             System.out.println(nChanged + "/" + (allData.size()) + " changed");
-            if (nChanged == 0) break;
+            if (nChanged == 0 && outer > 0) break;
         }
 
         if (clusterOutName != null) {
