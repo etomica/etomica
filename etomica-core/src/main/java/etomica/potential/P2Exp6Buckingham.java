@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.space.Vector;
 import etomica.exception.MethodNotImplementedException;
 import etomica.space.Space;
 import etomica.units.dimensions.CompoundDimension;
@@ -25,18 +24,12 @@ import etomica.units.dimensions.Length;
 
 public class P2Exp6Buckingham extends Potential2SoftSpherical {
 
-    public P2Exp6Buckingham(Space _space) {
-              this(_space, 1.0, 1.0, 1.0, 1.0);
-    }
-
     public P2Exp6Buckingham(Space _space, double epsilon, double alpha, double rm, double rmax) {
         super(_space);
-        dr01 = space.makeVector();
         setEpsilon(epsilon);
         setAlpha(alpha);
         setRm(rm);
         setRmax(rmax);
-
     }
 
     public double getRmax() {
@@ -52,16 +45,11 @@ public class P2Exp6Buckingham extends Potential2SoftSpherical {
      */
     public double u(double r2) {
         double r = Math.sqrt(r2);
+        if (r < rmax) return Double.POSITIVE_INFINITY;
         double s = rm/r;
-        double s2 = rmSquared/r2;
+        double s2 = s * s;
         double s6 = s2*s2*s2;
 
-        if (r <
-        	rmax) {
-            return Double.POSITIVE_INFINITY;
-        }
-        //System.out.println(r+ " "+epsilon*alpha/(alpha-6)*(6/alpha* Math.exp(alpha*(1 - 1/s)) - s6));
-        //System.out.println(s);
         return  epsilon*alpha/(alpha-6)*(6/alpha* Math.exp(alpha*(1 - 1/s)) - s6);
         
     }
@@ -71,10 +59,11 @@ public class P2Exp6Buckingham extends Potential2SoftSpherical {
      */
     public double du(double r2) {
     	double r = Math.sqrt(r2);
+        if (r < rmax) return Double.POSITIVE_INFINITY;
         double s = rm/r;
-        double s2 = rmSquared/r2;
+        double s2 = s * s;
         double s7 = s2*s2*s2*s;
-        return -epsilon6*alpha /s/(alpha - 6)* (Math.exp(alpha*(1 - 1/s)) - s7);
+        return -6 * epsilon * alpha / s / (alpha - 6) * (Math.exp(alpha * (1 - 1 / s)) - s7);
 
     }
 
@@ -84,10 +73,11 @@ public class P2Exp6Buckingham extends Potential2SoftSpherical {
      */
     public double d2u(double r2) {
     	double r = Math.sqrt(r2);
+        if (r < rmax) return Double.POSITIVE_INFINITY;
         double s = rm/r;
-        double s2 = rmSquared/r2;
+        double s2 = s * s;
         double s8 = s2*s2*s2*s2;
-        return epsilon6*alpha/s2/(alpha - 6) * (alpha*Math.exp(alpha*(1 - 1/s)) - 7*s8);
+        return 6 * epsilon * alpha / s2 / (alpha - 6) * (alpha * Math.exp(alpha * (1 - 1 / s)) - 7 * s8);
     }
 
     /**
@@ -103,7 +93,6 @@ public class P2Exp6Buckingham extends Potential2SoftSpherical {
 
     public final void setEpsilon(double eps) {
         epsilon = eps;
-        epsilon6 = eps*6.0;
     }
 
     public double getAlpha() {
@@ -120,24 +109,7 @@ public class P2Exp6Buckingham extends Potential2SoftSpherical {
 
     public final void setRm(double rm) {
     	this.rm = rm;
-        rmSquared = rm*rm;
     }
-  
-    public double getRmSquared() {
-		return rmSquared;
-	}
-
-	public void setRmSquared(double rmSquared) {
-		this.rmSquared = rmSquared;
-	}
-
-	public double getEpsilon6() {
-		return epsilon6;
-	}
-
-	public void setEpsilon6(double epsilon6) {
-		this.epsilon6 = epsilon6;
-	}
 
 	public Dimension getADimension() {
         return Energy.DIMENSION;
@@ -151,14 +123,8 @@ public class P2Exp6Buckingham extends Potential2SoftSpherical {
         return new CompoundDimension(new Dimension[] {Energy.DIMENSION, Length.DIMENSION}, new double[] {1.0, 6.0});
     }
 
-    protected final Vector dr01;
-
-    private static final long serialVersionUID = 1L;
-    private double rm, rmSquared;
+    private double rm;
     private double epsilon;
-    private double epsilon6;
     private double alpha;
     private double rmax;
-
-
 }
