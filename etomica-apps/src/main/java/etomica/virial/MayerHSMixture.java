@@ -8,6 +8,7 @@ import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotential;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * This class represents a Mayer function for any pair of species from a
@@ -29,18 +30,22 @@ public class MayerHSMixture implements MayerFunction {
 
     protected final double[][] sigma2;
     protected final double[][] allVal;
+    protected Box box;
+    protected final Vector rij;
+    protected boolean flag;
 
-    public static MayerHSMixture makeReferenceF(Space space, int nPoints, double[][] pairSigma) {
-        return new MayerHSMixture(nPoints, pairSigma, 1, true, space);
+    public static MayerHSMixture makeReferenceF(Space space, int nPoints, double[][] pairSigma, boolean flag) {
+        return new MayerHSMixture(nPoints, pairSigma, 1, true, space, flag);
     }
 
-    public static MayerHSMixture makeTargetF(int nPoints, double[][] pairSigma) {
-        return new MayerHSMixture(nPoints, pairSigma, -1, false, null);
+    public static MayerHSMixture makeTargetF(Space space, int nPoints, double[][] pairSigma, boolean flag) {
+        return new MayerHSMixture(nPoints, pairSigma, -1, false, space, flag);
     }
 
-    protected MayerHSMixture(int nPoints, double[][] pairSigma, double val, boolean isRef, Space space) {
+    protected MayerHSMixture(int nPoints, double[][] pairSigma, double val, boolean isRef, Space space, boolean flag) {
         sigma2 = new double[nPoints][nPoints];
         allVal = new double[nPoints][nPoints];
+        rij = space.makeVector();
 
         for (int i = 0; i < nPoints; i++) {
             for (int j = 0; j < nPoints; j++) {
@@ -54,7 +59,16 @@ public class MayerHSMixture implements MayerFunction {
     public double f(IMoleculeList pair, double r2, double beta) {
         int i = pair.getMolecule(0).getIndex();
         int j = pair.getMolecule(1).getIndex();
-        return (r2 < sigma2[i][j]) ? allVal[i][j] : 0.0;
+        if(flag){
+            Vector ri = pair.getMolecule(0).getChildList().getAtom(0).getPosition();
+            Vector rj = pair.getMolecule(1).getChildList().getAtom(0).getPosition();
+            rij.Ev1Mv2(ri, rj);
+            box.getBoundary().nearestImage(rij);
+            double rnew2 = rij.squared();
+            return (rnew2 < sigma2[i][j]) ? allVal[i][j] : 0.0;
+        }
+        else return (r2 < sigma2[i][j]) ? allVal[i][j] : 0.0;
+
     }
 
     public IPotential getPotential() {
@@ -62,5 +76,6 @@ public class MayerHSMixture implements MayerFunction {
     }
 
     public void setBox(Box newBox) {
+        box = newBox;
     }
 }
