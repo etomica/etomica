@@ -32,7 +32,7 @@ public class VirialHSMixtureOverlap {
         } else {
             params.nPoints = 8;
             params.numSteps = 100000000L;
-            params.ref = VirialHSParam.CHAIN_TREE;
+            params.ref = RefChoice.CHAIN_TREE;
             params.chainFrac = 0.5;
             params.q = 0.2;
             params.nonAdd = 0.0;
@@ -43,7 +43,7 @@ public class VirialHSMixtureOverlap {
         final int nPoints = params.nPoints;
         long steps = params.numSteps;
         final double q = params.q;
-        final int ref = params.ref;
+        final RefChoice ref = params.ref;
         System.out.println("   q: " + q);
         final double sigmaB = 1;
         final double sigmaS = q * sigmaB;
@@ -85,19 +85,19 @@ public class VirialHSMixtureOverlap {
         targetCluster.setTemperature(1.0);
         final ClusterWeightUmbrella refCluster;
         double ri;
-        if (ref == VirialHSParam.TREE) {
+        if (ref == RefChoice.TREE) {
             System.out.println("using a tree reference");
             ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{ct});
             refCluster.setWeightCoefficients(new double[]{1.0 / ct.numDiagrams()});
             ri = 1;
-        } else if (ref == VirialHSParam.CHAINS) {
+        } else if (ref == RefChoice.CHAINS) {
             System.out.println("using a chain reference");
             ClusterChainHS cc = new ClusterChainHS(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc});
             refCluster.setWeightCoefficients(new double[]{1.0 / cc.numDiagrams()});
             ri = 1;
-        } else if (ref == VirialHSParam.CHAIN_TREE) {
+        } else if (ref == RefChoice.CHAIN_TREE) {
             System.out.println("using a chain/tree reference (" + chainFrac + " chains)");
             ClusterChainHS cc = new ClusterChainHS(nPoints, fRefPos);
             ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
@@ -119,13 +119,13 @@ public class VirialHSMixtureOverlap {
         sim.integratorOS.setDoAdjustOnTime(true);
 
         sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
-        if (ref == VirialHSParam.TREE) {
+        if (ref == RefChoice.TREE) {
             MCMoveClusterAtomHSTreeMix mcMoveHS = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), space, pairSigma);
             sim.integrators[0].getMoveManager().addMCMove(mcMoveHS);
-        } else if (ref == VirialHSParam.CHAINS) {
+        } else if (ref == RefChoice.CHAINS) {
             MCMoveClusterAtomHSChainMix mcMoveHS = new MCMoveClusterAtomHSChainMix(sim.getRandom(), space, pairSigma);
             sim.integrators[0].getMoveManager().addMCMove(mcMoveHS);
-        } else if (ref == VirialHSParam.CHAIN_TREE) {
+        } else if (ref == RefChoice.CHAIN_TREE) {
             MCMoveClusterAtomHSTreeMix mcMoveHST = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), space, pairSigma);
             sim.integrators[0].getMoveManager().addMCMove(mcMoveHST);
             sim.integrators[0].getMoveManager().setFrequency(mcMoveHST, 1 - chainFrac);
@@ -225,6 +225,9 @@ public class VirialHSMixtureOverlap {
         System.out.println("time:" + (t2 - t1) / 1000.0);
     }
 
+    enum RefChoice {
+        TREE, CHAINS, CHAIN_TREE
+    }
 
     /**
      * Inner class for parameters
@@ -232,8 +235,7 @@ public class VirialHSMixtureOverlap {
     public static class VirialHSParam extends ParameterBase {
         public int nPoints = 3;
         public long numSteps = 100000000;
-        public static final int TREE = 0, CHAINS = 1, CHAIN_TAIL = 4, CHAIN_TREE = 5, CRINGS = 6, RING_TREE = 7, RINGS = 8, RING_CHAIN_TREES = 9;
-        public int ref = CHAIN_TREE;
+        public RefChoice ref = RefChoice.CHAIN_TREE;
         public double chainFrac = 0.5;
         public double q = 0.1;
         public int cff = 0;
