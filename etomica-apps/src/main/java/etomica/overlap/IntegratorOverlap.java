@@ -145,11 +145,11 @@ public class IntegratorOverlap extends IntegratorManagerMC {
                     // if we're internally adjusting the step fractions, require at least 1%
                     iSubSteps = numSubSteps / 100 + (int) (numSubSteps * (1 - 0.01 * nIntegrators) * stepFrac[i]);
                 }
-                totTime[i] -= System.currentTimeMillis();
+                totTime[i] -= System.nanoTime();
                 for (int j = 0; j < iSubSteps; j++) {
                     integrators.get(i).doStep();
                 }
-                totTime[i] += System.currentTimeMillis();
+                totTime[i] += System.nanoTime();
                 totNumSubSteps[i] += iSubSteps;
             }
         } else {
@@ -160,11 +160,11 @@ public class IntegratorOverlap extends IntegratorManagerMC {
                 // stepCount starts at 1
                 iBox = ((double) totNumSubSteps[0]) / ((stepCount - 1) * numSubSteps) > stepFrac[0] ? 1 : 0;
             }
-            totTime[iBox] -= System.currentTimeMillis();
+            totTime[iBox] -= System.nanoTime();
             for (int j = 0; j < numSubSteps; j++) {
                 integrators.get(iBox).doStep();
             }
-            totTime[iBox] += System.currentTimeMillis();
+            totTime[iBox] += System.nanoTime();
             totNumSubSteps[iBox] += numSubSteps;
         }
         if (doAdjustStepFrac && --adjustCountdown == 0) {
