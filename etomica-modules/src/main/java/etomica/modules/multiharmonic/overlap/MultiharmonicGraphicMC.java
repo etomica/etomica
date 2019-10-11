@@ -1551,12 +1551,12 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 
             double[] lnAlpha = new double[numAlpha];
             double[] lnAlphaDiff = new double[numAlpha];
-            double[] lnRefAvg = new double[numAlpha];
+            double[] lnTargetAvg = new double[numAlpha];
 
             for (int j=0; j<numAlpha; j++) {
                 double refOverlap = dsvo.getRefSource().getAverage(j);
                 double targetOverlap = dsvo.getTargetSource().getAverage(j);
-                lnRefAvg[j] = Math.log(targetOverlap);
+                lnTargetAvg[j] = Math.log(targetOverlap);
                 lnAlphaDiff[j] = Math.log(refOverlap/targetOverlap);
 
                 double jAlpha = dsvo.getAlphaSource().getAlpha(j);
@@ -1564,7 +1564,6 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
                 lnAlphaDiff[j] -= lnAlpha[j];
             }
 
-            double lnUa = Double.NaN;
             if (lnAlphaDiff[0] < 0) {
                 // first new alpha is less than initial first alpha
                 return Double.NaN;
@@ -1575,8 +1574,8 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             AkimaSpline spline = new AkimaSpline();
 
             double[] x = new double[]{Math.log(dsvo.getOverlapAverageAndError()[0])};
-            spline.setInputData(lnAlpha, lnRefAvg);
-            lnUa = spline.doInterpolation(x)[0];
+            spline.setInputData(lnAlpha, lnTargetAvg);
+            double lnUa = spline.doInterpolation(x)[0];
 
             return 2*Math.exp(lnUa+x[0]);
         }
