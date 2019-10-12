@@ -12,12 +12,19 @@ package etomica.virial;
  */
 public class ClusterWeightAbs implements ClusterWeight, java.io.Serializable {
 	
-    private static final long serialVersionUID = 1L;
     protected final ClusterAbstract weightCluster;
+    protected boolean doAbs = true;
 	
 	public ClusterWeightAbs(ClusterAbstract cluster) {
 		weightCluster = cluster;
 	}
+
+    /**
+     * Sets the cluster to actually return the |value| (as default) or just value.
+     */
+    public void setDoAbs(boolean doAbs) {
+        this.doAbs = doAbs;
+    }
 	
 	public static ClusterWeight makeWeightCluster(ClusterAbstract cluster) {
 		if (cluster instanceof ClusterWeight) {
