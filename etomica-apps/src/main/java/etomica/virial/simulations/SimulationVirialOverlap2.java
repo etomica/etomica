@@ -30,6 +30,7 @@ import etomica.virial.overlap.DataProcessorVirialOverlap;
 import etomica.virial.overlap.DataVirialOverlap;
 
 import java.io.*;
+import java.util.Arrays;
 
 /**
  * Simulation implementing the overlap-sampling approach to evaluating a cluster
@@ -453,6 +454,81 @@ public class SimulationVirialOverlap2 extends Simulation {
                 System.out.println(r+" "+y+" "+pi);
             }
         }
+    }
+
+    public double[] findUmbrellaWeights(String uWeightsFileName, long uSteps) {
+        int n = extraTargetClusters.length;
+        double[] uWeights = new double[n];
+        boolean uWeightsFileExists = uWeightsFileName != null && new File(uWeightsFileName).exists();
+        if (uWeightsFileExists) {
+            String line = null;
+            try {
+                FileReader fr = new FileReader(uWeightsFileName);
+                BufferedReader br = new BufferedReader(fr);
+                line = br.readLine();
+                fr.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            String[] bits = line.split(" ");
+            if (bits.length != n) {
+                throw new RuntimeException("# of umbrella weights found does not match number of clusters");
+            }
+            for (int i = 0; i < n; i++) {
+                uWeights[i] = Double.parseDouble(bits[i]);
+            }
+            System.out.println("umbrella weights (from file): " + Arrays.toString(uWeights));
+        } else {
+            integrators[1].reset();
+            // equilibrate
+            for (long i = 0; i < uSteps; i++) {
+                integrators[1].doStep();
+            }
+            accumulators[1].reset();
+            for (int m = 0; m < n; m++) {
+                ((ClusterWeightAbs) extraTargetClusters[m]).setDoAbs(true);
+            }
+
+            // collect data to determine umbrella weights
+            for (long i = 0; i < uSteps / 10; i++) {
+                integrators[1].doStep();
+            }
+
+            DataGroup allYourBase = (DataGroup) accumulators[1].getData();
+            IData averageData = allYourBase.getData(accumulators[1].AVERAGE.index);
+            double s = 0;
+            for (int m = 0; m < n; m++) {
+                s += averageData.getValue(1 + m);
+            }
+            for (int m = 0; m < n; m++) {
+                uWeights[m] = averageData.getValue(1) / averageData.getValue(1 + m);
+            }
+            System.out.println("umbrella weights: " + Arrays.toString(uWeights));
+
+            if (uWeightsFileName != null) {
+                try {
+                    FileWriter fw = new FileWriter(uWeightsFileName);
+                    fw.write(uWeights[0] + "");
+                    for (int i = 1; i < n; i++) {
+                        fw.write(" " + uWeights[i]);
+                    }
+                    fw.write("\n");
+                    fw.close();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+
+            integrators[1].reset();
+        }
+
+        accumulators[1].reset();
+
+        for (int m = 0; m < n; m++) {
+            ((ClusterWeightAbs) extraTargetClusters[m]).setDoAbs(false);
+        }
+
+        return uWeights;
     }
 
     public void initRefPref(String fileName, long initSteps) {

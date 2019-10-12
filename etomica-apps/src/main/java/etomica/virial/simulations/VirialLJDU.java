@@ -7,9 +7,7 @@ package etomica.virial.simulations;
 import etomica.action.IAction;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.IData;
 import etomica.data.histogram.HistogramSimple;
-import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
@@ -143,38 +141,13 @@ public class VirialLJDU {
         sim.init();
 
         if (autoWeights) {
-            sim.integrators[1].reset();
-            // equilibrate
-            for (long i = 0; i < steps / 10; i++) {
-                sim.integrators[1].doStep();
-            }
-            sim.accumulators[1].reset();
-
-            // collect data to determine umbrella weights
-            for (long i = 0; i < steps / 10; i++) {
-                sim.integrators[1].doStep();
-            }
-
-            DataGroup allYourBase = (DataGroup) sim.accumulators[1].getData();
-            IData averageData = allYourBase.getData(sim.accumulators[1].AVERAGE.index);
-            double s = 0;
-            for (int m = 0; m <= nDer; m++) {
-                s += averageData.getValue(1 + m);
-            }
-            for (int m = 0; m <= nDer; m++) {
-                uWeights[m] = averageData.getValue(1) / averageData.getValue(1 + m);
-            }
-            System.out.println("derivative weights: " + Arrays.toString(uWeights));
+            String uWeightsFileName = params.writeRefPref ? "uWeights" + nPoints + "_" + temperature : null;
+            uWeights = sim.findUmbrellaWeights(uWeightsFileName, steps / 10);
 
             targetUmbrella.setWeightCoefficients(uWeights);
             ((ClusterDerivativeUmbrella) sim.meters[0].getClusters()[1]).setWeightCoefficients(uWeights);
-            sim.accumulators[1].reset();
-
-            for (int m = 0; m <= nDer; m++) {
-                ((ClusterWeightAbs) targetDiagrams[m]).setDoAbs(false);
-            }
-            sim.integrators[1].reset();
-
+        } else {
+            System.out.println("umbrella weights (set explicitly): " + Arrays.toString(uWeights));
         }
 
         if (doChainRef) {
