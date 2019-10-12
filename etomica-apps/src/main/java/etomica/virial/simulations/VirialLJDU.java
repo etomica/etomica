@@ -7,7 +7,9 @@ package etomica.virial.simulations;
 import etomica.action.IAction;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
+import etomica.data.IData;
 import etomica.data.histogram.HistogramSimple;
+import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
@@ -31,6 +33,7 @@ import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
 import java.awt.*;
+import java.util.Arrays;
 
 /**
  * LJ simulation using Mayer sampling to evaluate cluster integrals.  Target
@@ -47,13 +50,13 @@ public class VirialLJDU {
         }
         ParseArgs.doParseArgs(params, args);
         if (args.length == 0) {
-            params.nPoints = 7;
+            params.nPoints = 5;
             params.nDer = 1;
-            params.temperature = 20;
+            params.temperature = 1;
             params.numSteps = 1000000L;
             params.doHist = false;
             params.doChainRef = true;
-            params.uWeights = new double[]{1, .01};
+            params.uWeights = null;
         }
 
         runVirial(params);
@@ -85,7 +88,8 @@ public class VirialLJDU {
         boolean doChainRef = params.doChainRef;
         long blockSize = params.blockSize;
         double[] uWeights = params.uWeights;
-        if (uWeights == null) {
+        boolean autoWeights = uWeights == null;
+        if (autoWeights) {
             uWeights = new double[nDer + 1];
             uWeights[0] = 1;
         }
@@ -124,23 +128,54 @@ public class VirialLJDU {
         if (blockSize == 0) blockSize = steps / 1000;
         System.out.println(steps + " steps (" + (steps / blockSize) + " blocks of " + blockSize + ")");
 
-
-        ClusterAbstract[] allTargetDiagrams = new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes[nDer + 1];
-        for (int m = 0; m <= nDer; m++) {
-            allTargetDiagrams[m] = new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes(targetCluster, m);
-        }
         ClusterDerivativeUmbrella targetUmbrella = new ClusterDerivativeUmbrella(targetCluster);
         targetUmbrella.setWeightCoefficients(uWeights);
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesSpheresMono(space, new ElementSimple("A")), nPoints, temperature, refCluster, targetCluster);
         sim.setSampleClusters(new ClusterWeight[]{new ClusterWeightAbs(refCluster), targetUmbrella});
-        ClusterAbstract[] targetDiagrams = new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes[nDer];
-        for (int m = 1; m <= nDer; m++) {
-            targetDiagrams[m - 1] = new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes(targetCluster, m);
+        ClusterAbstract[] targetDiagrams = new ClusterAbstract[nDer + 1];
+        for (int m = 0; m <= nDer; m++) {
+            ClusterWheatleySoftDerivatives.ClusterRetrievePrimes c = new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes(targetCluster, m);
+            targetDiagrams[m] = autoWeights ? new ClusterWeightAbs(c) : c;
         }
         sim.setExtraTargetClusters(targetDiagrams);
         targetCluster.setBDAccFrac(params.BDAccFrac, sim.getRandom());
         sim.init();
+
+        if (autoWeights) {
+            sim.integrators[1].reset();
+            // equilibrate
+            for (long i = 0; i < steps / 10; i++) {
+                sim.integrators[1].doStep();
+            }
+            sim.accumulators[1].reset();
+
+            // collect data to determine umbrella weights
+            for (long i = 0; i < steps / 10; i++) {
+                sim.integrators[1].doStep();
+            }
+
+            DataGroup allYourBase = (DataGroup) sim.accumulators[1].getData();
+            IData averageData = allYourBase.getData(sim.accumulators[1].AVERAGE.index);
+            double s = 0;
+            for (int m = 0; m <= nDer; m++) {
+                s += averageData.getValue(1 + m);
+            }
+            for (int m = 0; m <= nDer; m++) {
+                uWeights[m] = averageData.getValue(1) / averageData.getValue(1 + m);
+            }
+            System.out.println("derivative weights: " + Arrays.toString(uWeights));
+
+            targetUmbrella.setWeightCoefficients(uWeights);
+            ((ClusterDerivativeUmbrella) sim.meters[0].getClusters()[1]).setWeightCoefficients(uWeights);
+            sim.accumulators[1].reset();
+
+            for (int m = 0; m <= nDer; m++) {
+                ((ClusterWeightAbs) targetDiagrams[m]).setDoAbs(false);
+            }
+            sim.integrators[1].reset();
+
+        }
 
         if (doChainRef) {
             sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
@@ -294,9 +329,9 @@ public class VirialLJDU {
         System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());
 
-        String[] extraNames = new String[nDer];
-        for (int i = 1; i <= nDer; i++) {
-            extraNames[i - 1] = "derivative " + i;
+        String[] extraNames = new String[nDer + 1];
+        for (int i = 0; i <= nDer; i++) {
+            extraNames[i] = "derivative " + i;
         }
         sim.printResults(HSBn, extraNames);
 
