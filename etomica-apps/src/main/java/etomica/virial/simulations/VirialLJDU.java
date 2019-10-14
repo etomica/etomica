@@ -126,7 +126,7 @@ public class VirialLJDU {
         if (blockSize == 0) blockSize = steps / 1000;
         System.out.println(steps + " steps (" + (steps / blockSize) + " blocks of " + blockSize + ")");
 
-        ClusterDerivativeUmbrella targetUmbrella = new ClusterDerivativeUmbrella(targetCluster);
+        ClusterMultivalueUmbrella targetUmbrella = new ClusterMultivalueUmbrella(targetCluster);
         targetUmbrella.setWeightCoefficients(uWeights);
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesSpheresMono(space, new ElementSimple("A")), nPoints, temperature, refCluster, targetCluster);
@@ -145,7 +145,7 @@ public class VirialLJDU {
             uWeights = sim.findUmbrellaWeights(uWeightsFileName, steps / 10);
 
             targetUmbrella.setWeightCoefficients(uWeights);
-            ((ClusterDerivativeUmbrella) sim.meters[0].getClusters()[1]).setWeightCoefficients(uWeights);
+            ((ClusterMultivalueUmbrella) sim.meters[0].getClusters()[1]).setWeightCoefficients(uWeights);
         } else {
             System.out.println("umbrella weights (set explicitly): " + Arrays.toString(uWeights));
         }
