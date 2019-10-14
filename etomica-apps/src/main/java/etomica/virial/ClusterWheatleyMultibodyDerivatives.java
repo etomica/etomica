@@ -295,7 +295,11 @@ public class ClusterWheatleyMultibodyDerivatives extends ClusterWheatleySoftDeri
             }
         }
     }
-    
+
+    public int getNumValues() {
+        return value.length;
+    }
+
     public double[] getAllLastValues(BoxCluster box) {
         value(box);
         return value;
@@ -338,8 +342,7 @@ public class ClusterWheatleyMultibodyDerivatives extends ClusterWheatleySoftDeri
         }
 
         public void setTemperature(double temperature) {
-            
-            
+
         }
         
         

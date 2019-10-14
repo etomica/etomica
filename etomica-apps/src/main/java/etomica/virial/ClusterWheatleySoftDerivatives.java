@@ -508,6 +508,10 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         }
     }
 
+    public int getNumValues() {
+        return value.length;
+    }
+
     public double[] getAllLastValues(BoxCluster box) {
         value(box);
         return value;
@@ -550,9 +554,8 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         }
 
 		public void setTemperature(double temperature) {
-			
-			
-		}
+
+        }
     	
     	
     }

@@ -10,14 +10,14 @@ package etomica.virial;
  * value is the weighted sum of the absolute value of the derivative values (0-n).
  * The weights are equal by default, but can be set.
  */
-public class ClusterDerivativeUmbrella implements ClusterWeight, java.io.Serializable {
+public class ClusterDerivativeUmbrella implements ClusterWeight {
 
     /**
      * Contructs an umbrella cluster that wraps a derivatives cluster
      */
-    public ClusterDerivativeUmbrella(ClusterWheatleySoftDerivatives cluster) {
+    public ClusterDerivativeUmbrella(ClusterAbstractMultivalue cluster) {
         this.cluster = cluster;
-        int n = cluster.nDer + 1;
+        int n = cluster.getNumValues();
         weightCoefficients = new double[n];
         for (int i = 0; i < n; i++) {
             weightCoefficients[i] = 1.0 / weightCoefficients.length;
@@ -35,12 +35,11 @@ public class ClusterDerivativeUmbrella implements ClusterWeight, java.io.Seriali
     }
 
     public double value(BoxCluster box) {
-        cluster.value(box);
+        double[] v = cluster.getAllLastValues(box);
         double sum = 0.0;
-        int n = cluster.nDer + 1;
-        for (int i = 0; i < n; i++) {
-            double v = cluster.value[i];
-            sum += Math.abs(v) * weightCoefficients[i];
+        ;
+        for (int i = 0; i < v.length; i++) {
+            sum += Math.abs(v[i]) * weightCoefficients[i];
         }
         return sum;
     }
@@ -57,10 +56,10 @@ public class ClusterDerivativeUmbrella implements ClusterWeight, java.io.Seriali
         cluster.setTemperature(temp);
     }
 
-    public ClusterWheatleySoftDerivatives getCluster() {
+    public ClusterAbstractMultivalue getCluster() {
         return cluster;
     }
 
-    private final ClusterWheatleySoftDerivatives cluster;
+    private final ClusterAbstractMultivalue cluster;
     private final double[] weightCoefficients;
 }
