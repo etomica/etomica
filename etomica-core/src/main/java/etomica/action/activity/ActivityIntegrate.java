@@ -8,11 +8,14 @@ import etomica.action.Activity;
 import etomica.integrator.Integrator;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.util.Debug;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Activity that repeatedly invokes an Integrator's doStep method.
  */
 public class ActivityIntegrate extends Activity {
+    private final Logger LOG = LogManager.getLogger(this.getClass());
 
     /**
 	 * Constructs activity to generate configurations with
@@ -48,7 +51,11 @@ public class ActivityIntegrate extends Activity {
             }
         }
         integrator.resetStepCount();
+        long startTime = 0, endTime;
         for (stepCount = 0; stepCount < maxSteps; stepCount++) {
+            if (LOG.isDebugEnabled()) {
+                startTime = System.nanoTime();
+            }
             if (Debug.ON) {
                 if (stepCount == Debug.START) Debug.DEBUG_NOW = true;
                 if (stepCount == Debug.STOP) break;
@@ -60,6 +67,11 @@ public class ActivityIntegrate extends Activity {
             if(sleepPeriod > 0) {
                 try { Thread.sleep(sleepPeriod); }
                 catch (InterruptedException e) { }
+            }
+
+            if (LOG.isDebugEnabled()) {
+                endTime = System.nanoTime();
+                LOG.debug("Step {} done in {}ms", stepCount, (endTime - startTime) / 1_000_000);
             }
         }
 	}
@@ -112,7 +124,12 @@ public class ActivityIntegrate extends Activity {
 	public Integrator getIntegrator() {
 		return integrator;
 	}
-    
+
+    @Override
+    public String toString() {
+        return "integration";
+    }
+
     private static final long serialVersionUID = 1L;
 	private final Integrator integrator;
     private boolean ignoreOverlap;

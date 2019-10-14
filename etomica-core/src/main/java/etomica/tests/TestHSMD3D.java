@@ -21,6 +21,9 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.config.Configurator;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 3D.
@@ -90,7 +93,9 @@ public class TestHSMD3D extends Simulation {
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
 
+        sim.LOG.info("Starting simulation");
         sim.getController().actionPerformed();
+        sim.LOG.info("Simulation done");
 
         double Z = pMeter.getDataAsScalar()*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().size()*sim.integrator.getTemperature());
         System.out.println("Z="+Z);
