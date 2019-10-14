@@ -70,7 +70,6 @@ public class SimulationVirialOverlap2 extends Simulation {
         box = new BoxCluster[2];
         accumulators = new AccumulatorRatioAverageCovarianceFull[2];
         extraTargetClusters = new ClusterAbstract[0];
-        boxFactory = new BoxClusterFactory();
     }
 
 
@@ -149,15 +148,6 @@ public class SimulationVirialOverlap2 extends Simulation {
         return sampleClusters;
     }
     
-    public void setBoxFactory(BoxClusterFactory newBoxFactory) {
-        if (initialized) throw new RuntimeException("too late");
-        boxFactory = newBoxFactory;
-    }
-
-    public BoxClusterFactory getBoxFactory() {
-        return boxFactory;
-    }
-
     public void init() {
         if (initialized) throw new RuntimeException("you can only call me once");
         // we aren't actually initialized yet, but we will be unless we crash.
@@ -190,7 +180,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         
         for (int iBox=0; iBox<2; iBox++) {
             // integrator for iBox samples based on iBox cluster
-            box[iBox] = boxFactory.makeBox(space, sampleClusters[iBox]);
+            box[iBox] = new BoxCluster(sampleClusters[iBox], space);
             addBox(box[iBox]);
             for (int i = 0; i < species.length; i++) {
                 box[iBox].setNMolecules(species[i], nMolecules[i]);
@@ -788,9 +778,8 @@ public class SimulationVirialOverlap2 extends Simulation {
     protected boolean doWiggle;
     protected ClusterAbstract[] extraTargetClusters;
     protected final int[] nMolecules;
-    protected BoxClusterFactory boxFactory;
-    
-	public DataVirialOverlap dvo;
+
+    public DataVirialOverlap dvo;
     public final AccumulatorRatioAverageCovarianceFull[] accumulators;
     public AccumulatorAverageCovariance blockAccumulator;
     protected DataPumpListener[] accumulatorPumps;
@@ -810,10 +799,4 @@ public class SimulationVirialOverlap2 extends Simulation {
     protected int numAlpha = 1;
     protected HistogramSimple targHist;
     protected HistogramNotSoSimple targPiHist;
-    
-    public static class BoxClusterFactory {
-        public BoxCluster makeBox(Space space, ClusterWeight sampleCluster) {
-            return new BoxCluster(sampleCluster, space);
-        }
-    }
 }
