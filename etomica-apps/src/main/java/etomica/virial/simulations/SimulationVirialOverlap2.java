@@ -153,11 +153,11 @@ public class SimulationVirialOverlap2 extends Simulation {
         if (initialized) throw new RuntimeException("too late");
         boxFactory = newBoxFactory;
     }
-    
+
     public BoxClusterFactory getBoxFactory() {
         return boxFactory;
     }
-    
+
     public void init() {
         if (initialized) throw new RuntimeException("you can only call me once");
         // we aren't actually initialized yet, but we will be unless we crash.
@@ -481,7 +481,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         } else {
             integrators[1].reset();
             // equilibrate
-            for (long i = 0; i < uSteps; i++) {
+            for (long i = 0; i < uSteps / 2; i++) {
                 integrators[1].doStep();
             }
             accumulators[1].reset();
@@ -490,16 +490,12 @@ public class SimulationVirialOverlap2 extends Simulation {
             }
 
             // collect data to determine umbrella weights
-            for (long i = 0; i < uSteps / 10; i++) {
+            for (long i = 0; i < uSteps; i++) {
                 integrators[1].doStep();
             }
 
             DataGroup allYourBase = (DataGroup) accumulators[1].getData();
             IData averageData = allYourBase.getData(accumulators[1].AVERAGE.index);
-            double s = 0;
-            for (int m = 0; m < n; m++) {
-                s += averageData.getValue(1 + m);
-            }
             for (int m = 0; m < n; m++) {
                 uWeights[m] = averageData.getValue(1) / averageData.getValue(1 + m);
             }
