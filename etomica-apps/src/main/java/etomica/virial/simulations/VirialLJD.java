@@ -19,6 +19,8 @@ import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotential;
 import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphere;
+import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -62,12 +64,17 @@ public class VirialLJD {
             if (params.temperature < 5) params.sigmaHSRef = 1.5;
                 // above T=5, well is unimportant and LJ acts like SS.  range
                 // continues to diminish as the temperature increases.
-            else params.sigmaHSRef = 0.925 * Math.pow(10 / params.temperature, 1.0 / 12.0);
-            // sigma optimized for B7, but should be (approximately) universal
+            else if (params.temperature < Double.POSITIVE_INFINITY) {
+                params.sigmaHSRef = 0.925 * Math.pow(10 / params.temperature, 1.0 / 12.0);
+                // sigma optimized for B7, but should be (approximately) universal
+            } else {
+                params.sigmaHSRef = 1.0;
+            }
         }
 
         final int nPoints = params.nPoints;
         double temperature = params.temperature;
+        if (temperature == Double.POSITIVE_INFINITY) temperature = 1;
         final int nDer = params.nDer; 
         long steps = params.numSteps;
         double sigmaHSRef = params.sigmaHSRef;
@@ -97,7 +104,8 @@ public class VirialLJD {
         };
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        P2LennardJones pTarget = new P2LennardJones(space);
+        Potential2SoftSpherical pTarget = params.temperature < Double.POSITIVE_INFINITY ? new P2LennardJones(space) : new P2SoftSphere(space, 1, 1, 12);
+
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
         if (doChainRef) System.out.println("HS Chain reference");
         ClusterAbstract refCluster = doChainRef ? new ClusterChainHS(nPoints, fRefPos) : new ClusterWheatleyHS(nPoints, fRef);
