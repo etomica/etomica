@@ -6,16 +6,16 @@ package etomica.virial;
 
 
 /**
- * Umbrella cluster wraps a ClusterWheatleySoftDerivatives.  The umbrella cluster's
+ * Umbrella cluster wraps a ClusterAbstractMultivalue.  The umbrella cluster's
  * value is the weighted sum of the absolute value of the derivative values (0-n).
  * The weights are equal by default, but can be set.
  */
-public class ClusterDerivativeUmbrella implements ClusterWeight {
+public class ClusterMultivalueUmbrella implements ClusterWeight {
 
     /**
-     * Contructs an umbrella cluster that wraps a derivatives cluster
+     * Contructs an umbrella cluster that wraps a multi-value cluster
      */
-    public ClusterDerivativeUmbrella(ClusterAbstractMultivalue cluster) {
+    public ClusterMultivalueUmbrella(ClusterAbstractMultivalue cluster) {
         this.cluster = cluster;
         int n = cluster.getNumValues();
         weightCoefficients = new double[n];
@@ -25,7 +25,7 @@ public class ClusterDerivativeUmbrella implements ClusterWeight {
     }
 
     public ClusterAbstract makeCopy() {
-        ClusterDerivativeUmbrella newCluster = new ClusterDerivativeUmbrella((ClusterWheatleySoftDerivatives) cluster.makeCopy());
+        ClusterMultivalueUmbrella newCluster = new ClusterMultivalueUmbrella((ClusterWheatleySoftDerivatives) cluster.makeCopy());
         newCluster.setWeightCoefficients(weightCoefficients);
         return newCluster;
     }
