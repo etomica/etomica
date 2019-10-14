@@ -71,7 +71,8 @@ public class VirialLJDU {
                 params.sigmaHSRef = 0.925 * Math.pow(10 / params.temperature, 1.0 / 12.0);
                 // sigma optimized for B7, but should be (approximately) universal
             } else {
-                params.sigmaHSRef = 1.0;
+                // SS with epsilon=4, temperature=1
+                params.sigmaHSRef = 0.925 * Math.pow(10, 1.0 / 12.0);
             }
         }
 
@@ -113,7 +114,7 @@ public class VirialLJDU {
         };
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        Potential2SoftSpherical pTarget = params.temperature < Double.POSITIVE_INFINITY ? new P2LennardJones(space) : new P2SoftSphere(space, 1, 1, 12);
+        Potential2SoftSpherical pTarget = params.temperature < Double.POSITIVE_INFINITY ? new P2LennardJones(space) : new P2SoftSphere(space, 1, 4, 12);
 
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
         if (doChainRef) System.out.println("HS Chain reference");
