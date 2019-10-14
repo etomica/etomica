@@ -60,7 +60,7 @@ public abstract class ParameterBase {
                 field.setDouble(this,Double.parseDouble(value));
             }
             else if (type == boolean.class) {
-                field.setBoolean(this,Boolean.valueOf(value).booleanValue());
+                field.setBoolean(this, Boolean.parseBoolean(value));
             }
             else if (type == char.class) {
                 field.setChar(this,value.charAt(0));
@@ -107,7 +107,7 @@ public abstract class ParameterBase {
                 else if (subType == boolean.class) {
                     boolean[] array = new boolean[strings.length];
                     for (int i=0; i<array.length; i++) {
-                        array[i] = Boolean.valueOf(strings[i]).booleanValue();
+                        array[i] = Boolean.parseBoolean(strings[i]);
                     }
                     field.set(this,array);
                 }
@@ -170,28 +170,28 @@ public abstract class ParameterBase {
                     int[] array = (int[])field.get(this);
                     for (int i=0; i<array.length; i++) {
                         if (i==0) value = Integer.toString(array[i]);
-                        else value += " " + Integer.toString(array[i]);
+                        else value += " " + array[i];
                     }
                 }
                 if (subType == long.class) {
                     long[] array = (long[])field.get(this);
                     for (int i=0; i<array.length; i++) {
-                        if (i>0) value += " ";
-                        value += Long.toString(array[i]);
+                        if (i == 0) value = Long.toString(array[i]);
+                        else value += " " + array[i];
                     }
                 }
                 else if (subType == double.class) {
                     double[] array = (double[])field.get(this);
                     for (int i=0; i<array.length; i++) {
-                        if (i>0) value += " ";
-                        value += Double.toString(array[i]);
+                        if (i == 0) value = Double.toString(array[i]);
+                        else value += " " + array[i];
                     }
                 }
                 else if (subType == boolean.class) {
                     boolean[] array = (boolean[])field.get(this);
                     for (int i=0; i<array.length; i++) {
-                        if (i>0) value += " ";
-                        value += Boolean.toString(array[i]);
+                        if (i == 0) value = Boolean.toString(array[i]);
+                        else value += " " + array[i];
                     }
                 }
                 else {
