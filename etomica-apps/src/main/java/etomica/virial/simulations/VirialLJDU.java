@@ -27,6 +27,7 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
@@ -131,6 +132,12 @@ public class VirialLJDU {
         targetUmbrella.setWeightCoefficients(uWeights);
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesSpheresMono(space, new ElementSimple("A")), nPoints, temperature, refCluster, targetCluster);
+        if (params.randomSeeds == null) {
+            System.out.println("random seeds: " + Arrays.toString(sim.getRandomSeeds()));
+        } else {
+            System.out.println("random seeds (set): " + Arrays.toString(params.randomSeeds));
+            ((RandomMersenneTwister) sim.getRandom()).setSeedArray(params.randomSeeds);
+        }
         sim.setSampleClusters(new ClusterWeight[]{new ClusterWeightAbs(refCluster), targetUmbrella});
         ClusterAbstract[] targetDiagrams = new ClusterAbstract[nDer + 1];
         for (int m = 0; m <= nDer; m++) {
@@ -328,5 +335,6 @@ public class VirialLJDU {
         public long blockSize = 0;
         public double BDAccFrac = 0.1;
         public double[] uWeights = null;
+        public int[] randomSeeds = null;
     }
 }
