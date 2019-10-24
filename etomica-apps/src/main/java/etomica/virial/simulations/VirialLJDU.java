@@ -122,7 +122,7 @@ public class VirialLJDU {
         ClusterAbstract refCluster = doChainRef ? new ClusterChainHS(nPoints, fRefPos) : new ClusterWheatleyHS(nPoints, fRef);
         refCluster.setTemperature(temperature);
 
-        final ClusterWheatleySoftDerivatives targetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, 1e-12, nDer);
+        final ClusterWheatleySoftDerivatives targetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, params.BDtol, nDer);
         targetCluster.setTemperature(temperature);
 
         if (blockSize == 0) blockSize = steps / 1000;
@@ -139,10 +139,14 @@ public class VirialLJDU {
             ((RandomMersenneTwister) sim.getRandom()).setSeedArray(params.randomSeeds);
         }
         sim.setSampleClusters(new ClusterWeight[]{new ClusterWeightAbs(refCluster), targetUmbrella});
-        ClusterAbstract[] targetDiagrams = new ClusterAbstract[nDer + 1];
+        ClusterAbstract[] targetDiagrams = new ClusterAbstract[2 * (nDer + 1)];
         for (int m = 0; m <= nDer; m++) {
             ClusterWheatleySoftDerivatives.ClusterRetrievePrimes c = new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes(targetCluster, m);
             targetDiagrams[m] = autoWeights ? new ClusterWeightAbs(c) : c;
+        }
+        for (int m = 0; m <= nDer; m++) {
+            ClusterWheatleySoftDerivatives.ClusterRetrievePrimesBD c = new ClusterWheatleySoftDerivatives.ClusterRetrievePrimesBD(targetCluster, m);
+            targetDiagrams[nDer + 1 + m] = autoWeights ? new ClusterWeightAbs(c) : c;
         }
         sim.setExtraTargetClusters(targetDiagrams);
         targetCluster.setBDAccFrac(params.BDAccFrac, sim.getRandom());
@@ -150,7 +154,8 @@ public class VirialLJDU {
 
         if (autoWeights) {
             String uWeightsFileName = params.writeRefPref ? "uWeights" + nPoints + "_" + temperature : null;
-            uWeights = sim.findUmbrellaWeights(uWeightsFileName, steps / 10);
+            double[] foo = sim.findUmbrellaWeights(uWeightsFileName, steps / 10);
+            for (int i = 0; i < uWeights.length; i++) uWeights[i] = foo[i];
 
             targetUmbrella.setWeightCoefficients(uWeights);
             ((ClusterMultivalueUmbrella) sim.meters[0].getClusters()[1]).setWeightCoefficients(uWeights);
@@ -210,7 +215,7 @@ public class VirialLJDU {
             return;
         }
 
-        long t1 = System.currentTimeMillis();
+        long t1 = System.nanoTime();
         // if running interactively, don't use the file
         String refFileName = params.writeRefPref ? "refpref" + nPoints + "_" + temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
@@ -288,7 +293,7 @@ public class VirialLJDU {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
         sim.getController().actionPerformed();
-        long t2 = System.currentTimeMillis();
+        long t2 = System.nanoTime();
 
         if (doHist) {
             double[] xValues = targHist.xValues();
@@ -310,13 +315,18 @@ public class VirialLJDU {
         System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());
 
-        String[] extraNames = new String[nDer + 1];
+        String[] extraNames = new String[2 * (nDer + 1)];
         for (int i = 0; i <= nDer; i++) {
             extraNames[i] = "derivative " + i;
         }
+        for (int i = 0; i <= nDer; i++) {
+            extraNames[nDer + 1 + i] = "derivativeBD " + i;
+        }
         sim.printResults(HSBn, extraNames);
 
-        System.out.println("time: " + (t2 - t1) / 1000.0);
+        double timeBD = targetCluster.getTimeBD();
+        System.out.println("timeBDfrac: " + timeBD / (t2 - t1) * 1e9);
+        System.out.println("time: " + (t2 - t1) / 1e9);
     }
 
     /**
@@ -334,6 +344,7 @@ public class VirialLJDU {
         public boolean doChainRef = true;
         public long blockSize = 0;
         public double BDAccFrac = 0.1;
+        public double BDtol = 1e-12;
         public double[] uWeights = null;
         public int[] randomSeeds = null;
     }
