@@ -1,6 +1,7 @@
 package etomica.mappedDensity.crystal;
 
 import etomica.virial.IntSet;
+import org.apache.commons.math3.special.Erf;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +16,16 @@ public class Singlet3DmappingDelta0 {
 
     private static final double sqrtPi = Math.sqrt(Math.PI);
     private static final double sqrt2OverPi = Math.sqrt(2.0/Math.PI);
+    private static final double sqrtPiOver2 = Math.sqrt(0.5*Math.PI);
     private static final double sqrt2 = Math.sqrt(2.0);
+    private static final Map<IntSet, Double> HnkValues = new HashMap<IntSet, Double>();
+    private static final double[] SnkValues = new double[62];
+    private static final double[] CnkValues = new double[62];
+    private static final double[] dSnkValues = new double[62];
+    private static final double[] dCnkValues = new double[62];
+    private static double lastY = Double.NaN;
+    private static int lastN = -1;
+    private static final int nmax = 20;
 
     /**
      * Returns mapping velocities in x, y, z, directions, in a frame in which the density is
@@ -138,10 +148,8 @@ public class Singlet3DmappingDelta0 {
 
     public static void main(String[] args) {
 
-        System.out.println(Hnk(6,4));
-        System.out.println(Hnk(43,21));
-        System.out.println(Hnk(22,21));
-        System.out.println(Hnk(22,0));
+        System.out.println(deltaSnk(3,13, 0.5));
+        System.out.println(deltaCnk(3,13, 0.5));
 
         //System.out.println(binomial(10,4));
 //        System.out.println(ex2erfc(10, -10.01));
@@ -175,19 +183,193 @@ public class Singlet3DmappingDelta0 {
             sum += binomial(k,m) * (-1./(m-0.5*(k+n+1)) + 1./(m-0.5*(k+n-1)) - 1./(m-0.5*(k-n+1)) + 1./(m-0.5*(k-n-1)));
         }
         sum /= (1l << k+2);//divide by 2^(k+2)
-        
+
         HnkValues.put(key, new Double(sum));
         return sum;
     }
 
+//    public static double Snk(int n, int k, double y) {
+//
+//        if(y != lastY) {
+//            SnkValues.clear();
+//            CnkValues.clear();
+//        }
+//
+//        //see if stored value is available
+//        IntSet key = new IntSet(new int[] {n, k});
+//        Double valueObj = SnkValues.get(key);
+//        if(valueObj != null) return valueObj.doubleValue();
+//
+//        //not previously computed;  compute, store, and return value
+//        double value = -n * Cnk(n,k-1,y) + (k+1) * Snk(n,k-2,y);
+//
+//        SnkValues.put(key, new Double(value));
+//        return value;
+//    }
+
+//    /**
+//     * Returns the integral of exp(-x^2/2) x^k sinh(n(y-x)) for x from 0 to y.
+//     * Uses recursion in k and stores previous values until called with a different n or y.
+//     * Could be improved to better handle large n and k
+//     */
+//
+//    public static double Snk(int n, int k, double y) {
+//
+//        if(y != lastY || n != lastN) {
+//            for (int i = 0; i < SnkValues.length; i++) {
+//                SnkValues[i] = Double.NaN;
+//                CnkValues[i] = Double.NaN;
+//            }
+//            lastY = y;
+//            lastN = n;
+//        }
+//
+//        //see if stored value is available
+//        if(!Double.isNaN(SnkValues[k])) return SnkValues[k];
+//
+//        //not previously computed;  compute, store, and return value
+//        if(k == 0) {
+//            double exp1 = Math.exp(0.5*n*(n-2*y));
+//            double exp2 = Math.exp(2.0*n*y);
+//            double erf1 = Erf.erf(n/sqrt2);
+//            double erf2 = Erf.erf((y-n)/sqrt2);
+//            double erf3 = Erf.erf((y+n)/sqrt2);
+//            double erf13 = Erf.erf((y+n)/sqrt2, n/sqrt2); //erf1-erf3
+//            //SnkValues[0] = -0.5 * exp1 * sqrtPiOver2 * ((1+exp2)*erf1 + erf2 - exp2*erf3);
+//            SnkValues[0] = -0.5 * exp1 * sqrtPiOver2 * (erf1 + erf2 + exp2*erf13);
+//            CnkValues[0] = 0.5 * exp1 * sqrtPiOver2 * (erf1 + erf2 - exp2*erf13);
+//            return SnkValues[0];
+//        }
+//
+//        SnkValues[k] = -n * Cnk(n,k-1,y);
+//
+//        if(k == 1) SnkValues[k] += Math.sinh(n*y);
+//        else SnkValues[k] += (k-1) * Snk(n,k-2, y);
+//
+//        return SnkValues[k];
+//    }
+//
+//    /**
+//     * Returns the integral of exp(-x^2/2) x^k cosh(n(y-x)) for x from 0 to y.
+//     * Uses recursion in k and stores previous values until called with a different n or y
+//     */
+//    public static double Cnk(int n, int k, double y) {
+//
+//        if(y != lastY || n != lastN) {
+//            for (int i = 0; i < SnkValues.length; i++) {
+//                SnkValues[i] = Double.NaN;
+//                CnkValues[i] = Double.NaN;
+//            }
+//            lastY = y;
+//            lastN = n;
+//        }
+//
+//        //see if stored value is available
+//        if(!Double.isNaN(CnkValues[k])) return CnkValues[k];
+//
+//        //not previously computed;  compute, store, and return value
+//        if(k == 0) {
+//            double exp1 = Math.exp(0.5*n*(n-2*y));
+//            double exp2 = Math.exp(2.0*n*y);
+//            double erf1 = Erf.erf(n/sqrt2);
+//            double erf2 = Erf.erf((y-n)/sqrt2);
+//            double erf3 = Erf.erf((y+n)/sqrt2);
+//            double erf13 = Erf.erf((y+n)/sqrt2, n/sqrt2); //erf1-erf3
+//            SnkValues[0] = -0.5 * exp1 * sqrtPiOver2 * (erf1 + erf2 + exp2*erf13);
+//            CnkValues[0] = 0.5 * exp1 * sqrtPiOver2 * (erf1 + erf2 - exp2*erf13);
+////            SnkValues[0] = -0.5 * exp1 * sqrtPiOver2 * ((1+exp2)*erf1 + erf2 - exp2*erf3);
+////            CnkValues[0] = 0.5 * exp1 * sqrtPiOver2 * (-(-1+exp2)*erf1 + erf2 + exp2*erf3);
+//            return CnkValues[0];
+//        }
+//
+//        CnkValues[k] = -Math.pow(y,k-1) * Math.exp(-0.5*y*y) - n * Snk(n,k-1,y);
+//
+//        if(k == 1) CnkValues[k] += Math.cosh(n * y);
+//        else CnkValues[k] += (k-1) * Cnk(n,k-2, y);
+//
+//        return CnkValues[k];
+//    }
+
+    /**
+     * Returns the difference of integrals:
+     *    Int[exp(-x^2/2) x^(k+2) cosh(n(y-x)), {x,0,y}]
+     *          - cosh(ny) Lim(L->infinity) Int[exp(-x^2/2) x^(k+2) sinh(n(L-x)), {x,0,L}]/sinh(nL)
+     * Uses recursion in k and stores previous values until called with a different n or y
+     */
+    //should replace recursion with a loop
+    public static double deltaCnk(int n, int k, double y) {
+        if(y != lastY || n != lastN) {
+            for (int i = 0; i < SnkValues.length; i++) {
+                dSnkValues[i] = Double.NaN;
+                dCnkValues[i] = Double.NaN;
+            }
+            lastY = y;
+            lastN = n;
+        }
+
+        //see if stored value is available
+        if(!Double.isNaN(dCnkValues[k+2])) return dCnkValues[k+2];
+
+        //not previously computed;  compute, store, and return value
+        if(k == -2) {
+            dCnkValues[0] = sqrtPiOver2 * (-Math.exp(-n*y) * ex2erfc(nmax,n/sqrt2)
+                    + 0.5 * Math.exp(-0.5*y*y) * (ex2erfc(nmax,(n-y)/sqrt2) - ex2erfc(nmax,(n+y)/sqrt2)));
+            dSnkValues[0] = -0.5 * sqrtPiOver2 * (Math.exp(-0.5*y*y) * (ex2erfc(nmax,(n-y)/sqrt2) + ex2erfc(nmax,(n+y)/sqrt2)));
+            return dCnkValues[0];
+        }
+
+        CnkValues[k+2] = - n * deltaSnk(n,k-1,y);
+
+        if(k == -1) CnkValues[k+2] += - Math.exp(-0.5*y*y) ;
+        else CnkValues[k+2] += -Math.pow(y,k+1) * Math.exp(-0.5*y*y) + (k+1) * deltaCnk(n,k-2, y);
+
+        return CnkValues[k+2];
+    }
+
+    /**
+     * Returns the difference of integrals:
+     *    Int[exp(-x^2/2) x^(k+2) sinh(n(y-x)), {x,0,y}]
+     *          - cosh(ny) Lim(L->infinity) Int[exp(-x^2/2) x^(k+2) cosh(n(L-x)), {x,0,L}]/sinh(nL)
+     * Uses recursion in k and stores previous values until called with a different n or y
+     */
+    public static double deltaSnk(int n, int k, double y) {
+
+        if(y != lastY || n != lastN) {
+            for (int i = 0; i < SnkValues.length; i++) {
+                dSnkValues[i] = Double.NaN;
+                dCnkValues[i] = Double.NaN;
+            }
+            lastY = y;
+            lastN = n;
+        }
+
+        //see if stored value is available
+        if(!Double.isNaN(dSnkValues[k+2])) return dSnkValues[k+2];
+
+        //not previously computed;  compute, store, and return value
+        if(k == -2) {
+            dCnkValues[0] = sqrtPiOver2 * (-Math.exp(-n*y) * ex2erfc(nmax,n/sqrt2)
+                    + 0.5 * Math.exp(-0.5*y*y) * (ex2erfc(nmax,(n-y)/sqrt2) - ex2erfc(nmax,(n+y)/sqrt2)));
+            dSnkValues[0] = -0.5 * sqrtPiOver2 * (Math.exp(-0.5*y*y) * (ex2erfc(nmax,(n-y)/sqrt2) + ex2erfc(nmax,(n+y)/sqrt2)));
+            return dSnkValues[0];
+        }
+
+        SnkValues[k+2] = - n * deltaCnk(n,k-1,y);
+
+        if(k == -1) SnkValues[k+2] += - Math.exp(-n*y) ;
+        else SnkValues[k+2] += (k+1) * deltaSnk(n,k-2, y);
+
+        return SnkValues[k+2];
+    }
+
+
     private static double binomial(int n, int k) {
+        if(n-k < k) k = n-k;
         double result = 1;
         for(int i=0; i<k; i++) {
             result *= ((double)(n-i))/(k-i);
         }
         return result;
     }
-
-    private static final Map<IntSet, Double> HnkValues = new HashMap<IntSet, Double>();
 
 }
