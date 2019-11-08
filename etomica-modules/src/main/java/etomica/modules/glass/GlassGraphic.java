@@ -1663,6 +1663,7 @@ public class GlassGraphic extends SimulationGraphic {
                 @Override
                 public void actionPerformed() {
                     sfacClusterer.findClusters();
+                    sfacClusterer.writeGraph("G.dot");
                 }
             });
             clusterButton.setLabel("Cluster");
