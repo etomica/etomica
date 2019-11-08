@@ -68,7 +68,7 @@ public class SimGlass extends Simulation {
         int chs = 85;
         double coreHS = 0.01 * chs;
         P2SquareWell p2AA = null;
-        if (potentialChoice == PotentialChoice.LJ) {
+        if (potentialChoice == PotentialChoice.LJ) { //3D KA-80-20; 2D KA-65-35
             sigmaB = 0.88;
             P2LennardJones potentialAA = new P2LennardJones(space);
             P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(space, potentialAA, 2.5);
@@ -82,15 +82,15 @@ public class SimGlass extends Simulation {
         } else if (potentialChoice == PotentialChoice.WCA) {
             potentialMaster.setRange(2);
             // https://doi.org/10.1103/PhysRevX.1.021013
-            sigmaB = D == 2 ? 1.0 / 1.4 : 1.0 / 1.2;
-            double mB = D == 2 ? 1 : 2;
+            sigmaB = D == 2 ? 1.4 : 1.0 / 1.2; // changes 1/1.4 to 1.4
+            double mA = D == 2 ? 1 : 2;
             P2WCA potentialAA = new P2WCA(space, 1, 1);
             potentialMaster.addPotential(potentialAA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
-            P2WCA potentialAB = new P2WCA(space, 0.5 + 0.5 * sigmaB, 1);
+            P2WCA potentialAB = new P2WCA(space, D == 2 ? 1.1 : 0.5 + 0.5 * sigmaB, 1);
             potentialMaster.addPotential(potentialAB, new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
             P2WCA potentialBB = new P2WCA(space, sigmaB, 1);
             potentialMaster.addPotential(potentialBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
-            ((ElementSimple) speciesB.getLeafType().getElement()).setMass(mB);
+            ((ElementSimple) speciesA.getLeafType().getElement()).setMass(mA);
         } else if (potentialChoice == PotentialChoice.SS) {
             // https://doi.org/10.1103/PhysRevLett.81.120 prescribes cut=4.5*(0.5+0.5/1.4)=3.85714
             sigmaB = 1.0 / 1.4;
