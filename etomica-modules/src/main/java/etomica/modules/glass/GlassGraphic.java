@@ -1258,17 +1258,12 @@ public class GlassGraphic extends SimulationGraphic {
         plotAlpha2.setDoLegend(false);
         add(plotAlpha2);
 
-        //FOld
-        DataSourceFOld meterFOld = new DataSourceFOld(configStorageMSD);
-        configStorageMSD.addListener(meterFOld);
-        DisplayPlot plotF = new DisplayPlot();
-        DataPumpListener pumpFOld = new DataPumpListener(meterFOld, plotF.getDataSet().makeDataSink(), 1000);
-        sim.integrator.getEventManager().addListener(pumpFOld);
 
 
         //F - new
         DataSourceF meterF = new DataSourceF(configStorageMSD);
         configStorageMSD.addListener(meterF);
+        DisplayPlot plotF = new DisplayPlot();
         DataPumpListener pumpF = new DataPumpListener(meterF, plotF.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpF);
         plotF.setLabel("F");
@@ -1276,7 +1271,6 @@ public class GlassGraphic extends SimulationGraphic {
         add(plotF);
 
 
-        plotF.setLegend(new DataTag[]{meterFOld.getTag()}, "old");
         plotF.setLegend(new DataTag[]{meterF.getTag()}, "new");
 
 
@@ -1495,7 +1489,6 @@ public class GlassGraphic extends SimulationGraphic {
                     meterFs.reset();
                     meterFsA.reset();
                     meterFsB.reset();
-                    meterFOld.reset();
                     meterF.reset();
                     meterVAC.reset();
                     meterCorrelationAA.reset();
@@ -1537,7 +1530,6 @@ public class GlassGraphic extends SimulationGraphic {
                     meterFsA.reset();
                     meterFsB.reset();
                     meterF.reset();
-                    meterFOld.reset();
                     meterVAC.reset();
                     meterCorrelationAA.reset();
                     meterCorrelationAB.reset();
@@ -1724,10 +1716,10 @@ public class GlassGraphic extends SimulationGraphic {
             ParseArgs.doParseArgs(params, args);
         } else {
             params.doSwap = true;
-            params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 100;
+            params.potential = SimGlass.PotentialChoice.LJ;
+            params.nA = 400;
             params.nB = 100;
-            params.density = 1.0;
+            params.density = 1.2;
             params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
