@@ -102,10 +102,11 @@ public class AccumulatorAutocorrelationShearStress extends DataAccumulator imple
             }
             y[j] = allSum / n;
         }
-        double y0 = y[0];
-        for (int j = 0; j <= myMax; j++) {
-            y[j] /= y0;
-        }
+        //normalize?
+//        double y0 = y[0];
+//        for (int j = 0; j <= myMax; j++) {
+//            y[j] /= y0;
+//        }
 
         return data;
     }
