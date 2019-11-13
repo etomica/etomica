@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
+import etomica.atom.AtomTest;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -14,18 +15,18 @@ public class AtomNbrClusterer {
     protected final Box box;
     protected final Vector dr;
     protected double nbrMax2 = 1.5 * 1.5;
-    protected final AtomTestDeviation atomTestDeviation;
+    protected final AtomTest atomTestDeviation;
     protected final int[] clusters;
     protected final int[][] nbrList;
     protected final int[] nextAtom, firstAtoms, lastAtoms;
     protected final int[] skip;
     protected final boolean doNbrs;
 
-    public AtomNbrClusterer(Box box, AtomTestDeviation atomTest){
+    public AtomNbrClusterer(Box box, AtomTest atomTest) {
         this(box, atomTest, false);
     }
 
-    public AtomNbrClusterer(Box box, AtomTestDeviation atomTest, boolean doNbrs) {
+    public AtomNbrClusterer(Box box, AtomTest atomTest, boolean doNbrs) {
         this.box = box;
         atomTestDeviation = atomTest;
         this.doNbrs = doNbrs;
