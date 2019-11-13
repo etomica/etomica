@@ -304,8 +304,9 @@ public class GlassProd {
             try {
                 FileWriter fileWriterPxyAC = new FileWriter(filenamePxyAC, false);
                 DataDoubleArray x = dpxyAutocor.getIndependentData(0);
-                for (int i=0; i<dpxyAutocor.getData().getLength(); i++){
-                    double yi = dpxyAutocor.getData().getValue(i);
+                IData y = dpxyAutocor.getData();
+                for (int i = 0; i < y.getLength(); i++) {
+                    double yi = y.getValue(i);
                     double xi = x.getValue(i);
                     if(!Double.isNaN(yi)){
                         fileWriterPxyAC.write(xi + " " + yi + "\n");
