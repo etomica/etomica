@@ -3,20 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
-import etomica.atom.AtomType;
-import etomica.atom.iterator.AtomIteratorLeafFilteredType;
 import etomica.data.*;
 import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTensor;
-import etomica.graphics.DeviceButtonGroup;
-import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.polydisperseHS.VelocityWriter;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 import etomica.util.ParseArgs;
@@ -33,7 +27,7 @@ public class GlassProd {
             params.potential = SimGlass.PotentialChoice.HS;
             params.nA = 50;
             params.nB = 50;
-            params.density = 1.62; // 2D params.density = 0.509733; //3D  = 0.69099;
+            params.density = 1.2; // 2D params.density = 0.509733; //3D  = 0.69099;
             params.D = 3;
             params.temperature = 1.0;
             params.numStepsEq = 100000;
@@ -193,6 +187,13 @@ public class GlassProd {
 
         configStorageMSD.addListener(meterPerc);
 
+        DataSourcePercolation0 meterPerc0 = new DataSourcePercolation0(sim.box, sim.getRandom());
+        meterPerc0.setImmFracs(new double[]{0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65,
+                0.70, 0.75, 0.8, 0.85, 0.9, 0.95, 1});
+        AccumulatorAverageFixed accPerc0 = new AccumulatorAverageFixed(10);
+        DataPumpListener pumpPerc0 = new DataPumpListener(meterPerc0, accPerc0, 1000);
+        sim.integrator.getEventManager().addListener(pumpPerc0);
+
         //Strings
         DataSourceStrings meterL = new DataSourceStrings(configStorageMSD, 3, 30);
         configStorageMSD.addListener(meterL);
@@ -229,7 +230,7 @@ public class GlassProd {
         double pCorr = dataPCorr.getValue(0);
 
 
-        String filenameVisc, filenameMSD, filenameD, filenameFs, filenameF, filenamePerc, filenameImmFrac, filenameL, filenameAlpha2, filenameSq, filenameVAC;
+        String filenameVisc, filenameMSD, filenameD, filenameFs, filenameF, filenamePerc, filenamePerc0, filenameImmFrac, filenameL, filenameAlpha2, filenameSq, filenameVAC;
 
         String filenamePxyAC = "";
         if(sim.potentialChoice == SimGlass.PotentialChoice.HS){
@@ -248,6 +249,7 @@ public class GlassProd {
             filenameFs = String.format("fsRho%1.3fQ%1.2f.out", rho, params.qx);
 //            filenameF = String.format("fRho%1.3f.out", rho);
             filenamePerc = String.format("percRho%1.3f.out", rho);
+            filenamePerc0 = String.format("perc0Rho%1.3f.out", rho);
             filenameL = String.format("lRho%1.3f.out", rho);
             filenameImmFrac = String.format("immFracRho%1.3f.out", rho);
             filenameAlpha2 = String.format("alpha2Rho%1.3f.out", rho);
@@ -286,6 +288,7 @@ public class GlassProd {
             filenameFs = String.format("fsRho%1.3fT%1.3fQ%1.2f.out", rho, params.temperature, params.qx);
 //            filenameF = String.format("fRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenamePerc = String.format("percRho%1.3fT%1.3f.out",  rho, params.temperature);
+            filenamePerc0 = String.format("perc0Rho%1.3fT%1.3f.out", rho, params.temperature);
             filenameL = String.format("lRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameImmFrac = String.format("immFracRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameAlpha2 = String.format("alpha2Rho%1.3fT%1.3f.out",  rho, params.temperature);
@@ -298,9 +301,8 @@ public class GlassProd {
 
         // shear stress AC
         if(sim.potentialChoice != SimGlass.PotentialChoice.HS){
-            FileWriter fileWriterPxyAC;
             try {
-                fileWriterPxyAC = new FileWriter(filenamePxyAC, false);
+                FileWriter fileWriterPxyAC = new FileWriter(filenamePxyAC, false);
                 DataDoubleArray x = dpxyAutocor.getIndependentData(0);
                 for (int i=0; i<dpxyAutocor.getData().getLength(); i++){
                     double yi = dpxyAutocor.getData().getValue(i);
@@ -321,9 +323,8 @@ public class GlassProd {
         IData dataSFAvg = dataSF.getData(accSFac.AVERAGE.index);
         int nSF  = dataSFAvg.getLength();
         IData xData = meterSFac.getIndependentData(0);
-        FileWriter fileWriterSq;
         try {
-            fileWriterSq = new FileWriter(filenameSq, false);
+            FileWriter fileWriterSq = new FileWriter(filenameSq, false);
             for(int i=0;i<nSF; i++){
                 fileWriterSq.write(xData.getValue(i) + " "+ dataSFAvg.getValue(i)+"\n");
             }
@@ -336,9 +337,8 @@ public class GlassProd {
 
 
         //Viscosity
-        FileWriter fileWriterVisc;
         try {
-            fileWriterVisc = new FileWriter(filenameVisc, false);
+            FileWriter fileWriterVisc = new FileWriter(filenameVisc, false);
             DataDoubleArray x = pTensorAccumVisc.getIndependentData(0);
             for (int i=0; i<pTensorAccumVisc.getData().getLength(); i++){
                 double yi = pTensorAccumVisc.getData().getValue(i);
@@ -354,17 +354,16 @@ public class GlassProd {
         }
 
         //MSD
-        FileWriter fileWriterMSD, fileWriterD, fileWriterFs, fileWriterF, fileWriterPerc, fileWriterImmFrac, fileWriterL, fileWriterAlpha2, fileWriterVAC;
         try {
-            fileWriterMSD = new FileWriter(filenameMSD,false);
-            fileWriterD   = new FileWriter(filenameD,  false);
-            fileWriterVAC = new FileWriter(filenameVAC,false);
-            fileWriterFs  = new FileWriter(filenameFs, false);
-//            fileWriterF   = new FileWriter(filenameF,  false);
-            fileWriterPerc   = new FileWriter(filenamePerc,  false);
-            fileWriterImmFrac   = new FileWriter(filenameImmFrac ,  false);
-            fileWriterL   = new FileWriter(filenameL ,  false);
-            fileWriterAlpha2   = new FileWriter(filenameAlpha2 ,  false);
+            FileWriter fileWriterMSD = new FileWriter(filenameMSD, false);
+            FileWriter fileWriterD = new FileWriter(filenameD, false);
+            FileWriter fileWriterVAC = new FileWriter(filenameVAC, false);
+            FileWriter fileWriterFs = new FileWriter(filenameFs, false);
+//           FileWriter fileWriterF   = new FileWriter(filenameF,  false);
+            FileWriter fileWriterPerc = new FileWriter(filenamePerc, false);
+            FileWriter fileWriterImmFrac = new FileWriter(filenameImmFrac, false);
+            FileWriter fileWriterL = new FileWriter(filenameL, false);
+            FileWriter fileWriterAlpha2 = new FileWriter(filenameAlpha2, false);
             DataDoubleArray x = meterMSD.getIndependentData(0);
             for (int i=0; i<meterMSD.getData().getLength(); i++){
                 double xi = x.getValue(i);
@@ -409,6 +408,15 @@ public class GlassProd {
             fileWriterImmFrac.close();
             fileWriterL.close();
             fileWriterAlpha2.close();
+            FileWriter fileWriterPerc0 = new FileWriter(filenamePerc0, false);
+            x = meterPerc0.getIndependentData(0);
+            IData perc0Avg = accPerc0.getData(accPerc0.AVERAGE);
+            for (int i = 0; i < x.getLength(); i++) {
+                double xi = x.getValue(i);
+                double yi = perc0Avg.getValue(i);
+                fileWriterPerc0.write(xi + " " + yi + "\n");
+            }
+            fileWriterPerc0.close();
         } catch (IOException e) {
             System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
         }

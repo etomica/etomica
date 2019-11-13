@@ -841,6 +841,21 @@ public class GlassGraphic extends SimulationGraphic {
         gbcPerc.gridy = 2;
         percPanel.add(percMaxLog2StepSlider.graphic(), gbcPerc);
 
+        DataSourcePercolation0 meterPerc0 = new DataSourcePercolation0(sim.box, sim.getRandom());
+        meterPerc0.setImmFracs(new double[]{0.05, 0.1, 0.15, 0.20, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.8, 0.85, 0.9, 0.95, 1});
+        AccumulatorAverageFixed accPerc0 = new AccumulatorAverageFixed(10);
+        accPerc0.setPushInterval(1);
+        DataPumpListener pumpPerc0 = new DataPumpListener(meterPerc0, accPerc0, 1000);
+        DisplayPlot plotPerc0 = new DisplayPlot();
+        plotPerc0.setDoLegend(false);
+        plotPerc0.setXLabel("Atom Fraction");
+        plotPerc0.getPlot().setYLabel("Percolation Fraction");
+        accPerc0.addDataSink(plotPerc0.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accPerc0.AVERAGE});
+        sim.integrator.getEventManager().addListener(pumpPerc0);
+        dataStreamPumps.add(pumpPerc0);
+        plotPerc0.setLabel("Perc0");
+        add(plotPerc0);
+
 
         int corUpdateInterval = sim.getSpace().D() == 2 ? 10000 : 2000;
         double xCorMax = 5;
@@ -1501,6 +1516,7 @@ public class GlassGraphic extends SimulationGraphic {
                     diameterHash.setFac(1.0);
                     accSFac.reset();
                     sfacClusterer.reset();
+                    accPerc0.reset();
                 } else {
                     dbox.setAtomTestDoDisplay(atomFilterDeviation);
                     sim.integrator.setIntegratorMC(null, 0);
@@ -1541,6 +1557,7 @@ public class GlassGraphic extends SimulationGraphic {
                     diameterHash.setFac(showDispCheckbox.getState() ? 0.5 : 1.0);
                     accSFac.reset();
                     sfacClusterer.reset();
+                    accPerc0.reset();
                 }
             }
 
