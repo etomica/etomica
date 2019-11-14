@@ -605,33 +605,34 @@ public class GlassGraphic extends SimulationGraphic {
         //Gs: total
         int gsUpdateInterval = sim.getSpace().D() == 2 ? 10000 : 2000;
         double xGsMax = 2;
-        MeterGs meterGs = new MeterGs(configStorageLinear);
-        meterGs.setPrevSampleIndex(128);
-        configStorageLinear.addListener(meterGs);
+        int gsMinConfig = 4;
+        MeterGs meterGs = new MeterGs(configStorage);
+        meterGs.setMinConfigIndex(gsMinConfig);
+        meterGs.setConfigIndex(12);
+        configStorage.addListener(meterGs);
         meterGs.getXDataSource().setXMax(xGsMax);
-        meterGs.reset();
         DisplayPlot gsPlot = new DisplayPlot();
         DataPumpListener pumpGs = new DataPumpListener(meterGs, gsPlot.getDataSet().makeDataSink(), gsUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpGs);
         gsPlot.setLabel(" Gs ");
         add(gsPlot);
         //Gs: A
-        MeterGs meterGsA = new MeterGs(configStorageLinear);
-        meterGsA.setPrevSampleIndex(128);
+        MeterGs meterGsA = new MeterGs(configStorage);
+        meterGsA.setMinConfigIndex(gsMinConfig);
+        meterGsA.setConfigIndex(12);
         meterGsA.setAtomTypes(sim.speciesA.getLeafType());
-        configStorageLinear.addListener(meterGsA);
+        configStorage.addListener(meterGsA);
         meterGsA.getXDataSource().setXMax(xGsMax);
-        meterGsA.reset();
         DataPumpListener pumpGsA = new DataPumpListener(meterGsA, gsPlot.getDataSet().makeDataSink(), gsUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpGsA);
 
         //Gs: B
-        MeterGs meterGsB = new MeterGs(configStorageLinear);
-        meterGsB.setPrevSampleIndex(128);
+        MeterGs meterGsB = new MeterGs(configStorage);
+        meterGsB.setMinConfigIndex(gsMinConfig);
+        meterGsB.setConfigIndex(12);
         meterGsB.setAtomTypes(sim.speciesB.getLeafType());
-        configStorageLinear.addListener(meterGsB);
+        configStorage.addListener(meterGsB);
         meterGsB.getXDataSource().setXMax(xGsMax);
-        meterGsB.reset();
         DataPumpListener pumpGsB = new DataPumpListener(meterGsB, gsPlot.getDataSet().makeDataSink(), gsUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpGsB);
 
@@ -646,19 +647,17 @@ public class GlassGraphic extends SimulationGraphic {
             public void setValue(double newValue) {
                 if (newValue == getValue()) return;
                 int log2prevConfig = (int) Math.round(newValue);
-                int prevConfig = 1 << log2prevConfig;
-                meterGs.setPrevSampleIndex(prevConfig);
-                meterGsA.setPrevSampleIndex(prevConfig);
-                meterGsB.setPrevSampleIndex(prevConfig);
+                meterGs.setConfigIndex(log2prevConfig);
+                meterGsA.setConfigIndex(log2prevConfig);
+                meterGsB.setConfigIndex(log2prevConfig);
+                pumpGs.actionPerformed();
+                pumpGsA.actionPerformed();
+                pumpGsB.actionPerformed();
             }
 
             @Override
             public double getValue() {
-                int prevConfig = meterGs.getPrevSampleIndex();
-                for (int i = 0; i <= 30; i++) {
-                    if (1 << i >= prevConfig) return i;
-                }
-                throw new RuntimeException("oops");
+                return meterGs.getConfigIndex();
             }
 
             @Override
@@ -673,9 +672,9 @@ public class GlassGraphic extends SimulationGraphic {
         });
         gsPrevSampleSlider.setShowBorder(true);
         gsPrevSampleSlider.setShowValues(true);
-        gsPrevSampleSlider.setNMajor(5);
+        gsPrevSampleSlider.setNMajor(4);
         gsPrevSampleSlider.setMaximum(20);
-        gsPrevSampleSlider.setMinimum(0);
+        gsPrevSampleSlider.setMinimum(gsMinConfig);
         gsPrevSampleSlider.setLabel("log2(previous sample)");
 
         JPanel gsPanel = (JPanel) gsPlot.graphic();
@@ -982,9 +981,9 @@ public class GlassGraphic extends SimulationGraphic {
                 meterCorrelationPerp.reset();
                 meterCorrelationPar.reset();
                 meterCorrelationMag.reset();
-                meterGs.reset();
-                meterGsA.reset();
-                meterGsB.reset();
+                meterGs.zeroData();
+                meterGsA.zeroData();
+                meterGsB.zeroData();
                 pumpPrevTime.actionPerformed();
             }
 
