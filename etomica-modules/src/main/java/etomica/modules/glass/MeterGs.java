@@ -26,10 +26,7 @@ import etomica.units.dimensions.Null;
  */
 public class MeterGs implements ConfigurationStorage.ConfigurationStorageListener, IDataSource, DataSourceIndependent {
 
-    public enum CorrelationType {TOTAL, PARALLEL, PERPENDICULAR, MAGNITUDE}
-
     protected final ConfigurationStorage configStorage;
-    protected final CorrelationType correlationType;
     protected final DataSourceUniform xDataSource;
     protected final DataTag tag;
     protected final Vector dr, dri, drj, tmp;
@@ -42,12 +39,7 @@ public class MeterGs implements ConfigurationStorage.ConfigurationStorageListene
     protected int prevSampleIndex;
 
     public MeterGs(ConfigurationStorage configStorage) {
-        this(configStorage, CorrelationType.TOTAL);
-    }
-
-    public MeterGs(ConfigurationStorage configStorage, CorrelationType cType) {
         this.configStorage = configStorage;
-        this.correlationType = cType;
         Space space = configStorage.getBox().getSpace();
         prevSampleIndex = 0;
 
@@ -122,7 +114,6 @@ public class MeterGs implements ConfigurationStorage.ConfigurationStorageListene
         double gsCount  = 0;
         final double[] y = data.getData();
         double[] r = rData.getData();
-        double D = dr.getD();
         for (int i = 0; i < r.length; i++) {
             gsCount += gsSum[i];
         }
