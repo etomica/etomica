@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -18,10 +21,15 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     protected DataDoubleArray tData;
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
     protected DataFunction data, immFracData;
+    protected final DataFunction[] immFracDataByType;
+    protected final DataFunction.DataInfoFunction[] immFracDataByTypeInfo;
     protected DataFunction.DataInfoFunction dataInfo, immFracDataInfo;
     protected double[] percP;
     protected long[] immFraction;
+    protected long[][] immFractionByType;
+    protected final int[] numAtomsByType;
     protected final DataTag tTag, tag, immFracTag;
+    protected final DataTag[] immFracByTypeTag;
 
     protected long[] nSamples;
     protected final AtomNbrClusterer clusterer;
@@ -33,10 +41,29 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     protected final Space space;
     protected final Vector[] r;
     protected int log2StepMin, log2StepMax;
+    protected final int numTypes;
 
 
     public DataSourcePercolation(ConfigurationStorage configStorage, AtomTestDeviation atomTest, int log2StepMin, int log2StepMax) {
         this.configStorage = configStorage;
+        int nt = 0;
+        IAtomList atoms = configStorage.box.getLeafList();
+        for (IAtom a : atoms) {
+            int t = a.getType().getIndex();
+            if (nt <= t) nt = t + 1;
+        }
+        numTypes = nt;
+        numAtomsByType = new int[numTypes];
+        for (IAtom a : atoms) {
+            int t = a.getType().getIndex();
+            numAtomsByType[t]++;
+        }
+        immFracDataByType = new DataFunction[numTypes];
+        immFracDataByTypeInfo = new DataFunction.DataInfoFunction[numTypes];
+        immFracByTypeTag = new DataTag[numTypes];
+        for (int i = 0; i < numTypes; i++) {
+            immFracByTypeTag[i] = new DataTag();
+        }
 
         clusterer = new AtomNbrClusterer(configStorage.getBox(), atomTest, true);
         this.atomTest = atomTest;
@@ -49,6 +76,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         space = configStorage.box.getSpace();
         percP = new double[0];
         immFraction = new long[0];
+        immFractionByType = new long[0][0];
         nSamples = new long[0];
         tag = new DataTag();
         immFracTag = new DataTag();
@@ -86,6 +114,11 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         if (n < 1) n = 0;
         percP = Arrays.copyOf(percP, n);
         immFraction = Arrays.copyOf(immFraction, n);
+        int oldSize = immFractionByType.length;
+        immFractionByType = Arrays.copyOf(immFractionByType, n);
+        for (int i = oldSize; i < n; i++) {
+            immFractionByType[i] = new long[numTypes];
+        }
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
         immFracData = new DataFunction(new int[]{n});
@@ -96,7 +129,11 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         dataInfo.addTag(tag);
         immFracDataInfo = new DataFunction.DataInfoFunction("immFraction", Null.DIMENSION, this);
         immFracDataInfo.addTag(immFracTag);
-
+        for (int i = 0; i < numTypes; i++) {
+            immFracDataByType[i] = new DataFunction(new int[]{n});
+            immFracDataByTypeInfo[i] = new DataFunction.DataInfoFunction("immFraction", Null.DIMENSION, this);
+            immFracDataByTypeInfo[i].addTag(immFracByTypeTag[i]);
+        }
 
         double[] t = tData.getData();
         if (t.length > 0) {
@@ -113,9 +150,10 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         reset(); // reallocates if needed
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
+        IAtomList atoms = configStorage.getBox().getLeafList();
         for (int i = log2StepMin; i < percP.length && i <= log2StepMax; i++) {
             if (step % (1L << i) == 0) {
-                for(int j=0; j<numAtoms; j++){
+                for(int j = 0; j<numAtoms; j++){
                     isVisited[j] = false;
                 }
 
@@ -132,7 +170,8 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                     for (int ii = firstAtom[j]; ii != -1; ii = nextAtom[ii]) {
                         clusterSize[j][1]++;
                         immFraction[i]++;
-
+                        int t = atoms.get(ii).getType().getIndex();
+                        immFractionByType[i][t]++;
                     }
                 }
                 java.util.Arrays.sort(clusterSize, 0, nClusters, new java.util.Comparator<int[]>() {
@@ -140,7 +179,6 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                         return Integer.compare(b[1], a[1]);
                     }
                 });
-
 
 
                 outer:
@@ -196,7 +234,6 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     }
 
 
-
     @Override
     public DataTag getTag() {
         return tag;
@@ -227,13 +264,16 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         return tTag;
     }
 
+    public ImmFractionSource makeImmFractionSource() {
+        return new ImmFractionSource();
+    }
 
-
-
-
-    public ImmFractionSource makeImmFractionSource () {return new ImmFractionSource();}
+    public ImmFractionByTypeSource makeImmFractionSource(AtomType type) {
+        return new ImmFractionByTypeSource(type);
+    }
 
     public class ImmFractionSource implements IDataSource {
+
         @Override
         public IData getData() {
             if (configStorage.getLastConfigIndex() < 1) return immFracData;
@@ -256,11 +296,36 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         }
     }
 
+    public class ImmFractionByTypeSource implements IDataSource {
+
+        protected final int typeIndex;
+
+        public ImmFractionByTypeSource(AtomType atomType) {
+            typeIndex = atomType.getIndex();
+        }
+
+        @Override
+        public IData getData() {
+            DataFunction myData = immFracDataByType[typeIndex];
+            if (configStorage.getLastConfigIndex() < 1) return myData;
+            int na = numAtomsByType[typeIndex];
+            double[] yImmFrac = myData.getData();
+            for (int i = 0; i < immFractionByType.length; i++) {
+                yImmFrac[i] = (double) immFractionByType[i][typeIndex] / nSamples[i] / na;
+
+            }
+            return myData;
+        }
+
+        @Override
+        public DataTag getTag() {
+            return immFracByTypeTag[typeIndex];
+        }
+
+        @Override
+        public IDataInfo getDataInfo() {
+            return immFracDataByTypeInfo[typeIndex];
+        }
+    }
+
 }
-
-
-
-
-
-
-

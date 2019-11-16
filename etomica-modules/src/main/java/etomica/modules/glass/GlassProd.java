@@ -34,7 +34,6 @@ public class GlassProd {
             params.numSteps =   1000000;
             params.minDrFilter = 0.4;
             params.qx = 7.0;
-            params.log2StepMin = 10;
         }
 
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
@@ -161,6 +160,11 @@ public class GlassProd {
         DataSourceMSD meterMSD = new DataSourceMSD(configStorageMSD);
         configStorageMSD.addListener(meterMSD);
 
+        DataSourceMSD meterMSDA = new DataSourceMSD(configStorageMSD, sim.speciesA.getLeafType());
+        configStorageMSD.addListener(meterMSDA);
+        DataSourceMSD meterMSDB = new DataSourceMSD(configStorageMSD, sim.speciesB.getLeafType());
+        configStorageMSD.addListener(meterMSDB);
+
         //VAC
         DataSourceVAC meterVAC = new DataSourceVAC(configStorageMSD);
         configStorageMSD.addListener(meterVAC);
@@ -183,9 +187,10 @@ public class GlassProd {
         DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSD, atomFilterDeviation, params.log2StepMin, 30);
 
         //Immobile fraction
-        DataSourcePercolation.ImmFractionSource meterImmFraction = meterPerc.makeImmFractionSource();
-
         configStorageMSD.addListener(meterPerc);
+        DataSourcePercolation.ImmFractionSource meterImmFraction = meterPerc.makeImmFractionSource();
+        DataSourcePercolation.ImmFractionByTypeSource meterImmFractionA = meterPerc.makeImmFractionSource(sim.speciesA.getLeafType());
+        DataSourcePercolation.ImmFractionByTypeSource meterImmFractionB = meterPerc.makeImmFractionSource(sim.speciesB.getLeafType());
 
         DataSourcePercolation0 meterPerc0 = new DataSourcePercolation0(sim.box, sim.getRandom());
         meterPerc0.setImmFracs(new double[]{0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65,
@@ -230,7 +235,8 @@ public class GlassProd {
         double pCorr = dataPCorr.getValue(0);
 
 
-        String filenameVisc, filenameMSD, filenameD, filenameFs, filenameF, filenamePerc, filenamePerc0, filenameImmFrac, filenameL, filenameAlpha2, filenameSq, filenameVAC;
+        String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenameD, filenameFs, filenameF, filenamePerc,
+                filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameL, filenameAlpha2, filenameSq, filenameVAC;
 
         String filenamePxyAC = "";
         if(sim.potentialChoice == SimGlass.PotentialChoice.HS){
@@ -244,6 +250,8 @@ public class GlassProd {
             System.out.println("Z: " + pAvg/params.density/params.temperature +"  "+ pErr/params.density/params.temperature  +"  cor: "+pCorr);
             filenameVisc = String.format("viscRho%1.3f.out",rho);
             filenameMSD = String.format("msdRho%1.3f.out", rho);
+            filenameMSDA = String.format("msdARho%1.3f.out", rho);
+            filenameMSDB = String.format("msdBRho%1.3f.out", rho);
             filenameD = String.format("dRho%1.3f.out", rho);
             filenameVAC = String.format("vacRho%1.3f.out", rho);
             filenameFs = String.format("fsRho%1.3fQ%1.2f.out", rho, params.qx);
@@ -252,6 +260,8 @@ public class GlassProd {
             filenamePerc0 = String.format("perc0Rho%1.3f.out", rho);
             filenameL = String.format("lRho%1.3f.out", rho);
             filenameImmFrac = String.format("immFracRho%1.3f.out", rho);
+            filenameImmFracA = String.format("immFracARho%1.3f.out", rho);
+            filenameImmFracB = String.format("immFracBRho%1.3f.out", rho);
             filenameAlpha2 = String.format("alpha2Rho%1.3f.out", rho);
             filenameSq = String.format("sqRho%1.3f.out",rho);
         }else{
@@ -283,6 +293,8 @@ public class GlassProd {
             System.out.println("U: " + uAvg / numAtoms + "  " + uErr / numAtoms + "  cor: " + uCorr);
             filenameVisc = String.format("viscRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameMSD = String.format("msdRho%1.3fT%1.3f.out",  rho, params.temperature);
+            filenameMSDA = String.format("msdARho%1.3fT%1.3f.out", rho, params.temperature);
+            filenameMSDB = String.format("msdBRho%1.3fT%1.3f.out", rho, params.temperature);
             filenameD = String.format("dRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameVAC = String.format("vacRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameFs = String.format("fsRho%1.3fT%1.3fQ%1.2f.out", rho, params.temperature, params.qx);
@@ -291,6 +303,8 @@ public class GlassProd {
             filenamePerc0 = String.format("perc0Rho%1.3fT%1.3f.out", rho, params.temperature);
             filenameL = String.format("lRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameImmFrac = String.format("immFracRho%1.3fT%1.3f.out",  rho, params.temperature);
+            filenameImmFracA = String.format("immFracARho%1.3fT%1.3f.out", rho, params.temperature);
+            filenameImmFracB = String.format("immFracBRho%1.3fT%1.3f.out", rho, params.temperature);
             filenameAlpha2 = String.format("alpha2Rho%1.3fT%1.3f.out",  rho, params.temperature);
             filenamePxyAC = String.format("acPxyRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameSq = String.format("sqRho%1.3fT%1.3f.out",  rho, params.temperature);
@@ -357,19 +371,27 @@ public class GlassProd {
         //MSD
         try {
             FileWriter fileWriterMSD = new FileWriter(filenameMSD, false);
+            FileWriter fileWriterMSDA = new FileWriter(filenameMSDA, false);
+            FileWriter fileWriterMSDB = new FileWriter(filenameMSDB, false);
             FileWriter fileWriterD = new FileWriter(filenameD, false);
             FileWriter fileWriterVAC = new FileWriter(filenameVAC, false);
             FileWriter fileWriterFs = new FileWriter(filenameFs, false);
 //           FileWriter fileWriterF   = new FileWriter(filenameF,  false);
             FileWriter fileWriterPerc = new FileWriter(filenamePerc, false);
             FileWriter fileWriterImmFrac = new FileWriter(filenameImmFrac, false);
+            FileWriter fileWriterImmFracA = new FileWriter(filenameImmFracA, false);
+            FileWriter fileWriterImmFracB = new FileWriter(filenameImmFracB, false);
             FileWriter fileWriterL = new FileWriter(filenameL, false);
             FileWriter fileWriterAlpha2 = new FileWriter(filenameAlpha2, false);
             DataDoubleArray x = meterMSD.getIndependentData(0);
             for (int i=0; i<meterMSD.getData().getLength(); i++){
                 double xi = x.getValue(i);
                 double yi = meterMSD.getData().getValue(i);
+                double yiA = meterMSDA.getData().getValue(i);
+                double yiB = meterMSDB.getData().getValue(i);
                 double yiErr = meterMSD.errData.getValue(i);
+                double yiAErr = meterMSDA.errData.getValue(i);
+                double yiBErr = meterMSDB.errData.getValue(i);
                 double yiFs = meterFs.getData().getValue(i);
 //                double yiF  = meterF.getData().getValue(i);
                 double yiVAC = meterVAC.getData().getValue(i);
@@ -377,12 +399,16 @@ public class GlassProd {
                 double yiL  = meterL.getData().getValue(i);
                 if( !Double.isNaN(yi) && !Double.isNaN(yiErr) && !Double.isNaN(yiFs)){
                     fileWriterMSD.write(xi + " " + yi + " " + yiErr+"\n");
+                    fileWriterMSDA.write(xi + " " + yiA + " " + yiAErr + "\n");
+                    fileWriterMSDB.write(xi + " " + yiB + " " + yiBErr + "\n");
                     fileWriterD.write(xi + " " + yi/2/params.D/xi + " " + yiErr/2/params.D/xi + "\n");
                     fileWriterVAC.write(xi + " " + yiVAC + " " + yiVACErr +"\n");
                     fileWriterFs.write(xi + " " + yiFs + "\n");
 //                    fileWriterF.write(xi + " " + yiF + "\n");
                     double yiPerc  = meterPerc.getData().getValue(i);
                     double yiImmFrac  = meterImmFraction.getData().getValue(i);
+                    double yiImmFracA = meterImmFractionA.getData().getValue(i);
+                    double yiImmFracB = meterImmFractionB.getData().getValue(i);
                     double yiAlpha2  = meterAlpha2.getData().getValue(i);
 
                     if(!Double.isNaN(yiPerc)){
@@ -390,6 +416,8 @@ public class GlassProd {
                     }
                     if(!Double.isNaN(yiImmFrac)){
                         fileWriterImmFrac.write(xi + " " + yiImmFrac + "\n");
+                        fileWriterImmFracA.write(xi + " " + yiImmFracA + "\n");
+                        fileWriterImmFracB.write(xi + " " + yiImmFracB + "\n");
                     }
                     if(!Double.isNaN(yiL)){
                         fileWriterL.write(xi + " " + yiL + "\n");
@@ -401,12 +429,16 @@ public class GlassProd {
                 }
             }
             fileWriterMSD.close();
+            fileWriterMSDA.close();
+            fileWriterMSDB.close();
             fileWriterVAC.close();
             fileWriterD.close();
             fileWriterFs.close();
 //            fileWriterF.close();
             fileWriterPerc.close();
             fileWriterImmFrac.close();
+            fileWriterImmFracA.close();
+            fileWriterImmFracB.close();
             fileWriterL.close();
             fileWriterAlpha2.close();
             FileWriter fileWriterPerc0 = new FileWriter(filenamePerc0, false);
