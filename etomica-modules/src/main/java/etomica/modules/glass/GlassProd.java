@@ -46,7 +46,7 @@ public class GlassProd {
         System.out.println( params.numSteps + " MD steps after " + params.numStepsEq + " equilibaration steps , using dt = " + sim.integrator.getTimeStep());
 
         //Equilibration
-        double temperature0 = params.temperatureMelt > params.temperature ? params.temperatureMelt : params.temperature;
+        double temperature0 = Math.max(params.temperatureMelt, params.temperature);
         if (temperature0 > params.temperature) System.out.println("Equilibrating at T=" + temperature0);
         sim.integrator.setIsothermal(true);
         sim.integrator.setIntegratorMC(sim.integratorMC, 1000);
@@ -148,7 +148,8 @@ public class GlassProd {
 
         //shear stress AC
         AccumulatorAutocorrelationShearStress dpxyAutocor = new AccumulatorAutocorrelationShearStress(256, sim.integrator.getTimeStep());
-        if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
+        boolean doPxyAutocor = params.doPxyAutocor && sim.potentialChoice != SimGlass.PotentialChoice.HS;
+        if (doPxyAutocor) {
             pTensorFork.addDataSink(dpxyAutocor);
         }
         dpxyAutocor.setPushInterval(16384);
@@ -314,7 +315,7 @@ public class GlassProd {
         System.out.println("P: " + pAvg +"  "+ pErr +"  cor: "+pCorr);
 
         // shear stress AC
-        if(sim.potentialChoice != SimGlass.PotentialChoice.HS){
+        if (doPxyAutocor) {
             try {
                 FileWriter fileWriterPxyAC = new FileWriter(filenamePxyAC, false);
                 DataDoubleArray x = dpxyAutocor.getIndependentData(0);
@@ -471,5 +472,6 @@ public class GlassProd {
         public int log2StepMin = 5;
         public double temperatureMelt = 0;
         public double qx = 7.0;
+        public boolean doPxyAutocor = false;
     }
 }
