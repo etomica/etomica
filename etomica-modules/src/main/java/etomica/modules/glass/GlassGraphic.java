@@ -713,12 +713,20 @@ public class GlassGraphic extends SimulationGraphic {
         DataPumpListener pumpPerc = new DataPumpListener(meterPerc, plotPerc.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpPerc);
 
-        DataPumpListener pumpImmFrac = new DataPumpListener(meterPerc.makeImmFractionSource(), plotPerc.getDataSet().makeDataSink(), 1000);
+        DataSourcePercolation.ImmFractionSource meterImmFrac = meterPerc.makeImmFractionSource();
+        DataPumpListener pumpImmFrac = new DataPumpListener(meterImmFrac, plotPerc.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpImmFrac);
-
+        DataSourcePercolation.ImmFractionByTypeSource meterImmFracA = meterPerc.makeImmFractionSource(sim.speciesA.getLeafType());
+        DataPumpListener pumpImmFracA = new DataPumpListener(meterImmFracA, plotPerc.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpImmFracA);
+        DataSourcePercolation.ImmFractionByTypeSource meterImmFracB = meterPerc.makeImmFractionSource(sim.speciesB.getLeafType());
+        DataPumpListener pumpImmFracB = new DataPumpListener(meterImmFracB, plotPerc.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpImmFracB);
 
         plotPerc.setLegend(new DataTag[]{meterPerc.getTag()},"perc. prob.");
-        plotPerc.setLegend(new DataTag[]{meterPerc.makeImmFractionSource().getTag()},"imm. frac.");
+        plotPerc.setLegend(new DataTag[]{meterImmFrac.getTag()}, "imm. frac.");
+        plotPerc.setLegend(new DataTag[]{meterImmFracA.getTag()}, "imm. frac. A");
+        plotPerc.setLegend(new DataTag[]{meterImmFracB.getTag()}, "imm. frac. B");
         plotPerc.setLabel("perc");
         plotPerc.getPlot().setXLog(true);
         add(plotPerc);
