@@ -605,7 +605,7 @@ public class GlassGraphic extends SimulationGraphic {
         //Gs: total
         int gsUpdateInterval = sim.getSpace().D() == 2 ? 10000 : 2000;
         double xGsMax = 2;
-        int gsMinConfig = 4;
+        int gsMinConfig = 5;
         MeterGs meterGs = new MeterGs(configStorage);
         meterGs.setMinConfigIndex(gsMinConfig);
         meterGs.setConfigIndex(12);
@@ -672,8 +672,8 @@ public class GlassGraphic extends SimulationGraphic {
         });
         gsPrevSampleSlider.setShowBorder(true);
         gsPrevSampleSlider.setShowValues(true);
-        gsPrevSampleSlider.setNMajor(4);
-        gsPrevSampleSlider.setMaximum(20);
+        gsPrevSampleSlider.setNMajor(5);
+        gsPrevSampleSlider.setMaximum(30);
         gsPrevSampleSlider.setMinimum(gsMinConfig);
         gsPrevSampleSlider.setLabel("log2(previous sample)");
 
@@ -867,39 +867,40 @@ public class GlassGraphic extends SimulationGraphic {
         int corUpdateInterval = sim.getSpace().D() == 2 ? 10000 : 2000;
         double xCorMax = 5;
 
-        MeterCorrelation meterCorrelation = new MeterCorrelation(configStorageLinear);
-        meterCorrelation.setPrevSampleIndex(128);
-        configStorageLinear.addListener(meterCorrelation);
+        int minCorSample = 6;
+        MeterCorrelation meterCorrelation = new MeterCorrelation(configStorage);
+        meterCorrelation.setMinPrevSample(minCorSample);
+        meterCorrelation.setPrevSampleIndex(7);
+        configStorage.addListener(meterCorrelation);
         meterCorrelation.getXDataSource().setXMax(xCorMax);
-        meterCorrelation.reset();
         DisplayPlot correlationPlot = new DisplayPlot();
         DataPumpListener pumpCorrelation = new DataPumpListener(meterCorrelation, correlationPlot.getDataSet().makeDataSink(), corUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpCorrelation);
         correlationPlot.setLabel("cor");
         add(correlationPlot);
 
-        MeterCorrelation meterCorrelationAA = new MeterCorrelation(configStorageLinear);
+        MeterCorrelation meterCorrelationAA = new MeterCorrelation(configStorage);
         meterCorrelationAA.setAtomTypes(sim.speciesA.getLeafType(), sim.speciesA.getLeafType());
-        meterCorrelationAA.setPrevSampleIndex(128);
-        configStorageLinear.addListener(meterCorrelationAA);
+        meterCorrelationAA.setPrevSampleIndex(7);
+        meterCorrelationAA.setMinPrevSample(minCorSample);
+        configStorage.addListener(meterCorrelationAA);
         meterCorrelationAA.getXDataSource().setXMax(xCorMax);
-        meterCorrelationAA.reset();
         DataPumpListener pumpCorrelationAA = new DataPumpListener(meterCorrelationAA, correlationPlot.getDataSet().makeDataSink(), corUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpCorrelationAA);
-        MeterCorrelation meterCorrelationAB = new MeterCorrelation(configStorageLinear);
+        MeterCorrelation meterCorrelationAB = new MeterCorrelation(configStorage);
         meterCorrelationAB.setAtomTypes(sim.speciesA.getLeafType(), sim.speciesB.getLeafType());
-        meterCorrelationAB.setPrevSampleIndex(128);
-        configStorageLinear.addListener(meterCorrelationAB);
+        meterCorrelationAB.setPrevSampleIndex(7);
+        meterCorrelationAB.setMinPrevSample(minCorSample);
+        configStorage.addListener(meterCorrelationAB);
         meterCorrelationAB.getXDataSource().setXMax(xCorMax);
-        meterCorrelationAB.reset();
         DataPumpListener pumpCorrelationAB = new DataPumpListener(meterCorrelationAB, correlationPlot.getDataSet().makeDataSink(), corUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpCorrelationAB);
-        MeterCorrelation meterCorrelationBB = new MeterCorrelation(configStorageLinear);
+        MeterCorrelation meterCorrelationBB = new MeterCorrelation(configStorage);
         meterCorrelationBB.setAtomTypes(sim.speciesB.getLeafType(), sim.speciesB.getLeafType());
-        meterCorrelationBB.setPrevSampleIndex(128);
-        configStorageLinear.addListener(meterCorrelationBB);
+        meterCorrelationBB.setPrevSampleIndex(7);
+        meterCorrelationBB.setMinPrevSample(minCorSample);
+        configStorage.addListener(meterCorrelationBB);
         meterCorrelationBB.getXDataSource().setXMax(xCorMax);
-        meterCorrelationBB.reset();
         DataPumpListener pumpCorrelationBB = new DataPumpListener(meterCorrelationBB, correlationPlot.getDataSet().makeDataSink(), corUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpCorrelationBB);
 
@@ -908,28 +909,28 @@ public class GlassGraphic extends SimulationGraphic {
         correlationPlot.setLegend(new DataTag[]{meterCorrelationAB.getTag()}, "AB");
         correlationPlot.setLegend(new DataTag[]{meterCorrelationBB.getTag()}, "BB");
 
-        MeterCorrelation meterCorrelationPerp = new MeterCorrelation(configStorageLinear, MeterCorrelation.CorrelationType.PERPENDICULAR);
-        meterCorrelationPerp.setPrevSampleIndex(128);
-        configStorageLinear.addListener(meterCorrelationPerp);
+        MeterCorrelation meterCorrelationPerp = new MeterCorrelation(configStorage, MeterCorrelation.CorrelationType.PERPENDICULAR);
+        meterCorrelationPerp.setPrevSampleIndex(7);
+        meterCorrelationPerp.setMinPrevSample(minCorSample);
+        configStorage.addListener(meterCorrelationPerp);
         meterCorrelationPerp.getXDataSource().setXMax(xCorMax);
-        meterCorrelationPerp.reset();
         DataPumpListener pumpCorrelationPerp = new DataPumpListener(meterCorrelationPerp, correlationPlot.getDataSet().makeDataSink(), corUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpCorrelationPerp);
         correlationPlot.setLegend(new DataTag[]{meterCorrelationPerp.getTag()}, "_|_");
-        MeterCorrelation meterCorrelationPar = new MeterCorrelation(configStorageLinear, MeterCorrelation.CorrelationType.PARALLEL);
-        meterCorrelationPar.setPrevSampleIndex(128);
-        configStorageLinear.addListener(meterCorrelationPar);
+        MeterCorrelation meterCorrelationPar = new MeterCorrelation(configStorage, MeterCorrelation.CorrelationType.PARALLEL);
+        meterCorrelationPar.setPrevSampleIndex(7);
+        meterCorrelationPar.setMinPrevSample(minCorSample);
+        configStorage.addListener(meterCorrelationPar);
         meterCorrelationPar.getXDataSource().setXMax(xCorMax);
-        meterCorrelationPar.reset();
         DataPumpListener pumpCorrelationPar = new DataPumpListener(meterCorrelationPar, correlationPlot.getDataSet().makeDataSink(), corUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpCorrelationPar);
         correlationPlot.setLegend(new DataTag[]{meterCorrelationPar.getTag()}, "||");
 
-        MeterCorrelation meterCorrelationMag = new MeterCorrelation(configStorageLinear, MeterCorrelation.CorrelationType.MAGNITUDE);
-        meterCorrelationMag.setPrevSampleIndex(128);
-        configStorageLinear.addListener(meterCorrelationMag);
+        MeterCorrelation meterCorrelationMag = new MeterCorrelation(configStorage, MeterCorrelation.CorrelationType.MAGNITUDE);
+        meterCorrelationMag.setPrevSampleIndex(7);
+        meterCorrelationMag.setMinPrevSample(minCorSample);
+        configStorage.addListener(meterCorrelationMag);
         meterCorrelationMag.getXDataSource().setXMax(xCorMax);
-        meterCorrelationMag.reset();
         DataPumpListener pumpCorrelationMag = new DataPumpListener(meterCorrelationMag, correlationPlot.getDataSet().makeDataSink(), corUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpCorrelationMag);
         correlationPlot.setLegend(new DataTag[]{meterCorrelationMag.getTag()}, "|r|");
@@ -940,23 +941,25 @@ public class GlassGraphic extends SimulationGraphic {
             public void setValue(double newValue) {
                 if (newValue == getValue()) return;
                 int log2prevConfig = (int) Math.round(newValue);
-                int prevConfig = 1 << log2prevConfig;
-                meterCorrelationAA.setPrevSampleIndex(prevConfig);
-                meterCorrelationAB.setPrevSampleIndex(prevConfig);
-                meterCorrelationBB.setPrevSampleIndex(prevConfig);
-                meterCorrelation.setPrevSampleIndex(prevConfig);
-                meterCorrelationPerp.setPrevSampleIndex(prevConfig);
-                meterCorrelationPar.setPrevSampleIndex(prevConfig);
-                meterCorrelationMag.setPrevSampleIndex(prevConfig);
+                meterCorrelationAA.setPrevSampleIndex(log2prevConfig);
+                meterCorrelationAB.setPrevSampleIndex(log2prevConfig);
+                meterCorrelationBB.setPrevSampleIndex(log2prevConfig);
+                meterCorrelation.setPrevSampleIndex(log2prevConfig);
+                meterCorrelationPerp.setPrevSampleIndex(log2prevConfig);
+                meterCorrelationPar.setPrevSampleIndex(log2prevConfig);
+                meterCorrelationMag.setPrevSampleIndex(log2prevConfig);
+                pumpCorrelation.actionPerformed();
+                pumpCorrelationAA.actionPerformed();
+                pumpCorrelationAB.actionPerformed();
+                pumpCorrelationBB.actionPerformed();
+                pumpCorrelationMag.actionPerformed();
+                pumpCorrelationPar.actionPerformed();
+                pumpCorrelationPerp.actionPerformed();
             }
 
             @Override
             public double getValue() {
-                int prevConfig = meterCorrelation.getPrevSampleIndex();
-                for (int i = 0; i <= 30; i++) {
-                    if (1 << i >= prevConfig) return i;
-                }
-                throw new RuntimeException("oops");
+                return meterCorrelation.getPrevSampleIndex();
             }
 
             @Override
@@ -971,9 +974,9 @@ public class GlassGraphic extends SimulationGraphic {
         });
         corPrevSampleSlider.setShowBorder(true);
         corPrevSampleSlider.setShowValues(true);
-        corPrevSampleSlider.setNMajor(5);
-        corPrevSampleSlider.setMaximum(10);
-        corPrevSampleSlider.setMinimum(0);
+        corPrevSampleSlider.setNMajor(4);
+        corPrevSampleSlider.setMaximum(30);
+        corPrevSampleSlider.setMinimum(6);
         corPrevSampleSlider.setLabel("log2(previous sample)");
 
         corIntervalSlider.setModifier(new Modifier() {
@@ -982,16 +985,6 @@ public class GlassGraphic extends SimulationGraphic {
                 int log2interval = (int) Math.round(newValue);
                 int interval = 1 << log2interval;
                 configStorageLinear.setSampleInterval(interval);
-                meterCorrelationAA.reset();
-                meterCorrelationAB.reset();
-                meterCorrelationBB.reset();
-                meterCorrelation.reset();
-                meterCorrelationPerp.reset();
-                meterCorrelationPar.reset();
-                meterCorrelationMag.reset();
-                meterGs.zeroData();
-                meterGsA.zeroData();
-                meterGsB.zeroData();
                 pumpPrevTime.actionPerformed();
             }
 
@@ -1513,13 +1506,13 @@ public class GlassGraphic extends SimulationGraphic {
                     meterFsB.reset();
                     meterF.reset();
                     meterVAC.reset();
-                    meterCorrelationAA.reset();
-                    meterCorrelationAB.reset();
-                    meterCorrelationBB.reset();
-                    meterCorrelation.reset();
-                    meterCorrelationPerp.reset();
-                    meterCorrelationPar.reset();
-                    meterCorrelationMag.reset();
+                    meterCorrelationAA.zeroData();
+                    meterCorrelationAB.zeroData();
+                    meterCorrelationBB.zeroData();
+                    meterCorrelation.zeroData();
+                    meterCorrelationPerp.zeroData();
+                    meterCorrelationPar.zeroData();
+                    meterCorrelationMag.zeroData();
                     diameterHash.setFac(1.0);
                     accSFac.reset();
                     sfacClusterer.reset();
@@ -1554,13 +1547,13 @@ public class GlassGraphic extends SimulationGraphic {
                     meterFsB.reset();
                     meterF.reset();
                     meterVAC.reset();
-                    meterCorrelationAA.reset();
-                    meterCorrelationAB.reset();
-                    meterCorrelationBB.reset();
-                    meterCorrelation.reset();
-                    meterCorrelationPerp.reset();
-                    meterCorrelationPar.reset();
-                    meterCorrelationMag.reset();
+                    meterCorrelationAA.zeroData();
+                    meterCorrelationAB.zeroData();
+                    meterCorrelationBB.zeroData();
+                    meterCorrelation.zeroData();
+                    meterCorrelationPerp.zeroData();
+                    meterCorrelationPar.zeroData();
+                    meterCorrelationMag.zeroData();
                     diameterHash.setFac(showDispCheckbox.getState() ? 0.5 : 1.0);
                     accSFac.reset();
                     sfacClusterer.reset();
