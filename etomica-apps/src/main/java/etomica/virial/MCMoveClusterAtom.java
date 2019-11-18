@@ -36,7 +36,7 @@ public class MCMoveClusterAtom extends MCMoveAtom {
 		return true;
 	}
 
-    public double getChi() {
+    public double getChi(double temperature) {
         return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
     }
 
