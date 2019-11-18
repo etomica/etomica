@@ -4,15 +4,19 @@
 
 package etomica.virial.simulations;
 
+import etomica.atom.DiameterHash;
 import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
 import etomica.graphics.*;
+import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.*;
+import etomica.virial.ClusterWheatleyHS;
+import etomica.virial.MCMoveClusterAtomMulti;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerHSMixture;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,35 +26,31 @@ import java.awt.*;
  *
  * @author Andrew
  */
-public class VirialHSMixtureOverlap {
+public class VirialHSMixtureL {
 
     public static void main(String[] args) {
 
         VirialHSParam params = new VirialHSParam();
         if (args.length > 0) {
-            params.writeRefPref = true;
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.nPoints = 8;
-            params.numSteps = 100000000L;
-            params.ref = RefChoice.CHAIN_TREE;
-            params.chainFrac = 0.5;
+            params.nPoints = 6;
+            params.numSteps = 1000000000L;
             params.q = 0.2;
             params.nonAdd = 0.0;
-            params.cff = 6;
+            params.cff = 4;
             params.D = 3;
+            params.targetL = 2;
         }
         final int nSmall = params.cff;
         final int nPoints = params.nPoints;
         long steps = params.numSteps;
         final double q = params.q;
-        final RefChoice ref = params.ref;
         System.out.println("   q: " + q);
         final double sigmaB = 1;
         final double sigmaS = q * sigmaB;
         final double[][] nonAdd = new double[2][2];
         nonAdd[0][1] = nonAdd[1][0] = params.nonAdd;
-        final double chainFrac = params.chainFrac;
         final int D = params.D;
         final double refFrac = params.refFrac;
         System.out.println("Number of points: " + nPoints);
@@ -79,78 +79,52 @@ public class VirialHSMixtureOverlap {
             }
         }
 
-        MayerHSMixture fTarget = MayerHSMixture.makeTargetF(space, nPoints, pairSigma, null);
-        MayerFunction fRefPos = MayerHSMixture.makeReferenceF(space, nPoints, pairSigma);
+        double refL = nBig + nSmall * q;
+        BoundaryRectangularPeriodic boundaryRef = new BoundaryRectangularPeriodic(space, refL);
+        BoundaryRectangularPeriodic boundaryTarget = new BoundaryRectangularPeriodic(space, params.targetL);
+        MayerHSMixture fTarget = MayerHSMixture.makeTargetF(space, nPoints, pairSigma, boundaryTarget);
+        MayerFunction fRef = MayerHSMixture.makeTargetF(space, nPoints, pairSigma, boundaryRef);
 
-        final ClusterAbstract targetCluster = new ClusterWheatleyHS(nPoints, fTarget);
+        final ClusterWheatleyHS targetCluster = new ClusterWheatleyHS(nPoints, fTarget);
         targetCluster.setTemperature(1.0);
-        final ClusterWeightUmbrella refCluster;
-        double ri;
-        if (ref == RefChoice.TREE) {
-            System.out.println("using a tree reference");
-            ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
-            refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{ct});
-            refCluster.setWeightCoefficients(new double[]{1.0 / ct.numDiagrams()});
-            ri = 1;
-        } else if (ref == RefChoice.CHAINS) {
-            System.out.println("using a chain reference");
-            ClusterChainHS cc = new ClusterChainHS(nPoints, fRefPos);
-            refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc});
-            refCluster.setWeightCoefficients(new double[]{1.0 / cc.numDiagrams()});
-            ri = 1;
-        } else if (ref == RefChoice.CHAIN_TREE) {
-            System.out.println("using a chain/tree reference (" + chainFrac + " chains)");
-            ClusterChainHS cc = new ClusterChainHS(nPoints, fRefPos);
-            ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
-            refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc, ct});
-            refCluster.setWeightCoefficients(new double[]{chainFrac / cc.numDiagrams(), (1 - chainFrac) / ct.numDiagrams()});
-            ri = 1;
-        } else {
-            throw new RuntimeException();
-        }
-
-        final double refIntegral = ri;
+        final ClusterWheatleyHS refCluster = new ClusterWheatleyHS(nPoints, fRef);
+        refCluster.setTemperature(1.0);
+        final double refIntegral = Math.pow(params.targetL / refL, params.D * (nPoints - 1));
         System.out.println("reference integral: " + refIntegral);
         refCluster.setTemperature(1.0);
 
         long blockSize = steps / 1000;
         System.out.println(steps + " steps (" + (steps / blockSize) + " blocks of " + blockSize + ")");
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesSpheresMono(space, new ElementSimple("A")), nPoints, 1, refCluster, targetCluster);
+        sim.setBoxLengths(refL, params.targetL);
         sim.init();
         sim.integratorOS.setDoAdjustOnTime(true);
 
-        sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
-        if (ref == RefChoice.TREE) {
-            MCMoveClusterAtomHSTreeMix mcMoveHS = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), space, pairSigma);
-            sim.integrators[0].getMoveManager().addMCMove(mcMoveHS);
-        } else if (ref == RefChoice.CHAINS) {
-            MCMoveClusterAtomHSChainMix mcMoveHS = new MCMoveClusterAtomHSChainMix(sim.getRandom(), space, pairSigma);
-            sim.integrators[0].getMoveManager().addMCMove(mcMoveHS);
-        } else if (ref == RefChoice.CHAIN_TREE) {
-            MCMoveClusterAtomHSTreeMix mcMoveHST = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), space, pairSigma);
-            sim.integrators[0].getMoveManager().addMCMove(mcMoveHST);
-            sim.integrators[0].getMoveManager().setFrequency(mcMoveHST, 1 - chainFrac);
-            MCMoveClusterAtomHSChainMix mcMoveHSC = new MCMoveClusterAtomHSChainMix(sim.getRandom(), space, pairSigma);
-            sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
-            sim.integrators[0].getMoveManager().setFrequency(mcMoveHSC, chainFrac);
-        }
+        ((MCMoveClusterAtomMulti) sim.mcMoveTranslate[0]).setStartAtom(0);
+        ((MCMoveClusterAtomMulti) sim.mcMoveTranslate[0]).setDoImposePBC(true);
+        ((MCMoveClusterAtomMulti) sim.mcMoveTranslate[1]).setStartAtom(0);
+        ((MCMoveClusterAtomMulti) sim.mcMoveTranslate[1]).setDoImposePBC(true);
 
         int subSteps = 1000;
         sim.integratorOS.setNumSubSteps(subSteps);
 
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
-        if (false) {
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
-            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        if (true) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
-            displayBox0.setShowBoundary(false);
-            ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
-//            displayBox0.setPixelUnit(new Pixel(300.0/size));
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
-            displayBox1.setShowBoundary(false);
-            ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
+
+            DiameterHash dh = new DiameterHash() {
+                @Override
+                public double getDiameter(IAtom atom) {
+                    int idx = atom.getLeafIndex();
+                    if (idx < nBig) return 1;
+                    return q;
+                }
+            };
+            displayBox0.setDiameterHash(dh);
+            displayBox1.setDiameterHash(dh);
 
 
             ColorScheme colorScheme = new ColorScheme() {
@@ -158,10 +132,12 @@ public class VirialHSMixtureOverlap {
                 public Color getAtomColor(IAtom a) {
                     float b = a.getLeafIndex() / ((float) nPoints);
                     float r = 1.0f - b;
-                    return new Color(r, 0f, b);
+                    int idx = a.getLeafIndex();
+                    return new Color(r, 0f, b, idx < nBig ? 0.1f : 1.0f);
                 }
             };
             displayBox0.setColorScheme(colorScheme);
+            displayBox1.setColorScheme(colorScheme);
             simGraphic.makeAndDisplayFrame();
 
             sim.setAccumulatorBlockSize(1000);
@@ -211,8 +187,8 @@ public class VirialHSMixtureOverlap {
         sim.setAccumulatorBlockSize(blockSize);
         sim.accumulators[0].setBlockSize(1);
         sim.ai.setMaxSteps(steps / blockSize);
-        for (int i = 1; i < 2; i++) {
-            System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
+        for (int i = 0; i < 2; i++) {
+            System.out.println("MC Move step size (" + i + ") " + sim.mcMoveTranslate[i].getStepSize());
         }
         sim.getController().actionPerformed();
         long t2 = System.currentTimeMillis();
@@ -236,8 +212,7 @@ public class VirialHSMixtureOverlap {
     public static class VirialHSParam extends ParameterBase {
         public int nPoints = 3;
         public long numSteps = 100000000;
-        public RefChoice ref = RefChoice.CHAIN_TREE;
-        public double chainFrac = 0.5;
+        public double targetL = Double.NaN;
         public double q = 0.1;
         public int cff = 0;
         public double nonAdd = 0;

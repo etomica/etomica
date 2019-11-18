@@ -7,7 +7,9 @@ package etomica.virial;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotential;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * This class represents a Mayer function for any pair of species from a
@@ -29,18 +31,23 @@ public class MayerHSMixture implements MayerFunction {
 
     protected final double[][] sigma2;
     protected final double[][] allVal;
+    protected final Boundary boundary;
+    protected Boundary boxBoundary;
+    protected final Vector dr;
 
     public static MayerHSMixture makeReferenceF(Space space, int nPoints, double[][] pairSigma) {
-        return new MayerHSMixture(nPoints, pairSigma, 1, true, space);
+        return new MayerHSMixture(nPoints, pairSigma, 1, true, space, null);
     }
 
-    public static MayerHSMixture makeTargetF(int nPoints, double[][] pairSigma) {
-        return new MayerHSMixture(nPoints, pairSigma, -1, false, null);
+    public static MayerHSMixture makeTargetF(Space space, int nPoints, double[][] pairSigma, Boundary b) {
+        return new MayerHSMixture(nPoints, pairSigma, -1, false, space, b);
     }
 
-    protected MayerHSMixture(int nPoints, double[][] pairSigma, double val, boolean isRef, Space space) {
+    protected MayerHSMixture(int nPoints, double[][] pairSigma, double val, boolean isRef, Space space, Boundary b) {
         sigma2 = new double[nPoints][nPoints];
         allVal = new double[nPoints][nPoints];
+        boundary = b;
+        dr = space != null ? space.makeVector() : null;
 
         for (int i = 0; i < nPoints; i++) {
             for (int j = 0; j < nPoints; j++) {
@@ -54,6 +61,14 @@ public class MayerHSMixture implements MayerFunction {
     public double f(IMoleculeList pair, double r2, double beta) {
         int i = pair.get(0).getIndex();
         int j = pair.get(1).getIndex();
+        if (boundary != null) {
+            dr.Ev1Mv2(pair.get(0).getChildList().get(0).getPosition(),
+                    pair.get(1).getChildList().get(0).getPosition());
+            dr.DE(boxBoundary.getBoxSize());
+            dr.TE(boundary.getBoxSize());
+            boundary.nearestImage(dr);
+            r2 = dr.squared();
+        }
         return (r2 < sigma2[i][j]) ? allVal[i][j] : 0.0;
     }
 
@@ -62,5 +77,6 @@ public class MayerHSMixture implements MayerFunction {
     }
 
     public void setBox(Box newBox) {
+        boxBoundary = newBox.getBoundary();
     }
 }

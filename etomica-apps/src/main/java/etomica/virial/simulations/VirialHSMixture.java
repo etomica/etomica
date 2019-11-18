@@ -86,7 +86,7 @@ public class VirialHSMixture {
             }
         }
 
-        MayerHSMixture fTarget = MayerHSMixture.makeTargetF(nPoints, pairSigma);
+        MayerHSMixture fTarget = MayerHSMixture.makeTargetF(space, nPoints, pairSigma, null);
         MayerFunction fRefPos = MayerHSMixture.makeReferenceF(space, nPoints, pairSigma);
 
         final ClusterAbstract targetCluster = new ClusterWheatleyHS(nPoints, fTarget);
