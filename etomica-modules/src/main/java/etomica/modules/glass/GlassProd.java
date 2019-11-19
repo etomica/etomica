@@ -89,43 +89,43 @@ public class GlassProd {
         pTensorFork.addDataSink(pTensorAccumVisc);
         DataPumpListener pTensorAccumViscPump = new DataPumpListener(pTensorMeter, pTensorFork, dn);
 
-        DataProcessor dpSquared = new DataProcessor() {
-            DataDouble data = new DataDouble();
-
-            @Override
-            protected IData processData(IData inputData) {
-                data.x = 0;
-                int n = 0;
-                for (int i = 0; i < params.D; i++) {
-                    for (int j = i + 1; j < params.D; j++) {
-                        double c = ((DataTensor) inputData).x.component(i, j);
-                        data.x += c * c;
-                        n++;
-                    }
-                }
-                data.x /= n;
-                return data;
-            }
-
-            @Override
-            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-                dataInfo = new DataDouble.DataInfoDouble("G", Null.DIMENSION);
-                return dataInfo;
-            }
-        };
-        pTensorFork.addDataSink(dpSquared);
 
         AccumulatorAverageFixed gTensorAccumulator = new AccumulatorAverageFixed(blocksize);
-        dpSquared.setDataSink(gTensorAccumulator);
+        if (params.potential != SimGlass.PotentialChoice.HS) {
+            DataProcessor dpSquared = new DataProcessor() {
+                DataDouble data = new DataDouble();
+
+                @Override
+                protected IData processData(IData inputData) {
+                    data.x = 0;
+                    int n = 0;
+                    for (int i = 0; i < params.D; i++) {
+                        for (int j = i + 1; j < params.D; j++) {
+                            double c = ((DataTensor) inputData).x.component(i, j);
+                            data.x += c * c;
+                            n++;
+                        }
+                    }
+                    data.x /= n;
+                    return data;
+                }
+
+                @Override
+                protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+                    dataInfo = new DataDouble.DataInfoDouble("G", Null.DIMENSION);
+                    return dataInfo;
+                }
+            };
+            pTensorFork.addDataSink(dpSquared);
+            dpSquared.setDataSink(gTensorAccumulator);
+        }
 
         sim.integrator.getEventManager().addListener(pTensorAccumViscPump);
 
         GlassGraphic.DataProcessorTensorTrace tracer = new GlassGraphic.DataProcessorTensorTrace();
         pTensorFork.addDataSink(tracer);
-        DataFork pFork = new DataFork();
-        tracer.setDataSink(pFork);
         AccumulatorAverageFixed pAccumulator = new AccumulatorAverageFixed(blocksize);
-        pFork.addDataSink(pAccumulator);
+        tracer.setDataSink(pAccumulator);
 
         AccumulatorAverageFixed tAccumulator = null;
         AccumulatorAverageFixed accPE = null;
