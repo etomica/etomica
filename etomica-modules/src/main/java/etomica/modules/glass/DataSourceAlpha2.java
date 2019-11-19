@@ -48,6 +48,8 @@ public class DataSourceAlpha2 implements IDataSource, ConfigurationStorage.Confi
         tData = new DataDoubleArray(new int[]{n});
         tDataInfo = new DataDoubleArray.DataInfoDoubleArray("t", Time.DIMENSION, new int[]{n});
         dataInfo = new DataFunction.DataInfoFunction("alpha", Null.DIMENSION, this);
+        tDataInfo.addTag(tTag);
+        dataInfo.addTag(tag);
         double[] t = tData.getData();
         if (t.length > 0) {
             double[] savedTimes = configStorage.getSavedTimes();
