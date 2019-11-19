@@ -219,8 +219,27 @@ public class GlassProd {
         double vB = sim.getSpace().powerD(sim.sigmaB);
         meterSFac.setAtomTypeFactor(sim.speciesB.getAtomType(0), vB);
 
+        ConfigurationStorage configStorage = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LOG2);
+        configStorage.setEnabled(true);
+        double xGsMax = 3;
+        int gsMinConfig = 5;
+        MeterGs meterGs = new MeterGs(configStorage);
+        meterGs.setMinConfigIndex(gsMinConfig);
+        configStorage.addListener(meterGs);
+        meterGs.getXDataSource().setXMax(xGsMax);
+        MeterGs meterGsA = new MeterGs(configStorage);
+        meterGsA.setAtomTypes(sim.speciesA.getLeafType());
+        meterGsA.setMinConfigIndex(gsMinConfig);
+        configStorage.addListener(meterGsA);
+        meterGsA.getXDataSource().setXMax(xGsMax);
+        MeterGs meterGsB = new MeterGs(configStorage);
+        meterGsB.setAtomTypes(sim.speciesB.getLeafType());
+        meterGsB.setMinConfigIndex(gsMinConfig);
+        configStorage.addListener(meterGsB);
+        meterGsB.getXDataSource().setXMax(xGsMax);
 
         sim.integrator.getEventManager().addListener(configStorageMSD);
+        sim.integrator.getEventManager().addListener(configStorage);
 
         //Run
         double time0 = System.currentTimeMillis();
@@ -235,6 +254,31 @@ public class GlassProd {
         double pErr  = dataPErr.getValue(0);
         double pCorr = dataPCorr.getValue(0);
 
+        for (int i = gsMinConfig; i < configStorage.getLastConfigIndex(); i++) {
+            meterGs.setConfigIndex(i);
+            meterGsA.setConfigIndex(i);
+            meterGsB.setConfigIndex(i);
+            try {
+                FileWriter fw = new FileWriter("Gs_t" + i + ".dat");
+                FileWriter fwA = new FileWriter("GsA_t" + i + ".dat");
+                FileWriter fwB = new FileWriter("GsB_t" + i + ".dat");
+                IData rData = meterGs.getIndependentData(0);
+                IData data = meterGs.getData();
+                IData dataA = meterGsA.getData();
+                IData dataB = meterGsB.getData();
+                for (int j = 0; j < rData.getLength(); j++) {
+                    double r = rData.getValue(j);
+                    fw.write(r + " " + data.getValue(j) + "\n");
+                    fwA.write(r + " " + dataA.getValue(j) + "\n");
+                    fwB.write(r + " " + dataB.getValue(j) + "\n");
+                }
+                fw.close();
+                fwA.close();
+                fwB.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenameD, filenameFs, filenameF, filenamePerc,
                 filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameL, filenameAlpha2, filenameSq, filenameVAC;
