@@ -219,27 +219,29 @@ public class GlassProd {
         double vB = sim.getSpace().powerD(sim.sigmaB);
         meterSFac.setAtomTypeFactor(sim.speciesB.getAtomType(0), vB);
 
-        ConfigurationStorage configStorage = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LOG2);
-        configStorage.setEnabled(true);
         double xGsMax = 3;
         int gsMinConfig = 5;
-        MeterGs meterGs = new MeterGs(configStorage);
+        MeterGs meterGs = new MeterGs(configStorageMSD);
         meterGs.setMinConfigIndex(gsMinConfig);
-        configStorage.addListener(meterGs);
+        configStorageMSD.addListener(meterGs);
         meterGs.getXDataSource().setXMax(xGsMax);
-        MeterGs meterGsA = new MeterGs(configStorage);
+        MeterGs meterGsA = new MeterGs(configStorageMSD);
         meterGsA.setAtomTypes(sim.speciesA.getLeafType());
         meterGsA.setMinConfigIndex(gsMinConfig);
-        configStorage.addListener(meterGsA);
+        configStorageMSD.addListener(meterGsA);
         meterGsA.getXDataSource().setXMax(xGsMax);
-        MeterGs meterGsB = new MeterGs(configStorage);
+        MeterGs meterGsB = new MeterGs(configStorageMSD);
         meterGsB.setAtomTypes(sim.speciesB.getLeafType());
         meterGsB.setMinConfigIndex(gsMinConfig);
-        configStorage.addListener(meterGsB);
+        configStorageMSD.addListener(meterGsB);
         meterGsB.getXDataSource().setXMax(xGsMax);
 
+        MeterCorrelationSelf meterCorrelationSelf = new MeterCorrelationSelf(configStorageMSD, MeterCorrelationSelf.CorrelationType.TOTAL);
+        configStorageMSD.addListener(meterCorrelationSelf);
+        MeterCorrelationSelf meterCorrelationSelfMag = new MeterCorrelationSelf(configStorageMSD, MeterCorrelationSelf.CorrelationType.MAGNITUDE);
+        configStorageMSD.addListener(meterCorrelationSelfMag);
+
         sim.integrator.getEventManager().addListener(configStorageMSD);
-        sim.integrator.getEventManager().addListener(configStorage);
 
         //Run
         double time0 = System.currentTimeMillis();
@@ -254,7 +256,7 @@ public class GlassProd {
         double pErr  = dataPErr.getValue(0);
         double pCorr = dataPCorr.getValue(0);
 
-        for (int i = gsMinConfig; i < configStorage.getLastConfigIndex(); i++) {
+        for (int i = gsMinConfig; i < configStorageMSD.getLastConfigIndex() - 1; i++) {
             meterGs.setConfigIndex(i);
             meterGsA.setConfigIndex(i);
             meterGsB.setConfigIndex(i);
@@ -278,6 +280,24 @@ public class GlassProd {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        try {
+            FileWriter fw = new FileWriter("corSelf.dat");
+            FileWriter fwMag = new FileWriter("corSelfMag.dat");
+            IData tData = meterCorrelationSelf.getIndependentData(0);
+            IData corData = meterCorrelationSelf.getData();
+            IData corMagData = meterCorrelationSelfMag.getData();
+            for (int i = 0; i < tData.getLength(); i++) {
+                double y = corData.getValue(i);
+                if (!Double.isNaN(y)) fw.write(tData.getValue(i) + " " + y + "\n");
+                y = corMagData.getValue(i);
+                if (!Double.isNaN(y)) fwMag.write(tData.getValue(i) + " " + y + "\n");
+            }
+            fw.close();
+            fwMag.close();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
 
         String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenameD, filenameFs, filenameF, filenamePerc,
