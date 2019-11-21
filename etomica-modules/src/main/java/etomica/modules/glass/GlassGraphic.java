@@ -1558,7 +1558,7 @@ public class GlassGraphic extends SimulationGraphic {
         plotHistogramMSD.setDoLegend(false);
         plotHistogramMSD.getPlot().setYLog(true);
 
-        AccumulatorAverageFixed accSFac = new AccumulatorAverageFixed(1);  // just average, no uncertainty
+        java.util.List<MeterStructureFactor.AtomSignalSourceByType> signalByTypes = new ArrayList<>();
         DataClusterer sfacClusterer = new DataClusterer(100, sim.getRandom());
         DeviceButtonGroup sfacButtons = null;
         DisplayPlot plotSFac = null;
@@ -1567,10 +1567,17 @@ public class GlassGraphic extends SimulationGraphic {
         double cut1 = 10;
         if (n > 500) cut1 /= Math.pow(n / 500.0, 1.0 / sim.getSpace().D());
         MeterStructureFactor meterSFac = new MeterStructureFactor(sim.box, cut1);
+        DataDump dumpSFac = new DataDump();
+        DataFork forkSFac = new DataFork();
+        signalByTypes.add((MeterStructureFactor.AtomSignalSourceByType) meterSFac.getSignalSource());
+        DataPumpListener pumpSFac = new DataPumpListener(meterSFac, forkSFac, 1000);
+        AccumulatorAverageFixed accSFac = new AccumulatorAverageFixed(1);  // just average, no uncertainty
         accSFac.setPushInterval(1);
-        DataPumpListener pumpSFac = new DataPumpListener(meterSFac, accSFac, 1000);
+        forkSFac.addDataSink(accSFac);
+        forkSFac.addDataSink(dumpSFac);
         sim.integrator.getEventManager().addListener(pumpSFac);
         dataStreamPumps.add(pumpSFac);
+
         plotSFac = new DisplayPlot();
         accSFac.addDataSink(plotSFac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accSFac.AVERAGE});
         plotSFac.setLabel("SFac");
@@ -1582,54 +1589,58 @@ public class GlassGraphic extends SimulationGraphic {
         double cut = 2.0 * Math.PI / L;
 
         meterSFacCluster = new MeterStructureFactor(sim.box, 3 * cut + 0.001);
+        signalByTypes.add((MeterStructureFactor.AtomSignalSourceByType) meterSFacCluster.getSignalSource());
         DataPumpListener pumpSFacCluster = new DataPumpListener(meterSFacCluster, sfacClusterer, 10);
         sim.integrator.getEventManager().addListener(pumpSFacCluster);
         pFork.addDataSink(sfacClusterer.makePressureSink());
 
-        AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
-        MeterStructureFactor meterSFacMobility = new MeterStructureFactor(sim.box, 3, signalMobility);
-        DataFork forkSFacMobility = new DataFork();
-        AccumulatorAverageFixed accSFacMobility = new AccumulatorAverageFixed(1);  // just average, no uncertainty
-        accSFacMobility.setPushInterval(1);
-        DataPump pumpSFacMobility = new DataPump(meterSFacMobility, forkSFacMobility);
-        forkSFacMobility.addDataSink(accSFacMobility);
-        ConfigurationStoragePumper cspMobility = new ConfigurationStoragePumper(pumpSFacMobility, configStorageMSD);
-        configStorageMSD.addListener(cspMobility);
-        dataStreamPumps.add(pumpSFacMobility);
-        DataDump dumpSFacMobility = new DataDump();
-        forkSFacMobility.addDataSink(dumpSFacMobility);
-        accSFacMobility.addDataSink(plotSFac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accSFacMobility.AVERAGE});
-        plotSFac.setDoDrawLines(new DataTag[]{meterSFacMobility.getTag()}, false);
-        plotSFac.setLegend(new DataTag[]{meterSFacMobility.getTag()}, "mobility");
+        MeterStructureFactor[] meterSFacMobility = new MeterStructureFactor[30];
+        DataDump[] dumpSFacMobility = new DataDump[30];
+        for (int i = 0; i < 30; i++) {
+            AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
+            signalByTypes.add(signalMobility);
+            signalMobility.setPrevConfig(i + 1);
+            meterSFacMobility[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
+            DataFork forkSFacMobility = new DataFork();
+            AccumulatorAverageFixed accSFacMobility = new AccumulatorAverageFixed(1);  // just average, no uncertainty
+            accSFacMobility.setPushInterval(1);
+            DataPump pumpSFacMobility = new DataPump(meterSFacMobility[i], forkSFacMobility);
+            forkSFacMobility.addDataSink(accSFacMobility);
+            ConfigurationStoragePumper cspMobility = new ConfigurationStoragePumper(pumpSFacMobility, configStorageMSD);
+            cspMobility.setPrevConfig(Math.max(i + 1, 5));
+            configStorageMSD.addListener(cspMobility);
+            dataStreamPumps.add(pumpSFacMobility);
+            dumpSFacMobility[i] = new DataDump();
+            accSFacMobility.addDataSink(dumpSFacMobility[i], new AccumulatorAverage.StatType[]{accSFacMobility.AVERAGE});
+        }
 
+        MeterFromDumps sfacFromDumps = new MeterFromDumps(dumpSFacMobility);
+        DataPumpListener pumpSfacMobility = new DataPumpListener(sfacFromDumps, plotSFac.getDataSet().makeDataSink(), 500);
+        sim.integrator.getEventManager().addListener(pumpSfacMobility);
+        plotSFac.setDoDrawLines(new DataTag[]{sfacFromDumps.getTag()}, false);
+        plotSFac.setLegend(new DataTag[]{sfacFromDumps.getTag()}, "mobility");
 
         sfacButtons = new DeviceButtonGroup(sim.getController(), 5);
         sfacButtons.setLabel("B signal");
         AtomType typeB = sim.speciesB.getLeafType();
-        MeterStructureFactor.AtomSignalSourceByType[] signalSources = new MeterStructureFactor.AtomSignalSourceByType[]{
-                (MeterStructureFactor.AtomSignalSourceByType) meterSFac.getSignalSource(),
-                (MeterStructureFactor.AtomSignalSourceByType) meterSFacCluster.getSignalSource(),
-                (MeterStructureFactor.AtomSignalSourceByType) meterSFacMobility.getSignalSource()};
-        sfacButtons.addButton("+1", new SFacButtonAction(signalSources, accSFac, sfacClusterer, typeB, +1));
-        sfacButtons.addButton("-1", new SFacButtonAction(signalSources, accSFac, sfacClusterer, typeB, -1));
+        sfacButtons.addButton("+1", new SFacButtonAction(signalByTypes, accSFac, sfacClusterer, typeB, +1));
+        sfacButtons.addButton("-1", new SFacButtonAction(signalByTypes, accSFac, sfacClusterer, typeB, -1));
         double vB = sim.getSpace().powerD(sim.sigmaB);
-        sfacButtons.addButton("+v", new SFacButtonAction(signalSources, accSFac, sfacClusterer, typeB, vB));
-        sfacButtons.addButton("-v", new SFacButtonAction(signalSources, accSFac, sfacClusterer, typeB, -vB));
-        sfacButtons.addButton("0", new SFacButtonAction(signalSources, accSFac, sfacClusterer, typeB, 0));
+        sfacButtons.addButton("+v", new SFacButtonAction(signalByTypes, accSFac, sfacClusterer, typeB, vB));
+        sfacButtons.addButton("-v", new SFacButtonAction(signalByTypes, accSFac, sfacClusterer, typeB, -vB));
+        sfacButtons.addButton("0", new SFacButtonAction(signalByTypes, accSFac, sfacClusterer, typeB, 0));
         sfacButtons.setSelected("+v");
 
         DeviceSlider sfacPrevConfig = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
             public void setValue(double newValue) {
                 int idx = (int) Math.round(newValue);
-                signalMobility.setPrevConfig(idx);
-                accSFacMobility.reset();
-                cspMobility.setPrevConfig(idx);
+                sfacFromDumps.setDumpIndex(idx);
             }
 
             @Override
             public double getValue() {
-                return signalMobility.getPrevConfigIndex();
+                return sfacFromDumps.getDumpIndex();
             }
 
             @Override
@@ -1646,6 +1657,8 @@ public class GlassGraphic extends SimulationGraphic {
         sfacPrevConfig.setMaximum(30);
         sfacPrevConfig.setNMajor(5);
         sfacPrevConfig.setValue(5);
+        sfacPrevConfig.setLabel("Previous config (mobility)");
+        sfacPrevConfig.setShowBorder(true);
 
         //************* Lay out components ****************//
 
@@ -1852,8 +1865,14 @@ public class GlassGraphic extends SimulationGraphic {
 
         JPanel plotSFacPanel = new JPanel();
         plotSFacPanel.setLayout(new BoxLayout(plotSFacPanel, BoxLayout.Y_AXIS));
-        plotSFacPanel.add(sfacButtons.graphic());
-        plotSFacPanel.add(sfacPrevConfig.graphic());
+        JPanel sfacWidgets = new JPanel(new GridBagLayout());
+        plotSFacPanel.add(sfacWidgets);
+        GridBagConstraints gbcSF = new GridBagConstraints();
+        gbcSF.gridx = 0;
+        gbcSF.gridy = 0;
+        sfacWidgets.add(sfacButtons.graphic(), gbcSF);
+        gbcSF.gridx = 1;
+        sfacWidgets.add(sfacPrevConfig.graphic(), gbcSF);
         plotSFacPanel.add(plotSFac.graphic());
         JPanel sfacWidgetPanel = new JPanel();
 
@@ -1964,11 +1983,11 @@ public class GlassGraphic extends SimulationGraphic {
     public static class SFacButtonAction implements IAction {
         protected final double value;
         protected final AtomType type;
-        protected final MeterStructureFactor.AtomSignalSourceByType[] signalSources;
+        protected final java.util.List<MeterStructureFactor.AtomSignalSourceByType> signalSources;
         protected final AccumulatorAverageFixed acc;
         protected final DataClusterer sfacClusterer;
 
-        public SFacButtonAction(MeterStructureFactor.AtomSignalSourceByType[] signalSources, AccumulatorAverageFixed acc, DataClusterer sfacClusterer, AtomType type, double value) {
+        public SFacButtonAction(java.util.List<MeterStructureFactor.AtomSignalSourceByType> signalSources, AccumulatorAverageFixed acc, DataClusterer sfacClusterer, AtomType type, double value) {
             this.signalSources = signalSources;
             this.acc = acc;
             this.sfacClusterer = sfacClusterer;
@@ -2007,6 +2026,41 @@ public class GlassGraphic extends SimulationGraphic {
             long step = configStorage.getSavedSteps()[0];
             if (step % (1L << prevConfigIndex) != 0) return;
             pumpSFacMobility.actionPerformed();
+        }
+    }
+
+    public static class MeterFromDumps implements IDataSource {
+        private final DataDump[] dumps;
+        private int dumpIndex;
+        private final DataTag tag;
+        private IDataInfo dataInfo;
+
+        public MeterFromDumps(DataDump[] dumps) {
+            this.dumps = dumps;
+            tag = new DataTag();
+            setDumpIndex(0);
+        }
+
+        public void setDumpIndex(int newDumpIndex) {
+            dumpIndex = newDumpIndex;
+            dataInfo = dumps[dumpIndex].getDataInfo().getFactory().makeDataInfo();
+            dataInfo.addTag(tag);
+        }
+
+        public int getDumpIndex() {
+            return dumpIndex;
+        }
+
+        public DataTag getTag() {
+            return tag;
+        }
+
+        public IData getData() {
+            return dumps[dumpIndex].getData();
+        }
+
+        public IDataInfo getDataInfo() {
+            return dataInfo;
         }
     }
 }
