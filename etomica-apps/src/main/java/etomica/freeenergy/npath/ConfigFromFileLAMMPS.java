@@ -154,7 +154,7 @@ public class ConfigFromFileLAMMPS {
                         File sfile = new File(config + ".sfac");
                         if (!sfile.exists()) {
                             modifierConfig.setValue(config);
-                            MeterStructureFactor meter = new MeterStructureFactor(space, box, cutoffS);
+                            MeterStructureFactor meter = new MeterStructureFactor(box, cutoffS);
                             writeFile(meter, thresholdS, config);
                         }
                     }

@@ -77,13 +77,13 @@ public class GlassClustering {
         double cut = params.cut;
         System.out.println("using Sfac cutoff " + cut);
 
-        MeterStructureFactor meterSFacCluster = new MeterStructureFactor(sim.getSpace(), sim.box, cut);
+        MeterStructureFactor meterSFacCluster = new MeterStructureFactor(sim.box, cut);
         DataClusterWriter clusterWriter = new DataClusterWriter(sim.box, "sfac.bin");
         DataPumpListener pumpSFacCluster = new DataPumpListener(meterSFacCluster, clusterWriter, params.interval);
         sim.integrator.getEventManager().addListener(pumpSFacCluster);
         pFork.addDataSink(clusterWriter.makePressureSink());
         double vB = sim.getSpace().powerD(sim.sigmaB);
-        meterSFacCluster.setAtomTypeFactor(sim.speciesB.getLeafType(), vB);
+        ((MeterStructureFactor.AtomSignalSourceByType) meterSFacCluster.getSignalSource()).setAtomTypeFactor(sim.speciesB.getAtomType(0), vB);
 
         AccumulatorAverageFixed accP = new AccumulatorAverageFixed(params.numSteps / 100 / params.interval);
         pFork.addDataSink(accP);

@@ -539,13 +539,13 @@ public class GlassGraphic extends SimulationGraphic {
 
         //unnormalized AC of all stress tensor components
         AccumulatorAutocorrelationPTensor dpAutocor = new AccumulatorAutocorrelationPTensor(256, sim.integrator.getTimeStep());
-        if (sim.box.getLeafList().size() > 200 && sim.potentialChoice != SimGlass.PotentialChoice.HS) {
+        if (sim.box.getLeafList().size() > 200 && sim.potentialChoice != SimGlass.PotentialChoice.HS && false) {
             pTensorFork.addDataSink(dpAutocor);
         }
 
         //normalized AC of shear stress components
         AccumulatorAutocorrelationShearStress dpxyAutocor = new AccumulatorAutocorrelationShearStress(256, sim.integrator.getTimeStep());
-        if (sim.box.getLeafList().size() > 200 && sim.potentialChoice != SimGlass.PotentialChoice.HS) {
+        if (sim.box.getLeafList().size() > 200 && sim.potentialChoice != SimGlass.PotentialChoice.HS && false) {
             pTensorFork.addDataSink(dpxyAutocor);
         }
 
@@ -1564,7 +1564,7 @@ public class GlassGraphic extends SimulationGraphic {
         DisplayPlot plotSFac = null;
         MeterStructureFactor meterSFacCluster = null;
         if (sim.box.getLeafList().size() <= 500) {
-            MeterStructureFactor meterSFac = new MeterStructureFactor(space, sim.box, 15);
+            MeterStructureFactor meterSFac = new MeterStructureFactor(sim.box, 15);
             accSFac.setPushInterval(1);
             DataPumpListener pumpSFac = new DataPumpListener(meterSFac, accSFac, 1000);
             sim.integrator.getEventManager().addListener(pumpSFac);
@@ -1573,12 +1573,11 @@ public class GlassGraphic extends SimulationGraphic {
             accSFac.addDataSink(plotSFac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accSFac.AVERAGE});
             plotSFac.setLabel("SFac");
             plotSFac.setDoDrawLines(new DataTag[]{meterSFac.getTag()}, false);
-            meterSFac.setAtomTypeFactor(sim.speciesB.getAtomType(0), -1);
 
             double L = sim.box.getBoundary().getBoxSize().getX(0);
             double cut = 2.0 * Math.PI / L;
 
-            meterSFacCluster = new MeterStructureFactor(space, sim.box, 3 * cut + 0.001);
+            meterSFacCluster = new MeterStructureFactor(sim.box, 3 * cut + 0.001);
             DataPumpListener pumpSFacCluster = new DataPumpListener(meterSFacCluster, sfacClusterer, 10);
             sim.integrator.getEventManager().addListener(pumpSFacCluster);
             pFork.addDataSink(sfacClusterer.makePressureSink());
@@ -1586,15 +1585,16 @@ public class GlassGraphic extends SimulationGraphic {
             sfacButtons = new DeviceButtonGroup(sim.getController(), 5);
             sfacButtons.setLabel("B signal");
             AtomType typeB = sim.speciesB.getLeafType();
-            MeterStructureFactor[] meters = new MeterStructureFactor[]{meterSFac, meterSFacCluster};
-            sfacButtons.addButton("+1", new SFacButtonAction(meters, accSFac, sfacClusterer, typeB, +1));
-            sfacButtons.addButton("-1", new SFacButtonAction(meters, accSFac, sfacClusterer, typeB, -1));
+            MeterStructureFactor.AtomSignalSourceByType[] signalSources = new MeterStructureFactor.AtomSignalSourceByType[]{(MeterStructureFactor.AtomSignalSourceByType) meterSFac.getSignalSource(), (MeterStructureFactor.AtomSignalSourceByType) meterSFacCluster.getSignalSource()};
+            sfacButtons.addButton("+1", new SFacButtonAction(signalSources, accSFac, sfacClusterer, typeB, +1));
+            sfacButtons.addButton("-1", new SFacButtonAction(signalSources, accSFac, sfacClusterer, typeB, -1));
             double vB = sim.getSpace().powerD(sim.sigmaB);
-            sfacButtons.addButton("+v", new SFacButtonAction(meters, accSFac, sfacClusterer, typeB, vB));
-            sfacButtons.addButton("-v", new SFacButtonAction(meters, accSFac, sfacClusterer, typeB, -vB));
-            sfacButtons.addButton("0", new SFacButtonAction(meters, accSFac, sfacClusterer, typeB, 0));
+            sfacButtons.addButton("+v", new SFacButtonAction(signalSources, accSFac, sfacClusterer, typeB, vB));
+            sfacButtons.addButton("-v", new SFacButtonAction(signalSources, accSFac, sfacClusterer, typeB, -vB));
+            sfacButtons.addButton("0", new SFacButtonAction(signalSources, accSFac, sfacClusterer, typeB, 0));
             sfacButtons.setSelected("+v");
         }
+
 
         //************* Lay out components ****************//
 
@@ -1914,12 +1914,12 @@ public class GlassGraphic extends SimulationGraphic {
     public static class SFacButtonAction implements IAction {
         protected final double value;
         protected final AtomType type;
-        protected final MeterStructureFactor[] meters;
+        protected final MeterStructureFactor.AtomSignalSourceByType[] signalSources;
         protected final AccumulatorAverageFixed acc;
         protected final DataClusterer sfacClusterer;
 
-        public SFacButtonAction(MeterStructureFactor[] meters, AccumulatorAverageFixed acc, DataClusterer sfacClusterer, AtomType type, double value) {
-            this.meters = meters;
+        public SFacButtonAction(MeterStructureFactor.AtomSignalSourceByType[] signalSources, AccumulatorAverageFixed acc, DataClusterer sfacClusterer, AtomType type, double value) {
+            this.signalSources = signalSources;
             this.acc = acc;
             this.sfacClusterer = sfacClusterer;
             this.type = type;
@@ -1927,8 +1927,8 @@ public class GlassGraphic extends SimulationGraphic {
         }
 
         public void actionPerformed() {
-            for (MeterStructureFactor m : meters) {
-                m.setAtomTypeFactor(type, value);
+            for (MeterStructureFactor.AtomSignalSourceByType s : signalSources) {
+                s.setAtomTypeFactor(type, value);
             }
             acc.reset();
             sfacClusterer.reset();

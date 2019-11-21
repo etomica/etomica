@@ -213,11 +213,11 @@ public class GlassProd {
 
         AccumulatorAverageFixed accSFac = new AccumulatorAverageFixed(1);  // just average, no uncertainty
         accSFac.setPushInterval(1);
-        MeterStructureFactor meterSFac = new MeterStructureFactor(sim.getSpace(), sim.box, 15);
+        MeterStructureFactor meterSFac = new MeterStructureFactor(sim.box, 15);
         DataPumpListener pumpSFac = new DataPumpListener(meterSFac, accSFac, 1000);
         sim.integrator.getEventManager().addListener(pumpSFac);
         double vB = sim.getSpace().powerD(sim.sigmaB);
-        meterSFac.setAtomTypeFactor(sim.speciesB.getAtomType(0), vB);
+        ((MeterStructureFactor.AtomSignalSourceByType) meterSFac.getSignalSource()).setAtomTypeFactor(sim.speciesB.getAtomType(0), vB);
 
         double xGsMax = 3;
         int gsMinConfig = 5;

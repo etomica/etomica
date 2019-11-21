@@ -264,7 +264,7 @@ public class SimFe extends Simulation {
         IData u = dsEnergies.getData();
         if (!graphics) System.out.println("Fe lattice energy (eV/atom): "+ElectronVolt.UNIT.fromSim(u.getValue(1)/numAtoms));
 
-        MeterStructureFactor meterSfac = new MeterStructureFactor(sim.space, sim.box, 8);
+        MeterStructureFactor meterSfac = new MeterStructureFactor(sim.box, 8);
         if (graphics) {
             sim.integrator.setThermostatInterval(thermostatInterval);
             final String APP_NAME = "SimFe";

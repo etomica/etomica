@@ -40,7 +40,7 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
     protected final DataTag tag, xTag;
     protected DataDoubleArray xData;
     protected DataInfoDoubleArray xDataInfo;
-    protected double[] atomTypeSignal;
+    protected final AtomSignalSource signalSource;
     protected double cutoff;
 
     /**
@@ -48,15 +48,23 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
      * in the box.  All wave vectors consistent with the box shape and with
      * magnitude less than cutoff are included.
      */
-	public MeterStructureFactor(Space space, Box aBox, double cutoff) {
-	    this.space = space;
+    public MeterStructureFactor(Box aBox, double cutoff) {
+        this(aBox, cutoff, new AtomSignalSourceByType());
+    }
+
+    public MeterStructureFactor(Box aBox, double cutoff, AtomSignalSource signalSource) {
+        this.signalSource = signalSource;
 	    this.box = aBox;
+        space = aBox.getSpace();
         atomList = box.getLeafList();
         tag = new DataTag();
         xTag = new DataTag();
 	    setCutoff(cutoff);
-        atomTypeSignal = new double[0];
 	}
+
+    public AtomSignalSource getSignalSource() {
+        return signalSource;
+    }
 	
 	protected void resetData() {
         xData = new DataDoubleArray(waveVec.length);
@@ -157,20 +165,6 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
 		this.atomList = atomList;
 	}
 
-    /**
-     * Sets the given atom type to have the given form factor
-     * https://en.wikipedia.org/wiki/Structure_factor
-     */
-    public void setAtomTypeFactor(AtomType atomType, double factor) {
-        int idx = atomType.getIndex();
-        if (idx >= atomTypeSignal.length) {
-            int oldLength = atomTypeSignal.length;
-            atomTypeSignal = Arrays.copyOf(atomTypeSignal, atomType.getIndex() + 1);
-            for (int i = oldLength; i < idx; i++) atomTypeSignal[i] = 1;
-        }
-        atomTypeSignal[idx] = factor;
-    }
-
     public IData getData() {
         long numAtoms = atomList.size();
         long n2 = numAtoms*numAtoms;
@@ -180,8 +174,7 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
             double term2 = 0;
             for(int i = 0; i<numAtoms; i++){
                 IAtom atom = atomList.get(i);
-                int typeIdx = atom.getType().getIndex();
-                double signal = atomTypeSignal.length > typeIdx ? atomTypeSignal[typeIdx] : 1.0;
+                double signal = signalSource == null ? 1.0 : signalSource.signal(atom);
                 double dotprod = waveVec[k].dot(atom.getPosition());
                 term1 += signal * Math.cos(dotprod);
                 term2 += signal * Math.sin(dotprod);
@@ -215,4 +208,30 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
         return xTag;
     }
 
+    public interface AtomSignalSource {
+        double signal(IAtom atom);
+    }
+
+    public static class AtomSignalSourceByType implements AtomSignalSource {
+        protected double[] signal = new double[0];
+
+        /**
+         * Sets the given atom type to have the given form factor
+         * https://en.wikipedia.org/wiki/Structure_factor
+         */
+        public void setAtomTypeFactor(AtomType atomType, double factor) {
+            int idx = atomType.getIndex();
+            if (idx >= signal.length) {
+                int oldLength = signal.length;
+                signal = Arrays.copyOf(signal, atomType.getIndex() + 1);
+                for (int i = oldLength; i < idx; i++) signal[i] = 1;
+            }
+            signal[idx] = factor;
+        }
+
+        public double signal(IAtom atom) {
+            int idx = atom.getType().getIndex();
+            return idx < signal.length ? signal[idx] : 1.0;
+        }
+    }
 }
