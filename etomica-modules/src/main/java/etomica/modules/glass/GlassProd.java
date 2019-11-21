@@ -238,8 +238,12 @@ public class GlassProd {
 
         MeterCorrelationSelf meterCorrelationSelf = new MeterCorrelationSelf(configStorageMSD, MeterCorrelationSelf.CorrelationType.TOTAL);
         configStorageMSD.addListener(meterCorrelationSelf);
-        MeterCorrelationSelf meterCorrelationSelfMag = new MeterCorrelationSelf(configStorageMSD, MeterCorrelationSelf.CorrelationType.MAGNITUDE);
-        configStorageMSD.addListener(meterCorrelationSelfMag);
+        MeterCorrelationSelf meterCorrelationSelfMagA = new MeterCorrelationSelf(configStorageMSD, MeterCorrelationSelf.CorrelationType.MAGNITUDE);
+        meterCorrelationSelfMagA.setAtomType(sim.speciesA.getLeafType());
+        configStorageMSD.addListener(meterCorrelationSelfMagA);
+        MeterCorrelationSelf meterCorrelationSelfMagB = new MeterCorrelationSelf(configStorageMSD, MeterCorrelationSelf.CorrelationType.MAGNITUDE);
+        meterCorrelationSelfMagB.setAtomType(sim.speciesB.getLeafType());
+        configStorageMSD.addListener(meterCorrelationSelfMagB);
 
         sim.integrator.getEventManager().addListener(configStorageMSD);
 
@@ -284,18 +288,23 @@ public class GlassProd {
 
         try {
             FileWriter fw = new FileWriter("corSelf.dat");
-            FileWriter fwMag = new FileWriter("corSelfMag.dat");
+            FileWriter fwMagA = new FileWriter("corSelfMagB.dat");
+            FileWriter fwMagB = new FileWriter("corSelfMagB.dat");
             IData tData = meterCorrelationSelf.getIndependentData(0);
             IData corData = meterCorrelationSelf.getData();
-            IData corMagData = meterCorrelationSelfMag.getData();
+            IData corMagDataA = meterCorrelationSelfMagA.getData();
+            IData corMagDataB = meterCorrelationSelfMagB.getData();
             for (int i = 0; i < tData.getLength(); i++) {
+                double t = tData.getValue(i);
                 double y = corData.getValue(i);
-                if (!Double.isNaN(y)) fw.write(tData.getValue(i) + " " + y + "\n");
-                y = corMagData.getValue(i);
-                if (!Double.isNaN(y)) fwMag.write(tData.getValue(i) + " " + y + "\n");
+                if (Double.isNaN(y)) continue;
+                fw.write(t + " " + y + "\n");
+                fwMagA.write(t + " " + corMagDataA.getValue(i) + "\n");
+                fwMagB.write(t + " " + corMagDataB.getValue(i) + "\n");
             }
             fw.close();
-            fwMag.close();
+            fwMagA.close();
+            fwMagB.close();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
