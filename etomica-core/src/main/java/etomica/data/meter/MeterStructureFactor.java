@@ -187,6 +187,10 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
         return data;
     }
 
+    public Vector[] getWaveVectors() {
+        return waveVec;
+    }
+
     public double[] getPhaseAngles() {
         return phaseAngles;
     }
