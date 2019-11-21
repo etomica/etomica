@@ -42,6 +42,7 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
     protected DataInfoDoubleArray xDataInfo;
     protected final AtomSignalSource signalSource;
     protected double cutoff;
+    protected double[] phaseAngles;
 
     /**
      * Creates meter with default to compute the structure factor for all atoms
@@ -74,6 +75,7 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
 	    dataInfo = new DataInfoFunction("Structure Factor", Null.DIMENSION, this);
         dataInfo.addTag(tag);
         data = new DataFunction(new int[]{waveVec.length}, struct);
+        phaseAngles = new double[waveVec.length];
 	}
 
 	protected int makeWaveVector(double cutoff) {
@@ -180,8 +182,13 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
                 term2 += signal * Math.sin(dotprod);
             }
             struct[k] = ((term1*term1) + (term2*term2))/n2;
+            phaseAngles[k] = Math.atan2(term1, term2);
         }
         return data;
+    }
+
+    public double[] getPhaseAngles() {
+        return phaseAngles;
     }
 
     public DataTag getTag() {
