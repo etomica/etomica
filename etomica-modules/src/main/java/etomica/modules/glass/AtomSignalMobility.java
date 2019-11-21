@@ -1,0 +1,36 @@
+package etomica.modules.glass;
+
+import etomica.atom.IAtom;
+import etomica.data.meter.MeterStructureFactor;
+import etomica.space.Vector;
+
+public class AtomSignalMobility extends MeterStructureFactor.AtomSignalSourceByType {
+    protected final ConfigurationStorage configStorage;
+    protected final Vector dr;
+    protected int prevConfigIndex;
+
+    public AtomSignalMobility(ConfigurationStorage configStorage) {
+        this.configStorage = configStorage;
+        dr = configStorage.getBox().getSpace().makeVector();
+    }
+
+    public void setPrevConfig(int prevConfigIndex) {
+        this.prevConfigIndex = prevConfigIndex;
+    }
+
+    public int getPrevConfigIndex() {
+        return prevConfigIndex;
+    }
+
+    public double signal(IAtom atom) {
+        double s = super.signal(atom);
+        int idx = prevConfigIndex;
+        int lastIndex = configStorage.getLastConfigIndex();
+        if (lastIndex < idx) idx = lastIndex;
+        Vector[] positions = configStorage.getSavedConfig(0);
+        Vector[] prevPositions = configStorage.getSavedConfig(idx);
+        int atomIndex = atom.getLeafIndex();
+        dr.Ev1Mv2(positions[atomIndex], prevPositions[atomIndex]);
+        return s * Math.sqrt(dr.squared());
+    }
+}
