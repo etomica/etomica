@@ -288,7 +288,7 @@ public class GlassProd {
 
         try {
             FileWriter fw = new FileWriter("corSelf.dat");
-            FileWriter fwMagA = new FileWriter("corSelfMagB.dat");
+            FileWriter fwMagA = new FileWriter("corSelfMagA.dat");
             FileWriter fwMagB = new FileWriter("corSelfMagB.dat");
             IData tData = meterCorrelationSelf.getIndependentData(0);
             IData corData = meterCorrelationSelf.getData();
