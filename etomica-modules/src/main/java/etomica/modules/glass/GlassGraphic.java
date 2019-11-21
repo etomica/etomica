@@ -864,22 +864,42 @@ public class GlassGraphic extends SimulationGraphic {
         plotPerc0.setLabel("Perc0");
         add(plotPerc0);
 
-        MeterCorrelationSelf meterCorrelationSelf = new MeterCorrelationSelf(configStorageMSD);
-        configStorageMSD.addListener(meterCorrelationSelf);
         DisplayPlot plotCorSelf = new DisplayPlot();
-        DataPumpListener pumpCorSelf = new DataPumpListener(meterCorrelationSelf, plotCorSelf.getDataSet().makeDataSink(), 1000);
-        plotCorSelf.setLegend(new DataTag[]{meterCorrelationSelf.getTag()}, "dot");
-        sim.integrator.getEventManager().addListener(pumpCorSelf);
         plotCorSelf.setLabel("cor self");
         plotCorSelf.getPlot().setXLog(true);
         plotCorSelf.setDoLegend(true);
         add(plotCorSelf);
 
-        MeterCorrelationSelf meterCorrelationSelfMag = new MeterCorrelationSelf(configStorageMSD, MeterCorrelationSelf.CorrelationType.MAGNITUDE);
-        configStorageMSD.addListener(meterCorrelationSelfMag);
-        DataPumpListener pumpCorSelfMag = new DataPumpListener(meterCorrelationSelfMag, plotCorSelf.getDataSet().makeDataSink(), 1000);
-        plotCorSelf.setLegend(new DataTag[]{meterCorrelationSelfMag.getTag()}, "|r|");
-        sim.integrator.getEventManager().addListener(pumpCorSelfMag);
+        MeterCorrelationSelf meterCorrelationSelf = new MeterCorrelationSelf(configStorageMSD);
+        configStorageMSD.addListener(meterCorrelationSelf);
+        DataPumpListener pumpCorSelf = new DataPumpListener(meterCorrelationSelf, plotCorSelf.getDataSet().makeDataSink(), 1000);
+        plotCorSelf.setLegend(new DataTag[]{meterCorrelationSelf.getTag()}, "dot");
+        sim.integrator.getEventManager().addListener(pumpCorSelf);
+        MeterCorrelationSelf meterCorrelationSelfA = new MeterCorrelationSelf(configStorageMSD);
+        meterCorrelationSelfA.setAtomType(sim.speciesA.getLeafType());
+        configStorageMSD.addListener(meterCorrelationSelfA);
+        DataPumpListener pumpCorSelfA = new DataPumpListener(meterCorrelationSelfA, plotCorSelf.getDataSet().makeDataSink(), 1000);
+        plotCorSelf.setLegend(new DataTag[]{meterCorrelationSelfA.getTag()}, "dotA");
+        sim.integrator.getEventManager().addListener(pumpCorSelfA);
+        MeterCorrelationSelf meterCorrelationSelfB = new MeterCorrelationSelf(configStorageMSD);
+        meterCorrelationSelfB.setAtomType(sim.speciesB.getLeafType());
+        configStorageMSD.addListener(meterCorrelationSelfB);
+        DataPumpListener pumpCorSelfB = new DataPumpListener(meterCorrelationSelfB, plotCorSelf.getDataSet().makeDataSink(), 1000);
+        plotCorSelf.setLegend(new DataTag[]{meterCorrelationSelfB.getTag()}, "dotB");
+        sim.integrator.getEventManager().addListener(pumpCorSelfB);
+
+        MeterCorrelationSelf meterCorrelationSelfMagA = new MeterCorrelationSelf(configStorageMSD, MeterCorrelationSelf.CorrelationType.MAGNITUDE);
+        meterCorrelationSelfMagA.setAtomType(sim.speciesA.getLeafType());
+        configStorageMSD.addListener(meterCorrelationSelfMagA);
+        DataPumpListener pumpCorSelfMagA = new DataPumpListener(meterCorrelationSelfMagA, plotCorSelf.getDataSet().makeDataSink(), 1000);
+        plotCorSelf.setLegend(new DataTag[]{meterCorrelationSelfMagA.getTag()}, "|r|A");
+        sim.integrator.getEventManager().addListener(pumpCorSelfMagA);
+        MeterCorrelationSelf meterCorrelationSelfMagB = new MeterCorrelationSelf(configStorageMSD, MeterCorrelationSelf.CorrelationType.MAGNITUDE);
+        meterCorrelationSelfMagB.setAtomType(sim.speciesB.getLeafType());
+        configStorageMSD.addListener(meterCorrelationSelfMagB);
+        DataPumpListener pumpCorSelfMagB = new DataPumpListener(meterCorrelationSelfMagB, plotCorSelf.getDataSet().makeDataSink(), 1000);
+        plotCorSelf.setLegend(new DataTag[]{meterCorrelationSelfMagB.getTag()}, "|r|B");
+        sim.integrator.getEventManager().addListener(pumpCorSelfMagB);
 
         int corUpdateInterval = sim.getSpace().D() == 2 ? 10000 : 2000;
         double xCorMax = 5;
@@ -1626,7 +1646,8 @@ public class GlassGraphic extends SimulationGraphic {
                     sfacClusterer.reset();
                     accPerc0.reset();
                     meterCorrelationSelf.reset();
-                    meterCorrelationSelfMag.reset();
+                    meterCorrelationSelfMagA.reset();
+                    meterCorrelationSelfMagB.reset();
                 } else {
                     dbox.setAtomTestDoDisplay(atomFilterDeviation);
                     sim.integrator.setIntegratorMC(null, 0);
@@ -1672,7 +1693,8 @@ public class GlassGraphic extends SimulationGraphic {
                     sfacClusterer.reset();
                     accPerc0.reset();
                     meterCorrelationSelf.reset();
-                    meterCorrelationSelfMag.reset();
+                    meterCorrelationSelfMagA.reset();
+                    meterCorrelationSelfMagB.reset();
                 }
             }
 
