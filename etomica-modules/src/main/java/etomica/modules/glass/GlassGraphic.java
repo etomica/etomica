@@ -1561,7 +1561,6 @@ public class GlassGraphic extends SimulationGraphic {
         java.util.List<MeterStructureFactor.AtomSignalSourceByType> signalByTypes = new ArrayList<>();
         DataClusterer sfacClusterer = new DataClusterer(100, sim.getRandom());
         DeviceButtonGroup sfacButtons = null;
-        DisplayPlot plotSFac = null;
         MeterStructureFactor meterSFacCluster = null;
         int n = sim.box.getLeafList().size();
         double cut1 = 10;
@@ -1578,12 +1577,13 @@ public class GlassGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(pumpSFac);
         dataStreamPumps.add(pumpSFac);
 
-        plotSFac = new DisplayPlot();
+        DisplayPlot plotSFac = new DisplayPlot();
         accSFac.addDataSink(plotSFac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accSFac.AVERAGE});
         plotSFac.setLabel("SFac");
         plotSFac.setDoDrawLines(new DataTag[]{meterSFac.getTag()}, false);
         plotSFac.getPlot().setYLog(true);
         plotSFac.setLegend(new DataTag[]{meterSFac.getTag()}, "density");
+        plotSFac.getDataSet().setUpdatingOnAnyChange(true);
 
         double L = sim.box.getBoundary().getBoxSize().getX(0);
         double cut = 2.0 * Math.PI / L;
@@ -1636,6 +1636,7 @@ public class GlassGraphic extends SimulationGraphic {
             public void setValue(double newValue) {
                 int idx = (int) Math.round(newValue);
                 sfacFromDumps.setDumpIndex(idx);
+                pumpSfacMobility.actionPerformed();
             }
 
             @Override
@@ -1659,6 +1660,46 @@ public class GlassGraphic extends SimulationGraphic {
         sfacPrevConfig.setValue(5);
         sfacPrevConfig.setLabel("Previous config (mobility)");
         sfacPrevConfig.setShowBorder(true);
+
+        AtomStressSource stressSource = null;
+        if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
+            AtomHardStressCollector ahsc = new AtomHardStressCollector((IntegratorHard) sim.integrator);
+            ((IntegratorHard) sim.integrator).addCollisionListener(ahsc);
+            stressSource = ahsc;
+        } else {
+            PotentialCalculationForceSumGlass pcForce = new PotentialCalculationForceSumGlass(sim.box);
+            ((IntegratorVelocityVerlet) sim.integrator).setForceSum(pcForce);
+            stressSource = pcForce;
+        }
+
+        AtomSignalStress signalStress0 = new AtomSignalStress(stressSource, 0);
+        MeterStructureFactor meterSFacStress0 = new MeterStructureFactor(sim.box, 3, signalStress0);
+        if (sim.getSpace().D() == 2) {
+            AccumulatorAverageFixed accSFacStress0 = new AccumulatorAverageFixed(1);  // just average, no uncertainty
+            DataPumpListener pumpSFacStress0 = new DataPumpListener(meterSFac, accSFacStress0, 100);
+            accSFacStress0.setPushInterval(5);
+            sim.integrator.getEventManager().addListener(pumpSFacStress0);
+            dataStreamPumps.add(pumpSFac);
+
+            accSFacStress0.addDataSink(plotSFac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accSFac.AVERAGE});
+            plotSFac.setDoDrawLines(new DataTag[]{meterSFacStress0.getTag()}, false);
+            plotSFac.setLegend(new DataTag[]{meterSFacStress0.getTag()}, "stress");
+        } else {
+            AtomSignalStress signalStress1 = new AtomSignalStress(stressSource, 1);
+            MeterStructureFactor meterSFacStress1 = new MeterStructureFactor(sim.box, 3, signalStress1);
+            AtomSignalStress signalStress2 = new AtomSignalStress(stressSource, 2);
+            MeterStructureFactor meterSFacStress2 = new MeterStructureFactor(sim.box, 3, signalStress2);
+            MeterStructureFactorStress3 meterStructureFactorStress3 = new MeterStructureFactorStress3(new MeterStructureFactor[]{meterSFacStress0, meterSFacStress1, meterSFacStress2});
+            AccumulatorAverageFixed accSFacStress3 = new AccumulatorAverageFixed(1);
+            DataPumpListener pumpSFacStress3 = new DataPumpListener(meterStructureFactorStress3, accSFacStress3, 100);
+            accSFacStress3.setPushInterval(5);
+            sim.integrator.getEventManager().addListener(pumpSFacStress3);
+            dataStreamPumps.add(pumpSFacStress3);
+
+            accSFacStress3.addDataSink(plotSFac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accSFac.AVERAGE});
+            plotSFac.setDoDrawLines(new DataTag[]{meterStructureFactorStress3.getTag()}, false);
+            plotSFac.setLegend(new DataTag[]{meterStructureFactorStress3.getTag()}, "stress");
+        }
 
         //************* Lay out components ****************//
 
@@ -2001,31 +2042,6 @@ public class GlassGraphic extends SimulationGraphic {
             }
             acc.reset();
             sfacClusterer.reset();
-        }
-    }
-
-    /**
-     * Class that invokes the a pump only when an appropriate new configuration is available.
-     */
-    private static class ConfigurationStoragePumper implements ConfigurationStorage.ConfigurationStorageListener {
-        private final ConfigurationStorage configStorage;
-        private final DataPump pumpSFacMobility;
-        private int prevConfigIndex;
-
-        public ConfigurationStoragePumper(DataPump pumpSFacMobility, ConfigurationStorage configStorage) {
-            this.configStorage = configStorage;
-            this.pumpSFacMobility = pumpSFacMobility;
-        }
-
-        public void setPrevConfig(int index) {
-            prevConfigIndex = index;
-        }
-
-        @Override
-        public void newConfigruation() {
-            long step = configStorage.getSavedSteps()[0];
-            if (step % (1L << prevConfigIndex) != 0) return;
-            pumpSFacMobility.actionPerformed();
         }
     }
 

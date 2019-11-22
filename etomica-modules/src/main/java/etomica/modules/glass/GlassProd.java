@@ -212,12 +212,54 @@ public class GlassProd {
         //S(q)
 
         AccumulatorAverageFixed accSFac = new AccumulatorAverageFixed(1);  // just average, no uncertainty
-        accSFac.setPushInterval(1);
-        MeterStructureFactor meterSFac = new MeterStructureFactor(sim.box, 15);
+        double cut1 = 10;
+        if (numAtoms > 500) cut1 /= Math.pow(numAtoms / 500.0, 1.0 / sim.getSpace().D());
+        MeterStructureFactor meterSFac = new MeterStructureFactor(sim.box, cut1);
         DataPumpListener pumpSFac = new DataPumpListener(meterSFac, accSFac, 1000);
         sim.integrator.getEventManager().addListener(pumpSFac);
         double vB = sim.getSpace().powerD(sim.sigmaB);
         ((MeterStructureFactor.AtomSignalSourceByType) meterSFac.getSignalSource()).setAtomTypeFactor(sim.speciesB.getAtomType(0), vB);
+
+        MeterStructureFactor[] meterSFacMobility = new MeterStructureFactor[20];
+        AccumulatorAverageFixed[] accSFacMobility = new AccumulatorAverageFixed[20];
+        for (int i = 0; i < 20; i++) {
+            AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
+            signalMobility.setPrevConfig(i + 5);
+            meterSFacMobility[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
+            DataFork forkSFacMobility = new DataFork();
+            DataPump pumpSFacMobility = new DataPump(meterSFacMobility[i], forkSFacMobility);
+            accSFacMobility[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
+            forkSFacMobility.addDataSink(accSFacMobility[i]);
+            // ensures pump fires when config with delta t is available
+            ConfigurationStoragePumper cspMobility = new ConfigurationStoragePumper(pumpSFacMobility, configStorageMSD);
+            cspMobility.setPrevConfig(Math.max(i + 1, 5));
+            configStorageMSD.addListener(cspMobility);
+        }
+
+        AtomStressSource stressSource = null;
+        if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
+            AtomHardStressCollector ahsc = new AtomHardStressCollector((IntegratorHard) sim.integrator);
+            ((IntegratorHard) sim.integrator).addCollisionListener(ahsc);
+            stressSource = ahsc;
+        } else {
+            PotentialCalculationForceSumGlass pcForce = new PotentialCalculationForceSumGlass(sim.box);
+            ((IntegratorVelocityVerlet) sim.integrator).setForceSum(pcForce);
+            stressSource = pcForce;
+        }
+
+        AtomSignalStress signalStress0 = new AtomSignalStress(stressSource, 0);
+        MeterStructureFactor meterSFacStress0 = new MeterStructureFactor(sim.box, 3, signalStress0);
+        AccumulatorAverageFixed accSFacStress = new AccumulatorAverageFixed(1);
+        DataPumpListener pumpSFacStress = new DataPumpListener(meterSFac, accSFacStress, 100);
+        if (sim.getSpace().D() == 3) {
+            AtomSignalStress signalStress1 = new AtomSignalStress(stressSource, 1);
+            MeterStructureFactor meterSFacStress1 = new MeterStructureFactor(sim.box, 3, signalStress1);
+            AtomSignalStress signalStress2 = new AtomSignalStress(stressSource, 2);
+            MeterStructureFactor meterSFacStress2 = new MeterStructureFactor(sim.box, 3, signalStress2);
+            MeterStructureFactorStress3 meterStructureFactorStress3 = new MeterStructureFactorStress3(new MeterStructureFactor[]{meterSFacStress0, meterSFacStress1, meterSFacStress2});
+            pumpSFacStress = new DataPumpListener(meterStructureFactorStress3, accSFacStress, 100);
+        }
+        sim.integrator.getEventManager().addListener(pumpSFacStress);
 
         double xGsMax = 3;
         int gsMinConfig = 5;
@@ -285,6 +327,38 @@ public class GlassProd {
                 throw new RuntimeException(e);
             }
         }
+
+        for (int i = 0; i < 20; i++) {
+            try {
+                if (accSFacMobility[i].getSampleCount() <= 2) continue;
+                FileWriter fw = new FileWriter("sfacMobility" + (i + 5) + ".dat");
+                IData xData = meterSFacMobility[i].getIndependentData(0);
+                IData yData = accSFacMobility[i].getData(accSFacMobility[i].AVERAGE);
+                for (int j = 0; j < xData.getLength(); j++) {
+                    double x = xData.getValue(j);
+                    double y = yData.getValue(j);
+                    fw.write(x + " " + y + "\n");
+                }
+                fw.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
+        try {
+            FileWriter fw = new FileWriter("sfacStress.dat");
+            IData xData = meterSFacStress0.getIndependentData(0);
+            IData yData = accSFacStress.getData(accSFacStress.AVERAGE);
+            for (int j = 0; j < xData.getLength(); j++) {
+                double x = xData.getValue(j);
+                double y = yData.getValue(j);
+                fw.write(x + " " + y + "\n");
+            }
+            fw.close();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+
 
         try {
             FileWriter fw = new FileWriter("corSelf.dat");
