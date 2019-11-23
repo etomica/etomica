@@ -708,7 +708,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         //Percolation
         atomFilterDeviationPerc.setDoMobileOnly(false);
-        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSDPerc, atomFilterDeviationPerc, 5, 30);
+        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSDPerc, atomFilterDeviationPerc, 8, 30);
         configStorageMSDPerc.addListener(meterPerc);
         DisplayPlot plotPerc = new DisplayPlot();
         DataPumpListener pumpPerc = new DataPumpListener(meterPerc, plotPerc.getDataSet().makeDataSink(), 1000);
@@ -1598,7 +1598,6 @@ public class GlassGraphic extends SimulationGraphic {
         DataDump[] dumpSFacMobility = new DataDump[30];
         for (int i = 0; i < 30; i++) {
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
-            signalByTypes.add(signalMobility);
             signalMobility.setPrevConfig(i + 1);
             meterSFacMobility[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
             DataFork forkSFacMobility = new DataFork();
