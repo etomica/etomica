@@ -217,9 +217,9 @@ public class GlassProd {
         double vB = sim.getSpace().powerD(sim.sigmaB);
         ((MeterStructureFactor.AtomSignalSourceByType) meterSFac.getSignalSource()).setAtomTypeFactor(sim.speciesB.getAtomType(0), vB);
 
-        MeterStructureFactor[] meterSFacMobility = new MeterStructureFactor[20];
-        AccumulatorAverageFixed[] accSFacMobility = new AccumulatorAverageFixed[20];
         int sfacMobilityOffset = 4;
+        MeterStructureFactor[] meterSFacMobility = new MeterStructureFactor[30 - sfacMobilityOffset];
+        AccumulatorAverageFixed[] accSFacMobility = new AccumulatorAverageFixed[30 - sfacMobilityOffset];
         for (int i = 0; i < 30 - sfacMobilityOffset; i++) {
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
             signalMobility.setPrevConfig(i + sfacMobilityOffset);
@@ -326,7 +326,7 @@ public class GlassProd {
             }
         }
 
-        for (int i = 0; i < 30 - sfacMobilityOffset; i++) {
+        for (int i = 0; i < accSFacMobility.length; i++) {
             try {
                 if (accSFacMobility[i].getSampleCount() <= 2) break;
                 FileWriter fw = new FileWriter("sfacMobility" + (i + sfacMobilityOffset) + ".dat");
