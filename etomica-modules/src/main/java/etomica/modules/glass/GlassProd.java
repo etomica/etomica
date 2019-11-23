@@ -194,23 +194,20 @@ public class GlassProd {
         DataSourcePercolation.ImmFractionByTypeSource meterImmFractionB = meterPerc.makeImmFractionSource(sim.speciesB.getLeafType());
 
         DataSourcePercolation0 meterPerc0 = new DataSourcePercolation0(sim.box, sim.getRandom());
-        meterPerc0.setImmFracs(new double[]{0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65,
-                0.70, 0.75, 0.8, 0.85, 0.9, 0.95, 1});
+        meterPerc0.setImmFracs(new double[]{0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.55, 0.65, 0.75, 0.85, 1});
         AccumulatorAverageFixed accPerc0 = new AccumulatorAverageFixed(10);
-        DataPumpListener pumpPerc0 = new DataPumpListener(meterPerc0, accPerc0, 1000);
+        DataPumpListener pumpPerc0 = new DataPumpListener(meterPerc0, accPerc0, 10000);
         sim.integrator.getEventManager().addListener(pumpPerc0);
 
         //Strings
-        DataSourceStrings meterL = new DataSourceStrings(configStorageMSD, 3, 30);
+        DataSourceStrings meterL = new DataSourceStrings(configStorageMSD, 4, 30);
         configStorageMSD.addListener(meterL);
 
         //Alpha2
         DataSourceAlpha2 meterAlpha2 = new DataSourceAlpha2(configStorageMSD);
         configStorageMSD.addListener(meterAlpha2);
 
-
         //S(q)
-
         AccumulatorAverageFixed accSFac = new AccumulatorAverageFixed(1);  // just average, no uncertainty
         double cut1 = 10;
         if (numAtoms > 500) cut1 /= Math.pow(numAtoms / 500.0, 1.0 / sim.getSpace().D());
@@ -222,9 +219,10 @@ public class GlassProd {
 
         MeterStructureFactor[] meterSFacMobility = new MeterStructureFactor[20];
         AccumulatorAverageFixed[] accSFacMobility = new AccumulatorAverageFixed[20];
-        for (int i = 0; i < 20; i++) {
+        int sfacMobilityOffset = 4;
+        for (int i = 0; i < 30 - sfacMobilityOffset; i++) {
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
-            signalMobility.setPrevConfig(i + 5);
+            signalMobility.setPrevConfig(i + sfacMobilityOffset);
             meterSFacMobility[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
             DataFork forkSFacMobility = new DataFork();
             DataPump pumpSFacMobility = new DataPump(meterSFacMobility[i], forkSFacMobility);
@@ -232,7 +230,7 @@ public class GlassProd {
             forkSFacMobility.addDataSink(accSFacMobility[i]);
             // ensures pump fires when config with delta t is available
             ConfigurationStoragePumper cspMobility = new ConfigurationStoragePumper(pumpSFacMobility, configStorageMSD);
-            cspMobility.setPrevConfig(Math.max(i + 1, 5));
+            cspMobility.setPrevConfig(Math.max(i + sfacMobilityOffset, 9));
             configStorageMSD.addListener(cspMobility);
         }
 
@@ -328,10 +326,10 @@ public class GlassProd {
             }
         }
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 30 - sfacMobilityOffset; i++) {
             try {
-                if (accSFacMobility[i].getSampleCount() <= 2) continue;
-                FileWriter fw = new FileWriter("sfacMobility" + (i + 5) + ".dat");
+                if (accSFacMobility[i].getSampleCount() <= 2) break;
+                FileWriter fw = new FileWriter("sfacMobility" + (i + sfacMobilityOffset) + ".dat");
                 IData xData = meterSFacMobility[i].getIndependentData(0);
                 IData yData = accSFacMobility[i].getData(accSFacMobility[i].AVERAGE);
                 for (int j = 0; j < xData.getLength(); j++) {
@@ -480,7 +478,6 @@ public class GlassProd {
             }
         }
 
-
         //S(q)
         DataGroup dataSF = (DataGroup)accSFac.getData();
         IData dataSFAvg = dataSF.getData(accSFac.AVERAGE.index);
@@ -495,9 +492,6 @@ public class GlassProd {
         } catch (IOException e) {
             System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
         }
-
-
-
 
         //Viscosity
         try {
@@ -608,15 +602,13 @@ public class GlassProd {
         }else{
             System.out.println("\ntime: " + (sim_time*60) + " mins");
         }
-
-
     }
 
     public static class SimParams extends SimGlass.GlassParams {
         public int numStepsEq = 10000;
         public int numSteps =   1000000;
         public double minDrFilter = 0.4;
-        public int log2StepMin = 5;
+        public int log2StepMin = 9;
         public double temperatureMelt = 0;
         public double qx = 7.0;
         public boolean doPxyAutocor = false;
