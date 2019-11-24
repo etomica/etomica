@@ -1671,7 +1671,7 @@ public class GlassGraphic extends SimulationGraphic {
             stressSource = pcForce;
         }
 
-        AtomSignalStress signalStress0 = new AtomSignalStress(stressSource, 0);
+        AtomSignalStress signalStress0 = new AtomSignalStress(stressSource, 0, 1);
         MeterStructureFactor meterSFacStress0 = new MeterStructureFactor(sim.box, 3, signalStress0);
         if (sim.getSpace().D() == 2) {
             AccumulatorAverageFixed accSFacStress0 = new AccumulatorAverageFixed(1);  // just average, no uncertainty
@@ -1684,9 +1684,9 @@ public class GlassGraphic extends SimulationGraphic {
             plotSFac.setDoDrawLines(new DataTag[]{meterSFacStress0.getTag()}, false);
             plotSFac.setLegend(new DataTag[]{meterSFacStress0.getTag()}, "stress");
         } else {
-            AtomSignalStress signalStress1 = new AtomSignalStress(stressSource, 1);
+            AtomSignalStress signalStress1 = new AtomSignalStress(stressSource, 0, 2);
             MeterStructureFactor meterSFacStress1 = new MeterStructureFactor(sim.box, 3, signalStress1);
-            AtomSignalStress signalStress2 = new AtomSignalStress(stressSource, 2);
+            AtomSignalStress signalStress2 = new AtomSignalStress(stressSource, 1, 2);
             MeterStructureFactor meterSFacStress2 = new MeterStructureFactor(sim.box, 3, signalStress2);
             MeterStructureFactorStress3 meterStructureFactorStress3 = new MeterStructureFactorStress3(new MeterStructureFactor[]{meterSFacStress0, meterSFacStress1, meterSFacStress2});
             AccumulatorAverageFixed accSFacStress3 = new AccumulatorAverageFixed(1);
@@ -1697,8 +1697,25 @@ public class GlassGraphic extends SimulationGraphic {
 
             accSFacStress3.addDataSink(plotSFac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accSFac.AVERAGE});
             plotSFac.setDoDrawLines(new DataTag[]{meterStructureFactorStress3.getTag()}, false);
-            plotSFac.setLegend(new DataTag[]{meterStructureFactorStress3.getTag()}, "stress");
+            plotSFac.setLegend(new DataTag[]{meterStructureFactorStress3.getTag()}, "shear stress");
         }
+
+
+        MeterStructureFactor[] meterSFacNormal = new MeterStructureFactor[sim.getSpace().D()];
+        for (int i = 0; i < meterSFacNormal.length; i++) {
+            AtomSignalStress signalStressNormali = new AtomSignalStress(stressSource, i, i);
+            meterSFacNormal[i] = new MeterStructureFactor(sim.box, 3, signalStressNormali);
+        }
+        MeterStructureFactorStress3 meterStructureFactorNormalAll = new MeterStructureFactorStress3(meterSFacNormal);
+        AccumulatorAverageFixed accSFacNormalStress = new AccumulatorAverageFixed(1);
+        DataPumpListener pumpSFacNormal = new DataPumpListener(meterStructureFactorNormalAll, accSFacNormalStress, 100);
+        accSFacNormalStress.setPushInterval(5);
+        sim.integrator.getEventManager().addListener(pumpSFacNormal);
+        dataStreamPumps.add(pumpSFacNormal);
+
+        accSFacNormalStress.addDataSink(plotSFac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accSFac.AVERAGE});
+        plotSFac.setDoDrawLines(new DataTag[]{meterStructureFactorNormalAll.getTag()}, false);
+        plotSFac.setLegend(new DataTag[]{meterStructureFactorNormalAll.getTag()}, "normal stress");
 
         //************* Lay out components ****************//
 

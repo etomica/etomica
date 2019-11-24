@@ -245,14 +245,14 @@ public class GlassProd {
             stressSource = pcForce;
         }
 
-        AtomSignalStress signalStress0 = new AtomSignalStress(stressSource, 0);
+        AtomSignalStress signalStress0 = new AtomSignalStress(stressSource, 0, 1);
         MeterStructureFactor meterSFacStress0 = new MeterStructureFactor(sim.box, 3, signalStress0);
         AccumulatorAverageFixed accSFacStress = new AccumulatorAverageFixed(1);
         DataPumpListener pumpSFacStress = new DataPumpListener(meterSFac, accSFacStress, 100);
         if (sim.getSpace().D() == 3) {
-            AtomSignalStress signalStress1 = new AtomSignalStress(stressSource, 1);
+            AtomSignalStress signalStress1 = new AtomSignalStress(stressSource, 0, 2);
             MeterStructureFactor meterSFacStress1 = new MeterStructureFactor(sim.box, 3, signalStress1);
-            AtomSignalStress signalStress2 = new AtomSignalStress(stressSource, 2);
+            AtomSignalStress signalStress2 = new AtomSignalStress(stressSource, 1, 2);
             MeterStructureFactor meterSFacStress2 = new MeterStructureFactor(sim.box, 3, signalStress2);
             MeterStructureFactorStress3 meterStructureFactorStress3 = new MeterStructureFactorStress3(new MeterStructureFactor[]{meterSFacStress0, meterSFacStress1, meterSFacStress2});
             pumpSFacStress = new DataPumpListener(meterStructureFactorStress3, accSFacStress, 100);

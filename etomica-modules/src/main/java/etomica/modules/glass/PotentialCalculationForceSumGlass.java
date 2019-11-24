@@ -13,15 +13,15 @@ public class PotentialCalculationForceSumGlass extends PotentialCalculationForce
 
     private final Box box;
     private boolean velIncluded = false;
-    private final double[][] stress;
+    private final double[][][] stress;
     private final Tensor stressPair;
 
     public PotentialCalculationForceSumGlass(Box box) {
         super(box.getSpace());
         this.box = box;
         int n = box.getLeafList().size();
-        int m = box.getSpace().D() == 3 ? 3 : 1;
-        stress = new double[n][m];
+        int D = box.getSpace().D();
+        stress = new double[n][D][D];
         stressPair = box.getSpace().makeTensor();
     }
 
@@ -30,7 +30,9 @@ public class PotentialCalculationForceSumGlass extends PotentialCalculationForce
         final int l = stress[0].length;
         for (int i = 0; i < stress.length; i++) {
             for (int j = 0; j < l; j++) {
-                stress[i][j] = 0;
+                for (int k = 0; k < l; k++) {
+                    stress[i][j][k] = 0;
+                }
             }
         }
     }
@@ -50,29 +52,29 @@ public class PotentialCalculationForceSumGlass extends PotentialCalculationForce
         integratorAgentManager.getAgent(atoms.get(1)).ME(f[1]);
         int idx0 = atoms.get(0).getLeafIndex();
         int idx1 = atoms.get(1).getLeafIndex();
-        stress[idx0][0] += stressPair.component(0, 1);
-        stress[idx1][0] += stressPair.component(0, 1);
-        if (f.length == 3) {
-            stress[idx0][1] += stressPair.component(0, 2);
-            stress[idx1][1] += stressPair.component(0, 2);
-            stress[idx0][2] += stressPair.component(1, 2);
-            stress[idx1][2] += stressPair.component(1, 2);
+        int D = f.length;
+        for (int i = 0; i < D; i++) {
+            for (int j = 0; j < D; j++) {
+                stress[idx0][i][j] += stressPair.component(i, j);
+                stress[idx1][i][j] += stressPair.component(i, j);
+            }
         }
     }
 
     @Override
-    public double[][] getStress() {
+    public double[][][] getStress() {
         if (!velIncluded) {
             IAtomList atoms = box.getLeafList();
+            int D = stress[0].length;
             for (int i = 0; i < atoms.size(); i++) {
                 IAtomKinetic a = (IAtomKinetic) atoms.get(i);
                 Vector velocity = a.getVelocity();
                 stressPair.Ev1v2(velocity, velocity);
                 stressPair.TE(a.getType().getMass());
-                stress[i][0] += stressPair.component(0, 1);
-                if (stress[i].length == 3) {
-                    stress[i][1] += stressPair.component(0, 2);
-                    stress[i][2] += stressPair.component(1, 2);
+                for (int j = 0; j < D; j++) {
+                    for (int k = 0; k < D; k++) {
+                        stress[i][j][k] = stress[i][j][k] / 2 + stressPair.component(j, k);
+                    }
                 }
             }
             velIncluded = true;
