@@ -102,6 +102,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         temperature = 1;
         this.solute = seed;
+        this.numSwaps= new int[101][2];
     }
 
     @Override
@@ -181,9 +182,15 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
             }
             break;
         }
+        int newbox1solute = box1.getNMolecules(solute);
+        int frac = (100*(clusterAtomsList1.size() + clusterAtomsList2.size()))/(box1.getMoleculeList().getMoleculeCount()+box2.getMoleculeList().getMoleculeCount());
+        if(box1solute!= newbox1solute)
+            ++numSwaps[frac][1];
+        ++numSwaps[frac][0];
         return true;
     }
 
+    public int[][] numSwaps;
     /**
      * Informs the move that p2 is the potential between type1 and type2.
      * type1 and type2 may the same.
