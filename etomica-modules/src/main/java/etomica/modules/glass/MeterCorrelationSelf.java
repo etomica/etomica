@@ -19,7 +19,7 @@ import java.util.Arrays;
 
 public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationStorageListener, IDataSource, DataSourceIndependent {
 
-    public enum CorrelationType {TOTAL, MAGNITUDE}
+    public enum CorrelationType {TOTAL, MAGNITUDE, MAG_DOT}
 
     protected CorrelationType correlationType;
     protected final ConfigurationStorage configStorage;
@@ -32,7 +32,7 @@ public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationS
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
     protected AtomType type;
     private IDataInfo dataInfo;
-    protected double[] dr1Sum, dr2Sum;
+    protected double[] dr1Sum, dr2Sum, dr3Sum;
 
     public MeterCorrelationSelf(ConfigurationStorage configStorage) {
         this(configStorage, CorrelationType.TOTAL);
@@ -43,7 +43,7 @@ public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationS
         this.configStorage = configStorage;
         this.correlationType = cType;
         Space space = configStorage.getBox().getSpace();
-        dr1Sum = dr2Sum = corSum = new double[0];
+        dr1Sum = dr2Sum = dr3Sum = corSum = new double[0];
         nSamples = new long[0];
 
         dr01 = space.makeVector();
@@ -61,6 +61,7 @@ public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationS
         corSum = Arrays.copyOf(corSum, n);
         dr1Sum = Arrays.copyOf(dr1Sum, n);
         dr2Sum = Arrays.copyOf(dr2Sum, n);
+        dr3Sum = Arrays.copyOf(dr3Sum, n);
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
         tData = new DataDoubleArray(new int[]{n});
@@ -104,12 +105,15 @@ public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationS
         for (int i = 0; i < y.length; i++) {
             double avg1 = dr1Sum[i] / (nSamples[i] * 2);
             double avg2 = dr2Sum[i] / (nSamples[i] * 2);
+            double avg3 = dr3Sum[i] / (nSamples[i] * 2);
             if (correlationType == CorrelationType.TOTAL) {
                 y[i] = (corSum[i] / nSamples[i]) / avg2;
             } else if (correlationType == CorrelationType.MAGNITUDE) {
                 y[i] = (corSum[i] / nSamples[i] - avg1 * avg1) /
                         (avg2 - avg1 * avg1);
 
+            } else if (correlationType == CorrelationType.MAG_DOT) {
+                y[i] = (corSum[i] / (2 * nSamples[i])) / avg3;
             }
         }
         return data;
@@ -163,9 +167,13 @@ public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationS
                     dr2Sum[j - 1] += r01sq + r12sq;
                     if (correlationType == CorrelationType.TOTAL) {
                         corSum[j - 1] += dr01.dot(dr12);
-                    } else {
+                    } else if (correlationType == CorrelationType.MAGNITUDE) {
                         dr1Sum[j - 1] += Math.sqrt(r01sq) + Math.sqrt(r12sq);
                         corSum[j - 1] += Math.sqrt(r01sq * r12sq);
+                    } else if (correlationType == CorrelationType.MAG_DOT) {
+                        double r01 = Math.sqrt(r01sq), r12 = Math.sqrt(r12sq);
+                        dr3Sum[j - 1] += r01 * r01sq + r12 * r12sq;
+                        corSum[j - 1] += (r01 + r12) * dr01.dot(dr12);
                     }
                     nSamples[j - 1]++;
                 }
