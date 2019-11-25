@@ -54,6 +54,12 @@ public class GCRestrictedGibbsHS extends Simulation {
     public GCRestrictedGibbsHS(double vf, double q, int numAtoms, boolean computeAO, double L, double GMIfac) {
         super(Space3D.getInstance());
 //        setRandom(new RandomMersenneTwister(1));
+
+        species1 = new SpeciesSpheresMono(this, space);
+        species2 = new SpeciesSpheresMono(this, space);
+        addSpecies(species1);
+        addSpecies(species2);
+
         PotentialMaster potentialMaster;
         potentialMaster = new PotentialMasterCellMixed(this, q);
 //        potentialMaster = new PotentialMasterCell(this,1,space);
@@ -61,10 +67,6 @@ public class GCRestrictedGibbsHS extends Simulation {
         PotentialMasterCell pmc = potentialMaster instanceof PotentialMasterCell ? (PotentialMasterCell) potentialMaster : null;
         mcMoveInsertDelete1 = new MCMoveInsertDelete(potentialMaster, random, space);
         mcMoveInsertDelete2 = new MCMoveInsertDelete(potentialMaster, random, space);
-        species1 = new SpeciesSpheresMono(this, space);
-        species2 = new SpeciesSpheresMono(this, space);
-        addSpecies(species1);
-        addSpecies(species2);
 
         integrator = new IntegratorRGEMC(random, space, species1);
         activityIntegrate = new ActivityIntegrate(integrator);
@@ -205,7 +207,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         long numSteps = params.numSteps;
         double vf = params.vf;
         double q = params.q;
-        boolean graphics = false;
+        boolean graphics = true;
         boolean computeAO = params.computeAO;
         double L = params.L;
         double GMIfac = params.GMIfac;
