@@ -7,6 +7,8 @@ package etomica.virial;
 import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotential;
+import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -24,13 +26,13 @@ import etomica.space.Vector;
  * <p>
  * For the target system, the function is -1.
  *
- * @author Pavan and Andrew
+ * @author Arpit, Pavan and Andrew
  */
 public class MayerHSMixture implements MayerFunction {
 
     protected final double[][] sigma2;
     protected final double[][] allVal;
-    protected Box box;
+    protected BoundaryRectangularPeriodic boundary;
     protected final Vector rij;
     protected boolean flag;
 
@@ -46,6 +48,7 @@ public class MayerHSMixture implements MayerFunction {
         sigma2 = new double[nPoints][nPoints];
         allVal = new double[nPoints][nPoints];
         rij = space.makeVector();
+        this.flag = flag;
 
         for (int i = 0; i < nPoints; i++) {
             for (int j = 0; j < nPoints; j++) {
@@ -63,11 +66,11 @@ public class MayerHSMixture implements MayerFunction {
             Vector ri = pair.getMolecule(0).getChildList().getAtom(0).getPosition();
             Vector rj = pair.getMolecule(1).getChildList().getAtom(0).getPosition();
             rij.Ev1Mv2(ri, rj);
-            box.getBoundary().nearestImage(rij);
+            boundary.nearestImage(rij);
             double rnew2 = rij.squared();
             return (rnew2 < sigma2[i][j]) ? allVal[i][j] : 0.0;
         }
-        else return (r2 < sigma2[i][j]) ? allVal[i][j] : 0.0;
+        return (r2 < sigma2[i][j]) ? allVal[i][j] : 0.0;
 
     }
 
@@ -76,6 +79,7 @@ public class MayerHSMixture implements MayerFunction {
     }
 
     public void setBox(Box newBox) {
-        box = newBox;
     }
+
+    public void setBoundary(BoundaryRectangularPeriodic newBoundary) { boundary = newBoundary; }
 }
