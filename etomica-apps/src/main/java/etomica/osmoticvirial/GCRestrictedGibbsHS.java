@@ -46,7 +46,6 @@ public class GCRestrictedGibbsHS extends Simulation {
     protected Box box1, box2;
     protected P2HardSphere potential1, potential12;
     protected Potential2 potential2;
-    protected Controller controller;
     protected ActivityIntegrate activityIntegrate;
 
     /**
@@ -101,9 +100,11 @@ public class GCRestrictedGibbsHS extends Simulation {
         integrator1 = new IntegratorMC(this, potentialMaster);
         integrator1.setBox(box1);
         MCMoveManager moveManager = integrator1.getMoveManager();
-        mcMoveInsertDelete1.setSpecies(species2);
-        mcMoveInsertDelete1.setMu(mu);
-        moveManager.addMCMove(mcMoveInsertDelete1);
+        if(vf != 0) {
+            mcMoveInsertDelete1.setSpecies(species2);
+            mcMoveInsertDelete1.setMu(mu);
+            moveManager.addMCMove(mcMoveInsertDelete1);
+        }
         moveManager.addMCMove(new MCMoveAtom(random, potentialMaster, space));
         integrator.addIntegrator(integrator1);
 
@@ -114,12 +115,13 @@ public class GCRestrictedGibbsHS extends Simulation {
         integrator2 = new IntegratorMC(this, potentialMaster);
         integrator2.setBox(box2);
         moveManager = integrator2.getMoveManager();
-        mcMoveInsertDelete2.setSpecies(species2);
-        mcMoveInsertDelete2.setMu(mu);
-        moveManager.addMCMove(mcMoveInsertDelete2);
+        if(vf != 0) {
+            mcMoveInsertDelete2.setSpecies(species2);
+            mcMoveInsertDelete2.setMu(mu);
+            moveManager.addMCMove(mcMoveInsertDelete2);
+        }
         moveManager.addMCMove(new MCMoveAtom(random, potentialMaster, space));
         integrator.addIntegrator(integrator2);
-
         AtomType leafType1 = species1.getLeafType();
         AtomType leafType2 = species2.getLeafType();
 
@@ -189,13 +191,12 @@ public class GCRestrictedGibbsHS extends Simulation {
 
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         simParams params = new simParams();
 
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
-        }
-        else {
+        } else {
             params.numAtoms = 2;
             params.numSteps = 5000000000L;
             params.vf = 0.23;
@@ -215,9 +216,9 @@ public class GCRestrictedGibbsHS extends Simulation {
         double GMIfac = params.GMIfac;
 
         System.out.println("Hard Sphere OV FEP GC");
-        System.out.println(numSteps+" steps long");
-        System.out.println("vol fraction: "+vf);
-        System.out.println("q: "+q);
+        System.out.println(numSteps + " steps long");
+        System.out.println("vol fraction: " + vf);
+        System.out.println("q: " + q);
         System.out.println("total no of solutes " + numAtoms);
         System.out.println("box length " + L);
         System.out.println("GMI factor " + GMIfac);
@@ -225,16 +226,20 @@ public class GCRestrictedGibbsHS extends Simulation {
         long t1 = System.currentTimeMillis();
 
         GCRestrictedGibbsHS sim = new GCRestrictedGibbsHS(vf, q, numAtoms, computeAO, L, GMIfac);
-
-        System.out.println("species1 " +sim.species1.getLeafType().getIndex());
-        System.out.println("species2 " +sim.species2.getLeafType().getIndex());
+        int[] seeds = sim.getRandomSeeds();
+        System.out.println("Random Seeds:");
+        for (int i = 0; i < seeds.length; ++i) {
+            System.out.println(seeds[i]);
+        }
+        System.out.println("species1 " + sim.species1.getLeafType().getIndex());
+        System.out.println("species2 " + sim.species2.getLeafType().getIndex());
 
         if (graphics) {
             final String APP_NAME = "SimHard";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
 
-            ((DiameterHashByType)simGraphic.getDisplayBox(sim.box1).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
-            ((DiameterHashByType)simGraphic.getDisplayBox(sim.box2).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
+            ((DiameterHashByType) simGraphic.getDisplayBox(sim.box1).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
+            ((DiameterHashByType) simGraphic.getDisplayBox(sim.box2).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
             simGraphic.makeAndDisplayFrame(APP_NAME);
 
 
@@ -244,7 +249,7 @@ public class GCRestrictedGibbsHS extends Simulation {
             return;
         }
 
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
+        sim.activityIntegrate.setMaxSteps(numSteps / 10);
         sim.getController().actionPerformed();
         sim.getController().reset();
         sim.activityIntegrate.setMaxSteps(numSteps);
@@ -257,7 +262,6 @@ public class GCRestrictedGibbsHS extends Simulation {
         AccumulatorAverageCovariance acc = new AccumulatorAverageCovariance(blockSize);
         MCMoveListenerRGE mcMoveListenerRGE = new MCMoveListenerRGE(acc, sim.box1, sim.species1, numAtoms);
         sim.integrator.getMoveEventManager().addListener(mcMoveListenerRGE);
-
         sim.getController().actionPerformed();
 
         System.out.println("block count " + acc.getBlockCount());
@@ -266,25 +270,31 @@ public class GCRestrictedGibbsHS extends Simulation {
         IData icor = acc.getData(acc.BLOCK_CORRELATION);
         IData icov = acc.getData(acc.BLOCK_COVARIANCE);
 
-        int n = numAtoms/2+1;
+        int n = numAtoms / 2 + 1;
 
         double[] avg = new double[n];
         double[] err = new double[n];
         double[] cor = new double[n];
 
-        for(int i=0; i<n; i++){
+        for (int i = 0; i < n; i++) {
             avg[i] = iavg.getValue(i);
             err[i] = ierr.getValue(i);
             cor[i] = icor.getValue(i);
             System.out.print(String.format("%d avg: %13.6e   err: %11.4e   cor: % 4.2f\n", i, avg[i], err[i], cor[i]));
         }
 
-        for(int i=0; i<n; i++){
-            for(int j=0; j<n; j++){
-                System.out.println("corr "+i+" "+j+" "+icov.getValue(i*n+j));
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                System.out.println("corr " + i + " " + j + " " + icov.getValue(i * n + j));
             }
         }
-
+        if (false){
+            int numSwaps[][] = sim.integrator.getMCMoveMoleculeExchange().numSwaps;
+            for (int i = 0; i < numSwaps.length; i++) {
+                if (numSwaps[i][0] > 0)
+                    System.out.println(i + " " + numSwaps[i][0] + " " + numSwaps[i][1]);
+            }
+        }
 
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)*0.001);
