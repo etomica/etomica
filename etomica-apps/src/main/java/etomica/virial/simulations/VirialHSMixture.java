@@ -28,7 +28,7 @@ import java.awt.*;
 /**
  * Calculation for virial coefficients of hard sphere mixture
  *
- * @author Pavan and Andrew
+ * @author Arpit, Pavan and Andrew
  */
 public class VirialHSMixture {
 
@@ -92,7 +92,9 @@ public class VirialHSMixture {
         }
 
         MayerHSMixture fTarget = MayerHSMixture.makeTargetF(space, nPoints, pairSigma, flag);
-        MayerFunction fRefPos = MayerHSMixture.makeReferenceF(space, nPoints, pairSigma, flag);
+        fTarget.setBoundary(new BoundaryRectangularPeriodic(space, L*sigmaB));
+        MayerHSMixture fRefPos = MayerHSMixture.makeReferenceF(space, nPoints, pairSigma, flag);
+        fRefPos.setBoundary(new BoundaryRectangularPeriodic(space, L*sigmaB));
 
         final ClusterAbstract targetCluster = new ClusterWheatleyHS(nPoints, fTarget);
         targetCluster.setTemperature(1.0);
@@ -117,6 +119,12 @@ public class VirialHSMixture {
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc, ct});
             ((ClusterWeightUmbrella) refCluster).setWeightCoefficients(new double[]{chainFrac / cc.numDiagrams(), (1 - chainFrac) / ct.numDiagrams()});
             ri = 1;
+        } else if (ref == VirialHSParam.RANDOM) {
+            System.out.println("using random particles in box reference");
+            ClusterConstant cc = new ClusterConstant(nPoints, Math.pow(1.0/L, 3.0*(nPoints-1)));
+            refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc});
+            ((ClusterWeightUmbrella) refCluster).setWeightCoefficients(new double[]{1.0});
+            ri = 1;
         } else {
             throw new RuntimeException();
         }
@@ -131,7 +139,6 @@ public class VirialHSMixture {
         final SimulationVirial sim = new SimulationVirial(space, new SpeciesSpheresMono(space, new ElementSimple("A")), 1.0, ClusterWeightAbs.makeWeightCluster(refCluster), refCluster, targetDiagrams, false);
         MeterVirialBD meter = new MeterVirialBD(sim.allValueClusters);
         meter.setBox(sim.box);
-        sim.box.setBoundary(new BoundaryRectangularPeriodic(space, L*sigmaB));
         sim.setMeter(meter);
         AccumulatorAverageFixed accumulator = new AccumulatorAverageFixed(1000);
         sim.setAccumulator(accumulator);
@@ -151,6 +158,9 @@ public class VirialHSMixture {
             MCMoveClusterAtomHSChainMix mcMoveHSC = new MCMoveClusterAtomHSChainMix(sim.getRandom(), space, pairSigma);
             sim.integrator.getMoveManager().addMCMove(mcMoveHSC);
             sim.integrator.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
+        } else if (ref == VirialHSParam.RANDOM) {
+            MCMoveClusterAtomInBox mcMoveHS = new MCMoveClusterAtomInBox(sim.getRandom(), space);
+            sim.integrator.getMoveManager().addMCMove(mcMoveHS);
         }
 
         if (false) {
@@ -259,7 +269,7 @@ public class VirialHSMixture {
     public static class VirialHSParam extends ParameterBase {
         public int nPoints = 3;
         public long numSteps = 100000000;
-        public static final int TREE = 0, CHAINS = 1, CHAIN_TAIL = 4, CHAIN_TREE = 5, CRINGS = 6, RING_TREE = 7, RINGS = 8, RING_CHAIN_TREES = 9;
+        public static final int TREE = 0, CHAINS = 1, CHAIN_TAIL = 4, CHAIN_TREE = 5, CRINGS = 6, RING_TREE = 7, RINGS = 8, RING_CHAIN_TREES = 9, RANDOM = 10;
         public int ref = CHAIN_TREE;
         public double chainFrac = 0.5;
         public double q = 0.1;
