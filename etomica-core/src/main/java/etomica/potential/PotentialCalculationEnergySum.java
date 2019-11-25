@@ -6,6 +6,7 @@ package etomica.potential;
 
 import etomica.atom.IAtomList;
 import etomica.molecule.IMoleculeList;
+import etomica.space.Vector;
 
 /**
  * Evaluates the energy summed over all iterated atoms. Each call to doCalculate
@@ -27,7 +28,11 @@ public class PotentialCalculationEnergySum implements PotentialCalculation, Pote
 	public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
 	    sum += potential.energy(atoms);
 		if (debug && (Double.isInfinite(sum) || Double.isNaN(sum))) {
-	        System.err.println("unhappy energy "+sum+" for "+atoms);
+	        System.err.println("unhappy energy "+sum+" for "+atoms+" "+atoms.getAtom(0).hashCode()+" "+atoms.getAtom(1).hashCode()+" "+" "+atoms.getAtom(0).getPosition()+" "+atoms.getAtom(1).getPosition());
+	        Vector v1 = atoms.getAtom(0).getPosition();
+			Vector v2 = atoms.getAtom(1).getPosition();
+			double distance  = Math.sqrt(v1.Mv1Squared(v2));
+			System.err.println("distance "+distance);
 	        potential.energy(atoms);
 	        debug = false;
 	    }

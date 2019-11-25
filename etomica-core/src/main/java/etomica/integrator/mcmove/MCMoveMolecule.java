@@ -28,14 +28,13 @@ import etomica.util.random.IRandom;
  */
 public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
     
-    private static final long serialVersionUID = 1L;
     protected final AtomIteratorArrayListSimple affectedAtomIterator = new AtomIteratorArrayListSimple();
     protected final MoleculeIteratorSinglet affectedMoleculeIterator = new MoleculeIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
     protected double uOld;
     protected double uNew = Double.NaN;
     protected final IRandom random;
-    protected Space space;
+    protected final Space space;
 
     protected final MoleculeChildAtomAction moveMoleculeAction;
     protected final Vector groupTranslationVector;
@@ -43,16 +42,16 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
     protected IMolecule molecule;
 
     public MCMoveMolecule(Simulation sim, PotentialMaster potentialMaster,
-                          Space _space) {
-        this(potentialMaster, sim.getRandom(), _space, 1.0, 15.0);
+                          Space space) {
+        this(potentialMaster, sim.getRandom(), space, 1.0, 15.0);
     }
     
     public MCMoveMolecule(PotentialMaster potentialMaster, IRandom random,
-                          Space _space, double stepSize,
+                          Space space, double stepSize,
                           double stepSizeMax) {
         super(potentialMaster);
         this.random = random;
-        this.space = _space;
+        this.space = space;
         moleculeSource = new MoleculeSourceRandomMolecule();
         ((MoleculeSourceRandomMolecule)moleculeSource).setRandomNumberGenerator(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
@@ -62,7 +61,7 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);
 
-        AtomActionTranslateBy translator = new AtomActionTranslateBy(_space);
+        AtomActionTranslateBy translator = new AtomActionTranslateBy(space);
         groupTranslationVector = translator.getTranslationVector();
         moveMoleculeAction = new MoleculeChildAtomAction(translator);
         
@@ -80,10 +79,14 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
         
         molecule = moleculeSource.getMolecule();
         if (molecule == null) return false;
-        energyMeter.setTarget(molecule);
-        uOld = energyMeter.getDataAsScalar();
-        if(Double.isInfinite(uOld)) {
-            throw new RuntimeException("Started with overlap");
+        if(potential.isPotentialHard()) {
+            uOld = 0.0;
+        } else {
+            energyMeter.setTarget(molecule);
+            uOld = energyMeter.getDataAsScalar();
+            if(Double.isInfinite(uOld)) {
+                throw new RuntimeException("Started with overlap");
+            }
         }
         groupTranslationVector.setRandomCube(random);
         groupTranslationVector.TE(stepSize);
@@ -92,8 +95,8 @@ public class MCMoveMolecule extends MCMoveBoxStep implements MCMoveMolecular {
     }
 
     public double getChi(double temperature) {
+        energyMeter.setTarget(molecule);
         uNew = energyMeter.getDataAsScalar();
-        //System.out.println("Translation uNew: "+uNew+ " uOld: "+uOld+" re "+energyMeter.getDataAsScalar());
         return Math.exp(-(uNew - uOld) / temperature);
     }
     
