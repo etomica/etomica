@@ -7,7 +7,8 @@ import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.*;
+import etomica.data.AccumulatorHistogram;
+import etomica.data.DataPumpListener;
 import etomica.data.histogram.HistogramSimple;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -47,14 +48,7 @@ public class AshtonWildingVirial extends Simulation {
      * @param computeDepletion whether to compute B2, B3 for depletion potential
      */
     public AshtonWildingVirial(int numAtoms, double density, boolean computeIdeal, boolean computeDepletion){
-
         super(Space3D.getInstance());
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
-        integrator = new IntegratorMC(this, potentialMaster);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        integrator.getMoveManager().addMCMove(mcMoveAtom);
 
         double sigma1 = 1.0;
 
@@ -67,6 +61,13 @@ public class AshtonWildingVirial extends Simulation {
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
+
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
+        integrator = new IntegratorMC(this, potentialMaster, box);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
+        integrator.getMoveManager().addMCMove(mcMoveAtom);
 
         System.out.println("vol "+box.getBoundary().volume());
 
@@ -94,7 +95,6 @@ public class AshtonWildingVirial extends Simulation {
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
 
-        integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
 
     }
@@ -135,7 +135,7 @@ public class AshtonWildingVirial extends Simulation {
 
         if(graphics){
             final String appName = "Ashton-Wilding";
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, appName, 3, sim.getSpace(), sim.getController());
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, appName, 3);
 
             ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species1.getLeafType(), 1);
             simGraphic.makeAndDisplayFrame(appName);

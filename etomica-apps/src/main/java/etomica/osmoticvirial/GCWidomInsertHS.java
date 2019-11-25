@@ -52,15 +52,6 @@ public class GCWidomInsertHS extends Simulation {
      */
     public GCWidomInsertHS(double vf, double q, boolean computez2z1, boolean computez3z2){
         super(Space3D.getInstance());
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
-
-        integrator = new IntegratorMC(this, potentialMaster);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
-        integrator.getMoveManager().addMCMove(mcMoveAtom);
-        integrator.getMoveManager().addMCMove(mcMoveInsertDelete);
 
         double sigma1 = 1.0; //solute
         double sigma2 = q * sigma1; //solvent
@@ -70,9 +61,18 @@ public class GCWidomInsertHS extends Simulation {
         species2 = new SpeciesSpheresMono(this, space);
         addSpecies(species1);
         addSpecies(species2);
-        box = new Box(space);
+        box = new Box(new BoundaryRectangularPeriodic(space, 4 * sigma1), space);
         addBox(box);
-        box.setBoundary(new BoundaryRectangularPeriodic(space, 4*sigma1));
+
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
+
+        integrator = new IntegratorMC(this, potentialMaster, box);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
+        mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
+        integrator.getMoveManager().addMCMove(mcMoveAtom);
+        integrator.getMoveManager().addMCMove(mcMoveInsertDelete);
 
         mcMoveInsertDelete.setSpecies(species2);
         double mu = (8*vf-9*vf*vf+3*vf*vf*vf) / Math.pow((1-vf),3)+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))); //Configurational chemical potential from Carnahan–Starling equation of state
@@ -105,7 +105,6 @@ public class GCWidomInsertHS extends Simulation {
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
 
-        integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
 
     }
@@ -162,7 +161,7 @@ public class GCWidomInsertHS extends Simulation {
 
         if (graphics) {
             final String APP_NAME = "SimHard";
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
 
             ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
             simGraphic.makeAndDisplayFrame(APP_NAME);

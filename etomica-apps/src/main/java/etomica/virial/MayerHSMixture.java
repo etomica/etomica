@@ -35,8 +35,8 @@ public class MayerHSMixture implements MayerFunction {
     protected Boundary boxBoundary;
     protected final Vector dr;
 
-    public static MayerHSMixture makeReferenceF(Space space, int nPoints, double[][] pairSigma) {
-        return new MayerHSMixture(nPoints, pairSigma, 1, true, space, null);
+    public static MayerHSMixture makeReferenceF(Space space, int nPoints, double[][] pairSigma, Boundary b) {
+        return new MayerHSMixture(nPoints, pairSigma, 1, true, space, b);
     }
 
     public static MayerHSMixture makeTargetF(Space space, int nPoints, double[][] pairSigma, Boundary b) {

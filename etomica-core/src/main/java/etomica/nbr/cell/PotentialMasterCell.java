@@ -208,7 +208,7 @@ public class PotentialMasterCell extends PotentialMasterNbr {
         }
     }
 
-    private void calculate(IAtom atom, NeighborIterator neighborIterator, PotentialCalculation pc, IteratorDirective.Direction direction) {
+    protected void calculate(IAtom atom, NeighborIterator neighborIterator, PotentialCalculation pc, IteratorDirective.Direction direction) {
         calculate1Body(atom, pc);
         NeighborCriterion[] myCriteria = criteria[atom.getType().getIndex()];
         IPotentialAtomic[] potentials = rangedPotentials[atom.getType().getIndex()];

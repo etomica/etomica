@@ -7,7 +7,10 @@ import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.*;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataPumpListener;
+import etomica.data.IData;
 import etomica.data.meter.MeterWidomInsertion;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -41,13 +44,6 @@ public class NVTWidomInsertLJ extends Simulation {
         super(Space3D.getInstance());
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this,space);
 
-        integrator = new IntegratorMC(this, potentialMaster);
-        integrator.setTemperature(temp);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        integrator.getMoveManager().addMCMove(mcMoveAtom);
-
         double sigma1 = 1.0;
         double epsilon1 = 1.0;
         double sigma12 = (sigma1+sigma2)/2;
@@ -65,6 +61,13 @@ public class NVTWidomInsertLJ extends Simulation {
         BoxInflate inflater = new BoxInflate(box,space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
+
+        integrator = new IntegratorMC(this, potentialMaster, box);
+        integrator.setTemperature(temp);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
+        integrator.getMoveManager().addMCMove(mcMoveAtom);
 
         potential1 = new P2LennardJones(space, sigma1, epsilon1);
         potential2 = new P2LennardJones(space, sigma2, epsilon2);
@@ -99,7 +102,6 @@ public class NVTWidomInsertLJ extends Simulation {
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
-        integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
 
     }
@@ -155,7 +157,7 @@ public class NVTWidomInsertLJ extends Simulation {
 
         if (graphics) {
             final String APP_NAME = "SimLJ";
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
 
             ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species2.getLeafType(), sigma2);
             simGraphic.makeAndDisplayFrame(APP_NAME);

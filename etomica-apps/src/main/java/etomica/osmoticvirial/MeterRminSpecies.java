@@ -35,8 +35,8 @@ public class MeterRminSpecies extends DataSourceScalar {
         iterator.reset();
         for (IMoleculeList pair = iterator.next(); pair != null;
              pair = iterator.next()) {
-            if (type1 != null && (pair.getMolecule(0).getType() != type1 || pair.getMolecule(1).getType() != type2)) continue;
-            dr.Ev1Mv2(pair.getMolecule(1).getChildList().getAtom(0).getPosition(),pair.getMolecule(0).getChildList().getAtom(0).getPosition());
+            if (type1 != null && (pair.get(0).getType() != type1 || pair.get(1).getType() != type2)) continue;
+            dr.Ev1Mv2(pair.get(1).getChildList().get(0).getPosition(), pair.get(0).getChildList().get(0).getPosition());
             boundary.nearestImage(dr);
             double r2 = dr.squared();
             if (rminSq > r2) rminSq = r2;

@@ -2,7 +2,6 @@ package etomica.osmoticvirial;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
@@ -16,12 +15,11 @@ import etomica.data.DataPumpListener;
 import etomica.data.histogram.HistogramSimple;
 import etomica.data.meter.MeterNMolecules;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
-import etomica.integrator.mcmove.MCMoveManager;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.listener.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.molecule.IMolecule;
 import etomica.nbr.cell.PotentialMasterCell;
@@ -33,9 +31,7 @@ import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomMersenneTwister;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
@@ -69,35 +65,34 @@ public class AshtonWildingOsmoticVirial extends Simulation {
 //      PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         PotentialMaster potentialMaster;
         if(!computeIdeal) {
-            potentialMaster = new PotentialMasterCellMixed(this, q, space);
+            potentialMaster = new PotentialMasterCellMixed(this, q);
         }
         else{
             potentialMaster = new PotentialMaster();
         }
         PotentialMasterCell pmc = potentialMaster instanceof PotentialMasterCell ? (PotentialMasterCell) potentialMaster : null;
 
-        integrator = new IntegratorMC(this, potentialMaster);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        integrator.getMoveManager().addMCMove(mcMoveAtom);
-
         double sigma1 = 1.0; //solute
         double sigma2 = q * sigma1; //solvent
         double sigma12 = (sigma1+sigma2)/2;
-
-        if (pmc != null) pmc.setCellRange(2);
-        potentialMaster.setPotentialHard(true);
 
         species1 = new SpeciesSpheresMono(this, space);
         species2 = new SpeciesSpheresMono(this, space);
         addSpecies(species1);
         addSpecies(species2);
-        box = new Box(space);
+
+        box = new Box(new BoundaryRectangularPeriodic(space, L * sigma1), space);
         addBox(box);
-        box.setBoundary(new BoundaryRectangularPeriodic(space, L*sigma1));
         box.setNMolecules(species1,numAtoms);
-        integrator.setBox(box);
+
+        integrator = new IntegratorMC(this, potentialMaster, box);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
+        integrator.getMoveManager().addMCMove(mcMoveAtom);
+
+        if (pmc != null) pmc.setCellRange(2);
+        potentialMaster.setPotentialHard(true);
 
         System.out.println("vol: "+box.getBoundary().volume());
 
@@ -176,8 +171,8 @@ public class AshtonWildingOsmoticVirial extends Simulation {
                 public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
                     double u = potential.energy(atoms);
                     if (u < Double.POSITIVE_INFINITY) return;
-                    IAtom a = atoms.getAtom(0);
-                    if (a.getType().getSpecies() == species1) a = atoms.getAtom(1);
+                    IAtom a = atoms.get(0);
+                    if (a.getType().getSpecies() == species1) a = atoms.get(1);
                     overlaps.add(a.getParentGroup());
                 }
             };
@@ -247,7 +242,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
 
         if(graphics){
             final String appName = "Ashton-Wilding";
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, appName, 3, sim.getSpace(), sim.getController());
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, appName, 3);
 
             ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species1.getLeafType(), 1);
             ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);

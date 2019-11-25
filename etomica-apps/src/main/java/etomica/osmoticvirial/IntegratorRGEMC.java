@@ -33,15 +33,15 @@ public class IntegratorRGEMC extends IntegratorManagerMC {
         if (!(newIntegrator instanceof IntegratorBox)) {
             throw new IllegalArgumentException("Sub integrators must be able to handle a box");
         }
-        if (nIntegrators == 2) {
+        if (integrators.size() == 2) {
             throw new IllegalArgumentException("Only 2 sub-integrators can be added");
         }
         super.addIntegrator(newIntegrator);
-        if (nIntegrators == 2) {
+        if (integrators.size() == 2) {
 
             mcMoveGeometricClusterRestrictedGE =
                     new MCMoveGeometricClusterRestrictedGE(((IntegratorBox) newIntegrator).getPotentialMaster(),
-                    space, random, ((IntegratorBox)integrators[0]).getBox(),((IntegratorBox)integrators[1]).getBox(), seed);
+                            space, random, ((IntegratorBox) integrators.get(0)).getBox(), ((IntegratorBox) integrators.get(1)).getBox(), seed);
             moveManager.recomputeMoveFrequencies();
             moveManager.addMCMove(mcMoveGeometricClusterRestrictedGE);
         }

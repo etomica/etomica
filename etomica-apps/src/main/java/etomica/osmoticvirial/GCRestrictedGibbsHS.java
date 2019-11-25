@@ -1,7 +1,6 @@
 package etomica.osmoticvirial;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
@@ -56,7 +55,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         super(Space3D.getInstance());
 //        setRandom(new RandomMersenneTwister(1));
         PotentialMaster potentialMaster;
-        potentialMaster = new PotentialMasterCellMixed(this, q, space);
+        potentialMaster = new PotentialMasterCellMixed(this, q);
 //        potentialMaster = new PotentialMasterCell(this,1,space);
 //        potentialMaster = new PotentialMasterMonatomic(this);
         PotentialMasterCell pmc = potentialMaster instanceof PotentialMasterCell ? (PotentialMasterCell) potentialMaster : null;
@@ -93,12 +92,10 @@ public class GCRestrictedGibbsHS extends Simulation {
 
         System.out.println("mu "+ mu+" muig "+Math.log(6*vf/(Math.PI*Math.pow(sigma2,3))));
 
-        box1 = new Box(space);
+        box1 = new Box(new BoundaryRectangularPeriodic(space, L * sigma1), space);
         addBox(box1);
-        box1.setBoundary(new BoundaryRectangularPeriodic(space, L * sigma1));
         box1.setNMolecules(species1,numAtoms/2);
-        integrator1 = new IntegratorMC(this, potentialMaster);
-        integrator1.setBox(box1);
+        integrator1 = new IntegratorMC(this, potentialMaster, box1);
         MCMoveManager moveManager = integrator1.getMoveManager();
         if(vf != 0) {
             mcMoveInsertDelete1.setSpecies(species2);
@@ -108,12 +105,10 @@ public class GCRestrictedGibbsHS extends Simulation {
         moveManager.addMCMove(new MCMoveAtom(random, potentialMaster, space));
         integrator.addIntegrator(integrator1);
 
-        box2 = new Box(space);
+        box2 = new Box(new BoundaryRectangularPeriodic(space, L * sigma1), space);
         addBox(box2);
-        box2.setBoundary(new BoundaryRectangularPeriodic(space, L * sigma1));
         box2.setNMolecules(species1,numAtoms - (numAtoms/2));
-        integrator2 = new IntegratorMC(this, potentialMaster);
-        integrator2.setBox(box2);
+        integrator2 = new IntegratorMC(this, potentialMaster, box2);
         moveManager = integrator2.getMoveManager();
         if(vf != 0) {
             mcMoveInsertDelete2.setSpecies(species2);
@@ -154,8 +149,8 @@ public class GCRestrictedGibbsHS extends Simulation {
             public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
                 double u = potential.energy(atoms);
                 if (u < Double.POSITIVE_INFINITY) return;
-                IAtom a = atoms.getAtom(0);
-                if (a.getType().getSpecies() == species1) a = atoms.getAtom(1);
+                IAtom a = atoms.get(0);
+                if (a.getType().getSpecies() == species1) a = atoms.get(1);
                 overlaps.add(a.getParentGroup());
             }
         };
@@ -236,7 +231,7 @@ public class GCRestrictedGibbsHS extends Simulation {
 
         if (graphics) {
             final String APP_NAME = "SimHard";
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3, sim.getSpace(), sim.getController());
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
 
             ((DiameterHashByType) simGraphic.getDisplayBox(sim.box1).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);
             ((DiameterHashByType) simGraphic.getDisplayBox(sim.box2).getDiameterHash()).setDiameter(sim.species2.getLeafType(), q);

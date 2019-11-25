@@ -2,22 +2,22 @@ package etomica.osmoticvirial;
 
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.liquidLJ.LjMC3D;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MCMoveGeometricClusterTest {
     private LjMC3D ljMC3D;
     private MCMoveGeometricCluster mcMoveGeometricCluster;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         ljMC3D = new LjMC3D(200,2,0.7,3);
         ljMC3D.ai.setMaxSteps(10000);
         ljMC3D.getController().actionPerformed();
-
     }
+
     @Test
     public void energyChange() throws Exception {
         mcMoveGeometricCluster = new MCMoveGeometricCluster(ljMC3D.potentialMasterCell, ljMC3D.getSpace(),
@@ -30,8 +30,6 @@ public class MCMoveGeometricClusterTest {
         double newE = meterPE.getDataAsScalar();
         double expected = newE-oldE;
         double actual = mcMoveGeometricCluster.energyChange();
-        assertEquals(expected, actual, 1e-12);
+        assertEquals(expected, actual, 2e-12);
     }
-
-
 }

@@ -9,24 +9,17 @@ import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMove;
 import etomica.molecule.IMoleculeList;
-import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.cell.PotentialMasterCellMixed;
-import etomica.potential.IPotential;
 import etomica.potential.IPotentialAtomic;
-import etomica.potential.PotentialArray;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.Species;
-import etomica.util.Arrays;
 import etomica.util.random.IRandom;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * Implementation of geometric cluster move for restricted gibbs ensemble by Liu, Luijten and Wilding.
@@ -43,7 +36,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
     protected final List<IAtom> jNeighbors, clusterAtomsList1, clusterAtomsList2;
     protected final Vector oldPosition;
     protected Vector pivot;
-    protected final Api1ACell neighbors;
+    protected final Api1ACell neighbors1, neighbors2;
     protected final AtomArrayList atomPairs;
     protected final IRandom random;
     protected IPotentialAtomic[][] potentials;
@@ -76,12 +69,12 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         clusterAtomsList2 = new ArrayList<>();
         jNeighbors = new ArrayList<>();
         if (potentialMaster instanceof PotentialMasterCell) {
-            neighbors = new Api1ACell(space.D(), ((PotentialMasterCell) potentialMaster).getRange(), ((PotentialMasterCell) potentialMaster).getCellAgentManager());
-            neighbors.setDirection(null);
             mixedPM = potentialMaster instanceof PotentialMasterCellMixed;
+            neighbors1 = new Api1ACell(((PotentialMasterCell) potentialMaster).getRange(), box1, ((PotentialMasterCell) potentialMaster).getNbrCellManager(box1));
+            neighbors2 = new Api1ACell(((PotentialMasterCell) potentialMaster).getRange(), box2, ((PotentialMasterCell) potentialMaster).getNbrCellManager(box2));
         } else {
-            neighbors = null;
             mixedPM = false;
+            neighbors1 = neighbors2 = null;
         }
         atomPairs = new AtomArrayList();
         oldPosition = space.makeVector();
@@ -113,8 +106,8 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
             box2solute = box2.getNMolecules(solute);
         }
         else{
-            box1solute = box1.getMoleculeList().getMoleculeCount();
-            box2solute = box2.getMoleculeList().getMoleculeCount();
+            box1solute = box1.getMoleculeList().size();
+            box2solute = box2.getMoleculeList().size();
         }
         double rand = random.nextDouble()*(box1solute+box2solute);
         Box boxI = rand < box1solute ? box1 : box2;
@@ -154,9 +147,9 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
                 atomPairs.add(atomJ);
                 originalBox.put(atomJ, otherBoxI);
             }
-            while(atomPairs.getAtomCount() > 0){
-                IAtom atomJ = atomPairs.remove(atomPairs.getAtomCount()-1);
-                atomI = atomPairs.remove(atomPairs.getAtomCount()-1);
+            while (atomPairs.size() > 0) {
+                IAtom atomJ = atomPairs.remove(atomPairs.size() - 1);
+                atomI = atomPairs.remove(atomPairs.size() - 1);
                 boxI = originalBox.get(atomI);
                 Box boxJ = originalBox.get(atomJ);
                 if(clusterAtoms2.contains(atomJ) || clusterAtoms1.contains(atomJ)) continue;
@@ -183,7 +176,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
             break;
         }
         int newbox1solute = box1.getNMolecules(solute);
-        int frac = (100*(clusterAtomsList1.size() + clusterAtomsList2.size()))/(box1.getMoleculeList().getMoleculeCount()+box2.getMoleculeList().getMoleculeCount());
+        int frac = (100 * (clusterAtomsList1.size() + clusterAtomsList2.size())) / (box1.getMoleculeList().size() + box2.getMoleculeList().size());
         if(box1solute!= newbox1solute)
             ++numSwaps[frac][1];
         ++numSwaps[frac][0];
@@ -205,9 +198,9 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         int maxIndex = iIndex > jIndex ? iIndex : jIndex;
         if (potentials.length <= maxIndex) {
             int oldSize = potentials.length;
-            potentials = (IPotentialAtomic[][]) Arrays.resizeArray(potentials, maxIndex + 1);
+            potentials = Arrays.copyOf(potentials, maxIndex + 1);
             for (int i = 0; i < oldSize; i++) {
-                potentials[i] = (IPotentialAtomic[]) Arrays.resizeArray(potentials[i], maxIndex + 1);
+                potentials[i] = Arrays.copyOf(potentials[i], maxIndex + 1);
             }
             for (int i = oldSize; i < potentials.length; i++) {
                 potentials[i] = new IPotentialAtomic[maxIndex + 1];
@@ -222,25 +215,19 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
         int jIndex = atomJ.getType().getIndex();
         if(potentials.length <= iIndex){
             int oldSize = potentials.length;
-            potentials = (IPotentialAtomic[][]) Arrays.resizeArray(potentials, iIndex+1);
+            potentials = Arrays.copyOf(potentials, iIndex + 1);
             for(int i=oldSize; i<potentials.length; i++){
                 potentials[i] = new IPotentialAtomic[0];
             }
         }
-        if(potentials[iIndex].length <= jIndex) potentials[iIndex] = (IPotentialAtomic[]) Arrays.resizeArray(potentials[iIndex], jIndex+1);
+        if (potentials[iIndex].length <= jIndex) potentials[iIndex] = Arrays.copyOf(potentials[iIndex], jIndex + 1);
         IPotentialAtomic p = potentials[iIndex][jIndex];
         atomPair.atom0 = atomI;
         atomPair.atom1 = atomJ;
         if(p == null) {
-            PotentialArray iPotentials = ((PotentialMasterCell)potential).getRangedPotentials(atomI.getType());
-            NeighborCriterion[] neighborCriteria = iPotentials.getCriteria();
-            IPotential[] iPotential = iPotentials.getPotentials();
-            for(int i=0; i<iPotential.length; i++){
-                if(neighborCriteria[i].accept(atomPair)) {
-                    potentials[iIndex][jIndex] = (IPotentialAtomic) iPotential[i];
-                    p = potentials[iIndex][jIndex];
-                }
-            }
+            IPotentialAtomic ijPotential = ((PotentialMasterCell) potential).getRangedPotentials()[atomI.getType().getIndex()][atomJ.getType().getIndex()];
+            potentials[iIndex][jIndex] = ijPotential;
+            p = potentials[iIndex][jIndex];
             if (p == null) {
                 throw new RuntimeException("could not find potential for atom types " + atomI.getType() + " " + atomJ.getType());
             }
@@ -249,34 +236,34 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
     }
 
     private void gatherNeighbors(IAtom atomI, Box boxI) {
-        if (neighbors != null && (!mixedPM || atomI.getType().getSpecies() != solute)) {
+        if (neighbors1 != null && (!mixedPM || atomI.getType().getSpecies() != solute)) {
+            Api1ACell neighbors = boxI == box1 ? neighbors1 : neighbors2;
             neighbors.setTarget(atomI);
-            neighbors.setBox(boxI);
             neighbors.reset();
             for (IAtomList pair = neighbors.next(); pair != null; pair = neighbors.next()) {
-                IAtom atomJ = pair.getAtom(0);
-                if (atomJ == atomI) atomJ = pair.getAtom(1);
+                IAtom atomJ = pair.get(0);
+                if (atomJ == atomI) atomJ = pair.get(1);
                 if (mixedPM && atomJ.getType().getSpecies() == solute) continue;
                 if (clusterAtoms1.contains(atomJ) || clusterAtoms2.contains(atomJ)) continue;
                 jNeighbors.add(atomJ);
             }
         }
-        if (neighbors == null || (mixedPM && atomI.getType().getSpecies() == solute)) {
+        if (neighbors1 == null || (mixedPM && atomI.getType().getSpecies() == solute)) {
             // if mixed + solute, then loop over everything
             IAtomList allAtoms = boxI.getLeafList();
             int i = atomI.getLeafIndex();
-            for (int j = 0; j < allAtoms.getAtomCount(); j++) {
+            for (int j = 0; j < allAtoms.size(); j++) {
                 if (j == i) continue;
-                IAtom atomJ = allAtoms.getAtom(j);
+                IAtom atomJ = allAtoms.get(j);
                 if (clusterAtoms1.contains(atomJ) || clusterAtoms2.contains(atomJ)) continue;
                 jNeighbors.add(atomJ);
             }
         }
-        if (neighbors != null && mixedPM && atomI.getType().getSpecies() != solute) {
+        if (neighbors1 != null && mixedPM && atomI.getType().getSpecies() != solute) {
             // if mixed + solvent, loop over only solute
             IMoleculeList soluteMolecules = boxI.getMoleculeList(solute);
-            for (int i = 0; i < soluteMolecules.getMoleculeCount(); i++) {
-                IAtom atomJ = soluteMolecules.getMolecule(i).getChildList().getAtom(0);
+            for (int i = 0; i < soluteMolecules.size(); i++) {
+                IAtom atomJ = soluteMolecules.get(i).getChildList().get(0);
                 if (clusterAtoms1.contains(atomJ) || clusterAtoms2.contains(atomJ)) continue;
                 jNeighbors.add(atomJ);
             }

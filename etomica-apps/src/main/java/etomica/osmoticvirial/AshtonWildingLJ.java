@@ -44,14 +44,7 @@ public class AshtonWildingLJ extends Simulation {
      * @param computeIdeal whether to compute histograms for ideal gas
      */
     public AshtonWildingLJ(int numAtoms, double density, boolean computeIdeal){
-
         super(Space3D.getInstance());
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
-        integrator = new IntegratorMC(this, potentialMaster);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        integrator.getMoveManager().addMCMove(mcMoveAtom);
 
         double sigma1 = 1.0;
         box = new Box(space);
@@ -63,6 +56,13 @@ public class AshtonWildingLJ extends Simulation {
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
+
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
+        integrator = new IntegratorMC(this, potentialMaster, box);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        getController().addAction(activityIntegrate);
+        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
+        integrator.getMoveManager().addMCMove(mcMoveAtom);
 
         potential = new P2LennardJones(space, sigma1, 1);
         double truncationRadius1 = 4.0*sigma1;
@@ -80,7 +80,6 @@ public class AshtonWildingLJ extends Simulation {
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         configuration.initializeCoordinates(box);
-        integrator.setBox(box);
         potentialMaster.getNbrCellManager(box).assignCellAll();
     }
 
@@ -120,7 +119,7 @@ public class AshtonWildingLJ extends Simulation {
 
         if(graphics){
             final String appName = "Ashton-Wilding";
-            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, appName, 3, sim.getSpace(), sim.getController());
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, appName, 3);
 
             ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species1.getLeafType(), 1);
             simGraphic.makeAndDisplayFrame(appName);

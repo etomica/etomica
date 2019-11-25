@@ -80,7 +80,7 @@ public class VirialHSMixtureOverlap {
         }
 
         MayerHSMixture fTarget = MayerHSMixture.makeTargetF(space, nPoints, pairSigma, null);
-        MayerFunction fRefPos = MayerHSMixture.makeReferenceF(space, nPoints, pairSigma);
+        MayerFunction fRefPos = MayerHSMixture.makeReferenceF(space, nPoints, pairSigma, null);
 
         final ClusterAbstract targetCluster = new ClusterWheatleyHS(nPoints, fTarget);
         targetCluster.setTemperature(1.0);

@@ -5,10 +5,8 @@
 package etomica.virial;
 
 import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.util.random.IRandom;
 
 /**
@@ -27,10 +25,10 @@ public class MCMoveClusterAtomInBox extends MCMoveAtom {
     public boolean doTrial() {
 
         IAtomList leafAtoms = box.getLeafList();
-        int n = box.getLeafList().getAtomCount();
+        int n = box.getLeafList().size();
         for (int i=0; i<n; i++){
-            leafAtoms.getAtom(i).getPosition().setRandomCube(random);
-            leafAtoms.getAtom(i).getPosition().TE(box.getBoundary().getBoxSize());
+            leafAtoms.get(i).getPosition().setRandomCube(random);
+            leafAtoms.get(i).getPosition().TE(box.getBoundary().getBoxSize());
         }
         ((BoxCluster)box).trialNotify();
         return true;

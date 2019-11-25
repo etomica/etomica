@@ -9,13 +9,12 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.box.BoxAgentManager;
 import etomica.molecule.IMoleculeList;
+import etomica.nbr.NeighborIterator;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculation;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.species.ISpecies;
 
 import java.util.HashMap;
@@ -39,18 +38,12 @@ public class PotentialMasterCellMixed extends PotentialMasterCell {
     protected final AtomPair pair;
     protected IteratorDirective.Direction direction;
 
-    public PotentialMasterCellMixed(Simulation sim, double range, Space _space) {
-        this(sim, range, new BoxAgentSourceCellManager(sim, null, _space), _space);
+    public PotentialMasterCellMixed(Simulation sim, double range) {
+        this(sim, range, new BoxAgentSourceCellManager(null, 1));
     }
 
-    public PotentialMasterCellMixed(Simulation sim, double range,
-                                    BoxAgentSourceCellManager boxAgentSource, Space _space) {
-        this(sim, range, boxAgentSource, new BoxAgentManager<>(boxAgentSource, NeighborCellManager.class), _space);
-    }
-
-    public PotentialMasterCellMixed(Simulation sim, double range, BoxAgentSourceCellManager boxAgentSource,
-                                    BoxAgentManager<NeighborCellManager> agentManager, Space _space) {
-        super(sim, range, boxAgentSource, agentManager, _space);
+    public PotentialMasterCellMixed(Simulation sim, double range, BoxAgentSourceCellManager boxAgentSource) {
+        super(sim, range, boxAgentSource);
         cellSpecies = new HashSet<>();
         unrangedPotentials = new HashMap<>();
         pair = new AtomPair();
@@ -105,13 +98,13 @@ public class PotentialMasterCellMixed extends PotentialMasterCell {
         super.calculate(box, id, pc);
     }
 
-    protected void calculate(IAtom atom, PotentialCalculation pc) {
+    protected void calculate(IAtom atom, NeighborIterator neighborIterator, PotentialCalculation pc, IteratorDirective.Direction direction) {
         boolean atomCells = cellSpecies.contains(atom.getType().getSpecies());
         Map<AtomType, IPotentialAtomic> pMap = unrangedPotentials.get(atom.getType());
         if (atomCells) {
             // some of the atoms interactions are handled with cell lists
             // do that now
-            super.calculate(atom, pc);
+            super.calculate(atom, neighborIterator, pc, direction);
             if (pMap == null) return;
             pair.atom0 = atom;
             for (int i = 0; i < simulation.getSpeciesCount(); i++) {
@@ -121,10 +114,10 @@ public class PotentialMasterCellMixed extends PotentialMasterCell {
                     continue;
                 }
                 IMoleculeList molecules = box.getMoleculeList(s);
-                for (int j = 0; j < molecules.getMoleculeCount(); j++) {
-                    IAtomList atoms = molecules.getMolecule(j).getChildList();
-                    for (int k = 0; k < atoms.getAtomCount(); k++) {
-                        IAtom kAtom = atoms.getAtom(k);
+                for (int j = 0; j < molecules.size(); j++) {
+                    IAtomList atoms = molecules.get(j).getChildList();
+                    for (int k = 0; k < atoms.size(); k++) {
+                        IAtom kAtom = atoms.get(k);
                         IPotentialAtomic p2 = pMap.get(kAtom.getType());
                         if (p2 == null) continue;
                         pair.atom1 = kAtom;
@@ -140,10 +133,10 @@ public class PotentialMasterCellMixed extends PotentialMasterCell {
             pair.atom0 = atom;
             int i = atom.getLeafIndex();
             int start = direction != IteratorDirective.Direction.UP ? 0 : i + 1;
-            int stop = direction != IteratorDirective.Direction.DOWN ? atoms.getAtomCount() : i;
+            int stop = direction != IteratorDirective.Direction.DOWN ? atoms.size() : i;
             for (int j = start; j < stop; j++) {
                 if (j == i) continue;
-                IAtom jAtom = atoms.getAtom(j);
+                IAtom jAtom = atoms.get(j);
                 IPotentialAtomic p2 = pMap.get(jAtom.getType());
                 if (p2 == null) continue;
                 pair.atom1 = jAtom;
