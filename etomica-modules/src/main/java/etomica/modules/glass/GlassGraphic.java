@@ -798,40 +798,6 @@ public class GlassGraphic extends SimulationGraphic {
         percMinLog2StepSlider.setValue(5);
         percMinLog2StepSlider.setLabel("log2(min time (steps))");
 
-
-        //MaxTime slider
-        DeviceSlider percMaxLog2StepSlider = new DeviceSlider(sim.getController(), new Modifier() {
-            @Override
-            public void setValue(double newValue) {
-                if (newValue == getValue()) return;
-                meterPerc.setLog2StepEnd((int) newValue);
-                configStorageMSDPerc.reset();
-            }
-
-            @Override
-            public double getValue() {
-                return meterPerc.getLog2StepEnd();
-            }
-
-            @Override
-            public Dimension getDimension() {
-                return Null.DIMENSION;
-            }
-
-            @Override
-            public String getLabel() {
-                return "log2(max time (steps))";
-            }
-        });
-        percMaxLog2StepSlider.setShowBorder(true);
-        percMaxLog2StepSlider.setShowValues(true);
-        percMaxLog2StepSlider.setNMajor(6);
-        percMaxLog2StepSlider.setMaximum(30);
-        percMaxLog2StepSlider.setMinimum(0);
-        percMaxLog2StepSlider.setValue(30);
-        percMaxLog2StepSlider.setLabel("log2(max time (steps))");
-
-
         JPanel percPanel = (JPanel) plotPerc.graphic();
         percPanel.remove(plotPerc.getPlot());
         percPanel.setLayout(new GridBagLayout());
@@ -846,8 +812,6 @@ public class GlassGraphic extends SimulationGraphic {
         percPanel.add(percDrSlider.graphic(), gbcPerc);
         gbcPerc.gridy = 1;
         percPanel.add(percMinLog2StepSlider.getPanel(), gbcPerc);
-        gbcPerc.gridy = 2;
-        percPanel.add(percMaxLog2StepSlider.graphic(), gbcPerc);
 
         DataSourcePercolation0 meterPerc0 = new DataSourcePercolation0(sim.box, sim.getRandom());
         meterPerc0.setImmFracs(new double[]{0.05, 0.1, 0.15, 0.20, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.8, 0.85, 0.9, 0.95, 1});
