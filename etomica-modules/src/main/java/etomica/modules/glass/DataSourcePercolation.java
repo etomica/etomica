@@ -7,8 +7,10 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.data.*;
+import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.math.DoubleRange;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.*;
@@ -20,15 +22,15 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
-    protected DataFunction data, immFracData;
+    protected DataFunction data, immFracData, immFracPercData;
     protected final DataFunction[] immFracDataByType;
     protected final DataFunction.DataInfoFunction[] immFracDataByTypeInfo;
-    protected DataFunction.DataInfoFunction dataInfo, immFracDataInfo;
+    protected DataFunction.DataInfoFunction dataInfo, immFracDataInfo, immFracPercDataInfo;
     protected double[] percP;
     protected long[] immFraction;
     protected long[][] immFractionByType;
     protected final int[] numAtomsByType;
-    protected final DataTag tTag, tag, immFracTag;
+    protected final DataTag tTag, tag, immFracTag, immFracPercTag;
     protected final DataTag[] immFracByTypeTag;
 
     protected long[] nSamples;
@@ -42,6 +44,8 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     protected final Vector[] r;
     protected int log2StepMin, log2StepMax;
     protected final int numTypes;
+
+    protected final HistogramNotSoSimple histogramImmPerc;
 
 
     public DataSourcePercolation(ConfigurationStorage configStorage, AtomTestDeviation atomTest, int log2StepMin, int log2StepMax) {
@@ -81,7 +85,15 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         tag = new DataTag();
         immFracTag = new DataTag();
         tTag = new DataTag();
+        immFracPercTag = new DataTag();
         r = space.makeVectorArray(numAtoms);
+        histogramImmPerc = new HistogramNotSoSimple(new DoubleRange(0, 1));
+        int nbins = histogramImmPerc.getNBins();
+        immFracPercData = new DataFunction(new int[]{nbins}, histogramImmPerc.getHistogram());
+        immFracPercDataInfo = new DataFunction.DataInfoFunction("percolation fraction", Null.DIMENSION,
+                new DataSourceIndependentSimple(histogramImmPerc.xValues(),
+                        new DataDoubleArray.DataInfoDoubleArray("immobile fraction", Null.DIMENSION, new int[]{nbins})));
+        immFracPercDataInfo.addTag(immFracPercTag);
         reset();
     }
 
@@ -154,6 +166,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         for (int i = 1; i < percP.length && i <= log2StepMax; i++) {
             int x = Math.max(1, log2StepMin);
             if (step % (1L << x) == 0) {
+                int immCount = 0;
                 for(int j = 0; j<numAtoms; j++){
                     isVisited[j] = false;
                 }
@@ -170,24 +183,21 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                     clusterSize[j][1] = 0;
                     for (int ii = firstAtom[j]; ii != -1; ii = nextAtom[ii]) {
                         clusterSize[j][1]++;
-                        immFraction[i]++;
+                        immCount++;
                         int t = atoms.get(ii).getType().getIndex();
                         immFractionByType[i][t]++;
                     }
                 }
+                immFraction[i] += immCount;
                 java.util.Arrays.sort(clusterSize, 0, nClusters, new java.util.Comparator<int[]>() {
                     public int compare(int[] a, int[] b) {
                         return Integer.compare(b[1], a[1]);
                     }
                 });
 
-
+                boolean percolated = false;
                 outer:
                 for (int j = 0; j < nClusters; j++) {
-                    if(clusterSize[j][1] > 2*numAtoms/3) {
-                        percP[i]++;
-                        break outer; //do not look for further clusters; go to next i.
-                    }
                     int c = clusterSize[j][0]; //cluster No.
                     if(clusterSize[j][1] == 1) break;
                     int a = firstAtom[c]; // a is 1st atom in cluster
@@ -206,7 +216,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                             configStorage.getBox().getBoundary().nearestImage(tmp);
                             tmp.PE(r[a]);
                             if(isVisited[b] && r[b].Mv1Squared(tmp) > 1e-8){//percolation
-                                percP[i]++;
+                                percolated = true;
                                 break outer;//
                             }
                             if(!isVisited[b]){//New nbrs
@@ -218,6 +228,8 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                         }
                     }
                 }//loop over clusters
+                histogramImmPerc.addValue(immCount / (double) numAtoms, percolated ? 1 : 0);
+                if (percolated) percP[i]++;
                 nSamples[i]++;
             }//2^i check
         }// loop over i
@@ -273,6 +285,10 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         return new ImmFractionByTypeSource(type);
     }
 
+    public PrecolationByImmFrac makePerclationByImmFracSource() {
+        return new PrecolationByImmFrac();
+    }
+
     public class ImmFractionSource implements IDataSource {
 
         @Override
@@ -326,6 +342,25 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         @Override
         public IDataInfo getDataInfo() {
             return immFracDataByTypeInfo[typeIndex];
+        }
+    }
+
+    public class PrecolationByImmFrac implements IDataSource {
+
+        @Override
+        public IData getData() {
+            histogramImmPerc.getHistogram();
+            return immFracPercData;
+        }
+
+        @Override
+        public DataTag getTag() {
+            return immFracPercTag;
+        }
+
+        @Override
+        public IDataInfo getDataInfo() {
+            return immFracPercDataInfo;
         }
     }
 

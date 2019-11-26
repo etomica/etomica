@@ -819,14 +819,18 @@ public class GlassGraphic extends SimulationGraphic {
         accPerc0.setPushInterval(1);
         DataPumpListener pumpPerc0 = new DataPumpListener(meterPerc0, accPerc0, 1000);
         DisplayPlot plotPerc0 = new DisplayPlot();
-        plotPerc0.setDoLegend(false);
         plotPerc0.setXLabel("Atom Fraction");
         plotPerc0.getPlot().setYLabel("Percolation Fraction");
         accPerc0.addDataSink(plotPerc0.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accPerc0.AVERAGE});
+        plotPerc0.setLegend(new DataTag[]{meterPerc0.getTag()}, "random");
         sim.integrator.getEventManager().addListener(pumpPerc0);
         dataStreamPumps.add(pumpPerc0);
-        plotPerc0.setLabel("Perc0");
+        plotPerc0.setLabel("perc(imm)");
         add(plotPerc0);
+        DataSourcePercolation.PrecolationByImmFrac meterImmFracPerc = meterPerc.makePerclationByImmFracSource();
+        DataPumpListener pumpImmFracPerc = new DataPumpListener(meterImmFracPerc, plotPerc0.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpImmFracPerc);
+        plotPerc0.setLegend(new DataTag[]{meterImmFracPerc.getTag()}, "immobile");
 
         DisplayPlot plotCorSelf = new DisplayPlot();
         plotCorSelf.setLabel("cor self");
