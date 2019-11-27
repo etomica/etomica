@@ -599,7 +599,7 @@ public class GlassProd {
             for (int i = 0; i < x.getLength(); i++) {
                 double xi = x.getValue(i);
                 double yi = pf.getValue(i);
-                fileWriterImmFracPerc.write(xi + " " + yi + "\n");
+                if (!Double.isNaN(yi)) fileWriterImmFracPerc.write(xi + " " + yi + "\n");
             }
             fileWriterImmFracPerc.close();
 
