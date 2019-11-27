@@ -833,10 +833,8 @@ public class GlassGraphic extends SimulationGraphic {
         plotPerc0.setLegend(new DataTag[]{meterImmFracPerc.getTag()}, "immobile");
 
         DisplayPlot plotCorSelf = new DisplayPlot();
-        plotCorSelf.setLabel("cor self");
         plotCorSelf.getPlot().setXLog(true);
         plotCorSelf.setDoLegend(true);
-        add(plotCorSelf);
 
         MeterCorrelationSelf meterCorrelationSelf = new MeterCorrelationSelf(configStorageMSD);
         configStorageMSD.addListener(meterCorrelationSelf);
@@ -868,6 +866,27 @@ public class GlassGraphic extends SimulationGraphic {
         DataPumpListener pumpCorSelfMagB = new DataPumpListener(meterCorrelationSelfMagB, plotCorSelf.getDataSet().makeDataSink(), 1000);
         plotCorSelf.setLegend(new DataTag[]{meterCorrelationSelfMagB.getTag()}, "|r|B");
         sim.integrator.getEventManager().addListener(pumpCorSelfMagB);
+
+        CorrelationSelf2 correlationSelf2 = new CorrelationSelf2(configStorageMSD, CorrelationSelf2.CorrelationType.TOTAL, 0.001, 20);
+        configStorageMSD.addListener(correlationSelf2);
+        DisplayPlot plotCorSelf2 = new DisplayPlot();
+        for (int i = 2; i < correlationSelf2.getNumDt(); i++) {
+            CorrelationSelf2.MeterCorrelationSelf2 m = correlationSelf2.makeMeter(i);
+            DataPumpListener p = new DataPumpListener(m, plotCorSelf2.getDataSet().makeDataSink(), 1000);
+            plotCorSelf2.setLegend(new DataTag[]{m.getTag()}, "" + i);
+            sim.integrator.getEventManager().addListener(p);
+        }
+
+        JPanel plotCorSelfPanel = new JPanel();
+        plotCorSelfPanel.setLayout(new BoxLayout(plotCorSelfPanel, BoxLayout.Y_AXIS));
+        plotCorSelfPanel.add(plotCorSelf.graphic());
+        plotCorSelfPanel.add(plotCorSelf2.graphic());
+        JScrollPane plotsCorSelfPane = new JScrollPane(plotCorSelfPanel);
+        java.awt.Dimension d = plotCorSelf2.getPlot().getPreferredSize();
+        d.height = 600;
+        plotsCorSelfPane.setPreferredSize(d);
+        getPanel().tabbedPane.add("cor self", plotsCorSelfPane);
+
 
         int corUpdateInterval = sim.getSpace().D() == 2 ? 10000 : 2000;
         double xCorMax = 5;
@@ -1883,7 +1902,7 @@ public class GlassGraphic extends SimulationGraphic {
         plotPMSDPanel.add(plotHistogramMSD.graphic());
         plotPMSDPanel.add(plotPMSDscatter.graphic());
         JScrollPane plotsPane = new JScrollPane(plotPMSDPanel);
-        java.awt.Dimension d = plotHistogramMSD.getPlot().getPreferredSize();
+        d = plotHistogramMSD.getPlot().getPreferredSize();
         d.height = 600;
         plotsPane.setPreferredSize(d);
         getPanel().tabbedPane.add("P cor MSD", plotsPane);
@@ -1966,9 +1985,9 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.LJ;
-            params.nA = 400;
-            params.nB = 100;
-            params.density = 1.2;
+            params.nA = 800;
+            params.nB = 200;
+            params.density = 1.25;
             params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
