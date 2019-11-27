@@ -285,8 +285,8 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         return new ImmFractionByTypeSource(type);
     }
 
-    public PrecolationByImmFrac makePerclationByImmFracSource() {
-        return new PrecolationByImmFrac();
+    public PercolationByImmFrac makePerclationByImmFracSource() {
+        return new PercolationByImmFrac();
     }
 
     public class ImmFractionSource implements IDataSource {
@@ -345,7 +345,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         }
     }
 
-    public class PrecolationByImmFrac implements IDataSource {
+    public class PercolationByImmFrac implements IDataSource {
 
         @Override
         public IData getData() {

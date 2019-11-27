@@ -827,7 +827,7 @@ public class GlassGraphic extends SimulationGraphic {
         dataStreamPumps.add(pumpPerc0);
         plotPerc0.setLabel("perc(imm)");
         add(plotPerc0);
-        DataSourcePercolation.PrecolationByImmFrac meterImmFracPerc = meterPerc.makePerclationByImmFracSource();
+        DataSourcePercolation.PercolationByImmFrac meterImmFracPerc = meterPerc.makePerclationByImmFracSource();
         DataPumpListener pumpImmFracPerc = new DataPumpListener(meterImmFracPerc, plotPerc0.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpImmFracPerc);
         plotPerc0.setLegend(new DataTag[]{meterImmFracPerc.getTag()}, "immobile");

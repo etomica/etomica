@@ -5,10 +5,7 @@ package etomica.modules.glass;
 
 import etomica.data.*;
 import etomica.data.meter.*;
-import etomica.data.types.DataDouble;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
-import etomica.data.types.DataTensor;
+import etomica.data.types.*;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.space.Vector;
@@ -382,7 +379,7 @@ public class GlassProd {
         }
 
         String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenameD, filenameFs, filenameF, filenamePerc,
-                filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameL, filenameAlpha2, filenameSq, filenameVAC;
+                filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2, filenameSq, filenameVAC;
 
         String filenamePxyAC = "";
         if(sim.potentialChoice == SimGlass.PotentialChoice.HS){
@@ -408,6 +405,7 @@ public class GlassProd {
             filenameImmFrac = String.format("immFracRho%1.3f.out", rho);
             filenameImmFracA = String.format("immFracARho%1.3f.out", rho);
             filenameImmFracB = String.format("immFracBRho%1.3f.out", rho);
+            filenameImmFracPerc = String.format("immFracPercRho%1.3f.out", rho);
             filenameAlpha2 = String.format("alpha2Rho%1.3f.out", rho);
             filenameSq = String.format("sqRho%1.3f.out",rho);
         }else{
@@ -451,6 +449,7 @@ public class GlassProd {
             filenameImmFrac = String.format("immFracRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameImmFracA = String.format("immFracARho%1.3fT%1.3f.out", rho, params.temperature);
             filenameImmFracB = String.format("immFracBRho%1.3fT%1.3f.out", rho, params.temperature);
+            filenameImmFracPerc = String.format("immFracPercRho%1.3fT%1.3f.out", rho, params.temperature);
             filenameAlpha2 = String.format("alpha2Rho%1.3fT%1.3f.out",  rho, params.temperature);
             filenamePxyAC = String.format("acPxyRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameSq = String.format("sqRho%1.3fT%1.3f.out",  rho, params.temperature);
@@ -592,6 +591,18 @@ public class GlassProd {
                 fileWriterPerc0.write(xi + " " + yi + "\n");
             }
             fileWriterPerc0.close();
+
+            FileWriter fileWriterImmFracPerc = new FileWriter(filenameImmFracPerc, false);
+            DataSourcePercolation.PercolationByImmFrac meterImmFracPerc = meterPerc.makePerclationByImmFracSource();
+            x = ((DataFunction.DataInfoFunction) meterImmFracPerc.getDataInfo()).getXDataSource().getIndependentData(0);
+            IData pf = meterImmFracPerc.getData();
+            for (int i = 0; i < x.getLength(); i++) {
+                double xi = x.getValue(i);
+                double yi = pf.getValue(i);
+                fileWriterImmFracPerc.write(xi + " " + yi + "\n");
+            }
+            fileWriterImmFracPerc.close();
+
         } catch (IOException e) {
             System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
         }
