@@ -282,10 +282,13 @@ public class GlassProd {
         meterCorrelationSelfMagB.setAtomType(sim.speciesB.getLeafType());
         configStorageMSD.addListener(meterCorrelationSelfMagB);
 
+        CorrelationSelf2 correlationSelf2 = new CorrelationSelf2(configStorageMSD, CorrelationSelf2.CorrelationType.TOTAL, 0.001, 20);
+        configStorageMSD.addListener(correlationSelf2);
+
         sim.integrator.getEventManager().addListener(configStorageMSD);
 
         //Run
-        double time0 = System.currentTimeMillis();
+        long time0 = System.nanoTime();
         sim.getController().actionPerformed();
 
         //Pressure
@@ -376,6 +379,29 @@ public class GlassProd {
             fwMagB.close();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
+        }
+
+        for (int i = 0; i < configStorageMSD.getLastConfigIndex() - 2; i++) {
+            CorrelationSelf2.MeterCorrelationSelf2 m = correlationSelf2.makeMeter(i);
+            try {
+                IData corData = m.getData();
+                boolean allNaN = true;
+                for (int j = 0; j < corData.getLength(); j++) {
+                    if (!Double.isNaN(corData.getValue(j))) allNaN = false;
+                }
+                if (allNaN) continue;
+                FileWriter fw = new FileWriter("corRSelf_t" + i + ".dat");
+                IData rData = m.getDataInfo().getXDataSource().getIndependentData(0);
+                for (int j = 0; j < rData.getLength(); j++) {
+                    double r = rData.getValue(j);
+                    double y = corData.getValue(j);
+                    if (Double.isNaN(y)) continue;
+                    fw.write(r + " " + y + "\n");
+                }
+                fw.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         }
 
         String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenameD, filenameFs, filenameF, filenamePerc,
@@ -606,13 +632,9 @@ public class GlassProd {
         } catch (IOException e) {
             System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
         }
-        double time1 = System.currentTimeMillis();
-        double sim_time = (time1-time0)/1000/3600;
-        if(sim_time > 1.0){
-            System.out.println("\ntime: " + sim_time + " hrs");
-        }else{
-            System.out.println("\ntime: " + (sim_time*60) + " mins");
-        }
+        long time1 = System.nanoTime();
+        double sim_time = (time1 - time0) / 1e9;
+        System.out.println(String.format("\ntime: %3.2f s", sim_time));
     }
 
     public static class SimParams extends SimGlass.GlassParams {

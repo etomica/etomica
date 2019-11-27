@@ -7,7 +7,9 @@ package etomica.modules.glass;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.data.*;
+import etomica.data.DataSourceIndependentSimple;
+import etomica.data.DataTag;
+import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.space.Space;
@@ -244,7 +246,7 @@ public class CorrelationSelf2 implements ConfigurationStorage.ConfigurationStora
         }
 
         @Override
-        public IData getData() {
+        public DataFunction getData() {
             DataFunction myData = data[mydt];
             if (configStorage.getLastConfigIndex() < Math.max(2, mydt + 2)) {
                 myData.E(Double.NaN);
@@ -264,7 +266,7 @@ public class CorrelationSelf2 implements ConfigurationStorage.ConfigurationStora
         }
 
         @Override
-        public IDataInfo getDataInfo() {
+        public DataFunction.DataInfoFunction getDataInfo() {
             return dataInfo[mydt];
         }
     }
