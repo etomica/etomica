@@ -4,9 +4,15 @@
 
 package etomica.data;
 
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.math.function.Function;
 import etomica.math.function.IFunction;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * AccumulatorAverage that maintains a fixed block size.
@@ -30,6 +36,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     protected IData mostRecentBlock, correlationSum, firstBlock;
     protected IData work, work2;
     protected IDataSink blockDataSink;
+    protected FileWriter blockWriter;
 
     /**
      * Default constructor sets block size to 1000 and sets the
@@ -79,6 +86,62 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     }
 
     /**
+     * Configures the accumulator to write block data to the given file.
+     * The data can be read back in later so long as the underlying data
+     * is DataDoubleArray.
+     */
+    public void setWriteBlocks(String filename) {
+        try {
+            blockWriter = new FileWriter(filename);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    /**
+     * Causes the file with block data to be closed.
+     */
+    public void closeBlockFile() {
+        if (blockWriter != null) {
+            try {
+                blockWriter.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            blockWriter = null;
+        }
+    }
+
+    /**
+     * Reads block data from the given file.  The accumulator's state (for
+     * block data) will match that when the file was last written to.
+     */
+    public void readBlockData(String filename) {
+        if (!(currentBlockAvg instanceof DataDoubleArray)) {
+            throw new RuntimeException("Can only read into DataDoubleArray");
+        }
+        try {
+            FileReader fr = new FileReader(filename);
+            BufferedReader bufReader = new BufferedReader(fr);
+            String line;
+            while ((line = bufReader.readLine()) != null) {
+                String[] bits = line.split(" ");
+                if (bits.length != mostRecentBlock.getLength()) {
+                    throw new RuntimeException("Excepted " + mostRecentBlock.getLength() + " values, but found " + bits.length + " in file " + filename);
+                }
+                double[] x = ((DataDoubleArray) currentBlockAvg).getData();
+                for (int i = 0; i < x.length; i++) {
+                    x[i] = Double.parseDouble(bits[i]);
+                }
+                doBlockSum();
+            }
+            fr.close();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    /**
      * Allows individual block data to be passed to a data sink. Each block is
      * pushed to the sink after it is complete (as determined by block size).
      *
@@ -116,6 +179,17 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
             doBlockSum();
             if (blockDataSink != null) {
                 blockDataSink.putData(mostRecentBlock);
+            }
+            if (blockWriter != null) {
+                try {
+                    for (int i = 0; i < mostRecentBlock.getLength(); i++) {
+                        if (i > 0) blockWriter.write(" ");
+                        blockWriter.write("" + mostRecentBlock.getValue(i));
+                    }
+                    blockWriter.write("\n");
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         }
         return true;
