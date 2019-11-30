@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * AccumulatorAverage that maintains a fixed block size.
@@ -36,7 +37,9 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     protected IData mostRecentBlock, correlationSum, firstBlock;
     protected IData work, work2;
     protected IDataSink blockDataSink;
-    protected FileWriter blockWriter;
+    protected String blockFilename;
+    protected double[][] savedBlockData;
+    protected int numSavedBlockData;
 
     /**
      * Default constructor sets block size to 1000 and sets the
@@ -91,25 +94,15 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
      * is DataDoubleArray.
      */
     public void setWriteBlocks(String filename) {
+        blockFilename = filename;
         try {
-            blockWriter = new FileWriter(filename);
+            // just open the file/close so that any existing file is truncated
+            new FileWriter(blockFilename, false).close();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
-    }
-
-    /**
-     * Causes the file with block data to be closed.
-     */
-    public void closeBlockFile() {
-        if (blockWriter != null) {
-            try {
-                blockWriter.close();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-            blockWriter = null;
-        }
+        numSavedBlockData = 0;
+        savedBlockData = new double[0][0];
     }
 
     /**
@@ -136,6 +129,24 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
                 doBlockSum();
             }
             fr.close();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public void writeBlockData() {
+        if (blockFilename == null) throw new RuntimeException("no block file specified");
+        try {
+            FileWriter fw = new FileWriter(blockFilename, true);
+            for (int i = 0; i < numSavedBlockData; i++) {
+                fw.write("" + savedBlockData[i][0]);
+                for (int j = 1; j < savedBlockData[i].length; j++) {
+                    fw.write(" " + savedBlockData[i][j]);
+                }
+                fw.write("\n");
+            }
+            numSavedBlockData = 0;
+            fw.close();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -177,19 +188,18 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         if (--blockCountDown == 0) {//count down to zero to determine
             // completion of block
             doBlockSum();
+            if (blockFilename != null) {
+                if (numSavedBlockData == savedBlockData.length) {
+                    savedBlockData = Arrays.copyOf(savedBlockData, numSavedBlockData + 1);
+                    savedBlockData[numSavedBlockData] = new double[mostRecentBlock.getLength()];
+                }
+                for (int i = 0; i < mostRecentBlock.getLength(); i++) {
+                    savedBlockData[numSavedBlockData][i] = mostRecentBlock.getValue(i);
+                }
+                numSavedBlockData++;
+            }
             if (blockDataSink != null) {
                 blockDataSink.putData(mostRecentBlock);
-            }
-            if (blockWriter != null) {
-                try {
-                    for (int i = 0; i < mostRecentBlock.getLength(); i++) {
-                        if (i > 0) blockWriter.write(" ");
-                        blockWriter.write("" + mostRecentBlock.getValue(i));
-                    }
-                    blockWriter.write("\n");
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
             }
         }
         return true;

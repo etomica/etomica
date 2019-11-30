@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.histogram.HistogramSimple;
@@ -32,6 +33,7 @@ import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
 import java.awt.*;
+import java.io.*;
 import java.util.Arrays;
 
 /**
@@ -52,10 +54,12 @@ public class VirialLJDU {
             params.nPoints = 5;
             params.nDer = 1;
             params.temperature = 1;
-            params.numSteps = 1000000L;
+            params.numSteps = 10000000L;
             params.doHist = false;
             params.doChainRef = true;
             params.uWeights = null;
+            params.writeRefPref = true;
+            params.restartFilename = "foo";
         }
 
         runVirial(params);
@@ -163,11 +167,14 @@ public class VirialLJDU {
             System.out.println("umbrella weights (set explicitly): " + Arrays.toString(uWeights));
         }
 
+        long refBlocksize = blockSize;
+
         if (doChainRef) {
             sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
             MCMoveClusterAtomHSChain mcMoveHSC = new MCMoveClusterAtomHSChain(sim.getRandom(), space, sigmaHSRef);
             sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
-            sim.accumulators[0].setBlockSize(1);
+            refBlocksize = Math.max(steps / (100 * 1000), 1);
+            sim.accumulators[0].setBlockSize(refBlocksize);
         }
 
         int subSteps = 1000;
@@ -222,7 +229,40 @@ public class VirialLJDU {
         sim.initRefPref(refFileName, (steps / subSteps) / 20);
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
-        sim.equilibrate(refFileName, (steps / subSteps) / 10);
+        if (params.restartFilename != null && new File(params.restartFilename).exists()) {
+            System.out.println("reading restart file " + params.restartFilename);
+            try {
+                FileReader fr = new FileReader(params.restartFilename);
+                BufferedReader br = new BufferedReader(fr);
+                double stepSize = Double.parseDouble(br.readLine());
+                sim.mcMoveTranslate[1].setStepSize(stepSize);
+                IAtomList atoms = sim.box[1].getLeafList();
+                for (int i = 1; i < nPoints; i++) {
+                    Vector p = atoms.get(i).getPosition();
+                    String[] bits = br.readLine().split(" ");
+                    for (int j = 0; j < 3; j++) {
+                        p.setX(j, Double.parseDouble(bits[j]));
+                    }
+                }
+                sim.integratorOS.readStateFromFile(br);
+                br.close();
+                sim.integrators[0].getMoveManager().setEquilibrating(false);
+                sim.integrators[1].getMoveManager().setEquilibrating(false);
+                sim.accumulators[0].readBlockData(params.restartFilename + ".ref");
+                sim.accumulators[1].readBlockData(params.restartFilename + ".target");
+                long readSteps = sim.accumulators[0].getBlockCount() * refBlocksize
+                        + sim.accumulators[1].getBlockCount() * blockSize;
+                steps -= readSteps;
+                System.out.println("read data from " + readSteps);
+                new File(params.restartFilename).delete();
+                new File(params.restartFilename + ".ref").delete();
+                new File(params.restartFilename + ".target").delete();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        } else {
+            sim.equilibrate(refFileName, (steps / subSteps) / 10);
+        }
 
         System.out.println("equilibration finished");
 
@@ -285,9 +325,42 @@ public class VirialLJDU {
             sim.integratorOS.getEventManager().addListener(progressReport);
         }
 
+        if (params.restartFilename != null) {
+            sim.accumulators[0].setWriteBlocks(params.restartFilename + ".ref");
+            sim.accumulators[1].setWriteBlocks(params.restartFilename + ".target");
+
+            IntegratorListener restartWriter = new IntegratorListener() {
+                public void integratorStepStarted(IntegratorEvent e) {
+                }
+
+                public void integratorStepFinished(IntegratorEvent e) {
+                    try {
+                        FileWriter fw = new FileWriter(params.restartFilename);
+                        fw.write(sim.mcMoveTranslate[1].getStepSize() + "\n");
+                        IAtomList atoms = sim.box[1].getLeafList();
+                        for (int i = 1; i < nPoints; i++) {
+                            Vector p = atoms.get(i).getPosition();
+                            fw.write(p.getX(0) + " " + p.getX(1) + " " + p.getX(2) + "\n");
+                        }
+                        sim.integratorOS.writeStateToFile(fw);
+                        sim.accumulators[0].writeBlockData();
+                        sim.accumulators[1].writeBlockData();
+                        fw.close();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+
+                public void integratorInitialized(IntegratorEvent e) {
+                }
+            };
+            sim.integratorOS.getEventManager().addListener(restartWriter);
+
+        }
+
         sim.integratorOS.setNumSubSteps((int) blockSize);
         sim.setAccumulatorBlockSize(blockSize);
-        if (doChainRef) sim.accumulators[0].setBlockSize(1);
+        if (doChainRef) sim.accumulators[0].setBlockSize(refBlocksize);
         sim.ai.setMaxSteps(steps / blockSize);
         for (int i = 0; i < 2; i++) {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
@@ -327,6 +400,11 @@ public class VirialLJDU {
         double timeBD = targetCluster.getTimeBD();
         System.out.println("timeBDfrac: " + timeBD / (t2 - t1) * 1e9);
         System.out.println("time: " + (t2 - t1) / 1e9);
+        if (params.restartFilename != null) {
+            new File(params.restartFilename).delete();
+            new File(params.restartFilename + ".ref").delete();
+            new File(params.restartFilename + ".target").delete();
+        }
     }
 
     /**
@@ -347,5 +425,6 @@ public class VirialLJDU {
         public double BDtol = 1e-12;
         public double[] uWeights = null;
         public int[] randomSeeds = null;
+        public String restartFilename = null;
     }
 }
