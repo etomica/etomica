@@ -5,6 +5,8 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.data.*;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.histogram.HistogramSimple;
@@ -21,6 +23,7 @@ import etomica.overlap.IntegratorOverlap;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
@@ -615,8 +618,8 @@ public class SimulationVirialOverlap2 extends Simulation {
             setAccumulatorBlockSize(oldBlockSize);
             dpVirialOverlap[0].setNumAlpha(15);
             dpVirialOverlap[1].setNumAlpha(15);
-            setRefPref(refPref,4);
-            for (int i=0; i<2; i++) {
+            setRefPref(refPref, 4);
+            for (int i = 0; i < 2; i++) {
                 integrators[i].reset();
             }
             // set refPref back to -1 so that later on we know that we've been looking for
@@ -626,13 +629,59 @@ public class SimulationVirialOverlap2 extends Simulation {
 
     }
 
+    protected void readBoxRestart(BufferedReader br, int iBox) throws IOException {
+        String[] bits = br.readLine().split(" ");
+        mcMoveTranslate[iBox].setStepSize(Double.parseDouble(bits[0]));
+        if (mcMoveRotate != null && mcMoveRotate[iBox] != null) {
+            mcMoveRotate[iBox].setStepSize(Double.parseDouble(bits[1]));
+        }
+        if (mcMoveWiggle != null && mcMoveWiggle[iBox] != null) {
+            mcMoveWiggle[iBox].setStepSize(Double.parseDouble(bits[1]));
+        }
+        IAtomList atoms = box[iBox].getLeafList();
+        for (IAtom a : atoms) {
+            Vector p = a.getPosition();
+            bits = br.readLine().split(" ");
+            for (int j = 0; j < p.getD(); j++) {
+                p.setX(j, Double.parseDouble(bits[j]));
+            }
+        }
+    }
+
+    public long readRestart(String restartFilename, boolean readRef) {
+        System.out.println("reading restart file " + restartFilename);
+        try {
+            FileReader fr = new FileReader(restartFilename);
+            BufferedReader br = new BufferedReader(fr);
+            if (readRef) {
+                readBoxRestart(br, 0);
+            }
+            readBoxRestart(br, 1);
+            integratorOS.readStateFromFile(br);
+            br.close();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        integrators[0].getMoveManager().setEquilibrating(false);
+        integrators[1].getMoveManager().setEquilibrating(false);
+        accumulators[0].readBlockData(restartFilename + ".ref");
+        accumulators[1].readBlockData(restartFilename + ".target");
+        long readSteps = accumulators[0].getBlockCount() * accumulators[0].getBlockSize()
+                + accumulators[1].getBlockCount() * accumulators[1].getBlockSize();
+        System.out.println("read data from " + readSteps + " steps");
+        new File(restartFilename).delete();
+        new File(restartFilename + ".ref").delete();
+        new File(restartFilename + ".target").delete();
+        return readSteps;
+    }
+
     public void equilibrate(String fileName, long initSteps) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
         ai.setMaxSteps(initSteps);
         long oldBlockSize = blockSize;
         // 1000 blocks
-        long newBlockSize = initSteps*integratorOS.getNumSubSteps()/1000;
+        long newBlockSize = initSteps * integratorOS.getNumSubSteps() / 1000;
         if (newBlockSize < 1000) {
             // make block size at least 1000, even if it means fewer blocks
             newBlockSize = 1000;
@@ -688,12 +737,59 @@ public class SimulationVirialOverlap2 extends Simulation {
             dvo.reset();
         }
         setAccumulatorBlockSize(oldBlockSize);
-        for (int i=0; i<2; i++) {
+        for (int i = 0; i < 2; i++) {
             integrators[i].getMoveManager().setEquilibrating(false);
         }
         if (extraTargetClusters.length > 0) {
             initBlockAccumulator();
         }
+    }
+
+    protected void writeBoxRestart(FileWriter fw, int iBox) throws IOException {
+        fw.write("" + mcMoveTranslate[iBox].getStepSize());
+        if (mcMoveRotate != null && mcMoveRotate[iBox] != null) {
+            fw.write(" " + mcMoveRotate[iBox].getStepSize());
+        }
+        if (mcMoveWiggle != null && mcMoveWiggle[iBox] != null) {
+            fw.write(" " + mcMoveWiggle[iBox].getStepSize());
+        }
+        fw.write("\n");
+        IAtomList atoms = box[iBox].getLeafList();
+        for (IAtom a : atoms) {
+            Vector p = a.getPosition();
+            fw.write(p.getX(0) + " " + p.getX(1) + " " + p.getX(2) + "\n");
+        }
+    }
+
+    public void setWriteRestart(String restartFilename, boolean writeRef) {
+        // we write ref blocks even if we're (otherwise) not writing ref
+        accumulators[0].setWriteBlocks(restartFilename + ".ref");
+        accumulators[1].setWriteBlocks(restartFilename + ".target");
+
+        IntegratorListener restartWriter = new IntegratorListener() {
+            public void integratorStepStarted(IntegratorEvent e) {
+            }
+
+            public void integratorStepFinished(IntegratorEvent e) {
+                try {
+                    FileWriter fw = new FileWriter(restartFilename);
+                    if (writeRef) {
+                        writeBoxRestart(fw, 0);
+                    }
+                    writeBoxRestart(fw, 1);
+                    integratorOS.writeStateToFile(fw);
+                    accumulators[0].writeBlockData();
+                    accumulators[1].writeBlockData();
+                    fw.close();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+
+            public void integratorInitialized(IntegratorEvent e) {
+            }
+        };
+        integratorOS.getEventManager().addListener(restartWriter);
     }
 
     public void printResults(double refIntegral) {
@@ -704,7 +800,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         double[] ratioAndError = dvo.getAverageAndError();
         double ratio = ratioAndError[0];
         double error = ratioAndError[1];
-        System.out.println("ratio average: "+ratio+" error: "+error);
+        System.out.println("ratio average: " + ratio + " error: " + error);
         System.out.println("abs average: "+ratio*refIntegral+" error: "+error*Math.abs(refIntegral));
 
         double[] alphaData = dvo.getOverlapAverageAndErrorForAlpha(dvo.getAlphaSource().getAlpha(0));

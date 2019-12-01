@@ -5,7 +5,6 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.histogram.HistogramSimple;
@@ -33,7 +32,7 @@ import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
 import java.awt.*;
-import java.io.*;
+import java.io.File;
 import java.util.Arrays;
 
 /**
@@ -227,44 +226,21 @@ public class VirialLJDU {
         String refFileName = params.writeRefPref ? "refpref" + nPoints + "_" + temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
         sim.initRefPref(refFileName, (steps / subSteps) / 20);
-        // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
-        // if it does continue looking for a pref, it will write the value to the file
-        if (params.restartFilename != null && new File(params.restartFilename).exists()) {
-            System.out.println("reading restart file " + params.restartFilename);
-            try {
-                FileReader fr = new FileReader(params.restartFilename);
-                BufferedReader br = new BufferedReader(fr);
-                double stepSize = Double.parseDouble(br.readLine());
-                sim.mcMoveTranslate[1].setStepSize(stepSize);
-                IAtomList atoms = sim.box[1].getLeafList();
-                for (int i = 1; i < nPoints; i++) {
-                    Vector p = atoms.get(i).getPosition();
-                    String[] bits = br.readLine().split(" ");
-                    for (int j = 0; j < 3; j++) {
-                        p.setX(j, Double.parseDouble(bits[j]));
-                    }
-                }
-                sim.integratorOS.readStateFromFile(br);
-                br.close();
-                sim.integrators[0].getMoveManager().setEquilibrating(false);
-                sim.integrators[1].getMoveManager().setEquilibrating(false);
-                sim.accumulators[0].readBlockData(params.restartFilename + ".ref");
-                sim.accumulators[1].readBlockData(params.restartFilename + ".target");
-                long readSteps = sim.accumulators[0].getBlockCount() * refBlocksize
-                        + sim.accumulators[1].getBlockCount() * blockSize;
-                steps -= readSteps;
-                System.out.println("read data from " + readSteps);
-                new File(params.restartFilename).delete();
-                new File(params.restartFilename + ".ref").delete();
-                new File(params.restartFilename + ".target").delete();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        } else {
-            sim.equilibrate(refFileName, (steps / subSteps) / 10);
-        }
 
-        System.out.println("equilibration finished");
+        // check for restart file and continue from there if possible
+        if (sim.getNumAlpha() == 1 && params.restartFilename != null && new File(params.restartFilename).exists()) {
+            sim.setAccumulatorBlockSize(blockSize);
+            sim.accumulators[0].setBlockSize(refBlocksize);
+            long readSteps = sim.readRestart(params.restartFilename, false);
+            steps -= readSteps;
+        } else {
+            // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
+            // if it does continue looking for a pref, it will write the value to the file
+            sim.equilibrate(refFileName, (steps / subSteps) / 10);
+            System.out.println("equilibration finished");
+            sim.setAccumulatorBlockSize(blockSize);
+            if (doChainRef) sim.accumulators[0].setBlockSize(refBlocksize);
+        }
 
         if (refFrac >= 0) {
             sim.integratorOS.setRefStepFraction(refFrac);
@@ -326,41 +302,10 @@ public class VirialLJDU {
         }
 
         if (params.restartFilename != null) {
-            sim.accumulators[0].setWriteBlocks(params.restartFilename + ".ref");
-            sim.accumulators[1].setWriteBlocks(params.restartFilename + ".target");
-
-            IntegratorListener restartWriter = new IntegratorListener() {
-                public void integratorStepStarted(IntegratorEvent e) {
-                }
-
-                public void integratorStepFinished(IntegratorEvent e) {
-                    try {
-                        FileWriter fw = new FileWriter(params.restartFilename);
-                        fw.write(sim.mcMoveTranslate[1].getStepSize() + "\n");
-                        IAtomList atoms = sim.box[1].getLeafList();
-                        for (int i = 1; i < nPoints; i++) {
-                            Vector p = atoms.get(i).getPosition();
-                            fw.write(p.getX(0) + " " + p.getX(1) + " " + p.getX(2) + "\n");
-                        }
-                        sim.integratorOS.writeStateToFile(fw);
-                        sim.accumulators[0].writeBlockData();
-                        sim.accumulators[1].writeBlockData();
-                        fw.close();
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-
-                public void integratorInitialized(IntegratorEvent e) {
-                }
-            };
-            sim.integratorOS.getEventManager().addListener(restartWriter);
-
+            sim.setWriteRestart(params.restartFilename, false);
         }
 
         sim.integratorOS.setNumSubSteps((int) blockSize);
-        sim.setAccumulatorBlockSize(blockSize);
-        if (doChainRef) sim.accumulators[0].setBlockSize(refBlocksize);
         sim.ai.setMaxSteps(steps / blockSize);
         for (int i = 0; i < 2; i++) {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
