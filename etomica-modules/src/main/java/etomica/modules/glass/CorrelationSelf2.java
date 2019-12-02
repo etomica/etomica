@@ -248,7 +248,7 @@ public class CorrelationSelf2 implements ConfigurationStorage.ConfigurationStora
         @Override
         public DataFunction getData() {
             DataFunction myData = data[mydt];
-            if (configStorage.getLastConfigIndex() < Math.max(2, mydt + 2)) {
+            if (configStorage.getLastConfigIndex() < Math.max(2, mydt + 2) || mydt >= corSum[0].length) {
                 myData.E(Double.NaN);
                 return myData;
             }
