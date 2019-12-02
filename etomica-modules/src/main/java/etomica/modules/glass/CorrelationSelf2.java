@@ -42,7 +42,7 @@ public class CorrelationSelf2 implements ConfigurationStorage.ConfigurationStora
         this.configStorage = configStorage;
         this.correlationType = cType;
         this.dr0 = dr0;
-        int ndt = 30;
+        int ndt = 60;
         data = new DataFunction[ndt];
         rData = new DataDoubleArray[ndt];
         dataInfo = new DataFunction.DataInfoFunction[ndt];
