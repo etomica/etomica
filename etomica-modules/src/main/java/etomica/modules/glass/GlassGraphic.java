@@ -1439,8 +1439,6 @@ public class GlassGraphic extends SimulationGraphic {
         plotFs.setLegend(new DataTag[]{meterFsB.getTag()}, "B");
 
 
-
-
         DeviceSlider qSlider = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
             public void setValue(double newValue) {
@@ -1481,7 +1479,6 @@ public class GlassGraphic extends SimulationGraphic {
         add(qSlider);
 
 
-
         JPanel fsPanel = (JPanel) plotFs.graphic();
         fsPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbcFs = new GridBagConstraints();
@@ -1499,17 +1496,21 @@ public class GlassGraphic extends SimulationGraphic {
         gbcFs.insets = new Insets(0, 0, 0, 0);
 
 
-
-
-
-
         meterMSD.addMSDSink(dsMSDcorP);
         DisplayPlot plotMSDcorUP = new DisplayPlot();
-        plotMSDcorUP.setLabel("MSD cor P");
+        plotMSDcorUP.getPlot().setTitle("correlation");
         plotMSDcorUP.getPlot().setXLog(true);
         plotMSDcorUP.setDoLegend(false);
         DataPumpListener pumpMSDcorP = new DataPumpListener(dsMSDcorP, plotMSDcorUP.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpMSDcorP);
+
+        DataSourceMSDcorP.DataSourceMSDcovP dsMSDcovP = dsMSDcorP.makeCov();
+        DisplayPlot plotMSDcovUP = new DisplayPlot();
+        plotMSDcovUP.getPlot().setTitle("covariance/t");
+        plotMSDcovUP.getPlot().setXLog(true);
+        plotMSDcovUP.setDoLegend(false);
+        DataPumpListener pumpMSDcovP = new DataPumpListener(dsMSDcovP, plotMSDcovUP.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpMSDcovP);
 
         if (dsMSDcorU != null) {
             meterMSD.addMSDSink(dsMSDcorU);
@@ -1866,6 +1867,7 @@ public class GlassGraphic extends SimulationGraphic {
         JPanel plotPMSDPanel = new JPanel();
         plotPMSDPanel.setLayout(new BoxLayout(plotPMSDPanel, BoxLayout.Y_AXIS));
         plotPMSDPanel.add(plotMSDcorUP.graphic());
+        plotPMSDPanel.add(plotMSDcovUP.graphic());
         DeviceSlider sliderPMSDinterval = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
             public void setValue(double newValue) {
@@ -1983,11 +1985,10 @@ public class GlassGraphic extends SimulationGraphic {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.doSwap = true;
-            params.potential = SimGlass.PotentialChoice.LJ;
-            params.nA = 800;
-            params.nB = 200;
-            params.density = 1.25;
+            params.potential = SimGlass.PotentialChoice.HS;
+            params.nA = 250;
+            params.nB = 250;
+            params.density = 1.52;
             params.D = 3;
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
