@@ -164,7 +164,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         Vector[] positions = configStorage.getSavedConfig(0);
         IAtomList atoms = configStorage.getBox().getLeafList();
         for (int i = 1; i < percP.length && i <= log2StepMax; i++) {
-            int x = Math.max(1, log2StepMin);
+            int x = Math.max(i, log2StepMin);
             if (step % (1L << x) == 0) {
                 int immCount = 0;
                 for(int j = 0; j<numAtoms; j++){
