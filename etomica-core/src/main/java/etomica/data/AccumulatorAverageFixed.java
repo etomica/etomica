@@ -95,12 +95,6 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
      */
     public void setWriteBlocks(String filename) {
         blockFilename = filename;
-        try {
-            // just open the file/close so that any existing file is truncated
-            new FileWriter(blockFilename, false).close();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
         numSavedBlockData = 0;
         savedBlockData = new double[0][0];
     }
