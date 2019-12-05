@@ -228,7 +228,8 @@ public class VirialLJDU {
         sim.initRefPref(refFileName, (steps / subSteps) / 20);
 
         // check for restart file and continue from there if possible
-        if (sim.getNumAlpha() == 1 && params.restartFilename != null && new File(params.restartFilename).exists()) {
+        File rf = params.restartFilename == null ? null : new File(params.restartFilename + ".sim");
+        if (sim.getNumAlpha() == 1 && rf != null && rf.exists() && rf.length() > 0) {
             sim.setAccumulatorBlockSize(blockSize);
             sim.accumulators[0].setBlockSize(refBlocksize);
             long readSteps = sim.readRestart(params.restartFilename, false);
@@ -346,7 +347,7 @@ public class VirialLJDU {
         System.out.println("timeBDfrac: " + timeBD / (t2 - t1) * 1e9);
         System.out.println("time: " + (t2 - t1) / 1e9);
         if (params.restartFilename != null) {
-            new File(params.restartFilename).delete();
+            new File(params.restartFilename + ".sim").delete();
             new File(params.restartFilename + ".ref").delete();
             new File(params.restartFilename + ".target").delete();
         }

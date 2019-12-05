@@ -651,7 +651,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     public long readRestart(String restartFilename, boolean readRef) {
         System.out.println("reading restart file " + restartFilename);
         try {
-            FileReader fr = new FileReader(restartFilename);
+            FileReader fr = new FileReader(restartFilename + ".sim");
             BufferedReader br = new BufferedReader(fr);
             if (readRef) {
                 readBoxRestart(br, 0);
@@ -669,7 +669,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         long readSteps = accumulators[0].getBlockCount() * accumulators[0].getBlockSize()
                 + accumulators[1].getBlockCount() * accumulators[1].getBlockSize();
         System.out.println("read data from " + readSteps + " steps");
-        new File(restartFilename).delete();
+        new File(restartFilename + ".sim").delete();
         new File(restartFilename + ".ref").delete();
         new File(restartFilename + ".target").delete();
         return readSteps;
@@ -772,7 +772,7 @@ public class SimulationVirialOverlap2 extends Simulation {
 
             public void integratorStepFinished(IntegratorEvent e) {
                 try {
-                    FileWriter fw = new FileWriter(restartFilename);
+                    FileWriter fw = new FileWriter(restartFilename + ".sim");
                     if (writeRef) {
                         writeBoxRestart(fw, 0);
                     }
