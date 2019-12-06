@@ -36,7 +36,7 @@ public class CorrelationSelf2 implements ConfigurationStorage.ConfigurationStora
     protected double[] tdr;
     protected int[] iminDr;
     protected final double dr0;
-    protected int idr;
+    protected int minInterval = 3;
 
     public CorrelationSelf2(ConfigurationStorage configStorage, CorrelationType cType, double dr0, int ndr) {
         this.configStorage = configStorage;
@@ -104,10 +104,9 @@ public class CorrelationSelf2 implements ConfigurationStorage.ConfigurationStora
         IAtomList atoms = configStorage.getBox().getLeafList();
 
         for (int j = 1; j < configStorage.getLastConfigIndex() - 1; j++) {
-            if (step2 % (1L << j) == 0) {
-//                long dt12 = step2 - configStorage.getSavedSteps()[j];
-//                long dt01 = configStorage.getSavedSteps()[j] - configStorage.getSavedSteps()[j+1];
-//                System.out.println(configStorage.getLastConfigIndex()+" "+j+" "+dt01+" "+dt12);
+            int x = Math.max(j, minInterval);
+            if (step2 % (1L << x) == 0) {
+
                 Vector[] config1 = configStorage.getSavedConfig(j);
                 Vector[] config0 = configStorage.getSavedConfig(j + 1);
                 for (int i = 0; i < config0.length; i++) {
