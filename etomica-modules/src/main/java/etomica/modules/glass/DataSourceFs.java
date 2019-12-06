@@ -15,7 +15,6 @@ import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
 
-import java.security.ProtectionDomain;
 import java.util.Arrays;
 
 /**
@@ -53,14 +52,21 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
         for (int i = 0; i < q.getD(); i++) {
             this.q.setX(i, q.getX(i));
         }
+        zeroData();
     }
 
+    public Vector getQ() {
+        return this.q;
+    }
 
-    public Vector getQ(){return  this.q;}
+    public void zeroData() {
+        Arrays.fill(fsSum, 0);
+        Arrays.fill(nSamples, 0);
+    }
 
     public void reset() {
         int n = configStorage.getLastConfigIndex();
-        if (n  == fsSum.length && data != null) return;
+        if (n == fsSum.length && data != null) return;
         if (n < 1) n = 0;
         fsSum = Arrays.copyOf(fsSum, n);
         nSamples = Arrays.copyOf(nSamples, n);

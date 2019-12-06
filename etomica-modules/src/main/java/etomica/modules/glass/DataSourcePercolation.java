@@ -94,7 +94,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                 new DataSourceIndependentSimple(histogramImmPerc.xValues(),
                         new DataDoubleArray.DataInfoDoubleArray("immobile fraction", Null.DIMENSION, new int[]{nbins})));
         immFracPercDataInfo.addTag(immFracPercTag);
-        reset();
+        reallocate();
     }
 
     public void setLog2StepStart(int newStart) {
@@ -113,14 +113,24 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         return log2StepMax;
     }
 
-    public void setNbrMax(double nbrMax) { clusterer.setNbrMax(nbrMax);}
+    public void setNbrMax(double nbrMax) {
+        clusterer.setNbrMax(nbrMax);
+    }
 
     public double getNbrMax() {
         return clusterer.getNbrMax();
     }
 
+    public void zeroData() {
+        Arrays.fill(percP, 0);
+        Arrays.fill(immFraction, 0);
+        Arrays.fill(nSamples, 0);
+        for (int i = 0; i < immFractionByType.length; i++) {
+            Arrays.fill(immFractionByType[i], 0);
+        }
+    }
 
-    public void reset() {
+    public void reallocate() {
         int n = configStorage.getLastConfigIndex();
         if (n == percP.length && data != null) return;
         if (n < 1) n = 0;
@@ -159,7 +169,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
 
     @Override
     public void newConfigruation() {
-        reset(); // reallocates if needed
+        reallocate(); // reallocates if needed
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
         IAtomList atoms = configStorage.getBox().getLeafList();

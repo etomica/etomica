@@ -80,14 +80,6 @@ public class GlassGraphic extends SimulationGraphic {
         configStorageLinear.setEnabled(false); // start isothermal
         sim.integrator.getEventManager().addListener(configStorageLinear);
 
-        ConfigurationStorage configStorageMSD = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.MSD);
-        configStorageMSD.setEnabled(false); // start isothermal
-        sim.integrator.getEventManager().addListener(configStorageMSD);
-
-        ConfigurationStorage configStorageMSDPerc = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.MSD);
-        configStorageMSDPerc.setEnabled(false); // start isothermal
-        sim.integrator.getEventManager().addListener(configStorageMSDPerc);
-
         ConfigurationStorage configStorage = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.LOG2);
         configStorage.setEnabled(false); // start isothermal
         sim.integrator.getEventManager().addListener(configStorage);
@@ -114,7 +106,7 @@ public class GlassGraphic extends SimulationGraphic {
         dbox.setDiameterHash(diameterHash);
 
         AtomTestDeviation atomFilterDeviation = new AtomTestDeviation(sim.box, configStorage);
-        AtomTestDeviation atomFilterDeviationPerc = new AtomTestDeviation(sim.box, configStorageMSDPerc);
+        AtomTestDeviation atomFilterDeviationPerc = new AtomTestDeviation(sim.box, configStorage);
 
         ColorSchemeDeviation colorSchemeDeviation = new ColorSchemeDeviation(sim.box, configStorage);
         ColorSchemeDirection colorSchemeDirection = new ColorSchemeDirection(sim.box, configStorage);
@@ -696,8 +688,8 @@ public class GlassGraphic extends SimulationGraphic {
 
 
         //Strings
-        DataSourceStrings meterStrings = new DataSourceStrings(configStorageMSD, 3, 30);
-        configStorageMSD.addListener(meterStrings);
+        DataSourceStrings meterStrings = new DataSourceStrings(configStorage, 3, 30);
+        configStorage.addListener(meterStrings);
         DisplayPlot plotStrings = new DisplayPlot();
         DataPumpListener pumpStrings = new DataPumpListener(meterStrings, plotStrings.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpStrings);
@@ -708,8 +700,8 @@ public class GlassGraphic extends SimulationGraphic {
 
         //Percolation
         atomFilterDeviationPerc.setDoMobileOnly(false);
-        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSDPerc, atomFilterDeviationPerc, 8, 30);
-        configStorageMSDPerc.addListener(meterPerc);
+        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorage, atomFilterDeviationPerc, 8, 30);
+        configStorage.addListener(meterPerc);
         DisplayPlot plotPerc = new DisplayPlot();
         DataPumpListener pumpPerc = new DataPumpListener(meterPerc, plotPerc.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpPerc);
@@ -737,9 +729,8 @@ public class GlassGraphic extends SimulationGraphic {
             @Override
             public void setValue(double newValue) {
                 if (newValue == getValue()) return;
-                configStorageMSDPerc.reset();
                 atomFilterDeviationPerc.setMinDistance(newValue);
-                meterPerc.reset(); // Needed ???
+                meterPerc.zeroData();
             }
 
             @Override
@@ -772,7 +763,6 @@ public class GlassGraphic extends SimulationGraphic {
             public void setValue(double newValue) {
                 if (newValue == getValue()) return;
                 meterPerc.setLog2StepStart((int) newValue);
-                configStorageMSDPerc.reset();
             }
 
             @Override
@@ -836,39 +826,39 @@ public class GlassGraphic extends SimulationGraphic {
         plotCorSelf.getPlot().setXLog(true);
         plotCorSelf.setDoLegend(true);
 
-        MeterCorrelationSelf meterCorrelationSelf = new MeterCorrelationSelf(configStorageMSD);
-        configStorageMSD.addListener(meterCorrelationSelf);
+        MeterCorrelationSelf meterCorrelationSelf = new MeterCorrelationSelf(configStorage);
+        configStorage.addListener(meterCorrelationSelf);
         DataPumpListener pumpCorSelf = new DataPumpListener(meterCorrelationSelf, plotCorSelf.getDataSet().makeDataSink(), 1000);
         plotCorSelf.setLegend(new DataTag[]{meterCorrelationSelf.getTag()}, "dot");
         sim.integrator.getEventManager().addListener(pumpCorSelf);
-        MeterCorrelationSelf meterCorrelationSelfA = new MeterCorrelationSelf(configStorageMSD);
+        MeterCorrelationSelf meterCorrelationSelfA = new MeterCorrelationSelf(configStorage);
         meterCorrelationSelfA.setAtomType(sim.speciesA.getLeafType());
-        configStorageMSD.addListener(meterCorrelationSelfA);
+        configStorage.addListener(meterCorrelationSelfA);
         DataPumpListener pumpCorSelfA = new DataPumpListener(meterCorrelationSelfA, plotCorSelf.getDataSet().makeDataSink(), 1000);
         plotCorSelf.setLegend(new DataTag[]{meterCorrelationSelfA.getTag()}, "dotA");
         sim.integrator.getEventManager().addListener(pumpCorSelfA);
-        MeterCorrelationSelf meterCorrelationSelfB = new MeterCorrelationSelf(configStorageMSD);
+        MeterCorrelationSelf meterCorrelationSelfB = new MeterCorrelationSelf(configStorage);
         meterCorrelationSelfB.setAtomType(sim.speciesB.getLeafType());
-        configStorageMSD.addListener(meterCorrelationSelfB);
+        configStorage.addListener(meterCorrelationSelfB);
         DataPumpListener pumpCorSelfB = new DataPumpListener(meterCorrelationSelfB, plotCorSelf.getDataSet().makeDataSink(), 1000);
         plotCorSelf.setLegend(new DataTag[]{meterCorrelationSelfB.getTag()}, "dotB");
         sim.integrator.getEventManager().addListener(pumpCorSelfB);
 
-        MeterCorrelationSelf meterCorrelationSelfMagA = new MeterCorrelationSelf(configStorageMSD, MeterCorrelationSelf.CorrelationType.MAGNITUDE);
+        MeterCorrelationSelf meterCorrelationSelfMagA = new MeterCorrelationSelf(configStorage, MeterCorrelationSelf.CorrelationType.MAGNITUDE);
         meterCorrelationSelfMagA.setAtomType(sim.speciesA.getLeafType());
-        configStorageMSD.addListener(meterCorrelationSelfMagA);
+        configStorage.addListener(meterCorrelationSelfMagA);
         DataPumpListener pumpCorSelfMagA = new DataPumpListener(meterCorrelationSelfMagA, plotCorSelf.getDataSet().makeDataSink(), 1000);
         plotCorSelf.setLegend(new DataTag[]{meterCorrelationSelfMagA.getTag()}, "|r|A");
         sim.integrator.getEventManager().addListener(pumpCorSelfMagA);
-        MeterCorrelationSelf meterCorrelationSelfMagB = new MeterCorrelationSelf(configStorageMSD, MeterCorrelationSelf.CorrelationType.MAGNITUDE);
+        MeterCorrelationSelf meterCorrelationSelfMagB = new MeterCorrelationSelf(configStorage, MeterCorrelationSelf.CorrelationType.MAGNITUDE);
         meterCorrelationSelfMagB.setAtomType(sim.speciesB.getLeafType());
-        configStorageMSD.addListener(meterCorrelationSelfMagB);
+        configStorage.addListener(meterCorrelationSelfMagB);
         DataPumpListener pumpCorSelfMagB = new DataPumpListener(meterCorrelationSelfMagB, plotCorSelf.getDataSet().makeDataSink(), 1000);
         plotCorSelf.setLegend(new DataTag[]{meterCorrelationSelfMagB.getTag()}, "|r|B");
         sim.integrator.getEventManager().addListener(pumpCorSelfMagB);
 
-        CorrelationSelf2 correlationSelf2 = new CorrelationSelf2(configStorageMSD, CorrelationSelf2.CorrelationType.TOTAL, 0.001, 20);
-        configStorageMSD.addListener(correlationSelf2);
+        CorrelationSelf2 correlationSelf2 = new CorrelationSelf2(configStorage, CorrelationSelf2.CorrelationType.TOTAL, 0.001, 20);
+        configStorage.addListener(correlationSelf2);
         DisplayPlot plotCorSelf2 = new DisplayPlot();
         for (int i = 2; i < correlationSelf2.getNumDt(); i++) {
             CorrelationSelf2.MeterCorrelationSelf2 m = correlationSelf2.makeMeter(i);
@@ -1343,8 +1333,8 @@ public class GlassGraphic extends SimulationGraphic {
         pDisplay.setAccumulator(pAccumulator);
 
         //MSD
-        DataSourceMSD meterMSD = new DataSourceMSD(configStorageMSD);
-        configStorageMSD.addListener(meterMSD);
+        DataSourceMSD meterMSD = new DataSourceMSD(configStorage);
+        configStorage.addListener(meterMSD);
         DisplayPlot plotMSD = new DisplayPlot();
         DataPumpListener pumpMSD = new DataPumpListener(meterMSD, plotMSD.getDataSet().makeDataSink(), 1000);
         plotMSD.setLegend(new DataTag[]{meterMSD.getTag()}, "total");
@@ -1353,20 +1343,20 @@ public class GlassGraphic extends SimulationGraphic {
         plotMSD.getPlot().setYLog(true);
         plotMSD.getPlot().setXLog(true);
         add(plotMSD);
-        DataSourceMSD meterMSDA = new DataSourceMSD(configStorageMSD, sim.speciesA.getLeafType());
-        configStorageMSD.addListener(meterMSDA);
+        DataSourceMSD meterMSDA = new DataSourceMSD(configStorage, sim.speciesA.getLeafType());
+        configStorage.addListener(meterMSDA);
         DataPumpListener pumpMSDA = new DataPumpListener(meterMSDA, plotMSD.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpMSDA);
         plotMSD.setLegend(new DataTag[]{meterMSDA.getTag()}, "A");
-        DataSourceMSD meterMSDB = new DataSourceMSD(configStorageMSD, sim.speciesB.getLeafType());
-        configStorageMSD.addListener(meterMSDB);
+        DataSourceMSD meterMSDB = new DataSourceMSD(configStorage, sim.speciesB.getLeafType());
+        configStorage.addListener(meterMSDB);
         DataPumpListener pumpMSDB = new DataPumpListener(meterMSDB, plotMSD.getDataSet().makeDataSink(), 1000);
         plotMSD.setLegend(new DataTag[]{meterMSDB.getTag()}, "B");
         sim.integrator.getEventManager().addListener(pumpMSDB);
 
         //VAC
-        DataSourceVAC meterVAC = new DataSourceVAC(configStorageMSD);
-        configStorageMSD.addListener(meterVAC);
+        DataSourceVAC meterVAC = new DataSourceVAC(configStorage);
+        configStorage.addListener(meterVAC);
         DisplayPlot plotVAC = new DisplayPlot();
         DataPumpListener pumpVAC = new DataPumpListener(meterVAC, plotVAC.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpVAC);
@@ -1375,8 +1365,8 @@ public class GlassGraphic extends SimulationGraphic {
         add(plotVAC);
 
 
-        DataSourceAlpha2 meterAlpha2 = new DataSourceAlpha2(configStorageMSD);
-        configStorageMSD.addListener(meterAlpha2);
+        DataSourceAlpha2 meterAlpha2 = new DataSourceAlpha2(configStorage);
+        configStorage.addListener(meterAlpha2);
         DisplayPlot plotAlpha2 = new DisplayPlot();
         DataPumpListener pumpAlpha2 = new DataPumpListener(meterAlpha2, plotAlpha2.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpAlpha2);
@@ -1386,10 +1376,9 @@ public class GlassGraphic extends SimulationGraphic {
         add(plotAlpha2);
 
 
-
         //F - new
-        DataSourceF meterF = new DataSourceF(configStorageMSD);
-        configStorageMSD.addListener(meterF);
+        DataSourceF meterF = new DataSourceF(configStorage);
+        configStorage.addListener(meterF);
         DisplayPlot plotF = new DisplayPlot();
         DataPumpListener pumpF = new DataPumpListener(meterF, plotF.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpF);
@@ -1407,9 +1396,9 @@ public class GlassGraphic extends SimulationGraphic {
         Vector qVec = sim.getSpace().makeVector();
         qVec.setX(0, qx);
 
-        DataSourceFs meterFs = new DataSourceFs(configStorageMSD);
+        DataSourceFs meterFs = new DataSourceFs(configStorage);
         meterFs.setQ(qVec);
-        configStorageMSD.addListener(meterFs);
+        configStorage.addListener(meterFs);
         DisplayPlot plotFs = new DisplayPlot();
         DataPumpListener pumpFs = new DataPumpListener(meterFs, plotFs.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpFs);
@@ -1418,18 +1407,18 @@ public class GlassGraphic extends SimulationGraphic {
         add(plotFs);
 
         //Fs: A
-        DataSourceFs meterFsA = new DataSourceFs(configStorageMSD);
+        DataSourceFs meterFsA = new DataSourceFs(configStorage);
         meterFsA.setQ(qVec);
         meterFsA.setAtomType(sim.speciesA.getLeafType());
-        configStorageMSD.addListener(meterFsA);
+        configStorage.addListener(meterFsA);
         DataPumpListener pumpFsA = new DataPumpListener(meterFsA, plotFs.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpFsA);
 
         //Fs: B
-        DataSourceFs meterFsB = new DataSourceFs(configStorageMSD);
+        DataSourceFs meterFsB = new DataSourceFs(configStorage);
         meterFsB.setQ(qVec);
         meterFsB.setAtomType(sim.speciesB.getLeafType());
-        configStorageMSD.addListener(meterFsB);
+        configStorage.addListener(meterFsB);
         DataPumpListener pumpFsB = new DataPumpListener(meterFsB, plotFs.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpFsB);
 
@@ -1447,7 +1436,6 @@ public class GlassGraphic extends SimulationGraphic {
                 meterFs.setQ(qVec);
                 meterFsA.setQ(qVec);
                 meterFsB.setQ(qVec);
-                configStorageMSD.reset();
                 meterFs.reset();
                 meterFsA.reset();
                 meterFsB.reset();
@@ -1585,7 +1573,7 @@ public class GlassGraphic extends SimulationGraphic {
         MeterStructureFactor[] meterSFacMobility = new MeterStructureFactor[30];
         DataDump[] dumpSFacMobility = new DataDump[30];
         for (int i = 0; i < 30; i++) {
-            AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
+            AtomSignalMobility signalMobility = new AtomSignalMobility(configStorage);
             signalMobility.setPrevConfig(i + 1);
             meterSFacMobility[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
             DataFork forkSFacMobility = new DataFork();
@@ -1593,9 +1581,9 @@ public class GlassGraphic extends SimulationGraphic {
             accSFacMobility.setPushInterval(1);
             DataPump pumpSFacMobility = new DataPump(meterSFacMobility[i], forkSFacMobility);
             forkSFacMobility.addDataSink(accSFacMobility);
-            ConfigurationStoragePumper cspMobility = new ConfigurationStoragePumper(pumpSFacMobility, configStorageMSD);
+            ConfigurationStoragePumper cspMobility = new ConfigurationStoragePumper(pumpSFacMobility, configStorage);
             cspMobility.setPrevConfig(Math.max(i + 1, 5));
-            configStorageMSD.addListener(cspMobility);
+            configStorage.addListener(cspMobility);
             dataStreamPumps.add(pumpSFacMobility);
             dumpSFacMobility[i] = new DataDump();
             accSFacMobility.addDataSink(dumpSFacMobility[i], new AccumulatorAverage.StatType[]{accSFacMobility.AVERAGE});
@@ -1722,11 +1710,7 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageLinear.setEnabled(false);
                     configStorage.reset();
                     configStorage.setEnabled(false);
-                    configStorageMSD.reset();
-                    configStorageMSD.setEnabled(false);
-                    configStorageMSDPerc.reset();
-                    configStorageMSDPerc.setEnabled(false);
-                    meterPerc.reset();
+                    meterPerc.reallocate();
                     dsMSDcorP.setEnabled(false);
                     dsHistogramP.setEnabled(false);
                     dsPMSDhistory.setEnabled(false);
@@ -1765,11 +1749,7 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageLinear.setEnabled(true);
                     configStorage.reset();
                     configStorage.setEnabled(true);
-                    configStorageMSD.reset();
-                    configStorageMSD.setEnabled(true);
-                    configStorageMSDPerc.reset();
-                    configStorageMSDPerc.setEnabled(true);
-                    meterPerc.reset();
+                    meterPerc.reallocate();
                     dsMSDcorP.setEnabled(true);
                     dsHistogramP.setEnabled(true);
                     dsPMSDhistory.setEnabled(true);
@@ -1840,8 +1820,6 @@ public class GlassGraphic extends SimulationGraphic {
         }
         configStorage.reset();
         configStorageLinear.reset();
-        configStorageMSD.reset();
-        configStorageMSDPerc.reset();
         dbox.repaint();
 
         IAction resetAction = new IAction() {
