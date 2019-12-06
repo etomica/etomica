@@ -1438,9 +1438,6 @@ public class GlassGraphic extends SimulationGraphic {
                 meterFs.setQ(qVec);
                 meterFsA.setQ(qVec);
                 meterFsB.setQ(qVec);
-                meterFs.reset();
-                meterFsA.reset();
-                meterFsB.reset();
                 dbox.repaint();
             }
 
