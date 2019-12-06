@@ -87,7 +87,7 @@ public class DataSourceAlpha2 implements IDataSource, ConfigurationStorage.Confi
         for (int i = 0; i < configStorage.getLastConfigIndex(); i++) {
             int x = Math.max(i, minInterval);
             if (step % (1L << x) == 0) {
-                if (i <= msdSum.length) reallocate(i + 1);
+                if (i >= msdSum.length) reallocate(i + 1);
                 Vector[] iPositions = configStorage.getSavedConfig(i + 1);
                 for (int j = 0; j < positions.length; j++) {
                     double d2 = positions[j].Mv1Squared(iPositions[j]);
