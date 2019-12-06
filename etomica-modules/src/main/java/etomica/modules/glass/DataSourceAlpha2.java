@@ -34,14 +34,10 @@ public class DataSourceAlpha2 implements IDataSource, ConfigurationStorage.Confi
         nSamples = new long[0];
         tag = new DataTag();
         tTag = new DataTag();
-        reset();
+        reallocate(0);
     }
 
-    public void reset() {
-        int n = configStorage.getLastConfigIndex();
-        if (n + 1 == msdSum.length && data != null) return;
-        if (n < 1) n = 0;
-        else n--;
+    public void reallocate(int n) {
         msdSum = Arrays.copyOf(msdSum, n);
         m4dSum = Arrays.copyOf(m4dSum, n);
         nSamples = Arrays.copyOf(nSamples, n);
@@ -86,12 +82,12 @@ public class DataSourceAlpha2 implements IDataSource, ConfigurationStorage.Confi
 
     @Override
     public void newConfigruation() {
-        reset(); // reallocates if needed
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
         for (int i = 0; i < configStorage.getLastConfigIndex(); i++) {
             int x = Math.max(i, minInterval);
             if (step % (1L << x) == 0) {
+                if (i <= msdSum.length) reallocate(i + 1);
                 Vector[] iPositions = configStorage.getSavedConfig(i + 1);
                 for (int j = 0; j < positions.length; j++) {
                     double d2 = positions[j].Mv1Squared(iPositions[j]);
