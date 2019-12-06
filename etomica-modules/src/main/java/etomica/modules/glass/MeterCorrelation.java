@@ -81,7 +81,6 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
 
     public void setMinPrevSample(int idx) {
         minPrevSample = idx;
-        reallocate(0);
     }
 
     public int getMinPrevSample() {
@@ -218,12 +217,12 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
             idxProd = type1.getIndex() * type2.getIndex();
         }
 
-        for (int j = minPrevSample; j < configStorage.getLastConfigIndex(); j++) {
-            if (step % (1L << j) == 0) {
-                int jj = j - minPrevSample;
-                if (j >= minPrevSample + gSum.length) reallocate(jj + 1);
+        for (int j = 0; j < configStorage.getLastConfigIndex(); j++) {
+            int x = Math.max(j, minPrevSample);
+            if (step % (1L << x) == 0) {
+                if (j >= gSum.length) reallocate(j + 1);
 
-                Vector[] configPrev = configStorage.getSavedConfig(j);
+                Vector[] configPrev = configStorage.getSavedConfig(j + 1);
                 for (int i = 0; i < config0.length; i++) {
                     IAtom iAtom = atoms.get(i);
                     if (type1 != null && (iAtom.getType() != type1 && iAtom.getType() != type2)) continue;
@@ -233,14 +232,14 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
                     dri.Ev1Mv2(ir0, irPrev);
                     double dri2 = dri.squared();
                     if (type1 == null || iAtom.getType() == type1) {
-                        dr2SumA[jj] += dri2;
-                        dr2CountA[jj]++;
-                        if (correlationType == CorrelationType.MAGNITUDE) dr1SumA[jj] += Math.sqrt(dri2);
+                        dr2SumA[j] += dri2;
+                        dr2CountA[j]++;
+                        if (correlationType == CorrelationType.MAGNITUDE) dr1SumA[j] += Math.sqrt(dri2);
                     }
                     if (type2 == null || iAtom.getType() == type2) {
-                        dr2SumB[jj] += dri2;
-                        dr2CountB[jj]++;
-                        if (correlationType == CorrelationType.MAGNITUDE) dr1SumB[jj] += Math.sqrt(dri2);
+                        dr2SumB[j] += dri2;
+                        dr2CountB[j]++;
+                        if (correlationType == CorrelationType.MAGNITUDE) dr1SumB[j] += Math.sqrt(dri2);
                     }
                     for (int k = i + 1; k < config0.length; k++) {
                         IAtom kAtom = atoms.get(k);
@@ -256,11 +255,11 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
                             Vector krPrev = configPrev[k];
                             drk.Ev1Mv2(kr0, krPrev);
                             int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
-                            gSum[jj][index]++;                        //add once for each atom
+                            gSum[j][index]++;                        //add once for each atom
                             if (correlationType == CorrelationType.TOTAL) {
-                                corSum[jj][index] += dri.dot(drk);
+                                corSum[j][index] += dri.dot(drk);
                             } else if (correlationType == CorrelationType.MAGNITUDE) {
-                                corSum[jj][index] += Math.sqrt(dri2 * drk.squared());
+                                corSum[j][index] += Math.sqrt(dri2 * drk.squared());
                             } else {
                                 tmp.Ea1Tv1(drk.dot(dr) / r2, dr);
                                 if (correlationType == CorrelationType.PERPENDICULAR) {
@@ -272,7 +271,7 @@ public class MeterCorrelation implements ConfigurationStorage.ConfigurationStora
                                 if (correlationType == CorrelationType.PERPENDICULAR) {
                                     tmp.Ev1Mv2(dri, tmp);
                                 }
-                                corSum[jj][index] += tmp.dot(drk);
+                                corSum[j][index] += tmp.dot(drk);
                             }
                         }
                     }
