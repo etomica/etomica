@@ -14,6 +14,10 @@ import etomica.util.ParseArgs;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 public class GlassProd {
     public static void main(String[] args) {
         SimParams params = new SimParams();
@@ -155,6 +159,8 @@ public class GlassProd {
         //MSD
         ConfigurationStorage configStorageMSD = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.MSD);
         configStorageMSD.setEnabled(true);
+        ConfigurationStorage configStorageMSD3 = new ConfigurationStorage(sim.box, ConfigurationStorage.StorageType.MSD, 60, 3);
+        configStorageMSD3.setEnabled(true);
         DataSourceMSD meterMSD = new DataSourceMSD(configStorageMSD);
         configStorageMSD.addListener(meterMSD);
 
@@ -183,12 +189,15 @@ public class GlassProd {
         atomFilterDeviation.setMinDistance(params.minDrFilter);
         atomFilterDeviation.setDoMobileOnly(false);
         DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSD, atomFilterDeviation, params.log2StepMin, 30);
+        configStorageMSD.addListener(meterPerc);
 
         //Immobile fraction
-        configStorageMSD.addListener(meterPerc);
-        DataSourcePercolation.ImmFractionSource meterImmFraction = meterPerc.makeImmFractionSource();
-        DataSourcePercolation.ImmFractionByTypeSource meterImmFractionA = meterPerc.makeImmFractionSource(sim.speciesA.getLeafType());
-        DataSourcePercolation.ImmFractionByTypeSource meterImmFractionB = meterPerc.makeImmFractionSource(sim.speciesB.getLeafType());
+
+        AtomTestDeviation atomFilterDeviation3 = new AtomTestDeviation(sim.box, configStorageMSD3);
+        atomFilterDeviation3.setMinDistance(params.minDrFilter);
+        atomFilterDeviation3.setDoMobileOnly(false);
+        DataSourcePercolation meterPerc3 = new DataSourcePercolation(configStorageMSD3, atomFilterDeviation3, params.log2StepMin, 30);
+        configStorageMSD3.addListener(meterPerc3);
 
         DataSourcePercolation0 meterPerc0 = new DataSourcePercolation0(sim.box, sim.getRandom());
         meterPerc0.setImmFracs(new double[]{0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.55, 0.65, 0.75, 0.85, 1});
@@ -285,6 +294,7 @@ public class GlassProd {
         CorrelationSelf2 correlationSelf2 = new CorrelationSelf2(configStorageMSD, CorrelationSelf2.CorrelationType.TOTAL, 0.001, 20);
         configStorageMSD.addListener(correlationSelf2);
 
+        sim.integrator.getEventManager().addListener(configStorageMSD3);
         sim.integrator.getEventManager().addListener(configStorageMSD);
 
         //Run
@@ -300,111 +310,7 @@ public class GlassProd {
         double pErr  = dataPErr.getValue(0);
         double pCorr = dataPCorr.getValue(0);
 
-        for (int i = gsMinConfig; i < configStorageMSD.getLastConfigIndex() - 1; i++) {
-            meterGs.setConfigIndex(i);
-            meterGsA.setConfigIndex(i);
-            meterGsB.setConfigIndex(i);
-            try {
-                FileWriter fw = new FileWriter("Gs_t" + i + ".dat");
-                FileWriter fwA = new FileWriter("GsA_t" + i + ".dat");
-                FileWriter fwB = new FileWriter("GsB_t" + i + ".dat");
-                IData rData = meterGs.getIndependentData(0);
-                IData data = meterGs.getData();
-                IData dataA = meterGsA.getData();
-                IData dataB = meterGsB.getData();
-                for (int j = 0; j < rData.getLength(); j++) {
-                    double r = rData.getValue(j);
-                    fw.write(r + " " + data.getValue(j) + "\n");
-                    fwA.write(r + " " + dataA.getValue(j) + "\n");
-                    fwB.write(r + " " + dataB.getValue(j) + "\n");
-                }
-                fw.close();
-                fwA.close();
-                fwB.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        for (int i = 0; i < accSFacMobility.length; i++) {
-            try {
-                if (accSFacMobility[i].getSampleCount() <= 2) break;
-                FileWriter fw = new FileWriter("sfacMobility" + (i + sfacMobilityOffset) + ".dat");
-                IData xData = meterSFacMobility[i].getIndependentData(0);
-                IData yData = accSFacMobility[i].getData(accSFacMobility[i].AVERAGE);
-                for (int j = 0; j < xData.getLength(); j++) {
-                    double x = xData.getValue(j);
-                    double y = yData.getValue(j);
-                    fw.write(x + " " + y + "\n");
-                }
-                fw.close();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
-
-        try {
-            FileWriter fw = new FileWriter("sfacStress.dat");
-            IData xData = meterSFacStress0.getIndependentData(0);
-            IData yData = accSFacStress.getData(accSFacStress.AVERAGE);
-            for (int j = 0; j < xData.getLength(); j++) {
-                double x = xData.getValue(j);
-                double y = yData.getValue(j);
-                fw.write(x + " " + y + "\n");
-            }
-            fw.close();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-
-
-        try {
-            FileWriter fw = new FileWriter("corSelf.dat");
-            FileWriter fwMagA = new FileWriter("corSelfMagA.dat");
-            FileWriter fwMagB = new FileWriter("corSelfMagB.dat");
-            IData tData = meterCorrelationSelf.getIndependentData(0);
-            IData corData = meterCorrelationSelf.getData();
-            IData corMagDataA = meterCorrelationSelfMagA.getData();
-            IData corMagDataB = meterCorrelationSelfMagB.getData();
-            for (int i = 0; i < tData.getLength(); i++) {
-                double t = tData.getValue(i);
-                double y = corData.getValue(i);
-                if (Double.isNaN(y)) continue;
-                fw.write(t + " " + y + "\n");
-                fwMagA.write(t + " " + corMagDataA.getValue(i) + "\n");
-                fwMagB.write(t + " " + corMagDataB.getValue(i) + "\n");
-            }
-            fw.close();
-            fwMagA.close();
-            fwMagB.close();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-
-        for (int i = 0; i < configStorageMSD.getLastConfigIndex() - 2; i++) {
-            CorrelationSelf2.MeterCorrelationSelf2 m = correlationSelf2.makeMeter(i);
-            try {
-                IData corData = m.getData();
-                boolean allNaN = true;
-                for (int j = 0; j < corData.getLength(); j++) {
-                    if (!Double.isNaN(corData.getValue(j))) allNaN = false;
-                }
-                if (allNaN) continue;
-                FileWriter fw = new FileWriter("corRSelf_t" + i + ".dat");
-                IData rData = m.getDataInfo().getXDataSource().getIndependentData(0);
-                for (int j = 0; j < rData.getLength(); j++) {
-                    double r = rData.getValue(j);
-                    double y = corData.getValue(j);
-                    if (Double.isNaN(y)) continue;
-                    fw.write(r + " " + y + "\n");
-                }
-                fw.close();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
-
-        String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenameD, filenameFs, filenameF, filenamePerc,
+        String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenameFs, filenamePerc,
                 filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2, filenameSq, filenameVAC;
 
         String filenamePxyAC = "";
@@ -421,10 +327,8 @@ public class GlassProd {
             filenameMSD = String.format("msdRho%1.3f.out", rho);
             filenameMSDA = String.format("msdARho%1.3f.out", rho);
             filenameMSDB = String.format("msdBRho%1.3f.out", rho);
-            filenameD = String.format("dRho%1.3f.out", rho);
             filenameVAC = String.format("vacRho%1.3f.out", rho);
             filenameFs = String.format("fsRho%1.3fQ%1.2f.out", rho, params.qx);
-//            filenameF = String.format("fRho%1.3f.out", rho);
             filenamePerc = String.format("percRho%1.3f.out", rho);
             filenamePerc0 = String.format("perc0Rho%1.3f.out", rho);
             filenameL = String.format("lRho%1.3f.out", rho);
@@ -465,10 +369,8 @@ public class GlassProd {
             filenameMSD = String.format("msdRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameMSDA = String.format("msdARho%1.3fT%1.3f.out", rho, params.temperature);
             filenameMSDB = String.format("msdBRho%1.3fT%1.3f.out", rho, params.temperature);
-            filenameD = String.format("dRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameVAC = String.format("vacRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameFs = String.format("fsRho%1.3fT%1.3fQ%1.2f.out", rho, params.temperature, params.qx);
-//            filenameF = String.format("fRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenamePerc = String.format("percRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenamePerc0 = String.format("perc0Rho%1.3fT%1.3f.out", rho, params.temperature);
             filenameL = String.format("lRho%1.3fT%1.3f.out",  rho, params.temperature);
@@ -484,151 +386,50 @@ public class GlassProd {
         }
         System.out.println("P: " + pAvg +"  "+ pErr +"  cor: "+pCorr);
 
-        // shear stress AC
-        if (doPxyAutocor) {
-            try {
-                FileWriter fileWriterPxyAC = new FileWriter(filenamePxyAC, false);
-                DataDoubleArray x = dpxyAutocor.getIndependentData(0);
-                IData y = dpxyAutocor.getData();
-                for (int i = 0; i < y.getLength(); i++) {
-                    double yi = y.getValue(i);
-                    double xi = x.getValue(i);
-                    if(!Double.isNaN(yi)){
-                        fileWriterPxyAC.write(xi + " " + yi + "\n");
-                    }
-                }
-                fileWriterPxyAC.close();
-            } catch (IOException e) {
-                System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
-            }
-        }
-
-        //S(q)
-        DataGroup dataSF = (DataGroup)accSFac.getData();
-        IData dataSFAvg = dataSF.getData(accSFac.AVERAGE.index);
-        int nSF  = dataSFAvg.getLength();
-        IData xData = meterSFac.getIndependentData(0);
         try {
-            FileWriter fileWriterSq = new FileWriter(filenameSq, false);
-            for(int i=0;i<nSF; i++){
-                fileWriterSq.write(xData.getValue(i) + " "+ dataSFAvg.getValue(i)+"\n");
+            if (doPxyAutocor) {
+                GlassProd.writeDataToFile(dpxyAutocor, filenamePxyAC);
             }
-            fileWriterSq.close();
-        } catch (IOException e) {
-            System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
-        }
-
-        //Viscosity
-        try {
-            FileWriter fileWriterVisc = new FileWriter(filenameVisc, false);
-            DataDoubleArray x = pTensorAccumVisc.getIndependentData(0);
-            for (int i=0; i<pTensorAccumVisc.getData().getLength(); i++){
-                double yi = pTensorAccumVisc.getData().getValue(i);
-                double yiErr = pTensorAccumVisc.errData.getValue(i);
-                double xi = x.getValue(i);
-                if(!Double.isNaN(yi)){
-                    fileWriterVisc.write(xi + " " + yi + " " + yiErr + "\n");
-                }
+            for (int i = 0; i < configStorageMSD.getLastConfigIndex() - 1; i++) {
+                meterGs.setConfigIndex(i);
+                GlassProd.writeDataToFile(meterGs, "Gs_t" + i + ".dat");
+                meterGsA.setConfigIndex(i);
+                GlassProd.writeDataToFile(meterGsA, "GsA_t" + i + ".dat");
+                meterGsB.setConfigIndex(i);
+                GlassProd.writeDataToFile(meterGsB, "GsB_t" + i + ".dat");
             }
-            fileWriterVisc.close();
-        } catch (IOException e) {
-            System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
-        }
-
-        //MSD
-        try {
-            FileWriter fileWriterMSD = new FileWriter(filenameMSD, false);
-            FileWriter fileWriterMSDA = new FileWriter(filenameMSDA, false);
-            FileWriter fileWriterMSDB = new FileWriter(filenameMSDB, false);
-            FileWriter fileWriterD = new FileWriter(filenameD, false);
-            FileWriter fileWriterVAC = new FileWriter(filenameVAC, false);
-            FileWriter fileWriterFs = new FileWriter(filenameFs, false);
-//           FileWriter fileWriterF   = new FileWriter(filenameF,  false);
-            FileWriter fileWriterPerc = new FileWriter(filenamePerc, false);
-            FileWriter fileWriterImmFrac = new FileWriter(filenameImmFrac, false);
-            FileWriter fileWriterImmFracA = new FileWriter(filenameImmFracA, false);
-            FileWriter fileWriterImmFracB = new FileWriter(filenameImmFracB, false);
-            FileWriter fileWriterL = new FileWriter(filenameL, false);
-            FileWriter fileWriterAlpha2 = new FileWriter(filenameAlpha2, false);
-            DataDoubleArray x = meterMSD.getIndependentData(0);
-            for (int i=0; i<meterMSD.getData().getLength(); i++){
-                double xi = x.getValue(i);
-                double yi = meterMSD.getData().getValue(i);
-                double yiA = meterMSDA.getData().getValue(i);
-                double yiB = meterMSDB.getData().getValue(i);
-                double yiErr = meterMSD.errData.getValue(i);
-                double yiAErr = meterMSDA.errData.getValue(i);
-                double yiBErr = meterMSDB.errData.getValue(i);
-                double yiFs = meterFs.getData().getValue(i);
-//                double yiF  = meterF.getData().getValue(i);
-                double yiVAC = meterVAC.getData().getValue(i);
-                double yiVACErr = meterVAC.errData.getValue(i);
-                double yiL  = meterL.getData().getValue(i);
-                if( !Double.isNaN(yi) && !Double.isNaN(yiErr) && !Double.isNaN(yiFs)){
-                    fileWriterMSD.write(xi + " " + yi + " " + yiErr+"\n");
-                    fileWriterMSDA.write(xi + " " + yiA + " " + yiAErr + "\n");
-                    fileWriterMSDB.write(xi + " " + yiB + " " + yiBErr + "\n");
-                    fileWriterD.write(xi + " " + yi/2/params.D/xi + " " + yiErr/2/params.D/xi + "\n");
-                    fileWriterVAC.write(xi + " " + yiVAC + " " + yiVACErr +"\n");
-                    fileWriterFs.write(xi + " " + yiFs + "\n");
-//                    fileWriterF.write(xi + " " + yiF + "\n");
-                    double yiPerc  = meterPerc.getData().getValue(i);
-                    double yiImmFrac  = meterImmFraction.getData().getValue(i);
-                    double yiImmFracA = meterImmFractionA.getData().getValue(i);
-                    double yiImmFracB = meterImmFractionB.getData().getValue(i);
-                    double yiAlpha2  = meterAlpha2.getData().getValue(i);
-
-                    if(!Double.isNaN(yiPerc)){
-                        fileWriterPerc.write(xi + " " + yiPerc + "\n");
-                    }
-                    if(!Double.isNaN(yiImmFrac)){
-                        fileWriterImmFrac.write(xi + " " + yiImmFrac + "\n");
-                        fileWriterImmFracA.write(xi + " " + yiImmFracA + "\n");
-                        fileWriterImmFracB.write(xi + " " + yiImmFracB + "\n");
-                    }
-                    if(!Double.isNaN(yiL)){
-                        fileWriterL.write(xi + " " + yiL + "\n");
-                    }
-                    if(!Double.isNaN(yiAlpha2)){
-                        fileWriterAlpha2.write(xi + " " + yiAlpha2 + "\n");
-                    }
-
-                }
+            for (int i = 0; i < accSFacMobility.length; i++) {
+                if (accSFacMobility[i].getSampleCount() < 2) continue;
+                GlassProd.writeDataToFile(accSFacMobility[i], "sfacMobility" + (i + sfacMobilityOffset) + ".dat");
             }
-            fileWriterMSD.close();
-            fileWriterMSDA.close();
-            fileWriterMSDB.close();
-            fileWriterVAC.close();
-            fileWriterD.close();
-            fileWriterFs.close();
-//            fileWriterF.close();
-            fileWriterPerc.close();
-            fileWriterImmFrac.close();
-            fileWriterImmFracA.close();
-            fileWriterImmFracB.close();
-            fileWriterL.close();
-            fileWriterAlpha2.close();
-            FileWriter fileWriterPerc0 = new FileWriter(filenamePerc0, false);
-            x = meterPerc0.getIndependentData(0);
-            IData perc0Avg = accPerc0.getData(accPerc0.AVERAGE);
-            for (int i = 0; i < x.getLength(); i++) {
-                double xi = x.getValue(i);
-                double yi = perc0Avg.getValue(i);
-                fileWriterPerc0.write(xi + " " + yi + "\n");
+            GlassProd.writeDataToFile(accSFacStress, "sfacStress.dat");
+            GlassProd.writeDataToFile(meterCorrelationSelf, "corSelf.dat");
+            GlassProd.writeDataToFile(meterCorrelationSelfMagA, "corSelfMagA.dat");
+            GlassProd.writeDataToFile(meterCorrelationSelfMagB, "corSelfMagB.dat");
+            for (int i = 0; i < correlationSelf2.getNumDt(); i++) {
+                CorrelationSelf2.MeterCorrelationSelf2 m = correlationSelf2.makeMeter(i);
+                GlassProd.writeDataToFile(m, "corRSelf_t" + i + ".dat");
             }
-            fileWriterPerc0.close();
 
-            FileWriter fileWriterImmFracPerc = new FileWriter(filenameImmFracPerc, false);
-            DataSourcePercolation.PercolationByImmFrac meterImmFracPerc = meterPerc.makePerclationByImmFracSource();
-            x = ((DataFunction.DataInfoFunction) meterImmFracPerc.getDataInfo()).getXDataSource().getIndependentData(0);
-            IData pf = meterImmFracPerc.getData();
-            for (int i = 0; i < x.getLength(); i++) {
-                double xi = x.getValue(i);
-                double yi = pf.getValue(i);
-                if (!Double.isNaN(yi)) fileWriterImmFracPerc.write(xi + " " + yi + "\n");
-            }
-            fileWriterImmFracPerc.close();
+            GlassProd.writeDataToFile(meterFs, filenameFs);
+            GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc, meterPerc3}, filenamePerc);
+            GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc.makeImmFractionSource(),
+                    meterPerc3.makeImmFractionSource()}, filenameImmFrac);
+            GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc.makeImmFractionSource(sim.speciesA.getLeafType()),
+                    meterPerc3.makeImmFractionSource(sim.speciesA.getLeafType())}, filenameImmFracA);
+            GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc.makeImmFractionSource(sim.speciesB.getLeafType()),
+                    meterPerc3.makeImmFractionSource(sim.speciesB.getLeafType())}, filenameImmFracB);
+            GlassProd.writeDataToFile(meterPerc.makePerclationByImmFracSource(), filenameImmFracPerc);
+            GlassProd.writeDataToFile(meterPerc0, filenamePerc0);
+            GlassProd.writeDataToFile(meterL, filenameL);
+            GlassProd.writeDataToFile(meterAlpha2, filenameAlpha2);
+            GlassProd.writeDataToFile(meterSFac, filenameSq);
 
+            GlassProd.writeDataToFile(meterMSD, meterMSD.errData, filenameMSD);
+            GlassProd.writeDataToFile(meterMSDA, meterMSDA.errData, filenameMSDA);
+            GlassProd.writeDataToFile(meterMSDB, meterMSDB.errData, filenameMSDB);
+            GlassProd.writeDataToFile(meterVAC, meterVAC.errData, filenameVAC);
+            GlassProd.writeDataToFile(pTensorAccumVisc, pTensorAccumVisc.errData, filenameVisc);
         } catch (IOException e) {
             System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
         }
@@ -646,4 +447,67 @@ public class GlassProd {
         public double qx = 7.0;
         public boolean doPxyAutocor = false;
     }
+
+    public static void writeDataToFile(IDataSource meter, String filename) throws IOException {
+        writeDataToFile(meter, null, filename);
+    }
+
+    public static void writeDataToFile(IDataSource meter, IData errData, String filename) throws IOException {
+        IData data;
+        IData xData;
+        if (meter instanceof AccumulatorAverage) {
+            AccumulatorAverage acc = (AccumulatorAverage) meter;
+            data = acc.getData(acc.AVERAGE);
+            xData = ((DataFunction.DataInfoFunction) ((DataGroup.DataInfoGroup) acc.getDataInfo()).getSubDataInfo(acc.AVERAGE.index)).getXDataSource().getIndependentData(0);
+        } else {
+            data = meter.getData();
+            xData = ((DataFunction.DataInfoFunction) meter.getDataInfo()).getXDataSource().getIndependentData(0);
+        }
+        boolean allNaN = true;
+        for (int i = 0; i < xData.getLength(); i++) {
+            if (!Double.isNaN(data.getValue(i))) allNaN = false;
+        }
+        if (allNaN) return;
+        FileWriter fw = new FileWriter(filename);
+        for (int i = 0; i < xData.getLength(); i++) {
+            double y = data.getValue(i);
+            if (Double.isNaN(y)) continue;
+            if (errData == null) {
+                fw.write(xData.getValue(i) + " " + y + "\n");
+            } else {
+                fw.write(xData.getValue(i) + " " + y + " " + errData.getValue(i) + "\n");
+            }
+        }
+        fw.close();
+    }
+
+    public static void writeCombinedDataToFile(IDataSource[] meters, String filename) {
+        List<double[]> allData = new ArrayList<>();
+        for (int j = 0; j < meters.length; j++) {
+            IData data = meters[j].getData();
+            IData xData = ((DataFunction.DataInfoFunction) meters[j].getDataInfo()).getXDataSource().getIndependentData(0);
+            for (int i = 0; i < xData.getLength(); i++) {
+                double y = data.getValue(i);
+                if (Double.isNaN(y)) continue;
+                allData.add(new double[]{xData.getValue(i), y});
+            }
+        }
+        allData.sort(new Comparator<double[]>() {
+            @Override
+            public int compare(double[] o1, double[] o2) {
+                return Double.compare(o1[0], o2[0]);
+            }
+        });
+
+        try {
+            FileWriter fw = new FileWriter(filename);
+            for (double[] xy : allData) {
+                fw.write(xy[0] + " " + xy[1] + "\n");
+            }
+            fw.close();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
 }
