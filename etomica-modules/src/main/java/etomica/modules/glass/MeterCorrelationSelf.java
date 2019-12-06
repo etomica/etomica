@@ -148,7 +148,9 @@ public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationS
         Vector[] config2 = configStorage.getSavedConfig(0);
         IAtomList atoms = configStorage.getBox().getLeafList();
 
-        for (int j = 0; j < configStorage.getLastConfigIndex() - 1; j++) {
+        // j corresponds to the 0 -> 2 interval, so we need to start
+        // with j=1 (step=2 and we look at steps 0,1,2) and then store in j-1
+        for (int j = 1; j < configStorage.getLastConfigIndex() - 1; j++) {
             int x = Math.max(j, minInterval);
             if (step2 % (1L << x) == 0) {
 
