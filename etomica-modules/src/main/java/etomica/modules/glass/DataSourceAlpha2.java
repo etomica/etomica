@@ -25,6 +25,7 @@ public class DataSourceAlpha2 implements IDataSource, ConfigurationStorage.Confi
     protected double[] msdSum, m4dSum;
     protected final DataTag tTag, tag;
     protected long[] nSamples;
+    protected int minInterval = 3;
 
     public DataSourceAlpha2(ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
@@ -88,15 +89,16 @@ public class DataSourceAlpha2 implements IDataSource, ConfigurationStorage.Confi
         reset(); // reallocates if needed
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
-        for (int i = 1; i < msdSum.length; i++) {
-            if (step % (1L << (i - 1)) == 0) {
-                Vector[] iPositions = configStorage.getSavedConfig(i);
+        for (int i = 0; i < configStorage.getLastConfigIndex(); i++) {
+            int x = Math.max(i, minInterval);
+            if (step % (1L << x) == 0) {
+                Vector[] iPositions = configStorage.getSavedConfig(i + 1);
                 for (int j = 0; j < positions.length; j++) {
                     double d2 = positions[j].Mv1Squared(iPositions[j]);
-                    msdSum[i - 1] += d2;
-                    m4dSum[i - 1] += d2 * d2;
+                    msdSum[i] += d2;
+                    m4dSum[i] += d2 * d2;
                 }
-                nSamples[i - 1]++;
+                nSamples[i]++;
             }
         }
     }
