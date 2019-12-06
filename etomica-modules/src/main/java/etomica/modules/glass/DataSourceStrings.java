@@ -35,14 +35,11 @@ public class DataSourceStrings implements IDataSource, ConfigurationStorage.Conf
     protected double nbrMax2 = 1.5 * 1.5;
     protected final int[] strings;
     protected final int[] nextAtom, firstAtoms;
-    protected int log2StepMin, log2StepMax;
+    protected int log2StepMin;
 
-
-
-    public DataSourceStrings(ConfigurationStorage configStorage, int log2StepMin, int log2StepMax) {
+    public DataSourceStrings(ConfigurationStorage configStorage, int log2StepMin) {
         this.configStorage = configStorage;
         this.log2StepMin = log2StepMin;
-        this.log2StepMax = log2StepMax;
         box = configStorage.getBox();
         numAtoms = box.getLeafList().size();
         nStrings = new long[0];
@@ -58,11 +55,10 @@ public class DataSourceStrings implements IDataSource, ConfigurationStorage.Conf
         strings = new int[n];
         firstAtoms = new int[n];
         nextAtom = new int[n];
-        reset();
+        reallocate(0);
     }
 
-    public void reset() {
-        int n = configStorage.getLastConfigIndex();
+    public void reallocate(int n) {
         if (n == numAtomInString.length && data != null) return;
         if (n < 1) n = 0;
         numAtomInString = Arrays.copyOf(numAtomInString, n);
@@ -82,7 +78,6 @@ public class DataSourceStrings implements IDataSource, ConfigurationStorage.Conf
             }
         }
     }
-
 
     @Override
     public IData getData() {
@@ -106,15 +101,16 @@ public class DataSourceStrings implements IDataSource, ConfigurationStorage.Conf
 
     @Override
     public void newConfigruation() {
-        reset(); // reallocates if needed
         long step = configStorage.getSavedSteps()[0];
+        if (step % (1L << log2StepMin) != 0) return;
         IAtomList atoms = box.getLeafList();
 
-//Change the 3
-        for (int i = log2StepMin; i < numAtomInString.length && i <= log2StepMax; i++) {
-                if (step % (1L << (i - 1)) == 0) {
-                atomTestDeviation.setConfigIndex(i);
-                for(int j=0; j<numAtoms; j++){
+        for (int i = 0; i < configStorage.getLastConfigIndex(); i++) {
+            int x = Math.max(log2StepMin, i);
+            if (step % (1L << x) == 0) {
+                if (i >= nStrings.length) reallocate(i + 1);
+                atomTestDeviation.setConfigIndex(i + 1);
+                for (int j = 0; j < numAtoms; j++) {
                     dr2[j][0] = j;
                     dr2[j][1] = atomTestDeviation.getDisplacementSq(atoms.get(j));
                 }
@@ -129,20 +125,18 @@ public class DataSourceStrings implements IDataSource, ConfigurationStorage.Conf
 
                 for (int j = 0; j < firstAtoms.length; j++) {
                     if (firstAtoms[j] == -1) break;
-                    nStrings[i-1]++;
+                    nStrings[i]++;
                     for (int ii = firstAtoms[j]; ii != -1; ii = nextAtom[ii]) {
-                        numAtomInString[i-1]++;
+                        numAtomInString[i]++;
                     }
                 }
             }
         }
     }
 
-
-
     public void findStrings(int interval) {
         Vector[] positions = configStorage.getSavedConfig(0);
-        Vector[] oldPositions = configStorage.getSavedConfig(interval);
+        Vector[] oldPositions = configStorage.getSavedConfig(interval + 1);
         int[] replacedAtom = new int[numAtoms];
 
         for (int i = 0; i < numAtoms*mobFrac; i++) {

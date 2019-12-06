@@ -197,7 +197,7 @@ public class GlassProd {
         sim.integrator.getEventManager().addListener(pumpPerc0);
 
         //Strings
-        DataSourceStrings meterL = new DataSourceStrings(configStorageMSD, 4, 30);
+        DataSourceStrings meterL = new DataSourceStrings(configStorageMSD, 4);
         configStorageMSD.addListener(meterL);
 
         //Alpha2

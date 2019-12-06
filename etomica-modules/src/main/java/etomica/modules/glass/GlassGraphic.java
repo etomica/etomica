@@ -690,7 +690,7 @@ public class GlassGraphic extends SimulationGraphic {
 
 
         //Strings
-        DataSourceStrings meterStrings = new DataSourceStrings(configStorage, 3, 30);
+        DataSourceStrings meterStrings = new DataSourceStrings(configStorage, 3);
         configStorage.addListener(meterStrings);
         DisplayPlot plotStrings = new DisplayPlot();
         DataPumpListener pumpStrings = new DataPumpListener(meterStrings, plotStrings.getDataSet().makeDataSink(), 1000);
