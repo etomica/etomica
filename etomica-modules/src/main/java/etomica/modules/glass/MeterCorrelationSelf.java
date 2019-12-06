@@ -33,6 +33,7 @@ public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationS
     protected AtomType type;
     private IDataInfo dataInfo;
     protected double[] dr1Sum, dr2Sum, dr3Sum;
+    protected int minInterval = 3;
 
     public MeterCorrelationSelf(ConfigurationStorage configStorage) {
         this(configStorage, CorrelationType.TOTAL);
@@ -147,11 +148,10 @@ public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationS
         Vector[] config2 = configStorage.getSavedConfig(0);
         IAtomList atoms = configStorage.getBox().getLeafList();
 
-        for (int j = 1; j < configStorage.getLastConfigIndex() - 1; j++) {
-            if (step2 % (1L << j) == 0) {
-//                long dt12 = step2 - configStorage.getSavedSteps()[j];
-//                long dt01 = configStorage.getSavedSteps()[j] - configStorage.getSavedSteps()[j+1];
-//                System.out.println(configStorage.getLastConfigIndex()+" "+j+" "+dt01+" "+dt12);
+        for (int j = 0; j < configStorage.getLastConfigIndex() - 1; j++) {
+            int x = Math.max(j, minInterval);
+            if (step2 % (1L << x) == 0) {
+
                 Vector[] config1 = configStorage.getSavedConfig(j);
                 Vector[] config0 = configStorage.getSavedConfig(j + 1);
                 for (int i = 0; i < config0.length; i++) {
