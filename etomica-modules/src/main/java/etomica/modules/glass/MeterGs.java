@@ -74,7 +74,6 @@ public class MeterGs implements ConfigurationStorage.ConfigurationStorageListene
 
     public void setMinConfigIndex(int idx) {
         minConfigIndex = idx;
-        zeroData();
     }
 
     public int getMinConfigIndex() {
@@ -121,18 +120,18 @@ public class MeterGs implements ConfigurationStorage.ConfigurationStorageListene
             Arrays.fill(data.getData(), Double.NaN);
             return data;
         }
-        if (configIndex >= minConfigIndex + gsSum.length || configIndex - minConfigIndex < 0) {
+        if (configIndex >= gsSum.length) {
             data.E(Double.NaN);
             return data;
         }
 
-        double gsCount = numSamples[configIndex - minConfigIndex];
+        double gsCount = numSamples[configIndex];
         final double[] y = data.getData();
         double[] r = ((DataDoubleArray) xDataSource.getData()).getData();
         double dx = xMax / xDataSource.getNValues();
 
         for (int i = 0; i < r.length; i++) {
-            y[i] = gsSum[configIndex - minConfigIndex][i] / (gsCount * dx);
+            y[i] = gsSum[configIndex][i] / (gsCount * dx);
         }
 
         return data;
@@ -175,23 +174,24 @@ public class MeterGs implements ConfigurationStorage.ConfigurationStorageListene
         IAtomList atoms = box.getLeafList();
         double xMax2 = xMax * xMax;
 
-        for (int j = minConfigIndex; j < configStorage.getLastConfigIndex(); j++) {
-            if (step % (1L << j) == 0) {
-                if (j >= minConfigIndex + gsSum.length) reallocate(j - minConfigIndex + 1);
-                Vector[] configPrev = configStorage.getSavedConfig(j);
+        for (int j = 0; j < configStorage.getLastConfigIndex(); j++) {
+            int x = Math.max(j, minConfigIndex);
+            if (step % (1L << x) == 0) {
+                if (j >= gsSum.length) reallocate(j + 1);
+                Vector[] configPrev = configStorage.getSavedConfig(j + 1);
 
                 for (int i = 0; i < config0.length; i++) {
                     IAtom iAtom = atoms.get(i);
                     if (type != null && (iAtom.getType() != type))
                         continue; //does not apply if: type is null (total) or iATom is the specified one
-                    numSamples[j - minConfigIndex]++;
+                    numSamples[j]++;
                     Vector ir0 = config0[i];
                     Vector irPrev = configPrev[i];
                     dri.Ev1Mv2(ir0, irPrev);
                     double r2 = dri.squared();
                     if (r2 > xMax2) continue;
                     int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
-                    gsSum[j - minConfigIndex][index]++;                        //add once for each atom
+                    gsSum[j][index]++;                        //add once for each atom
                 }
             }
         }

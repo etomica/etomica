@@ -597,7 +597,7 @@ public class GlassGraphic extends SimulationGraphic {
         //Gs: total
         int gsUpdateInterval = sim.getSpace().D() == 2 ? 10000 : 2000;
         double xGsMax = 3;
-        int gsMinConfig = 5;
+        int gsMinConfig = 6;
         MeterGs meterGs = new MeterGs(configStorage);
         meterGs.setMinConfigIndex(gsMinConfig);
         meterGs.setConfigIndex(12);
@@ -616,6 +616,7 @@ public class GlassGraphic extends SimulationGraphic {
         meterGsA.setAtomTypes(sim.speciesA.getLeafType());
         configStorage.addListener(meterGsA);
         meterGsA.getXDataSource().setXMax(xGsMax);
+        meterGsA.getXDataSource().setNValues(150);
         DataPumpListener pumpGsA = new DataPumpListener(meterGsA, gsPlot.getDataSet().makeDataSink(), gsUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpGsA);
 
@@ -626,6 +627,7 @@ public class GlassGraphic extends SimulationGraphic {
         meterGsB.setAtomTypes(sim.speciesB.getLeafType());
         configStorage.addListener(meterGsB);
         meterGsB.getXDataSource().setXMax(xGsMax);
+        meterGsB.getXDataSource().setNValues(150);
         DataPumpListener pumpGsB = new DataPumpListener(meterGsB, gsPlot.getDataSet().makeDataSink(), gsUpdateInterval);
         sim.integrator.getEventManager().addListener(pumpGsB);
 
@@ -667,7 +669,7 @@ public class GlassGraphic extends SimulationGraphic {
         gsPrevSampleSlider.setShowValues(true);
         gsPrevSampleSlider.setNMajor(5);
         gsPrevSampleSlider.setMaximum(30);
-        gsPrevSampleSlider.setMinimum(gsMinConfig);
+        gsPrevSampleSlider.setMinimum(0);
         gsPrevSampleSlider.setLabel("log2(previous sample)");
 
         JPanel gsPanel = (JPanel) gsPlot.graphic();
