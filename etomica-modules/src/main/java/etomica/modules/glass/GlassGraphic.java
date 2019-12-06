@@ -1712,6 +1712,9 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageLinear.setEnabled(false);
                     configStorage.reset();
                     configStorage.setEnabled(false);
+                    meterMSD.reset();
+                    meterMSDA.reset();
+                    meterMSDB.reset();
                     meterPerc.reallocate();
                     dsMSDcorP.setEnabled(false);
                     dsHistogramP.setEnabled(false);
@@ -1751,6 +1754,9 @@ public class GlassGraphic extends SimulationGraphic {
                     configStorageLinear.setEnabled(true);
                     configStorage.reset();
                     configStorage.setEnabled(true);
+                    meterMSD.reset();
+                    meterMSDA.reset();
+                    meterMSDB.reset();
                     meterPerc.reallocate();
                     dsMSDcorP.setEnabled(true);
                     dsHistogramP.setEnabled(true);

@@ -46,13 +46,14 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         tag = new DataTag();
         tTag = new DataTag();
         msdSinks = new ArrayList<>();
-        reset();
+        reallocate(0);
     }
 
     public void reset() {
-        int n = configStorage.getLastConfigIndex();
-        if (n == msdSum.length && data != null) return;
-        if (n < 1) n = 0;
+        reallocate(0);
+    }
+
+    protected void reallocate(int n) {
         msdSum = Arrays.copyOf(msdSum, n);
         msd2Sum = Arrays.copyOf(msd2Sum, n);
         msdSumBlock = Arrays.copyOf(msdSumBlock, n);
@@ -103,14 +104,14 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
 
     @Override
     public void newConfigruation() {
-        reset(); // reallocates if needed
         int blockSize = 1;
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
         IAtomList atoms = configStorage.getBox().getLeafList();
-        for (int i = 0; i <= configStorage.getLastConfigIndex(); i++) {
+        for (int i = 0; i < configStorage.getLastConfigIndex(); i++) {
             int x = Math.max(i, minInterval);
             if (step % (1L << x) == 0) {
+                if (i >= msdSum.length) reallocate(i + 1);
                 Vector[] iPositions = configStorage.getSavedConfig(i + 1);
                 double iSum = 0;
                 int iSamples = 0;
