@@ -65,7 +65,7 @@ public class SimGlass extends Simulation {
         getController().addAction(activityIntegrate);
         integrator.setThermostatNoDrift(true);
 
-        int chs = 85;
+        int chs = 50;
         double coreHS = 0.01 * chs;
         P2SquareWell p2AA = null;
         if (potentialChoice == PotentialChoice.LJ) { //3D KA-80-20; 2D KA-65-35
