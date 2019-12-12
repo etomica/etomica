@@ -161,7 +161,7 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
             if (i==j) continue; // 1-point set
             int k = i&~j; //strip j bit from i and set result to k
             if (k == (k&-k)){
-                // 2-point set; these fQ's were filled when bonds were computed, so skip
+                // 2-point set
                 if (fQ[i][0] == 0){
                     for (int m=1;m<=nDer;m++){
                         fQ[i][m]=0;
@@ -480,11 +480,6 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
                 double ff = f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
-                if (false && Double.isNaN(ff)) {
-                    f.f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
-                    throw new RuntimeException("oops");
-                }
-//                if (Math.abs(ff) < 1e-14) ff = 0;
                 fQ[(1<<i)|(1<<j)][0] = ff+1;
             }
         }
