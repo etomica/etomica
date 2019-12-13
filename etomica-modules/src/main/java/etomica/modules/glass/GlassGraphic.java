@@ -1571,28 +1571,56 @@ public class GlassGraphic extends SimulationGraphic {
 
         MeterStructureFactor[] meterSFacMobility = new MeterStructureFactor[30];
         DataDump[] dumpSFacMobility = new DataDump[30];
+        AccumulatorAverageFixed[] accSFacMobility = new AccumulatorAverageFixed[30];
         for (int i = 0; i < 30; i++) {
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorage);
             signalMobility.setPrevConfig(i + 1);
             meterSFacMobility[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
             DataFork forkSFacMobility = new DataFork();
-            AccumulatorAverageFixed accSFacMobility = new AccumulatorAverageFixed(1);  // just average, no uncertainty
-            accSFacMobility.setPushInterval(1);
+            accSFacMobility[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
+            accSFacMobility[i].setPushInterval(1);
             DataPump pumpSFacMobility = new DataPump(meterSFacMobility[i], forkSFacMobility);
-            forkSFacMobility.addDataSink(accSFacMobility);
+            forkSFacMobility.addDataSink(accSFacMobility[i]);
             ConfigurationStoragePumper cspMobility = new ConfigurationStoragePumper(pumpSFacMobility, configStorage);
             cspMobility.setPrevConfig(Math.max(i + 1, 5));
             configStorage.addListener(cspMobility);
             dataStreamPumps.add(pumpSFacMobility);
             dumpSFacMobility[i] = new DataDump();
-            accSFacMobility.addDataSink(dumpSFacMobility[i], new AccumulatorAverage.StatType[]{accSFacMobility.AVERAGE});
+            accSFacMobility[i].addDataSink(dumpSFacMobility[i], new AccumulatorAverage.StatType[]{accSFacMobility[i].AVERAGE});
         }
+
+        MeterStructureFactor[] meterSFacMotion = new MeterStructureFactor[30];
+        DataDump[] dumpSFacMotion = new DataDump[30];
+        AccumulatorAverageFixed[] accSFacMotion = new AccumulatorAverageFixed[30];
+        for (int i = 0; i < 30; i++) {
+            AtomSignalMotion signalMotion = new AtomSignalMotion(configStorage, 0);
+            signalMotion.setPrevConfig(i + 1);
+            meterSFacMotion[i] = new MeterStructureFactor(sim.box, 3, signalMotion);
+            DataFork forkSFacMotion = new DataFork();
+            accSFacMotion[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
+            accSFacMotion[i].setPushInterval(1);
+            DataPump pumpSFacMotion = new DataPump(meterSFacMotion[i], forkSFacMotion);
+            forkSFacMotion.addDataSink(accSFacMotion[i]);
+            ConfigurationStoragePumper cspMotion = new ConfigurationStoragePumper(pumpSFacMotion, configStorage);
+            cspMotion.setPrevConfig(Math.max(i + 1, 5));
+            configStorage.addListener(cspMotion);
+            dataStreamPumps.add(pumpSFacMotion);
+            dumpSFacMotion[i] = new DataDump();
+            accSFacMotion[i].addDataSink(dumpSFacMotion[i], new AccumulatorAverage.StatType[]{accSFacMotion[i].AVERAGE});
+        }
+
 
         MeterFromDumps sfacFromDumps = new MeterFromDumps(dumpSFacMobility);
         DataPumpListener pumpSfacMobility = new DataPumpListener(sfacFromDumps, plotSFac.getDataSet().makeDataSink(), 500);
         sim.integrator.getEventManager().addListener(pumpSfacMobility);
         plotSFac.setDoDrawLines(new DataTag[]{sfacFromDumps.getTag()}, false);
         plotSFac.setLegend(new DataTag[]{sfacFromDumps.getTag()}, "mobility");
+
+        MeterFromDumps sfacFromDumpsMotion = new MeterFromDumps(dumpSFacMotion);
+        DataPumpListener pumpSfacMotion = new DataPumpListener(sfacFromDumpsMotion, plotSFac.getDataSet().makeDataSink(), 500);
+        sim.integrator.getEventManager().addListener(pumpSfacMotion);
+        plotSFac.setDoDrawLines(new DataTag[]{sfacFromDumpsMotion.getTag()}, false);
+        plotSFac.setLegend(new DataTag[]{sfacFromDumpsMotion.getTag()}, "x motion");
 
         sfacButtons = new DeviceButtonGroup(sim.getController(), 5);
         sfacButtons.setLabel("B signal");
@@ -1611,6 +1639,8 @@ public class GlassGraphic extends SimulationGraphic {
                 int idx = (int) Math.round(newValue);
                 sfacFromDumps.setDumpIndex(idx);
                 pumpSfacMobility.actionPerformed();
+                sfacFromDumpsMotion.setDumpIndex(idx);
+                pumpSfacMotion.actionPerformed();
             }
 
             @Override
@@ -1739,6 +1769,12 @@ public class GlassGraphic extends SimulationGraphic {
                     diameterHash.setFac(1.0);
                     accSFac.reset();
                     sfacClusterer.reset();
+                    for (AccumulatorAverageFixed accumulatorAverageFixed : accSFacMobility) {
+                        accumulatorAverageFixed.reset();
+                    }
+                    for (AccumulatorAverageFixed accumulatorAverageFixed : accSFacMotion) {
+                        accumulatorAverageFixed.reset();
+                    }
                     accPerc0.reset();
                     meterCorrelationSelf.reset();
                     meterCorrelationSelfMagA.reset();
@@ -1785,6 +1821,12 @@ public class GlassGraphic extends SimulationGraphic {
                     diameterHash.setFac(showDispCheckbox.getState() ? 0.5 : 1.0);
                     accSFac.reset();
                     sfacClusterer.reset();
+                    for (AccumulatorAverageFixed accumulatorAverageFixed : accSFacMobility) {
+                        accumulatorAverageFixed.reset();
+                    }
+                    for (AccumulatorAverageFixed accumulatorAverageFixed : accSFacMotion) {
+                        accumulatorAverageFixed.reset();
+                    }
                     accPerc0.reset();
                     meterCorrelationSelf.reset();
                     meterCorrelationSelfMagA.reset();

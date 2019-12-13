@@ -4,14 +4,14 @@ import etomica.atom.IAtom;
 import etomica.data.meter.MeterStructureFactor;
 import etomica.space.Vector;
 
-public class AtomSignalMobility extends MeterStructureFactor.AtomSignalSourceByType {
+public class AtomSignalMotion extends MeterStructureFactor.AtomSignalSourceByType {
     protected final ConfigurationStorage configStorage;
-    protected final Vector dr;
     protected int prevConfigIndex;
+    protected int xyz;
 
-    public AtomSignalMobility(ConfigurationStorage configStorage) {
+    public AtomSignalMotion(ConfigurationStorage configStorage, int xyz) {
         this.configStorage = configStorage;
-        dr = configStorage.getBox().getSpace().makeVector();
+        this.xyz = xyz;
     }
 
     public void setPrevConfig(int prevConfigIndex) {
@@ -30,7 +30,7 @@ public class AtomSignalMobility extends MeterStructureFactor.AtomSignalSourceByT
         Vector[] positions = configStorage.getSavedConfig(0);
         Vector[] prevPositions = configStorage.getSavedConfig(idx);
         int atomIndex = atom.getLeafIndex();
-        dr.Ev1Mv2(positions[atomIndex], prevPositions[atomIndex]);
-        return s * Math.sqrt(dr.squared());
+        double dxyz = positions[atomIndex].getX(xyz) - prevPositions[atomIndex].getX(xyz);
+        return s * dxyz;
     }
 }
