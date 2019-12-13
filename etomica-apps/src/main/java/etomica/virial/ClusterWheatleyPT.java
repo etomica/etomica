@@ -31,7 +31,6 @@ public class ClusterWheatleyPT implements ClusterAbstractMultivalue {
         this.n = nPoints;
         this.nf = 1 << n; //2^n
         this.tol = tol;
-        if (nOrder < 1) throw new RuntimeException("I have to compute at least first order terms");
         this.nOrder = nOrder;
         this.fR = fR;
         this.fP = fP;
@@ -102,7 +101,7 @@ public class ClusterWheatleyPT implements ClusterAbstractMultivalue {
                 fQ[ij][0] = fR.f(aPairs.getAPair(i, j), cPairs.getr2(i, j), beta) + 1;
                 if (fQ[ij][0] == 0) {
                     fU[ij] = Double.POSITIVE_INFINITY;
-                    for (int k = 1; k < nOrder; k++) {
+                    for (int k = 1; k <= nOrder; k++) {
                         fQ[ij][k] = 0;
                     }
                     continue;
@@ -111,7 +110,7 @@ public class ClusterWheatleyPT implements ClusterAbstractMultivalue {
 
                 double buij = -Math.log(fp + 1);
                 fU[ij] = buij;
-                for (int m = 1; m < nOrder; m++) {
+                for (int m = 1; m <= nOrder; m++) {
                     fQ[ij][m] = fQ[ij][m - 1] * (-buij) / m;
                 }
             }
@@ -140,12 +139,12 @@ public class ClusterWheatleyPT implements ClusterAbstractMultivalue {
                 fU[i] += fU[l | j];
             }
             if (fQ[i][0] == 0) {
-                for (int m = 1; m < nOrder; m++) {
+                for (int m = 1; m <= nOrder; m++) {
                     fQ[i][m] = 0;
                 }
                 continue;
             }
-            for (int m = 1; m < fQ[i].length; m++) {
+            for (int m = 1; m <= nOrder; m++) {
                 fQ[i][m] = fQ[i][m - 1] * (-fU[i] / m);
             }
         }
