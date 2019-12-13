@@ -71,12 +71,18 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
         xData = new DataDoubleArray(waveVec.length);
         xDataInfo = new DataInfoDoubleArray("q", Null.DIMENSION, new int[]{waveVec.length});
         xDataInfo.addTag(xTag);
+        if (waveVec != null && waveVec[0] != null) {
+            double[] x = xData.getData();
+            for (int i = 0; i < waveVec.length; i++) {
+                x[i] = Math.sqrt(waveVec[i].squared());
+            }
+        }
 
-	    dataInfo = new DataInfoFunction("Structure Factor", Null.DIMENSION, this);
+        dataInfo = new DataInfoFunction("Structure Factor", Null.DIMENSION, this);
         dataInfo.addTag(tag);
         data = new DataFunction(new int[]{waveVec.length}, struct);
         phaseAngles = new double[waveVec.length];
-	}
+    }
 
 	protected int makeWaveVector(double cutoff) {
         int nVec = 0;
@@ -170,12 +176,11 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
     public IData getData() {
         long numAtoms = atomList.size();
         long n2 = numAtoms*numAtoms;
-        for (int i = 0; i < struct.length; i++) struct[i] = 0;
+        Arrays.fill(struct, 0);
         for(int k = 0; k<waveVec.length; k++){
             double term1 = 0;
             double term2 = 0;
-            for(int i = 0; i<numAtoms; i++){
-                IAtom atom = atomList.get(i);
+            for (IAtom atom : atomList) {
                 double signal = signalSource == null ? 1.0 : signalSource.signal(atom);
                 double dotprod = waveVec[k].dot(atom.getPosition());
                 term1 += signal * Math.cos(dotprod);
