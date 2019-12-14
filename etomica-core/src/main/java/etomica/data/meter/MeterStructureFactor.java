@@ -55,23 +55,23 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
 
     public MeterStructureFactor(Box aBox, double cutoff, AtomSignalSource signalSource) {
         this.signalSource = signalSource;
-	    this.box = aBox;
+        this.box = aBox;
         space = aBox.getSpace();
         atomList = box.getLeafList();
         tag = new DataTag();
         xTag = new DataTag();
-	    setCutoff(cutoff);
-	}
+        setCutoff(cutoff);
+    }
 
     public AtomSignalSource getSignalSource() {
         return signalSource;
     }
-	
-	protected void resetData() {
+
+    protected void resetData() {
         xData = new DataDoubleArray(waveVec.length);
         xDataInfo = new DataInfoDoubleArray("q", Null.DIMENSION, new int[]{waveVec.length});
         xDataInfo.addTag(xTag);
-        if (waveVec != null && waveVec[0] != null) {
+        if (waveVec != null && waveVec.length > 0 && waveVec[0] != null) {
             double[] x = xData.getData();
             for (int i = 0; i < waveVec.length; i++) {
                 x[i] = Math.sqrt(waveVec[i].squared());
@@ -84,7 +84,7 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
         phaseAngles = new double[waveVec.length];
     }
 
-	protected int makeWaveVector(double cutoff) {
+    protected int makeWaveVector(double cutoff) {
         int nVec = 0;
         double[] x = xData == null ? null : xData.getData();
         Vector[] edges = new Vector[space.D()];
@@ -133,18 +133,18 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
             nVec++;
         }
         return nVec;
-	}
+    }
 
     /**
      * Sets the wave vector cutoff.  All wave vectors consistent with the box
      * shape that have a magnitude less than the cutoff will be computed.
      * @param cutoff the cutoff for the wave vector magnitude
      */
-	public void setCutoff(double cutoff) {
-	    waveVec = null;
-	    int nVec = makeWaveVector(cutoff);
+    public void setCutoff(double cutoff) {
+        waveVec = null;
+        int nVec = makeWaveVector(cutoff);
         struct = new double[nVec];
-	    waveVec = new Vector[nVec];
+        waveVec = new Vector[nVec];
         resetData();
         makeWaveVector(cutoff);
         this.cutoff = cutoff;
@@ -153,27 +153,32 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
     public double getCutoff() {
         return cutoff;
     }
-	
-	/**
-	 * @param waveVec Sets a custom wave vector array.
-	 */
-	public void setWaveVec(Vector[] waveVec){
-	    this.waveVec = space.makeVectorArray(waveVec.length);
-	    struct = new double[waveVec.length];
-		for(int i=0; i<waveVec.length; i++){
-			this.waveVec[i].E(waveVec[i]);
-		}
-		resetData();
-	}
-	
-	/**
-	 * @param atomList Sets the list of atoms for factor calculation.
-	 */
-	public void setAtoms(IAtomList atomList){
-		this.atomList = atomList;
-	}
+
+    /**
+     * @param waveVec Sets a custom wave vector array.
+     */
+    public void setWaveVec(Vector[] waveVec){
+        this.waveVec = space.makeVectorArray(waveVec.length);
+        struct = new double[waveVec.length];
+        for(int i=0; i<waveVec.length; i++){
+          this.waveVec[i].E(waveVec[i]);
+        }
+        resetData();
+    }
+
+    /**
+     * @param atomList Sets the list of atoms for factor calculation.
+     */
+    public void setAtoms(IAtomList atomList){
+        this.atomList = atomList;
+    }
 
     public IData getData() {
+        if (signalSource!=null && !signalSource.ready()) {
+            Arrays.fill(struct, Double.NaN);
+            return data;
+        }
+
         long numAtoms = atomList.size();
         long n2 = numAtoms*numAtoms;
         Arrays.fill(struct, 0);
@@ -225,6 +230,7 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
     }
 
     public interface AtomSignalSource {
+        default boolean ready() {return true;};
         double signal(IAtom atom);
     }
 

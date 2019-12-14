@@ -14,6 +14,11 @@ public class AtomSignalMotion extends MeterStructureFactor.AtomSignalSourceByTyp
         this.xyz = xyz;
     }
 
+    public boolean ready() {
+        int lastIndex = configStorage.getLastConfigIndex();
+        return prevConfigIndex <= lastIndex;
+    }
+
     public void setPrevConfig(int prevConfigIndex) {
         this.prevConfigIndex = prevConfigIndex;
     }

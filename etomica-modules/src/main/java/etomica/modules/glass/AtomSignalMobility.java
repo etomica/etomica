@@ -14,6 +14,11 @@ public class AtomSignalMobility extends MeterStructureFactor.AtomSignalSourceByT
         dr = configStorage.getBox().getSpace().makeVector();
     }
 
+    public boolean ready() {
+        int lastIndex = configStorage.getLastConfigIndex();
+        return prevConfigIndex <= lastIndex;
+    }
+
     public void setPrevConfig(int prevConfigIndex) {
         this.prevConfigIndex = prevConfigIndex;
     }
