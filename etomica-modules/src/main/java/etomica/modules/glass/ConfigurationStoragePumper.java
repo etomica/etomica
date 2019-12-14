@@ -7,12 +7,12 @@ import etomica.data.DataPump;
  */
 public class ConfigurationStoragePumper implements ConfigurationStorage.ConfigurationStorageListener {
     private final ConfigurationStorage configStorage;
-    private final DataPump pumpSFacMobility;
+    private final DataPump pump;
     private int prevConfigIndex;
 
-    public ConfigurationStoragePumper(DataPump pumpSFacMobility, ConfigurationStorage configStorage) {
+    public ConfigurationStoragePumper(DataPump pump, ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
-        this.pumpSFacMobility = pumpSFacMobility;
+        this.pump = pump;
     }
 
     public void setPrevConfig(int index) {
@@ -22,7 +22,7 @@ public class ConfigurationStoragePumper implements ConfigurationStorage.Configur
     @Override
     public void newConfigruation() {
         long step = configStorage.getSavedSteps()[0];
-        if (step % (1L << prevConfigIndex) != 0) return;
-        pumpSFacMobility.actionPerformed();
+        if (step==0 || step % (1L << prevConfigIndex) != 0) return;
+        pump.actionPerformed();
     }
 }
