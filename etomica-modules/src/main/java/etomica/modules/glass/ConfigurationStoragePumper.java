@@ -8,21 +8,28 @@ import etomica.data.DataPump;
 public class ConfigurationStoragePumper implements ConfigurationStorage.ConfigurationStorageListener {
     private final ConfigurationStorage configStorage;
     private final DataPump pump;
-    private int prevConfigIndex;
+    private int prevStep;
+    private int bigStep;
 
     public ConfigurationStoragePumper(DataPump pump, ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
         this.pump = pump;
     }
 
-    public void setPrevConfig(int index) {
-        prevConfigIndex = index;
+    public void setBigStep(int bigStep) {
+        this.bigStep = bigStep;
+    }
+
+    public void setPrevStep(int step) {
+        prevStep = step;
     }
 
     @Override
     public void newConfigruation() {
         long step = configStorage.getSavedSteps()[0];
-        if (step==0 || step % (1L << prevConfigIndex) != 0) return;
-        pump.actionPerformed();
+        if ((step % (1L << Math.max(bigStep, prevStep)) == 0) ||
+                (bigStep > prevStep && ((step + (1L << prevStep)) % (1L << bigStep) == 0))) {
+            pump.actionPerformed();
+        }
     }
 }

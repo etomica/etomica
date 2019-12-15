@@ -21,7 +21,6 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
-import etomica.modifier.ModifierGeneral;
 import etomica.space.Vector;
 import etomica.units.SimpleUnit;
 import etomica.units.Unit;
@@ -1566,7 +1565,7 @@ public class GlassGraphic extends SimulationGraphic {
             DataPump pumpSFacMobility = new DataPump(meterSFacMobility[i], forkSFacMobility);
             forkSFacMobility.addDataSink(accSFacMobility[i]);
             ConfigurationStoragePumper cspMobility = new ConfigurationStoragePumper(pumpSFacMobility, configStorage);
-            cspMobility.setPrevConfig(Math.max(i + 1, 5));
+            cspMobility.setPrevStep(Math.max(i + 1, 5));
             configStorage.addListener(cspMobility);
             dataStreamPumps.add(pumpSFacMobility);
             dumpSFacMobility[i] = new DataDump();
@@ -1586,7 +1585,7 @@ public class GlassGraphic extends SimulationGraphic {
             DataPump pumpSFacMotion = new DataPump(meterSFacMotion[i], forkSFacMotion);
             forkSFacMotion.addDataSink(accSFacMotion[i]);
             ConfigurationStoragePumper cspMotion = new ConfigurationStoragePumper(pumpSFacMotion, configStorage);
-            cspMotion.setPrevConfig(Math.max(i + 1, 5));
+            cspMotion.setPrevStep(Math.max(i + 1, 5));
             configStorage.addListener(cspMotion);
             dataStreamPumps.add(pumpSFacMotion);
             dumpSFacMotion[i] = new DataDump();
@@ -1616,6 +1615,80 @@ public class GlassGraphic extends SimulationGraphic {
         sfacButtons.addButton("-v", new SFacButtonAction(signalByTypes, accSFac, typeB, -vB));
         sfacButtons.addButton("0", new SFacButtonAction(signalByTypes, accSFac, typeB, 0));
         sfacButtons.setSelected("+v");
+
+        Vector[] wv = meterSFac.getWaveVectors();
+        java.util.List<Vector> myWV = new ArrayList<>();
+        double wvMax2 = 6.01 * Math.PI / L;
+        for (Vector vector : wv) {
+            int nd = 0;
+            for (int i = 0; i < vector.getD(); i++) if (vector.getX(i) != 0) nd++;
+            if (vector.squared() > wvMax2 * wvMax2 || nd > 1) continue;
+            myWV.add(vector);
+        }
+        int minIntervalSfac2 = 8;
+        wv = myWV.toArray(new Vector[0]);
+        MeterStructureFactor[] meterSFacMotion2 = new MeterStructureFactor[30];
+        int[] motionMap = StructureFactorComponentCorrelation.makeWaveVectorMap(wv, 0);
+        StructureFactorComponentCorrelation sfcMotionCor = new StructureFactorComponentCorrelation(motionMap, configStorage);
+        sfcMotionCor.setMinInterval(minIntervalSfac2);
+        MeterStructureFactor[] meterSFacMobility2 = new MeterStructureFactor[30];
+        int[] mobilityMap = StructureFactorComponentCorrelation.makeWaveVectorMap(wv, -1);
+        StructureFactorComponentCorrelation sfcMobilityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorage);
+        sfcMobilityCor.setMinInterval(minIntervalSfac2);
+        for (int i = 0; i < 30; i++) {
+            AtomSignalMotion signalMotion = new AtomSignalMotion(configStorage, 0);
+            signalMotion.setPrevConfig(i + 1);
+            meterSFacMotion2[i] = new MeterStructureFactor(sim.box, 3, signalMotion);
+            meterSFacMotion2[i].setWaveVec(wv);
+            DataPump pumpSFacMotion2 = new DataPump(meterSFacMotion2[i], sfcMotionCor.makeSink(i, meterSFacMotion2[i]));
+            ConfigurationStoragePumper cspMotion2 = new ConfigurationStoragePumper(pumpSFacMotion2, configStorage);
+            cspMotion2.setPrevStep(i);
+            cspMotion2.setBigStep(minIntervalSfac2);
+            configStorage.addListener(cspMotion2);
+
+            AtomSignalMobility signalMobility = new AtomSignalMobility(configStorage);
+            signalMobility.setPrevConfig(i + 1);
+            meterSFacMobility2[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
+            meterSFacMobility2[i].setWaveVec(wv);
+            DataPump pumpSFacMobility2 = new DataPump(meterSFacMobility2[i], sfcMobilityCor.makeSink(i, meterSFacMobility2[i]));
+            ConfigurationStoragePumper cspMobility2 = new ConfigurationStoragePumper(pumpSFacMobility2, configStorage);
+            cspMobility2.setPrevStep(i);
+            cspMobility2.setBigStep(minIntervalSfac2);
+            configStorage.addListener(cspMobility2);
+        }
+
+        DisplayPlot plotSFacCor = new DisplayPlot();
+        plotSFacCor.getPlot().setTitle("correlation");
+        plotSFacCor.getPlot().setXLog(true);
+
+        double fac = L / (2 * Math.PI);
+        int[] foo = new int[mobilityMap.length];
+        for (int j = 0; j < mobilityMap.length; j++) {
+            if (foo[mobilityMap[j]] != 0) continue;
+            foo[mobilityMap[j]] = 1;
+            String label = String.format("%d,%d,%d", Math.round(Math.abs(myWV.get(j).getX(0)) * fac),
+                    Math.round(Math.abs(myWV.get(j).getX(1)) * fac),
+                    Math.round(Math.abs(myWV.get(j).getX(2)) * fac));
+
+            StructureFactorComponentCorrelation.Meter m = sfcMobilityCor.makeMeter(mobilityMap[j]);
+            DataPumpListener pumpSFacMobilityCor = new DataPumpListener(m, plotSFacCor.getDataSet().makeDataSink(), 1000);
+            sim.integrator.getEventManager().addListener(pumpSFacMobilityCor);
+            plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "mobility " + label);
+        }
+
+        foo = new int[motionMap.length];
+        for (int j = 0; j < motionMap.length; j++) {
+            if (foo[motionMap[j]] != 0) continue;
+            foo[motionMap[j]] = 1;
+            String label = String.format("%d,%d,%d", Math.round(myWV.get(j).getX(0) * fac),
+                    Math.round(myWV.get(j).getX(1) * fac),
+                    Math.round(myWV.get(j).getX(2) * fac));
+
+            StructureFactorComponentCorrelation.Meter m = sfcMotionCor.makeMeter(motionMap[j]);
+            DataPumpListener pumpSFacMotionCor = new DataPumpListener(m, plotSFacCor.getDataSet().makeDataSink(), 1000);
+            sim.integrator.getEventManager().addListener(pumpSFacMotionCor);
+            plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "motion " + label);
+        }
 
         DeviceSlider sfacPrevConfig = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
@@ -1752,7 +1825,7 @@ public class GlassGraphic extends SimulationGraphic {
                     meterCorrelationBBMag.zeroData();
                     diameterHash.setFac(1.0);
                     accSFac.reset();
-                    sfacClusterer.reset();
+                    sfcMotionCor.reset();
                     for (AccumulatorAverageFixed accumulatorAverageFixed : accSFacMobility) {
                         accumulatorAverageFixed.reset();
                     }
@@ -1804,7 +1877,7 @@ public class GlassGraphic extends SimulationGraphic {
                     meterCorrelationBBMag.zeroData();
                     diameterHash.setFac(showDispCheckbox.getState() ? 0.5 : 1.0);
                     accSFac.reset();
-                    sfacClusterer.reset();
+                    sfcMotionCor.reset();
                     for (AccumulatorAverageFixed accumulatorAverageFixed : accSFacMobility) {
                         accumulatorAverageFixed.reset();
                     }
@@ -1928,6 +2001,7 @@ public class GlassGraphic extends SimulationGraphic {
         gbcSF.gridx = 1;
         sfacWidgets.add(sfacPrevConfig.graphic(), gbcSF);
         plotSFacPanel.add(plotSFac.graphic());
+        plotSFacPanel.add(plotSFacCor.graphic());
         JPanel sfacWidgetPanel = new JPanel();
 
         plotSFacPanel.add(sfacWidgetPanel);

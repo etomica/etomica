@@ -5,7 +5,10 @@ package etomica.modules.glass;
 
 import etomica.data.*;
 import etomica.data.meter.*;
-import etomica.data.types.*;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataFunction;
+import etomica.data.types.DataGroup;
+import etomica.data.types.DataTensor;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.space.Vector;
@@ -223,12 +226,11 @@ public class GlassProd {
         double vB = sim.getSpace().powerD(sim.sigmaB);
         ((MeterStructureFactor.AtomSignalSourceByType) meterSFac.getSignalSource()).setAtomTypeFactor(sim.speciesB.getAtomType(0), vB);
 
-        int sfacMobilityOffset = 4;
-        MeterStructureFactor[] meterSFacMobility = new MeterStructureFactor[30 - sfacMobilityOffset];
-        AccumulatorAverageFixed[] accSFacMobility = new AccumulatorAverageFixed[30 - sfacMobilityOffset];
-        for (int i = 0; i < 30 - sfacMobilityOffset; i++) {
+        MeterStructureFactor[] meterSFacMobility = new MeterStructureFactor[30];
+        AccumulatorAverageFixed[] accSFacMobility = new AccumulatorAverageFixed[30];
+        for (int i = 0; i < 30; i++) {
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
-            signalMobility.setPrevConfig(i + sfacMobilityOffset);
+            signalMobility.setPrevConfig(i);
             meterSFacMobility[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
             DataFork forkSFacMobility = new DataFork();
             DataPump pumpSFacMobility = new DataPump(meterSFacMobility[i], forkSFacMobility);
@@ -236,7 +238,7 @@ public class GlassProd {
             forkSFacMobility.addDataSink(accSFacMobility[i]);
             // ensures pump fires when config with delta t is available
             ConfigurationStoragePumper cspMobility = new ConfigurationStoragePumper(pumpSFacMobility, configStorageMSD);
-            cspMobility.setPrevConfig(Math.max(i + sfacMobilityOffset, 9));
+            cspMobility.setPrevStep(Math.max(i, 9));
             configStorageMSD.addListener(cspMobility);
         }
 
@@ -400,7 +402,7 @@ public class GlassProd {
             }
             for (int i = 0; i < accSFacMobility.length; i++) {
                 if (accSFacMobility[i].getSampleCount() < 2) continue;
-                GlassProd.writeDataToFile(accSFacMobility[i], "sfacMobility" + (i + sfacMobilityOffset) + ".dat");
+                GlassProd.writeDataToFile(accSFacMobility[i], "sfacMobility" + (i) + ".dat");
             }
             GlassProd.writeDataToFile(accSFacStress, "sfacStress.dat");
             GlassProd.writeDataToFile(meterCorrelationSelf, "corSelf.dat");
