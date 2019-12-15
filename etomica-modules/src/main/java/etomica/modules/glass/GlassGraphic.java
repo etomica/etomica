@@ -1491,14 +1491,6 @@ public class GlassGraphic extends SimulationGraphic {
         DataPumpListener pumpMSDcorP = new DataPumpListener(dsMSDcorP, plotMSDcorUP.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpMSDcorP);
 
-        DataSourceMSDcorP.DataSourceMSDcovP dsMSDcovP = dsMSDcorP.makeCov();
-        DisplayPlot plotMSDcovUP = new DisplayPlot();
-        plotMSDcovUP.getPlot().setTitle("covariance/t");
-        plotMSDcovUP.getPlot().setXLog(true);
-        plotMSDcovUP.setDoLegend(false);
-        DataPumpListener pumpMSDcovP = new DataPumpListener(dsMSDcovP, plotMSDcovUP.getDataSet().makeDataSink(), 1000);
-        sim.integrator.getEventManager().addListener(pumpMSDcovP);
-
         if (dsMSDcorU != null) {
             meterMSD.addMSDSink(dsMSDcorU);
             plotMSDcorUP.setLegend(new DataTag[]{dsMSDcorU.getTag()}, "U");
@@ -1534,9 +1526,7 @@ public class GlassGraphic extends SimulationGraphic {
         plotHistogramMSD.getPlot().setYLog(true);
 
         java.util.List<MeterStructureFactor.AtomSignalSourceByType> signalByTypes = new ArrayList<>();
-        DataClusterer sfacClusterer = new DataClusterer(100, sim.getRandom());
         DeviceButtonGroup sfacButtons = null;
-        MeterStructureFactor meterSFacCluster = null;
         int n = sim.box.getLeafList().size();
         double cut1 = 10;
         if (n > 500) cut1 /= Math.pow(n / 500.0, 1.0 / sim.getSpace().D());
@@ -1562,12 +1552,6 @@ public class GlassGraphic extends SimulationGraphic {
 
         double L = sim.box.getBoundary().getBoxSize().getX(0);
         double cut = 2.0 * Math.PI / L;
-
-        meterSFacCluster = new MeterStructureFactor(sim.box, 3 * cut + 0.001);
-        signalByTypes.add((MeterStructureFactor.AtomSignalSourceByType) meterSFacCluster.getSignalSource());
-        DataPumpListener pumpSFacCluster = new DataPumpListener(meterSFacCluster, sfacClusterer, 10);
-        sim.integrator.getEventManager().addListener(pumpSFacCluster);
-        pFork.addDataSink(sfacClusterer.makePressureSink());
 
         MeterStructureFactor[] meterSFacMobility = new MeterStructureFactor[30];
         DataDump[] dumpSFacMobility = new DataDump[30];
@@ -1625,12 +1609,12 @@ public class GlassGraphic extends SimulationGraphic {
         sfacButtons = new DeviceButtonGroup(sim.getController(), 5);
         sfacButtons.setLabel("B signal");
         AtomType typeB = sim.speciesB.getLeafType();
-        sfacButtons.addButton("+1", new SFacButtonAction(signalByTypes, accSFac, sfacClusterer, typeB, +1));
-        sfacButtons.addButton("-1", new SFacButtonAction(signalByTypes, accSFac, sfacClusterer, typeB, -1));
+        sfacButtons.addButton("+1", new SFacButtonAction(signalByTypes, accSFac, typeB, +1));
+        sfacButtons.addButton("-1", new SFacButtonAction(signalByTypes, accSFac, typeB, -1));
         double vB = sim.getSpace().powerD(sim.sigmaB);
-        sfacButtons.addButton("+v", new SFacButtonAction(signalByTypes, accSFac, sfacClusterer, typeB, vB));
-        sfacButtons.addButton("-v", new SFacButtonAction(signalByTypes, accSFac, sfacClusterer, typeB, -vB));
-        sfacButtons.addButton("0", new SFacButtonAction(signalByTypes, accSFac, sfacClusterer, typeB, 0));
+        sfacButtons.addButton("+v", new SFacButtonAction(signalByTypes, accSFac, typeB, vB));
+        sfacButtons.addButton("-v", new SFacButtonAction(signalByTypes, accSFac, typeB, -vB));
+        sfacButtons.addButton("0", new SFacButtonAction(signalByTypes, accSFac, typeB, 0));
         sfacButtons.setSelected("+v");
 
         DeviceSlider sfacPrevConfig = new DeviceSlider(sim.getController(), new Modifier() {
@@ -1892,7 +1876,6 @@ public class GlassGraphic extends SimulationGraphic {
         JPanel plotPMSDPanel = new JPanel();
         plotPMSDPanel.setLayout(new BoxLayout(plotPMSDPanel, BoxLayout.Y_AXIS));
         plotPMSDPanel.add(plotMSDcorUP.graphic());
-        plotPMSDPanel.add(plotMSDcovUP.graphic());
         DeviceSlider sliderPMSDinterval = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
             public void setValue(double newValue) {
@@ -1947,54 +1930,6 @@ public class GlassGraphic extends SimulationGraphic {
         plotSFacPanel.add(plotSFac.graphic());
         JPanel sfacWidgetPanel = new JPanel();
 
-        DeviceBox clusterIterBox = new DeviceBox();
-        clusterIterBox.setController(sim.getController());
-        clusterIterBox.setModifier(new ModifierGeneral(sfacClusterer, "maxIterations"));
-        clusterIterBox.setInteger(true);
-        clusterIterBox.setPrecision(0);
-        clusterIterBox.setLabel("iterations");
-        sfacWidgetPanel.add(clusterIterBox.graphic());
-        DeviceButton clusterButton = new DeviceButton(sim.getController(), new IAction() {
-            @Override
-            public void actionPerformed() {
-                sfacClusterer.findClusters();
-                sfacClusterer.writeGraph("G.dot");
-            }
-        });
-        clusterButton.setLabel("Cluster");
-        sfacWidgetPanel.add(clusterButton.graphic());
-        DeviceSlider cutClusterSlider = new DeviceSlider(sim.getController(), meterSFacCluster, "cutoff");
-        cutClusterSlider.setLabel("SFac cutoff");
-        cutClusterSlider.setShowBorder(true);
-        cutClusterSlider.setMinimum(0);
-        cutClusterSlider.setPrecision(2);
-        cutClusterSlider.setMaximum(10);
-        cutClusterSlider.setNMajor(5);
-        cutClusterSlider.setShowValues(true);
-        cutClusterSlider.setEditValues(true);
-        sfacWidgetPanel.add(cutClusterSlider.graphic());
-        plotSFacPanel.add(sfacWidgetPanel);
-        sfacWidgetPanel = new JPanel();
-        DeviceSlider nbrClusterSlider = new DeviceSlider(sim.getController(), sfacClusterer, "clusterNeighborDistance");
-        nbrClusterSlider.setLabel("Cluster nbr distance");
-        nbrClusterSlider.setShowBorder(true);
-        nbrClusterSlider.setMinimum(0);
-        nbrClusterSlider.setPrecision(2);
-        nbrClusterSlider.setMaximum(3);
-        nbrClusterSlider.setNMajor(3);
-        nbrClusterSlider.setShowValues(true);
-        nbrClusterSlider.setEditValues(true);
-        sfacWidgetPanel.add(nbrClusterSlider.graphic());
-        DeviceSlider nClusterSlider = new DeviceSlider(sim.getController(), sfacClusterer, "numClusters");
-        nClusterSlider.setLabel("# of clusters");
-        nClusterSlider.setShowBorder(true);
-        nClusterSlider.setMinimum(0);
-        nClusterSlider.setMaximum(5000);
-        nClusterSlider.setPrecision(0);
-        nClusterSlider.setNMajor(5);
-        nClusterSlider.setShowValues(true);
-        nClusterSlider.setEditValues(true);
-        sfacWidgetPanel.add(nClusterSlider.graphic());
         plotSFacPanel.add(sfacWidgetPanel);
 
         JScrollPane plotsPaneSFac = new JScrollPane(plotSFacPanel);
@@ -2055,12 +1990,10 @@ public class GlassGraphic extends SimulationGraphic {
         protected final AtomType type;
         protected final java.util.List<MeterStructureFactor.AtomSignalSourceByType> signalSources;
         protected final AccumulatorAverageFixed acc;
-        protected final DataClusterer sfacClusterer;
 
-        public SFacButtonAction(java.util.List<MeterStructureFactor.AtomSignalSourceByType> signalSources, AccumulatorAverageFixed acc, DataClusterer sfacClusterer, AtomType type, double value) {
+        public SFacButtonAction(java.util.List<MeterStructureFactor.AtomSignalSourceByType> signalSources, AccumulatorAverageFixed acc, AtomType type, double value) {
             this.signalSources = signalSources;
             this.acc = acc;
-            this.sfacClusterer = sfacClusterer;
             this.type = type;
             this.value = value;
         }
@@ -2070,7 +2003,6 @@ public class GlassGraphic extends SimulationGraphic {
                 s.setAtomTypeFactor(type, value);
             }
             acc.reset();
-            sfacClusterer.reset();
         }
     }
 
