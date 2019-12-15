@@ -701,7 +701,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         //Percolation
         atomFilterDeviationPerc.setDoMobileOnly(false);
-        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorage, atomFilterDeviationPerc, 8, 30);
+        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorage, atomFilterDeviationPerc, 8);
         configStorage.addListener(meterPerc);
         DisplayPlot plotPerc = new DisplayPlot();
         DataPumpListener pumpPerc = new DataPumpListener(meterPerc, plotPerc.getDataSet().makeDataSink(), 1000);
@@ -717,10 +717,16 @@ public class GlassGraphic extends SimulationGraphic {
         DataPumpListener pumpImmFracB = new DataPumpListener(meterImmFracB, plotPerc.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(pumpImmFracB);
 
-        plotPerc.setLegend(new DataTag[]{meterPerc.getTag()},"perc. prob.");
+        DataSourceQ4 meterQ4 = new DataSourceQ4(configStorage, 8);
+        configStorage.addListener(meterQ4);
+        DataPumpListener pumpQ4 = new DataPumpListener(meterQ4, plotPerc.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpQ4);
+
+        plotPerc.setLegend(new DataTag[]{meterPerc.getTag()}, "perc. prob.");
         plotPerc.setLegend(new DataTag[]{meterImmFrac.getTag()}, "imm. frac.");
         plotPerc.setLegend(new DataTag[]{meterImmFracA.getTag()}, "imm. frac. A");
         plotPerc.setLegend(new DataTag[]{meterImmFracB.getTag()}, "imm. frac. B");
+        plotPerc.setLegend(new DataTag[]{meterQ4.getTag()}, "Q4");
         plotPerc.setLabel("perc");
         plotPerc.getPlot().setXLog(true);
         add(plotPerc);
@@ -732,6 +738,7 @@ public class GlassGraphic extends SimulationGraphic {
                 if (newValue == getValue()) return;
                 atomFilterDeviationPerc.setMinDistance(newValue);
                 meterPerc.zeroData();
+                meterQ4.setMaxDr(newValue);
             }
 
             @Override
@@ -1215,11 +1222,6 @@ public class GlassGraphic extends SimulationGraphic {
 
         pAutoCorErr.setDataSink(plotPTensorAutocor.getDataSet().makeDataSink());
         plotPTensorAutocor.setLegend(new DataTag[]{dpAutocor.getAvgErrFork().getTag(), pAutoCorErr.getTag()}, "err+");
-
-
-
-
-
 
         //normalized AC of shear stress components
         DisplayPlot plotPxyTensorAutocor = new DisplayPlot();
@@ -1799,7 +1801,8 @@ public class GlassGraphic extends SimulationGraphic {
                     meterMSD.reset();
                     meterMSDA.reset();
                     meterMSDB.reset();
-                    meterPerc.reallocate();
+                    meterPerc.zeroData();
+                    meterQ4.zeroData();
                     dsMSDcorP.setEnabled(false);
                     dsHistogramP.setEnabled(false);
                     dsPMSDhistory.setEnabled(false);
@@ -1847,7 +1850,8 @@ public class GlassGraphic extends SimulationGraphic {
                     meterMSD.reset();
                     meterMSDA.reset();
                     meterMSDB.reset();
-                    meterPerc.reallocate();
+                    meterPerc.zeroData();
+                    meterQ4.zeroData();
                     dsMSDcorP.setEnabled(true);
                     dsHistogramP.setEnabled(true);
                     dsPMSDhistory.setEnabled(true);
@@ -2011,7 +2015,6 @@ public class GlassGraphic extends SimulationGraphic {
         d.height = 600;
         plotsPaneSFac.setPreferredSize(d);
         getPanel().tabbedPane.add("SFac", plotsPaneSFac);
-
     }
 
     public static void main(String[] args) {

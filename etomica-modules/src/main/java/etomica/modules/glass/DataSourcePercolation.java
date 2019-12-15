@@ -42,13 +42,13 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     protected final boolean[] isVisited;
     protected final Space space;
     protected final Vector[] r;
-    protected int log2StepMin, log2StepMax;
+    protected int log2StepMin;
     protected final int numTypes;
 
     protected final HistogramNotSoSimple histogramImmPerc;
 
 
-    public DataSourcePercolation(ConfigurationStorage configStorage, AtomTestDeviation atomTest, int log2StepMin, int log2StepMax) {
+    public DataSourcePercolation(ConfigurationStorage configStorage, AtomTestDeviation atomTest, int log2StepMin) {
         this.configStorage = configStorage;
         int nt = 0;
         IAtomList atoms = configStorage.box.getLeafList();
@@ -72,7 +72,6 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         clusterer = new AtomNbrClusterer(configStorage.getBox(), atomTest, true);
         this.atomTest = atomTest;
         this.log2StepMin = log2StepMin;
-        this.log2StepMax = log2StepMax;
         numAtoms = configStorage.getBox().getLeafList().size();
         clusterSize = new int[numAtoms][2];
         clusterStack = new int[numAtoms];
@@ -94,7 +93,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                 new DataSourceIndependentSimple(histogramImmPerc.xValues(),
                         new DataDoubleArray.DataInfoDoubleArray("immobile fraction", Null.DIMENSION, new int[]{nbins})));
         immFracPercDataInfo.addTag(immFracPercTag);
-        reallocate();
+        reallocate(0);
     }
 
     public void setLog2StepStart(int newStart) {
@@ -103,14 +102,6 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
 
     public int getLog2StepStart() {
         return log2StepMin;
-    }
-
-    public void setLog2StepEnd(int newEnd) {
-        log2StepMax = newEnd;
-    }
-
-    public int getLog2StepEnd() {
-        return log2StepMax;
     }
 
     public void setNbrMax(double nbrMax) {
@@ -130,10 +121,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         }
     }
 
-    public void reallocate() {
-        int n = configStorage.getLastConfigIndex();
-        if (n == percP.length && data != null) return;
-        if (n < 1) n = 0;
+    public void reallocate(int n) {
         percP = Arrays.copyOf(percP, n);
         immFraction = Arrays.copyOf(immFraction, n);
         int oldSize = immFractionByType.length;
@@ -169,13 +157,13 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
 
     @Override
     public void newConfigruation() {
-        reallocate(); // reallocates if needed
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
         IAtomList atoms = configStorage.getBox().getLeafList();
-        for (int i = 0; i < percP.length && i <= log2StepMax; i++) {
+        for (int i = 0; i < configStorage.getLastConfigIndex(); i++) {
             int x = Math.max(i, log2StepMin);
             if (step % (1L << x) == 0) {
+                if (i >= percP.length) reallocate(i + 1); // reallocates if needed
                 int immCount = 0;
                 for (int j = 0; j < numAtoms; j++) {
                     isVisited[j] = false;

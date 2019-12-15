@@ -191,7 +191,7 @@ public class GlassProd {
         AtomTestDeviation atomFilterDeviation = new AtomTestDeviation(sim.box, configStorageMSD);
         atomFilterDeviation.setMinDistance(params.minDrFilter);
         atomFilterDeviation.setDoMobileOnly(false);
-        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSD, atomFilterDeviation, params.log2StepMin, 30);
+        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSD, atomFilterDeviation, params.log2StepMin);
         configStorageMSD.addListener(meterPerc);
 
         //Immobile fraction
@@ -199,7 +199,7 @@ public class GlassProd {
         AtomTestDeviation atomFilterDeviation3 = new AtomTestDeviation(sim.box, configStorageMSD3);
         atomFilterDeviation3.setMinDistance(params.minDrFilter);
         atomFilterDeviation3.setDoMobileOnly(false);
-        DataSourcePercolation meterPerc3 = new DataSourcePercolation(configStorageMSD3, atomFilterDeviation3, params.log2StepMin, 30);
+        DataSourcePercolation meterPerc3 = new DataSourcePercolation(configStorageMSD3, atomFilterDeviation3, params.log2StepMin);
         configStorageMSD3.addListener(meterPerc3);
 
         DataSourcePercolation0 meterPerc0 = new DataSourcePercolation0(sim.box, sim.getRandom());
