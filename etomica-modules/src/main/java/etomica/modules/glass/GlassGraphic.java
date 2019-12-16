@@ -1637,9 +1637,6 @@ public class GlassGraphic extends SimulationGraphic {
         int[] mobilityMap = StructureFactorComponentCorrelation.makeWaveVectorMap(wv, -1);
         StructureFactorComponentCorrelation sfcMobilityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorage);
         sfcMobilityCor.setMinInterval(minIntervalSfac2);
-        MeterStructureFactor[] meterSFacDensity2 = new MeterStructureFactor[30];
-        StructureFactorComponentCorrelation sfcDensityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorage);
-        sfcDensityCor.setMinInterval(minIntervalSfac2);
         for (int i = 0; i < 30; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorage, 0);
             signalMotion.setPrevConfig(i + 1);
@@ -1660,15 +1657,15 @@ public class GlassGraphic extends SimulationGraphic {
             cspMobility2.setPrevStep(i);
             cspMobility2.setBigStep(minIntervalSfac2);
             configStorage.addListener(cspMobility2);
-
-            meterSFacDensity2[i] = new MeterStructureFactor(sim.box, 3);
-            meterSFacDensity2[i].setWaveVec(wv);
-            DataPump pumpSFacDensity2 = new DataPump(meterSFacDensity2[i], sfcDensityCor.makeSink(i, meterSFacDensity2[i]));
-            ConfigurationStoragePumper cspDensity2 = new ConfigurationStoragePumper(pumpSFacDensity2, configStorage);
-            cspDensity2.setPrevStep(i);
-            cspDensity2.setBigStep(minIntervalSfac2);
-            configStorage.addListener(cspDensity2);
         }
+        MeterStructureFactor meterSFacDensity2 = new MeterStructureFactor(sim.box, 3);
+        meterSFacDensity2.setWaveVec(wv);
+        StructureFactorComponentCorrelation sfcDensityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorage);
+        sfcDensityCor.setMinInterval(0);
+        DataSinkBlockAverager dsbaSfacDensity2 = new DataSinkBlockAverager(configStorage, 0, meterSFacDensity2);
+        dsbaSfacDensity2.addSink(sfcDensityCor);
+        DataPumpListener pumpSFacDensity2 = new DataPumpListener(meterSFacDensity2, dsbaSfacDensity2);
+        sim.integrator.getEventManager().addListener(pumpSFacDensity2);
 
         DisplayPlot plotSFacCor = new DisplayPlot();
         plotSFacCor.getPlot().setTitle("correlation");

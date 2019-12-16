@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class StructureFactorComponentCorrelation implements DataSourceIndependent {
+public class StructureFactorComponentCorrelation implements DataSourceIndependent, DataSinkBlockAverager.Sink {
 
     protected double[][][] lastXY;
     protected double[][] corSum;
@@ -152,21 +152,16 @@ public class StructureFactorComponentCorrelation implements DataSourceIndependen
         }
     }
 
-    public void putData(int j, IData inputData, double[] phaseAngles) {
-        if (Double.isNaN(inputData.getValue(0))) return;
+    public void putData(int j, double[][] xyData) {
+        if (Double.isNaN(xyData[0][0])) return;
         if (j >= corSum[0].length) reallocate(j + 1);
         else if (Double.isNaN(tData.getValue(0))) {
             setTimeData();
         }
         // we receive (x^2+y^2)
-        for (int i = 0; i < data.length; i++) {
-            double sfac = inputData.getValue(i);
-            double tanphi = Math.tan(phaseAngles[i]);
-            double x = Math.sqrt(sfac / (1 + tanphi * tanphi));
-            if (phaseAngles[i] > Math.PI / 2 || phaseAngles[i] < -Math.PI / 2) {
-                x = -x;
-            }
-            double y = x * tanphi;
+        for (int i = 0; i < xyData.length; i++) {
+            double x = xyData[i][0];
+            double y = xyData[i][1];
             int imap = wvMap[i];
 
             if (!skipNow[j]) {
@@ -183,6 +178,22 @@ public class StructureFactorComponentCorrelation implements DataSourceIndependen
         } else if (j < minInterval) {
             skipNow[j] = true;
         }
+    }
+
+    public void putData(int j, IData inputData, double[] phaseAngles) {
+        if (Double.isNaN(inputData.getValue(0))) return;
+        double[][] xyData = new double[phaseAngles.length][];
+        for (int i = 0; i < data.length; i++) {
+            double sfac = inputData.getValue(i);
+            double tanphi = Math.tan(phaseAngles[i]);
+            double x = Math.sqrt(sfac / (1 + tanphi * tanphi));
+            if (phaseAngles[i] > Math.PI / 2 || phaseAngles[i] < -Math.PI / 2) {
+                x = -x;
+            }
+            double y = x * tanphi;
+            xyData[i] = new double[]{x, y};
+        }
+        putData(j, xyData);
     }
 
     @Override
