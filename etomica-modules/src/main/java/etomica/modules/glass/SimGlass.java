@@ -35,7 +35,7 @@ public class SimGlass extends Simulation {
     public final MCMoveSwap swapMove;
     public final IntegratorMC integratorMC;
     public final PotentialChoice potentialChoice;
-    public enum PotentialChoice {LJ, WCA, SS, HS}
+    public enum PotentialChoice {LJ, WCA, SS, HS, WS}
 
     public double sigmaB;
 
@@ -117,6 +117,21 @@ public class SimGlass extends Simulation {
             P2HardSphere potentialBB = new P2HardSphere(space, sigmaB, false);
             potentialMaster.addPotential(potentialBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
             integrator.setAlwaysScaleRandomizedMomenta(true);
+        } else if (potentialChoice == PotentialChoice.WS) {
+            // G. Wahnström, Phys. Rev. A 44, 3752 1991.
+            // T. B. Schrøder, cond-mat/0005127.
+            // https://doi.org/10.1063/1.1605094
+            sigmaB = 5.0 / 6.0;
+            P2LennardJones potentialAA = new P2LennardJones(space);
+            P2SoftSphericalTruncated p2TruncatedAA = new P2SoftSphericalTruncatedForceShifted(space, potentialAA, 2.5);
+            potentialMaster.addPotential(p2TruncatedAA, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
+            P2LennardJones potentialAB = new P2LennardJones(space, (1 + sigmaB) / 2, 1);
+            P2SoftSphericalTruncated p2TruncatedAB = new P2SoftSphericalTruncatedForceShifted(space, potentialAB, 2.5);
+            potentialMaster.addPotential(p2TruncatedAB, new AtomType[]{speciesA.getLeafType(), speciesB.getLeafType()});
+            P2LennardJones potentialBB = new P2LennardJones(space, sigmaB, 1);
+            P2SoftSphericalTruncated p2TruncatedBB = new P2SoftSphericalTruncatedForceShifted(space, potentialBB, 2.5);
+            potentialMaster.addPotential(p2TruncatedBB, new AtomType[]{speciesB.getLeafType(), speciesB.getLeafType()});
+            ((ElementSimple) speciesA.getLeafType().getElement()).setMass(2);
         }
 
         //construct box
