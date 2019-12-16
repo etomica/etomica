@@ -134,12 +134,20 @@ public class StructureFactorComponentCorrelation implements DataSourceIndependen
                 skipNow[j] = true;
             }
         }
+        setTimeData();
+    }
+
+    protected void setTimeData() {
         double[] t = tData.getData();
         if (t.length > 0) {
             double[] savedTimes = configStorage.getSavedTimes();
-            double dt = savedTimes[0] - savedTimes[1];
-            for (int i = 0; i < t.length; i++) {
-                t[i] = dt * (1L << i);
+            if (savedTimes[1] < 0) {
+                Arrays.fill(t, Double.NaN);
+            } else {
+                double dt = savedTimes[0] - savedTimes[1];
+                for (int i = 0; i < t.length; i++) {
+                    t[i] = dt * (1L << i);
+                }
             }
         }
     }
@@ -147,6 +155,9 @@ public class StructureFactorComponentCorrelation implements DataSourceIndependen
     public void putData(int j, IData inputData, double[] phaseAngles) {
         if (Double.isNaN(inputData.getValue(0))) return;
         if (j >= corSum[0].length) reallocate(j + 1);
+        else if (Double.isNaN(tData.getValue(0))) {
+            setTimeData();
+        }
         // we receive (x^2+y^2)
         for (int i = 0; i < data.length; i++) {
             double sfac = inputData.getValue(i);

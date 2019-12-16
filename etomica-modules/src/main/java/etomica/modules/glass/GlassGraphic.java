@@ -1637,6 +1637,9 @@ public class GlassGraphic extends SimulationGraphic {
         int[] mobilityMap = StructureFactorComponentCorrelation.makeWaveVectorMap(wv, -1);
         StructureFactorComponentCorrelation sfcMobilityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorage);
         sfcMobilityCor.setMinInterval(minIntervalSfac2);
+        MeterStructureFactor[] meterSFacDensity2 = new MeterStructureFactor[30];
+        StructureFactorComponentCorrelation sfcDensityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorage);
+        sfcDensityCor.setMinInterval(minIntervalSfac2);
         for (int i = 0; i < 30; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorage, 0);
             signalMotion.setPrevConfig(i + 1);
@@ -1657,6 +1660,14 @@ public class GlassGraphic extends SimulationGraphic {
             cspMobility2.setPrevStep(i);
             cspMobility2.setBigStep(minIntervalSfac2);
             configStorage.addListener(cspMobility2);
+
+            meterSFacDensity2[i] = new MeterStructureFactor(sim.box, 3);
+            meterSFacDensity2[i].setWaveVec(wv);
+            DataPump pumpSFacDensity2 = new DataPump(meterSFacDensity2[i], sfcDensityCor.makeSink(i, meterSFacDensity2[i]));
+            ConfigurationStoragePumper cspDensity2 = new ConfigurationStoragePumper(pumpSFacDensity2, configStorage);
+            cspDensity2.setPrevStep(i);
+            cspDensity2.setBigStep(minIntervalSfac2);
+            configStorage.addListener(cspDensity2);
         }
 
         DisplayPlot plotSFacCor = new DisplayPlot();
@@ -1676,6 +1687,11 @@ public class GlassGraphic extends SimulationGraphic {
             DataPumpListener pumpSFacMobilityCor = new DataPumpListener(m, plotSFacCor.getDataSet().makeDataSink(), 1000);
             sim.integrator.getEventManager().addListener(pumpSFacMobilityCor);
             plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "mobility " + label);
+
+            m = sfcDensityCor.makeMeter(mobilityMap[j]);
+            DataPumpListener pumpSFacDensityCor = new DataPumpListener(m, plotSFacCor.getDataSet().makeDataSink(), 1000);
+            sim.integrator.getEventManager().addListener(pumpSFacDensityCor);
+            plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "density " + label);
         }
 
         foo = new int[motionMap.length];
