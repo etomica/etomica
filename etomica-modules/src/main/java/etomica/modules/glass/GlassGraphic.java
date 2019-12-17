@@ -1552,7 +1552,6 @@ public class GlassGraphic extends SimulationGraphic {
         plotSFac.getDataSet().setUpdatingOnAnyChange(true);
 
         double L = sim.box.getBoundary().getBoxSize().getX(0);
-        double cut = 2.0 * Math.PI / L;
 
         MeterStructureFactor[] meterSFacMobility = new MeterStructureFactor[30];
         DataDump[] dumpSFacMobility = new DataDump[30];
@@ -1637,6 +1636,20 @@ public class GlassGraphic extends SimulationGraphic {
         int[] mobilityMap = StructureFactorComponentCorrelation.makeWaveVectorMap(wv, -1);
         StructureFactorComponentCorrelation sfcMobilityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorage);
         sfcMobilityCor.setMinInterval(minIntervalSfac2);
+
+        MeterStructureFactor meterSFacDensity2 = new MeterStructureFactor(sim.box, 3);
+        meterSFacDensity2.setWaveVec(wv);
+        StructureFactorComponentCorrelation sfcDensityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorage);
+        sfcDensityCor.setMinInterval(0);
+        DataSinkBlockAverager dsbaSfacDensity2 = new DataSinkBlockAverager(configStorage, 0, meterSFacDensity2);
+        dsbaSfacDensity2.addSink(sfcDensityCor);
+        DataPump pumpSFacDensity2 = new DataPump(meterSFacDensity2, dsbaSfacDensity2);
+        ConfigurationStoragePumper cspDensity2 = new ConfigurationStoragePumper(pumpSFacDensity2, configStorage);
+        configStorage.addListener(cspDensity2);
+        cspDensity2.setPrevStep(0);
+        DataSourceCorrelation dsCorSFacDensityMobility = new DataSourceCorrelation(configStorage, mobilityMap.length);
+        dsbaSfacDensity2.addSink(dsCorSFacDensityMobility.makeReceiver(0));
+
         for (int i = 0; i < 30; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorage, 0);
             signalMotion.setPrevConfig(i + 1);
@@ -1652,20 +1665,39 @@ public class GlassGraphic extends SimulationGraphic {
             signalMobility.setPrevConfig(i + 1);
             meterSFacMobility2[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
             meterSFacMobility2[i].setWaveVec(wv);
-            DataPump pumpSFacMobility2 = new DataPump(meterSFacMobility2[i], sfcMobilityCor.makeSink(i, meterSFacMobility2[i]));
+            DataFork sfacMobility2Fork = new DataFork();
+            sfacMobility2Fork.addDataSink(sfcMobilityCor.makeSink(i, meterSFacMobility2[i]));
+            DataPump pumpSFacMobility2 = new DataPump(meterSFacMobility2[i], sfacMobility2Fork);
             ConfigurationStoragePumper cspMobility2 = new ConfigurationStoragePumper(pumpSFacMobility2, configStorage);
             cspMobility2.setPrevStep(i);
             cspMobility2.setBigStep(minIntervalSfac2);
             configStorage.addListener(cspMobility2);
+            final int ii = i;
+            sfacMobility2Fork.addDataSink(new IDataSink() {
+                private final double[][] xyData = new double[myWV.size()][2];
+
+                @Override
+                public void putData(IData data) {
+                    double[] phaseAngles = meterSFacMobility2[ii].getPhaseAngles();
+                    for (int i = 0; i < xyData.length; i++) {
+                        double sfac = data.getValue(i);
+                        double tanphi = Math.tan(phaseAngles[i]);
+                        double x = Math.sqrt(sfac / (1 + tanphi * tanphi));
+                        if (phaseAngles[i] > Math.PI / 2 || phaseAngles[i] < -Math.PI / 2) {
+                            x = -x;
+                        }
+                        double y = x * tanphi;
+                        xyData[i][0] = x;
+                        xyData[i][1] = y;
+                    }
+                    dsCorSFacDensityMobility.putData(1, ii, xyData);
+                }
+
+                @Override
+                public void putDataInfo(IDataInfo dataInfo) {
+                }
+            });
         }
-        MeterStructureFactor meterSFacDensity2 = new MeterStructureFactor(sim.box, 3);
-        meterSFacDensity2.setWaveVec(wv);
-        StructureFactorComponentCorrelation sfcDensityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorage);
-        sfcDensityCor.setMinInterval(0);
-        DataSinkBlockAverager dsbaSfacDensity2 = new DataSinkBlockAverager(configStorage, 0, meterSFacDensity2);
-        dsbaSfacDensity2.addSink(sfcDensityCor);
-        DataPumpListener pumpSFacDensity2 = new DataPumpListener(meterSFacDensity2, dsbaSfacDensity2);
-        sim.integrator.getEventManager().addListener(pumpSFacDensity2);
 
         DisplayPlot plotSFacCor = new DisplayPlot();
         plotSFacCor.getPlot().setTitle("correlation");
@@ -1689,6 +1721,11 @@ public class GlassGraphic extends SimulationGraphic {
             DataPumpListener pumpSFacDensityCor = new DataPumpListener(m, plotSFacCor.getDataSet().makeDataSink(), 1000);
             sim.integrator.getEventManager().addListener(pumpSFacDensityCor);
             plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "density " + label);
+
+            DataSourceCorrelation.Meter mm = dsCorSFacDensityMobility.makeMeter(j);
+            DataPumpListener pumpCorSFacDensityMobility = new DataPumpListener(mm, plotSFacCor.getDataSet().makeDataSink(), 1000);
+            sim.integrator.getEventManager().addListener(pumpCorSFacDensityMobility);
+            plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "d-m " + label);
         }
 
         foo = new int[motionMap.length];
