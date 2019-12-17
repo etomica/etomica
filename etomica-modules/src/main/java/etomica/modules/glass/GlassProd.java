@@ -221,6 +221,7 @@ public class GlassProd {
         double cut1 = 10;
         if (numAtoms > 500) cut1 /= Math.pow(numAtoms / 500.0, 1.0 / sim.getSpace().D());
         MeterStructureFactor meterSFac = new MeterStructureFactor(sim.box, cut1);
+        meterSFac.setNormalizeByN(true);
         DataPumpListener pumpSFac = new DataPumpListener(meterSFac, accSFac, 1000);
         sim.integrator.getEventManager().addListener(pumpSFac);
         double vB = sim.getSpace().powerD(sim.sigmaB);
@@ -232,6 +233,7 @@ public class GlassProd {
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
             signalMobility.setPrevConfig(i);
             meterSFacMobility[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
+            meterSFacMobility[i].setNormalizeByN(true);
             DataFork forkSFacMobility = new DataFork();
             DataPump pumpSFacMobility = new DataPump(meterSFacMobility[i], forkSFacMobility);
             accSFacMobility[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
@@ -255,17 +257,83 @@ public class GlassProd {
 
         AtomSignalStress signalStress0 = new AtomSignalStress(stressSource, 0, 1);
         MeterStructureFactor meterSFacStress0 = new MeterStructureFactor(sim.box, 3, signalStress0);
+        meterSFacStress0.setNormalizeByN(true);
         AccumulatorAverageFixed accSFacStress = new AccumulatorAverageFixed(1);
         DataPumpListener pumpSFacStress = new DataPumpListener(meterSFac, accSFacStress, 100);
         if (sim.getSpace().D() == 3) {
             AtomSignalStress signalStress1 = new AtomSignalStress(stressSource, 0, 2);
             MeterStructureFactor meterSFacStress1 = new MeterStructureFactor(sim.box, 3, signalStress1);
+            meterSFacStress1.setNormalizeByN(true);
             AtomSignalStress signalStress2 = new AtomSignalStress(stressSource, 1, 2);
             MeterStructureFactor meterSFacStress2 = new MeterStructureFactor(sim.box, 3, signalStress2);
+            meterSFacStress2.setNormalizeByN(true);
             MeterStructureFactorStress3 meterStructureFactorStress3 = new MeterStructureFactorStress3(new MeterStructureFactor[]{meterSFacStress0, meterSFacStress1, meterSFacStress2});
             pumpSFacStress = new DataPumpListener(meterStructureFactorStress3, accSFacStress, 100);
         }
         sim.integrator.getEventManager().addListener(pumpSFacStress);
+
+        Vector[] wv = meterSFac.getWaveVectors();
+        java.util.List<Vector> myWV = new ArrayList<>();
+        double L = sim.box.getBoundary().getBoxSize().getX(0);
+        double wvMax2 = 8.01 * Math.PI / L;
+        for (Vector vector : wv) {
+            int nd = 0;
+            for (int i = 0; i < vector.getD(); i++) if (vector.getX(i) != 0) nd++;
+            if (vector.squared() > wvMax2 * wvMax2 || nd > 1) continue;
+            myWV.add(vector);
+        }
+        int minIntervalSfac2 = 8;
+        wv = myWV.toArray(new Vector[0]);
+        MeterStructureFactor[] meterSFacMotion2 = new MeterStructureFactor[30];
+        int[] motionMap = StructureFactorComponentCorrelation.makeWaveVectorMap(wv, 0);
+        StructureFactorComponentCorrelation sfcMotionCor = new StructureFactorComponentCorrelation(motionMap, configStorageMSD);
+        sfcMotionCor.setMinInterval(minIntervalSfac2);
+        MeterStructureFactor[] meterSFacMobility2 = new MeterStructureFactor[30];
+        int[] mobilityMap = StructureFactorComponentCorrelation.makeWaveVectorMap(wv, -1);
+        StructureFactorComponentCorrelation sfcMobilityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorageMSD);
+        sfcMobilityCor.setMinInterval(minIntervalSfac2);
+
+        MeterStructureFactor meterSFacDensity2 = new MeterStructureFactor(sim.box, 3);
+        meterSFacDensity2.setNormalizeByN(true);
+        meterSFacDensity2.setWaveVec(wv);
+        StructureFactorComponentCorrelation sfcDensityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorageMSD);
+        sfcDensityCor.setMinInterval(0);
+        DataSinkBlockAverager dsbaSfacDensity2 = new DataSinkBlockAverager(configStorageMSD, 0, meterSFacDensity2);
+        dsbaSfacDensity2.addSink(sfcDensityCor);
+        DataPump pumpSFacDensity2 = new DataPump(meterSFacDensity2, dsbaSfacDensity2);
+        ConfigurationStoragePumper cspDensity2 = new ConfigurationStoragePumper(pumpSFacDensity2, configStorageMSD);
+        configStorageMSD.addListener(cspDensity2);
+        cspDensity2.setPrevStep(0);
+        DataSourceCorrelation dsCorSFacDensityMobility = new DataSourceCorrelation(configStorageMSD, mobilityMap.length);
+        dsbaSfacDensity2.addSink(dsCorSFacDensityMobility.makeReceiver(0));
+
+        for (int i = 0; i < 30; i++) {
+            AtomSignalMotion signalMotion = new AtomSignalMotion(configStorageMSD, 0);
+            signalMotion.setPrevConfig(i + 1);
+            meterSFacMotion2[i] = new MeterStructureFactor(sim.box, 3, signalMotion);
+            meterSFacMotion2[i].setNormalizeByN(true);
+            meterSFacMotion2[i].setWaveVec(wv);
+            DataPump pumpSFacMotion2 = new DataPump(meterSFacMotion2[i], sfcMotionCor.makeSink(i, meterSFacMotion2[i]));
+            ConfigurationStoragePumper cspMotion2 = new ConfigurationStoragePumper(pumpSFacMotion2, configStorageMSD);
+            cspMotion2.setPrevStep(i);
+            cspMotion2.setBigStep(minIntervalSfac2);
+            configStorageMSD.addListener(cspMotion2);
+
+            AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
+            signalMobility.setPrevConfig(i + 1);
+            meterSFacMobility2[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
+            meterSFacMobility2[i].setNormalizeByN(true);
+            meterSFacMobility2[i].setWaveVec(wv);
+            DataFork sfacMobility2Fork = new DataFork();
+            sfacMobility2Fork.addDataSink(sfcMobilityCor.makeSink(i, meterSFacMobility2[i]));
+            DataPump pumpSFacMobility2 = new DataPump(meterSFacMobility2[i], sfacMobility2Fork);
+            ConfigurationStoragePumper cspMobility2 = new ConfigurationStoragePumper(pumpSFacMobility2, configStorageMSD);
+            cspMobility2.setPrevStep(i);
+            cspMobility2.setBigStep(minIntervalSfac2);
+            configStorageMSD.addListener(cspMobility2);
+            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacDensityMobility));
+        }
+
 
         double xGsMax = 3;
         int gsMinConfig = 5;
@@ -404,6 +472,35 @@ public class GlassProd {
                 if (accSFacMobility[i].getSampleCount() < 2) continue;
                 GlassProd.writeDataToFile(accSFacMobility[i], "sfacMobility" + (i) + ".dat");
             }
+            double fac = L / (2 * Math.PI);
+            int[] foo = new int[mobilityMap.length];
+            for (int j = 0; j < mobilityMap.length; j++) {
+                if (foo[mobilityMap[j]] != 0) continue;
+                foo[mobilityMap[j]] = 1;
+                String label = String.format("q%d%d%d.dat", Math.round(Math.abs(myWV.get(j).getX(0)) * fac),
+                        Math.round(Math.abs(myWV.get(j).getX(1)) * fac),
+                        Math.round(Math.abs(myWV.get(j).getX(2)) * fac));
+
+                StructureFactorComponentCorrelation.Meter m = sfcMobilityCor.makeMeter(mobilityMap[j]);
+                GlassProd.writeDataToFile(m, "sfacMobilityCor_" + label);
+                m = sfcDensityCor.makeMeter(mobilityMap[j]);
+                GlassProd.writeDataToFile(m, "sfacDensityCor_" + label);
+                DataSourceCorrelation.Meter mm = dsCorSFacDensityMobility.makeMeter(j);
+                GlassProd.writeDataToFile(m, "sfacDensityMobilityCor_" + label);
+            }
+
+            foo = new int[motionMap.length];
+            for (int j = 0; j < motionMap.length; j++) {
+                if (foo[motionMap[j]] != 0) continue;
+                foo[motionMap[j]] = 1;
+                String label = String.format("q%d%d%d.dat", Math.round(myWV.get(j).getX(0) * fac),
+                        Math.round(myWV.get(j).getX(1) * fac),
+                        Math.round(myWV.get(j).getX(2) * fac));
+
+                StructureFactorComponentCorrelation.Meter m = sfcMotionCor.makeMeter(motionMap[j]);
+                GlassProd.writeDataToFile(m, "sfacMotionCor_" + label);
+            }
+
             GlassProd.writeDataToFile(accSFacStress, "sfacStress.dat");
             GlassProd.writeDataToFile(meterCorrelationSelf, "corSelf.dat");
             GlassProd.writeDataToFile(meterCorrelationSelfMagA, "corSelfMagA.dat");
