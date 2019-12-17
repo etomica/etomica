@@ -43,6 +43,7 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
     protected final AtomSignalSource signalSource;
     protected double cutoff;
     protected double[] phaseAngles;
+    protected boolean normalizeByN;
 
     /**
      * Creates meter with default to compute the structure factor for all atoms
@@ -61,6 +62,16 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
         tag = new DataTag();
         xTag = new DataTag();
         setCutoff(cutoff);
+    }
+
+    /**
+     * Normalizing by N will produce a structure factor that is insensitive to
+     * finite-size effects if there is no long-range order.  With long-range
+     * order, normalizing by N^2 (the default) will produce a structure factor
+     * that is insensitive to finite-size effects.
+     */
+    public void setNormalizeByN(boolean normalizeByN) {
+        this.normalizeByN = normalizeByN;
     }
 
     public AtomSignalSource getSignalSource() {
@@ -192,7 +203,7 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
                 term1 += signal * Math.cos(dotprod);
                 term2 += signal * Math.sin(dotprod);
             }
-            struct[k] = ((term1*term1) + (term2*term2))/n2;
+            struct[k] = ((term1 * term1) + (term2 * term2)) / (normalizeByN ? numAtoms : n2);
             phaseAngles[k] = Math.atan2(term1, term2);
         }
         return data;

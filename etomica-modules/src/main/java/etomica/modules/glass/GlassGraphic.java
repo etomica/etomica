@@ -1532,6 +1532,7 @@ public class GlassGraphic extends SimulationGraphic {
         double cut1 = 10;
         if (n > 500) cut1 /= Math.pow(n / 500.0, 1.0 / sim.getSpace().D());
         MeterStructureFactor meterSFac = new MeterStructureFactor(sim.box, cut1);
+        meterSFac.setNormalizeByN(true);
         DataDump dumpSFac = new DataDump();
         DataFork forkSFac = new DataFork();
         signalByTypes.add((MeterStructureFactor.AtomSignalSourceByType) meterSFac.getSignalSource());
@@ -1560,13 +1561,14 @@ public class GlassGraphic extends SimulationGraphic {
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorage);
             signalMobility.setPrevConfig(i + 1);
             meterSFacMobility[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
+            meterSFacMobility[i].setNormalizeByN(true);
             DataFork forkSFacMobility = new DataFork();
             accSFacMobility[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
             accSFacMobility[i].setPushInterval(1);
             DataPump pumpSFacMobility = new DataPump(meterSFacMobility[i], forkSFacMobility);
             forkSFacMobility.addDataSink(accSFacMobility[i]);
             ConfigurationStoragePumper cspMobility = new ConfigurationStoragePumper(pumpSFacMobility, configStorage);
-            cspMobility.setPrevStep(Math.max(i + 1, 5));
+            cspMobility.setPrevStep(Math.max(i + 1, 7));
             configStorage.addListener(cspMobility);
             dataStreamPumps.add(pumpSFacMobility);
             dumpSFacMobility[i] = new DataDump();
@@ -1580,13 +1582,14 @@ public class GlassGraphic extends SimulationGraphic {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorage, 0);
             signalMotion.setPrevConfig(i + 1);
             meterSFacMotion[i] = new MeterStructureFactor(sim.box, 3, signalMotion);
+            meterSFacMotion[i].setNormalizeByN(true);
             DataFork forkSFacMotion = new DataFork();
             accSFacMotion[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
             accSFacMotion[i].setPushInterval(1);
             DataPump pumpSFacMotion = new DataPump(meterSFacMotion[i], forkSFacMotion);
             forkSFacMotion.addDataSink(accSFacMotion[i]);
             ConfigurationStoragePumper cspMotion = new ConfigurationStoragePumper(pumpSFacMotion, configStorage);
-            cspMotion.setPrevStep(Math.max(i + 1, 5));
+            cspMotion.setPrevStep(Math.max(i + 1, 7));
             configStorage.addListener(cspMotion);
             dataStreamPumps.add(pumpSFacMotion);
             dumpSFacMotion[i] = new DataDump();
@@ -1638,6 +1641,7 @@ public class GlassGraphic extends SimulationGraphic {
         sfcMobilityCor.setMinInterval(minIntervalSfac2);
 
         MeterStructureFactor meterSFacDensity2 = new MeterStructureFactor(sim.box, 3);
+        meterSFacDensity2.setNormalizeByN(true);
         meterSFacDensity2.setWaveVec(wv);
         StructureFactorComponentCorrelation sfcDensityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorage);
         sfcDensityCor.setMinInterval(0);
@@ -1654,6 +1658,7 @@ public class GlassGraphic extends SimulationGraphic {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorage, 0);
             signalMotion.setPrevConfig(i + 1);
             meterSFacMotion2[i] = new MeterStructureFactor(sim.box, 3, signalMotion);
+            meterSFacMotion2[i].setNormalizeByN(true);
             meterSFacMotion2[i].setWaveVec(wv);
             DataPump pumpSFacMotion2 = new DataPump(meterSFacMotion2[i], sfcMotionCor.makeSink(i, meterSFacMotion2[i]));
             ConfigurationStoragePumper cspMotion2 = new ConfigurationStoragePumper(pumpSFacMotion2, configStorage);
@@ -1664,6 +1669,7 @@ public class GlassGraphic extends SimulationGraphic {
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorage);
             signalMobility.setPrevConfig(i + 1);
             meterSFacMobility2[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
+            meterSFacMobility2[i].setNormalizeByN(true);
             meterSFacMobility2[i].setWaveVec(wv);
             DataFork sfacMobility2Fork = new DataFork();
             sfacMobility2Fork.addDataSink(sfcMobilityCor.makeSink(i, meterSFacMobility2[i]));
@@ -1672,31 +1678,7 @@ public class GlassGraphic extends SimulationGraphic {
             cspMobility2.setPrevStep(i);
             cspMobility2.setBigStep(minIntervalSfac2);
             configStorage.addListener(cspMobility2);
-            final int ii = i;
-            sfacMobility2Fork.addDataSink(new IDataSink() {
-                private final double[][] xyData = new double[myWV.size()][2];
-
-                @Override
-                public void putData(IData data) {
-                    double[] phaseAngles = meterSFacMobility2[ii].getPhaseAngles();
-                    for (int i = 0; i < xyData.length; i++) {
-                        double sfac = data.getValue(i);
-                        double tanphi = Math.tan(phaseAngles[i]);
-                        double x = Math.sqrt(sfac / (1 + tanphi * tanphi));
-                        if (phaseAngles[i] > Math.PI / 2 || phaseAngles[i] < -Math.PI / 2) {
-                            x = -x;
-                        }
-                        double y = x * tanphi;
-                        xyData[i][0] = x;
-                        xyData[i][1] = y;
-                    }
-                    dsCorSFacDensityMobility.putData(1, ii, xyData);
-                }
-
-                @Override
-                public void putDataInfo(IDataInfo dataInfo) {
-                }
-            });
+            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacDensityMobility));
         }
 
         DisplayPlot plotSFacCor = new DisplayPlot();
@@ -1787,6 +1769,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         AtomSignalStress signalStress0 = new AtomSignalStress(stressSource, 0, 1);
         MeterStructureFactor meterSFacStress0 = new MeterStructureFactor(sim.box, 3, signalStress0);
+        meterSFacStress0.setNormalizeByN(true);
         if (sim.getSpace().D() == 2) {
             AccumulatorAverageFixed accSFacStress0 = new AccumulatorAverageFixed(1);  // just average, no uncertainty
             DataPumpListener pumpSFacStress0 = new DataPumpListener(meterSFac, accSFacStress0, 100);
@@ -1800,8 +1783,10 @@ public class GlassGraphic extends SimulationGraphic {
         } else {
             AtomSignalStress signalStress1 = new AtomSignalStress(stressSource, 0, 2);
             MeterStructureFactor meterSFacStress1 = new MeterStructureFactor(sim.box, 3, signalStress1);
+            meterSFacStress1.setNormalizeByN(true);
             AtomSignalStress signalStress2 = new AtomSignalStress(stressSource, 1, 2);
             MeterStructureFactor meterSFacStress2 = new MeterStructureFactor(sim.box, 3, signalStress2);
+            meterSFacStress2.setNormalizeByN(true);
             MeterStructureFactorStress3 meterStructureFactorStress3 = new MeterStructureFactorStress3(new MeterStructureFactor[]{meterSFacStress0, meterSFacStress1, meterSFacStress2});
             AccumulatorAverageFixed accSFacStress3 = new AccumulatorAverageFixed(1);
             DataPumpListener pumpSFacStress3 = new DataPumpListener(meterStructureFactorStress3, accSFacStress3, 100);
@@ -1819,6 +1804,7 @@ public class GlassGraphic extends SimulationGraphic {
         for (int i = 0; i < meterSFacNormal.length; i++) {
             AtomSignalStress signalStressNormali = new AtomSignalStress(stressSource, i, i);
             meterSFacNormal[i] = new MeterStructureFactor(sim.box, 3, signalStressNormali);
+            meterSFacNormal[i].setNormalizeByN(true);
         }
         MeterStructureFactorStress3 meterStructureFactorNormalAll = new MeterStructureFactorStress3(meterSFacNormal);
         AccumulatorAverageFixed accSFacNormalStress = new AccumulatorAverageFixed(1);
