@@ -29,6 +29,7 @@ public class AtomSignalMobility extends MeterStructureFactor.AtomSignalSourceByT
 
     public double signal(IAtom atom) {
         double s = super.signal(atom);
+        if (s == 0) return 0;
         int idx = prevConfigIndex;
         int lastIndex = configStorage.getLastConfigIndex();
         if (lastIndex < idx) throw new RuntimeException("not enough configs to compute signal");

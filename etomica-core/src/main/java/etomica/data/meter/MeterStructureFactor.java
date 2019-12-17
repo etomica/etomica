@@ -187,6 +187,7 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
             double term2 = 0;
             for (IAtom atom : atomList) {
                 double signal = signalSource == null ? 1.0 : signalSource.signal(atom);
+                if (signal == 0) continue;
                 double dotprod = waveVec[k].dot(atom.getPosition());
                 term1 += signal * Math.cos(dotprod);
                 term2 += signal * Math.sin(dotprod);
