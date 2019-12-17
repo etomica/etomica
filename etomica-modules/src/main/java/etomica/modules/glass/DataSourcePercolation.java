@@ -47,8 +47,11 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
 
     protected final HistogramNotSoSimple histogramImmPerc;
 
-
     public DataSourcePercolation(ConfigurationStorage configStorage, AtomTestDeviation atomTest, int log2StepMin) {
+        this(configStorage, atomTest, log2StepMin, null);
+    }
+
+    public DataSourcePercolation(ConfigurationStorage configStorage, AtomTestDeviation atomTest, int log2StepMin, HistogramNotSoSimple sharedHistogram) {
         this.configStorage = configStorage;
         int nt = 0;
         IAtomList atoms = configStorage.box.getLeafList();
@@ -75,7 +78,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         numAtoms = configStorage.getBox().getLeafList().size();
         clusterSize = new int[numAtoms][2];
         clusterStack = new int[numAtoms];
-        isVisited= new boolean[numAtoms];
+        isVisited = new boolean[numAtoms];
         space = configStorage.box.getSpace();
         percP = new double[0];
         immFraction = new long[0];
@@ -84,15 +87,22 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         tag = new DataTag();
         immFracTag = new DataTag();
         tTag = new DataTag();
-        immFracPercTag = new DataTag();
         r = space.makeVectorArray(numAtoms);
-        histogramImmPerc = new HistogramNotSoSimple(new DoubleRange(0, 1));
-        int nbins = histogramImmPerc.getNBins();
-        immFracPercData = new DataFunction(new int[]{nbins}, histogramImmPerc.getHistogram());
-        immFracPercDataInfo = new DataFunction.DataInfoFunction("percolation fraction", Null.DIMENSION,
-                new DataSourceIndependentSimple(histogramImmPerc.xValues(),
-                        new DataDoubleArray.DataInfoDoubleArray("immobile fraction", Null.DIMENSION, new int[]{nbins})));
-        immFracPercDataInfo.addTag(immFracPercTag);
+        if (sharedHistogram == null) {
+            immFracPercTag = new DataTag();
+            histogramImmPerc = new HistogramNotSoSimple(new DoubleRange(0, 1));
+            int nbins = histogramImmPerc.getNBins();
+            immFracPercData = new DataFunction(new int[]{nbins}, histogramImmPerc.getHistogram());
+            immFracPercDataInfo = new DataFunction.DataInfoFunction("percolation fraction", Null.DIMENSION,
+                    new DataSourceIndependentSimple(histogramImmPerc.xValues(),
+                            new DataDoubleArray.DataInfoDoubleArray("immobile fraction", Null.DIMENSION, new int[]{nbins})));
+            immFracPercDataInfo.addTag(immFracPercTag);
+        } else {
+            histogramImmPerc = sharedHistogram;
+            immFracPercData = null;
+            immFracPercTag = null;
+            immFracPercDataInfo = null;
+        }
         reallocate(0);
     }
 
@@ -233,13 +243,16 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         }// loop over i
     }
 
+    public HistogramNotSoSimple getHistogram() {
+        return histogramImmPerc;
+    }
 
     @Override
     public IData getData() {
         if (configStorage.getLastConfigIndex() < 1) return data;
         double[] y = data.getData();
         for (int i = 0; i < percP.length; i++) {
-            y[i] = percP[i]/nSamples[i];
+            y[i] = percP[i] / nSamples[i];
         }
         return data;
     }
@@ -284,6 +297,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     }
 
     public PercolationByImmFrac makePerclationByImmFracSource() {
+        if (immFracPercData == null) throw new RuntimeException("this meter is using a shared histogram");
         return new PercolationByImmFrac();
     }
 
