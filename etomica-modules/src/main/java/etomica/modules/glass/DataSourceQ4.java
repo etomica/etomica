@@ -111,8 +111,7 @@ public class DataSourceQ4 implements IDataSource, ConfigurationStorage.Configura
                 for (int j = 0; j < nMobile; j++) {
                     int jj = mobileAtoms[j];
                     for (int k = 0; k < nMobile; k++) {
-                        if (k == j) continue;
-                        if (replacedAtoms[k] > 0) continue;
+                        if (k == j || replacedAtoms[k] > 0) continue;
                         int kk = mobileAtoms[k];
                         double r2 = positions[jj].Mv1Squared(iPositions[kk]);
                         if (r2 < maxDr2) {
