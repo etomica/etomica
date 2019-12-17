@@ -6,6 +6,7 @@ package etomica.modules.glass;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
@@ -29,7 +30,7 @@ public class DataSourceQ4 implements IDataSource, ConfigurationStorage.Configura
     protected int log2StepMin;
     protected double maxDr2 = 0.2 * 0.2;
     protected final Vector[] r;
-    protected final int[] mobileAtoms, replacedAtoms;
+    protected final int[] mobileAtoms;
     protected final Vector dr;
 
     public DataSourceQ4(ConfigurationStorage configStorage, int log2StepMin) {
@@ -46,7 +47,6 @@ public class DataSourceQ4 implements IDataSource, ConfigurationStorage.Configura
         r = space.makeVectorArray(numAtoms);
         dr = space.makeVector();
         mobileAtoms = new int[numAtoms];
-        replacedAtoms = new int[numAtoms];
         reallocate(0);
     }
 
@@ -92,6 +92,7 @@ public class DataSourceQ4 implements IDataSource, ConfigurationStorage.Configura
         long step = configStorage.getSavedSteps()[0];
         Vector[] positions = configStorage.getSavedConfig(0);
         int numAtoms = positions.length;
+        Boundary boundary = configStorage.getBox().getBoundary();
         for (int i = 0; i < configStorage.getLastConfigIndex(); i++) {
             int x = Math.max(i, log2StepMin);
             if (step % (1L << x) == 0) {
@@ -106,17 +107,15 @@ public class DataSourceQ4 implements IDataSource, ConfigurationStorage.Configura
                         nMobile++;
                     }
                 }
-                Arrays.fill(replacedAtoms, 0);
                 // now look at all mobile to see if they've replaced
                 for (int j = 0; j < nMobile; j++) {
                     int jj = mobileAtoms[j];
                     for (int k = 0; k < nMobile; k++) {
-                        if (k == j || replacedAtoms[k] > 0) continue;
                         int kk = mobileAtoms[k];
-                        double r2 = positions[jj].Mv1Squared(iPositions[kk]);
+                        dr.Ev1Mv2(positions[jj], iPositions[kk]);
+                        boundary.nearestImage(dr);
+                        double r2 = dr.squared();
                         if (r2 < maxDr2) {
-                            // don't need to look for another replacing k
-                            replacedAtoms[k] = 1;
                             nReplaced++;
                             // don't need to look for j replacing another
                             break;
