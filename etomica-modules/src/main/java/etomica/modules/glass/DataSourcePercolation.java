@@ -22,15 +22,15 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
-    protected DataFunction data, immFracData, immFracPercData;
+    protected DataFunction data, immFracData, immFracPercData, chi4Data;
     protected final DataFunction[] immFracDataByType;
     protected final DataFunction.DataInfoFunction[] immFracDataByTypeInfo;
-    protected DataFunction.DataInfoFunction dataInfo, immFracDataInfo, immFracPercDataInfo;
+    protected DataFunction.DataInfoFunction dataInfo, immFracDataInfo, immFracPercDataInfo, chi4DataInfo;
     protected double[] percP;
-    protected long[] immFraction;
+    protected long[] immTotal, imm2Total;
     protected long[][] immFractionByType;
     protected final int[] numAtomsByType;
-    protected final DataTag tTag, tag, immFracTag, immFracPercTag;
+    protected final DataTag tTag, tag, immFracTag, immFracPercTag, chi4Tag;
     protected final DataTag[] immFracByTypeTag;
 
     protected long[] nSamples;
@@ -81,11 +81,12 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         isVisited = new boolean[numAtoms];
         space = configStorage.box.getSpace();
         percP = new double[0];
-        immFraction = new long[0];
+        imm2Total = immTotal = new long[0];
         immFractionByType = new long[0][0];
         nSamples = new long[0];
         tag = new DataTag();
         immFracTag = new DataTag();
+        chi4Tag = new DataTag();
         tTag = new DataTag();
         r = space.makeVectorArray(numAtoms);
         if (sharedHistogram == null) {
@@ -124,7 +125,8 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
 
     public void zeroData() {
         Arrays.fill(percP, 0);
-        Arrays.fill(immFraction, 0);
+        Arrays.fill(immTotal, 0);
+        Arrays.fill(imm2Total, 0);
         Arrays.fill(nSamples, 0);
         for (int i = 0; i < immFractionByType.length; i++) {
             Arrays.fill(immFractionByType[i], 0);
@@ -133,7 +135,8 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
 
     public void reallocate(int n) {
         percP = Arrays.copyOf(percP, n);
-        immFraction = Arrays.copyOf(immFraction, n);
+        immTotal = Arrays.copyOf(immTotal, n);
+        imm2Total = Arrays.copyOf(imm2Total, n);
         int oldSize = immFractionByType.length;
         immFractionByType = Arrays.copyOf(immFractionByType, n);
         for (int i = oldSize; i < n; i++) {
@@ -142,6 +145,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
         immFracData = new DataFunction(new int[]{n});
+        chi4Data = new DataFunction(new int[]{n});
         tData = new DataDoubleArray(new int[]{n});
         tDataInfo = new DataDoubleArray.DataInfoDoubleArray("t", Time.DIMENSION, new int[]{n});
         tDataInfo.addTag(tTag);
@@ -149,6 +153,8 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         dataInfo.addTag(tag);
         immFracDataInfo = new DataFunction.DataInfoFunction("immFraction", Null.DIMENSION, this);
         immFracDataInfo.addTag(immFracTag);
+        chi4DataInfo = new DataFunction.DataInfoFunction("chi4*", Null.DIMENSION, this);
+        chi4DataInfo.addTag(chi4Tag);
         for (int i = 0; i < numTypes; i++) {
             immFracDataByType[i] = new DataFunction(new int[]{n});
             immFracDataByTypeInfo[i] = new DataFunction.DataInfoFunction("immFraction", Null.DIMENSION, this);
@@ -196,7 +202,8 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
                         immFractionByType[i][t]++;
                     }
                 }
-                immFraction[i] += immCount;
+                immTotal[i] += immCount;
+                imm2Total[i] += immCount * immCount;
                 java.util.Arrays.sort(clusterSize, 0, nClusters, new java.util.Comparator<int[]>() {
                     public int compare(int[] a, int[] b) {
                         return Integer.compare(b[1], a[1]);
@@ -301,14 +308,18 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         return new PercolationByImmFrac();
     }
 
+    public Chi4Source makeChi4Source() {
+        return new Chi4Source();
+    }
+
     public class ImmFractionSource implements IDataSource {
 
         @Override
         public IData getData() {
             if (configStorage.getLastConfigIndex() < 1) return immFracData;
             double[] yImmFrac = immFracData.getData();
-            for (int i = 0; i < immFraction.length; i++) {
-                yImmFrac[i] = (double)immFraction[i]/nSamples[i]/numAtoms;
+            for (int i = 0; i < immTotal.length; i++) {
+                yImmFrac[i] = (double) immTotal[i] / nSamples[i] / numAtoms;
 
             }
             return immFracData;
@@ -322,6 +333,32 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         @Override
         public IDataInfo getDataInfo() {
             return immFracDataInfo;
+        }
+    }
+
+    public class Chi4Source implements IDataSource {
+
+        @Override
+        public IData getData() {
+            if (configStorage.getLastConfigIndex() < 1) return chi4Data;
+            double[] chi4 = chi4Data.getData();
+            double V = configStorage.getBox().getBoundary().volume();
+            for (int i = 0; i < immTotal.length; i++) {
+                double imm2Avg = (double) imm2Total[i] / (numAtoms * numAtoms) / nSamples[i];
+                double immAvg = (double) immTotal[i] / nSamples[i] / numAtoms;
+                chi4[i] = (imm2Avg - immAvg * immAvg) * V;
+            }
+            return chi4Data;
+        }
+
+        @Override
+        public DataTag getTag() {
+            return chi4Tag;
+        }
+
+        @Override
+        public IDataInfo getDataInfo() {
+            return chi4DataInfo;
         }
     }
 

@@ -729,7 +729,25 @@ public class GlassGraphic extends SimulationGraphic {
         plotPerc.setLegend(new DataTag[]{meterQ4.getTag()}, "Q4");
         plotPerc.setLabel("perc");
         plotPerc.getPlot().setXLog(true);
-        add(plotPerc);
+
+        DisplayPlot plotChi4 = new DisplayPlot();
+        plotChi4.getPlot().setXLog(true);
+        DataSourcePercolation.Chi4Source meterChi4Star = meterPerc.makeChi4Source();
+        DataPumpListener pumpChi4Star = new DataPumpListener(meterChi4Star, plotChi4.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpChi4Star);
+        plotChi4.setLegend(new DataTag[]{meterChi4Star.getTag()}, "chi4*");
+        DataSourceQ4.MeterChi4 meterChi4 = meterQ4.makeChi4Meter();
+        DataPumpListener pumpChi4 = new DataPumpListener(meterChi4, plotChi4.getDataSet().makeDataSink(), 1000);
+        sim.integrator.getEventManager().addListener(pumpChi4);
+        plotChi4.setLegend(new DataTag[]{meterChi4.getTag()}, "chi4");
+
+        JPanel plotPercPanel = new JPanel();
+        JScrollPane plotsPerc = new JScrollPane(plotPercPanel);
+        java.awt.Dimension d = plotPerc.getPlot().getPreferredSize();
+        d.height = 600;
+        plotsPerc.setPreferredSize(d);
+        getPanel().tabbedPane.add("perc", plotsPerc);
+
 
         //Percolation slider
         DeviceSlider percDrSlider = new DeviceSlider(sim.getController(), new Modifier() {
@@ -796,20 +814,21 @@ public class GlassGraphic extends SimulationGraphic {
         percMinLog2StepSlider.setValue(5);
         percMinLog2StepSlider.setLabel("log2(min time (steps))");
 
-        JPanel percPanel = (JPanel) plotPerc.graphic();
-        percPanel.remove(plotPerc.getPlot());
-        percPanel.setLayout(new GridBagLayout());
+        plotPercPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbcPerc = new GridBagConstraints();
         gbcPerc.gridx = 0;
         gbcPerc.gridy = 0;
         gbcPerc.gridheight = 3;
-        percPanel.add(plotPerc.getPlot(), gbcPerc);
+        plotPercPanel.add(plotPerc.getPlot(), gbcPerc);
         gbcPerc.insets = new Insets(20, 0, 0, 0);
         gbcPerc.gridheight = 1;
         gbcPerc.gridx = 1;
-        percPanel.add(percDrSlider.graphic(), gbcPerc);
+        plotPercPanel.add(percDrSlider.graphic(), gbcPerc);
         gbcPerc.gridy = 1;
-        percPanel.add(percMinLog2StepSlider.getPanel(), gbcPerc);
+        plotPercPanel.add(percMinLog2StepSlider.getPanel(), gbcPerc);
+        gbcPerc.gridx = 0;
+        gbcPerc.gridy = 3;
+        plotPercPanel.add(plotChi4.getPlot(), gbcPerc);
 
         DataSourcePercolation0 meterPerc0 = new DataSourcePercolation0(sim.box, sim.getRandom());
         meterPerc0.setImmFracs(new double[]{0.05, 0.1, 0.15, 0.20, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.8, 0.85, 0.9, 0.95, 1});
@@ -880,7 +899,7 @@ public class GlassGraphic extends SimulationGraphic {
         plotCorSelfPanel.add(plotCorSelf.graphic());
         plotCorSelfPanel.add(plotCorSelf2.graphic());
         JScrollPane plotsCorSelfPane = new JScrollPane(plotCorSelfPanel);
-        java.awt.Dimension d = plotCorSelf2.getPlot().getPreferredSize();
+        d = plotCorSelf2.getPlot().getPreferredSize();
         d.height = 600;
         plotsCorSelfPane.setPreferredSize(d);
         getPanel().tabbedPane.add("cor self", plotsCorSelfPane);
@@ -1622,7 +1641,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         Vector[] wv = meterSFac.getWaveVectors();
         java.util.List<Vector> myWV = new ArrayList<>();
-        double wvMax2 = 6.01 * Math.PI / L;
+        double wvMax2 = 4.01 * Math.PI / L;
         for (Vector vector : wv) {
             int nd = 0;
             for (int i = 0; i < vector.getD(); i++) if (vector.getX(i) != 0) nd++;
@@ -1654,6 +1673,25 @@ public class GlassGraphic extends SimulationGraphic {
         DataSourceCorrelation dsCorSFacDensityMobility = new DataSourceCorrelation(configStorage, mobilityMap.length);
         dsbaSfacDensity2.addSink(dsCorSFacDensityMobility.makeReceiver(0));
 
+        MeterStructureFactor.AtomSignalSourceByType atomSignalPacking = new MeterStructureFactor.AtomSignalSourceByType();
+        atomSignalPacking.setAtomTypeFactor(sim.speciesB.getLeafType(), vB);
+        MeterStructureFactor meterSFacPacking2 = new MeterStructureFactor(sim.box, 3, atomSignalPacking);
+        meterSFacPacking2.setNormalizeByN(true);
+        meterSFacPacking2.setWaveVec(wv);
+        StructureFactorComponentCorrelation sfcPackingCor = new StructureFactorComponentCorrelation(mobilityMap, configStorage);
+        sfcPackingCor.setMinInterval(0);
+        DataSinkBlockAverager dsbaSfacPacking2 = new DataSinkBlockAverager(configStorage, 0, meterSFacPacking2);
+        dsbaSfacPacking2.addSink(sfcPackingCor);
+        DataPump pumpSFacPacking2 = new DataPump(meterSFacPacking2, dsbaSfacPacking2);
+        ConfigurationStoragePumper cspPacking2 = new ConfigurationStoragePumper(pumpSFacPacking2, configStorage);
+        configStorage.addListener(cspPacking2);
+        cspPacking2.setPrevStep(0);
+        DataSourceCorrelation dsCorSFacPackingMobility = new DataSourceCorrelation(configStorage, mobilityMap.length);
+        dsbaSfacPacking2.addSink(dsCorSFacPackingMobility.makeReceiver(0));
+        DataSourceCorrelation dsCorSFacPackingDensity = new DataSourceCorrelation(configStorage, mobilityMap.length);
+        dsbaSfacPacking2.addSink(dsCorSFacPackingDensity.makeReceiver(0));
+        dsbaSfacDensity2.addSink(dsCorSFacPackingDensity.makeReceiver(1));
+
         for (int i = 0; i < 30; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorage, 0);
             signalMotion.setPrevConfig(i + 1);
@@ -1679,6 +1717,7 @@ public class GlassGraphic extends SimulationGraphic {
             cspMobility2.setBigStep(minIntervalSfac2);
             configStorage.addListener(cspMobility2);
             sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacDensityMobility));
+            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacPackingMobility));
         }
 
         DisplayPlot plotSFacCor = new DisplayPlot();
@@ -1704,10 +1743,25 @@ public class GlassGraphic extends SimulationGraphic {
             sim.integrator.getEventManager().addListener(pumpSFacDensityCor);
             plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "density " + label);
 
+            m = sfcPackingCor.makeMeter(mobilityMap[j]);
+            DataPumpListener pumpSFacPackingCor = new DataPumpListener(m, plotSFacCor.getDataSet().makeDataSink(), 1000);
+            sim.integrator.getEventManager().addListener(pumpSFacPackingCor);
+            plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "packing " + label);
+
             DataSourceCorrelation.Meter mm = dsCorSFacDensityMobility.makeMeter(j);
             DataPumpListener pumpCorSFacDensityMobility = new DataPumpListener(mm, plotSFacCor.getDataSet().makeDataSink(), 1000);
             sim.integrator.getEventManager().addListener(pumpCorSFacDensityMobility);
             plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "d-m " + label);
+
+            mm = dsCorSFacPackingMobility.makeMeter(j);
+            DataPumpListener pumpCorSFacPackingMobility = new DataPumpListener(mm, plotSFacCor.getDataSet().makeDataSink(), 1000);
+            sim.integrator.getEventManager().addListener(pumpCorSFacPackingMobility);
+            plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "p-m " + label);
+
+            mm = dsCorSFacPackingDensity.makeMeter(j);
+            DataPumpListener pumpCorSFacPackingDensity = new DataPumpListener(mm, plotSFacCor.getDataSet().makeDataSink(), 1000);
+            sim.integrator.getEventManager().addListener(pumpCorSFacPackingDensity);
+            plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "p-d " + label);
         }
 
         foo = new int[motionMap.length];

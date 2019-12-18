@@ -35,7 +35,7 @@ public class GlassProd {
             params.D = 3;
             params.temperature = 1.0;
             params.numStepsEq = 100000;
-            params.numSteps =   1000000;
+            params.numSteps = 1000000;
             params.minDrFilter = 0.4;
             params.qx = 7.0;
         }
@@ -208,6 +208,10 @@ public class GlassProd {
         DataPumpListener pumpPerc0 = new DataPumpListener(meterPerc0, accPerc0, 10000);
         sim.integrator.getEventManager().addListener(pumpPerc0);
 
+        DataSourceQ4 meterQ4 = new DataSourceQ4(configStorageMSD, 8);
+        meterQ4.setMaxDr(0.2);
+        configStorageMSD.addListener(meterQ4);
+
         //Strings
         DataSourceStrings meterL = new DataSourceStrings(configStorageMSD, 4);
         configStorageMSD.addListener(meterL);
@@ -307,6 +311,25 @@ public class GlassProd {
         DataSourceCorrelation dsCorSFacDensityMobility = new DataSourceCorrelation(configStorageMSD, mobilityMap.length);
         dsbaSfacDensity2.addSink(dsCorSFacDensityMobility.makeReceiver(0));
 
+        MeterStructureFactor.AtomSignalSourceByType atomSignalPacking = new MeterStructureFactor.AtomSignalSourceByType();
+        atomSignalPacking.setAtomTypeFactor(sim.speciesB.getLeafType(), vB);
+        MeterStructureFactor meterSFacPacking2 = new MeterStructureFactor(sim.box, 3, atomSignalPacking);
+        meterSFacPacking2.setNormalizeByN(true);
+        meterSFacPacking2.setWaveVec(wv);
+        StructureFactorComponentCorrelation sfcPackingCor = new StructureFactorComponentCorrelation(mobilityMap, configStorageMSD);
+        sfcPackingCor.setMinInterval(0);
+        DataSinkBlockAverager dsbaSfacPacking2 = new DataSinkBlockAverager(configStorageMSD, 0, meterSFacPacking2);
+        dsbaSfacPacking2.addSink(sfcPackingCor);
+        DataPump pumpSFacPacking2 = new DataPump(meterSFacPacking2, dsbaSfacPacking2);
+        ConfigurationStoragePumper cspPacking2 = new ConfigurationStoragePumper(pumpSFacPacking2, configStorageMSD);
+        configStorageMSD.addListener(cspPacking2);
+        cspPacking2.setPrevStep(0);
+        DataSourceCorrelation dsCorSFacPackingMobility = new DataSourceCorrelation(configStorageMSD, mobilityMap.length);
+        dsbaSfacPacking2.addSink(dsCorSFacPackingMobility.makeReceiver(0));
+        DataSourceCorrelation dsCorSFacPackingDensity = new DataSourceCorrelation(configStorageMSD, mobilityMap.length);
+        dsbaSfacPacking2.addSink(dsCorSFacPackingDensity.makeReceiver(0));
+        dsbaSfacDensity2.addSink(dsCorSFacPackingDensity.makeReceiver(1));
+
         for (int i = 0; i < 30; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorageMSD, 0);
             signalMotion.setPrevConfig(i + 1);
@@ -332,6 +355,7 @@ public class GlassProd {
             cspMobility2.setBigStep(minIntervalSfac2);
             configStorageMSD.addListener(cspMobility2);
             sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacDensityMobility));
+            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacPackingMobility));
         }
 
 
@@ -383,6 +407,7 @@ public class GlassProd {
         String filenameVisc, filenameMSD, filenameMSDA, filenameMSDB, filenameFs, filenamePerc,
                 filenamePerc0, filenameImmFrac, filenameImmFracA, filenameImmFracB, filenameImmFracPerc, filenameL, filenameAlpha2, filenameSq, filenameVAC;
 
+        String fileTag = "";
         String filenamePxyAC = "";
         if(sim.potentialChoice == SimGlass.PotentialChoice.HS){
             double phi;
@@ -392,8 +417,9 @@ public class GlassProd {
                 phi = Math.PI/6*(params.nA+params.nB/(1.4*1.4*1.4))/volume;
             }
             System.out.println("rho: " + params.density + "  phi: " + phi+"\n");
-            System.out.println("Z: " + pAvg/params.density/params.temperature +"  "+ pErr/params.density/params.temperature  +"  cor: "+pCorr);
-            filenameVisc = String.format("viscRho%1.3f.out",rho);
+            System.out.println("Z: " + pAvg / params.density / params.temperature + "  " + pErr / params.density / params.temperature + "  cor: " + pCorr);
+            fileTag = String.format("Rho%1.3f", rho);
+            filenameVisc = String.format("viscRho%1.3f.out", rho);
             filenameMSD = String.format("msdRho%1.3f.out", rho);
             filenameMSDA = String.format("msdARho%1.3f.out", rho);
             filenameMSDB = String.format("msdBRho%1.3f.out", rho);
@@ -435,7 +461,8 @@ public class GlassProd {
             System.out.println("T: " + tAvg +"  "+ tErr +"  cor: "+tCorr);
             System.out.println("Z: " + pAvg/params.density/tAvg +"  "+ pErr/params.density/tAvg  +"  cor: "+pCorr);
             System.out.println("U: " + uAvg / numAtoms + "  " + uErr / numAtoms + "  cor: " + uCorr);
-            filenameVisc = String.format("viscRho%1.3fT%1.3f.out",  rho, params.temperature);
+            fileTag = String.format("Rho%1.3fT%1.3f", rho, params.temperature);
+            filenameVisc = String.format("viscRho%1.3fT%1.3f.out", rho, params.temperature);
             filenameMSD = String.format("msdRho%1.3fT%1.3f.out",  rho, params.temperature);
             filenameMSDA = String.format("msdARho%1.3fT%1.3f.out", rho, params.temperature);
             filenameMSDB = String.format("msdBRho%1.3fT%1.3f.out", rho, params.temperature);
@@ -485,8 +512,14 @@ public class GlassProd {
                 GlassProd.writeDataToFile(m, "sfacMobilityCor_" + label);
                 m = sfcDensityCor.makeMeter(mobilityMap[j]);
                 GlassProd.writeDataToFile(m, "sfacDensityCor_" + label);
+                m = sfcPackingCor.makeMeter(mobilityMap[j]);
+                GlassProd.writeDataToFile(m, "sfacPackingCor_" + label);
                 DataSourceCorrelation.Meter mm = dsCorSFacDensityMobility.makeMeter(j);
-                GlassProd.writeDataToFile(m, "sfacDensityMobilityCor_" + label);
+                GlassProd.writeDataToFile(mm, "sfacDensityMobilityCor_" + label);
+                mm = dsCorSFacPackingMobility.makeMeter(j);
+                GlassProd.writeDataToFile(mm, "sfacPackingMobilityCor_" + label);
+                mm = dsCorSFacPackingDensity.makeMeter(j);
+                GlassProd.writeDataToFile(mm, "sfacPackingDensityCor_" + label);
             }
 
             foo = new int[motionMap.length];
@@ -520,7 +553,10 @@ public class GlassProd {
                     meterPerc3.makeImmFractionSource(sim.speciesB.getLeafType())}, filenameImmFracB);
             GlassProd.writeDataToFile(meterPerc.makePerclationByImmFracSource(), filenameImmFracPerc);
             GlassProd.writeDataToFile(meterPerc0, filenamePerc0);
+            GlassProd.writeDataToFile(meterQ4, "Q4" + fileTag + ".out");
             GlassProd.writeDataToFile(meterL, filenameL);
+            GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc.makeChi4Source(), meterPerc3.makeChi4Source()}, "chi4Star" + fileTag + ".out");
+            GlassProd.writeDataToFile(meterQ4.makeChi4Meter(), "chi4" + fileTag + ".out");
             GlassProd.writeDataToFile(meterAlpha2, filenameAlpha2);
             GlassProd.writeDataToFile(meterSFac, filenameSq);
 

@@ -136,7 +136,7 @@ public class DataSourceQ4 implements IDataSource, ConfigurationStorage.Configura
         if (configStorage.getLastConfigIndex() < 1) return data;
         double[] y = data.getData();
         for (int i = 0; i < Q4sum.length; i++) {
-            y[i] = Q4sum[i] / (nSamples[i]);
+            y[i] = Q4sum[i] / nSamples[i];
         }
         return data;
     }
@@ -182,9 +182,10 @@ public class DataSourceQ4 implements IDataSource, ConfigurationStorage.Configura
         public IData getData() {
             if (configStorage.getLastConfigIndex() < 1) return chi4Data;
             double[] y = chi4Data.getData();
+            double V = configStorage.getBox().getBoundary().volume();
             for (int i = 0; i < Q4sum2.length; i++) {
                 double avg = Q4sum[i] / nSamples[i];
-                y[i] = Q4sum2[i] / nSamples[i] - avg * avg;
+                y[i] = (Q4sum2[i] / nSamples[i] - avg * avg) * V;
             }
             return chi4Data;
         }
