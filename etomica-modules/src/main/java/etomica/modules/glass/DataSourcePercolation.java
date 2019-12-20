@@ -131,6 +131,7 @@ public class DataSourcePercolation implements IDataSource, ConfigurationStorage.
         for (int i = 0; i < immFractionByType.length; i++) {
             Arrays.fill(immFractionByType[i], 0);
         }
+        histogramImmPerc.reset();
     }
 
     public void reallocate(int n) {
