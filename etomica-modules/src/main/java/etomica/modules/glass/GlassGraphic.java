@@ -575,6 +575,9 @@ public class GlassGraphic extends SimulationGraphic {
 
         DataSourceMSDcorP dsMSDcorP = new DataSourceMSDcorP(sim.integrator);
         pFork.addDataSink(dsMSDcorP);
+        DataSourceBlockAvgCor dsCorP = new DataSourceBlockAvgCor(sim.integrator);
+        pFork.addDataSink(dsCorP);
+        DataSourceCorMSD dsCorMSD = new DataSourceCorMSD(sim.integrator);
 
         DataSourceHisogram dsHistogramP = new DataSourceHisogram(sim.integrator);
         pFork.addDataSink(dsHistogramP);
@@ -1157,7 +1160,7 @@ public class GlassGraphic extends SimulationGraphic {
         plotPTensorAutocor.setLabel("P Tensor autocor");
         plotPTensorAutocor.setLegend(new DataTag[]{dpAutocor.getTag()}, "avg");
         dpAutocor.addDataSink(plotPTensorAutocor.getDataSet().makeDataSink());
-        add(plotPTensorAutocor);
+//        add(plotPTensorAutocor);
         DeviceSlider nMaxSlider = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
             public void setValue(double newValue) {
@@ -1247,7 +1250,7 @@ public class GlassGraphic extends SimulationGraphic {
         plotPxyTensorAutocor.setLabel("Pxy autocor");
         plotPxyTensorAutocor.setLegend(new DataTag[]{dpxyAutocor.getTag()}, "avg");
         dpxyAutocor.addDataSink(plotPxyTensorAutocor.getDataSet().makeDataSink());
-        add(plotPxyTensorAutocor);
+//        add(plotPxyTensorAutocor);
         DeviceSlider nMaxSliderShear = new DeviceSlider(sim.getController(), new Modifier() {
             @Override
             public void setValue(double newValue) {
@@ -1507,9 +1510,16 @@ public class GlassGraphic extends SimulationGraphic {
         DisplayPlot plotMSDcorUP = new DisplayPlot();
         plotMSDcorUP.getPlot().setTitle("correlation");
         plotMSDcorUP.getPlot().setXLog(true);
-        plotMSDcorUP.setDoLegend(false);
         DataPumpListener pumpMSDcorP = new DataPumpListener(dsMSDcorP, plotMSDcorUP.getDataSet().makeDataSink(), 1000);
+        plotMSDcorUP.setLegend(new DataTag[]{dsMSDcorP.getTag()}, "P-MSD");
         sim.integrator.getEventManager().addListener(pumpMSDcorP);
+        meterMSD.addMSDSink(dsCorMSD);
+        DataPumpListener pumpMSDcor = new DataPumpListener(dsCorMSD, plotMSDcorUP.getDataSet().makeDataSink(), 1000);
+        plotMSDcorUP.setLegend(new DataTag[]{dsCorMSD.getTag()}, "MSD");
+        sim.integrator.getEventManager().addListener(pumpMSDcor);
+        DataPumpListener pumpPcor = new DataPumpListener(dsCorP, plotMSDcorUP.getDataSet().makeDataSink(), 1000);
+        plotMSDcorUP.setLegend(new DataTag[]{dsCorP.getTag()}, "P");
+        sim.integrator.getEventManager().addListener(pumpPcor);
 
         if (dsMSDcorU != null) {
             meterMSD.addMSDSink(dsMSDcorU);
@@ -1894,6 +1904,8 @@ public class GlassGraphic extends SimulationGraphic {
                     meterPerc.zeroData();
                     meterQ4.zeroData();
                     dsMSDcorP.setEnabled(false);
+                    dsCorP.setEnabled(false);
+                    dsCorMSD.setEnabled(false);
                     dsHistogramP.setEnabled(false);
                     dsPMSDhistory.setEnabled(false);
                     dpAutocor.reset();
@@ -1943,6 +1955,8 @@ public class GlassGraphic extends SimulationGraphic {
                     meterPerc.zeroData();
                     meterQ4.zeroData();
                     dsMSDcorP.setEnabled(true);
+                    dsCorP.setEnabled(true);
+                    dsCorMSD.setEnabled(true);
                     dsHistogramP.setEnabled(true);
                     dsPMSDhistory.setEnabled(true);
                     if (dsMSDcorU != null) dsMSDcorU.setEnabled(true);
