@@ -30,6 +30,7 @@ public class DataSourceBlockAvgCor implements IDataSink, IDataSource, DataSource
     protected final IntegratorMD integrator;
     protected long step0;
     protected boolean enabled;
+    protected int minInterval;
 
     public DataSourceBlockAvgCor(IntegratorMD integrator) {
         this.integrator = integrator;
@@ -38,6 +39,10 @@ public class DataSourceBlockAvgCor implements IDataSink, IDataSource, DataSource
         tTag = new DataTag();
         corPTag = new DataTag();
         resetStep0();
+    }
+
+    public void setMinInterval(int minInterval) {
+        this.minInterval = minInterval;
     }
 
     public void resetStep0() {
@@ -110,9 +115,10 @@ public class DataSourceBlockAvgCor implements IDataSink, IDataSource, DataSource
     public void putData(IData inputData) {
         if (!enabled) return;
         double x = inputData.getValue(0);
+        if (blockSumX.length == 0) step0 = integrator.getStepCount() - (1L << minInterval);
         long step = integrator.getStepCount() - step0;
         if (blockSumX.length == 0) reallocate(1);
-        for (int i = 0; 2 * step >= 1L << i; i++) {
+        for (int i = minInterval; step >= 1L << i; i++) {
             x = processData(i, step, x);
             if (Double.isNaN(x)) break;
         }

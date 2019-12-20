@@ -9,7 +9,6 @@ public class DataSourceCorMSD extends DataSourceBlockAvgCor implements DataSourc
 
     // DataSourceMSD (by default) will collect interval<3, but not every time.  Our superclass
     // doesn't understand that.
-    protected int minInterval = 3;
 
     public DataSourceCorMSD(IntegratorMD integrator) {
         super(integrator);
