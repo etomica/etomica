@@ -1651,7 +1651,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         Vector[] wv = meterSFac.getWaveVectors();
         java.util.List<Vector> myWV = new ArrayList<>();
-        double wvMax2 = 4.01 * Math.PI / L;
+        double wvMax2 = 2.01 * Math.PI / L;
         for (Vector vector : wv) {
             int nd = 0;
             for (int i = 0; i < vector.getD(); i++) if (vector.getX(i) != 0) nd++;
@@ -1674,7 +1674,7 @@ public class GlassGraphic extends SimulationGraphic {
         meterSFacDensity2.setWaveVec(wv);
         StructureFactorComponentCorrelation sfcDensityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorage);
         sfcDensityCor.setMinInterval(0);
-        DataSinkBlockAverager dsbaSfacDensity2 = new DataSinkBlockAverager(configStorage, 0, meterSFacDensity2);
+        DataSinkBlockAveragerSFac dsbaSfacDensity2 = new DataSinkBlockAveragerSFac(configStorage, 0, meterSFacDensity2);
         dsbaSfacDensity2.addSink(sfcDensityCor);
         DataPump pumpSFacDensity2 = new DataPump(meterSFacDensity2, dsbaSfacDensity2);
         ConfigurationStoragePumper cspDensity2 = new ConfigurationStoragePumper(pumpSFacDensity2, configStorage);
@@ -1683,24 +1683,61 @@ public class GlassGraphic extends SimulationGraphic {
         DataSourceCorrelation dsCorSFacDensityMobility = new DataSourceCorrelation(configStorage, mobilityMap.length);
         dsbaSfacDensity2.addSink(dsCorSFacDensityMobility.makeReceiver(0));
 
-        MeterStructureFactor.AtomSignalSourceByType atomSignalPacking = new MeterStructureFactor.AtomSignalSourceByType();
-        atomSignalPacking.setAtomTypeFactor(sim.speciesB.getLeafType(), vB);
-        MeterStructureFactor meterSFacPacking2 = new MeterStructureFactor(sim.box, 3, atomSignalPacking);
-        meterSFacPacking2.setNormalizeByN(true);
-        meterSFacPacking2.setWaveVec(wv);
-        StructureFactorComponentCorrelation sfcPackingCor = new StructureFactorComponentCorrelation(mobilityMap, configStorage);
-        sfcPackingCor.setMinInterval(0);
-        DataSinkBlockAverager dsbaSfacPacking2 = new DataSinkBlockAverager(configStorage, 0, meterSFacPacking2);
-        dsbaSfacPacking2.addSink(sfcPackingCor);
-        DataPump pumpSFacPacking2 = new DataPump(meterSFacPacking2, dsbaSfacPacking2);
-        ConfigurationStoragePumper cspPacking2 = new ConfigurationStoragePumper(pumpSFacPacking2, configStorage);
-        configStorage.addListener(cspPacking2);
-        cspPacking2.setPrevStep(0);
+        AtomSignalKineticEnergy atomSignalKE = new AtomSignalKineticEnergy();
+        atomSignalKE.setDoSubtractAvg(1.5 * sim.integrator.getTemperature());
+        MeterStructureFactor meterSFacKE = new MeterStructureFactor(sim.box, 3, atomSignalKE);
+        meterSFacKE.setNormalizeByN(true);
+        meterSFacKE.setWaveVec(wv);
+        StructureFactorComponentCorrelation sfcKECor = new StructureFactorComponentCorrelation(mobilityMap, configStorage);
+        sfcKECor.setMinInterval(0);
+        DataSinkBlockAveragerSFac dsbaSfacKE = new DataSinkBlockAveragerSFac(configStorage, 0, meterSFacKE);
+        dsbaSfacKE.addSink(sfcKECor);
+        DataPump pumpSFacKECor = new DataPump(meterSFacKE, dsbaSfacKE);
+        ConfigurationStoragePumper cspKE = new ConfigurationStoragePumper(pumpSFacKECor, configStorage);
+        configStorage.addListener(cspKE);
+        cspKE.setPrevStep(0);
+        DataSourceCorrelation dsCorSFacKEMobility = new DataSourceCorrelation(configStorage, mobilityMap.length);
+        dsbaSfacKE.addSink(dsCorSFacKEMobility.makeReceiver(0));
+
         DataSourceCorrelation dsCorSFacPackingMobility = new DataSourceCorrelation(configStorage, mobilityMap.length);
-        dsbaSfacPacking2.addSink(dsCorSFacPackingMobility.makeReceiver(0));
         DataSourceCorrelation dsCorSFacPackingDensity = new DataSourceCorrelation(configStorage, mobilityMap.length);
-        dsbaSfacPacking2.addSink(dsCorSFacPackingDensity.makeReceiver(0));
-        dsbaSfacDensity2.addSink(dsCorSFacPackingDensity.makeReceiver(1));
+        StructureFactorComponentCorrelation sfcPackingCor = new StructureFactorComponentCorrelation(mobilityMap, configStorage);
+        DataSourceCorrelation dsCorSFacDensityAMobility = new DataSourceCorrelation(configStorage, mobilityMap.length);
+        DataSourceCorrelation dsCorSFacDensityADensity = new DataSourceCorrelation(configStorage, mobilityMap.length);
+        StructureFactorComponentCorrelation sfcDensityACor = new StructureFactorComponentCorrelation(mobilityMap, configStorage);
+        if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
+            MeterStructureFactor.AtomSignalSourceByType atomSignalPacking = new MeterStructureFactor.AtomSignalSourceByType();
+            atomSignalPacking.setAtomTypeFactor(sim.speciesB.getLeafType(), vB);
+            MeterStructureFactor meterSFacPacking2 = new MeterStructureFactor(sim.box, 3, atomSignalPacking);
+            meterSFacPacking2.setNormalizeByN(true);
+            meterSFacPacking2.setWaveVec(wv);
+            sfcPackingCor.setMinInterval(0);
+            DataSinkBlockAveragerSFac dsbaSfacPacking2 = new DataSinkBlockAveragerSFac(configStorage, 0, meterSFacPacking2);
+            dsbaSfacPacking2.addSink(sfcPackingCor);
+            DataPump pumpSFacPacking2 = new DataPump(meterSFacPacking2, dsbaSfacPacking2);
+            ConfigurationStoragePumper cspPacking2 = new ConfigurationStoragePumper(pumpSFacPacking2, configStorage);
+            configStorage.addListener(cspPacking2);
+            cspPacking2.setPrevStep(0);
+            dsbaSfacPacking2.addSink(dsCorSFacPackingMobility.makeReceiver(0));
+            dsbaSfacPacking2.addSink(dsCorSFacPackingDensity.makeReceiver(0));
+            dsbaSfacDensity2.addSink(dsCorSFacPackingDensity.makeReceiver(1));
+        } else {
+            MeterStructureFactor.AtomSignalSourceByType atomSignalDensityA = new MeterStructureFactor.AtomSignalSourceByType();
+            atomSignalDensityA.setAtomTypeFactor(sim.speciesB.getLeafType(), 0);
+            MeterStructureFactor meterSFacDensityA2 = new MeterStructureFactor(sim.box, 3, atomSignalDensityA);
+            meterSFacDensityA2.setNormalizeByN(true);
+            meterSFacDensityA2.setWaveVec(wv);
+            sfcDensityACor.setMinInterval(0);
+            DataSinkBlockAveragerSFac dsbaSfacDensityA2 = new DataSinkBlockAveragerSFac(configStorage, 0, meterSFacDensityA2);
+            dsbaSfacDensityA2.addSink(sfcDensityACor);
+            DataPump pumpSFacDensityA2 = new DataPump(meterSFacDensityA2, dsbaSfacDensityA2);
+            ConfigurationStoragePumper cspDensityA2 = new ConfigurationStoragePumper(pumpSFacDensityA2, configStorage);
+            configStorage.addListener(cspDensityA2);
+            cspDensityA2.setPrevStep(0);
+            dsbaSfacDensityA2.addSink(dsCorSFacDensityAMobility.makeReceiver(0));
+            dsbaSfacDensityA2.addSink(dsCorSFacDensityADensity.makeReceiver(0));
+            dsbaSfacDensity2.addSink(dsCorSFacDensityADensity.makeReceiver(1));
+        }
 
         for (int i = 0; i < 30; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorage, 0);
@@ -1727,7 +1764,12 @@ public class GlassGraphic extends SimulationGraphic {
             cspMobility2.setBigStep(minIntervalSfac2);
             configStorage.addListener(cspMobility2);
             sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacDensityMobility));
-            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacPackingMobility));
+            if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
+                sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacPackingMobility));
+            } else {
+                sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacDensityAMobility));
+            }
+            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacKEMobility));
         }
 
         DisplayPlot plotSFacCor = new DisplayPlot();
@@ -1753,25 +1795,52 @@ public class GlassGraphic extends SimulationGraphic {
             sim.integrator.getEventManager().addListener(pumpSFacDensityCor);
             plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "density " + label);
 
-            m = sfcPackingCor.makeMeter(mobilityMap[j]);
-            DataPumpListener pumpSFacPackingCor = new DataPumpListener(m, plotSFacCor.getDataSet().makeDataSink(), 1000);
-            sim.integrator.getEventManager().addListener(pumpSFacPackingCor);
-            plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "packing " + label);
+            m = sfcKECor.makeMeter(mobilityMap[j]);
+            DataPumpListener pumpSFacKEsfcCor = new DataPumpListener(m, plotSFacCor.getDataSet().makeDataSink(), 1000);
+            sim.integrator.getEventManager().addListener(pumpSFacKEsfcCor);
+            plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "KE " + label);
 
+            if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
+                m = sfcPackingCor.makeMeter(mobilityMap[j]);
+                DataPumpListener pumpSFacPackingCor = new DataPumpListener(m, plotSFacCor.getDataSet().makeDataSink(), 1000);
+                sim.integrator.getEventManager().addListener(pumpSFacPackingCor);
+                plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "packing " + label);
+            } else {
+                m = sfcDensityACor.makeMeter(mobilityMap[j]);
+                DataPumpListener pumpSFacDensityACor = new DataPumpListener(m, plotSFacCor.getDataSet().makeDataSink(), 1000);
+                sim.integrator.getEventManager().addListener(pumpSFacDensityACor);
+                plotSFacCor.setLegend(new DataTag[]{m.getTag()}, "densityA " + label);
+            }
             DataSourceCorrelation.Meter mm = dsCorSFacDensityMobility.makeMeter(j);
             DataPumpListener pumpCorSFacDensityMobility = new DataPumpListener(mm, plotSFacCor.getDataSet().makeDataSink(), 1000);
             sim.integrator.getEventManager().addListener(pumpCorSFacDensityMobility);
             plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "d-m " + label);
 
-            mm = dsCorSFacPackingMobility.makeMeter(j);
-            DataPumpListener pumpCorSFacPackingMobility = new DataPumpListener(mm, plotSFacCor.getDataSet().makeDataSink(), 1000);
-            sim.integrator.getEventManager().addListener(pumpCorSFacPackingMobility);
-            plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "p-m " + label);
+            if (sim.potentialChoice == SimGlass.PotentialChoice.HS) {
+                mm = dsCorSFacPackingMobility.makeMeter(j);
+                DataPumpListener pumpCorSFacPackingMobility = new DataPumpListener(mm, plotSFacCor.getDataSet().makeDataSink(), 1000);
+                sim.integrator.getEventManager().addListener(pumpCorSFacPackingMobility);
+                plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "p-m " + label);
 
-            mm = dsCorSFacPackingDensity.makeMeter(j);
-            DataPumpListener pumpCorSFacPackingDensity = new DataPumpListener(mm, plotSFacCor.getDataSet().makeDataSink(), 1000);
-            sim.integrator.getEventManager().addListener(pumpCorSFacPackingDensity);
-            plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "p-d " + label);
+                mm = dsCorSFacPackingDensity.makeMeter(j);
+                DataPumpListener pumpCorSFacPackingDensity = new DataPumpListener(mm, plotSFacCor.getDataSet().makeDataSink(), 1000);
+                sim.integrator.getEventManager().addListener(pumpCorSFacPackingDensity);
+                plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "p-d " + label);
+            } else {
+                mm = dsCorSFacDensityAMobility.makeMeter(j);
+                DataPumpListener pumpCorSFacDensityAMobility = new DataPumpListener(mm, plotSFacCor.getDataSet().makeDataSink(), 1000);
+                sim.integrator.getEventManager().addListener(pumpCorSFacDensityAMobility);
+                plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "da-m " + label);
+
+                mm = dsCorSFacDensityADensity.makeMeter(j);
+                DataPumpListener pumpCorSFacDensityADensity = new DataPumpListener(mm, plotSFacCor.getDataSet().makeDataSink(), 1000);
+                sim.integrator.getEventManager().addListener(pumpCorSFacDensityADensity);
+                plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "da-d " + label);
+            }
+            mm = dsCorSFacKEMobility.makeMeter(j);
+            DataPumpListener pumpCorSFacKEMobility = new DataPumpListener(mm, plotSFacCor.getDataSet().makeDataSink(), 1000);
+            sim.integrator.getEventManager().addListener(pumpCorSFacKEMobility);
+            plotSFacCor.setLegend(new DataTag[]{mm.getTag()}, "KE-m " + label);
         }
 
         foo = new int[motionMap.length];
@@ -1834,14 +1903,14 @@ public class GlassGraphic extends SimulationGraphic {
         AtomSignalStress signalStress0 = new AtomSignalStress(stressSource, 0, 1);
         MeterStructureFactor meterSFacStress0 = new MeterStructureFactor(sim.box, 3, signalStress0);
         meterSFacStress0.setNormalizeByN(true);
+        AccumulatorAverageFixed accSFacShearStress = new AccumulatorAverageFixed(1);
         if (sim.getSpace().D() == 2) {
-            AccumulatorAverageFixed accSFacStress0 = new AccumulatorAverageFixed(1);  // just average, no uncertainty
-            DataPumpListener pumpSFacStress0 = new DataPumpListener(meterSFac, accSFacStress0, 100);
-            accSFacStress0.setPushInterval(5);
+            DataPumpListener pumpSFacStress0 = new DataPumpListener(meterSFac, accSFacShearStress, 100);
+            accSFacShearStress.setPushInterval(5);
             sim.integrator.getEventManager().addListener(pumpSFacStress0);
             dataStreamPumps.add(pumpSFac);
 
-            accSFacStress0.addDataSink(plotSFac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accSFac.AVERAGE});
+            accSFacShearStress.addDataSink(plotSFac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accSFac.AVERAGE});
             plotSFac.setDoDrawLines(new DataTag[]{meterSFacStress0.getTag()}, false);
             plotSFac.setLegend(new DataTag[]{meterSFacStress0.getTag()}, "stress");
         } else {
@@ -1852,13 +1921,12 @@ public class GlassGraphic extends SimulationGraphic {
             MeterStructureFactor meterSFacStress2 = new MeterStructureFactor(sim.box, 3, signalStress2);
             meterSFacStress2.setNormalizeByN(true);
             MeterStructureFactorStress3 meterStructureFactorStress3 = new MeterStructureFactorStress3(new MeterStructureFactor[]{meterSFacStress0, meterSFacStress1, meterSFacStress2});
-            AccumulatorAverageFixed accSFacStress3 = new AccumulatorAverageFixed(1);
-            DataPumpListener pumpSFacStress3 = new DataPumpListener(meterStructureFactorStress3, accSFacStress3, 100);
-            accSFacStress3.setPushInterval(5);
+            DataPumpListener pumpSFacStress3 = new DataPumpListener(meterStructureFactorStress3, accSFacShearStress, 100);
+            accSFacShearStress.setPushInterval(5);
             sim.integrator.getEventManager().addListener(pumpSFacStress3);
             dataStreamPumps.add(pumpSFacStress3);
 
-            accSFacStress3.addDataSink(plotSFac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accSFac.AVERAGE});
+            accSFacShearStress.addDataSink(plotSFac.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{accSFac.AVERAGE});
             plotSFac.setDoDrawLines(new DataTag[]{meterStructureFactorStress3.getTag()}, false);
             plotSFac.setLegend(new DataTag[]{meterStructureFactorStress3.getTag()}, "shear stress");
         }
@@ -1931,12 +1999,25 @@ public class GlassGraphic extends SimulationGraphic {
                     diameterHash.setFac(1.0);
                     accSFac.reset();
                     sfcMotionCor.reset();
+                    sfcDensityACor.reset();
+                    sfcDensityCor.reset();
+                    sfcKECor.reset();
+                    sfcMobilityCor.reset();
+                    sfcPackingCor.reset();
+                    dsCorSFacDensityMobility.reset();
+                    dsCorSFacDensityADensity.reset();
+                    dsCorSFacDensityAMobility.reset();
+                    dsCorSFacKEMobility.reset();
+                    dsCorSFacPackingDensity.reset();
+                    dsCorSFacPackingMobility.reset();
                     for (AccumulatorAverageFixed accumulatorAverageFixed : accSFacMobility) {
                         accumulatorAverageFixed.reset();
                     }
                     for (AccumulatorAverageFixed accumulatorAverageFixed : accSFacMotion) {
                         accumulatorAverageFixed.reset();
                     }
+                    accSFacNormalStress.reset();
+                    accSFacShearStress.reset();
                     accPerc0.reset();
                     meterCorrelationSelf.reset();
                     meterCorrelationSelfMagA.reset();
@@ -1986,12 +2067,25 @@ public class GlassGraphic extends SimulationGraphic {
                     diameterHash.setFac(showDispCheckbox.getState() ? 0.5 : 1.0);
                     accSFac.reset();
                     sfcMotionCor.reset();
+                    sfcDensityACor.reset();
+                    sfcDensityCor.reset();
+                    sfcKECor.reset();
+                    sfcMobilityCor.reset();
+                    sfcPackingCor.reset();
+                    dsCorSFacDensityMobility.reset();
+                    dsCorSFacDensityADensity.reset();
+                    dsCorSFacDensityAMobility.reset();
+                    dsCorSFacKEMobility.reset();
+                    dsCorSFacPackingDensity.reset();
+                    dsCorSFacPackingMobility.reset();
                     for (AccumulatorAverageFixed accumulatorAverageFixed : accSFacMobility) {
                         accumulatorAverageFixed.reset();
                     }
                     for (AccumulatorAverageFixed accumulatorAverageFixed : accSFacMotion) {
                         accumulatorAverageFixed.reset();
                     }
+                    accSFacNormalStress.reset();
+                    accSFacShearStress.reset();
                     accPerc0.reset();
                     meterCorrelationSelf.reset();
                     meterCorrelationSelfMagA.reset();

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class DataSinkBlockAverager implements IDataSink {
+public class DataSinkBlockAveragerSFac implements IDataSink {
 
     protected final ConfigurationStorage configStorage;
     protected final MeterStructureFactor meterSFac;
@@ -19,7 +19,7 @@ public class DataSinkBlockAverager implements IDataSink {
     protected long[] nSamples;
     protected int nData;
 
-    public DataSinkBlockAverager(ConfigurationStorage configStorage, int minInterval, MeterStructureFactor meterSFac) {
+    public DataSinkBlockAveragerSFac(ConfigurationStorage configStorage, int minInterval, MeterStructureFactor meterSFac) {
         this.configStorage = configStorage;
         this.meterSFac = meterSFac;
         this.sinks = new ArrayList<>();

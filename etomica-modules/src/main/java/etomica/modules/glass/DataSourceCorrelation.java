@@ -151,7 +151,7 @@ public class DataSourceCorrelation implements DataSourceIndependent {
         return new Meter(idx);
     }
 
-    public class Receiver implements DataSinkBlockAverager.Sink {
+    public class Receiver implements DataSinkBlockAveragerSFac.Sink {
         protected final int idx;
 
         public Receiver(int idx) {

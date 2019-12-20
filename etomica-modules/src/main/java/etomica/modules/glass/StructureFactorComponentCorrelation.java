@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class StructureFactorComponentCorrelation implements DataSourceIndependent, DataSinkBlockAverager.Sink {
+public class StructureFactorComponentCorrelation implements DataSourceIndependent, DataSinkBlockAveragerSFac.Sink {
 
     protected double[][][] lastXY;
     protected double[][] corSum;

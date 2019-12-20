@@ -302,7 +302,7 @@ public class GlassProd {
         meterSFacDensity2.setWaveVec(wv);
         StructureFactorComponentCorrelation sfcDensityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorageMSD);
         sfcDensityCor.setMinInterval(0);
-        DataSinkBlockAverager dsbaSfacDensity2 = new DataSinkBlockAverager(configStorageMSD, 0, meterSFacDensity2);
+        DataSinkBlockAveragerSFac dsbaSfacDensity2 = new DataSinkBlockAveragerSFac(configStorageMSD, 0, meterSFacDensity2);
         dsbaSfacDensity2.addSink(sfcDensityCor);
         DataPump pumpSFacDensity2 = new DataPump(meterSFacDensity2, dsbaSfacDensity2);
         ConfigurationStoragePumper cspDensity2 = new ConfigurationStoragePumper(pumpSFacDensity2, configStorageMSD);
@@ -318,7 +318,7 @@ public class GlassProd {
         meterSFacPacking2.setWaveVec(wv);
         StructureFactorComponentCorrelation sfcPackingCor = new StructureFactorComponentCorrelation(mobilityMap, configStorageMSD);
         sfcPackingCor.setMinInterval(0);
-        DataSinkBlockAverager dsbaSfacPacking2 = new DataSinkBlockAverager(configStorageMSD, 0, meterSFacPacking2);
+        DataSinkBlockAveragerSFac dsbaSfacPacking2 = new DataSinkBlockAveragerSFac(configStorageMSD, 0, meterSFacPacking2);
         dsbaSfacPacking2.addSink(sfcPackingCor);
         DataPump pumpSFacPacking2 = new DataPump(meterSFacPacking2, dsbaSfacPacking2);
         ConfigurationStoragePumper cspPacking2 = new ConfigurationStoragePumper(pumpSFacPacking2, configStorageMSD);
