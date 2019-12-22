@@ -6,15 +6,33 @@ import etomica.data.meter.MeterStructureFactor;
 public class AtomSignalStress implements MeterStructureFactor.AtomSignalSource {
 
     protected final AtomStressSource stressSource;
-    protected final int comp1, comp2;
+    protected final int[][] comps;
+    protected double avg;
 
-    public AtomSignalStress(AtomStressSource stressSource, int comp1, int comp2) {
+    public AtomSignalStress(AtomStressSource stressSource, int[][] comps) {
         this.stressSource = stressSource;
-        this.comp1 = comp1;
-        this.comp2 = comp2;
+        this.comps = comps;
+    }
+
+    public boolean ready() {
+        double[][][] stress = stressSource.getStress();
+        avg = 0;
+        for (int i=0; i<stress.length; i++) {
+            double sum = 0;
+            for (int j=0; j<comps.length; j++) {
+                sum += stress[i][comps[j][0]][comps[j][1]];
+            }
+            avg += (sum - avg)/(i+1);
+        }
+        return true;
     }
 
     public double signal(IAtom atom) {
-        return stressSource.getStress()[atom.getLeafIndex()][comp1][comp2];
+        double sum = 0;
+        double[][] stress = stressSource.getStress()[atom.getLeafIndex()];
+        for (int i=0; i<comps.length; i++) {
+            sum += stress[comps[i][0]][comps[i][1]];
+        }
+        return sum - avg;
     }
 }
