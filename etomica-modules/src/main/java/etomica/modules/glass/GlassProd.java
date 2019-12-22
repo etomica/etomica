@@ -183,18 +183,12 @@ public class GlassProd {
         meterFs.setQ(q);
         configStorageMSD.addListener(meterFs);
 
-        //F
-//        DataSourceF meterF = new DataSourceF(configStorageMSD);
-//        configStorageMSD.addListener(meterF);
-
         //Percolation
         AtomTestDeviation atomFilterDeviation = new AtomTestDeviation(sim.box, configStorageMSD);
         atomFilterDeviation.setMinDistance(params.minDrFilter);
         atomFilterDeviation.setDoMobileOnly(false);
         DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSD, atomFilterDeviation, params.log2StepMin);
         configStorageMSD.addListener(meterPerc);
-
-        //Immobile fraction
 
         AtomTestDeviation atomFilterDeviation3 = new AtomTestDeviation(sim.box, configStorageMSD3);
         atomFilterDeviation3.setMinDistance(params.minDrFilter);
@@ -231,21 +225,36 @@ public class GlassProd {
         double vB = sim.getSpace().powerD(sim.sigmaB);
         ((MeterStructureFactor.AtomSignalSourceByType) meterSFac.getSignalSource()).setAtomTypeFactor(sim.speciesB.getAtomType(0), vB);
 
-        MeterStructureFactor[] meterSFacMobility = new MeterStructureFactor[30];
         AccumulatorAverageFixed[] accSFacMobility = new AccumulatorAverageFixed[30];
         for (int i = 0; i < 30; i++) {
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
             signalMobility.setPrevConfig(i);
-            meterSFacMobility[i] = new MeterStructureFactor(sim.box, 3, signalMobility);
-            meterSFacMobility[i].setNormalizeByN(true);
+            MeterStructureFactor meterSFacMobility = new MeterStructureFactor(sim.box, 3, signalMobility);
+            meterSFacMobility.setNormalizeByN(true);
             DataFork forkSFacMobility = new DataFork();
-            DataPump pumpSFacMobility = new DataPump(meterSFacMobility[i], forkSFacMobility);
+            DataPump pumpSFacMobility = new DataPump(meterSFacMobility, forkSFacMobility);
             accSFacMobility[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
             forkSFacMobility.addDataSink(accSFacMobility[i]);
             // ensures pump fires when config with delta t is available
             ConfigurationStoragePumper cspMobility = new ConfigurationStoragePumper(pumpSFacMobility, configStorageMSD);
             cspMobility.setPrevStep(Math.max(i, 9));
             configStorageMSD.addListener(cspMobility);
+        }
+
+        AccumulatorAverageFixed[] accSFacMotion = new AccumulatorAverageFixed[30];
+        for (int i = 0; i < 30; i++) {
+            AtomSignalMotion signalMotion = new AtomSignalMotion(configStorageMSD, 0);
+            signalMotion.setPrevConfig(i);
+            MeterStructureFactor meterSFacMotion = new MeterStructureFactor(sim.box, 3, signalMotion);
+            meterSFacMotion.setNormalizeByN(true);
+            DataFork forkSFacMotion = new DataFork();
+            DataPump pumpSFacMotion = new DataPump(meterSFacMotion, forkSFacMotion);
+            accSFacMotion[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
+            forkSFacMotion.addDataSink(accSFacMotion[i]);
+            // ensures pump fires when config with delta t is available
+            ConfigurationStoragePumper cspMotion = new ConfigurationStoragePumper(pumpSFacMotion, configStorageMSD);
+            cspMotion.setPrevStep(Math.max(i, 9));
+            configStorageMSD.addListener(cspMotion);
         }
 
         AtomStressSource stressSource = null;
@@ -258,23 +267,6 @@ public class GlassProd {
             ((IntegratorVelocityVerlet) sim.integrator).setForceSum(pcForce);
             stressSource = pcForce;
         }
-
-        AtomSignalStress signalStress0 = new AtomSignalStress(stressSource, 0, 1);
-        MeterStructureFactor meterSFacStress0 = new MeterStructureFactor(sim.box, 3, signalStress0);
-        meterSFacStress0.setNormalizeByN(true);
-        AccumulatorAverageFixed accSFacStress = new AccumulatorAverageFixed(1);
-        DataPumpListener pumpSFacStress = new DataPumpListener(meterSFac, accSFacStress, 100);
-        if (sim.getSpace().D() == 3) {
-            AtomSignalStress signalStress1 = new AtomSignalStress(stressSource, 0, 2);
-            MeterStructureFactor meterSFacStress1 = new MeterStructureFactor(sim.box, 3, signalStress1);
-            meterSFacStress1.setNormalizeByN(true);
-            AtomSignalStress signalStress2 = new AtomSignalStress(stressSource, 1, 2);
-            MeterStructureFactor meterSFacStress2 = new MeterStructureFactor(sim.box, 3, signalStress2);
-            meterSFacStress2.setNormalizeByN(true);
-            MeterStructureFactorStress3 meterStructureFactorStress3 = new MeterStructureFactorStress3(new MeterStructureFactor[]{meterSFacStress0, meterSFacStress1, meterSFacStress2});
-            pumpSFacStress = new DataPumpListener(meterStructureFactorStress3, accSFacStress, 100);
-        }
-        sim.integrator.getEventManager().addListener(pumpSFacStress);
 
         Vector[] wv = meterSFac.getWaveVectors();
         java.util.List<Vector> myWV = new ArrayList<>();
@@ -497,7 +489,8 @@ public class GlassProd {
             }
             for (int i = 0; i < accSFacMobility.length; i++) {
                 if (accSFacMobility[i].getSampleCount() < 2) continue;
-                GlassProd.writeDataToFile(accSFacMobility[i], "sfacMobility" + (i) + ".dat");
+                GlassProd.writeDataToFile(accSFacMobility[i], "sfacMobility" + i + ".dat");
+                GlassProd.writeDataToFile(accSFacMotion[i], "sfacMotionx" + i + ".dat");
             }
             double fac = L / (2 * Math.PI);
             int[] foo = new int[mobilityMap.length];
@@ -534,7 +527,6 @@ public class GlassProd {
                 GlassProd.writeDataToFile(m, "sfacMotionCor_" + label);
             }
 
-            GlassProd.writeDataToFile(accSFacStress, "sfacStress.dat");
             GlassProd.writeDataToFile(meterCorrelationSelf, "corSelf.dat");
             GlassProd.writeDataToFile(meterCorrelationSelfMagA, "corSelfMagA.dat");
             GlassProd.writeDataToFile(meterCorrelationSelfMagB, "corSelfMagB.dat");
