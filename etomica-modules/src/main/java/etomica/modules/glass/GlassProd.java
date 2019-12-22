@@ -268,23 +268,6 @@ public class GlassProd {
             stressSource = pcForce;
         }
 
-        AtomSignalStress signalStress0 = new AtomSignalStress(stressSource, 0, 1);
-        MeterStructureFactor meterSFacStress0 = new MeterStructureFactor(sim.box, 3, signalStress0);
-        meterSFacStress0.setNormalizeByN(true);
-        AccumulatorAverageFixed accSFacStress = new AccumulatorAverageFixed(1);
-        DataPumpListener pumpSFacStress = new DataPumpListener(meterSFac, accSFacStress, 100);
-        if (sim.getSpace().D() == 3) {
-            AtomSignalStress signalStress1 = new AtomSignalStress(stressSource, 0, 2);
-            MeterStructureFactor meterSFacStress1 = new MeterStructureFactor(sim.box, 3, signalStress1);
-            meterSFacStress1.setNormalizeByN(true);
-            AtomSignalStress signalStress2 = new AtomSignalStress(stressSource, 1, 2);
-            MeterStructureFactor meterSFacStress2 = new MeterStructureFactor(sim.box, 3, signalStress2);
-            meterSFacStress2.setNormalizeByN(true);
-            MeterStructureFactorStress3 meterStructureFactorStress3 = new MeterStructureFactorStress3(new MeterStructureFactor[]{meterSFacStress0, meterSFacStress1, meterSFacStress2});
-            pumpSFacStress = new DataPumpListener(meterStructureFactorStress3, accSFacStress, 100);
-        }
-        sim.integrator.getEventManager().addListener(pumpSFacStress);
-
         Vector[] wv = meterSFac.getWaveVectors();
         java.util.List<Vector> myWV = new ArrayList<>();
         double L = sim.box.getBoundary().getBoxSize().getX(0);
@@ -544,7 +527,6 @@ public class GlassProd {
                 GlassProd.writeDataToFile(m, "sfacMotionCor_" + label);
             }
 
-            GlassProd.writeDataToFile(accSFacStress, "sfacStress.dat");
             GlassProd.writeDataToFile(meterCorrelationSelf, "corSelf.dat");
             GlassProd.writeDataToFile(meterCorrelationSelfMagA, "corSelfMagA.dat");
             GlassProd.writeDataToFile(meterCorrelationSelfMagB, "corSelfMagB.dat");
