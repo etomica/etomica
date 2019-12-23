@@ -49,8 +49,7 @@ public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceInde
     }
 
     public void resetStep0() {
-        step0 = integrator.getStepCount();
-        step0 -= step0 % (1L << xlog2Interval);
+        step0 = -1;
         for (int i = 0; i < nBlockSamplesX.length; i++) {
             lastStepX[i] = nBlockSamplesX[i] = 0;
             blockSumX[i] = 0;
@@ -122,6 +121,7 @@ public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceInde
     public void putData(IData inputData) {
         if (!enabled) return;
         double x = inputData.getValue(0);
+        if (step0 < 0) step0 = integrator.getStepCount() - (1L << xlog2Interval);
         long step = integrator.getStepCount() - step0;
         for (int i = 0; i < blockSumX.length; i++) {
             blockSumX[i] += x;

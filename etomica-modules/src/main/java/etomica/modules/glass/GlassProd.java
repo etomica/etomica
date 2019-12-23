@@ -128,8 +128,10 @@ public class GlassProd {
 
         GlassGraphic.DataProcessorTensorTrace tracer = new GlassGraphic.DataProcessorTensorTrace();
         pTensorFork.addDataSink(tracer);
+        DataFork pFork = new DataFork();
+        tracer.setDataSink(pFork);
         AccumulatorAverageFixed pAccumulator = new AccumulatorAverageFixed(blocksize);
-        tracer.setDataSink(pAccumulator);
+        pFork.setDataSink(pAccumulator);
 
         AccumulatorAverageFixed tAccumulator = null;
         AccumulatorAverageFixed accPE = null;
@@ -171,6 +173,18 @@ public class GlassProd {
         configStorageMSD.addListener(meterMSDA);
         DataSourceMSD meterMSDB = new DataSourceMSD(configStorageMSD, sim.speciesB.getLeafType());
         configStorageMSD.addListener(meterMSDB);
+
+        DataSourceCorMSD dsCorMSD = new DataSourceCorMSD(sim.integrator);
+        dsCorMSD.setMinInterval(3);
+        meterMSD.addMSDSink(dsCorMSD);
+        dsCorMSD.setEnabled(true);
+        DataSourceBlockAvgCor dsCorP = new DataSourceBlockAvgCor(sim.integrator);
+        pFork.addDataSink(dsCorP);
+        dsCorP.setEnabled(true);
+        DataSourceMSDcorP dsMSDcorP = new DataSourceMSDcorP(sim.integrator);
+        pFork.addDataSink(dsMSDcorP);
+        meterMSD.addMSDSink(dsMSDcorP);
+        dsMSDcorP.setEnabled(true);
 
         //VAC
         DataSourceVAC meterVAC = new DataSourceVAC(configStorageMSD);
@@ -479,6 +493,9 @@ public class GlassProd {
             if (doPxyAutocor) {
                 GlassProd.writeDataToFile(dpxyAutocor, filenamePxyAC);
             }
+            GlassProd.writeDataToFile(dsCorMSD, "MSDcor.dat");
+            GlassProd.writeDataToFile(dsCorP, "Pcor.dat");
+            GlassProd.writeDataToFile(dsMSDcorP, "MSDcorP.dat");
             for (int i = 0; i < configStorageMSD.getLastConfigIndex() - 1; i++) {
                 meterGs.setConfigIndex(i);
                 GlassProd.writeDataToFile(meterGs, "Gs_t" + i + ".dat");
