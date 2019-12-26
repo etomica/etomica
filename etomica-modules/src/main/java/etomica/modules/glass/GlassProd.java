@@ -356,7 +356,7 @@ public class GlassProd {
         dsbaSfacPacking2.addSink(dsCorSFacPackingDensity.makeReceiver(0));
         dsbaSfacDensity2.addSink(dsCorSFacPackingDensity.makeReceiver(1));
 
-        for (int i = 0; i < 0; i++) {
+        for (int i = 0; i < 30; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorageMSD, 0);
             signalMotion.setPrevConfig(i + 1);
             meterSFacMotion2[i] = new MeterStructureFactor(sim.box, 3, signalMotion);
