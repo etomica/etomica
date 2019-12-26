@@ -242,7 +242,7 @@ public class GlassProd {
         AccumulatorAverageFixed[] accSFacMobility = new AccumulatorAverageFixed[30];
         for (int i = 0; i < 30; i++) {
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
-            signalMobility.setPrevConfig(i);
+            signalMobility.setPrevConfig(i + 1);
             MeterStructureFactor meterSFacMobility = new MeterStructureFactor(sim.box, 3, signalMobility);
             meterSFacMobility.setNormalizeByN(true);
             DataFork forkSFacMobility = new DataFork();
@@ -258,7 +258,7 @@ public class GlassProd {
         AccumulatorAverageFixed[] accSFacMotion = new AccumulatorAverageFixed[30];
         for (int i = 0; i < 30; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorageMSD, 0);
-            signalMotion.setPrevConfig(i);
+            signalMotion.setPrevConfig(i + 1);
             MeterStructureFactor meterSFacMotion = new MeterStructureFactor(sim.box, 3, signalMotion);
             meterSFacMotion.setNormalizeByN(true);
             DataFork forkSFacMotion = new DataFork();
@@ -356,7 +356,7 @@ public class GlassProd {
         dsbaSfacPacking2.addSink(dsCorSFacPackingDensity.makeReceiver(0));
         dsbaSfacDensity2.addSink(dsCorSFacPackingDensity.makeReceiver(1));
 
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 0; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorageMSD, 0);
             signalMotion.setPrevConfig(i + 1);
             meterSFacMotion2[i] = new MeterStructureFactor(sim.box, 3, signalMotion);
