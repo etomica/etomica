@@ -25,7 +25,7 @@ public class DataSourceAlpha2 implements IDataSource, ConfigurationStorage.Confi
     protected double[] msdSum, m4dSum;
     protected final DataTag tTag, tag;
     protected long[] nSamples;
-    protected int minInterval = 3;
+    protected int minInterval = 4;
 
     public DataSourceAlpha2(ConfigurationStorage configStorage) {
         this.configStorage = configStorage;

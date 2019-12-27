@@ -36,7 +36,7 @@ public class CorrelationSelf2 implements ConfigurationStorage.ConfigurationStora
     protected double[] tdr;
     protected int[] iminDr;
     protected final double dr0;
-    protected int minInterval = 3;
+    protected int minInterval = 5;
 
     public CorrelationSelf2(ConfigurationStorage configStorage, CorrelationType cType, double dr0, int ndr) {
         this.configStorage = configStorage;

@@ -33,7 +33,7 @@ public class MeterCorrelationSelf implements ConfigurationStorage.ConfigurationS
     protected AtomType type;
     private IDataInfo dataInfo;
     protected double[] dr1Sum, dr2Sum, dr3Sum;
-    protected int minInterval = 3;
+    protected int minInterval = 5;
 
     public MeterCorrelationSelf(ConfigurationStorage configStorage) {
         this(configStorage, CorrelationType.TOTAL);

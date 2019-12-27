@@ -198,30 +198,31 @@ public class GlassProd {
         configStorageMSD.addListener(meterFs);
 
         //Percolation
+        int percMinInterval = 11;
         AtomTestDeviation atomFilterDeviation = new AtomTestDeviation(sim.box, configStorageMSD);
         atomFilterDeviation.setMinDistance(params.minDrFilter);
         atomFilterDeviation.setDoMobileOnly(false);
-        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSD, atomFilterDeviation, params.log2StepMin);
+        DataSourcePercolation meterPerc = new DataSourcePercolation(configStorageMSD, atomFilterDeviation, percMinInterval);
         configStorageMSD.addListener(meterPerc);
 
         AtomTestDeviation atomFilterDeviation3 = new AtomTestDeviation(sim.box, configStorageMSD3);
         atomFilterDeviation3.setMinDistance(params.minDrFilter);
         atomFilterDeviation3.setDoMobileOnly(false);
-        DataSourcePercolation meterPerc3 = new DataSourcePercolation(configStorageMSD3, atomFilterDeviation3, params.log2StepMin, meterPerc.getHistogram());
+        DataSourcePercolation meterPerc3 = new DataSourcePercolation(configStorageMSD3, atomFilterDeviation3, percMinInterval - 1, meterPerc.getHistogram());
         configStorageMSD3.addListener(meterPerc3);
 
         DataSourcePercolation0 meterPerc0 = new DataSourcePercolation0(sim.box, sim.getRandom());
-        meterPerc0.setImmFracs(new double[]{0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.55, 0.65, 0.75, 0.85, 1});
+        meterPerc0.setImmFracs(new double[]{0.06, 0.12, 0.13, 0.16, 0.19, 0.22, 0.25});
         AccumulatorAverageFixed accPerc0 = new AccumulatorAverageFixed(10);
         DataPumpListener pumpPerc0 = new DataPumpListener(meterPerc0, accPerc0, 10000);
         sim.integrator.getEventManager().addListener(pumpPerc0);
 
-        DataSourceQ4 meterQ4 = new DataSourceQ4(configStorageMSD, 8);
+        DataSourceQ4 meterQ4 = new DataSourceQ4(configStorageMSD, percMinInterval + 1);
         meterQ4.setMaxDr(0.2);
         configStorageMSD.addListener(meterQ4);
 
         //Strings
-        DataSourceStrings meterL = new DataSourceStrings(configStorageMSD, 4);
+        DataSourceStrings meterL = new DataSourceStrings(configStorageMSD, 6);
         configStorageMSD.addListener(meterL);
 
         //Alpha2
@@ -230,28 +231,28 @@ public class GlassProd {
 
         //S(q)
         AccumulatorAverageFixed accSFac = new AccumulatorAverageFixed(1);  // just average, no uncertainty
-        double cut1 = 10;
-        if (numAtoms > 500) cut1 /= Math.pow(numAtoms / 500.0, 1.0 / sim.getSpace().D());
-        MeterStructureFactor meterSFac = new MeterStructureFactor(sim.box, cut1);
+        double cut10 = 10;
+        if (numAtoms > 500) cut10 /= Math.pow(numAtoms / 500.0, 1.0 / sim.getSpace().D());
+        MeterStructureFactor meterSFac = new MeterStructureFactor(sim.box, cut10);
         meterSFac.setNormalizeByN(true);
-        DataPumpListener pumpSFac = new DataPumpListener(meterSFac, accSFac, 1000);
+        DataPumpListener pumpSFac = new DataPumpListener(meterSFac, accSFac, 5000);
         sim.integrator.getEventManager().addListener(pumpSFac);
         double vB = sim.getSpace().powerD(sim.sigmaB);
         ((MeterStructureFactor.AtomSignalSourceByType) meterSFac.getSignalSource()).setAtomTypeFactor(sim.speciesB.getAtomType(0), vB);
 
+        double cut3 = 3;
+        if (numAtoms > 500) cut3 /= Math.pow(numAtoms / 500.0, 1.0 / sim.getSpace().D());
         AccumulatorAverageFixed[] accSFacMobility = new AccumulatorAverageFixed[30];
         for (int i = 0; i < 30; i++) {
             AtomSignalMobility signalMobility = new AtomSignalMobility(configStorageMSD);
             signalMobility.setPrevConfig(i + 1);
-            MeterStructureFactor meterSFacMobility = new MeterStructureFactor(sim.box, 3, signalMobility);
+            MeterStructureFactor meterSFacMobility = new MeterStructureFactor(sim.box, cut3, signalMobility);
             meterSFacMobility.setNormalizeByN(true);
-            DataFork forkSFacMobility = new DataFork();
-            DataPump pumpSFacMobility = new DataPump(meterSFacMobility, forkSFacMobility);
             accSFacMobility[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
-            forkSFacMobility.addDataSink(accSFacMobility[i]);
+            DataPump pumpSFacMobility = new DataPump(meterSFacMobility, accSFacMobility[i]);
             // ensures pump fires when config with delta t is available
             ConfigurationStoragePumper cspMobility = new ConfigurationStoragePumper(pumpSFacMobility, configStorageMSD);
-            cspMobility.setPrevStep(Math.max(i, 9));
+            cspMobility.setPrevStep(Math.max(i, 11));
             configStorageMSD.addListener(cspMobility);
         }
 
@@ -259,15 +260,13 @@ public class GlassProd {
         for (int i = 0; i < 30; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorageMSD, 0);
             signalMotion.setPrevConfig(i + 1);
-            MeterStructureFactor meterSFacMotion = new MeterStructureFactor(sim.box, 3, signalMotion);
+            MeterStructureFactor meterSFacMotion = new MeterStructureFactor(sim.box, cut3, signalMotion);
             meterSFacMotion.setNormalizeByN(true);
-            DataFork forkSFacMotion = new DataFork();
-            DataPump pumpSFacMotion = new DataPump(meterSFacMotion, forkSFacMotion);
             accSFacMotion[i] = new AccumulatorAverageFixed(1);  // just average, no uncertainty
-            forkSFacMotion.addDataSink(accSFacMotion[i]);
+            DataPump pumpSFacMotion = new DataPump(meterSFacMotion, accSFacMotion[i]);
             // ensures pump fires when config with delta t is available
             ConfigurationStoragePumper cspMotion = new ConfigurationStoragePumper(pumpSFacMotion, configStorageMSD);
-            cspMotion.setPrevStep(Math.max(i, 9));
+            cspMotion.setPrevStep(Math.max(i, 11));
             configStorageMSD.addListener(cspMotion);
         }
 
@@ -290,14 +289,14 @@ public class GlassProd {
         Vector[] wv = meterSFac.getWaveVectors();
         java.util.List<Vector> myWV = new ArrayList<>();
         double L = sim.box.getBoundary().getBoxSize().getX(0);
-        double wvMax2 = 8.01 * Math.PI / L;
+        double wvMax2 = 4.01 * Math.PI / L;
         for (Vector vector : wv) {
             int nd = 0;
             for (int i = 0; i < vector.getD(); i++) if (vector.getX(i) != 0) nd++;
             if (vector.squared() > wvMax2 * wvMax2 || nd > 1) continue;
             myWV.add(vector);
         }
-        int minIntervalSfac2 = 8;
+        int minIntervalSfac2 = 6;
         wv = myWV.toArray(new Vector[0]);
         int[] motionMap = StructureFactorComponentCorrelation.makeWaveVectorMap(wv, 0);
         int[] mobilityMap = StructureFactorComponentCorrelation.makeWaveVectorMap(wv, -1);
@@ -306,13 +305,13 @@ public class GlassProd {
         meterSFacStress2.setNormalizeByN(true);
         meterSFacStress2.setWaveVec(wv);
         StructureFactorComponentCorrelation sfcStress2Cor = new StructureFactorComponentCorrelation(mobilityMap, configStorageMSD);
-        sfcStress2Cor.setMinInterval(0);
-        DataSinkBlockAveragerSFac dsbaSfacStress2 = new DataSinkBlockAveragerSFac(configStorageMSD, 0, meterSFacStress2);
+        sfcStress2Cor.setMinInterval(minIntervalSfac2);
+        DataSinkBlockAveragerSFac dsbaSfacStress2 = new DataSinkBlockAveragerSFac(configStorageMSD, minIntervalSfac2, meterSFacStress2);
         dsbaSfacStress2.addSink(sfcStress2Cor);
         DataPump pumpSFacStress2Cor = new DataPump(meterSFacStress2, dsbaSfacStress2);
         ConfigurationStoragePumper cspStress2 = new ConfigurationStoragePumper(pumpSFacStress2Cor, configStorageMSD);
         configStorageMSD.addListener(cspStress2);
-        cspStress2.setPrevStep(0);
+        cspStress2.setPrevStep(minIntervalSfac2);
         DataSourceCorrelation dsCorSFacStress2Mobility = new DataSourceCorrelation(configStorageMSD, mobilityMap.length);
         dsbaSfacStress2.addSink(dsCorSFacStress2Mobility.makeReceiver(0));
 
@@ -327,13 +326,13 @@ public class GlassProd {
         meterSFacDensity2.setNormalizeByN(true);
         meterSFacDensity2.setWaveVec(wv);
         StructureFactorComponentCorrelation sfcDensityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorageMSD);
-        sfcDensityCor.setMinInterval(0);
-        DataSinkBlockAveragerSFac dsbaSfacDensity2 = new DataSinkBlockAveragerSFac(configStorageMSD, 0, meterSFacDensity2);
+        sfcDensityCor.setMinInterval(minIntervalSfac2);
+        DataSinkBlockAveragerSFac dsbaSfacDensity2 = new DataSinkBlockAveragerSFac(configStorageMSD, minIntervalSfac2, meterSFacDensity2);
         dsbaSfacDensity2.addSink(sfcDensityCor);
         DataPump pumpSFacDensity2 = new DataPump(meterSFacDensity2, dsbaSfacDensity2);
         ConfigurationStoragePumper cspDensity2 = new ConfigurationStoragePumper(pumpSFacDensity2, configStorageMSD);
         configStorageMSD.addListener(cspDensity2);
-        cspDensity2.setPrevStep(0);
+        cspDensity2.setPrevStep(minIntervalSfac2);
         DataSourceCorrelation dsCorSFacDensityMobility = new DataSourceCorrelation(configStorageMSD, mobilityMap.length);
         dsbaSfacDensity2.addSink(dsCorSFacDensityMobility.makeReceiver(0));
 
@@ -343,13 +342,13 @@ public class GlassProd {
         meterSFacPacking2.setNormalizeByN(true);
         meterSFacPacking2.setWaveVec(wv);
         StructureFactorComponentCorrelation sfcPackingCor = new StructureFactorComponentCorrelation(mobilityMap, configStorageMSD);
-        sfcPackingCor.setMinInterval(0);
-        DataSinkBlockAveragerSFac dsbaSfacPacking2 = new DataSinkBlockAveragerSFac(configStorageMSD, 0, meterSFacPacking2);
+        sfcPackingCor.setMinInterval(minIntervalSfac2);
+        DataSinkBlockAveragerSFac dsbaSfacPacking2 = new DataSinkBlockAveragerSFac(configStorageMSD, minIntervalSfac2, meterSFacPacking2);
         dsbaSfacPacking2.addSink(sfcPackingCor);
         DataPump pumpSFacPacking2 = new DataPump(meterSFacPacking2, dsbaSfacPacking2);
         ConfigurationStoragePumper cspPacking2 = new ConfigurationStoragePumper(pumpSFacPacking2, configStorageMSD);
         configStorageMSD.addListener(cspPacking2);
-        cspPacking2.setPrevStep(0);
+        cspPacking2.setPrevStep(minIntervalSfac2);
         DataSourceCorrelation dsCorSFacPackingMobility = new DataSourceCorrelation(configStorageMSD, mobilityMap.length);
         dsbaSfacPacking2.addSink(dsCorSFacPackingMobility.makeReceiver(0));
         DataSourceCorrelation dsCorSFacPackingDensity = new DataSourceCorrelation(configStorageMSD, mobilityMap.length);
@@ -387,7 +386,7 @@ public class GlassProd {
 
 
         double xGsMax = 3;
-        int gsMinConfig = 5;
+        int gsMinConfig = 6;
         MeterGs meterGs = new MeterGs(configStorageMSD);
         meterGs.setMinConfigIndex(gsMinConfig);
         configStorageMSD.addListener(meterGs);
