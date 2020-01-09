@@ -305,34 +305,34 @@ public class GlassProd {
         meterSFacStress2.setNormalizeByN(true);
         meterSFacStress2.setWaveVec(wv);
         StructureFactorComponentCorrelation sfcStress2Cor = new StructureFactorComponentCorrelation(mobilityMap, configStorageMSD);
-        sfcStress2Cor.setMinInterval(minIntervalSfac2);
-        DataSinkBlockAveragerSFac dsbaSfacStress2 = new DataSinkBlockAveragerSFac(configStorageMSD, minIntervalSfac2, meterSFacStress2);
+        sfcStress2Cor.setMinInterval(params.sfacMinInterval);
+        DataSinkBlockAveragerSFac dsbaSfacStress2 = new DataSinkBlockAveragerSFac(configStorageMSD, params.sfacMinInterval, meterSFacStress2);
         dsbaSfacStress2.addSink(sfcStress2Cor);
         DataPump pumpSFacStress2Cor = new DataPump(meterSFacStress2, dsbaSfacStress2);
         ConfigurationStoragePumper cspStress2 = new ConfigurationStoragePumper(pumpSFacStress2Cor, configStorageMSD);
         configStorageMSD.addListener(cspStress2);
-        cspStress2.setPrevStep(minIntervalSfac2);
+        cspStress2.setPrevStep(params.sfacMinInterval);
         DataSourceCorrelation dsCorSFacStress2Mobility = new DataSourceCorrelation(configStorageMSD, mobilityMap.length);
         dsbaSfacStress2.addSink(dsCorSFacStress2Mobility.makeReceiver(0));
 
         MeterStructureFactor[] meterSFacMotion2 = new MeterStructureFactor[30];
         StructureFactorComponentCorrelation sfcMotionCor = new StructureFactorComponentCorrelation(motionMap, configStorageMSD);
-        sfcMotionCor.setMinInterval(minIntervalSfac2);
+        sfcMotionCor.setMinInterval(params.sfacMinInterval);
         MeterStructureFactor[] meterSFacMobility2 = new MeterStructureFactor[30];
         StructureFactorComponentCorrelation sfcMobilityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorageMSD);
-        sfcMobilityCor.setMinInterval(minIntervalSfac2);
+        sfcMobilityCor.setMinInterval(params.sfacMinInterval);
 
         MeterStructureFactor meterSFacDensity2 = new MeterStructureFactor(sim.box, 3);
         meterSFacDensity2.setNormalizeByN(true);
         meterSFacDensity2.setWaveVec(wv);
         StructureFactorComponentCorrelation sfcDensityCor = new StructureFactorComponentCorrelation(mobilityMap, configStorageMSD);
-        sfcDensityCor.setMinInterval(minIntervalSfac2);
-        DataSinkBlockAveragerSFac dsbaSfacDensity2 = new DataSinkBlockAveragerSFac(configStorageMSD, minIntervalSfac2, meterSFacDensity2);
+        sfcDensityCor.setMinInterval(params.sfacMinInterval);
+        DataSinkBlockAveragerSFac dsbaSfacDensity2 = new DataSinkBlockAveragerSFac(configStorageMSD, params.sfacMinInterval, meterSFacDensity2);
         dsbaSfacDensity2.addSink(sfcDensityCor);
         DataPump pumpSFacDensity2 = new DataPump(meterSFacDensity2, dsbaSfacDensity2);
         ConfigurationStoragePumper cspDensity2 = new ConfigurationStoragePumper(pumpSFacDensity2, configStorageMSD);
         configStorageMSD.addListener(cspDensity2);
-        cspDensity2.setPrevStep(minIntervalSfac2);
+        cspDensity2.setPrevStep(params.sfacMinInterval);
         DataSourceCorrelation dsCorSFacDensityMobility = new DataSourceCorrelation(configStorageMSD, mobilityMap.length);
         dsbaSfacDensity2.addSink(dsCorSFacDensityMobility.makeReceiver(0));
 
@@ -342,18 +342,34 @@ public class GlassProd {
         meterSFacPacking2.setNormalizeByN(true);
         meterSFacPacking2.setWaveVec(wv);
         StructureFactorComponentCorrelation sfcPackingCor = new StructureFactorComponentCorrelation(mobilityMap, configStorageMSD);
-        sfcPackingCor.setMinInterval(minIntervalSfac2);
-        DataSinkBlockAveragerSFac dsbaSfacPacking2 = new DataSinkBlockAveragerSFac(configStorageMSD, minIntervalSfac2, meterSFacPacking2);
+        sfcPackingCor.setMinInterval(params.sfacMinInterval);
+        DataSinkBlockAveragerSFac dsbaSfacPacking2 = new DataSinkBlockAveragerSFac(configStorageMSD, params.sfacMinInterval, meterSFacPacking2);
         dsbaSfacPacking2.addSink(sfcPackingCor);
         DataPump pumpSFacPacking2 = new DataPump(meterSFacPacking2, dsbaSfacPacking2);
         ConfigurationStoragePumper cspPacking2 = new ConfigurationStoragePumper(pumpSFacPacking2, configStorageMSD);
         configStorageMSD.addListener(cspPacking2);
-        cspPacking2.setPrevStep(minIntervalSfac2);
+        cspPacking2.setPrevStep(params.sfacMinInterval);
         DataSourceCorrelation dsCorSFacPackingMobility = new DataSourceCorrelation(configStorageMSD, mobilityMap.length);
         dsbaSfacPacking2.addSink(dsCorSFacPackingMobility.makeReceiver(0));
         DataSourceCorrelation dsCorSFacPackingDensity = new DataSourceCorrelation(configStorageMSD, mobilityMap.length);
         dsbaSfacPacking2.addSink(dsCorSFacPackingDensity.makeReceiver(0));
         dsbaSfacDensity2.addSink(dsCorSFacPackingDensity.makeReceiver(1));
+
+        AtomSignalKineticEnergy atomSignalKE = new AtomSignalKineticEnergy();
+        atomSignalKE.setDoSubtractAvg(1.5 * sim.integrator.getTemperature());
+        MeterStructureFactor meterSFacKE = new MeterStructureFactor(sim.box, 3, atomSignalKE);
+        meterSFacKE.setNormalizeByN(true);
+        meterSFacKE.setWaveVec(wv);
+        StructureFactorComponentCorrelation sfcKECor = new StructureFactorComponentCorrelation(mobilityMap, configStorageMSD);
+        sfcKECor.setMinInterval(params.sfacMinInterval);
+        DataSinkBlockAveragerSFac dsbaSfacKE = new DataSinkBlockAveragerSFac(configStorageMSD, params.sfacMinInterval, meterSFacKE);
+        dsbaSfacKE.addSink(sfcKECor);
+        DataPump pumpSFacKECor = new DataPump(meterSFacKE, dsbaSfacKE);
+        ConfigurationStoragePumper cspKE = new ConfigurationStoragePumper(pumpSFacKECor, configStorageMSD);
+        configStorageMSD.addListener(cspKE);
+        cspKE.setPrevStep(params.sfacMinInterval);
+        DataSourceCorrelation dsCorSFacKEMobility = new DataSourceCorrelation(configStorageMSD, mobilityMap.length);
+        dsbaSfacKE.addSink(dsCorSFacKEMobility.makeReceiver(0));
 
         for (int i = 0; i < 30; i++) {
             AtomSignalMotion signalMotion = new AtomSignalMotion(configStorageMSD, 0);
@@ -382,6 +398,7 @@ public class GlassProd {
             sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacDensityMobility));
             sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacPackingMobility));
             sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacStress2Mobility));
+            sfacMobility2Fork.addDataSink(new StructorFactorComponentExtractor(meterSFacMobility2, i, dsCorSFacKEMobility));
         }
 
 
@@ -547,6 +564,8 @@ public class GlassProd {
                 GlassProd.writeDataToFile(m, "sfac" + packing + "Cor_" + label);
                 m = sfcStress2Cor.makeMeter(mobilityMap[j]);
                 GlassProd.writeDataToFile(m, "sfacStressCor_" + label);
+                m = sfcKECor.makeMeter(mobilityMap[j]);
+                GlassProd.writeDataToFile(m, "sfacKineticCor_" + label);
                 DataSourceCorrelation.Meter mm = dsCorSFacDensityMobility.makeMeter(j);
                 GlassProd.writeDataToFile(mm, "sfacDensityMobilityCor_" + label);
                 mm = dsCorSFacPackingMobility.makeMeter(j);
@@ -555,6 +574,8 @@ public class GlassProd {
                 GlassProd.writeDataToFile(mm, "sfac" + packing + "DensityCor_" + label);
                 mm = dsCorSFacStress2Mobility.makeMeter(j);
                 GlassProd.writeDataToFile(mm, "sfacStressMobilityCor_" + label);
+                mm = dsCorSFacKEMobility.makeMeter(j);
+                GlassProd.writeDataToFile(mm, "sfacKineticMobilityCor_" + label);
             }
 
             foo = new int[motionMap.length];
@@ -615,6 +636,7 @@ public class GlassProd {
         public double temperatureMelt = 0;
         public double qx = 7.0;
         public boolean doPxyAutocor = false;
+        public int sfacMinInterval = 6;
     }
 
     public static void writeDataToFile(IDataSource meter, String filename) throws IOException {
