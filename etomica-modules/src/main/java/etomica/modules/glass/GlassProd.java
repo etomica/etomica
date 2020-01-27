@@ -212,7 +212,7 @@ public class GlassProd {
         configStorageMSD3.addListener(meterPerc3);
 
         DataSourcePercolation0 meterPerc0 = new DataSourcePercolation0(sim.box, sim.getRandom());
-        meterPerc0.setImmFracs(new double[]{0.06, 0.12, 0.13, 0.16, 0.19, 0.22, 0.25});
+        meterPerc0.setImmFracs(new double[]{0.03, 0.06, 0.09, 0.12, 0.15, 0.18, 0.21, 0.24, 0.27});
         AccumulatorAverageFixed accPerc0 = new AccumulatorAverageFixed(10);
         DataPumpListener pumpPerc0 = new DataPumpListener(meterPerc0, accPerc0, 10000);
         sim.integrator.getEventManager().addListener(pumpPerc0);
@@ -607,7 +607,7 @@ public class GlassProd {
             GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc.makeImmFractionSource(sim.speciesB.getLeafType()),
                     meterPerc3.makeImmFractionSource(sim.speciesB.getLeafType())}, filenameImmFracB);
             GlassProd.writeDataToFile(meterPerc.makePerclationByImmFracSource(), filenameImmFracPerc);
-            GlassProd.writeDataToFile(meterPerc0, filenamePerc0);
+            GlassProd.writeDataToFile(accPerc0, filenamePerc0);
             GlassProd.writeDataToFile(meterQ4, "Q4" + fileTag + ".out");
             GlassProd.writeDataToFile(meterL, filenameL);
             GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc.makeChi4Source(), meterPerc3.makeChi4Source()}, "chi4Star" + fileTag + ".out");
