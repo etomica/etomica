@@ -43,9 +43,8 @@ public class GlassProd {
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
         System.out.println(params.D +"D " + sim.potentialChoice);
         System.out.println("nA:nB = " + params.nA + ":" + params.nB);
-        double volume = sim.box.getBoundary().volume();
         int numAtoms = params.nA + params.nB;
-        double rho= numAtoms/volume;
+        double rho = params.density;
         System.out.println("T = " + params.temperature);
         System.out.println( params.numSteps + " MD steps after " + params.numStepsEq + " equilibaration steps , using dt = " + sim.integrator.getTimeStep());
 
@@ -454,6 +453,7 @@ public class GlassProd {
         String filenamePxyAC = "";
         if(sim.potentialChoice == SimGlass.PotentialChoice.HS){
             double phi;
+            double volume = sim.box.getBoundary().volume();
             if(params.D == 2){
                 phi = Math.PI/4*(params.nA+params.nB/(1.4*1.4))/volume;
             }else{
@@ -552,9 +552,9 @@ public class GlassProd {
                 String packing = sim.potentialChoice == SimGlass.PotentialChoice.HS ? "Packing" : "DensityA";
                 if (foo[mobilityMap[j]] != 0) continue;
                 foo[mobilityMap[j]] = 1;
-                String label = String.format("q%d%d%d.dat", Math.round(Math.abs(myWV.get(j).getX(0)) * fac),
-                        Math.round(Math.abs(myWV.get(j).getX(1)) * fac),
-                        Math.round(Math.abs(myWV.get(j).getX(2)) * fac));
+                String label = String.format("q%d%d%d.dat", Math.round(Math.abs(wv[j].getX(0)) * fac),
+                        Math.round(Math.abs(wv[j].getX(1)) * fac),
+                        Math.round(Math.abs(wv[j].getX(2)) * fac));
 
                 StructureFactorComponentCorrelation.Meter m = sfcMobilityCor.makeMeter(mobilityMap[j]);
                 GlassProd.writeDataToFile(m, "sfacMobilityCor_" + label);
@@ -582,9 +582,9 @@ public class GlassProd {
             for (int j = 0; j < motionMap.length; j++) {
                 if (foo[motionMap[j]] != 0) continue;
                 foo[motionMap[j]] = 1;
-                String label = String.format("q%d%d%d.dat", Math.round(myWV.get(j).getX(0) * fac),
-                        Math.round(myWV.get(j).getX(1) * fac),
-                        Math.round(myWV.get(j).getX(2) * fac));
+                String label = String.format("q%d%d%d.dat", Math.round(wv[j].getX(0) * fac),
+                        Math.round(wv[j].getX(1) * fac),
+                        Math.round(wv[j].getX(2) * fac));
 
                 StructureFactorComponentCorrelation.Meter m = sfcMotionCor.makeMeter(motionMap[j]);
                 GlassProd.writeDataToFile(m, "sfacMotionCor_" + label);
@@ -632,7 +632,6 @@ public class GlassProd {
         public int numStepsEq = 10000;
         public int numSteps =   1000000;
         public double minDrFilter = 0.4;
-        public int log2StepMin = 9;
         public double temperatureMelt = 0;
         public double qx = 7.0;
         public boolean doPxyAutocor = false;
