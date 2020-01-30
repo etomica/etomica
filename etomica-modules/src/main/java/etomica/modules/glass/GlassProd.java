@@ -18,6 +18,7 @@ import etomica.util.ParseArgs;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -40,13 +41,28 @@ public class GlassProd {
             params.qx = 7.0;
         }
 
-        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
-        System.out.println(params.D +"D " + sim.potentialChoice);
+        SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.randomSeeds);
+        if (params.randomSeeds == null) System.out.println("random seeds: " + Arrays.toString(sim.getRandomSeeds()));
+        else System.out.println("set random seeds: " + Arrays.toString(params.randomSeeds));
+        System.out.println(params.D + "D " + sim.potentialChoice);
         System.out.println("nA:nB = " + params.nA + ":" + params.nB);
         int numAtoms = params.nA + params.nB;
         double rho = params.density;
         System.out.println("T = " + params.temperature);
-        System.out.println( params.numSteps + " MD steps after " + params.numStepsEq + " equilibaration steps , using dt = " + sim.integrator.getTimeStep());
+        System.out.println(params.numSteps + " MD steps after " + params.numStepsEq + " equilibaration steps , using dt = " + sim.integrator.getTimeStep());
+        double volume = sim.box.getBoundary().volume();
+        if (params.potential == SimGlass.PotentialChoice.HS) {
+            double phi;
+            if (params.D == 2) {
+                phi = Math.PI / 4 * (params.nA + params.nB / (1.4 * 1.4)) / volume;
+            } else {
+                phi = Math.PI / 6 * (params.nA + params.nB / (1.4 * 1.4 * 1.4)) / volume;
+            }
+            System.out.println("rho: " + params.density + "  phi: " + phi + "\n");
+        } else {
+            System.out.println("rho: " + params.density + "\n");
+        }
+
 
         //Equilibration
         double temperature0 = Math.max(params.temperatureMelt, params.temperature);
@@ -54,7 +70,17 @@ public class GlassProd {
         sim.integrator.setIsothermal(true);
         sim.integrator.setIntegratorMC(sim.integratorMC, 1000);
         sim.integrator.setTemperature(temperature0);
-        sim.activityIntegrate.setMaxSteps(params.numStepsEq);
+        sim.activityIntegrate.setMaxSteps(params.numStepsEq / 2);
+        sim.getController().actionPerformed();
+        sim.getController().reset();
+
+        AccumulatorAverageFixed accE = new AccumulatorAverageFixed(1);
+        MeterEnergy meterE = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
+        DataPumpListener pumpE = new DataPumpListener(meterE, accE, 10);
+        if (sim.potentialChoice != SimGlass.PotentialChoice.HS && temperature0 == params.temperature) {
+            sim.integrator.getEventManager().addListener(pumpE);
+        }
+
         sim.getController().actionPerformed();
         sim.getController().reset();
 
@@ -63,8 +89,37 @@ public class GlassProd {
             sim.integrator.setTemperature(params.temperature);
             sim.getController().actionPerformed();
             sim.getController().reset();
+
+            if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
+                sim.integrator.getEventManager().addListener(pumpE);
+            }
+
+            sim.getController().actionPerformed();
+            sim.getController().reset();
         }
 
+        if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
+            // Try to use the average total energy from the 2nd half of equilibration
+            // to set the current energy now (via the temperature) so that the average
+            // temperature during production will be approximately equal to the set
+            // temperature.
+            sim.integrator.getEventManager().removeListener(pumpE);
+            double avgE = accE.getData(accE.AVERAGE).getValue(0);
+//            System.out.println("average energy during second half of eq: "+avgE/numAtoms);
+            MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
+            double pe = meterPE.getDataAsScalar();
+//            double ke = new MeterKineticEnergy(sim.box).getDataAsScalar();
+//            System.out.println("kinetic energy at end of eq: "+ke/numAtoms);
+//            System.out.println("potential energy at end of eq: "+pe/numAtoms);
+            double newKE = avgE - pe;
+            double nowTemp = newKE * 2.0 / params.D / numAtoms;
+            System.out.println("setting temp to " + nowTemp + " (ke => " + newKE / numAtoms + ")");
+            sim.integrator.setIntegratorMC(null, 0);
+            sim.integrator.setIsothermal(false);
+            sim.integrator.setTemperature(nowTemp);
+            double newNewKE = new MeterKineticEnergy(sim.box).getDataAsScalar();
+//            System.out.println("actual KE => "+newNewKE/numAtoms);
+        }
 
         //Production
         sim.integrator.setIntegratorMC(null, 0);
@@ -452,14 +507,6 @@ public class GlassProd {
         String fileTag = "";
         String filenamePxyAC = "";
         if(sim.potentialChoice == SimGlass.PotentialChoice.HS){
-            double phi;
-            double volume = sim.box.getBoundary().volume();
-            if(params.D == 2){
-                phi = Math.PI/4*(params.nA+params.nB/(1.4*1.4))/volume;
-            }else{
-                phi = Math.PI/6*(params.nA+params.nB/(1.4*1.4*1.4))/volume;
-            }
-            System.out.println("rho: " + params.density + "  phi: " + phi+"\n");
             System.out.println("Z: " + pAvg / params.density / params.temperature + "  " + pErr / params.density / params.temperature + "  cor: " + pCorr);
             fileTag = String.format("Rho%1.3f", rho);
             filenameVisc = String.format("viscRho%1.3f.out", rho);
@@ -500,7 +547,6 @@ public class GlassProd {
             double tAvg  = dataTAvg.getValue(0);
             double tErr  = dataTErr.getValue(0);
             double tCorr = dataTCorr.getValue(0);
-            System.out.println("rho: " + params.density+"\n");
             System.out.println("T: " + tAvg +"  "+ tErr +"  cor: "+tCorr);
             System.out.println("Z: " + pAvg/params.density/tAvg +"  "+ pErr/params.density/tAvg  +"  cor: "+pCorr);
             System.out.println("U: " + uAvg / numAtoms + "  " + uErr / numAtoms + "  cor: " + uCorr);
@@ -636,6 +682,7 @@ public class GlassProd {
         public double qx = 7.0;
         public boolean doPxyAutocor = false;
         public int sfacMinInterval = 6;
+        public int[] randomSeeds = null;
     }
 
     public static void writeDataToFile(IDataSource meter, String filename) throws IOException {

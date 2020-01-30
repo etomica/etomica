@@ -25,6 +25,7 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomMersenneTwister;
 
 public class SimGlass extends Simulation {
 
@@ -35,12 +36,20 @@ public class SimGlass extends Simulation {
     public final MCMoveSwap swapMove;
     public final IntegratorMC integratorMC;
     public final PotentialChoice potentialChoice;
+
     public enum PotentialChoice {LJ, WCA, SS, HS, WS}
 
     public double sigmaB;
 
     public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc, double tStep) {
+        this(D, nA, nB, density, temperature, doSwap, pc, tStep, null);
+    }
+
+    public SimGlass(int D, int nA, int nB, double density, double temperature, boolean doSwap, PotentialChoice pc, double tStep, int[] randSeeds) {
         super(Space.getInstance(D));
+        if (randSeeds != null) {
+            setRandom(new RandomMersenneTwister(randSeeds));
+        }
         this.potentialChoice = pc;
         //species
         speciesA = new SpeciesSpheresMono(this, space);
