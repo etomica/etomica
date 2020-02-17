@@ -105,7 +105,7 @@ public class GlassProd {
             // temperature.
             sim.integrator.getEventManager().removeListener(pumpE);
             double avgE = accE.getData(accE.AVERAGE).getValue(0);
-//            System.out.println("average energy during second half of eq: "+avgE/numAtoms);
+            System.out.println("average energy during second half of eq: " + avgE / numAtoms);
             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
             double pe = meterPE.getDataAsScalar();
 //            double ke = new MeterKineticEnergy(sim.box).getDataAsScalar();
@@ -113,11 +113,12 @@ public class GlassProd {
 //            System.out.println("potential energy at end of eq: "+pe/numAtoms);
             double newKE = avgE - pe;
             double nowTemp = newKE * 2.0 / params.D / numAtoms;
-            System.out.println("setting temp to " + nowTemp + " (ke => " + newKE / numAtoms + ")");
+            double oldTemp = new MeterTemperature(sim.box, params.D).getDataAsScalar();
+            System.out.println("setting temp " + oldTemp + " => " + nowTemp); // + " (ke "+ke+" => " + newKE / numAtoms + ")");
             sim.integrator.setIntegratorMC(null, 0);
             sim.integrator.setIsothermal(false);
             sim.integrator.setTemperature(nowTemp);
-            double newNewKE = new MeterKineticEnergy(sim.box).getDataAsScalar();
+//            double newNewKE = new MeterKineticEnergy(sim.box).getDataAsScalar();
 //            System.out.println("actual KE => "+newNewKE/numAtoms);
         }
 
