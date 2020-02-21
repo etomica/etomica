@@ -17,7 +17,6 @@ public class ColorSchemeDirection extends ColorScheme {
     protected final Box box;
     protected final Vector dr;
     protected final Color[] colors;
-    protected double fac;
     protected int axis;
 
     public ColorSchemeDirection(Box box, ConfigurationStorage configStorage) {
