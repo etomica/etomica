@@ -39,15 +39,16 @@ public class ActivityIntegrate extends Activity {
      * not be called directly, but instead is called by the instance's actionPerformed method.
      */
     protected void run() {
-        try {
-            integrator.reset();
-        }
-        catch (ConfigurationOverlapException e) {
-            if (!ignoreOverlap) {
-                throw e;
-            }
-        }
-        integrator.resetStepCount();
+    	if (!skipReset) {
+			try {
+				integrator.reset();
+			} catch (ConfigurationOverlapException e) {
+				if (!ignoreOverlap) {
+					throw e;
+				}
+			}
+			integrator.resetStepCount();
+		}
         for (stepCount = 0; stepCount < maxSteps; stepCount++) {
             if (Debug.ON) {
                 if (stepCount == Debug.START) Debug.DEBUG_NOW = true;
@@ -112,10 +113,14 @@ public class ActivityIntegrate extends Activity {
 	public Integrator getIntegrator() {
 		return integrator;
 	}
+
+	public void setDoSkipReset(boolean doSkipReset) {
+		skipReset = doSkipReset;
+	}
     
-    private static final long serialVersionUID = 1L;
 	private final Integrator integrator;
     private boolean ignoreOverlap;
 	private int sleepPeriod;
 	protected long maxSteps, stepCount;
+	protected boolean skipReset = false;
 }

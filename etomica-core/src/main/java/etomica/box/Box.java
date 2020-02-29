@@ -7,6 +7,7 @@ package etomica.box;
 import etomica.action.BoxInflate;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
@@ -14,9 +15,15 @@ import etomica.molecule.MoleculeArrayList;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.util.Arrays;
 import etomica.util.Debug;
+import etomica.util.Statefull;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * A Box collects all atoms that interact with one another; atoms in different
@@ -53,7 +60,7 @@ import etomica.util.Debug;
  * @see Boundary
  * @see BoxEventManager
  */
-public class Box {
+public class Box implements Statefull {
 
     /**
      * List of leaf atoms in box
@@ -351,5 +358,76 @@ public class Box {
         if (numNewLeafAtoms > 1) {
             eventManager.globalAtomLeafIndexChanged(leafList.size() + numNewLeafAtoms);
         }
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        // This method will save the # of molecules for each species and the
+        // positions+velocities of all atoms.  It will not save the ordering of leafList
+        for (MoleculeArrayList moleculeList : moleculeLists) {
+            fw.write(""+moleculeList.size()+"\n");
+            for (IMolecule iMolecule : moleculeList) {
+                IAtomList atoms = iMolecule.getChildList();
+                for (IAtom atom : atoms) {
+                    Vector p = atom.getPosition();
+                    int D = p.getD();
+                    fw.write(""+atom.getLeafIndex());
+                    for (int i=0; i<D; i++) fw.write(" "+p.getX(i));
+                    if (atom instanceof IAtomKinetic) {
+                        Vector v = ((IAtomKinetic) atom).getVelocity();
+                        for (int i=0; i<D; i++) fw.write(" "+v.getX(i));
+                    }
+                    fw.write("\n");
+                }
+            }
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        // We need our leafList to be in the same order as before and our molecules
+        // to be in the same order as before.  We'll reconstruct our leafList from
+        // scratch.
+        AtomArrayList newList = new AtomArrayList(leafList.size());
+        newList.ensureCapacity(leafList.size());
+        for (MoleculeArrayList moleculeList : moleculeLists) {
+            int s = Integer.parseInt(br.readLine());
+            int currentNMolecules = moleculeList.size();
+            if (s > currentNMolecules) {
+                if (currentNMolecules == 0) {
+                    throw new RuntimeException("If I'm going to make new molecules, there needs to be at least one to start with.");
+                }
+                ISpecies species = moleculeList.get(0).getType();
+                moleculeLists[species.getIndex()].ensureCapacity(s);
+                int moleculeLeafAtoms = moleculeList.get(0).getChildList().size();
+                leafList.ensureCapacity(leafList.size() + (s - currentNMolecules) * moleculeLeafAtoms);
+                newList.ensureCapacity(leafList.size());
+                for (int j = currentNMolecules; j < s; j++) {
+                    addMolecule(species.makeMolecule());
+                }
+            }
+            for (int j = currentNMolecules; j > s; j--) {
+                removeMolecule(moleculeList.get(j - 1));
+            }
+            for (IMolecule iMolecule : moleculeList) {
+                IAtomList atoms = iMolecule.getChildList();
+                for (IAtom atom : atoms) {
+                    String[] coords = br.readLine().split(" ");
+                    int leafIndex = Integer.parseInt(coords[0]);
+                    atom.setLeafIndex(leafIndex);
+                    while (newList.size() <= leafIndex) newList.add(null);
+                    newList.set(leafIndex, atom);
+                    Vector p = atom.getPosition();
+                    int D = p.getD();
+                    for (int j = 0; j < D; j++) p.setX(j, Double.parseDouble(coords[1+j]));
+                    if (atom instanceof IAtomKinetic) {
+                        Vector v = ((IAtomKinetic) atom).getVelocity();
+                        for (int j = 0; j < D; j++) v.setX(j, Double.parseDouble(coords[1+D + j]));
+                    }
+                }
+            }
+        }
+        leafList.clear();
+        leafList.addAll(newList);
     }
 }

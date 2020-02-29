@@ -12,14 +12,19 @@ import etomica.data.DataTag;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
+import etomica.integrator.Integrator;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 
-public class CorrelationSelf2 implements ConfigurationStorage.ConfigurationStorageListener {
+public class CorrelationSelf2 implements ConfigurationStorage.ConfigurationStorageListener, Statefull {
 
     public enum CorrelationType {TOTAL, MAGNITUDE}
 
@@ -66,7 +71,7 @@ public class CorrelationSelf2 implements ConfigurationStorage.ConfigurationStora
         dr12 = space.makeVector();
         iminDr = new int[0];
         tdr = new double[0];
-        reallocate();
+        reallocate(0);
     }
 
     public int getNumDr() {
@@ -77,11 +82,7 @@ public class CorrelationSelf2 implements ConfigurationStorage.ConfigurationStora
         return data.length;
     }
 
-    public void reallocate() {
-        int n = configStorage.getLastConfigIndex();
-        if (n + 1 == corSum.length && data != null) return;
-        if (n < 1) n = 0;
-        else n--;
+    public void reallocate(int n) {
         for (int i = 0; i < corSum.length; i++) {
             corSum[i] = Arrays.copyOf(corSum[i], n);
             nSamples[i] = Arrays.copyOf(nSamples[i], n);
@@ -98,7 +99,6 @@ public class CorrelationSelf2 implements ConfigurationStorage.ConfigurationStora
     @Override
     public void newConfigruation() {
 
-        reallocate(); // reallocates if needed
         long step2 = configStorage.getSavedSteps()[0];
         Vector[] config2 = configStorage.getSavedConfig(0);
         IAtomList atoms = configStorage.getBox().getLeafList();
@@ -106,6 +106,7 @@ public class CorrelationSelf2 implements ConfigurationStorage.ConfigurationStora
         for (int j = 1; j < configStorage.getLastConfigIndex() - 1; j++) {
             int x = Math.max(j, minInterval);
             if (step2 % (1L << x) == 0) {
+                if (j > iminDr.length) reallocate(j);
 
                 Vector[] config1 = configStorage.getSavedConfig(j);
                 Vector[] config0 = configStorage.getSavedConfig(j + 1);
@@ -201,8 +202,7 @@ public class CorrelationSelf2 implements ConfigurationStorage.ConfigurationStora
         }
         while (ir >= corSum.length) {
             int min;
-            for (min = 0; min < nSamples.length && nSamples[min][idt] == 0; min++) {
-            }
+            for (min = 0; min < nSamples.length && nSamples[min][idt] == 0; min++) {}
             if (ir - min < corSum.length) {
                 // shift alone is sufficient
                 int shift = 1 + ir - corSum.length;
@@ -267,6 +267,45 @@ public class CorrelationSelf2 implements ConfigurationStorage.ConfigurationStora
         @Override
         public DataFunction.DataInfoFunction getDataInfo() {
             return dataInfo[mydt];
+        }
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        fw.write(getClass().getName()+"\n");
+        fw.write(iminDr.length+"\n");
+        for (int i=0; i<iminDr.length; i++) {
+            fw.write(iminDr[i]+" "+tdr[i]+"\n");
+        }
+        for (int i=0; i<corSum.length; i++) {
+            for (int j=0; j<corSum[i].length; j++) {
+                fw.write(corSum[i][j]+" "+dr2Sum[i][j]+" "+nSamples[i][j]+"\n");
+            }
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        if (!br.readLine().equals(getClass().getName())) throw new RuntimeException("oops");
+        int n = Integer.parseInt(br.readLine());
+        reallocate(n);
+        for (int i=0; i<n; i++) {
+            String[] bits = br.readLine().split(" ");
+            iminDr[i] = Integer.parseInt(bits[0]);
+            tdr[i] = Double.parseDouble(bits[1]);
+            // now update rData
+            double[] x = rData[i].getData();
+            for (int j = 0; j < x.length; j++) {
+                x[j] = (iminDr[i] + j + 0.5) * tdr[i];
+            }
+        }
+        for (int i=0; i<corSum.length; i++) {
+            for (int j=0; j<corSum[i].length; j++) {
+                String[] bits = br.readLine().split(" ");
+                corSum[i][j] = Double.parseDouble(bits[0]);
+                dr2Sum[i][j] = Double.parseDouble(bits[1]);
+                nSamples[i][j] = Long.parseLong(bits[2]);
+            }
         }
     }
 }

@@ -409,6 +409,14 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         }
     }
 
+    public void resetFoo() {
+	    for (IAtom atom : box.getLeafList()) {
+            Agent agent = agentManager.getAgent(atom);
+            agent.setAtom((IAtomKinetic)atom);
+        }
+        resetCollisionTimes();
+    }
+
     public void neighborListNeighborsUpdated() {
         handlingEvent++;
         resetCollisionTimes();
@@ -424,7 +432,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
     /**
      * Do an upList call for each atom and reconstruct the event list.
      */
-    private void resetCollisionTimes() {
+    public void resetCollisionTimes() {
         if(!initialized) return;
         IAtomList leafList = box.getLeafList();
         int nLeaf = leafList.size();
@@ -435,7 +443,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         upList.setTargetAtom(null);
         collisionHandlerUp.reset();
         collisionHandlerUp.collisionTimeStep = 0;
-        potentialMaster.calculate(box, upList, collisionHandlerUp); //assumes only one box
+        potentialMaster.calculate(box, upList, collisionHandlerUp);
         eventList.reset();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.get(iLeaf);
@@ -716,6 +724,7 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
             return "Collider: "+atom+"; Partner: "+collisionPartner+"; Potential: "+collisionPotential;
         }
 
+        public void setAtom(IAtomKinetic a) {atom = a;}
         public final IAtomKinetic atom() {
             return atom;
         }

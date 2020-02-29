@@ -143,12 +143,16 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
                 System.out.println(pair+" dr "+dr);
             }
         }
-    
+
+        precomputeForce();
+    }
+
+    public void precomputeForce() {
         eventManager.forcePrecomputed();
-    
+
         forceSum.reset();
         potentialMaster.calculate(box, allAtoms, forceSum);
-    
+
         eventManager.forceComputed();
     }
 

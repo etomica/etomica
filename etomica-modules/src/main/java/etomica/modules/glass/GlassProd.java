@@ -14,9 +14,9 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 import etomica.util.ParseArgs;
+import etomica.util.Statefull;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -30,15 +30,16 @@ public class GlassProd {
         } else {
             params.doSwap = true;
             params.potential = SimGlass.PotentialChoice.HS;
-            params.nA = 50;
-            params.nB = 50;
-            params.density = 1.2; // 2D params.density = 0.509733; //3D  = 0.69099;
+            params.nA = 200;
+            params.nB = 200;
+            params.density = 1.66; // 2D params.density = 0.509733; //3D  = 0.69099;
             params.D = 3;
             params.temperature = 1.0;
-            params.numStepsEq = 10000;
-            params.numSteps = 100000;
+            params.numStepsEq = 500000;
+            params.numSteps = 0;
             params.minDrFilter = 0.4;
             params.qx = 7.0;
+            params.tStep = 0.01;
         }
 
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.randomSeeds);
@@ -63,8 +64,36 @@ public class GlassProd {
             System.out.println("rho: " + params.density + "\n");
         }
 
+        List<Statefull> objects = new ArrayList<>();
+        objects.add(sim.box);
+        objects.add(sim.integrator);
+        if (params.numStepsEq > 0 && new File("glass.state").exists()) {
+            // we have a restore file and we need to do equilibration, so assume
+            // we should restore and then continue equilibrating
+            try {
+                BufferedReader br = new BufferedReader(new FileReader("glass.state"));
+                for (Statefull s : objects) {
+                    s.restoreState(br);
+                }
+                br.close();
+                System.out.println("Continuing equilibration after "+sim.integrator.getStepCount()+" steps");
+                // find neighbors with new config
+                sim.integrator.getEventManager().initialized();
+                if (sim.integrator instanceof IntegratorHard) {
+                    // find collision times with new config
+                    ((IntegratorHard)sim.integrator).resetFoo();
+                }
+                else {
+                    ((IntegratorVelocityVerlet)sim.integrator).precomputeForce();
+                }
+                sim.activityIntegrate.setDoSkipReset(true);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
 
         //Equilibration
+        long time0eq = System.nanoTime();
         double temperature0 = Math.max(params.temperatureMelt, params.temperature);
         if (temperature0 > params.temperature) System.out.println("Equilibrating at T=" + temperature0);
         sim.integrator.setIsothermal(true);
@@ -80,6 +109,7 @@ public class GlassProd {
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS && temperature0 == params.temperature) {
             sim.integrator.getEventManager().addListener(pumpE);
         }
+        sim.activityIntegrate.setDoSkipReset(true);
 
         sim.getController().actionPerformed();
         sim.getController().reset();
@@ -96,6 +126,25 @@ public class GlassProd {
 
             sim.getController().actionPerformed();
             sim.getController().reset();
+        }
+        long time1eq = System.nanoTime();
+        if (params.numStepsEq > 0 && params.doSwap) {
+            System.out.println("swap acceptance: "+sim.swapMove.getTracker().acceptanceProbability());
+        }
+        if (params.numSteps == 0) {
+            try {
+                FileWriter fw = new FileWriter("glass.state");
+                for (Statefull s : objects) {
+                    s.saveState(fw);
+                }
+                fw.close();
+            }
+            catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            System.out.println(String.format("\nequilibration time: %3.2f s", (time1eq-time0eq)/1e9));
+            return;
         }
 
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
@@ -143,14 +192,15 @@ public class GlassProd {
         //Viscosity
         DataFork pTensorFork = new DataFork();
         int dn = 1;
-        AccumulatorPTensor pTensorAccumVisc = new AccumulatorPTensor(sim.integrator, dn*sim.integrator.getTimeStep());
+        AccumulatorPTensor pTensorAccumVisc = new AccumulatorPTensor(sim.integrator, dn * sim.integrator.getTimeStep());
         pTensorAccumVisc.setEnabled(true);
         pTensorFork.addDataSink(pTensorAccumVisc);
         DataPumpListener pTensorAccumViscPump = new DataPumpListener(pTensorMeter, pTensorFork, dn);
 
 
-        AccumulatorAverageFixed gTensorAccumulator = new AccumulatorAverageFixed(blocksize);
+        AccumulatorAverageFixed gTensorAccumulator = null;
         if (params.potential != SimGlass.PotentialChoice.HS) {
+            gTensorAccumulator = new AccumulatorAverageFixed(blocksize);
             DataProcessor dpSquared = new DataProcessor() {
                 DataDouble data = new DataDouble();
 
@@ -202,7 +252,7 @@ public class GlassProd {
             MeterTemperature tMeter = new MeterTemperature(sim, sim.box, params.D);
             tAccumulator = new AccumulatorAverageFixed(blocksize / 5);
             DataPumpListener tPump = new DataPumpListener(tMeter, tAccumulator, 5);
-            tAccumulator.addDataSink(pTensorAccumVisc.makeTemperatureSink(),  new AccumulatorAverage.StatType[]{tAccumulator.AVERAGE});
+            tAccumulator.addDataSink(pTensorAccumVisc.makeTemperatureSink(), new AccumulatorAverage.StatType[]{tAccumulator.AVERAGE});
             sim.integrator.getEventManager().addListener(tPump);
         }
 
@@ -244,6 +294,7 @@ public class GlassProd {
         //VAC
         DataSourceVAC meterVAC = new DataSourceVAC(configStorageMSD);
         configStorageMSD.addListener(meterVAC);
+        configStorageMSD.setDoVelocity(true);
 
         //Fs
         DataSourceFs meterFs = new DataSourceFs(configStorageMSD);
@@ -489,9 +540,90 @@ public class GlassProd {
         sim.integrator.getEventManager().addListener(configStorageMSD3);
         sim.integrator.getEventManager().addListener(configStorageMSD);
 
+        objects.add(pTensorAccumVisc);
+        if (gTensorAccumulator != null) {
+            objects.add(gTensorAccumulator);
+        }
+        objects.add(pAccumulator);
+        if (tAccumulator != null) {
+            objects.add(tAccumulator);
+            objects.add(accPE);
+        }
+        objects.add(configStorageMSD);
+        objects.add(configStorageMSD3);
+        objects.add(meterMSD);
+        objects.add(meterMSDA);
+        objects.add(meterMSDB);
+        objects.add(dsCorMSD);
+        objects.add(dsCorP);
+        objects.add(dsMSDcorP);
+        objects.add(meterVAC);
+        objects.add(meterFs);
+        objects.add(meterPerc);
+        objects.add(meterPerc3);
+        objects.add(accPerc0);
+        objects.add(meterQ4);
+        objects.add(meterL);
+        objects.add(meterAlpha2);
+        objects.add(accSFac);
+        for (int i = 0; i < 30; i++) {
+            objects.add(accSFacMobility[i]);
+            objects.add(accSFacMotion[i]);
+        }
+        objects.add(sfcStress2Cor);
+        objects.add(sfcMotionCor);
+        objects.add(sfcMobilityCor);
+        objects.add(sfcDensityCor);
+        objects.add(sfcPackingCor);
+        objects.add(sfcKECor);
+        objects.add(dsbaSfacStress2);
+        objects.add(dsbaSfacDensity2);
+        objects.add(dsbaSfacPacking2);
+        objects.add(dsbaSfacKE);
+        objects.add(meterGs);
+        objects.add(meterGsA);
+        objects.add(meterGsB);
+        objects.add(meterCorrelationSelf);
+        objects.add(meterCorrelationSelfMagA);
+        objects.add(meterCorrelationSelfMagB);
+        objects.add(correlationSelf2);
+
+        if (new File("glass.state").exists()) {
+            try {
+                BufferedReader br = new BufferedReader(new FileReader("glass.state"));
+                for (Statefull s : objects) {
+                    s.restoreState(br);
+                }
+                br.close();
+                System.out.println("Continuing after "+sim.integrator.getStepCount()+" steps");
+                // find neighbors with new config
+                sim.integrator.getEventManager().initialized();
+                if (sim.integrator instanceof IntegratorHard) {
+                    // find collision times with new config
+                    ((IntegratorHard)sim.integrator).resetFoo();
+                }
+                else {
+                    ((IntegratorVelocityVerlet)sim.integrator).precomputeForce();
+                }
+                sim.activityIntegrate.setDoSkipReset(true);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
         //Run
         long time0 = System.nanoTime();
         sim.getController().actionPerformed();
+        try {
+            FileWriter fw = new FileWriter("glass.state");
+            for (Statefull s : objects) {
+                s.saveState(fw);
+            }
+            fw.close();
+        }
+        catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
 
         //Pressure
         DataGroup dataP = (DataGroup)pAccumulator.getData();

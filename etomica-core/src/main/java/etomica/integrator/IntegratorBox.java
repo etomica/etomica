@@ -16,7 +16,12 @@ import etomica.space.Space;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Dimensioned;
 import etomica.units.dimensions.Temperature;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Objects;
 
 /**
@@ -25,7 +30,7 @@ import java.util.Objects;
  * @author David Kofke and Andrew Schultz
  */
 
-public abstract class IntegratorBox extends Integrator {
+public abstract class IntegratorBox extends Integrator implements Statefull {
 
     protected final PotentialMaster potentialMaster;
     protected final Box box;
@@ -155,4 +160,13 @@ public abstract class IntegratorBox extends Integrator {
         meterPE = mpe;
     }
 
+    public void saveState(Writer fw) throws IOException {
+        super.saveState(fw);
+        fw.write(""+currentPotentialEnergy+"\n");
+    }
+
+    public void restoreState(BufferedReader br) throws IOException {
+        super.restoreState(br);
+        currentPotentialEnergy = Double.parseDouble(br.readLine());
+    }
 }
