@@ -36,8 +36,8 @@ import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 import etomica.units.*;
-import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.*;
 import etomica.util.Constants;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
@@ -117,14 +117,15 @@ public class VirialHePI {
                 sigmaHSRef += 0.6;
             }
         }
-        final boolean calcApprox = params.calcApprox;
+        final PotentialChoice pc = params.potentialChoice;
+        final PotentialChoice ps = params.subtractPotential;
         final int beadFac = subtractHalf ? 2 : 1;
         final double[] HSB = new double[8];
         if (params.nBeads>-1) System.out.println("nSpheres set explicitly");
         int nb = (params.nBeads > -1) ? params.nBeads : ((int)(1200/temperatureK) + 7);
         final boolean doDiff = !subtractHalf && params.doDiff;
         final boolean semiClassical = params.semiClassical;
-        final boolean subtractApprox = !calcApprox && !subtractHalf && params.subtractApprox;
+        final boolean subtractApprox = params.subtractPotential != null;
         final boolean doTotal = params.doTotal;
         if (pairOnly && doTotal) {
             throw new RuntimeException("pairOnly needs to be off to do total");
@@ -135,7 +136,10 @@ public class VirialHePI {
             System.out.println("using "+flexApproach+" approach");
         }
 
-        if (calcApprox) System.out.println("Calculating coefficients for approximate potential");
+        if (pc == PotentialChoice.APPROX) System.out.println("Calculating coefficients for approximate potential");
+        else if (pc == PotentialChoice.PCKLJS) System.out.println("Calculating coefficients for PCKLJS potential");
+        else if (pc == PotentialChoice.PCJS) System.out.println("Calculating coefficients for PCJS potential");
+        else throw new RuntimeException("unrecognized potential");
         if (subtractHalf) {
             System.out.println("He Path Integral ("+nb+"-mer chains) B"+nPoints+" at "+temperatureK+"K");
             System.out.println("Calculating difference between "+nb/beadFac+" and "+nb+" beads");
@@ -147,7 +151,7 @@ public class VirialHePI {
                     System.out.println("computing difference from semiclassical");
                 }
                 else if (subtractApprox) {
-                    System.out.println("computing difference from approximate He");
+                    System.out.println("computing difference from " + ps + " He");
                 }
                 else {
                     System.out.println("computing difference from classical");
@@ -179,7 +183,9 @@ public class VirialHePI {
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         final P2HeSimplified p2Approx = new P2HeSimplified(space);
         final P2HePCKLJS p2Full = new P2HePCKLJS(space);
-        final Potential2SoftSpherical p2 = calcApprox ? p2Approx : p2Full;
+        final P2HePCJS p2Fuller = new P2HePCJS(space);
+        final Potential2SoftSpherical p2 = (pc == PotentialChoice.APPROX) ? p2Approx : (pc == PotentialChoice.PCKLJS ? p2Full : p2Fuller);
+        final Potential2SoftSpherical p2Sub = pc == null ? null : (ps == PotentialChoice.APPROX ? p2Approx : (ps == PotentialChoice.PCKLJS ? p2Full : p2Fuller));
 
         PotentialGroupPI pTargetGroup = new PotentialGroupPI(beadFac);
         pTargetGroup.addPotential(p2, new ApiIntergroupCoupled());
@@ -188,15 +194,16 @@ public class VirialHePI {
             pTargetSkip[i] = pTargetGroup.new PotentialGroupPISkip(i);
         }
 
-        PotentialGroupPI pTargetApproxGroup = new PotentialGroupPI(beadFac);
-        pTargetApproxGroup.addPotential(p2Approx, new ApiIntergroupCoupled());
-        PotentialGroupPISkip[] pTargetApproxSkip = new PotentialGroupPISkip[beadFac];
+        PotentialGroupPI pTargetSubGroup = new PotentialGroupPI(beadFac);
+        pTargetSubGroup.addPotential(p2Sub, new ApiIntergroupCoupled());
+        PotentialGroupPISkip[] pTargetSubSkip = new PotentialGroupPISkip[beadFac];
         for (int i=0; i<beadFac; i++) {
-            pTargetApproxSkip[i] = pTargetApproxGroup.new PotentialGroupPISkip(i);
+            pTargetSubSkip[i] = pTargetSubGroup.new PotentialGroupPISkip(i);
         }
         final P3CPSNonAdditiveHeSimplified p3Approx = new P3CPSNonAdditiveHeSimplified(space);
         p3Approx.setParameters(temperatureK);
-        final IPotentialAtomicMultibody p3 = calcApprox ? p3Approx : new P3CPSNonAdditiveHe(space);
+        final P3CPSNonAdditiveHe p3Full = new P3CPSNonAdditiveHe(space);
+        final IPotentialAtomicMultibody p3 = (pc == PotentialChoice.APPROX) ? p3Approx : p3Full;
 
         PotentialGroup3PI p3TargetGroup = new PotentialGroup3PI(beadFac);
         p3TargetGroup.addPotential(p3, new ANIntergroupCoupled(3));
@@ -204,15 +211,12 @@ public class VirialHePI {
         for (int i=0; i<beadFac; i++) {
             p3TargetSkip[i] = p3TargetGroup.new PotentialGroup3PISkip(i);
         }
-        PotentialGroup3PI p3TargetApproxGroup = new PotentialGroup3PI(beadFac);
-        p3TargetApproxGroup.addPotential(p3Approx, new ANIntergroupCoupled(3));
-        PotentialGroup3PISkip[] p3TargetApproxSkip = new PotentialGroup3PISkip[beadFac];
-        for (int i=0; i<beadFac; i++) {
-            p3TargetApproxSkip[i] = p3TargetGroup.new PotentialGroup3PISkip(i);
-        }
+        final IPotentialAtomicMultibody p3Sub = (ps == PotentialChoice.APPROX ? p3Approx : p3Full);
+        PotentialGroup3PI p3TargetSubGroup = new PotentialGroup3PI(beadFac);
+        p3TargetSubGroup.addPotential(p3Sub, new ANIntergroupCoupled(3));
 
         final MayerGeneralSpherical fTargetClassical = new MayerGeneralSpherical(p2);
-        Potential2Spherical p2SemiClassical = calcApprox ? p2Approx.makeQFH(temperature) : p2Full.makeQFH(temperature);
+        Potential2Spherical p2SemiClassical = (pc == PotentialChoice.APPROX) ? p2Approx.makeQFH(temperature) : p2Full.makeQFH(temperature);
         final MayerGeneralSpherical fTargetSemiClassical = new MayerGeneralSpherical(p2SemiClassical);
 
         MayerGeneral[] fTargetSkip = new MayerGeneral[beadFac];
@@ -228,7 +232,7 @@ public class VirialHePI {
                 return super.f(pair, r2, beta/nBeads);
             }
         };
-        MayerGeneral fTargetApprox = new MayerGeneral(pTargetApproxGroup) {
+        MayerGeneral fTargetSub = new MayerGeneral(pTargetSubGroup) {
             public double f(IMoleculeList pair, double r2, double beta) {
                 return super.f(pair, r2, beta/nBeads);
             }
@@ -249,7 +253,7 @@ public class VirialHePI {
                 return super.f(molecules, r2, beta/nBeads);
             }
         };
-        MayerFunctionThreeBody f3TargetApprox = new MayerFunctionMolecularThreeBody(p3TargetApproxGroup) {
+        MayerFunctionThreeBody f3TargetSub = new MayerFunctionMolecularThreeBody(p3TargetSubGroup) {
             public double f(IMoleculeList molecules, double[] r2, double beta) {
                 return super.f(molecules, r2, beta/nBeads);
             }
@@ -295,7 +299,7 @@ public class VirialHePI {
                             targetSubtract[i] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{(fTargetSemiClassical)});
                         }
                         else if (subtractApprox) {
-                            targetSubtract[i] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{fTargetApprox});
+                            targetSubtract[i] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{fTargetSub});
                         }
                         else {
                             targetSubtract[i] = new ClusterSum(minusBonds, wMinus, new MayerFunction[]{fTargetClassical});
@@ -313,8 +317,8 @@ public class VirialHePI {
                                     new MayerFunctionNonAdditive[]{f3TargetClassical});
                         }
                         else if (subtractApprox) {
-                            targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetApprox},
-                                    new MayerFunctionNonAdditive[]{f3TargetApprox});
+                            targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetSub},
+                                    new MayerFunctionNonAdditive[]{f3TargetSub});
                         }
                         else {
                             targetSubtract[i] = new ClusterSumMultibody(minusBonds, wMinus, new MayerFunction[]{fTargetClassical},
@@ -692,8 +696,10 @@ public class VirialHePI {
             else if (flexApproach == FlexApproach.FLEX) {
                 refFileName += "f";
             }
-            if (calcApprox) {
+            if (pc == PotentialChoice.APPROX) {
                 refFileName += "a";
+            } else if (pc == PotentialChoice.PCJS) {
+                refFileName += "x";
             }
         }
         long t1 = System.currentTimeMillis();
@@ -921,6 +927,12 @@ public class VirialHePI {
         return outArray;
     }
 
+    public enum PotentialChoice {
+        APPROX,
+        PCKLJS,
+        PCJS
+    }
+
     public enum FlexApproach {
         FULL,  // include all diagrams
         RIGID, // include only diagrams present in the rigid formulation
@@ -932,20 +944,20 @@ public class VirialHePI {
      */
     public static class VirialHePIParam extends ParameterBase {
         // don't change these here!!!! change them in the main method!!!
-        public int nPoints = 4;
+        public int nPoints = 2;
         public int nBeads = 4;
-        public double temperature = 500;   // Kelvin
+        public double temperature = 223.15;   // Kelvin
         public long numSteps = 1000000;
         public double refFrac = -1;
         public boolean doHist = false;
         public double sigmaHSRef = -1; // -1 means use equation for sigmaHSRef
-        public boolean doDiff = false;
-        public boolean semiClassical = false;
+        public boolean doDiff = true;
+        public boolean semiClassical = true;
         public boolean subtractHalf = false;
         public boolean pairOnly = true;
         public boolean doTotal = false;
-        public boolean calcApprox = false;
-        public boolean subtractApprox = false;
+        public PotentialChoice potentialChoice = PotentialChoice.PCKLJS;
+        public PotentialChoice subtractPotential = null;
         public FlexApproach flexApproach = FlexApproach.FULL;
     }
 }

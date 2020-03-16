@@ -31,8 +31,6 @@ public class ClusterWheatleyMultibodyDerivativesBD extends ClusterWheatleySoftDe
     protected final boolean doTotal;
     protected final BigDecimal[] pairValues;
 
-
-   
     /**
      * @param nPoints number of points
      * @param f pair Mayer function
@@ -237,7 +235,11 @@ public class ClusterWheatleyMultibodyDerivativesBD extends ClusterWheatleySoftDe
             }
         }
     }
-    
+
+    public int getNumValues() {
+        return value.length;
+    }
+
     public double[] getAllLastValues(BoxCluster box) {
         value(box);
         return value;
@@ -268,8 +270,7 @@ public class ClusterWheatleyMultibodyDerivativesBD extends ClusterWheatleySoftDe
         }
 
         public void setTemperature(double temperature) {
-            
-            
+
         }
         
         

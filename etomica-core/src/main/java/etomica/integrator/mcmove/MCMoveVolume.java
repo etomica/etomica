@@ -26,10 +26,10 @@ import etomica.util.random.IRandom;
 public class MCMoveVolume extends MCMoveBoxStep {
 
     protected double pressure;
-    protected MeterPotentialEnergy energyMeter;
+    protected final MeterPotentialEnergy energyMeter;
     protected BoxInflate inflate;
     protected final int D;
-    protected IRandom random;
+    protected final IRandom random;
     protected final AtomIteratorLeafAtoms affectedAtomIterator;
     protected IFunction vBias;
 
@@ -37,8 +37,8 @@ public class MCMoveVolume extends MCMoveBoxStep {
     protected double uNew = Double.NaN;
 
     public MCMoveVolume(Simulation sim, PotentialMaster potentialMaster,
-                        Space _space) {
-        this(potentialMaster, sim.getRandom(), _space, 1.0);
+                        Space space) {
+        this(potentialMaster, sim.getRandom(), space, 1.0);
     }
 
     /**
@@ -79,7 +79,11 @@ public class MCMoveVolume extends MCMoveBoxStep {
 
     public boolean doTrial() {
         double vOld = box.getBoundary().volume();
-        uOld = energyMeter.getDataAsScalar();
+        if(potential.isPotentialHard()) {
+            uOld = 0.0;
+        } else {
+            uOld = energyMeter.getDataAsScalar();
+        }
         hOld = uOld + pressure*vOld;
         biasOld = vBias.f(vOld);
         vScale = (2.*random.nextDouble()-1.)*stepSize;

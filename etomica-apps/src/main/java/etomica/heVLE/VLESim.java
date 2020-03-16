@@ -30,7 +30,6 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.*;
-import etomica.util.IEvent;
 import etomica.util.IListener;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -122,13 +121,13 @@ public class VLESim extends Simulation {
         integratorGEMC.getMoveManager().addMCMove(moleculeExchange);
         integratorGEMC.getMoveManager().setFrequency(volumeExchange, 0.01);
 
-        integratorGEMC.getMoveEventManager().addListener(new IListener<IEvent>() {
-            public void actionPerformed(IEvent event) {
+        integratorGEMC.getMoveEventManager().addListener(new IListener<MCMoveEvent>() {
+            public void actionPerformed(MCMoveEvent event) {
                 if (event instanceof MCMoveTrialCompletedEvent &&
                         ((MCMoveTrialCompletedEvent) event).isAccepted()) {
                     return;
                 }
-                if (((MCMoveEvent) event).getMCMove() == volumeExchange) {
+                if (event.getMCMove() == volumeExchange) {
                     if (boxLiquid.getBoundary().getBoxSize().getX(0) * 0.499 < range) {
                         p2Truncated.setTruncationRadius(0.499 * boxLiquid.getBoundary().getBoxSize().getX(0));
                     } else {

@@ -6,9 +6,9 @@ package etomica.potential;
 
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 import etomica.util.Debug;
@@ -116,7 +116,7 @@ public class P2HardSphere extends Potential2HardSpherical {
     
     public Tensor lastCollisionVirialTensor() {
         lastCollisionVirialTensor.Ev1v2(dr, dr);
-//        lastCollisionVirialTensor.DE(lastCollisionVirialr2);
+        lastCollisionVirialTensor.TE(lastCollisionVirialr2);
         return lastCollisionVirialTensor;        
     }
     

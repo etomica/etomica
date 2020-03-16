@@ -7,7 +7,7 @@ package etomica.modules.dcvgcmd;
 import etomica.action.ActionGroupSeries;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.atom.AtomFilter;
+import etomica.atom.AtomTest;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
 import etomica.data.*;
@@ -50,7 +50,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 
 	    //Button for cutaway view
 	    CutAway cutawayFilter = new CutAway();
-	    getDisplayBox(sim.box).setAtomFilter(cutawayFilter);
+		getDisplayBox(sim.box).setAtomTestDoDisplay(cutawayFilter);
 	    DeviceToggleButton cutawayButton = new DeviceToggleButton(sim.getController());
 	    cutawayButton.setModifier(cutawayFilter, "Restore", "Cut tube");
 	    cutawayButton.setPostAction(getPaintAction(sim.box));
@@ -221,7 +221,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
         }
     }
 
-    private class CutAway implements AtomFilter, ModifierBoolean {
+	private class CutAway implements AtomTest, ModifierBoolean {
         
         private boolean active = false;
         

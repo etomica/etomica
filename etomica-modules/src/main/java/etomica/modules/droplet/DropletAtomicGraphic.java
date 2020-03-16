@@ -11,8 +11,8 @@ import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.graphics.*;
-import etomica.lattice.CellLattice;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.lattice.CellLattice;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.cell.Cell;
@@ -53,8 +53,8 @@ public class DropletAtomicGraphic extends SimulationGraphic {
     	        sim.makeDropShape();
     	    }
     	});
-    	
-    	final AtomFilterLiquidAtomic liquidFilter = new AtomFilterLiquidAtomic(sim.potentialMaster, sim.box);
+
+        final AtomTestLiquidAtomic liquidFilter = new AtomTestLiquidAtomic(sim.potentialMaster, sim.box);
     	sim.potentialMaster.reset();
     	final ColorSchemeLiquidVapor colorScheme = new ColorSchemeLiquidVapor(liquidFilter);
     	colorScheme.setDoResetFilter(true);
@@ -65,10 +65,10 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         cutawayButton.setAction(new IAction() {
             public void actionPerformed() {
                 if (filterIsActive) {
-                    getDisplayBox(sim.box).setAtomFilter(null);
+                    getDisplayBox(sim.box).setAtomTestDoDisplay(null);
                 }
                 else {
-                    getDisplayBox(sim.box).setAtomFilter(liquidFilter);
+                    getDisplayBox(sim.box).setAtomTestDoDisplay(liquidFilter);
                 }
                 filterIsActive = !filterIsActive;
                 colorScheme.setDoResetFilter(!filterIsActive);

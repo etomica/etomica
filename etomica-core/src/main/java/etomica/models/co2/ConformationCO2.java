@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.virial;
+package etomica.models.co2;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
 import etomica.config.IConformation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Electron;
 
  /**

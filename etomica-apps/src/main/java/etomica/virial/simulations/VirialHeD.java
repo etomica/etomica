@@ -110,7 +110,7 @@ public class VirialHeD {
                 throw  new RuntimeException("SWITCH POTENTIAL AND CALCDIFF !!!!");
             }
             else {
-                System.out.println("Computing difference between " + potential + " and " + calcDiff + " Potential");
+                System.out.println("Computing additive coefficient difference between " + potential + " and " + calcDiff + " Potential");
             }
         }
 

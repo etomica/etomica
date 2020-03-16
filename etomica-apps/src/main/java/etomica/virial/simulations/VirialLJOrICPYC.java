@@ -143,9 +143,7 @@ public class VirialLJOrICPYC {
         DataDistributer.Indexer indexer = null;
         DataSplitter.IDataSinkFactory accFac = new DataSplitter.IDataSinkFactory() {
             public IDataSink makeDataSink(int i) {
-                AccumulatorAverageFixed a = new AccumulatorAverageFixed(bs);
-                a.setDoStrictBlockData(true);
-                return a;
+                return new AccumulatorAverageFixed(bs);
             }
         };
 

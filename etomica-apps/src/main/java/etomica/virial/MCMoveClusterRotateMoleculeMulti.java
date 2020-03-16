@@ -20,7 +20,6 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
 
     public MCMoveClusterRotateMoleculeMulti(IRandom random, Space _space) {
         super(null, random, _space);
-        this.space = _space;
     }
 
     public void setBox(Box p) {

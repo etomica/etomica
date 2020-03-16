@@ -23,13 +23,16 @@ import etomica.space.*;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresRotating;
-import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.*;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,19 +45,27 @@ import java.util.List;
 public class ConfigFromFileLAMMPS {
 
     public static void main(String[] args) throws IOException {
+
         ConfigFromFileLAMMPSParam params = new ConfigFromFileLAMMPSParam();
-        if (args.length == 0) {
-            throw new RuntimeException("Usage: ConfigFromFileLAMMPS -filename sim.atom -configNum n -crystal CRYSTAL");
+        if (args.length > 0) {
+            ParseArgs.doParseArgs(params, args);
         }
-        ParseArgs.doParseArgs(params, args);
-        String filename = params.filename;
         boolean doSfac = params.doSfac;
         double cutoffS = params.cutS;
         double thresholdS = params.thresholdS;
         boolean GUI = params.GUI;
-        FileReader fileReader = new FileReader(filename);
-        BufferedReader reader = new BufferedReader(fileReader);
-        String line = null;
+        String input = params.input;
+        Reader reader0;
+        if (input.substring(0, 4).equals("http")) {
+            URL url = new URL(input);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+            reader0 = new InputStreamReader(in);
+        } else {
+            String filename = params.input;
+            reader0 = new FileReader(filename);
+        }
+        BufferedReader reader = new BufferedReader(reader0);
         String read = "";
         int numAtoms = -1;
         int item = -1;
@@ -73,6 +84,7 @@ public class ConfigFromFileLAMMPS {
         List<DataFunction.DataInfoFunction> sfacDataInfo = new ArrayList<>();
         DataTag sfacTag = new DataTag();
         ModifierConfiguration modifierConfig =  null;
+        String line;
         while ((line = reader.readLine()) != null) {
             if (line.matches("ITEM:.*")) {
                 read = "";
@@ -98,7 +110,6 @@ public class ConfigFromFileLAMMPS {
             }
             if (read.equals("numAtoms")) {
                 numAtoms = Integer.parseInt(line);
-                System.out.println("numAtoms: " + numAtoms);
             } else if (read.equals("boundary")) {
                 String[] bits = line.split("[ \t]+");
                 if (bits.length == 2) {
@@ -143,7 +154,7 @@ public class ConfigFromFileLAMMPS {
                         File sfile = new File(config + ".sfac");
                         if (!sfile.exists()) {
                             modifierConfig.setValue(config);
-                            MeterStructureFactor meter = new MeterStructureFactor(space, box, cutoffS);
+                            MeterStructureFactor meter = new MeterStructureFactor(box, cutoffS);
                             writeFile(meter, thresholdS, config);
                         }
                     }
@@ -162,8 +173,8 @@ public class ConfigFromFileLAMMPS {
 
         ColorSchemeDeviation colorScheme = new ColorSchemeDeviation(box, space);
         graphic.getDisplayBox(box).setColorScheme(colorScheme);
-        final AtomFilterDeviation atomFilter = new AtomFilterDeviation(colorScheme);
-        display.setAtomFilter(atomFilter);
+        final AtomTestDeviation atomFilter = new AtomTestDeviation(colorScheme);
+        display.setAtomTestDoDisplay(atomFilter);
         modifierConfig.setColorScheme(colorScheme);
 
         DeviceSlider filterSlider = new DeviceSlider(sim.getController(), new Modifier() {
@@ -187,6 +198,9 @@ public class ConfigFromFileLAMMPS {
                 return "Displacement Threshold";
             }
         });
+        filterSlider.setShowBorder(true);
+        filterSlider.setBorderAlignment(TitledBorder.CENTER);
+        filterSlider.setLabel("Distance filter");
         filterSlider.setMinimum(0);
         filterSlider.setMaximum(2);
         filterSlider.setPrecision(2);
@@ -195,8 +209,15 @@ public class ConfigFromFileLAMMPS {
         filterSlider.setPostAction(() -> graphic.getDisplayBox(finalBox).repaint());
         graphic.add(filterSlider);
         DeviceSlider configSlider = new DeviceSlider(sim.getController(), modifierConfig);
+        configSlider.setShowBorder(true);
+        configSlider.setBorderAlignment(TitledBorder.CENTER);
+        configSlider.setLabel("Configuration #");
         configSlider.setMaximum(config - 1);
-        configSlider.setNMajor(config);
+        if (config > 10) {
+            configSlider.setNMajor(5);
+        } else {
+            configSlider.setNMajor(config);
+        }
         configSlider.setMinimum(0);
         configSlider.setPrecision(0);
         modifierConfig.setPostAction(new IAction() {
@@ -299,7 +320,7 @@ public class ConfigFromFileLAMMPS {
     }
 
     public static class ConfigFromFileLAMMPSParam extends ParameterBase {
-        public String filename;
+        public String input = "http://rheneas.eng.buffalo.edu/~andrew/lj.atom";
         public boolean doSfac = false;
         public double cutS = 8;
         public double thresholdS = 0.001;
@@ -366,7 +387,6 @@ public class ConfigFromFileLAMMPS {
                 rescaledCoords0[i].E(r0);
                 dr.Ev1Mv2(atoms.get(i).getPosition(), r0);
                 boundary.nearestImage(dr);
-                double r2 = dr.squared();
             }
 
         }
@@ -500,12 +520,12 @@ public class ConfigFromFileLAMMPS {
         }
     }
 
-    public static class AtomFilterDeviation implements AtomFilter {
+    public static class AtomTestDeviation implements AtomTest {
 
         protected final ColorSchemeDeviation colorScheme;
         protected double threshold = 0;
 
-        public AtomFilterDeviation(ColorSchemeDeviation colorScheme) {
+        public AtomTestDeviation(ColorSchemeDeviation colorScheme) {
             this.colorScheme = colorScheme;
         }
 

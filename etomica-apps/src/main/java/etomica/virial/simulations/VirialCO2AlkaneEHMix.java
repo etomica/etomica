@@ -25,6 +25,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.models.co2.SpeciesTraPPECO2;
 import etomica.molecule.MoleculePositionGeometricCenterAlkaneEH;
 import etomica.potential.*;
 import etomica.space.Space;
@@ -270,8 +271,8 @@ public class VirialCO2AlkaneEHMix {
         for (int i=0; i<targetDiagrams.length; i++) {
             targetDiagrams[i].setTemperature(temperature);
         }
-        
-        SpeciesTraPPECO2 speciesCO2 = new SpeciesTraPPECO2(space);// CO2 
+
+        SpeciesTraPPECO2 speciesCO2 = new SpeciesTraPPECO2(space);// CO2
         SpeciesAlkaneEH speciesAlkaneEH = new SpeciesAlkaneEH(space, nSpheres);// alkaneEH
         
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), 

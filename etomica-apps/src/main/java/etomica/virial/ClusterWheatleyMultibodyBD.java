@@ -24,7 +24,7 @@ public class ClusterWheatleyMultibodyBD extends ClusterWheatleySoftBD {
     protected final int[] moleculeIndices;
     protected final double[] r2;
     protected final MoleculeArrayList molecules;
-    protected boolean doMulti;
+    protected boolean doMulti, doTotal;
     protected double rCut2;
     protected final BigDecimal[] fQmulti;
     protected ClusterWheatleyMultibodyBD clusterWheatleyBDBD;
@@ -96,6 +96,13 @@ public class ClusterWheatleyMultibodyBD extends ClusterWheatleySoftBD {
         return c;
     }
 
+    public void setDoTotal(boolean newDoTotal) {
+        doTotal = newDoTotal;
+        if (clusterWheatleyBDBD != null) {
+            clusterWheatleyBDBD.setDoTotal(newDoTotal);
+        }
+    }
+
     public void setRCut(double newRCut) {
         rCut2 = newRCut * newRCut;
     }
@@ -136,6 +143,7 @@ public class ClusterWheatleyMultibodyBD extends ClusterWheatleySoftBD {
                 clusterWheatleyBDBD.setTemperature(1/beta);
                 clusterWheatleyBDBD.setDoCaching(doCaching);
                 clusterWheatleyBDBD.setPrecisionLimit(precisionLimit);
+                clusterWheatleyBDBD.setDoTotal(doTotal);
             }
             value = clusterWheatleyBDBD.value(box);
             return;

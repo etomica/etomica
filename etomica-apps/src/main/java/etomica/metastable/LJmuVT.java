@@ -125,7 +125,7 @@ public class LJmuVT extends Simulation {
         double rc = params.rc;
 
         double B2 = LennardJones.B2(temperature);
-        double B3 = B3LJ.value(temperature)[0];
+        double B3 = B3LJ.value(temperature, 0)[0];
 
         double bmu = mu/temperature;
         double density1 = Math.exp(bmu);

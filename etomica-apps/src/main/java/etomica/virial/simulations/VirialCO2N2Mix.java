@@ -23,6 +23,7 @@ import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
+import etomica.models.co2.SpeciesTraPPECO2;
 import etomica.potential.P2CO2EMP;
 import etomica.potential.P2CO2TraPPE;
 import etomica.potential.P2LennardJones;
@@ -209,8 +210,8 @@ public class VirialCO2N2Mix {
         for (int i=0; i<targetDiagrams.length; i++) {
             targetDiagrams[i].setTemperature(temperature);
         }
-        
-        SpeciesTraPPECO2 speciesCO2 = new SpeciesTraPPECO2(space);// CO2 
+
+        SpeciesTraPPECO2 speciesCO2 = new SpeciesTraPPECO2(space);// CO2
         // N2
         final IConformation conformation = new IConformation() {
         	public void initializePositions(IAtomList atomList) {

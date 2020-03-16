@@ -8,13 +8,13 @@ import etomica.action.IntegratorActionAdapter;
 import etomica.atom.iterator.AtomIteratorLeafFilteredType;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterEnergy;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorMD;
 import etomica.species.SpeciesSpheresMono;
-import etomica.data.history.HistoryCollapsingDiscard;
 
 public class ZeoliteSimStart extends IntegratorActionAdapter{
 
@@ -69,12 +69,8 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	sp = sim.getSpeciesRMS();
         	System.out.println(filename);
         	//sim.integrator.setTimeStep(0.00);
-        	MSDCoordWriter coordWriter = new MSDCoordWriter(sim.getSpace(), filename);
-        	coordWriter.setBox(sim.box);
+            MSDCoordWriter coordWriter = new MSDCoordWriter(sim.integrator, sim.box, filename, interval);
             coordWriter.setIterator(new AtomIteratorLeafFilteredType(sim.box, sp.getLeafType()));
-            coordWriter.setIntegrator(sim.integrator);
-            coordWriter.setWriteInterval(interval);
-            coordWriter.openFile();
             System.out.println("created MSDCoordWriter");
         	
         }

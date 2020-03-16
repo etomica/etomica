@@ -59,6 +59,7 @@ public class VirialHeNonAdditiveD {
             params.numSteps = 1000000;
             params.potential = PotentialChoice.OLD;
             params.calcDiff = PotentialChoice.NONE;
+            params.doTotal=false;
             params.dop3Aprox = false;
             params.dop3AproxDiff = false;
             params.BDtol = 1e-12; //1e-14 used previously
@@ -78,6 +79,7 @@ public class VirialHeNonAdditiveD {
         long steps = params.numSteps;
         final PotentialChoice potential = params.potential;
         final PotentialChoice calcDiff = params.calcDiff;
+        final boolean doTotal = params.doTotal;
         final boolean dop3Aprox = params.dop3Aprox;
         final boolean dop3AproxDiff = params.dop3AproxDiff;
         final double BDtol = params.BDtol;
@@ -101,6 +103,8 @@ public class VirialHeNonAdditiveD {
         double vhs = (4.0 / 3.0) * Math.PI * sigmaHSRef * sigmaHSRef * sigmaHSRef;
         final double HSBn = doChainRef ? SpecialFunctions.factorial(nPoints) / 2 * Math.pow(vhs, nPoints - 1) : Standard.BHS(nPoints, sigmaHSRef);
 
+        String coeftype = doTotal ? "total" : "non-additive";
+
         if ( potential == PotentialChoice.NONE ) {
             throw new RuntimeException("POTENTIAL NOT FOUND !!!!");
         }
@@ -111,7 +115,7 @@ public class VirialHeNonAdditiveD {
             throw new RuntimeException("POTENTIAL AND CALCDIFF ARE THE SAME !!!!");
         }
         else if ( calcDiff == PotentialChoice.NONE ){
-            System.out.println("Computing full non-additive coefficient using " + potential + " Potential");
+            System.out.println("Computing full "+ coeftype +" coefficient using " + potential + " Potential");
             if(dop3Aprox){
                 System.out.println("Using approximate 3-Body potential in main cluster");
             }
@@ -127,7 +131,7 @@ public class VirialHeNonAdditiveD {
                 throw  new RuntimeException("SWITCH POTENTIAL AND CALCDIFF !!!!");
             }
             else {
-                System.out.println("Computing difference between " + potential + " and " + calcDiff + " Potential");
+                System.out.println("Computing "+ coeftype + " coefficient difference between " + potential + " and " + calcDiff + " Potential");
             }
             if(dop3Aprox){
                 System.out.println("Using approximate 3-Body potential in main cluster");
@@ -189,7 +193,7 @@ public class VirialHeNonAdditiveD {
         
         MayerFunctionNonAdditive[] fNA = new MayerFunctionNonAdditive[4];
         fNA[3] = f3Target;
-        final ClusterWheatleyMultibodyDerivatives fullTargetCluster = new ClusterWheatleyMultibodyDerivatives(nPoints, fTarget, fNA, BDtol, nDer,false);
+        final ClusterWheatleyMultibodyDerivatives fullTargetCluster = new ClusterWheatleyMultibodyDerivatives(nPoints, fTarget, fNA, BDtol, nDer,doTotal);
 
         ClusterAbstract targetCluster = null;
         ClusterWheatleyMultibodyDerivatives clusterDiff = null;
@@ -206,7 +210,7 @@ public class VirialHeNonAdditiveD {
             MayerFunctionNonAdditive[] fNADiff = new MayerFunctionNonAdditive[4];
             fNADiff[3] = f3TargetDiff;
             ClusterAbstract[] targetSubtract = new ClusterAbstract[1];
-            clusterDiff = new ClusterWheatleyMultibodyDerivatives(nPoints, fTargetDiff, fNADiff, BDtol, nDer,false);;
+            clusterDiff = new ClusterWheatleyMultibodyDerivatives(nPoints, fTargetDiff, fNADiff, BDtol, nDer,doTotal);;
             targetSubtract[0] = clusterDiff;
             targetCluster = new ClusterDifference(fullTargetCluster, targetSubtract);
         }
@@ -330,11 +334,12 @@ public class VirialHeNonAdditiveD {
                 // temperature is an integer, use "200" instead of "200.0"
                 tempString = ""+(int)temperatureK;
             }
+            String coefStr = doTotal ? "_tot_" : "_nad_";
             String potStr = potential==PotentialChoice.SIMPLE?"simple_":(potential==PotentialChoice.OLD?"old_":(potential==PotentialChoice.NEW?"new_": " ???? ")) ;
             String cdStr = calcDiff==PotentialChoice.SIMPLE?"simple_diff_":(calcDiff==PotentialChoice.OLD?"old_diff_":(calcDiff==PotentialChoice.NONE?"full_": " ???? ")) ;
-            String p3Astr = dop3Aprox?"p3A_":"";
-            String p3ADstr = dop3AproxDiff?"p3AD_":"";
-            refFileName = "refpref_"+nPoints+"_nad_"+potStr+cdStr+p3Astr+p3ADstr+tempString;
+            String p3AStr = dop3Aprox?"p3A_":"";
+            String p3ADStr = dop3AproxDiff?"p3AD_":"";
+            refFileName = "refpref_"+nPoints+coefStr+potStr+cdStr+p3AStr+p3ADStr+tempString;
             refFileName += "K";
         }
 
@@ -456,6 +461,7 @@ public class VirialHeNonAdditiveD {
         public long numSteps = 10000000;
         public PotentialChoice potential = PotentialChoice.NEW;
         public PotentialChoice calcDiff = PotentialChoice.NONE;
+        public boolean doTotal = false;
         public boolean dop3Aprox = false;
         public boolean dop3AproxDiff = false;
         public double BDtol = 1e-12;

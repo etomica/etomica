@@ -5,10 +5,10 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.space.Vector;
 import etomica.box.Box;
+import etomica.space.Boundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.Hartree;
 import etomica.units.Kelvin;
@@ -89,9 +89,9 @@ public class P2EffectiveFeynmanHibbs implements Potential2Spherical {
         double d2uc = p2Classy.d2u(r2);
         if (Double.isInfinite(fac*(d2uc + 2*duc)/r2*(-2/temperature/temperature))) {
             throw new RuntimeException("fac*(d2uc + 2*duc)/r2 is infinite");
-        } 
+        }
 
-        return fac*(d2uc + 2*duc)/r2*(-2/temperature/temperature);  //fac includes temperature in the denominator
+        return fac * (d2uc + 2 * duc) / r2 / (-temperature);  //fac includes temperature in the denominator
     }
 
     public void setBox(Box box) {

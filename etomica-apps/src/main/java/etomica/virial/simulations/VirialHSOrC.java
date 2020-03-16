@@ -4,23 +4,13 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
-
-import etomica.math.function.IFunction;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataDistributer;
-import etomica.data.DataFork;
-import etomica.data.DataSplitter;
-import etomica.data.IData;
-import etomica.data.IDataSink;
+import etomica.data.*;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.math.function.IFunction;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -29,14 +19,11 @@ import etomica.units.Pixel;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.CalcFFT;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.MCMoveClusterAtomDiscrete;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Overlap sampling simulation to compute c(r) for HS
@@ -126,9 +113,7 @@ public class VirialHSOrC {
         DataDistributer.Indexer indexer = null;
         DataSplitter.IDataSinkFactory accFac = new DataSplitter.IDataSinkFactory() {
             public IDataSink makeDataSink(int i) {
-                AccumulatorAverageFixed a = new AccumulatorAverageFixed(bs);
-                a.setDoStrictBlockData(true);
-                return a;
+                return new AccumulatorAverageFixed(bs);
             }
         };
 

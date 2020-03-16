@@ -224,6 +224,32 @@ public class P2HePCJS extends Potential2SoftSpherical {
         return V;
     }
 
+    private double intPow(double x, int a) {
+        if (a < 0) return 1.0 / intPow(x, -a);
+        if (a < 4) {
+            switch (a) {
+                case 0:
+                    return 1;
+                case 1:
+                    return x;
+                case 2:
+                    return x * x;
+                case 3:
+                    return x * x * x;
+            }
+        }
+        double x2 = x * x;
+        switch (a) {
+            case 4:
+                return x2 * x2;
+            case 5:
+                return x2 * x2 * x;
+            case 6:
+                return x2 * x2 * x2;
+        }
+        throw new RuntimeException("oops, don't know how to handle a=" + a);
+    }
+
     private double formShort(double r, int M, int I0, int I1,double[] a, double[][] P){
 
         //short-range formula
@@ -240,9 +266,64 @@ public class P2HePCJS extends Potential2SoftSpherical {
             formShort += Math.exp(-a[k]*r)*term;
             //if(I0==-1)System.out.println("k = " + k +" fs = " + formShort);
         }
-        if(I0 != 0) formShort = formShort*Math.pow(r,I0);
+        if (I0 != 0) formShort = formShort * intPow(r, I0);
 
         return formShort;
+    }
+
+    private double dformShort(double r, int M, int I0, int I1, double[] a, double[][] P) {
+        //short-range formula
+        //sum_{k=1}^{M} exp(-a(k) R) sum_{i=I0}^{I1} P(i,k) R^i
+        if (I1 - 1 <= I0) return 0;
+        double formShort = 0.0, dformShort = 0.0;
+        for (int k = 0; k < M; k++) {
+            double term = P[I1 - I0][k]; // subtracted I1 from i for appropriate index
+            double dterm = (I1 - I0) * P[I1 - I0][k] / r;
+            //if(I0==-1)System.out.println("k = " + k +" I1 = "+ I1 +" P[I1][k] = " + term);
+            for (int i = I1 - 1; i >= I0; i--) {
+                term = term * r + P[i - I0][k]; // subtracted I0 from i for appropriate index
+                if (i >= I0 + 1) dterm += dterm * r + (i - I0) * P[i - I0][k];
+                //if(I0==-1)System.out.println("k = " + k + " i = "+ i +" P[i][k] = " + P[i-I0][k] + " term = " + term);
+            }
+            formShort += Math.exp(-a[k] * r) * term;
+            dformShort += Math.exp(-a[k] * r) * dterm - a[k] * Math.exp(-a[k] * r) * term;
+            //if(I0==-1)System.out.println("k = " + k +" fs = " + formShort);
+        }
+        if (I0 != 0) dformShort = dformShort * intPow(r, I0) + formShort * I0 * intPow(r, I0 - 1);
+
+        return dformShort;
+    }
+
+    private double d2formShort(double r, int M, int I0, int I1, double[] a, double[][] P) {
+        //short-range formula
+        //sum_{k=1}^{M} exp(-a(k) R) sum_{i=I0}^{I1} P(i,k) R^i
+        if (I1 - 1 <= I0 - 1) return 0;
+        double formShort = 0.0, dformShort = 0.0, d2formShort = 0.0;
+        for (int k = 0; k < M; k++) {
+            double term = P[I1 - I0][k]; // subtracted I1 from i for appropriate index
+            double dterm = (I1 - I0) * P[I1 - I0][k] / r;
+            double d2term = (I1 - I0) * (I1 - I0 - 1) * P[I1 - I0][k] / (r * r);
+
+            //if(I0==-1)System.out.println("k = " + k +" I1 = "+ I1 +" P[I1][k] = " + term);
+            for (int i = I1 - 1; i >= I0; i--) {
+                term = term * r + P[i - I0][k]; // subtracted I0 from i for appropriate index
+                if (i > I0) dterm += dterm * r + (i - I0) * P[i - I0][k];
+                if (i > I0 + 1) d2term += d2term * r + (i - I0) * (i - I0 - 1) * P[i - I0][k];
+                //if(I0==-1)System.out.println("k = " + k + " i = "+ i +" P[i][k] = " + P[i-I0][k] + " term = " + term);
+            }
+            formShort += Math.exp(-a[k] * r) * term;
+            dformShort += Math.exp(-a[k] * r) * dterm - a[k] * Math.exp(-a[k] * r) * term;
+            d2formShort += Math.exp(-a[k] * r) * d2term - 2 * a[k] * Math.exp(-a[k] * r) * dterm + a[k] * a[k] * Math.exp(-a[k] * r) * term;
+            //if(I0==-1)System.out.println("k = " + k +" fs = " + formShort);
+        }
+        if (I0 == 0) return d2formShort;
+        if (I0 == 1) {
+            d2formShort = d2formShort * intPow(r, I0) + dformShort * I0 * intPow(r, I0 - 1);
+        } else {
+            d2formShort = d2formShort * intPow(r, I0) + dformShort * I0 * intPow(r, I0 - 1) + formShort * I0 * (I0 - 1) * intPow(r, I0 - 2);
+        }
+
+        return d2formShort;
     }
 
     private double formLong(double r, int ret_type, int N0, int N1,double zeta, double[] C) {
@@ -259,7 +340,7 @@ public class P2HePCJS extends Potential2SoftSpherical {
         //if(N1==16)System.out.println("iR = "+iR);
         double zetaR = zeta*r;
         //if(N1==16)System.out.println("zetaR = "+zetaR);
-        double formLong;
+        double formLong = 0;
 
         if( N0 < N1 ) {
             formLong = - C[N1]*dampTT(N1,zetaR);
@@ -275,9 +356,7 @@ public class P2HePCJS extends Potential2SoftSpherical {
                 }
             }
         }
-        else {
-            formLong = 0.0;
-        }
+
         switch (ret_type){
             case 0:
                 formLong = formLong*iR - C[N0]*dampTT(N0,zetaR);
@@ -293,7 +372,7 @@ public class P2HePCJS extends Potential2SoftSpherical {
                 throw new RuntimeException("!!!!!WHOPPS!!!!");
         }
 
-        formLong = formLong*Math.pow(iR,N0);
+        formLong = formLong * intPow(iR, N0);
         return formLong;
     }
 
@@ -496,7 +575,9 @@ public class P2HePCJS extends Potential2SoftSpherical {
     public static void main(String[] args){
         Space space = Space3D.getInstance();
         final P2HePCJS pnew = new P2HePCJS(space);
+        final P2HePCJS pnewp = new P2HePCJS(space, 1);
         final P2HePCKLJS pold = new P2HePCKLJS(space);
+        final P2HePCKLJS poldp = new P2HePCKLJS(space, 1);
         //double V1 = p.V(5.6,false);
         double tempK = 300; // Kelvin
         double beta = 1/Kelvin.UNIT.toSim(tempK);
@@ -506,6 +587,16 @@ public class P2HePCJS extends Potential2SoftSpherical {
             double uratio = unew/uold;
             double f = Math.exp(-unew*beta) - 1;
             System.out.println(r+" "+" "+f);
+        }
+
+        System.out.println("\nerror");
+        for (double r = 0.5; r < 10.0001; r += 0.1) {
+            double unew = pnew.u(r * r);
+            double unewp = pnewp.u(r * r);
+            double uold = pold.u(r * r);
+            double uoldp = poldp.u(r * r);
+            if (uold == Double.POSITIVE_INFINITY || unew == Double.POSITIVE_INFINITY) continue;
+            System.out.println(r + " " + unew + " " + (unewp - unew) + " " + (uoldp - uold) + " " + (uold - unew));
         }
         //double V2 = p.V(0.0,true);
         //double dampTT = p.dampTT(16,11.941151488133176);

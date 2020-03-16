@@ -72,25 +72,24 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
     protected void doBlockSum() {
         // need to do this first since blockSum gets zero'd by super.doBlockSum()
         double[] x = blockCovSum.getData();
-        int n = currentBlockSum.getLength();
-        long blockSizeSq = blockSize * blockSize;
+        int n = currentBlockAvg.getLength();
 
         if (fullCovariance) {
             for (int i=0; i<n; i++) {
-                double ix = currentBlockSum.getValue(i);
-                x[i*n+i] += ix*ix/blockSizeSq;
+                double ix = currentBlockAvg.getValue(i);
+                x[i * n + i] += ix * ix;
                 for (int j=i+1; j<n; j++) {
-                    double ijx = ix*currentBlockSum.getValue(j)/blockSizeSq;
+                    double ijx = ix * currentBlockAvg.getValue(j);
                     x[i*n+j] += ijx;
                     x[j*n+i] += ijx;
                 }
             }
         }
         else {
-            double x0 = currentBlockSum.getValue(0);
+            double x0 = currentBlockAvg.getValue(0);
             for (int j=0; j<n; j++) {
-                double j0x = x0*currentBlockSum.getValue(j);
-                x[j] += j0x/blockSizeSq;
+                double j0x = x0 * currentBlockAvg.getValue(j);
+                x[j] += j0x;
             }
         }
 
@@ -107,17 +106,6 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
         long nTotalData = count*blockSize + (blockCountDown-blockSize);
         covariance.TE(1.0/nTotalData);
         double[] x = covariance.getData();
-
-        if (doStrictBlockData) {
-            // we need all the data
-            work.E(sum);
-            work.PE(currentBlockSum);
-            work.TE(1.0 / nTotalData);
-        }
-        else {
-            // average already has all the data
-            work.E(average);
-        }
 
         if (fullCovariance) {
             for (int i=0; i<n; i++) {
@@ -142,23 +130,21 @@ public class AccumulatorAverageCovariance extends AccumulatorAverageFixed {
             blockCovariance.E(blockCovSum);
             blockCovariance.TE(1.0/count);
             x = blockCovariance.getData();
-            double totalCount = count*blockSize;
-            double countSq = totalCount*totalCount;
             if (fullCovariance) {
                 for (int i=0; i<n; i++) {
-                    double ix = sum.getValue(i);
-                    x[i*n+i] -= ix*ix/countSq;
+                    double ix = average.getValue(i);
+                    x[i * n + i] -= ix * ix;
                     for (int j=i+1; j<n; j++) {
-                        double ijx = ix*sum.getValue(j)/countSq;
+                        double ijx = ix * average.getValue(j);
                         x[i*n+j] -= ijx;
                         x[j*n+i] -= ijx;
                     }
                 }
             }
             else {
-                double x0 = sum.getValue(0);
+                double x0 = average.getValue(0);
                 for (int j=0; j<n; j++) {
-                    double j0x = x0*sum.getValue(j)/countSq;
+                    double j0x = x0 * average.getValue(j);
                     x[j] += j0x;
                 }
             }

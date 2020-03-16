@@ -19,6 +19,8 @@ import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotential;
 import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphere;
+import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
@@ -50,15 +52,30 @@ public class VirialLJD {
             params.numSteps = 1000000L;
             params.doHist = false;
             params.doChainRef = true;
-            params.blockSize = 1000;
         }
-        
+
         runVirial(params);
     }
 
     public static void runVirial(VirialLJParam params) {
+
+        if (params.sigmaHSRef == 0) {
+            // below T=5, well is important and ref can sample a large HS
+            if (params.temperature < 5) params.sigmaHSRef = 1.5;
+                // above T=5, well is unimportant and LJ acts like SS.  range
+                // continues to diminish as the temperature increases.
+            else if (params.temperature < Double.POSITIVE_INFINITY) {
+                params.sigmaHSRef = 0.925 * Math.pow(10 / params.temperature, 1.0 / 12.0);
+                // sigma optimized for B7, but should be (approximately) universal
+            } else {
+                // SS with epsilon=4, temperature=1
+                params.sigmaHSRef = 0.925 * Math.pow(10, 1.0 / 12.0);
+            }
+        }
+
         final int nPoints = params.nPoints;
         double temperature = params.temperature;
+        if (temperature == Double.POSITIVE_INFINITY) temperature = 1;
         final int nDer = params.nDer; 
         long steps = params.numSteps;
         double sigmaHSRef = params.sigmaHSRef;
@@ -88,7 +105,8 @@ public class VirialLJD {
         };
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
-        P2LennardJones pTarget = new P2LennardJones(space);
+        Potential2SoftSpherical pTarget = params.temperature < Double.POSITIVE_INFINITY ? new P2LennardJones(space) : new P2SoftSphere(space, 1, 4, 12);
+
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(pTarget);
         if (doChainRef) System.out.println("HS Chain reference");
         ClusterAbstract refCluster = doChainRef ? new ClusterChainHS(nPoints, fRefPos) : new ClusterWheatleyHS(nPoints, fRef);
@@ -106,6 +124,7 @@ public class VirialLJD {
             targetDiagrams[m-1]= new ClusterWheatleySoftDerivatives.ClusterRetrievePrimes(targetCluster,m);
         }
         sim.setExtraTargetClusters(targetDiagrams);
+        targetCluster.setBDAccFrac(params.BDAccFrac, sim.getRandom());
         sim.init();
 
         if (doChainRef) {
@@ -164,12 +183,11 @@ public class VirialLJD {
         // if running interactively, don't use the file
         String refFileName = params.writeRefPref ? "refpref"+nPoints+"_"+temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
-        //sim.setRefPref(1.0082398078547523);
         sim.initRefPref(refFileName, (steps / subSteps) / 20);
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, (steps / subSteps) / 10);
-        
+
         System.out.println("equilibration finished");
         
         if (refFrac >= 0) {
@@ -275,11 +293,12 @@ public class VirialLJD {
         public double temperature = 1;
         public int nDer = 2;
         public long numSteps = 10000000;
-        public double sigmaHSRef = 1.5;
+        public double sigmaHSRef = 0;
         public boolean writeRefPref = false;
         public double refFrac = -1;
         public boolean doHist = false;
-        public boolean doChainRef = false;
+        public boolean doChainRef = true;
         public long blockSize = 0;
+        public double BDAccFrac = 0.1;
     }
 }
