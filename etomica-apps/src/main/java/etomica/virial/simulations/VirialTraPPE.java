@@ -56,7 +56,7 @@ public class VirialTraPPE {
         }
         else {
             // customize parameters here
-            params.chemForm = new ChemForm[]{ChemForm.NH3,ChemForm.NH3};
+            params.chemForm = new ChemForm[]{ChemForm.N2,ChemForm.O2};
             params.nPoints = 2;
             params.nTypes = new int[]{1,1};
             params.nDer = 3;
@@ -78,8 +78,8 @@ public class VirialTraPPE {
         final int nPoints = params.nPoints;
         final int[] nTypes = params.nTypes;
         final int nDer = params.nDer;
-        double temperatureK = params.temperature;
-        long steps = params.numSteps;
+        final double temperatureK = params.temperature;
+        final long steps = params.numSteps;
 
         double refFrac = params.refFrac;
         double sigmaHSRef = params.sigmaHSRef;
@@ -91,19 +91,42 @@ public class VirialTraPPE {
 
         double BDtol = params.BDtol;
 
-        if( chemForm.length > 2 || chemForm.length == 0 ) throw new RuntimeException("chemForm length is wrong!");
+        //if( chemForm.length == 0 ) throw new RuntimeException("chemForm length is wrong!");
 
-        if( nTypes.length > 2 || nTypes.length == 0 ) throw new RuntimeException("nTypes length is wrong!");
+        /*for(int i=0; i<chemForm.length; i++){
+            if( chemForm[i]== null) throw new RuntimeException("chemForm["+i+"] is null!");
+        }*/
+
+        //if( nTypes.length == 0 ) throw new RuntimeException("nTypes length is wrong!");
+
+        /*for(int i=0; i<nTypes.length; i++){
+            if( nTypes[i]== 0) throw new RuntimeException("nTypes["+i+"] is 0!");
+        }*/
 
         if( chemForm.length != nTypes.length ) throw new RuntimeException("chemFrom and nTypes lengths are unequal!");
 
-        if( nTypes.length > 1 && nTypes[0] + nTypes[1] != nPoints ) throw new RuntimeException("nPoints and nTypes do not match!");
+        if( chemForm.length > 1 && Arrays.stream(nTypes).sum() != nPoints ) throw new RuntimeException("nPoints and nTypes do not match!");
 
-        if( chemForm[0] == null && nTypes[0] != 0 ) throw new RuntimeException("chemForm 0 incomplete!");
+        /*
+        if(chemForm.length > 1) {
+            for(int i=0; i<chemForm.length; i++){
+                for(int j=i+1; j<chemForm.length; j++){
+                    if( chemForm[i] == chemForm[j] ) throw new RuntimeException("chemForm["+i+"] and chemForm["+j+"] are "+chemForm[i]+". No repetitions in chemForm allowed!");
+                }
+            }
+        }*/
 
-        if( chemForm.length > 1 && chemForm[1] == null && nTypes[1] != 0 ) throw new RuntimeException("chemForm 1 incomplete!");
+        //if( chemForm[0] == null || nTypes[0] == 0 ) throw new RuntimeException("Reformat input");
 
-        boolean isMixture = ( nTypes.length == 2 ) ;
+        //if( chemForm.length > 1 && chemForm[1] == null && nTypes[1] != 0 ) throw new RuntimeException("chemForm 1 incomplete!");
+
+        boolean isMixture = ( nTypes.length > 1 ) ;
+
+        if(isMixture){
+            for(int i=0; i<nTypes.length; i++){
+                if(nTypes[i]==nPoints) isMixture=false;
+            }
+        }
 
         double temperature = Kelvin.UNIT.toSim(temperatureK);
 
@@ -115,13 +138,29 @@ public class VirialTraPPE {
 
         if(!isMixture) {
             ChemForm chemFormPure = chemForm[0];
+            if(nTypes.length>1) {
+                for(int i=0; i<nTypes.length; i++){
+                    if(nTypes[i]==nPoints) chemFormPure=chemForm[i];
+                }
+            }
 
             System.out.println("Overlap sampling for TraPPE " + chemFormPure + " at " + temperatureK + " K " + "for B" + nPoints + " and " + nDer + " derivatives");
         }
         else{
-            String typescript = "{"+nTypes[0]+","+nTypes[1]+"}";
-            System.out.println("Overlap sampling for TraPPE " + chemForm[0] + " " + chemForm[1] + " " +typescript + " Mixture at " + temperatureK + " K " + "for B" + nPoints + " and " + nDer + " derivatives");
+            String nTstr="{";
+            for(int i=0; i<nTypes.length; i++){
+                if(nTypes[i]!=0) nTstr += ((nTstr=="{") ? "":",")+nTypes[i];
+            }
+            nTstr+="}";
+
+            String CFstr="";
+            for(int i=0; i<chemForm.length; i++){
+                if(nTypes[i]!=0) CFstr += chemForm[i]+" ";
+            }
+
+            System.out.println("Overlap sampling for TraPPE " + CFstr + " " +nTstr + " Mixture at " + temperatureK + " K " + "for B" + nPoints + " and " + nDer + " derivatives");
         }
+
         System.out.println("Reference diagram: B"+nPoints+" for hard spheres with diameter " + sigmaHSRef + " Angstroms");
 
         System.out.println("  B"+nPoints+"HS: "+HSBn);
@@ -154,67 +193,56 @@ public class VirialTraPPE {
         ClusterAbstractMultivalue targetCluster = null;
         ClusterAbstractMultivalue targetClusterBD = null;
 
-        if(!isMixture){
-            nTypes[0] = nPoints;
-            ChemForm chemFormPure = chemForm[0];
-            TraPPEParams TPPure = new TraPPEParams(space, chemFormPure);
-            PotentialGroup pTargetGroup = TPPure.potentialGroup;
-            species = new Species[]{TPPure.species};
+        boolean allPolar = true;
+        MayerFunction[][] fAll = new MayerFunction[nTypes.length][nTypes.length];
+        species = new Species[chemForm.length];
 
-            MayerGeneral fTarget = new MayerGeneral(pTargetGroup);
+        TraPPEParams[] TPList = new TraPPEParams[chemForm.length];
 
-            targetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, BDtol, nDer);
-            targetCluster.setTemperature(temperature);
-
-            if(TPPure.polar && nPoints==2) {
-                System.out.println("Performing Flipping");
-                ((ClusterWheatleySoftDerivatives) targetCluster).setTolerance(0);
-                final int precision = -3*(int)Math.log10(BDtol);
-                targetClusterBD = new ClusterWheatleySoftDerivativesBD(nPoints,fTarget,precision,nDer);
-                targetClusterBD.setTemperature(temperature);
-                ((ClusterWheatleySoftDerivatives)targetCluster).setDoCaching(false);
-                ((ClusterWheatleySoftDerivativesBD)targetClusterBD).setDoCaching(false);
-                targetCluster = new ClusterCoupledFlippedMultivalue(targetCluster, targetClusterBD, space, 20, nDer, BDtol);
-            }
-
+        for(int i=0; i<TPList.length; i++){
+            TPList[i] = new TraPPEParams(space, chemForm[i]);
         }
-        else {
 
-            TraPPEParams TP1 = new TraPPEParams(space, chemForm[0]);
-            PotentialGroup PG11 = TP1.potentialGroup;
-            Species species1 = TP1.species;
+        for(int i=0; i<chemForm.length; i++){
 
-            TraPPEParams TP2 = new TraPPEParams(space, chemForm[1]);
-            PotentialGroup PG22 = TP2.potentialGroup;
-            Species species2 = TP2.species;
+            TraPPEParams TPi = TPList[i];
+            PotentialGroup PGii = TPi.potentialGroup;
+            Species speciesi = TPi.species;
+            species[i] = speciesi;
 
-            species = new Species[]{species1,species2};
+            P2PotentialGroupBuilder.ModelParams MPi = new P2PotentialGroupBuilder.ModelParams(TPi.atomTypes,TPi.sigma,TPi.epsilon,TPi.charge);
+            fAll[i][i] = new MayerGeneral(PGii);
 
-            P2PotentialGroupBuilder.ModelParams MP1 = new P2PotentialGroupBuilder.ModelParams(TP1.atomTypes,TP1.sigma,TP1.epsilon,TP1.charge);
-            P2PotentialGroupBuilder.ModelParams MP2 = new P2PotentialGroupBuilder.ModelParams(TP2.atomTypes,TP2.sigma,TP2.epsilon,TP2.charge);
+            allPolar=(allPolar&&TPi.polar);
 
-            PotentialGroup PG12 = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,MP1,MP2);
+            for(int j=i+1; j<chemForm.length; j++){
 
-            MayerGeneral f11 = new MayerGeneral(PG11);
-            MayerGeneral f22 = new MayerGeneral(PG22);
-            MayerGeneral f12 = new MayerGeneral(PG12);
+                TraPPEParams TPj = TPList[j];
 
-            MayerFunction[][] fAll = {{f11,f12},{f12,f22}};
+                P2PotentialGroupBuilder.ModelParams MPj = new P2PotentialGroupBuilder.ModelParams(TPj.atomTypes,TPj.sigma,TPj.epsilon,TPj.charge);
 
-            targetCluster = new ClusterWheatleySoftDerivativesMix(nPoints, nTypes,fAll, BDtol, nDer);
-            targetCluster.setTemperature(temperature);
+                PotentialGroup PGij = P2PotentialGroupBuilder.P2PotentialGroupBuilder(space,MPi,MPj);
 
-            if(TP1.polar && TP2.polar && nPoints==2) {
-                System.out.println("Performing Flipping");
-                ((ClusterWheatleySoftDerivativesMix) targetCluster).setTolerance(0);
-                final int precision = -3*(int)Math.log10(BDtol);
-                targetClusterBD = new ClusterWheatleySoftDerivativesMixBD(nPoints,nTypes,fAll,precision,nDer);
-                targetClusterBD.setTemperature(temperature);
-                ((ClusterWheatleySoftDerivativesMix) targetCluster).setDoCaching(false);
-                ((ClusterWheatleySoftDerivativesMixBD) targetClusterBD).setDoCaching(false);
-                targetCluster = new ClusterCoupledFlippedMultivalue(targetCluster, targetClusterBD, space, 20, nDer, BDtol);
+                fAll[i][j] = fAll[j][i] = new MayerGeneral(PGij);
+
             }
         }
+
+        targetCluster = new ClusterWheatleySoftDerivativesMix(nPoints, nTypes,fAll, BDtol, nDer);
+        targetCluster.setTemperature(temperature);
+
+        if(allPolar && nPoints==2) {
+            System.out.println("Performing Flipping");
+            ((ClusterWheatleySoftDerivativesMix) targetCluster).setTolerance(0);
+            final int precision = -3*(int)Math.log10(BDtol);
+            targetClusterBD = new ClusterWheatleySoftDerivativesMixBD(nPoints,nTypes,fAll,precision,nDer);
+            targetClusterBD.setTemperature(temperature);
+            ((ClusterWheatleySoftDerivativesMix) targetCluster).setDoCaching(false);
+            ((ClusterWheatleySoftDerivativesMixBD) targetClusterBD).setDoCaching(false);
+            targetCluster = new ClusterCoupledFlippedMultivalue(targetCluster, targetClusterBD, space, 20, nDer, BDtol);
+        }
+
+        //System.exit(1);
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, nTypes, temperature,refCluster,targetCluster);
         if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
