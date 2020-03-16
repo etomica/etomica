@@ -90,7 +90,7 @@ public class VirialTraPPE {
         boolean doChainRef = params.doChainRef;
 
         double BDtol = params.BDtol;
-
+        final double BDAccFrac = 0.001;
         //if( chemForm.length == 0 ) throw new RuntimeException("chemForm length is wrong!");
 
         /*for(int i=0; i<chemForm.length; i++){
@@ -247,6 +247,12 @@ public class VirialTraPPE {
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, nTypes, temperature,refCluster,targetCluster);
         if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
         System.out.println("random seeds: "+ Arrays.toString(seed==null?sim.getRandomSeeds():seed));
+        if(targetCluster instanceof ClusterCoupledFlippedMultivalue) {
+            ((ClusterCoupledFlippedMultivalue) targetCluster).setBDAccFrac(BDAccFrac,sim.getRandom());
+        }
+        else {
+            ((ClusterWheatleySoftDerivativesMix) targetCluster).setBDAccFrac(BDAccFrac,sim.getRandom());
+        }
 
         ClusterMultiToSingle[] primes = new ClusterMultiToSingle[nDer];
         for(int m=0;m<primes.length;m++){
