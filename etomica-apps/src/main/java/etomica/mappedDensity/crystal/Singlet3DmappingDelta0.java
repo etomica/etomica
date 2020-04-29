@@ -15,17 +15,22 @@ import static org.apache.commons.math3.special.Erf.erfc;
 public class Singlet3DmappingDelta0 {
 
     private static final double sqrtPi = Math.sqrt(Math.PI);
-    private static final double sqrt2OverPi = Math.sqrt(2.0/Math.PI);
+    //private static final double sqrt2OverPi = Math.sqrt(2.0/Math.PI);
     private static final double sqrtPiOver2 = Math.sqrt(0.5*Math.PI);
     private static final double sqrt2 = Math.sqrt(2.0);
-    private static final Map<IntSet, Double> HnkValues = new HashMap<IntSet, Double>();
-    private static final double[] SnkValues = new double[62];
-    private static final double[] CnkValues = new double[62];
-    private static final double[] dSnkValues = new double[62];
-    private static final double[] dCnkValues = new double[62];
-    private static double lastY = Double.NaN;
-    private static int lastN = -1;
-    private static final int nmax = 20;
+    private static final double twoOver2Pi52 = 2.0/(4*Math.PI*Math.PI*sqrtPi*sqrt2);
+    private final Map<IntSet, Double> HnkValues = new HashMap<IntSet, Double>();
+    private final double[] SnkValues = new double[62];
+    private final double[] CnkValues = new double[62];
+    private final double[] dSnkValues = new double[62];
+    private final double[] dCnkValues = new double[62];
+    private double lastY = Double.NaN;
+    private int lastN = -1;
+    private final int nmax = 20;
+
+    public Singlet3DmappingDelta0() {
+
+    }
 
     /**
      * Returns mapping velocities in x, y, z, directions, in a frame in which the density is
@@ -35,72 +40,47 @@ public class Singlet3DmappingDelta0 {
      * @param ri radial coordinate of sphere, relative to its lattice site
      * @param ti polar angle of sphere, measured from z axis
      * @param phii azimuthal angle of sphere, measured from x axis
-     * @param r distance of density measurement site from lattice site
+     * @param R distance of density measurement site from lattice site
      * @param sigma width of Gaussian reference distribution, p(r) = exp(-r^2/(2 sigma^2))
      * @return mapping velocities in x, y, z, directions, respectively
      */
-    public static double[] xyzDot(int nmax, double ri, double ti, double phii, double r, double sigma) {
+    public double[] xyzDot(int nmax, double ri, double ti, double phii, double R, double sigma) {
 
-        double sigma2 = sigma*sigma;
-        double sqrt2pisigma3 = Math.sqrt(2*Math.PI) * sigma * sigma2;
-        double sqrt2sigma = Math.sqrt(2.0) * sigma;
+        double rihat = ri/sigma;
+        double Rhat = R/sigma;
 
-        double expr2 = Math.exp(-0.5*r*r/sigma2);
-        double expri2 = Math.exp(+0.5*ri*ri/sigma2);
+        double coshri = Math.cosh(rihat);
+        double sinhri = Math.sinh(rihat);
+        double sinh2ri = 2. * sinhri * coshri;
+        double cosh2ri = coshri * coshri + sinhri * sinhri;
+
         double costi = Math.cos(ti);
-
-        double cosh2r = Math.cosh(2*r);
-        double cosh4r = Math.cosh(4*r);
-
-        double sinh2ri = Math.sinh(2*ri);
-        double cosh2ri = Math.cosh(2*ri);
-        double sinh4ri = Math.sinh(4*ri);
-        double cosh4ri = Math.cosh(4*ri);
-
         double sinti = Math.sin(ti);
-        double cos2ti = Math.cos(2*ti);
-        double sin2ti = Math.sin(2*ti);
-        double sin4ti = Math.sin(4*ti);
-        double cos4ti = Math.cos(4*ti);
-        double cosh2ti = Math.cosh(2*ti);
+        double cos2ti = costi * costi - sinti * sinti;
+        double sin2ti = 2. * sinti * costi;
 
-        // thetaiDot * ri * sin(thetai)
-        double term1 = sqrt2OverPi*(-sigma*costi + (-Math.PI + 2*ti + Math.PI*(1+sigma2)*costi)/(Math.PI*sigma));
 
-        double term2 = 0.5 * expri2 * (8 * cosh2r * cosh2ri * sin2ti - 4 * sin4ti);
-        term2 /= Math.PI * (1 + cos4ti + cosh4r - 4 * cos2ti * cosh2r * cosh2ri + cosh4ri);
+        double expR = Math.exp(-0.5 * Rhat * Rhat);
+        double expRmr = Math.exp(-0.5 * (rihat - Rhat)*(rihat - Rhat));
+        double expRpr = Math.exp(-0.5 * (rihat + Rhat)*(rihat + Rhat));
 
-        double thetaDotAnalytic =  expr2  * (term1 + term2);
+        // start with K0'(ri) term
+        double Ar = twoOver2Pi52 * expR / R * (
+                expRmr * (1 + sqrtPiOver2 * R * ex2erfc((rihat-Rhat)/sqrt2))
+                + expRpr * (-1 + sqrtPiOver2 * R * ex2erfc((rihat+Rhat)/sqrt2))
+        );
+        double At = 0;
 
-        double thetaDotSum = 0.0;
-        for(int n=1; n<=nmax; n++) {
-            thetaDotSum += (1+4*n*n*sigma2)/(-1+4*n*n) * Math.sin(2 * n * ti) *
-                    (ex2erfc((-ri+2*n*sigma2)/sqrt2sigma) + ex2erfc((+ri+2*n*sigma2)/sqrt2sigma) - sqrt2OverPi/(n*sigma));
-        }
-        thetaDotSum *= 2 * expr2 / Math.PI;
+        // add delta-even sums
+        double lnTerm = Math.log((coshri + costi)/(coshri - costi));
+        double tanTerm = Math.atan2(4.*sinhri*sinti, cosh2ri + cos2ti  - 2.);
+        double SigmaS = 0.25 * (coshri * sinti * lnTerm - sinhri * costi * tanTerm);
+        double SigmaC = 0.25 * (2.0 - sinhri * costi * lnTerm - coshri * sinti * tanTerm);
 
-        double thetaiDot = thetaDotAnalytic + thetaDotSum;//this is times ri * sin(theta)
+//        Ar +=
 
-        // riDot * ri^2 * sin(thetai)
-        term1 = -ri * (Math.PI/6. - ti + (-2 + ti*ti)/Math.PI + sinti)/(sigma*sigma2);
-
-        term2 = expri2 * sqrt2OverPi * (-2 * cos2ti * cosh2r * sinh2ri + sinh4ri);
-        term2 /= 1 + cos4ti + cosh4r - 4 * cos2ti * cosh2r * cosh2ri + cosh4ri;
-
-        double rDotAnalytic = sqrt2OverPi * expr2 * (term1 + term2);
-
-        double rDotSum = 0.0;
-        for(int n=1; n<=nmax; n++) {
-            rDotSum += (1+4*n*n*sigma2)/(-1+4*n*n) * Math.cos(2 * n * ti) *
-                    (ex2erfc((-ri+2*n*sigma2)/sqrt2sigma) - ex2erfc((+ri+2*n*sigma2)/sqrt2sigma) - ri/(n*n*sqrt2pisigma3));
-        }
-        rDotSum *= 2 * expr2 / Math.PI;
-
-        double rDot0 = sqrt2OverPi*ri/sigma + ex2erfc(ri/(sqrt2*sigma));
-        if(ri < r) rDot0 -= expri2;
-        rDot0 *= 2.0 * expr2 / Math.PI;
-
-        double riDot = rDot0 + rDotAnalytic + rDotSum;
+        double riDot = 0;
+        double thetaiDot = 0;
 
 
         // thetaiDot here is already times ri sin(thetai)
@@ -116,7 +96,7 @@ public class Singlet3DmappingDelta0 {
      * For x > 5, results are accurate within 10^-9 for n = 10, and 10^-7 for n = 5
      * @param nmax number of terms in asymptotic series.
      * @param x argument of function
-     * @return
+     * @return exp(+x^2) erfc(x)
      */
     public static double ex2erfc(int nmax, double x) {
 
@@ -138,9 +118,9 @@ public class Singlet3DmappingDelta0 {
     }
 
     /**
-     * The function ex2erfc with default argument of n = 10
-     * @param x
-     * @return
+     * The function ex2erfc with default argument of nmax = 10
+     * @param x function argument
+     * @return exp(+x^2) erfc(x)
      */
     public static double ex2erfc(double x) {
         return ex2erfc(10,x);
@@ -148,13 +128,15 @@ public class Singlet3DmappingDelta0 {
 
     public static void main(String[] args) {
 
+        Singlet3DmappingDelta0 s3d = new Singlet3DmappingDelta0();
+
         int n = 1;
         int k = 1;
         double y = 2.5;
-        System.out.println(Snk(n, k, y));
-        System.out.println(Cnk(n, k, y));
-        System.out.println(dSnk(n, k, y));
-        System.out.println(dCnk(n, k, y));
+        System.out.println(s3d.Snk(n, k, y));
+        System.out.println(s3d.Cnk(n, k, y));
+        System.out.println(s3d.dSnk(n, k, y));
+        System.out.println(s3d.dCnk(n, k, y));
 
         //System.out.println(binomial(10,4));
 //        System.out.println(ex2erfc(10, -10.01));
@@ -171,7 +153,7 @@ public class Singlet3DmappingDelta0 {
     /**
      * Returns the integral of (cos(t))^k sin(t) cos(nt) for t from 0 to pi
      */
-    public static double Hnk(int n, int k) {
+    public double Hnk(int n, int k) {
 
         if(k > 61) throw new IllegalArgumentException("Maximum k is 61 for calculation of Hnk");
 
@@ -200,7 +182,7 @@ public class Singlet3DmappingDelta0 {
      * Uses recursion in k and stores previous values until called with a different n or y
      */
     //should replace recursion with a loop
-    public static double Cnk(int n, int k, double y) {
+    public double Cnk(int n, int k, double y) {
 
         if(haveValue(n, k, y, CnkValues)) return CnkValues[k+2];
 
@@ -215,7 +197,7 @@ public class Singlet3DmappingDelta0 {
     /**
      * Returns derivative of Cnk with respect to y
      */
-    public static double dCnk(int n, int k, double y) {
+    public double dCnk(int n, int k, double y) {
 
         if(haveValue(n, k, y, dCnkValues)) return dCnkValues[k+2];
 
@@ -233,7 +215,7 @@ public class Singlet3DmappingDelta0 {
      *          - cosh(ny) Lim(L->infinity) Int[exp(-x^2/2) x^(k+2) cosh(n(L-x)), {x,0,L}]/sinh(nL)
      * Uses recursion in k and stores previous values until called with a different n or y
      */
-    public static double Snk(int n, int k, double y) {
+    public double Snk(int n, int k, double y) {
 
         if(haveValue(n, k, y, SnkValues)) return SnkValues[k+2];
 
@@ -248,7 +230,7 @@ public class Singlet3DmappingDelta0 {
     /**
      * Returns derivative of Snk with respect to y
      */
-    public static double dSnk(int n, int k, double y) {
+    public double dSnk(int n, int k, double y) {
 
         if(haveValue(n, k, y, dSnkValues)) return dSnkValues[k+2];
 
@@ -260,7 +242,7 @@ public class Singlet3DmappingDelta0 {
         return dSnkValues[k+2];
     }
 
-    private static boolean haveValue(int n, int k, double y, double[] values) {
+    private boolean haveValue(int n, int k, double y, double[] values) {
         if(y != lastY || n != lastN) {
             for (int i = 0; i < SnkValues.length; i++) {
                 SnkValues[i] = Double.NaN;
@@ -293,7 +275,6 @@ public class Singlet3DmappingDelta0 {
         return false;
 
     }
-
 
     private static double binomial(int n, int k) {
         if(n-k < k) k = n-k;
