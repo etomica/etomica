@@ -62,6 +62,7 @@ public class GlassProd {
         } else {
             System.out.println("rho: " + params.density + "\n");
         }
+        sim.initConfig();
 
 
         //Equilibration
