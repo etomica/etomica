@@ -96,7 +96,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
         dr = space.makeVector();
         workVector = space.makeVector();
         tmp = space.makeVector();
-        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box, MoleculeAgent.class);
+        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box);
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
 //        FSum = new PotentialCalculationFSum(space, dipoleMagnitude, interactionS, bt);
@@ -117,7 +117,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
         if (doVSumMI)
             vSumPairMinusIdeal = new PotentialCalculationMoleculeAgentSumMinusIdealPair(space, dipoleMagnitude, interactionS, bt, nMax, leafAgentManager);
 
-        N = box.getLeafList().getAtomCount();
+        N = box.getLeafList().size();
         meterMeanField = doAEEMF ? new MeterMeanField(space, box, interactionS, potentialMaster, temperature) : null;
         nbrCsum = new double[N];
         nbrSsum = new double[N];
@@ -165,14 +165,14 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
         double bt2 = bt * bt;
         double mu2 = mu * mu;
         double bmu = bt * mu;
-        int nM = leafList.getAtomCount();
+        int nM = leafList.size();
 
 
         double AEE = 0, JEMUEx = 0, JEMUEy = 0, JEMUExSquare = 0, JEMUEySquare = 0;
         double JEEMJEJESelf = 0, UEESelf = 0;
         if (doVSum) {
             for (int i = 0; i < nM; i++) {
-                MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
+                MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.get(i));
 
                 //-dvEEi/dti
                 double dvEEi = agentAtomI.dvEEx().getX(0) + agentAtomI.dvEEy().getX(0);
@@ -199,7 +199,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
                 //-2*vEi*fEi
                 //fExi = -bmu Sin[thetai]
                 //fEyi = bmu Cos[thetai]
-                IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+                IAtomOriented atom = (IAtomOriented) leafList.get(i);
                 double fExi = -bmu * atom.getOrientation().getDirection().getX(1);
                 double fEyi = bmu * atom.getOrientation().getDirection().getX(0);
                 UEESelf -= 2 * (vExi * fExi + vEyi * fEyi);
@@ -220,9 +220,9 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
             dr.E(0);
             tmp.E(0);
             for (int i = 0; i < nM; i++) {
-                MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
+                MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.get(i));
                 torqueScalar = agentAtomI.torque.getX(0);
-                IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+                IAtomOriented atom = (IAtomOriented) leafList.get(i);
                 dr.PEa1Tv1(torqueScalar, atom.getOrientation().getDirection());
                 tmp.PE(atom.getOrientation().getDirection());
             }//i loop
@@ -254,7 +254,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
 
         if (doVSumMI) {
             for (int i = 0; i < nM; i++) {
-                getAns(leafList.getAtom(i));
+                getAns(leafList.get(i));
             }
 
             tmp.E(0);
@@ -263,8 +263,8 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
 
             double bmu2 = bmu * bmu;
             for (int i = 0; i < nM; i++) {
-                MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
-                IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+                MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.get(i));
+                IAtomOriented atom = (IAtomOriented) leafList.get(i);
 
                 dr.E(atom.getOrientation().getDirection());
                 tmp.PE(atom.getOrientation().getDirection());
@@ -304,7 +304,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
             vSumPairMinusIdeal.zeroSum();
             potentialMaster.calculate(box, allAtoms, vSumPairMinusIdeal);
             for (int i = 0; i < nM; i++) {
-                MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
+                MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.get(i));
 
                 //-dvEEi/dti
                 double dvEEi = agentAtomI.dvEEx().getX(0) + agentAtomI.dvEEy().getX(0);
@@ -330,7 +330,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
                 double phiii = bt * agentAtomI.phi.component(0, 0);
                 UEESelf += vExi * phiii * vExi + vEyi * phiii * vEyi;
                 //-2*vEi*fEi
-                IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+                IAtomOriented atom = (IAtomOriented) leafList.get(i);
                 double fExi = -bmu * atom.getOrientation().getDirection().getX(1);
                 double fEyi = bmu * atom.getOrientation().getDirection().getX(0);
                 UEESelf -= 2 * (vExi * fExi + vEyi * fEyi);
@@ -370,7 +370,7 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
             x[25] = 0.0;
             x[26] = 0.0;
             for(int k  = 0; k < N; k++) {
-                Vector s =  meterMeanField.getSpin(box.getLeafList().getAtom(k));
+                Vector s = meterMeanField.getSpin(box.getLeafList().get(k));
                 x[25] += s.getX(0);
                 x[26] += s.getX(1);
             }
@@ -676,8 +676,8 @@ public class MeterMappedAveragingVSum implements IDataSource, AgentSource<Molecu
     private class PotentialCalculationPhiijMF implements PotentialCalculation {
         private final Vector myWorkVector = space.makeVector();
         public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-            IAtomOriented iatom = (IAtomOriented) atoms.getAtom(0);
-            IAtomOriented jatom = (IAtomOriented) atoms.getAtom(1);
+            IAtomOriented iatom = (IAtomOriented) atoms.get(0);
+            IAtomOriented jatom = (IAtomOriented) atoms.get(1);
             Vector io = iatom.getOrientation().getDirection();
             Vector jo = jatom.getOrientation().getDirection();
             myWorkVector.E(meterMeanField.getThetaDot(iatom));

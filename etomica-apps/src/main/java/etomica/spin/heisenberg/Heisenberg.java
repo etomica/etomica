@@ -17,10 +17,10 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayBoxCanvas2D;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicSimple;
-import etomica.listener.IntegratorListenerAction;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -69,21 +69,22 @@ public class Heisenberg extends Simulation {
 //        setRandom(new RandomNumberGenerator(1)); //debug only
 //        System.out.println("============================the RandomSeed is one ===========================");
 
+        spins = new SpeciesSpheresRotating(space, new ElementSimple("A"));
+
+        addSpecies(spins);
+
         potentialMaster = new PotentialMasterSite(this, nCells, space);
         box = new Box(space);
         addBox(box);
         int numAtoms = space.powerD(nCells);
 
-        spins = new SpeciesSpheresRotating(space, new ElementSimple("A"));
-
-        addSpecies(spins);
         box.setNMolecules(spins, numAtoms);
         box.getBoundary().setBoxSize(new Vector2D(nCells, nCells));
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(space, 1), space);
         config.initializeCoordinates(box);
 
         potential = new P2Spin(space, interactionS);
-        integrator = new IntegratorMC(this, potentialMaster);
+        integrator = new IntegratorMC(this, potentialMaster, box);
         mcMove = new MCMoveRotate(potentialMaster, random, space);
         integrator.getMoveManager().addMCMove(mcMove);
         MCMoveSpinCluster spinMove = new MCMoveSpinCluster(space, random, potentialMaster, integrator, interactionS);
@@ -94,7 +95,6 @@ public class Heisenberg extends Simulation {
         AtomType type = spins.getLeafType();
 //        potentialMaster.addPotential(field, new IAtomType[] {type});
         potentialMaster.addPotential(potential, new AtomType[]{type, type});
-        integrator.setBox(box);
 
     }
 
@@ -117,7 +117,7 @@ public class Heisenberg extends Simulation {
             params.temperature = 5;
             params.nCells = 5;
             params.steps = 10000000;
-
+            params.doGraphic = true;
 
         }
         final long startTime = System.currentTimeMillis();
@@ -157,7 +157,7 @@ public class Heisenberg extends Simulation {
         Heisenberg sim = new Heisenberg(sp, nCells, temperature, interactionS, dipoleMagnitude);
 
         if (doGraphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "XY", numberMolecules, sim.space, sim.getController());
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "XY", numberMolecules);
             ((DiameterHashByType) simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.getSpecies(0).getAtomType(0), 0.2);
             ((DisplayBoxCanvas2D) simGraphic.getDisplayBox(sim.box).canvas).setOrientationColor(Color.BLUE);
             ((DisplayBoxCanvas2D) simGraphic.getDisplayBox(sim.box).canvas).setOrientationLength(5);

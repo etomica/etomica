@@ -13,7 +13,6 @@ import static etomica.math.SpecialFunctions.besselI;
 
 public class PotentialCalculationVSum implements PotentialCalculation {
     protected AtomLeafAgentManager<MeterMappedAveragingSum.MoleculeAgent> leafAgentManager;
-    protected AtomLeafAgentManager.AgentIterator leafAgentIterator;
 
     protected Vector ei, ej,vE,vEE,vDotGradV;
     protected  double mu, J, bt, bJ, bmu;
@@ -34,8 +33,8 @@ public class PotentialCalculationVSum implements PotentialCalculation {
         IPotentialAtomicSecondDerivative potentialSecondDerivative = (IPotentialAtomicSecondDerivative) potential;
         Tensor[] t = potentialSecondDerivative.secondDerivative(atoms);
 
-        IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
+        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
+        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
         ei.E(atom1.getOrientation().getDirection());
         ej.E(atom2.getOrientation().getDirection());
 //        System.out.println(ei);
@@ -404,18 +403,10 @@ public class PotentialCalculationVSum implements PotentialCalculation {
 
     public void setAgentManager(AtomLeafAgentManager agentManager) {
         leafAgentManager = agentManager;
-        leafAgentIterator = leafAgentManager.makeIterator();
     }
 
     public void reset() {
-
-        leafAgentIterator.reset();
-        while (leafAgentIterator.hasNext()) {
-            Object agent = leafAgentIterator.next();
-            ((MeterMappedAveragingSum.MoleculeAgent) agent).phi().E(0);
-        }
-
-
+        leafAgentManager.getAgents().values().forEach((agent) -> agent.phi().E(0));
     }
 
 

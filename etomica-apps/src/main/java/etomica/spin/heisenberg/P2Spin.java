@@ -69,8 +69,8 @@ public class P2Spin extends Potential2 implements IPotentialTorque, IPotentialAt
      */
 
     public double energy(IAtomList atoms) {
-        IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
+        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
+        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
         return -coupling * atom1.getOrientation().getDirection().dot(atom2.getOrientation().getDirection());
     }
 
@@ -127,8 +127,8 @@ public class P2Spin extends Potential2 implements IPotentialTorque, IPotentialAt
 
     public Vector[][] gradientAndTorque(IAtomList atoms) {
 
-        IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
+        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
+        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
 
         double x1 = atom1.getOrientation().getDirection().getX(0);//cost1
         double y1 = atom1.getOrientation().getDirection().getX(1);//sint1
@@ -159,8 +159,8 @@ public class P2Spin extends Potential2 implements IPotentialTorque, IPotentialAt
      * @return secondDerivative array
      */
     public Tensor[] secondDerivative(IAtomList atoms) {
-        IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
+        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
+        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
         double JCos = coupling * atom1.getOrientation().getDirection().dot(atom2.getOrientation().getDirection());
 
 

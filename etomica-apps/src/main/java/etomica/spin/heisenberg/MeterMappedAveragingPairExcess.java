@@ -66,7 +66,7 @@ public class MeterMappedAveragingPairExcess implements IDataSource, AgentSource<
 
         dr = space.makeVector();
         work = space.makeVector();
-        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box, MoleculeAgent.class);
+        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box);
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
         secondDerivativeSum = new PotentialCalculationPhiSum();
@@ -97,13 +97,13 @@ public class MeterMappedAveragingPairExcess implements IDataSource, AgentSource<
 
         double bt2 = bt * bt;
         double mu2 = mu * mu;
-        int nM = pair.getAtomCount();
+        int nM = pair.size();
         double torqueScalar = 0;
         dr.E(0);
         for (int i = 0; i < nM; i++) {
-            MoleculeAgent agentAtomI = leafAgentManager.getAgent(pair.getAtom(i));
+            MoleculeAgent agentAtomI = leafAgentManager.getAgent(pair.get(i));
             torqueScalar = agentAtomI.torque.getX(0);
-            IAtomOriented atom = (IAtomOriented) pair.getAtom(i);
+            IAtomOriented atom = (IAtomOriented) pair.get(i);
             dr.PEa1Tv1(torqueScalar, atom.getOrientation().getDirection());
 //            System.out.println("dr + " + dr);
         }//i loop

@@ -16,7 +16,6 @@ import etomica.space.Vector;
  */
 
 public class PotentialCalculationMeanField implements PotentialCalculation, AtomLeafAgentManager.AgentSource<Vector> {
-    protected AtomLeafAgentManager.AgentIterator leafAgentIterator;
     protected final double J2;
     protected final Space space;
 
@@ -25,16 +24,13 @@ public class PotentialCalculationMeanField implements PotentialCalculation, Atom
     public PotentialCalculationMeanField(Space space, double J, Box box) {
         this.J2 = 0.5 * J;
         this.space = space;
-        this.leafAgentManager = new AtomLeafAgentManager<>(this, box, Vector.class);
-
-        leafAgentIterator = leafAgentManager.makeIterator();
-
+        this.leafAgentManager = new AtomLeafAgentManager<Vector>(this, box);
     }
 
 
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-        IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
+        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
+        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
         Vector ei = atom1.getOrientation().getDirection();
         Vector ej = atom2.getOrientation().getDirection();
         Vector hi = leafAgentManager.getAgent(atom1);
@@ -46,9 +42,7 @@ public class PotentialCalculationMeanField implements PotentialCalculation, Atom
 
 
     public void reset() {
-        AtomLeafAgentManager.AgentIterator<Vector> it = leafAgentManager.makeIterator();
-        it.reset();
-        while (it.hasNext()) it.next().E(0);
+        leafAgentManager.getAgents().values().forEach((agent) -> agent.E(0));
     }
 
     public AtomLeafAgentManager<Vector> getAgentManager() {

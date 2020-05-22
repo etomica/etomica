@@ -9,6 +9,8 @@ import etomica.potential.PotentialCalculation;
 import etomica.space.Space;
 import etomica.space.Vector;
 
+import java.util.Collection;
+
 import static etomica.math.SpecialFunctions.besselI;
 
 /**
@@ -19,7 +21,6 @@ import static etomica.math.SpecialFunctions.besselI;
 
 public class PotentialCalculationMoleculeAgentSum implements PotentialCalculation {
     //public class PotentialCalculationHeisenberg {
-    protected AtomLeafAgentManager.AgentIterator leafAgentIterator;
     protected Vector ei, ej;
     protected double AEEJ0, JEMUExIdeal, JEMUEyIdeal, JEMUEIdealSquare, JEEMJEJE, UEE, JEMUExSquare, JEMUEySquare, JEMUEx, JEMUEy, dipolex, dipoley, JEEMJEJExtrying, UEEnow, JEMUE, dipoleconv;
     protected final double mu, J, bt, bJ, bmu;
@@ -62,8 +63,6 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         bmu = bt * mu;
         this.nMax = nMax;
         this.leafAgentManager = leafAgentManager;
-
-        leafAgentIterator = leafAgentManager.makeIterator();
 
 //        int nM = leafAgentManager.getBox().getLeafList().getAtomCount();
 //        JEMUEx = new double[nM + 1];
@@ -108,8 +107,8 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         if (!(potential instanceof IPotentialAtomicSecondDerivative)) {
             return;
         }
-        IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
+        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
+        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
         ei.E(atom1.getOrientation().getDirection());
         ej.E(atom2.getOrientation().getDirection());
 //        System.out.println(ei);
@@ -660,21 +659,18 @@ public class PotentialCalculationMoleculeAgentSum implements PotentialCalculatio
         d2vEy.E(0);
         phi.E(0);
 
-        if (leafAgentIterator != null) {
-            leafAgentIterator.reset();
-            while (leafAgentIterator.hasNext()) {
-                MoleculeAgent agent = (MoleculeAgent) leafAgentIterator.next();
-                agent.vEx().E(0);
-                agent.vEy().E(0);
-                agent.vEEx().E(0);
-                agent.vEEy().E(0);
-                agent.dvEx().E(0);
-                agent.dvEy().E(0);
-                agent.dvEEx().E(0);
-                agent.dvEEy().E(0);
-                agent.d2vEx().E(0);
-                agent.d2vEy().E(0);
-            }
+        Collection<MoleculeAgent> agents = leafAgentManager.getAgents().values();
+        for (MoleculeAgent agent : agents) {
+            agent.vEx().E(0);
+            agent.vEy().E(0);
+            agent.vEEx().E(0);
+            agent.vEEy().E(0);
+            agent.dvEx().E(0);
+            agent.dvEy().E(0);
+            agent.dvEEx().E(0);
+            agent.dvEEy().E(0);
+            agent.d2vEx().E(0);
+            agent.d2vEy().E(0);
         }
     }
 

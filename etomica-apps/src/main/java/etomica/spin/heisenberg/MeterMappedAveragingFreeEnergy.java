@@ -56,7 +56,7 @@ public class MeterMappedAveragingFreeEnergy implements IDataSource, AgentSource<
         dr = space.makeVector();
         work = space.makeVector();
         tmp = space.makeVector();
-        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box, MoleculeAgent.class);
+        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box);
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
         energySum = new PotentialCalculationEnergySum();

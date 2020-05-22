@@ -57,7 +57,7 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
         J = interactionS;
         bJ = bt * J;
         J2 = J * J;
-        N = box.getLeafList().getAtomCount();
+        N = box.getLeafList().size();
         L = (int) Math.round(Math.sqrt(N));
         int distance = L / 2 + 1;
 //        nPairs = new int[-1 + (distance + 1) * distance / 2];
@@ -76,7 +76,7 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
             o += (distance - i);
         }
 
-        leafAgentManager = new AtomLeafAgentManager<CorrelationAgent>(this, box, CorrelationAgent.class);
+        leafAgentManager = new AtomLeafAgentManager<CorrelationAgent>(this, box);
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
         meterMeanField = formula == 3 ? new MeterMeanField(space, box, interactionS, potentialMaster, temperature) : null;
@@ -119,11 +119,11 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
         //loop over pairs j and k
         for (int j = 0; j < N; j++) {
             int jRow = j / L, jCol = j % L;
-            IAtom aj = leafList.getAtom(j);
+            IAtom aj = leafList.get(j);
             CorrelationAgent agentAtomJ = leafAgentManager.getAgent(aj);
             double bfj = bt * agentAtomJ.torque().getX(0);
-            double costj = ((IAtomOriented) leafList.getAtom(j)).getOrientation().getDirection().getX(0);
-            double sintj = ((IAtomOriented) leafList.getAtom(j)).getOrientation().getDirection().getX(1);
+            double costj = ((IAtomOriented) leafList.get(j)).getOrientation().getDirection().getX(0);
+            double sintj = ((IAtomOriented) leafList.get(j)).getOrientation().getDirection().getX(1);
             Vector sj = formula == 3 ? meterMeanField.getSpin(aj) : null;
             Vector tDotj = formula == 3 ? meterMeanField.getThetaDot(aj) : null;
             Vector sumk = formula == 3 ? space.makeVector() : null;
@@ -132,11 +132,11 @@ public class MeterMappedAveragingCorrelation implements IDataSource, AtomLeafAge
 
             for (int k = 0; k < j; k++) {
                 int kRow = k / L, kCol = k % L;
-                IAtom ak = leafList.getAtom(k);
+                IAtom ak = leafList.get(k);
                 CorrelationAgent agentAtomK = leafAgentManager.getAgent(ak);
                 double bfk = bt * agentAtomK.torque().getX(0);
-                double costk = ((IAtomOriented) leafList.getAtom(k)).getOrientation().getDirection().getX(0);
-                double sintk = ((IAtomOriented) leafList.getAtom(k)).getOrientation().getDirection().getX(1);
+                double costk = ((IAtomOriented) leafList.get(k)).getOrientation().getDirection().getX(0);
+                double sintk = ((IAtomOriented) leafList.get(k)).getOrientation().getDirection().getX(1);
                 int JMKRow = jRow - kRow;
                 int JMKCol = jCol - kCol;
                 if (JMKRow >= distance) JMKRow = L - JMKRow;

@@ -36,8 +36,8 @@ public class PotentialCalculationFSum implements PotentialCalculationMolecular {
 
         Vector[][] t = potentialSecondDerivative.gradientAndTorque(atoms);
 
-        IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
+        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
+        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
 
         //TODO the acos returns 0 to Pi but t1 is form 0 to 2Pi
         double x1 = atom1.getOrientation().getDirection().getX(0);//cost1

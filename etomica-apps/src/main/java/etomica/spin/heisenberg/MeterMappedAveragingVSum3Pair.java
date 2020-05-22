@@ -60,7 +60,7 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
 
         dr = space.makeVector();
         work = space.makeVector();
-        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box, MoleculeAgent.class);
+        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box);
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
 //        FSum = new PotentialCalculationFSum(space, dipoleMagnitude, interactionS, bt);
@@ -87,77 +87,77 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
         torqueSum.reset();
         secondDerivativeSum.reset();
         secondDerivativeSumIdeal.zeroSum();
-//        MeterMappedAveraging.MoleculeAgent torqueAgent =  leafAgentManager.getAgent(leafList.getAtom(0));
+//        MeterMappedAveraging.MoleculeAgent torqueAgent =  leafAgentManager.getAgent(leafList.get(0));
 //        double f1 = torqueAgent.torque.getX(1);
 //        System.out.println("f1= "+f1);
 
         boolean twoPairOnly = false;
 
         AtomPair pair = new AtomPair();
-        pair.atom0 = leafList.getAtom(0);
-        pair.atom1 = leafList.getAtom(1);//01
+        pair.atom0 = leafList.get(0);
+        pair.atom1 = leafList.get(1);//01
 
         torqueSum.doCalculation(pair, p2);
         secondDerivativeSum.doCalculation(pair, p2);
         secondDerivativeSumIdeal.doCalculation(pair, p2);
 
-        pair.atom0 = leafList.getAtom(1);
-        pair.atom1 = leafList.getAtom(2);//12
+        pair.atom0 = leafList.get(1);
+        pair.atom1 = leafList.get(2);//12
         torqueSum.doCalculation(pair, p2);
         secondDerivativeSum.doCalculation(pair, p2);
         secondDerivativeSumIdeal.doCalculation(pair, p2);
 
         if (!twoPairOnly) {
-            pair.atom0 = leafList.getAtom(0);
-            pair.atom1 = leafList.getAtom(2);//02
+            pair.atom0 = leafList.get(0);
+            pair.atom1 = leafList.get(2);//02
             torqueSum.doCalculation(pair, p2);
             secondDerivativeSum.doCalculation(pair, p2);
             secondDerivativeSumIdeal.doCalculation(pair, p2);
         }
 
         Ans.zeroSum();
-        pair.atom0 = leafList.getAtom(0);
-        pair.atom1 = leafList.getAtom(1);//01
+        pair.atom0 = leafList.get(0);
+        pair.atom1 = leafList.get(1);//01
         Ans.doCalculation(pair, p2);
 
-        pair.atom0 = leafList.getAtom(1);
-        pair.atom1 = leafList.getAtom(2);//12
+        pair.atom0 = leafList.get(1);
+        pair.atom1 = leafList.get(2);//12
         Ans.doCalculation(pair, p2);
 
         if (!twoPairOnly) {
-            pair.atom0 = leafList.getAtom(0);
-            pair.atom1 = leafList.getAtom(2);//02
+            pair.atom0 = leafList.get(0);
+            pair.atom1 = leafList.get(2);//02
             Ans.doCalculation(pair, p2);
         }
 
 
         vSum.zeroSum();
-        pair.atom0 = leafList.getAtom(0);
-        pair.atom1 = leafList.getAtom(1);//01
+        pair.atom0 = leafList.get(0);
+        pair.atom1 = leafList.get(1);//01
         vSum.doCalculation(pair, p2);
 
-        pair.atom0 = leafList.getAtom(1);
-        pair.atom1 = leafList.getAtom(2);//12
+        pair.atom0 = leafList.get(1);
+        pair.atom1 = leafList.get(2);//12
         vSum.doCalculation(pair, p2);
 
         if (!twoPairOnly) {
-            pair.atom0 = leafList.getAtom(0);
-            pair.atom1 = leafList.getAtom(2);//02
+            pair.atom0 = leafList.get(0);
+            pair.atom1 = leafList.get(2);//02
             vSum.doCalculation(pair, p2);
         }
 
         vSumPair.zeroSum();
-        pair.atom0 = leafList.getAtom(0);
-        pair.atom1 = leafList.getAtom(1);//01
+        pair.atom0 = leafList.get(0);
+        pair.atom1 = leafList.get(1);//01
         vSumPair.doCalculation(pair, p2);
 
-        pair.atom0 = leafList.getAtom(1);
-        pair.atom1 = leafList.getAtom(2);//12
+        pair.atom0 = leafList.get(1);
+        pair.atom1 = leafList.get(2);//12
         vSumPair.doCalculation(pair, p2);
 
         if (!twoPairOnly) {
-            pair.atom0 = leafList.getAtom(0);
-            pair.atom1 = leafList.getAtom(2);//02
+            pair.atom0 = leafList.get(0);
+            pair.atom1 = leafList.get(2);//02
             vSumPair.doCalculation(pair, p2);
         }
 
@@ -165,12 +165,12 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
         double bt2 = bt * bt;
         double mu2 = mu * mu;
         double bmu = bt * mu;
-        int nM = leafList.getAtomCount();
+        int nM = leafList.size();
 
         double AEE = 0, JEMUEx = 0, JEMUEy = 0, JEMUExSquare = 0, JEMUEySquare = 0;
         double JEEMJEJESelf = 0, UEESelf = 0;
         for (int i = 0; i < nM; i++) {
-            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
+            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.get(i));
 
             //-dvEEi/dti
             double dvEEi = agentAtomI.dvEEx().getX(0) + agentAtomI.dvEEy().getX(0);
@@ -198,7 +198,7 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
             //-2*vEi*fEi
             //fExi = -bmu Sin[thetai]
             //fEyi = bmu Cos[thetai]
-            IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+            IAtomOriented atom = (IAtomOriented) leafList.get(i);
             double fExi = -bmu * atom.getOrientation().getDirection().getX(1);
             double fEyi = bmu * atom.getOrientation().getDirection().getX(0);
             UEESelf -= 2 * (vExi * fExi + vEyi * fEyi);
@@ -220,9 +220,9 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
         double torqueScalar = 0;
         dr.E(0);
         for (int i = 0; i < nM; i++) {
-            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
+            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.get(i));
             torqueScalar = agentAtomI.torque.getX(0);
-            IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+            IAtomOriented atom = (IAtomOriented) leafList.get(i);
             dr.PEa1Tv1(torqueScalar, atom.getOrientation().getDirection());
         }//i loop
         x[0] = -nM * bt2 * mu2 - bt2 * bt2 * mu2 * dr.squared() + bt * bt2 * mu2 * secondDerivativeSumIdeal.getSum()
@@ -256,25 +256,25 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
         x[23] = JEMUEy * JEMUEy;
 
         vSumMinusIdeal.zeroSum();
-        pair.atom0 = leafList.getAtom(0);
-        pair.atom1 = leafList.getAtom(1);
+        pair.atom0 = leafList.get(0);
+        pair.atom1 = leafList.get(1);
         vSumMinusIdeal.doCalculation(pair, p2);
 
-        pair.atom0 = leafList.getAtom(1);
-        pair.atom1 = leafList.getAtom(2);//01
+        pair.atom0 = leafList.get(1);
+        pair.atom1 = leafList.get(2);//01
         vSumMinusIdeal.doCalculation(pair, p2);
 
         if (!twoPairOnly) {
-            pair.atom0 = leafList.getAtom(0);
-            pair.atom1 = leafList.getAtom(2);
+            pair.atom0 = leafList.get(0);
+            pair.atom1 = leafList.get(2);
             vSumMinusIdeal.doCalculation(pair, p2);
         }
 
 
         double bmu2 = bmu * bmu;
         for (int i = 0; i < nM; i++) {
-            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
-            IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.get(i));
+            IAtomOriented atom = (IAtomOriented) leafList.get(i);
 
             dr.E(atom.getOrientation().getDirection());
 
@@ -310,17 +310,17 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
         }
 
         vSumPairMinusIdeal.zeroSum();
-        pair.atom0 = leafList.getAtom(0);
-        pair.atom1 = leafList.getAtom(1);
+        pair.atom0 = leafList.get(0);
+        pair.atom1 = leafList.get(1);
         vSumPairMinusIdeal.doCalculation(pair, p2);
 
-        pair.atom0 = leafList.getAtom(1);
-        pair.atom1 = leafList.getAtom(2);
+        pair.atom0 = leafList.get(1);
+        pair.atom1 = leafList.get(2);
         vSumPairMinusIdeal.doCalculation(pair, p2);
 
         if (!twoPairOnly) {
-            pair.atom0 = leafList.getAtom(0);
-            pair.atom1 = leafList.getAtom(2);
+            pair.atom0 = leafList.get(0);
+            pair.atom1 = leafList.get(2);
             vSumPairMinusIdeal.doCalculation(pair, p2);
         }
 
@@ -332,7 +332,7 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
         JEMUExSquare = 0;
         JEMUEySquare = 0;
         for (int i = 0; i < nM; i++) {
-            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
+            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.get(i));
 
             //-dvEEi/dti
             double dvEEi = agentAtomI.dvEEx().getX(0) + agentAtomI.dvEEy().getX(0);
@@ -359,7 +359,7 @@ public class MeterMappedAveragingVSum3Pair implements IDataSource, AgentSource<M
             //-2*vEi*fEi
             //fExi = -bmu Sin[thetai]
             //fEyi = bmu Cos[thetai]
-            IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+            IAtomOriented atom = (IAtomOriented) leafList.get(i);
             double fExi = -bmu * atom.getOrientation().getDirection().getX(1);
             double fEyi = bmu * atom.getOrientation().getDirection().getX(0);
             UEESelf -= 2 * (vExi * fExi + vEyi * fEyi);

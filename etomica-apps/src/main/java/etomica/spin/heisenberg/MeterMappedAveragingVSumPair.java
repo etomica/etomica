@@ -64,7 +64,7 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
 
         dr = space.makeVector();
         work = space.makeVector();
-        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box, MoleculeAgent.class);
+        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box);
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
 //        FSum = new PotentialCalculationFSum(space, dipoleMagnitude, interactionS, bt);
@@ -96,7 +96,7 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
         double bt2 = bt * bt;
         double mu2 = mu * mu;
         double bmu = bt * mu;
-        int nM = leafList.getAtomCount();
+        int nM = leafList.size();
 
         torqueSum.reset();
         torqueSum.doCalculation(box.getLeafList(), p2);
@@ -127,7 +127,7 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
         double AEE = 0, JEMUEx = 0, JEMUEy = 0;
         double JEEMJEJESelf = 0, UEESelf = 0;
         for (int i = 0; i < nM; i++) {
-            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
+            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.get(i));
 
             //-dvEEi/dti
             double dvEEi = agentAtomI.dvEEx().getX(0) + agentAtomI.dvEEy().getX(0);
@@ -155,7 +155,7 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
             //-2*vEi*fEi
             //fExi = -bmu Sin[thetai]
             //fEyi = bmu Cos[thetai]
-            IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+            IAtomOriented atom = (IAtomOriented) leafList.get(i);
             double fExi = -bmu * atom.getOrientation().getDirection().getX(1);
             double fEyi = bmu * atom.getOrientation().getDirection().getX(0);
             UEESelf -= 2 * (vExi * fExi + vEyi * fEyi);
@@ -172,9 +172,9 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
         double torqueScalar = 0;
         dr.E(0);
         for (int i = 0; i < nM; i++) {
-            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
+            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.get(i));
             torqueScalar = agentAtomI.torque.getX(0);
-            IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+            IAtomOriented atom = (IAtomOriented) leafList.get(i);
             dr.PEa1Tv1(torqueScalar, atom.getOrientation().getDirection());
 //            System.out.println("dr + " + dr);
         }//i loop
@@ -207,8 +207,8 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
         vSumMinusIdeal.doCalculation(box.getLeafList(), p2);
         double bmu2 = bmu * bmu;
         for (int i = 0; i < nM; i++) {
-            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
-            IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.get(i));
+            IAtomOriented atom = (IAtomOriented) leafList.get(i);
 
             dr.E(atom.getOrientation().getDirection());
 
@@ -250,7 +250,7 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
         JEEMJEJESelf = 0;
         UEESelf = 0;
         for (int i = 0; i < nM; i++) {
-            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
+            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.get(i));
 
             //-dvEEi/dti
             double dvEEi = agentAtomI.dvEEx().getX(0) + agentAtomI.dvEEy().getX(0);
@@ -278,7 +278,7 @@ public class MeterMappedAveragingVSumPair implements IDataSource, AgentSource<Mo
             //-2*vEi*fEi
             //fExi = -bmu Sin[thetai]
             //fEyi = bmu Cos[thetai]
-            IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+            IAtomOriented atom = (IAtomOriented) leafList.get(i);
             double fExi = -bmu * atom.getOrientation().getDirection().getX(1);
             double fEyi = bmu * atom.getOrientation().getDirection().getX(0);
             UEESelf -= 2 * (vExi * fExi + vEyi * fEyi);

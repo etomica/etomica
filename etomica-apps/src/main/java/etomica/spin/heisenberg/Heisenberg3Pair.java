@@ -14,8 +14,8 @@ import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
-import etomica.listener.IntegratorListenerAction;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -69,7 +69,7 @@ public class Heisenberg3Pair extends Simulation {
         box.setNMolecules(spins, numAtoms);
 
         potential = new P2Spin(space, interactionS);
-        integrator = new IntegratorMC(this, null);
+        integrator = new IntegratorMC(this, null, box);
         mcMove = new MCMoveRotate3Pair(potential, random, space);
         integrator.getMoveManager().addMCMove(mcMove);
         integrator.setTemperature(temperature);
@@ -77,8 +77,6 @@ public class Heisenberg3Pair extends Simulation {
         getController().addAction(activityIntegrate);
         AtomType type = spins.getLeafType();
 //        potentialMaster.addPotential(field, new IAtomType[] {type});
-
-        integrator.setBox(box);
 
     }
 

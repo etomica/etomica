@@ -59,7 +59,7 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MoleculeAg
         dr = space.makeVector();
         work = space.makeVector();
         tmp = space.makeVector();
-        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box, MoleculeAgent.class);
+        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box);
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
 //        FSum = new PotentialCalculationFSum(space, dipoleMagnitude, interactionS, bt);
@@ -102,14 +102,14 @@ public class MeterMappedAveraging implements IDataSource, AgentSource<MoleculeAg
 
         double bt2 = bt * bt;
         double mu2 = mu * mu;
-        int nM = leafList.getAtomCount();
+        int nM = leafList.size();
         double torqueScalar = 0;
         dr.E(0);
         tmp.E(0);
         for (int i = 0; i < nM; i++) {
-            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
+            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.get(i));
             torqueScalar = agentAtomI.torque.getX(0);
-            IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+            IAtomOriented atom = (IAtomOriented) leafList.get(i);
             dr.PEa1Tv1(torqueScalar, atom.getOrientation().getDirection());
             tmp.PE(atom.getOrientation().getDirection());
 //            System.out.println("dr + " + dr);

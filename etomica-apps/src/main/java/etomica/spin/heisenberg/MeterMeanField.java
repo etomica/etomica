@@ -45,7 +45,7 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
         this.temperature = temperature;
         pc = new PotentialCalculationMeanField(space, J, box);
         torqueSum = new PotentialCalculationTorqueSum();
-        torqueAgentManager = new AtomLeafAgentManager<ForceTorque>(this, box, ForceTorque.class);
+        torqueAgentManager = new AtomLeafAgentManager<ForceTorque>(this, box);
         torqueSum.setAgentManager(torqueAgentManager);
         data = new DataDoubleArray(2);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{2});
@@ -76,7 +76,7 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
 
         AtomLeafAgentManager<Vector> agentManager = pc.getAgentManager();
         IAtomList atoms = box.getLeafList();
-        int atomCount = atoms.getAtomCount();
+        int atomCount = atoms.size();
         if (spins.size() < atomCount) {
             for (int i = spins.size(); i < atomCount; i++) {
                 spins.add(new Vector2D());
@@ -94,12 +94,12 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
         }
         data.E(0);
         double[] d = data.getData();
-        for (int i = 0; i < atoms.getAtomCount(); i++) {
-            IAtomOriented a = (IAtomOriented) atoms.getAtom(i);
+        for (int i = 0; i < atoms.size(); i++) {
+            IAtomOriented a = (IAtomOriented) atoms.get(i);
             Vector h = agentManager.getAgent(a);
             eta[i] = Math.sqrt(h.squared());
-            cost0[i] = h.getX(0)/eta[i];
-            sint0[i] = h.getX(1)/eta[i];
+            cost0[i] = h.getX(0) / eta[i];
+            sint0[i] = h.getX(1) / eta[i];
             double bh = eta[i] / temperature;
 
             double I0 = BesselFunction.I(0, bh);
@@ -127,7 +127,7 @@ public class MeterMeanField implements IDataSource, AtomLeafAgentManager.AgentSo
             d[0] += s.getX(0);
             d[1] += s.getX(1);
         }
-        data.TE(1.0 / atoms.getAtomCount());
+        data.TE(1.0 / atoms.size());
         return data;
     }
 

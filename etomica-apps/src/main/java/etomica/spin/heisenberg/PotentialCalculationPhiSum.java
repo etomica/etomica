@@ -10,7 +10,6 @@ import etomica.space.Tensor;
 
 public class PotentialCalculationPhiSum implements PotentialCalculation {
     protected AtomLeafAgentManager<MoleculeAgent> leafAgentManager;
-    protected AtomLeafAgentManager.AgentIterator leafAgentIterator;
 
 
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
@@ -21,8 +20,8 @@ public class PotentialCalculationPhiSum implements PotentialCalculation {
         IPotentialAtomicSecondDerivative potentialSecondDerivative = (IPotentialAtomicSecondDerivative) potential;
         Tensor[] t = potentialSecondDerivative.secondDerivative(atoms);
 
-        IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
+        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
+        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
 
 //        System.out.println("Mapping pairs:(" + atom1 + " , " + atom2 + ")");
 //        System.out.println(  atom1 +"  = " + t[1].component(0,0) );
@@ -49,17 +48,10 @@ public class PotentialCalculationPhiSum implements PotentialCalculation {
 
     public void setAgentManager(AtomLeafAgentManager agentManager) {
         leafAgentManager = agentManager;
-        leafAgentIterator = leafAgentManager.makeIterator();
     }
 
     public void reset() {
-
-        leafAgentIterator.reset();
-        while (leafAgentIterator.hasNext()) {
-            Object agent = leafAgentIterator.next();
-            ((MoleculeAgent) agent).phi().E(0);
-        }
-
+        leafAgentManager.getAgents().values().forEach((agent) -> agent.phi().E(0));
 
     }
 

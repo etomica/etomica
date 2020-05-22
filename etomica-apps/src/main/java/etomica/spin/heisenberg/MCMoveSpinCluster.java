@@ -9,7 +9,9 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.nbr.site.Api1ASite;
+import etomica.nbr.NeighborIterator;
+import etomica.nbr.site.NeighborIteratorSite;
+import etomica.nbr.site.NeighborSiteManager;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.space.IOrientation;
 import etomica.space.Space;
@@ -29,7 +31,7 @@ public class MCMoveSpinCluster extends MCMoveBox {
     protected final Vector reflectionVector;
     protected final AtomArrayList atomPairs;
     protected final IntegratorMC integratorMC;
-    protected final Api1ASite neighbors;
+    protected final NeighborIteratorSite neighbors;
     protected double J;
     protected final AtomIteratorArrayListSimple atomIterator;
 
@@ -42,8 +44,7 @@ public class MCMoveSpinCluster extends MCMoveBox {
         reflectionVector = space.makeVector();
         atomPairs = new AtomArrayList();
         this.integratorMC = integratorMC;
-        neighbors = new Api1ASite(space.D(), potentialMaster.getCellAgentManager());
-        neighbors.setDirection(null);
+        neighbors = new NeighborIteratorSite((NeighborSiteManager) potentialMaster.getBoxCellManager(integratorMC.getBox()), integratorMC.getBox());
         this.J = J;
         atomIterator = new AtomIteratorArrayListSimple();
     }
@@ -69,7 +70,7 @@ public class MCMoveSpinCluster extends MCMoveBox {
         double temperature = integratorMC.getTemperature();
         reflectionVector.setRandomSphere(random);
         IAtomList atoms = box.getLeafList();
-        IAtom atomI = atoms.getAtom(random.nextInt(atoms.getAtomCount()));
+        IAtom atomI = atoms.get(random.nextInt(atoms.size()));
         clusterAtoms.clear();
         clusterAtoms.add(atomI);
         atomPairs.clear();
@@ -82,9 +83,9 @@ public class MCMoveSpinCluster extends MCMoveBox {
                 atomPairs.add(atomI);
                 atomPairs.add(atomJ);
             }
-            while (atomPairs.getAtomCount() > 0) {
-                IAtom atomJ = atomPairs.remove(atomPairs.getAtomCount() - 1);
-                atomI = atomPairs.remove(atomPairs.getAtomCount() - 1);
+            while (atomPairs.size() > 0) {
+                IAtom atomJ = atomPairs.remove(atomPairs.size() - 1);
+                atomI = atomPairs.remove(atomPairs.size() - 1);
                 if (clusterAtoms.contains(atomJ)) continue;
                 Vector oi = ((IAtomOriented) atomI).getOrientation().getDirection();
                 Vector oj = ((IAtomOriented) atomJ).getOrientation().getDirection();
@@ -102,19 +103,20 @@ public class MCMoveSpinCluster extends MCMoveBox {
     }
 
     private void gatherNeighbors(IAtom atomI) {
-        neighbors.setTarget(atomI);
-        neighbors.reset();
-        for (IAtomList pair = neighbors.next(); pair != null; pair = neighbors.next()) {
-            IAtom atomJ = pair.getAtom(0);
-            if (atomJ == atomI) atomJ = pair.getAtom(1);
-            if (clusterAtoms.contains(atomJ)) continue;
-            jNeighbors.add(atomJ);
-        }
+        NeighborIterator.AtomPairConsumer apc = new NeighborIterator.AtomPairConsumer() {
+            @Override
+            public void accept(IAtom iAtom, IAtom iAtom2) {
+                IAtom atomJ = iAtom2;
+                if (atomJ == atomI) atomJ = iAtom;
+                if (clusterAtoms.contains(atomJ)) return;
+                jNeighbors.add(atomJ);
+            }
+        };
+        neighbors.forEachNeighbor(atomI, null, apc, apc);
     }
 
     public void setBox(Box box) {
         super.setBox(box);
-        neighbors.setBox(box);
     }
 
     private void rotateAtom(IAtom atom) {

@@ -9,7 +9,6 @@ import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.box.BoxAgentManager;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.graphics.*;
@@ -87,7 +86,7 @@ public class Ising extends Simulation {
     public static void main(String[] args) {
         Space sp = Space2D.getInstance();
         Ising sim = new Ising(sp, 60);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
         ((SimulationRestart) simGraphic.getController().getReinitButton().getAction()).setConfiguration(null);
         IAction repaintAction = simGraphic.getPaintAction(sim.box);
         DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);

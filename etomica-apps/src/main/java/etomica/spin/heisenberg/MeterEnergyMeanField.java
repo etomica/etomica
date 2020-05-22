@@ -69,7 +69,7 @@ public class MeterEnergyMeanField implements IDataSource {
     @Override
     public IData getData() {
         IAtomList atoms = box.getLeafList();
-        int atomCount = atoms.getAtomCount();
+        int atomCount = atoms.size();
         if (bThetadot.length != atomCount) {
             bThetadot = new double[atomCount];
             nbrCsum = new double[atomCount];
@@ -89,8 +89,8 @@ public class MeterEnergyMeanField implements IDataSource {
         data.E(0);
         double sum = 0;
         double cvSum = 0;
-        for (int i = 0; i < atoms.getAtomCount(); i++) {
-            IAtomOriented a = (IAtomOriented) atoms.getAtom(i);
+        for (int i = 0; i < atoms.size(); i++) {
+            IAtomOriented a = (IAtomOriented) atoms.get(i);
             Vector h = agentManager.getAgent(a);
             double hmag = Math.sqrt(h.squared());
             eta[i] = hmag;
@@ -189,8 +189,8 @@ public class MeterEnergyMeanField implements IDataSource {
     private class PotentialCalculationPhiij implements PotentialCalculation {
         @Override
         public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-            IAtomOriented iatom = (IAtomOriented) atoms.getAtom(0);
-            IAtomOriented jatom = (IAtomOriented) atoms.getAtom(1);
+            IAtomOriented iatom = (IAtomOriented) atoms.get(0);
+            IAtomOriented jatom = (IAtomOriented) atoms.get(1);
             Vector io = iatom.getOrientation().getDirection();
             Vector jo = jatom.getOrientation().getDirection();
             cvSumExtra += io.dot(jo) * bThetadot[iatom.getLeafIndex()] * bThetadot[jatom.getLeafIndex()];
@@ -208,8 +208,8 @@ public class MeterEnergyMeanField implements IDataSource {
             this.nbrSsum = nbrSsum;
         }
         public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-            IAtomOriented iatom = (IAtomOriented) atoms.getAtom(0);
-            IAtomOriented jatom = (IAtomOriented) atoms.getAtom(1);
+            IAtomOriented iatom = (IAtomOriented) atoms.get(0);
+            IAtomOriented jatom = (IAtomOriented) atoms.get(1);
             int i = iatom.getLeafIndex();
             int j = jatom.getLeafIndex();
             Vector io = iatom.getOrientation().getDirection();
@@ -230,8 +230,8 @@ public class MeterEnergyMeanField implements IDataSource {
 
     private class PotentialCalculationCvij implements PotentialCalculation {
         public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
-            IAtomOriented atom0 = (IAtomOriented) atoms.getAtom(0);
-            IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(1);
+            IAtomOriented atom0 = (IAtomOriented) atoms.get(0);
+            IAtomOriented atom1 = (IAtomOriented) atoms.get(1);
 
             cvij += ijContribution(atom0, atom1) + ijContribution(atom1, atom0);
         }

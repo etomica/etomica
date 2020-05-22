@@ -36,14 +36,14 @@ public class MeterDipoleMoment implements IDataSource, AtomLeafAgentManager.Agen
         IAtomList atoms = box.getLeafList();
         data.E(0);
         double[] d = data.getData();
-        for (int i = 0; i < atoms.getAtomCount(); i++) {
-            IAtomOriented a = (IAtomOriented)atoms.getAtom(i);
+        for (int i = 0; i < atoms.size(); i++) {
+            IAtomOriented a = (IAtomOriented) atoms.get(i);
             Vector o = a.getOrientation().getDirection();
 
             d[0] += o.getX(0);
             d[1] += o.getX(1);
         }
-        data.TE(1.0/atoms.getAtomCount());
+        data.TE(1.0 / atoms.size());
         return data;
     }
 

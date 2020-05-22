@@ -32,8 +32,8 @@ public class PotentialCalculationSumquare implements PotentialCalculation {
         if (!(potential instanceof IPotentialAtomicSecondDerivative)) {
             return;
         }
-        IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
+        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
+        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
         ei.E(atom1.getOrientation().getDirection());
         ej.E(atom2.getOrientation().getDirection());
 

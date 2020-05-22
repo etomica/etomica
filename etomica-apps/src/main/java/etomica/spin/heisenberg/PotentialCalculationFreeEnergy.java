@@ -17,7 +17,6 @@ import etomica.space.Vector;
  */
 
 public class PotentialCalculationFreeEnergy implements PotentialCalculation {
-    protected AtomLeafAgentManager.AgentIterator leafAgentIterator;
     protected Vector ei, ej;
     protected double U_Map;
     protected final double mu, J, bt, bJ, bmu;
@@ -34,9 +33,6 @@ public class PotentialCalculationFreeEnergy implements PotentialCalculation {
         bJ = bt * J;
         bmu = bt * mu;
         this.leafAgentManager = leafAgentManager;
-
-        leafAgentIterator = leafAgentManager.makeIterator();
-
     }
 
 
@@ -45,8 +41,8 @@ public class PotentialCalculationFreeEnergy implements PotentialCalculation {
             return;
         }
 
-        IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
+        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
+        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
         ei.E(atom1.getOrientation().getDirection());
         ej.E(atom2.getOrientation().getDirection());
         MoleculeAgent agentAtom1 = leafAgentManager.getAgent(atom1);

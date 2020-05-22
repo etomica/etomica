@@ -17,8 +17,6 @@ import etomica.space.Vector;
  */
 
 public class PotentialCalculationMoleculeAgentSumMinusIdeal implements PotentialCalculation {
-    //public class PotentialCalculationHeisenberg {
-    protected AtomLeafAgentManager.AgentIterator leafAgentIterator;
     protected Vector ei, ej;
     protected final double mu, J, bt, bJ, bmu;
 
@@ -36,8 +34,6 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         bmu = bt * mu;
         this.nMax = nMax;
         this.leafAgentManager = leafAgentManager;
-        leafAgentIterator = leafAgentManager.makeIterator();
-
     }
 
 
@@ -45,8 +41,8 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
         if (!(potential instanceof IPotentialAtomicSecondDerivative)) {
             return;
         }
-        IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
+        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
+        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
         ei.E(atom1.getOrientation().getDirection());
         ej.E(atom2.getOrientation().getDirection());
 
@@ -203,13 +199,7 @@ public class PotentialCalculationMoleculeAgentSumMinusIdeal implements Potential
 
 
     public void zeroSum() {
-        if (leafAgentIterator != null) {
-            leafAgentIterator.reset();
-            while (leafAgentIterator.hasNext()) {
-                MoleculeAgent agent = (MoleculeAgent) leafAgentIterator.next();
-                agent.zeroSum();
-            }
-        }
+        leafAgentManager.getAgents().values().forEach((agent) -> agent.zeroSum());
     }
 
 

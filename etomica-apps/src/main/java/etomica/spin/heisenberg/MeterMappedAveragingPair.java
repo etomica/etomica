@@ -59,7 +59,7 @@ public class MeterMappedAveragingPair implements IDataSource, AgentSource<Molecu
 
         dr = space.makeVector();
         work = space.makeVector();
-        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box, MoleculeAgent.class);
+        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box);
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
 //        FSum = new PotentialCalculationFSum(space, dipoleMagnitude, interactionS, bt);
@@ -98,14 +98,14 @@ public class MeterMappedAveragingPair implements IDataSource, AgentSource<Molecu
         secondDerivativeSumIdeal.doCalculation(box.getLeafList(), p2);
         double bt2 = bt * bt;
         double mu2 = mu * mu;
-        int nM = leafList.getAtomCount();
+        int nM = leafList.size();
         double torqueScalar = 0;
 //        System.out.println("nM= " + nM);
         dr.E(0);
         for (int i = 0; i < nM; i++) {
-            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.getAtom(i));
+            MoleculeAgent agentAtomI = leafAgentManager.getAgent(leafList.get(i));
             torqueScalar = agentAtomI.torque.getX(0);
-            IAtomOriented atom = (IAtomOriented) leafList.getAtom(i);
+            IAtomOriented atom = (IAtomOriented) leafList.get(i);
             dr.PEa1Tv1(torqueScalar, atom.getOrientation().getDirection());
 //            System.out.println("dr + " + dr);
         }//i loop

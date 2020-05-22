@@ -48,7 +48,7 @@ public class MeterMappedAveragingCV implements IDataSource {
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{2});
         tag = new DataTag();
         dataInfo.addTag(tag);
-        N = box.getLeafList().getAtomCount();
+        N = box.getLeafList().size();
         L = (int) Math.round(Math.sqrt(N));
         sintiMtj1 = new double[N];
         sintiMtj2 = new double[N];
@@ -67,8 +67,8 @@ public class MeterMappedAveragingCV implements IDataSource {
 
         //compute neighbor sums
         for (int i = 0; i < N; i++) {
-            double costi = ((IAtomOriented) leafList.getAtom(i)).getOrientation().getDirection().getX(0);
-            double sinti = ((IAtomOriented) leafList.getAtom(i)).getOrientation().getDirection().getX(1);
+            double costi = ((IAtomOriented) leafList.get(i)).getOrientation().getDirection().getX(0);
+            double sinti = ((IAtomOriented) leafList.get(i)).getOrientation().getDirection().getX(1);
 
             sintiMtj1[i] = 0;
             costiMtj1[i] = 0;
@@ -81,8 +81,8 @@ public class MeterMappedAveragingCV implements IDataSource {
 
             //1st-neighbor loop
             for (int j = 0; j < 4; j++) {
-                double costj = ((IAtomOriented) leafList.getAtom(nbrs[0][j])).getOrientation().getDirection().getX(0);
-                double sintj = ((IAtomOriented) leafList.getAtom(nbrs[0][j])).getOrientation().getDirection().getX(1);
+                double costj = ((IAtomOriented) leafList.get(nbrs[0][j])).getOrientation().getDirection().getX(0);
+                double sintj = ((IAtomOriented) leafList.get(nbrs[0][j])).getOrientation().getDirection().getX(1);
 
                 double s = sinti * costj - costi * sintj;//sin(ti-tj)
                 double c = costi * costj + sinti * sintj;//cos(ti-tj)
@@ -91,8 +91,8 @@ public class MeterMappedAveragingCV implements IDataSource {
                 sin2tiMtj1[i] += 2 * s * c;//sin(2(ti-tj))
 
                 for (int k = 0; k < j; k++) {
-                    double costk = ((IAtomOriented) leafList.getAtom(nbrs[0][k])).getOrientation().getDirection().getX(0);
-                    double sintk = ((IAtomOriented) leafList.getAtom(nbrs[0][k])).getOrientation().getDirection().getX(1);
+                    double costk = ((IAtomOriented) leafList.get(nbrs[0][k])).getOrientation().getDirection().getX(0);
+                    double sintk = ((IAtomOriented) leafList.get(nbrs[0][k])).getOrientation().getDirection().getX(1);
 
 //                    sin(2ti-tj-tk) = sin(2ti)Cos(tj+tk) - cos(2ti)*sin(tj+tk)
                     double costjPtk = costj * costk - sintj * sintk;
@@ -103,15 +103,15 @@ public class MeterMappedAveragingCV implements IDataSource {
 
             //2nd-neighbor loop
             for (int j2 = 0; j2 < 4; j2++) {
-                double costj2 = ((IAtomOriented) leafList.getAtom(nbrs[1][j2])).getOrientation().getDirection().getX(0);
-                double sintj2 = ((IAtomOriented) leafList.getAtom(nbrs[1][j2])).getOrientation().getDirection().getX(1);
+                double costj2 = ((IAtomOriented) leafList.get(nbrs[1][j2])).getOrientation().getDirection().getX(0);
+                double sintj2 = ((IAtomOriented) leafList.get(nbrs[1][j2])).getOrientation().getDirection().getX(1);
                 sintiMtj2[i] += sinti * costj2 - costi * sintj2;
             }
 
             //3rd-neighbor loop
             for (int j3 = 0; j3 < 4; j3++) {
-                double costj3 = ((IAtomOriented) leafList.getAtom(nbrs[2][j3])).getOrientation().getDirection().getX(0);
-                double sintj3 = ((IAtomOriented) leafList.getAtom(nbrs[2][j3])).getOrientation().getDirection().getX(1);
+                double costj3 = ((IAtomOriented) leafList.get(nbrs[2][j3])).getOrientation().getDirection().getX(0);
+                double sintj3 = ((IAtomOriented) leafList.get(nbrs[2][j3])).getOrientation().getDirection().getX(1);
                 sintiMtj3[i] += sinti * costj3 - costi * sintj3;
             }
         }
@@ -119,15 +119,15 @@ public class MeterMappedAveragingCV implements IDataSource {
         double sumOverI = 0;
         double sumVar = 0;
         for (int i = 0; i < N; i++) {
-            double costi = ((IAtomOriented) leafList.getAtom(i)).getOrientation().getDirection().getX(0);
-            double sinti = ((IAtomOriented) leafList.getAtom(i)).getOrientation().getDirection().getX(1);
+            double costi = ((IAtomOriented) leafList.get(i)).getOrientation().getDirection().getX(0);
+            double sinti = ((IAtomOriented) leafList.get(i)).getOrientation().getDirection().getX(1);
 
             getNeighbors(i);
 
             double sum = 0;
             for (int j = 0; j < 4; j++) {
-                double costj = ((IAtomOriented) leafList.getAtom(nbrs[0][j])).getOrientation().getDirection().getX(0);
-                double sintj = ((IAtomOriented) leafList.getAtom(nbrs[0][j])).getOrientation().getDirection().getX(1);
+                double costj = ((IAtomOriented) leafList.get(nbrs[0][j])).getOrientation().getDirection().getX(0);
+                double sintj = ((IAtomOriented) leafList.get(nbrs[0][j])).getOrientation().getDirection().getX(1);
                 sum += (costi * costj + sinti * sintj) * sintiMtj1[nbrs[0][j]];
             }
 

@@ -17,22 +17,22 @@ public class MCMoveRotate3Pair extends MCMoveRotate {
     }
 
     public boolean doTrial() {
-        if (box.getMoleculeList().getMoleculeCount() == 0) {
+        if (box.getMoleculeList().size() == 0) {
             return false;
         }
         atom = atomSource.getAtom();
         energyMeter.setTarget(atom);
 
         AtomPair pair = new AtomPair();
-        pair.atom0 = box.getLeafList().getAtom(0);
-        pair.atom1 = box.getLeafList().getAtom(1);//01
+        pair.atom0 = box.getLeafList().get(0);
+        pair.atom1 = box.getLeafList().get(1);//01
         uOld = p2.energy(pair);
-        pair.atom0 = box.getLeafList().getAtom(1);
-        pair.atom1 = box.getLeafList().getAtom(2);//12
+        pair.atom0 = box.getLeafList().get(1);
+        pair.atom1 = box.getLeafList().get(2);//12
         uOld += p2.energy(pair);
 
-        pair.atom0 = box.getLeafList().getAtom(0);
-        pair.atom1 = box.getLeafList().getAtom(2);//12
+        pair.atom0 = box.getLeafList().get(0);
+        pair.atom1 = box.getLeafList().get(2);//12
         uOld += p2.energy(pair);
 
         iOrientation = ((IAtomOriented) atom).getOrientation();
@@ -50,15 +50,15 @@ public class MCMoveRotate3Pair extends MCMoveRotate {
 
     public double getChi(double temperature) {
         AtomPair pair = new AtomPair();
-        pair.atom0 = box.getLeafList().getAtom(0);
-        pair.atom1 = box.getLeafList().getAtom(1);//01
+        pair.atom0 = box.getLeafList().get(0);
+        pair.atom1 = box.getLeafList().get(1);//01
         uNew = p2.energy(pair);
 
-        pair.atom0 = box.getLeafList().getAtom(1);
-        pair.atom1 = box.getLeafList().getAtom(2);//12
+        pair.atom0 = box.getLeafList().get(1);
+        pair.atom1 = box.getLeafList().get(2);//12
         uNew += p2.energy(pair);
-        pair.atom0 = box.getLeafList().getAtom(0);
-        pair.atom1 = box.getLeafList().getAtom(2);//12
+        pair.atom0 = box.getLeafList().get(0);
+        pair.atom1 = box.getLeafList().get(2);//12
         uNew += p2.energy(pair);
         double chi = Math.exp(-(uNew - uOld) / temperature);
 //        System.out.println("chi "+chi+" "+uOld+" "+uNew+" "+temperature);

@@ -64,7 +64,7 @@ public class MeterMappedAveragingSum implements IDataSource, AgentSource<MeterMa
 
         dr = space.makeVector();
         work = space.makeVector();
-        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box, MoleculeAgent.class);
+        leafAgentManager = new AtomLeafAgentManager<MoleculeAgent>(this, box);
         torqueSum = new PotentialCalculationTorqueSum();
         torqueSum.setAgentManager(leafAgentManager);
 //        FSum = new PotentialCalculationFSum(space, dipoleMagnitude, interactionS, bt);
@@ -90,7 +90,7 @@ public class MeterMappedAveragingSum implements IDataSource, AgentSource<MeterMa
         Ans.zeroSum();
         potentialMaster.calculate(box, allAtoms, Ans);
 
-        int nM = leafList.getAtomCount();
+        int nM = leafList.size();
         for (int i = 0; i < nM; i++) {
 
 

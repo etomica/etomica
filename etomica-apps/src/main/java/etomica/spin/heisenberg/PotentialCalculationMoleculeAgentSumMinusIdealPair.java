@@ -17,7 +17,6 @@ import etomica.space.Vector;
  */
 
 public class PotentialCalculationMoleculeAgentSumMinusIdealPair implements PotentialCalculation {
-    protected AtomLeafAgentManager.AgentIterator leafAgentIterator;
     protected Vector ei, ej;
     protected double JEEMJEJE, UEE, U_Map, U_Con;
     protected final double mu, J, bt, bJ, bmu;
@@ -37,9 +36,6 @@ public class PotentialCalculationMoleculeAgentSumMinusIdealPair implements Poten
         bmu = bt * mu;
         this.nMax = nMax;
         this.leafAgentManager = leafAgentManager;
-
-        leafAgentIterator = leafAgentManager.makeIterator();
-
     }
 
 
@@ -48,8 +44,8 @@ public class PotentialCalculationMoleculeAgentSumMinusIdealPair implements Poten
             return;
         }
 
-        IAtomOriented atom1 = (IAtomOriented) atoms.getAtom(0);
-        IAtomOriented atom2 = (IAtomOriented) atoms.getAtom(1);
+        IAtomOriented atom1 = (IAtomOriented) atoms.get(0);
+        IAtomOriented atom2 = (IAtomOriented) atoms.get(1);
         ei.E(atom1.getOrientation().getDirection());
         ej.E(atom2.getOrientation().getDirection());
 //        System.out.println(ei);
