@@ -40,6 +40,7 @@ public class P2Spin extends Potential2 implements IPotentialTorque, IPotentialAt
     protected Vector dr;
     protected Vector dr2;
     private double coupling;
+
     public P2Spin(Space space) {
         this(space, 1.0);
     }
@@ -74,7 +75,7 @@ public class P2Spin extends Potential2 implements IPotentialTorque, IPotentialAt
     }
 
     /**
-     * Returns 0, becuase potential operates on a lattice and range
+     * Returns 0, because potential operates on a lattice and range
      * should not be needed.  The PotentialMasterSite expects all Potentials
      * to have a range and uses the return value to determine whether or not
      * to use site iteration.
