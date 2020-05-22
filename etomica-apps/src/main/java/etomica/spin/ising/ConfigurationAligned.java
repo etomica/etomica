@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.spin;
+package etomica.spin.ising;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -20,6 +20,8 @@ import etomica.config.Configuration;
  */
 public class ConfigurationAligned implements Configuration, java.io.Serializable {
 
+    private static final long serialVersionUID = 2L;
+
     public ConfigurationAligned() {
     }
 
@@ -34,6 +36,4 @@ public class ConfigurationAligned implements Configuration, java.io.Serializable
             spin.setX(0,1.0);
         }
     }
-
-    private static final long serialVersionUID = 2L;
 }

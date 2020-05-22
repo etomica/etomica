@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.spin;
+package etomica.spin.ising;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
@@ -28,11 +28,10 @@ import etomica.species.SpeciesSpheresMono;
  * for simulation of a more general magentic system.
  *
  * @author David Kofke
- *
  */
-public class Heisenberg extends Simulation {
+public class Ising extends Simulation {
 
-	private static final String APP_NAME = "Heisenberg";
+    private static final String APP_NAME = "Ising";
     private static final long serialVersionUID = 2L;
     public PotentialMasterSite potentialMaster;
     public Box box;
@@ -44,13 +43,15 @@ public class Heisenberg extends Simulation {
     public DataPump pump;
     public AccumulatorAverageCollapsing dAcc;
     private IntegratorMC integrator;
-    public Heisenberg() {
-        this(Space2D.getInstance(),60);
+
+    public Ising() {
+        this(Space2D.getInstance(), 60);
     }
+
     /**
      *
      */
-    public Heisenberg(Space _space, int nCells) {
+    public Ising(Space _space, int nCells) {
         super(_space);
         spins = new SpeciesSpheresMono(this, space);
         addSpecies(spins);
@@ -82,20 +83,20 @@ public class Heisenberg extends Simulation {
         pumpListener.setInterval(10);
         integrator.getEventManager().addListener(pumpListener);
     }
-    
+
     public static void main(String[] args) {
-    	Space sp = Space2D.getInstance();
-        Heisenberg sim = new Heisenberg(sp, 60);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
-        ((SimulationRestart)simGraphic.getController().getReinitButton().getAction()).setConfiguration(null);
-		IAction repaintAction = simGraphic.getPaintAction(sim.box);
+        Space sp = Space2D.getInstance();
+        Ising sim = new Ising(sp, 60);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp, sim.getController());
+        ((SimulationRestart) simGraphic.getController().getReinitButton().getAction()).setConfiguration(null);
+        IAction repaintAction = simGraphic.getPaintAction(sim.box);
         DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);
 
         simGraphic.remove(displayBox);
         NeighborSiteManager neighborSiteManager = (NeighborSiteManager)sim.potentialMaster.getBoxCellManager(sim.box);
         displayBox.setBoxCanvas(new DisplayBoxSpin2D(displayBox,neighborSiteManager, sp, sim.getController()));
         simGraphic.add(displayBox);
-        DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integrator,"temperature");
+        DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integrator, "temperature");
         temperatureSlider.setMinimum(0.5);
         temperatureSlider.setMaximum(10.0);
         temperatureSlider.setShowBorder(true);
@@ -109,7 +110,7 @@ public class Heisenberg extends Simulation {
         fieldSlider.setShowBorder(true);
         fieldSlider.setLabel("Magnetic field");
         simGraphic.add(fieldSlider);
-        
+
         DisplayTextBoxesCAE boxes = new DisplayTextBoxesCAE();
         boxes.setAccumulator(sim.dAcc);
         boxes.setLabel("Magnetization");

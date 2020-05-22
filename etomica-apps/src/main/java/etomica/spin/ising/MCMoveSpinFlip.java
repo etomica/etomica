@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.spin;
+package etomica.spin.ising;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -20,10 +20,21 @@ import etomica.util.random.IRandom;
  * Window - Preferences - Java - Code Style - Code Templates
  *
  * @author David Kofke
- *
  */
 public class MCMoveSpinFlip extends MCMoveBox {
 
+    private static final long serialVersionUID = 1L;
+    protected final IRandom random;
+    protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
+    protected final MeterPotentialEnergy energyMeter;
+    protected IAtom atom;
+    protected double uOld;
+    protected double uNew = Double.NaN;
+
+    /**
+     * @param potentialMaster
+     * @param nBoxs
+     */
     public MCMoveSpinFlip(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         this.random = random;
@@ -36,7 +47,7 @@ public class MCMoveSpinFlip extends MCMoveBox {
         super.setBox(p);
         energyMeter.setBox(p);
     }
-    
+
     /* (non-Javadoc)
      * @see etomica.integrator.MCMove#doTrial()
      */
@@ -83,12 +94,4 @@ public class MCMoveSpinFlip extends MCMoveBox {
     public double energyChange() {
         return uNew - uOld;
     }
-
-    private static final long serialVersionUID = 1L;
-    protected final IRandom random;
-    protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    protected final MeterPotentialEnergy energyMeter;
-    protected IAtom atom;
-    protected double uOld;
-    protected double uNew = Double.NaN;
 }

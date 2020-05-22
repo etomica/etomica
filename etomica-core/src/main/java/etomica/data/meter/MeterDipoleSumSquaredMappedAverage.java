@@ -49,8 +49,6 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
     protected Vector work;
     protected MoleculeAgentManager moleculeAgentManager;
     protected DipoleSource dipoleSource;
-    protected AtomLeafAgentManager<Vector> atomAgentManager;
-    protected PotentialCalculationForceSum pcForce;
 
 	public MeterDipoleSumSquaredMappedAverage(final Space space, Box box, Simulation sim, double dipoleMagnitude, double temperature, PotentialMaster potentialMaster) {
 		data = new DataDoubleArray(2);
@@ -73,11 +71,7 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
 		allAtoms = new IteratorDirective();
 		dr = space.makeVector();
 		work = space.makeVector();
-		
-		pcForce = new PotentialCalculationForceSum();
-		atomAgentManager = new AtomLeafAgentManager<Vector>(a -> space.makeVector() , box);
-        pcForce.setAgentManager(atomAgentManager);
-		
+
 	}
 
 	public IData getData() {		
@@ -113,9 +107,7 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
 		 potentialMaster.calculate(box, allAtoms, secondDerivativeSum);
 		
 			
-		 IteratorDirective id = new IteratorDirective();
-		 potentialMaster.calculate(box, id, pcForce);
-		 
+
 		 
 		 double A = 0;
 		 vectorSum.E(0);
@@ -138,7 +130,7 @@ public class MeterDipoleSumSquaredMappedAverage implements IDataSource, Molecule
 		
 		x[0] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*vectorSum.squared()+ 0.25*bt3*mu2*secondDerivativeSum.getSum();//TODO
 		
-		
+
 //		x[1] = vectorSum.getX(0) +vectorSum.getX(1) + vectorSum.getX(2);
 //		x[1] = -nM*bt2*mu2 - 0.25*bt2*bt2*mu2*vectorSum.squared()+ 0.25*bt3*mu2*secondDerivativeSum.getSum() + A;
 		return data;
