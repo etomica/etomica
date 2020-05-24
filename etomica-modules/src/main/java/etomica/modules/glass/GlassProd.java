@@ -76,16 +76,10 @@ public class GlassProd {
                     s.restoreState(br);
                 }
                 br.close();
-                System.out.println("Continuing equilibration after "+sim.integrator.getStepCount()+" steps");
+                System.out.println("Continuing equilibration after " + sim.integrator.getStepCount() + " steps");
                 // find neighbors with new config
-                sim.integrator.getEventManager().initialized();
-                if (sim.integrator instanceof IntegratorHard) {
-                    // find collision times with new config
-                    ((IntegratorHard)sim.integrator).resetFoo();
-                }
-                else {
-                    ((IntegratorVelocityVerlet)sim.integrator).precomputeForce();
-                }
+                // reset collision times (for hard) or compute forces (for soft)
+                sim.integrator.postRestore();
                 sim.activityIntegrate.setDoSkipReset(true);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
@@ -595,16 +589,10 @@ public class GlassProd {
                     s.restoreState(br);
                 }
                 br.close();
-                System.out.println("Continuing after "+sim.integrator.getStepCount()+" steps");
+                System.out.println("Continuing after " + sim.integrator.getStepCount() + " steps");
                 // find neighbors with new config
-                sim.integrator.getEventManager().initialized();
-                if (sim.integrator instanceof IntegratorHard) {
-                    // find collision times with new config
-                    ((IntegratorHard)sim.integrator).resetFoo();
-                }
-                else {
-                    ((IntegratorVelocityVerlet)sim.integrator).precomputeForce();
-                }
+                // reset collision times (for hard) or compute forces (for soft)
+                sim.integrator.postRestore();
                 sim.activityIntegrate.setDoSkipReset(true);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);

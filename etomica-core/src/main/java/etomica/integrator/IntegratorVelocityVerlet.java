@@ -157,10 +157,16 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     }
 
 //--------------------------------------------------------------
-    
+
     public Vector makeAgent(IAtom a, Box agentBox) {
         return space.makeVector();
     }
-    
-    public void releaseAgent(Vector agent, IAtom atom, Box agentBox) {}
+
+    public void releaseAgent(Vector agent, IAtom atom, Box agentBox) {
+    }
+
+    public void postRestore() {
+        super.postRestore();
+        precomputeForce();
+    }
 }

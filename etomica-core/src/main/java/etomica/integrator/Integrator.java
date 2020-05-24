@@ -7,12 +7,9 @@ package etomica.integrator;
 import etomica.space.Vector;
 import etomica.util.Statefull;
 
-import java.awt.event.HierarchyEvent;
 import java.io.BufferedReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.nio.Buffer;
 
 /**
  * Integrator implements the algorithm used to move the atoms around and
@@ -150,7 +147,7 @@ public abstract class Integrator implements Statefull {
     }
 
     public void saveState(Writer fw) throws IOException {
-        fw.write(""+stepCount+" "+ iieCount+"\n");
+        fw.write("" + stepCount + " " + iieCount + "\n");
     }
 
     public void restoreState(BufferedReader br) throws IOException {
@@ -159,4 +156,7 @@ public abstract class Integrator implements Statefull {
         iieCount = Integer.parseInt(bits[1]);
     }
 
+    public void postRestore() {
+        eventManager.initialized();
+    }
 }

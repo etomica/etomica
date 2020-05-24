@@ -409,10 +409,11 @@ public class IntegratorHard extends IntegratorMD implements INeighborListListene
         }
     }
 
-    public void resetFoo() {
-	    for (IAtom atom : box.getLeafList()) {
+    public void postRestore() {
+        super.postRestore();
+        for (IAtom atom : box.getLeafList()) {
             Agent agent = agentManager.getAgent(atom);
-            agent.setAtom((IAtomKinetic)atom);
+            agent.setAtom((IAtomKinetic) atom);
         }
         resetCollisionTimes();
     }
