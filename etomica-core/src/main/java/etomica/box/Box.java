@@ -7,7 +7,6 @@ package etomica.box;
 import etomica.action.BoxInflate;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
@@ -15,7 +14,6 @@ import etomica.molecule.MoleculeArrayList;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.util.Arrays;
 import etomica.util.Debug;
@@ -367,18 +365,7 @@ public class Box implements Statefull {
         for (MoleculeArrayList moleculeList : moleculeLists) {
             fw.write(""+moleculeList.size()+"\n");
             for (IMolecule iMolecule : moleculeList) {
-                IAtomList atoms = iMolecule.getChildList();
-                for (IAtom atom : atoms) {
-                    Vector p = atom.getPosition();
-                    int D = p.getD();
-                    fw.write(""+atom.getLeafIndex());
-                    for (int i=0; i<D; i++) fw.write(" "+p.getX(i));
-                    if (atom instanceof IAtomKinetic) {
-                        Vector v = ((IAtomKinetic) atom).getVelocity();
-                        for (int i=0; i<D; i++) fw.write(" "+v.getX(i));
-                    }
-                    fw.write("\n");
-                }
+                iMolecule.saveState(fw);
             }
         }
     }
@@ -410,20 +397,11 @@ public class Box implements Statefull {
                 removeMolecule(moleculeList.get(j - 1));
             }
             for (IMolecule iMolecule : moleculeList) {
-                IAtomList atoms = iMolecule.getChildList();
-                for (IAtom atom : atoms) {
-                    String[] coords = br.readLine().split(" ");
-                    int leafIndex = Integer.parseInt(coords[0]);
-                    atom.setLeafIndex(leafIndex);
+                iMolecule.restoreState(br);
+                for (IAtom atom : iMolecule.getChildList()) {
+                    int leafIndex = atom.getLeafIndex();
                     while (newList.size() <= leafIndex) newList.add(null);
                     newList.set(leafIndex, atom);
-                    Vector p = atom.getPosition();
-                    int D = p.getD();
-                    for (int j = 0; j < D; j++) p.setX(j, Double.parseDouble(coords[1+j]));
-                    if (atom instanceof IAtomKinetic) {
-                        Vector v = ((IAtomKinetic) atom).getVelocity();
-                        for (int j = 0; j < D; j++) v.setX(j, Double.parseDouble(coords[1+D + j]));
-                    }
                 }
             }
         }

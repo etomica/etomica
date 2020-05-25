@@ -7,6 +7,7 @@ package etomica.atom;
 import etomica.meta.annotations.IgnoreProperty;
 import etomica.molecule.IMolecule;
 import etomica.space.Vector;
+import etomica.util.Statefull;
 
 /**
  * IAtom is an interface for atoms in the simulation.  Atoms have a type
@@ -14,7 +15,7 @@ import etomica.space.Vector;
  * Atoms also have indices (one for the list of atoms in the box, one for the
  * list of atoms in a molecule).
  */
-public interface IAtom {
+public interface IAtom extends Statefull {
 
     /**
      * @return this IAtom's index, which is its place in the parent AtomGroup's

@@ -35,7 +35,7 @@ public class GlassProd {
             params.density = 1.66; // 2D params.density = 0.509733; //3D  = 0.69099;
             params.D = 3;
             params.temperature = 1.0;
-            params.numStepsEq = 500000;
+            params.numStepsEq = 50000;
             params.numSteps = 0;
             params.minDrFilter = 0.4;
             params.qx = 7.0;
@@ -797,7 +797,7 @@ public class GlassProd {
 
     public static class SimParams extends SimGlass.GlassParams {
         public int numStepsEq = 10000;
-        public int numSteps =   1000000;
+        public int numSteps = 100000;
         public double minDrFilter = 0.4;
         public double temperatureMelt = 0;
         public double qx = 7.0;

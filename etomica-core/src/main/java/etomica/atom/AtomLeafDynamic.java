@@ -7,6 +7,10 @@ package etomica.atom;
 import etomica.space.Space;
 import etomica.space.Vector;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
+
 public class AtomLeafDynamic extends Atom implements IAtomKinetic {
 
     private static final long serialVersionUID = 1L;
@@ -19,5 +23,22 @@ public class AtomLeafDynamic extends Atom implements IAtomKinetic {
 
     public Vector getVelocity() {
         return velocity;
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        super.saveState(fw);
+        int D = velocity.getD();
+        fw.write("" + velocity.getX(0));
+        for (int i = 1; i < D; i++) fw.write(" " + velocity.getX(i));
+        fw.write("\n");
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        super.restoreState(br);
+        String[] bits = br.readLine().split(" ");
+        int D = position.getD();
+        for (int i = 0; i < D; i++) velocity.setX(i, Double.parseDouble(bits[i]));
     }
 }

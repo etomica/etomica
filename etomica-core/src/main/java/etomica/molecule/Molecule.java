@@ -9,13 +9,17 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.species.ISpecies;
 
-public class Molecule implements IMolecule, java.io.Serializable {
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
+
+public class Molecule implements IMolecule {
 
     public Molecule(ISpecies species, int numLeafAtoms) {
         this.species = species;
         childList = new AtomArrayList(numLeafAtoms);
     }
-    
+
     /**
      * Returns a string of digits that uniquely identifies this atom.  String is
      * formed by concatenating the ordinal of this atom to the signature
@@ -81,17 +85,30 @@ public class Molecule implements IMolecule, java.io.Serializable {
     public final void setIndex(int newIndex) {
         index = newIndex;
     }
-    
+
     public final int getIndex() {
         return index;
     }
-    
+
     public final ISpecies getType() {
         return species;
     }
 
-    private static final long serialVersionUID = 1L;
-    
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        for (IAtom a : childList) {
+            a.saveState(fw);
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        for (IAtom a : childList) {
+            a.restoreState(br);
+        }
+    }
+
+
     protected int index;
     protected final AtomArrayList childList;
     protected final ISpecies species;
