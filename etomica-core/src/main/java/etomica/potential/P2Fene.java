@@ -39,6 +39,7 @@ public class P2Fene extends Potential2SoftSpherical {
      * The derivative r*du/dr.
      */
     public double du(double r2) {
+        if (r2 > 0.99 * r02) return -h * r02 * 10;
         return h*r2*r02/(r02 - r2);
     }
 
