@@ -28,6 +28,10 @@ public class CriterionInterMolecular extends CriterionAdapter {
         intraCriterion = criterion;
     }
 
+    public void setIntraMolecularOnly(boolean intraMolecularOnly) {
+        this.intraMolecularOnly = intraMolecularOnly;
+    }
+
     /**
      * Returns the intramolecular criterion, or null if none is in use.
      */
@@ -36,8 +40,12 @@ public class CriterionInterMolecular extends CriterionAdapter {
     }
     
     public boolean accept(IAtom atom1, IAtom atom2) {
+        boolean atomsIntraMolecular = atom1.getParentGroup() == atom2.getParentGroup();
+        if (this.intraMolecularOnly && !atomsIntraMolecular) {
+            return false;
+        }
         // Only ask the intracriterion if it exists and the pair is intramolecular. 
-        if ((atom1.getParentGroup() == atom2.getParentGroup()) && (intraCriterion == null ||
+        if (atomsIntraMolecular && (intraCriterion == null ||
                 !intraCriterion.accept(atom1, atom2))) {
             return false;
         }
@@ -46,4 +54,5 @@ public class CriterionInterMolecular extends CriterionAdapter {
     
     private static final long serialVersionUID = 1L;
     private NeighborCriterion intraCriterion;
+    private boolean intraMolecularOnly;
 }
