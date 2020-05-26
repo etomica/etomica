@@ -1,4 +1,4 @@
-package etomica.virial.simulations.KnottedPolymer;
+package etomica.starpolymer;
 
 import etomica.config.IConformation;
 import etomica.space.Space;

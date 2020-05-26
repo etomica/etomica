@@ -1,4 +1,4 @@
-package etomica.virial.simulations.KnottedPolymer;
+package etomica.starpolymer;
 
 import etomica.action.MoleculeAction;
 import etomica.atom.IAtom;

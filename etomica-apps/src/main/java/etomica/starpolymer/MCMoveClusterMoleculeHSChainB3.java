@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.virial.simulations.KnottedPolymer;
+package etomica.starpolymer;
 
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.molecule.IMolecule;
@@ -18,13 +18,13 @@ import etomica.virial.BoxCluster;
  *
  * @author Andrew
  */
-public class MCMoveClusterMoleculeHSChain extends MCMoveMolecule {
+public class MCMoveClusterMoleculeHSChainB3 extends MCMoveMolecule {
 
     protected final double sigma;
     protected int[] seq;
     protected MoleculePositionCOM moleculeCOM;
 
-    public MCMoveClusterMoleculeHSChain(IRandom random, Space _space, double sigma) {
+    public MCMoveClusterMoleculeHSChainB3(IRandom random, Space _space, double sigma) {
         super(null, random, _space, 1, 1);
         this.sigma = sigma;
         moleculeCOM = new MoleculePositionCOM(space);
@@ -33,7 +33,7 @@ public class MCMoveClusterMoleculeHSChain extends MCMoveMolecule {
     public boolean doTrial() {
 
         IMoleculeList moleculeList = box.getMoleculeList();
-        int n = moleculeList.size();
+        int n = moleculeList.size() - 1;
         if (seq == null) {
             seq = new int[n];
         }

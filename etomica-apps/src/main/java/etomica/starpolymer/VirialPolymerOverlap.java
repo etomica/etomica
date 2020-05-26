@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.virial.simulations.KnottedPolymer;
+package etomica.starpolymer;
 
 import etomica.action.IAction;
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.chem.elements.ElementSimple;
-import etomica.graph.model.Graph;
-import etomica.graph.operations.DeleteEdge;
-import etomica.graph.operations.DeleteEdgeParameters;
-import etomica.graphics.*;
+import etomica.data.meter.MeterRadiusGyration;
+import etomica.graphics.ColorScheme;
+import etomica.graphics.ColorSchemeRandomByMolecule;
+import etomica.graphics.DisplayBox;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
@@ -25,11 +25,7 @@ import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
-import etomica.virial.cluster.VirialDiagrams;
 import etomica.virial.simulations.SimulationVirialOverlap2;
-
-import java.awt.*;
-import java.util.Set;
 
 /**
  * Calculation for virial coefficients of hard spheres
@@ -37,7 +33,7 @@ import java.util.Set;
  * <p>
  * CHANGES: change for star-polymers. May 7, 2018
  */
-public class VirialPolymerOverlapWithMD {
+public class VirialPolymerOverlap {
 
     public static void main(String[] args) {
 
@@ -48,26 +44,29 @@ public class VirialPolymerOverlapWithMD {
             params.nPoints = 2;
             params.numSteps = 100000L;
             params.ref = VirialHSParam.CHAINS;
-            params.fv = 3;
-            params.lv = 34;
         }
 
         final int nPoints = params.nPoints;
         long steps = params.numSteps;
         final int ref = params.ref;
-        final int f = params.fv;
-        final int l = params.lv;
-        final double temperature = 1.0;
+        final String fileName = "./resource/f5L40.xyz";
 
+        //Creating space and species
         Space space = Space3D.getInstance();
-        SpeciesPolymerMono species = new SpeciesPolymerMono(space, new ElementSimple("A"), f, l);
+        SpeciesStarPolymer species = new SpeciesStarPolymer(space, fileName);
 
+//        final double sigmaTranslate = species.maxDiameter;
         final double sigmaTranslate = 30.0;
         final double refDiameter = 11.0;
         double vhs = (4.0 / 3.0) * Math.PI * refDiameter * refDiameter * refDiameter;
 
         System.out.println("HS singly-connected sampling B" + nPoints);
-        System.out.println("Computing for Star-polymer f = " + f + " l = " + l);
+        System.out.println("Max Diameter for this polymer is " + sigmaTranslate);
+
+//        final P2HSPolymer potentialHS = new P2HSPolymer(2, space, new P2HardSphere(space));
+//        final PotentialGroup potentialHS = new PotentialGroup(2, space);
+//        AtomType[] types = new AtomType[]{species.getAtomTypes().get(0), species.getAtomTypes().get(1)};
+//        potentialHS.addPotential(new P2HardSphere(space), types);
 
         final P2HardSphere potentialHS = new P2HardSphere(space);
         final PotentialGroup potentialGroup = new PotentialGroup(2, space);
@@ -87,28 +86,36 @@ public class VirialPolymerOverlapWithMD {
             }
         };
 
+//        MayerFunction fRefPos = new MayerHardSphere(refDiameter);
+
+        ClusterAbstract targetCluster = new ClusterWheatleyHS(nPoints, fRef);
+
+        targetCluster.setTemperature(1.0);
+
         ClusterAbstract refCluster = null;
         long numDiagrams;
+
         double ri = 0;
         if (ref == VirialHSParam.CHAINS) {
             System.out.println("using a chain reference");
             refCluster = new ClusterChainHS(nPoints, fRefPos);
             numDiagrams = ((ClusterChainHS) refCluster).numDiagrams();
+//            refCluster = new ClusterSinglyConnected(nPoints, fRefPos);
+//            numDiagrams = ((ClusterSinglyConnected) refCluster).numDiagrams();
             ri = numDiagrams * Math.pow(vhs, nPoints - 1);
         }
 
         // (nPoints-1)! is simply not included by ClusterWheatley, so do that here.
         final double refIntegral = ri / SpecialFunctions.factorial(nPoints);
+//        double b3 = Standard.B3HS(refDiameter);
         System.out.println("reference integral: " + refIntegral);
+        refCluster.setTemperature(1.0);
+
         System.out.println(steps + " steps");
 
-        ClusterAbstract targetCluster = new ClusterWheatleyHS(nPoints, fRef);
-        targetCluster.setTemperature(temperature);
-
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, nPoints, temperature, refCluster, targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, nPoints, 1.0, refCluster, targetCluster);
 //        sim.setRandom(new RandomMersenneTwister(2));
         sim.init();
-
         if (ref == VirialHSParam.CHAINS) {
             sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
             sim.integrators[0].getMoveManager().addMCMove(new MCMoveClusterMoleculeHSChain(sim.getRandom(), space, refDiameter));
@@ -119,20 +126,20 @@ public class VirialPolymerOverlapWithMD {
 //        sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveRotate[1]);
         ((MCMoveStepTracker) sim.mcMoveTranslate[1].getTracker()).setNoisyAdjustment(true);
         ((MCMoveStepTracker) sim.mcMoveRotate[1].getTracker()).setNoisyAdjustment(true);
-//        sim.integrators[1].getMoveManager().setFrequency();
 
-        MCMoveClusterConformationMDTest mcMove = new MCMoveClusterConformationMDTest(sim, space, temperature, f, l, true, true);
-        System.exit(0);
-        MCMoveClusterConformationMDTest mcMove2 = new MCMoveClusterConformationMDTest(sim, space, temperature, f, l, true, false);
-        mcMove2.setConformationsList(mcMove.getConformationsList());
-
+        MCMoveClusterUpdateConformation mcMove = new MCMoveClusterUpdateConformation(sim, space, fileName);
+        MCMoveClusterUpdateConformation mcMove2 = new MCMoveClusterUpdateConformation(sim, space, fileName);
         sim.integrators[0].getMoveManager().addMCMove(mcMove);
         sim.integrators[1].getMoveManager().addMCMove(mcMove2);
+
+//        sim.integrators[0].getMoveManager().setFrequency(mcMove, 100.0);
+//        sim.integrators[1].getMoveManager().setFrequency(mcMove, 100.0);
 
         // Here it defines the box length of every dimension
         double lb = sigmaTranslate * 3 + 2;
         sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{lb, lb, lb}));
         sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{lb, lb, lb}));
+
 
         if (false) {
 
@@ -143,8 +150,6 @@ public class VirialPolymerOverlapWithMD {
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
             displayBox0.setShowBoundary(false);
             displayBox1.setShowBoundary(false);
-            ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
-            ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
             Box refBox = sim.getBox(0);
             Box targetBox = sim.getBox(1);
 
@@ -190,6 +195,7 @@ public class VirialPolymerOverlapWithMD {
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps(steps);
 
+
         sim.getController().actionPerformed();
 
         if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
@@ -202,6 +208,7 @@ public class VirialPolymerOverlapWithMD {
         System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());
 
         sim.printResults(refIntegral);
+//        sim.printResults(Standard.B3HS(11));
 
         double AcceptProbTrans = sim.integrators[0].getMoveManager().getMCMoves().get(0).getTracker().acceptanceProbability();
         double AcceptProbRotate = sim.integrators[0].getMoveManager().getMCMoves().get(1).getTracker().acceptanceProbability();
@@ -218,6 +225,10 @@ public class VirialPolymerOverlapWithMD {
         System.out.print(String.format("Acceptance Probability of McMoveRotate: %f\n", AcceptProbRotate2));
         System.out.print(String.format("Acceptance Probability of McMoveConf: %f\n", AcceptProbConf2));
         System.out.println();
+        MeterRadiusGyration meter = new MeterRadiusGyration(sim.getSpace());
+        meter.setBox(sim.getBox(1));
+        System.out.println(String.format("Squared Radius of Gyration: %.8f\n", meter.getDataAsScalar()));
+
         System.out.println("time: " + (t2 - t1) / 1000.0);
     }
 
@@ -225,33 +236,13 @@ public class VirialPolymerOverlapWithMD {
      * Inner class for parameters
      */
     public static class VirialHSParam extends ParameterBase {
-        public int nPoints = 3;
+        public int nPoints = 10;
         public long numSteps = 100000000;
         public static final int TREE = 0, CHAINS = 1;
-        public int ref = CHAINS;
+        public int ref = TREE;
         public double chainFrac = 1;
-        public int fv = 5;
-        public int lv = 40;
-    }
-
-    public static String getSplitGraphString(Set<Graph> gSplit, VirialDiagrams flexDiagrams, boolean correction) {
-        DeleteEdge edgeDeleter = new DeleteEdge();
-        DeleteEdgeParameters ede = new DeleteEdgeParameters(flexDiagrams.eBond);
-        boolean first = true;
-        String str = "";
-        for (Graph gs : gSplit) {
-            if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.efbcBond)) {
-                str += " " + gs.nodeCount() + "bc";
-            } else {
-                str += " " + gs.getStore().toNumberString();
-                if (VirialDiagrams.graphHasEdgeColor(gs, flexDiagrams.eBond)) {
-                    str += "p" + edgeDeleter.apply(gs, ede).getStore().toNumberString();
-                }
-            }
-            if (first && correction) str += "c";
-            first = false;
-        }
-        return str;
+        public double ringFrac = 0.5;
+        public int nPtsTabulated = 0;
     }
 
 }
