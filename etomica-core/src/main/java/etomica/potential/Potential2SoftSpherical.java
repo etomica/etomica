@@ -22,7 +22,6 @@ import java.util.Arrays;
  */
  
 public abstract class Potential2SoftSpherical extends Potential2 implements Potential2Soft {
-    private final Vector[] ZEROS = new Vector[2];
 
     public Potential2SoftSpherical(Space space) {
         super(space);
@@ -30,8 +29,6 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         dr = space.makeVector();
-        ZEROS[0] = space.makeVector();
-        ZEROS[1] = ZEROS[0];
     }
         
     /**
@@ -92,7 +89,9 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         double r2 = dr.squared();
         double du = du(r2);
         if (du == 0) {
-            return ZEROS;
+            gradient[0].E(0.0);
+            gradient[1].E(0.0);
+            return gradient;
         }
         gradient[1].Ea1Tv1(du/r2,dr);
         gradient[0].Ea1Tv1(-1,gradient[1]);
@@ -105,7 +104,9 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         double r2 = dr.squared();
         double du = du(r2);
         if (du == 0) {
-            return ZEROS;
+            gradient[0].E(0.0);
+            gradient[1].E(0.0);
+            return gradient;
         }
         gradient[1].Ea1Tv1(du/r2,dr);
         gradient[0].Ea1Tv1(-1,gradient[1]);
