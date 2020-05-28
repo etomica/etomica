@@ -26,5 +26,7 @@ jobs:
         java-version: 11
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
+    - name: Build and test with Gradle
+        uses: GabrielBB/xvfb-action@v1.0
+        with:
+          run: ./gradlew build
