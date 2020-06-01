@@ -102,7 +102,7 @@ public class SpeciesGeneral implements ISpecies {
                 return type;
             }
         }
-        throw new IllegalArgumentException("Type not found");
+        throw new IllegalArgumentException("Type not found: " + typeName);
     }
 
     @Override

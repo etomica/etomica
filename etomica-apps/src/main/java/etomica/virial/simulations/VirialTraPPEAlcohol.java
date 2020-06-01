@@ -20,6 +20,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.virial.*;
@@ -164,10 +165,11 @@ public class VirialTraPPEAlcohol {
         	potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
         }
         else {*/
-        final SimulationVirialOverlap2 sim;
-        sim = new SimulationVirialOverlap2(space, new SpeciesMethanol(space),
+
+        	final SimulationVirialOverlap2 sim;
+        sim = new SimulationVirialOverlap2(space, SpeciesMethanol.create(),
                 temperature, refCluster, targetCluster, true); //use first constructor; no need for intramolecular movement MC trial
-        SpeciesMethanol species = (SpeciesMethanol) sim.getSpecies(0);
+        SpeciesGeneral species = (SpeciesGeneral) sim.getSpecies(0);
         MethanolPotentialHelper.initPotential(space, species, U_a_b);
         //potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
 
@@ -265,9 +267,9 @@ public class VirialTraPPEAlcohol {
             //SpeciesMethanol species = (SpeciesMethanol)sim.species;
 
             // Create instances of the types of molecular sites
-            AtomType typeCH3 = species.getCH3Type();
-            AtomType typeO = species.getOType();
-            AtomType typeH = species.getHType();
+            AtomType typeCH3 = species.getTypeByName("CH3");
+            AtomType typeO = species.getTypeByName("O");
+            AtomType typeH = species.getTypeByName("H");
 
             // Set color of each site type for each simulation
 

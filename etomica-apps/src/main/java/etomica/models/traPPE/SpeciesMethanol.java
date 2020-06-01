@@ -4,71 +4,43 @@
 
 package etomica.models.traPPE;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.molecule.IMolecule;
-import etomica.molecule.Molecule;
-import etomica.space.Space;
-import etomica.species.Species;
+import etomica.space.Vector;
+import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Species for methanol with satellite site (Rowley et al 2006).
  */
-public class SpeciesMethanol extends Species {
+public class SpeciesMethanol {
 
-    public final static int indexCH3 = 0;
-    public final static int indexO = 1;
-    public final static int indexH = 2;
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final AtomType cH3Type, oType, hType;
-    
-    public SpeciesMethanol(Space space) {
-
-        super();
-
-        this.space = space;
-
-        cH3Type = new AtomType(new ElementSimple("cH3", 1.0)); // diameter taken to be CH3-CH3 equilibrium LJ distance
-        oType = new AtomType(Oxygen.INSTANCE); // diameter taken to be O-O equilibrium LJ distance
-        hType = new AtomType(Hydrogen.INSTANCE); // H-H equilibrium distance is not applicable
-
-        addChildType(cH3Type);
-        addChildType(oType);
-        addChildType(hType);
-
-        // The satellite site, X, is closer to the oxygen atom in the model with point charges.
-        setConformation(new ConformationMethanol(space));
+     public static SpeciesGeneral create() {
+        return create(false);
      }
 
-     public IMolecule makeMolecule() {
-         Molecule methanol = new Molecule(this, 3);
+     public static SpeciesGeneral create(boolean isDynamic) {
 
-         // The order in which the child atoms are added is important; it must match the site indices.
-         methanol.addChildAtom(new Atom(space, cH3Type));
-         methanol.addChildAtom(new Atom(space, oType));
-         methanol.addChildAtom(new Atom(space, hType));
+         double bondCH3O = 1.43; // Angstroms
+         double bondOH = 0.945; // Angstroms  (Chen et al report 0.945 Angstroms..., the website says 0.95 Angstroms)
+         double angleEq = 108.50*Math.PI/180; // equilibrium bond angle in radians (mcWiggle will change this appropriately)
 
-         conformation.initializePositions(methanol.getChildList());
-         return methanol;
-     }
+         Vector cH3 = Vector.of(bondCH3O, 0, 0);
+         Vector oxygen = Vector.of(0, 0, 0);
+         Vector hydrogren = Vector.of(bondOH*Math.cos(angleEq), bondOH*Math.sin(angleEq), 0.0);
 
-    public AtomType getCH3Type() {
-         return cH3Type;
-     }
+         AtomType cH3Type = new AtomType(new ElementSimple("CH3", 1.0)); // diameter taken to be CH3-CH3 equilibrium LJ distance
+         AtomType oType = new AtomType(Oxygen.INSTANCE); // diameter taken to be O-O equilibrium LJ distance
+         AtomType hType = new AtomType(Hydrogen.INSTANCE); // H-H equilibrium distance is not applicable
 
-    public AtomType getOType() {
-         return oType;
-     }
-
-    public AtomType getHType() {
-         return hType;
-     }
-
-     public int getNumLeafAtoms() {
-         return 3;
+         return new SpeciesBuilder(Space3D.getInstance())
+                 .addAtom(cH3Type, cH3, "CH3")
+                 .addAtom(oType, oxygen, "O")
+                 .addAtom(hType, hydrogren, "H")
+                 .setDynamic(isDynamic)
+                 .build();
      }
 }
