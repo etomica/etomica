@@ -9,6 +9,7 @@ import etomica.box.Box;
 import etomica.meta.annotations.IgnoreProperty;
 import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMaster;
+import etomica.space.Vector;
 
 import java.util.List;
 
