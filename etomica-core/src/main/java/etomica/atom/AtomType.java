@@ -11,6 +11,8 @@ import etomica.species.ISpecies;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Mass;
 
+import java.util.StringJoiner;
+
 /**
  * Identifies a set of atoms and defines properties of those atoms. Properties include indices used for tracking, mass
  * and element.
@@ -95,5 +97,10 @@ public class AtomType {
      */
     public final IElement getElement() {
         return element;
+    }
+
+    @Override
+    public String toString() {
+        return AtomType.class.getSimpleName() + "[" + this.element.getSymbol() + "]";
     }
 }
