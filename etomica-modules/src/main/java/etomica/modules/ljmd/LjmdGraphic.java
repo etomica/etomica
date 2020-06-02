@@ -15,9 +15,9 @@ import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataTensor;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -282,7 +282,6 @@ public class LjmdGraphic extends SimulationGraphic {
 		        mbDistribution.setTemperature(temperatureSelect.getTemperature());
 		        mbSource.update();
 		        vPlot.doUpdate();
-		        vPlot.repaint();
 		    }
 		};
 
@@ -301,19 +300,15 @@ public class LjmdGraphic extends SimulationGraphic {
                 // Reset density (Density is set and won't change, but
         		// do this anyway)
         		densityPump.actionPerformed();
-        		densityBox.repaint();
 
         		// Reset temperature (THIS IS NOT WORKING)
                 temperaturePump.actionPerformed();
 //                tBox.putData(temperatureHistory.getData());
-                tBox.repaint();
 
                 // IS THIS WORKING?
                 pPump.actionPerformed();
                 pDisplay.putData(pAccumulator.getData());
-                pDisplay.repaint();
                 peDisplay.putData(peAccumulator.getData());
-                peDisplay.repaint();
 
         		getDisplayBox(sim.box).graphic().repaint();
         	}

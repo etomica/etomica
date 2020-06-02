@@ -147,9 +147,9 @@ public class DeviceThermoSelector extends Device {
      * Returns the GUI element for display in the simulation.
      * Consists of a combo box used for the selector.
      */
-    public java.awt.Component graphic(Object obj) {
+    public java.awt.Component graphic() {
         return panel;
-       // return selector;
+        // return selector;
     }
     
     private javax.swing.JComboBox selector;

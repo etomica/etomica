@@ -138,15 +138,12 @@ public class LJMCGraphic extends SimulationGraphic {
         		// do this anyway)
         		dPump.actionPerformed();
         		dDisplay.putData(dAccumulator.getData());
-                dDisplay.repaint();
 
                 // IS THIS WORKING?
                 pPump.actionPerformed();
                 pDisplay.putData(pAccumulator.getData());
-                pDisplay.repaint();
                 pePump.actionPerformed();
                 peDisplay.putData(peAccumulator.getData());
-                peDisplay.repaint();
 
         		getDisplayBox(sim.box).graphic().repaint();
         	}

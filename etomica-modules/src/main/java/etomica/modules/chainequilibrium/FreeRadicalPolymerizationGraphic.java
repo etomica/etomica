@@ -319,8 +319,8 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
             }
         });
         conversionPanel.add(conversionHistoryLength.graphic(),vertGBC);
-        
-        getPanel().tabbedPane.add("Conversion" , conversionPanel);
+
+        getPanel().tabbedPane.add("Conversion", conversionPanel);
 
         JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
         JPanel epsilonSliders = new JPanel(new java.awt.GridBagLayout());
@@ -329,8 +329,8 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         speciesEditors.add(nSliderA.graphic());
         speciesEditors.add(nSliderB.graphic());
 
-        epsilonSliders.add(AASlider.graphic(null), vertGBC);
-        epsilonSliders.add(BSlider.graphic(null), vertGBC);
+        epsilonSliders.add(AASlider.graphic(), vertGBC);
+        epsilonSliders.add(BSlider.graphic(), vertGBC);
         epsilonSliders.add(solventThermoFrac.graphic(), vertGBC);
         epsilonSliders.add(combinationProbabilityBox.graphic(), vertGBC);
 
@@ -338,7 +338,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         if (space.D() == 3) {
             controls.add(atomFilterButton.graphic(), vertGBC);
         }
-        
+
         final JTabbedPane sliderPanel = new JTabbedPane();
         //panel for all the controls
         getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);

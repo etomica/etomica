@@ -498,7 +498,6 @@ public class MuGraphic extends SimulationGraphic {
         		getDisplayBox(sim.box).graphic().repaint();
         		
         		displayCycles.putData(meterCycles.getData());
-        		displayCycles.repaint();
         	}
         };
 

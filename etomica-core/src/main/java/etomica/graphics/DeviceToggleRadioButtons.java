@@ -4,19 +4,18 @@
 
 //This class includes a main method to demonstrate its use
 package etomica.graphics;
-import javax.swing.ButtonGroup;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 
 import etomica.modifier.ModifierBoolean;
 
+import javax.swing.*;
+
 /**
- * Button that toggles a boolean value using a pair of radio buttons.  
+ * Button that toggles a boolean value using a pair of radio buttons.
  * This device can connect to any object
- * capable of switching between two states.  The device operates through a 
+ * capable of switching between two states.  The device operates through a
  * ModifierBoolean instance that must be connected to the state of the
  * controlled object.
- * 
+ *
  * @author David Kofke
  */
 public class DeviceToggleRadioButtons extends Device {
@@ -93,10 +92,10 @@ public class DeviceToggleRadioButtons extends Device {
     /**
      * Returns the GUI button element for display in the simulation.
      */
-    public java.awt.Component graphic(Object obj) {
+    public java.awt.Component graphic() {
         return panel;
     }
-    
+
     public void setTitle(String text) {
         panel.setBorder(new javax.swing.border.TitledBorder(text));
     }

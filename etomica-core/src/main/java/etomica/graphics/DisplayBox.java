@@ -471,14 +471,13 @@ public class DisplayBox extends Display {
     public LinkedList getDrawables() {return(drawables);}
     
 
-    /** 
+    /**
      * Simulation.GraphicalElement interface method.  Overrides Display method
      * to return the DisplayBox.Canvas as the display object.
      *
-     * @param obj ignored by this method.
      * @return Component
      */
-    public Component graphic(Object obj) {
+    public Component graphic() {
         return canvas;
     }
 

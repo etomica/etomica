@@ -468,19 +468,16 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
 
         		// Reset temperature (THIS IS NOT WORKING)
                 temperaturePump.actionPerformed();
-                tBox.repaint();
 
                 // IS THIS WORKING?
 //                pPump.actionPerformed();
 //                pDisplay.putData(pAccumulator.getData());
 //                pDisplay.repaint();
                 peDisplay.putData(peAccumulator.getData());
-                peDisplay.repaint();
 
         		getDisplayBox(sim.box).graphic().repaint();
         		
         		displayCycles.putData(meterCycles.getData());
-        		displayCycles.repaint();
         	}
         };
 

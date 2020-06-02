@@ -17,8 +17,8 @@ import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
-import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorMD;
 import etomica.math.DoubleRange;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
@@ -410,7 +410,6 @@ public class SwmdGraphic extends SimulationGraphic {
 		        mbDistribution.setTemperature(tUnit.toSim(tempSlider.getTemperature()));
 		        mbSource.update();
 		        vPlot.doUpdate();
-		        vPlot.repaint();
 		    }
 		};
 		tempSlider.setSliderPostAction(temperatureAction);
@@ -433,24 +432,19 @@ public class SwmdGraphic extends SimulationGraphic {
         	    // Reset density (Density is set and won't change, but
         		// do this anyway)
         		densityPump.actionPerformed();
-        		densityBox.repaint();
 
         		// Reset temperature (THIS IS NOT WORKING)
                 temperaturePump.actionPerformed();
                 tBox.putData(temperatureAverage.getData());
-                tBox.repaint();
 
                 // IS THIS WORKING?
                 pPump.actionPerformed();
                 pDisplay.putData(pAccumulator.getData());
-                pDisplay.repaint();
                 peDisplay.putData(peAccumulator.getData());
-                peDisplay.repaint();
 
         		getDisplayBox(sim.box).graphic().repaint();
         		
         		displayCycles.putData(meterCycles.getData());
-        		displayCycles.repaint();
         	}
         };
 

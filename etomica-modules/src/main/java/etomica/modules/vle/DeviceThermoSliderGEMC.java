@@ -207,8 +207,8 @@ public class DeviceThermoSliderGEMC extends Device {
     /**
      * @return The panel that holds all graphical objects for the DeviceThermoSlider.
      */
-    public Component graphic(Object obj) {
-    	return temperaturePanel;
+    public Component graphic() {
+        return temperaturePanel;
     }
 
 	/**

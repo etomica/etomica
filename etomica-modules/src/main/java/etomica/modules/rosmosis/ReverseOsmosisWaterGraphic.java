@@ -24,8 +24,8 @@ import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.*;
-import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.*;
 import etomica.units.systems.MKS;
 import etomica.util.Constants.CompassDirection;
 
@@ -517,19 +517,16 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
 
         		// Reset temperature (THIS IS NOT WORKING)
                 temperaturePump.actionPerformed();
-                tBox.repaint();
 
                 // IS THIS WORKING?
 //                pPump.actionPerformed();
 //                pDisplay.putData(pAccumulator.getData());
 //                pDisplay.repaint();
                 peDisplay.putData(peAccumulator.getData());
-                peDisplay.repaint();
 
         		getDisplayBox(sim.box).graphic().repaint();
         		
         		displayCycles.putData(meterCycles.getData());
-        		displayCycles.repaint();
         	}
         };
 

@@ -110,7 +110,9 @@ public class DeviceBox extends Device implements javax.swing.event.ChangeListene
         setLabel(labelString);
     }
     
-    public java.awt.Component graphic(Object obj) {return panel;}
+    public java.awt.Component graphic() {
+        return panel;
+    }
     
     /**
      * Accessor method of the precision, which specifies the number of significant figures to be displayed.

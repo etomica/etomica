@@ -356,7 +356,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         speciesEditors.add(nDiAcidBox.graphic());
         speciesEditors.add(nCrossLinkerBox.graphic());
 
-        epsilonSliders.add(ABSlider.graphic(null), vertGBC);
+        epsilonSliders.add(ABSlider.graphic(), vertGBC);
 //        epsilonSliders.add(ACSlider.graphic(null), vertGBC);
         epsilonSliders.add(solventThermoFrac.graphic(), vertGBC);
 

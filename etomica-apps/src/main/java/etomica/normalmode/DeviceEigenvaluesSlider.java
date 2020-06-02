@@ -4,18 +4,6 @@
 
       package etomica.normalmode;
 
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeListener;
-
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
 import etomica.graphics.Device;
@@ -25,15 +13,21 @@ import etomica.modifier.Modifier;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
 
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 
 /**
  * @author taitan
- *
  */
 public class DeviceEigenvaluesSlider extends Device {
 
-	private JPanel        eValNumPanel;  // main panel for eigenvalues # device PRIVATE
-	private DeviceSlider  eValNumSlider; // Do not make accessible
+	private JPanel eValNumPanel;  // main panel for eigenvalues # device PRIVATE
+	private DeviceSlider eValNumSlider; // Do not make accessible
 	private JRadioButton  buttonAllEVal;   // Do not make accessible
 	private JRadioButton  buttonOneEVal;  // Do not make accessible
 	protected IntegratorHarmonic integrator;
@@ -206,11 +200,11 @@ public class DeviceEigenvaluesSlider extends Device {
     }
 
     /**
-     * @return The panel that holds all graphical objects for the DeviceEigenvaluesSlider.
-     */
-    public Component graphic(Object obj) {
-    	return eValNumPanel;
-    }
+	 * @return The panel that holds all graphical objects for the DeviceEigenvaluesSlider.
+	 */
+	public Component graphic() {
+		return eValNumPanel;
+	}
 
 
 	/**

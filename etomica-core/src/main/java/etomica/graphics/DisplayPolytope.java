@@ -3,27 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.Component;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 
 import etomica.action.IAction;
+import etomica.math.geometry.*;
 import etomica.space.Vector;
-import etomica.math.geometry.Cuboid;
-import etomica.math.geometry.LineSegment;
-import etomica.math.geometry.Parallelepiped;
-import etomica.math.geometry.PolygonGeneral;
-import etomica.math.geometry.Polytope;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.units.Pixel;
 
+import java.awt.*;
+import java.awt.event.*;
+
 /**
- * Displays a picture of a polytope.  
+ * Displays a picture of a polytope.
  * Instantiates a DisplayCanvas for most of the work.
  * DisplayPolytope is an input event (mouse and key) listener of the canvas.
  *
@@ -202,13 +195,12 @@ public class DisplayPolytope extends Display implements IAction {
         canvas.addKeyListener(listener);
     }
     
-    /** 
+    /**
      * Simulation.GraphicalElement interface method.  Overrides Display method
      * to return the DisplayBox.Canvas as the display object.
      *
-     * @param obj ignored by this method.
      */
-    public Component graphic(Object obj) {
+    public Component graphic() {
         return canvas;
     }
 

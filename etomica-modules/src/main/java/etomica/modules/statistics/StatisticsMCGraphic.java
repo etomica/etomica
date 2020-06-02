@@ -168,14 +168,11 @@ public class StatisticsMCGraphic extends SimulationGraphic {
                     dPump.actionPerformed();
 
                     dDisplay.putData(dHPB.avg.getData());
-                    dDisplay.repaint();
 
                     pPump.actionPerformed();
                     pDisplay.putData(pHPB.avg.getData());
-                    pDisplay.repaint();
                     pePump.actionPerformed();
                     peDisplay.putData(peHPB.avg.getData());
-                    peDisplay.repaint();
                 }
             };
             add(dDisplay);

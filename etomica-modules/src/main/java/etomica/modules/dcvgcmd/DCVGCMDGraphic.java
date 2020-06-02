@@ -160,27 +160,27 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    ColorSchemeByType colorScheme = (ColorSchemeByType)(getDisplayBox(sim.box).getColorScheme());
 		colorScheme.setColor(sim.species1.getLeafType(), speciesColors[0]);
 		colorScheme.setColor(sim.species2.getLeafType(), speciesColors[1]);
-		colorScheme.setColor(sim.speciesTube.getAtomType(0),java.awt.Color.cyan);
+        colorScheme.setColor(sim.speciesTube.getAtomType(0), java.awt.Color.cyan);
 
-		DiameterHashByType diameterHash = (DiameterHashByType)getDisplayBox(sim.box).getDiameterHash();
-		diameterHash.setDiameter(sim.species1.getLeafType(), 3.0);
+        DiameterHashByType diameterHash = (DiameterHashByType) getDisplayBox(sim.box).getDiameterHash();
+        diameterHash.setDiameter(sim.species1.getLeafType(), 3.0);
         diameterHash.setDiameter(sim.species2.getLeafType(), 3.0);
         diameterHash.setDiameter(sim.speciesTube.getLeafType(), 3.0);
 
-	    //panel for Mu's
-		JPanel muPanel = new JPanel(new java.awt.GridBagLayout());
-	    muPanel.setBorder(new TitledBorder(null, "Mu1 and Mu2", TitledBorder.CENTER, TitledBorder.TOP));
-		muPanel.add(mu1Slider.graphic(null),vertGBC);
-		muPanel.add(mu2Slider.graphic(null),vertGBC);
-	
-		add(getController());
-		add(cutawayButton);
-		add(boxA);
-		add(boxB);
-		add(temperatureSlider);
-	    getPanel().controlPanel.add(muPanel,vertGBC);
-	    //panel for the temperature control/display
-		add(box1);
+        //panel for Mu's
+        JPanel muPanel = new JPanel(new java.awt.GridBagLayout());
+        muPanel.setBorder(new TitledBorder(null, "Mu1 and Mu2", TitledBorder.CENTER, TitledBorder.TOP));
+        muPanel.add(mu1Slider.graphic(), vertGBC);
+        muPanel.add(mu2Slider.graphic(), vertGBC);
+
+        add(getController());
+        add(cutawayButton);
+        add(boxA);
+        add(boxB);
+        add(temperatureSlider);
+        getPanel().controlPanel.add(muPanel, vertGBC);
+        //panel for the temperature control/display
+        add(box1);
 
 		
 	    SimulationRestart simRestart = (SimulationRestart)getController().getReinitButton().getAction();

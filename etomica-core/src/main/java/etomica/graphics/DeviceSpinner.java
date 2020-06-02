@@ -4,16 +4,6 @@
 
 package etomica.graphics;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
 import etomica.modifier.Modifier;
@@ -23,12 +13,17 @@ import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
 import etomica.util.Strings;
 
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+
 /**
  * Device the changes a property using a graphical spinner, via a Modifier.
  *
- * @see ModifierGeneral
- * 
  * @author Andrew Schultz
+ * @see ModifierGeneral
  */
 public class DeviceSpinner extends Device {
     
@@ -196,10 +191,10 @@ public class DeviceSpinner extends Device {
     /**
      * Returns the GUI element for display in the simulation.
      */
-    public java.awt.Component graphic(Object obj) {
+    public java.awt.Component graphic() {
         return panel;
     }
-    
+
     /**
      * Sets the value of a descriptive label using the meter's label and the unit's symbol (abbreviation).
      */

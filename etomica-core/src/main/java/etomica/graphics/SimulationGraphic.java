@@ -11,8 +11,8 @@ import etomica.box.Box;
 import etomica.graphics.DisplayPlot.PopupListener;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorManagerMC;
 import etomica.simulation.Simulation;
 import etomica.simulation.SimulationContainer;
 import etomica.simulation.prototypes.HSMD2D;
@@ -224,7 +224,7 @@ public class SimulationGraphic implements SimulationContainer {
     }
 
     public void add(final Display display) {
-        final Component component = display.graphic(null);
+        final Component component = display.graphic();
         if (component == null) return; //display is not graphic
 
         if (display instanceof DisplayTextBox || display instanceof DisplayTextBoxesCAE) {
@@ -336,7 +336,7 @@ public class SimulationGraphic implements SimulationContainer {
     }
 
     public void remove(Display display) {
-        final Component component = display.graphic(null);
+        final Component component = display.graphic();
         if (component == null) return; //display is not graphic
         if (display instanceof DisplayTextBox || display instanceof DisplayTextBoxesCAE) {
             if (this.graphicType == GRAPHIC_ONLY) {
@@ -363,7 +363,7 @@ public class SimulationGraphic implements SimulationContainer {
      * Adds displays graphic to the simulation display pane
      */
     public void add(Device device) {
-        Component component = device.graphic(null);
+        Component component = device.graphic();
         if (device instanceof DeviceTable) {
             if (this.graphicType == GRAPHIC_ONLY) {
                 getPanel().graphicsPanel.add(component);
@@ -381,7 +381,7 @@ public class SimulationGraphic implements SimulationContainer {
     }
 
     public void remove(Device device) {
-        final Component component = device.graphic(null);
+        final Component component = device.graphic();
         if (component == null) return; //display is not graphic
         if (device instanceof DeviceTable) {
             if (this.graphicType == GRAPHIC_ONLY) {

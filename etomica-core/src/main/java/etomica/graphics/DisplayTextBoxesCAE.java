@@ -134,9 +134,9 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
         return accumulatorAverage;
     }
 
-	public Component graphic(Object obj){
+    public Component graphic() {
         return panelParentGroup;
-	}
+    }
 
     /**
      * Accessor method of the precision, which specifies the number of significant figures to be displayed.

@@ -17,9 +17,9 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTensor;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modules.interfacial.DataSourceTensorVirialHardProfile.DataSourceVirialProfile;
 import etomica.molecule.IMolecule;
@@ -664,21 +664,17 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 // Reset density (Density is set and won't change, but
                 // do this anyway)
                 densityPump.actionPerformed();
-                densityBox.repaint();
 
                 // Reset temperature (THIS IS NOT WORKING)
                 temperaturePump.actionPerformed();
 //                tBox.putData(temperatureHistory.getData());
-                tBox.repaint();
 
                 // IS THIS WORKING?
                 pPump.actionPerformed();
                 for (int i=0; i<space.D(); i++) {
                     pDisplay[i].putData(pAccumulator[i].getData());
-                    pDisplay[i].repaint();
                 }
                 peDisplay.putData(peAccumulator.getData());
-                peDisplay.repaint();
 
                 getDisplayBox(sim.box).graphic().repaint();
 

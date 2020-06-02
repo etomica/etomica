@@ -18,8 +18,8 @@ import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.graphics.DeviceBox.LabelType;
-import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorMD;
 import etomica.math.function.Function;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
@@ -784,18 +784,14 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 catch (ConfigurationOverlapException e) {}
 
                 densityDisplayTextBox.putData(densityAvg.getData());
-                densityDisplayTextBox.repaint();
 
                 temperatureDisplayTextBox.putData(temperatureAvg.getData());
-                temperatureDisplayTextBox.repaint();
 
                 pressureDisplayTextBox.putData(pressureAvg.getData());
-                pressureDisplayTextBox.repaint();
-                
+
                 displayBox.repaint();
                 
                 displayCycles.putData(meterCycles.getData());
-                displayCycles.repaint();
             }
         });
         

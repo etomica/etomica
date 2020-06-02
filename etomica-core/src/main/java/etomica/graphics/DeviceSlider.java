@@ -394,7 +394,7 @@ public class DeviceSlider extends Device {
     /**
      * Returns the GUI element for display in the simulation.
      */
-    public java.awt.Component graphic(Object obj) {
+    public java.awt.Component graphic() {
 //        if(showValues){ return panel;
 //        } else {return slider;}
         return panel;

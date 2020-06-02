@@ -264,19 +264,15 @@ public class NucleationGraphic extends SimulationGraphic {
 
                 temperaturePump.actionPerformed();
                 tBox.putData(temperatureAverage.getData());
-                tBox.repaint();
 
                 pMeter.reset();
                 pPump.actionPerformed();
                 pDisplay.putData(pAccumulator.getData());
-                pDisplay.repaint();
                 peDisplay.putData(peAccumulator.getData());
-                peDisplay.repaint();
 
                 getDisplayBox(sim.box).graphic().repaint();
 
                 displayCycles.putData(meterCycles.getData());
-                displayCycles.repaint();
             }
         };
 

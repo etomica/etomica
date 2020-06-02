@@ -4,13 +4,6 @@
 
 package etomica.graphics;
 
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
-
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
 import etomica.integrator.IntegratorBox;
@@ -19,12 +12,16 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.Unit;
 
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+
 
 public class DeviceThermoSlider extends Device {
 
-	protected final JPanel        temperaturePanel;  // main panel for thermo device PRIVATE
-	protected final DeviceSlider  temperatureSlider; // Do not make make accessible
-    protected final DeviceButtonGroup thermalButtons;
+	protected final JPanel temperaturePanel;  // main panel for thermo device PRIVATE
+	protected final DeviceSlider temperatureSlider; // Do not make make accessible
+	protected final DeviceButtonGroup thermalButtons;
 
 	protected static final int DEFAULT_MIN_TEMPERATURE = 0;
 	protected static final int DEFAULT_MAX_TEMPERATURE = 300;
@@ -177,12 +174,12 @@ public class DeviceThermoSlider extends Device {
         temperatureSlider.setNMinor(minor);
     }
 
-    /**
-     * @return The panel that holds all graphical objects for the DeviceThermoSlider.
-     */
-    public Component graphic(Object obj) {
-    	return temperaturePanel;
-    }
+	/**
+	 * @return The panel that holds all graphical objects for the DeviceThermoSlider.
+	 */
+	public Component graphic() {
+		return temperaturePanel;
+	}
 
 	/**
 	 * Set the unit of temperature.
