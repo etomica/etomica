@@ -1,5 +1,7 @@
 package etomica.modules;
 
+import etomica.graphics.SimulationGraphic;
+
 import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
@@ -64,6 +66,7 @@ public class ModuleLauncher extends JPanel {
     }
 
     private static void createGUI() {
+        SimulationGraphic.initTheme();
         JFrame frame = new JFrame("Etomica Module Launcher");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
