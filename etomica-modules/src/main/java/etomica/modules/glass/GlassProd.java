@@ -243,6 +243,7 @@ public class GlassProd {
         dsMSDcorP.setEnabled(true);
 
         //VAC
+        configStorageMSD.setDoVelocity(true);
         DataSourceVAC meterVAC = new DataSourceVAC(configStorageMSD);
         configStorageMSD.addListener(meterVAC);
 

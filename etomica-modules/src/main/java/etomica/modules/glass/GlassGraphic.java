@@ -1383,6 +1383,7 @@ public class GlassGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(pumpMSDB);
 
         //VAC
+        configStorage.setDoVelocity(true);
         DataSourceVAC meterVAC = new DataSourceVAC(configStorage);
         configStorage.addListener(meterVAC);
         DisplayPlot plotVAC = new DisplayPlot();
