@@ -54,6 +54,7 @@ project(':etomica-core') {
         compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
         compile 'com.github.therapi:therapi-runtime-javadoc:0.2.1'
         compile "io.github.lukehutch:fast-classpath-scanner:2.9.4"
+        compile "org.knowm.xchart:xchart:3.6.3"
 
         compile files("$rootProject.projectDir/libs/ptolemy.jar")
 
