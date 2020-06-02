@@ -4,6 +4,7 @@
 
 package etomica.graphics;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
@@ -51,7 +52,7 @@ public class SimulationGraphic implements SimulationContainer {
 
     public static void initGraphics() {
         try {
-            javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+            FlatLightLaf.install();
         } catch (Exception e) {
         }
     }
