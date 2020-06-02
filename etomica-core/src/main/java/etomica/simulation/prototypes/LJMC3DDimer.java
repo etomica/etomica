@@ -17,6 +17,7 @@ import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressureMolecular;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayPlot;
+import etomica.graphics.DisplayPlotXChart;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
@@ -202,6 +203,13 @@ public class LJMC3DDimer extends Simulation {
             accPE.setDataSink(historyPE.getDataSet().makeDataSink());
             historyPE.setLabel("PE");
             graphic.add(historyPE);
+
+            // TODO
+            DisplayPlotXChart historyPE2 = new DisplayPlotXChart();
+            accPE.addDataSink(historyPE2.getDataSet().makeDataSink());
+            historyPE2.setLabel("PE (XChart)");
+            graphic.add(historyPE2);
+
 
             DisplayTextBoxesCAE displayP = new DisplayTextBoxesCAE();
             displayP.setAccumulator(accp);
