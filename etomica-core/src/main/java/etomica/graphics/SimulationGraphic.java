@@ -53,6 +53,8 @@ public class SimulationGraphic implements SimulationContainer {
     public static void initGraphics() {
         try {
             FlatLightLaf.install();
+            UIManager.put("Table.showHorizontalLines", true);
+            UIManager.put("Table.showVerticalLines", true);
         } catch (Exception e) {
         }
     }
