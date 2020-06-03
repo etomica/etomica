@@ -105,7 +105,6 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         sigmaP = (sigmaP == 0) ? 1 : sigmaP;
         xP = baseXP - (sigmaP>>1);
         yP = baseYP - (sigmaP>>1);
-        //g.fillOval(xP, yP, sigmaP, sigmaP);
         /* Draw the orientation line, if any */
         if(drawOrientation) {
             Vector dir = ((IAtomOriented)a).getOrientation().getDirection();
@@ -120,6 +119,8 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             g.setColor(Color.black);
             g.drawLine(xP, yP, xP - dx/2, yP - dy/2);
             g.fillOval(xP-dx/2-sigmaP/2, yP-dy/2-sigmaP/2, sigmaP, sigmaP);
+        } else {
+            g.fillOval(xP, yP, sigmaP, sigmaP);
         }
     }
 
