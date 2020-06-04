@@ -80,6 +80,18 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
         this.plot.setYAxisTitle(label);
     }
 
+    public void setXLog(boolean log) {
+        this.plot.getStyler().setXAxisLogarithmic(log);
+    }
+
+    public void setYLog(boolean log) {
+        this.plot.getStyler().setYAxisLogarithmic(log);
+    }
+
+    public void setDoLegend(boolean legend) {
+        this.plot.getStyler().setLegendVisible(legend);
+    }
+
     public XYChart getPlot() {
         return this.plot;
     }
@@ -124,13 +136,22 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
                 Unit yUnit = this.unitMap.computeIfAbsent(seriesName, name -> {
                     return this.defaultUnit == null ? dataInfo.getDimension().getUnit(UnitSystem.SIM) : defaultUnit;
                 });
-                double[] xValues = dataInfo.getXDataSource().getIndependentData(0).getData();
-                xValues = Arrays.stream(xValues).map(x -> this.xUnit.fromSim(x)).toArray();
                 double[] data = ((DataFunction)dataSet.getData(i)).getData();
-                data = Arrays.stream(data).map(yUnit::fromSim).toArray();
+                double[] xValues = dataInfo.getXDataSource().getIndependentData(0).getData();
+
+                ArrayList<Double> filteredData = new ArrayList<>(data.length);
+                ArrayList<Double> filteredXValues = new ArrayList<>(xValues.length);
+                IntStream.range(0, xValues.length)
+                        .filter(idx -> !Double.isNaN(yUnit.fromSim(data[idx])))
+                        .forEach(idx -> {
+                            filteredData.add(data[idx]);
+                            filteredXValues.add(xValues[idx]);
+                        });
+
+
 
                 XYSeries series = this.series.get(i);
-                this.plot.updateXYSeries(series.getName(), xValues, data, null);
+                this.plot.updateXYSeries(series.getName(), filteredXValues, filteredData, null);
             }
         }
         if (this.panel.isShowing()) {
