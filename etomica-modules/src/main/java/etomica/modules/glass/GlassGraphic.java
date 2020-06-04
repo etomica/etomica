@@ -535,13 +535,13 @@ public class GlassGraphic extends SimulationGraphic {
         }
 
 
-        DisplayPlot plotPTensorAccum = new DisplayPlot();
+        DisplayPlotXChart plotPTensorAccum = new DisplayPlotXChart();
         plotPTensorAccum.setLabel("viscosity(t)");
         plotPTensorAccum.setDoLegend(false);
-        plotPTensorAccum.getPlot().setXLog(true);
-        plotPTensorAccum.getPlot().setYLog(true);
+        plotPTensorAccum.setXLog(true);
+        plotPTensorAccum.setYLog(true);
         add(plotPTensorAccum);
-        DataPumpListener pTensorAccumPump = new DataPumpListener(pTensorAccum, plotPTensorAccum.getDataSet().makeDataSink(), 1000);
+        DataPumpListener pTensorAccumPump = new DataPumpListener(pTensorAccum, plotPTensorAccum.makeSink("viscosity"), 1000);
         pTensorFork.addDataSink(pTensorAccum);
         sim.integrator.getEventManager().addListener(pTensorAccumPump);
 
