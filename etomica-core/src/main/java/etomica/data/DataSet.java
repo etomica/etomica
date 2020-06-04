@@ -17,6 +17,7 @@ import etomica.util.Arrays;
  */
 
 public class DataSet {
+    private static int SINK_COUNT = 0;
 
     protected DataSetListener[] listeners = new DataSetListener[0];
     protected DataSetSink[] psuedoSinks;
@@ -33,6 +34,10 @@ public class DataSet {
 
     public DataSetSink makeDataSink() {
         return new DataSetSink(this);
+    }
+
+    public DataSetSink makeDataSink(String name) {
+        return new DataSetSink(this, name);
     }
 
     public void reset() {
@@ -66,6 +71,11 @@ public class DataSet {
             dataInfo = ((DataInfoGroup)dataInfo).getSubDataInfo(i-forwardDataMap[iData]);
         }
         return dataInfo;
+    }
+
+    public String getName(int i) {
+        int iData = backwardDataMap[i];
+        return psuedoSinks[iData].getName();
     }
 
     public int getDataCount() {
@@ -224,10 +234,20 @@ public class DataSet {
         protected int index;
         private IDataInfo incomingDataInfo;
         private IData data;
+        private final String name;
+
+        public DataSetSink(DataSet dataSet, String name) {
+            this.dataSet = dataSet;
+            this.name = name;
+            this.index = -1;
+        }
 
         public DataSetSink(DataSet dataSet) {
-            this.dataSet = dataSet;
-            index = -1;
+            this(dataSet, "Sink" + SINK_COUNT++);
+        }
+
+        public String getName() {
+            return this.name;
         }
         
         public void putDataInfo(IDataInfo newDataInfo) {
