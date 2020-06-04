@@ -193,11 +193,18 @@ public class LJMC3DDimer extends Simulation {
             sim.getIntegrator().getEventManager().addListener(pumpP);
 
             DisplayPlot historyPressure = new DisplayPlot();
-            accph.setDataSink(historyPressure.getDataSet().makeDataSink());
+            accph.addDataSink(historyPressure.getDataSet().makeDataSink());
             historyPressure.setLabel("Pressure");
             historyPressure.getPlot().setYLabel("Pressure (bar)");
             historyPressure.setUnit(Bar.UNIT);
             graphic.add(historyPressure);
+
+            DisplayPlotXChart historyPressure2 = new DisplayPlotXChart();
+            accph.addDataSink(historyPressure2.makeSink("Pressure"));
+            historyPressure2.setLabel("Pressure");
+            historyPressure2.setYLabel("Pressure (bar)");
+            historyPressure2.setDefaultUnit(Bar.UNIT);
+            graphic.add(historyPressure2);
 
             DisplayPlot historyPE = new DisplayPlot();
             accPE.setDataSink(historyPE.getDataSet().makeDataSink());
@@ -206,8 +213,10 @@ public class LJMC3DDimer extends Simulation {
 
             // TODO
             DisplayPlotXChart historyPE2 = new DisplayPlotXChart();
-            accPE.addDataSink(historyPE2.getDataSet().makeDataSink());
+            accPE.addDataSink(historyPE2.makeSink("PE"));
             historyPE2.setLabel("PE (XChart)");
+            historyPE2.getSeries("PE").setLabel("PE");
+            historyPE2.getPlot().getStyler();
             graphic.add(historyPE2);
 
 
