@@ -1,9 +1,6 @@
 package etomica.graphics;
 
-import etomica.data.DataSet;
-import etomica.data.DataSetListener;
-import etomica.data.IDataInfo;
-import etomica.data.IDataSink;
+import etomica.data.*;
 import etomica.data.types.DataFunction;
 import etomica.units.Unit;
 import etomica.units.dimensions.Null;
@@ -22,10 +19,13 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
     private final DataSet dataSet;
     private final XYChart plot;
     private final XChartPanel<XYChart> panel;
-    private final List<XYSeries> series;
     private final Map<String, Unit> unitMap;
     private Unit defaultUnit = null;
     private Unit xUnit = null;
+
+    private final List<DataTagBag> labelList = new ArrayList<>();
+    private final List<DataTagBag> unitList = new ArrayList<>();
+    private final List<DataTagBag> drawLineList = new ArrayList<>();
 
     public DisplayPlotXChart() {
         this(new DataSet());
@@ -37,7 +37,6 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
         this.plot = new XYChartBuilder()
                 .build();
         this.panel = new XChartPanel<>(this.plot);
-        this.series = new ArrayList<>();
         this.unitMap = new HashMap<>();
     }
 
@@ -52,8 +51,13 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
     public IDataSink makeSink(String name) {
         IDataSink sink = this.dataSet.makeDataSink(name);
         XYSeries series = this.plot.addSeries(name, new double[]{Double.NaN}, new double[]{Double.NaN});
-        this.series.add(series);
+        this.plot.updateXYSeries(name, new double[0], new double[0], null);
         return sink;
+    }
+
+    public void removeSeries(String name) {
+        this.plot.removeSeries(name);
+        this.unitMap.remove(name);
     }
 
     public XYSeries getSeries(String name) {
@@ -64,8 +68,16 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
         this.unitMap.put(seriesName, unit);
     }
 
+    public void setUnit(DataTag[] dataTags, Unit newUnit) {
+        this.unitList.add(new DataTagBag(dataTags, newUnit));
+    }
+
     public void setDefaultUnit(Unit unit) {
         this.defaultUnit = unit;
+    }
+
+    public void setUnit(Unit unit) {
+        this.setDefaultUnit(unit);
     }
 
     public void setXUnit(Unit unit) {
@@ -90,10 +102,43 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
 
     public void setDoLegend(boolean legend) {
         this.plot.getStyler().setLegendVisible(legend);
+
+        for (int i = 0; i < this.dataSet.getDataCount(); i++) {
+            String dataLabel = this.dataSet.getDataInfo(i).getLabel();
+            DataTagBag tagLabel = DataTagBag.getDataTagBag(this.labelList, this.dataSet.getDataInfo(i).getTags());
+            if (tagLabel != null) {
+                dataLabel = (String)tagLabel.object;
+            }
+            this.getSeries(this.dataSet.getName(i)).setLabel(dataLabel);
+        }
     }
 
-    public XYChart getPlot() {
+    public void setDoDrawLines(DataTag[] dataTags, boolean doDrawLines) {
+        this.drawLineList.add(new DataTagBag(dataTags, doDrawLines));
+    }
+
+    public void setLegend(DataTag[] dataTags, String label) {
+        this.labelList.add(new DataTagBag(dataTags, label));
+    }
+
+    public void setTitle(String title) {
+        this.plot.setTitle(title);
+    }
+
+    public XYChart getChart() {
         return this.plot;
+    }
+
+    public XChartPanel<XYChart> getPanel() {
+        return this.panel;
+    }
+
+    public DisplayPlotXChart getPlot() {
+        return this;
+    }
+
+    public Dimension getPreferredSize() {
+        return this.panel.getPreferredSize();
     }
 
     @Override
@@ -113,16 +158,24 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
                 this.xUnit = xDataInfo.getDimension().getUnit(UnitSystem.SIM);
             }
         }
+        this.setDoLegend(this.plot.getStyler().isLegendVisible());
 
-        Set<String> newNames = IntStream.range(0, dataSet.getDataCount())
-                .mapToObj(this.dataSet::getName)
-                .collect(Collectors.toSet());
-        for (String s : this.plot.getSeriesMap().keySet()) {
-            if (!newNames.contains(s)) {
-                XYSeries ser = this.plot.getSeriesMap().remove(s);
-                this.series.remove(ser);
-                this.unitMap.remove(s);
+        for (int i = 0; i < this.dataSet.getDataCount(); i++) {
+            DataTagBag tagDrawLines = DataTagBag.getDataTagBag(this.drawLineList, this.dataSet.getDataInfo(i).getTags());
+            if (tagDrawLines != null) {
+                Boolean dataDrawLines = (Boolean)tagDrawLines.object;
+                this.getSeries(this.dataSet.getName(i))
+                        .setXYSeriesRenderStyle(dataDrawLines ? XYSeries.XYSeriesRenderStyle.Line : XYSeries.XYSeriesRenderStyle.Scatter);
             }
+        }
+
+        for (int i = 0; i < this.dataSet.getDataCount(); i++) {
+            Unit dataUnit = this.defaultUnit;
+            DataTagBag tagUnit = DataTagBag.getDataTagBag(this.unitList, this.dataSet.getDataInfo(i).getTags());
+            if (tagUnit != null) {
+                dataUnit = (Unit)tagUnit.object;
+            }
+            this.setUnit(this.dataSet.getName(i), dataUnit);
         }
     }
 
@@ -142,16 +195,20 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
                 ArrayList<Double> filteredData = new ArrayList<>(data.length);
                 ArrayList<Double> filteredXValues = new ArrayList<>(xValues.length);
                 IntStream.range(0, xValues.length)
-                        .filter(idx -> !Double.isNaN(yUnit.fromSim(data[idx])))
+                        .filter(idx -> {
+                            boolean xLogBad = this.plot.getStyler().isXAxisLogarithmic() && xValues[idx] <= 0;
+                            boolean yLogBad = this.plot.getStyler().isYAxisLogarithmic() && data[idx] <= 0;
+                            return !Double.isNaN(yUnit.fromSim(data[idx])) && !xLogBad && !yLogBad;
+                        })
                         .forEach(idx -> {
-                            filteredData.add(data[idx]);
-                            filteredXValues.add(xValues[idx]);
+                            filteredData.add(yUnit.fromSim(data[idx]));
+                            filteredXValues.add(xUnit.fromSim(xValues[idx]));
                         });
 
 
 
-                XYSeries series = this.series.get(i);
-                this.plot.updateXYSeries(series.getName(), filteredXValues, filteredData, null);
+                this.plot.getSeriesMap().get(seriesName).setEnabled(!filteredData.isEmpty());
+                this.plot.updateXYSeries(seriesName, filteredXValues, filteredData, null);
             }
         }
         if (this.panel.isShowing()) {
