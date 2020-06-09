@@ -6,6 +6,8 @@ package etomica.data;
 
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
+import etomica.graphics.DisplayPlot;
+import etomica.graphics.DisplayPlotXChart;
 import etomica.util.Arrays;
 
 /**
@@ -33,6 +35,9 @@ public class DataSet {
     }
 
     public DataSetSink makeDataSink() {
+        if (this.listeners[0] instanceof DisplayPlotXChart) {
+            return (DataSetSink) ((DisplayPlotXChart) this.listeners[0]).makeSink("Sink" + SINK_COUNT++);
+        }
         return new DataSetSink(this);
     }
 

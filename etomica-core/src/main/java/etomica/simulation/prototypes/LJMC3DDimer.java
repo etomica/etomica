@@ -216,7 +216,6 @@ public class LJMC3DDimer extends Simulation {
             accPE.addDataSink(historyPE2.makeSink("PE"));
             historyPE2.setLabel("PE (XChart)");
             historyPE2.getSeries("PE").setLabel("PE");
-            historyPE2.getPlot().getStyler();
             graphic.add(historyPE2);
 
 
