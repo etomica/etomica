@@ -179,6 +179,10 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
         }
     }
 
+    public void doUpdate() {
+        this.update();
+    }
+
     private void update() {
         int nSeries = this.dataSet.getDataCount();
 
@@ -207,8 +211,10 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
 
 
 
-                this.plot.getSeriesMap().get(seriesName).setEnabled(!filteredData.isEmpty());
-                this.plot.updateXYSeries(seriesName, filteredXValues, filteredData, null);
+                SwingUtilities.invokeLater(() -> {
+                    this.plot.getSeriesMap().get(seriesName).setEnabled(!filteredData.isEmpty());
+                    this.plot.updateXYSeries(seriesName, filteredXValues, filteredData, null);
+                });
             }
         }
         if (this.panel.isShowing()) {
