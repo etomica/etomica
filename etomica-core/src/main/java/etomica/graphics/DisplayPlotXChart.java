@@ -22,6 +22,8 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
     private final Map<String, Unit> unitMap;
     private Unit defaultUnit = null;
     private Unit xUnit = null;
+    private final Map<String, double[]> seriesXValues = new HashMap<>();
+    private final Map<String, double[]> seriesYValues = new HashMap<>();
 
     private final List<DataTagBag> labelList = new ArrayList<>();
     private final List<DataTagBag> unitList = new ArrayList<>();
@@ -203,11 +205,22 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
         this.update();
     }
 
+    private static double[] getSeriesArray(Map<String, double[]> map, String name, int size) {
+        return map.compute(name, (k, arr) -> {
+            if (arr == null || arr.length != size) {
+                return new double[size];
+            } else {
+                return arr;
+            }
+        });
+
+    }
+
     private void update() {
         int nSeries = this.dataSet.getDataCount();
 
-        ArrayList<Double>[] newXValues = new ArrayList[nSeries];
-        ArrayList<Double>[] newYValues = new ArrayList[nSeries];
+        double[][] newXValues = new double[nSeries][];
+        double[][] newYValues = new double[nSeries][];
 
         boolean xAxisLog = this.plot.getStyler().isXAxisLogarithmic();
         boolean yAxisLog = this.plot.getStyler().isYAxisLogarithmic();
@@ -216,14 +229,14 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
             if (this.dataSet.getDataInfo(i) instanceof DataFunction.DataInfoFunction) {
                 String seriesName = this.dataSet.getName(i);
                 DataFunction.DataInfoFunction dataInfo = (DataFunction.DataInfoFunction) dataSet.getDataInfo(i);
-                Unit yUnit = this.unitMap.computeIfAbsent(seriesName, name -> {
-                    return this.defaultUnit == null ? dataInfo.getDimension().getUnit(UnitSystem.SIM) : defaultUnit;
-                });
+
+                Unit yUnit = this.unitMap.computeIfAbsent(
+                        seriesName,
+                        name -> this.defaultUnit == null ? dataInfo.getDimension().getUnit(UnitSystem.SIM) : defaultUnit);
+
                 double[] data = ((DataFunction)dataSet.getData(i)).getData();
                 double[] xValues = dataInfo.getXDataSource().getIndependentData(0).getData();
 
-                ArrayList<Double> filteredData = new ArrayList<>(data.length);
-                ArrayList<Double> filteredXValues = new ArrayList<>(xValues.length);
                 int leadingNans = 0;
                 boolean leadingNansDone = false;
                 int trailingNans = 0;
@@ -238,15 +251,19 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
                         leadingNansDone = true;
                     }
 
-                    if (badValue) {
+                    if (leadingNansDone && badValue) {
                         trailingNans++;
                     } else {
                         trailingNans = 0;
                     }
                 }
-                for (int j = leadingNans; j < xValues.length - trailingNans; j++) {
-                    double x = xUnit.fromSim(xValues[j]);
-                    double y = yUnit.fromSim(data[j]);
+
+                int trimmedSize = xValues.length - leadingNans - trailingNans;
+                double[] filteredXValues = getSeriesArray(this.seriesXValues, seriesName, trimmedSize);
+                double[] filteredYValues = getSeriesArray(this.seriesYValues, seriesName, trimmedSize);
+                for (int j = 0; j < trimmedSize; j++) {
+                    double x = xUnit.fromSim(xValues[j + leadingNans]);
+                    double y = yUnit.fromSim(data[j + leadingNans]);
 
                     if (xAxisLog && x <= 0) {
                         x = Double.NaN;
@@ -254,18 +271,18 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
                     if (yAxisLog && y <= 0) {
                         y = Double.NaN;
                     }
-                    filteredXValues.add(x);
-                    filteredData.add(y);
+                    filteredXValues[j] = x;
+                    filteredYValues[j] = y;
                 }
 
                 newXValues[i] = filteredXValues;
-                newYValues[i] = filteredData;
+                newYValues[i] = filteredYValues;
             }
         }
         SwingUtilities.invokeLater(() -> {
             for (int i = 0; i < nSeries; i++) {
                 String name = dataSet.getName(i);
-                this.plot.getSeriesMap().get(name).setEnabled(!newYValues[i].isEmpty());
+                this.plot.getSeriesMap().get(name).setEnabled(!(newYValues[i].length == 0));
                 this.plot.updateXYSeries(name, newXValues[i], newYValues[i], null);
             }
             if (this.layer.isShowing()) {
