@@ -6,7 +6,6 @@
 ### [Project Web site](http://www.etomica.org/)
 -->
 
-Etomica is a molecular simulation framework written in Java, developed at the Chemical Engineering department of the University at Buffalo.
     
 
     
