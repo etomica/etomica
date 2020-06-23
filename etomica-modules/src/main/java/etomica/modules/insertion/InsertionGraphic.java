@@ -55,7 +55,7 @@ public class InsertionGraphic extends SimulationGraphic {
     protected DisplayPlot widomHistPlot;
     public DisplayPlot widom2Plot;
     
-    public InsertionGraphic(final Insertion simulation, Space _space) {
+    public InsertionGraphic(final Insertion simulation) {
 
     	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
@@ -269,8 +269,7 @@ public class InsertionGraphic extends SimulationGraphic {
 
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
         delaySlider.setMaxSleep(1000);
-        delaySlider.setThreshold(100);
-        
+
         getPanel().controlPanel.add(setupPanel, vertGBC);
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
 
@@ -491,7 +490,7 @@ public class InsertionGraphic extends SimulationGraphic {
             } catch(NumberFormatException e) {}
         }
 
-        InsertionGraphic swmdGraphic = new InsertionGraphic(new Insertion(space), space);
+        InsertionGraphic swmdGraphic = new InsertionGraphic(new Insertion(space));
 		SimulationGraphic.makeAndDisplayFrame
 		        (swmdGraphic.getPanel(), APP_NAME);
     }
@@ -507,7 +506,7 @@ public class InsertionGraphic extends SimulationGraphic {
                 dim = Integer.valueOf(dimStr).intValue();
             }
             Space sp = Space.getInstance(dim);
-            InsertionGraphic swmdGraphic = new InsertionGraphic(new Insertion(sp), sp);
+            InsertionGraphic swmdGraphic = new InsertionGraphic(new Insertion(sp));
 
 		    getContentPane().add(swmdGraphic.getPanel());
 	    }

@@ -55,7 +55,7 @@ public class Insertion extends Simulation {
         //controller and integrator
         box = this.makeBox();
         integrator = new IntegratorHard(this, potentialMaster, box);
-        integrator.setTimeStep(1.0);
+        integrator.setTimeStep(0.2);
         integrator.setTemperature(1.0);
         integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SCALING);
