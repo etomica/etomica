@@ -29,6 +29,7 @@ import etomica.util.ParseArgs;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 
 public class GlassGraphic extends SimulationGraphic {
@@ -36,6 +37,7 @@ public class GlassGraphic extends SimulationGraphic {
     private final static String APP_NAME = " Molecular Dynamics";
     private final static int REPAINT_INTERVAL = 20;
     protected SimGlass sim;
+    public final DeviceCheckBox swapCheckbox;
 
     public GlassGraphic(final SimGlass simulation) {
 
@@ -1950,7 +1952,7 @@ public class GlassGraphic extends SimulationGraphic {
 
         //************* Lay out components ****************//
 
-        DeviceCheckBox swapCheckbox = new DeviceCheckBox("isothermal", new ModifierBoolean() {
+        swapCheckbox = new DeviceCheckBox("isothermal", new ModifierBoolean() {
             @Override
             public void setBoolean(boolean b) {
 
@@ -2229,7 +2231,28 @@ public class GlassGraphic extends SimulationGraphic {
 
         GlassGraphic ljmdGraphic = new GlassGraphic(sim);
         SimulationGraphic.makeAndDisplayFrame
-                (ljmdGraphic.getPanel(), sim.potentialChoice+APP_NAME);
+                (ljmdGraphic.getPanel(), sim.potentialChoice + APP_NAME);
+        if (params.potential == SimGlass.PotentialChoice.HS && sim.chs < 100) {
+            ljmdGraphic.swapCheckbox.getCheckBox().setEnabled(false);
+            JFrame f = new JFrame();
+            f.setSize(700, 500);
+            JPanel panel = new JPanel();
+            panel.add(new JLabel("<html><div style='width: 200px;'>Note: high-density simulations will be slightly delayed in starting up, as the simulation works to generate a configuration without overlaps.  Please be patient.</div></html>"));
+            f.getContentPane().add(panel);
+            f.pack();
+            f.setTitle("Generating configuration");
+            f.setVisible(true);
+            sim.getController().removeAction(sim.activityIntegrate);
+            sim.getController().addAction(new IAction() {
+                public void actionPerformed() {
+                    sim.initConfig();
+                    ljmdGraphic.getController().getResetAveragesButton().getAction().actionPerformed();
+                    f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
+                    ljmdGraphic.swapCheckbox.getCheckBox().setEnabled(true);
+                }
+            });
+            sim.getController().addAction(sim.activityIntegrate);
+        }
     }
 
     /**
