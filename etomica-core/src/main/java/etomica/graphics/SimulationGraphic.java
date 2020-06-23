@@ -59,7 +59,6 @@ public class SimulationGraphic implements SimulationContainer {
     private final DeviceTrioControllerButton dcb;
     private final LinkedList<Display> displayList = new LinkedList<Display>();
     private final LinkedList<Device> deviceList = new LinkedList<Device>();
-    protected int repaintSleep = 0;
     private SimulationPanel simulationPanel;
     private int updateInterval = DEFAULT_UPDATE_INTERVAL;
     private HashMap<Box, IntegratorListenerAction> repaintActions = new HashMap<Box, IntegratorListenerAction>();
@@ -208,10 +207,6 @@ public class SimulationGraphic implements SimulationContainer {
     public void setPaintInterval(Box box, int interval) {
         IntegratorListenerAction repaintAction = repaintActions.get(box);
         repaintAction.setInterval(interval);
-    }
-
-    public void setRepaintSleep(int newRepaintSleep) {
-        repaintSleep = newRepaintSleep;
     }
 
     /**
@@ -411,13 +406,13 @@ public class SimulationGraphic implements SimulationContainer {
         if (display != null) {
 
             repaintAction = new IAction() {
+                long lastPaint = 0;
                 public void actionPerformed() {
-                    display.repaint();
-                    if (repaintSleep != 0) {
-                        try {
-                            Thread.sleep(repaintSleep);
-                        } catch (InterruptedException ex) {
-                        }
+                    long now = System.nanoTime();
+                    // wait at least 0.01 seconds between paints
+                    if (now > lastPaint + 1e7) {
+                        display.repaint();
+                        lastPaint = now;
                     }
                 }
             };

@@ -261,7 +261,7 @@ public class LJMCGraphic extends SimulationGraphic {
         final DeviceButton slowButton = new DeviceButton(sim.getController(), null);
         slowButton.setAction(new IAction() {
             public void actionPerformed() {
-                int sleep = sim.activityIntegrate.getSleepPeriod();
+                int sleep = (int) sim.activityIntegrate.getSleepPeriod();
                 sleep = 1-sleep;
                 sim.activityIntegrate.setSleepPeriod(sleep);
                 slowButton.setLabel(sleep == 0 ? "Slow" : "Fast");
