@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.atom.DiameterHash;
 import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageFixed;
@@ -17,6 +18,7 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
@@ -48,7 +50,6 @@ public class VirialHSMixture {
             params.cff = 3;
             params.D = 3;
             params.L = 6;
-            params.flag = true; //To account for boundary of box while computing distance
         }
         final int nSmall = params.cff;
         final int nPoints = params.nPoints;
@@ -63,7 +64,6 @@ public class VirialHSMixture {
         final double chainFrac = params.chainFrac;
         final int D = params.D;
         final double L = params.L;
-        final boolean flag = params.flag;
         System.out.println("Number of points: " + nPoints);
         System.out.println("Dimensions: " + D);
         System.out.println("nonAdd: " + params.nonAdd);
@@ -92,7 +92,7 @@ public class VirialHSMixture {
             }
         }
 
-        Boundary b = new BoundaryRectangularPeriodic(space, L * sigmaB);
+        Boundary b = (L < Double.POSITIVE_INFINITY && L > 0) ? new BoundaryRectangularPeriodic(space, L * sigmaB) : null;
         MayerHSMixture fTarget = MayerHSMixture.makeTargetF(space, nPoints, pairSigma, b);
         MayerHSMixture fRefPos = MayerHSMixture.makeReferenceF(space, nPoints, pairSigma, b);
 
@@ -136,7 +136,9 @@ public class VirialHSMixture {
         ClusterAbstract[] targetDiagrams = new ClusterAbstract[]{targetCluster};
 
         System.out.println(steps + " steps ");
-        final SimulationVirial sim = new SimulationVirial(space, new SpeciesSpheresMono(space, new ElementSimple("A")), 1.0, ClusterWeightAbs.makeWeightCluster(refCluster), refCluster, targetDiagrams, false);
+        final SimulationVirial sim = new SimulationVirial(space, new ISpecies[]{new SpeciesSpheresMono(space, new ElementSimple("A"))}, new int[]{nPoints}, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster), refCluster, targetDiagrams);
+        if (L > 0 && L < Double.POSITIVE_INFINITY) sim.setBoxLength(L);
+        sim.init();
         MeterVirialBD meter = new MeterVirialBD(sim.allValueClusters);
         meter.setBox(sim.box);
         sim.setMeter(meter);
@@ -164,13 +166,21 @@ public class VirialHSMixture {
         }
 
         if (false) {
-            sim.box.getBoundary().setBoxSize(space.makeVector(new double[]{10, 10, 10}));
+            if (L == Double.POSITIVE_INFINITY || L == 0)
+                sim.box.getBoundary().setBoxSize(space.makeVector(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box);
+            displayBox0.setDiameterHash(new DiameterHash() {
+                @Override
+                public double getDiameter(IAtom atom) {
+                    return atom.getLeafIndex() < nBig ? 1 : q;
+                }
+            });
 //            displayBox0.setPixelUnit(new Pixel(300.0/size));
-            displayBox0.setShowBoundary(false);
-            ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
-
+            if (L == Double.POSITIVE_INFINITY || L == 0) {
+                displayBox0.setShowBoundary(false);
+                ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
+            }
 
             ColorScheme colorScheme = new ColorScheme() {
 
@@ -183,7 +193,7 @@ public class VirialHSMixture {
             displayBox0.setColorScheme(colorScheme);
             simGraphic.makeAndDisplayFrame();
 
-            sim.setAccumulatorBlockSize(1000);
+            accumulator.setBlockSize(1000);
 
             final JPanel panelParentGroup = new JPanel(new java.awt.GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
@@ -209,10 +219,10 @@ public class VirialHSMixture {
 
             IAction pushAnswer = new IAction() {
                 public void actionPerformed() {
-                    IData avgData = sim.accumulator.getData();
-                    double ratio = ((DataGroup) avgData).getData(sim.accumulator.RATIO.index).getValue(1);
-                    double error = ((DataGroup) avgData).getData(sim.accumulator.RATIO_ERROR.index).getValue(1);
-                    data.x = ratio * refIntegral;
+                    IData avgData = accumulator.getData();
+                    double avg = ((DataGroup) avgData).getData(accumulator.AVERAGE.index).getValue(0);
+                    double error = ((DataGroup) avgData).getData(accumulator.ERROR.index).getValue(0);
+                    data.x = avg * refIntegral;
                     averageBox.putData(data);
                     data.x = error * Math.abs(refIntegral);
                     errorBox.putData(data);
@@ -276,8 +286,8 @@ public class VirialHSMixture {
         public int cff = 0;
         public double nonAdd = 0;
         public int D = 3;
-        public double L = 3;
-        public boolean flag = true;
+        // set L to 0 or infinity to get a coefficient without PBC
+        public double L = 0;
     }
 
 }
