@@ -64,8 +64,10 @@ public class MayerHSMixture implements MayerFunction {
         if (boundary != null) {
             dr.Ev1Mv2(pair.get(0).getChildList().get(0).getPosition(),
                     pair.get(1).getChildList().get(0).getPosition());
-            dr.DE(boxBoundary.getBoxSize());
-            dr.TE(boundary.getBoxSize());
+            if (boxBoundary != null) {
+                dr.DE(boxBoundary.getBoxSize());
+                dr.TE(boundary.getBoxSize());
+            }
             boundary.nearestImage(dr);
             r2 = dr.squared();
         }
@@ -77,6 +79,10 @@ public class MayerHSMixture implements MayerFunction {
     }
 
     public void setBox(Box newBox) {
-        boxBoundary = newBox.getBoundary();
+        Boundary boxBoundary = newBox.getBoundary();
+        if (boxBoundary.getPeriodicity(0)) {
+            // assume it's fully periodic
+            this.boxBoundary = boxBoundary;
+        }
     }
 }
