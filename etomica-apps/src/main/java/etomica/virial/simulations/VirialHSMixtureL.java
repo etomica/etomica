@@ -91,7 +91,6 @@ public class VirialHSMixtureL {
         refCluster.setTemperature(1.0);
         final double refIntegral = Math.pow(params.targetL / refL, params.D * (nPoints - 1));
         System.out.println("reference integral: " + refIntegral);
-        refCluster.setTemperature(1.0);
 
         long blockSize = steps / 1000;
         System.out.println(steps + " steps (" + (steps / blockSize) + " blocks of " + blockSize + ")");
@@ -110,7 +109,7 @@ public class VirialHSMixtureL {
 
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
-        if (true) {
+        if (false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
@@ -185,7 +184,6 @@ public class VirialHSMixtureL {
 
         sim.integratorOS.setNumSubSteps((int) blockSize);
         sim.setAccumulatorBlockSize(blockSize);
-        sim.accumulators[0].setBlockSize(1);
         sim.ai.setMaxSteps(steps / blockSize);
         for (int i = 0; i < 2; i++) {
             System.out.println("MC Move step size (" + i + ") " + sim.mcMoveTranslate[i].getStepSize());
