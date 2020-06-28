@@ -35,7 +35,7 @@ public class DataSet {
     }
 
     public DataSetSink makeDataSink() {
-        if (this.listeners[0] instanceof DisplayPlotXChart) {
+        if (this.listeners.length > 0 && this.listeners[0] instanceof DisplayPlotXChart) {
             return (DataSetSink) ((DisplayPlotXChart) this.listeners[0]).makeSink("Sink" + SINK_COUNT++);
         }
         return new DataSetSink(this);
