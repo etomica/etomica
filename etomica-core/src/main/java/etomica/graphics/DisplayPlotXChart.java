@@ -18,7 +18,7 @@ import java.util.List;
 public class DisplayPlotXChart extends Display implements DataSetListener {
     private final DataSet dataSet;
     private final XYChart plot;
-    private final XChartPanel<XYChart> panel;
+    private final ChartPanel panel;
     private final Map<String, Unit> unitMap;
     private Unit defaultUnit = null;
     private Unit xUnit = null;
@@ -30,7 +30,12 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
     private final List<DataTagBag> drawLineList = new ArrayList<>();
 
     private final ZoomUI zoomUI = new ZoomUI();
-    private final JLayer<XChartPanel<XYChart>> layer;
+    private final JLayer<ChartPanel> layer;
+
+    private double xMin = Double.NaN;
+    private double xMax = Double.NaN;
+    private double yMin = Double.NaN;
+    private double yMax = Double.NaN;
 
     public DisplayPlotXChart() {
         this(new DataSet());
@@ -41,7 +46,7 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
         this.dataSet.addDataListener(this);
         this.plot = new XYChartBuilder()
                 .build();
-        this.panel = new XChartPanel<>(this.plot);
+        this.panel = new ChartPanel(this);
         this.unitMap = new HashMap<>();
         ZoomMouseAdapter zoomAdapter = new ZoomMouseAdapter();
         this.panel.addMouseListener(zoomAdapter);
@@ -110,12 +115,36 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
         this.plot.getStyler().setYAxisLogarithmic(log);
     }
 
+    public double getDataXMin() {
+        return this.xMin;
+    }
+
+    public double getDataXMax() {
+        return this.xMax;
+    }
+
+    public double getDataYMin() {
+        return this.yMin;
+    }
+
+    public double getDataYMax() {
+        return this.yMax;
+    }
+
     public void setXRange(double min, double max) {
-        this.plot.getStyler().setXAxisMin(min).setXAxisMax(max);
+        if (this.plot.getStyler().isXAxisLogarithmic()) {
+            this.plot.getStyler().setXAxisMin(Math.pow(10, min)).setXAxisMax(Math.pow(10, max));
+        } else {
+            this.plot.getStyler().setXAxisMin(min).setXAxisMax(max);
+        }
     }
 
     public void setYRange(double min, double max) {
-        this.plot.getStyler().setYAxisMin(min).setYAxisMax(max);
+        if (this.plot.getStyler().isYAxisLogarithmic()) {
+            this.plot.getStyler().setYAxisMin(Math.pow(10, min)).setYAxisMax(Math.pow(10, max));
+        } else {
+            this.plot.getStyler().setYAxisMin(min).setYAxisMax(max);
+        }
     }
 
     public void setDoLegend(boolean legend) {
@@ -137,10 +166,17 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
 
     public void setLegend(DataTag[] dataTags, String label) {
         this.labelList.add(new DataTagBag(dataTags, label));
+        this.setDoLegend(this.plot.getStyler().isLegendVisible());
     }
 
     public void setTitle(String title) {
         this.plot.setTitle(title);
+    }
+
+    public void clearData() {
+        for (String series : this.plot.getSeriesMap().keySet()) {
+            this.plot.updateXYSeries(series, new double[0], new double[0], null);
+        }
     }
 
     public XYChart getChart() {
@@ -225,6 +261,10 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
         boolean xAxisLog = this.plot.getStyler().isXAxisLogarithmic();
         boolean yAxisLog = this.plot.getStyler().isYAxisLogarithmic();
 
+        this.xMin = Double.POSITIVE_INFINITY;
+        this.xMax = Double.NEGATIVE_INFINITY;
+        this.yMin = Double.POSITIVE_INFINITY;
+        this.yMax = Double.NEGATIVE_INFINITY;
         for (int i = 0; i < nSeries; i++) {
             if (this.dataSet.getDataInfo(i) instanceof DataFunction.DataInfoFunction) {
                 String seriesName = this.dataSet.getName(i);
@@ -271,6 +311,14 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
                     if (yAxisLog && y <= 0) {
                         y = Double.NaN;
                     }
+
+                    if (!Double.isNaN(x) && !Double.isNaN(y)) {
+                        this.xMin = Double.min(this.xMin, x);
+                        this.xMax = Double.max(this.xMax, x);
+                        this.yMin = Double.min(this.yMin, y);
+                        this.yMax = Double.max(this.yMax, y);
+                    }
+
                     filteredXValues[j] = x;
                     filteredYValues[j] = y;
                 }
@@ -279,6 +327,14 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
                 newYValues[i] = filteredYValues;
             }
         }
+
+        if (this.xMin > this.xMax) {
+            this.xMin = Double.NaN;
+            this.xMax = Double.NaN;
+            this.yMin = Double.NaN;
+            this.yMax = Double.NaN;
+        }
+
         SwingUtilities.invokeLater(() -> {
             for (int i = 0; i < nSeries; i++) {
                 String name = dataSet.getName(i);
@@ -292,7 +348,28 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
         });
     }
 
-    private static class ZoomUI extends LayerUI<XChartPanel<XYChart>> {
+    public void resetZoom() {
+        this.plot.getStyler()
+                .setXAxisMin(null)
+                .setYAxisMin(null)
+                .setXAxisMax(null)
+                .setYAxisMax(null);
+        SwingUtilities.invokeLater(() -> {
+            this.layer.revalidate();
+            this.layer.repaint();
+        });
+    }
+
+    public void setColors(Color[] speciesColors) {
+        int i = 0;
+        for (XYSeries series : this.plot.getSeriesMap().values()) {
+            series.setMarkerColor(speciesColors[i]);
+            series.setLineColor(speciesColors[i]);
+            i++;
+        }
+    }
+
+    private static class ZoomUI extends LayerUI<ChartPanel> {
         private final Rectangle2D rect = new Rectangle2D.Double(0, 0, 0, 0);
         private boolean shown = false;
 
@@ -420,4 +497,5 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
             layer.repaint();
         }
     }
+
 }
