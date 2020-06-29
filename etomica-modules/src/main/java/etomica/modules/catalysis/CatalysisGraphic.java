@@ -109,7 +109,7 @@ public class CatalysisGraphic extends SimulationGraphic {
         final DataPumpListener temperaturePump = new DataPumpListener(thermometer,temperatureHistory);
         sim.integrator.getEventManager().addListener(temperaturePump);
 		dataStreamPumps.add(temperaturePump);
-        DisplayPlot temperatureHistoryPlot = new DisplayPlot();
+        DisplayPlotXChart temperatureHistoryPlot = new DisplayPlotXChart();
         temperatureHistory.setDataSink(temperatureHistoryPlot.getDataSet().makeDataSink());
         temperatureHistoryPlot.setLabel("Temperature");
         temperatureHistoryPlot.setDoLegend(false);
@@ -157,7 +157,7 @@ public class CatalysisGraphic extends SimulationGraphic {
         densityCO2Fork.addDataSink(densityCO2Box);
         densityCO2Box.setLabel("CO2 Density");
 
-        DisplayPlot densityHistoryPlot = new DisplayPlot();
+        DisplayPlotXChart densityHistoryPlot = new DisplayPlotXChart();
         densityCOHistory.setDataSink(densityHistoryPlot.getDataSet().makeDataSink());
         densityO2History.setDataSink(densityHistoryPlot.getDataSet().makeDataSink());
         densityCO2History.setDataSink(densityHistoryPlot.getDataSet().makeDataSink());

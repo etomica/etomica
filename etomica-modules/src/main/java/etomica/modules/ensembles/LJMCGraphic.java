@@ -63,12 +63,12 @@ public class LJMCGraphic extends SimulationGraphic {
         dHistory.setPushInterval(1);
         dataStreamPumps.add(dPump);
 	    
-        DisplayPlot dPlot = new DisplayPlot();
+        DisplayPlotXChart dPlot = new DisplayPlotXChart();
         dHistory.setDataSink(dPlot.getDataSet().makeDataSink());
         dPlot.setDoLegend(false);
         dPlot.setLabel("Density");
 
-        DisplayPlot dHistogramPlot = new DisplayPlot();
+        DisplayPlotXChart dHistogramPlot = new DisplayPlotXChart();
         dHistogram.setDataSink(dHistogramPlot.getDataSet().makeDataSink());
         dHistogramPlot.setDoLegend(false);
         dHistogramPlot.setLabel("Density histogram");
@@ -84,7 +84,7 @@ public class LJMCGraphic extends SimulationGraphic {
         peHistory.setPushInterval(1);
         dataStreamPumps.add(pePump);
 		
-        DisplayPlot ePlot = new DisplayPlot();
+        DisplayPlotXChart ePlot = new DisplayPlotXChart();
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
 		ePlot.setDoLegend(false);
 		ePlot.setLabel("Energy");
@@ -101,7 +101,7 @@ public class LJMCGraphic extends SimulationGraphic {
         pAccumulator.setPushInterval(1);
         dataStreamPumps.add(pPump);
         
-        DisplayPlot pPlot = new DisplayPlot();
+        DisplayPlotXChart pPlot = new DisplayPlotXChart();
         pHistory.setDataSink(pPlot.getDataSet().makeDataSink());
         pPlot.setDoLegend(false);
 

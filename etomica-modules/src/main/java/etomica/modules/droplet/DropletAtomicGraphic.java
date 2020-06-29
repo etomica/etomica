@@ -231,7 +231,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 //        eFork.addDataSink(eHistory);
 //        eHistory.setTimeDataSource(timeCounter);
         
-        DisplayPlot ePlot = new DisplayPlot();
+        DisplayPlotXChart ePlot = new DisplayPlotXChart();
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
 //        keHistory.setDataSink(ePlot.getDataSet().makeDataSink());
 //        eHistory.setDataSink(ePlot.getDataSet().makeDataSink());
@@ -256,7 +256,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         dFork.addDataSink(dHistory);
         dHistory.setTimeDataSource(timeCounter);
         
-        DisplayPlot deformationPlot = new DisplayPlot();
+        DisplayPlotXChart deformationPlot = new DisplayPlotXChart();
         dHistory.setDataSink(deformationPlot.getDataSet().makeDataSink());
         deformationPlot.setLabel("Deformation");
         deformationPlot.getPlot().setYLabel("Deformation");
@@ -269,7 +269,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         rFork.addDataSink(rHistory);
         rHistory.setTimeDataSource(timeCounter);
         
-        DisplayPlot radiusPlot = new DisplayPlot();
+        DisplayPlotXChart radiusPlot = new DisplayPlotXChart();
         rHistory.setDataSink(radiusPlot.getDataSet().makeDataSink());
         radiusPlot.setLabel("Radius");
         radiusPlot.getPlot().setYLabel("Radius ("+Angstrom.UNIT.symbol()+")");
@@ -311,7 +311,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 //        vdFork.addDataSink(vdHistory);
 //        vdHistory.setTimeDataSource(timeCounter);
 //        
-//        DisplayPlot dPlot = new DisplayPlot();
+//        DisplayPlotXChart dPlot = new DisplayPlotXChart();
 //        ldHistory.setDataSink(dPlot.getDataSet().makeDataSink());
 //        vdHistory.setDataSink(dPlot.getDataSet().makeDataSink());
 //        dPlot.setLabel("Density");

@@ -125,7 +125,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
         
         final AccumulatorHistory adsorbedHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         countAvg.addDataSink(adsorbedHistory, new StatType[]{countAvg.MOST_RECENT});
-        final DisplayPlot adsorbedHistoryPlot = new DisplayPlot();
+        final DisplayPlotXChart adsorbedHistoryPlot = new DisplayPlotXChart();
         adsorbedHistory.setDataSink(adsorbedHistoryPlot.getDataSet().makeDataSink());
         adsorbedHistoryPlot.setLabel("Adsorption");
         adsorbedHistoryPlot.getPlot().setTitle("Excess adsorbed per area");
@@ -162,7 +162,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
         final DataPumpListener profilePumpB = new DataPumpListener(densityProfileMeterB, densityProfileAvgB, 10);
         dataStreamPumps.add(profilePumpB);
 
-        final DisplayPlot profilePlot = new DisplayPlot();
+        final DisplayPlotXChart profilePlot = new DisplayPlotXChart();
         densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
         densityProfileAvgB.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvgB.AVERAGE});
         profilePlot.setLegend(new DataTag[]{densityProfileAvg.getTag()}, "A");
@@ -372,7 +372,7 @@ public class AdsorptionGraphic extends SimulationGraphic {
 //        final DataPumpListener temperaturePump = new DataPumpListener(thermometer,temperatureHistory, 1000);
 //        sim.integratorMD.getEventManager().addListener(temperaturePump);
 //		dataStreamPumps.add(temperaturePump);
-//        DisplayPlot temperatureHistoryPlot = new DisplayPlot();
+//        DisplayPlotXChart temperatureHistoryPlot = new DisplayPlotXChart();
 //        temperatureHistory.setDataSink(temperatureHistoryPlot.getDataSet().makeDataSink());
 //        temperatureHistoryPlot.setLabel("Temperature");
 //        temperatureHistoryPlot.setDoLegend(false);

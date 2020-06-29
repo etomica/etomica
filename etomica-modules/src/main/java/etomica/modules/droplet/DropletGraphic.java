@@ -219,7 +219,7 @@ public class DropletGraphic extends SimulationGraphic {
         AccumulatorHistory radiusHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
         radiusHistory.setTimeDataSource(timer);
         radiusFork.addDataSink(radiusHistory);
-        DisplayPlot radiusPlot = new DisplayPlot();
+        DisplayPlotXChart radiusPlot = new DisplayPlotXChart();
         radiusPlot.setLabel("Radius");
         radiusHistory.setDataSink(radiusPlot.getDataSet().makeDataSink());
         radiusPlot.setDoLegend(false);
@@ -230,7 +230,7 @@ public class DropletGraphic extends SimulationGraphic {
         AccumulatorHistory deformationHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
         deformationHistory.setTimeDataSource(timer);
         deformationFork.addDataSink(deformationHistory);
-        DisplayPlot deformPlot = new DisplayPlot();
+        DisplayPlotXChart deformPlot = new DisplayPlotXChart();
         deformPlot.setLabel("Deformation");
         deformationHistory.setDataSink(deformPlot.getDataSet().makeDataSink());
         deformPlot.setDoLegend(false);
