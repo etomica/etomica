@@ -103,6 +103,10 @@ public class VirialHSMixtureL {
         ((MCMoveClusterAtomMulti) sim.mcMoveTranslate[0]).setDoImposePBC(true);
         ((MCMoveClusterAtomMulti) sim.mcMoveTranslate[1]).setStartAtom(0);
         ((MCMoveClusterAtomMulti) sim.mcMoveTranslate[1]).setDoImposePBC(true);
+        MCMoveClusterAtomMulti targetBigMove = new MCMoveClusterAtomMulti(sim.getRandom(), space);
+        targetBigMove.setStepSize(params.targetL / 2);
+        targetBigMove.setStepSizeMin(params.targetL / 2);
+        sim.integrators[1].getMoveManager().addMCMove(targetBigMove);
 
         int subSteps = 1000;
         sim.integratorOS.setNumSubSteps(subSteps);
@@ -190,6 +194,7 @@ public class VirialHSMixtureL {
         }
         sim.getController().actionPerformed();
         long t2 = System.currentTimeMillis();
+        System.out.println("MC Move target big step acceptance " + targetBigMove.getTracker().acceptanceProbability() + " (" + targetBigMove.getStepSize() + ")");
 
         System.out.println("final reference step fraction " + sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step fraction " + sim.integratorOS.getRefStepFraction());
