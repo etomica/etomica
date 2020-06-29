@@ -188,7 +188,7 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
     }
 
     public void setSize(int w, int h) {
-        this.panel.setSize(w, h);
+        this.panel.setPreferredSize(new Dimension(w, h));
     }
 
     public DisplayPlotXChart getPlot() {
