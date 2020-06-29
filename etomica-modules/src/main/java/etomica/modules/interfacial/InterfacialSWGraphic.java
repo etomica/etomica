@@ -56,7 +56,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
     protected final MeterProfileByAtoms orientationProfileMeter;
     protected final MeterProfile muProfileMeter;
     protected final DataPumpListener surfactantProfilePump, orientationProfilePump;
-    protected final DisplayPlot profilePlot, orientationPlot;
+    protected final DisplayPlotXChart profilePlot, orientationPlot;
     protected InterfacialSW sim;
     protected boolean isExpanded;
     private DeviceThermoSlider temperatureSelect;
@@ -285,7 +285,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         peHistory.setPushInterval(1);
         dataStreamPumps.add(pePump);
 
-        DisplayPlot ePlot = new DisplayPlot();
+        DisplayPlotXChart ePlot = new DisplayPlotXChart();
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
 
         ePlot.getPlot().setTitle("Potential Energy History");
@@ -337,7 +337,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(virialProfilePumpListener);
         virialProfilePumpListener.setInterval(20);
         AccumulatorAverageFixed[] virialProfileAvg = new AccumulatorAverageFixed[space.D()];
-        DisplayPlot virialPlot = new DisplayPlot();
+        DisplayPlotXChart virialPlot = new DisplayPlotXChart();
         for (int i=0; i<space.D(); i++) {
             virialProfileAvg[i] = new AccumulatorAverageFixed(10);
             virialProfileAvg[i].setPushInterval(10);
@@ -355,7 +355,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         AccumulatorAverageFixed tensionProfileAvg = new AccumulatorAverageFixed(10);
         interfacialTensionProfile.setDataSink(tensionProfileAvg);
         tensionProfileAvg.setPushInterval(10);
-        DisplayPlot tensionPlot = new DisplayPlot();
+        DisplayPlotXChart tensionPlot = new DisplayPlotXChart();
         tensionPlot.setDoLegend(false);
         tensionProfileAvg.addDataSink(tensionPlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{tensionProfileAvg.AVERAGE});
         tensionPlot.setLabel("Tension Profile");
@@ -395,7 +395,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         MeterOrientation meterOrientation = new MeterOrientation(space);
         meterOrientation.setBox(sim.box);
         orientationProfileMeter.setDataSource(meterOrientation);
-        orientationPlot = new DisplayPlot();
+        orientationPlot = new DisplayPlotXChart();
         orientationPlot.setDoLegend(false);
         orientationPlot.setLabel("Orientation");
         orientationPlot.getPlot().setTitle("Surfactant Orientation");
@@ -406,7 +406,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         final FitTanh fitTanh = new FitTanh();
         densityProfileAvg.addDataSink(fitTanh, new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
 
-        profilePlot = new DisplayPlot();
+        profilePlot = new DisplayPlotXChart();
         densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
         surfactantProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{surfactantProfileAvg.AVERAGE});
         fitTanh.setDataSink(profilePlot.getDataSet().makeDataSink());
@@ -452,7 +452,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(pullParamsListener);
         pullParamsListener.setInterval(10);
         
-        DisplayPlot muPlot = new DisplayPlot();
+        DisplayPlotXChart muPlot = new DisplayPlotXChart();
         muProfileMeter = new MeterProfile(space, sim.getRandom());
         muProfileMeter.setBox(sim.box);
         DataSourcePositionedBoltzmannFactor meterChemicalPotential = new DataSourcePositionedBoltzmannFactor(space);

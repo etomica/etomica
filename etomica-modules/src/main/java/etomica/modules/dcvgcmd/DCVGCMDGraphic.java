@@ -143,10 +143,9 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    getPanel().tabbedPane.add("Flux Data", table.graphic());
 	    
 	    // Density profile tab page
-		DisplayPlot profilePlot = new DisplayPlot();
+		DisplayPlotXChart profilePlot = new DisplayPlotXChart();
 	    profilePlot.setLabel("Density Profile");
 	    profilePlot.getPlot().setTitle("Density Profile");
-	    profilePlot.getPlot().setColors(speciesColors);
 	    profilePlot.setLegend(new DataTag[]{sim.accumulator1.getTag()}, "Density (1)");
         profilePlot.setLegend(new DataTag[]{sim.accumulator2.getTag()}, "Density (2)");
 		getPanel().tabbedPane.add("Density Profile", profilePlot.graphic());
@@ -156,7 +155,9 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    sim.accumulator2.addDataSink(profilePlot.getDataSet().makeDataSink(),
                 new AccumulatorAverage.StatType[]{sim.accumulator2.AVERAGE});
 
-	    //set color of molecules
+		profilePlot.getPlot().setColors(speciesColors);
+
+		//set color of molecules
 	    ColorSchemeByType colorScheme = (ColorSchemeByType)(getDisplayBox(sim.box).getColorScheme());
 		colorScheme.setColor(sim.species1.getLeafType(), speciesColors[0]);
 		colorScheme.setColor(sim.species2.getLeafType(), speciesColors[1]);

@@ -18,6 +18,7 @@ import etomica.units.*;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Quantity;
 import etomica.util.Constants.CompassDirection;
+import org.knowm.xchart.XYSeries;
 
 import javax.swing.*;
 import java.awt.*;
@@ -87,7 +88,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         AccumulatorHistory tHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         tHistory.setTimeDataSource(timer);
         tFork.addDataSink(tHistory);
-        DisplayPlot tPlot = new DisplayPlot();
+        DisplayPlotXChart tPlot = new DisplayPlotXChart();
         tHistory.addDataSink(tPlot.getDataSet().makeDataSink());
         tPlot.setUnit(Kelvin.UNIT);
         tPlot.setLabel("Temperature");
@@ -168,18 +169,18 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         getController().getResetAveragesButton().setLabel("Reset");
         getController().getResetAveragesButton().setPostAction(resetData);
 
-        DisplayPlot compositionPlot = new DisplayPlot();
-        accumulator.addDataSink(compositionPlot.getDataSet().makeDataSink(),new AccumulatorAverage.StatType[]{accumulator.AVERAGE});
+        DisplayPlotXChart compositionPlot = new DisplayPlotXChart();
+        accumulator.addDataSink(compositionPlot.makeSink("composition"),new AccumulatorAverage.StatType[]{accumulator.AVERAGE});
         compositionPlot.setDoLegend(false);
 
-        DisplayPlot mwPlot = new DisplayPlot();
+        DisplayPlotXChart mwPlot = new DisplayPlotXChart();
         mwPlot.setLabel("Molecular Weight");
         mwHistory.addDataSink(mwPlot.getDataSet().makeDataSink());
         mwPlot.setLegend(new DataTag[]{mwHistory.getTag()}, "Number Avg");
         mw2History.addDataSink(mwPlot.getDataSet().makeDataSink());
         mwPlot.setLegend(new DataTag[]{mw2History.getTag()}, "Weight Avg");
 
-        DisplayPlot conversionPlot = new DisplayPlot();
+        DisplayPlotXChart conversionPlot = new DisplayPlotXChart();
         conversionHistoryAccDiol.addDataSink(conversionPlot.getDataSet().makeDataSink());
         conversionPlot.setLegend(new DataTag[]{reactionConversionDiol.getTag()}, "diol conversion");
         conversionHistoryAccAcid.addDataSink(conversionPlot.getDataSet().makeDataSink());
