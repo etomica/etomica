@@ -38,7 +38,6 @@ class ChartPanel extends JPanel {
                 return;
             }
             double scale = e.getPreciseWheelRotation() * -0.05;
-            System.out.println(scale);
 
             double chartX = e.getX();
             double chartY = e.getY();

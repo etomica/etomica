@@ -243,13 +243,14 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
     }
 
     private static double[] getSeriesArray(Map<String, double[]> map, String name, int size) {
-        return map.compute(name, (k, arr) -> {
-            if (arr == null || arr.length != size) {
-                return new double[size];
-            } else {
-                return arr;
-            }
-        });
+        return new double[size];
+//        return map.compute(name, (k, arr) -> {
+//            if (arr == null || arr.length != size) {
+//                return new double[size];
+//            } else {
+//                return arr;
+//            }
+//        });
 
     }
 
