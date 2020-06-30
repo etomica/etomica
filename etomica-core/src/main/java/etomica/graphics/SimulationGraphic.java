@@ -46,6 +46,10 @@ public class SimulationGraphic implements SimulationContainer {
     private static int DEFAULT_UPDATE_INTERVAL = 100;
 
     static {
+        initGraphics();
+    }
+
+    public static void initGraphics() {
         try {
             javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
         } catch (Exception e) {
