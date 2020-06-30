@@ -70,8 +70,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public JPanel pressureSliderPanel;
     public MeterDensity densityMeter;
     public DeviceToggleButton fixPistonButton;
-    public DisplayPlot plotT, plotD, plotP;
-    public DisplayPlot plotRDF;
+    public DisplayPlotXChart plotT, plotD, plotP;
+    public DisplayPlotXChart plotRDF;
     public DataPumpListener rdfPump;
     public IntegratorListenerAction rdfListener;
     public Unit tUnit, dUnit, pUnit, mUnit;
@@ -410,9 +410,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 	    // Plots tabbed page
         //
 
-        plotD = new DisplayPlot();
-        plotT = new DisplayPlot();
-        plotP = new DisplayPlot();
+        plotD = new DisplayPlotXChart();
+        plotT = new DisplayPlotXChart();
+        plotP = new DisplayPlotXChart();
 
         JPanel myPlotPanel = new JPanel(new GridLayout(0, 1));
         myPlotPanel.add(plotD.graphic());
@@ -428,7 +428,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 		thermometer = new MeterTemperature(pc.box, space.D());
 
         if (doRDF) {
-            plotRDF = new DisplayPlot();
+            plotRDF = new DisplayPlotXChart();
             plotRDF.setDoLegend(false);
             plotRDF.setLabel("RDF");
             add(plotRDF);
@@ -709,11 +709,11 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         java.awt.Dimension d = plotT.getPlot().getPreferredSize();
         d.width -= 100;
         d.height = 210;
-        plotT.getPlot().setSize(d);
-        plotP.getPlot().setSize(d);
-        plotD.getPlot().setSize(d);
+        plotT.getPanel().setSize(d);
+        plotP.getPanel().setSize(d);
+        plotD.getPanel().setSize(d);
         if (doRDF) {
-            plotRDF.getPlot().setSize(d);
+            plotRDF.getPanel().setSize(d);
         }
 
         d.width += 40;
