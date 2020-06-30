@@ -57,7 +57,6 @@ project(':etomica-core') {
         compile 'com.github.therapi:therapi-runtime-javadoc:0.2.1'
         compile "io.github.lukehutch:fast-classpath-scanner:2.9.4"
 //        compile "org.knowm.xchart:xchart:3.6.3"
-//        compile files("/Users/alex/workspace/XChart/xchart/target/xchart-3.6.4-SNAPSHOT.jar")
         compile 'com.github.knowm:xchart:develop-SNAPSHOT'
 //        compile 'com.miglayout:miglayout-swing:5.2'
 
