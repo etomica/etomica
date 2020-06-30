@@ -177,6 +177,7 @@ public class DisplayPlotXChart extends Display implements DataSetListener {
         for (String series : this.plot.getSeriesMap().keySet()) {
             this.plot.updateXYSeries(series, new double[0], new double[0], null);
         }
+        this.getPanel().repaint();
     }
 
     public XYChart getChart() {
