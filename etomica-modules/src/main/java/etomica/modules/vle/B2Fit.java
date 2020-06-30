@@ -167,6 +167,7 @@ public class B2Fit extends SimulationPanel {
 
     public static void main(String[] args) {
 
+        SimulationGraphic.initGraphics();
         B2Fit graph = new B2Fit();
         JFrame f = new JFrame();
         f.setSize(1000, 600);
