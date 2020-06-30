@@ -15,7 +15,6 @@ import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -90,17 +89,9 @@ public class VirialNaphthaleneTraPPE {
         refCluster.setTemperature(temperature);
     
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
-        
-        // species Na
-        SpeciesFactory factoryNa = new SpeciesFactory() {
-            public ISpecies makeSpecies(Space space) {
-            	SpeciesTraPPENaphthalene species = new SpeciesTraPPENaphthalene(space);
-                      return species;
-            }
-        };
-    
+
     // do simulation
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,factoryNa, temperature,refCluster,targetCluster,false);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesTraPPENaphthalene(space), temperature, refCluster, targetCluster, false);
         sim.box[1].getSampleCluster().value(sim.box[1]);
         sim.integratorOS.setNumSubSteps(1000);
                 
@@ -172,8 +163,8 @@ public class VirialNaphthaleneTraPPE {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
         if (refFrac >= 0) {
-            sim.integratorOS.setStepFreq0(refFrac);
-            sim.integratorOS.setAdjustStepFreq(false);
+            sim.integratorOS.setRefStepFraction(refFrac);
+            sim.integratorOS.setAdjustStepFraction(false);
         }
 
         if (true) {
@@ -182,9 +173,9 @@ public class VirialNaphthaleneTraPPE {
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
-                    System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
-                    System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
+                    System.out.print(sim.integratorOS.getStepCount() + " steps: ");
+                    double[] ratioAndError = sim.dvo.getAverageAndError();
+                    System.out.println("abs average: " + ratioAndError[0] * HSB[nPoints] + ", error: " + ratioAndError[1] * HSB[nPoints]);
                 }
             };
             sim.integratorOS.getEventManager().addListener(progressReport);
@@ -192,11 +183,11 @@ public class VirialNaphthaleneTraPPE {
 
         sim.getController().actionPerformed();
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
+        System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());
 
         sim.printResults(HSB[nPoints]);
-	}
+    }
 
     /**6
      * Inner class for parameters

@@ -142,8 +142,8 @@ public class VirialCO2AnthraceneTraPPE {
         
         
           // now is the simulation!!!
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactory[]{factoryCO2,factoryAn}, nTypes, temperature,new ClusterAbstract[]{refCluster,targetCluster},
-                new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)},false);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{new SpeciesTraPPECO2(space), new SpeciesTraPPEAnthracene(space)}, nTypes, temperature, new ClusterAbstract[]{refCluster, targetCluster},
+                new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)}, false);
         
         //put the species in the box
         SpeciesTraPPEAnthracene speciesAn = (SpeciesTraPPEAnthracene)sim.getSpecies(1);
@@ -219,8 +219,8 @@ public class VirialCO2AnthraceneTraPPE {
         }
 
         if (refFrac >= 0) {
-            sim.integratorOS.setStepFreq0(refFrac);
-            sim.integratorOS.setAdjustStepFreq(false);
+            sim.integratorOS.setRefStepFraction(refFrac);
+            sim.integratorOS.setAdjustStepFraction(false);
         }
 
         if (true) {
@@ -229,9 +229,9 @@ public class VirialCO2AnthraceneTraPPE {
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
-                    System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
-                    System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
+                    System.out.print(sim.integratorOS.getStepCount() + " steps: ");
+                    double[] ratioAndError = sim.dvo.getAverageAndError();
+                    System.out.println("abs average: " + ratioAndError[0] * HSB[nPoints] + ", error: " + ratioAndError[1] * HSB[nPoints]);
                 }
             };
             sim.integratorOS.getEventManager().addListener(progressReport);
@@ -239,11 +239,11 @@ public class VirialCO2AnthraceneTraPPE {
 
         sim.getController().actionPerformed();
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
+        System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());
 
         sim.printResults(HSB[nPoints]);
-	}
+    }
 
     /**
      * Inner class for parameters

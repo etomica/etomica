@@ -9,10 +9,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.models.water.P2HardAssociationGCPMReference;
-import etomica.models.water.PNWaterGCPM;
-import etomica.models.water.PNWaterGCPMThreeSite;
-import etomica.models.water.SpeciesWater4P;
+import etomica.models.water.*;
 import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -23,7 +20,7 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
-import etomica.virial.simulations.SimulationVirialOverlap;
+import etomica.virial.simulations.SimulationVirialOverlap2;
 
 import java.awt.*;
 
@@ -208,27 +205,29 @@ public class WertheimGCPM4PtEBondDecomp {
 			refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fCARef4mer, fACRef4mer, fBCRef4mer});
         }
 		refCluster.setTemperature(temperature);
-		clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
-		targetCluster = new ClusterSumPolarizableWertheimProduct4Pt(clusters,new double []{1}, new MayerFunction[]{fR,FCA,FAC,FCB,FBC,eR,e});	
-		if (flip){
+		clusters = (ClusterBonds[]) Arrays.addObject(clusters, new ClusterBonds(nBody, bondList, false));
+		targetCluster = new ClusterSumPolarizableWertheimProduct4Pt(clusters, new double[]{1}, new MayerFunction[]{fR, FCA, FAC, FCB, FBC, eR, e});
+		if (flip) {
 			System.out.println("Flipping is applied");
-	        ((ClusterSumPolarizableWertheimProduct4Pt)targetCluster).setDeltaCut(deltaCut);
-	        ((ClusterSumPolarizableWertheimProduct4Pt)targetCluster).setCaching(false);
-	        targetCluster = new ClusterCoupledFlipped(targetCluster, space);
+			((ClusterSumPolarizableWertheimProduct4Pt) targetCluster).setDeltaCut(deltaCut);
+			((ClusterSumPolarizableWertheimProduct4Pt) targetCluster).setCaching(false);
+			targetCluster = new ClusterCoupledFlipped(targetCluster, space);
 		}
-        targetCluster.setTemperature(temperature);
-        
-		final SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactoryWaterGCPM(), temperature,refCluster,targetCluster);
-		ConfigurationClusterWertheimGCPM4Pt configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pCA);
+		targetCluster.setTemperature(temperature);
+
+		SpeciesWater4P species = new SpeciesWater4P(space);
+		species.setConformation(new ConformationWaterGCPM(space));
+		final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, temperature, refCluster, targetCluster);
+		ConfigurationClusterWertheimGCPM4Pt configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(), pCA);
 		if (numDiagram == 28) configuration.initializeCoordinatesER(sim.box[1]);
 		if (numDiagram == 29) configuration.initializeCoordinates(sim.box[1]);
-		if ((numDiagram == 16 || numDiagram == 30)){
-			if (diagramIndex == 1){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pCA,pCA);
-			} else if (diagramIndex == 4){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pCA,pAC);
-			} else if (diagramIndex == 3){
-				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pAC,pCA);
+		if ((numDiagram == 16 || numDiagram == 30)) {
+			if (diagramIndex == 1) {
+				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(), pCA, pCA);
+			} else if (diagramIndex == 4) {
+				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(), pCA, pAC);
+			} else if (diagramIndex == 3) {
+				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(), pAC, pCA);
 			} else if (diagramIndex == 2){
 				configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(),pCA,pBC);
 			}	
@@ -259,7 +258,6 @@ public class WertheimGCPM4PtEBondDecomp {
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            SpeciesWater4P species = (SpeciesWater4P)sim.getSpecies(0);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
@@ -312,20 +310,20 @@ public class WertheimGCPM4PtEBondDecomp {
         IAction progressReport = new IAction() {
             public void actionPerformed() {
                 System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+				double[] ratioAndError = sim.dvo.getAverageAndError();
                 System.out.println("abs average: "+ratioAndError[0]*HSB[nBody]+", error: "+ratioAndError[1]*Math.abs(HSB[nBody]));
-            }
-        };
-        IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
-        progressReportListener.setInterval((int)(numSteps/10));
-        sim.integratorOS.getEventManager().addListener(progressReportListener);
-        
-        sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+			}
+		};
+		IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
+		progressReportListener.setInterval((int) (numSteps / 10));
+		sim.integratorOS.getEventManager().addListener(progressReportListener);
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
+		sim.integratorOS.getMoveManager().setEquilibrating(false);
+		sim.ai.setMaxSteps(numSteps);
+		sim.getController().actionPerformed();
+
+		System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
+		System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());
 
 		sim.printResults(HSB[nBody]);
 	}

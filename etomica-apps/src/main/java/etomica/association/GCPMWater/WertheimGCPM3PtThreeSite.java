@@ -9,6 +9,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.models.water.ConformationWaterGCPM;
 import etomica.models.water.P2HardAssociationGCPMReference;
 import etomica.models.water.PNWaterGCPMThreeSite;
 import etomica.models.water.SpeciesWater4P;
@@ -20,7 +21,7 @@ import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
-import etomica.virial.simulations.SimulationVirialOverlap;
+import etomica.virial.simulations.SimulationVirialOverlap2;
 
 import java.awt.*;
 
@@ -186,25 +187,27 @@ public class WertheimGCPM3PtThreeSite {
 			throw new RuntimeException("This is strange");
 		}
 
-		System.out.println("B3HS: "+HSB[3]+" = "+(HSB[3]/(HSB[2]*HSB[2]))+" B2HS^2");
-		ClusterAbstract refCluster = Standard.virialCluster(nBody, fRef, nBody>3, eRef, true);
-		if ((numDiagram == 5 ||numDiagram == 6 ||numDiagram == 7)){
-			ClusterBonds refBonds = new ClusterBonds(4,refBondList, false);
-			refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fCARef4mer, fACRef4mer, fBCRef4mer});
+		System.out.println("B3HS: " + HSB[3] + " = " + (HSB[3] / (HSB[2] * HSB[2])) + " B2HS^2");
+		ClusterAbstract refCluster = Standard.virialCluster(nBody, fRef, nBody > 3, eRef, true);
+		if ((numDiagram == 5 || numDiagram == 6 || numDiagram == 7)) {
+			ClusterBonds refBonds = new ClusterBonds(4, refBondList, false);
+			refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double[]{1}, new MayerFunction[]{fCARef4mer, fACRef4mer, fBCRef4mer});
 		}
-        refCluster.setTemperature(temperature);
-        targetCluster.setTemperature(temperature);
-		final SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactoryWaterGCPM(), temperature,refCluster,targetCluster);
+		refCluster.setTemperature(temperature);
+		targetCluster.setTemperature(temperature);
+		SpeciesWater4P species = new SpeciesWater4P(space);
+		species.setConformation(new ConformationWaterGCPM(space));
+		final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, temperature, refCluster, targetCluster);
 		//ConfigurationClusterMove configuration = new ConfigurationClusterMove(space, sim.getRandom());
 		ConfigurationClusterWertheimGCPM configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pAC);
-		if (numDiagram == 3 || numDiagram == 4 ) {
+		if (numDiagram == 3 || numDiagram == 4) {
 			configuration.initializeCoordinates(sim.box[1]);
 		}
-		if (numDiagram ==5 &&diagramIndex==1){//diagram 5-1
-				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pCA, pCA);
-				configuration.initializeCoordinates3(sim.box[0]);	
-				configuration.initializeCoordinates3(sim.box[1]);	
-			}
+		if (numDiagram == 5 && diagramIndex == 1) {//diagram 5-1
+			configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pCA, pCA);
+			configuration.initializeCoordinates3(sim.box[0]);
+			configuration.initializeCoordinates3(sim.box[1]);
+		}
 			if (numDiagram ==5 &&diagramIndex==2){//diagram 5-2
 				configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pCA, pBC);
 				configuration.initializeCoordinates3(sim.box[0]);	
@@ -237,7 +240,6 @@ public class WertheimGCPM3PtThreeSite {
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            SpeciesWater4P species = (SpeciesWater4P)sim.getSpecies(0);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
@@ -286,20 +288,20 @@ public class WertheimGCPM3PtThreeSite {
         IAction progressReport = new IAction() {
             public void actionPerformed() {
                 System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+				double[] ratioAndError = sim.dvo.getAverageAndError();
                 System.out.println("abs average: "+ratioAndError[0]*HSB[nBody]+", error: "+ratioAndError[1]*HSB[nBody]);
-            }
-        };
-        IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
-        progressReportListener.setInterval((int)(numSteps/10));
-        sim.integratorOS.getEventManager().addListener(progressReportListener);
-        
-        sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+			}
+		};
+		IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
+		progressReportListener.setInterval((int) (numSteps / 10));
+		sim.integratorOS.getEventManager().addListener(progressReportListener);
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
+		sim.integratorOS.getMoveManager().setEquilibrating(false);
+		sim.ai.setMaxSteps(numSteps);
+		sim.getController().actionPerformed();
+
+		System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
+		System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());
 
 		sim.printResults(HSB[nBody]);
 	}

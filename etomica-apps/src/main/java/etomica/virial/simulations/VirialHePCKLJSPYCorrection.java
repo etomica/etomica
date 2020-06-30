@@ -4,14 +4,13 @@
 
 package etomica.virial.simulations;
 
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
+import etomica.chem.elements.ElementSimple;
 import etomica.potential.P2EffectiveFeynmanHibbs;
 import etomica.potential.P2HePCKLJS;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
-import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
@@ -223,8 +222,8 @@ public class VirialHePCKLJSPYCorrection {
         refCluster.setTemperature(temperature);
 
         System.out.println((steps*1000)+" steps ("+steps+" IntegratorOverlap steps of 1000 steps)");
-		
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), temperature,refCluster,targetCluster);
+
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesSpheresMono(space, new ElementSimple("A")), temperature, refCluster, targetCluster);
         
         // The diagram which constitutes B4-B4PY is zero for an overlapped configuration.  Without ConfigurationClusterMove, the initial configuration will be overlapped, and gamma/pi will be zero.
         // Such configurations will not be visited later, precisely because pi is zero.
@@ -234,7 +233,7 @@ public class VirialHePCKLJSPYCorrection {
         sim.integratorOS.setNumSubSteps(1000);
         
         // Keep 50-50 split between reference and target
-        sim.integratorOS.setAdjustStepFreq(adjustStepFrequency);
+        sim.integratorOS.setAdjustStepFraction(adjustStepFrequency);
        
         sim.setAccumulatorBlockSize(stepsPerBlock);
         System.out.println(stepsPerBlock+" steps per block");
@@ -245,66 +244,24 @@ public class VirialHePCKLJSPYCorrection {
 
         sim.initRefPref(refFileName, steps/100);
         sim.equilibrate(refFileName, eqSteps); // 5000 IntegratorOverlap steps = 5e6 steps
-        System.out.println((eqSteps*1000) + " equilibration steps (" + eqSteps + " Integrator Overlap Steps)"); 
-        
+        System.out.println((eqSteps*1000) + " equilibration steps (" + eqSteps + " Integrator Overlap Steps)");
+
         System.out.println("equilibration finished");
-        
-        
+
+
         sim.ai.setMaxSteps(steps);
-        for (int i=0; i<2; i++) {
-            System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
+        for (int i = 0; i < 2; i++) {
+            System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
         sim.getController().actionPerformed();
 
         System.out.println();
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
-        
-        System.out.println();
-        
-        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
-        System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
-        System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
-        System.out.println();
-        System.out.println("cm"+((nPoints-1)*3)+"/mol"+(nPoints-1)+": ");
-        System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]*Math.pow(Constants.AVOGADRO*1e-24,nPoints-1)+", error: "+ratioAndError[1]*HSB[nPoints]*Math.pow(Constants.AVOGADRO*1e-24,nPoints-1));
-        System.out.println();
-        System.out.println("Simulation units:");
-        
-        System.out.println();
-        
-        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        System.out.println("reference ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].RATIO.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].RATIO_ERROR.index)).getData()[1]);
-        System.out.println("reference average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[0]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[0]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].ERROR.index)).getData()[0]);
-        System.out.println("reference overlap average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
-        
-        
-        System.out.println("reference autocorrelation function: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].BLOCK_CORRELATION.index)).getData()[0]);
-        
-        System.out.println("reference overlap autocorrelation function: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].BLOCK_CORRELATION.index)).getData()[1]);
-        
-        System.out.println();
-        
-        
-        allYourBase = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints()-sim.dsvo.minDiffLocation()-1);
-        System.out.println("target ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].RATIO.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].RATIO_ERROR.index)).getData()[1]);
-        System.out.println("target average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[0]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[0]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].ERROR.index)).getData()[0]);
-        System.out.println("target overlap average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].ERROR.index)).getData()[1]);
+        System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());
 
-        System.out.println("target autocorrelation function: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].BLOCK_CORRELATION.index)).getData()[0]);
-        
-        System.out.println("target overlap autocorrelation function: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].BLOCK_CORRELATION.index)).getData()[1]);
-    
+        System.out.println();
+
+        sim.printResults(HSB[nPoints]);
     }
 
     /**
