@@ -34,6 +34,7 @@ import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Pressure2D;
 import etomica.util.Constants.CompassDirection;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -182,7 +183,7 @@ public class NucleationGraphic extends SimulationGraphic {
         int numAtoms = sim.box.getLeafList().size();
         pePump.setInterval(numAtoms > 120 ? 1 : 120 / numAtoms);
 
-        final DisplayPlot ePlot = new DisplayPlot();
+        final DisplayPlotXChart ePlot = new DisplayPlotXChart();
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
         ePlot.setDoLegend(false);
 
@@ -191,7 +192,7 @@ public class NucleationGraphic extends SimulationGraphic {
         ePlot.setUnit(eUnit);
         ePlot.setXLabel("Simulation Time (ps)");
 
-        final DisplayPlot tPlot = new DisplayPlot();
+        final DisplayPlotXChart tPlot = new DisplayPlotXChart();
         temperatureHistory.setDataSink(tPlot.getDataSet().makeDataSink());
         tPlot.setDoLegend(false);
 
@@ -223,7 +224,7 @@ public class NucleationGraphic extends SimulationGraphic {
         AccumulatorHistory clusterHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         clusterHistory.setTimeDataSource(timeCounter);
         forkCluster.addDataSink(clusterHistory);
-        DisplayPlot clusterHistoryPlot = new DisplayPlot();
+        DisplayPlotXChart clusterHistoryPlot = new DisplayPlotXChart();
         clusterHistory.addDataSink(clusterHistoryPlot.getDataSet().makeDataSink());
         clusterHistoryPlot.setLabel("Cluster History");
         clusterHistoryPlot.setDoLegend(false);
@@ -231,7 +232,7 @@ public class NucleationGraphic extends SimulationGraphic {
         add(clusterHistoryPlot);
 
         meterClusterSizes = new MeterClusterSizes(sim.box);
-        DisplayPlot clusterHistogramPlot = new DisplayPlot();
+        DisplayPlotXChart clusterHistogramPlot = new DisplayPlotXChart();
         DataPumpListener pumpClusterHistogram = new DataPumpListener(meterClusterSizes, clusterHistogramPlot.getDataSet().makeDataSink(), 100);
         sim.integrator.getEventManager().addListener(pumpClusterHistogram);
         clusterHistogramPlot.setLabel("Cluster Histogram");
@@ -284,9 +285,9 @@ public class NucleationGraphic extends SimulationGraphic {
 
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
 
-        JPanel etPanel = new JPanel(new GridBagLayout());
-        etPanel.add(ePlot.getPlot(), vertGBC);
-        etPanel.add(tPlot.getPlot(), vertGBC);
+        JPanel etPanel = new JPanel(new MigLayout("flowy"));
+        etPanel.add(ePlot.getPanel(), "");
+        etPanel.add(tPlot.getPanel(), "");
         addAsTab(etPanel, "Energy", true);
 
         add(displayCycles);
