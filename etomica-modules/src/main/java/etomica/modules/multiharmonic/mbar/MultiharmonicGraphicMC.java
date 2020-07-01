@@ -23,6 +23,7 @@ import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -48,14 +49,14 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         final Device controllerButtons = getController();
         getPanel().graphicsPanel.remove(controllerButtons.graphic());
         getPanel().footerPanel.add(controllerButtons.graphic());
-        getPanel().graphicsPanel.setLayout(new GridBagLayout());
+        getPanel().graphicsPanel.setLayout(new MigLayout());
 
         displayBoxA.setPixelUnit(new Pixel(350/sim.boxA.getBoundary().getBoxSize().getX(0)));
         ((DiameterHashByType)displayBoxA.getDiameterHash()).setDiameter(sim.species.getLeafType(), 0.02);
         displayBoxB.setPixelUnit(new Pixel(350/sim.boxB.getBoundary().getBoxSize().getX(0)));
         displayBoxB.setDiameterHash(displayBoxA.getDiameterHash());
 
-        final DisplayPlot plot = new DisplayPlot();
+        final DisplayPlotXChart plot = new DisplayPlotXChart();
         
         DataSourceCountSteps stepCounter = new DataSourceCountSteps(sim.integratorOS);
 
@@ -82,10 +83,9 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             plot.setLegend(new DataTag[]{historyMax.getTag()}, "max");
         }
 
-        DisplayPlot alphaChiPlot = new DisplayPlot();
+        DisplayPlotXChart alphaChiPlot = new DisplayPlotXChart();
         alphaChiPlot.getPlot().setXLog(true);
         alphaChiPlot.getPlot().setYLog(true);
-        alphaChiPlot.setSize(350, 250);
         IDataSource alphaChi = new DataSourceAlphaChi(sim.meterOverlapA, sim.meterOverlapB, isBroken);
         DataPumpListener alphaChiPump = new DataPumpListener(alphaChi, alphaChiPlot.getDataSet().makeDataSink(), 10);
         sim.integratorOS.getEventManager().addListener(alphaChiPump);
@@ -222,7 +222,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         dataStreamPumps.add(exactPump);
         deltaHistory.setTimeDataSource(stepCounter);
         
-        final DisplayPlot uPlot = new DisplayPlot();
+        final DisplayPlotXChart uPlot = new DisplayPlotXChart();
         final double yMax = 2.0;
         uPlot.getPlot().setYRange(0.0, yMax);
         
@@ -241,10 +241,10 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 
         final DataSourceFunction uA = new DataSourceFunction("A",Null.DIMENSION,fUA,100,"x",Length.DIMENSION);
         final DataSourceFunction uB = new DataSourceFunction("B",Null.DIMENSION,fUB,100,"x",Length.DIMENSION);
-        uA.getXSource().setXMin(-sim.boxA.getBoundary().getBoxSize().getX(0));
-        uB.getXSource().setXMin(-sim.boxA.getBoundary().getBoxSize().getX(0));
-        uA.getXSource().setXMax(sim.boxA.getBoundary().getBoxSize().getX(0));
-        uB.getXSource().setXMax(sim.boxA.getBoundary().getBoxSize().getX(0));
+        uA.getXSource().setXMin(-sim.boxA.getBoundary().getBoxSize().getX(0) / 2);
+        uB.getXSource().setXMin(-sim.boxA.getBoundary().getBoxSize().getX(0) / 2);
+        uA.getXSource().setXMax(sim.boxA.getBoundary().getBoxSize().getX(0) / 2);
+        uB.getXSource().setXMax(sim.boxA.getBoundary().getBoxSize().getX(0) / 2);
         final DataPump uAPump = new DataPump(uA, uPlot.getDataSet().makeDataSink());
         final DataPump uBPump = new DataPump(uB, uPlot.getDataSet().makeDataSink());
         IAction uUpdate = new IAction() {
@@ -261,49 +261,46 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 
         uPlot.getDataSet().setUpdatingOnAnyChange(true);
 
-        GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
-        GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
-
         //controls -- start/pause and sliders
         JTabbedPane sliderPanel = new JTabbedPane();
         sliderPanel.add(x0Slider.graphic(), "x0");
         sliderPanel.add(omegaASlider.graphic(), "omegaA");
         sliderPanel.add(omegaBSlider.graphic(), "omegaB");
         
-        JPanel topPanel = new JPanel(new GridBagLayout());
-        JPanel displayPanel = new JPanel(new GridBagLayout());
-        topPanel.add(sliderPanel, vertGBC);
-        topPanel.add(nSlider.graphic(), vertGBC);
-        JPanel alphaPanel = new JPanel();
+        JPanel topPanel = new JPanel(new MigLayout());
+        JPanel displayPanel = new JPanel(new MigLayout("flowy, novisualpadding"));
+        JPanel controlsPanel = new JPanel(new MigLayout("flowy, novisualpadding"));
+
+        controlsPanel.add(sliderPanel, "align center");
+        controlsPanel.add(nSlider.graphic(), "align center");
+
+        JPanel alphaPanel = new JPanel(new MigLayout());
         alphaPanel.add(alphaCenterBox.graphic());
         alphaPanel.add(alphaSpanBox.graphic());
         alphaPanel.add(numAlphaBox.graphic());
-        topPanel.add(alphaPanel, vertGBC);
-        displayPanel.add(uPlot.graphic(), vertGBC);
+        controlsPanel.add(alphaPanel, "align center");
+
+        displayPanel.add(uPlot.graphic());
+
         JTabbedPane displayBoxPanel = new JTabbedPane();
         displayBoxPanel.add(displayBoxA.graphic(), "box A");
         displayBoxPanel.add(displayBoxB.graphic(), "box B");
-        displayPanel.add(displayBoxPanel, vertGBC);
-        GridBagConstraints mygbc = new GridBagConstraints();
-        mygbc.gridx = 1;
-        mygbc.gridy = 0;
-        mygbc.gridheight = 3;
-        topPanel.add(displayPanel, mygbc);
+        displayPanel.add(displayBoxPanel, "growx, center, gapx 4% 9%");
+        topPanel.add(controlsPanel, "");
+        topPanel.add(displayPanel, "");
         
-        plot.setSize(350, 250);
-        uPlot.setSize(450, 250);
-
-        getPanel().graphicsPanel.add(topPanel);
+        getPanel().graphicsPanel.setLayout(new MigLayout());
+        getPanel().graphicsPanel.add(topPanel, "wrap");
 
         JTabbedPane plotTabs = new JTabbedPane();
 
-        getPanel().graphicsPanel.add(plotTabs, vertGBC);
+        getPanel().graphicsPanel.add(plotTabs);
 
         getController().getReinitButton().setPostAction(new IAction() {
         	public void actionPerformed() {
                 displayBoxA.repaint();
                 displayBoxB.repaint();
-                plot.getPlot().repaint();
+                plot.getPanel().repaint();
         	}
         });
 
@@ -341,14 +338,10 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 //        dpLower.setDataSink(funPlot.getDataSet().makeDataSink());
 //        funPlot.setLegend(new DataTag[]{dpLower.getTag()}, "FE lower bound");
 //        
-        JPanel tab2 = new JPanel(new GridBagLayout());
-        plotTabs.add(tab2, "Free Energy");
 //        tab2.add(funPlot.graphic());
-        tab2.add(plot.graphic(), horizGBC);
-        JPanel tab3 = new JPanel(new GridBagLayout());
-        plotTabs.add(tab3, "Chi");
-        tab3.add(alphaChiPlot.graphic(), horizGBC);
-//        
+        plotTabs.add(plot.graphic(), "Free Energy");
+        plotTabs.add(alphaChiPlot.graphic(), "Chi");
+//
 //        DataProcessorVar dpstdev = new DataProcessorVar();
 //        dpstdev.setAccumulator(accumulatorEnergy);
 //        feFork.addDataSink(dpstdev);

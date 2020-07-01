@@ -130,7 +130,6 @@ public class DisplayBox extends Display {
         java.awt.Dimension temp = new java.awt.Dimension(width, height);
         canvas.setSize(width, height);
         canvas.setMinimumSize(temp);
-        canvas.setMaximumSize(temp);
         canvas.setPreferredSize(temp);
         canvas.reshape(width, height);
 

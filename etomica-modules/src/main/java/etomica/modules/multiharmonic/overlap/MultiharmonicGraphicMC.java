@@ -39,6 +39,7 @@ import etomica.space1d.Vector1D;
 import etomica.units.Pixel;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.*;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -124,9 +125,9 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             forkB.addDataSink(accFixedB);
             overlapAvgB = new DataOverlap.DataSourceOverlapAvgSimple(accFixedB);
         }
-        DisplayPlot dWPlot = null;
+        DisplayPlotXChart dWPlot = null;
         if (makeDWPlot) {
-            dWPlot = new DisplayPlot();
+            dWPlot = new DisplayPlotXChart();
             dWPlot.setLabel("dW");
             dWPlot.getPlot().setXLabel("Ui-UW");
             dWPlot.getDataSet().setUpdatingOnAnyChange(true);
@@ -195,18 +196,16 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         final Device controllerButtons = getController();
         getPanel().graphicsPanel.remove(controllerButtons.graphic());
         getPanel().footerPanel.add(controllerButtons.graphic());
-        getPanel().graphicsPanel.setLayout(new GridBagLayout());
+        getPanel().graphicsPanel.setLayout(new MigLayout("flowy"));
         
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         dataStreamPumps.add(dataPumpA);
 
-        displayBoxA.setPixelUnit(new Pixel(350/sim.boxA.getBoundary().getBoxSize().getX(0)));
         ((DiameterHashByType)displayBoxA.getDiameterHash()).setDiameter(sim.species.getLeafType(), 0.02);
-        displayBoxB.setPixelUnit(new Pixel(350/sim.boxB.getBoundary().getBoxSize().getX(0)));
         displayBoxB.setDiameterHash(displayBoxA.getDiameterHash());
 
-        final DisplayPlot fePlot = new DisplayPlot();
-        final DisplayPlot feLnPlot = new DisplayPlot();
+        final DisplayPlotXChart fePlot = new DisplayPlotXChart();
+        final DisplayPlotXChart feLnPlot = new DisplayPlotXChart();
         feLnPlot.getPlot().setXLog(true);
         
         final DataSourceCountSteps stepCounter = new DataSourceCountSteps(sim.integratorOS);
@@ -336,7 +335,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         fracHistory.setTimeDataSource(stepCounter);
         DataPumpListener fracPump = new DataPumpListener(fracDataSource, fracHistory, 1);
         sim.integratorOS.getEventManager().addListener(fracPump);
-        DisplayPlot fracPlot = new DisplayPlot();
+        DisplayPlotXChart fracPlot = new DisplayPlotXChart();
         fracHistory.setDataSink(fracPlot.getDataSet().makeDataSink());
         fracPlot.setLegend(new DataTag[]{fracHistory.getTag()}, "actual");
         DataSourceScalar frac2DataSource = new DataSourceScalar("frac A", Fraction.DIMENSION) {
@@ -356,7 +355,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         slopeHistory.setTimeDataSource(stepCounter);
         DataPumpListenerSmart slopePump = new DataPumpListenerSmart(slopeDataSource, slopeHistory, dataInterval, (HistoryCollapsingDiscard)slopeHistory.getHistory());
         sim.integratorOS.getEventManager().addListener(slopePump);
-        DisplayPlot slopePlot = new DisplayPlot();
+        DisplayPlotXChart slopePlot = new DisplayPlotXChart();
         slopeHistory.setDataSink(slopePlot.getDataSet().makeDataSink());
         slopePlot.setLegend(new DataTag[]{slopeHistory.getTag()}, "slope");
 
@@ -365,7 +364,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         uaHistory.setTimeDataSource(stepCounter);
         DataPumpListenerSmart uaPump = new DataPumpListenerSmart(uaDataSource, uaHistory, 10*dataInterval, (HistoryCollapsingDiscard)uaHistory.getHistory());
         sim.integratorOS.getEventManager().addListener(uaPump);
-        DisplayPlot uaPlot = new DisplayPlot();
+        DisplayPlotXChart uaPlot = new DisplayPlotXChart();
         uaHistory.setDataSink(uaPlot.getDataSet().makeDataSink());
         uaPlot.setLegend(new DataTag[]{uaHistory.getTag()}, "Ua");
         
@@ -398,16 +397,16 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         ua2Fork.addDataSink(aDataSource);
         aHistory.setTimeDataSource(stepCounter);
         aDataSource.setDataSink(aHistory);
-        DisplayPlot aPlot = new DisplayPlot();
+        DisplayPlotXChart aPlot = new DisplayPlotXChart();
         aHistory.setDataSink(slopePlot.getDataSet().makeDataSink());
         aPlot.setDoLegend(false);
         slopePlot.setLegend(new DataTag[]{aHistory.getTag()}, "a");
         
         
-        DisplayPlot alphaChiPlot = new DisplayPlot();
+        DisplayPlotXChart alphaChiPlot = new DisplayPlotXChart();
         alphaChiPlot.getPlot().setXLog(true);
         alphaChiPlot.getPlot().setYLog(true);
-        alphaChiPlot.setSize(350, 250);
+        alphaChiPlot.getChart().getStyler().setPlotGridLinesVisible(false);
         IDataSource alphaChi = new DataSourceAlphaChi(dsvo, 0);
         DataPumpListenerPow alphaChiPump = new DataPumpListenerPow(alphaChi, alphaChiPlot.getDataSet().makeDataSink(), 10*dataInterval, 10, 20);
         sim.integratorOS.getEventManager().addListener(alphaChiPump);
@@ -519,17 +518,17 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         });
         alphaSpanBox.setPrecision(6);
 
-        DisplayPlot feRefTargetPlot = null;
-        DisplayPlot stdevRefTargetPlot = new DisplayPlot();
+        DisplayPlotXChart feRefTargetPlot = null;
+        DisplayPlotXChart stdevRefTargetPlot = new DisplayPlotXChart();
         stdevRefTargetPlot.getPlot().setXLog(true);
         stdevRefTargetPlot.getPlot().setYLog(true);
-        DisplayPlot biasRefTargetPlot = null;
+        DisplayPlotXChart biasRefTargetPlot = null;
         if (overlapAvgA instanceof DataSourceOverlapLogAvg) {
             dataSourceRefFE = new DataSourceAlphaFE(meterOverlapA, DataSourceAlphaFE.AVG);
             dataSourceRefFE.setOverlapSplitter(splitterA);
             dataSourceTargetFE = new DataSourceAlphaFE(meterOverlapA, DataSourceAlphaFE.AVG);
             dataSourceTargetFE.setOverlapSplitter(splitterB);
-            feRefTargetPlot = new DisplayPlot();
+            feRefTargetPlot = new DisplayPlotXChart();
             feRefTargetPlot.getPlot().setXLog(true);
             DataPumpListenerPow pump = new DataPumpListenerPow(dataSourceRefFE, feRefTargetPlot.getDataSet().makeDataSink(), 10*dataInterval, 10, 20);
             sim.integratorOS.getEventManager().addListener(pump);
@@ -549,7 +548,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             sim.integratorOS.getEventManager().addListener(pump);
             stdevRefTargetPlot.setLegend(new DataTag[]{dataSourceTargetStdev.getTag()}, "B");
 
-            biasRefTargetPlot = new DisplayPlot();
+            biasRefTargetPlot = new DisplayPlotXChart();
             biasRefTargetPlot.getPlot().setXLog(true);
             biasRefTargetPlot.getPlot().setYLog(true);
             dataSourceRefBias = new DataSourceAlphaFE(meterOverlapA, DataSourceAlphaFE.BIAS);
@@ -800,7 +799,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         dataStreamPumps.add(exactPumpLn);
         deltaHistoryLn.setTimeDataSource(stepCounter);
 
-        final DisplayPlot uPlot = new DisplayPlot();
+        final DisplayPlotXChart uPlot = new DisplayPlotXChart();
         final double yMax = 2.0;
         uPlot.getPlot().setYRange(0.0, yMax);
         
@@ -820,10 +819,10 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         final DataSourceFunction uA = new DataSourceFunction("A",Null.DIMENSION,fUA,100,"x",Length.DIMENSION);
         final DataSourceFunction uB = new DataSourceFunction("B",Null.DIMENSION,fUB,100,"x",Length.DIMENSION);
         double Lx = sim.boxA.getBoundary().getBoxSize().getX(0);
-        uA.getXSource().setXMin(-Lx);
-        uB.getXSource().setXMin(-Lx);
-        uA.getXSource().setXMax(Lx);
-        uB.getXSource().setXMax(Lx);
+        uA.getXSource().setXMin(-Lx / 2);
+        uB.getXSource().setXMin(-Lx / 2);
+        uA.getXSource().setXMax(Lx / 2);
+        uB.getXSource().setXMax(Lx / 2);
         final DataPump uAPump = new DataPump(uA, uPlot.getDataSet().makeDataSink());
         final DataPump uBPump = new DataPump(uB, uPlot.getDataSet().makeDataSink());
         final IAction uUpdate = new IAction() {
@@ -864,105 +863,82 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 
         uPlot.getDataSet().setUpdatingOnAnyChange(true);
 
-        GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
-        GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
-
         //controls -- start/pause and sliders
         JTabbedPane sliderPanel = new JTabbedPane();
         sliderPanel.add(x0Slider.graphic(), "x0");
         sliderPanel.add(omegaASlider.graphic(), "omegaA");
         sliderPanel.add(omegaBSlider.graphic(), "omegaB");
         
-        JPanel topPanel = new JPanel(new GridBagLayout());
-        JPanel displayPanel = new JPanel(new GridBagLayout());
-        topPanel.add(sliderPanel, vertGBC);
-        topPanel.add(nSlider.graphic(), vertGBC);
+        JPanel topPanel = new JPanel(new MigLayout("flowy, novisualpadding"));
+        JPanel displayPanel = new JPanel(new MigLayout("flowy"));
+        topPanel.add(sliderPanel, "");
+        topPanel.add(nSlider.graphic(), "");
         JPanel alphaPanel = new JPanel(new GridLayout(2, 2));
         alphaPanel.add(alphaCenterBox.graphic());
         alphaPanel.add(alphaSpanBox.graphic());
         alphaPanel.add(numAlphaBox.graphic());
         alphaPanel.add(alphaChoiceBox.graphic());
-        topPanel.add(alphaPanel, vertGBC);
-        displayPanel.add(uPlot.graphic(), vertGBC);
+        topPanel.add(alphaPanel, "");
+        displayPanel.add(uPlot.graphic());
         JTabbedPane displayBoxPanel = new JTabbedPane();
         displayBoxPanel.add(displayBoxA.graphic(), "box A");
         displayBoxPanel.add(displayBoxB.graphic(), "box B");
-        displayPanel.add(displayBoxPanel, vertGBC);
-        GridBagConstraints mygbc = new GridBagConstraints();
-        mygbc.gridx = 1;
-        mygbc.gridy = 0;
-        mygbc.gridheight = 3;
-        topPanel.add(displayPanel, mygbc);
-
-        stdevRefTargetPlot.setSize(350,250);
-        if (feRefTargetPlot != null) {
-            feRefTargetPlot.setSize(350,250);
-            biasRefTargetPlot.setSize(350,250);
-        }
-        aPlot.setSize(450,250);
-        uaPlot.setSize(450,250);
-        slopePlot.setSize(450,250);
-        fracPlot.setSize(450,250);
-        fePlot.setSize(450, 250);
-        feLnPlot.setSize(450, 250);
-        uPlot.setSize(450, 250);
-        if (dWPlot != null) {
-            dWPlot.setSize(450, 250);
-        }
+        displayPanel.add(displayBoxPanel, "growx, center, gapx 4% 9%");
+        topPanel.add(displayPanel, "newline, spany");
 
         getPanel().graphicsPanel.add(topPanel);
 
         JTabbedPane plotTabs = new JTabbedPane();
 
-        getPanel().graphicsPanel.add(plotTabs, vertGBC);
+        getPanel().graphicsPanel.add(plotTabs);
 
         getController().getReinitButton().setPostAction(new IAction() {
         	public void actionPerformed() {
                 displayBoxA.repaint();
                 displayBoxB.repaint();
-                fePlot.getPlot().repaint();
-                feLnPlot.getPlot().repaint();
+                fePlot.getPlot().doUpdate();
+                feLnPlot.getPlot().doUpdate();
         	}
         });
 
         uUpdate.actionPerformed();
 
-        JPanel tab2 = new JPanel(new GridBagLayout());
+        JPanel tab2 = new JPanel(new MigLayout());
         plotTabs.add(tab2, "Free Energy");
-        tab2.add(fePlot.graphic(), horizGBC);
-        JPanel tab2a = new JPanel(new GridBagLayout());
+        tab2.add(fePlot.graphic(), "");
+        JPanel tab2a = new JPanel(new MigLayout());
         plotTabs.add(tab2a, "Free Energy (log)");
-        tab2a.add(feLnPlot.graphic(), horizGBC);
-        JPanel tab3 = new JPanel(new GridBagLayout());
+        tab2a.add(feLnPlot.graphic(), "");
+        JPanel tab3 = new JPanel(new MigLayout());
         plotTabs.add(tab3, "Alpha vs. Chi");
-        tab3.add(alphaChiPlot.graphic(), horizGBC);
-        JPanel tab4 = new JPanel(new GridBagLayout());
+        tab3.add(alphaChiPlot.graphic(), "");
+        JPanel tab4 = new JPanel(new MigLayout());
         plotTabs.add(tab4, "Frac A");
-        tab4.add(fracPlot.graphic(), horizGBC);
-        JPanel tab5 = new JPanel(new GridBagLayout());
+        tab4.add(fracPlot.graphic(), "");
+        JPanel tab5 = new JPanel(new MigLayout());
         plotTabs.add(tab5, "Chi Slope");
-        tab5.add(slopePlot.graphic(), horizGBC);
-        JPanel tab6 = new JPanel(new GridBagLayout());
+        tab5.add(slopePlot.graphic(), "");
+        JPanel tab6 = new JPanel(new MigLayout());
         plotTabs.add(tab6, "Ua");
-        tab6.add(uaPlot.graphic(), horizGBC);
+        tab6.add(uaPlot.graphic(), "");
         if (feRefTargetPlot != null) {
-            JPanel tab7 = new JPanel(new GridBagLayout());
+            JPanel tab7 = new JPanel(new MigLayout());
             plotTabs.add(tab7, "AB FE");
-            tab7.add(feRefTargetPlot.graphic(), horizGBC);
+            tab7.add(feRefTargetPlot.graphic(), "");
         }
-        JPanel tab8 = new JPanel(new GridBagLayout());
+        JPanel tab8 = new JPanel(new MigLayout());
         plotTabs.add(tab8, "AB Stdev");
-        tab8.add(stdevRefTargetPlot.graphic(), horizGBC);
+        tab8.add(stdevRefTargetPlot.graphic(), "");
         if (biasRefTargetPlot != null) {
-            JPanel tab10 = new JPanel(new GridBagLayout());
+            JPanel tab10 = new JPanel(new MigLayout());
             plotTabs.add(tab10, "AB bias");
-            tab10.add(biasRefTargetPlot.graphic(), horizGBC);
+            tab10.add(biasRefTargetPlot.graphic(), "");
         }
         
         if (dWPlot != null) {
-            JPanel tab13 = new JPanel(new GridBagLayout());
+            JPanel tab13 = new JPanel(new MigLayout());
             plotTabs.add(tab13, "dW");
-            tab13.add(dWPlot.graphic(), horizGBC);
+            tab13.add(dWPlot.graphic(), "");
         }
         
         final DataSinkReweightedDeltaU deltaUA = new DataSinkReweightedDeltaU(meterOverlapA);
@@ -1016,18 +992,11 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         sim.integratorB.getEventManager().addListener(pumpMBLog);
 
         
-        JPanel tab11 = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        tab11.add(sWABox.graphic(), gbc);
-        gbc.gridx = 1;
-        tab11.add(sWBBox.graphic(), gbc);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        tab11.add(MABox.graphic(), gbc);
-        gbc.gridx = 1;
-        tab11.add(MBBox.graphic(), gbc);
+        JPanel tab11 = new JPanel(new MigLayout());
+        tab11.add(sWABox.graphic());
+        tab11.add(sWBBox.graphic(), "wrap");
+        tab11.add(MABox.graphic());
+        tab11.add(MBBox.graphic());
         plotTabs.add(tab11, "s");
         
 
@@ -1041,7 +1010,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         historyMM.setTimeDataSource(dataSourceMM);
         sim.integratorOS.getEventManager().addListener(pumpMMLog);
 
-        DisplayPlot plotM = new DisplayPlot();
+        DisplayPlotXChart plotM = new DisplayPlotXChart();
         historyMA.setDataSink(plotM.getDataSet().makeDataSink());
         historyMB.setDataSink(plotM.getDataSet().makeDataSink());
         historyMM.setDataSink(plotM.getDataSet().makeDataSink());
@@ -1050,9 +1019,8 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         plotM.setLegend(new DataTag[]{historyMM.getTag()}, "M");
         plotM.getPlot().setXLog(true);
         plotM.getPlot().setYLog(true);
-        plotM.setSize(450,250);
-        JPanel tab12 = new JPanel();
-        tab12.add(plotM.graphic(), horizGBC);
+        JPanel tab12 = new JPanel(new MigLayout());
+        tab12.add(plotM.graphic(), "");
         plotTabs.add(tab12, "M");
         
         sim.activityIntegrate.setSleepPeriod(0);

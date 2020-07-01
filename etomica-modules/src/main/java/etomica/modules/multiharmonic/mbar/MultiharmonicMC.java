@@ -46,10 +46,10 @@ public class MultiharmonicMC extends Simulation {
         PotentialMaster potentialMasterB = new PotentialMasterMonatomic(this);
 
         boxA = this.makeBox(new BoundaryRectangularNonperiodic(space));
-        boxA.getBoundary().setBoxSize(new Vector1D(3.0));
+        boxA.getBoundary().setBoxSize(new Vector1D(6.0));
         boxA.setNMolecules(species, 10);
         boxB = this.makeBox(new BoundaryRectangularNonperiodic(space));
-        boxB.getBoundary().setBoxSize(new Vector1D(3.0));
+        boxB.getBoundary().setBoxSize(new Vector1D(6.0));
         boxB.setNMolecules(species, 10);
 
         integratorA = new IntegratorMC(this, potentialMasterA, boxA);
