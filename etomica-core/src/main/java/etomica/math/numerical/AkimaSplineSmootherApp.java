@@ -26,6 +26,7 @@ import etomica.units.dimensions.Null;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGeneratorUnix;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -82,25 +83,23 @@ public class AkimaSplineSmootherApp {
         fitter.setD3dfac(d3dfac);
         fitter.setInputData(x, y, dy);
 
-        panel = new JPanel();
+        panel = new JPanel(new MigLayout());
         
-        JPanel plotPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
+        JPanel plotPanel = new JPanel(new MigLayout("flowy"));
 
-        DisplayPlot plot = new DisplayPlot();
-        plotPanel.add(plot.graphic(), gbc);
+        DisplayPlotXChart plot = new DisplayPlotXChart();
+        plotPanel.add(plot.graphic());
 
         final int nSubPoints = 10;
         
         JTabbedPane morePlotPanel = new JTabbedPane();
-        DisplayPlot plotdy = new DisplayPlot();
+        DisplayPlotXChart plotdy = new DisplayPlotXChart();
         morePlotPanel.add(plotdy.graphic(), "dy");
         plotdy.setDoLegend(false);
-        DisplayPlot plotdy2 = new DisplayPlot();
+        DisplayPlotXChart plotdy2 = new DisplayPlotXChart();
         plotdy2.setDoLegend(false);
         morePlotPanel.add(plotdy2.graphic(), "dy2");
-        DisplayPlot plotey = new DisplayPlot();
+        DisplayPlotXChart plotey = new DisplayPlotXChart();
         plotey.setDoLegend(false);
         morePlotPanel.add(plotey.graphic(), "ey");
         
@@ -109,7 +108,7 @@ public class AkimaSplineSmootherApp {
         Controller controller = new Controller();
         controller.addAction(ai);
         
-        DisplayPlot ePlot = new DisplayPlot();
+        DisplayPlotXChart ePlot = new DisplayPlotXChart();
         ePlot.getPlot().setYLog(true);
         morePlotPanel.add(ePlot.graphic(), "err");
         DataSourceCountSteps counter = new DataSourceCountSteps(integrator);
@@ -139,7 +138,7 @@ public class AkimaSplineSmootherApp {
         historyED3.setDataSink(ePlot.getDataSet().makeDataSink());
         historyED3D.setDataSink(ePlot.getDataSet().makeDataSink());
 
-        plotPanel.add(morePlotPanel, gbc);
+        plotPanel.add(morePlotPanel);
 
         sink0 = plot.getDataSet().makeDataSink();
         sinkDy = plotdy.getDataSet().makeDataSink();
@@ -152,7 +151,7 @@ public class AkimaSplineSmootherApp {
         integrator.getEventManager().addListener(new IntegratorListenerAction(plotAction));
         plotAction.actionPerformed();
         
-        JPanel controlPanel = new JPanel(new GridBagLayout());
+        JPanel controlPanel = new JPanel(new MigLayout("flowy"));
 
         JButton loadButton = new JButton();
         loadButton.setAction(new AbstractAction("Load data") {
@@ -174,7 +173,7 @@ public class AkimaSplineSmootherApp {
                 }
            }
         });
-        controlPanel.add(loadButton, gbc);
+        controlPanel.add(loadButton);
 
         JButton padButton = new JButton();
         padButton.setAction(new AbstractAction("Double data") {
@@ -201,10 +200,10 @@ public class AkimaSplineSmootherApp {
                 plotAction.actionPerformed();
            }
         });
-        controlPanel.add(padButton, gbc);
+        controlPanel.add(padButton);
 
         DeviceControllerButton startButton = new DeviceControllerButton(controller);
-        controlPanel.add(startButton.graphic(), gbc);
+        controlPanel.add(startButton.graphic());
         
         JPanel dPanel = new JPanel(new GridLayout(2, 2));
         
@@ -240,7 +239,7 @@ public class AkimaSplineSmootherApp {
         d3dBox.setLabelType(LabelType.BORDER);
         dPanel.add(d3dBox.graphic());
         
-        controlPanel.add(dPanel, gbc);
+        controlPanel.add(dPanel);
         
         DeviceSlider tiltSlider = new DeviceSlider(controller);
         tiltSlider.setModifier(new ModifierGeneral(plotAction, "tilt"));
@@ -252,7 +251,7 @@ public class AkimaSplineSmootherApp {
         tiltSlider.setShowBorder(true);
         tiltSlider.setShowValues(true);
         tiltSlider.setEditValues(true);
-        controlPanel.add(tiltSlider.graphic(), gbc);
+        controlPanel.add(tiltSlider.graphic());
         
         
         panel.add(plotPanel);
@@ -415,6 +414,7 @@ public class AkimaSplineSmootherApp {
     }
     
     public static void main(String[] args) {
+        SimulationGraphic.initGraphics();
         String infile = null;
         if (args.length > 0) {
             infile = args[0];
