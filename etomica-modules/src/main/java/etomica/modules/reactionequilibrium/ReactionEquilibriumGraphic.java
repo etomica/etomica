@@ -245,7 +245,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
          
 		//display for history of mole fractions
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integratorHard1);
-        DisplayPlot plot = new DisplayPlot();
+        DisplayPlotXChart plot = new DisplayPlotXChart();
         plot.setLabel("Composition");
         plot.setDoLegend(true);
 //        int nData = sim.meterDimerFraction.getDataInfo().getLength();
