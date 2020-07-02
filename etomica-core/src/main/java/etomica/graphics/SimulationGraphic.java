@@ -55,6 +55,7 @@ public class SimulationGraphic implements SimulationContainer {
             FlatLightLaf.install();
             UIManager.put("Table.showHorizontalLines", true);
             UIManager.put("Table.showVerticalLines", true);
+            UIManager.put("TabbedPane.hasFullBorder", true);
         } catch (Exception e) {
         }
     }
