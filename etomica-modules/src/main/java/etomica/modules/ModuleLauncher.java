@@ -66,7 +66,7 @@ public class ModuleLauncher extends JPanel {
     }
 
     private static void createGUI() {
-        SimulationGraphic.initTheme();
+        SimulationGraphic.initGraphics();
         JFrame frame = new JFrame("Etomica Module Launcher");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 

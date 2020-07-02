@@ -415,7 +415,7 @@ public class DeviceSlider extends Device {
      */
     public void setLabel(String s){
         label = s;
-        if(s == null || s.equals("") || !showBorder) panel.setBorder(new javax.swing.border.EmptyBorder(0,0,0,0));
+        if(s == null || s.equals("") || !showBorder) panel.setBorder(new javax.swing.border.EmptyBorder(0,2,0,2));
         else {
         	TitledBorder border = new TitledBorder(s);
         	border.setTitleJustification(borderAlignment);
