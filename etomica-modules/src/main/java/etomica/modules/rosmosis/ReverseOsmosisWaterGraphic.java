@@ -407,7 +407,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         dataStreamPumps.add(profPumpChlorine);
         dataStreamPumps.add(profPumpSolvent);
 
-        final DisplayPlot ePlot = new DisplayPlot();
+        final DisplayPlotXChart ePlot = new DisplayPlotXChart();
         energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
         ePlot.setLegend(new DataTag[]{energyHistory.getTag()}, "Total");
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
@@ -420,7 +420,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
 		ePlot.setLabel("Energy");
 		ePlot.setXUnit(Picosecond.UNIT);
 
-        final DisplayPlot profPlot = new DisplayPlot();
+        final DisplayPlotXChart profPlot = new DisplayPlotXChart();
         profSodiumAvg.addDataSink(profPlot.getDataSet().makeDataSink(),
                 new AccumulatorAverage.StatType[]{profSolventAvg.AVERAGE});
         profPlot.setLegend(new DataTag[]{meterProfileSodium.getTag()}, "Sodium");
@@ -436,12 +436,12 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         profPlot.setXUnit(Angstrom.UNIT);
         profPlot.setUnit(dUnit);
 
-        final DisplayPlot pPlot = new DisplayPlot();
+        final DisplayPlotXChart pPlot = new DisplayPlotXChart();
         pressureHistory.setDataSink(pPlot.getDataSet().makeDataSink());
         pPlot.setLabel("Osmotic Pressure");
         pPlot.setUnit(Bar.UNIT);
 
-        final DisplayPlot fluxPlot = new DisplayPlot();
+        final DisplayPlotXChart fluxPlot = new DisplayPlotXChart();
         fluxHistory.setDataSink(fluxPlot.getDataSet().makeDataSink());
         fluxPlot.setLabel("Flux");
 

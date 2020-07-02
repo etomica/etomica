@@ -12,7 +12,7 @@ import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressure;
 import etomica.graphics.DeviceSlider;
-import etomica.graphics.DisplayPlot;
+import etomica.graphics.DisplayPlotXChart;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.mcmove.MCMove;
@@ -160,7 +160,7 @@ public class VLE extends SimulationGraphic {
         pumpVaporDensityListener.setInterval(100);
         
 
-//        DisplayPlot liquidDensityHistogramPlot = new DisplayPlot();
+//        DisplayPlotXChart liquidDensityHistogramPlot = new DisplayPlotXChart();
 //        liquidDensityHistogramPlot.setLabel("Liquid Density");
 //        add(liquidDensityHistogramPlot);
 //        histogramLiquidDensity.addDataSink(liquidDensityHistogramPlot.getDataSet().makeDataSink());
@@ -170,7 +170,7 @@ public class VLE extends SimulationGraphic {
         liquidDensityDisplay.setAccumulator(avgLiquidDensity);
         liquidDensityDisplay.setLabel("Liquid Density (mol/L)");
         add(liquidDensityDisplay);
-        DisplayPlot liquidDensityHistoryPlot = new DisplayPlot();
+        DisplayPlotXChart liquidDensityHistoryPlot = new DisplayPlotXChart();
         liquidDensityHistoryPlot.setUnit(new UnitRatio(Mole.UNIT, Liter.UNIT));
         liquidDensityHistoryPlot.setLabel("Liquid Density");
         add(liquidDensityHistoryPlot);
@@ -178,7 +178,7 @@ public class VLE extends SimulationGraphic {
         liquidDensityHistoryPlot.setLegend(new DataTag[]{historyDensityLiquid.getTag()}, "Density (mol/L)");
         historyDensityLiquid.setPushInterval(1);
 
-//        DisplayPlot vaporDensityHistogramPlot = new DisplayPlot();
+//        DisplayPlotXChart vaporDensityHistogramPlot = new DisplayPlotXChart();
 //        vaporDensityHistogramPlot.setLabel("Vapor Density");
 //        add(vaporDensityHistogramPlot);
 //        histogramVaporDensity.addDataSink(vaporDensityHistogramPlot.getDataSet().makeDataSink());
@@ -188,7 +188,7 @@ public class VLE extends SimulationGraphic {
         vaporDensityDisplay.setAccumulator(avgVaporDensity);
         vaporDensityDisplay.setLabel("Vapor Density (mol/L)");
         add(vaporDensityDisplay);
-        DisplayPlot vaporDensityHistoryPlot = new DisplayPlot();
+        DisplayPlotXChart vaporDensityHistoryPlot = new DisplayPlotXChart();
         vaporDensityHistoryPlot.setUnit(new UnitRatio(Mole.UNIT, Liter.UNIT));
         vaporDensityHistoryPlot.setLegend(new DataTag[]{historyDensityVapor.getTag()}, "Density (mol/L)");
         vaporDensityHistoryPlot.setLabel("Vapor Density");
@@ -222,11 +222,11 @@ public class VLE extends SimulationGraphic {
             pumpNMoleculesVaporListener.setInterval(100);
             getController().getDataStreamPumps().add(pumpNMoleculesVapor);
             
-            DisplayPlot nMoleculesLiquidHistoryPlot = new DisplayPlot();
+            DisplayPlotXChart nMoleculesLiquidHistoryPlot = new DisplayPlotXChart();
             nMoleculesLiquidHistoryPlot.setLabel("# of Liquid Atoms");
             add(nMoleculesLiquidHistoryPlot);
             historyNMoleculesLiquid.addDataSink(nMoleculesLiquidHistoryPlot.getDataSet().makeDataSink());
-            DisplayPlot nMoleculesVaporHistoryPlot = new DisplayPlot();
+            DisplayPlotXChart nMoleculesVaporHistoryPlot = new DisplayPlotXChart();
             nMoleculesVaporHistoryPlot.setLabel("# of Vapor Atoms");
             add(nMoleculesVaporHistoryPlot);
             historyNMoleculesVapor.addDataSink(nMoleculesVaporHistoryPlot.getDataSet().makeDataSink());
@@ -259,7 +259,7 @@ public class VLE extends SimulationGraphic {
         historyPressureVapor.setPushInterval(1);
 
         
-        DisplayPlot plotHistoryPressure = new DisplayPlot();
+        DisplayPlotXChart plotHistoryPressure = new DisplayPlotXChart();
         plotHistoryPressure.setLabel("Pressure History");
         plotHistoryPressure.setUnit(new PrefixedUnit(Prefix.MEGA, Pascal.UNIT));
 
