@@ -26,8 +26,8 @@ import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
 import etomica.util.ParseArgs;
+import net.miginfocom.swing.MigLayout;
 import org.knowm.xchart.XYSeries;
-import org.knowm.xchart.style.Styler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -679,16 +679,16 @@ public class GlassGraphic extends SimulationGraphic {
         gsPrevSampleSlider.setLabel("log2(previous sample)");
 
         JPanel gsPanel = new JPanel();
-        gsPanel.setLayout(new GridBagLayout());
+        gsPanel.setLayout(new MigLayout("fill"));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridheight = 1;
-        gsPanel.add(gsPlot.getPanel(), gbc);
+        gsPanel.add(gsPlot.getPanel(), "wrap, grow");
         gbc.insets = new Insets(20, 0, 0, 0);
         gbc.gridheight = 1;
         gbc.gridx = 1;
-        gsPanel.add(gsPrevSampleSlider.graphic(), gbc);
+        gsPanel.add(gsPrevSampleSlider.graphic(), "alignx center");
         gbc.gridy = 1;
         gbc.gridx = gbc.gridy = 0;
         gbc.gridheight = 1;
@@ -749,11 +749,8 @@ public class GlassGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(pumpChi4);
         plotChi4.setLegend(new DataTag[]{meterChi4.getTag()}, "chi4");
 
-        JPanel plotPercPanel = new JPanel();
+        JPanel plotPercPanel = new JPanel(new MigLayout("fill"));
         JScrollPane plotsPerc = new JScrollPane(plotPercPanel);
-        java.awt.Dimension d = plotPerc.getPlot().getPreferredSize();
-        d.height = 600;
-        plotsPerc.setPreferredSize(d);
         getPanel().tabbedPane.add("perc", plotsPerc);
 
 
@@ -822,21 +819,10 @@ public class GlassGraphic extends SimulationGraphic {
         percMinLog2StepSlider.setValue(5);
         percMinLog2StepSlider.setLabel("log2(min time (steps))");
 
-        plotPercPanel.setLayout(new GridBagLayout());
-        GridBagConstraints gbcPerc = new GridBagConstraints();
-        gbcPerc.gridx = 0;
-        gbcPerc.gridy = 0;
-        gbcPerc.gridheight = 3;
-        plotPercPanel.add(plotPerc.getPanel(), gbcPerc);
-        gbcPerc.insets = new Insets(20, 0, 0, 0);
-        gbcPerc.gridheight = 1;
-        gbcPerc.gridx = 1;
-        plotPercPanel.add(percDrSlider.graphic(), gbcPerc);
-        gbcPerc.gridy = 1;
-        plotPercPanel.add(percMinLog2StepSlider.getPanel(), gbcPerc);
-        gbcPerc.gridx = 0;
-        gbcPerc.gridy = 3;
-        plotPercPanel.add(plotChi4.getPanel(), gbcPerc);
+        plotPercPanel.add(plotPerc.getPanel());
+        plotPercPanel.add(plotChi4.getPanel(), "wrap");
+        plotPercPanel.add(percDrSlider.graphic(), "alignx center");
+        plotPercPanel.add(percMinLog2StepSlider.getPanel(), "alignx center");
 
         DataSourcePercolation0 meterPerc0 = new DataSourcePercolation0(sim.box, sim.getRandom());
         meterPerc0.setImmFracs(new double[]{0.05, 0.1, 0.15, 0.20, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.8, 0.85, 0.9, 0.95, 1});
@@ -902,14 +888,10 @@ public class GlassGraphic extends SimulationGraphic {
             sim.integrator.getEventManager().addListener(p);
         }
 
-        JPanel plotCorSelfPanel = new JPanel();
-        plotCorSelfPanel.setLayout(new BoxLayout(plotCorSelfPanel, BoxLayout.Y_AXIS));
-        plotCorSelfPanel.add(plotCorSelf.graphic());
-        plotCorSelfPanel.add(plotCorSelf2.graphic());
+        JPanel plotCorSelfPanel = new JPanel(new MigLayout("fill"));
+        plotCorSelfPanel.add(plotCorSelf.graphic(), "grow");
+        plotCorSelfPanel.add(plotCorSelf2.graphic(), "grow");
         JScrollPane plotsCorSelfPane = new JScrollPane(plotCorSelfPanel);
-        d = plotCorSelf2.getPlot().getPreferredSize();
-        d.height = 600;
-        plotsCorSelfPane.setPreferredSize(d);
         getPanel().tabbedPane.add("cor self", plotsCorSelfPane);
 
 
@@ -1142,21 +1124,10 @@ public class GlassGraphic extends SimulationGraphic {
             }
         });
 
-        JPanel corPanel = new JPanel();
-        corPanel.setLayout(new GridBagLayout());
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridheight = 2;
-        corPanel.add(correlationPlot.getPanel(), gbc);
-        gbc.insets = new Insets(20, 0, 0, 0);
-        gbc.gridheight = 1;
-        gbc.gridx = 1;
-        corPanel.add(corMinPrevSampleSlider.graphic(), gbc);
-        gbc.gridy = 1;
-        corPanel.add(corPrevSampleSlider.graphic(), gbc);
-        gbc.gridx = gbc.gridy = 0;
-        gbc.gridheight = 1;
-        gbc.insets = new Insets(0, 0, 0, 0);
+        JPanel corPanel = new JPanel(new MigLayout("fill"));
+        corPanel.add(correlationPlot.getPanel(), "span 1 2, grow");
+        corPanel.add(corMinPrevSampleSlider.graphic(), "wrap");
+        corPanel.add(corPrevSampleSlider.graphic(), "");
         addAsTab(corPanel, correlationPlot.getLabel(), true);
 
 
@@ -1492,21 +1463,9 @@ public class GlassGraphic extends SimulationGraphic {
         add(qSlider);
 
 
-        JPanel fsPanel = new JPanel();
-        fsPanel.setLayout(new GridBagLayout());
-        GridBagConstraints gbcFs = new GridBagConstraints();
-        gbcFs.gridx = 0;
-        gbcFs.gridy = 0;
-        gbcFs.gridheight = 1;
-        fsPanel.add(plotFs.getPanel(), gbcFs);
-        gbcFs.insets = new Insets(20, 0, 0, 0);
-        gbcFs.gridheight = 1;
-        gbcFs.gridx = 1;
-        fsPanel.add(qSlider.graphic(), gbcFs);
-        gbcFs.gridy = 1;
-        gbcFs.gridx = gbcFs.gridy = 0;
-        gbcFs.gridheight = 1;
-        gbcFs.insets = new Insets(0, 0, 0, 0);
+        JPanel fsPanel = new JPanel(new MigLayout("fill"));
+        fsPanel.add(plotFs.getPanel(), "grow");
+        fsPanel.add(qSlider.graphic(), "");
         this.addAsTab(fsPanel, plotFs.getLabel(), true);
 
 
@@ -2195,31 +2154,18 @@ public class GlassGraphic extends SimulationGraphic {
         plotPMSDPanel.add(plotHistogramMSD.graphic());
         plotPMSDPanel.add(plotPMSDscatter.graphic());
         JScrollPane plotsPane = new JScrollPane(plotPMSDPanel);
-        d = plotHistogramMSD.getPlot().getPreferredSize();
-        d.height = 600;
-        plotsPane.setPreferredSize(d);
         getPanel().tabbedPane.add("P cor MSD", plotsPane);
 
-        JPanel plotSFacPanel = new JPanel();
-        plotSFacPanel.setLayout(new BoxLayout(plotSFacPanel, BoxLayout.Y_AXIS));
-        JPanel sfacWidgets = new JPanel(new GridBagLayout());
-        plotSFacPanel.add(sfacWidgets);
-        GridBagConstraints gbcSF = new GridBagConstraints();
-        gbcSF.gridx = 0;
-        gbcSF.gridy = 0;
-        sfacWidgets.add(sfacButtons.graphic(), gbcSF);
-        gbcSF.gridx = 1;
-        sfacWidgets.add(sfacPrevConfig.graphic(), gbcSF);
-        plotSFacPanel.add(plotSFac.graphic());
-        plotSFacPanel.add(plotSFacCor.graphic());
+        JPanel plotSFacPanel = new JPanel(new MigLayout("fill"));
+        plotSFacPanel.add(sfacButtons.graphic(), "alignx center");
+        plotSFacPanel.add(sfacPrevConfig.graphic(), "wrap, alignx center");
+        plotSFacPanel.add(plotSFac.graphic(), "grow");
+        plotSFacPanel.add(plotSFacCor.graphic(), "grow");
         JPanel sfacWidgetPanel = new JPanel();
 
         plotSFacPanel.add(sfacWidgetPanel);
 
         JScrollPane plotsPaneSFac = new JScrollPane(plotSFacPanel);
-        d = plotSFac.getPanel().getPreferredSize();
-        d.height = 600;
-        plotsPaneSFac.setPreferredSize(d);
         getPanel().tabbedPane.add("SFac", plotsPaneSFac);
     }
 
