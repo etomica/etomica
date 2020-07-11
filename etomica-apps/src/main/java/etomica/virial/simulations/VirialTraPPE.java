@@ -130,7 +130,8 @@ public class VirialTraPPE {
 
         double temperature = Kelvin.UNIT.toSim(temperatureK);
 
-        long blockSize = 1000;
+        final long numBlocks = 1000;
+        long blockSize = steps/numBlocks;
         int EqSubSteps = 1000;
 
         double vhs = (4.0 / 3.0) * Math.PI * sigmaHSRef * sigmaHSRef * sigmaHSRef;
@@ -165,7 +166,7 @@ public class VirialTraPPE {
 
         System.out.println("  B"+nPoints+"HS: "+HSBn);
 
-        System.out.println(steps + " steps (" + (steps / blockSize) + " blocks of " + blockSize + ")");
+        System.out.println(steps + " steps (" + numBlocks + " blocks of " + blockSize + ")");
 
         Space space = Space3D.getInstance();
 
