@@ -566,21 +566,22 @@ public class SimulationVirialOverlap2 extends Simulation {
                 System.out.println("setting ref pref (from file) to "+refPref);
                 dpVirialOverlap[0].setNumAlpha(numAlpha);
                 dpVirialOverlap[1].setNumAlpha(numAlpha);
-                setRefPref(refPref,1);
-            }
-            catch (IOException e) {
+                setRefPref(refPref, 1);
+            } catch (IOException e) {
                 // file not there, which is ok.
             }
+            return;
         }
 
-        if (refPref == -1) {
-            for (int i=0; i<2; i++) {
+        double initAlphaSpan = 30;
+        while (true) {
+            for (int i = 0; i < 2; i++) {
                 integrators[i].getMoveManager().setEquilibrating(true);
             }
 
             long oldBlockSize = blockSize;
             // 1000 blocks
-            long newBlockSize = initSteps*integratorOS.getNumSubSteps()/1000;
+            long newBlockSize = initSteps * integratorOS.getNumSubSteps() / 1000;
             if (newBlockSize < 1000) {
                 // make block size at least 1000, even if it means fewer blocks
                 newBlockSize = 1000;
@@ -592,7 +593,7 @@ public class SimulationVirialOverlap2 extends Simulation {
             setAccumulatorBlockSize(newBlockSize);
             dpVirialOverlap[0].setNumAlpha(21);
             dpVirialOverlap[1].setNumAlpha(21);
-            setRefPref(oldRefPref,30);
+            setRefPref(oldRefPref, initAlphaSpan);
             boolean adjustable = integratorOS.isAdjustStepFraction();
             if (adjustable) {
                 // we do this initialization to
@@ -610,22 +611,31 @@ public class SimulationVirialOverlap2 extends Simulation {
                 integratorOS.setAdjustStepFraction(true);
             }
 
-            refPref = dvo.getOverlapAverage();
-            System.out.println("setting initial ref pref to "+refPref);
-            if (Double.isInfinite(refPref) || Double.isNaN(refPref)) {
+            for (int i = 0; i < 2; i++) {
+                integrators[i].reset();
+            }
+
+            double newRefPref = dvo.getOverlapAverage();
+            if (Double.isInfinite(newRefPref) || Double.isNaN(newRefPref)) {
                 dvo.getOverlapAverage();
                 throw new RuntimeException("oops");
             }
+            if (newRefPref > oldRefPref * Math.exp(initAlphaSpan - 0.01) || newRefPref < oldRefPref * Math.exp(-(initAlphaSpan - 0.001))) {
+                System.out.println("guess for ref pref (" + newRefPref + ") is at the edge of the range considered");
+                oldRefPref = newRefPref;
+                continue;
+            }
+
+            refPref = newRefPref;
+            System.out.println("setting initial ref pref to " + refPref);
             setAccumulatorBlockSize(oldBlockSize);
             dpVirialOverlap[0].setNumAlpha(15);
             dpVirialOverlap[1].setNumAlpha(15);
             setRefPref(refPref, 4);
-            for (int i = 0; i < 2; i++) {
-                integrators[i].reset();
-            }
             // set refPref back to -1 so that later on we know that we've been looking for
             // the appropriate value
             refPref = -1;
+            break;
         }
 
     }
