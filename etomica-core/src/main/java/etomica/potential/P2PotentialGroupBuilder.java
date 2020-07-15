@@ -15,6 +15,7 @@ import etomica.space.Space;
 public class P2PotentialGroupBuilder {
 
     public static PotentialGroup P2PotentialGroupBuilder(Space space, ModelParams MP1, ModelParams MP2){
+        boolean debug = false;
 
         PotentialGroup potentialGroup = new PotentialGroup(2);
         double sigmaHC = 0.1;
@@ -24,11 +25,13 @@ public class P2PotentialGroupBuilder {
             int s = MP1 == MP2 ? i : 0;
             for(int j = s; j < MP2.atomTypes.length; j++){
 
-//                System.out.println("Atom "+i+" and " +j);
-//                System.out.println(sigma[i] + " " + sigma[j]);
-//                System.out.println(epsilon[i] + " " + epsilon[j]);
-//                System.out.println(charge[i] + " " +charge[j]);
-
+                if(debug) {
+                    System.out.println("Atom " + i + " and " + j);
+                    System.out.println(MP1.atomTypes[i].getElement() + " " + MP2.atomTypes[j].getElement());
+                    System.out.println(MP1.sigma[i] + " " + MP2.sigma[j]);
+                    System.out.println(MP1.epsilon[i] + " " + MP2.epsilon[j]);
+                    System.out.println(MP1.charge[i] + " " + MP2.charge[j]);
+                }
                 double sigmaij;
                 double epsilonij;
                 if( MP1 == MP2 && i == j ){
@@ -46,27 +49,27 @@ public class P2PotentialGroupBuilder {
                 if(MP1.epsilon[i] != 0 && MP2.epsilon[j] != 0) {
                     p2LJ = new P2LennardJones(space, sigmaij, epsilonij);
                     potentialGroup.addPotential(p2LJ, ApiBuilder.makeIntergroupTypeIterator(atomList));
-//                    System.out.println("Added p2LJ");
+                    if(debug) {System.out.println("Added p2LJ");}
                 }
 
                 Potential2SoftSpherical p2ES;
                 if(qiqj != 0) {
-//                    System.out.print("Added ");
+                    if(debug) {System.out.print("Added ");}
                     if (qiqj < 0 && epsilonij == 0) {
                         p2ES = new P2ElectrostaticWithHardCore(space);
                         ((P2ElectrostaticWithHardCore) p2ES).setCharge1(MP1.charge[i]);
                         ((P2ElectrostaticWithHardCore) p2ES).setCharge2(MP2.charge[j]);
                         ((P2ElectrostaticWithHardCore) p2ES).setSigma(sigmaHC);
-//                        System.out.print("HardCore ");
+                        if(debug) {System.out.print("HardCore ");}
                     } else {
                         p2ES = new P2Electrostatic(space);
                         ((P2Electrostatic) p2ES).setCharge1(MP1.charge[i]);
                         ((P2Electrostatic) p2ES).setCharge2(MP2.charge[j]);
                     }
                     potentialGroup.addPotential(p2ES, ApiBuilder.makeIntergroupTypeIterator(atomList));
-//                    System.out.println("p2ES");
+                    if(debug) {System.out.println("p2ES");}
                 }
-//                System.out.println();
+                if(debug) {System.out.println();}
             }
         }
         return potentialGroup;
