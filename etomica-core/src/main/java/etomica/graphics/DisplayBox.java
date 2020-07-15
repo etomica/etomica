@@ -130,7 +130,6 @@ public class DisplayBox extends Display {
         java.awt.Dimension temp = new java.awt.Dimension(width, height);
         canvas.setSize(width, height);
         canvas.setMinimumSize(temp);
-        canvas.setMaximumSize(temp);
         canvas.setPreferredSize(temp);
         canvas.reshape(width, height);
 
@@ -471,14 +470,13 @@ public class DisplayBox extends Display {
     public LinkedList getDrawables() {return(drawables);}
     
 
-    /** 
+    /**
      * Simulation.GraphicalElement interface method.  Overrides Display method
      * to return the DisplayBox.Canvas as the display object.
      *
-     * @param obj ignored by this method.
      * @return Component
      */
-    public Component graphic(Object obj) {
+    public Component graphic() {
         return canvas;
     }
 

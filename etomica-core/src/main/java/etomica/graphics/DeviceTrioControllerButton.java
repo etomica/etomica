@@ -110,7 +110,7 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Returns the JPanel that contains the buttons.
      */
-    public java.awt.Component graphic(Object obj) {
+    public java.awt.Component graphic() {
         return jp;
     }
     

@@ -216,7 +216,7 @@ public class MuGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(profilePumpB);
         dataStreamPumps.add(profilePumpB);
 
-        DisplayPlot profilePlot = new DisplayPlot();
+        DisplayPlotXChart profilePlot = new DisplayPlotXChart();
         densityProfileAvgA.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvgA.AVERAGE});
         densityProfileAvgB.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvgB.AVERAGE});
         profilePlot.setLegend(new DataTag[]{densityProfileMeterA.getTag()}, "A");
@@ -365,7 +365,7 @@ public class MuGraphic extends SimulationGraphic {
         DataProcessorMu muIGB = new DataProcessorMu(null, sim.integrator);
         densityIGBHistory.setDataSink(muIGB);
 
-        DisplayPlot muPlot = new DisplayPlot();
+        DisplayPlotXChart muPlot = new DisplayPlotXChart();
         muPlot.setLabel("Chemical Potential");
         muSQWA.setDataSink(muPlot.getDataSet().makeDataSink());
         muHistoryA.setPushInterval(100);
@@ -498,7 +498,6 @@ public class MuGraphic extends SimulationGraphic {
         		getDisplayBox(sim.box).graphic().repaint();
         		
         		displayCycles.putData(meterCycles.getData());
-        		displayCycles.repaint();
         	}
         };
 

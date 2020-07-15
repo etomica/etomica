@@ -6,8 +6,8 @@ package etomica.graphics;
 
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
-import etomica.units.dimensions.Dimension;
 import etomica.units.Unit;
+import etomica.units.dimensions.Dimension;
 
 import java.awt.*;
 
@@ -16,16 +16,16 @@ import java.awt.*;
  * fields of other objects.  They provide a (usually) graphical interface to permit
  * values of fields to be input and changed.
  */
-public abstract class Device implements GraphicalElement {
-    
+public abstract class Device {
+
     protected Unit unit;
     protected Controller controller;
     private final ActionSet actionSet = new ActionSet();
-    
+
     public Device() {
         this(null);
     }
-    
+
     public Device(Controller controller) {
         this.controller = controller;
     }
@@ -86,29 +86,33 @@ public abstract class Device implements GraphicalElement {
     public Controller getController() {
         return controller;
     }
+
     /**
      * @param controller The controller to set.
      */
     public void setController(Controller controller) {
         this.controller = controller;
     }
-    
-    public abstract Component graphic(Object obj);
-    
-    /**
-     * Same as graphic method with a null argument.
-     */
-    public final Component graphic() {return graphic(null);}
-    
-    public void setUnit(Unit u) {unit = u;}
-    public Unit getUnit() {return unit;}
-    public Dimension getDimension() {return unit.dimension();} //may want to override this in most cases
+
+    public abstract Component graphic();
+
+    public void setUnit(Unit u) {
+        unit = u;
+    }
+
+    public Unit getUnit() {
+        return unit;
+    }
+
+    public Dimension getDimension() {
+        return unit.dimension();
+    } //may want to override this in most cases
 
     protected static class ActionSet implements IAction {
         IAction preAction, postAction, action;
-        
+
         public void actionPerformed() {
-            if(preAction != null) preAction.actionPerformed();
+            if (preAction != null) preAction.actionPerformed();
             action.actionPerformed();
             if(postAction != null) postAction.actionPerformed();
         }

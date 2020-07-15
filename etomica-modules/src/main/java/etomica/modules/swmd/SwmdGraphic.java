@@ -17,8 +17,8 @@ import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
-import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorMD;
 import etomica.math.DoubleRange;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
@@ -213,7 +213,7 @@ public class SwmdGraphic extends SimulationGraphic {
         rdfMeterListener.setInterval(10);
         rdfMeter.getXDataSource().setXMax(12.0);
         rdfMeter.setBox(sim.box);
-        DisplayPlot rdfPlot = new DisplayPlot();
+        DisplayPlotXChart rdfPlot = new DisplayPlotXChart();
         DataPump rdfPump = new DataPump(rdfMeter,rdfPlot.getDataSet().makeDataSink());
         IntegratorListenerAction rdfPumpListener = new IntegratorListenerAction(rdfPump);
         sim.integrator.getEventManager().addListener(rdfPumpListener);
@@ -241,7 +241,7 @@ public class SwmdGraphic extends SimulationGraphic {
         rmsAverage.setPushInterval(1);
         dataStreamPumps.add(velocityPump);
         
-        final DisplayPlot vPlot = new DisplayPlot();
+        final DisplayPlotXChart vPlot = new DisplayPlotXChart();
         rmsAverage.addDataSink(vPlot.getDataSet().makeDataSink(), new StatType[]{rmsAverage.AVERAGE});
         vPlot.setLegend(new DataTag[]{meterVelocity.getTag()}, "measured");
         vPlot.setDoLegend(false);
@@ -336,7 +336,7 @@ public class SwmdGraphic extends SimulationGraphic {
         kePumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);
         pePumpListener.setInterval(numAtoms > 120 ? 1 : 120/numAtoms);
         
-        final DisplayPlot ePlot = new DisplayPlot();
+        final DisplayPlotXChart ePlot = new DisplayPlotXChart();
         energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
         ePlot.setLegend(new DataTag[]{energyHistory.getTag()}, "Total");
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
@@ -410,7 +410,6 @@ public class SwmdGraphic extends SimulationGraphic {
 		        mbDistribution.setTemperature(tUnit.toSim(tempSlider.getTemperature()));
 		        mbSource.update();
 		        vPlot.doUpdate();
-		        vPlot.repaint();
 		    }
 		};
 		tempSlider.setSliderPostAction(temperatureAction);
@@ -433,24 +432,19 @@ public class SwmdGraphic extends SimulationGraphic {
         	    // Reset density (Density is set and won't change, but
         		// do this anyway)
         		densityPump.actionPerformed();
-        		densityBox.repaint();
 
         		// Reset temperature (THIS IS NOT WORKING)
                 temperaturePump.actionPerformed();
                 tBox.putData(temperatureAverage.getData());
-                tBox.repaint();
 
                 // IS THIS WORKING?
                 pPump.actionPerformed();
                 pDisplay.putData(pAccumulator.getData());
-                pDisplay.repaint();
                 peDisplay.putData(peAccumulator.getData());
-                peDisplay.repaint();
 
         		getDisplayBox(sim.box).graphic().repaint();
         		
         		displayCycles.putData(meterCycles.getData());
-        		displayCycles.repaint();
         	}
         };
 
@@ -481,12 +475,6 @@ public class SwmdGraphic extends SimulationGraphic {
     	add(tBox);
     	add(pDisplay);
     	add(peDisplay);
-    	
-        java.awt.Dimension d = ePlot.getPlot().getPreferredSize();
-        d.width -= 50;
-        ePlot.getPlot().setSize(d);
-        vPlot.getPlot().setSize(d);
-        rdfPlot.getPlot().setSize(d);
     }
 
     public void setPotential(String potentialDesc) {

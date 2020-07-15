@@ -7,8 +7,6 @@ package etomica.virial.simulations;
 import etomica.action.IAction;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
-import etomica.data.IData;
-import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
@@ -17,7 +15,6 @@ import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -81,31 +78,22 @@ public class VirialAnthraceneTraPPE {
         // fbond and ebond for Anthracene
         MayerGeneral fTarget= new MayerGeneral(pAn);
         MayerEGeneral eTarget = new MayerEGeneral(pAn);
-        
+
         // cluster for target system and reference system
-        ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget, nPoints>3, eTarget, true);
+        ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget, nPoints > 3, eTarget, true);
         targetCluster.setTemperature(temperature);
-        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, true);
+        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints > 3, eRef, true);
         refCluster.setTemperature(temperature);
-    
-        System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
-        
-        //Anthracene species
-        
-        SpeciesFactory factoryAn = new SpeciesFactory() {
-            public ISpecies makeSpecies(Space space) {
-            	SpeciesTraPPEAnthracene species = new SpeciesTraPPEAnthracene(space);
-                      return species;
-            }
-        };
-    
-        // do simulation 
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,factoryAn, temperature,refCluster,targetCluster,false);
+
+        System.out.println((steps * 1000) + " steps (" + steps + " blocks of 1000)");
+
+        // do simulation
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesTraPPEAnthracene(space), temperature, refCluster, targetCluster, false);
         sim.box[1].getSampleCluster().value(sim.box[1]);
         sim.integratorOS.setNumSubSteps(1000);
-                
+
         //put the species in the box
-        SpeciesTraPPEAnthracene speciesAn = (SpeciesTraPPEAnthracene)sim.getSpecies(0);
+        SpeciesTraPPEAnthracene speciesAn = (SpeciesTraPPEAnthracene) sim.getSpecies(0);
         sim.integratorOS.setNumSubSteps(1000);
 
         AtomType typeC = speciesAn.getCType();
@@ -175,8 +163,8 @@ public class VirialAnthraceneTraPPE {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
         if (refFrac >= 0) {
-            sim.integratorOS.setStepFreq0(refFrac);
-            sim.integratorOS.setAdjustStepFreq(false);
+            sim.integratorOS.setRefStepFraction(refFrac);
+            sim.integratorOS.setAdjustStepFraction(false);
         }
 
         if (true) {
@@ -185,9 +173,9 @@ public class VirialAnthraceneTraPPE {
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
                     if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
-                    System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
-                    System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
+                    System.out.print(sim.integratorOS.getStepCount() + " steps: ");
+                    double[] ratioAndError = sim.dvo.getAverageAndError();
+                    System.out.println("abs average: " + ratioAndError[0] * HSB[nPoints] + ", error: " + ratioAndError[1] * HSB[nPoints]);
                 }
             };
             sim.integratorOS.getEventManager().addListener(progressReport);
@@ -195,38 +183,11 @@ public class VirialAnthraceneTraPPE {
 
         sim.getController().actionPerformed();
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
+        System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());
 
-        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
-        System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
-        System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
-        IData ratioData = ((DataGroup) sim.accumulators[0].getData()).getData(sim.accumulators[0].RATIO.index);
-        IData ratioErrorData = ((DataGroup) sim.accumulators[0].getData()).getData(sim.accumulators[0].RATIO_ERROR.index);
-        IData averageData = ((DataGroup) sim.accumulators[0].getData()).getData(sim.accumulators[0].AVERAGE.index);
-        IData stdevData = ((DataGroup) sim.accumulators[0].getData()).getData(sim.accumulators[0].STANDARD_DEVIATION.index);
-        IData errorData = ((DataGroup) sim.accumulators[0].getData()).getData(sim.accumulators[0].ERROR.index);
-        System.out.println("reference ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
-        System.out.println("reference   average: "+averageData.getValue(0)
-                          +" stdev: "+stdevData.getValue(0)
-                          +" error: "+errorData.getValue(0));
-        System.out.println("reference overlap average: "+averageData.getValue(1)
-                          +" stdev: "+stdevData.getValue(1)
-                          +" error: "+errorData.getValue(1));
-
-        ratioData = ((DataGroup) sim.accumulators[1].getData()).getData(sim.accumulators[1].RATIO.index);
-        ratioErrorData = ((DataGroup) sim.accumulators[1].getData()).getData(sim.accumulators[1].RATIO_ERROR.index);
-        averageData = ((DataGroup) sim.accumulators[1].getData()).getData(sim.accumulators[1].AVERAGE.index);
-        stdevData = ((DataGroup) sim.accumulators[1].getData()).getData(sim.accumulators[1].STANDARD_DEVIATION.index);
-        errorData = ((DataGroup) sim.accumulators[1].getData()).getData(sim.accumulators[1].ERROR.index);
-        System.out.println("target ratio average: "+ratioData.getValue(1)+" error: "+ratioErrorData.getValue(1));
-        System.out.println("target average: "+averageData.getValue(0)
-                          +" stdev: "+stdevData.getValue(0)
-                          +" error: "+errorData.getValue(0));
-        System.out.println("target overlap average: "+averageData.getValue(1)
-                          +" stdev: "+stdevData.getValue(1)
-                          +" error: "+errorData.getValue(1));
-	}
+        sim.printResults(HSB[nPoints]);
+    }
 
     /**6
      * Inner class for parameters

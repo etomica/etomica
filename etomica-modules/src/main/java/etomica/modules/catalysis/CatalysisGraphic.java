@@ -4,57 +4,30 @@
 
 package etomica.modules.catalysis;
 
- import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.border.TitledBorder;
-
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.atom.DiameterHashByType;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPump;
-import etomica.data.DataPumpListener;
-import etomica.data.DataSourceCountTime;
-import etomica.data.DataTag;
+import etomica.data.*;
+import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceDelaySlider;
-import etomica.graphics.DeviceSelector;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSlider;
-import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTextBox;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.Space;
- import etomica.space3d.Space3D;
+import etomica.space3d.Space3D;
+import etomica.units.*;
 import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.Energy;
-import etomica.units.dimensions.Fraction;
-import etomica.units.Kelvin;
-import etomica.units.dimensions.Length;
-import etomica.units.Liter;
-import etomica.units.Mole;
-import etomica.units.Pixel;
-import etomica.units.dimensions.Quantity;
-import etomica.units.Unit;
-import etomica.units.UnitRatio;
-import etomica.units.dimensions.Volume;
-import etomica.data.history.HistoryCollapsingDiscard;
-import etomica.data.history.HistoryCollapsingAverage;
+import etomica.units.dimensions.*;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Catalysis graphical app.
@@ -136,7 +109,7 @@ public class CatalysisGraphic extends SimulationGraphic {
         final DataPumpListener temperaturePump = new DataPumpListener(thermometer,temperatureHistory);
         sim.integrator.getEventManager().addListener(temperaturePump);
 		dataStreamPumps.add(temperaturePump);
-        DisplayPlot temperatureHistoryPlot = new DisplayPlot();
+        DisplayPlotXChart temperatureHistoryPlot = new DisplayPlotXChart();
         temperatureHistory.setDataSink(temperatureHistoryPlot.getDataSet().makeDataSink());
         temperatureHistoryPlot.setLabel("Temperature");
         temperatureHistoryPlot.setDoLegend(false);
@@ -184,7 +157,7 @@ public class CatalysisGraphic extends SimulationGraphic {
         densityCO2Fork.addDataSink(densityCO2Box);
         densityCO2Box.setLabel("CO2 Density");
 
-        DisplayPlot densityHistoryPlot = new DisplayPlot();
+        DisplayPlotXChart densityHistoryPlot = new DisplayPlotXChart();
         densityCOHistory.setDataSink(densityHistoryPlot.getDataSet().makeDataSink());
         densityO2History.setDataSink(densityHistoryPlot.getDataSet().makeDataSink());
         densityCO2History.setDataSink(densityHistoryPlot.getDataSet().makeDataSink());
@@ -251,7 +224,6 @@ public class CatalysisGraphic extends SimulationGraphic {
                 temperaturePump.actionPerformed();
 
                 displayCycles.putData(meterCycles.getData());
-                displayCycles.repaint();
             }
         };
         final IAction resetAction = new IAction() {

@@ -12,13 +12,14 @@ import etomica.data.*;
 import etomica.data.DataLogger.DataWriter;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
-import etomica.models.rowley.*;
+import etomica.models.rowley.EthanolPotentialHelper;
+import etomica.models.rowley.MethanolPotentialHelper;
+import etomica.models.rowley.SpeciesEthanol;
+import etomica.models.rowley.SpeciesMethanol;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialGroup;
@@ -202,23 +203,23 @@ public class VirialRowleyAlcohol {
 
         System.out.println(steps*1000+" total attempted MC moves ("+steps+" blocks of 1000)");
 
-        final SimulationVirialOverlap sim;
+        final SimulationVirialOverlap2 sim;
         PotentialMaster potentialMaster = new PotentialMaster();
 
         if(ethanol) {
-        	sim = new SimulationVirialOverlap (space,new SpeciesFactoryEthanol(pointCharges),
-        			temperature,refCluster,targetCluster); //use first constructor; no need for intramolecular movement MC trial
-        	SpeciesEthanol species = (SpeciesEthanol)sim.getSpecies(0);
-        	EthanolPotentialHelper.initPotential(space, species, U_a_b, pointCharges);
-        	//potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
+            sim = new SimulationVirialOverlap2(space, new SpeciesEthanol(space, pointCharges),
+                    temperature, refCluster, targetCluster); //use first constructor; no need for intramolecular movement MC trial
+            SpeciesEthanol species = (SpeciesEthanol) sim.getSpecies(0);
+            EthanolPotentialHelper.initPotential(space, species, U_a_b, pointCharges);
+            //potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
         }
         else {
-        	sim = new SimulationVirialOverlap (space,new SpeciesFactoryMethanol(pointCharges),
-                    temperature,refCluster,targetCluster); //use first constructor; no need for intramolecular movement MC trial
-        	SpeciesMethanol species = (SpeciesMethanol)sim.getSpecies(0);
+            sim = new SimulationVirialOverlap2(space, new SpeciesMethanol(space, pointCharges),
+                    temperature, refCluster, targetCluster); //use first constructor; no need for intramolecular movement MC trial
+            SpeciesMethanol species = (SpeciesMethanol) sim.getSpecies(0);
 
-        	MethanolPotentialHelper.initPotential(space, species, U_a_b, pointCharges, sigmaOC, sigmaOH);
-        	//potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
+            MethanolPotentialHelper.initPotential(space, species, U_a_b, pointCharges, sigmaOC, sigmaOH);
+            //potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
         }
 
 //         sim.integratorOS.setAdjustStepFreq(false);
@@ -564,43 +565,16 @@ public class VirialRowleyAlcohol {
             public void actionPerformed() {
 
                 if (printapalooza) {
-	                System.out.print(sim.integratorOS.getStepCount()+" blocks of 1000 attempted MC moves: ");
-	                double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
-	                double ratio = ratioAndError[0];
-	                double error = ratioAndError[1];
-	                System.out.println("Calculated B" + numMolecules + " = "+ratio*HSB[numMolecules]+" +/- "+error*HSB[numMolecules] + " Angstroms^3");
-
-                    DataGroup reference = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
+                    System.out.print(sim.integratorOS.getStepCount() + " blocks of 1000 attempted MC moves: ");
+                    double[] ratioAndError = sim.dvo.getAverageAndError();
+                    double ratio = ratioAndError[0];
+                    double error = ratioAndError[1];
 
                     System.out.println();
-	                System.out.println("Values calculated using the reference system's sampling");
-                    System.out.println("  average sign of reference system's integrand: " + ((DataDoubleArray) reference.getData(sim.accumulators[0].AVERAGE.index)).getData()[0]
-                            + "    stdev: " + ((DataDoubleArray) reference.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[0]
-                            + "    error: " + ((DataDoubleArray) reference.getData(sim.accumulators[0].ERROR.index)).getData()[0]);
-                    System.out.println("  average of overlap system's normalized integrand: " + ((DataDoubleArray) reference.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
-                            + "    stdev: " + ((DataDoubleArray) reference.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
-                            + "    error: " + ((DataDoubleArray) reference.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
-                    System.out.println("  ratio of these averages: " + ((DataDoubleArray) reference.getData(sim.accumulators[0].RATIO.index)).getData()[1]
-                            + "    error: " + ((DataDoubleArray) reference.getData(sim.accumulators[0].RATIO_ERROR.index)).getData()[1]);
-
-	                DataGroup targetData = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints()-sim.dsvo.minDiffLocation()-1);
-	                System.out.println();
-	                System.out.println("Values calculated using the target system's sampling");
-
-                    System.out.println("  average sign of target system's integrand: " + ((DataDoubleArray) targetData.getData(sim.accumulators[1].AVERAGE.index)).getData()[0]
-                            + "    stdev: " + ((DataDoubleArray) targetData.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[0]
-                            + "    error: " + ((DataDoubleArray) targetData.getData(sim.accumulators[1].ERROR.index)).getData()[0]);
-                    System.out.println("  average of overlap system's normalized integrand: " + ((DataDoubleArray) targetData.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]
-                            + "    stdev: " + ((DataDoubleArray) targetData.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[1]
-                            + "    error: " + ((DataDoubleArray) targetData.getData(sim.accumulators[1].ERROR.index)).getData()[1]);
-                    System.out.println("  ratio of these averages: " + ((DataDoubleArray) targetData.getData(sim.accumulators[1].RATIO.index)).getData()[1]
-                            + "    error: " + ((DataDoubleArray) targetData.getData(sim.accumulators[1].RATIO_ERROR.index)).getData()[1]);
-
-	                System.out.println();
-	                System.out.println("ratio calculated in target system divided by ratio calculated in reference system: "+ratio+", error: "+error);
+                    System.out.println("ratio calculated in target system divided by ratio calculated in reference system: " + ratio + ", error: " + error);
                     System.out.println("Calculated B" + numMolecules + " = " + ratio * HSB[numMolecules] + " +/- " + error * HSB[numMolecules] + " Angstroms^3");
                     System.out.println();
-            	}
+                }
             }
         };
         IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
@@ -611,58 +585,7 @@ public class VirialRowleyAlcohol {
         sim.ai.setMaxSteps(steps);
         sim.getController().actionPerformed();
 
-        if (printapalooza) {
-	        System.out.println();
-	        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-
-
-            DataGroup reference = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-
-            System.out.println();
-	        System.out.println("Values calculated using the reference system's sampling");
-            System.out.println("  average sign of reference system's integrand: " + ((DataDoubleArray) reference.getData(sim.accumulators[0].AVERAGE.index)).getData()[0]
-                    + "    stdev: " + ((DataDoubleArray) reference.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[0]
-                    + "    error: " + ((DataDoubleArray) reference.getData(sim.accumulators[0].ERROR.index)).getData()[0]);
-            System.out.println("  average of overlap system's normalized integrand: " + ((DataDoubleArray) reference.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
-                    + "    stdev: " + ((DataDoubleArray) reference.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
-                    + "    error: " + ((DataDoubleArray) reference.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
-            System.out.println("  ratio of these averages: " + ((DataDoubleArray) reference.getData(sim.accumulators[0].RATIO.index)).getData()[1]
-                    + "    error: " + ((DataDoubleArray) reference.getData(sim.accumulators[0].RATIO_ERROR.index)).getData()[1]);
-
-	        DataGroup targetData = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints()-sim.dsvo.minDiffLocation()-1);
-	        System.out.println();
-	        System.out.println("Values calculated using the target system's sampling");
-
-            System.out.println("  average sign of target system's integrand: " + ((DataDoubleArray) targetData.getData(sim.accumulators[1].AVERAGE.index)).getData()[0]
-                    + "    stdev: " + ((DataDoubleArray) targetData.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[0]
-                    + "    error: " + ((DataDoubleArray) targetData.getData(sim.accumulators[1].ERROR.index)).getData()[0]);
-            System.out.println("  average of overlap system's normalized integrand: " + ((DataDoubleArray) targetData.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]
-                    + "    stdev: " + ((DataDoubleArray) targetData.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[1]
-                    + "    error: " + ((DataDoubleArray) targetData.getData(sim.accumulators[1].ERROR.index)).getData()[1]);
-            System.out.println("  ratio of these averages: " + ((DataDoubleArray) targetData.getData(sim.accumulators[1].RATIO.index)).getData()[1]
-                    + "    error: " + ((DataDoubleArray) targetData.getData(sim.accumulators[1].RATIO_ERROR.index)).getData()[1]);
-        }
-
-        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
-        double ratio = ratioAndError[0];
-        double error = ratioAndError[1];
-
-        if (printapalooza) {
-	        System.out.println();
-	        System.out.println("ratio calculated in target system divided by ratio calculated in reference system: "+ratio+", error: "+error);
-	        System.out.println("Calculated B" + numMolecules +  " = " +ratio*HSB[numMolecules]+" +/- "+error*HSB[numMolecules] + " Angstroms^3");
-        } else {
-        	double coeff = ratio*HSB[numMolecules];
-	        if (coeff > 0) {
-	        	long seed = Integer.parseInt(args[3]);
-	        	System.out.println("*******************************************************");
-	        	System.out.println("B"+ numMolecules + " = " + coeff + "for seed = " + seed);
-	        	System.out.println("*******************************************************");
-	        	System.out.println();
-	        	System.out.println();
-	        	System.out.println();
-            }
-        }
+        sim.printResults(HSB[numMolecules]);
 	}
 
     /**

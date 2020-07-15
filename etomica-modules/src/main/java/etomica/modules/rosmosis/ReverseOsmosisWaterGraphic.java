@@ -24,8 +24,8 @@ import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.*;
-import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.*;
 import etomica.units.systems.MKS;
 import etomica.util.Constants.CompassDirection;
 
@@ -407,7 +407,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         dataStreamPumps.add(profPumpChlorine);
         dataStreamPumps.add(profPumpSolvent);
 
-        final DisplayPlot ePlot = new DisplayPlot();
+        final DisplayPlotXChart ePlot = new DisplayPlotXChart();
         energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
         ePlot.setLegend(new DataTag[]{energyHistory.getTag()}, "Total");
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
@@ -420,7 +420,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
 		ePlot.setLabel("Energy");
 		ePlot.setXUnit(Picosecond.UNIT);
 
-        final DisplayPlot profPlot = new DisplayPlot();
+        final DisplayPlotXChart profPlot = new DisplayPlotXChart();
         profSodiumAvg.addDataSink(profPlot.getDataSet().makeDataSink(),
                 new AccumulatorAverage.StatType[]{profSolventAvg.AVERAGE});
         profPlot.setLegend(new DataTag[]{meterProfileSodium.getTag()}, "Sodium");
@@ -436,12 +436,12 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         profPlot.setXUnit(Angstrom.UNIT);
         profPlot.setUnit(dUnit);
 
-        final DisplayPlot pPlot = new DisplayPlot();
+        final DisplayPlotXChart pPlot = new DisplayPlotXChart();
         pressureHistory.setDataSink(pPlot.getDataSet().makeDataSink());
         pPlot.setLabel("Osmotic Pressure");
         pPlot.setUnit(Bar.UNIT);
 
-        final DisplayPlot fluxPlot = new DisplayPlot();
+        final DisplayPlotXChart fluxPlot = new DisplayPlotXChart();
         fluxHistory.setDataSink(fluxPlot.getDataSet().makeDataSink());
         fluxPlot.setLabel("Flux");
 
@@ -517,19 +517,16 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
 
         		// Reset temperature (THIS IS NOT WORKING)
                 temperaturePump.actionPerformed();
-                tBox.repaint();
 
                 // IS THIS WORKING?
 //                pPump.actionPerformed();
 //                pDisplay.putData(pAccumulator.getData());
 //                pDisplay.repaint();
                 peDisplay.putData(peAccumulator.getData());
-                peDisplay.repaint();
 
         		getDisplayBox(sim.box).graphic().repaint();
         		
         		displayCycles.putData(meterCycles.getData());
-        		displayCycles.repaint();
         	}
         };
 

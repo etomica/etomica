@@ -187,8 +187,7 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 DataInfoDouble dataInfoA = new DataInfoDouble("AHarmonic", Energy.DIMENSION);
                 displayAHarmonic.putDataInfo(dataInfoA);
                 displayAHarmonic.putData(AHarm);
-                displayAHarmonic.repaint();
-                
+
                 getController().getSimRestart().getDataResetAction().actionPerformed();
             	
 		    }
@@ -525,9 +524,8 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
                 DataInfoDouble dataInfoA = new DataInfoDouble("AHarmonic", Energy.DIMENSION);
                 displayAHarmonic.putDataInfo(dataInfoA);
                 displayAHarmonic.putData(AHarm);
-                displayAHarmonic.repaint();
-                
-                
+
+
                 getController().getSimRestart().getDataResetAction().actionPerformed();
 		    }
 		};	
@@ -728,7 +726,6 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         resetAction = new IAction(){
         	public void actionPerformed(){
         		heDisplay.putData(heAccumulator.getData());
-        		heDisplay.repaint();
         		getDisplayBox(sim.box).graphic().repaint();
         	}
         };

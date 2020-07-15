@@ -7,6 +7,8 @@ package etomica.modules.materialfracture;
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
 import etomica.data.*;
+import etomica.data.history.HistoryCollapsingDiscard;
+import etomica.data.history.HistoryComplete;
 import etomica.data.history.HistoryScrolling;
 import etomica.data.meter.MeterPressureTensorFromIntegrator;
 import etomica.data.types.DataDouble;
@@ -28,7 +30,7 @@ import java.awt.*;
 public class MaterialFractureGraphic extends SimulationGraphic {
 
     public MaterialFractureGraphic(final MaterialFracture sim) {
-        super(sim, SimulationGraphic.TABBED_PANE, "Material Fracture", 1);
+        super(sim, SimulationGraphic.TABBED_PANE, "Material Fracture", 10);
 
         getDisplayBox(sim.box).setPixelUnit(new Pixel(6));
         ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), 3.0);
@@ -60,18 +62,18 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         DataPump stressPump = new DataPump(meterStress, stressFork);
         getController().getDataStreamPumps().add(stressPump);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(stressPump));
-        AccumulatorHistory stressHistory = new AccumulatorHistory(new HistoryScrolling(1));
+        AccumulatorHistory stressHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(5000));
         stressHistory.setTimeDataSource(meterStrain);
         stressFork.addDataSink(stressHistory);
         AccumulatorAverageCollapsing stressAverage = new AccumulatorAverageCollapsing();
         stressAverage.setPushInterval(10);
         stressFork.addDataSink(stressAverage);
     
-        final DisplayPlot stressHistoryPlot = new DisplayPlot();
+        final DisplayPlotXChart stressHistoryPlot = new DisplayPlotXChart();
         stressHistory.setDataSink(stressHistoryPlot.getDataSet().makeDataSink());
         stressHistoryPlot.setLabel("Stress");
-        stressHistoryPlot.setDoClear(false);
         stressHistoryPlot.setDoDrawLines(new DataTag[]{stressHistory.getTag()}, false);
+        stressHistoryPlot.getChart().getStyler().setMarkerSize(4);
 
         add(stressHistoryPlot);
 
@@ -104,7 +106,7 @@ public class MaterialFractureGraphic extends SimulationGraphic {
 
         DataFork internalStressFork = new DataFork();
         pressureToStress.setDataSink(internalStressFork);
-        AccumulatorHistory internalStressHistory = new AccumulatorHistory(new HistoryScrolling(1));
+        AccumulatorHistory internalStressHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(5000));
         internalStressHistory.setTimeDataSource(meterStrain);
         internalStressFork.addDataSink(internalStressHistory);
         AccumulatorAverageCollapsing internalStressAverage = new AccumulatorAverageCollapsing();
@@ -184,7 +186,7 @@ public class MaterialFractureGraphic extends SimulationGraphic {
 
         getController().getResetAveragesButton().setPostAction(new IAction() {
             public void actionPerformed() {
-                stressHistoryPlot.getPlot().clear(false);
+                stressHistoryPlot.getPlot().clearData();
             }
         });
     }

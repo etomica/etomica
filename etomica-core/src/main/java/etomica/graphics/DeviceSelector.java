@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.util.HashMap;
 
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
+
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.HashMap;
 
 /**
  * Generic Device that has a combo box.  Selecting an item from the combo box
@@ -62,12 +63,12 @@ public class DeviceSelector extends Device {
         if(i < 0 || i >= selector.getItemCount()) throw new IllegalArgumentException("Out of range");
         selector.setSelectedIndex(i);
     }
-    
+
     /**
      * Returns the GUI element for display in the simulation.
      * Consists of a combo box used for the selector.
      */
-    public java.awt.Component graphic(Object obj) {
+    public java.awt.Component graphic() {
         return panel;
     }
     

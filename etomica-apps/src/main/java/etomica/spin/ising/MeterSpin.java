@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.spin;
+package etomica.spin.ising;
 
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -20,15 +20,19 @@ import etomica.units.dimensions.Undefined;
  * vector).
  *
  * @author David Kofke
- *
  */
 public class MeterSpin extends DataSourceScalar implements IDataSource {
 
+    private static final long serialVersionUID = 1L;
+    private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
+    private final Vector sum;
+    private Box box;
+
     /**
-     * 
+     *
      */
     public MeterSpin(Space space) {
-        super("Spin",Undefined.DIMENSION);
+        super("Spin", Undefined.DIMENSION);
         sum = space.makeVector();
     }
 
@@ -45,7 +49,7 @@ public class MeterSpin extends DataSourceScalar implements IDataSource {
             sum.PE(atom.getPosition());
             count++;
         }
-        return sum.getX(0)/count;
+        return sum.getX(0) / count;
     }
 
     /**
@@ -54,15 +58,11 @@ public class MeterSpin extends DataSourceScalar implements IDataSource {
     public Box getBox() {
         return box;
     }
+
     /**
      * @param box The box to set.
      */
     public void setBox(Box box) {
         this.box = box;
     }
-
-    private static final long serialVersionUID = 1L;
-    private Box box;
-    private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-    private final Vector sum;
 }

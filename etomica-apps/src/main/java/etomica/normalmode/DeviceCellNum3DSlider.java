@@ -109,8 +109,8 @@ public class DeviceCellNum3DSlider extends Device {
     /**
      * @return The panel that holds all graphical objects for the DeviceCellNumXYSlider.
      */
-    public Component graphic(Object obj) {
-    	return numCellPanel;
+    public Component graphic() {
+        return numCellPanel;
     }
 
 

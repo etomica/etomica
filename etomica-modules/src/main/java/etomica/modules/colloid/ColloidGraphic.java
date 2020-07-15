@@ -290,7 +290,7 @@ public class ColloidGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(profilePump);
         dataStreamPumps.add(profilePump);
 
-        DisplayPlot profilePlot = new DisplayPlot();
+        DisplayPlotXChart profilePlot = new DisplayPlotXChart();
         densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
         profilePlot.setLegend(new DataTag[]{densityProfileAvg.getTag()}, "monomer");
         profilePlot.getPlot().setTitle("Monomer");
@@ -298,7 +298,7 @@ public class ColloidGraphic extends SimulationGraphic {
         profilePlot.setDoLegend(false);
         profilePlot.setLabel("Monomer Density");
 
-        DisplayPlot colloidProfilePlot = new DisplayPlot();
+        DisplayPlotXChart colloidProfilePlot = new DisplayPlotXChart();
         colloidDensityProfileAvg.addDataSink(colloidProfilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{colloidDensityProfileAvg.AVERAGE});
         colloidProfilePlot.setLegend(new DataTag[]{colloidDensityProfileAvg.getTag()}, "colloid");
         colloidProfilePlot.getPlot().setTitle("Colloid");
@@ -313,8 +313,8 @@ public class ColloidGraphic extends SimulationGraphic {
         java.awt.Dimension d = profilePlot.getPlot().getPreferredSize();
         d.width -= 100;
         d.height = 210;
-        profilePlot.getPlot().setSize(d);
-        colloidProfilePlot.getPlot().setSize(d);
+        profilePlot.getPlot().setSize(d.width, d.height);
+        colloidProfilePlot.getPlot().setSize(d.width, d.height);
 
         addAsTab(plotPanel, "Density Profiles", true);
 
@@ -335,7 +335,7 @@ public class ColloidGraphic extends SimulationGraphic {
         avgE2E.addDataSink(sqrtE2E, new StatType[]{avgE2E.AVERAGE});
         AccumulatorHistory historyE2E = new AccumulatorHistory(new HistoryCollapsingDiscard());
         sqrtE2E.setDataSink(historyE2E);
-        DisplayPlot runningAvgE2E = new DisplayPlot();
+        DisplayPlotXChart runningAvgE2E = new DisplayPlotXChart();
         historyE2E.setDataSink(runningAvgE2E.getDataSet().makeDataSink());
         runningAvgE2E.setLabel("End-to-End Distance");
         add(runningAvgE2E);

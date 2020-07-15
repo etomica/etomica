@@ -1,7 +1,11 @@
+plugins {
+    id 'org.beryx.runtime' version '1.8.4' apply false
+}
+
 apply plugin: 'eclipse'
 
 wrapper {
-    gradleVersion = '5.0'
+    gradleVersion = '6.4.1'
 }
 
 tasks.withType(JavaCompile) {
@@ -12,7 +16,6 @@ tasks.withType(JavaCompile) {
 subprojects {
     apply plugin: 'java'
     apply plugin: 'eclipse'
-    apply plugin: 'findbugs'
 
     if(rootProject.hasProperty("main")) {
         apply plugin: 'application'
@@ -28,34 +31,13 @@ subprojects {
     targetCompatibility = 1.8
 
     dependencies {
-        testCompile 'org.junit.jupiter:junit-jupiter-api:5.2.0-M1'
-        testCompile 'org.junit.jupiter:junit-jupiter-params:5.2.0-M1'
-        testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.2.0-M1'
-    }
-
-
-    tasks.withType(FindBugs) {
-        reports {
-            xml.enabled false
-            html.enabled true
-            html.stylesheet resources.text.fromFile("$rootProject.projectDir/config/xsl/findbugs-custom.xsl")
-        }
-    }
-
-    findbugs {
-
-        /*
-        Hack to prevent findbugs from running every time the project is build (as a dependency of check).
-        Run findbugs explicitly with findbugsAll.
-         */
-        sourceSets = []
-        ignoreFailures = true
+        testImplementation 'org.junit.jupiter:junit-jupiter:5.6.2'
     }
 
     test {
-        useJUnitPlatform()
-        testLogging.showStandardStreams = true
+        useJUnitPlatform { }
         testLogging {
+            events "skipped", "failed", "standardOut", "standardError"
             exceptionFormat "full"
         }
     }
@@ -72,6 +54,9 @@ project(':etomica-core') {
         compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
         compile 'com.github.therapi:therapi-runtime-javadoc:0.2.1'
         compile "io.github.lukehutch:fast-classpath-scanner:2.9.4"
+        compile "org.knowm.xchart:xchart:3.6.4"
+        compile 'com.miglayout:miglayout-swing:5.2'
+        compile "com.formdev:flatlaf:0.37"
 
         compile files("$rootProject.projectDir/libs/ptolemy.jar")
 
@@ -91,7 +76,26 @@ project(':etomica-apps') {
 }
 
 project(':etomica-modules') {
-    
+    apply plugin: 'application'
+    apply plugin: 'org.beryx.runtime'
+
+    jar {
+        manifest {
+            attributes "Main-Class": "etomica.modules.ModuleLauncher"
+        }
+    }
+
+    application {
+        mainClassName = 'etomica.modules.ModuleLauncher'
+    }
+
+    runtime {
+        imageDir = file("$buildDir/etomica_modules")
+        imageZip = file("$buildDir/etomica_modules.zip")
+        modules = ['java.desktop']
+        options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    }
+
     dependencies {
         compile project(':etomica-apps')
     }
@@ -105,9 +109,6 @@ project(':etomica-graph') {
         compile 'org.apache.xmlgraphics:fop:1.0'
     }
 }
-
-task findbugsAll
-subprojects { project -> findbugsAll.dependsOn("${project.path}:findbugsMain")}
 
 task setupPython(type:Exec) {
     onlyIf {

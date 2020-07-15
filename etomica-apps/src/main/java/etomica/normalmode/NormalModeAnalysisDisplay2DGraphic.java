@@ -134,8 +134,7 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
                 AHarm.E(AHarmonic);
                 displayAHarmonic.putDataInfo(dataInfoA);
                 displayAHarmonic.putData(AHarm);
-                displayAHarmonic.repaint();
-                
+
                 DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Omega^2", Null.DIMENSION, new int[]{m});
                 DataInfo dataInfo = new DataInfoTable("Omega^2", new DataInfoDoubleArray[]{columnInfo}, m, stringWV);
                 sink.putDataInfo(dataInfo);
@@ -294,8 +293,7 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
                 DataInfoDouble dataInfoA = new DataInfoDouble("AHarmonic", Energy.DIMENSION);
                 displayAHarmonic.putDataInfo(dataInfoA);
                 displayAHarmonic.putData(AHarm);
-                displayAHarmonic.repaint();
-                
+
                 DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Omega^2", Null.DIMENSION, new int[]{m});
                 DataInfo dataInfo = new DataInfoTable("Omega^2", new DataInfoDoubleArray[]{columnInfo}, m, stringWV);
                 sink.putDataInfo(dataInfo);
@@ -395,8 +393,7 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
                     DataInfoDouble dataInfoA = new DataInfoDouble("AHarmonic", Energy.DIMENSION);
                     displayAHarmonic.putDataInfo(dataInfoA);
                     displayAHarmonic.putData(AHarm);
-                    displayAHarmonic.repaint();
-                    
+
                     DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Omega^2", Null.DIMENSION, new int[]{m});
                     DataInfo dataInfo = new DataInfoTable("Omega^2", new DataInfoDoubleArray[]{columnInfo}, m, stringWV);
                     sink.putDataInfo(dataInfo);
@@ -514,9 +511,8 @@ public class NormalModeAnalysisDisplay2DGraphic extends SimulationGraphic {
         IAction resetAction = new IAction(){
         	public void actionPerformed(){
         		heDisplay.putData(heAccumulator.getData());
-        		heDisplay.repaint();
-        		
-        		getDisplayBox(sim.box).graphic().repaint();
+
+                getDisplayBox(sim.box).graphic().repaint();
         	}
         };
         

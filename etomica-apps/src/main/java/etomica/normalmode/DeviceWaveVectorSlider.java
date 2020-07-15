@@ -4,18 +4,6 @@
 
       package etomica.normalmode;
 
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeListener;
-
 import etomica.action.IAction;
 import etomica.action.activity.Controller;
 import etomica.graphics.Device;
@@ -25,15 +13,21 @@ import etomica.modifier.Modifier;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
 
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 
 /**
  * @author taitan
- *
  */
 public class DeviceWaveVectorSlider extends Device {
 
-	private JPanel        waveVectorNumPanel;  // main panel for wave vectors device PRIVATE
-	private DeviceSlider  waveVectorNumSlider; // Do not make make accessible
+	private JPanel waveVectorNumPanel;  // main panel for wave vectors device PRIVATE
+	private DeviceSlider waveVectorNumSlider; // Do not make make accessible
 	private JRadioButton  buttonAllWV;   // Do not make make accessible
 	private JRadioButton  buttonOneWV;  // Do not make make accessible
 	protected IntegratorHarmonic integrator;
@@ -205,11 +199,11 @@ public class DeviceWaveVectorSlider extends Device {
     }
 
     /**
-     * @return The panel that holds all graphical objects for the DeviceThermoSlider.
-     */
-    public Component graphic(Object obj) {
-    	return waveVectorNumPanel;
-    }
+	 * @return The panel that holds all graphical objects for the DeviceThermoSlider.
+	 */
+	public Component graphic() {
+		return waveVectorNumPanel;
+	}
 
 
 	/**

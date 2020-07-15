@@ -5,26 +5,16 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
+import etomica.chem.elements.ElementSimple;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphere;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesSpheresMono;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterSum;
-import etomica.virial.ConfigurationClusterMove;
-import etomica.virial.MayerEHardSphere;
-import etomica.virial.MayerESpherical;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerFunctionSum;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesFactorySpheres;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 
 public class VirialAssociatingFluid4points extends VirialAssociatingFluid {
@@ -218,27 +208,25 @@ public class VirialAssociatingFluid4points extends VirialAssociatingFluid {
 				clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
 				targetCluster = new ClusterSum(clusters,new double []{1}, new MayerFunction[]{fR,F,eR});
 			}
-			}
-		 
-			else {
-			throw new RuntimeException("This is strange");
-		}
+		 } else {
+			 throw new RuntimeException("This is strange");
+		 }
 
-		
-		ClusterAbstract refCluster = Standard.virialCluster(nBody, fRef, nBody>3, eRef, true);
-        refCluster.setTemperature(temperature);
-        targetCluster.setTemperature(temperature);
-		final SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactorySpheres(), temperature, refCluster, targetCluster);
+
+		ClusterAbstract refCluster = Standard.virialCluster(nBody, fRef, nBody > 3, eRef, true);
+		refCluster.setTemperature(temperature);
+		targetCluster.setTemperature(temperature);
+		final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesSpheresMono(space, new ElementSimple("A")), temperature, refCluster, targetCluster);
 		ConfigurationClusterMove configuration = new ConfigurationClusterMove(space, sim.getRandom());
 		configuration.initializeCoordinates(sim.box[1]);
 		sim.integratorOS.setNumSubSteps(1000);
-        // if running interactively, don't use the file
-        String refFileName = args.length > 0 ? "refpref"+rhopoint+"_"+rho0point+"_"+temperature : null;
-        // this will either read the refpref in from a file or run a short simulation to find it
+		// if running interactively, don't use the file
+		String refFileName = args.length > 0 ? "refpref" + rhopoint + "_" + rho0point + "_" + temperature : null;
+		// this will either read the refpref in from a file or run a short simulation to find it
 //        sim.setRefPref(1.0082398078547523);
-        sim.initRefPref(refFileName, numSteps/100);
-        // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
-        // if it does continue looking for a pref, it will write the value to the file
+		sim.initRefPref(refFileName, numSteps / 100);
+		// run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
+		// if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, numSteps/40);
         
         System.out.println("equilibration finished");
@@ -246,46 +234,25 @@ public class VirialAssociatingFluid4points extends VirialAssociatingFluid {
         IAction progressReport = new IAction() {
             public void actionPerformed() {
                 System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
+				double[] ratioAndError = sim.dvo.getAverageAndError();
                 System.out.println("abs average: "+ratioAndError[0]*HSB[nBody]+", error: "+ratioAndError[1]*HSB[nBody]);
             }
         };
         IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
-        progressReportListener.setInterval((int)(numSteps/10));
-        sim.integratorOS.getEventManager().addListener(progressReportListener);
-        
-        sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(numSteps);
-        for (int i=0; i<2; i++) {
-            System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
-        }
-        sim.getController().actionPerformed();
+		progressReportListener.setInterval((int) (numSteps / 10));
+		sim.integratorOS.getEventManager().addListener(progressReportListener);
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-        
-        double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
-        System.out.println("ratio average: "+ratioAndError[0]+", error: "+ratioAndError[1]);
-        System.out.println("abs average: "+ratioAndError[0]*HSB[nBody]+", error: "+ratioAndError[1]*HSB[nBody]);
-        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        System.out.println("hard sphere ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].RATIO.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].RATIO_ERROR.index)).getData()[1]);
-        System.out.println("hard sphere   average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[0]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[0]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].ERROR.index)).getData()[0]);
-        System.out.println("hard sphere overlap average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
-        
-        allYourBase = (DataGroup)sim.accumulators[1].getData(sim.accumulators[1].getNBennetPoints()-sim.dsvo.minDiffLocation()-1);
-        System.out.println("lennard jones ratio average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].RATIO.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].RATIO_ERROR.index)).getData()[1]);
-        System.out.println("lennard jones average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[0]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[0]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].ERROR.index)).getData()[0]);
-        System.out.println("lennard jones overlap average: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]
-                          +" stdev: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[1]
-                          +" error: "+((DataDoubleArray)allYourBase.getData(sim.accumulators[1].ERROR.index)).getData()[1]);
-    }
+		sim.integratorOS.getMoveManager().setEquilibrating(false);
+		sim.ai.setMaxSteps(numSteps);
+		for (int i = 0; i < 2; i++) {
+			System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
+		}
+		sim.getController().actionPerformed();
+
+		System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
+
+		sim.printResults(HSB[nBody]);
+	}
     
 	
 	public static class VirialAssociatingFluidParam extends ParameterBase {

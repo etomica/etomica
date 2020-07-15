@@ -5,8 +5,8 @@
 package etomica.action.activity;
 
 import etomica.action.Activity;
-import etomica.integrator.Integrator;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.integrator.Integrator;
 import etomica.util.Debug;
 
 /**
@@ -48,6 +48,7 @@ public class ActivityIntegrate extends Activity {
             }
         }
         integrator.resetStepCount();
+        double sleepCarryover = 0;
         for (stepCount = 0; stepCount < maxSteps; stepCount++) {
             if (Debug.ON) {
                 if (stepCount == Debug.START) Debug.DEBUG_NOW = true;
@@ -57,8 +58,10 @@ public class ActivityIntegrate extends Activity {
             }
             if (!doContinue()) break;
             integrator.doStep();
-            if(sleepPeriod > 0) {
-                try { Thread.sleep(sleepPeriod); }
+            if (sleepPeriod > 0) {
+                double nowSleep = sleepCarryover + sleepPeriod;
+                sleepCarryover = nowSleep - (int) nowSleep;
+                try { Thread.sleep((int) nowSleep);	}
                 catch (InterruptedException e) { }
             }
         }
@@ -68,25 +71,26 @@ public class ActivityIntegrate extends Activity {
 	 * Amount of time that thread is kept in sleep state after
 	 * each doStep done on integrator.  If doSleep is false, this no sleep
 	 * is performed and this parameter has no effect.
-	 * 
+	 *
 	 * @return sleep period, in milliseconds.
 	 */
-	public int getSleepPeriod() {
+	public double getSleepPeriod() {
 		return sleepPeriod;
 	}
-	
+
 	/**
 	 * Sets amount of time that thread is kept in sleep state after
 	 * each doStep done on integrator.  Default value is 0.
 	 */
 
-	public void setSleepPeriod(int sleepPeriod) {
+	public void setSleepPeriod(double sleepPeriod) {
 		this.sleepPeriod = sleepPeriod;
 	}
-    /**
-     * Accessor method for the number of doStep calls to be
-     * performed by this integrator after it is started.
-     */
+
+	/**
+	 * Accessor method for the number of doStep calls to be
+	 * performed by this integrator after it is started.
+	 */
 	public long getMaxSteps() {
 		return maxSteps;
 	}
@@ -103,19 +107,18 @@ public class ActivityIntegrate extends Activity {
 	}
     
     public long getCurrentStep() {
-        return stepCount;
-    }
-	
+		return stepCount;
+	}
+
 	/**
 	 * @return Returns the integrator.
 	 */
 	public Integrator getIntegrator() {
 		return integrator;
 	}
-    
-    private static final long serialVersionUID = 1L;
-	private final Integrator integrator;
+
+    private final Integrator integrator;
     private boolean ignoreOverlap;
-	private int sleepPeriod;
-	protected long maxSteps, stepCount;
+    private double sleepPeriod;
+    protected long maxSteps, stepCount;
 }

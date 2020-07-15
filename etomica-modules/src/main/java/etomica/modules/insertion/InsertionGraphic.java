@@ -52,10 +52,10 @@ public class InsertionGraphic extends SimulationGraphic {
     public double lambda;
     protected Insertion sim;
     public MeterWidom meterWidom;
-    protected DisplayPlot widomHistPlot;
-    public DisplayPlot widom2Plot;
+    protected DisplayPlotXChart widomHistPlot;
+    public DisplayPlotXChart widom2Plot;
     
-    public InsertionGraphic(final Insertion simulation, Space _space) {
+    public InsertionGraphic(final Insertion simulation) {
 
     	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
@@ -269,8 +269,7 @@ public class InsertionGraphic extends SimulationGraphic {
 
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
         delaySlider.setMaxSleep(1000);
-        delaySlider.setThreshold(100);
-        
+
         getPanel().controlPanel.add(setupPanel, vertGBC);
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
 
@@ -299,14 +298,14 @@ public class InsertionGraphic extends SimulationGraphic {
         AccumulatorHistory historyMu = new AccumulatorHistory(new HistoryCollapsingDiscard());
         dpMu.setDataSink(historyMu);
         historyMu.setTimeDataSource(new DataSourceCountTime(sim.integrator));
-        DisplayPlot historyWidomPlot = new DisplayPlot();
+        DisplayPlotXChart historyWidomPlot = new DisplayPlotXChart();
         historyMu.setDataSink(historyWidomPlot.getDataSet().makeDataSink());
         historyWidomPlot.setLabel("History");
         historyWidomPlot.setDoLegend(false);
         add(historyWidomPlot);
         
         HistogramDataSource widomHist = new HistogramDataSource(meterWidom.hist);
-        widomHistPlot = new DisplayPlot();
+        widomHistPlot = new DisplayPlotXChart();
         DataPumpListener widomHistPump = new DataPumpListener(widomHist, widomHistPlot.getDataSet().makeDataSink(), 10);
         sim.integrator.getEventManager().addListener(widomHistPump);
         widomHistPlot.setLabel("widom");
@@ -342,7 +341,7 @@ public class InsertionGraphic extends SimulationGraphic {
             }
         };
         DataPumpListener widomHist2Pump = new DataPumpListener(widomHist, widomWeight, 10);
-        widom2Plot = new DisplayPlot();
+        widom2Plot = new DisplayPlotXChart();
         widomWeight.setDataSink(widom2Plot.getDataSet().makeDataSink());
         sim.integrator.getEventManager().addListener(widomHist2Pump);
         widom2Plot.getPlot().setXRange(0,1);
@@ -491,7 +490,7 @@ public class InsertionGraphic extends SimulationGraphic {
             } catch(NumberFormatException e) {}
         }
 
-        InsertionGraphic swmdGraphic = new InsertionGraphic(new Insertion(space), space);
+        InsertionGraphic swmdGraphic = new InsertionGraphic(new Insertion(space));
 		SimulationGraphic.makeAndDisplayFrame
 		        (swmdGraphic.getPanel(), APP_NAME);
     }
@@ -507,7 +506,7 @@ public class InsertionGraphic extends SimulationGraphic {
                 dim = Integer.valueOf(dimStr).intValue();
             }
             Space sp = Space.getInstance(dim);
-            InsertionGraphic swmdGraphic = new InsertionGraphic(new Insertion(sp), sp);
+            InsertionGraphic swmdGraphic = new InsertionGraphic(new Insertion(sp));
 
 		    getContentPane().add(swmdGraphic.getPanel());
 	    }

@@ -86,7 +86,7 @@ public class DeviceNSelector extends DeviceSlider {
         setMaximum(max);
         slider.setSnapToTicks(false);
         slider.setMajorTickSpacing(10);
-        graphic(null).setSize(new java.awt.Dimension(40,30));
+        graphic().setSize(new java.awt.Dimension(40, 30));
         setModifier(new ModifierNMolecule(box, species));
 
         setLabel("Number of molecules");

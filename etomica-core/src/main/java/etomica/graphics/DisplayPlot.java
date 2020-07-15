@@ -367,7 +367,9 @@ public class DisplayPlot extends Display implements DataSetListener {
     /**
      * Overrides superclass method to return a JPanel holding the plot.
      */
-    public java.awt.Component graphic(Object obj) {return panel;}
+    public java.awt.Component graphic() {
+        return panel;
+    }
 
 
     /**

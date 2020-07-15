@@ -62,6 +62,7 @@ public class GlassProd {
         } else {
             System.out.println("rho: " + params.density + "\n");
         }
+        sim.initConfig();
 
 
         //Equilibration
@@ -242,6 +243,7 @@ public class GlassProd {
         dsMSDcorP.setEnabled(true);
 
         //VAC
+        configStorageMSD.setDoVelocity(true);
         DataSourceVAC meterVAC = new DataSourceVAC(configStorageMSD);
         configStorageMSD.addListener(meterVAC);
 

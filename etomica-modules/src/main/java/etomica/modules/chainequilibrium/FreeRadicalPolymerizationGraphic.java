@@ -90,7 +90,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         AccumulatorHistory tHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         tHistory.setTimeDataSource(timer);
         tFork.addDataSink(tHistory);
-        DisplayPlot tPlot = new DisplayPlot();
+        DisplayPlotXChart tPlot = new DisplayPlotXChart();
         tHistory.addDataSink(tPlot.getDataSet().makeDataSink());
         tPlot.setUnit(Kelvin.UNIT);
         tPlot.setLabel("Temperature");
@@ -159,18 +159,18 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         getController().getResetAveragesButton().setLabel("Reset");
         getController().getResetAveragesButton().setPostAction(resetData);
 
-        DisplayPlot compositionPlot = new DisplayPlot();
+        DisplayPlotXChart compositionPlot = new DisplayPlotXChart();
         accumulator.addDataSink(compositionPlot.getDataSet().makeDataSink(),new AccumulatorAverage.StatType[]{accumulator.AVERAGE});
         compositionPlot.setDoLegend(false);
 
-        DisplayPlot mwPlot = new DisplayPlot();
+        DisplayPlotXChart mwPlot = new DisplayPlotXChart();
         mwPlot.setLabel("Degree of polymerization");
         mwHistory.addDataSink(mwPlot.getDataSet().makeDataSink());
         mwPlot.setLegend(new DataTag[]{mwHistory.getTag()}, "Number Avg");
         mw2History.addDataSink(mwPlot.getDataSet().makeDataSink());
         mwPlot.setLegend(new DataTag[]{mw2History.getTag()}, "Weight Avg");
 
-        DisplayPlot conversionPlot = new DisplayPlot();
+        DisplayPlotXChart conversionPlot = new DisplayPlotXChart();
         conversionHistoryAcc.addDataSink(conversionPlot.getDataSet().makeDataSink());
         conversionPlot.setDoLegend(false);
 //        conversionPlot.setLegend(new DataTag[]{reactionConversion.getTag()}, "reaction conversion");
@@ -319,8 +319,8 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
             }
         });
         conversionPanel.add(conversionHistoryLength.graphic(),vertGBC);
-        
-        getPanel().tabbedPane.add("Conversion" , conversionPanel);
+
+        getPanel().tabbedPane.add("Conversion", conversionPanel);
 
         JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
         JPanel epsilonSliders = new JPanel(new java.awt.GridBagLayout());
@@ -329,8 +329,8 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         speciesEditors.add(nSliderA.graphic());
         speciesEditors.add(nSliderB.graphic());
 
-        epsilonSliders.add(AASlider.graphic(null), vertGBC);
-        epsilonSliders.add(BSlider.graphic(null), vertGBC);
+        epsilonSliders.add(AASlider.graphic(), vertGBC);
+        epsilonSliders.add(BSlider.graphic(), vertGBC);
         epsilonSliders.add(solventThermoFrac.graphic(), vertGBC);
         epsilonSliders.add(combinationProbabilityBox.graphic(), vertGBC);
 
@@ -338,7 +338,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         if (space.D() == 3) {
             controls.add(atomFilterButton.graphic(), vertGBC);
         }
-        
+
         final JTabbedPane sliderPanel = new JTabbedPane();
         //panel for all the controls
         getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);

@@ -80,7 +80,7 @@ public class DeviceButton extends Device {
     /**
      * Returns the GUI element for display in the simulation.
      */
-    public java.awt.Component graphic(Object obj) {
+    public java.awt.Component graphic() {
         return button;
     }
     

@@ -15,9 +15,9 @@ import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataTensor;
 import etomica.graphics.*;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -28,6 +28,7 @@ import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
 import etomica.util.Constants.CompassDirection;
+import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -64,7 +65,7 @@ public class LjmdGraphic extends SimulationGraphic {
         rdfMeterListener.setInterval(10);
         rdfMeter.getXDataSource().setXMax(4.0);
         rdfMeter.setBox(sim.box);
-        DisplayPlot rdfPlot = new DisplayPlot();
+        DisplayPlotXChart rdfPlot = new DisplayPlotXChart();
         DataPump rdfPump = new DataPump(rdfMeter,rdfPlot.getDataSet().makeDataSink());
         IntegratorListenerAction rdfPumpListener = new IntegratorListenerAction(rdfPump);
         sim.integrator.getEventManager().addListener(rdfPumpListener);
@@ -95,7 +96,7 @@ public class LjmdGraphic extends SimulationGraphic {
         rmsAverage.setPushInterval(10);
         dataStreamPumps.add(velocityPump);
         
-        final DisplayPlot vPlot = new DisplayPlot();
+        final DisplayPlotXChart vPlot = new DisplayPlotXChart();
         rmsAverage.addDataSink(vPlot.getDataSet().makeDataSink(), new StatType[]{rmsAverage.AVERAGE});
         vPlot.setDoLegend(false);
         vPlot.getPlot().setTitle("Velocity Distribution");
@@ -112,7 +113,9 @@ public class LjmdGraphic extends SimulationGraphic {
 		mbX.setXMin(vMin);
 		mbX.setXMax(vMax);
 		mbSource.update();
-        final DataPump mbPump = new DataPump(mbSource,vPlot.getDataSet().makeDataSink());
+        final DataPump mbPump = new DataPump(mbSource,vPlot.makeSink("boltzmann"));
+        vPlot.getSeries("boltzmann")
+                .setMarker(SeriesMarkers.NONE);
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
@@ -183,7 +186,7 @@ public class LjmdGraphic extends SimulationGraphic {
         keHistory.setPushInterval(5);
         dataStreamPumps.add(kePump);
         
-        DisplayPlot ePlot = new DisplayPlot();
+        DisplayPlotXChart ePlot = new DisplayPlotXChart();
         energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
         ePlot.setLegend(new DataTag[]{energyHistory.getTag()}, "Total");
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
@@ -281,8 +284,8 @@ public class LjmdGraphic extends SimulationGraphic {
                 resetDataAction.actionPerformed();
 		        mbDistribution.setTemperature(temperatureSelect.getTemperature());
 		        mbSource.update();
+		        mbPump.actionPerformed();
 		        vPlot.doUpdate();
-		        vPlot.repaint();
 		    }
 		};
 
@@ -301,19 +304,15 @@ public class LjmdGraphic extends SimulationGraphic {
                 // Reset density (Density is set and won't change, but
         		// do this anyway)
         		densityPump.actionPerformed();
-        		densityBox.repaint();
 
         		// Reset temperature (THIS IS NOT WORKING)
                 temperaturePump.actionPerformed();
 //                tBox.putData(temperatureHistory.getData());
-                tBox.repaint();
 
                 // IS THIS WORKING?
                 pPump.actionPerformed();
                 pDisplay.putData(pAccumulator.getData());
-                pDisplay.repaint();
                 peDisplay.putData(peAccumulator.getData());
-                peDisplay.repaint();
 
         		getDisplayBox(sim.box).graphic().repaint();
         	}
