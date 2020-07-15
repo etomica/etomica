@@ -345,7 +345,8 @@ public class SimulationVirialOverlap2 extends Simulation {
     }
 
     public void setRefPref(double newRefPref) {
-        System.out.println("setting ref pref (explicitly) to "+newRefPref);
+        System.out.println("setting ref pref (explicitly) to " + newRefPref);
+        refPref = newRefPref;
         dpVirialOverlap[0].setNumAlpha(1);
         dpVirialOverlap[0].setBennetParam(newRefPref, 1);
         dpVirialOverlap[1].setNumAlpha(1);
