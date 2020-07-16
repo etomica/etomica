@@ -117,6 +117,18 @@ project(':etomica-modules') {
         }
     }
 
+    task archiveModulesApp(type: Zip) {
+        dependsOn ":etomica-modules:jpackage"
+        if (org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+            from "$buildDir/jpackage"
+        } else {
+            from "$buildDir/jpackage/etomica-modules"
+        }
+
+        archiveFileName = "etomica-modules.zip"
+        destinationDirectory = file("$buildDir/dist")
+    }
+
     dependencies {
         compile project(':etomica-apps')
     }
