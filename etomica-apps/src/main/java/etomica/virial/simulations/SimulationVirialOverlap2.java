@@ -567,10 +567,10 @@ public class SimulationVirialOverlap2 extends Simulation {
                 dpVirialOverlap[0].setNumAlpha(numAlpha);
                 dpVirialOverlap[1].setNumAlpha(numAlpha);
                 setRefPref(refPref, 1);
+                return;
             } catch (IOException e) {
                 // file not there, which is ok.
             }
-            return;
         }
 
         double initAlphaSpan = 30;
