@@ -8,14 +8,10 @@ import etomica.action.IAction;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.*;
-import etomica.data.histogram.HistogramSimple;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorEvent;
-import etomica.integrator.IntegratorListener;
-import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionCOM;
@@ -55,10 +51,10 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            // customize parameters here
+            // Customize Interactive Parameters Here
             params.chemForm = new ChemForm[]{ChemForm.N2,ChemForm.O2};
-            params.nPoints = 2;
-            params.nTypes = new int[]{1,1};
+            params.nPoints = 5;
+            params.nTypes = new int[]{1,4};
             params.nDer = 3;
             params.temperature = 450;
             params.numSteps = 1000000;
@@ -67,13 +63,13 @@ public class VirialTraPPE {
             params.sigmaHSRef = 5;
             params.seed = null;
 
-            params.doHist = false;
             params.dorefpref = false;
             params.doChainRef = true;
 
             params.BDtol = 1e-12;
         }
 
+        // Import Params
         final ChemForm[] chemForm = params.chemForm;
         final int nPoints = params.nPoints;
         final int[] nTypes = params.nTypes;
@@ -85,58 +81,36 @@ public class VirialTraPPE {
         double sigmaHSRef = params.sigmaHSRef;
         int[] seed = params.seed;
 
-        boolean doHist = params.doHist;
         boolean dorefpref = params.dorefpref;
         boolean doChainRef = params.doChainRef;
 
         double BDtol = params.BDtol;
+
+        // Set Big Decimal Acceptance Fraction
         final double BDAccFrac = 0.001;
-        //if( chemForm.length == 0 ) throw new RuntimeException("chemForm length is wrong!");
 
-        /*for(int i=0; i<chemForm.length; i++){
-            if( chemForm[i]== null) throw new RuntimeException("chemForm["+i+"] is null!");
-        }*/
-
-        //if( nTypes.length == 0 ) throw new RuntimeException("nTypes length is wrong!");
-
-        /*for(int i=0; i<nTypes.length; i++){
-            if( nTypes[i]== 0) throw new RuntimeException("nTypes["+i+"] is 0!");
-        }*/
-
+        // Check Params
         if( chemForm.length != nTypes.length ) throw new RuntimeException("chemFrom and nTypes lengths are unequal!");
 
         if( chemForm.length > 1 && Arrays.stream(nTypes).sum() != nPoints ) throw new RuntimeException("nPoints and nTypes do not match!");
 
-        /*
-        if(chemForm.length > 1) {
-            for(int i=0; i<chemForm.length; i++){
-                for(int j=i+1; j<chemForm.length; j++){
-                    if( chemForm[i] == chemForm[j] ) throw new RuntimeException("chemForm["+i+"] and chemForm["+j+"] are "+chemForm[i]+". No repetitions in chemForm allowed!");
-                }
-            }
-        }*/
-
-        //if( chemForm[0] == null || nTypes[0] == 0 ) throw new RuntimeException("Reformat input");
-
-        //if( chemForm.length > 1 && chemForm[1] == null && nTypes[1] != 0 ) throw new RuntimeException("chemForm 1 incomplete!");
-
         boolean isMixture = ( nTypes.length > 1 ) ;
 
+        // Check if Pure or Mixture
         if(isMixture){
             for(int i=0; i<nTypes.length; i++){
                 if(nTypes[i]==nPoints) isMixture=false;
             }
         }
 
+        // Set Simulation Temperature
         double temperature = Kelvin.UNIT.toSim(temperatureK);
 
-        final long numBlocks = 1000;
-        long blockSize = steps/numBlocks;
-        int EqSubSteps = 1000;
-
+        // Evaluate Hard Sphere Coefficient
         double vhs = (4.0 / 3.0) * Math.PI * sigmaHSRef * sigmaHSRef * sigmaHSRef;
         final double HSBn = doChainRef ? SpecialFunctions.factorial(nPoints) / 2 * Math.pow(vhs, nPoints - 1) : Standard.BHS(nPoints, sigmaHSRef);
 
+        // Print Pretext
         if(!isMixture) {
             ChemForm chemFormPure = chemForm[0];
             if(nTypes.length>1) {
@@ -166,10 +140,10 @@ public class VirialTraPPE {
 
         System.out.println("  B"+nPoints+"HS: "+HSBn);
 
-        System.out.println(steps + " steps (" + numBlocks + " blocks of " + blockSize + ")");
-
+        // Set up Space
         Space space = Space3D.getInstance();
 
+        // Setting up Reference Cluster Mayer Function
         MayerFunction fRefPos = new MayerFunction() {
             public void setBox(Box box) {
             }
@@ -183,18 +157,17 @@ public class VirialTraPPE {
             }
         };
 
-        // Setting up reference cluster
+        // Setting up Reference Cluster
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         ClusterAbstract refCluster = doChainRef ? new ClusterChainHS(nPoints, fRefPos) : new ClusterWheatleyHS(nPoints, fRef);
         refCluster.setTemperature(temperature);
 
-        //Setting up target cluster
-
-        Species species[] = null;
+        // Setting up Target Cluster Mayer Function
+        Species[] species = null;
         ClusterAbstractMultivalue targetCluster = null;
         ClusterAbstractMultivalue targetClusterBD = null;
 
-        boolean allPolar = true;
+        boolean anyPolar = false;
         MayerFunction[][] fAll = new MayerFunction[nTypes.length][nTypes.length];
         species = new Species[chemForm.length];
 
@@ -214,7 +187,7 @@ public class VirialTraPPE {
             P2PotentialGroupBuilder.ModelParams MPi = new P2PotentialGroupBuilder.ModelParams(TPi.atomTypes,TPi.sigma,TPi.epsilon,TPi.charge);
             fAll[i][i] = new MayerGeneral(PGii);
 
-            allPolar=(allPolar&&TPi.polar);
+            anyPolar=(anyPolar||TPi.polar);
 
             for(int j=i+1; j<chemForm.length; j++){
 
@@ -229,10 +202,20 @@ public class VirialTraPPE {
             }
         }
 
+        // Setting up Target Cluster
         targetCluster = new ClusterWheatleySoftDerivativesMix(nPoints, nTypes,fAll, BDtol, nDer);
         targetCluster.setTemperature(temperature);
 
-        if(allPolar && nPoints==2) {
+
+        // Setting Number of Blocks
+        final long numBlocks = (anyPolar && nPoints > 4) ? 100: 1000;
+        long blockSize = steps/numBlocks;
+        int EqSubSteps = 1000;
+
+        System.out.println(steps + " steps (" + numBlocks + " blocks of " + blockSize + ")");
+
+        // Setting up Flipping
+        if(anyPolar && nPoints==2) {
             System.out.println("Performing Flipping");
             ((ClusterWheatleySoftDerivativesMix) targetCluster).setTolerance(0);
             final int precision = -3*(int)Math.log10(BDtol);
@@ -243,8 +226,7 @@ public class VirialTraPPE {
             targetCluster = new ClusterCoupledFlippedMultivalue(targetCluster, targetClusterBD, space, 20, nDer, BDtol);
         }
 
-        //System.exit(1);
-
+        // Setting up Simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, nTypes, temperature,refCluster,targetCluster);
         if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
         System.out.println("random seeds: "+ Arrays.toString(seed==null?sim.getRandomSeeds():seed));
@@ -255,17 +237,21 @@ public class VirialTraPPE {
             ((ClusterWheatleySoftDerivativesMix) targetCluster).setBDAccFrac(BDAccFrac,sim.getRandom());
         }
 
+        // Adding derivative clusters to simulation
         ClusterMultiToSingle[] primes = new ClusterMultiToSingle[nDer];
         for(int m=0;m<primes.length;m++){
             primes[m]= new ClusterMultiToSingle(((ClusterAbstractMultivalue) targetCluster), m+1);
         }
         sim.setExtraTargetClusters(primes);
 
+        // Initialize Simulation
         sim.init();
 
+        // Set Position Definitions
         sim.box[0].setPositionDefinition(new MoleculePositionCOM(space));
         sim.box[1].setPositionDefinition(new MoleculePositionCOM(space));
 
+        // Setting Chain Ref Moves
         if (doChainRef) {
             sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
             MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), space, sigmaHSRef);
@@ -273,10 +259,7 @@ public class VirialTraPPE {
             sim.accumulators[0].setBlockSize(1);
         }
 
-        sim.integratorOS.setNumSubSteps(EqSubSteps);
-
-        sim.integratorOS.setAggressiveAdjustStepFraction(true);
-
+        // Run with Graphics
         if (false) {
             sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10,10,10}));
@@ -317,6 +300,11 @@ public class VirialTraPPE {
             return;
         }
 
+        // Setting up Equilibration
+        sim.integratorOS.setNumSubSteps(EqSubSteps);
+        sim.integratorOS.setAggressiveAdjustStepFraction(true);
+
+        // Start timing
         long t1 = System.currentTimeMillis();
 
         if (refFrac >= 0) {
@@ -337,38 +325,7 @@ public class VirialTraPPE {
             refFileName = "refpref_"+"_"+nPoints+"_"+tempString+"K";
         }
 
-
-        final HistogramSimple targHist = new HistogramSimple(200, new DoubleRange(-1, 4));
-        IntegratorListener histListenerTarget = new IntegratorListener() {
-            public void integratorStepStarted(IntegratorEvent e) {}
-
-            public void integratorStepFinished(IntegratorEvent e) {
-                CoordinatePairSet cPairs = sim.box[1].getCPairSet();
-                for (int i=0; i<nPoints; i++) {
-                    for (int j=i+1; j<nPoints; j++) {
-                        double r2 = cPairs.getr2(i, j);
-                        double r = Math.sqrt(r2);
-                        if (r > 1) {
-                            r = Math.log(r);
-                        }
-                        else {
-                            r -= 1;
-                        }
-                        targHist.addValue(r);
-                    }
-                }
-
-            }
-
-            public void integratorInitialized(IntegratorEvent e) {}
-        };
-
-        if (doHist) {
-            System.out.println("collecting histograms");
-            // only collect the histogram if we're forcing it to run the reference system
-            sim.integrators[1].getEventManager().addListener(histListenerTarget);
-        }
-
+        // Equilibrate
         sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);
         sim.equilibrate(refFileName, (steps / EqSubSteps) / 10);
 
@@ -380,24 +337,7 @@ public class VirialTraPPE {
             return;
         }
 
-        IntegratorListener progressReport = new IntegratorListener() {
-
-            public void integratorStepStarted(IntegratorEvent e) {}
-
-            public void integratorStepFinished(IntegratorEvent e) {
-                if (sim.integratorOS.getStepCount() % 100 != 0) return;
-                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                double[] ratioAndError = sim.dvo.getAverageAndError();
-                System.out.println("abs average: "+ratioAndError[0]*HSBn+", error: "+ratioAndError[1]*HSBn);
-            }
-
-            public void integratorInitialized(IntegratorEvent e) {}
-
-        };
-        if (false) {
-            sim.integratorOS.getEventManager().addListener(progressReport);
-        }
-
+        // Setting up Production Run
         sim.integratorOS.setNumSubSteps((int) blockSize);
         sim.setAccumulatorBlockSize(blockSize);
 
@@ -407,25 +347,10 @@ public class VirialTraPPE {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
 
+        // Production Run
         sim.getController().actionPerformed();
 
-        if (doHist) {
-            double[] xValues = targHist.xValues();
-            double[] h = targHist.getHistogram();
-            for (int i=0; i<xValues.length; i++) {
-                if (!Double.isNaN(h[i])) {
-                    double r = xValues[i];
-                    double y = h[i];
-                    if (r < 0) r += 1;
-                    else {
-                        r = Math.exp(r);
-                        y /= r;
-                    }
-                    System.out.println(r+" "+y);
-                }
-            }
-        }
-
+        // Print Simulation Output
         System.out.println("final reference step fraction "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step fraction "+sim.integratorOS.getRefStepFraction());
 
@@ -451,7 +376,7 @@ public class VirialTraPPE {
         // don't change these
         public ChemForm[] chemForm = {ChemForm.N2};
         public int nPoints = 2;
-        public int[] nTypes = {0};
+        public int[] nTypes = {2};
         public int nDer = 3;
         public double temperature = 400;
         public long numSteps = 1000000;
@@ -460,7 +385,6 @@ public class VirialTraPPE {
         public double sigmaHSRef = 5;
         public int[] seed = null;
 
-        public boolean doHist = false;
         public boolean dorefpref = false;
         public boolean doChainRef = true;
 
@@ -468,6 +392,9 @@ public class VirialTraPPE {
 
     }
 
+    /**
+     * Inner class for TraPPE Parameters
+     */
     public static class TraPPEParams{
 
         protected AtomType[] atomTypes;
@@ -479,20 +406,6 @@ public class VirialTraPPE {
         protected static Element elementM = new ElementSimple("M", 0.0);
         protected boolean polar;
         //Set up computing the boolean. It is hard coded for now.
-
-/*
-        public TraPPEParams(Element[] elements, double[] sigma, double[] epsilon, double[] charge) {
-            this.elements = elements;
-            this.sigma = sigma;
-            this.epsilon = epsilon;
-            this.charge = charge;
-        }
-
-        public TraPPEParams N2params = new TraPPEParams(new Element[]{new ElementSimple("M",0),Nitrogen.INSTANCE},
-                                                        new double[]{0,3.31},
-                                                        new double[]{0,Kelvin.UNIT.toSim(36)},
-                                                        new double[]{Electron.UNIT.toSim(0.964),Electron.UNIT.toSim(-0.482)})
-*/
 
         public TraPPEParams(Space space, ChemForm chemForm){
 
