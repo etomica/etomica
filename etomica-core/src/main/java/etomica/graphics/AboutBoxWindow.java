@@ -5,6 +5,7 @@
 package etomica.graphics;
 
 
+import etomica.util.BuildProperties;
 import net.miginfocom.swing.MigLayout;
 
 import java.awt.*;
@@ -91,6 +92,14 @@ public class AboutBoxWindow extends JDialog {
 			}
 		});
 		getContentPane().add(wwwLabel);
+
+		// Add build info
+		JTextArea buildArea = makeTextArea();
+		String buildHash = BuildProperties.PROPERTIES.getProperty("commit", "unknown");
+		String date = BuildProperties.PROPERTIES.getProperty("date", "unknown");
+		buildArea.append("Build commit: " + buildHash + "\n");
+		buildArea.append("Build date: " + date);
+		getContentPane().add(buildArea);
 
 		// Add personal acknowledgements
 		if(creationCredits != null || softwareCredits != null) {
