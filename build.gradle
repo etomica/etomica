@@ -65,6 +65,23 @@ project(':etomica-core') {
 
     processResources.dependsOn ':setupPython'
     clean.dependsOn ':cleanPython'
+
+    task writeBuildProperties(type: WriteProperties) {
+        def resDir = sourceSets.main.output.resourcesDir
+        outputFile = file("$resDir/build.properties")
+        property 'date', LocalDateTime.now()
+
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = stdout
+        }
+        def commit = stdout.toString().trim()
+
+        property 'commit', commit
+    }
+
+    processResources.dependsOn writeBuildProperties
 }
 
 project(':etomica-apps') {
