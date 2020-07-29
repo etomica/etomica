@@ -12,6 +12,7 @@ import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
+import etomica.potential.P2SquareWell;
 import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.units.*;
@@ -27,9 +28,7 @@ import java.util.ArrayList;
  * Module for chain reaction (polymerization) using ChainEquilibriumSim as the
  * simulation class.  Original module by William Scharmach and Matt Moynihan.
  * Later revamped based on module redesign by William M. Chirdon.
- * 
- * @author William Scharmach
- * @author Matt Moynihan
+ *
  * @author Andrew Schultz
  */
 public class SelfAssemblyGraphic extends SimulationGraphic {
@@ -140,6 +139,8 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
                 resetData.actionPerformed();
             }
         };
+
+
         DeviceBox ABox = new DeviceBox();
         ABox.setInteger(true);
         ABox.setController(sim.getController());
@@ -215,7 +216,12 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         }
 
         JPanel speciesEditors = new JPanel(new GridLayout(0, 1));
-        JPanel epsilonSliders = new JPanel(new GridBagLayout());
+        JPanel AASliders = new JPanel(new GridBagLayout());
+        JPanel AB1Sliders = new JPanel(new GridBagLayout());
+        JPanel AB2Sliders = new JPanel(new GridBagLayout());
+        JPanel B1B1Sliders = new JPanel((new GridBagLayout()));
+        JPanel B1B2Sliders = new JPanel((new GridBagLayout()));
+        JPanel B2B2Sliders = new JPanel((new GridBagLayout()));
         JPanel controls = new JPanel(new GridBagLayout());
 
         speciesEditors.add(ABox.graphic());
@@ -225,6 +231,12 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
 
 //        epsilonSliders.add(ABSlider.graphic(), vertGBC);
 //        epsilonSliders.add(solventThermoFrac.graphic(), vertGBC);
+        AASliders.add(sliders(0,500,"Epsilon",sim.p2AA).graphic(), vertGBC);
+        AB1Sliders.add(sliders(0,500,"Epsilon",sim.p2AB1).graphic(), vertGBC);
+        AB2Sliders.add(sliders(0,500,"Epsilon",sim.p2AB2).graphic(), vertGBC);
+        B1B1Sliders.add(sliders(0,500,"Epsilon",sim.p2B1B1).graphic(), vertGBC);
+        B1B2Sliders.add(sliders(0,500,"Epsilon",sim.p2B1B2).graphic(), vertGBC);
+        B2B2Sliders.add(sliders(0,500,"Epsilon",sim.p2B2B2).graphic(), vertGBC);
 
         final JTabbedPane sliderPanel = new JTabbedPane();
         //panel for all the controls
@@ -232,25 +244,17 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         getPanel().controlPanel.add(sliderPanel, vertGBC);
         sliderPanel.add(controls, "Controls");
         sliderPanel.add(speciesEditors, "Number of Molecules");
+        sliderPanel.add(AASliders,"A-A");
+        sliderPanel.add(AB1Sliders,"A-B1");
+        sliderPanel.add(AB2Sliders,"A-B2");
+        sliderPanel.add(B1B1Sliders,"B1-B1");
+        sliderPanel.add(B1B2Sliders,"B1-B2");
+        sliderPanel.add(B2B2Sliders,"B2-B2");
         controls.add(delaySlider.graphic(), vertGBC);
         if (space.D() == 3) {
             controls.add(atomFilterButton.graphic(), vertGBC);
         }
 
-        //set the number of significant figures displayed on the table.
-        javax.swing.table.DefaultTableCellRenderer numberRenderer = new javax.swing.table.DefaultTableCellRenderer() {
-            java.text.NumberFormat formatter;
-            {
-                formatter = java.text.NumberFormat.getInstance();
-                formatter.setMaximumFractionDigits(6);
-            }
-
-            public void setValue(Object value) {
-                setText((value == null) ? "" : formatter.format(value));
-            }
-        };
-
-        numberRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
     }
 
     public static void main(String[] args) {
@@ -266,18 +270,19 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
     }
 
-//    public DeviceSlider sliders(int eMin, int eMax, String s, P2SquareWellBonded p){
-//
-//        DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierGeneral(p, "epsilon"));
+    public DeviceSlider sliders(int eMin, int eMax, String s, P2SquareWell p){
+
+        DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierGeneral(p, "epsilon"));
 //        AASlider.setUnit(new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT));
-//        AASlider.doUpdate();
-//        AASlider.setShowBorder(true);
-//        AASlider.setLabel(s);
-//        AASlider.setMinimum(eMin);
-//        AASlider.setMaximum(eMax);
-//        AASlider.setNMajor(4);
-////        AASlider.getSlider().setSnapToTicks(true);
-//
-//        return AASlider;
-//    }
+        AASlider.setUnit(Kelvin.UNIT);
+        AASlider.doUpdate();
+        AASlider.setShowBorder(true);
+        AASlider.setLabel(s);
+        AASlider.setMinimum(eMin);
+        AASlider.setMaximum(eMax);
+        AASlider.setNMajor(4);
+//        AASlider.getSlider().setSnapToTicks(true);
+
+        return AASlider;
+    }
 }
