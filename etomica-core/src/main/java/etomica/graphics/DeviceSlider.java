@@ -96,10 +96,16 @@ public class DeviceSlider extends Device {
     protected boolean suppressAction = false;
 
     public DeviceSlider(Controller controller) {
+        this(controller, 0);
+    }
+
+    public DeviceSlider(Controller controller, int precision) {
         super(controller);
+        slider = new DecimalSlider(precision);
         init();
     }
-    
+
+
     /**
      * Constructs a slider connected to the given property of the given object
      */
@@ -108,6 +114,13 @@ public class DeviceSlider extends Device {
         component = object;
         this.property = property;
     }
+
+    public DeviceSlider(Controller controller, Object object, String property, int precision) {
+        this(controller, new ModifierGeneral(object, property),precision);
+        component = object;
+        this.property = property;
+    }
+
     /**
      * Constructs a slider connected to the get/set Value methods of the given Modifier
      */
@@ -116,6 +129,14 @@ public class DeviceSlider extends Device {
         //set component and property in some way
         setModifier(m);
     }
+
+    public DeviceSlider(Controller controller, Modifier m, int precision) {
+        this(controller, precision);
+        //set component and property in some way
+        setModifier(m);
+    }
+
+
 
     private void init() {
         textField = new JTextField("");
@@ -128,7 +149,6 @@ public class DeviceSlider extends Device {
         setLabel("");
         panel.setLayout(gbLayout);
         column = 5;
-        slider = new DecimalSlider();
         slider.setSize(200,40);
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
