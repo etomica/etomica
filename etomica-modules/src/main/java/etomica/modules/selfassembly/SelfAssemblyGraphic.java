@@ -6,6 +6,10 @@ package etomica.modules.selfassembly;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
+import etomica.atom.Atom;
+import etomica.atom.AtomTest;
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.graphics.*;
@@ -35,6 +39,10 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
 
 	private static final String APP_NAME = "Self-assembly";
 	private static final int REPAINT_INTERVAL = 2;
+    boolean displayA = true;
+    boolean displayB1 = true;
+    boolean displayB2 = true;
+
 
     protected SelfAssemblySim sim;
 
@@ -121,7 +129,7 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
 
         DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.controller1, sim.integratorHard);
         temperatureSelect.setUnit(Kelvin.UNIT);
-        temperatureSelect.setMaximum(1200);
+        temperatureSelect.setMaximum(2000);
         temperatureSelect.setIsothermal();
         temperatureSelect.setSliderPostAction(resetAction);
         temperatureSelect.setRadioGroupPostAction(resetAction);
@@ -132,6 +140,7 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         colorScheme.setColor(sim.getTypeB2(), new Color(0, 200, 0));
         getDisplayBox(sim.box).setColorScheme(colorScheme);
 
+        getController().getSimRestart().setIgnoreOverlap(true);
         IAction reconfig = new IAction() {
             public void actionPerformed() {
                 getController().getSimRestart().actionPerformed();
@@ -140,7 +149,7 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
             }
         };
 
-
+// ******** Set number of molecules, atoms per copolymer segment  *****************
         DeviceBox ABox = new DeviceBox();
         ABox.setInteger(true);
         ABox.setController(sim.getController());
@@ -163,6 +172,7 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
             public void setValue(double newValue) {sim.setNB((int)newValue);}
         });
         BBox.setPostAction(reconfig);
+
         DeviceBox nB1 = new DeviceBox();
         nB1.setInteger(true);
         nB1.setController(sim.getController());
@@ -174,6 +184,7 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
             public void setValue(double newValue) {sim.setNB1((int)newValue);}
         });
         nB1.setPostAction(reconfig);
+
         DeviceBox nB2 = new DeviceBox();
         nB2.setInteger(true);
         nB2.setController(sim.getController());
@@ -190,38 +201,59 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
 //        tBox.setLabel("Measured Temperature");
 //        tBox.setLabelPosition(CompassDirection.NORTH);
 
-        final DeviceButton atomFilterButton;
+        // ******** Turn off/on display of some atoms (3D only) **********
+        AtomTest displayTest = new AtomTest() {
+            public boolean test(IAtom a) {
+                AtomType atomType = a.getType();
+                if(atomType == sim.typeA) return displayA;
+                else if(atomType == sim.typeB1) return displayB1;
+                else return displayB2;
+            }
+        };
+
+        final DeviceButton atomFilterButtonA, atomFilterButtonB1, atomFilterButtonB2;
         if (space.D() == 3) {
-            final AtomTestChainLength atomFilter = new AtomTestChainLength(sim.agentManager);
-            atomFilter.setBox(sim.box);
-            atomFilterButton = new DeviceButton(sim.getController());
-            atomFilterButton.setAction(new IAction() {
+            getDisplayBox(sim.box).setAtomTestDoDisplay(displayTest);
+            atomFilterButtonA = new DeviceButton(sim.getController());
+            atomFilterButtonA.setAction(new IAction() {
                 public void actionPerformed() {
-                    DisplayBox displayBox = getDisplayBox(sim.box);
-                    if (displayBox.getAtomTestDoDisplay() == null) {
-                        displayBox.setAtomTestDoDisplay(atomFilter);
-                        atomFilterButton.setLabel("Show all");
-                    }
-                    else {
-                        displayBox.setAtomTestDoDisplay(null);
-                        atomFilterButton.setLabel("Show only longest chain");
-                    }
-                    displayBox.repaint();
+                    displayA = !displayA;
+                    if(displayA) atomFilterButtonA.setLabel("Hide A");
+                    else atomFilterButtonA.setLabel("Show A");
+                    getDisplayBox(sim.box).repaint();
                 }
             });
-            atomFilterButton.setLabel("Show only longest chain");
-        }
-        else {
-            atomFilterButton = null;
+            atomFilterButtonA.setLabel("Hide A");
+
+            atomFilterButtonB1 = new DeviceButton(sim.getController());
+            atomFilterButtonB1.setAction(new IAction() {
+                public void actionPerformed() {
+                    displayB1 = !displayB1;
+                    if(displayB1) atomFilterButtonB1.setLabel("Hide B1");
+                    else atomFilterButtonB1.setLabel("Show B1");
+                    getDisplayBox(sim.box).repaint();
+                }
+            });
+            atomFilterButtonB1.setLabel("Hide B1");
+
+            atomFilterButtonB2 = new DeviceButton(sim.getController());
+            atomFilterButtonB2.setAction(new IAction() {
+                public void actionPerformed() {
+                    displayB2 = !displayB2;
+                    if(displayB2) atomFilterButtonB2.setLabel("Hide B2");
+                    else atomFilterButtonB2.setLabel("Show B2");
+                    getDisplayBox(sim.box).repaint();
+                }
+            });
+            atomFilterButtonB2.setLabel("Hide B2");
+        } else {
+            atomFilterButtonA = null;
+            atomFilterButtonB1 = null;
+            atomFilterButtonB2 = null;
         }
 
+        // *******  Edit potential parameters; sigma, epsilon, lambda
         JPanel speciesEditors = new JPanel(new GridLayout(0, 1));
-        JPanel AASliders = new JPanel(new GridBagLayout());
-        JPanel AB1Sliders = new JPanel(new GridBagLayout());
-        JPanel AB2Sliders = new JPanel(new GridBagLayout());
-        JPanel B1B1Sliders = new JPanel((new GridBagLayout()));
-        JPanel B1B2Sliders = new JPanel((new GridBagLayout()));
-        JPanel B2B2Sliders = new JPanel((new GridBagLayout()));
         JPanel controls = new JPanel(new GridBagLayout());
 
         speciesEditors.add(ABox.graphic());
@@ -231,13 +263,16 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
 
 //        epsilonSliders.add(ABSlider.graphic(), vertGBC);
 //        epsilonSliders.add(solventThermoFrac.graphic(), vertGBC);
-        AASliders.add(sliders(0,500,"Epsilon",sim.p2AA).graphic(), vertGBC);
-        AB1Sliders.add(sliders(0,500,"Epsilon",sim.p2AB1).graphic(), vertGBC);
-        AB2Sliders.add(sliders(0,500,"Epsilon",sim.p2AB2).graphic(), vertGBC);
-        B1B1Sliders.add(sliders(0,500,"Epsilon",sim.p2B1B1).graphic(), vertGBC);
-        B1B2Sliders.add(sliders(0,500,"Epsilon",sim.p2B1B2).graphic(), vertGBC);
-        B2B2Sliders.add(sliders(0,500,"Epsilon",sim.p2B2B2).graphic(), vertGBC);
 
+        JPanel AASliders = potentialEditors(sim.p2AA);
+        JPanel AB1Sliders = potentialEditors(sim.p2AB1);
+        JPanel AB2Sliders = potentialEditors(sim.p2AB2);
+        JPanel B1B1Sliders = potentialEditors(sim.p2B1B1);
+        JPanel B1B2Sliders = potentialEditors(sim.p2B1B2);
+        JPanel B2B2Sliders = potentialEditors(sim.p2B2B2);
+
+
+        // ***********  Assemble controls
         final JTabbedPane sliderPanel = new JTabbedPane();
         //panel for all the controls
         getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
@@ -252,7 +287,9 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         sliderPanel.add(B2B2Sliders,"B2-B2");
         controls.add(delaySlider.graphic(), vertGBC);
         if (space.D() == 3) {
-            controls.add(atomFilterButton.graphic(), vertGBC);
+            controls.add(atomFilterButtonA.graphic(), vertGBC);
+            controls.add(atomFilterButtonB1.graphic(), vertGBC);
+            controls.add(atomFilterButtonB2.graphic(), vertGBC);
         }
 
     }
@@ -270,19 +307,38 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
     }
 
-    public DeviceSlider sliders(int eMin, int eMax, String s, P2SquareWell p){
+    public JPanel potentialEditors(P2SquareWell p) {
+        JPanel panel = new JPanel(new GridBagLayout());
 
-        DeviceSlider AASlider = new DeviceSlider(sim.getController(), new ModifierGeneral(p, "epsilon"));
-//        AASlider.setUnit(new UnitRatio(new PrefixedUnit(Prefix.KILO, Joule.UNIT), Mole.UNIT));
-        AASlider.setUnit(Kelvin.UNIT);
+        DeviceSlider epsSlider = slider(0.0,500.0,"epsilon", 0, p);
+        epsSlider.setUnit(Kelvin.UNIT);
+
+        DeviceSlider sigSlider = slider(0.0,2.0,"coreDiameter", 2, p);
+
+        DeviceSlider lamSlider = slider(1.0,2.0,"lambda", 2, p);
+        lamSlider.setNMajor(5);
+
+        panel.add(sigSlider.graphic(),SimulationPanel.getVertGBC());
+        panel.add(epsSlider.graphic(),SimulationPanel.getVertGBC());
+        panel.add(lamSlider.graphic(),SimulationPanel.getVertGBC());
+        return panel;
+    }
+
+    public DeviceSlider slider(double eMin, double eMax, String s, int precision, P2SquareWell p){
+
+        DeviceSlider AASlider = new DeviceSlider(sim.getController(), p, s, precision);
+//        AASlider.setPrecision(precision);
+        double value = AASlider.getValue();
+        System.out.println(s+" "+value);
         AASlider.doUpdate();
         AASlider.setShowBorder(true);
         AASlider.setLabel(s);
         AASlider.setMinimum(eMin);
         AASlider.setMaximum(eMax);
         AASlider.setNMajor(4);
-//        AASlider.getSlider().setSnapToTicks(true);
+        AASlider.setValue(value);
 
         return AASlider;
     }
+
 }

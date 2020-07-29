@@ -50,22 +50,22 @@ public class SelfAssemblySim extends Simulation {
     double sigAA, sigAB1, sigAB2, sigB1B1, sigB1B2, sigB2B2;
     double epsAA, epsAB1, epsAB2, epsB1B1, epsB1B2, epsB2B2;
     double lamAA, lamAB1, lamAB2, lamB1B1, lamB1B2, lamB2B2;
-    final AtomType typeB1 = AtomType.simple("B1",1.0);
-    final AtomType typeB2 = AtomType.simple("B2", 1.0);
-    final AtomType typeA = AtomType.simple("A", 1.0);
+    final public AtomType typeB1 = AtomType.simple("B1",1.0);
+    final public AtomType typeB2 = AtomType.simple("B2", 1.0);
+    final public AtomType typeA = AtomType.simple("A", 1.0);
 
     public SelfAssemblySim(Space space) {
         super(space);
 
-        nA = 1000;
-        nB = 10;
-        nB1 = 20;
-        nB2 = 2;
+        nA = 50;
+        nB = 50;
+        nB1 = 5;
+        nB2 = 20;
 
         speciesA = new SpeciesSpheresMono(space, typeA);
         speciesA.setIsDynamic(true);
         speciesB = new SpeciesSpheresHetero(space, new AtomType[] {typeB1, typeB2});
-        speciesB.setConformation(new ConformationLinear(space,0.05));
+        speciesB.setConformation(new ConformationLinear(space,0.5));
         speciesB.setChildCount(new int[] {nB1, nB2});
 
         speciesB.setIsDynamic(true);
@@ -77,25 +77,26 @@ public class SelfAssemblySim extends Simulation {
 
         controller1 = getController();
 
+        double defaultEps = 50;
         sigAA = 1.0;
-        epsAA = 1.0;
+        epsAA = Kelvin.UNIT.toSim(defaultEps);
 
         sigAB1 = 1.0;
-        epsAB1 = 1.0;
+        epsAB1 = Kelvin.UNIT.toSim(defaultEps);
 
         sigAB2 = 1.0;
-        epsAB2 = 1.0;
+        epsAB2 = Kelvin.UNIT.toSim(defaultEps);
 
         sigB1B1 = 1.0;
-        epsB1B1 = 1.0;
+        epsB1B1 = Kelvin.UNIT.toSim(defaultEps);
 
         sigB1B2 = 1.5;
-        epsB1B2 = 0.01;
+        epsB1B2 = Kelvin.UNIT.toSim(0.);
 
         sigB2B2 = 1.0;
-        epsB2B2 = 1.0;
+        epsB2B2 = Kelvin.UNIT.toSim(defaultEps);
 
-        lamAA = lamAB1 = lamAB2 = lamB1B1 = lamB1B2 = lamB2B2 = 2.0;
+        lamAA = lamAB1 = lamAB2 = lamB1B1 = lamB1B2 = lamB2B2 = 1.5;
 
         box = this.makeBox(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20));
         box.setNMolecules(speciesA, nA);
@@ -174,7 +175,10 @@ public class SelfAssemblySim extends Simulation {
 
     public void setNB1(int nB1) {
         this.nB1 = nB1;
-        //do something
+        speciesB.setChildCount(new int[] {nB1, nB2});
+        box.setNMolecules(speciesB, 0);
+        box.setNMolecules(speciesB, nB);
+
     }
     public int getNB1() {
         return nB1;
@@ -182,7 +186,9 @@ public class SelfAssemblySim extends Simulation {
 
     public void setNB2(int nB2) {
         this.nB2 = nB2;
-        //do something
+        speciesB.setChildCount(new int[] {nB1, nB2});
+        box.setNMolecules(speciesB, 0);
+        box.setNMolecules(speciesB, nB);
     }
     public int getNB2() {
         return nB2;
