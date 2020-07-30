@@ -70,7 +70,7 @@ public class DeviceButton extends Device {
                     doAction(targetAction);
                 }
                 catch (RuntimeException e) {
-                    System.err.println(e+" "+e.getMessage());
+                    e.printStackTrace();
                 }
             }
         };

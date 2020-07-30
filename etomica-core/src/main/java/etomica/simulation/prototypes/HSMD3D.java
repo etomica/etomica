@@ -8,6 +8,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -92,9 +93,8 @@ public class HSMD3D extends Simulation {
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
-        getController().addAction(activityIntegrate);
+        ActivityIntegrate2 ai2 = new ActivityIntegrate2(integrator);
+        getController2().addActivity(ai2, Long.MAX_VALUE, 1.0);
 
         potential = new P2HardSphere(space, sigma, true);
         AtomType leafType = species.getLeafType();
@@ -119,6 +119,11 @@ public class HSMD3D extends Simulation {
         }
     }
 
+    @Override
+    public IntegratorHard getIntegrator() {
+        return integrator;
+    }
+
     /**
      * Demonstrates how this class is implemented.
      */
@@ -129,6 +134,7 @@ public class HSMD3D extends Simulation {
         final HSMD3D sim = new HSMD3D(params);
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
+        nSelector.controller2 = sim.getController2();
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpecies(sim.species);
         nSelector.setBox(sim.box);

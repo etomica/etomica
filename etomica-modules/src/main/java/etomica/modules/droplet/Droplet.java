@@ -5,6 +5,7 @@
 package etomica.modules.droplet;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.potential.PotentialMasterMonatomic;
@@ -25,7 +26,6 @@ public class Droplet extends Simulation {
     public final SpeciesSpheresMono species;
     public final Box box;
     public final IntegratorDroplet integrator;
-    public final ActivityIntegrate activityIntegrate;
     public final P2Cohesion p2;
     public final P1Smash p1Smash;
     public final ConfigurationDroplet config;
@@ -46,9 +46,7 @@ public class Droplet extends Simulation {
 
         //controller and integrator
         integrator = new IntegratorDroplet(this, potentialMaster, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-//        activityIntegrate.setMaxSteps(10);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator), Long.MAX_VALUE, 0.0);
         integrator.setTimeStep(0.2);
         integrator.setTemperature(0);
 
@@ -82,7 +80,12 @@ public class Droplet extends Simulation {
 
         p2.setLiquidFilter(liquidFilter);
     }
-    
+
+    @Override
+    public IntegratorDroplet getIntegrator() {
+        return integrator;
+    }
+
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
 
