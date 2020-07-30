@@ -6,6 +6,7 @@ package etomica.action;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.action.activity.Controller2;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.exception.ConfigurationOverlapException;
@@ -28,10 +29,12 @@ public final class SimulationRestart extends SimulationActionAdapter {
     protected SimulationDataAction accumulatorAction;
     protected IAction postAction;
     private final Controller controller;
+    private final Controller2 controller2;
 
     public SimulationRestart(Simulation sim) {
         super.setSimulation(sim, sim.getSpace());
         controller = sim.getController();
+        controller2 = sim.getController2();
         if (space != null) {
             if (space.D() == 3) {
                 setConfiguration(new ConfigurationLattice(new LatticeCubicFcc(space), space));
@@ -81,29 +84,16 @@ public final class SimulationRestart extends SimulationActionAdapter {
             }
         }
 
-        IAction myAction = null;
-        IAction[] currentActions = controller.getCurrentActions();
-        if (currentActions.length == 1) {
-            myAction = currentActions[0];
-        } else if (currentActions.length == 0) {
-            // we've reset the controller, which turns all the "current" actions to "pending"
-            IAction[] pendingActions = controller.getPendingActions();
-            if (pendingActions.length == 1) {
-                myAction = pendingActions[0];
-            }
+        Integrator integrator = simulation.getIntegrator();
+        if (integrator.getStepCount() > 0) {
+            integrator.resetStepCount();
         }
-        if (myAction instanceof ActivityIntegrate) {
-            Integrator integrator = ((ActivityIntegrate) myAction).getIntegrator();
-            if (integrator.getStepCount() > 0) {
-                integrator.resetStepCount();
-            }
-            if (integrator.isInitialized()) {
-                try {
-                    integrator.reset();
-                } catch (ConfigurationOverlapException e) {
-                    if (!ignoreOverlap) {
-                        throw e;
-                    }
+        if (integrator.isInitialized()) {
+            try {
+                integrator.reset();
+            } catch (ConfigurationOverlapException e) {
+                if (!ignoreOverlap) {
+                    throw e;
                 }
             }
         }

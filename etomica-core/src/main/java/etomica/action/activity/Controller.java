@@ -50,6 +50,7 @@ public final class Controller extends ActivityGroupSeries {
     private final Map<IAction, Throwable> actionExceptionMap;
     private final EventManager<ControllerEvent> eventManager;
     private boolean repeatCurrentAction = false;
+    public Controller2 controller2;
 
     public Controller() {
         super();

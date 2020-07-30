@@ -7,6 +7,7 @@ package etomica.simulation;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.action.activity.Controller2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.IElement;
@@ -37,6 +38,7 @@ public class Simulation {
     protected int[] seeds;
     protected IRandom random;
     private final Controller controller;
+    private final Controller2 controller2;
 
     private final List<ISpecies> speciesList;
     private final List<Box> boxes;
@@ -56,6 +58,8 @@ public class Simulation {
         speciesList = new ArrayList<>();
         elementSymbolHash = new HashMap<>();
         elementAtomTypeHash = new HashMap<>();
+        controller2 = new Controller2();
+        controller.controller2 = controller2;
     }
 
     /**
@@ -182,6 +186,10 @@ public class Simulation {
     @IgnoreProperty
     public final Controller getController() {
         return controller;
+    }
+
+    public final Controller2 getController2() {
+        return controller2;
     }
 
     /**
