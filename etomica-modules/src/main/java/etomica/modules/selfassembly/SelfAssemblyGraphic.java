@@ -6,16 +6,14 @@ package etomica.modules.selfassembly;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.atom.Atom;
-import etomica.atom.AtomTest;
-import etomica.atom.AtomType;
-import etomica.atom.IAtom;
+import etomica.atom.*;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
 import etomica.species.ISpecies;
@@ -212,7 +210,8 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         };
 
         final DeviceButton atomFilterButtonA, atomFilterButtonB1, atomFilterButtonB2;
-        if (space.D() == 3) {
+        boolean showAtomFilterButtons = space.D() == 3 || space.D() == 2;
+        if (showAtomFilterButtons) {
             getDisplayBox(sim.box).setAtomTestDoDisplay(displayTest);
             atomFilterButtonA = new DeviceButton(sim.getController());
             atomFilterButtonA.setAction(new IAction() {
@@ -261,15 +260,77 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         speciesEditors.add(nB1.graphic());
         speciesEditors.add(nB2.graphic());
 
-//        epsilonSliders.add(ABSlider.graphic(), vertGBC);
-//        epsilonSliders.add(solventThermoFrac.graphic(), vertGBC);
+        PotentialEditors AASliders = new PotentialEditors(sim.p2AA);
+        PotentialEditors AB1Sliders = new PotentialEditors(sim.p2AB1);
+        PotentialEditors AB2Sliders = new PotentialEditors(sim.p2AB2);
+        PotentialEditors B1B2Sliders = new PotentialEditors(sim.p2B1B2);
+        PotentialEditors B1B1Sliders = new PotentialEditors(sim.p2B1B1);
+        PotentialEditors B2B2Sliders = new PotentialEditors(sim.p2B2B2);
 
-        JPanel AASliders = potentialEditors(sim.p2AA);
-        JPanel AB1Sliders = potentialEditors(sim.p2AB1);
-        JPanel AB2Sliders = potentialEditors(sim.p2AB2);
-        JPanel B1B1Sliders = potentialEditors(sim.p2B1B1);
-        JPanel B1B2Sliders = potentialEditors(sim.p2B1B2);
-        JPanel B2B2Sliders = potentialEditors(sim.p2B2B2);
+        AASliders.sigSlider.setPostAction((IAction) () -> {
+            ((DiameterHashByElementType)getDisplayBox(sim.box).getDiameterHash()).setDiameter("A", sim.p2AA.getCoreDiameter());
+            getDisplayBox(sim.box).repaint();
+//            double newRange = Math.min(sim.box().getBoundary().getBoxSize().getX(0)*0.5, 2*sim.p2AA.getRange());
+//            ((PotentialMasterList)sim.potentialMaster).setRange(newRange);
+            setNbrRange();
+            sim.integratorHard.reset();
+//                reconfig.actionPerformed();
+            sim.sigAA = sim.p2AA.getCoreDiameter();
+//                System.out.println(sim.sigAA);
+        });
+
+        B1B1Sliders.sigSlider.setPostAction(() -> {
+            ((DiameterHashByElementType)getDisplayBox(sim.box).getDiameterHash()).setDiameter("B1", sim.p2B1B1.getCoreDiameter());
+            getDisplayBox(sim.box).repaint();
+            setNbrRange();
+            sim.integratorHard.reset();
+            sim.sigB1B1 = sim.p2B1B1.getCoreDiameter();
+        });
+
+        B2B2Sliders.sigSlider.setPostAction(() -> {
+            ((DiameterHashByElementType)getDisplayBox(sim.box).getDiameterHash()).setDiameter("B2", sim.p2B2B2.getCoreDiameter());
+            getDisplayBox(sim.box).repaint();
+            setNbrRange();
+            sim.integratorHard.reset();
+            sim.sigB2B2 = sim.p2B2B2.getCoreDiameter();
+        });
+
+        AB1Sliders.sigSlider.setPostAction(() -> {
+            setNbrRange();
+            sim.integratorHard.reset();
+            sim.sigAB1 = sim.p2AB1.getCoreDiameter();
+        });
+        AB2Sliders.sigSlider.setPostAction(() -> {
+            setNbrRange();
+            sim.integratorHard.reset();
+            sim.sigAB2 = sim.p2AB2.getCoreDiameter();
+        });
+        B1B2Sliders.sigSlider.setPostAction(() -> {
+            setNbrRange();
+            sim.integratorHard.reset();
+            sim.sigB1B2 = sim.p2B1B2.getCoreDiameter();
+        });
+
+
+
+
+        final DeviceButton printParamsButton = new DeviceButton(sim.getController());
+        printParamsButton.setAction(new IAction() {
+            public void actionPerformed() {
+                System.out.println("nA: "+sim.nA);
+                System.out.println("nB: "+sim.nB);
+                System.out.println("nB1: "+sim.nB1);
+                System.out.println("nB2: "+sim.nB2);
+                printPotentialParameters("A-A", sim.p2AA);
+                printPotentialParameters("A-B1", sim.p2AB1);
+                printPotentialParameters("A-B2", sim.p2AB2);
+                printPotentialParameters("B1-B1", sim.p2B1B1);
+                printPotentialParameters("B1-B2", sim.p2B1B2);
+                printPotentialParameters("B2-B2", sim.p2B2B2);
+                System.out.println("Temperature: "+temperatureSelect.getTemperature());
+            }
+        });
+        printParamsButton.setLabel("Print parameters");
 
 
         // ***********  Assemble controls
@@ -279,18 +340,19 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         getPanel().controlPanel.add(sliderPanel, vertGBC);
         sliderPanel.add(controls, "Controls");
         sliderPanel.add(speciesEditors, "Number of Molecules");
-        sliderPanel.add(AASliders,"A-A");
-        sliderPanel.add(AB1Sliders,"A-B1");
-        sliderPanel.add(AB2Sliders,"A-B2");
-        sliderPanel.add(B1B1Sliders,"B1-B1");
-        sliderPanel.add(B1B2Sliders,"B1-B2");
-        sliderPanel.add(B2B2Sliders,"B2-B2");
+        sliderPanel.add(AASliders.panel,"A-A");
+        sliderPanel.add(AB1Sliders.panel,"A-B1");
+        sliderPanel.add(AB2Sliders.panel,"A-B2");
+        sliderPanel.add(B1B1Sliders.panel,"B1-B1");
+        sliderPanel.add(B1B2Sliders.panel,"B1-B2");
+        sliderPanel.add(B2B2Sliders.panel,"B2-B2");
         controls.add(delaySlider.graphic(), vertGBC);
-        if (space.D() == 3) {
+        if (showAtomFilterButtons) {
             controls.add(atomFilterButtonA.graphic(), vertGBC);
             controls.add(atomFilterButtonB1.graphic(), vertGBC);
             controls.add(atomFilterButtonB2.graphic(), vertGBC);
         }
+        controls.add(printParamsButton.graphic(),vertGBC);
 
     }
 
@@ -307,38 +369,58 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
     }
 
-    public JPanel potentialEditors(P2SquareWell p) {
-        JPanel panel = new JPanel(new GridBagLayout());
+    private class PotentialEditors {
+        final JPanel panel = new JPanel(new GridBagLayout());
+        DeviceSlider epsSlider;
+        DeviceSlider sigSlider;
+        DeviceSlider lamSlider;
 
-        DeviceSlider epsSlider = slider(0.0,500.0,"epsilon", 0, p);
-        epsSlider.setUnit(Kelvin.UNIT);
+        PotentialEditors(P2SquareWell p) {
+            epsSlider = slider(0.0,500.0,"epsilon", 0, p);
+            epsSlider.setUnit(Kelvin.UNIT);
 
-        DeviceSlider sigSlider = slider(0.0,2.0,"coreDiameter", 2, p);
+            double mySig = (p == sim.p2AA) ? 20.0 : 2.0;
+            sigSlider = slider(0.0, mySig,"coreDiameter", 2, p);
 
-        DeviceSlider lamSlider = slider(1.0,2.0,"lambda", 2, p);
-        lamSlider.setNMajor(5);
+            lamSlider = slider(1.0,2.0,"lambda", 2, p);
+            lamSlider.setNMajor(5);
 
-        panel.add(sigSlider.graphic(),SimulationPanel.getVertGBC());
-        panel.add(epsSlider.graphic(),SimulationPanel.getVertGBC());
-        panel.add(lamSlider.graphic(),SimulationPanel.getVertGBC());
-        return panel;
+            panel.add(sigSlider.graphic(),SimulationPanel.getVertGBC());
+            panel.add(epsSlider.graphic(),SimulationPanel.getVertGBC());
+            panel.add(lamSlider.graphic(),SimulationPanel.getVertGBC());
+        }
     }
 
     public DeviceSlider slider(double eMin, double eMax, String s, int precision, P2SquareWell p){
 
-        DeviceSlider AASlider = new DeviceSlider(sim.getController(), p, s, precision);
-//        AASlider.setPrecision(precision);
-        double value = AASlider.getValue();
-        System.out.println(s+" "+value);
-        AASlider.doUpdate();
-        AASlider.setShowBorder(true);
-        AASlider.setLabel(s);
-        AASlider.setMinimum(eMin);
-        AASlider.setMaximum(eMax);
-        AASlider.setNMajor(4);
-        AASlider.setValue(value);
+        DeviceSlider mySlider = new DeviceSlider(sim.getController(), p, s, precision);
+        mySlider.doUpdate();
+        mySlider.setShowBorder(true);
+        mySlider.setLabel(s);
+        mySlider.setMinimum(eMin);
+        mySlider.setMaximum(eMax);
+        mySlider.setNMajor(4);
+        mySlider.setShowValues(true);
+        mySlider.setEditValues(true);
 
-        return AASlider;
+        return mySlider;
+    }
+
+    private void printPotentialParameters(String label, P2SquareWell p) {
+        System.out.println(label + " parameters");
+        System.out.println("  sigma: "+p.getCoreDiameter());
+        System.out.println("epsilon: "+p.getEpsilon());
+        System.out.println(" lambda: "+p.getLambda()+"\n");
+    }
+
+    private void setNbrRange() {
+        double range = Math.max(2.0*sim.p2AA.getRange(),2.0*sim.p2AB1.getRange());
+        range = Math.max(range,2.0*sim.p2AB2.getRange());
+        range = Math.max(range,2.0*sim.p2B1B1.getRange());
+        range = Math.max(range,2.0*sim.p2B1B2.getRange());
+        range = Math.max(range,2.0*sim.p2B2B2.getRange());
+        range = Math.min(sim.box().getBoundary().getBoxSize().getX(0)*0.5, range);
+        ((PotentialMasterList)sim.potentialMaster).setRange(range);
     }
 
 }

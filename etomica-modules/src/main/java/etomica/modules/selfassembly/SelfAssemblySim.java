@@ -57,10 +57,10 @@ public class SelfAssemblySim extends Simulation {
     public SelfAssemblySim(Space space) {
         super(space);
 
-        nA = 50;
-        nB = 50;
-        nB1 = 5;
-        nB2 = 20;
+        nA = 1000;
+        nB = 100;
+        nB1 = 1;
+        nB2 = 5;
 
         speciesA = new SpeciesSpheresMono(space, typeA);
         speciesA.setIsDynamic(true);
@@ -87,7 +87,7 @@ public class SelfAssemblySim extends Simulation {
         sigAB2 = 1.0;
         epsAB2 = Kelvin.UNIT.toSim(defaultEps);
 
-        sigB1B1 = 1.0;
+        sigB1B1 = 1.5;
         epsB1B1 = Kelvin.UNIT.toSim(defaultEps);
 
         sigB1B2 = 1.5;
@@ -109,7 +109,7 @@ public class SelfAssemblySim extends Simulation {
         integratorHard.setTemperature(Kelvin.UNIT.toSim(300));
         integratorHard.setTimeStep(0.002);
         integratorHard.setThermostat(ThermostatType.ANDERSEN_SINGLE);
-        integratorHard.setThermostatInterval(1);
+        integratorHard.setThermostatInterval(100);
         integratorHard.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box));
 
         //potentials
