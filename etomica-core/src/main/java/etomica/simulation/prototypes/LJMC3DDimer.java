@@ -137,15 +137,15 @@ public class LJMC3DDimer extends Simulation {
         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverageFixed acc = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pump = new DataPumpListener(meterPE, acc, interval);
-        sim.getIntegrator().getEventManager().addListener(pump);
+        sim.integrator.getEventManager().addListener(pump);
 
         MeterPressureMolecular meterPM = new MeterPressureMolecular(sim.space);
         AccumulatorAverageFixed accp = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumpP = new DataPumpListener(meterPM, accp, params.numAtoms);
-        sim.getIntegrator().getEventManager().addListener(pumpP);
+        sim.integrator.getEventManager().addListener(pumpP);
 
         sim.activityIntegrate.setMaxSteps(steps);
-        sim.getIntegrator().resetStepCount();
+        sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.actionPerformed();
 
@@ -180,7 +180,7 @@ public class LJMC3DDimer extends Simulation {
             MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
             AccumulatorHistory accPE = new AccumulatorHistory(new HistoryCollapsingAverage());
             DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, 10);
-            sim.getIntegrator().getEventManager().addListener(pumpPE);
+            sim.integrator.getEventManager().addListener(pumpPE);
 
             MeterPressureMolecular meterPM = new MeterPressureMolecular(sim.space);
             meterPM.setIntegrator(sim.integrator);
@@ -190,7 +190,7 @@ public class LJMC3DDimer extends Simulation {
             df.addDataSink(accp);
             df.addDataSink(accph);
             DataPumpListener pumpP = new DataPumpListener(meterPM, df, params.numAtoms);
-            sim.getIntegrator().getEventManager().addListener(pumpP);
+            sim.integrator.getEventManager().addListener(pumpP);
 
             DisplayPlot historyPressure = new DisplayPlot();
             accph.addDataSink(historyPressure.getDataSet().makeDataSink());
