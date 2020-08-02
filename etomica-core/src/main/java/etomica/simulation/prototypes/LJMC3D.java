@@ -121,10 +121,10 @@ public class LJMC3D extends Simulation {
         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverageFixed acc = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pump = new DataPumpListener(meterPE, acc, interval);
-        sim.getIntegrator().getEventManager().addListener(pump);
+        sim.integrator.getEventManager().addListener(pump);
 
         sim.activityIntegrate.setMaxSteps(steps);
-        sim.getIntegrator().resetStepCount();
+        sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.actionPerformed();
 
@@ -157,7 +157,7 @@ public class LJMC3D extends Simulation {
             AccumulatorHistory accPE = new AccumulatorHistory(new HistoryCollapsingAverage());
             accPE.setTimeDataSource(timeSource);
             DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, 10);
-            sim.getIntegrator().getEventManager().addListener(pumpPE);
+            sim.integrator.getEventManager().addListener(pumpPE);
 
             DisplayPlot historyPE = new DisplayPlot();
             accPE.setDataSink(historyPE.getDataSet().makeDataSink());

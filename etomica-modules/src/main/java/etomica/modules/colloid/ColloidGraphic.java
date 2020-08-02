@@ -126,7 +126,7 @@ public class ColloidGraphic extends SimulationGraphic {
         MeterTemperature meterTemperature = new MeterTemperature(sim.box, 3);
         DisplayTextBox displayTemperature = new DisplayTextBox();
         DataPumpListener tempPump = new DataPumpListener(meterTemperature, displayTemperature);
-        sim.getIntegrator().getEventManager().addListener(tempPump);
+        sim.integrator.getEventManager().addListener(tempPump);
         add(displayTemperature);
         
         DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController(), sim.integrator);
