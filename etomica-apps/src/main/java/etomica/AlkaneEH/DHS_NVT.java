@@ -69,8 +69,7 @@ public class DHS_NVT extends Simulation {
 	protected final MCMoveMolecule moveMolecule;//translation mc move
 	protected final MCMoveRotate rotateMolecule;//atomic rotation mc move
 	protected final Box box;
-    public Controller controller; 
-  
+
 	//************************************* constructor ********************************************//
     public DHS_NVT(Space space, int numberMolecules, final double sigmaHS, double mu,
                    double dielectricOutside, double boxSize, double temperature, double truncation) {

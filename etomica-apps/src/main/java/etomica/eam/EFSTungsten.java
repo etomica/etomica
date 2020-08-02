@@ -70,7 +70,6 @@ public class EFSTungsten extends Simulation {
     public SpeciesSpheresMono w;
     public Box box;
     public PotentialEFS potentialN;
-    public Controller controller;
     public DisplayBox display;
     public MeterEnergy energy;
     public ActivityIntegrate activityIntegrate;

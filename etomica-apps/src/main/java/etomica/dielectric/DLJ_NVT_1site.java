@@ -68,7 +68,6 @@ public class DLJ_NVT_1site extends Simulation {
 	protected final MCMoveMolecule moveMolecule;//translation
 	protected final MCMoveRotate rotateMolecule;//rotation, atomic
 	protected final Box box;
-    public Controller controller;
     protected SpeciesSpheresRotating species;
 
 	//************************************* constructor ********************************************//

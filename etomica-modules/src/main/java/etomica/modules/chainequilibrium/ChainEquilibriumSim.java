@@ -31,7 +31,6 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
 
     public final PotentialMaster potentialMaster;
     public final ConfigurationLatticeRandom config;
-    public Controller controller1;
 	public IntegratorHard integratorHard;
 	public java.awt.Component display;
 	public Box box;
@@ -59,8 +58,6 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
 
         potentialMaster = new PotentialMasterList(this, 3, space);
         ((PotentialMasterList) potentialMaster).setCellRange(1);
-
-        controller1 = getController();
 
         double diameter = 1.0;
         double lambda = 2.0;

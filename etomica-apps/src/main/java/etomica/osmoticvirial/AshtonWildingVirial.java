@@ -34,7 +34,6 @@ public class AshtonWildingVirial extends Simulation {
 
     public Box box;
     public Potential2 potential1;
-    public Controller controller;
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species1;

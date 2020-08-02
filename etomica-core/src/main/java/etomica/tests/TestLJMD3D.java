@@ -36,7 +36,6 @@ public class TestLJMD3D extends Simulation {
     public SpeciesSpheresMono species;
     public Box box;
     public P2LennardJones potential;
-    public Controller controller;
     public MeterPotentialEnergy energy;
     public AccumulatorAverageCollapsing avgEnergy;
     public DataPump pump;

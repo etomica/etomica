@@ -41,7 +41,6 @@ public class Multiharmonic extends Simulation {
     AccumulatorHistory historyEnergy;
     SpeciesSpheresMono species;
     Box box;
-    Controller controller;
     P1Harmonic potentialA, potentialB;
     IntegratorVelocityVerlet integrator;
     ActivityIntegrate activityIntegrate;
@@ -59,7 +58,6 @@ public class Multiharmonic extends Simulation {
         double x0 = 0;
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector1D(6.0));
-        controller = getController();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.02);
         integrator.setIsothermal(true);
