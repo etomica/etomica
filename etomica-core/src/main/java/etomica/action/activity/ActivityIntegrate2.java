@@ -35,6 +35,22 @@ public class ActivityIntegrate2 implements Activity2 {
     }
 
     @Override
+    public void restart() {
+        if (integrator.getStepCount() > 0) {
+            integrator.resetStepCount();
+        }
+        if (integrator.isInitialized()) {
+            try {
+                integrator.reset();
+            } catch (ConfigurationOverlapException e) {
+                if (!ignoreOverlap) {
+                    throw e;
+                }
+            }
+        }
+    }
+
+    @Override
     public void actionPerformed() {
         integrator.doStep();
     }

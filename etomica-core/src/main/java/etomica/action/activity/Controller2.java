@@ -100,6 +100,12 @@ public class Controller2 {
         return submitActionInterrupt(WAKE_UP);
     }
 
+    public CompletableFuture<Void> restartCurrentActivity() {
+        return submitActionInterrupt(() -> {
+            this.currentTask.activity.restart();
+        });
+    }
+
     public boolean isPaused() {
         return this.pauseFlag.get();
     }
@@ -131,6 +137,11 @@ public class Controller2 {
 
             @Override
             public void postAction() {
+
+            }
+
+            @Override
+            public void restart() {
 
             }
 
@@ -187,17 +198,21 @@ public class Controller2 {
                     // the main activity. Since the only way to unpause the activity is to send an "unpause" action,
                     // this effectively suspends the thread until it is resumed while still handling action events.
                     try {
-                        IAction action = actionQueue.take();
-                        action.actionPerformed();
+                        while (!actionQueue.isEmpty()) {
+                            IAction action = actionQueue.take();
+                            action.actionPerformed();
+                        }
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
 
                 } else {
                     // When the activity is not paused, run all the queued actions but don't wait if there are none.
-                    actionQueue.drainTo(this.actionsToRun);
-                    this.actionsToRun.forEach(IAction::actionPerformed);
-                    this.actionsToRun.clear();
+                    while (!actionQueue.isEmpty()) {
+                        actionQueue.drainTo(this.actionsToRun);
+                        this.actionsToRun.forEach(IAction::actionPerformed);
+                        this.actionsToRun.clear();
+                    }
                 }
 
                 // An action event may have paused the activity so check again.

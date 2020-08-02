@@ -2,17 +2,30 @@ package etomica.action.activity;
 
 import etomica.action.IAction;
 import etomica.action.activity.Controller2.ActivityHandle;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Timeout(value = 1, unit = TimeUnit.SECONDS)
 class ControllerTest {
+
+    private static void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            fail(e);
+        }
+    }
 
     @Test
     public void testActivityBasic() {
@@ -26,6 +39,7 @@ class ControllerTest {
         assertEquals(0, act.runCount);
 
         controller.start();
+        controller.unpause();
 
         try {
             handle.future.get();
@@ -47,6 +61,7 @@ class ControllerTest {
         ActivityHandle handle = controller.addActivity(act, 100, 1);
         List<TestAction> actions = Stream.generate(TestAction::new).limit(50).collect(Collectors.toList());
         controller.start();
+        controller.unpause();
         List<CompletableFuture<Void>> actionFutures = actions.stream().map(controller::submitActionInterrupt).collect(Collectors.toList());
         try {
             handle.future.get();
@@ -57,11 +72,49 @@ class ControllerTest {
         actionFutures.forEach(f -> f.isDone());
     }
 
+    @Test
+    @DisplayName("Actions submitted from within an action should execute before the next activity step")
+    void testSubmitActionInAction() {
+        Controller2 controller = new Controller2();
+
+        TestActivity act = new TestActivity();
+        act.time = 1;
+
+        ActivityHandle handle = controller.addActivity(act, 100, 0);
+
+        controller.start();
+        controller.unpause();
+
+        sleep(2);
+
+        controller.submitActionInterrupt(() -> {
+            int curStep = act.runCount;
+
+            for (int i = 0; i < 100; i++) {
+                controller.submitActionInterrupt(() -> {
+                    assertEquals(curStep, act.runCount);
+                });
+            }
+        });
+
+        AtomicInteger step = new AtomicInteger(-1);
+        controller.submitActionInterrupt(() -> {
+            step.set(act.runCount);
+        }).whenComplete((res, ex) -> {
+            for (int i = 0; i < 100; i++) {
+                controller.submitActionInterrupt(() -> {
+                    assertEquals(step.get(), act.runCount);
+                });
+            }
+        });
+
+    }
+
     static class TestActivity implements Activity2 {
-        boolean didPre = false;
-        boolean didPost = false;
-        int runCount = 0;
-        int time = 0;
+        volatile boolean didPre = false;
+        volatile boolean didPost = false;
+        volatile int runCount = 0;
+        volatile int time = 0;
 
         @Override
         public void preAction() {
@@ -71,6 +124,11 @@ class ControllerTest {
         @Override
         public void postAction() {
             didPost = true;
+        }
+
+        @Override
+        public void restart() {
+
         }
 
         @Override

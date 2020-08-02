@@ -7,4 +7,6 @@ public interface Activity2 extends IAction {
     void preAction();
 
     void postAction();
+
+    void restart();
 }
