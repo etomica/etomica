@@ -84,19 +84,7 @@ public final class SimulationRestart extends SimulationActionAdapter {
             }
         }
 
-        Integrator integrator = simulation.getIntegrator();
-        if (integrator.getStepCount() > 0) {
-            integrator.resetStepCount();
-        }
-        if (integrator.isInitialized()) {
-            try {
-                integrator.reset();
-            } catch (ConfigurationOverlapException e) {
-                if (!ignoreOverlap) {
-                    throw e;
-                }
-            }
-        }
+        this.controller2.restartCurrentActivity();
 
         accumulatorAction.actionPerformed();
         if (postAction != null) postAction.actionPerformed();
