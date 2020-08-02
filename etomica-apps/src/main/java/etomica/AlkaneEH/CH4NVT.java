@@ -59,7 +59,6 @@ public class CH4NVT extends Simulation {
 	protected final MCMoveMolecule moveMolecule;//translation mc move
 	protected final MCMoveRotateMolecule3D rotateMolecule;//rotation mc move
 	protected final Box box;
-    public Controller controller; //control the simulation process
 
 	//************************************* constructor ********************************************//
 	public CH4NVT(Space space, int numberMolecules, double boxSize, double temperature,double truncation) {

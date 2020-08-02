@@ -75,7 +75,6 @@ public class TIP4P_NVT extends Simulation {
     private static final int PIXEL_SIZE = 15;
     public final ActivityIntegrate activityIntegrate;
 
-    public Controller controller;
     protected double sigmaLJ, epsilonLJ;
     protected double chargeM, chargeH;
 

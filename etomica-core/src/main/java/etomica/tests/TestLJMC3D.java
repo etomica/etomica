@@ -42,8 +42,7 @@ public class TestLJMC3D extends Simulation {
     public SpeciesSpheresMono species;
     public Box box;
     public P2LennardJones potential;
-    public Controller controller;
-    
+
     public TestLJMC3D(int numAtoms, int numSteps, Configuration config) {
         super(Space3D.getInstance());
 

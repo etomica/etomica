@@ -31,7 +31,6 @@ public class LJMD2D extends Simulation {
     public SpeciesSpheresMono species;
     public Box box;
     public P2LennardJones potential;
-    public Controller controller;
     public DisplayBox display;
     public DisplayPlot plot;
     public MeterEnergy energy;

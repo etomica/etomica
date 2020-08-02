@@ -31,7 +31,6 @@ public class SWMD2D extends Simulation {
     public SpeciesSpheresMono species;
     public Box box;
     public P2SquareWell potential;
-    public Controller controller;
     public DisplayBox display;
 
     public SWMD2D() {

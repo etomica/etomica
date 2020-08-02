@@ -29,7 +29,6 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
 
     public final PotentialMaster potentialMaster;
     public final ConfigurationLatticeFreeRadical config;
-    public Controller controller1;
 	public IntegratorHard integratorHard;
 	public java.awt.Component display;
 	public Box box;
@@ -56,8 +55,6 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
 
         potentialMaster = new PotentialMasterList(this, 3, space);
         ((PotentialMasterList) potentialMaster).setCellRange(1);
-
-        controller1 = getController();
 
         double diameter = 1.0;
         double lambda = 2.0;

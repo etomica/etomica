@@ -32,7 +32,6 @@ public class AshtonWildingLJ extends Simulation {
 
     protected Box box;
     protected P2LennardJones potential;
-    protected Controller controller;
     protected IntegratorMC integrator;
     protected MCMoveAtom mcMoveAtom;
     protected SpeciesSpheresMono species1;

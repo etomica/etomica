@@ -72,7 +72,6 @@ protected final SpeciesSpheresRotating species;
 	protected final MCMoveMolecule moveMolecule;//translation mc move
 	protected final MCMoveRotate rotateMolecule;//atomic rotation mc move
 	protected final Box box;
-	public Controller controller; 
 
 	//************************************* constructor ********************************************//
     public DHS_NVT(Space space, int numberMolecules, final double HSDiameter, double mu,

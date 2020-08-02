@@ -39,7 +39,6 @@ public class HSMC2D extends Simulation {
     public SpeciesSpheresMono species, species2;
     public Box box;
     public P2HardSphere potential11, potential12, potential22;
-    public Controller controller;
     public DataSourceCountSteps meterCycles;
 
     public HSMC2D() {

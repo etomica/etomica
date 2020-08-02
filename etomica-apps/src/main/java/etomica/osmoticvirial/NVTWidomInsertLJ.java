@@ -37,7 +37,6 @@ public class NVTWidomInsertLJ extends Simulation {
     public SpeciesSpheresMono species2; //solute
     public Box box;
     public P2LennardJones potential1, potential2, potential12;
-    public Controller controller;
     public ActivityIntegrate activityIntegrate;
 
     public NVTWidomInsertLJ(int numAtoms, double temp, double density, double sigma2, double epsilon2, boolean computez2){

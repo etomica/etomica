@@ -41,7 +41,6 @@ public class GCWidomInsertHS extends Simulation {
     protected Box box;
     protected P2HardSphere potential1, potential12;
     protected Potential2 potential2;
-    protected Controller controller;
     protected ActivityIntegrate activityIntegrate;
 
     /**

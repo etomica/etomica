@@ -48,7 +48,6 @@ public class SimOverlapMultiHarmonic extends Simulation{
     private static final long serialVersionUID = 1L;
     protected SpeciesSpheresMono species;
     protected Box boxA, boxB;
-    protected Controller controller;
     protected ActivityIntegrate activityIntegrate;
     protected IntegratorMC integratorA, integratorB;
     protected P1Harmonic potentialA, potentialB;

@@ -37,7 +37,6 @@ public class MultiharmonicMC extends Simulation {
     AccumulatorHistory historyEnergy;
     SpeciesSpheresMono species;
     Box box;
-    Controller controller;
     P1Harmonic potentialA, potentialB;
     IntegratorMC integrator;
     ActivityIntegrate activityIntegrate;
@@ -53,7 +52,6 @@ public class MultiharmonicMC extends Simulation {
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector1D(6.0));
-        controller = getController();
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(1.0);
         potentialA = new P1Harmonic(space);

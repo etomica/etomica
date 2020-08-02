@@ -83,9 +83,9 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         duHistogram.setDataSink(duPlot.getDataSet().makeDataSink());
         duPlot.setDoLegend(false);
         
-        DeviceSlider x0Slider = new DeviceSlider(sim.controller);
-        final DeviceSlider omegaASlider = new DeviceSlider(sim.controller);
-        final DeviceSlider omegaBSlider = new DeviceSlider(sim.controller);
+        DeviceSlider x0Slider = new DeviceSlider(sim.getController());
+        final DeviceSlider omegaASlider = new DeviceSlider(sim.getController());
+        final DeviceSlider omegaBSlider = new DeviceSlider(sim.getController());
         x0Slider.setShowValues(true);
         omegaASlider.setShowValues(true);
         omegaBSlider.setShowValues(true);
