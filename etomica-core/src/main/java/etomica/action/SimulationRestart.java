@@ -4,13 +4,10 @@
 
 package etomica.action;
 
-import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.action.activity.Controller2;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.Integrator;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
@@ -21,7 +18,7 @@ import etomica.space.Space;
  * Action that invokes reset method of all registered simulation elements,
  * effectively initializing the entire simulation.
  */
-public final class SimulationRestart extends SimulationActionAdapter {
+public final class SimulationRestart implements IAction {
 
     private static final long serialVersionUID = 1L;
     protected Configuration configuration;
@@ -30,9 +27,11 @@ public final class SimulationRestart extends SimulationActionAdapter {
     protected IAction postAction;
     private final Controller controller;
     private final Controller2 controller2;
+    private final Simulation simulation;
 
     public SimulationRestart(Simulation sim) {
-        super.setSimulation(sim, sim.getSpace());
+        this.simulation = sim;
+        Space space = sim.getSpace();
         controller = sim.getController();
         controller2 = sim.getController2();
         if (space != null) {
