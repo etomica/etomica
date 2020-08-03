@@ -57,15 +57,15 @@ public class SelfAssemblySim extends Simulation {
     public SelfAssemblySim(Space space) {
         super(space);
 
-        nA = 1000;
-        nB = 100;
+        nA = 100;
+        nB = 10;
         nB1 = 1;
         nB2 = 5;
 
         speciesA = new SpeciesSpheresMono(space, typeA);
         speciesA.setIsDynamic(true);
         speciesB = new SpeciesSpheresHetero(space, new AtomType[] {typeB1, typeB2});
-        speciesB.setConformation(new ConformationLinear(space,0.5));
+        speciesB.setConformation(new ConformationLinear(space,0.501));
         speciesB.setChildCount(new int[] {nB1, nB2});
 
         speciesB.setIsDynamic(true);
@@ -90,7 +90,7 @@ public class SelfAssemblySim extends Simulation {
         sigB1B1 = 1.5;
         epsB1B1 = Kelvin.UNIT.toSim(defaultEps);
 
-        sigB1B2 = 1.5;
+        sigB1B2 = 1.0;
         epsB1B2 = Kelvin.UNIT.toSim(0.);
 
         sigB2B2 = 1.0;
