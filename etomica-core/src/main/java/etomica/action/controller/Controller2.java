@@ -1,6 +1,8 @@
-package etomica.action.activity;
+package etomica.action.controller;
 
 import etomica.action.IAction;
+import etomica.action.activity.Activity2;
+import etomica.integrator.Integrator;
 import etomica.util.Debug;
 
 import java.util.ArrayDeque;

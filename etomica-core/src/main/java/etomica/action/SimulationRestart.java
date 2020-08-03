@@ -5,7 +5,7 @@
 package etomica.action;
 
 import etomica.action.activity.Controller;
-import etomica.action.activity.Controller2;
+import etomica.action.controller.Controller2;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.LatticeCubicFcc;
