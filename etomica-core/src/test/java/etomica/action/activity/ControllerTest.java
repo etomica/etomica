@@ -1,7 +1,8 @@
 package etomica.action.activity;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller2.ActivityHandle;
+import etomica.action.controller.Controller2;
+import etomica.action.controller.Controller2.ActivityHandle;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;

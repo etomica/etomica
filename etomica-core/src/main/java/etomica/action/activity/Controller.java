@@ -6,6 +6,7 @@ package etomica.action.activity;
 
 import etomica.action.Activity;
 import etomica.action.IAction;
+import etomica.action.controller.Controller2;
 import etomica.util.Arrays;
 import etomica.util.EventManager;
 

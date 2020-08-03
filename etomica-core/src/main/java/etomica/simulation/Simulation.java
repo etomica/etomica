@@ -7,7 +7,7 @@ package etomica.simulation;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.action.activity.Controller2;
+import etomica.action.controller.Controller2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.IElement;

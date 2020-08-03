@@ -1,6 +1,6 @@
 package etomica.graphics;
 
-import etomica.action.activity.Controller2;
+import etomica.action.controller.Controller2;
 
 import javax.swing.*;
 import java.awt.*;
