@@ -338,14 +338,6 @@ public class Simulation {
      * Returns null if no integrator is found.
      */
     public Integrator getIntegrator() {
-        Integrator integrator = null;
-        IAction[] controllerActions = controller.getAllActions();
-        for (IAction controllerAction : controllerActions) {
-            if (controllerAction instanceof ActivityIntegrate) {
-                integrator = ((ActivityIntegrate) controllerAction).getIntegrator();
-                break;
-            }
-        }
-        return integrator;
+        return this.controller2.getIntegrator();
     }
 }

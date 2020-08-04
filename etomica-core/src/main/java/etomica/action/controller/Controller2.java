@@ -2,6 +2,7 @@ package etomica.action.controller;
 
 import etomica.action.IAction;
 import etomica.action.activity.Activity2;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.integrator.Integrator;
 import etomica.util.Debug;
 
@@ -24,6 +25,7 @@ public class Controller2 {
 
     private final AtomicBoolean pauseFlag = new AtomicBoolean(true);
     private static final IAction WAKE_UP = () -> {};
+    private Integrator integrator;
 
 
     public Controller2() {
@@ -38,7 +40,11 @@ public class Controller2 {
      * @param sleepPeriodMillis
      */
     public ActivityHandle addActivity(Activity2 activity, long maxSteps, double sleepPeriodMillis) {
+        this.tryToGetIntegrator(activity);
         ActivityTask task = new ActivityTask(activity, this.actionQueue, this.pauseFlag);
+        if (this.currentTask == null) {
+            this.currentTask = task;
+        }
         task.maxSteps = maxSteps;
         task.sleepPeriodMillis = sleepPeriodMillis;
         CompletableFuture<Void> future = new CompletableFuture<>();
@@ -59,6 +65,16 @@ public class Controller2 {
         ActivityTask task = new ActivityTask(activity, this.actionQueue, this.pauseFlag);
         task.maxSteps = maxSteps;
         task.run();
+    }
+
+    private void tryToGetIntegrator(Activity2 activity) {
+        if (activity instanceof ActivityIntegrate2) {
+            this.integrator = ((ActivityIntegrate2) activity).getIntegrator();
+        }
+    }
+
+    public Integrator getIntegrator() {
+        return integrator;
     }
 
     public void start() {
@@ -263,16 +279,18 @@ public class Controller2 {
             this.task = task;
         }
 
-        public void setMaxSteps(long maxSteps) {
+        public ActivityHandle setMaxSteps(long maxSteps) {
             this.task.maxSteps = maxSteps;
+            return this;
         }
 
         public long getMaxSteps() {
             return this.task.maxSteps;
         }
 
-        public void setSleepPeriod(double sleepPeriodMillis) {
+        public ActivityHandle setSleepPeriod(double sleepPeriodMillis) {
             this.task.sleepPeriodMillis = sleepPeriodMillis;
+            return this;
         }
 
         public double getSleepPeriod() {

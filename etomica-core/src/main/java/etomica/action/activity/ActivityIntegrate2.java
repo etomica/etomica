@@ -17,6 +17,10 @@ public class ActivityIntegrate2 implements Activity2 {
         this.ignoreOverlap = ignoreOverlap;
     }
 
+    public Integrator getIntegrator() {
+        return integrator;
+    }
+
     @Override
     public void preAction() {
         try {
