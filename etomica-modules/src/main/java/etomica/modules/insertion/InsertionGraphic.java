@@ -267,7 +267,7 @@ public class InsertionGraphic extends SimulationGraphic {
         });
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
         delaySlider.setMaxSleep(1000);
 
         getPanel().controlPanel.add(setupPanel, vertGBC);

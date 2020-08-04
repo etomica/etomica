@@ -280,7 +280,7 @@ public class NucleationGraphic extends SimulationGraphic {
         this.getController().getReinitButton().setPostAction(resetAction);
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);

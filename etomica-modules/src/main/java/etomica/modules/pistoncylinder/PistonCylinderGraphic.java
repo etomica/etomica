@@ -387,7 +387,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     	    scaleSlider.getSlider().setLabelTable(scaleLabels);
         }
 
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(pc.getController(), (ActivityIntegrate)pc.getController().getAllActions()[0]);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(pc.getController());
         
         // Add panels to the control panel
         getPanel().controlPanel.add(setupPanel, vertGBC);

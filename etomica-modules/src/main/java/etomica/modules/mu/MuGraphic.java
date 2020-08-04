@@ -504,7 +504,7 @@ public class MuGraphic extends SimulationGraphic {
         this.getController().getReinitButton().setPostAction(resetAction);
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
         
         getPanel().controlPanel.add(displayCycles.graphic(), vertGBC);
         getPanel().controlPanel.add(setupPanel, vertGBC);

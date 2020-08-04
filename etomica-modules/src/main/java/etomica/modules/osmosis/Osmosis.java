@@ -119,7 +119,7 @@ public class Osmosis extends SimulationGraphic {
         //
         // Delay panel
         //
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
         
         //
         // temperature panel
