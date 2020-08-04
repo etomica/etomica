@@ -459,13 +459,16 @@ public class DeviceSlider extends Device {
         private CompletableFuture<Void> actionFuture = null;
          public void stateChanged(ChangeEvent evt) {
              double newValue = slider.getDecimalSliderValue();
-             if(modifyAction != null && newValue != modifyAction.getValue()) {
+             if(modifyAction != null) {
                  modifyAction.setValueForAction(unit.toSim(newValue));
 
                  if (actionFuture != null) {
                      actionFuture.cancel(false);
                  }
                  actionFuture = doAction(() -> {
+                     if (newValue == modifyAction.getValue()) {
+                         return;
+                     }
                      modifyAction.setValueForAction(newValue);
                      targetAction.actionPerformed();
                  });
