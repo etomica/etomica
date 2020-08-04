@@ -33,7 +33,9 @@ public class DeviceSelector extends Device {
             public void itemStateChanged(ItemEvent event) {
                 if (event.getStateChange() == ItemEvent.DESELECTED) return;
                 IAction action = actionHash.get(event.getItem());
-                doAction(action);
+                if (action != null) {
+                    doAction(action);
+                }
             }
         });
     }
