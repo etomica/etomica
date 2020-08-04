@@ -280,7 +280,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         densityDisplay.setLabelType(LabelType.BORDER);
 
 //        filter3.setDataSink(new DataSinkConsole());
-		DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+		DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
 
 		//************* Lay out components ****************//
 

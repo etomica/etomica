@@ -63,7 +63,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
 
         final IAction resetAction = getController().getSimRestart().getDataResetAction();
         
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
 
         // Sliders on Well depth page
         final DeviceSlider AASlider = sliders(eMin, eMax/2, "initiator-initiatior", sim.p2AA);

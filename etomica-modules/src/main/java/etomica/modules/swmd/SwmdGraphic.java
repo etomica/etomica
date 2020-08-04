@@ -458,7 +458,7 @@ public class SwmdGraphic extends SimulationGraphic {
         });
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
         
         getPanel().controlPanel.add(setupPanel, vertGBC);
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
