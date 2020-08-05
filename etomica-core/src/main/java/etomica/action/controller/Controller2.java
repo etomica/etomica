@@ -56,6 +56,10 @@ public class Controller2 {
         return activityHandle;
     }
 
+    public ActivityHandle addActivity(Activity2 activity) {
+        return this.addActivity(activity, Long.MAX_VALUE, 0.0);
+    }
+
     /**
      * Runs an activity to completion on the current thread.
      * @param activity
