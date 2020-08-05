@@ -27,6 +27,7 @@ public class DeviceThermoSlider extends Device {
 	protected static final int DEFAULT_MAX_TEMPERATURE = 300;
 
 	public DeviceThermoSlider(Controller cont, final IntegratorBox integrator) {
+		super(cont);
         //adiabatic/isothermal radio button
 	    thermalButtons = new DeviceButtonGroup(cont, 2);
 	    thermalButtons.addButton("Adiabatic", new IAction() {
@@ -51,8 +52,6 @@ public class DeviceThermoSlider extends Device {
         temperatureSlider.setValue(300);
         temperatureSlider.getSlider().setEnabled(false);
         temperatureSlider.getTextField().setEnabled(false);
-
-        setController(cont);
 
         temperaturePanel = new JPanel(new GridBagLayout());
         temperaturePanel.setBorder(new TitledBorder(null, "Set Temperature", TitledBorder.CENTER, TitledBorder.TOP));
