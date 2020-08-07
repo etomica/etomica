@@ -5,6 +5,7 @@
 package etomica.association.GCPMWater;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
@@ -524,38 +525,32 @@ public class WertheimGCPM4PtThreeSite {
 		sim.integratorOS.setNumSubSteps(1000);	
 
 		if (false) {
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
-            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
-            ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
-            ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
-            ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
+			sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+			sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+			SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
+			((ColorSchemeByType) simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
+			((ColorSchemeByType) simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
+			((ColorSchemeByType) simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
+			((ColorSchemeByType) simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
 
-            simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
-            simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-            simGraphic.makeAndDisplayFrame();
-            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box[1]).canvas).setBackgroundColor(Color.WHITE);
-            sim.integratorOS.setNumSubSteps(100000);
-            sim.setAccumulatorBlockSize(1000);
-                
-            // if running interactively, set filename to null so that it doens't read
-            // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null,20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
-            if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
-                throw new RuntimeException("Oops");
-            }
-            
-            return;
-        }
+			simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
+			simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
+			simGraphic.makeAndDisplayFrame();
+			((DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box[1]).canvas).setBackgroundColor(Color.WHITE);
+			sim.integratorOS.setNumSubSteps(100000);
+			sim.setAccumulatorBlockSize(1000);
+
+			// if running interactively, set filename to null so that it doens't read
+			// (or write) to a refpref file
+			sim.initRefPref(null, 10, false);
+			sim.equilibrate(null, 20);
+			sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
+			if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
+				throw new RuntimeException("Oops");
+			}
+
+			return;
+		}
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+numDiagram+"_"+diagramIndex+"_"+temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it

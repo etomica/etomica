@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.graphics.SimulationGraphic;
@@ -409,35 +410,29 @@ public class DoubleAssociationSitesFluid4Pt {
 		sim.integratorOS.setNumSubSteps(1000);		
 		
 		if (false) {
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
-            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
-            simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-            Species species = (Species)sim.getSpecies(0);
-            AtomType typeLJ = species.getAtomType(0);
-            simGraphic.makeAndDisplayFrame();
-    
-            sim.integratorOS.setNumSubSteps(1000);
-            sim.setAccumulatorBlockSize(1000);
-                
-            // if running interactively, set filename to null so that it doens't read
-            // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 5000);
-                    sim.equilibrate(null,10000);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
-            if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
-                throw new RuntimeException("Oops");
-            }
-            
-            return;
-        }
+			sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+			sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+			SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
+			simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
+			simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
+			Species species = (Species) sim.getSpecies(0);
+			AtomType typeLJ = species.getAtomType(0);
+			simGraphic.makeAndDisplayFrame();
+
+			sim.integratorOS.setNumSubSteps(1000);
+			sim.setAccumulatorBlockSize(1000);
+
+			// if running interactively, set filename to null so that it doens't read
+			// (or write) to a refpref file
+			sim.initRefPref(null, 5000, false);
+			sim.equilibrate(null, 10000);
+			sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
+			if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
+				throw new RuntimeException("Oops");
+			}
+
+			return;
+		}
 			
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+sigmaABpoint+"_"+sigmaApoint+"_"+sigmaBpoint+"_"+sigma0point+"_"+temperature : null;

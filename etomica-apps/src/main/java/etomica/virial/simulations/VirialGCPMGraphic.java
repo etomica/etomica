@@ -8,6 +8,7 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.models.water.ConformationWaterGCPM;
@@ -42,59 +43,53 @@ public class VirialGCPMGraphic {
         HSB[5] = Standard.B5HS(sigmaHSRef);
         HSB[6] = Standard.B6HS(sigmaHSRef);
 
-        System.out.println("sigmaHSRef: "+sigmaHSRef);
-        System.out.println("B2HS: "+HSB[2]);
-        System.out.println("B3HS: "+HSB[3]+" = "+(HSB[3]/(HSB[2]*HSB[2]))+" B2HS^2");
-        System.out.println("B4HS: "+HSB[4]+" = "+(HSB[4]/(HSB[2]*HSB[2]*HSB[2]))+" B2HS^3");
-        System.out.println("B5HS: "+HSB[5]+" = 0.110252 B2HS^4");
-        System.out.println("B6HS: "+HSB[6]+" = 0.03881 B2HS^5");
-        System.out.println("Water Direct sampling B"+nPoints+" at T="+Kelvin.UNIT.fromSim(temperature));
+        System.out.println("sigmaHSRef: " + sigmaHSRef);
+        System.out.println("B2HS: " + HSB[2]);
+        System.out.println("B3HS: " + HSB[3] + " = " + (HSB[3] / (HSB[2] * HSB[2])) + " B2HS^2");
+        System.out.println("B4HS: " + HSB[4] + " = " + (HSB[4] / (HSB[2] * HSB[2] * HSB[2])) + " B2HS^3");
+        System.out.println("B5HS: " + HSB[5] + " = 0.110252 B2HS^4");
+        System.out.println("B6HS: " + HSB[6] + " = 0.03881 B2HS^5");
+        System.out.println("Water Direct sampling B" + nPoints + " at T=" + Kelvin.UNIT.fromSim(temperature));
 
         Space space = Space3D.getInstance();
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         final PotentialMolecular pTarget = new PNWaterGCPM(space);
-        
+
         MayerGeneral fTarget = new MayerGeneral(pTarget);
-        ClusterAbstract targetCluster = Standard.virialClusterPolarizable(nPoints, fTarget, nPoints>3, false);
-        ((ClusterSumPolarizable)targetCluster).setDeltaCut(deltaCut);
+        ClusterAbstract targetCluster = Standard.virialClusterPolarizable(nPoints, fTarget, nPoints > 3, false);
+        ((ClusterSumPolarizable) targetCluster).setDeltaCut(deltaCut);
 
-        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, null, false);
+        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints > 3, null, false);
 
-       
+
         targetCluster.setTemperature(temperature);
         refCluster.setTemperature(temperature);
 
         SpeciesWater4P species = new SpeciesWater4P(space);
         species.setConformation(new ConformationWaterGCPM(space));
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species, temperature, refCluster,targetCluster, false);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, temperature, refCluster, targetCluster, false);
         sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
         sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
         simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
         simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
 
-        ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
-        ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
-        ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
-        ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
+        ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
+        ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
+        ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
+        ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
         simGraphic.makeAndDisplayFrame();
 
         sim.integratorOS.setNumSubSteps(numSubSteps);
         sim.setAccumulatorBlockSize(1000);
-            
+
         // if running interactively, set filename to null so that it doens't read
         // (or write) to a refpref file
-        sim.getController().removeAction(sim.ai);
-        sim.getController().addAction(new IAction() {
-            public void actionPerformed() {
-                sim.initRefPref(null, 10);
-                sim.equilibrate(null,20);
-                sim.ai.setMaxSteps(Long.MAX_VALUE);
-            }
-        });
-        sim.getController().addAction(sim.ai);
+        sim.initRefPref(null, 10);
+        sim.equilibrate(null, 20);
+        sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
         if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
             throw new RuntimeException("Oops");
         }
@@ -128,7 +123,7 @@ public class VirialGCPMGraphic {
 //                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
 //                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
 
-	}
+    }
 
 }
 

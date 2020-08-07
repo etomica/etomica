@@ -409,7 +409,7 @@ public class VirialHePI_PotentialCorrection {
 //            sim.getController().removeAction(sim.ai);
 //            sim.getController().addAction(new IAction() {
 //                public void actionPerformed() {
-//                    sim.initRefPref(null, 10);
+//                    sim.initRefPref(null, 10, false);
 //                    sim.equilibrate(null, 20);
 //                    sim.ai.setMaxSteps(Long.MAX_VALUE);
 //                }

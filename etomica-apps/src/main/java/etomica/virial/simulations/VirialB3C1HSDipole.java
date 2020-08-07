@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorEvent;
 import etomica.atom.AtomTypeOriented;
@@ -108,37 +109,31 @@ public class VirialB3C1HSDipole {
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            simGraphic.getDisplayBox(sim.box[0]).setPixelUnit(new Pixel(300.0/size));
-            simGraphic.getDisplayBox(sim.box[1]).setPixelUnit(new Pixel(300.0/size));
+            simGraphic.getDisplayBox(sim.box[0]).setPixelUnit(new Pixel(300.0 / size));
+            simGraphic.getDisplayBox(sim.box[1]).setPixelUnit(new Pixel(300.0 / size));
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-            
-            ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
+
+            ColorSchemeByType colorScheme = (ColorSchemeByType) simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
             colorScheme.setColor(sim.getSpecies(0).getAtomType(0), Color.red);
             OrientedFullSite[] sites = new OrientedFullSite[2];
 
             sites[0] = new OrientedFullSite(Vector.of(new double[]{0.5, 0, 0}), Color.BLUE, 0.2);
             sites[1] = new OrientedFullSite(Vector.of(new double[]{-0.5, 0, 0}), Color.YELLOW, 0.2);
-            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box[0]).canvas).setOrientationSites(
+            ((DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box[0]).canvas).setOrientationSites(
                     (AtomTypeOriented) sim.getSpecies(0).getAtomType(0), sites);
-            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box[1]).canvas).setOrientationSites(
+            ((DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box[1]).canvas).setOrientationSites(
                     (AtomTypeOriented) sim.getSpecies(0).getAtomType(0), sites);
             simGraphic.makeAndDisplayFrame();
 
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-                
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null, 20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 10, false);
+            sim.equilibrate(null, 20);
+            sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
             if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
                 throw new RuntimeException("Oops");
             }

@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.DiameterHashByType;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.IElement;
@@ -103,34 +104,28 @@ public class Virial2CLJmuQ {
         sim.integratorOS.setNumSubSteps(1000);
 
         if (false) {
-            double size = (sigma*(1+bondL))*2;
-            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
-            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size,size,size}));
+            double size = (sigma * (1 + bondL)) * 2;
+            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{size, size, size}));
+            sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{size, size, size}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            simGraphic.getDisplayBox(sim.box[0]).setPixelUnit(new Pixel(300.0/size));
-            simGraphic.getDisplayBox(sim.box[1]).setPixelUnit(new Pixel(300.0/size));
+            simGraphic.getDisplayBox(sim.box[0]).setPixelUnit(new Pixel(300.0 / size));
+            simGraphic.getDisplayBox(sim.box[1]).setPixelUnit(new Pixel(300.0 / size));
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-            
-            DiameterHashByType diameterManager = (DiameterHashByType)simGraphic.getDisplayBox(sim.box[0]).getDiameterHash();
+
+            DiameterHashByType diameterManager = (DiameterHashByType) simGraphic.getDisplayBox(sim.box[0]).getDiameterHash();
             diameterManager.setDiameter(sim.getSpecies(0).getAtomType(0), sigma);
             simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameterManager);
             simGraphic.makeAndDisplayFrame();
 
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-                
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null, 20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 10, false);
+            sim.equilibrate(null, 20);
+            sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
             if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
                 throw new RuntimeException("Oops");
             }

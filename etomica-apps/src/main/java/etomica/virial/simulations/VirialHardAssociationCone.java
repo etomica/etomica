@@ -114,7 +114,7 @@ public class VirialHardAssociationCone {
             sim.getController().removeAction(sim.ai);
             sim.getController().addAction(new IAction() {
                 public void actionPerformed() {
-                    sim.initRefPref(null, 100);
+                    sim.initRefPref(null, 100, false);
                     sim.equilibrate(null, 200);
                     sim.ai.setMaxSteps(Long.MAX_VALUE);
                 }
