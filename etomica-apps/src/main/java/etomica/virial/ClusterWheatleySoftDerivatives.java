@@ -444,10 +444,10 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
                     avgAbsCheck[idx] += (Math.abs(fB[nf - 1][0]) - avgAbsCheck[idx]) / nCheck[idx];
                     avgAbsCheckBD[idx] += (Math.abs(value[0] / bfac) - avgAbsCheckBD[idx]) / nCheck[idx];
                     if (nCheck[idx] > 3 && avgAbsCheck[idx] / avgAbsCheckBD[idx] > 1.5) {
-                        System.err.println("nChecks: " + nCheck[0] + " " + nCheck[1]);
-                        System.err.println("avgAbsChecks: " + avgAbsCheck[0] + " " + avgAbsCheck[1]);
-                        System.err.println("avgAbsChecksBD: " + avgAbsCheckBD[0] + " " + avgAbsCheckBD[1]);
-                        throw new RuntimeException("ratios: " + avgAbsCheck[0] / avgAbsCheckBD[0] + " " + avgAbsCheckBD[1] / avgAbsCheckBD[1]);
+                        System.err.println("nChecks: " + nCheck[0] + " " + nCheck[1] + " " + nCheck[2]);
+                        System.err.println("avgAbsChecks: " + avgAbsCheck[0] + " " + avgAbsCheck[1] + " " + avgAbsCheck[2]);
+                        System.err.println("avgAbsChecksBD: " + avgAbsCheckBD[0] + " " + avgAbsCheckBD[1] + " " + avgAbsCheckBD[2]);
+                        throw new RuntimeException("ratios: " + avgAbsCheck[0] / avgAbsCheckBD[0] + " " + avgAbsCheck[1] / avgAbsCheckBD[1] + " " + avgAbsCheck[2] / avgAbsCheckBD[2]);
                     }
                     for (int m = 0; m <= nDer; m++) {
                         value[m] = bfac * fB[nf - 1][m];
