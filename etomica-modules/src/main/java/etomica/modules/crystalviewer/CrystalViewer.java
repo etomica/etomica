@@ -117,7 +117,8 @@ public class CrystalViewer extends SimulationPanel {
     
  
     public static void main(String[] args) {
-        
+
+        SimulationGraphic.initGraphics();
         SimulationPanel viewer = new CrystalViewer();
         SimulationGraphic.makeAndDisplayFrame(viewer, APP_NAME);
     }

@@ -16,6 +16,7 @@ import etomica.units.dimensions.Null;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.event.ItemEvent;
 
 /**
  * Class that produces a panel with controls that presence, orientation
@@ -44,8 +45,6 @@ public class ClipPlaneEditor {
     protected java.awt.Color highlightColor = java.awt.Color.yellow;
     protected java.awt.Color atomColor = java.awt.Color.red;
     protected ColorSchemePlane colorScheme;
-    protected boolean showPlane = true;
-    protected boolean showBoundary = true;
     private JPanel millerPanel;
 
     // minimum and maximum value for the slider.
@@ -73,67 +72,66 @@ public class ClipPlaneEditor {
         this.display = display;
         
         //box that toggles clipping display of atoms on one side of plane
-        DeviceCheckBox clipToggle = new DeviceCheckBox("Clip", new ModifierBoolean() {
-            public boolean getBoolean() {
-                return display.getAtomTestDoDisplay() != null;
+        JCheckBox clipToggle = new JCheckBox("Clip", display.getAtomTestDoDisplay() != null);
+        clipToggle.addItemListener((e) -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                display.setAtomTestDoDisplay(latticePlane);
+            } else {
+                display.setAtomTestDoDisplay(null);
             }
-            public void setBoolean(boolean b) {
-                if (b) display.setAtomTestDoDisplay(ClipPlaneEditor.this.latticePlane);
-                else display.setAtomTestDoDisplay(null);
-                display.repaint();
-            }
+            display.repaint();
         });
         
         //box that toggles highlighting of atoms in the plane
         colorScheme = new ColorSchemePlane(latticePlane,highlightColor,atomColor);
         display.setColorScheme(colorScheme);
-        DeviceCheckBox highlightToggle = new DeviceCheckBox("Highlight", new ModifierBoolean() {
-            public boolean getBoolean() {return colorScheme.getColorIn().equals(highlightColor);}
-            public void setBoolean(boolean b) {
-                if(b) colorScheme.setColorIn(highlightColor);
-                else  colorScheme.setColorIn(atomColor);
-                display.repaint();
+        JCheckBox highlightToggle = new JCheckBox("Highlight", colorScheme.getColorIn().equals(highlightColor));
+        highlightToggle.addItemListener((e) -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                colorScheme.setColorIn(highlightColor);
+            } else {
+                colorScheme.setColorIn(atomColor);
             }
-        });
-        
-        //box to toggle visibility of plane
-        ((DisplayBoxCanvasG3DSys)display.canvas).addPlane(latticePlane.getPlane());
-        DeviceCheckBox showplaneToggle = new DeviceCheckBox("Show plane", new ModifierBoolean() {
-            public boolean getBoolean() {return showPlane;}
-            public void setBoolean(boolean b) {
-                showPlane = b;
-                if(b) ((DisplayBoxCanvasG3DSys)display.canvas).addPlane(latticePlane.getPlane());
-                else  ((DisplayBoxCanvasG3DSys)display.canvas).removePlane(latticePlane.getPlane());
-                display.canvas.repaint();
-            }
+            display.repaint();
         });
 
+        //box to toggle visibility of plane
+        DisplayBoxCanvasG3DSys canvas = (DisplayBoxCanvasG3DSys) display.canvas;
+        canvas.addPlane(latticePlane.getPlane());
+        JCheckBox showplaneToggle = new JCheckBox("Show plane", true);
+        showplaneToggle.addItemListener((e) -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                canvas.addPlane(latticePlane.getPlane());
+            } else {
+                canvas.removePlane(latticePlane.getPlane());
+            }
+            display.repaint();
+        });
+
+
         // box to toggle crystal boundary display
-        DeviceCheckBox crystalboundaryToggle = new DeviceCheckBox("Show boundary", new ModifierBoolean() {
-            public boolean getBoolean() {return showBoundary;}
-            public void setBoolean(boolean b) {
-                showBoundary = b;
-                display.setShowBoundary(b);
-                display.repaint();
-                }
+        JCheckBox crystalboundaryToggle = new JCheckBox("Show boundary", true);
+        crystalboundaryToggle.addItemListener((e) -> {
+            display.setShowBoundary(e.getStateChange() == ItemEvent.SELECTED);
+            display.repaint();
         });
 
         ModifierLatticePlane modifier;
         latticePlane.setOrigin(new Vector3D());
         // Miller i indices
-        boxH = new DeviceBox();
+        boxH = new DeviceBox(sim.getController());
         modifier = new ModifierLatticePlane(MILLER_INDEX_H);
         modifier.setLabel("h");
         boxH.setModifier(modifier);
         boxH.setInteger(true);
         // Miller j indices
-        boxK = new DeviceBox();
+        boxK = new DeviceBox(sim.getController());
         modifier = new ModifierLatticePlane(MILLER_INDEX_K);
         modifier.setLabel("k");
         boxK.setModifier(modifier);
         boxK.setInteger(true);
         // Miller k indices
-        boxL = new DeviceBox();
+        boxL = new DeviceBox(sim.getController());
         modifier = new ModifierLatticePlane(MILLER_INDEX_L);
         modifier.setLabel("l");
         boxL.setModifier(modifier);
@@ -167,7 +165,7 @@ public class ClipPlaneEditor {
         distanceDisplay.setLabel("Distance from Origin");
         distanceDisplay.setPrecision(DISTANCE_PRECISION);
 
-        positionSlider = new DeviceSlider(null, new ModifierLatticePlane(PLANE_SELECTION_SLIDER));
+        positionSlider = new DeviceSlider(sim.getController(), new ModifierLatticePlane(PLANE_SELECTION_SLIDER));
         positionSlider.setPrecision(SLIDER_DECIMAL_PLACES);
         // NEED TO SET MIN/MAX PLANE WHICH ARE DYNAMIC ...
         positionSlider.setMinimum(minimumPosition);
@@ -190,10 +188,10 @@ public class ClipPlaneEditor {
         TitledBorder checkboxBorder = new TitledBorder("Display Features");
         checkboxBorder.setTitleJustification(TitledBorder.CENTER);
         checkboxPanel.setBorder(checkboxBorder);
-        checkboxPanel.add(clipToggle.graphic());
-        checkboxPanel.add(highlightToggle.graphic());
-        checkboxPanel.add(showplaneToggle.graphic());
-        checkboxPanel.add(crystalboundaryToggle.graphic());
+        checkboxPanel.add(clipToggle);
+        checkboxPanel.add(highlightToggle);
+        checkboxPanel.add(showplaneToggle);
+        checkboxPanel.add(crystalboundaryToggle);
 
         int ix=0; 
         int iy=0;

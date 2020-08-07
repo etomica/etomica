@@ -101,6 +101,7 @@ public abstract class Device {
      */
     public void setController(Controller controller) {
         this.controller = controller;
+        this.controller2 = controller.controller2;
     }
 
     public abstract Component graphic();
