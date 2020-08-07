@@ -13,7 +13,7 @@ import java.awt.*;
  * Presents a table of numeric properties that can be edited by typing in values.
  *
  */
-public class DeviceTable extends Device /*implements EtomicaElement*/ {
+public class DeviceTable /*implements EtomicaElement*/ {
     
     private JTable table;
     private JPanel panel;
