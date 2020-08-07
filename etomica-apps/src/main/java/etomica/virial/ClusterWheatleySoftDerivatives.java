@@ -39,8 +39,8 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
     protected double rCut2 = Double.POSITIVE_INFINITY;
     protected boolean valueBD;
     protected long timeBD = 0;
-    protected double[] avgAbsCheck = {0, 0}, avgAbsCheckBD = {0, 0};
-    protected long[] nCheck = {0, 0};
+    protected double[] avgAbsCheck = {0, 0, 0}, avgAbsCheckBD = {0, 0, 0};
+    protected long[] nCheck = {0, 0, 0};
 
 
     public ClusterWheatleySoftDerivatives(int nPoints, MayerFunction f, double tol, int nDer) {
@@ -438,7 +438,7 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
                     }
                 }
                 if (justChecking) {
-                    int idx = (int) Math.log10(Math.abs(fB[nf - 1][0]) / tol);
+                    int idx = 1 + (int) Math.log10(Math.abs(fB[nf - 1][0]) / tol);
                     if (idx >= nCheck.length) idx = nCheck.length - 1;
                     nCheck[idx]++;
                     avgAbsCheck[idx] += (Math.abs(fB[nf - 1][0]) - avgAbsCheck[idx]) / nCheck[idx];
@@ -453,6 +453,10 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
                         value[m] = bfac * fB[nf - 1][m];
                     }
                 } else {
+                    int idx = 0;
+                    nCheck[idx]++;
+                    avgAbsCheck[idx] += (Math.abs(fB[nf - 1][0]) - avgAbsCheck[idx]) / nCheck[idx];
+                    avgAbsCheckBD[idx] += (Math.abs(value[0] / bfac) - avgAbsCheckBD[idx]) / nCheck[idx];
                     for (int m = 0; m <= nDer; m++) {
                         value[m] /= BDAccFrac;
                     }
@@ -460,9 +464,12 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
                 if (pushmeval && Math.abs(value[0] / bfac) > tol) {
                     value[0] = tol;
                 }
-            }
-            else {
-                for(int m=0;m<=nDer;m++){
+            } else if (justChecking) {
+                for (int m = 0; m <= nDer; m++) {
+                    value[m] = bfac * fB[nf - 1][m];
+                }
+            } else {
+                for (int m = 0; m <= nDer; m++) {
                     value[m] = 0;
                 }
             }
@@ -563,6 +570,10 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
 
     public double[] getAverageCheckBD() {
         return avgAbsCheckBD;
+    }
+
+    public long[] getNumBDChecks() {
+        return nCheck;
     }
 
     /**

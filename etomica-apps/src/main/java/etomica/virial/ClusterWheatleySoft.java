@@ -317,7 +317,7 @@ public class ClusterWheatleySoft implements ClusterAbstract {
                 } else {
                     value = valueBD / BDAccFrac;
                 }
-            } else if (Math.abs(fB[nf - 1]) > tol) {
+            } else if (justChecking) {
                 // value is near tol, but we decided to use double
                 value = bfac * fB[nf - 1];
             } else {
