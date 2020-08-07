@@ -408,7 +408,7 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
             double r = BDAccFrac < 1 ? random.nextDouble() : 1;
             boolean justChecking = Math.abs(fB[nf - 1][0]) > tol;
             if (justChecking) {
-                r /= 1000;
+                r *= 10;
             }
             // integrand is too small for recursion to compute accurately.  we ought to do
             // BD, but it's expensive.  only do BD BDAccFrac of the time.  If we do it, then
