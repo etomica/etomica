@@ -142,6 +142,13 @@ public class Controller2 {
 
     public CompletableFuture<Void> submitActionInterrupt(IAction action) {
         CompletableFuture<Void> future = new CompletableFuture<>();
+        if (this.currentTask == null) {
+            this.executor.submit(() -> {
+                action.actionPerformed();
+                future.complete(null);
+            });
+            return future;
+        }
         this.actionQueue.add(() -> {
             if (future.isCancelled()) {
                 System.out.println("canceled");
