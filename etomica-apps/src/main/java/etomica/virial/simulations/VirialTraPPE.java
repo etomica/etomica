@@ -351,8 +351,14 @@ public class VirialTraPPE {
         sim.getController().actionPerformed();
 
         // Print Simulation Output
-        System.out.println("final reference step fraction "+sim.integratorOS.getIdealRefStepFraction());
-        System.out.println("actual reference step fraction "+sim.integratorOS.getRefStepFraction());
+        System.out.println("final reference step fraction " + sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step fraction " + sim.integratorOS.getRefStepFraction());
+
+        if (targetCluster instanceof ClusterWheatleySoftDerivatives) {
+            double[] avgCheck = ((ClusterWheatleySoftDerivatives) targetCluster).getAverageCheck();
+            double[] avgCheckBD = ((ClusterWheatleySoftDerivatives) targetCluster).getAverageCheckBD();
+            System.out.println("BD ratios: " + avgCheck[0] / avgCheckBD[0] + " " + avgCheck[1] / avgCheckBD[1]);
+        }
 
         String[] extraNames = new String[nDer];
         for (int i = 1; i <= nDer; i++) {
@@ -361,7 +367,7 @@ public class VirialTraPPE {
         sim.printResults(HSBn, extraNames);
 
         long t2 = System.currentTimeMillis();
-        System.out.println("time: "+(t2-t1)/1000.0);
+        System.out.println("time: " + (t2 - t1) / 1000.0);
 
 	}
 
