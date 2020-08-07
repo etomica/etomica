@@ -19,6 +19,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 import etomica.action.IAction;
+import etomica.action.activity.Controller;
 import etomica.math.function.IFunction;
 import etomica.data.DataPump;
 import etomica.data.DataSourceFunction;
@@ -28,8 +29,6 @@ import etomica.modifier.ModifierGeneral;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
 import org.knowm.xchart.XYSeries;
-import org.knowm.xchart.internal.series.MarkerSeries;
-import org.knowm.xchart.style.markers.Marker;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 
 public class DevicePlotPoints {
@@ -68,12 +67,8 @@ public class DevicePlotPoints {
     private ModifierGeneral[] mods;
     private String[] funcParmLabels;
 
-	public DevicePlotPoints(IFunction[] fncts, String[] funcNames, String[] colNames) {
-		this(null, fncts, funcNames, true);
-	}
-
-	public DevicePlotPoints(String[] sliderLabels,
-			IFunction[] fncts, String[] funcNames, boolean verticalParameters) {
+	public DevicePlotPoints(Controller controller, String[] sliderLabels,
+							IFunction[] fncts, String[] funcNames, boolean verticalParameters) {
 
 		numFunctions = fncts.length;
 		funcParmLabels = sliderLabels;
@@ -103,7 +98,7 @@ public class DevicePlotPoints {
 			sliderPanel[slide] = new JPanel();
 			sliderPanel[slide].setBorder(new TitledBorder(null, sliderLabels[slide],
 					                     TitledBorder.CENTER, TitledBorder.TOP));
-			funcSlider[slide] = new DeviceSlider(null);
+			funcSlider[slide] = new DeviceSlider(controller);
 			funcSlider[slide].setPrecision(1);
 			funcSlider[slide].setMinimum(0);
 			funcSlider[slide].setMaximum(10);
@@ -127,7 +122,7 @@ public class DevicePlotPoints {
         tableModel.addTableModelListener(new TableChangeListener());
 
         // Deleting a point
-        DeviceButton delButton = new DeviceButton(null); 
+        DeviceButton delButton = new DeviceButton(controller);
         delButton.setLabel("Delete Point(s)");
         ((JPanel)table.graphic()).add(delButton.graphic(), vertGBC);
 
@@ -197,7 +192,7 @@ public class DevicePlotPoints {
 	        
 			scalePanels[slide] = new JPanel();
 			scalePanels[slide].setBorder(new TitledBorder(null, scaleTitles[slide], TitledBorder.CENTER, TitledBorder.TOP));
-			plotSizeSliders[slide] = new DeviceSlider(null);
+			plotSizeSliders[slide] = new DeviceSlider(controller);
 			plotSizeSliders[slide].setPrecision(0);
 			plotSizeSliders[slide].setMinimum(scaleMins[slide]);
 			plotSizeSliders[slide].setMaximum(scaleMaxs[slide]);
