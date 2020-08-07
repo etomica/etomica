@@ -46,9 +46,9 @@ public class VirialLJD {
         }
         ParseArgs.doParseArgs(params, args);
         if (args.length == 0) {
-            params.nPoints = 4;
-            params.nDer = 1;
-            params.temperature = 3.5;
+            params.nPoints = 6;
+            params.nDer = 0;
+            params.temperature = 35;
             params.numSteps = 1000000L;
             params.doHist = false;
             params.doChainRef = true;
@@ -112,7 +112,7 @@ public class VirialLJD {
         ClusterAbstract refCluster = doChainRef ? new ClusterChainHS(nPoints, fRefPos) : new ClusterWheatleyHS(nPoints, fRef);
         refCluster.setTemperature(temperature);
 
-        final ClusterWheatleySoftDerivatives targetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, 1e-12, nDer);
+        final ClusterWheatleySoftDerivatives targetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, 1e-14, nDer);
         targetCluster.setTemperature(temperature);
 
         if (blockSize == 0) blockSize = steps / 1000;
@@ -268,13 +268,17 @@ public class VirialLJD {
                         r = Math.exp(r);
                         y /= r;
                     }
-                    System.out.println(r+" "+y);
+                    System.out.println(r + " " + y);
                 }
             }
         }
 
-        System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
-        System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
+        System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
+        System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());
+
+        double[] avgCheck = targetCluster.getAverageCheck();
+        double[] avgCheckBD = targetCluster.getAverageCheckBD();
+        System.out.println("BD ratios: " + avgCheck[0] / avgCheckBD[0] + " " + avgCheck[1] / avgCheckBD[1]);
 
         String[] extraNames = new String[nDer];
         for (int i = 1; i <= nDer; i++) {
@@ -282,7 +286,7 @@ public class VirialLJD {
         }
         sim.printResults(HSBn, extraNames);
 
-        System.out.println("time: "+(t2-t1)/1000.0);
+        System.out.println("time: " + (t2 - t1) / 1000.0);
     }
 
     /**

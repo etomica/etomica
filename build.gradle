@@ -1,5 +1,5 @@
 plugins {
-    id 'org.beryx.runtime' version '1.8.4' apply false
+    id 'org.beryx.runtime' version '1.11.1' apply false
 }
 
 apply plugin: 'eclipse'
@@ -65,6 +65,23 @@ project(':etomica-core') {
 
     processResources.dependsOn ':setupPython'
     clean.dependsOn ':cleanPython'
+
+    task writeBuildProperties(type: WriteProperties) {
+        def resDir = sourceSets.main.output.resourcesDir
+        outputFile = file("$resDir/build.properties")
+        property 'date', LocalDateTime.now()
+
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = stdout
+        }
+        def commit = stdout.toString().trim()
+
+        property 'commit', commit
+    }
+
+    processResources.dependsOn writeBuildProperties
 }
 
 project(':etomica-apps') {
@@ -92,8 +109,24 @@ project(':etomica-modules') {
     runtime {
         imageDir = file("$buildDir/etomica_modules")
         imageZip = file("$buildDir/etomica_modules.zip")
-        modules = ['java.desktop']
+        modules = ['java.desktop', 'java.logging']
         options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+
+        jpackage {
+            skipInstaller = true
+        }
+    }
+
+    task archiveModulesApp(type: Zip) {
+        dependsOn ":etomica-modules:jpackage"
+        if (org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+            from "$buildDir/jpackage"
+        } else {
+            from "$buildDir/jpackage/etomica-modules"
+        }
+
+        archiveFileName = "etomica-modules.zip"
+        destinationDirectory = file("$buildDir/dist")
     }
 
     dependencies {

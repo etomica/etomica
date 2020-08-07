@@ -220,7 +220,6 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         work2.ME(average);
         average.PE(work);
         work.E(currentBlockAvg);
-        work.E(currentBlockAvg);
         work.ME(average);
         work2.TE(work);
         blockVarSum.PE(work2);
