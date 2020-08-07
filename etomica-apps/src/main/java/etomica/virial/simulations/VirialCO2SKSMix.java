@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
@@ -231,38 +232,32 @@ public class VirialCO2SKSMix {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
             DisplayBox dBox1 = simGraphic.getDisplayBox(sim.box[1]);
-            dBox0.setPixelUnit(new Pixel(300.0/size));
-            dBox1.setPixelUnit(new Pixel(300.0/size));
+            dBox0.setPixelUnit(new Pixel(300.0 / size));
+            dBox1.setPixelUnit(new Pixel(300.0 / size));
             dBox0.setShowBoundary(false);
             dBox1.setShowBoundary(false);
-            DiameterHashByType diameterHash = (DiameterHashByType)dBox1.getDiameterHash();
-            diameterHash.setDiameter(((SpeciesAlkane)sim.getSpecies(1)).getCH2Type(), sigmaCH2);
-            diameterHash.setDiameter(((SpeciesAlkane)sim.getSpecies(1)).getCH3Type(), sigmaCH3);
+            DiameterHashByType diameterHash = (DiameterHashByType) dBox1.getDiameterHash();
+            diameterHash.setDiameter(((SpeciesAlkane) sim.getSpecies(1)).getCH2Type(), sigmaCH2);
+            diameterHash.setDiameter(((SpeciesAlkane) sim.getSpecies(1)).getCH3Type(), sigmaCH3);
             dBox0.setDiameterHash(diameterHash);
-            ColorSchemeByType colorScheme = (ColorSchemeByType)dBox1.getColorScheme();
-            colorScheme.setColor(((SpeciesAlkane)sim.getSpecies(1)).getCH2Type(), new Color(190, 190, 190));
-            colorScheme.setColor(((SpeciesAlkane)sim.getSpecies(1)).getCH3Type(), new Color(240, 240, 240));
+            ColorSchemeByType colorScheme = (ColorSchemeByType) dBox1.getColorScheme();
+            colorScheme.setColor(((SpeciesAlkane) sim.getSpecies(1)).getCH2Type(), new Color(190, 190, 190));
+            colorScheme.setColor(((SpeciesAlkane) sim.getSpecies(1)).getCH3Type(), new Color(240, 240, 240));
             colorScheme.setColor(sim.getSpecies(0).getAtomType(0), new Color(100, 100, 150));
             colorScheme.setColor(sim.getSpecies(0).getAtomType(1), Color.RED);
             dBox0.setColorScheme(colorScheme);
-            ((DisplayBoxCanvasG3DSys)dBox1.canvas).setBackgroundColor(Color.WHITE);
-            
+            ((DisplayBoxCanvasG3DSys) dBox1.canvas).setBackgroundColor(Color.WHITE);
+
             simGraphic.makeAndDisplayFrame();
 
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-                
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null, 20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 10, false);
+            sim.equilibrate(null, 20);
+            sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
             if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
                 throw new RuntimeException("Oops");
             }

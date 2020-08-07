@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.DiameterHashByType;
@@ -155,42 +156,36 @@ public class FourAssociationSitesFluid2Pt {
             AtomType typeLJ = species.getAtomType(0);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
-            DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
-            diameterManager.setDiameter(typeLJ, 0.7*sigma);
+            DiameterHashByType diameterManager = (DiameterHashByType) displayBox0.getDiameterHash();
+            diameterManager.setDiameter(typeLJ, 0.7 * sigma);
             displayBox1.setDiameterHash(diameterManager);
             OrientedFullSite[] sites = new OrientedFullSite[4];
             sites[0] = new OrientedFullSite(Vector.of(new double[]{0.5, 0, 0}), Color.BLUE, 0.2);
             sites[1] = new OrientedFullSite(Vector.of(new double[]{-1.0 / 6.0, Math.sqrt(2.0 / 9.0), 0}), Color.BLUE, 0.2);
-            double y23 = -1.0/(3.0*Math.sqrt(2.0));
-            double z23 = -0.5*Math.sqrt(2.0/3.0);
+            double y23 = -1.0 / (3.0 * Math.sqrt(2.0));
+            double z23 = -0.5 * Math.sqrt(2.0 / 3.0);
             sites[2] = new OrientedFullSite(Vector.of(new double[]{-1.0 / 6.0, y23, z23}), Color.GREEN, 0.2);
             sites[3] = new OrientedFullSite(Vector.of(new double[]{-1.0 / 6.0, y23, -z23}), Color.GREEN, 0.2);
-            ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setOrientationSites(
+            ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setOrientationSites(
                     (AtomTypeOriented) typeLJ, sites);
-            ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setOrientationSites(
+            ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setOrientationSites(
                     (AtomTypeOriented) typeLJ, sites);
             displayBox0.setShowBoundary(false);
             displayBox1.setShowBoundary(false);
             simGraphic.makeAndDisplayFrame();
-    
+
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-                
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 3000);
-                    sim.equilibrate(null,6000);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 3000, false);
+            sim.equilibrate(null, 6000);
+            sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            
+
             return;
         }
 			

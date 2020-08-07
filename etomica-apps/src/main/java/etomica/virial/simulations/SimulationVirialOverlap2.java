@@ -5,6 +5,8 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.controller.Controller2;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.data.*;
@@ -13,6 +15,7 @@ import etomica.data.histogram.HistogramSimple;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorMC;
@@ -34,6 +37,7 @@ import etomica.virial.overlap.DataVirialOverlap;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Simulation implementing the overlap-sampling approach to evaluating a cluster
@@ -278,12 +282,11 @@ public class SimulationVirialOverlap2 extends Simulation {
         integratorOS.setNumSubSteps(1000);
         integratorOS.setEventInterval(1);
         integratorOS.setAggressiveAdjustStepFraction(true);
-        ai = new ActivityIntegrate(integratorOS);
-        getController().addAction(ai);
 
         dvo = new DataVirialOverlap(dpVirialOverlap[0], accumulators[0], accumulators[1]);
         integratorOS.setReferenceFracSource(dvo);
 
+        this.getController2().start();
     }
 
     public void setAccumulatorBlockSize(long newBlockSize) {
@@ -379,7 +382,7 @@ public class SimulationVirialOverlap2 extends Simulation {
             public void integratorStepStarted(IntegratorEvent e) {}
 
             public void integratorStepFinished(IntegratorEvent e) {
-                long interval = ai.getMaxSteps()/10;
+                long interval = getController2().getMaxSteps() / 10;
                 if (integratorOS.getStepCount() % interval != 0) return;
                 System.out.print(integratorOS.getStepCount()+" steps: ");
                 if (full) {
@@ -442,7 +445,7 @@ public class SimulationVirialOverlap2 extends Simulation {
             public void integratorInitialized(IntegratorEvent e) {}
             public void integratorStepStarted(IntegratorEvent e) {}
             public void integratorStepFinished(IntegratorEvent e) {
-                long interval = ai.getMaxSteps()/10;
+                long interval = getController2().getMaxSteps() / 10;
                 if (integratorOS.getStepCount() % interval != 0) return;
                 printTargetHistogram();
             }
@@ -550,6 +553,13 @@ public class SimulationVirialOverlap2 extends Simulation {
     }
 
     public void initRefPref(String fileName, long initSteps) {
+        initRefPref(fileName, initSteps, true);
+    }
+
+    public void initRefPref(String fileName, long initSteps, boolean runNow) {
+        if (runNow) {
+            this.getController2().unpause();
+        }
         // use the old refpref value as a starting point so that an initial
         // guess can be provided
         double oldRefPref = refPref;
@@ -605,8 +615,13 @@ public class SimulationVirialOverlap2 extends Simulation {
                 integratorOS.setRefStepFraction(0.5);
                 integratorOS.setAdjustStepFraction(false);
             }
-            ai.setMaxSteps(initSteps);
-            ai.actionPerformed();
+            Controller2.ActivityHandle handle = this.getController2().addActivity(new ActivityIntegrate2(integratorOS), initSteps, 0.0);
+            try {
+                handle.future.get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+
             if (adjustable) {
                 integratorOS.setAdjustStepFraction(true);
             }
@@ -689,7 +704,6 @@ public class SimulationVirialOverlap2 extends Simulation {
     public void equilibrate(String fileName, long initSteps) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
-        ai.setMaxSteps(initSteps);
         long oldBlockSize = blockSize;
         // 1000 blocks
         long newBlockSize = initSteps * integratorOS.getNumSubSteps() / 1000;
@@ -716,7 +730,12 @@ public class SimulationVirialOverlap2 extends Simulation {
             integratorOS.setRefStepFraction(0.5);
             integratorOS.setAdjustStepFraction(false);
         }
-        ai.actionPerformed();
+        Controller2.ActivityHandle handle = this.getController2().addActivity(new ActivityIntegrate2(integratorOS), initSteps, 0.0);
+        try {
+            handle.future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
         if (adjustable) {
             integratorOS.setAdjustStepFraction(true);
         }
@@ -904,5 +923,10 @@ public class SimulationVirialOverlap2 extends Simulation {
             }
             System.out.println();
         }
+    }
+
+    @Override
+    public Integrator getIntegrator() {
+        return this.integratorOS;
     }
 }

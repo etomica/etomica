@@ -209,7 +209,7 @@ public class VirialCPSHeliumNonAdditiveClassical_Correction {
             sim.getController().removeAction(sim.ai);
 //            sim.getController().addAction(new IAction() {
 //                public void actionPerformed() {
-//                    sim.initRefPref(null, 0);
+//                    sim.initRefPref(null, 0, false);
 //                    sim.equilibrate(null,0);
 //                    sim.ai.setMaxSteps(Long.MAX_VALUE);
 //                }

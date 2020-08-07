@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -143,16 +144,16 @@ public class VirialSwsPT {
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
+            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
-            displayBox0.setPixelUnit(new Pixel(300.0/size));
-            displayBox1.setPixelUnit(new Pixel(300.0/size));
+            displayBox0.setPixelUnit(new Pixel(300.0 / size));
+            displayBox1.setPixelUnit(new Pixel(300.0 / size));
             displayBox0.setShowBoundary(false);
             displayBox1.setShowBoundary(false);
-            ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setBackgroundColor(Color.WHITE);
-            ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
-            
-            
+            ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
+
+
             ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
             displayBox0.setColorScheme(colorScheme);
             colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
@@ -161,54 +162,48 @@ public class VirialSwsPT {
 
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-                
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 1000);
-                    sim.equilibrate(null, 2000);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 1000, false);
+            sim.equilibrate(null, 2000);
+            sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            
+
             final DisplayTextBox averageBox = new DisplayTextBox();
             averageBox.setLabel("Average");
             final DisplayTextBox errorBox = new DisplayTextBox();
             errorBox.setLabel("Error");
-            JLabel jLabelPanelParentGroup = new JLabel("B"+nPoints+" (L/mol)^"+(nPoints-1));
-            final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
-            panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
-            panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.WEST);
-            panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
+            JLabel jLabelPanelParentGroup = new JLabel("B" + nPoints + " (L/mol)^" + (nPoints - 1));
+            final JPanel panelParentGroup = new JPanel(new BorderLayout());
+            panelParentGroup.add(jLabelPanelParentGroup, CompassDirection.NORTH.toString());
+            panelParentGroup.add(averageBox.graphic(), BorderLayout.WEST);
+            panelParentGroup.add(errorBox.graphic(), BorderLayout.EAST);
             simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
-            
+
             IAction pushAnswer = new IAction() {
                 public void actionPerformed() {
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
                     double error = ratioAndError[1];
-                    data.x = ratio*refIntegral;
+                    data.x = ratio * refIntegral;
                     averageBox.putData(data);
-                    data.x = error*refIntegral;
+                    data.x = error * refIntegral;
                     errorBox.putData(data);
                 }
-                
+
                 DataDouble data = new DataDouble();
             };
-            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
+            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B" + nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints - 1}));
             averageBox.putDataInfo(dataInfo);
             averageBox.setLabel("average");
             errorBox.putDataInfo(dataInfo);
             errorBox.setLabel("error");
             errorBox.setPrecision(2);
             sim.integratorOS.getEventManager().addListener(new IntegratorListenerAction(pushAnswer));
-            
+
             return;
         }
         

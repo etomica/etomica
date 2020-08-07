@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
@@ -167,53 +168,47 @@ public class VirialCO2CH4UAMixWheatley {
         sim.accumulators[1].reset();// don't want to collect these data!!!!
         
         if (false) {
-        	  double size = 10;
-              sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
-              sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
-              SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-              DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
-              DisplayBox dBox1 = simGraphic.getDisplayBox(sim.box[1]);
-              dBox0.setPixelUnit(new Pixel(300.0/size));
-              dBox1.setPixelUnit(new Pixel(300.0/size));
-              dBox0.setShowBoundary(false);
-              dBox1.setShowBoundary(false);
-              
-              //set diameters
-              DiameterHashByType diameter = new DiameterHashByType();
-              diameter.setDiameter(speciesCO2.getAtomType(0),0.2);
-              diameter.setDiameter(speciesCO2.getAtomType(1),0.3);
-              diameter.setDiameter(speciesCH4.getAtomType(0), 0.3);
+            double size = 10;
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
+            DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
+            DisplayBox dBox1 = simGraphic.getDisplayBox(sim.box[1]);
+            dBox0.setPixelUnit(new Pixel(300.0 / size));
+            dBox1.setPixelUnit(new Pixel(300.0 / size));
+            dBox0.setShowBoundary(false);
+            dBox1.setShowBoundary(false);
 
-              simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);
-              ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
-              colorScheme.setColor(speciesCO2.getAtomType(0), Color.blue);
-              colorScheme.setColor(speciesCO2.getAtomType(1), Color.red);
-              colorScheme.setColor(speciesCH4.getAtomType(0), Color.green);
+            //set diameters
+            DiameterHashByType diameter = new DiameterHashByType();
+            diameter.setDiameter(speciesCO2.getAtomType(0), 0.2);
+            diameter.setDiameter(speciesCO2.getAtomType(1), 0.3);
+            diameter.setDiameter(speciesCH4.getAtomType(0), 0.3);
 
-              ((DisplayBoxCanvasG3DSys)dBox1.canvas).setBackgroundColor(Color.WHITE);
-              
-              simGraphic.makeAndDisplayFrame();
+            simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);
+            ColorSchemeByType colorScheme = (ColorSchemeByType) simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
+            colorScheme.setColor(speciesCO2.getAtomType(0), Color.blue);
+            colorScheme.setColor(speciesCO2.getAtomType(1), Color.red);
+            colorScheme.setColor(speciesCH4.getAtomType(0), Color.green);
 
-              sim.integratorOS.setNumSubSteps(1000);
-              sim.setAccumulatorBlockSize(100);
-                  
-              // if running interactively, set filename to null so that it doesn't read
-              // (or write) to a refpref file
-              sim.getController().removeAction(sim.ai);
-              sim.getController().addAction(new IAction() {
-              	public void actionPerformed() {
-                      sim.initRefPref(null, 10);
-                      sim.equilibrate(null, 20);
-                      sim.ai.setMaxSteps(Long.MAX_VALUE);
-                  }
-              });
-              sim.getController().addAction(sim.ai);
-              if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
-              	throw new RuntimeException("Oops");
-              }
+            ((DisplayBoxCanvasG3DSys) dBox1.canvas).setBackgroundColor(Color.WHITE);
 
-              return;
-          }
+            simGraphic.makeAndDisplayFrame();
+
+            sim.integratorOS.setNumSubSteps(1000);
+            sim.setAccumulatorBlockSize(100);
+
+            // if running interactively, set filename to null so that it doesn't read
+            // (or write) to a refpref file
+            sim.initRefPref(null, 10, false);
+            sim.equilibrate(null, 20);
+            sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
+            if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
+                throw new RuntimeException("Oops");
+            }
+
+            return;
+        }
           
 
         // if running interactively, don't use the file

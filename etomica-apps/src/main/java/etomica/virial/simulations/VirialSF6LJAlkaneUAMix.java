@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
@@ -632,85 +633,71 @@ public static void main(String[] args) {
 
         if (false) {
 
-          double size = 10;
+            double size = 10;
 
-              sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
 
-              sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
 
-              SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 
-              DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
+            DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
 
-              DisplayBox dBox1 = simGraphic.getDisplayBox(sim.box[1]);
+            DisplayBox dBox1 = simGraphic.getDisplayBox(sim.box[1]);
 
-              dBox0.setPixelUnit(new Pixel(300.0/size));
+            dBox0.setPixelUnit(new Pixel(300.0 / size));
 
-              dBox1.setPixelUnit(new Pixel(300.0/size));
+            dBox1.setPixelUnit(new Pixel(300.0 / size));
 
-              dBox0.setShowBoundary(false);
+            dBox0.setShowBoundary(false);
 
-              dBox1.setShowBoundary(false);
+            dBox1.setShowBoundary(false);
 
-              //set diameters
+            //set diameters
 
-              DiameterHashByType diameter = new DiameterHashByType();
+            DiameterHashByType diameter = new DiameterHashByType();
 
-              diameter.setDiameter(speciesSF6.getAtomType(0),0.2);
+            diameter.setDiameter(speciesSF6.getAtomType(0), 0.2);
 
-              diameter.setDiameter(speciesAlkane.getCH2Type(), 0.3);
+            diameter.setDiameter(speciesAlkane.getCH2Type(), 0.3);
 
-              diameter.setDiameter(speciesAlkane.getCH3Type(), 0.4);
+            diameter.setDiameter(speciesAlkane.getCH3Type(), 0.4);
 
-              simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);
+            simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);
 
-              ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
+            ColorSchemeByType colorScheme = (ColorSchemeByType) simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
 
-              colorScheme.setColor(speciesSF6.getAtomType(0), Color.blue);
+            colorScheme.setColor(speciesSF6.getAtomType(0), Color.blue);
 
-              colorScheme.setColor(speciesAlkane.getCH2Type(), Color.green);
+            colorScheme.setColor(speciesAlkane.getCH2Type(), Color.green);
 
-              colorScheme.setColor(speciesAlkane.getCH3Type(), Color.yellow);          
+            colorScheme.setColor(speciesAlkane.getCH3Type(), Color.yellow);
 
-              ((DisplayBoxCanvasG3DSys)dBox1.canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys) dBox1.canvas).setBackgroundColor(Color.WHITE);
 
-              simGraphic.makeAndDisplayFrame();
+            simGraphic.makeAndDisplayFrame();
 
-              sim.integratorOS.setNumSubSteps(1000);
+            sim.integratorOS.setNumSubSteps(1000);
 
-              sim.setAccumulatorBlockSize(100);
+            sim.setAccumulatorBlockSize(100);
 
-              // if running interactively, set filename to null so that it doens't read
+            // if running interactively, set filename to null so that it doens't read
 
-              // (or write) to a refpref file
+            // (or write) to a refpref file
 
-              sim.getController().removeAction(sim.ai);
+            sim.initRefPref(null, 10, false);
+            sim.equilibrate(null, 20);
+            sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
 
-              sim.getController().addAction(new IAction() {
+            if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
 
-              public void actionPerformed() {
+                throw new RuntimeException("Oops");
 
-                      sim.initRefPref(null, 10);
+            }
 
-                      sim.equilibrate(null, 20);
+            return;
 
-                      sim.ai.setMaxSteps(Long.MAX_VALUE);
-
-                  }
-
-              });
-
-              sim.getController().addAction(sim.ai);
-
-              if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
-
-              throw new RuntimeException("Oops");
-
-              }
-
-              return;
-
-          }
+        }
 
 
         // if running interactively, don't use the file

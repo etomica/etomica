@@ -5,6 +5,7 @@
 package etomica.association.AceticAcid;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.association.BiasVolume2SiteAceticAcid;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -52,7 +53,7 @@ public class Wertheim2SiteAceticAcid {
         WertheimParam params = new WertheimParam();
         Space space = Space3D.getInstance();
         ParseArgs.doParseArgs(params, args);
-       
+
         final int nBody = params.nBody;
         double temperature = params.temperature;
         long steps = params.numSteps;
@@ -60,15 +61,15 @@ public class Wertheim2SiteAceticAcid {
         double associationEnergy = params.associationEnergy;
         int numDiagram = params.numDiagram;
         boolean specialRef = params.specialRef;
-       
+
         final double[] HSB = new double[9];
-       
+
         HSB[2] = Standard.B2HS(sigmaHSRef);
         HSB[3] = Standard.B3HS(sigmaHSRef);
         HSB[4] = Standard.B4HS(sigmaHSRef);
-       
+
         System.out.println("sigmaHSRef: "+sigmaHSRef);
-       
+
         System.out.println("IMPROVED OPLS Acetic acid with angle restriction Wertheim D"+numDiagram+" at "+temperature+"K");
         System.out.println("repulsive potential:>- "+associationEnergy+"cal/mole");
         double temperatureK = temperature;
@@ -77,20 +78,20 @@ public class Wertheim2SiteAceticAcid {
         Unit calPerMole = new CompoundUnit(new Unit[]{Calorie.UNIT,Mole.UNIT},new double[]{1.0,-1.0});
         associationEnergy = calPerMole.toSim(associationEnergy);
 
-        //geometric association restriction (Consistent with NPT simulation)    
+        //geometric association restriction (Consistent with NPT simulation)
         double innerOH = 1.8;
         double outerOH = 2.3;
         double maxCosOHO = -0.7;
         double maxCosHOC = -0.4;
         double minCosHOC = -0.9;
-        
+
         System.out.println("innerOH "+innerOH+" outerOH "+outerOH+" maxCosOHO "+maxCosOHO+" maxCosHOC "+maxCosHOC+" minCosHOC "+minCosHOC);
-  
+
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
         MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
-       
+
         PotentialGroup p = new PotentialGroup(2);
-        
+
         P2AceticAcidTwoSite pR = new P2AceticAcidTwoSite(associationEnergy,false,3);//repulsive potential
         P2AceticAcidTwoSite pAB = new P2AceticAcidTwoSite(associationEnergy,true,0);//A-B association potential
         P2AceticAcidTwoSite pBA = new P2AceticAcidTwoSite(associationEnergy,true,1);//B-A association potential
@@ -103,23 +104,23 @@ public class Wertheim2SiteAceticAcid {
 	    MayerFunctionProductGeneral FAB = new MayerFunctionProductGeneral(space, new MayerFunction[]{eR,fAB}, new double[]{1,1});
 	    MayerFunctionProductGeneral FABFBA = new MayerFunctionProductGeneral(space, new MayerFunction[]{FAB,fBA}, new double[]{1,1});
 	    MayerGeneral fARef = new MayerGeneral(pARef);
-       
+
         int nBondTypes = 4;//fR, FAB, FAB2, eR
         ClusterBonds[] clusters = new ClusterBonds[0];
         int[][][] bondList = new int[nBondTypes][][];
         int [][][]refBondList = new int[nBondTypes][][];
         ClusterAbstract targetCluster = null;
-  
+
         //for hard-chain reference value
         double hardShellVol = 4.0/3.0*Math.PI*(outerOH*outerOH*outerOH-innerOH*innerOH*innerOH);
         double hardSphereVol = 4.0/3.0*Math.PI*sigmaHSRef*sigmaHSRef*sigmaHSRef;
         double OHOFraction = 0.5*(1+maxCosOHO);
         double HOCFraction = 0.5*(maxCosHOC-minCosHOC);
-        
+
         if (numDiagram >10 && numDiagram < 42 && !specialRef){
         	throw new RuntimeException("specialRef should be true.");
         }
-        
+
         if (numDiagram == 2 || numDiagram == 3){//2 point diagrams having FAB or FABFBA
         	HSB[2] = -hardShellVol*OHOFraction*HOCFraction;
         	refBondList[1] = new int [][]{{0,1}};
@@ -178,7 +179,7 @@ public class Wertheim2SiteAceticAcid {
         		HSB[3] = Math.pow(hardShellVol,2)*Math.pow(OHOFraction, 2)*Math.pow(HOCFraction,2);
         		refBondList[1] = new int [][]{{0,1},{1,2}};
         	}
-        } 
+        }
         else if (numDiagram >10 && numDiagram < 16){//4 point diagrams having 1 FAB
         	if (specialRef){
         		if (associationEnergyCal == 5000.0){
@@ -221,7 +222,7 @@ public class Wertheim2SiteAceticAcid {
         	if (specialRef){
         		if (associationEnergyCal == 5000.0){
         			if (temperatureK == 400) HSB[4] = -Math.pow(hardSphereVol,1)*253.2825*253.2825;
-        			else if  (temperatureK == 450) HSB[4] = -Math.pow(hardSphereVol,1)*95.97541*95.97541; 
+        			else if  (temperatureK == 450) HSB[4] = -Math.pow(hardSphereVol,1)*95.97541*95.97541;
         			else if  (temperatureK == 500) HSB[4] = -Math.pow(hardSphereVol,1)*46.83418*46.83418;
         			else if  (temperatureK == 550) HSB[4] = -Math.pow(hardSphereVol,1)*26.35662*26.35662;
         			else if  (temperatureK == 600) HSB[4] = -Math.pow(hardSphereVol,1)*16.87148*16.87148;
@@ -308,8 +309,8 @@ public class Wertheim2SiteAceticAcid {
         }
         if (numDiagram == 1) {
         	bondList[0]=new int [][]{{0,1}};
-        } 
-        else if (numDiagram == 2) {  
+        }
+        else if (numDiagram == 2) {
         	bondList[1]=new int [][]{{0,1}};
         }
         else if (numDiagram == 3) {
@@ -317,7 +318,7 @@ public class Wertheim2SiteAceticAcid {
         }
         else if (numDiagram == 4) {
         	bondList[0]=new int [][]{{0,1},{1,2},{2,0}};
-        } 
+        }
         else if (numDiagram == 5) {
         	bondList[0] = new int [][]{{1,2},{2,0}};
         	bondList[1] = new int [][]{{0,1}};
@@ -470,7 +471,7 @@ public class Wertheim2SiteAceticAcid {
         else {
         	throw new RuntimeException("This is strange");
         }
-        
+
         clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
         targetCluster = new ClusterSum(clusters,new double []{1}, new MayerFunction[]{fR,FAB,FABFBA,eR, fARef});
         if (numDiagram == 1) {
@@ -479,14 +480,14 @@ public class Wertheim2SiteAceticAcid {
         	targetCluster = new ClusterCoupledFlipped(targetCluster, space);
         }
         targetCluster.setTemperature(temperature);
-        
+
         ClusterAbstract refCluster = Standard.virialCluster(nBody, fRef, nBody>3, eRef, true);
         if (numDiagram == 2 || numDiagram == 3 || (numDiagram > 4 && numDiagram < 8)||(numDiagram > 10 && numDiagram < 25)) {
     		ClusterBonds refBonds = new ClusterBonds(nBody,refBondList, false);
         	if (specialRef){
         		System.out.println("D2 (or D3) * Hard-Sphere reference is used.");
             	refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fRef, FAB, FABFBA});
-        	} 
+        	}
         	else {
         		System.out.println("Hard Chain Reference is used.");
 
@@ -516,25 +517,25 @@ public class Wertheim2SiteAceticAcid {
         refCluster.setTemperature(temperature);
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
         steps /= 1000;
-       
+
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2 (space,new SpeciesAceticAcid(space),temperature,refCluster,targetCluster, false);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         SpeciesAceticAcid species = (SpeciesAceticAcid)sim.getSpecies(0);
-     
+
         AceticAcidModPotentialHelper.initPotential(space, species, p);
         AceticAcidModPotentialHelper.initPotential(space, species, pR);
         AceticAcidModPotentialHelper.initPotential(space, species, pAB);
         AceticAcidModPotentialHelper.initPotential(space, species, pBA);
-     
-        BiasVolume2SiteAceticAcid bv = new BiasVolume2SiteAceticAcid(space, sim.getRandom());     
+
+        BiasVolume2SiteAceticAcid bv = new BiasVolume2SiteAceticAcid(space, sim.getRandom());
 
         pR.setBiasVolume(bv);
         pAB.setBiasVolume(bv);
         pBA.setBiasVolume(bv);
         pARef.setBiasVolume(bv);
-       
+
         System.out.println("B"+nBody+"HS: "+HSB[nBody]);
-        
+
        //set the initial configuration to satisfy the associations among particles
         if (numDiagram == 2 || numDiagram == 5 || (numDiagram >10 && numDiagram < 16)){
         	ConfigurationClusterAceticAcid configuration = new ConfigurationClusterAceticAcid(space, sim.getRandom(), FAB);
@@ -582,12 +583,12 @@ public class Wertheim2SiteAceticAcid {
         double kThetaCSBOH = Kelvin.UNIT.toSim(17600);//C-O-H
         double kThetaCCSBO = Kelvin.UNIT.toSim(35300);//C-C-O
         PotentialGroup pIntra = sim.integrators[1].getPotentialMaster().makePotentialGroup(1);
-       
+
         P3BondAngle uBendingCCDBO = new P3BondAngle(space);//C-C=O
         P3BondAngle uBendingDBOCSBO = new P3BondAngle(space);//O=C-O
         P3BondAngle uBendingCSBOH = new P3BondAngle(space);//C-O-H
         P3BondAngle uBendingCCSBO = new P3BondAngle(space);//C-C-O
-       
+
         uBendingCCDBO.setAngle(thetaEqCCDBO);
         uBendingCCDBO.setEpsilon(kThetaCCDBO);
         uBendingDBOCSBO.setAngle(thetaEqDBOCSBO);
@@ -596,7 +597,7 @@ public class Wertheim2SiteAceticAcid {
         uBendingCSBOH.setEpsilon(kThetaCSBOH);
         uBendingCCSBO.setAngle(thetaEqCCSBO);
         uBendingCCSBO.setEpsilon(kThetaCCSBO);
-       
+
         pIntra.addPotential(uBendingCCDBO, new Atomset3IteratorIndexList(new int[][] {{0,1,2}}));//CH3:0, C:1, dBO:2, sBO:3, H:4
         pIntra.addPotential(uBendingDBOCSBO, new Atomset3IteratorIndexList(new int[][] {{2,1,3}}));
         pIntra.addPotential(uBendingCSBOH, new Atomset3IteratorIndexList(new int[][] {{1,3,4}}));
@@ -606,7 +607,7 @@ public class Wertheim2SiteAceticAcid {
         //utorsional = c1*[1+cos(phi+f1)]+c2*[1-cos(2*phi)], c1/kB = 630K, c2/kB = 1562.4K, f1=180째(for OCOH), 0째(for CCOH)
 
         MCMoveClusterTorsionAceticAcid[] torsionMoves1 = null;
-       
+
         P4BondTorsion p4OCOH = new P4BondTorsion(space, 2*Kelvin.UNIT.toSim(630.0), Kelvin.UNIT.toSim(-630.0), Kelvin.UNIT.toSim(781.2), Kelvin.UNIT.toSim(0.0));
         P4BondTorsion p4CCOH = new P4BondTorsion(space, 0, Kelvin.UNIT.toSim(630.0), Kelvin.UNIT.toSim(781.2), Kelvin.UNIT.toSim(0.0));
         pIntra.addPotential(p4OCOH, new Atomset4IteratorIndexList(new int[][] {{2,1,3,4}}));
@@ -616,7 +617,7 @@ public class Wertheim2SiteAceticAcid {
         sim.integrators[0].getMoveManager().addMCMove(torsionMoves1[0]);//reference system
         torsionMoves1[1] = new MCMoveClusterTorsionAceticAcid(sim.integrators[1].getPotentialMaster(), space, sim.getRandom());
         sim.integrators[1].getMoveManager().addMCMove(torsionMoves1[1]);//target system
-       
+
         MCMoveClusterWiggleAceticAcid[] wiggle = new MCMoveClusterWiggleAceticAcid[2];
         wiggle[0] = new MCMoveClusterWiggleAceticAcid(sim,sim.integrators[1].getPotentialMaster(), space);
         sim.integrators[0].getMoveManager().addMCMove(wiggle[0]);//reference system
@@ -625,8 +626,8 @@ public class Wertheim2SiteAceticAcid {
 
         Box referenceBox = sim.box[0];
         Box targetBox = sim.box[1];
-            
-        if (false) {
+
+        if (true) {
             referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             targetBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -652,25 +653,20 @@ public class Wertheim2SiteAceticAcid {
             colorScheme1.setColor(typeDBO, Color.RED);
             colorScheme1.setColor(typeSBO, Color.YELLOW);
             colorScheme1.setColor(typeH, Color.WHITE);
-           
+
             simGraphic.getDisplayBox(referenceBox).setShowBoundary(false);
             simGraphic.getDisplayBox(targetBox).setShowBoundary(false);
             simGraphic.makeAndDisplayFrame();
             ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(targetBox).canvas).setBackgroundColor(Color.WHITE);
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-               
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 100);
-                    sim.equilibrate(null, 200);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 100, false);
+            sim.equilibrate(null, 200);
+            sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
+
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -688,10 +684,10 @@ public class Wertheim2SiteAceticAcid {
         if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
-       
+
         sim.setAccumulatorBlockSize((int)steps);
         sim.integratorOS.setNumSubSteps((int)steps);
-       
+
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize()+" "
                 +sim.mcMoveRotate[0].getStepSize()+" "
@@ -699,7 +695,7 @@ public class Wertheim2SiteAceticAcid {
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize()+" "
                 +sim.mcMoveRotate[1].getStepSize()+" "
                 +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[1].getStepSize())));
-       
+
         IAction progressReport = new IAction() {
         	public void actionPerformed() {
         		System.out.print(sim.integratorOS.getStepCount()+" steps: ");
@@ -714,10 +710,10 @@ public class Wertheim2SiteAceticAcid {
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         sim.ai.setMaxSteps(1000);
         sim.getController().actionPerformed();
-       
+
         System.out.println("ideal reference step frequency "+sim.integratorOS.getIdealRefStepFraction());//optimize the uncertainty
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());//actually happened
-     
+
         sim.printResults(HSB[nBody]);
  }
 

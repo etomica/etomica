@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -360,7 +361,7 @@ public class VirialRowleyAlcohol {
 
             if (ethanol) {
 
-                SpeciesEthanol species = (SpeciesEthanol)sim.getSpecies(0);
+                SpeciesEthanol species = (SpeciesEthanol) sim.getSpecies(0);
 
                 // Create instances of the types of molecular sites
                 AtomType type_O = species.getOxygenType();
@@ -386,10 +387,9 @@ public class VirialRowleyAlcohol {
                 colorScheme1.setColor(type_H, Color.WHITE);
                 colorScheme1.setColor(type_X, Color.BLUE);
 
-            }
-            else {
+            } else {
 
-                SpeciesMethanol species = (SpeciesMethanol)sim.getSpecies(0);
+                SpeciesMethanol species = (SpeciesMethanol) sim.getSpecies(0);
 
                 // Create instances of the types of molecular sites
                 AtomType type_O = species.getOxygenType();
@@ -515,15 +515,9 @@ public class VirialRowleyAlcohol {
 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 100);
-                    sim.equilibrate(null, 200);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 100, false);
+            sim.equilibrate(null, 200);
+            sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }

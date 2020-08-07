@@ -9,10 +9,7 @@ import etomica.util.Debug;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Controller2 {
@@ -126,6 +123,17 @@ public class Controller2 {
         return submitActionInterrupt(() -> {
             this.currentTask.activity.restart();
         });
+    }
+
+    public void completeActivities() {
+        this.start();
+        this.unpause();
+        this.executor.shutdown();
+        try {
+            this.executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean isPaused() {
@@ -299,6 +307,14 @@ public class Controller2 {
 
         public double getSleepPeriod() {
             return this.task.sleepPeriodMillis;
+        }
+
+        public void blockUntilComplete() {
+            try {
+                this.future.get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
