@@ -33,6 +33,13 @@ public class ClusterWheatleySoftDerivativesMixBD extends  ClusterWheatleySoftDer
 
     }
 
+    public void makeClusterBDBD(int newPrecision){
+        clusterBDBD = new ClusterWheatleySoftDerivativesMixBD(n, nTypes, mixF, newPrecision,nDer);
+        clusterBDBD.setTemperature(1 / beta);
+        clusterBDBD.setDoCaching(doCaching);
+        clusterBDBD.setPrecisionLimit(precisionLimit);
+    }
+
     public ClusterAbstract makeCopy() {
         ClusterWheatleySoftDerivativesMixBD c = new ClusterWheatleySoftDerivativesMixBD(n, nTypes, mixF, mc.getPrecision(),nDer);
         c.setTemperature(1/beta);
