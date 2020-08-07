@@ -313,6 +313,7 @@ public class ClusterWheatleySoft implements ClusterAbstract {
                     nCheck[idx]++;
                     avgAbsCheck[idx] += (Math.abs(fB[nf - 1]) - avgAbsCheck[idx]) / nCheck[idx];
                     avgAbsCheckBD[idx] += (Math.abs(valueBD) / bfac - avgAbsCheckBD[idx]) / nCheck[idx];
+                    value = bfac * fB[nf - 1];
                 } else {
                     value = valueBD / BDAccFrac;
                 }

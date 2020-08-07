@@ -416,19 +416,16 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
             boolean doBD = clusterBD != null && (BDAccFrac == 1 || r < BDAccFrac);
             if (doBD) {
                 valueBD = true;
-                double[] foo = fB[nf - 1].clone();
-                for (int m = 0; m <= nDer; m++) {
-                    foo[m] *= bfac;
-                }
+
                 SoftBDcount += 1;
 //                if(count&&box.getIndex()==1&&!returnDoubleVal)System.out.println(stepcount);
                 timeBD -= System.nanoTime();
                 System.arraycopy(clusterBD.getAllLastValues(box), 0, value, 0, nDer + 1);
                 timeBD += System.nanoTime();
                 if (count && box.getIndex() == 1) {
-                    double err = Math.abs(Math.abs(value[0] / bfac - foo[0] / bfac)) * 100 / Math.abs(value[0] / bfac);
-                    System.out.println("fB double = " + Math.abs(foo[0] / bfac) + " ,fB BD = " + Math.abs(value[0] / bfac) + ", Error % = " + err);
-                    if(true){
+                    double err = Math.abs(Math.abs(value[0] / bfac - fB[nf - 1][0])) * 100 / Math.abs(value[0] / bfac);
+                    System.out.println("fB double = " + Math.abs(fB[nf - 1][0]) + " ,fB BD = " + Math.abs(value[0] / bfac) + ", Error % = " + err);
+                    if (true) {
                         double maxr2 = 0;
                         for (int i = 0; i < n - 1; i++) {
                             for (int j = i + 1; j < n; j++) {
@@ -437,7 +434,7 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
                             }
                         }
                         System.out.println(Math.sqrt(maxr2) + " " + value[0] / bfac + " " + value[1] / bfac + " " + value[2] / bfac + " "
-                                + foo[0] / bfac + " " + foo[1] / bfac + " " + foo[2] / bfac);
+                                + fB[nf - 1][0] + " " + fB[nf - 1][1] + " " + fB[nf - 1][2]);
                     }
                 }
                 if (justChecking) {
@@ -451,6 +448,9 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
                         System.err.println("avgAbsChecks: " + avgAbsCheck[0] + " " + avgAbsCheck[1]);
                         System.err.println("avgAbsChecksBD: " + avgAbsCheckBD[0] + " " + avgAbsCheckBD[1]);
                         throw new RuntimeException("ratios: " + avgAbsCheck[0] / avgAbsCheckBD[0] + " " + avgAbsCheckBD[1] / avgAbsCheckBD[1]);
+                    }
+                    for (int m = 0; m <= nDer; m++) {
+                        value[m] = bfac * fB[nf - 1][m];
                     }
                 } else {
                     for (int m = 0; m <= nDer; m++) {
