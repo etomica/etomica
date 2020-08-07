@@ -355,9 +355,14 @@ public class VirialTraPPE {
         System.out.println("actual reference step fraction " + sim.integratorOS.getRefStepFraction());
 
         if (targetCluster instanceof ClusterWheatleySoftDerivatives) {
+            long[] nCheck = ((ClusterWheatleySoftDerivatives) targetCluster).getNumBDChecks();
             double[] avgCheck = ((ClusterWheatleySoftDerivatives) targetCluster).getAverageCheck();
             double[] avgCheckBD = ((ClusterWheatleySoftDerivatives) targetCluster).getAverageCheckBD();
-            System.out.println("BD ratios: " + avgCheck[0] / avgCheckBD[0] + " " + avgCheck[1] / avgCheckBD[1]);
+            System.out.print("BD ratios: ");
+            for (int i = 0; i < avgCheck.length; i++) {
+                System.out.print("  " + avgCheck[i] / avgCheckBD[i] + " (" + nCheck[i] + ")");
+            }
+            System.out.println();
         }
 
         String[] extraNames = new String[nDer];
