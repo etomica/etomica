@@ -6,6 +6,7 @@ package etomica.virial;
 
 import etomica.math.SpecialFunctions;
 import etomica.util.random.IRandom;
+import etomica.util.random.RandomMersenneTwister;
 
 
 /**
@@ -41,6 +42,7 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
     protected long timeBD = 0;
     protected double[] avgAbsCheck = {0, 0, 0}, avgAbsCheckBD = {0, 0, 0};
     protected long[] nCheck = {0, 0, 0};
+    protected RandomMersenneTwister randomJustChecking;
 
 
     public ClusterWheatleySoftDerivatives(int nPoints, MayerFunction f, double tol, int nDer) {
@@ -404,16 +406,22 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         double bfac = (1.0-n)/SpecialFunctions.factorial(n);     
         totcount++;
         valueBD = false;
-        if (Math.abs(fB[nf - 1][0]) < tol * 100 && fB[nf - 1][0] != 0) {
-            double r = BDAccFrac < 1 ? random.nextDouble() : 1;
-            boolean justChecking = Math.abs(fB[nf - 1][0]) > tol;
+        if (Math.abs(fB[nf - 1][0]) < tol * 100) {
+            boolean justChecking = Math.abs(fB[nf - 1][0]) >= tol;
+            double r = -1;
             if (justChecking) {
+                if (randomJustChecking == null) {
+                    randomJustChecking = new RandomMersenneTwister(1);
+                }
+                r = BDAccFrac < 1 ? randomJustChecking.nextDouble() : 1;
                 r *= 10;
+            } else {
+                r = BDAccFrac < 1 ? random.nextDouble() : 1;
             }
             // integrand is too small for recursion to compute accurately.  we ought to do
             // BD, but it's expensive.  only do BD BDAccFrac of the time.  If we do it, then
             // boost the returned value by 1/BDAccFrac to account for the missed configurations
-            boolean doBD = clusterBD != null && (BDAccFrac == 1 || r < BDAccFrac);
+            boolean doBD = clusterBD != null && r < BDAccFrac;
             if (doBD) {
                 valueBD = true;
 
