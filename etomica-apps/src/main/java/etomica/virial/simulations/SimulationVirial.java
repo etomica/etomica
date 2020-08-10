@@ -4,7 +4,10 @@
 
 package etomica.virial.simulations;
 
+import etomica.action.activity.Activity2;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.controller.Controller2;
 import etomica.data.*;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
@@ -55,7 +58,7 @@ public class SimulationVirial extends Simulation {
         allValueClusters[0] = refCluster;
         System.arraycopy(targetClusters,0,allValueClusters,1,targetClusters.length);
     }
-    
+
     public void setDoWiggle(boolean newDoWiggle) {
         this.doWiggle = newDoWiggle;
     }
@@ -84,20 +87,20 @@ public class SimulationVirial extends Simulation {
 	    setDoWiggle(doWiggle);
 	    init();
 	}
-	
+
 	public SimulationVirial(Space space, ISpecies species, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle) {
 	    this(space, new ISpecies[]{species}, new int[]{aSampleCluster.pointCount()}, temperature, aSampleCluster, refCluster, targetClusters);
 	    setDoWiggle(doWiggle);
 	    init();
 	}
-	
+
 	public SimulationVirial(Space space, ISpecies species, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters, boolean doWiggle, int[] seeds) {
 		this(space, new ISpecies[]{species}, new int[]{aSampleCluster.pointCount()}, temperature, aSampleCluster, refCluster, targetClusters);
 		setDoWiggle(doWiggle);
 		setSeeds(seeds);
 		init();
 	}
-	
+
 	public void init() {
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
@@ -156,7 +159,7 @@ public class SimulationVirial extends Simulation {
 
     public void setMeter(IDataSource newMeter) {
         meter = newMeter;
-        if (accumulator != null) { 
+        if (accumulator != null) {
             if (accumulatorPump != null) {
                 integrator.getEventManager().removeListener(accumulatorPump);
                 accumulatorPump = null;
@@ -183,30 +186,49 @@ public class SimulationVirial extends Simulation {
 			accumulatorPump.setDataSink(newAccumulator);
 		}
 	}
-	
+
 	public void setAccumulatorBlockSize(long newBlockSize) {
 	    accumulator.setBlockSize(newBlockSize);
 	}
-	
+
 	public void equilibrate(long initSteps) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
-        ai.setMaxSteps(initSteps);
-               
-        integrator.getMoveManager().setEquilibrating(true);
-        
-        ai.actionPerformed();
-
-        integrator.getMoveManager().setEquilibrating(false);
-        
-        if (accumulator != null) {
-            accumulator.reset();
-        }
+        this.addEquilibration(initSteps).future.join();
     }
-	
+
+    public Controller2.ActivityHandle addEquilibration(long initSteps) {
+        ActivityIntegrate2 ai = new ActivityIntegrate2(this.integrator);
+        Activity2 activityEquilibrate = new Activity2() {
+            @Override
+            public void preAction() {
+                integrator.getMoveManager().setEquilibrating(true);
+            }
+
+            @Override
+            public void postAction() {
+                integrator.getMoveManager().setEquilibrating(false);
+                if (accumulator != null) {
+                    accumulator.reset();
+                }
+            }
+
+            @Override
+            public void restart() {
+                ai.restart();
+            }
+
+            @Override
+            public void actionPerformed() {
+                ai.actionPerformed();
+            }
+        };
+        return this.getController2().addActivity(activityEquilibrate, initSteps, 0.0);
+    }
+
 
     public void printResults(double refIntegral) {
-        
+
         DataGroup allYourBase = (DataGroup)accumulator.getData();
         IData averageData = allYourBase.getData(accumulator.AVERAGE.index);
         IData stdevData = allYourBase.getData(accumulator.STANDARD_DEVIATION.index);
@@ -215,11 +237,11 @@ public class SimulationVirial extends Simulation {
         IData ratioData = allYourBase.getData(accumulator.RATIO.index);
         IData ratioErrorData = allYourBase.getData(accumulator.RATIO_ERROR.index);
         IData covarianceData = allYourBase.getData(accumulator.BLOCK_COVARIANCE.index);
-        
+
         System.out.println();
         System.out.print(String.format("reference average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
                 averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
-        
+
         System.out.print(String.format("target average: %20.15e stdev: %9.4e error: %9.4e cor: %6.4f\n",
                 averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
 
@@ -236,6 +258,11 @@ public class SimulationVirial extends Simulation {
 
         System.out.print(String.format("ratio average: %20.15e  error: %9.4e  cor: %6.4f\n", ratioData.getValue(1), ratioErrorData.getValue(1), correlationCoef));
         System.out.print(String.format("abs average: %20.15e  error: %9.4e\n", ratioData.getValue(1)*refIntegral, ratioErrorData.getValue(1)*Math.abs(refIntegral)));
+    }
+
+    @Override
+    public IntegratorMC getIntegrator() {
+        return integrator;
     }
 }
 
