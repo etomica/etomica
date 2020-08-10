@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.*;
 import etomica.chem.elements.Hydrogen;
 import etomica.config.ConformationLinear;
@@ -261,15 +262,8 @@ public class VirialH2PIXC {
 			errorBox.setPrecision(2);
 			sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pushAnswer));
 
-			sim.getController().removeAction(sim.ai);
-			sim.getController().addAction(new IAction() {
-				@Override
-				public void actionPerformed() {
-					sim.equilibrate(steps/100);
-					sim.ai.setMaxSteps(Long.MAX_VALUE);
-				}
-			});
-			sim.getController().addAction(sim.ai);
+			sim.addEquilibration(steps / 100);
+			sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator));
 
 			return;
 		}
