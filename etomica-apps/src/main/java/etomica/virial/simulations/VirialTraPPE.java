@@ -8,10 +8,15 @@ import etomica.action.IAction;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.*;
+import etomica.data.histogram.HistogramNotSoSimple;
+import etomica.data.histogram.HistogramSimple;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
+import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionCOM;
@@ -165,7 +170,7 @@ public class VirialTraPPE {
         // Setting up Target Cluster Mayer Function
         Species[] species = null;
         ClusterAbstractMultivalue targetCluster = null;
-        ClusterAbstractMultivalue targetClusterBD = null;
+        ClusterWheatleySoftDerivativesMixBD targetClusterBD = null;
 
         boolean anyPolar = false;
         MayerFunction[][] fAll = new MayerFunction[nTypes.length][nTypes.length];
@@ -222,7 +227,7 @@ public class VirialTraPPE {
             targetClusterBD = new ClusterWheatleySoftDerivativesMixBD(nPoints,nTypes,fAll,precision,nDer);
             targetClusterBD.setTemperature(temperature);
             ((ClusterWheatleySoftDerivativesMix) targetCluster).setDoCaching(false);
-            ((ClusterWheatleySoftDerivativesMixBD) targetClusterBD).setDoCaching(false);
+            targetClusterBD.setDoCaching(false);
             targetCluster = new ClusterCoupledFlippedMultivalue(targetCluster, targetClusterBD, space, 20, nDer, BDtol);
         }
 
@@ -234,13 +239,14 @@ public class VirialTraPPE {
             ((ClusterCoupledFlippedMultivalue) targetCluster).setBDAccFrac(BDAccFrac,sim.getRandom());
         }
         else {
-            ((ClusterWheatleySoftDerivativesMix) targetCluster).setBDAccFrac(BDAccFrac,sim.getRandom());
+            ((ClusterWheatleySoftDerivativesMix) targetCluster).setBDAccFrac(BDAccFrac, sim.getRandom());
+            ((ClusterWheatleySoftDerivativesMix) targetCluster).setNumBDCheckBins(8);
         }
 
         // Adding derivative clusters to simulation
         ClusterMultiToSingle[] primes = new ClusterMultiToSingle[nDer];
         for(int m=0;m<primes.length;m++){
-            primes[m]= new ClusterMultiToSingle(((ClusterAbstractMultivalue) targetCluster), m+1);
+            primes[m] = new ClusterMultiToSingle(targetCluster, m + 1);
         }
         sim.setExtraTargetClusters(primes);
 
@@ -325,6 +331,8 @@ public class VirialTraPPE {
             refFileName = "refpref_"+"_"+nPoints+"_"+tempString+"K";
         }
 
+        final ClusterWheatleySoftDerivativesMix tc = (ClusterWheatleySoftDerivativesMix) targetCluster;
+
         // Equilibrate
         sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);
         sim.equilibrate(refFileName, (steps / EqSubSteps) / 10);
@@ -335,6 +343,54 @@ public class VirialTraPPE {
             long t2 = System.currentTimeMillis();
             System.out.println("time: "+(t2-t1)/1000.0);
             return;
+        }
+
+        HistogramNotSoSimple histogramGPi = new HistogramNotSoSimple(100, new DoubleRange(-50, 50));
+        HistogramSimple histogramPi = new HistogramSimple(100, new DoubleRange(-50, 50));
+        sim.integrators[1].getEventManager().addListener(new IntegratorListener() {
+            @Override
+            public void integratorInitialized(IntegratorEvent e) {
+            }
+
+            @Override
+            public void integratorStepStarted(IntegratorEvent e) {
+            }
+
+            @Override
+            public void integratorStepFinished(IntegratorEvent e) {
+                double gamma = tc.getAllLastValues(sim.box[1])[0];
+                if (tc.valueIsBD()) gamma *= BDAccFrac;
+                gamma *= 720 / 5;
+                double pi = Math.abs(gamma);
+                if (pi == 0) return;
+                histogramPi.addValue(Math.log(pi));
+                histogramGPi.addValue(Math.log(pi), gamma / pi);
+            }
+        });
+        if (false) {
+            sim.integratorOS.getEventManager().addListener(new IntegratorListener() {
+                @Override
+                public void integratorInitialized(IntegratorEvent e) {
+                }
+
+                @Override
+                public void integratorStepStarted(IntegratorEvent e) {
+                }
+
+                @Override
+                public void integratorStepFinished(IntegratorEvent e) {
+                    if (sim.integratorOS.getStepCount() % (steps / blockSize / 100) == 0) {
+                        double[] piValues = histogramPi.xValues();
+                        double[] hValues = histogramPi.getHistogram();
+                        double[] gpiValues = histogramGPi.getHistogram();
+                        for (int i = 0; i < piValues.length; i++) {
+                            if (hValues[i] == 0) continue;
+                            System.out.println(Math.exp(piValues[i]) + " " + hValues[i] + " " + gpiValues[i]);
+                        }
+                        System.out.println("&");
+                    }
+                }
+            });
         }
 
         // Setting up Production Run
@@ -350,20 +406,28 @@ public class VirialTraPPE {
         // Production Run
         sim.getController().actionPerformed();
 
+        double[] piValues = histogramPi.xValues();
+        double[] hValues = histogramPi.getHistogram();
+        double[] gpiValues = histogramGPi.getHistogram();
+        for (int i = 0; i < piValues.length; i++) {
+            if (hValues[i] == 0) continue;
+            System.out.println(Math.exp(piValues[i]) + " " + hValues[i] + " " + gpiValues[i]);
+        }
+        System.out.println("&");
+
         // Print Simulation Output
         System.out.println("final reference step fraction " + sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step fraction " + sim.integratorOS.getRefStepFraction());
 
-        if (targetCluster instanceof ClusterWheatleySoftDerivatives) {
-            long[] nCheck = ((ClusterWheatleySoftDerivatives) targetCluster).getNumBDChecks();
-            double[] avgCheck = ((ClusterWheatleySoftDerivatives) targetCluster).getAverageCheck();
-            double[] avgCheckBD = ((ClusterWheatleySoftDerivatives) targetCluster).getAverageCheckBD();
-            System.out.print("BD ratios: ");
-            for (int i = 0; i < avgCheck.length; i++) {
-                System.out.print("  " + avgCheck[i] / avgCheckBD[i] + " (" + nCheck[i] + ")");
-            }
-            System.out.println();
+        long[] nCheck = ((ClusterWheatleySoftDerivatives) targetCluster).getNumBDChecks();
+        long[] nCheckTot = ((ClusterWheatleySoftDerivatives) targetCluster).getNumCheckVisits();
+        double[] avgCheck = ((ClusterWheatleySoftDerivatives) targetCluster).getAverageCheck();
+        double[] avgCheckBD = ((ClusterWheatleySoftDerivatives) targetCluster).getAverageCheckBD();
+        System.out.print("BD ratios: ");
+        for (int i = 0; i < avgCheck.length; i++) {
+            System.out.print("  " + avgCheck[i] / avgCheckBD[i] + " (" + nCheck[i] + "/" + nCheckTot[i] + ")");
         }
+        System.out.println();
 
         String[] extraNames = new String[nDer];
         for (int i = 1; i <= nDer; i++) {
