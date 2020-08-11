@@ -12,10 +12,10 @@ import etomica.data.meter.MeterNMolecules;
 import etomica.graphics.DisplayPlotXChart;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.heVLE.DeviceThermoSliderGEMC;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.modules.vle.DeviceThermoSliderGEMC;
 import etomica.space.Space;
 import etomica.units.Pixel;
 
@@ -60,9 +60,8 @@ public class SWVLE extends SimulationGraphic {
             }
         };
 
-        DeviceThermoSliderGEMC thermoSlider = new DeviceThermoSliderGEMC(sim.getController());
+        DeviceThermoSliderGEMC thermoSlider = new DeviceThermoSliderGEMC(sim.getController(), sim.integratorLiquid, sim.integratorVapor, sim.integratorGEMC);
         thermoSlider.setPrecision(2);
-        thermoSlider.setIntegrators(sim.integratorLiquid, sim.integratorVapor, sim.integratorGEMC);
         thermoSlider.setIsothermal();
         thermoSlider.setMinimum(0);
         thermoSlider.setMaximum(2);
