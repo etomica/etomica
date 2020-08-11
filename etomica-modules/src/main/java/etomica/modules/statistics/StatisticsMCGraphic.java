@@ -66,8 +66,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         final HistoryPlotBits dHPB, peHPB, pHPB, widomHPB;
         final DataPumpListener pPump, dPump, pePump;
         if (moduleNum == 1) {
-            MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-            densityMeter.setBox(sim.box);
+            MeterDensity densityMeter = new MeterDensity(sim.box);
             dPump = new DataPumpListener(densityMeter, null, 100);
             dataStreamPumps.add(dPump);
 

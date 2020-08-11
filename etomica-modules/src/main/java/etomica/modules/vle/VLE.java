@@ -124,8 +124,7 @@ public class VLE extends SimulationGraphic {
         momentSlider.setPostAction(resetMCMoves);
         add(momentSlider);
 
-        MeterDensity meterDensityLiquid = new MeterDensity(sim.getSpace());
-        meterDensityLiquid.setBox(sim.boxLiquid);
+        MeterDensity meterDensityLiquid = new MeterDensity(sim.boxLiquid);
         DataFork fork = new DataFork();
         DataPump pumpLiquidDensity = new DataPump(meterDensityLiquid, fork);
         getController().getDataStreamPumps().add(pumpLiquidDensity);
@@ -142,8 +141,7 @@ public class VLE extends SimulationGraphic {
         sim.integratorLiquid.getEventManager().addListener(pumpLiquidDensityListener);
         pumpLiquidDensityListener.setInterval(100);
         
-        MeterDensity meterDensityVapor = new MeterDensity(sim.getSpace());
-        meterDensityVapor.setBox(sim.boxVapor);
+        MeterDensity meterDensityVapor = new MeterDensity(sim.boxVapor);
         fork = new DataFork();
         DataPump pumpVaporDensity = new DataPump(meterDensityVapor, fork);
         getController().getDataStreamPumps().add(pumpVaporDensity);

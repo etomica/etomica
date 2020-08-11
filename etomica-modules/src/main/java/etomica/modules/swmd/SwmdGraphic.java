@@ -40,6 +40,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
@@ -107,7 +108,7 @@ public class SwmdGraphic extends SimulationGraphic {
         final String idealGas = "Ideal gas";
         final String repulsionOnly = "Repulsion only";
         final String repulsionAttraction = "Repulsion and attraction";
-        potentialChooser = new javax.swing.JComboBox(new String[] {
+        potentialChooser = new JComboBox(new String[] {
                 idealGas, repulsionOnly, repulsionAttraction});
 
         sigBox = new DeviceBox();
@@ -166,9 +167,9 @@ public class SwmdGraphic extends SimulationGraphic {
         
         if(potentialChooserListener != null) potentialChooser.removeItemListener(potentialChooserListener);
         
-        potentialChooserListener = new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return; 
+        potentialChooserListener = new ItemListener() {
+            public void itemStateChanged(ItemEvent evt) {
+                if(evt.getStateChange() == ItemEvent.DESELECTED) return;
                 setPotential((String)evt.getItem());
                 if(evt.getItem() == idealGas ||
                    evt.getItem() == repulsionOnly) {
@@ -203,7 +204,7 @@ public class SwmdGraphic extends SimulationGraphic {
 
         //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
-        colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
+        colorScheme.setColor(sim.species.getLeafType(), Color.red);
         getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 
 	    //meters and displays
@@ -287,8 +288,7 @@ public class SwmdGraphic extends SimulationGraphic {
 		tBox.setLabelPosition(CompassDirection.NORTH);
 
 		// Number density box
-	    MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-        densityMeter.setBox(sim.box);
+	    MeterDensity densityMeter = new MeterDensity(sim.box);
 	    final DisplayTextBox densityBox = new DisplayTextBox();
 	    densityBox.setUnit(dUnit);
         final DataPump densityPump = new DataPump(densityMeter, densityBox);

@@ -195,7 +195,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
 				    		IAtom atom0 = bondList.get(0);
 				    		IAtom atom1 = bondList.get(1);
 				    		double innerRadius = 0.8;
-				        	double minDistance = 2*(innerRadius*innerRadius)*(1+Math.cos(etomica.units.Degree.UNIT.toSim(27.0)));
+				        	double minDistance = 2*(innerRadius*innerRadius)*(1+Math.cos(Degree.UNIT.toSim(27.0)));
 				    		dr.Ev1Mv2((atom0).getPosition(), (atom1).getPosition());//dr = distance from the atom0 to atom1
 				        	sim.box.getBoundary().nearestImage(dr);
 				        	if (dr.squared() < minDistance){
@@ -237,8 +237,8 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         sim.getController().reset();
         
         sim.actionIntegrator.setMaxSteps(numSteps);
-        MeterDensity rhoMeter = new MeterDensity(sim.space);//Meter for measurement of the total molecule number density((number of molecules)/(volume of box)) in a box 
-        rhoMeter.setBox(sim.box);
+        //Meter for measurement of the total molecule number density((number of molecules)/(volume of box)) in a box
+        MeterDensity rhoMeter = new MeterDensity(sim.box);
         AccumulatorAverage rhoAccumulator = new AccumulatorAverageFixed(10);//Accumulator that keeps statistics for averaging and error analysis
         DataPump rhoPump = new DataPump(rhoMeter,rhoAccumulator);
         IntegratorListenerAction listener = new IntegratorListenerAction(rhoPump);

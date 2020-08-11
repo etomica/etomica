@@ -140,8 +140,7 @@ public class LJNPT extends Simulation {
             meterP.setPotentialMaster(sim.potentialMaster);
             meterP.setTemperature(temperature);
     
-            final MeterDensity meterDensity = new MeterDensity(sim.getSpace());
-            meterDensity.setBox(sim.box);
+            final MeterDensity meterDensity = new MeterDensity(sim.box);
     
             final MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator();
             meterPE.setIntegrator(sim.integrator);

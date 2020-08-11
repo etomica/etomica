@@ -679,8 +679,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         plotP.setLegend(new DataTag[]{targetPressureDataSource.getTag()}, "target");
         dataStreamPumps.add(pump);
 
-        densityMeter = new MeterDensity(pc.getSpace()); //pc.pistonPotential,1);
-        densityMeter.setBox(pc.box);
+        densityMeter = new MeterDensity(pc.box);
         final AccumulatorHistory densityHistory = new AccumulatorHistory();
         densityHistory.setTimeDataSource(meterCycles);
         densityHistory.getHistory().setHistoryLength(historyLength);
