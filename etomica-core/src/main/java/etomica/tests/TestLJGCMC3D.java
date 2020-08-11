@@ -112,8 +112,7 @@ public class TestLJGCMC3D extends Simulation {
         energyAccumulator.setBlockSize(50);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
 
-        MeterDensity densityMeter = new MeterDensity(sim.space);
-        densityMeter.setBox(sim.box);
+        MeterDensity densityMeter = new MeterDensity(sim.box);
         AccumulatorAverage densityAccumulator = new AccumulatorAverageFixed(10);
         DataPumpListener pumpDensity = new DataPumpListener(densityMeter, densityAccumulator, 2 * numAtoms);
         sim.integrator.getEventManager().addListener(pumpDensity);

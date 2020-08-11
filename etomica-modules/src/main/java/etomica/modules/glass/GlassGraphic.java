@@ -33,6 +33,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 public class GlassGraphic extends SimulationGraphic {
 
@@ -425,8 +426,7 @@ public class GlassGraphic extends SimulationGraphic {
         };
 
         // Number density box
-        MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-        densityMeter.setBox(sim.box);
+        MeterDensity densityMeter = new MeterDensity(sim.box);
         final DisplayTextBox densityBox = new DisplayTextBox();
         final DataPump densityPump = new DataPump(densityMeter, densityBox);
         IntegratorListenerAction densityPumpListener = new IntegratorListenerAction(densityPump);
@@ -1523,7 +1523,7 @@ public class GlassGraphic extends SimulationGraphic {
         plotHistogramMSD.setDoLegend(false);
         plotHistogramMSD.getPlot().setYLog(true);
 
-        java.util.List<MeterStructureFactor.AtomSignalSourceByType> signalByTypes = new ArrayList<>();
+        List<MeterStructureFactor.AtomSignalSourceByType> signalByTypes = new ArrayList<>();
         DeviceButtonGroup sfacButtons = null;
         int n = sim.box.getLeafList().size();
         double cut1 = 10;
@@ -1621,7 +1621,7 @@ public class GlassGraphic extends SimulationGraphic {
         sfacButtons.setSelected("+v");
 
         Vector[] wv = meterSFac.getWaveVectors();
-        java.util.List<Vector> myWV = new ArrayList<>();
+        List<Vector> myWV = new ArrayList<>();
         double wvMax2 = 2.01 * Math.PI / L;
         for (Vector vector : wv) {
             int nd = 0;

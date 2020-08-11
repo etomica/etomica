@@ -18,9 +18,7 @@ import etomica.data.meter.MeterDensity;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorManagerMC;
-import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.integrator.mcmove.MCMoveEvent;
-import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
+import etomica.integrator.mcmove.*;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
@@ -174,13 +172,13 @@ public class VLESim extends Simulation {
         sim.integratorGEMC.resetStepCount();
 
         int interval = params.numAtoms;
-        int blockSize = (int) (params.numSteps / interval);
-        MeterDensity liquidDensity = new MeterDensity(sim.getSpace());
+        int blockSize = (int) (params.numSteps / (interval * 100));
+        MeterDensity liquidDensity = new MeterDensity(sim.boxLiquid);
         AccumulatorAverageFixed accLiquidDensity = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumpLiquidDensity = new DataPumpListener(liquidDensity, accLiquidDensity, interval);
         sim.integratorLiquid.getEventManager().addListener(pumpLiquidDensity);
 
-        MeterDensity vaporDensity = new MeterDensity(sim.getSpace());
+        MeterDensity vaporDensity = new MeterDensity(sim.boxVapor);
         AccumulatorAverageFixed accVaporDensity = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumpVaporDensity = new DataPumpListener(vaporDensity, accVaporDensity, interval);
         sim.integratorLiquid.getEventManager().addListener(pumpVaporDensity);
