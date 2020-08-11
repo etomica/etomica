@@ -45,7 +45,7 @@ public class Controller2 {
         task.maxSteps = maxSteps;
         task.sleepPeriodMillis = sleepPeriodMillis;
         CompletableFuture<Void> future = new CompletableFuture<>();
-        ActivityHandle activityHandle = new ActivityHandle(future, task);
+        ActivityHandle activityHandle = new ActivityHandle(future, task, this);
         synchronized (this.lock) {
             this.pendingActivities.add(activityHandle);
             this.processActivities();
@@ -63,9 +63,11 @@ public class Controller2 {
      * @param maxSteps
      */
     public void runActivityBlocking(Activity2 activity, long maxSteps) {
-        ActivityTask task = new ActivityTask(activity, this.actionQueue, this.pauseFlag);
-        task.maxSteps = maxSteps;
-        task.run();
+        activity.preAction();
+        for (long i = 0; i < maxSteps; i++) {
+            activity.actionPerformed();
+        }
+        activity.postAction();
     }
 
     private void tryToGetIntegrator(Activity2 activity) {
@@ -292,10 +294,12 @@ public class Controller2 {
     public static class ActivityHandle {
         public final CompletableFuture<Void> future;
         private final ActivityTask task;
+        private final Controller2 controller;
 
-        private ActivityHandle(CompletableFuture<Void> future, ActivityTask task) {
+        private ActivityHandle(CompletableFuture<Void> future, ActivityTask task, Controller2 controller) {
             this.future = future;
             this.task = task;
+            this.controller = controller;
         }
 
         public ActivityHandle setMaxSteps(long maxSteps) {
@@ -316,13 +320,9 @@ public class Controller2 {
             return this.task.sleepPeriodMillis;
         }
 
-        public void blockUntilComplete() {
-            try {
-                this.future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-        }
+//        public void blockUntilComplete() {
+//
+//        }
     }
 
 //    public static class ControllerFuture<T> extends CompletableFuture<T> {
