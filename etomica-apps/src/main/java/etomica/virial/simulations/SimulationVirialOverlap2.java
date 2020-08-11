@@ -75,6 +75,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     protected HistogramSimple targHist;
     protected HistogramNotSoSimple targPiHist;
     protected double[] boxLengths = new double[]{0, 0};
+    private boolean interactive = false;
 
     /**
      * This constructor will create your simulation class, but you may call
@@ -557,8 +558,9 @@ public class SimulationVirialOverlap2 extends Simulation {
     }
 
     public void initRefPref(String fileName, long initSteps, boolean runNow) {
-        if (runNow) {
-            this.getController2().unpause();
+        this.interactive = !runNow;
+        if (!runNow) {
+            this.getController2().start();
         }
         // use the old refpref value as a starting point so that an initial
         // guess can be provided
@@ -615,11 +617,11 @@ public class SimulationVirialOverlap2 extends Simulation {
                 integratorOS.setRefStepFraction(0.5);
                 integratorOS.setAdjustStepFraction(false);
             }
-            Controller2.ActivityHandle handle = this.getController2().addActivity(new ActivityIntegrate2(integratorOS), initSteps, 0.0);
-            try {
-                handle.future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
+            if (runNow) {
+                this.getController2().runActivityBlocking(new ActivityIntegrate2(integratorOS), initSteps);
+            } else {
+                this.getController2().addActivity(new ActivityIntegrate2(integratorOS), initSteps, 0.0)
+                        .future.join();
             }
 
             if (adjustable) {
@@ -730,11 +732,11 @@ public class SimulationVirialOverlap2 extends Simulation {
             integratorOS.setRefStepFraction(0.5);
             integratorOS.setAdjustStepFraction(false);
         }
-        Controller2.ActivityHandle handle = this.getController2().addActivity(new ActivityIntegrate2(integratorOS), initSteps, 0.0);
-        try {
-            handle.future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
+        if (this.interactive) {
+            this.getController2().addActivity(new ActivityIntegrate2(integratorOS), initSteps, 0.0)
+                    .future.join();
+        } else {
+            this.getController2().runActivityBlocking(new ActivityIntegrate2(integratorOS), initSteps);
         }
         if (adjustable) {
             integratorOS.setAdjustStepFraction(true);
