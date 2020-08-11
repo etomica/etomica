@@ -61,10 +61,9 @@ public class VLE extends SimulationGraphic {
             }
         };
 
-        DeviceThermoSliderGEMC thermoSlider = new DeviceThermoSliderGEMC(sim.getController());
+        DeviceThermoSliderGEMC thermoSlider = new DeviceThermoSliderGEMC(sim.getController(), sim.integratorLiquid, sim.integratorVapor, sim.integratorGEMC);
         thermoSlider.setUnit(Kelvin.UNIT);
         thermoSlider.setPrecision(1);
-        thermoSlider.setIntegrators(sim.integratorLiquid, sim.integratorVapor, sim.integratorGEMC);
         thermoSlider.setIsothermal();
         thermoSlider.setMinimum(5);
         thermoSlider.setMaximum(20);
