@@ -302,56 +302,6 @@ public class DeviceThermoSliderGEMC extends Device {
         temperatureSlider.setPostAction(action);
     }
 
-    /**
-     * Sets the integrator for the device.  Adds actions to the device's
-     * controller to inform the integrator when the temperature and
-     * isothermal/adiabatic selection has changed based upon the type
-     * of integrator passed in.
-     *
-     * @param newIntegrator1
-     * @param newIntegrator2
-     * @param newIntegrator3
-     */
-    public void setIntegrators(IntegratorBox newIntegrator1, IntegratorBox newIntegrator2, IntegratorManagerMC newIntegrator3) {
-        integrator1 = newIntegrator1;
-        integrator2 = newIntegrator2;
-        integrator3 = newIntegrator3;
-        temperatureSlider.setModifier(new Modifier() {
-
-            public Dimension getDimension() {
-                return Temperature.DIMENSION;
-            }
-
-            public String getLabel() {
-                return "Temperature";
-            }
-
-            public double getValue() {
-                return integrator1.getTemperature();
-            }
-
-            public void setValue(double newValue) {
-                integrator1.setTemperature(newValue);
-                integrator2.setTemperature(newValue);
-                integrator3.setTemperature(newValue);
-            }
-        });
-
-        ActionListener actionListen = new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                controller.doActionNow(integratorBoxIsoChangeSetIso);
-            }
-        };
-
-        addRadioGroupActionListener(actionListen);
-        if (integrator1.isIsothermal()) {
-            setIsothermal();
-        } else {
-            setAdiabatic();
-        }
-    }
-
-
     private void configureSliderAccessibility() {
         if (buttonAdiabatic.isSelected()) {
             temperatureSlider.getSlider().setEnabled(false);
