@@ -402,10 +402,9 @@ public class NormalModeAnalysisDisplay3DGraphic extends SimulationGraphic {
         /*
          * Eigenvalues Slider
          */
-        eValSlider = new DeviceEigenvaluesSlider(sim.getController());
+        eValSlider = new DeviceEigenvaluesSlider(sim.getController(), sim.integrator);
         eValSlider.setMinimum(0);
         eValSlider.setMaximum(sim.nm.getOmegaSquared()[0].length);
-        eValSlider.setIntegrator(sim.integrator);
         sim.integrator.setOneWV(true);
         
         eValPostAction = new IAction(){
