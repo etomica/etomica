@@ -41,6 +41,8 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
     public IRandom random;
     public double BDAccFrac = 1;
     public double FlipAccFrac;
+    public boolean valueBD;
+    public boolean lastValueBD;
     
     /**
      * cluster must have caching disabled
@@ -82,6 +84,10 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
 
     public void setBDAccFrac(double p, IRandom rng ){ BDAccFrac = p; random = rng;}
 
+    public boolean valueIsBD() {
+        return valueBD;
+    }
+
     public double value(BoxCluster box) {
         CoordinatePairSet cPairs = box.getCPairSet();
         long thisCPairID = cPairs.getID();
@@ -99,6 +105,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
                 value[m] = lastValue[m];
             }
 //            if (debugme)System.out.println("3 "+"clusterSum "+cPairID+" returning PREVIOUS RECENT "+lastValue[0]);
+            valueBD = lastValueBD;
             return value[0];
         }
 
@@ -107,6 +114,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
         for(int m=0; m<value.length; m++){
             lastValue[m] = value[m];
         }
+        lastValueBD = valueBD;
         cPairID = thisCPairID;
 
         final int pointCount = wrappedCluster.pointCount();
@@ -136,6 +144,8 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
         int n = wrappedCluster.pointCount();
         double bfac = (1.0-n)/ SpecialFunctions.factorial(n);
         int printIdx = (int)(Math.sqrt(maxR2)/10);
+
+        valueBD=false;
 
         double[] varr = new double[(1<<n)+1];
         varr[1] = Double.NaN;
@@ -174,6 +184,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
                         return value[0];
                     }
                     BDcount++;
+                    valueBD=true;
                     if (doPrint && !printed[printIdx][1] ) {
                         varr[1]=Double.NaN;
                         printConfig(box,varr);
@@ -255,6 +266,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
                     return value[0];
                 }
                 BDcount+=1<<pointCount;
+                valueBD=true;
                 if(doPrint && !printed[printIdx][1]) {
                     printConfig(box, varr);
                 }
