@@ -6,6 +6,7 @@ package etomica.normalmode;
 
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
@@ -213,9 +214,8 @@ public class SimUmbrellaSoftSphere extends Simulation {
 
         IDataSource[] samplingMeters = new IDataSource[2];
 
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
-        sim.getController().actionPerformed();
-        System.out.println("System Equilibrated!");
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+System.out.println("System Equilibrated!");
 
         sim.getController().reset();
 
@@ -307,9 +307,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         IntegratorListenerAction outputActionListener = new IntegratorListenerAction(outputAction);
         outputActionListener.setInterval(10000);
         sim.integrator.getEventManager().addListener(outputActionListener);
-
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         try{
         	fileWriterHarm.close();

@@ -2,6 +2,7 @@ package etomica.osmoticvirial;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -171,11 +172,9 @@ public class NVTWidomInsertLJ extends Simulation {
             return;
         }
 
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.integrator.getMoveManager().setEquilibrating(false);
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+sim.getController().reset();
+sim.integrator.getMoveManager().setEquilibrating(false);
 
         MeterWidomInsertion meterinsert = new MeterWidomInsertion(sim.space,sim.getRandom());
         meterinsert.setSpecies(sim.species2);
@@ -184,7 +183,7 @@ public class NVTWidomInsertLJ extends Simulation {
         AccumulatorAverageFixed acc = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pump = new DataPumpListener(meterinsert, acc, numAtoms);
         sim.integrator.getEventManager().addListener(pump);
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         IData iavg = acc.getData(AccumulatorAverage.AVERAGE);
         IData ierr = acc.getData(AccumulatorAverage.ERROR);

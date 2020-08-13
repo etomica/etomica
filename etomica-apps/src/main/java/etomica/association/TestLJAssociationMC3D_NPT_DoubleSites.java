@@ -7,6 +7,7 @@ package etomica.association;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
@@ -179,9 +180,8 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
             
         }
         final TestLJAssociationMC3D_NPT_DoubleSites sim = new TestLJAssociationMC3D_NPT_DoubleSites(numAtoms, pressure, density, wellConstant, temperature, truncationRadius,maxChainLength, useUB, numSteps);
-        sim.actionIntegrator.setMaxSteps(numSteps/5);//equilibrium period
         IAction energyDiffActionEq = new IAction() {
-    		
+
 			public void actionPerformed() {
 				//if (sim.integrator.getStepCount()%1000 == 0){
 					IAtomList leafList = sim.box.getLeafList();
@@ -203,19 +203,17 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
 						}
 					}
 				}
-				
-		
+
+
 //			}
 		};
         IntegratorListenerAction energyDiffListenerEq = new IntegratorListenerAction(energyDiffActionEq,100000);
         sim.integrator.getEventManager().addListener(energyDiffListenerEq);
         System.out.println("equilibrium period = " +numSteps/5);
-        sim.getController().actionPerformed();
-        System.out.println("equilibrium finished");
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/5);
+System.out.println("equilibrium finished");
         sim.getController().reset();
-        
-        sim.actionIntegrator.setMaxSteps(numSteps);
-        MeterDensity rhoMeter = new MeterDensity(sim.box);
+MeterDensity rhoMeter = new MeterDensity(sim.box);
         AccumulatorAverage rhoAccumulator = new AccumulatorAverageFixed(10);//Accumulator that keeps statistics for averaging and error analysis
         DataPump rhoPump = new DataPump(rhoMeter,rhoAccumulator);
         IntegratorListenerAction listener = new IntegratorListenerAction(rhoPump);
@@ -228,7 +226,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         IntegratorListenerAction energyListener = new IntegratorListenerAction(energyManager);
         energyListener.setInterval(1000);
         sim.integrator.getEventManager().addListener(energyListener);
-        
+
         AccumulatorAverage smerAccumulator = new AccumulatorAverageFixed(10);
         MeterDimerMoleFraction smerMeter = new MeterDimerMoleFraction(sim.getSpace(), sim.box);
         DataPump dimerPump = new DataPump(smerMeter,smerAccumulator);
@@ -236,7 +234,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         smerListener.setInterval(50);
         sim.integrator.getEventManager().addListener(smerListener);
         smerMeter.setAssociationManager(sim.associationManagerOriented);
-        
+
         AccumulatorAverage energy2Accumulator = new AccumulatorAverageFixed(10);
         final MeterPotentialEnergy energy2Meter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());//true energy
         energy2Meter.setBox(sim.box);
@@ -244,7 +242,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         IntegratorListenerAction energy2Listener = new IntegratorListenerAction(energy2Pump);
         energy2Listener.setInterval(1000);
         sim.integrator.getEventManager().addListener(energy2Listener);
-        
+
         if (false) {
         	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE);
         	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -281,7 +279,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         	return;
         }
         IAction energyDiffAction = new IAction() {
-		
+
 			public void actionPerformed() {
 				IAtomOriented atom207 = (IAtomOriented)sim.box.getLeafList().get(207);
 				IAtomOriented atom58 = (IAtomOriented)sim.box.getLeafList().get(58);
@@ -311,17 +309,17 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
 					if (Math.abs(energyDifference)> 1E-7){
 						System.out.println(sim.integrator.getStepCount()+ " steps");
 						System.out.println("energy= "+energyMeter.getDataAsScalar()+" true energy= "+energy2Meter.getDataAsScalar());
-						throw new RuntimeException(); 
+						throw new RuntimeException();
 					}
 				}
-				
-		
+
+
 			}
 		};
         IntegratorListenerAction energyDiffListener = new IntegratorListenerAction(energyDiffAction,1000);
-        //sim.integrator.getEventManager().addListener(energyDiffListener);
-        
-        sim.getController().actionPerformed();
+        //sim.integrator.getEventManager().addListener(energyDiffListener)
+
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
         
         System.out.println("numAtom=" +numAtoms);
         double avgDensity = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(rhoAccumulator.AVERAGE.index)).x;//average density

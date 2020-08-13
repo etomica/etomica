@@ -8,6 +8,7 @@ import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
@@ -241,18 +242,19 @@ public class SimFluidSoftSphere extends Simulation {
 
         File configFileNew = new File(filename + ".pos");
 
+        long steps = 0;
         if(configFileNew.exists()){
     		System.out.println("\n***using "+ configFileNew);
-			sim.activityIntegrate.setMaxSteps(10);
+			steps = 10;
         	sim.initializeConfigFromFile(filename);
 
         } else {
 
             if (density_div_sqrt2 < density60Freeze){
-	        	sim.activityIntegrate.setMaxSteps(simSteps/10);  //simSteps/10
+                steps = simSteps / 10;
 
             } else if (density_div_sqrt2 >= density60Freeze && density_div_sqrt2 <= density90Freeze) {
-                sim.activityIntegrate.setMaxSteps(simSteps/4);
+                steps = simSteps / 4;
 
             } else if (density_div_sqrt2 > density90Freeze){
 	        	File configFile09Freeze;
@@ -273,7 +275,7 @@ public class SimFluidSoftSphere extends Simulation {
 
                 } else {
 	        		System.out.println("\n***using "+ configFile09Freeze);
-	        		sim.activityIntegrate.setMaxSteps(simSteps/10);
+	        		steps = simSteps / 10;
 	        		sim.rescaleBox(density90Freeze*Math.sqrt(2));
                     sim.initializeConfigFromFile(fileName09Freeze);
                     sim.rescaleBox(density);
@@ -284,15 +286,13 @@ public class SimFluidSoftSphere extends Simulation {
         }
 
 
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         System.out.println("equilibrated");
 
         sim.integrator.getMoveManager().setEquilibrating(false);
         pressureAverage.reset();
-        sim.getController().reset();
 
-        sim.activityIntegrate.setMaxSteps(simSteps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
         /*
         double insertionScalar = ((DataGroup)insertionAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
         System.out.println("Average insertion scalar: "+ insertionScalar);

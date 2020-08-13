@@ -5,6 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
@@ -161,14 +162,11 @@ public class SimCalcS extends Simulation {
 
         // start simulation
         int nSteps = (int) (simTime / sim.integrator.getTimeStep());
-        sim.activityIntegrate.setMaxSteps(nSteps/10);
-        sim.getController().actionPerformed();
-        System.out.println("equilibration finished");
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), nSteps/10);
+System.out.println("equilibration finished");
         meterNormalMode.reset();
         sim.getController().reset();
-
-        sim.activityIntegrate.setMaxSteps(nSteps);
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), nSteps);
 
         WriteS sWriter = new WriteS(sim.space);
         sWriter.setFilename(filename);

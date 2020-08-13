@@ -1,6 +1,7 @@
 package etomica.osmoticvirial;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
@@ -244,11 +245,9 @@ public class GCRestrictedGibbsHS extends Simulation {
             return;
         }
 
-        sim.activityIntegrate.setMaxSteps(numSteps / 10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.integrator.getMoveManager().setEquilibrating(false);
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps / 10);
+sim.getController().reset();
+sim.integrator.getMoveManager().setEquilibrating(false);
 
         double GMI = sim.integrator.getGlobalMoveInterval();
         int targetNumBlocks = 100;
@@ -257,7 +256,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         AccumulatorAverageCovariance acc = new AccumulatorAverageCovariance(blockSize);
         MCMoveListenerRGE mcMoveListenerRGE = new MCMoveListenerRGE(acc, sim.box1, sim.species1, numAtoms);
         sim.integrator.getMoveEventManager().addListener(mcMoveListenerRGE);
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         System.out.println("block count " + acc.getBlockCount());
         IData iavg = acc.getData(acc.AVERAGE);

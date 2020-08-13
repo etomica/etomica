@@ -6,6 +6,7 @@ package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
 import etomica.atom.DiameterHashByType;
@@ -403,13 +404,11 @@ public class SimFe extends Simulation {
         MeterRMSD meterRMSD = new MeterRMSD(sim.box, sim.space);
 
         sim.integrator.setThermostatInterval(10);
-        sim.ai.setMaxSteps(steps/10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/10);
+sim.getController().reset();
         sim.integrator.resetStepCount();
         sim.integrator.setThermostatInterval(thermostatInterval);
-        sim.ai.setMaxSteps(steps);
-        if (nve) {
+if (nve) {
             sim.integrator.setIsothermal(false);
         }
         if (sim.integrator instanceof IntegratorMDHarmonicMC) {
@@ -442,8 +441,7 @@ public class SimFe extends Simulation {
             dataLogger.setAppending(false);
             sim.getController().getEventManager().addListener(dataLogger);
         }
-
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
         if (sim.mcMoveSwap != null) {
             System.out.println("swap acceptance: " + sim.mcMoveSwap.getTracker().acceptanceProbability());

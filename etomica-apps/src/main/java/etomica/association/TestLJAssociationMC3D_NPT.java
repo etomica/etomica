@@ -6,6 +6,7 @@ package etomica.association;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -168,14 +169,10 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
             
         }
         TestLJAssociationMC3D_NPT sim = new TestLJAssociationMC3D_NPT(numAtoms, pressure, density, wellConstant, temperature, numSteps);
-        sim.actionIntegrator.setMaxSteps(numSteps/10);//equilibrium period
-        System.out.println("equilibrium period = " +numSteps/10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        
-        sim.actionIntegrator.setMaxSteps(numSteps);
-        //Meter for measurement of the total molecule number density((number of molecules)/(volume of box)) in a box
-        MeterDensity rhoMeter = new MeterDensity(sim.box);
+        System.out.println("equilibrium period = " +numSteps/10);//equilibrium period
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+sim.getController().reset();
+MeterDensity rhoMeter = new MeterDensity(sim.box);
         AccumulatorAverage rhoAccumulator = new AccumulatorAverageFixed(10);//Accumulator that keeps statistics for averaging and error analysis
         DataPump rhoPump = new DataPump(rhoMeter,rhoAccumulator);
         IntegratorListenerAction listener = new IntegratorListenerAction(rhoPump);
@@ -187,7 +184,7 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         energyAccumulator.setBlockSize(50);
         IntegratorListenerAction energyListener = new IntegratorListenerAction(energyManager);
         sim.integrator.getEventManager().addListener(energyListener);
-        
+
         if (true) {
         	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE);
         	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -201,8 +198,8 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         	sim.actionIntegrator.setMaxSteps(2000000);
         	return;
         }
-        
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+        //Meter for measurement of the total molecule number density((number of molecules)/(volume of box)) in a box
         
         System.out.println("numAtom=" +numAtoms);
         double avgDensity = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(rhoAccumulator.AVERAGE.index)).x;//average density

@@ -7,6 +7,7 @@ package etomica.association.AceticAcid;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.association.*;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -228,15 +229,11 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         long numSteps = params.numSteps;
 
         final TestAceticAcidMC3D_NPT sim = new TestAceticAcidMC3D_NPT(numAtoms, pressure, density, temperature, numSteps);
-        sim.actionIntegrator.setMaxSteps(numSteps/10);//equilibrium period
-
-        System.out.println("equilibrium period = " +numSteps/10);
-        sim.getController().actionPerformed();
-        System.out.println("equilibrium finished");
+        System.out.println("equilibrium period = " +numSteps/10);//equilibrium period
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+System.out.println("equilibrium finished");
         sim.getController().reset();
-        
-        sim.actionIntegrator.setMaxSteps(numSteps);
-        MeterDensity rhoMeter = new MeterDensity(sim.box);
+MeterDensity rhoMeter = new MeterDensity(sim.box);
         AccumulatorAverage rhoAccumulator = new AccumulatorAverageFixed(1000);//Accumulator that keeps statistics for averaging and error analysis
         DataPump rhoPump = new DataPump(rhoMeter,rhoAccumulator);
         IntegratorListenerAction listener = new IntegratorListenerAction(rhoPump);
@@ -249,9 +246,9 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         IntegratorListenerAction energyListener = new IntegratorListenerAction(energyManager);
         energyListener.setInterval(100);
         sim.integrator.getEventManager().addListener(energyListener);
-        
+
         //AccumulatorAverage smerAccumulator = new AccumulatorAverageFixed(10);
-        
+
         AccumulatorAverage energy2Accumulator = new AccumulatorAverageFixed(10);
         final MeterPotentialEnergy energy2Meter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());//true energy
         energy2Meter.setBox(sim.box);
@@ -259,7 +256,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         IntegratorListenerAction energy2Listener = new IntegratorListenerAction(energy2Pump);
         energy2Listener.setInterval(100);
         sim.integrator.getEventManager().addListener(energy2Listener);
-        
+
         if (false) {
         	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,"acetic acid", 1);
         	SpeciesAceticAcid species = (SpeciesAceticAcid)sim.getSpecies(0);
@@ -280,7 +277,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         	densityHistory.setDataSink(rhoPlot.getDataSet().makeDataSink());
         	rhoPlot.setLabel("density");
         	graphic.add(rhoPlot);
-        	//AccumulatorHistory smerHistory1 = new AccumulatorHistory(new HistoryCollapsingAverage()); 
+        	//AccumulatorHistory smerHistory1 = new AccumulatorHistory(new HistoryCollapsingAverage());
         	//smerAccumulator.addDataSink(smerHistory, new StatType[]{StatType.MOST_RECENT});
         	//DisplayPlot smerPlot1 = new DisplayPlot();
         	//smerHistory1.setDataSink(smerPlot1.getDataSet().makeDataSink());
@@ -302,8 +299,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         	sim.actionIntegrator.setMaxSteps(Long.MAX_VALUE);
         	return;
         }
-        
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
         
     	CompoundUnit rhoUnit = new CompoundUnit(new Unit[]{Mole.UNIT,Liter.UNIT},new double[]{1,-1});
         double finalDensity = rhoMeter.getDataAsScalar();

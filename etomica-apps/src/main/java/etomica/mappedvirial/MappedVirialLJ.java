@@ -6,6 +6,7 @@ package etomica.mappedvirial;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -149,12 +150,10 @@ public class MappedVirialLJ extends Simulation {
         
         long t1 = System.currentTimeMillis();
         
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.integrator.getMoveManager().setEquilibrating(false);
-        
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+sim.getController().reset();
+sim.integrator.getMoveManager().setEquilibrating(false);
+
         int nBins = 1000000;
         long numSamples = numSteps/numAtoms;
         long samplesPerBlock = numSamples/nBlocks;
@@ -183,15 +182,14 @@ public class MappedVirialLJ extends Simulation {
             int nbins = (int)Math.round(rc/0.01);
             meterF = new MeterMeanForce(space, sim.integrator.getPotentialMaster(), sim.p2Truncated, sim.box, nbins);
             if (computeP && computePMA) sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterF, numAtoms));
-    
+
             meterRDF = new MeterRDFPC(space, sim.integrator.getPotentialMaster(), sim.box);
             meterRDF.setBox(sim.box);
             meterRDF.getXDataSource().setNValues(nbins);
             meterRDF.getXDataSource().setXMax(rc);
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
         }
-
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         IData mappedAvg = accMappedVirial.getData(accMappedVirial.AVERAGE);
         IData mappedErr = accMappedVirial.getData(accMappedVirial.ERROR);

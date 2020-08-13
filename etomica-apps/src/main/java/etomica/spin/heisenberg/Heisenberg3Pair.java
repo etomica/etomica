@@ -5,6 +5,7 @@
 package etomica.spin.heisenberg;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -111,9 +112,8 @@ public class Heisenberg3Pair extends Simulation {
         MeterSpinMSquare meterMSquare = null;
         AccumulatorAverage dipoleSumSquaredAccumulator = null;
 
-        sim.activityIntegrate.setMaxSteps(steps / 5);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 5);
+sim.getController().reset();
         int blockNumber = 100;
 
 
@@ -151,9 +151,7 @@ public class Heisenberg3Pair extends Simulation {
             AEEListener.setInterval(sampleAtInterval);
             sim.integrator.getEventManager().addListener(AEEListener);
         }
-
-        sim.activityIntegrate.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
 
         //******************************** simulation start ******************************** //

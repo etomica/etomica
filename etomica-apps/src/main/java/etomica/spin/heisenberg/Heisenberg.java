@@ -5,6 +5,7 @@
 package etomica.spin.heisenberg;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
@@ -179,9 +180,8 @@ public class Heisenberg extends Simulation {
         }
 
 
-        sim.activityIntegrate.setMaxSteps(steps / 5);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 5);
+sim.getController().reset();
         int blockNumber = 100;
 
         System.out.println("equilibration finished");
@@ -283,9 +283,7 @@ public class Heisenberg extends Simulation {
             DataPumpListener pumpEnergyMF = new DataPumpListener(meterEnergyMF, energyMFAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(pumpEnergyMF);
         }
-
-        sim.activityIntegrate.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         long endTime = System.currentTimeMillis();
         double totalTime = (endTime - startTime) / (1000.0 * 60.0);
 

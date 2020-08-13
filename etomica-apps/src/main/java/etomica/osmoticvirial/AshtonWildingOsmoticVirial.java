@@ -2,6 +2,7 @@ package etomica.osmoticvirial;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
@@ -249,11 +250,9 @@ public class AshtonWildingOsmoticVirial extends Simulation {
             simGraphic.makeAndDisplayFrame(appName);
             return;
         }
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.integrator.getMoveManager().setEquilibrating(false);
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+sim.getController().reset();
+sim.integrator.getMoveManager().setEquilibrating(false);
 
         MeterRminSpecies meterRmin = new MeterRminSpecies(sim.space, sim.box, sim.species1);
         AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, L*sim.potential1.getRange())));
@@ -266,7 +265,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         accNm = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pumpNm = new DataPumpListener(meterNMolecules, accNm);
         sim.integrator.getEventManager().addListener(pumpNm);
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         double[] histRmin = accRmin.getHistograms().getHistogram();
         double[] r = accRmin.getHistograms().xValues();

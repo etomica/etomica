@@ -5,6 +5,7 @@
 package etomica.metastable;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -219,22 +220,20 @@ public class LJNPT extends Simulation {
                 return;
             }
             
-            sim.activityIntegrate.setMaxSteps(numSteps/10);
-            sim.getController().actionPerformed();
-            sim.integrator.resetStepCount();
+            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+sim.integrator.resetStepCount();
             sim.getController().reset();
             if (numRuns==1) System.out.println("Equilibration finished");
 
             sim.mcMoveVolume.setPressure(pressure);
-            sim.activityIntegrate.setMaxSteps(numSteps);
-            sim.integrator.getEventManager().addListener(new IntegratorListener() {
+sim.integrator.getEventManager().addListener(new IntegratorListener() {
 
                 int count = 0;
                 int interval = numAtoms;
-                
+
                 public void integratorStepStarted(IntegratorEvent e) {
                 }
-                
+
                 public void integratorStepFinished(IntegratorEvent e) {
                     interval--;
                     if (interval > 0) return;
@@ -252,12 +251,11 @@ public class LJNPT extends Simulation {
                     count++;
                     if (U<-1) sim.activityIntegrate.setMaxSteps(0);
                 }
-                
+
                 public void integratorInitialized(IntegratorEvent e) {
                 }
             });
-            
-            sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
             
             if (numRuns <= 10 || (numRuns*10/(i+1))*(i+1) == numRuns*10) {
                 System.out.println("Run "+(i+1)+" finished");

@@ -8,6 +8,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -297,9 +298,8 @@ public class HSMDCavity extends Simulation {
         System.out.println("density: " + params.density);
 
         long steps = params.steps;
-        sim.activityIntegrate.setMaxSteps(steps / 10);
-        sim.getController().actionPerformed();
-        sim.integrator.resetStepCount();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 10);
+sim.integrator.resetStepCount();
 
 
         MeterCavityMapped meterCavityMapped = null;
@@ -346,11 +346,9 @@ public class HSMDCavity extends Simulation {
         AccumulatorAverageFixed accPF = new AccumulatorAverageFixed(1);
         DataPumpListener pumpPF = new DataPumpListener(meterPF, accPF, (int) (steps / 100));
         sim.integrator.getEventManager().addListener(pumpPF);
-
-        sim.activityIntegrate.setMaxSteps(steps);
-        sim.getController().reset();
+sim.getController().reset();
         double t1 = System.nanoTime();
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         double t2 = System.nanoTime();
 
         double avgCR = accCR.getData(accCR.AVERAGE).getValue(0);

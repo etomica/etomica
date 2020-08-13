@@ -5,6 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.*;
@@ -258,9 +259,8 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		energyPumpListener.setInterval(100);
 		sim.integrator.getEventManager().addListener(energyPumpListener);
 
-		sim.activityIntegrate.setMaxSteps(simSteps / 10); // simSteps/10
-		sim.getController().actionPerformed();
-		System.out.println("equilibrated");
+		sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps / 10); // simSteps/10
+System.out.println("equilibrated");
 
 		long startTime = System.currentTimeMillis();
 		System.out.println("\nStart Time: " + startTime);
@@ -279,9 +279,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
         IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
 		sWriterListener.setInterval((int)simSteps/10);
 		sim.integrator.getEventManager().addListener(sWriterListener);
-
-        sim.activityIntegrate.setMaxSteps(simSteps);
-		sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
 
         double A = sWriter.getLastA();
 		System.out.println("A/N: " + A/nA);

@@ -5,6 +5,7 @@
 package etomica.metastable;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -305,22 +306,20 @@ public class LJmuVT extends Simulation {
                 return;
             }
             long tstart = System.currentTimeMillis();
-            sim.activityIntegrate.setMaxSteps(numSteps/10);
-            sim.getController().actionPerformed();
-            sim.integrator.resetStepCount();
+            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+sim.integrator.resetStepCount();
             sim.getController().reset();
             if (numRuns==1) System.out.println("Equilibration finished");
 
             sim.mcMoveID.setMu(mu);
-            sim.activityIntegrate.setMaxSteps(numSteps);
-            sim.integrator.getEventManager().addListener(new IntegratorListener() {
+sim.integrator.getEventManager().addListener(new IntegratorListener() {
 
                 int count = 0;
                 int interval = numAtoms;
-                
+
                 public void integratorStepStarted(IntegratorEvent e) {
                 }
-                
+
                 public void integratorStepFinished(IntegratorEvent e) {
                     interval--;
                     if (interval > 0) return;
@@ -338,12 +337,11 @@ public class LJmuVT extends Simulation {
                     count++;
                     if (U<-1) sim.activityIntegrate.setMaxSteps(0);
                 }
-                
+
                 public void integratorInitialized(IntegratorEvent e) {
                 }
             });
-            
-            sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
             long tstop = System.currentTimeMillis();
             
             if (numRuns <= 10 || (numRuns*10/(i+1))*(i+1) == numRuns*10) {

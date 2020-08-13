@@ -5,6 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.DataPump;
@@ -221,8 +222,7 @@ public class SimOverlapLJModule {
         System.out.println("equilibration finished");
         System.out.flush();
 
-        module.getActivityIntegrate().setMaxSteps(numSteps);
-        module.getController().actionPerformed();
+        module.controller.runActivityBlocking(new ActivityIntegrate2(module.integratorOverlap), numSteps);
 
         System.out.println("final reference optimal step fraction " + module.getIntegratorOverlap().getIdealRefStepFraction() + " (actual: " + module.getIntegratorOverlap().getRefStepFraction() + ")");
 

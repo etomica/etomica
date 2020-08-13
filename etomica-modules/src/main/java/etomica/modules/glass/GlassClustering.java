@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.data.*;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.meter.MeterPressureHardTensor;
@@ -39,9 +40,8 @@ public class GlassClustering {
         sim.integrator.setIsothermal(true);
         sim.integrator.setIntegratorMC(sim.integratorMC, 1000);
         sim.integrator.setTemperature(temperature0);
-        sim.activityIntegrate.setMaxSteps(params.numSteps / 10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps / 10);
+sim.getController().reset();
 
         if (temperature0 > params.temperature) {
             System.out.println("Equilibrating at T=" + params.temperature);
@@ -53,10 +53,7 @@ public class GlassClustering {
         //Production
         sim.integrator.setIntegratorMC(null, 0);
         sim.integrator.setIsothermal(false);
-        sim.activityIntegrate.setMaxSteps(params.numSteps);
-
-        //P
-        IDataSource pTensorMeter;
+IDataSource pTensorMeter;
         if (sim.integrator instanceof IntegratorVelocityVerlet) {
             pTensorMeter = new MeterPressureTensorFromIntegrator(sim.getSpace());
             ((MeterPressureTensorFromIntegrator) pTensorMeter).setIntegrator((IntegratorVelocityVerlet) sim.integrator);
@@ -90,7 +87,9 @@ public class GlassClustering {
 
         //Run
         double time0 = System.nanoTime();
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps);
+
+        //P
         double time1 = System.nanoTime();
 
         clusterWriter.closeFile();
