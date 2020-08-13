@@ -6,6 +6,7 @@ package etomica.mappedvirial;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -157,11 +158,9 @@ public class MappedU extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.integrator.getMoveManager().setEquilibrating(false);
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+sim.getController().reset();
+sim.integrator.getMoveManager().setEquilibrating(false);
 
         int nBins = 1000000;
         long numSamples = numSteps/numAtoms;
@@ -205,8 +204,7 @@ public class MappedU extends Simulation {
             meterRDF.getXDataSource().setXMax(eqncutoff);
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
         }
-
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
 
 

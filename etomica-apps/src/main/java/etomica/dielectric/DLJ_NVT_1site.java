@@ -6,6 +6,7 @@ package etomica.dielectric;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.DiameterHashByType;
@@ -189,9 +190,8 @@ public class DLJ_NVT_1site extends Simulation {
 	    	return ;
     	}
 
-        sim.activityIntegrate.setMaxSteps(steps/5);// equilibration period
-   		sim.getController().actionPerformed();
-   		sim.getController().reset();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/5);// equilibration period
+sim.getController().reset();
    		sim.integrator.getMoveManager().setEquilibrating(false);
 //   		System.out.println("equilibration finished");
 
@@ -230,9 +230,7 @@ public class DLJ_NVT_1site extends Simulation {
             sim.integrator.getEventManager().addListener(AEEListener);
 
         }
-
-        sim.activityIntegrate.setMaxSteps(steps);// equilibration period
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
         //calculate dipoleSumSquared average
         double dipoleSumSquared = 0;

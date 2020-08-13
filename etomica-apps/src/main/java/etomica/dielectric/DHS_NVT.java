@@ -6,6 +6,7 @@ package etomica.dielectric;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.DiameterHashByType;
@@ -202,9 +203,8 @@ protected final SpeciesSpheresRotating species;
 			simGraphic.getDisplayBox(sim.box).repaint();
 			return ;
 		}
-		sim.activityIntegrate.setMaxSteps(steps/5);// equilibration period
-        sim.getController().actionPerformed();
-        sim.getController().reset();
+		sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/5);// equilibration period
+sim.getController().reset();
 
 		//TODO
 		sim.integrator.getMoveManager().setEquilibrating(false);        //set the stepsize
@@ -248,10 +248,8 @@ protected final SpeciesSpheresRotating species;
 		//TODO
 
 
-        sim.integrator.getEventManager().addListener(AEEListener);//TODO
-        sim.activityIntegrate.setMaxSteps(steps);
-
-		sim.getController().actionPerformed();
+        sim.integrator.getEventManager().addListener(AEEListener);//TODO;
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
 		//calculate dipoleSumSquared average
         double dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.AVERAGE.index)).x;

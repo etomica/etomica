@@ -6,6 +6,7 @@ package etomica.eam;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -250,11 +251,9 @@ public class EFSTungsten extends Simulation {
         	return;
     	}
     	
-    	sim.activityIntegrate.setMaxSteps(numsteps/10);
-    	sim.getController().actionPerformed();
-        sim.getController().reset();
-        sim.activityIntegrate.setMaxSteps(numsteps);
-        System.out.println("equilibration finished");
+    	sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numsteps/10);
+sim.getController().reset();
+System.out.println("equilibration finished");
 
         AccumulatorAverageFixed accumulatorAveragePE = null;
         AccumulatorAverageFixed accumulatorAverageDADB = null;
@@ -280,12 +279,12 @@ public class EFSTungsten extends Simulation {
 	        dadbPump = new DataPumpListener(DADBMeter, accumulatorHistoryDADB, 10);
 
 	        sim.integrator.getEventManager().addListener(energyPump);
-	        sim.integrator.getEventManager().addListener(dadbPump);        	
+	        sim.integrator.getEventManager().addListener(dadbPump);
         }
-        
-        
+
+
         long t1 = System.currentTimeMillis();
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numsteps);
         long t2 = System.currentTimeMillis();
 
         if (doHistory) {

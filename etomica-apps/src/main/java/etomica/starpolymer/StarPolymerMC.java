@@ -3,6 +3,7 @@ package etomica.starpolymer;
 import etomica.action.IAction;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
@@ -157,7 +158,7 @@ public class StarPolymerMC extends Simulation {
     }
 
     public static void main(String[] args) {
-        StarPolymerMC.PolymerParam params = new StarPolymerMC.PolymerParam();
+        PolymerParam params = new PolymerParam();
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
@@ -267,9 +268,8 @@ public class StarPolymerMC extends Simulation {
 
         System.out.println("Equilibration of " + steps + " steps starts...");
         long t1 = System.currentTimeMillis();
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
-        System.out.println("Equilibration finished! ");
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorMC), steps);
+System.out.println("Equilibration finished! ");
 
         DataFork rgFork = new DataFork();
         AccumulatorAverageFixed accRG = new AccumulatorAverageFixed(1000);
@@ -280,8 +280,7 @@ public class StarPolymerMC extends Simulation {
 
         System.out.println("Production starts...");
         sim.getController().reset();
-        sim.ai.setMaxSteps(1000 * 10 * 100);
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorMC), 1000 * 10 * 100);
         System.out.println("Production finished! ");
         long t2 = System.currentTimeMillis();
         System.out.println("time : " + (t2 - t1) / 1000.0);

@@ -6,6 +6,7 @@ package etomica.normalmode;
 
 import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -185,9 +186,8 @@ public class SimCalcSSoftSphere2D extends Simulation {
         energyPumpListener.setInterval(100);
         sim.integrator.getEventManager().addListener(energyPumpListener);
 
-        sim.activityIntegrate.setMaxSteps(simSteps/10);  //simSteps/10
-        sim.getController().actionPerformed();
-        System.out.println("equilibrated");
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps/10);  //simSteps/10
+System.out.println("equilibrated");
         sim.integrator.getMoveManager().setEquilibrating(false);
         sim.getController().reset();
         meterNormalMode.reset();
@@ -201,9 +201,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
         IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
         sWriterListener.setInterval((int)simSteps/10);
         sim.integrator.getEventManager().addListener(sWriterListener);
-
-        sim.activityIntegrate.setMaxSteps(simSteps);
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
         PDBWriter pdbWriter = new PDBWriter(sim.box);
         pdbWriter.setFileName("calcS_nA"+nA+"_n"+exponent+"_T"+temperature+".pdb");
         pdbWriter.actionPerformed();

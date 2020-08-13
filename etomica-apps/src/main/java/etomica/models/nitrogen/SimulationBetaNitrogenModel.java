@@ -6,6 +6,7 @@ package etomica.models.nitrogen;
 
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
@@ -312,10 +313,9 @@ public class SimulationBetaNitrogenModel extends Simulation{
 //        meterOrientListener.setInterval(numMolecule);                                      
 //        sim.integrator.getEventManager().addListener(meterOrientListener);       
 		
-        sim.activityIntegrate.setMaxSteps(simSteps/5);
-		sim.getController().actionPerformed();
-		System.out.println("****System Equilibrated (20% of SimSteps)****");
-		
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps/5);
+System.out.println("****System Equilibrated (20% of SimSteps)****");
+
 		long startTime = System.currentTimeMillis();
 		System.out.println("\nStart Time: " + startTime);
 
@@ -326,15 +326,13 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
 		energyListener.setInterval(numMolecule);
 		sim.integrator.getEventManager().addListener(energyListener);
-		
+
 		AccumulatorAverage pressureAverage = new AccumulatorAverageCollapsing();
 		DataPump pressurePump = new DataPump(meterPressure, pressureAverage);
 		IntegratorListenerAction pressureListener = new IntegratorListenerAction(pressurePump);
 		pressureListener.setInterval((int)simSteps/200);
 		sim.integrator.getEventManager().addListener(pressureListener);
-		
-		sim.activityIntegrate.setMaxSteps(simSteps);
-		sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
 		
 //		sim.writeUdistribution(filename, meterOrient);
 		

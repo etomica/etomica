@@ -6,6 +6,7 @@ package etomica.dielectric;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
@@ -253,9 +254,8 @@ public class TIP4P_NVT extends Simulation {
 //         System.out.println("number of blocks is : "+blockNumber);
 //         System.out.println("sample per block is : "+samplePerBlock);
         ////////////////////////////////////////////////////////////////////
-        sim.activityIntegrate.setMaxSteps(steps / 5);//
-        sim.getController().actionPerformed();
-        sim.getController().reset();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 5);//
+sim.getController().reset();
         sim.integrator.getMoveManager().setEquilibrating(false);
 //         System.out.println("equilibration finished");
         // dipoleSumSquared
@@ -318,9 +318,7 @@ public class TIP4P_NVT extends Simulation {
             //AEEListener.setInterval(1);//debug only to have more test samples
             sim.integrator.getEventManager().addListener(AEEListener);
         }
-
-        sim.activityIntegrate.setMaxSteps(steps);// equilibration period
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
         //calculate dipoleSumSquared average
         double dipoleSumSquared = 0;

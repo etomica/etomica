@@ -5,6 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.*;
@@ -489,16 +490,14 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
 
         if (refPref == -1) {
             // equilibrate off the lattice to avoid anomolous contributions
-            activityIntegrate.setMaxSteps(initSteps / 2);
-            getController().actionPerformed();
-            getController().reset();
+            getController2().runActivityBlocking(new ActivityIntegrate2(integratorOverlap), initSteps / 2);
+getController().reset();
             System.out.println("target equilibration finished");
 
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41, true), 0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41, false), 1);
             setRefPref(1, 200);
-            activityIntegrate.setMaxSteps(initSteps);
-            getController().actionPerformed();
+getController2().runActivityBlocking(new ActivityIntegrate2(integratorOverlap), initSteps);
             getController().reset();
 
             int newMinDiffLoc = dsvo.minDiffLocation();

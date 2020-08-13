@@ -6,6 +6,7 @@ package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -196,14 +197,11 @@ public class SimLJ extends Simulation {
         }
 
         long eqSteps = steps/10;
-        sim.ai.setMaxSteps(eqSteps);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), eqSteps);
+sim.getController().reset();
         sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-
-        System.out.println("equilibration finished ("+eqSteps+" steps)");
+System.out.println("equilibration finished ("+eqSteps+" steps)");
 
         long t1 = System.currentTimeMillis();
 
@@ -213,8 +211,7 @@ public class SimLJ extends Simulation {
         AccumulatorAverageCovariance accEnergies = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, numAtoms);
         sim.integrator.getEventManager().addListener(pumpEnergies);
-
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
         IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
         IData errEnergies = accEnergies.getData(accEnergies.ERROR);

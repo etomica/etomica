@@ -6,6 +6,7 @@ package etomica.AlkaneEH;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -163,12 +164,11 @@ public class CH4NVT extends Simulation {
 		}
     	
     	System.out.println("no graphic simulation involved");
-   		sim.activityIntegrate.setMaxSteps(steps/10);// equilibration period
-   		sim.getController().actionPerformed();
-   		sim.getController().reset();
+   		sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/10);// equilibration period
+sim.getController().reset();
    		sim.integrator.getMoveManager().setEquilibrating(false);
    		System.out.println("equilibration finished");
-    		
+
     	// pressure
         MeterPressureMolecular pMeter = new MeterPressureMolecular(sim.space);
 
@@ -179,14 +179,13 @@ public class CH4NVT extends Simulation {
         IntegratorListenerAction pumpListener = new IntegratorListenerAction(pPump);
         pumpListener.setInterval(2*numberMolecules);//block nbr=steps/(10*2*N)
         sim.integrator.getEventManager().addListener(pumpListener);
-        
+
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(10);
         DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
-        sim.activityIntegrate.setMaxSteps(steps);// equilibration period
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         
         // compressibility factor Z=P/rho/T(all in sim units)
         double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
