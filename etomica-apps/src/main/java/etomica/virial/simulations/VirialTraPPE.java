@@ -8,15 +8,10 @@ import etomica.action.IAction;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.*;
-import etomica.data.histogram.HistogramNotSoSimple;
-import etomica.data.histogram.HistogramSimple;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
-import etomica.integrator.IntegratorEvent;
-import etomica.integrator.IntegratorListener;
-import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionCOM;
@@ -42,7 +37,7 @@ import java.awt.*;
 import java.util.Arrays;
 
 /**
- * Compute pure and binary mixture virial coefficients using overlap sampling simulations
+ * Compute pure, binary, ternary and quaternary mixture virial coefficients using overlap sampling simulations
  * for some molecules using the TraPPE force fields.
  *
  */
@@ -91,8 +86,12 @@ public class VirialTraPPE {
 
         double BDtol = params.BDtol;
 
+
+        // Set Number of Blocks
+        final long numBlocks = 1000;
+
         // Set Big Decimal Acceptance Fraction
-        final double BDAccFrac = 0.001;
+        final double BDAccFrac = 0.1;
 
         // Check Params
         if( chemForm.length != nTypes.length ) throw new RuntimeException("chemFrom and nTypes lengths are unequal!");
@@ -212,15 +211,15 @@ public class VirialTraPPE {
         targetCluster.setTemperature(temperature);
 
 
-        // Setting Number of Blocks
-        final long numBlocks = (anyPolar && nPoints > 4) ? 100: 1000;
+        // Setting BlockSize
         long blockSize = steps/numBlocks;
         int EqSubSteps = 1000;
 
         System.out.println(steps + " steps (" + numBlocks + " blocks of " + blockSize + ")");
+        System.out.println("BD_Tol: " + BDtol + " BDAccFrac: " + BDAccFrac);
 
         // Setting up Flipping
-        if(anyPolar && nPoints==2 || true) {
+        if(anyPolar && nPoints==2) {
             System.out.println("Performing Flipping");
             ((ClusterWheatleySoftDerivativesMix) targetCluster).setTolerance(0);
             final int precision = -3*(int)Math.log10(BDtol);
@@ -342,126 +341,6 @@ public class VirialTraPPE {
             System.out.println("time: "+(t2-t1)/1000.0);
             return;
         }
-//        final ClusterWheatleySoftDerivativesMix tc = (ClusterWheatleySoftDerivativesMix) targetCluster;
-//        HistogramNotSoSimple histogramGPi = new HistogramNotSoSimple(100, new DoubleRange(-50, 50));
-//        HistogramSimple histogramPi = new HistogramSimple(100, new DoubleRange(-50, 50));
-//        sim.integrators[1].getEventManager().addListener(new IntegratorListener() {
-//            @Override
-//            public void integratorInitialized(IntegratorEvent e) {
-//            }
-//
-//            @Override
-//            public void integratorStepStarted(IntegratorEvent e) {
-//            }
-//
-//            @Override
-//            public void integratorStepFinished(IntegratorEvent e) {
-//                double gamma = tc.getAllLastValues(sim.box[1])[0];
-//                if (tc.valueIsBD()) gamma *= BDAccFrac;
-//                gamma *= 720 / 5;
-//                double pi = Math.abs(gamma);
-//                if (pi == 0) return;
-//                histogramPi.addValue(Math.log(pi));
-//                histogramGPi.addValue(Math.log(pi), gamma / pi);
-//            }
-//        });
-//        if (false) {
-//            sim.integratorOS.getEventManager().addListener(new IntegratorListener() {
-//                @Override
-//                public void integratorInitialized(IntegratorEvent e) {
-//                }
-//
-//                @Override
-//                public void integratorStepStarted(IntegratorEvent e) {
-//                }
-//
-//                @Override
-//                public void integratorStepFinished(IntegratorEvent e) {
-//                    if (sim.integratorOS.getStepCount() % (steps / blockSize / 100) == 0) {
-//                        double[] piValues = histogramPi.xValues();
-//                        double[] hValues = histogramPi.getHistogram();
-//                        double[] gpiValues = histogramGPi.getHistogram();
-//                        for (int i = 0; i < piValues.length; i++) {
-//                            if (hValues[i] == 0) continue;
-//                            System.out.println(Math.exp(piValues[i]) + " " + hValues[i] + " " + gpiValues[i]);
-//                        }
-//                        System.out.println("&");
-//                    }
-//                }
-//            });
-//        }
-
-        //Histogram analysis
-
-        final HistogramSimple TargRHist = new HistogramSimple(70, new DoubleRange(-1, 8));
-        final HistogramSimple TargBDHist = new HistogramSimple(70, new DoubleRange(-1, 8));
-        final HistogramNotSoSimple TargGammaRHist = new HistogramNotSoSimple(70, new DoubleRange(-1, 8));
-        final HistogramNotSoSimple TargPiRHist = new HistogramNotSoSimple(70, new DoubleRange(-1, 8));
-
-        HistogramSimple TargfBHist = new HistogramSimple(100, new DoubleRange(-50, 50));
-        HistogramNotSoSimple TargGPiHist = new HistogramNotSoSimple(100, new DoubleRange(-50, 50));
-
-        final ClusterAbstractMultivalue HistTargetCluster;
-        boolean checkFlipping= false;
-        if (targetCluster instanceof ClusterWheatleySoftDerivatives) {
-            HistTargetCluster = (ClusterWheatleySoftDerivatives)targetCluster;
-        }
-        else if (targetCluster instanceof ClusterCoupledFlippedMultivalue){
-            HistTargetCluster = (ClusterCoupledFlippedMultivalue)targetCluster;
-            checkFlipping = true;
-        }
-        else{ HistTargetCluster = null ;}
-
-        final boolean flipping = checkFlipping;
-
-        double bfac = (double)(1-nPoints)/SpecialFunctions.factorial(nPoints);
-
-        IntegratorListener TargHistListener = new IntegratorListener() {
-            public void integratorStepStarted(IntegratorEvent e) {}
-
-            public void integratorStepFinished(IntegratorEvent e) {
-                double r2Max = 0;
-                double r2Min = Double.POSITIVE_INFINITY;
-                CoordinatePairSet cPairs = sim.box[1].getCPairSet();
-                for (int i=0; i<nPoints; i++) {
-                    for (int j=i+1; j<nPoints; j++) {
-                        double r2ij = cPairs.getr2(i, j);
-                        if (r2ij < r2Min) r2Min = r2ij;
-                        if (r2ij > r2Max) r2Max = r2ij;
-                    }
-                }
-                double r = Math.sqrt(r2Max);
-                if (r > 1) {
-                    r = Math.log(r);
-                }
-                else {
-                    r -= 1;
-                }
-                TargRHist.addValue(r);
-
-                double gamma = HistTargetCluster.value(sim.box[1]);
-                boolean valueIsBD = flipping ? ((ClusterCoupledFlippedMultivalue)HistTargetCluster).valueIsBD(): ((ClusterWheatleySoftDerivatives)HistTargetCluster).valueIsBD();
-                double weight = BDAccFrac * ( flipping ? ((ClusterCoupledFlippedMultivalue)HistTargetCluster).FlipAccFrac : 1 );
-
-                if (valueIsBD) {
-                    gamma *= weight;
-                    TargBDHist.addValue(r);
-
-                }
-                double pi = Math.abs(gamma);
-                double fB = gamma/bfac;
-
-                TargGammaRHist.addValue(r, gamma);
-                TargPiRHist.addValue(r, pi);
-
-                TargfBHist.addValue( Math.log(Math.abs(fB)) );
-                TargGPiHist.addValue( Math.log(Math.abs(fB)),gamma / pi );
-            }
-
-            public void integratorInitialized(IntegratorEvent e) {}
-        };
-
-        sim.integrators[1].getEventManager().addListener(TargHistListener);
 
         // Setting up Production Run
         sim.integratorOS.setNumSubSteps((int) blockSize);
@@ -473,59 +352,30 @@ public class VirialTraPPE {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
 
-        sim.accumulators[1].setWriteBlocks("Box1_Block_Data.dat");
-
         // Production Run
         sim.getController().actionPerformed();
 
-        sim.accumulators[1].writeBlockData();
-
-        System.out.println();
-
-        System.out.println("*** Final Target |fB| Histogram ***");
-        double[] fBBins = TargfBHist.xValues();
-        double[] fBHist = TargfBHist.getHistogram();
-        double[] GPiHist = TargGPiHist.getHistogram();
-        for (int i = 0; i < fBBins.length; i++) {
-            if (fBHist[i] == 0) continue;
-            System.out.println(Math.exp(fBBins[i]) + " " + fBHist[i] + " " + GPiHist[i]);
-        }
-
-        System.out.println();
-
-        System.out.println("*** Final Target R Histogram ***");
-        double[] RBins = TargRHist.xValues();
-        double[] RHist = TargRHist.getHistogram();
-        double[] GammaRHist = TargGammaRHist.getHistogram();
-        double[] PiRHist = TargPiRHist.getHistogram();
-        double[] BDHist = TargBDHist.getHistogram();
-        for (int i = 0; i < RBins.length; i++) {
-            if (Double.isNaN(GammaRHist[i])) continue;
-            System.out.println(RBins[i] + " " + RHist[i] + " " + GammaRHist[i] + " " + PiRHist[i] + " " +BDHist[i]);
-        }
         System.out.println();
 
         // Print Simulation Output
         System.out.println("final reference step fraction " + sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step fraction " + sim.integratorOS.getRefStepFraction());
 
-        if(targetCluster instanceof ClusterWheatleySoftDerivatives) {
-            long[] nCheck = ((ClusterWheatleySoftDerivatives) targetCluster).getNumBDChecks();
-            long[] nCheckTot = ((ClusterWheatleySoftDerivatives) targetCluster).getNumCheckVisits();
-            double[] avgCheck = ((ClusterWheatleySoftDerivatives) targetCluster).getAverageCheck();
-            double[] avgCheckBD = ((ClusterWheatleySoftDerivatives) targetCluster).getAverageCheckBD();
-            System.out.print("BD ratios: ");
-            for (int i = 0; i < avgCheck.length; i++) {
-                System.out.print("  " + avgCheck[i] / avgCheckBD[i] + " (" + nCheck[i] + "/" + nCheckTot[i] + ")");
-            }
-            System.out.println();
-        }
-
         String[] extraNames = new String[nDer];
         for (int i = 1; i <= nDer; i++) {
             extraNames[i - 1] = "derivative " + i;
         }
         sim.printResults(HSBn, extraNames);
+
+        // Print BD and Flip Stats
+        if (targetCluster instanceof ClusterWheatleySoftDerivatives) {
+            System.out.println("SoftBDcount: " + ((ClusterWheatleySoftDerivatives)targetCluster).getSoftBDcount() + " SoftBDfrac: " + ((ClusterWheatleySoftDerivatives)targetCluster).getSoftBDfrac() + " Softcount: " + ((ClusterWheatleySoftDerivatives)targetCluster).getSoftcount());
+        }
+        else if (targetCluster instanceof ClusterCoupledFlippedMultivalue) {
+            ClusterCoupledFlippedMultivalue foo = (ClusterCoupledFlippedMultivalue)targetCluster;
+            System.out.println("BDcount: " + foo.getBDcount() + " BDfrac: " + foo.getBDfrac() + " totBDcount: " + foo.getBDtotcount());
+            System.out.println("FlipCount: " + foo.getflipcount() + " Flipfrac: " + foo.getflipfrac() + " FlipTotcount: " + foo.gettotcount());
+        }
 
         long t2 = System.currentTimeMillis();
         System.out.println("time: " + (t2 - t1) / 1000.0);

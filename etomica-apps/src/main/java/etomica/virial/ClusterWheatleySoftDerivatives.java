@@ -443,10 +443,11 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
                 if (randomJustChecking == null) {
                     randomJustChecking = new RandomMersenneTwister(1);
                 }
-                r = BDAccFrac < 1 ? randomJustChecking.nextDouble() : 1;
+                //r = BDAccFrac < 1 ? randomJustChecking.nextDouble() : 0;
+                r = randomJustChecking.nextDouble();
                 r *= 10.0 * (nCheckTot[idx] + 1) / (nCheckTot[0] + 1);
             } else {
-                r = BDAccFrac < 1 ? random.nextDouble() : 1;
+                r = BDAccFrac < 1 ? random.nextDouble() : 0;
             }
             nCheckTot[idx]++;
             // integrand is too small for recursion to compute accurately.  we ought to do
