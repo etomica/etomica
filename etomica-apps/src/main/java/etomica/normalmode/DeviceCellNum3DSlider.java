@@ -169,28 +169,6 @@ public class DeviceCellNum3DSlider extends Device {
         return species;
     }
 
-    //
-    //main method to test device
-    //
-    public static void main(String[] args) {
-        final String APP_NAME = "Device Wave Vectors Number Slider";
-
-       
-        etomica.space.Space sp = etomica.space3d.Space3D.getInstance();
-        NormalModeAnalysisDisplay3D sim = new NormalModeAnalysisDisplay3D();
-        
-        DeviceCellNum3DSlider device = new DeviceCellNum3DSlider(new Controller());
-        device.setMinimum(1);
-        device.setMaximum(5);
-        //device.setWaveVectorNum(0);
-        
-        
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-        graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
-        graphic.add(device);
-        graphic.makeAndDisplayFrame(APP_NAME);
-
-    }
 
 
 }

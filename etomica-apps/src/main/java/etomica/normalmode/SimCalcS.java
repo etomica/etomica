@@ -164,7 +164,7 @@ public class SimCalcS extends Simulation {
         sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), nSteps/10);
 System.out.println("equilibration finished");
         meterNormalMode.reset();
-        sim.getController().reset();
+
 sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), nSteps);
 
         WriteS sWriter = new WriteS(sim.space);

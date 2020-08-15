@@ -230,7 +230,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         System.out.println("equilibrium period = " +numSteps/10);//equilibrium period
 sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
 System.out.println("equilibrium finished");
-        sim.getController().reset();
+
 MeterDensity rhoMeter = new MeterDensity(sim.box);
         AccumulatorAverage rhoAccumulator = new AccumulatorAverageFixed(1000);//Accumulator that keeps statistics for averaging and error analysis
         DataPump rhoPump = new DataPump(rhoMeter,rhoAccumulator);

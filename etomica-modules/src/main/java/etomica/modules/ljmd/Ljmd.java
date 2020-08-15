@@ -79,7 +79,7 @@ public class Ljmd extends Simulation {
         }
             
         Ljmd sim = new Ljmd(space);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
     }//end of main
     
 }

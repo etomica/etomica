@@ -216,7 +216,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
 System.out.println("System Equilibrated!");
 
-        sim.getController().reset();
+
 
         /*
          *

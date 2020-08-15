@@ -228,28 +228,6 @@ public class DeviceThermoSlider extends Device {
         temperatureSlider.setPostAction(action);
     }
 
-    //
-    //main method to test device
-    //
-    public static void main(String[] args) {
-        final String APP_NAME = "Device Thermo Slider";
-
-        
-        etomica.space.Space sp = etomica.space3d.Space3D.getInstance();
-        etomica.simulation.Simulation sim = new etomica.simulation.Simulation(sp);
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-
-        DeviceThermoSlider device = new DeviceThermoSlider(new Controller(), new IntegratorVelocityVerlet(null, sim.getRandom(), 1, 1, sim.box()));
-        device.setMinimum(100.0);
-        device.setMaximum(1000.0);
-        device.setTemperature(250.0);
-
-        graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
-        graphic.add(device);
-        graphic.makeAndDisplayFrame(APP_NAME);
-
-    }
-
     private void configureSliderAccessibility() {
         if (isAdiabatic()) {
         	temperatureSlider.getSlider().setEnabled(false);

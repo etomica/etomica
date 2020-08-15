@@ -179,7 +179,7 @@ public class Heisenberg extends Simulation {
 
 
         sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 5);
-sim.getController().reset();
+
         int blockNumber = 100;
 
         System.out.println("equilibration finished");

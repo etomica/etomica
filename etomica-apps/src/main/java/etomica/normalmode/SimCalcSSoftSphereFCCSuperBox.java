@@ -229,7 +229,7 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps/10);  //simSteps/10
 System.out.println("equilibrated");
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.getController().reset();
+
         meterNormalMode.reset();
 
         WriteS sWriter = new WriteS(sim.space);

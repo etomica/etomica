@@ -291,7 +291,7 @@ public class SimLJHTTISuperSFMD extends Simulation {
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomalous contributions
         this.getController2().runActivityBlocking(new ActivityIntegrate2(this.integrator), initSteps);
-        getController().reset();
+
     }
 
     /**

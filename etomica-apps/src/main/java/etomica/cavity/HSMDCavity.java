@@ -343,7 +343,7 @@ sim.integrator.resetStepCount();
         AccumulatorAverageFixed accPF = new AccumulatorAverageFixed(1);
         DataPumpListener pumpPF = new DataPumpListener(meterPF, accPF, (int) (steps / 100));
         sim.integrator.getEventManager().addListener(pumpPF);
-sim.getController().reset();
+
         double t1 = System.nanoTime();
 sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         double t2 = System.nanoTime();

@@ -87,7 +87,7 @@ public class DipoleBox extends Simulation {
             nAtoms = Integer.parseInt(args[1]);
             DipoleBox sim = new DipoleBox(space, nAtoms, dt);
             sim.integrator.printInterval = 100;
-            sim.getController().actionPerformed();
+            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
         }
     }
 

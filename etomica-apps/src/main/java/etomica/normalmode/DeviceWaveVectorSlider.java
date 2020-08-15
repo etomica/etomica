@@ -292,29 +292,7 @@ public class DeviceWaveVectorSlider extends Device {
 
 
     
-    //
-    //main method to test device
-    //
-    public static void main(String[] args) {
-        final String APP_NAME = "Device Wave Vectors Number Slider";
 
-       
-        etomica.space.Space sp = etomica.space1d.Space1D.getInstance();
-        etomica.simulation.Simulation sim = new etomica.simulation.Simulation(sp);
-        
-        DeviceWaveVectorSlider device = new DeviceWaveVectorSlider(new Controller());
-        device.setMinimum(0);
-        device.setMaximum(100);
-        device.setWaveVectorNum(0);
-        
-        
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-        graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
-        graphic.add(device);
-        graphic.makeAndDisplayFrame(APP_NAME);
-
-    }
-    
     
     
     

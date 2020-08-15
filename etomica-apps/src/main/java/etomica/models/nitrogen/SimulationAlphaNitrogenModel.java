@@ -245,7 +245,7 @@ System.out.println("****System Equilibrated (20% of SimSteps)****");
 		long startTime = System.currentTimeMillis();
 		System.out.println("\nStart Time: " + startTime);
 
-		sim.getController().reset();
+
 
 		AccumulatorAverage energyAverage = new AccumulatorAverageFixed();
 		DataPump energyPump = new DataPump(meterPotentialEnergy, energyAverage);

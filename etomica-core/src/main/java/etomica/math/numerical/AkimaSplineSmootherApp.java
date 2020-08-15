@@ -112,6 +112,7 @@ public class AkimaSplineSmootherApp {
         Controller2 controller2 = new Controller2();
         controller.controller2 = controller2;
         controller2.addActivity(new ActivityIntegrate2(integrator));
+        controller2.start();
 
         DisplayPlotXChart ePlot = new DisplayPlotXChart();
         ePlot.getPlot().setYLog(true);
@@ -207,7 +208,7 @@ public class AkimaSplineSmootherApp {
         });
         controlPanel.add(padButton);
 
-        DeviceControllerButton startButton = new DeviceControllerButton(controller);
+        DeviceRunControls startButton = new DeviceRunControls(controller2);
         controlPanel.add(startButton.graphic());
         
         JPanel dPanel = new JPanel(new GridLayout(2, 2));

@@ -219,7 +219,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         // equilibrate off the lattice to avoid anomolous contributions
         System.out.println("\nEquilibration Steps: " + initSteps);
     	this.getController2().runActivityBlocking(new ActivityIntegrate2(this.integrator), initSteps);
-        getController().reset();
+
         
         accumulator.reset();
 

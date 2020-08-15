@@ -222,7 +222,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		long startTime = System.currentTimeMillis();
 		System.out.println("\nStart Time: " + startTime);
 		sim.integrator.getMoveManager().setEquilibrating(false);
-		sim.getController().reset();
+
 
 		sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
 

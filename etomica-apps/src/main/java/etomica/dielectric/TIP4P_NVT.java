@@ -253,7 +253,7 @@ public class TIP4P_NVT extends Simulation {
 //         System.out.println("sample per block is : "+samplePerBlock);
         ////////////////////////////////////////////////////////////////////
         sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 5);//
-sim.getController().reset();
+
         sim.integrator.getMoveManager().setEquilibrating(false);
 //         System.out.println("equilibration finished");
         // dipoleSumSquared

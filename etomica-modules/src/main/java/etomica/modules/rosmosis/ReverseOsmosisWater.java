@@ -257,7 +257,7 @@ public class ReverseOsmosisWater extends Simulation {
         }
             
         ReverseOsmosisWater sim = new ReverseOsmosisWater();
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
     }//end of main
     
 }
