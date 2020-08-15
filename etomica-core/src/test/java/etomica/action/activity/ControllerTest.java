@@ -1,8 +1,8 @@
 package etomica.action.activity;
 
 import etomica.action.IAction;
-import etomica.action.controller.Controller2;
-import etomica.action.controller.Controller2.ActivityHandle;
+import etomica.action.controller.Controller;
+import etomica.action.controller.Controller.ActivityHandle;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -30,7 +30,7 @@ class ControllerTest {
 
     @Test
     public void testActivityBasic() {
-        Controller2 controller = new Controller2();
+        Controller controller = new Controller();
 
         TestActivity act = new TestActivity();
         ActivityHandle handle = controller.addActivity(act, 20, 1);
@@ -55,7 +55,7 @@ class ControllerTest {
 
     @Test
     void testActions() {
-        Controller2 controller = new Controller2();
+        Controller controller = new Controller();
 
         TestActivity act = new TestActivity();
         act.time = 1;
@@ -76,7 +76,7 @@ class ControllerTest {
     @Test
     @DisplayName("Actions submitted from within an action should execute before the next activity step")
     void testSubmitActionInAction() {
-        Controller2 controller = new Controller2();
+        Controller controller = new Controller();
 
         TestActivity act = new TestActivity();
         act.time = 1;

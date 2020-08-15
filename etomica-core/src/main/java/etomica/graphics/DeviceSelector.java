@@ -5,7 +5,7 @@
 package etomica.graphics;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;

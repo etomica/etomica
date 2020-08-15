@@ -6,7 +6,7 @@ package etomica.graphics;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.data.DataPump;
 import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD2D;
@@ -45,23 +45,20 @@ public class DeviceTrioControllerButton extends Device {
         this.simulation = simulation;
         this.simRestart = new SimulationRestart(simulation);
         this.controller = controller;
-        this.controller2 = simulation.getController2();
         resetButton = new DeviceButton(controller);
-        resetButton.controller2 = controller2;
         reinitButton = new DeviceButton(controller);
-        this.runControls = new DeviceRunControls(controller2);
+        this.runControls = new DeviceRunControls(controller);
 
         reinitButton.setLabel("Reinitialize");
         resetButton.setLabel("Reset averages");
         reinitButton.setPreAction(new IAction() {
             public void actionPerformed() {
-                controller2.pause().whenComplete((res, ex) -> {
+                controller.pause().whenComplete((res, ex) -> {
                     runControls.reset();
                 });
             }
         });
         reinitButton.setAction(simRestart);
-        reinitButton.controller2 = controller2;
         resetButton.setAction(simRestart.getDataResetAction());
         jp = new JPanel(new java.awt.GridLayout(1,0, 20, 20)); //default shape of panel
 //        jp.setBorder(new TitledBorder(null, "Control", TitledBorder.CENTER, TitledBorder.TOP));

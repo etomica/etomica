@@ -4,8 +4,7 @@
 
 package etomica.action;
 
-import etomica.action.activity.Controller;
-import etomica.action.controller.Controller2;
+import etomica.action.controller.Controller;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.LatticeCubicFcc;
@@ -25,13 +24,13 @@ public final class SimulationRestart implements IAction {
     protected boolean ignoreOverlap;
     protected SimulationDataAction accumulatorAction;
     protected IAction postAction;
-    private final Controller2 controller2;
+    private final Controller controller;
     private final Simulation simulation;
 
     public SimulationRestart(Simulation sim) {
         this.simulation = sim;
         Space space = sim.getSpace();
-        controller2 = sim.getController2();
+        controller = sim.getController2();
         if (space != null) {
             if (space.D() == 3) {
                 setConfiguration(new ConfigurationLattice(new LatticeCubicFcc(space), space));
@@ -81,7 +80,7 @@ public final class SimulationRestart implements IAction {
             }
         }
 
-        this.controller2.restartCurrentActivity();
+        this.controller.restartCurrentActivity();
 
         accumulatorAction.actionPerformed();
         if (postAction != null) postAction.actionPerformed();

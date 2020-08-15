@@ -6,7 +6,7 @@ package etomica.normalmode.nptdemo;
 
 import java.awt.Graphics;
 
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.space.Vector;

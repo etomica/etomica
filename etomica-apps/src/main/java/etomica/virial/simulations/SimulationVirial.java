@@ -5,9 +5,8 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.Activity2;
-
 import etomica.action.activity.ActivityIntegrate2;
-import etomica.action.controller.Controller2;
+import etomica.action.controller.Controller;
 import etomica.data.*;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
@@ -196,7 +195,7 @@ public class SimulationVirial extends Simulation {
         this.addEquilibration(initSteps).future.join();
     }
 
-    public Controller2.ActivityHandle addEquilibration(long initSteps) {
+    public Controller.ActivityHandle addEquilibration(long initSteps) {
         ActivityIntegrate2 ai = new ActivityIntegrate2(this.integrator);
         Activity2 activityEquilibrate = new Activity2() {
             @Override

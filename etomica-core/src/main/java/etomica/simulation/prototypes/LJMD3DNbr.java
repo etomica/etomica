@@ -8,7 +8,7 @@ import etomica.action.ActionIntegrate;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;

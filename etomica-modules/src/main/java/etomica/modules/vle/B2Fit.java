@@ -11,8 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
-import etomica.action.controller.Controller2;
+import etomica.action.controller.Controller;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DevicePlotPoints;
 import etomica.graphics.SimulationGraphic;
@@ -32,7 +31,6 @@ public class B2Fit extends SimulationPanel {
 		super(APP_NAME);
 
         Controller c = new Controller(); // TODO
-        c.controller2 = new Controller2();
         //
         // Function
         //

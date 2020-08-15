@@ -6,7 +6,6 @@ package etomica.virial.simulations;
 
 
 import etomica.action.activity.ActivityIntegrate2;
-import etomica.action.controller.Controller2;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.data.*;

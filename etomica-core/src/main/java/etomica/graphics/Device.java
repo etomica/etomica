@@ -5,8 +5,7 @@
 package etomica.graphics;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
-import etomica.action.controller.Controller2;
+import etomica.action.controller.Controller;
 import etomica.units.Unit;
 import etomica.units.dimensions.Dimension;
 
@@ -23,7 +22,6 @@ public abstract class Device {
 
     protected Unit unit;
     protected Controller controller;
-    public Controller2 controller2;
     private final ActionSet actionSet = new ActionSet();
 
     public Device() {
@@ -31,10 +29,11 @@ public abstract class Device {
     }
 
     public Device(Controller controller) {
-        this.controller = controller;
-        if (controller != null) {
-            this.controller2 = controller.controller2;
+//        Objects.requireNonNull(controller);
+        if (controller == null) {
+            new Exception().printStackTrace();
         }
+        this.controller = controller;
     }
     
     /**
@@ -49,7 +48,7 @@ public abstract class Device {
      */
     protected CompletableFuture<Void> doAction(IAction action) {
         this.actionSet.action = Objects.requireNonNull(action);
-        return this.controller2.submitActionInterrupt(this.actionSet);
+        return this.controller.submitActionInterrupt(this.actionSet);
 //        if (action == null) return;
 //        actionSet.action = action;
 //        if(controller != null) {
@@ -101,7 +100,6 @@ public abstract class Device {
      */
     public void setController(Controller controller) {
         this.controller = controller;
-        this.controller2 = controller.controller2;
     }
 
     public abstract Component graphic();

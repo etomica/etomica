@@ -10,8 +10,7 @@ import java.io.IOException;
 
 
 import etomica.action.activity.ActivityIntegrate2;
-import etomica.action.activity.Controller;
-import etomica.action.controller.Controller2;
+import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.integrator.Integrator;
 import etomica.data.AccumulatorAverageCollapsingLog;
@@ -80,7 +79,7 @@ public class SimOverlapModule {
         
         setAlpha(1.0, 30);
         
-        controller = new Controller2();
+        controller = new Controller();
     }
 
     public void setTargetDataInterval(int newTargetDataInterval) {
@@ -187,6 +186,6 @@ public class SimOverlapModule {
     protected Integrator[] integrators;
     protected DataPumpListener[] accumulatorPumps;
     protected MeterOverlap[] meters;
-    protected Controller2 controller;
+    protected Controller controller;
     protected int targetDataInterval, referenceDataInterval;
 }

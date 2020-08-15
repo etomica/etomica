@@ -6,7 +6,7 @@ package etomica.zeolite;
 //This class includes a main method to demonstrate its use
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.graphics.Device;
 
 import javax.swing.*;

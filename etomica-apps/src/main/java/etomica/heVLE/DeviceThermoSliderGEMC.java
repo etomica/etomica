@@ -5,7 +5,7 @@
 package etomica.heVLE;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.SimulationGraphic;
@@ -89,7 +89,7 @@ public class DeviceThermoSliderGEMC extends Device {
             }
         });
 
-        ActionListener actionListen = evt -> controller2.submitActionInterrupt(integratorBoxIsoChangeSetIso);
+        ActionListener actionListen = evt -> controller.submitActionInterrupt(integratorBoxIsoChangeSetIso);
 
         addRadioGroupActionListener(actionListen);
         if (integrator1.isIsothermal()) {
@@ -176,7 +176,7 @@ public class DeviceThermoSliderGEMC extends Device {
     }
 
     private void radioButtonChangeByClient() {
-        controller2.submitActionInterrupt(integratorBoxIsoChangeSetIso);
+        controller.submitActionInterrupt(integratorBoxIsoChangeSetIso);
     }
 
     /**
