@@ -21,6 +21,7 @@ public class Controller2 {
     private final Object lock = new Object();
 
     private final AtomicBoolean pauseFlag = new AtomicBoolean(true);
+    private final AtomicBoolean isRunningActivityStep = new AtomicBoolean(false);
     private static final IAction WAKE_UP = () -> {};
     private Integrator integrator;
 
@@ -38,7 +39,7 @@ public class Controller2 {
      */
     public ActivityHandle addActivity(Activity2 activity, long maxSteps, double sleepPeriodMillis) {
         this.tryToGetIntegrator(activity);
-        ActivityTask task = new ActivityTask(activity, this.actionQueue, this.pauseFlag);
+        ActivityTask task = new ActivityTask(activity, this.actionQueue, this.pauseFlag, this.isRunningActivityStep);
         if (this.currentTask == null) {
             this.currentTask = task;
         }
@@ -146,6 +147,10 @@ public class Controller2 {
         return this.pauseFlag.get();
     }
 
+    public boolean isRunningActivityStep() {
+        return this.isRunningActivityStep.get();
+    }
+
     public CompletableFuture<Void> submitActionInterrupt(IAction action) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         if (this.currentTask == null) {
@@ -222,13 +227,15 @@ public class Controller2 {
         private double sleepCarryover = 0.0;
         private final List<IAction> actionsToRun = new ArrayList<>();
         private final AtomicBoolean pauseFlag;
+        private final AtomicBoolean isRunningActivityStep;
 
-        ActivityTask(Activity2 activity, LinkedBlockingQueue<IAction> actionQueue, AtomicBoolean pauseFlag) {
+        ActivityTask(Activity2 activity, LinkedBlockingQueue<IAction> actionQueue, AtomicBoolean pauseFlag, AtomicBoolean isRunningActivityStep) {
             this.activity = activity;
             this.pauseFlag = pauseFlag;
             this.sleepPeriodMillis = 0.0;
             this.maxSteps = Long.MAX_VALUE;
             this.actionQueue = actionQueue;
+            this.isRunningActivityStep = isRunningActivityStep;
         }
 
         @Override
@@ -269,7 +276,9 @@ public class Controller2 {
                         Debug.stepCount = currentStep;
                     }
 
+                    this.isRunningActivityStep.set(true);
                     activity.actionPerformed();
+                    this.isRunningActivityStep.set(false);
                     currentStep++;
 
                     this.doSleepPeriod();

@@ -25,14 +25,12 @@ public final class SimulationRestart implements IAction {
     protected boolean ignoreOverlap;
     protected SimulationDataAction accumulatorAction;
     protected IAction postAction;
-    private final Controller controller;
     private final Controller2 controller2;
     private final Simulation simulation;
 
     public SimulationRestart(Simulation sim) {
         this.simulation = sim;
         Space space = sim.getSpace();
-        controller = sim.getController();
         controller2 = sim.getController2();
         if (space != null) {
             if (space.D() == 3) {
