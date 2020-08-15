@@ -7,7 +7,7 @@ package etomica.rotation;
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
@@ -139,9 +139,9 @@ public class SingleWaterRattle {
             IntegratorListenerAction writeAListener = new IntegratorListenerAction(writeA);
             writeAListener.setInterval(100);
             integrator.getEventManager().addListener(writeAListener);
-            sim.getController().runActivityBlocking(new ActivityIntegrate2(integrator), Long.MAX_VALUE);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator), Long.MAX_VALUE);
         } else {
-            sim.getController().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(10);
+            sim.getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(10);
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rattle", 1);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);

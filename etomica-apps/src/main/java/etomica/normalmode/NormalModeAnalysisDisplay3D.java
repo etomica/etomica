@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -102,7 +102,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         //integrator.setEValNum(4);
 
 
-        getController().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(0);
+        getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(0);
 
     }
 

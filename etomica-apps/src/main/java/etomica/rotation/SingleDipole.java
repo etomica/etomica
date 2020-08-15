@@ -6,7 +6,7 @@ package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
@@ -43,7 +43,7 @@ public class SingleDipole {
         OrientationCalcAtom calcer = new OrientationCalcAtom();
         integrator.setOrientationCalc(species, calcer);
         integrator.setTemperature(1);
-        sim.getController().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(10);
+        sim.getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(10);
 
         BoxImposePbc pbc = new BoxImposePbc(box, space);
         pbc.setApplyToMolecules(true);

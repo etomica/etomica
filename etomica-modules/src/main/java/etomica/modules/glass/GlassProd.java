@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.data.*;
 import etomica.data.meter.*;
 import etomica.data.types.DataDouble;
@@ -72,7 +72,7 @@ public class GlassProd {
         sim.integrator.setIsothermal(true);
         sim.integrator.setIntegratorMC(sim.integratorMC, 1000);
         sim.integrator.setTemperature(temperature0);
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numStepsEq / 2);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numStepsEq / 2);
 
         AccumulatorAverageFixed accE = new AccumulatorAverageFixed(1);
         MeterEnergy meterE = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
@@ -81,18 +81,18 @@ public class GlassProd {
             sim.integrator.getEventManager().addListener(pumpE);
         }
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numStepsEq / 2);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numStepsEq / 2);
 
         if (temperature0 > params.temperature) {
             System.out.println("Equilibrating at T=" + params.temperature);
             sim.integrator.setTemperature(params.temperature);
-            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numStepsEq / 2);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numStepsEq / 2);
 
             if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
                 sim.integrator.getEventManager().addListener(pumpE);
             }
 
-            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numStepsEq / 2);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numStepsEq / 2);
         }
 
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
@@ -488,7 +488,7 @@ public class GlassProd {
 
         //Run
         long time0 = System.nanoTime();
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numSteps);
 
         //Pressure
         DataGroup dataP = (DataGroup)pAccumulator.getData();

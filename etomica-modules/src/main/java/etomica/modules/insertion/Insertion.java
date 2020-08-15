@@ -6,7 +6,7 @@ package etomica.modules.insertion;
 
 import etomica.action.BoxImposePbc;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -98,6 +98,6 @@ public class Insertion extends Simulation {
         }
             
         Insertion sim = new Insertion(space);
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), Long.MAX_VALUE);
     }
 }

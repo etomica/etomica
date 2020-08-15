@@ -1,6 +1,6 @@
 package etomica.virial.simulations;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -175,7 +175,7 @@ public class VirialB2WaterTIP4P_DHS_difference {
             // (or write) to a refpref file
             sim.initRefPref(null, 10, false);
             sim.equilibrate(null, 20);
-            sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
                 throw new RuntimeException("Oops");
             }
@@ -264,7 +264,7 @@ public class VirialB2WaterTIP4P_DHS_difference {
             // only collect the histogram if we're forcing it to run the reference system
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
         if (false) {
             double[] xValues = targHist.xValues();
             double[] h = targHist.getHistogram();

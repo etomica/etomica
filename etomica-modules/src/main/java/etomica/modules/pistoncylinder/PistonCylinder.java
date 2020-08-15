@@ -5,7 +5,7 @@
 package etomica.modules.pistoncylinder;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -101,7 +101,7 @@ public class PistonCylinder extends Simulation {
         integrator.setThermostatInterval(1);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setTimeStep(1.0);
-        getController().addActivity(new ActivityIntegrate2(integrator, 0, true));
+        getController().addActivity(new ActivityIntegrate(integrator, 0, true));
 
     }
 }

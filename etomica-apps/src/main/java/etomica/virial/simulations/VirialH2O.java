@@ -4,6 +4,7 @@
 package etomica.virial.simulations;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
@@ -270,7 +271,7 @@ public class VirialH2O {
 
         // this is where the simulation takes place
 
-sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
         
         long t2 = System.currentTimeMillis(); // End time for simulation        
         

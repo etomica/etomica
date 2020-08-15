@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
@@ -78,7 +78,7 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
 		integrator.setWaveVectorNum(0);
 
 
-		getController().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(0);
+		getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(0);
 
 	}
 	

@@ -6,7 +6,7 @@ package etomica.modules.osmosis;
 
 import etomica.action.IAction;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -128,7 +128,7 @@ public class OsmosisSim extends Simulation {
         config.initializeCoordinates(sim.box);
         simGraphic.getDisplayBox(sim.box).repaint();
         sim.integrator.setTimeStep(0.05);
-        sim.getController().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator)).setSleepPeriod(0);
     }
 
 } 

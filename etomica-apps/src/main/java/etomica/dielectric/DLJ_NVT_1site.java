@@ -6,7 +6,7 @@ package etomica.dielectric;
 
 import etomica.action.BoxImposePbc;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
@@ -106,7 +106,7 @@ public class DLJ_NVT_1site extends Simulation {
         moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0  ??????????????
         rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
 
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         //******************************** periodic boundary condition ******************************** //
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);
@@ -187,7 +187,7 @@ public class DLJ_NVT_1site extends Simulation {
 	    	return ;
     	}
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/5);// equilibration period
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps/5);// equilibration period
 
    		sim.integrator.getMoveManager().setEquilibrating(false);
 //   		System.out.println("equilibration finished");
@@ -227,7 +227,7 @@ public class DLJ_NVT_1site extends Simulation {
             sim.integrator.getEventManager().addListener(AEEListener);
 
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
 
         //calculate dipoleSumSquared average
         double dipoleSumSquared = 0;

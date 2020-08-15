@@ -5,7 +5,7 @@
 package etomica.rotation;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
@@ -98,13 +98,13 @@ public class WaterDropletShake {
         potentialMaster.addPotential(pGroup, new ISpecies[]{species, species});
 
         if (false) {
-            sim.getController().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(2);
+            sim.getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(2);
             SimulationGraphic graphic = new SimulationGraphic(sim, "SHAKE", 1);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
             return graphic;
         }
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(integrator), Long.MAX_VALUE);
         return null;
     }
 

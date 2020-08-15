@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -83,7 +83,7 @@ public class SimTarget extends Simulation {
         integrator.setIsothermal(false);
         double timeStep = 0.4;
         integrator.setTimeStep(timeStep);
-this.getController().addActivity(new ActivityIntegrate2(integrator));
+this.getController().addActivity(new ActivityIntegrate(integrator));
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, space);
         coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
@@ -199,7 +199,7 @@ this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         //start simulation
         int nSteps = (int) (simTime / sim.integrator.getTimeStep());
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), nSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), nSteps);
 
         //get averages and confidence limits for harmonic energy
         double avgHarmonicEnergy = ((DataDouble) ((DataGroup) harmonicAvg.getData()).getData(harmonicAvg.AVERAGE.index)).x;

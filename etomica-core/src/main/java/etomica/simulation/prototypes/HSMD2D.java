@@ -6,7 +6,7 @@ package etomica.simulation.prototypes;
 
 import etomica.action.BoxInflate;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -62,7 +62,7 @@ public class HSMD2D extends Simulation {
 
         potentialMaster.setRange(sigma * 1.6);
 
-        getController().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(1);
         AtomType leafType1 = species1.getLeafType();
         AtomType leafType2 = species2.getLeafType();
         ((ElementSimple) leafType2.getElement()).setMass(10);

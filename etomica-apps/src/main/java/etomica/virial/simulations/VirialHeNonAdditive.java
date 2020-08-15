@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
@@ -372,7 +372,7 @@ public class VirialHeNonAdditive {
 
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
         
         long t2 = System.currentTimeMillis();
         

@@ -4,6 +4,7 @@
 
 package etomica.virial.simulations;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.models.water.*;
 import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
@@ -126,7 +127,7 @@ public class VirialWaterOverlap {
                                                     +sim.mcMoveRotate[i].getStepSize()
                                                     +((sim.mcMoveTranslate==null) ? "" : (" "+sim.mcMoveTranslate[i].getStepSize())));
         }
-sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), steps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         

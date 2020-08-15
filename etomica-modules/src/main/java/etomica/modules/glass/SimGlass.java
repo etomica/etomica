@@ -6,7 +6,7 @@ package etomica.modules.glass;
 
 import etomica.action.BoxInflate;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -231,7 +231,7 @@ public class SimGlass extends Simulation {
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
         sim.initConfig();
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), Long.MAX_VALUE);
     }//end of main
 
     public static class GlassParams extends ParameterBase {

@@ -5,7 +5,7 @@
 package etomica.interfacial;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomSourceRandomSpecies;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -214,7 +214,7 @@ public class LJMD extends Simulation {
         forkWP.addDataSink(histogramWP);
 
         if (graphics) {
-            sim.getController().addActivity(new ActivityIntegrate2(sim.integrator));
+            sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
             final String APP_NAME = "LJMD";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
 
@@ -310,7 +310,7 @@ public class LJMD extends Simulation {
             }
         });
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
 
         try {
             fw.close();

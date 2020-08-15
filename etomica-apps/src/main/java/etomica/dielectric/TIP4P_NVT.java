@@ -6,7 +6,7 @@ package etomica.dielectric;
 
 import etomica.action.BoxImposePbc;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -147,7 +147,7 @@ public class TIP4P_NVT extends Simulation {
          // add mc move
          moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0
          rotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random, space);
-         this.getController().addActivity(new ActivityIntegrate2(integrator));
+         this.getController().addActivity(new ActivityIntegrate(integrator));
          //******************************** periodic boundary condition ******************************** //
          BoxImposePbc imposePbc = new BoxImposePbc(box, space);
          imposePbc.setApplyToMolecules(true);
@@ -251,7 +251,7 @@ public class TIP4P_NVT extends Simulation {
 //         System.out.println("number of blocks is : "+blockNumber);
 //         System.out.println("sample per block is : "+samplePerBlock);
         ////////////////////////////////////////////////////////////////////
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 5);//
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps / 5);//
 
         sim.integrator.getMoveManager().setEquilibrating(false);
 //         System.out.println("equilibration finished");
@@ -315,7 +315,7 @@ public class TIP4P_NVT extends Simulation {
             //AEEListener.setInterval(1);//debug only to have more test samples
             sim.integrator.getEventManager().addListener(AEEListener);
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
 
         //calculate dipoleSumSquared average
         double dipoleSumSquared = 0;

@@ -6,7 +6,7 @@ package etomica.models.nitrogen;
 
 import etomica.action.IAction;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -141,7 +141,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 //		
 //		System.exit(1);
 
-		this.getController().addActivity(new ActivityIntegrate2(integrator));
+		this.getController().addActivity(new ActivityIntegrate(integrator));
 	}
 	
 	public static void main (String[] args){
@@ -234,12 +234,12 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 //			double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
 //			double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
 			
-			sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), 1000000);
+			sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), 1000000);
 		    return;
 		    
 		}
 			
-		sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps/5);
+		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps/5);
 System.out.println("****System Equilibrated (20% of SimSteps)****");
 
 		long startTime = System.currentTimeMillis();
@@ -258,7 +258,7 @@ System.out.println("****System Equilibrated (20% of SimSteps)****");
 		IntegratorListenerAction pressureListener = new IntegratorListenerAction(pressurePump);
 		pressureListener.setInterval((int)simSteps/200);
 		sim.integrator.getEventManager().addListener(pressureListener);
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps);
 
 		double averageEnergy = energyAverage.getData().getValue(energyAverage.AVERAGE.index);
 		double errorEnergy = energyAverage.getData().getValue(energyAverage.ERROR.index);

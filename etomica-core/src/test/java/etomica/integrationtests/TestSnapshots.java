@@ -2,7 +2,7 @@ package etomica.integrationtests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -36,7 +36,7 @@ public class TestSnapshots {
                 .findFirst().get();
 
         HSMD3DNeighborList sim = new HSMD3DNeighborList();
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), 500);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), 500);
         List<Vector> coords = sim.box().getLeafList().getAtoms().stream()
                 .map(IAtom::getPosition)
                 .collect(Collectors.toList());

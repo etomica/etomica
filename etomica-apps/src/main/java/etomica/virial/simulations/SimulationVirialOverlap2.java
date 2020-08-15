@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.data.*;
@@ -616,9 +616,9 @@ public class SimulationVirialOverlap2 extends Simulation {
                 integratorOS.setAdjustStepFraction(false);
             }
             if (runNow) {
-                this.getController().runActivityBlocking(new ActivityIntegrate2(integratorOS), initSteps);
+                this.getController().runActivityBlocking(new ActivityIntegrate(integratorOS), initSteps);
             } else {
-                this.getController().addActivity(new ActivityIntegrate2(integratorOS), initSteps, 0.0)
+                this.getController().addActivity(new ActivityIntegrate(integratorOS), initSteps, 0.0)
                         .future.join();
             }
 
@@ -731,10 +731,10 @@ public class SimulationVirialOverlap2 extends Simulation {
             integratorOS.setAdjustStepFraction(false);
         }
         if (this.interactive) {
-            this.getController().addActivity(new ActivityIntegrate2(integratorOS), initSteps, 0.0)
+            this.getController().addActivity(new ActivityIntegrate(integratorOS), initSteps, 0.0)
                     .future.join();
         } else {
-            this.getController().runActivityBlocking(new ActivityIntegrate2(integratorOS), initSteps);
+            this.getController().runActivityBlocking(new ActivityIntegrate(integratorOS), initSteps);
         }
         if (adjustable) {
             integratorOS.setAdjustStepFraction(true);

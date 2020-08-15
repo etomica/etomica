@@ -6,8 +6,7 @@ package etomica.math.numerical;
 
 import etomica.action.IAction;
 
-import etomica.action.activity.ActivityIntegrate2;
-import etomica.action.controller.Controller;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.action.controller.Controller;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataSourceCountSteps;
@@ -116,7 +115,7 @@ public class AkimaSplineSmootherDyApp {
 
         // TODO !!
         Controller controller = new Controller();
-        controller.addActivity(new ActivityIntegrate2(integrator));
+        controller.addActivity(new ActivityIntegrate(integrator));
         controller.start();
 
         DisplayPlot ePlot = new DisplayPlot();

@@ -8,7 +8,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
 import etomica.atom.IAtom;
@@ -193,7 +193,7 @@ public class PolydisperseHS extends Simulation {
                 for (double eta = params.initEta+deltaEta; eta<params.finalEta+deltaEta; eta+=deltaEta) {
                     if (eta > params.finalEta) eta = params.finalEta;
                     System.out.println(prevEta +"(current) => "+eta);
-                    sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numStepsComp);
+                    sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numStepsComp);
 
                     System.out.println("uncompressed density: " + params.numAtoms / sim.box.getBoundary().volume());
                     System.out.println(" uncompressed energy: " + (Math.log(meterPE.getDataAsScalar())));
@@ -257,7 +257,7 @@ public class PolydisperseHS extends Simulation {
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
             sim.getController().addActionSequential(init);
-            sim.getController().addActivity(new ActivityIntegrate2(sim.integrator));
+            sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
             AccumulatorHistory historyP = new AccumulatorHistory(new HistoryCollapsingAverage());
             DataPumpListener pumpP = new DataPumpListener(meterP, historyP, params.numAtoms);
@@ -288,7 +288,7 @@ public class PolydisperseHS extends Simulation {
         //Compress from initEta to finalEta
             init.actionPerformed();
         //Equilibarate with finalEta
-            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numStepsEqu);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numStepsEqu);
 
             System.out.println("=========================================================================");
             System.out.println("After Equilibaration: ");
@@ -333,7 +333,7 @@ public class PolydisperseHS extends Simulation {
             velWriter.closeFile();
 
         //Run ...
-            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numStepsProd);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numStepsProd);
 
             // statistics
             DataGroup dataP = (DataGroup)accumulatorP.getData();

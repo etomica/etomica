@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.box.Box;
@@ -291,7 +291,7 @@ public class VirialTraPPEAlcohol {
             // (or write) to a refpref file
             sim.initRefPref(null, 100, false);
             sim.equilibrate(null, 200);
-            sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -344,7 +344,7 @@ public class VirialTraPPEAlcohol {
         sim.integratorOS.getEventManager().addListener(progressReportListener);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS), steps, 0);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS), steps, 0);
         sim.getController().completeActivities();
 
         System.out.println();

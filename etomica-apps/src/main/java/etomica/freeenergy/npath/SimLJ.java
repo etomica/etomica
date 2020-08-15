@@ -6,7 +6,7 @@ package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -73,7 +73,7 @@ public class SimLJ extends Simulation {
         integrator = new IntegratorMC(this, potentialMasterCell, box);
         integrator.setTemperature(temperature);
 
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         potential = new P2LennardJones(space, sigma, 1);
         AtomType leafType = species.getLeafType();
@@ -195,7 +195,7 @@ public class SimLJ extends Simulation {
         }
 
         long eqSteps = steps/10;
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), eqSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), eqSteps);
 
         sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
@@ -209,7 +209,7 @@ System.out.println("equilibration finished ("+eqSteps+" steps)");
         AccumulatorAverageCovariance accEnergies = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, numAtoms);
         sim.integrator.getEventManager().addListener(pumpEnergies);
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
 
         IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
         IData errEnergies = accEnergies.getData(accEnergies.ERROR);

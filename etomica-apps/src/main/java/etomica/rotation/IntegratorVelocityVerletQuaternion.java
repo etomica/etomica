@@ -7,7 +7,7 @@ package etomica.rotation;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
@@ -118,7 +118,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
 //        integrator.setIsothermal(true);
         integrator.setThermostatInterval(100);
-        sim.getController().addActivity(new ActivityIntegrate2(integrator));
+        sim.getController().addActivity(new ActivityIntegrate(integrator));
         BoxImposePbcMolecule pbc = new BoxImposePbcMolecule(box, space);
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
         double oCharge = Electron.UNIT.toSim(-0.82);
@@ -154,7 +154,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
 
             graphic.makeAndDisplayFrame();
         } else {
-            sim.getController().runActivityBlocking(new ActivityIntegrate2(integrator), 10000);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator), 10000);
 //            AtomSet atoms = box.getLeafList();
 //            Printme printme = new Printme((IAtomPositioned)atoms.getAtom(0), (IAtomPositioned)atoms.getAtom(1), new DataSourceCountTime(integrator), "quat"+(dt*1000));
 //            integrator.addIntervalAction(printme);

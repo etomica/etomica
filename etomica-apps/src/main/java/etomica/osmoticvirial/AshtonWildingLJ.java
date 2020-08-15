@@ -2,7 +2,7 @@ package etomica.osmoticvirial;
 
 import etomica.action.BoxInflate;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
@@ -58,7 +58,7 @@ public class AshtonWildingLJ extends Simulation {
 
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         integrator = new IntegratorMC(this, potentialMaster, box);
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 
@@ -124,7 +124,7 @@ public class AshtonWildingLJ extends Simulation {
             return;
         }
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps/10);
 
 sim.integrator.getMoveManager().setEquilibrating(false);
         sim.integrator.setTemperature(temp);
@@ -133,7 +133,7 @@ sim.integrator.getMoveManager().setEquilibrating(false);
         AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, 0.9*sim.box.getBoundary().getBoxSize().getX(0))));
         DataPumpListener pumpRmin = new DataPumpListener(meterRmin,accRmin,numAtoms);
         sim.integrator.getEventManager().addListener(pumpRmin);
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
         double[] histRmin = accRmin.getHistograms().getHistogram();
         double[] r = accRmin.getHistograms().xValues();
 

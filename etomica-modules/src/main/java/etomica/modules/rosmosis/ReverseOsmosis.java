@@ -6,7 +6,7 @@ package etomica.modules.rosmosis;
 
 import etomica.action.BoxImposePbc;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -74,7 +74,7 @@ public class ReverseOsmosis extends Simulation {
         integrator.setThermostatInterval(1);
         integrator.setTimeStep(0.02);
 
-        getController().addActivity(new ActivityIntegrate2(integrator));
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         double epsSolute = Kelvin.UNIT.toSim(125.0);
         double sigSolute = 3.5;
@@ -153,7 +153,7 @@ public class ReverseOsmosis extends Simulation {
         }
             
         ReverseOsmosis sim = new ReverseOsmosis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), Long.MAX_VALUE);
     }//end of main
     
 }

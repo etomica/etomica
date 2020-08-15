@@ -6,7 +6,7 @@ package etomica.zeolite;
 
 import etomica.action.SimulationRestart;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
@@ -113,7 +113,7 @@ public class ZeoliteSimulation extends Simulation {
         integrator.setTemperature(Kelvin.UNIT.toSim(298.0));
 
 
-        getController().addActivity(new ActivityIntegrate2(integrator, 2, true), 1000000, 2);
+        getController().addActivity(new ActivityIntegrate(integrator, 2, true), 1000000, 2);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         for (int i = 0; i < numAtoms.length; i++) {
             box.setNMolecules(species[i], numAtoms[i]);

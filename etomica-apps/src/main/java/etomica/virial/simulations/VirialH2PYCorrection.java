@@ -4,6 +4,7 @@
 
 package etomica.virial.simulations;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.data.IData;
@@ -185,7 +186,7 @@ public class VirialH2PYCorrection {
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
 
         System.out.println();
         System.out.println("final reference step fraction "+sim.integratorOS.getIdealRefStepFraction());

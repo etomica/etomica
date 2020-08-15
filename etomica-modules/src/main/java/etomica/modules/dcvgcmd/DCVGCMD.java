@@ -5,7 +5,7 @@
 package etomica.modules.dcvgcmd;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -184,7 +184,7 @@ public class DCVGCMD extends Simulation {
         potentialMaster.setRange(potential.getRange() * neighborRangeFac);
         integratorMC.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 
-        getController().addActivity(new ActivityIntegrate2(integratorDCV));
+        getController().addActivity(new ActivityIntegrate(integratorDCV));
 
         integratorDCV.setIntegrators(integratorMC, integratorMD, getRandom());
         integratorMD.setIsothermal(false);
@@ -275,6 +275,6 @@ public class DCVGCMD extends Simulation {
 
     public static void main(String[] args) {
         DCVGCMD sim = new DCVGCMD();
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorDCV), 5000);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorDCV), 5000);
     }
 }

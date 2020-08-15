@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -373,7 +373,7 @@ public class VirialPolyhedra2 {
 
         long t1 = System.currentTimeMillis();
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
 
         

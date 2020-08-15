@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -398,7 +398,7 @@ public class VirialHS {
 
         long t1 = System.currentTimeMillis();
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
 
         if (!Double.isNaN(litHSB)) System.out.println("lit value "+litHSB);

@@ -6,7 +6,7 @@ package etomica.models.nitrogen;
 
 import etomica.action.WriteConfiguration;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.config.ConfigurationFile;
@@ -154,7 +154,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
         IntegratorListenerAction boltzmannPumpListener = new IntegratorListenerAction(boltzmannPump, 100);
         integratorTarg.getEventManager().addListener(boltzmannPumpListener);
 
-        this.getController().addActivity(new ActivityIntegrate2(integratorTarg));
+        this.getController().addActivity(new ActivityIntegrate(integratorTarg));
     }
 
     public void initializeConfigFromFile(String fname){
@@ -216,14 +216,14 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		} else {
 			long equiStep = (numMolecules*numSteps/1000);
 	        System.out.println("\nEquilibration step: " + equiStep);
-	        sim.getController().addActivity(new ActivityIntegrate2(sim.integratorTarg), equiStep);
+	        sim.getController().addActivity(new ActivityIntegrate(sim.integratorTarg), equiStep);
 	        System.out.println("Equilibration finished");
 		}
         
         long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
        
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorTarg), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorTarg), numSteps);
 
         sim.writeConfiguration(configFileName);
         double average = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.AVERAGE.index);

@@ -6,7 +6,7 @@ package etomica.virial.GUI.components;
 
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntergroup;
@@ -492,7 +492,7 @@ public class SimulationRunner {
 	    for (int i=0; i<2; i++) {
 	    	System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
 	    }
-		sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), SimEnv.getNoOfSteps());
+		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), SimEnv.getNoOfSteps());
 
 	    System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
 	    System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
@@ -571,7 +571,7 @@ public class SimulationRunner {
         new Thread(() -> {
 			sim.initRefPref(null, 10, false);
 			sim.equilibrate(null, 20);
-			sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
+			sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
 		}).start();
 
 

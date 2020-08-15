@@ -5,7 +5,7 @@
 package etomica.modules.multiharmonic;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
@@ -342,7 +342,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         tab3.add(lfunPlot.graphic());
         tab3.add(dfunPlot.graphic(), "");
 
-        sim.getController().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator)).setSleepPeriod(0);
     }
 
     public static void main(String[] args) {

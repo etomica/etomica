@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import etomica.action.IAction;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.*;
@@ -95,7 +95,7 @@ public class SimTargetUmbrella extends Simulation {
         //Target
         box.setNMolecules(species, numAtoms);
 
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         nCells = new int[]{n, n, n};
         basis = new BasisCubicFcc();
@@ -237,7 +237,7 @@ public class SimTargetUmbrella extends Simulation {
         outputActionListener.setInterval(20000);
         sim.integrator.getEventManager().addListener(outputActionListener);
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
 
         try {
 	        fileWriterTargUmb.close();

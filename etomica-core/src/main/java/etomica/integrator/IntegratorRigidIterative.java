@@ -8,7 +8,7 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.BoxImposePbc;
 import etomica.action.MoleculeChildAtomAction;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
@@ -769,10 +769,10 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         }
         
         if (true) {
-            sim.getController().runActivityBlocking(new ActivityIntegrate2(integrator), 1000000);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator), 1000000);
         }
         else {
-            sim.getController().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(2);
+            sim.getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(2);
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
             ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
             ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);

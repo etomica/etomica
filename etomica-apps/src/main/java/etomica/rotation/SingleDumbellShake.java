@@ -6,7 +6,7 @@ package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConformationLinear;
 import etomica.graphics.SimulationGraphic;
@@ -59,10 +59,10 @@ public class SingleDumbellShake {
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
         if (false) {
-            sim.getController().runActivityBlocking(new ActivityIntegrate2(integrator), 100);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator), 100);
             return null;
         }
-        sim.getController().addActivity(new ActivityIntegrate2(integrator), Long.MAX_VALUE, 10);
+        sim.getController().addActivity(new ActivityIntegrate(integrator), Long.MAX_VALUE, 10);
         SimulationGraphic graphic = new SimulationGraphic(sim, "SHAKE", 1);
         return graphic;
     }

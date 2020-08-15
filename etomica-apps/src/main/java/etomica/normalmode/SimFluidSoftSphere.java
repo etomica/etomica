@@ -8,7 +8,7 @@ import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.WriteConfiguration;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
@@ -70,7 +70,7 @@ public class SimFluidSoftSphere extends Simulation {
         ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
         ((MCMoveStepTracker) move.getTracker()).setAdjustInterval(10);
 
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
@@ -285,13 +285,13 @@ public class SimFluidSoftSphere extends Simulation {
         }
 
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
         System.out.println("equilibrated");
 
         sim.integrator.getMoveManager().setEquilibrating(false);
         pressureAverage.reset();
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps);
         /*
         double insertionScalar = ((DataGroup)insertionAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
         System.out.println("Average insertion scalar: "+ insertionScalar);

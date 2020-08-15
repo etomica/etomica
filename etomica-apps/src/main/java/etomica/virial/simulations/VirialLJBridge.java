@@ -7,6 +7,7 @@ package etomica.virial.simulations;
 import java.util.List;
 import java.util.Set;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorEvent;
 import etomica.chem.elements.ElementSimple;
@@ -175,7 +176,7 @@ public class VirialLJBridge {
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
         long t2 = System.currentTimeMillis();
 
         System.out.println("ideal reference step fraction "+sim.integratorOS.getIdealRefStepFraction());

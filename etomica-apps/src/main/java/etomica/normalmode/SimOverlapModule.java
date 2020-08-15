@@ -9,7 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.integrator.Integrator;
@@ -143,11 +143,11 @@ public class SimOverlapModule {
         
         if (refPref == -1) {
             // equilibrate off the lattice to avoid anomolous contributions
-            controller.runActivityBlocking(new ActivityIntegrate2(integratorOverlap), initSteps/2);
+            controller.runActivityBlocking(new ActivityIntegrate(integratorOverlap), initSteps/2);
             System.out.println("target equilibration finished");
 
             setAlpha(1, 60);
-            controller.runActivityBlocking(new ActivityIntegrate2(integratorOverlap), initSteps);
+            controller.runActivityBlocking(new ActivityIntegrate(integratorOverlap), initSteps);
             // in theory we could care about equilibrating the reference, so we'll do that too
             // but, in practice, the reference needs no equilibration
 
@@ -171,7 +171,7 @@ public class SimOverlapModule {
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        controller.runActivityBlocking(new ActivityIntegrate2(integratorOverlap), initSteps);
+        controller.runActivityBlocking(new ActivityIntegrate(integratorOverlap), initSteps);
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
         }

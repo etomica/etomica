@@ -4,7 +4,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.WriteConfiguration;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
@@ -93,7 +93,7 @@ public class SimGCPMWaterMCNVT extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveMolecule);
         integrator.getMoveManager().addMCMove(mcMoveRotateMolecule);
         integrator.getMoveManager().setEquilibrating(true);
-        this.getController().addActivity(new ActivityIntegrate2(integrator), numSteps);
+        this.getController().addActivity(new ActivityIntegrate(integrator), numSteps);
         //actionIntegrate.setSleepPeriod(1);
         species = new SpeciesWater4P(space);
         addSpecies(species);
@@ -184,7 +184,7 @@ public class SimGCPMWaterMCNVT extends Simulation {
         sim.integrator.reset();
         double initialEnthalpy = meterE.getData().getValue(0);
         System.out.println("initial Energy "+initialEnthalpy+"\n");
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
         System.out.println("step size of mcMoveMolecule "+sim.mcMoveMolecule.getStepSize());
         System.out.println("step size of mcMoveRotateMolecule "+sim.mcMoveRotateMolecule.getStepSize());
         

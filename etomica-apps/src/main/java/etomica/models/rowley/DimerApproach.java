@@ -6,7 +6,7 @@ package etomica.models.rowley;
 
 import etomica.action.IntegratorDimerApproach;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -232,7 +232,7 @@ public class DimerApproach extends Simulation {
 
         if (true) {
 
-            sim.getController().addActivity(new ActivityIntegrate2(sim.dimerApproach), 75, 100);
+            sim.getController().addActivity(new ActivityIntegrate(sim.dimerApproach), 75, 100);
             sim.box.getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             
             // *********************

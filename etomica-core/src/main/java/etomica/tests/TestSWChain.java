@@ -5,7 +5,7 @@
 package etomica.tests;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
@@ -110,7 +110,7 @@ public class TestSWChain extends Simulation {
 
         simTime /= chainLength;
         int nSteps = (int) (simTime / sim.integrator.getTimeStep());
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), nSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), nSteps);
         
         double Z = pMeter.getDataAsScalar()*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().size()*sim.integrator.getTemperature());
         double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;

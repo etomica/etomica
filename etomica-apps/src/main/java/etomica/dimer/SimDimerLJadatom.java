@@ -9,7 +9,7 @@ import etomica.action.BoxInflate;
 import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -223,7 +223,7 @@ public class SimDimerLJadatom extends Simulation{
         integratorMD.setIsothermal(true);
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);
         integratorMD.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
-        this.getController().addActivity(new ActivityIntegrate2(integratorMD), maxSteps);
+        this.getController().addActivity(new ActivityIntegrate(integratorMD), maxSteps);
     }
 
     public void enableDimerSearch(String fileName, long maxSteps, Boolean orthoSearch, Boolean fine) {
@@ -242,14 +242,14 @@ public class SimDimerLJadatom extends Simulation{
             integratorDimer.dFrot = 0.01;
         }
         integratorDimer.setFileName(fileName);
-        this.getController().addActivity(new ActivityIntegrate2(integratorDimer), maxSteps);
+        this.getController().addActivity(new ActivityIntegrate(integratorDimer), maxSteps);
     }
 
     public void enableMinimumSearch(String fileName, Boolean normalDir) {
 
         integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, normalDir, box);
         integratorDimerMin.setFileName(fileName);
-        this.getController().addActivity(new ActivityIntegrate2(integratorDimerMin));
+        this.getController().addActivity(new ActivityIntegrate(integratorDimerMin));
     }
     
     public void randomizePositions(){

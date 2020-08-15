@@ -5,7 +5,7 @@
 package etomica.modules.multiharmonic.overlap;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.data.*;
 import etomica.data.DataSplitter.IDataSinkFactory;
@@ -1023,7 +1023,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         tab12.add(plotM.graphic(), "");
         plotTabs.add(tab12, "M");
         
-        sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS)).setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS)).setSleepPeriod(0);
     }
 
     public static void main(String[] args) {

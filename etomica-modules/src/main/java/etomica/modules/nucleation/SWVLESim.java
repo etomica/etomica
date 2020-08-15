@@ -6,7 +6,7 @@ package etomica.modules.nucleation;
 
 import etomica.action.BoxImposePbc;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -107,7 +107,7 @@ public class SWVLESim extends Simulation {
         integratorGEMC.getMoveManager().addMCMove(moleculeExchange);
 //        integratorGEMC.getMoveManager().setFrequency(volumeExchange, 0.01);
 
-        getController().addActivity(new ActivityIntegrate2(integratorGEMC));
+        getController().addActivity(new ActivityIntegrate(integratorGEMC));
 
         if (doNBR) {
             ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxLiquid).assignCellAll();

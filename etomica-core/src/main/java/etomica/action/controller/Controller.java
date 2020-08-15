@@ -2,7 +2,7 @@ package etomica.action.controller;
 
 import etomica.action.IAction;
 import etomica.action.activity.Activity2;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.Integrator;
 import etomica.util.Debug;
 
@@ -76,8 +76,8 @@ public class Controller {
     }
 
     private void tryToGetIntegrator(Activity2 activity) {
-        if (activity instanceof ActivityIntegrate2) {
-            this.integrator = ((ActivityIntegrate2) activity).getIntegrator();
+        if (activity instanceof ActivityIntegrate) {
+            this.integrator = ((ActivityIntegrate) activity).getIntegrator();
         }
     }
 

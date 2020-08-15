@@ -6,7 +6,7 @@ package etomica.mappedvirial;
 
 import etomica.action.BoxInflate;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -59,7 +59,7 @@ public class MappedVirialLJVGr extends Simulation {
         //controller and integrator
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         move = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(move);
 
@@ -151,7 +151,7 @@ public class MappedVirialLJVGr extends Simulation {
         
         long t1 = System.currentTimeMillis();
         
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps/10);
 
 sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -194,7 +194,7 @@ sim.integrator.getMoveManager().setEquilibrating(false);
             meterRDF.getXDataSource().setXMax(rc);
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
 
         IData mappedAvg = accMappedVirial.getData(accMappedVirial.AVERAGE);
         IData mappedErr = accMappedVirial.getData(accMappedVirial.ERROR);

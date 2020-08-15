@@ -7,6 +7,7 @@ package etomica.virial.simulations;
 
 
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.space.Space;
@@ -163,7 +164,7 @@ public class ReeHooverMC {
         System.out.println();
 
         System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize());
-sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), steps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
         
         DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
         

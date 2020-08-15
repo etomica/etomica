@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.chem.elements.ElementSimple;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2LennardJones;
@@ -145,7 +146,7 @@ public class VirialAssociatingFluid {
         for (int i = 0; i < 2; i++) {
             System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), numSteps);
 
         System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
 

@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.DataPump;
@@ -233,7 +233,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
 
         setRefPref(alpha, alphaSpan);
 
-        this.getController().addActivity(new ActivityIntegrate2(integratorOverlap));
+        this.getController().addActivity(new ActivityIntegrate(integratorOverlap));
     }
 
     /**
@@ -289,7 +289,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         final long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOverlap), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOverlap), numSteps);
 
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
         		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
@@ -381,7 +381,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
             if (integrators[i] instanceof IntegratorMC)
                 ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        this.getController().runActivityBlocking(new ActivityIntegrate2(this.integratorOverlap), initSteps);
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integratorOverlap), initSteps);
 
         for (int i = 0; i < 2; i++) {
             if (integrators[i] instanceof IntegratorMC)

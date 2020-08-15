@@ -4,7 +4,7 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.chem.elements.ElementSimple;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2Spherical;
@@ -54,7 +54,7 @@ public class VirialLJTest {
         sim.equilibrate(null, steps/40);
         Assertions.assertTrue(Math.abs(sim.refPref - 1.34) < 0.12, "Ref pref (alpha) within expected limits: "+sim.refPref);
         
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps);
 
         double[] ratioAndError = sim.dvo.getAverageAndError();
         double ratio = ratioAndError[0];

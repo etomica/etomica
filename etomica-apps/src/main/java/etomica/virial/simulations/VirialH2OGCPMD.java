@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.data.IData;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.histogram.HistogramSimple;
@@ -215,7 +215,7 @@ public class VirialH2OGCPMD {
             // (or write) to a refpref file
 			sim.initRefPref(null, 10, false);
             sim.equilibrate(null, 20);
-            sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -392,7 +392,7 @@ public class VirialH2OGCPMD {
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
         
         if (params.doHist) {
             double[] xValues = hist.xValues();

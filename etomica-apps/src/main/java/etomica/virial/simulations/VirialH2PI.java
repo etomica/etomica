@@ -7,7 +7,7 @@ package etomica.virial.simulations;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.atom.iterator.ANIntergroupCoupled;
 import etomica.atom.iterator.ANIntragroupExchange;
@@ -917,7 +917,7 @@ public class VirialH2PI {
 				sim.integrators[1].getEventManager().addListener(histListenerTarget);
 			}
 
-			sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
+			sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
 			long t2 = System.currentTimeMillis();
 
 			if (params.doHist) {

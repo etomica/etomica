@@ -5,7 +5,7 @@
 package etomica.simulation.prototypes;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.models.ModelChain;
@@ -63,7 +63,7 @@ public class ChainHSMD3D extends Simulation {
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
-        getController().addActivity(new ActivityIntegrate2(integrator, 0, true));
+        getController().addActivity(new ActivityIntegrate(integrator, 0, true));
 
         potentialMaster.addModel(model);
         ((ConformationLinear) model.getConformation()).setBondLength(1.0);

@@ -6,7 +6,7 @@ package etomica.tests;
 
 import etomica.action.BoxInflate;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -90,7 +90,7 @@ public class TestLJMD3D extends Simulation {
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
 
         long t1 = System.currentTimeMillis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numSteps);
         long t2 = System.currentTimeMillis();
 
         double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());

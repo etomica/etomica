@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageFixed;
@@ -238,7 +238,7 @@ public class VirialHSMixture {
         }
 
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
 
 
         DataGroup allYourBase = (DataGroup) accumulator.getData();
