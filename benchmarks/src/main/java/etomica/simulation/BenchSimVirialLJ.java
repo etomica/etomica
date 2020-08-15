@@ -175,7 +175,6 @@ public class BenchSimVirialLJ {
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
         if (doChainRef) sim.accumulators[0].setBlockSize(1);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
 //            if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }

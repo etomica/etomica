@@ -5,7 +5,8 @@
 package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.box.Box;
 import etomica.config.ConformationLinear;
 import etomica.graphics.SimulationGraphic;
@@ -50,9 +51,7 @@ public class SingleDumbellRattle {
         integrator.setIsothermal(false);
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
 //        integrator.setThermostatInterval(100);
-        ActivityIntegrate ai = new ActivityIntegrate(integrator);
 //        System.out.println("using rigid with dt="+dt);
-        sim.getController().addAction(ai);
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
 
@@ -61,11 +60,10 @@ public class SingleDumbellRattle {
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
         if (false) {
-            ai.setMaxSteps(100);
-            sim.getController().actionPerformed();
+            sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(integrator), 100);
             return null;
         }
-        ai.setSleepPeriod(10);
+        sim.getController2().addActivity(new ActivityIntegrate2(integrator), Long.MAX_VALUE, 10);
         SimulationGraphic graphic = new SimulationGraphic(sim, "SHAKE", 1);
         return graphic;
     }

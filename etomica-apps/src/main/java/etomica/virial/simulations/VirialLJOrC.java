@@ -211,11 +211,10 @@ public class VirialLJOrC {
 
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+mcDiscrete[i].getStepSize());
         }
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), 1000);
         long t2 = System.currentTimeMillis();
 
         int digits = (int)Math.ceil(-Math.log10(dr));

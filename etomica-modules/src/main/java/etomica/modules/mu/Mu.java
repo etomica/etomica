@@ -4,7 +4,8 @@
 
 package etomica.modules.mu;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
@@ -28,7 +29,7 @@ public class Mu extends Simulation {
     public final SpeciesSpheresMono speciesA, speciesB;
     public final Box box;
     public final IntegratorHard integrator;
-    public final ActivityIntegrate activityIntegrate;
+
     public final P2SquareWellOneSide potentialAA, potentialAB, potentialBB;
     public final P1MagicWall p1WallA, p1WallB;
     public final P1HardBoundary p1BoundaryA, p1BoundaryB;
@@ -61,8 +62,7 @@ public class Mu extends Simulation {
         integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        activityIntegrate = new ActivityIntegrate(integrator, 0, true);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator, 0, true));
 
         //instantiate several potentials for selection in combo-box
         potentialAA = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);

@@ -4,7 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.DataPump;
@@ -51,7 +52,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
     public IntegratorOverlap integratorOverlap;
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
-    public ActivityIntegrate activityIntegrate;
+
     public Box boxTarg, boxRef;
     public Boundary boundaryTarg, boundaryRef;
     public int[] nCells;
@@ -232,8 +233,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
 
         setRefPref(alpha, alphaSpan);
 
-        activityIntegrate = new ActivityIntegrate(integratorOverlap);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integratorOverlap));
     }
 
     /**
@@ -289,8 +289,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         final long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOverlap), numSteps);
 
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
         		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
@@ -378,13 +377,11 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
 
     public void equilibrate(long initSteps) {
 
-        activityIntegrate.setMaxSteps(initSteps);
-
         for (int i = 0; i < 2; i++) {
             if (integrators[i] instanceof IntegratorMC)
                 ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        getController().actionPerformed();
+        this.getController2().runActivityBlocking(new ActivityIntegrate2(this.integratorOverlap), initSteps);
         getController().reset();
         for (int i = 0; i < 2; i++) {
             if (integrators[i] instanceof IntegratorMC)

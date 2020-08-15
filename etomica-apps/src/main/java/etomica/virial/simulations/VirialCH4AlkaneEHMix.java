@@ -756,28 +756,27 @@ public class VirialCH4AlkaneEHMix {
         
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps((int)steps);
-        sim.ai.setMaxSteps(1000);
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        
+
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize()+" "+sim.mcMoveRotate[0].getStepSize()+" "
                 +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[0].getStepSize())));
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize()+" "+sim.mcMoveRotate[1].getStepSize()+" "
                 +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[1].getStepSize())));
-        
+
         System.out.println("RotateCH3 move acceptance "+ rotateCH3Move[0].getTracker().acceptanceRatio()+" "+
         		rotateCH3Move[1].getTracker().acceptanceRatio());
-        
+
         if (nSpheres > 2) {
             System.out.println("Wiggle move acceptance "+ wiggleMove[0].getTracker().acceptanceRatio()+" "+
      	       		wiggleMove[1].getTracker().acceptanceRatio());
         	System.out.println("Wiggle move step sizes " + wiggleMove[0].getStepSize() + " "+	wiggleMove[1].getStepSize());
         }
-        
+
         if (nSpheres > 3) {
         	System.out.println("Torsion move acceptance "+torsionMove[0].getTracker().acceptanceRatio()+" "+
 	                torsionMove[1].getTracker().acceptanceRatio());
     	System.out.println("Torsion move step size "+torsionMove[0].getStepSize() + " "+   torsionMove[1].getStepSize());
-       
+
     }
         if (refFrac >= 0) {
             sim.integratorOS.setRefStepFraction(refFrac);
@@ -789,7 +788,7 @@ public class VirialCH4AlkaneEHMix {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
@@ -797,8 +796,7 @@ public class VirialCH4AlkaneEHMix {
             };
             sim.integratorOS.getEventManager().addListener(progressReport);
         }
-
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());

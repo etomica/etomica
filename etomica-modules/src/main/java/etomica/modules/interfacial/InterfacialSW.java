@@ -4,7 +4,8 @@
 
 package etomica.modules.interfacial;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
@@ -41,7 +42,7 @@ public class InterfacialSW extends Simulation {
     public final SpeciesSpheresHetero surfactant;
     public final Box box;
     public final IntegratorHard integrator;
-    public final ActivityIntegrate activityIntegrate;
+
     public final AtomType leafType, headType, tailType;
     public final P2SquareWell p2Head, p2HeadHead;
     public final P2HardSphere p2TailTail, p2Tail, p2HeadTail;
@@ -75,8 +76,7 @@ public class InterfacialSW extends Simulation {
         integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator));
         integrator.setTimeStep(0.01);
 
         //species and potentials

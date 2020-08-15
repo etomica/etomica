@@ -185,12 +185,9 @@ public class VirialPolymerOverlap {
         sim.equilibrate(null, steps / 10);
 //        sim.initRefPref(null, 5);
 //        sim.equilibrate(null, 10);
-        sim.ai.setMaxSteps(1000);
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps(steps);
-
-
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
 
         if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
             throw new RuntimeException("Oops");

@@ -4,7 +4,7 @@
 
 package etomica.spin.heisenberg;
 
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -41,7 +41,6 @@ import java.util.Calendar;
 public class Heisenberg3Pair extends Simulation {
 
     private static final String APP_NAME = "Heisenberg";
-    public final ActivityIntegrate activityIntegrate;
     public Box box;
     public SpeciesSpheresMono spins;
     public P2Spin potential;
@@ -74,8 +73,7 @@ public class Heisenberg3Pair extends Simulation {
         mcMove = new MCMoveRotate3Pair(potential, random, space);
         integrator.getMoveManager().addMCMove(mcMove);
         integrator.setTemperature(temperature);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
         AtomType type = spins.getLeafType();
 //        potentialMaster.addPotential(field, new IAtomType[] {type});
 

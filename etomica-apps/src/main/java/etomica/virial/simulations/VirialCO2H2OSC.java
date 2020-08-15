@@ -348,7 +348,6 @@ public class VirialCO2H2OSC {
         System.out.println("equilibration finished");
         
         sim.integratorOS.setNumSubSteps((int)steps);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
@@ -356,8 +355,7 @@ public class VirialCO2H2OSC {
         if (params.doHist) {
             sim.setupTargetHistogram();
         }
-
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
         
         if (params.doHist) {
             sim.printTargetHistogram();

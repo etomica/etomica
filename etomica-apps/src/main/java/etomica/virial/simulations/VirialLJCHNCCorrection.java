@@ -250,11 +250,10 @@ public class VirialLJCHNCCorrection {
         sim.integratorOS.addIntervalAction(progressReport);
         sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));*/
 
-        sim.ai.setMaxSteps(steps);
         for (int i = 0; i < 2; i++) {
             System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), steps);
         System.out.println();
         System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());

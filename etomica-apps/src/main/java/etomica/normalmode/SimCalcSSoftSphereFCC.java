@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -35,7 +35,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public Primitive primitive, primitiveUnitCell;
@@ -112,12 +112,6 @@ public class SimCalcSSoftSphereFCC extends Simulation {
         integrator.getMoveManager().addMCMove(move);
         ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        /*
-         * 1-body Potential to Constraint the atom from moving too far away from
-         * its lattice-site
-         */
         p1Constraint = new P1Constraint(space, primitiveUnitCell.getSize()[0], box, coordinateDefinition);
         potentialMaster.addPotential(p1Constraint, new AtomType[]{sphereType});
 
@@ -137,7 +131,12 @@ public class SimCalcSSoftSphereFCC extends Simulation {
             }
             ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
         }
-        getController().addAction(activityIntegrate);
+this.getController2().addActivity(new ActivityIntegrate2(integrator));
+
+        /*
+         * 1-body Potential to Constraint the atom from moving too far away from
+         * its lattice-site
+         */
     }
 
 	/**
@@ -213,8 +212,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 			meterDisplacementListener.setInterval(100);
 			sim.integrator.getEventManager().addListener(meterDisplacementListener);
 
-            sim.activityIntegrate.setMaxSteps(simSteps);
-			sim.activityIntegrate.actionPerformed();
+            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
 
             DataLogger dataLogger = new DataLogger();
 	        dataLogger.setFileName(filename+"hist_dist");

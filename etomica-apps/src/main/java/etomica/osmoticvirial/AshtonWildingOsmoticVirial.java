@@ -1,7 +1,7 @@
 package etomica.osmoticvirial;
 
 import etomica.action.BoxImposePbc;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -51,7 +51,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
     protected MCMoveInsertDelete mcMoveInsertDelete;
     protected MCMoveGeometricCluster mcMoveGeometricCluster;
     protected SpeciesSpheresMono species1, species2;
-    protected ActivityIntegrate activityIntegrate;
+    
 
     /**
      * @param numAtoms no. of solute atoms in the box
@@ -87,8 +87,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         box.setNMolecules(species1,numAtoms);
 
         integrator = new IntegratorMC(this, potentialMaster, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 

@@ -214,11 +214,10 @@ public class VirialLJ {
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
         if (doChainRef) sim.accumulators[0].setBlockSize(1);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
         long t2 = System.currentTimeMillis();
 
         if (doHist) {

@@ -4,7 +4,8 @@
 
 package etomica.modules.ljmd;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -28,7 +29,7 @@ public class Ljmd extends Simulation {
     public SpeciesSpheresMono species;
     public Box box;
     public IntegratorVelocityVerlet integrator;
-    public ActivityIntegrate activityIntegrate;
+
     
     public Ljmd(Space _space) {
         super(_space);
@@ -48,8 +49,6 @@ public class Ljmd extends Simulation {
         integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
         integrator.setTimeStep(0.01);
         //   integrator.setDoSleep(false);
 

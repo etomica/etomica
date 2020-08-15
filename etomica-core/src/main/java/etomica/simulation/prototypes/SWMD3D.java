@@ -7,7 +7,8 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -52,8 +53,7 @@ public class SWMD3D extends Simulation {
         integrator.setIsothermal(true);
         integrator.setTemperature(1);
         double lambda = 2;
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator));
         potential = new P2SquareWell(space);
         potential.setLambda(lambda);
 

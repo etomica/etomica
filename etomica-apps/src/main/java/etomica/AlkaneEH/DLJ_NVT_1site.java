@@ -5,7 +5,7 @@
 package etomica.AlkaneEH;
 
 import etomica.action.BoxImposePbc;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeOriented;
@@ -63,7 +63,6 @@ public class DLJ_NVT_1site extends Simulation {
 	private static final long serialVersionUID = 1L;
     private final static String APP_NAME = "dipolar LJ";
     private static final int PIXEL_SIZE = 15;
-    public final ActivityIntegrate activityIntegrate;
     protected final PotentialMaster potentialMaster;
 	protected final IntegratorMC integrator;
 	protected final MCMoveMolecule moveMolecule;//translation
@@ -112,9 +111,7 @@ public class DLJ_NVT_1site extends Simulation {
         moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0  ??????????????
         rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setMaxSteps(10000000);////???????????
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         //******************************** periodic boundary condition ******************************** //
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);

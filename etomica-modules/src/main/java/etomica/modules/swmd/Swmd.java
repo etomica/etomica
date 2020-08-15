@@ -5,7 +5,8 @@
 package etomica.modules.swmd;
 
 import etomica.action.BoxImposePbc;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -33,7 +34,7 @@ public class Swmd extends Simulation {
     public Box box;
     public IntegratorHard integrator;
     public P2HardWrapper potentialWrapper;
-    public ActivityIntegrate activityIntegrate;
+
     
     public Swmd(Space _space) {
         super(_space);
@@ -60,8 +61,7 @@ public class Swmd extends Simulation {
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
         P1HardPeriodic nullPotential = new P1HardPeriodic(space, sigma * lambda);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator));
 
         integrator.setNullPotential(nullPotential, species.getLeafType());
 

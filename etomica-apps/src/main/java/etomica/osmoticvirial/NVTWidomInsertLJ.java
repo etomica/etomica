@@ -1,7 +1,7 @@
 package etomica.osmoticvirial;
 
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
@@ -38,7 +38,7 @@ public class NVTWidomInsertLJ extends Simulation {
     public SpeciesSpheresMono species2; //solute
     public Box box;
     public P2LennardJones potential1, potential2, potential12;
-    public ActivityIntegrate activityIntegrate;
+
 
     public NVTWidomInsertLJ(int numAtoms, double temp, double density, double sigma2, double epsilon2, boolean computez2){
         super(Space3D.getInstance());
@@ -64,8 +64,7 @@ public class NVTWidomInsertLJ extends Simulation {
 
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(temp);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 

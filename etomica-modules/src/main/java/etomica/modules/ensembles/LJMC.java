@@ -4,7 +4,8 @@
 
 package etomica.modules.ensembles;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -29,7 +30,7 @@ public class LJMC extends Simulation {
     private static final long serialVersionUID = 1L;
     public final SpeciesSpheresMono species;
     public final Box box;
-    public final ActivityIntegrate activityIntegrate;
+
     public final IntegratorMC integrator;
     public final MCMoveAtom mcMoveAtom;
     public final MCMoveVolume mcMoveVolume;
@@ -49,8 +50,7 @@ public class LJMC extends Simulation {
         //controller and integrator
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator));
 
         //instantiate several potentials for selection in combo-box
         P2LennardJones potential = new P2LennardJones(space);

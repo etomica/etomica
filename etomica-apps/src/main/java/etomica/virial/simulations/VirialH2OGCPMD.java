@@ -327,7 +327,7 @@ public class VirialH2OGCPMD {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*100) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*100) % sim.getController2().getMaxSteps() != 0) return;
                     System.out.println("**** reference ****");
                     double[] xValues = hist.xValues();
                     double[] h = hist.getHistogram();
@@ -390,12 +390,10 @@ public class VirialH2OGCPMD {
         }
 
         sim.integratorOS.setNumSubSteps((int)steps);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
-
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
         
         if (params.doHist) {
             double[] xValues = hist.xValues();

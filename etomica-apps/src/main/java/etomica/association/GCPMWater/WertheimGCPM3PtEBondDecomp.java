@@ -259,8 +259,7 @@ public class WertheimGCPM3PtEBondDecomp {
 		sim.integratorOS.getEventManager().addListener(progressReportListener);
 
 		sim.integratorOS.getMoveManager().setEquilibrating(false);
-		sim.ai.setMaxSteps(numSteps);
-		sim.getController().actionPerformed();
+		sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), numSteps);
 
 		System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
 		System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());

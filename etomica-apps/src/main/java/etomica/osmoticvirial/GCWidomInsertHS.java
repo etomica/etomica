@@ -1,6 +1,6 @@
 package etomica.osmoticvirial;
 
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
@@ -42,7 +42,7 @@ public class GCWidomInsertHS extends Simulation {
     protected Box box;
     protected P2HardSphere potential1, potential12;
     protected Potential2 potential2;
-    protected ActivityIntegrate activityIntegrate;
+    
 
     /**
      * @param vf reservoir volume fraction of solvent
@@ -67,8 +67,7 @@ public class GCWidomInsertHS extends Simulation {
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
 
         integrator = new IntegratorMC(this, potentialMaster, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);

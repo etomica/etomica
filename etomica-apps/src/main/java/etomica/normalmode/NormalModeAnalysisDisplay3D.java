@@ -4,7 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -35,7 +36,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
     private static final long serialVersionUID = 1L;
 	private static final String APP_NAME = "3-D Harmonic Oscillator";
     protected IntegratorHarmonic integrator;
-    protected ActivityIntegrate activityIntegrate;
+    
     protected Box box;
     protected Boundary boundary;
     protected Primitive primitive;
@@ -102,10 +103,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         //integrator.setEValNum(4);
 
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(0);
-
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(0);
 
     }
 

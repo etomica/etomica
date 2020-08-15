@@ -4,7 +4,7 @@
 
 package etomica.models.nitrogen;
 
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -180,9 +180,7 @@ public class SimOverlapNitrogenModel extends Simulation {
 
         setRefPref(1.0, 30);
 
-        activityIntegrate = new ActivityIntegrate(integratorOverlap);
-
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integratorOverlap));
     }
 
     public void setRefPref(double refPrefCenter, double span) {
@@ -287,12 +285,10 @@ getController2().runActivityBlocking(new ActivityIntegrate2(integratorOverlap), 
     public void equilibrate(String fileName, long initSteps) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
-        activityIntegrate.setMaxSteps(initSteps);
-
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        getController().actionPerformed();
+this.getController2().runActivityBlocking(new ActivityIntegrate2(this.integratorOverlap), initSteps);
         getController().reset();
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
@@ -392,8 +388,7 @@ getController2().runActivityBlocking(new ActivityIntegrate2(integratorOverlap), 
         final long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
        
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOverlap), numSteps);
         
         int totalCells = 1;
         for (int i=0; i<D; i++) {
@@ -444,20 +439,17 @@ getController2().runActivityBlocking(new ActivityIntegrate2(integratorOverlap), 
 			SimulationGraphic simGraphic = new SimulationGraphic(sim);
 		    simGraphic.getDisplayBox(sim.boxHarmonic).setPixelUnit(new Pixel(50));
 		    simGraphic.makeAndDisplayFrame("Overlap Sampling Alpha-Phase Nitrogen Crystal Structure");
-			sim.activityIntegrate.setMaxSteps(numSteps);
-			
 			MeterWorkHarmonicPhaseSpace meterHarmonicTarget = new MeterWorkHarmonicPhaseSpace(sim.moveHarmonic, sim.potentialMasterTarget);
 			meterHarmonicTarget.setLatticeEnergy(sim.latticeEnergy);
 			meterHarmonicTarget.setTemperature(Kelvin.UNIT.toSim(temperature));
-			
+
 			AccumulatorAverage energyAverage = new AccumulatorAverageCollapsing();
 			DataPump energyPump = new DataPump(meterHarmonicTarget, energyAverage);
-			
+
 			IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
 			energyListener.setInterval(1);
 			sim.integratorHarmonic.getEventManager().addListener(energyListener);
-			
-			sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOverlap), numSteps);
 		}
         
     }
@@ -466,7 +458,7 @@ getController2().runActivityBlocking(new ActivityIntegrate2(integratorOverlap), 
     public IntegratorOverlap integratorOverlap;
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
-    public ActivityIntegrate activityIntegrate;
+
     public Box boxTarget, boxHarmonic;
     public Boundary boundaryTarget, boundaryHarmonic;
     public NormalModes normalModes;

@@ -4,7 +4,8 @@
 
 package etomica.modules.rheology;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
 import etomica.simulation.Simulation;
@@ -24,7 +25,7 @@ public class SimulationRheology extends Simulation {
     public final Box box;
     public final SpeciesSpheres species;
     public final IntegratorPolymer integrator;
-    public final ActivityIntegrate activityIntegrate;
+
     public final ConformationPolymer conformation;
     
     public SimulationRheology(Space space) {
@@ -41,8 +42,7 @@ public class SimulationRheology extends Simulation {
         conformation.initializePositions(box.getMoleculeList().get(0).getChildList());
         integrator = new IntegratorPolymer(null, getRandom(), 0.01, 1.0, box);
         integrator.setB(1);
-        activityIntegrate = new ActivityIntegrate(integrator, 0, false);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator, 0, true));
     }
     
     public void setChainLength(int newChainLength) {

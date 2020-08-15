@@ -268,7 +268,6 @@ public class VirialCO2H2OGCPM {
         System.out.println("equilibration finished");
         
         sim.integratorOS.setNumSubSteps((int)steps);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
@@ -282,7 +281,7 @@ public class VirialCO2H2OGCPM {
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
         IntegratorListener histListenerRef = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 CoordinatePairSet cPairs = sim.box[0].getCPairSet();
@@ -296,13 +295,13 @@ public class VirialCO2H2OGCPM {
                 hist.addValue(Math.sqrt(r2Max), v);
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
-            
+
             public void integratorInitialized(IntegratorEvent e) {
             }
         };
         IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
@@ -335,7 +334,7 @@ public class VirialCO2H2OGCPM {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
                     System.out.println("**** reference ****");
                     double[] xValues = hist.xValues();
                     double[] h = hist.getHistogram();
@@ -366,8 +365,7 @@ public class VirialCO2H2OGCPM {
             sim.integrators[0].getEventManager().addListener(histListenerRef);
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
-
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
         
         if (params.doHist) {
             double[] xValues = hist.xValues();

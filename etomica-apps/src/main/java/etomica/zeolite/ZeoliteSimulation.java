@@ -5,7 +5,8 @@
 package etomica.zeolite;
 
 import etomica.action.SimulationRestart;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
@@ -64,7 +65,7 @@ public class ZeoliteSimulation extends Simulation {
      */
     //public final P2HardSphere potential;
     public final P2LennardJones potentialMM;
-    public ActivityIntegrate activityIntegrate;
+
     public DisplayPlot ePlot;
     private int nAtomsMeth;
     private int interval;
@@ -112,9 +113,7 @@ public class ZeoliteSimulation extends Simulation {
         integrator.setTemperature(Kelvin.UNIT.toSim(298.0));
 
 
-        activityIntegrate = new ActivityIntegrate(integrator, 2, true);
-        activityIntegrate.setMaxSteps(500);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator, 2, true), 1000000, 2);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         for (int i = 0; i < numAtoms.length; i++) {
             box.setNMolecules(species[i], numAtoms[i]);
@@ -153,7 +152,6 @@ public class ZeoliteSimulation extends Simulation {
 
         //PARAMETERS For Simulation Run
         //activityIntegrate.setMaxSteps(5000000);
-        activityIntegrate.setMaxSteps(1000000);
         double ts = 0.00611;
         integrator.setTimeStep(ts);
         interval = 2000;
@@ -161,7 +159,7 @@ public class ZeoliteSimulation extends Simulation {
 
         //      Adding coordinate writer by Mike Sellars
 
-        filename = (numAtoms[2] + "_" + activityIntegrate.getMaxSteps() + "_" + ts + "_" + interval + "_WCA");
+        filename = (numAtoms[2] + "_" + getController2().getMaxSteps() + "_" + ts + "_" + interval + "_WCA");
         sp = species[2];
         /*
         MSDCoordWriter coordWriter = new MSDCoordWriter(this.space, filename,sp);

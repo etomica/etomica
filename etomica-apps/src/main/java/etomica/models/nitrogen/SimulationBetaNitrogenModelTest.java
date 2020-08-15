@@ -5,7 +5,7 @@
 package etomica.models.nitrogen;
 
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
@@ -438,8 +438,7 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 
         integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
     }
 	
 	public static void main (String[] args){
@@ -576,7 +575,7 @@ sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator),
 	protected Space space;
 	protected PotentialMaster potentialMaster;
 	protected IntegratorMC integrator;
-	protected ActivityIntegrate activityIntegrate;
+	
 	protected PotentialMolecular potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;

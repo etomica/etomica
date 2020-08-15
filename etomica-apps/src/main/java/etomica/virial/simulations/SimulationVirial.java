@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.Activity2;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.controller.Controller2;
 import etomica.data.*;
@@ -34,7 +34,7 @@ public class SimulationVirial extends Simulation {
     public IDataSink dataSink;
     public DataPumpListener accumulatorPump;
     public ISpecies[] species;
-    public ActivityIntegrate ai;
+
     public IntegratorMC integrator;
     public BoxCluster box;
     public ClusterAbstract[] allValueClusters;
@@ -123,8 +123,7 @@ public class SimulationVirial extends Simulation {
         integrator.setTemperature(temperature);
         integrator.getMoveManager().setEquilibrating(false);
         integrator.setEventInterval(1);
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        getController2().addActivity(new ActivityIntegrate2(integrator));
 
 
         if (species[0] instanceof SpeciesSpheresMono || species[0] instanceof SpeciesSpheresRotating) {

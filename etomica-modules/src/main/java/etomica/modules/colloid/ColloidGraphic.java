@@ -5,6 +5,7 @@
 package etomica.modules.colloid;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.DiameterHashByType;
 import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
@@ -68,7 +69,7 @@ public class ColloidGraphic extends SimulationGraphic {
     	
     	getDisplayBox(sim.box).setPixelUnit(new Pixel(2));
 
-        sim.activityIntegrate.setSleepPeriod(0);
+        sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator, 0, true)).setSleepPeriod(0);
        
         // Simulation Time
         final DisplayTextBox displayCycles = new DisplayTextBox();

@@ -1,7 +1,7 @@
 package etomica.osmoticvirial;
 
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
@@ -38,7 +38,7 @@ public class AshtonWildingVirial extends Simulation {
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species1;
-    public ActivityIntegrate activityIntegrate;
+
 
     /**
      *
@@ -64,8 +64,7 @@ public class AshtonWildingVirial extends Simulation {
 
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         integrator = new IntegratorMC(this, potentialMaster, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 

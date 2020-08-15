@@ -5,7 +5,8 @@
 package etomica.modules.droplet;
 
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -37,7 +38,7 @@ public class DropletAtomic extends Simulation {
     public final SpeciesSpheresMono species;
     public final Box box;
     public final IntegratorVelocityVerlet integrator;
-    public final ActivityIntegrate activityIntegrate;
+
     public final PotentialMasterList potentialMaster;
     public final P2LennardJones p2LJ;
     public final P2SoftSphericalTruncatedShifted p2LJt;
@@ -71,8 +72,7 @@ public class DropletAtomic extends Simulation {
         integrator.setTimeStep(0.005);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(5000);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator));
         integrator.setTemperature(Kelvin.UNIT.toSim(118));
 
         //potentials

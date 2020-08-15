@@ -6,7 +6,8 @@ package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -60,9 +61,7 @@ public class SoftSphere3d extends Simulation {
 
 
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setMaxSteps(10000000);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator), 10000000);
 
         box.setNMolecules(species, 108);
         BoxInflate inflater = new BoxInflate(box, space);

@@ -121,15 +121,12 @@ public class VirialWaterOverlap {
         System.out.println("equilibration finished");
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+//sim.mcMoveAtom1[i].getStepSize()+" "
                                                     +sim.mcMoveRotate[i].getStepSize()
                                                     +((sim.mcMoveTranslate==null) ? "" : (" "+sim.mcMoveTranslate[i].getStepSize())));
         }
-        
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), steps);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         

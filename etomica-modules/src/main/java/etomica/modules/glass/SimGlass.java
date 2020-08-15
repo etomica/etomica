@@ -5,7 +5,8 @@
 package etomica.modules.glass;
 
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -32,7 +33,7 @@ public class SimGlass extends Simulation {
     public SpeciesSpheresMono speciesA, speciesB;
     public Box box;
     public IntegratorMD integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public final MCMoveSwap swapMove;
     public final IntegratorMC integratorMC;
     public final PotentialChoice potentialChoice;
@@ -73,8 +74,7 @@ public class SimGlass extends Simulation {
         integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN);
         integrator.setThermostatInterval(1);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator));
         integrator.setThermostatNoDrift(true);
 
         if (potentialChoice == PotentialChoice.LJ) { //3D KA-80-20; 2D KA-65-35

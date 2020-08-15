@@ -5,7 +5,8 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -40,7 +41,6 @@ import etomica.util.ParseArgs;
 public class LJMC3D extends Simulation {
 
     public final PotentialMasterCell potentialMaster;
-    public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
 
     /**
@@ -82,8 +82,7 @@ public class LJMC3D extends Simulation {
         MCMoveAtom mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         potentialMaster.setCellRange(2);
         potentialMaster.reset();
@@ -113,8 +112,7 @@ public class LJMC3D extends Simulation {
 
         // equilibration
         long t1 = System.currentTimeMillis();
-        sim.activityIntegrate.setMaxSteps(steps / 10);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 10);
         System.out.println("equilibration finished");
 
         // data collection
@@ -123,10 +121,9 @@ public class LJMC3D extends Simulation {
         DataPumpListener pump = new DataPumpListener(meterPE, acc, interval);
         sim.integrator.getEventManager().addListener(pump);
 
-        sim.activityIntegrate.setMaxSteps(steps);
         sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
         long t2 = System.currentTimeMillis();
 

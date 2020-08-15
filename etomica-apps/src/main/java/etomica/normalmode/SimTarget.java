@@ -4,7 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -43,7 +44,7 @@ public class SimTarget extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public BravaisLattice lattice;
@@ -80,10 +81,9 @@ public class SimTarget extends Simulation {
         integrator = new IntegratorHard(this, potentialMaster, box);
 
         integrator.setIsothermal(false);
-        activityIntegrate = new ActivityIntegrate(integrator);
         double timeStep = 0.4;
         integrator.setTimeStep(timeStep);
-        getController().addAction(activityIntegrate);
+this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, space);
         coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
@@ -199,8 +199,7 @@ public class SimTarget extends Simulation {
 
         //start simulation
         int nSteps = (int) (simTime / sim.integrator.getTimeStep());
-        sim.activityIntegrate.setMaxSteps(nSteps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), nSteps);
 
         //get averages and confidence limits for harmonic energy
         double avgHarmonicEnergy = ((DataDouble) ((DataGroup) harmonicAvg.getData()).getData(harmonicAvg.AVERAGE.index)).x;

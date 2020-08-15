@@ -5,7 +5,7 @@
 package etomica.tests;
 
 import etomica.action.ActionIntegrate;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;

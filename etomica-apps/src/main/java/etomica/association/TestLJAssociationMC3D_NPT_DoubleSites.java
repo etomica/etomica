@@ -6,7 +6,7 @@ package etomica.association;
 
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomType;
@@ -54,7 +54,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
     public MCMoveSmer mcMoveSmer;
     public MCMoveSmerRotate mcMoveSmerRotate;
     public MCMoveVolumeAssociated mcMoveVolume;
-    public ActivityIntegrate actionIntegrator;
+
     public MCMoveBiasUB mcMoveBiasUB;
     public AssociationManager associationManagerOriented;
     public BiasVolumeSphereOrientedDoubleSites bvso;
@@ -119,10 +119,8 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         }
         integrator.getMoveEventManager().addListener(associationManagerOriented);
         integrator.getMoveManager().setEquilibrating(true);
-        actionIntegrator = new ActivityIntegrate(integrator);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator), numSteps);
         //actionIntegrate.setSleepPeriod(1);
-        actionIntegrator.setMaxSteps(numSteps);
-        getController().addAction(actionIntegrator);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);
         inflater.actionPerformed();
@@ -275,7 +273,6 @@ MeterDensity rhoMeter = new MeterDensity(sim.box);
         	ColorSchemeSmer colorScheme = new ColorSchemeSmer(sim.associationHelper,sim.box,sim.getRandom());
         	graphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
         	graphic.makeAndDisplayFrame();
-        	sim.actionIntegrator.setMaxSteps(Long.MAX_VALUE);
         	return;
         }
         IAction energyDiffAction = new IAction() {

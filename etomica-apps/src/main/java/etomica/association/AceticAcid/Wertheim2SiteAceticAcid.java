@@ -708,8 +708,7 @@ public class Wertheim2SiteAceticAcid {
         sim.integratorOS.getEventManager().addListener(progressReportListener);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(1000);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
 
         System.out.println("ideal reference step frequency "+sim.integratorOS.getIdealRefStepFraction());//optimize the uncertainty
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());//actually happened

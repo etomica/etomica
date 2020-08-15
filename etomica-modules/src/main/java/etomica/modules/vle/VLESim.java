@@ -5,7 +5,7 @@
 package etomica.modules.vle;
 
 import etomica.action.BoxImposePbc;
-import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -41,7 +41,6 @@ public class VLESim extends Simulation {
     public final SpeciesSpheresRotating species;
     public final IntegratorMC integratorLiquid, integratorVapor;
     public final IntegratorManagerMC integratorGEMC;
-    public final ActivityIntegrate activityIntegrate;
     protected final P2LJQ p2LJQ;
     protected final P2SoftTruncated p2Truncated;
     protected double sigma;
@@ -49,7 +48,7 @@ public class VLESim extends Simulation {
     protected double epsilon;
     protected double moment;
     protected double density;
-    
+
     public VLESim() {
         super(Space3D.getInstance());
         boolean doNBR = false;
@@ -144,8 +143,7 @@ public class VLESim extends Simulation {
             }
         });
 
-        activityIntegrate = new ActivityIntegrate(integratorGEMC);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integratorGEMC));
 
         if (doNBR) {
             ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxLiquid).assignCellAll();

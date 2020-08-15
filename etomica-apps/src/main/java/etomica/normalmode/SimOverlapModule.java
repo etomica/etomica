@@ -8,7 +8,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.action.controller.Controller2;

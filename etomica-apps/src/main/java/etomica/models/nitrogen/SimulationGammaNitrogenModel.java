@@ -4,7 +4,8 @@
 
 package etomica.models.nitrogen;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -134,8 +135,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 
 		integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
 
-		activityIntegrate = new ActivityIntegrate(integrator);
-		getController().addAction(activityIntegrate);
+		this.getController2().addActivity(new ActivityIntegrate2(integrator));
 	}
 	
 	public static void main (String[] args){
@@ -189,8 +189,6 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		    //colorScheme.setColor(sim.species.getNitrogenType(),java.awt.Color.red);
 		    simGraphic.makeAndDisplayFrame("Gamma-Phase Nitrogen Crystal Structure");
 		    
-			sim.activityIntegrate.setMaxSteps(simSteps);
-			//sim.getController().actionPerformed();
 			return;
 		}
 	    
@@ -218,8 +216,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		energyListener.setInterval(100);
 		sim.integrator.getEventManager().addListener(energyListener);
 		
-		sim.activityIntegrate.setMaxSteps(simSteps/5);
-		//sim.getController().actionPerformed();
+		sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps / 5);
 		System.out.println("****System Equilibrated (20% of SimSteps)****");
 		
 		long startTime = System.currentTimeMillis();
@@ -227,8 +224,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		sim.integrator.getMoveManager().setEquilibrating(false);
 		sim.getController().reset();
 
-		sim.activityIntegrate.setMaxSteps(simSteps);
-		//sim.getController().actionPerformed();
+		sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
 
 		
 		double averageEnergy = energyAverage.getData().getValue(energyAverage.AVERAGE.index);
@@ -251,7 +247,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 	protected Space space;
 	protected PotentialMaster potentialMaster;
 	protected IntegratorMC integrator;
-	protected ActivityIntegrate activityIntegrate;
+	
 	protected PotentialMolecular potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;

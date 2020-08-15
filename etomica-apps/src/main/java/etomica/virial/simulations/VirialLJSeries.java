@@ -155,11 +155,10 @@ public class VirialLJSeries {
 //        virialHistogram.setBinFac(100);
 //        sim.integrators[1].addIntervalAction(virialHistogram);
 
-        sim.ai.setMaxSteps(steps);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
         }
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps);
         
 //        long[][] histogram = virialHistogram.getHistogram();
 //        int numNegBins = virialHistogram.getNumNegBins();

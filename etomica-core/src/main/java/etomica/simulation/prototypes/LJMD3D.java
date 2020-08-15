@@ -5,7 +5,8 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -51,9 +52,7 @@ public class LJMD3D extends Simulation {
         box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.02);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(1);
         box.setNMolecules(species, 50);
         potential = new P2LennardJones(space, sigma, 1.0);
         AtomType leafType = species.getLeafType();

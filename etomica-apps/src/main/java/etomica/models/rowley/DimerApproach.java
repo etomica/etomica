@@ -5,7 +5,8 @@
 package etomica.models.rowley;
 
 import etomica.action.IntegratorDimerApproach;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -141,11 +142,6 @@ public class DimerApproach extends Simulation {
         // Must be called after above set methods
         dimerApproach.initializeCoordinates();
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(dimerApproach);
-        activityIntegrate.setMaxSteps(75);
-        activityIntegrate.setSleepPeriod(100);
-
-        getController().addAction(activityIntegrate);
 
     }
 
@@ -234,8 +230,9 @@ public class DimerApproach extends Simulation {
 	     ****************************************************************************
 	     */
 
-        if (true) { 
-            
+        if (true) {
+
+            sim.getController2().addActivity(new ActivityIntegrate2(sim.dimerApproach), 75, 100);
             sim.box.getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             
             // *********************
@@ -395,10 +392,6 @@ public class DimerApproach extends Simulation {
             
             return;
             
-        } else {
-        	// this method is called when graphics are used and the start button is pressed 
-        	// must be included here:
-    		sim.getController().actionPerformed();
         }
 	}
 	

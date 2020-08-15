@@ -1,7 +1,8 @@
 package etomica.mappedRdf;
 
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -34,7 +35,7 @@ public class SimMappedRdf extends Simulation {
     public Box box;
     public IntegratorMC integrator;
     public MCMoveAtom move;
-    public ActivityIntegrate activityIntegrate;
+
     //   public P2SoftSphericalTruncatedForceShifted p2Truncated;
     public P2SoftSphericalTruncatedShifted p2Truncated;
 
@@ -59,8 +60,7 @@ public class SimMappedRdf extends Simulation {
 
         //controller and integrator
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
         move = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(move);
 
@@ -80,7 +80,7 @@ public class SimMappedRdf extends Simulation {
 
     public static void main(String[] args) {
 
-        SimMappedRdf.LJMDParams params = new SimMappedRdf.LJMDParams();
+        LJMDParams params = new LJMDParams();
 
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
@@ -140,9 +140,7 @@ public class SimMappedRdf extends Simulation {
 
         }
 
-        sim.activityIntegrate.setMaxSteps(numSteps / 10);
-        sim.activityIntegrate.actionPerformed();
-        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps / 10);
 
         sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -168,7 +166,7 @@ public class SimMappedRdf extends Simulation {
         DataPumpListener con = new DataPumpListener(meterRDF,acccon,numAtoms);
         sim.integrator.getEventManager().addListener(con);
 
-        sim.activityIntegrate.actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         IData rdata = meterRDF.getIndependentData(0);
         IData gdata = acccon.getData(acccon.AVERAGE);

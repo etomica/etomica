@@ -208,10 +208,10 @@ public class VirialH2PIBoltzmann {
             final DisplayTextBox errorBox = new DisplayTextBox();
             errorBox.setLabel("Error");
             JLabel jLabelPanelParentGroup = new JLabel("ratio");
-            final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
+            final JPanel panelParentGroup = new JPanel(new BorderLayout());
             panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
-            panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.WEST);
-            panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
+            panelParentGroup.add(averageBox.graphic(), BorderLayout.WEST);
+            panelParentGroup.add(errorBox.graphic(), BorderLayout.EAST);
             simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
 
 
@@ -253,7 +253,7 @@ public class VirialH2PIBoltzmann {
 //                public void integratorInitialized(IIntegratorEvent e) {}
 //                public void integratorStepStarted(IIntegratorEvent e) {}
 //                public void integratorStepFinished(IIntegratorEvent e) {
-//                    if ((sim.integrator.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+//                    if ((sim.integrator.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
 //                    System.out.print(sim.integrator.getStepCount()+" steps: ");
 //                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
 //                    double ratio = ratioAndError[0];
@@ -265,8 +265,7 @@ public class VirialH2PIBoltzmann {
 //        }
 
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
 
         System.out.println("Ring acceptance "+ring0.getTracker().acceptanceRatio());

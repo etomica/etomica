@@ -4,7 +4,8 @@
 
 package etomica.rotation;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
@@ -62,9 +63,7 @@ public class WaterDropletShake {
 //        MeterTemperature meterTemperature = new MeterTemperature(box, 3);
 //        System.out.println("T="+Kelvin.UNIT.fromSim(meterTemperature.getDataAsScalar()));
 //        integrator.setThermostatInterval(100);
-        ActivityIntegrate ai = new ActivityIntegrate(integrator);
 //        System.out.println("using rigid with dt="+dt);
-        sim.getController().addAction(ai);
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
 
@@ -99,13 +98,13 @@ public class WaterDropletShake {
         potentialMaster.addPotential(pGroup, new ISpecies[]{species, species});
 
         if (false) {
-            ai.setSleepPeriod(2);
+            sim.getController2().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(2);
             SimulationGraphic graphic = new SimulationGraphic(sim, "SHAKE", 1);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
             return graphic;
         }
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(integrator), Long.MAX_VALUE);
         return null;
     }
 

@@ -4,6 +4,7 @@
 
 package etomica.virial.simulations;
 
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -83,9 +84,8 @@ public class SimulationVirialUmbrella extends SimulationVirial {
 			SimulationVirialUmbrella sim = new SimulationVirialUmbrella(space, temperature, refCluster, 
 					new ClusterAbstract[]{targetCluster});
 			((ClusterWeightUmbrella)sim.sampleCluster).setWeightCoefficients(new double[] {1.0-weightRatio,weightRatio});
-			sim.ai.setMaxSteps(steps);
+			sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 //            sim.integrator.setEquilibrating(true);
-			sim.ai.actionPerformed();
             AccumulatorRatioAverageCovariance acc = sim.accumulator;
             DataGroup allYourBase = (DataGroup)acc.getData();
             System.out.println("average: "+((DataDoubleArray)allYourBase.getData(acc.RATIO.index)).getData()[1]

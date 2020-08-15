@@ -5,6 +5,7 @@
 package etomica.modules.glass;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.cavity.DataProcessorErrorBar;
 import etomica.data.*;
@@ -2194,16 +2195,13 @@ public class GlassGraphic extends SimulationGraphic {
             f.pack();
             f.setTitle("Generating configuration");
             f.setVisible(true);
-            sim.getController().removeAction(sim.activityIntegrate);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initConfig();
-                    ljmdGraphic.getController().getResetAveragesButton().getAction().actionPerformed();
-                    f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
-                }
+            sim.getController2().addActionSequential(() -> {
+                sim.initConfig();
+                ljmdGraphic.getController().getResetAveragesButton().getAction().actionPerformed();
+                f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
             });
-            sim.getController().addAction(sim.activityIntegrate);
         }
+        sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator));
     }
 
     /**

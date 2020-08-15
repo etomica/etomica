@@ -355,12 +355,10 @@ public class VirialHeD {
         sim.setAccumulatorBlockSize(blockSize);
 
         if (doChainRef) sim.accumulators[0].setBlockSize(1);
-        sim.ai.setMaxSteps(steps / blockSize);
         for (int i=0; i<2; i++) {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps / blockSize);
 
         if (doHist) {
             double[] xValues = targHist.xValues();

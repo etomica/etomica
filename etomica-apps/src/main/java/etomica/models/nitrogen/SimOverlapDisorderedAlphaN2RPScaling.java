@@ -5,7 +5,8 @@
 package etomica.models.nitrogen;
 
 import etomica.action.WriteConfiguration;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
@@ -139,16 +140,14 @@ public class SimOverlapDisorderedAlphaN2RPScaling extends Simulation {
         accumulatorPump = new DataPumpListener(meter, accumulator, interval);
         integrator.getEventManager().addListener(accumulatorPump);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
     }
     
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
         System.out.println("\nEquilibration Steps: " + initSteps);
-    	activityIntegrate.setMaxSteps(initSteps);
-        getController().actionPerformed();
+    	this.getController2().runActivityBlocking(new ActivityIntegrate2(this.integrator), initSteps);
         getController().reset();
         
         accumulator.reset();
@@ -263,8 +262,7 @@ public class SimOverlapDisorderedAlphaN2RPScaling extends Simulation {
         
         final long startTime = System.currentTimeMillis();
        
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
         
         System.out.println("PRotConstraint counter: " + sim.pRotConstraint.counter);
         sim.writeConfiguration(configFileName);
@@ -323,7 +321,7 @@ public class SimOverlapDisorderedAlphaN2RPScaling extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Primitive primitive;
     public AccumulatorAverageFixed accumulator;

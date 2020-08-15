@@ -8,7 +8,7 @@ import etomica.action.ActionGroupSeries;
 import etomica.action.IAction;
 import etomica.action.IntegratorReset;
 import etomica.action.SimulationRestart;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.atom.DiameterHashByElementType;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
@@ -813,7 +813,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                         isFast = true;
                         goFastButton.setLabel("Go Slower");
                         pc.integrator.setTimeStep(10);
-                        pc.ai.setSleepPeriod(0);
+                        pc.getController2().setSleepPeriod(0);
                         setRepaintInterval(10000);
                         densityHistory.setActive(false);
                         temperatureHistory.setActive(false);

@@ -4,7 +4,8 @@
 
 package etomica.modules.colloid;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
@@ -30,7 +31,7 @@ public class ColloidSim extends Simulation {
     public SpeciesSpheresMono species, speciesColloid;
     public Box box;
     public IntegratorHard integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public ConfigurationColloid configuration;
     public AtomLeafAgentManager<AtomArrayList> colloidMonomerBondManager;
     public AtomLeafAgentManager<AtomArrayList> monomerMonomerBondManager;
@@ -73,8 +74,6 @@ public class ColloidSim extends Simulation {
         integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        activityIntegrate = new ActivityIntegrate(integrator, 0, true);
-        getController().addAction(activityIntegrate);
 
         //potentials
         Vector dim = space.makeVector();

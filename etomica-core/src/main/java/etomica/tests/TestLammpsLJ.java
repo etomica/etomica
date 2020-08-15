@@ -93,12 +93,9 @@ public class TestLammpsLJ extends Simulation {
 
     public static void main(String[] args) {
         TestLammpsLJ sim = new TestLammpsLJ();
-        ActionIntegrate ai = new ActionIntegrate(sim.integrator);
-        ai.setMaxSteps(100);
-        sim.getController().addAction(ai);
 
         long t1 = System.nanoTime();
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), 100);
         long t2 = System.nanoTime();
 
         System.out.println((t2 - t1) / 1_000_000 + " ms");

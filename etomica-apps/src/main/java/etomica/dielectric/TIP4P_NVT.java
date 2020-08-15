@@ -5,7 +5,7 @@
 package etomica.dielectric;
 
 import etomica.action.BoxImposePbc;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.DiameterHashByType;
@@ -74,7 +74,6 @@ public class TIP4P_NVT extends Simulation {
     protected P2WaterTIP4PSoft pWater;
     private final static String APP_NAME = "TIP4P water";
     private static final int PIXEL_SIZE = 15;
-    public final ActivityIntegrate activityIntegrate;
 
     protected double sigmaLJ, epsilonLJ;
     protected double chargeM, chargeH;
@@ -149,8 +148,7 @@ public class TIP4P_NVT extends Simulation {
          // add mc move
          moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0
          rotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random, space);
-         activityIntegrate = new ActivityIntegrate(integrator);
-         getController().addAction(activityIntegrate);
+         this.getController2().addActivity(new ActivityIntegrate2(integrator));
          //******************************** periodic boundary condition ******************************** //
          BoxImposePbc imposePbc = new BoxImposePbc(box, space);
          imposePbc.setApplyToMolecules(true);

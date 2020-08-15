@@ -5,7 +5,7 @@
 package etomica.dielectric;
 
 import etomica.action.BoxImposePbc;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeOriented;
@@ -65,7 +65,6 @@ import java.util.Calendar;
 public class DHS_NVT extends Simulation {
     private final static String APP_NAME = "dipolar HS, dielectric constant";
     private static final int PIXEL_SIZE = 15;
-    public final ActivityIntegrate activityIntegrate;
 //	private static final long serialVersionUID = 1L;
 protected final SpeciesSpheresRotating species;
     protected final PotentialMaster potentialMaster;
@@ -124,8 +123,7 @@ protected final SpeciesSpheresRotating species;
         moveMolecule = new MCMoveMolecule(this, potentialMaster, space);        // stepSize:1.0, stepSizeMax:15.0
         rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         //******************************** periodic boundary condition ******************************** //
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);

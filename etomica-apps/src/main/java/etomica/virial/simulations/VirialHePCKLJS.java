@@ -159,7 +159,6 @@ public class VirialHePCKLJS {
                 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
 //            sim.getController().addAction(new IAction() {
 //                public void actionPerformed() {
 //                    sim.initRefPref(null, 0, false);
@@ -167,7 +166,6 @@ public class VirialHePCKLJS {
 //                    sim.ai.setMaxSteps(Long.MAX_VALUE);
 //                }
 //            });
-            sim.getController().addAction(sim.ai);
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -193,11 +191,8 @@ public class VirialHePCKLJS {
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-
         long t1 = System.currentTimeMillis();
-
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), steps);
         System.out.println();
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());

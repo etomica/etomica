@@ -7,7 +7,8 @@ package etomica.simulation.prototypes;
 import etomica.action.IAction;
 import etomica.action.SimulationDataAction;
 import etomica.action.SimulationRestart;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -37,7 +38,6 @@ import etomica.species.SpeciesSpheresMono;
 
 public class HSMD2D_noNbr extends Simulation {
 
-    public ActivityIntegrate activityIntegrate;
     public AccumulatorAverageCollapsing pressureAverage;
     public AccumulatorHistory pressureHistory;
     public AccumulatorAverageCollapsing temperatureAverage;
@@ -62,8 +62,7 @@ public class HSMD2D_noNbr extends Simulation {
         box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10}));
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
         box.setNMolecules(species, 64);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         P2HardSphere potential = new P2HardSphere(space);
@@ -107,7 +106,7 @@ public class HSMD2D_noNbr extends Simulation {
 
         final HSMD2D_noNbr sim = new HSMD2D_noNbr();
         final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
-        sim.activityIntegrate.setSleepPeriod(10);
+        sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(10);
 
         DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();
         pressureDisplay.setAccumulator(sim.pressureAverage);

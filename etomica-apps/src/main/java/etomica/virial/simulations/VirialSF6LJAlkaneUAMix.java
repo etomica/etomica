@@ -728,8 +728,6 @@ public static void main(String[] args) {
 
         sim.integratorOS.setNumSubSteps((int)steps);
 
-        sim.ai.setMaxSteps(1000);
-
         sim.integratorOS.getMoveManager().setEquilibrating(false);
 
 
@@ -769,9 +767,7 @@ public static void main(String[] args) {
             sim.integratorOS.setAdjustStepFraction(false);
 
         }
-
-
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
 

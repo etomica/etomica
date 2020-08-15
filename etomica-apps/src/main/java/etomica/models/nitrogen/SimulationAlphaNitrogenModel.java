@@ -5,7 +5,7 @@
 package etomica.models.nitrogen;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
@@ -141,8 +141,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 //		
 //		System.exit(1);
 
-		activityIntegrate = new ActivityIntegrate(integrator);
-		getController().addAction(activityIntegrate);
+		this.getController2().addActivity(new ActivityIntegrate2(integrator));
 	}
 	
 	public static void main (String[] args){
@@ -235,8 +234,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 //			double averageEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
 //			double errorEnergy = ((DataGroup)energyAverage.getData()).getValue(AccumulatorAverage.StatType.ERROR.index);
 			
-			sim.activityIntegrate.setMaxSteps(1000000);
-			sim.getController().actionPerformed();
+			sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), 1000000);
 		    return;
 		    
 		}
@@ -309,7 +307,7 @@ sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator),
 	protected Space space;
 	protected PotentialMasterListMolecular potentialMaster;
 	protected IntegratorMC integrator;
-	protected ActivityIntegrate activityIntegrate;
+	
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;

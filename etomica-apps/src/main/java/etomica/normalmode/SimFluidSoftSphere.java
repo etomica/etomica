@@ -7,7 +7,7 @@ package etomica.normalmode;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.WriteConfiguration;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -46,7 +46,7 @@ public class SimFluidSoftSphere extends Simulation {
     public static String filename;
     public IntegratorMC integrator;
     public SpeciesSpheresMono species;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public PotentialMaster potentialMaster;
     public SimFluidSoftSphere(Space _space, int numAtoms, double density, double temperature, int exponent) {
@@ -70,8 +70,7 @@ public class SimFluidSoftSphere extends Simulation {
         ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
         ((MCMoveStepTracker) move.getTracker()).setAdjustInterval(10);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);

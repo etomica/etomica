@@ -4,7 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -42,7 +43,7 @@ public class SimLJHTTISuperSFMD extends Simulation {
 
     public final CoordinateDefinition coordinateDefinition;
     public IntegratorMD integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public int[] nCells;
@@ -91,9 +92,7 @@ public class SimLJHTTISuperSFMD extends Simulation {
         potentialMaster.setRange(1.2 * rc);
         potentialMaster.setCellRange(cellRange);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
     }
@@ -216,9 +215,7 @@ public class SimLJHTTISuperSFMD extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
-
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
         long endTime = System.currentTimeMillis();
         System.out.println();
 
@@ -293,8 +290,7 @@ public class SimLJHTTISuperSFMD extends Simulation {
 
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomalous contributions
-        activityIntegrate.setMaxSteps(initSteps);
-        getController().actionPerformed();
+        this.getController2().runActivityBlocking(new ActivityIntegrate2(this.integrator), initSteps);
         getController().reset();
     }
 

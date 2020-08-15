@@ -131,7 +131,9 @@ public class DirectSamplingTargetQCArReferenceAzizAr {
         
         System.out.println("Equilibration finished.");
         
-        sim.ai.setMaxSteps(steps);
+        System.out.println();
+        System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize());
+sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), steps);
 
 //        IAction progressReport = new IAction() {
 //            public void actionPerformed() {
@@ -143,12 +145,6 @@ public class DirectSamplingTargetQCArReferenceAzizAr {
 //        };
 //        sim.integratorOS.addIntervalAction(progressReport);
 //        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
-
-        
-        System.out.println();
-        System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize());
-        
-        sim.getController().actionPerformed();
 
         DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
         

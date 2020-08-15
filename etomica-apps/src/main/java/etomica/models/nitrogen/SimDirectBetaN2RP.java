@@ -4,7 +4,7 @@
 
 package etomica.models.nitrogen;
 
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
@@ -117,8 +117,7 @@ public class SimDirectBetaN2RP extends Simulation {
         IntegratorListenerAction boltzmannPumpListener = new IntegratorListenerAction(boltzmannPump, 100);
         integratorTarg.getEventManager().addListener(boltzmannPumpListener);
 
-        activityIntegrate = new ActivityIntegrate(integratorTarg);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integratorTarg));
     }
 
     /**
@@ -178,7 +177,7 @@ sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorTa
     }
 
     private static final long serialVersionUID = 1L;
-    protected ActivityIntegrate activityIntegrate;
+    
     protected AccumulatorAverageFixed boltzmannAverage;
     protected Box boxTarg;
     protected SpeciesN2 species;

@@ -205,8 +205,7 @@ public class VirialPolymer {
 
         long t1 = System.currentTimeMillis();
 
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
 
 //        if (!Double.isNaN(litHSB)) System.out.println("lit value "+litHSB);

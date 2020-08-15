@@ -7,7 +7,8 @@ package etomica.polydisperseHS;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
 import etomica.atom.IAtom;
@@ -73,7 +74,6 @@ public class PolydisperseHS extends Simulation {
 
     public final PotentialMaster potentialMaster;
 
-    public final ActivityIntegrate activityIntegrate;
 
     /**
      * Makes a simulation according to the specified parameters.
@@ -136,8 +136,6 @@ public class PolydisperseHS extends Simulation {
 
 
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
 
         AtomType leafType = species.getLeafType();
 
@@ -196,8 +194,7 @@ public class PolydisperseHS extends Simulation {
                 for (double eta = params.initEta+deltaEta; eta<params.finalEta+deltaEta; eta+=deltaEta) {
                     if (eta > params.finalEta) eta = params.finalEta;
                     System.out.println(prevEta +"(current) => "+eta);
-                    sim.activityIntegrate.setMaxSteps(params.numStepsComp);
-                    sim.activityIntegrate.actionPerformed();
+                    sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numStepsComp);
 
                     System.out.println("uncompressed density: " + params.numAtoms / sim.box.getBoundary().volume());
                     System.out.println(" uncompressed energy: " + (Math.log(meterPE.getDataAsScalar())));
@@ -220,7 +217,6 @@ public class PolydisperseHS extends Simulation {
 
                     if (eta==params.finalEta){ //for Graphics
                         System.out.println(prevEta+"(final)");
-                        sim.activityIntegrate.setMaxSteps(Long.MAX_VALUE);
                         break; // then go to scond line below: sim.getController().addAction(sim.activityIntegrate);
                     }
 
@@ -261,10 +257,8 @@ public class PolydisperseHS extends Simulation {
                 }
             };
             simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
-
-            sim.getController().removeAction(sim.activityIntegrate);
-            sim.getController().addAction(init);
-            sim.getController().addAction(sim.activityIntegrate);
+            sim.getController2().addActionSequential(init);
+            sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator));
 
             AccumulatorHistory historyP = new AccumulatorHistory(new HistoryCollapsingAverage());
             DataPumpListener pumpP = new DataPumpListener(meterP, historyP, params.numAtoms);
@@ -295,8 +289,7 @@ public class PolydisperseHS extends Simulation {
         //Compress from initEta to finalEta
             init.actionPerformed();
         //Equilibarate with finalEta
-            sim.activityIntegrate.setMaxSteps(params.numStepsEqu);
-            sim.activityIntegrate.actionPerformed();
+            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numStepsEqu);
 
             System.out.println("=========================================================================");
             System.out.println("After Equilibaration: ");
@@ -316,7 +309,7 @@ public class PolydisperseHS extends Simulation {
             MSDCoordWriter coordWriter = new MSDCoordWriter(sim.integrator, sim.box, filename_pos, params.writeIntervalPos);
             coordWriter.setIterator(new AtomIteratorLeafFilteredType(sim.box, sim.species.getLeafType()));
             System.out.println("created MSDCoordWriter");
-            sim.getController().getEventManager().addListener(coordWriter);
+            sim.getController().getEventManager().addListener(coordWriter); // TODO: controller
 
         //velWriter
             String filename_vel = "velocities";
@@ -341,8 +334,7 @@ public class PolydisperseHS extends Simulation {
 
 
         //Run ...
-            sim.activityIntegrate.setMaxSteps(params.numStepsProd);
-            sim.getController().actionPerformed();
+            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numStepsProd);
 
             // statistics
             DataGroup dataP = (DataGroup)accumulatorP.getData();

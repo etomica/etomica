@@ -5,8 +5,10 @@
 package etomica.math.numerical;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
+import etomica.action.controller.Controller2;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.DataSourceIndependentSimple;
@@ -104,10 +106,13 @@ public class AkimaSplineSmootherApp {
         morePlotPanel.add(plotey.graphic(), "ey");
         
         IntegratorSmoother integrator = new IntegratorSmoother(fitter);
-        ActivityIntegrate ai = new ActivityIntegrate(integrator);
+
+        // TODO !!
         Controller controller = new Controller();
-        controller.addAction(ai);
-        
+        Controller2 controller2 = new Controller2();
+        controller.controller2 = controller2;
+        controller2.addActivity(new ActivityIntegrate2(integrator));
+
         DisplayPlotXChart ePlot = new DisplayPlotXChart();
         ePlot.getPlot().setYLog(true);
         morePlotPanel.add(ePlot.graphic(), "err");

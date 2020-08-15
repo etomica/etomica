@@ -4,7 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -57,7 +58,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
     public final IntegratorOverlap integratorOverlap;
     public IntegratorBox[] integrators;
     public DataSourceVirialOverlap dsvo;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box, boxRef;
     public Boundary boundary, boundaryRef;
     public int[] nCells;
@@ -222,9 +223,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         integratorOverlap.setRefStepFraction(0.5);
         integratorOverlap.setAdjustStepFraction(false);
 
-        activityIntegrate = new ActivityIntegrate(integratorOverlap);
-
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integratorOverlap));
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
@@ -314,10 +313,9 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOverlap), numSteps);
 
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
-        sim.getController().actionPerformed();
         //MeterTargetTP.closeFW();
 
         System.out.println("\nratio averages:\n");
@@ -395,13 +393,11 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
     public void equilibrate(long initSteps) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
-        activityIntegrate.setMaxSteps(initSteps);
-
         for (int i = 0; i < 2; i++) {
             if (integrators[i] instanceof IntegratorMC)
                 ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        getController().actionPerformed();
+this.getController2().runActivityBlocking(new ActivityIntegrate2(this.integratorOverlap), initSteps);
         getController().reset();
         for (int i = 0; i < 2; i++) {
             if (integrators[i] instanceof IntegratorMC)

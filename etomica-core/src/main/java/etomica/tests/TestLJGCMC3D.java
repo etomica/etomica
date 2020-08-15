@@ -5,7 +5,8 @@
 package etomica.tests;
 
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -67,9 +68,6 @@ public class TestLJGCMC3D extends Simulation {
         mcMoveID.setMu(-4.12);
         integrator.getMoveManager().addMCMove(mcMoveID);
         integrator.getMoveManager().setEquilibrating(false);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setMaxSteps(numSteps);
-        getController().addAction(activityIntegrate);
         mcMoveID.setSpecies(species);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
@@ -117,7 +115,7 @@ public class TestLJGCMC3D extends Simulation {
         DataPumpListener pumpDensity = new DataPumpListener(densityMeter, densityAccumulator, 2 * numAtoms);
         sim.integrator.getEventManager().addListener(pumpDensity);
 
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps);
 
         double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
         double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;

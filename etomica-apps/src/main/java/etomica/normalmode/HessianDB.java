@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -49,7 +49,7 @@ public class HessianDB extends Simulation {
     public Primitive primitive, primitiveUnitCell;
     public Basis basis, basisFCC;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public int[] nCells;
     public MCMoveHarmonic move;
     public CoordinateDefinition coordinateDefinition;

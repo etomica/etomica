@@ -5,7 +5,7 @@
 package etomica.mappedvirial;
 
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -42,7 +42,7 @@ public class MappedU extends Simulation {
     public Box box;
     public IntegratorMC integrator;
     public MCMoveAtom move;
-    public ActivityIntegrate activityIntegrate;
+
     public P2SoftSphericalTruncated p2Truncated;
 
     public MappedU(Space _space, int numAtoms, double temperature, double density, double rc) {
@@ -65,8 +65,7 @@ public class MappedU extends Simulation {
 
         //controller and integrator
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
         move = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(move);
 

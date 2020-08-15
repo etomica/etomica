@@ -7,7 +7,8 @@ package etomica.integrator;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.BoxImposePbc;
 import etomica.action.MoleculeChildAtomAction;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.*;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
@@ -740,8 +741,6 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         OrientationCalcWater3P calcer = new OrientationCalcWater3P(sim.getSpace());
         integrator.setOrientationCalc(species, calcer);
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
-        ActivityIntegrate ai = new ActivityIntegrate(integrator);
-        sim.getController().addAction(ai);
 
         P2WaterSPCSoft p2Water = new P2WaterSPCSoft(sim.getSpace());
         
@@ -770,11 +769,10 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         }
         
         if (true) {
-            ai.setMaxSteps(1000000);
-            ai.actionPerformed();
+            sim.getController2().runActivityBlocking(new ActivityIntegrate2(integrator), 1000000);
         }
         else {
-            ai.setSleepPeriod(2);
+            sim.getController2().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(2);
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
             ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
             ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);

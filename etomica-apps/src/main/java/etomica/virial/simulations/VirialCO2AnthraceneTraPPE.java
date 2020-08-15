@@ -208,7 +208,6 @@ public class VirialCO2AnthraceneTraPPE {
         sim.setAccumulatorBlockSize((int)steps);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
@@ -223,7 +222,7 @@ public class VirialCO2AnthraceneTraPPE {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount() + " steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     System.out.println("abs average: " + ratioAndError[0] * HSB[nPoints] + ", error: " + ratioAndError[1] * HSB[nPoints]);
@@ -231,8 +230,7 @@ public class VirialCO2AnthraceneTraPPE {
             };
             sim.integratorOS.getEventManager().addListener(progressReport);
         }
-
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps);
 
         System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());

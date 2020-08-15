@@ -7,6 +7,7 @@ package etomica.modules.swmd;
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.*;
@@ -102,8 +103,8 @@ public class SwmdGraphic extends SimulationGraphic {
             getDisplayBox(sim.box).setPixelUnit(new Pixel(40/sim.box.getBoundary().getBoxSize().getX(1)));
         }
 
-        sim.activityIntegrate.setSleepPeriod(0);
-       
+        sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
+
         //combo box to select potentials
         final String idealGas = "Ideal gas";
         final String repulsionOnly = "Repulsion only";

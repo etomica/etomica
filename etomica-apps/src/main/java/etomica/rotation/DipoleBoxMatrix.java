@@ -6,7 +6,8 @@ package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
@@ -28,7 +29,6 @@ import etomica.units.Pixel;
 public class DipoleBoxMatrix extends Simulation {
 
     public final IntegratorRigidMatrixIterative integrator;
-    public final ActivityIntegrate ai;
     public final Box box;
     
     public DipoleBoxMatrix(Space space, int nAtoms, double dt) {
@@ -60,8 +60,7 @@ public class DipoleBoxMatrix extends Simulation {
         integrator.setMaxIterations(maxIterations);
         OrientationCalcAtom calcer = new OrientationCalcAtom();
         integrator.setOrientationCalc(species, calcer);
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         P2LJDipole p2 = new P2LJDipole(space, 1.0, 1.0, 2.0);
         p2.setTruncationRadius(2.5);
@@ -78,7 +77,7 @@ public class DipoleBoxMatrix extends Simulation {
         double dt = 0.01;
         if (args.length == 0) {
             DipoleBoxMatrix sim = new DipoleBoxMatrix(space, nAtoms, dt);
-            sim.ai.setSleepPeriod(10);
+            sim.getController2().setSleepPeriod(10);
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
             graphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(30));
             graphic.makeAndDisplayFrame();
@@ -97,7 +96,7 @@ public class DipoleBoxMatrix extends Simulation {
         public void init() {
             Space space = Space3D.getInstance();
             DipoleBoxMatrix sim = new DipoleBoxMatrix(space, 864, 0.01);
-            sim.ai.setSleepPeriod(10);
+            sim.getController2().setSleepPeriod(10);
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
             graphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(30));
 

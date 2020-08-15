@@ -4,7 +4,8 @@
 
 package etomica.modules.multiharmonic.umbrella;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorRatioAverageCovariance;
@@ -36,7 +37,7 @@ public class MultiharmonicMC extends Simulation {
     protected final P1Harmonic potentialA, potentialB;
     protected final IntegratorMC integrator;
     protected final MCMoveMultiHarmonic moveA, moveB;
-    protected final ActivityIntegrate activityIntegrate;
+    
     protected final MeterUmbrella meterUmbrella;
     protected final AccumulatorRatioAverageCovariance accumulator;
     protected final DataPump dataPumpA;
@@ -72,7 +73,6 @@ public class MultiharmonicMC extends Simulation {
         integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpA));
 
 
-        activityIntegrate = new ActivityIntegrate(integrator, 1, false);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator, 0, true));
     }
 }

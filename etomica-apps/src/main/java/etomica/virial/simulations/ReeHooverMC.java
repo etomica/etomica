@@ -160,13 +160,10 @@ public class ReeHooverMC {
         
         System.out.println("equilibration finished");
         
-        sim.ai.setMaxSteps(steps);
-
         System.out.println();
-        
+
         System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize());
-        
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), steps);
         
         DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
         

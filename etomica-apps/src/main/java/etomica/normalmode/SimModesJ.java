@@ -8,7 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.box.Box;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
@@ -105,8 +106,7 @@ public class SimModesJ extends Simulation {
         ((MCMoveStepTracker) movePhaseAngle.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(movePhaseAngle);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
     }
 
     /**
@@ -205,14 +205,12 @@ public class SimModesJ extends Simulation {
             }
             double[] wvs;
         });
-        sim.activityIntegrate.setMaxSteps(10000);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), 10000);
         
         dumpHist.integratorStepFinished(null);
     }
 
     private static final long serialVersionUID = 1L;
-    public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
     public final Box box;
     public final Boundary bdry;

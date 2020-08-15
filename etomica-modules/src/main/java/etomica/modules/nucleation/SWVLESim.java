@@ -5,7 +5,8 @@
 package etomica.modules.nucleation;
 
 import etomica.action.BoxImposePbc;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -35,7 +36,7 @@ public class SWVLESim extends Simulation {
     public final SpeciesSpheresMono species;
     public final IntegratorMC integratorLiquid, integratorVapor;
     public final IntegratorManagerMC integratorGEMC;
-    public final ActivityIntegrate activityIntegrate;
+
     protected final P2SquareWell p2;
     protected double temperature;
     protected double density;
@@ -106,8 +107,7 @@ public class SWVLESim extends Simulation {
         integratorGEMC.getMoveManager().addMCMove(moleculeExchange);
 //        integratorGEMC.getMoveManager().setFrequency(volumeExchange, 0.01);
 
-        activityIntegrate = new ActivityIntegrate(integratorGEMC);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integratorGEMC));
 
         if (doNBR) {
             ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxLiquid).assignCellAll();
