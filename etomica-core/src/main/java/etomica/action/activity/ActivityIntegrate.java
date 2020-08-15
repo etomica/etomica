@@ -3,7 +3,7 @@ package etomica.action.activity;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.Integrator;
 
-public class ActivityIntegrate implements Activity2 {
+public class ActivityIntegrate implements Activity {
     private final Integrator integrator;
     private final double sleepPeriod;
     private final boolean ignoreOverlap;

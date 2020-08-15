@@ -4,7 +4,7 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.activity.Activity2;
+import etomica.action.activity.Activity;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.controller.Controller;
 import etomica.data.*;
@@ -197,7 +197,7 @@ public class SimulationVirial extends Simulation {
 
     public Controller.ActivityHandle addEquilibration(long initSteps) {
         ActivityIntegrate ai = new ActivityIntegrate(this.integrator);
-        Activity2 activityEquilibrate = new Activity2() {
+        Activity activityEquilibrate = new Activity() {
             @Override
             public void preAction() {
                 integrator.getMoveManager().setEquilibrating(true);
