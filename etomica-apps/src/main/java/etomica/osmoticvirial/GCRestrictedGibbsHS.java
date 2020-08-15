@@ -1,6 +1,6 @@
 package etomica.osmoticvirial;
 
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -46,7 +46,7 @@ public class GCRestrictedGibbsHS extends Simulation {
     protected Box box1, box2;
     protected P2HardSphere potential1, potential12;
     protected Potential2 potential2;
-    protected ActivityIntegrate activityIntegrate;
+    
 
     /**
      * @param vf reservoir volume fraction of solvent
@@ -68,8 +68,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         addSpecies(species2);
 
         integrator = new IntegratorRGEMC(random, space, species1);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         double sigma1 = 1; //solute
         double sigma2 = q * sigma1; //solvent

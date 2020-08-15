@@ -4,7 +4,8 @@
 
 package etomica.interfacial;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomSourceRandomSpecies;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -44,7 +45,6 @@ import java.util.List;
 public class LJMC extends Simulation {
     
     public final PotentialMasterCell potentialMasterCell;
-    public final ActivityIntegrate ai;
     public IntegratorMC integrator;
     public SpeciesSpheresMono speciesFluid, speciesTopWall, speciesBottomWall;
     public Box box;
@@ -84,8 +84,7 @@ public class LJMC extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().addMCMove(mcMoveAtomBig);
 
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         pFF = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.0, 1.0), 2.5);
         AtomType leafType = speciesFluid.getLeafType();
@@ -217,8 +216,7 @@ public class LJMC extends Simulation {
         AccumulatorAverageFixed accWF = new AccumulatorAverageFixed(bs);
         forkWF.addDataSink(accWF);
 
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         
         u = meterPE2.getDataAsScalar();
         System.out.println("Potential energy: "+u);

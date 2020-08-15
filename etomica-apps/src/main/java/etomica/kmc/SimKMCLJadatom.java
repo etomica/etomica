@@ -5,7 +5,8 @@
 package etomica.kmc;
 
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -49,7 +50,6 @@ public class SimKMCLJadatom extends Simulation{
     public IntegratorDimerRT integratorDimer;
     public Box box;
     public SpeciesSpheresMono fixed, movable;
-    public ActivityIntegrate activityIntegrateKMC, activityIntegrateKMCCluster, activityIntegrateDimer;
     public IMoleculeList movableSet;
     public Vector adAtomPos;
     
@@ -194,15 +194,12 @@ public class SimKMCLJadatom extends Simulation{
     
     public void integratorKMC() {
         integratorKMC = new IntegratorKMC(this, potentialMaster, 0.7, this.getRandom(), new ISpecies[]{movable}, box);
-        activityIntegrateKMC = new ActivityIntegrate(integratorKMC);
-        getController().addAction(activityIntegrateKMC);
+        this.getController2().addActivity(new ActivityIntegrate2(integratorKMC));
     }
     
     public void integratorKMCCluster(double temp, int steps, int totalSearch) {
         integratorKMCCluster = new IntegratorKMCCluster(this, potentialMaster, temp, totalSearch, this.getRandom(), new ISpecies[]{movable}, box);
-        activityIntegrateKMCCluster = new ActivityIntegrate(integratorKMCCluster);
-        activityIntegrateKMCCluster.setMaxSteps(steps);
-        getController().addAction(activityIntegrateKMCCluster);
+        this.getController2().addActivity(new ActivityIntegrate2(integratorKMCCluster), steps);
     }
 
     public void enableDimerSearch(String fileName, long maxSteps) {
@@ -213,10 +210,7 @@ public class SimKMCLJadatom extends Simulation{
 
         //integratorDimer.addNonintervalListener(potentialMaster.getNeighborManager(box));
         //integratorDimer.addIntervalAction(potentialMaster.getNeighborManager(box));
-        activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
-        integratorDimer.setActivityIntegrate(activityIntegrateDimer);
-        getController().addAction(activityIntegrateDimer);
-        activityIntegrateDimer.setMaxSteps(maxSteps);
+        getController2().addActivity(new ActivityIntegrate2(integratorDimer), maxSteps);
     }
 
 }

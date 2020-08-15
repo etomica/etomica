@@ -4,7 +4,8 @@
 
 package etomica.modules.sam;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -52,7 +53,7 @@ public class Sam extends Simulation {
     public SpeciesSpheresMono speciesSurface;
     public Box box;
     public IntegratorVelocityVerletSAM integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public IMoleculePositionDefinition positionDefinition;
     public P1WCAWall wallPotential;
     public ConfigurationSAM config;
@@ -145,8 +146,7 @@ public class Sam extends Simulation {
         integrator = new IntegratorVelocityVerletSAM(potentialMaster, random, 0.002, Kelvin.UNIT.toSim(300), box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(500);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator));
 
         AtomType typeCH2 = species.getCH2Type();
         AtomType typeCH3 = species.getCH3Type();

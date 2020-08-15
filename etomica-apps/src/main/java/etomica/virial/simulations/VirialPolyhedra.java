@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -451,7 +452,7 @@ public class VirialPolyhedra {
 
             sim.setAccumulatorBlockSize(1000);
             
-            final JPanel panelParentGroup = new JPanel(new java.awt.GridBagLayout());
+            final JPanel panelParentGroup = new JPanel(new GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;
             gbc.gridwidth = 2;
@@ -489,9 +490,9 @@ public class VirialPolyhedra {
                 
                 DataDouble data = new DataDouble();
             };
-            IDataInfo dataInfoSteps = new DataDouble.DataInfoDouble("B"+nPoints, Null.DIMENSION);
+            IDataInfo dataInfoSteps = new DataInfoDouble("B"+nPoints, Null.DIMENSION);
             stepsBox.putDataInfo(dataInfoSteps);
-            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, Null.DIMENSION);
+            IDataInfo dataInfo = new DataInfoDouble("B"+nPoints, Null.DIMENSION);
             averageBox.putDataInfo(dataInfo);
             averageBox.setLabel("average");
             errorBox.putDataInfo(dataInfo);
@@ -530,8 +531,7 @@ public class VirialPolyhedra {
 
         long t1 = System.currentTimeMillis();
 
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
 
         

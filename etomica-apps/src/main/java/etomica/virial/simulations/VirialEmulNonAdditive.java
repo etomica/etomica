@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
@@ -203,7 +204,6 @@ public class VirialEmulNonAdditive {
                 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
 //            sim.getController().addAction(new IAction() {
 //                public void actionPerformed() {
 //                    sim.initRefPref(null, 0, false);
@@ -211,7 +211,6 @@ public class VirialEmulNonAdditive {
 //                    sim.ai.setMaxSteps(Long.MAX_VALUE);
 //                }
 //            });
-            sim.getController().addAction(sim.ai);
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -277,7 +276,7 @@ public class VirialEmulNonAdditive {
 //                    sim.dsvo.getOverlapAverageAndError();
 //                    throw new RuntimeException("oops");
 //                }
-                if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                if ((sim.integratorOS.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
                 if (Double.isInfinite(sim.dvo.getAverageAndError()[0])) {
                     sim.dvo.getAverageAndError();
                     throw new RuntimeException("oops");
@@ -294,7 +293,7 @@ public class VirialEmulNonAdditive {
                     public void integratorInitialized(IntegratorEvent e) {}
                     public void integratorStepStarted(IntegratorEvent e) {}
                     public void integratorStepFinished(IntegratorEvent e) {
-                        if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                        if ((sim.integratorOS.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
                         double[] xValues = hist.xValues();
                         double[] h = hist.getHistogram();
                         double[] piH = piHist.getHistogram();
@@ -320,8 +319,7 @@ public class VirialEmulNonAdditive {
 
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(1000);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
         
         long t2 = System.currentTimeMillis();
         

@@ -149,14 +149,12 @@ public class VirialGCPM {
         }
         
         sim.integratorOS.setNumSubSteps((int)steps);
-        sim.ai.setMaxSteps(1000);
-        
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize()+" "
                 +sim.mcMoveRotate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize()+" "
                 +sim.mcMoveRotate[1].getStepSize());
-        
+
 //        IAction progressReport = new IAction() {
 //            public void actionPerformed() {
 //                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
@@ -169,7 +167,7 @@ public class VirialGCPM {
 //        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
         long t2 = System.currentTimeMillis();
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());

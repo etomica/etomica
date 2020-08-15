@@ -140,7 +140,7 @@ public class VirialLJD {
         
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
-        if (false) {
+        if (true) {
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -244,11 +244,10 @@ public class VirialLJD {
         sim.integratorOS.setNumSubSteps((int) blockSize);
         sim.setAccumulatorBlockSize(blockSize);
         if (doChainRef) sim.accumulators[0].setBlockSize(1);
-        sim.ai.setMaxSteps(steps / blockSize);
         for (int i=0; i<2; i++) {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps / blockSize);
         long t2 = System.currentTimeMillis();
 
         if (doHist) {

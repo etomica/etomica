@@ -4,7 +4,8 @@
 
 package etomica.interfacial;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomSourceRandomSpecies;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -50,7 +51,6 @@ import java.util.List;
 public class LJMD extends Simulation {
     
     public final PotentialMasterList potentialMaster;
-    public final ActivityIntegrate ai;
     public IntegratorFixedWall integrator;
     public SpeciesSpheresMono speciesFluid, speciesTopWall, speciesBottomWall;
     public Box box;
@@ -87,8 +87,6 @@ public class LJMD extends Simulation {
         integrator.setThermostat(hybridInterval > 0 ? ThermostatType.HYBRID_MC : ThermostatType.ANDERSEN);
         integrator.setThermostatInterval(hybridInterval > 0 ? hybridInterval : 2000);
 
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
 
         pFF = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.0, 1.0), 2.5);
         AtomType leafType = speciesFluid.getLeafType();
@@ -216,6 +214,7 @@ public class LJMD extends Simulation {
         forkWP.addDataSink(histogramWP);
 
         if (graphics) {
+            sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator));
             final String APP_NAME = "LJMD";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
 
@@ -311,8 +310,7 @@ public class LJMD extends Simulation {
             }
         });
 
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
         try {
             fw.close();

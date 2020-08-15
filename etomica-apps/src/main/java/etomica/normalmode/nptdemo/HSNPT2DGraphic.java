@@ -149,24 +149,12 @@ public class HSNPT2DGraphic extends SimulationGraphic {
         return sim.pressure;
     }
 
-    public static class Applet extends javax.swing.JApplet {
-        public void init() {
-            HSNPT2DSim sim = new HSNPT2DSim();
-            sim.ai.setSleepPeriod(1);
-            
-            HSNPT2DGraphic graphic = new HSNPT2DGraphic(sim);
-            getContentPane().add(graphic.getPanel());
-        }
-
-        private static final long serialVersionUID = 1L;
-    }
-
     /**
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
         HSNPT2DSim sim = new HSNPT2DSim();
-        sim.ai.setSleepPeriod(1);
+        sim.getController2().setSleepPeriod(1);
         HSNPT2DGraphic graphic = new HSNPT2DGraphic(sim);
         JFrame f = graphic.makeAndDisplayFrame();
         f.setSize(700, 500);

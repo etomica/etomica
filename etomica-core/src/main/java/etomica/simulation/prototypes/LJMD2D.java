@@ -4,7 +4,8 @@
 
 package etomica.simulation.prototypes;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -46,9 +47,7 @@ public class LJMD2D extends Simulation {
         box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.01);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(2);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(2);
         box.setNMolecules(species, 50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         potential = new P2LennardJones(space);

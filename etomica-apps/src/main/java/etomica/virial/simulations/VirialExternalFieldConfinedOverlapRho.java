@@ -163,11 +163,8 @@ public class VirialExternalFieldConfinedOverlapRho {
         
         System.out.println("equilibration finished");
 
-        sim.ai.setMaxSteps(steps);
-        
-            System.out.println("MC Move step sizes "+sim.mcMoveTranslate[0].getStepSize()+"  "+sim.mcMoveTranslate[1].getStepSize());            
-        
-        sim.getController().actionPerformed();
+        System.out.println("MC Move step sizes "+sim.mcMoveTranslate[0].getStepSize()+"  "+sim.mcMoveTranslate[1].getStepSize());
+sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), steps);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());

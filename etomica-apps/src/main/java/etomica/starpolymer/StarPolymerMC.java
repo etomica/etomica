@@ -2,7 +2,7 @@ package etomica.starpolymer;
 
 import etomica.action.IAction;
 import etomica.action.WriteConfiguration;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -44,7 +44,6 @@ public class StarPolymerMC extends Simulation {
     public int f, l;
     public SpeciesPolymerMono species;
     public IntegratorMC integratorMC;
-    public final ActivityIntegrate ai;
     public P2Fene potentialFene;
     public P2WCA potentialWCA;
     public PotentialMaster potentialMaster;
@@ -95,8 +94,7 @@ public class StarPolymerMC extends Simulation {
 //            ((MCMoveStepTracker) bondMove.getTracker()).setNoisyAdjustment(true);
         }
 
-        ai = new ActivityIntegrate(integratorMC);
-        getController().addAction(ai);
+        this.getController2().addActivity(new ActivityIntegrate2(integratorMC));
 
         potentialFene = new P2Fene(space);
         potentialWCA = new P2WCA(space);
@@ -255,8 +253,7 @@ public class StarPolymerMC extends Simulation {
             File file = new File("./resource/init_f" + f);
             writeConfigurationd.setFileName("./resource/init_f" + f);
             writeConfigurationd.actionPerformed();
-            sim.ai.setMaxSteps(steps);
-            sim.getController().actionPerformed();
+            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorMC), steps);
 
             writeConfigurationd.setConfName("new conf");
             File file2 = new File("./resource/newConf_f" + f);

@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -344,7 +345,7 @@ public class VirialHS {
 
             sim.setAccumulatorBlockSize(1000);
             
-            final JPanel panelParentGroup = new JPanel(new java.awt.GridBagLayout());
+            final JPanel panelParentGroup = new JPanel(new GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;
             gbc.gridwidth = 2;
@@ -397,8 +398,7 @@ public class VirialHS {
 
         long t1 = System.currentTimeMillis();
 
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
 
         if (!Double.isNaN(litHSB)) System.out.println("lit value "+litHSB);

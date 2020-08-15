@@ -5,7 +5,8 @@
 package etomica.modules.osmosis;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -48,7 +49,7 @@ public class OsmosisSim extends Simulation {
     public P1HardBoundary boundaryHardA;
     public P1HardBoundary boundaryHardB;
     public P1HardWall boundarySemiB;
-    public ActivityIntegrate activityIntegrate;
+
 
     public OsmosisSim(Space _space) {
 
@@ -100,9 +101,6 @@ public class OsmosisSim extends Simulation {
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(space, 1.0), space);
         config.initializeCoordinates(box);
     }
@@ -130,7 +128,7 @@ public class OsmosisSim extends Simulation {
         config.initializeCoordinates(sim.box);
         simGraphic.getDisplayBox(sim.box).repaint();
         sim.integrator.setTimeStep(0.05);
-        sim.activityIntegrate.setSleepPeriod(1);
+        sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
     }
 
 } 

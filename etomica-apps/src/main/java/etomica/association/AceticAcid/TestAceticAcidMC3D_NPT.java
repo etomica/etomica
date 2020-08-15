@@ -6,7 +6,7 @@ package etomica.association.AceticAcid;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.association.*;
 import etomica.atom.AtomType;
@@ -75,7 +75,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
     public Box box;
     public PotentialGroup potential;
     public P2ReactionFieldDipole reactionField;
-    public ActivityIntegrate actionIntegrator;
+
     public AssociationManagerMolecule associationManager;
     public AssociationHelperMolecule associationHelper;
     public BiasVolumeAceticAcid bv;
@@ -145,10 +145,8 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveVolume);
         integrator.getMoveManager().addMCMove(mcMoveBiasUB);
         integrator.getMoveManager().setEquilibrating(true);
-        actionIntegrator = new ActivityIntegrate(integrator);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator), numSteps);
         //actionIntegrate.setSleepPeriod(1);
-        actionIntegrator.setMaxSteps(numSteps);
-        getController().addAction(actionIntegrator);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);
@@ -296,7 +294,6 @@ MeterDensity rhoMeter = new MeterDensity(sim.box);
         	graphic.add(energyPlot);
         	energy2History.setDataSink(energyPlot.getDataSet().makeDataSink());
         	graphic.makeAndDisplayFrame();
-        	sim.actionIntegrator.setMaxSteps(Long.MAX_VALUE);
         	return;
         }
 sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);

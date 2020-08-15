@@ -1,6 +1,7 @@
 package etomica.starpolymer;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
@@ -39,7 +40,6 @@ public class StarPolymerMD extends Simulation {
     public IntegratorBox integrator;
     public IntegratorVelocityVerlet integratorMD;
     public IntegratorMC integratorMC;
-    public final ActivityIntegrate ai;
     public P2Fene potentialFene;
     public P2WCA potentialWCA;
     public PotentialMaster potentialMaster;
@@ -82,8 +82,7 @@ public class StarPolymerMD extends Simulation {
         integratorMC.getMoveManager().addMCMove(moveConformation);
 
         integrator = doMC ? integratorMC : integratorMD;
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         potentialFene = new P2Fene(space);
         potentialWCA = new P2WCA(space);
@@ -232,8 +231,7 @@ public class StarPolymerMD extends Simulation {
 
         System.out.println("MD starts...");
         long t1 = System.currentTimeMillis();
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
         System.out.println("MD finished! ");
         System.out.println("time : " + (t2 - t1) / 1000.0);
@@ -253,8 +251,7 @@ public class StarPolymerMD extends Simulation {
             sim.getController().getEventManager().addListener(dataLogger);
             long t3 = System.currentTimeMillis();
             sim.getController().reset();
-            sim.ai.setMaxSteps(xsteps);
-            sim.getController().actionPerformed();
+            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), xsteps);
             System.out.println("Dumping finished! ");
             System.out.println("time: " + (t3 - t1) / 1000.0);
         }

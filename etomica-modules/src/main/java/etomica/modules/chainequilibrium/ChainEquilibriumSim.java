@@ -4,7 +4,8 @@
 
 package etomica.modules.chainequilibrium;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -40,7 +41,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
 //    public SpeciesSpheresMono speciesC;
 	public P2HardSphere p2AA, p2BB; //, p2CC, p2BC;
 	public P2SquareWellBonded ABbonded; //, ACbonded;
-    public ActivityIntegrate activityIntegrate;
+
     public AtomLeafAgentManager<IAtom[]> agentManager = null;
     public int nCrossLinkersAcid;
     public int nDiol, nDiAcid;
@@ -98,8 +99,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
 
         thermometer = new MeterTemperature(box, space.D());
 
-        activityIntegrate = new ActivityIntegrate(integratorHard, 1, true);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integratorHard, 0, true));
     }
 
     public int getNMonoOl() {

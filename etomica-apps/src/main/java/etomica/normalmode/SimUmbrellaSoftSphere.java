@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -48,7 +48,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
 	private static final String APP_NAME = "Sim Umbrella's";
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public Basis basis;
@@ -99,8 +99,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         //Target
         box.setNMolecules(species, numAtoms);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         primitive = new PrimitiveCubic(space, n * L);
         primitiveUnitCell = new PrimitiveCubic(space, L);

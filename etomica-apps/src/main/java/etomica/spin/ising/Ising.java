@@ -6,7 +6,8 @@ package etomica.spin.ising;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -66,8 +67,7 @@ public class Ising extends Simulation {
         mcmove = new MCMoveSpinFlip(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(mcmove);
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator));
 
         AtomType type = spins.getLeafType();
         potentialMaster.addPotential(field, new AtomType[]{type});

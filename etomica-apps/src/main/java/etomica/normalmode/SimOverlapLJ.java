@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -46,7 +46,7 @@ public class SimOverlapLJ extends Simulation {
     public IntegratorOverlap integratorOverlap;
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
-    public ActivityIntegrate activityIntegrate;
+
     public Box boxTarget, boxHarmonic;
     public Boundary boundaryTarget, boundaryHarmonic;
     public int[] nCells;
@@ -197,9 +197,7 @@ public class SimOverlapLJ extends Simulation {
 
         setRefPref(1.0, 30);
 
-        activityIntegrate = new ActivityIntegrate(integratorOverlap);
-
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integratorOverlap));
     }
 
     /**
@@ -272,8 +270,7 @@ public class SimOverlapLJ extends Simulation {
         long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOverlap), numSteps);
 
         int totalCells = 1;
         for (int i = 0; i < D; i++) {
@@ -406,12 +403,10 @@ getController2().runActivityBlocking(new ActivityIntegrate2(integratorOverlap), 
     public void equilibrate(String fileName, long initSteps) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
-        activityIntegrate.setMaxSteps(initSteps);
-
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        getController().actionPerformed();
+        this.getController2().runActivityBlocking(new ActivityIntegrate2(this.integratorOverlap), initSteps);
         getController().reset();
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);

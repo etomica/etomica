@@ -5,6 +5,7 @@
 package etomica.modules.multiharmonic.mbar;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.DiameterHashByType;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingDiscard;
@@ -409,7 +410,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 //        tab3.add(lfunPlot.graphic());
 //        tab3.add(dfunPlot.graphic(), horizGBC);
 
-        sim.activityIntegrate.setSleepPeriod(0);
+        sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS)).setSleepPeriod(0);
     }
 
     public static void main(String[] args) {

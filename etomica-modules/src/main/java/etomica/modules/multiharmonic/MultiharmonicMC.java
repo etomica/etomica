@@ -5,7 +5,8 @@
 package etomica.modules.multiharmonic;
 
 import etomica.action.SimulationDataAction;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -39,7 +40,6 @@ public class MultiharmonicMC extends Simulation {
     Box box;
     P1Harmonic potentialA, potentialB;
     IntegratorMC integrator;
-    ActivityIntegrate activityIntegrate;
     MeterFreeEnergy meter;
     AccumulatorAverageCollapsing accumulator;
     DataPump dataPump, dataPumpEnergy;
@@ -60,9 +60,7 @@ public class MultiharmonicMC extends Simulation {
 
         box.setNMolecules(species, 10);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(1);
 
         potentialB = new P1Harmonic(space);
         meter = new MeterFreeEnergy(potentialA, potentialB);

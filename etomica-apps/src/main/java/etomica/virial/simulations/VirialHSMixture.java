@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageFixed;
@@ -185,7 +186,7 @@ public class VirialHSMixture {
 
             sim.setAccumulatorBlockSize(1000);
 
-            final JPanel panelParentGroup = new JPanel(new java.awt.GridBagLayout());
+            final JPanel panelParentGroup = new JPanel(new GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;
             gbc.gridwidth = 2;
@@ -237,8 +238,7 @@ public class VirialHSMixture {
         }
 
 
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
 
         DataGroup allYourBase = (DataGroup) accumulator.getData();

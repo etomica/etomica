@@ -5,7 +5,8 @@
 package etomica.surfacetension;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -41,7 +42,6 @@ public class LJMC extends Simulation {
     public final PotentialMasterCell potentialMaster;
     public final SpeciesSpheresMono species;
     public final Box box;
-    public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
     public final MCMoveAtomInRegion mcMoveAtom, mcMoveAtomBigStep;
 
@@ -61,8 +61,7 @@ public class LJMC extends Simulation {
         //controller and integrator
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         //instantiate several potentials for selection in combo-box
         P2LennardJones potential = new P2LennardJones(space);

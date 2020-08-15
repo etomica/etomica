@@ -5,7 +5,7 @@
 package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -41,7 +41,6 @@ import java.awt.*;
 public class SimLJ extends Simulation {
     
     public final PotentialMasterCell potentialMasterCell;
-    public final ActivityIntegrate ai;
     public IntegratorMC integrator;
     public SpeciesSpheresMono species;
     public Box box;
@@ -74,8 +73,7 @@ public class SimLJ extends Simulation {
         integrator = new IntegratorMC(this, potentialMasterCell, box);
         integrator.setTemperature(temperature);
 
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         potential = new P2LennardJones(space, sigma, 1);
         AtomType leafType = species.getLeafType();

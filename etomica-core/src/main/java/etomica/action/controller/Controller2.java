@@ -53,6 +53,10 @@ public class Controller2 {
         return activityHandle;
     }
 
+    public ActivityHandle addActivity(Activity2 activity, long maxSteps) {
+        return this.addActivity(activity, maxSteps, 0.0);
+    }
+
     public ActivityHandle addActivity(Activity2 activity) {
         return this.addActivity(activity, Long.MAX_VALUE, 0.0);
     }

@@ -5,7 +5,7 @@
 package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
@@ -55,7 +55,6 @@ import static etomica.freeenergy.npath.SimFe.Crystal.HCP;
 public class SimFe extends Simulation {
     
     public final PotentialMasterList potentialMaster;
-    public final ActivityIntegrate ai;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
     public Box box;
@@ -134,8 +133,7 @@ public class SimFe extends Simulation {
         integrator.getEventManager().addListener(potential.makeIntegratorListener(potentialMaster, box));
         integrator.setForceSum(new PotentialCalculationForceSum());
 
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         p1ImageHarmonic.setZeroForce(true);
 

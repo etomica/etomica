@@ -7,7 +7,8 @@ package etomica.normalmode;
 import etomica.action.BoxInflateAnisotropic;
 import etomica.action.BoxInflateDeformable;
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
@@ -63,7 +64,6 @@ public class HSDimerNPT extends Simulation {
     public final IntegratorMC integrator;
     public final SpeciesHSDimer species;
     public final Box box, latticeBox;
-    public final ActivityIntegrate activityIntegrate;
     public final CoordinateDefinitionHSDimer coordinateDefinition;
     public final double theta;
 
@@ -104,8 +104,7 @@ public class HSDimerNPT extends Simulation {
         }
         latticeBox = this.makeBox(new BoundaryDeformablePeriodic(space, boxDim));
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, latticeBox);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         P2HardSphere p2 = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(p2, new AtomType[]{species.getDimerAtomType(), species.getDimerAtomType()});
@@ -667,16 +666,14 @@ public class HSDimerNPT extends Simulation {
 
             return;
         }
-        sim.activityIntegrate.setMaxSteps(params.numSteps / 10);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps / 10);
         volumeAvg.reset();
         displacementAvg.reset();
         thetaDeviationAvg.reset();
         phiDeviationAvg.reset();
         System.out.println("equilibration finished");
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.activityIntegrate.setMaxSteps(params.numSteps);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps);
 
         if (params.rho <= 0) {
             double vavg = volumeAvg.getData().getValue(volumeAvg.AVERAGE.index);

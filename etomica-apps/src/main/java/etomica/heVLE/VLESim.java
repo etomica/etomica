@@ -5,7 +5,7 @@
 package etomica.heVLE;
 
 import etomica.action.BoxImposePbc;
-import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.Helium;
@@ -38,7 +38,6 @@ public class VLESim extends Simulation {
     public final SpeciesSpheresMono species;
     public final IntegratorMC integratorLiquid, integratorVapor;
     public final IntegratorManagerMC integratorGEMC;
-    public final ActivityIntegrate activityIntegrate;
     protected final Potential2SoftSpherical p2;
     protected final P2SoftTruncated p2Truncated;
     protected double sigma;
@@ -146,8 +145,6 @@ public class VLESim extends Simulation {
 //            }
 //        });
 //
-        activityIntegrate = new ActivityIntegrate(integratorGEMC);
-        getController().addAction(activityIntegrate);
 
         if (doNBR) {
             ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxLiquid).assignCellAll();
@@ -167,8 +164,8 @@ public class VLESim extends Simulation {
 
         long steps = params.numSteps;
         long t1 = System.currentTimeMillis();
-        sim.activityIntegrate.setMaxSteps(steps / 10);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController2()
+                .runActivityBlocking(new ActivityIntegrate2(sim.integratorGEMC), steps / 10);
         sim.integratorGEMC.resetStepCount();
 
         int interval = params.numAtoms;
@@ -183,8 +180,7 @@ public class VLESim extends Simulation {
         DataPumpListener pumpVaporDensity = new DataPumpListener(vaporDensity, accVaporDensity, interval);
         sim.integratorLiquid.getEventManager().addListener(pumpVaporDensity);
 
-        sim.activityIntegrate.setMaxSteps(steps);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorGEMC), steps);
         long t2 = System.currentTimeMillis();
 
         IData liquidDensityData = accLiquidDensity.getData();
@@ -200,7 +196,7 @@ public class VLESim extends Simulation {
         double vaporCor = vaporDensityData.getValue(accVaporDensity.BLOCK_CORRELATION.index);
         System.out.println("vapor density: " + vaporAvg + " err: " + vaporErr + " cor: " + vaporCor);
 
-        System.out.println("time: " + (t2 - t2) * 0.001);
+        System.out.println("time: " + (t2 - t1) * 0.001);
     }
 
     public static class GEMCParams extends ParameterBase {

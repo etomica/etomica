@@ -6,7 +6,8 @@ package etomica.normalmode;
 
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -59,7 +60,6 @@ import java.util.List;
 public class SimLJVacancy extends Simulation {
     
     public final PotentialMasterCell potentialMaster;
-    public final ActivityIntegrate ai;
     public IntegratorMC integrator;
     public SpeciesSpheresMono species;
     public Box box;
@@ -96,8 +96,7 @@ public class SimLJVacancy extends Simulation {
 //        ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(move);
 
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
@@ -352,7 +351,7 @@ public class SimLJVacancy extends Simulation {
                 int nmax = 12;
                 Api1ACell iter = new Api1ACell(rMax, sim.box, (NeighborCellManager) sim.potentialMaster.getBoxCellManager(sim.box));
                 public Color getAtomColor(IAtom a) {
-                    if (!sim.integrator.getEventManager().firingEvent() && !sim.ai.isPaused()) return new Color(1.0f, 1.0f, 1.0f);
+                    if (!sim.integrator.getEventManager().firingEvent()) return new Color(1.0f, 1.0f, 1.0f);
 
                     Vector pi = a.getPosition();
                     iter.setDirection(null);
@@ -648,8 +647,7 @@ public class SimLJVacancy extends Simulation {
         IData dsfe3Data = null;
         if (!fixedDaDef) {
             // equilibrate off the lattice
-            sim.ai.setMaxSteps(steps/40);
-            sim.ai.actionPerformed();
+            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/40);
     
             dsfe3Data = dsfe3.getData();
             if (dsfe3Data.getLength() == 0) {
@@ -694,8 +692,7 @@ public class SimLJVacancy extends Simulation {
             });
         }
 
-        sim.ai.setMaxSteps(steps/10);
-        sim.ai.actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/10);
         System.out.println("equilibration finished");
 
         if (!fixedDaDef && params.doReweight) {
@@ -720,8 +717,7 @@ public class SimLJVacancy extends Simulation {
         
         // take real data
         long t1 = System.currentTimeMillis();
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
 
         System.out.println();
@@ -938,7 +934,7 @@ public class SimLJVacancy extends Simulation {
                 int nmax = 12;
                 Api1ACell iter = new Api1ACell(rMax, sim.box, (NeighborCellManager) sim.potentialMaster.getBoxCellManager(sim.box));
                 public Color getAtomColor(IAtom a) {
-                    if (!sim.integrator.getEventManager().firingEvent() && !sim.ai.isPaused()) return new Color(1.0f, 1.0f, 1.0f);
+                    if (!sim.integrator.getEventManager().firingEvent()) return new Color(1.0f, 1.0f, 1.0f);
 
                     Vector pi = a.getPosition();
                     iter.setDirection(null);

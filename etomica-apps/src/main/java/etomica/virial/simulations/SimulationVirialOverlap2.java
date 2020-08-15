@@ -4,7 +4,7 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.controller.Controller2;
 import etomica.atom.IAtom;
@@ -63,7 +63,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     public MCMoveBoxStep[] mcMoveTranslate;
     public MCMoveBoxStep[] mcMoveWiggle;
     public int numExtraTargetClusters;
-    public ActivityIntegrate ai;
+
     public IntegratorOverlap integratorOS;
     public double refPref;
     protected boolean initialized;

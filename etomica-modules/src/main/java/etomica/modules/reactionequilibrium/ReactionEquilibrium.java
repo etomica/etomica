@@ -5,7 +5,8 @@
 package etomica.modules.reactionequilibrium;
 
 import etomica.action.BoxImposePbc;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomType;
@@ -42,7 +43,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
     public P2SquareWellBonded ABbonded;
     public P2SquareWellBonded BBbonded;
     public MeterDimerFraction meterDimerFraction;
-    public ActivityIntegrate activityIntegrate;
+
     public IAtom[] agents;
     private AtomLeafAgentManager<IAtom> agentManager = null;
     
@@ -95,9 +96,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
         meterDimerFraction.setBox(box);
         thermometer = new MeterTemperature(box, space.D());
 
-        activityIntegrate = new ActivityIntegrate(integratorHard1);
-        activityIntegrate.setSleepPeriod(1);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integratorHard1)).setSleepPeriod(1);
         integratorHard1.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
 
         Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space);

@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.association.*;
 import etomica.atom.AtomType;
@@ -54,7 +54,7 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
     public MCMoveDimer mcMoveDimer;
     public MCMoveDimerRotate mcMoveDimerRotate;
     public MCMoveVolumeAssociated mcMoveVolume;
-    public ActivityIntegrate actionIntegrator;
+
     public MCMoveBiasUB mcMoveBiasUB;
     double epsilon = 1.0;
         
@@ -101,10 +101,8 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveBiasUB);
         integrator.getMoveEventManager().addListener(associationManagerOriented);
         integrator.getMoveManager().setEquilibrating(true);
-        actionIntegrator = new ActivityIntegrate(integrator);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator), numSteps);
         //actionIntegrate.setSleepPeriod(1);
-        actionIntegrator.setMaxSteps(numSteps);
-        getController().addAction(actionIntegrator);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);
@@ -186,7 +184,6 @@ MeterDensity rhoMeter = new MeterDensity(sim.box);
         	densityHistory.setDataSink(rhoPlot.getDataSet().makeDataSink());
         	graphic.add(rhoPlot);
         	graphic.makeAndDisplayFrame();
-        	sim.actionIntegrator.setMaxSteps(2000000);
         	return;
         }
 sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);

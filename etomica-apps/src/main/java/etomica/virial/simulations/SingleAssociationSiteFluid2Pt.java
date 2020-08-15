@@ -181,11 +181,10 @@ public class SingleAssociationSiteFluid2Pt {
 		sim.integratorOS.getEventManager().addListener(progressReportListener);
 
 		sim.integratorOS.getMoveManager().setEquilibrating(false);
-		sim.ai.setMaxSteps(numSteps);
 		for (int i = 0; i < 2; i++) {
 			System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
 		}
-		sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), numSteps);
 
 		System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
 

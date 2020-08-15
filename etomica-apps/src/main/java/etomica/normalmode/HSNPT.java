@@ -5,7 +5,8 @@
 package etomica.normalmode;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
@@ -53,7 +54,6 @@ public class HSNPT extends Simulation {
     public final IntegratorMC integrator;
     public final SpeciesSpheresMono species;
     public final Box box;
-    public final ActivityIntegrate activityIntegrate;
     public final CoordinateDefinition coordinateDefinition;
     public final P2HardSphere pCross;
 
@@ -90,8 +90,7 @@ public class HSNPT extends Simulation {
         potentialMaster.setRange(neighborRangeFac * sigma);
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
         AtomType type1 = species.getLeafType();
 
         P2HardSphere p2 = new P2HardSphere(space, sigma, false);
@@ -372,8 +371,7 @@ public class HSNPT extends Simulation {
             return;
         }
         long t1 = System.currentTimeMillis();
-        sim.activityIntegrate.setMaxSteps(params.numSteps/10);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps/10);
         if (!params.nvt) {
             volumeAvg.reset();
         }
@@ -415,8 +413,7 @@ public class HSNPT extends Simulation {
             vfw = null;
         }
 
-        sim.activityIntegrate.setMaxSteps(params.numSteps);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps);
         System.out.println("time "+(System.currentTimeMillis()-t1)/1000);
 
         if (!params.nvt) {

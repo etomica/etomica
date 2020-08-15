@@ -5,7 +5,8 @@
 package etomica.models.nitrogen;
 
 import etomica.action.WriteConfiguration;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.config.ConfigurationFile;
@@ -40,6 +41,8 @@ import java.io.File;
  * @author Tai Boon Tan
  */
 public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
+
+    private final IntegratorMC integratorTarg;
 
     public SimDirectBetaN2RPAngleToNoAngle(Space space, int numMolecules, double density, double temperature, double angle, long numSteps) {
         super(space);
@@ -105,7 +108,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
                 = new MCMoveRotateMolecule3DFixedAngle(potentialMasterTarg, getRandom(), space, angle, coordinateDefTarg, boxTarg);
         rotateFixedAngle.setBox(boxTarg);
 
-        IntegratorMC integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature, boxTarg);
+        integratorTarg = new IntegratorMC(potentialMasterTarg, getRandom(), temperature, boxTarg);
         integratorTarg.getMoveManager().addMCMove(moveTarg);
         //integratorTarg.getMoveManager().addMCMove(rotateTarg);
         integratorTarg.getMoveManager().addMCMove(rotateFixedAngle);
@@ -151,8 +154,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
         IntegratorListenerAction boltzmannPumpListener = new IntegratorListenerAction(boltzmannPump, 100);
         integratorTarg.getEventManager().addListener(boltzmannPumpListener);
 
-        activityIntegrate = new ActivityIntegrate(integratorTarg);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integratorTarg));
     }
 
     public void initializeConfigFromFile(String fname){
@@ -214,17 +216,14 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		} else {
 			long equiStep = (numMolecules*numSteps/1000);
 	        System.out.println("\nEquilibration step: " + equiStep);
-	        sim.activityIntegrate.setMaxSteps(equiStep);
-	        sim.getController().actionPerformed();     
+	        sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorTarg), equiStep);
 	        System.out.println("Equilibration finished");
-	        sim.getController().reset();
 		}
         
         long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
        
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorTarg), numSteps);
 
         sim.writeConfiguration(configFileName);
         double average = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.AVERAGE.index);
@@ -241,7 +240,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
     }
 
     private static final long serialVersionUID = 1L;
-    protected ActivityIntegrate activityIntegrate;
+    
     protected AccumulatorAverageFixed boltzmannAverage;
     protected Box boxTarg;
 

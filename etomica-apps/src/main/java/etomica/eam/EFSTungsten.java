@@ -5,7 +5,7 @@
 package etomica.eam;
 
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
@@ -73,7 +73,7 @@ public class EFSTungsten extends Simulation {
     public PotentialEFS potentialN;
     public DisplayBox display;
     public MeterEnergy energy;
-    public ActivityIntegrate activityIntegrate;
+
     public IDataInfo info2;
     public CoordinateDefinition coordinateDefinition;
 
@@ -92,8 +92,7 @@ public class EFSTungsten extends Simulation {
         integrator.setThermostatInterval(100);
         integrator.setIsothermal(true);
         integrator.setThermostatNoDrift(true);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
         box.setNMolecules(w, numatoms);
 
         //BCC W

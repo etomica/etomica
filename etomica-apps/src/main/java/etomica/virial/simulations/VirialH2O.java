@@ -264,13 +264,13 @@ public class VirialH2O {
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
 
         // this is where the simulation takes place
-        sim.getController().actionPerformed();
+
+sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), 1000);
         
         long t2 = System.currentTimeMillis(); // End time for simulation        
         

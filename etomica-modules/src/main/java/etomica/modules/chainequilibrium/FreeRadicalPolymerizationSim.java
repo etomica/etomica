@@ -4,7 +4,8 @@
 
 package etomica.modules.chainequilibrium;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -36,7 +37,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
 	public SpeciesSpheresMono speciesB; // monomer
 	public P2SquareWellBonded p2AA;
 	public P2SquareWellRadical p2AB, p2BB;
-    public ActivityIntegrate activityIntegrate;
+
     public AtomLeafAgentManager<IAtom[]> agentManager = null;
 
     public FreeRadicalPolymerizationSim() {
@@ -92,8 +93,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
 
         // **** Setting Up the thermometer Meter *****
 
-        activityIntegrate = new ActivityIntegrate(integratorHard, 1, true);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integratorHard, 0, true));
     }
     
     public void resetBonds() {

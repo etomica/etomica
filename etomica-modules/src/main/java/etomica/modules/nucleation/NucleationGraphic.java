@@ -6,6 +6,7 @@ package etomica.modules.nucleation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomTest;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
@@ -122,7 +123,7 @@ public class NucleationGraphic extends SimulationGraphic {
         densitySlider.setEditValues(true);
         add(densitySlider);
 
-        sim.activityIntegrate.setSleepPeriod(0);
+        sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
 
         // Simulation Time
         final DisplayTextBox displayCycles = new DisplayTextBox();

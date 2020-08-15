@@ -6,7 +6,8 @@ package etomica.liquidLJ;
 
 import etomica.action.BoxInflate;
 import etomica.action.WriteConfigurationBinary;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationFileBinary;
@@ -56,7 +57,6 @@ public class LjMd3D extends Simulation {
     
     public final PotentialMasterList potentialMasterList;
     public final PotentialMasterMonatomic potentialMasterLong, potentialMasterLongCut;
-    public final ActivityIntegrate ai;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
     public Box box;
@@ -93,8 +93,7 @@ public class LjMd3D extends Simulation {
         integrator.setTimeStep(tStep);
         integrator.setIsothermal(true);
         integrator.setTemperature(temperature);
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         potential = ss ? new P2SoftSphere(space, 1, 4, 12) : new P2LennardJones(space);
         AtomType leafType = species.getLeafType();
@@ -294,9 +293,7 @@ public class LjMd3D extends Simulation {
                 eqSteps = steps/4;
                 if (eqSteps > 4000) eqSteps = 4000;
             }
-            sim.ai.setMaxSteps(eqSteps);
-            sim.getController().actionPerformed();
-            sim.getController().reset();
+            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), eqSteps);
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
@@ -776,8 +773,7 @@ public class LjMd3D extends Simulation {
     	}
 
     	long t1 = System.currentTimeMillis();
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
 //        try {
 //            uWriter.close();

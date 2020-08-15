@@ -4,7 +4,8 @@
 
 package etomica.models.nitrogen;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.box.Box;
 import etomica.data.DataPump;
 import etomica.data.IDataSource;
@@ -170,8 +171,7 @@ public class SimOverlapBetaN2RP extends Simulation {
 
         setRefPref(alpha, alphaSpan);
 
-        activityIntegrate = new ActivityIntegrate(integratorOverlap);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integratorOverlap));
     }
 
     public void setRefPref(double alpha, double alphaSpan) {
@@ -206,13 +206,10 @@ public class SimOverlapBetaN2RP extends Simulation {
 
     public void equilibrate(long initSteps) {
 
-        activityIntegrate.setMaxSteps(initSteps);
-
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        getController().actionPerformed();
-        getController().reset();
+        this.getController2().runActivityBlocking(new ActivityIntegrate2(this.integratorOverlap), initSteps);
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
         }
@@ -275,8 +272,7 @@ public class SimOverlapBetaN2RP extends Simulation {
         final long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
        
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOverlap), numSteps);
          
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getIdealRefStepFraction()
         		+" (actual: "+sim.integratorOverlap.getRefStepFraction()+")");
@@ -333,7 +329,7 @@ public class SimOverlapBetaN2RP extends Simulation {
     public IntegratorOverlap integratorOverlap;
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
-    public ActivityIntegrate activityIntegrate;
+
     public Box boxTarg, boxRef;
     public int[] nCells;
     public Basis basis;

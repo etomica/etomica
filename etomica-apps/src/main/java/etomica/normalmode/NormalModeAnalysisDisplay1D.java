@@ -4,7 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.crystal.Basis;
@@ -55,10 +56,7 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
         integrator.setTemperature(temperature);
 
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
-
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(1);
 
     }
 	
@@ -90,7 +88,7 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
 	
 	
 	protected IntegratorHarmonic integrator;
-	protected ActivityIntegrate activityIntegrate;
+	
 	protected Box box;
 	protected Boundary boundary;
 	protected Primitive primitive;

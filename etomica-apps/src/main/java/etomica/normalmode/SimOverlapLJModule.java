@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -44,7 +44,7 @@ public class SimOverlapLJModule {
     public IntegratorOverlap integratorOverlap;
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
-    public ActivityIntegrate activityIntegrate;
+
     public Box boxTarget, boxHarmonic;
     public Boundary boundaryTarget, boundaryHarmonic;
     public int[] nCells;

@@ -8,7 +8,8 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -55,7 +56,6 @@ public class SimDimerLJadatom extends Simulation{
     public Vector[] saddle, normal;
     public SpeciesSpheresMono fixed, movable;
 //    public P2LennardJones potential;
-    public ActivityIntegrate activityIntegrateMD, activityIntegrateDimer, activityIntegrateMin;
     public CalcGradientDifferentiable calcGradientDifferentiable;
     public CalcVibrationalModes calcVibrationalModes;
     public double [][] dForces;
@@ -221,11 +221,9 @@ public class SimDimerLJadatom extends Simulation{
         integratorMD.setTemperature(0.1);
         integratorMD.setThermostatInterval(100);
         integratorMD.setIsothermal(true);
-        activityIntegrateMD = new ActivityIntegrate(integratorMD);
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);
         integratorMD.getEventManager().addListener(new IntegratorListenerAction(imposePbc));
-        getController().addAction(activityIntegrateMD);
-        activityIntegrateMD.setMaxSteps(maxSteps);
+        this.getController2().addActivity(new ActivityIntegrate2(integratorMD), maxSteps);
     }
 
     public void enableDimerSearch(String fileName, long maxSteps, Boolean orthoSearch, Boolean fine) {
@@ -244,19 +242,14 @@ public class SimDimerLJadatom extends Simulation{
             integratorDimer.dFrot = 0.01;
         }
         integratorDimer.setFileName(fileName);
-        activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
-        integratorDimer.setActivityIntegrate(activityIntegrateDimer);
-        getController().addAction(activityIntegrateDimer);
-        activityIntegrateDimer.setMaxSteps(maxSteps);
+        this.getController2().addActivity(new ActivityIntegrate2(integratorDimer), maxSteps);
     }
 
     public void enableMinimumSearch(String fileName, Boolean normalDir) {
 
         integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, normalDir, box);
         integratorDimerMin.setFileName(fileName);
-        activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
-        integratorDimerMin.setActivityIntegrate(activityIntegrateMin);
-        getController().addAction(activityIntegrateMin);
+        this.getController2().addActivity(new ActivityIntegrate2(integratorDimerMin));
     }
     
     public void randomizePositions(){

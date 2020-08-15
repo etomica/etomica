@@ -302,11 +302,10 @@ public class VirialLJDU {
         }
 
         sim.integratorOS.setNumSubSteps((int) blockSize);
-        sim.ai.setMaxSteps(steps / blockSize);
         for (int i = 0; i < 2; i++) {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps / blockSize);
         long t2 = System.nanoTime();
 
         if (doHist) {

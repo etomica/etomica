@@ -4,7 +4,7 @@
 
 package etomica.metastable;
 
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -52,7 +52,6 @@ public class LJmuVT extends Simulation {
     public final PotentialMasterCell potentialMaster;
     public final SpeciesSpheresMono species;
     public final Box box;
-    public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
     public final MCMoveInsertDelete mcMoveID;
 
@@ -73,8 +72,7 @@ public class LJmuVT extends Simulation {
         //controller and integrator
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         //instantiate several potentials for selection in combo-box
         P2LennardJones potential = new P2LennardJones(space);
@@ -308,7 +306,6 @@ public class LJmuVT extends Simulation {
             long tstart = System.currentTimeMillis();
             sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
 sim.integrator.resetStepCount();
-            sim.getController().reset();
             if (numRuns==1) System.out.println("Equilibration finished");
 
             sim.mcMoveID.setMu(mu);
@@ -335,7 +332,7 @@ sim.integrator.getEventManager().addListener(new IntegratorListener() {
                         throw new RuntimeException(ex);
                     }
                     count++;
-                    if (U<-1) sim.activityIntegrate.setMaxSteps(0);
+                    if (U<-1) sim.getController2().setMaxSteps(0);
                 }
 
                 public void integratorInitialized(IntegratorEvent e) {

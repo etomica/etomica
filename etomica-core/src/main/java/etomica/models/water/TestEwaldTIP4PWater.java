@@ -5,7 +5,8 @@
 package etomica.models.water;
 
 import etomica.action.BoxImposePbc;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -82,9 +83,7 @@ public class TestEwaldTIP4PWater extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveVolume);
 
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setMaxSteps(6000);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator), 6000);
 
 
         //Potential

@@ -6,7 +6,8 @@ package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeOriented;
 import etomica.box.Box;
@@ -59,9 +60,8 @@ public class GEMCWithRotation extends Simulation {
         integrator = new IntegratorGEMC(getRandom(), space);
         integrator.setTemperature(0.420);
         integrator.setEventInterval(400);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-        activityIntegrate.setSleepPeriod(1);
+
+        getController2().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(1);
 
         box1 = this.makeBox();
         box1.setNMolecules(species, 200);

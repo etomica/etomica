@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -32,7 +32,7 @@ public class SimCalcSLJ extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public Primitive primitive, primitiveUnitCell;
@@ -77,8 +77,7 @@ public class SimCalcSLJ extends Simulation {
         integrator.getMoveManager().addMCMove(move);
         ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);

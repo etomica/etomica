@@ -5,7 +5,8 @@
 package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
@@ -58,9 +59,7 @@ public class WaterBox {
 //        integrator.setIsothermal(true);
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
         integrator.setThermostatInterval(100);
-        ActivityIntegrate ai = new ActivityIntegrate(integrator);
 //        System.out.println("using rigid with dt="+dt);
-        sim.getController().addAction(ai);
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
 
@@ -89,7 +88,7 @@ public class WaterBox {
         p2Switched.setSwitchFac(0.5);
         potentialMaster.addPotential(p2Switched, new ISpecies[]{species, species});
 
-        ai.setSleepPeriod(2);
+        sim.getController2().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(2);
         SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
         ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
         ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);

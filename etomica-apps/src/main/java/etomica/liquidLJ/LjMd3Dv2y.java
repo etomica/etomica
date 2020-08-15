@@ -176,9 +176,7 @@ public class LjMd3Dv2y {
                 eqSteps = steps/4;
                 if (eqSteps > 4000) eqSteps = 4000;
             }
-            sim.ai.setMaxSteps(eqSteps);
-            sim.getController().actionPerformed();
-            sim.getController().reset();
+            sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), eqSteps);
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
@@ -299,8 +297,7 @@ public class LjMd3Dv2y {
 
 
     	long t1 = System.currentTimeMillis();
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
 
         System.out.println();

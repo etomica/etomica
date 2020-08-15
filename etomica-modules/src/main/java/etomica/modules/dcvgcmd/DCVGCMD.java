@@ -4,7 +4,8 @@
 
 package etomica.modules.dcvgcmd;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -60,7 +61,7 @@ public class DCVGCMD extends Simulation {
     public AccumulatorAverage accumulator2;
     public DataPump profile1pump, profile2pump;
     public Vector poreCenter;
-    public ActivityIntegrate activityIntegrate;
+
     public ConfigurationLatticeTube config;
     
     //Constructor
@@ -183,8 +184,7 @@ public class DCVGCMD extends Simulation {
         potentialMaster.setRange(potential.getRange() * neighborRangeFac);
         integratorMC.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 
-        activityIntegrate = new ActivityIntegrate(integratorDCV);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integratorDCV));
 
         integratorDCV.setIntegrators(integratorMC, integratorMD, getRandom());
         integratorMD.setIsothermal(false);
@@ -275,7 +275,6 @@ public class DCVGCMD extends Simulation {
 
     public static void main(String[] args) {
         DCVGCMD sim = new DCVGCMD();
-        sim.activityIntegrate.setMaxSteps(5000);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorDCV), 5000);
     }
 }

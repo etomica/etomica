@@ -4,7 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -41,7 +42,7 @@ public class SimHarmonic extends Simulation {
 	private static final String APP_NAME = "Sim Harmonic";
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public SpeciesSpheresMono species;
@@ -74,8 +75,7 @@ public class SimHarmonic extends Simulation {
 
         integrator = new IntegratorMC(this, null, box);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
         integrator.getMoveManager().addMCMove(move);
@@ -247,9 +247,7 @@ public class SimHarmonic extends Simulation {
         } else {
             //not graphic, so run simulation batch
             //S data is written to file
-            sim.activityIntegrate.setMaxSteps(steps);
-
-            sim.getController().actionPerformed();
+            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
             DataGroup boltzmannData = (DataGroup)avgBoltzmann.getData();
             double pNotOverlap = ((DataDouble) boltzmannData.getData(avgBoltzmann.AVERAGE.index)).x;

@@ -6,7 +6,8 @@ package etomica.cavity;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -44,8 +45,6 @@ import etomica.util.ParseArgs;
  * @author Andrew Schultz
  */
 public class HSMDWidom extends Simulation {
-
-    public final ActivityIntegrate activityIntegrate;
 
     /**
      * The Box holding the atoms.
@@ -91,8 +90,7 @@ public class HSMDWidom extends Simulation {
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.005);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integrator));
 
         potential = new P2HardSphere(space);
         AtomType leafType = species.getLeafType();
@@ -344,8 +342,7 @@ public class HSMDWidom extends Simulation {
         System.out.println("density: " + params.density);
 
         long steps = params.steps;
-        sim.activityIntegrate.setMaxSteps(steps / 10);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 10);
         sim.integrator.resetStepCount();
 
         AccumulatorAverageFixed accRDFMapped = new AccumulatorAverageFixed(1);
@@ -404,8 +401,7 @@ public class HSMDWidom extends Simulation {
         sim.integrator.getEventManager().addListener(pumpPCC);
 
         long t1 = System.nanoTime();
-        sim.activityIntegrate.setMaxSteps(steps);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         long t2 = System.nanoTime();
 
 

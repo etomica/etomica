@@ -7,7 +7,7 @@ package etomica.cavity;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -62,8 +62,6 @@ public class HSMDCavity extends Simulation {
 
     public final PotentialMaster potentialMaster;
 
-    public final ActivityIntegrate activityIntegrate;
-
     /**
      * Makes a simulation according to the specified parameters.
      *
@@ -89,8 +87,7 @@ public class HSMDCavity extends Simulation {
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.005);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         potential = new P2HardSphereCavity(space);
         AtomType leafType = species.getLeafType();

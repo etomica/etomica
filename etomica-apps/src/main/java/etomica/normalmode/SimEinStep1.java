@@ -4,7 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -46,7 +47,7 @@ public class SimEinStep1 extends Simulation {
 
     public final PotentialMasterList potentialMaster;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public int[] nCells;
@@ -135,9 +136,7 @@ public class SimEinStep1 extends Simulation {
         atomMove.setTemperature(temperature);
         integrator.getMoveManager().addMCMove(atomMove);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        getController().addAction(activityIntegrate);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
@@ -267,10 +266,9 @@ public class SimEinStep1 extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
-        sim.getController().actionPerformed();
         //MeterTargetTP.closeFW();
 
         DataGroup data = (DataGroup)accumulator.getData();

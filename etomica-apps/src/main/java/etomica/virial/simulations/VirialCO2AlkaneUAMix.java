@@ -448,7 +448,6 @@ public static void main(String[] args) {
 
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps((int)steps);
-        sim.ai.setMaxSteps(1000);
         sim.integratorOS.getMoveManager().setEquilibrating(false);
 
         for (int i=0; i<2; i++) {
@@ -471,8 +470,7 @@ public static void main(String[] args) {
             sim.integratorOS.setRefStepFraction(refFrac);
             sim.integratorOS.setAdjustStepFraction(false);
         }
-
-        sim.getController().actionPerformed();
+sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
         sim.printResults(HSB[nPoints]);

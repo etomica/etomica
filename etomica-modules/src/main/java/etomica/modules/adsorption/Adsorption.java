@@ -4,7 +4,8 @@
 
 package etomica.modules.adsorption;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -36,7 +37,7 @@ public class Adsorption extends Simulation {
     public final IntegratorHard integratorMD;
     public final IntegratorMC integratorMC;
     public final IntegratorHybrid integratorHybrid;
-    public final ActivityIntegrate activityIntegrate;
+
     public final P2SquareWell p2AA, p2AB, p2BB;
     public final P1Wall p1WallA, p1WallB;
     public final MyMCMove mcMoveIDA, mcMoveIDB;
@@ -68,8 +69,7 @@ public class Adsorption extends Simulation {
 
         integratorHybrid = new IntegratorHybrid(potentialMaster, integratorMD, integratorMC, 2);
 
-        activityIntegrate = new ActivityIntegrate(integratorHybrid);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integratorHybrid));
 
         double sigma = 1;
         double lambda = 1.5;

@@ -231,8 +231,7 @@ public class VirialAlkaneMix_Kong extends VirialAlkaneMix {
         sim.integratorOS.getEventManager().addListener(progressReportListener);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
 

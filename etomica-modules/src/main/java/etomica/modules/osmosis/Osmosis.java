@@ -6,6 +6,7 @@ package etomica.modules.osmosis;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.config.ConfigurationLatticeWithPlane;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
@@ -294,26 +295,10 @@ public class Osmosis extends SimulationGraphic {
         Space sp = Space3D.getInstance();
     	sim = new OsmosisSim(sp);
 
-        sim.activityIntegrate.setSleepPeriod(1);
+		sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(1);
 
-        Osmosis osmosis = new Osmosis(sim, sp);
+		Osmosis osmosis = new Osmosis(sim, sp);
         SimulationGraphic.makeAndDisplayFrame(osmosis.getPanel(), APP_NAME);
-    }
-
-    public static class Applet extends javax.swing.JApplet {
-	    public void init() {
-
-	    	OsmosisSim sim = null;
-
-	    	Space sp = Space3D.getInstance();
-	    	sim = new OsmosisSim(sp);
-
-	        sim.activityIntegrate.setSleepPeriod(1);
-
-		    getContentPane().add(new Osmosis(sim, sp).getPanel());
-	    }
-
-        private static final long serialVersionUID = 1L;
     }
 
     protected class InitializeMolecules {

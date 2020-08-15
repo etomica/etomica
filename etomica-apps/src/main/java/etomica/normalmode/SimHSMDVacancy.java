@@ -6,7 +6,8 @@ package etomica.normalmode;
 
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
 import etomica.atom.IAtom;
@@ -58,7 +59,6 @@ import java.awt.*;
 public class SimHSMDVacancy extends Simulation {
     
     public final PotentialMasterList potentialMasterList;
-    public final ActivityIntegrate ai;
     public IntegratorHardMDMC integrator;
     public SpeciesSpheresMono species;
     public Box box;
@@ -95,8 +95,7 @@ public class SimHSMDVacancy extends Simulation {
         integrator.setIsothermal(true);
         integrator.setTemperature(1);
         integrator.setThermostatNoDrift(true);
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
 
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
@@ -324,7 +323,7 @@ public class SimHSMDVacancy extends Simulation {
                 double rc2 = rc*rc;
                 int nmax = 12;
                 public Color getAtomColor(IAtom a) {
-                    if (!sim.integrator.getEventManager().firingEvent() && !sim.ai.isPaused()) return new Color(1.0f, 1.0f, 1.0f);
+                    if (!sim.integrator.getEventManager().firingEvent()) return new Color(1.0f, 1.0f, 1.0f);
 
                     Vector pi = a.getPosition();
                     NeighborListManager nbrManager = sim.potentialMasterList.getNeighborManager(sim.box);
@@ -660,8 +659,7 @@ public class SimHSMDVacancy extends Simulation {
 
 
         // equilibrate off the lattice
-        sim.ai.setMaxSteps(steps/40);
-        sim.ai.actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/40);
 
         IData dsfe3Data = dsfe3.getData();
         double daDefAvg = dsfe3Data.getValue(0);
@@ -699,8 +697,7 @@ public class SimHSMDVacancy extends Simulation {
             public void integratorInitialized(IntegratorEvent e) {}
         });
 
-        sim.ai.setMaxSteps(steps/10);
-        sim.ai.actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/10);
 
         if (params.doReweight) {
             dsfe3Data = dsfe3.getData();
@@ -724,8 +721,7 @@ public class SimHSMDVacancy extends Simulation {
         
         // take real data
         long t1 = System.currentTimeMillis();
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
 
         System.out.println();

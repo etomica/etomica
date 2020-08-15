@@ -7,6 +7,7 @@ package etomica.virial.simulations;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.*;
 import etomica.atom.iterator.ANIntergroupCoupled;
 import etomica.atom.iterator.ANIntragroupExchange;
@@ -680,10 +681,10 @@ public class VirialH2PI {
 				final DisplayTextBox errorBox = new DisplayTextBox();
 				errorBox.setLabel("Error");
 				JLabel jLabelPanelParentGroup = new JLabel("B"+nPoints+" (L/mol)^"+(nPoints-1));
-				final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
+				final JPanel panelParentGroup = new JPanel(new BorderLayout());
 				panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
-				panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.WEST);
-				panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
+				panelParentGroup.add(averageBox.graphic(), BorderLayout.WEST);
+				panelParentGroup.add(errorBox.graphic(), BorderLayout.EAST);
 				simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
 
 				IAction pushAnswer = new IAction() {
@@ -860,7 +861,7 @@ public class VirialH2PI {
 					public void integratorStepStarted(IntegratorEvent e) {}
 					@Override
 					public void integratorStepFinished(IntegratorEvent e) {
-						if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+						if ((sim.integratorOS.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
 						System.out.print(sim.integratorOS.getStepCount()+" steps: ");
 						double[] ratioAndError = sim.dvo.getAverageAndError();
 						double ratio = ratioAndError[0];
@@ -881,7 +882,7 @@ public class VirialH2PI {
 						public void integratorStepStarted(IntegratorEvent e) {}
 						@Override
 						public void integratorStepFinished(IntegratorEvent e) {
-							if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+							if ((sim.integratorOS.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
 							System.out.println("**** reference ****");
 							double[] xValues = hist.xValues();
 							double[] h = hist.getHistogram();
@@ -916,8 +917,7 @@ public class VirialH2PI {
 				sim.integrators[1].getEventManager().addListener(histListenerTarget);
 			}
 
-			sim.ai.setMaxSteps(1000);
-			sim.getController().actionPerformed();
+			sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
 			long t2 = System.currentTimeMillis();
 
 			if (params.doHist) {

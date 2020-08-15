@@ -4,7 +4,8 @@
 
 package etomica.modules.multiharmonic.mbar;
 
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
@@ -36,7 +37,7 @@ public class MultiharmonicMC extends Simulation {
     protected final P1Harmonic potentialA, potentialB;
     protected final IntegratorMC integratorA, integratorB;
     protected final IntegratorOverlap integratorOS;
-    protected final ActivityIntegrate activityIntegrate;
+    
     protected final MeterMBAR meterOverlapA, meterOverlapB;
     public MultiharmonicMC() {
         super(Space1D.getInstance());
@@ -84,7 +85,6 @@ public class MultiharmonicMC extends Simulation {
         integratorOS.setRefStepFraction(0.5);
         integratorOS.setAdjustStepFraction(false);
 
-        activityIntegrate = new ActivityIntegrate(integratorOS, 1, false);
-        getController().addAction(activityIntegrate);
+        getController2().addActivity(new ActivityIntegrate2(integratorOS, 0, true));
     }
 }

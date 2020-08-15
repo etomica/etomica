@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.normalmode.nptdemo;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
@@ -28,7 +29,7 @@ import etomica.species.SpeciesSpheresMono;
 public class HSNPT2DSim extends Simulation {
     
     private static final long serialVersionUID = 1L;
-    public ActivityIntegrate ai;
+
     public IntegratorHard integrator;
     public SpeciesSpheresMono species1;
     public Box box;
@@ -57,8 +58,7 @@ public class HSNPT2DSim extends Simulation {
 
         potentialMaster.setRange(sigma * 1.6);
 
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController2().addActivity(new ActivityIntegrate2(integrator));
         AtomType leafType1 = species1.getLeafType();
         potential = new P2HardSphere(space, sigma, false);
 

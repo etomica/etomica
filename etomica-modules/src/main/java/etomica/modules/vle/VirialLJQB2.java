@@ -4,6 +4,7 @@
 
 package etomica.modules.vle;
 
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.iterator.ApiIntergroup;
 import etomica.chem.elements.ElementSimple;
 import etomica.potential.P2LJQ;
@@ -63,8 +64,7 @@ public class VirialLJQB2 {
         sim.equilibrate(null, steps/40);
         
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps);
 
         double ratio = sim.dvo.getAverageAndError()[0];
         return ratio*HSB2;

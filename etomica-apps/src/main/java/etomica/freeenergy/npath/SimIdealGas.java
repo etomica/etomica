@@ -5,7 +5,8 @@
 package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
-import etomica.action.activity.ActivityIntegrate;
+
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -36,7 +37,6 @@ import java.awt.*;
 public class SimIdealGas extends Simulation {
 
     public final PotentialMasterCell potentialMasterCell;
-    public final ActivityIntegrate ai;
     public IntegratorMC integrator;
     public SpeciesSpheresMono species;
     public Box box;
@@ -68,9 +68,6 @@ public class SimIdealGas extends Simulation {
         double sigma = 1.0;
         integrator = new IntegratorMC(this, potentialMasterCell, box);
         integrator.setTemperature(temperature);
-
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
 
         Vector offset = space.makeVector();
         offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim) * 0.5);
@@ -142,15 +139,14 @@ public class SimIdealGas extends Simulation {
 
         if (!graphics) {
             long eqSteps = steps/10;
-            sim.ai.setMaxSteps(eqSteps);
-            sim.getController().actionPerformed();
-            sim.getController().reset();
+            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), eqSteps);
             sim.integrator.getMoveManager().setEquilibrating(false);
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
 
         if (graphics) {
+            sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator));
             final String APP_NAME = "SimLJ";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
             ColorScheme colorScheme = new ColorScheme() {
@@ -175,7 +171,7 @@ public class SimIdealGas extends Simulation {
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, numAtoms);
         sim.integrator.getEventManager().addListener(pumpEnergies);
 
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
         IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
         IData errEnergies = accEnergies.getData(accEnergies.ERROR);
