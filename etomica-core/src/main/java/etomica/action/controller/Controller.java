@@ -1,7 +1,7 @@
 package etomica.action.controller;
 
 import etomica.action.IAction;
-import etomica.action.activity.Activity2;
+import etomica.action.activity.Activity;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.Integrator;
 import etomica.util.Debug;
@@ -37,7 +37,7 @@ public class Controller {
      * @param maxSteps
      * @param sleepPeriodMillis
      */
-    public ActivityHandle addActivity(Activity2 activity, long maxSteps, double sleepPeriodMillis) {
+    public ActivityHandle addActivity(Activity activity, long maxSteps, double sleepPeriodMillis) {
         this.tryToGetIntegrator(activity);
         ActivityTask task = new ActivityTask(activity, this.actionQueue, this.pauseFlag, this.isRunningActivityStep);
         if (this.currentTask == null) {
@@ -54,11 +54,11 @@ public class Controller {
         return activityHandle;
     }
 
-    public ActivityHandle addActivity(Activity2 activity, long maxSteps) {
+    public ActivityHandle addActivity(Activity activity, long maxSteps) {
         return this.addActivity(activity, maxSteps, 0.0);
     }
 
-    public ActivityHandle addActivity(Activity2 activity) {
+    public ActivityHandle addActivity(Activity activity) {
         return this.addActivity(activity, Long.MAX_VALUE, 0.0);
     }
 
@@ -67,7 +67,7 @@ public class Controller {
      * @param activity
      * @param maxSteps
      */
-    public void runActivityBlocking(Activity2 activity, long maxSteps) {
+    public void runActivityBlocking(Activity activity, long maxSteps) {
         activity.preAction();
         for (long i = 0; i < maxSteps; i++) {
             activity.actionPerformed();
@@ -75,7 +75,7 @@ public class Controller {
         activity.postAction();
     }
 
-    private void tryToGetIntegrator(Activity2 activity) {
+    private void tryToGetIntegrator(Activity activity) {
         if (activity instanceof ActivityIntegrate) {
             this.integrator = ((ActivityIntegrate) activity).getIntegrator();
         }
@@ -189,7 +189,7 @@ public class Controller {
     }
 
     public CompletableFuture<Void> addActionSequential(IAction action) {
-        Activity2 activity = new Activity2() {
+        Activity activity = new Activity() {
             @Override
             public void preAction() {
 
@@ -231,7 +231,7 @@ public class Controller {
     }
 
     private static class ActivityTask implements Runnable {
-        final Activity2 activity;
+        final Activity activity;
         long maxSteps;
         double sleepPeriodMillis;
         final LinkedBlockingQueue<IAction> actionQueue;
@@ -241,7 +241,7 @@ public class Controller {
         private final AtomicBoolean pauseFlag;
         private final AtomicBoolean isRunningActivityStep;
 
-        ActivityTask(Activity2 activity, LinkedBlockingQueue<IAction> actionQueue, AtomicBoolean pauseFlag, AtomicBoolean isRunningActivityStep) {
+        ActivityTask(Activity activity, LinkedBlockingQueue<IAction> actionQueue, AtomicBoolean pauseFlag, AtomicBoolean isRunningActivityStep) {
             this.activity = activity;
             this.pauseFlag = pauseFlag;
             this.sleepPeriodMillis = 0.0;

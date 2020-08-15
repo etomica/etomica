@@ -111,7 +111,7 @@ class ControllerTest {
 
     }
 
-    static class TestActivity implements Activity2 {
+    static class TestActivity implements Activity {
         volatile boolean didPre = false;
         volatile boolean didPost = false;
         volatile int runCount = 0;

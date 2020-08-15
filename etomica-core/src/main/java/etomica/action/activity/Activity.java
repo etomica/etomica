@@ -2,7 +2,7 @@ package etomica.action.activity;
 
 import etomica.action.IAction;
 
-public interface Activity2 extends IAction {
+public interface Activity extends IAction {
 
     void preAction();
 
