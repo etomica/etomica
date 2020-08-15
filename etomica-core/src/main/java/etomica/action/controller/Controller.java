@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Controller2 {
+public class Controller {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private ActivityTask currentTask;
     private final ArrayDeque<ActivityHandle> pendingActivities = new ArrayDeque<>(1);
@@ -26,7 +26,7 @@ public class Controller2 {
     private Integrator integrator;
 
 
-    public Controller2() {
+    public Controller() {
     }
 
     /**
@@ -124,6 +124,18 @@ public class Controller2 {
     public CompletableFuture<Void> toggle() {
         this.pauseFlag.set(!this.pauseFlag.get());
         return submitActionInterrupt(WAKE_UP);
+    }
+
+    public void halt() {
+        this.start();
+        this.setMaxSteps(0);
+        this.unpause();
+        this.executor.shutdown();
+        try {
+            this.executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public CompletableFuture<Void> restartCurrentActivity() {
@@ -307,9 +319,9 @@ public class Controller2 {
     public static class ActivityHandle {
         public final CompletableFuture<Void> future;
         private final ActivityTask task;
-        private final Controller2 controller;
+        private final Controller controller;
 
-        private ActivityHandle(CompletableFuture<Void> future, ActivityTask task, Controller2 controller) {
+        private ActivityHandle(CompletableFuture<Void> future, ActivityTask task, Controller controller) {
             this.future = future;
             this.task = task;
             this.controller = controller;

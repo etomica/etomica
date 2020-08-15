@@ -58,7 +58,7 @@ public class DataStreamWebsocket {
         final DataAndInfo dataAndInfo = new DataAndInfo();
 
         Runnable sendData = () -> {
-            if(sim.getController().isPaused() || !sim.getController().isActive()) {
+            if(sim.getController().isPaused()) {
                 return;
             }
 

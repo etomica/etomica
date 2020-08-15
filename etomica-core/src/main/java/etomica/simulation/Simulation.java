@@ -6,8 +6,7 @@ package etomica.simulation;
 
 import etomica.action.IAction;
 
-import etomica.action.activity.Controller;
-import etomica.action.controller.Controller2;
+import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.IElement;
@@ -38,7 +37,6 @@ public class Simulation {
     protected int[] seeds;
     protected IRandom random;
     private final Controller controller;
-    private final Controller2 controller2;
 
     private final List<ISpecies> speciesList;
     private final List<Box> boxes;
@@ -51,15 +49,13 @@ public class Simulation {
     public Simulation(Space space) {
         this.space = space;
         boxes = new ArrayList<>();
-        controller = new Controller();
         seeds = RandomNumberGeneratorUnix.getRandSeedArray();
         random = new RandomMersenneTwister(seeds);
         eventManager = new SimulationEventManager(this);
         speciesList = new ArrayList<>();
         elementSymbolHash = new HashMap<>();
         elementAtomTypeHash = new HashMap<>();
-        controller2 = new Controller2();
-        controller.controller2 = controller2;
+        controller = new Controller();
     }
 
     /**
@@ -188,8 +184,8 @@ public class Simulation {
         return controller;
     }
 
-    public final Controller2 getController2() {
-        return controller2;
+    public final Controller getController2() {
+        return controller;
     }
 
     /**
@@ -338,6 +334,6 @@ public class Simulation {
      * Returns null if no integrator is found.
      */
     public Integrator getIntegrator() {
-        return this.controller2.getIntegrator();
+        return this.controller.getIntegrator();
     }
 }

@@ -7,7 +7,7 @@ package etomica.graphics;
 import etomica.action.ActionGroupSeries;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierNMolecule;

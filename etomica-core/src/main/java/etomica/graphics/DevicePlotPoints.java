@@ -19,7 +19,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.math.function.IFunction;
 import etomica.data.DataPump;
 import etomica.data.DataSourceFunction;

@@ -7,7 +7,7 @@ package etomica.graphics;
 import com.formdev.flatlaf.FlatLightLaf;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.graphics.DisplayPlot.PopupListener;
 import etomica.integrator.Integrator;

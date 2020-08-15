@@ -9,7 +9,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.units.Pixel;
 
 /**
@@ -95,7 +95,7 @@ public abstract class DisplayCanvas extends javax.swing.JPanel {
     protected abstract void doPaint(Graphics g);
     
     public synchronized void paint(Graphics g) {
-        if (!this.controller.controller2.isRunningActivityStep()) {
+        if (!this.controller.isRunningActivityStep()) {
             // controller isn't running (we weren't called from the integrator)
             // so we need to do the drawing work here
             ensureOffScreen();

@@ -1,17 +1,16 @@
 package etomica.graphics;
 
-import etomica.action.controller.Controller2;
+import etomica.action.controller.Controller;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class DeviceRunControls extends Device {
-    private final Controller2 controller;
     private final JButton button;
     private boolean pauseDisplayed;
 
-    public DeviceRunControls(Controller2 controller) {
-        this.controller = controller;
+    public DeviceRunControls(Controller controller) {
+        super(controller);
         this.button = new JButton(" Start ");
         this.pauseDisplayed = false;
 

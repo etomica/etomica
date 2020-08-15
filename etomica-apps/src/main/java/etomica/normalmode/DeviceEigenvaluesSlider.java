@@ -5,7 +5,7 @@
       package etomica.normalmode;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.SimulationGraphic;
@@ -61,7 +61,7 @@ public class DeviceEigenvaluesSlider extends Device {
 
 		});
 
-		ActionListener actionListen = evt -> controller2.submitActionInterrupt(integratorBoxChangeSetOneEval);
+		ActionListener actionListen = evt -> controller.submitActionInterrupt(integratorBoxChangeSetOneEval);
 
 		addRadioGroupActionListener(actionListen);
 
@@ -156,7 +156,7 @@ public class DeviceEigenvaluesSlider extends Device {
 
 	private void radioButtonChangeByClient() {
 		if(integrator != null) {
-	        controller2.submitActionInterrupt(integratorBoxChangeSetOneEval);
+	        controller.submitActionInterrupt(integratorBoxChangeSetOneEval);
 	    }
 	}
 

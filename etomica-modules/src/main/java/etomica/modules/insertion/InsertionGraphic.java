@@ -172,7 +172,7 @@ public class InsertionGraphic extends SimulationGraphic {
         getDisplayBox(sim.box).setColorScheme(new ColorScheme() {
             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
             public Color getAtomColor(IAtom a) {
-                if ((sim.integrator.getEventManager().firingEvent() || !sim.getController().isActive()) && a.getType().getSpecies() == sim.speciesGhost) {
+                if ((sim.integrator.getEventManager().firingEvent() || !sim.getController().isRunningActivityStep()) && a.getType().getSpecies() == sim.speciesGhost) {
                     sim.potentialGhost.setEpsilonCore(-Double.POSITIVE_INFINITY);
                     if (potentialChooser.getSelectedItem().equals("Repulsion and attraction")) {
                         sim.potentialGhost.setEpsilonWell(1.0);

@@ -57,7 +57,7 @@ public class ConfigurationWebsocket {
         SimulationWrapper wrapper = (SimulationWrapper) model.getWrapper(sim);
 
         Runnable sendConfigurationUpdate = () -> {
-            if(sim.getController().isPaused() || !sim.getController().isActive()) {
+            if(sim.getController().isPaused()) {
                 return;
             }
 

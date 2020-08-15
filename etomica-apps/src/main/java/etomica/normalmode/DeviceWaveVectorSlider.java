@@ -5,7 +5,7 @@
       package etomica.normalmode;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.SimulationGraphic;
@@ -121,7 +121,7 @@ public class DeviceWaveVectorSlider extends Device {
 
 	private void radioButtonChangeByClient() {
 		if(integrator != null) {
-	        controller2.submitActionInterrupt(integratorBoxChangeSetOneWV);
+	        controller.submitActionInterrupt(integratorBoxChangeSetOneWV);
 	    }
 	}
 
@@ -274,7 +274,7 @@ public class DeviceWaveVectorSlider extends Device {
 
     	ActionListener actionListen = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-				controller2.submitActionInterrupt(integratorBoxChangeSetOneWV);
+				controller.submitActionInterrupt(integratorBoxChangeSetOneWV);
             }
         };
 

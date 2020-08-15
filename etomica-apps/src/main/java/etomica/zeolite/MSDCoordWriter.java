@@ -5,7 +5,6 @@
 package etomica.zeolite;
 
 import etomica.action.IAction;
-import etomica.action.activity.ControllerEvent;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -14,8 +13,6 @@ import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD;
 import etomica.space.Vector;
-import etomica.util.IEvent;
-import etomica.util.IListener;
 
 import java.io.FileWriter;
 import java.io.IOException;

@@ -4,10 +4,6 @@
 
 package etomica.data;
 
-import etomica.action.activity.ControllerEvent;
-import etomica.util.IEvent;
-import etomica.util.IListener;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;

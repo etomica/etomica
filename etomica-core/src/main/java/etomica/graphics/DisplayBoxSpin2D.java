@@ -7,7 +7,7 @@ package etomica.graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.atom.IAtom;
 import etomica.lattice.RectangularLattice;
 import etomica.nbr.site.AtomSite;

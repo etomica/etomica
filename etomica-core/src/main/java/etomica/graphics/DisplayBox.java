@@ -4,7 +4,7 @@
 
 package etomica.graphics;
 
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.atom.AtomTest;
 import etomica.atom.DiameterHash;
 import etomica.atom.DiameterHashByElement;

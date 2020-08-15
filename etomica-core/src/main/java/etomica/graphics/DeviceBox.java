@@ -4,7 +4,7 @@
 
 package etomica.graphics;
 
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifyAction;
 import etomica.units.dimensions.Null;
