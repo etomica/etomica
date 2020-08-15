@@ -92,7 +92,7 @@ public class SimBennet extends Simulation {
         //Target
         box.setNMolecules(species, numAtoms);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         nCells = new int[]{n, n, n};
         basis = new BasisCubicFcc();
@@ -201,7 +201,7 @@ public class SimBennet extends Simulation {
         pumpTargetListener.setInterval(1000);
         sim.integrator.getEventManager().addListener(pumpTargetListener);
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         /*
          *

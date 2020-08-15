@@ -5,7 +5,6 @@
 package etomica.virial.simulations;
 
 
-import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
@@ -123,7 +122,7 @@ public class VirialGCPM {
             // (or write) to a refpref file
             sim.initRefPref(null, 10, false);
             sim.equilibrate(null, 20);
-            sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
+            sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -167,7 +166,7 @@ public class VirialGCPM {
 //        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
         long t2 = System.currentTimeMillis();
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());

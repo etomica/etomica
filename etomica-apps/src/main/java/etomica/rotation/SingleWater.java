@@ -60,7 +60,7 @@ public class SingleWater {
 //        integrator.setIsothermal(true);
         integrator.setTemperature(Kelvin.UNIT.toSim(148.5));
 //        integrator.setThermostatInterval(100);
-        sim.getController2().addActivity(new ActivityIntegrate2(integrator));
+        sim.getController().addActivity(new ActivityIntegrate2(integrator));
 //        System.out.println("using rigid with dt="+dt);
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
@@ -137,7 +137,7 @@ public class SingleWater {
             IntegratorListenerAction writeAListener = new IntegratorListenerAction(writeA);
             writeAListener.setInterval(100);
             integrator.getEventManager().addListener(writeAListener);
-            sim.getController2().runActivityBlocking(new ActivityIntegrate2(integrator), Long.MAX_VALUE);
+            sim.getController().runActivityBlocking(new ActivityIntegrate2(integrator), Long.MAX_VALUE);
         } else {
 //          ai.setSleepPeriod(10);
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);

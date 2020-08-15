@@ -122,7 +122,7 @@ public class SimEinStep1HCP extends Simulation {
         atomMove.setTemperature(temperature);
         integrator.getMoveManager().addMCMove(atomMove);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
@@ -245,7 +245,7 @@ public class SimEinStep1HCP extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
         //MeterTargetTP.closeFW();

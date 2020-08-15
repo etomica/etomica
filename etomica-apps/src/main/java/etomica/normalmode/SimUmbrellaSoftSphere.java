@@ -99,7 +99,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
         //Target
         box.setNMolecules(species, numAtoms);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         primitive = new PrimitiveCubic(space, n * L);
         primitiveUnitCell = new PrimitiveCubic(space, L);
@@ -213,7 +213,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
 
         IDataSource[] samplingMeters = new IDataSource[2];
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
 System.out.println("System Equilibrated!");
 
 
@@ -306,7 +306,7 @@ System.out.println("System Equilibrated!");
         IntegratorListenerAction outputActionListener = new IntegratorListenerAction(outputAction);
         outputActionListener.setInterval(10000);
         sim.integrator.getEventManager().addListener(outputActionListener);
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         try{
         	fileWriterHarm.close();

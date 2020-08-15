@@ -119,7 +119,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         }
         integrator.getMoveEventManager().addListener(associationManagerOriented);
         integrator.getMoveManager().setEquilibrating(true);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator), numSteps);
+        this.getController().addActivity(new ActivityIntegrate2(integrator), numSteps);
         //actionIntegrate.setSleepPeriod(1);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);
@@ -208,7 +208,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         IntegratorListenerAction energyDiffListenerEq = new IntegratorListenerAction(energyDiffActionEq,100000);
         sim.integrator.getEventManager().addListener(energyDiffListenerEq);
         System.out.println("equilibrium period = " +numSteps/5);
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/5);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/5);
 System.out.println("equilibrium finished");
 
 MeterDensity rhoMeter = new MeterDensity(sim.box);
@@ -316,7 +316,7 @@ MeterDensity rhoMeter = new MeterDensity(sim.box);
         IntegratorListenerAction energyDiffListener = new IntegratorListenerAction(energyDiffAction,1000);
         //sim.integrator.getEventManager().addListener(energyDiffListener)
 
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
         
         System.out.println("numAtom=" +numAtoms);
         double avgDensity = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(rhoAccumulator.AVERAGE.index)).x;//average density

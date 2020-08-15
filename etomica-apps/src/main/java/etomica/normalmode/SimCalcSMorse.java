@@ -69,7 +69,7 @@ public class SimCalcSMorse extends Simulation {
         integrator.getMoveManager().addMCMove(move);
         ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
         // activityIntegrate.setMaxSteps(nSteps);
 
 
@@ -173,7 +173,7 @@ public class SimCalcSMorse extends Simulation {
 //        logger.setWriteOnInterval(true);
 //        DataPump pump = new DataPump(m, logger);
 //        sim.integrator.addListener(new IntervalActionAdapter(pump));
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps/10);
 System.out.println("equilibrated");
         sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -188,7 +188,7 @@ System.out.println("equilibrated");
         IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
         sWriterListener.setInterval((int)simSteps/10);
         sim.integrator.getEventManager().addListener(sWriterListener);
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
         PDBWriter pdbWriter = new PDBWriter(sim.box);
         pdbWriter.setFileName("calcS.pdb");
         pdbWriter.actionPerformed();

@@ -214,7 +214,7 @@ public class VirialLJOrC {
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+mcDiscrete[i].getStepSize());
         }
-sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), 1000);
         long t2 = System.currentTimeMillis();
 
         int digits = (int)Math.ceil(-Math.log10(dr));

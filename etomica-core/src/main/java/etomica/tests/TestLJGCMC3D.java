@@ -7,7 +7,6 @@ package etomica.tests;
 import etomica.action.BoxInflate;
 
 import etomica.action.activity.ActivityIntegrate2;
-import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -115,7 +114,7 @@ public class TestLJGCMC3D extends Simulation {
         DataPumpListener pumpDensity = new DataPumpListener(densityMeter, densityAccumulator, 2 * numAtoms);
         sim.integrator.getEventManager().addListener(pumpDensity);
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps);
 
         double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
         double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;

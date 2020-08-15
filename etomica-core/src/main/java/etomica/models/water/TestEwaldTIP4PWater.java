@@ -83,7 +83,7 @@ public class TestEwaldTIP4PWater extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveVolume);
 
 
-        getController2().addActivity(new ActivityIntegrate2(integrator), 6000);
+        getController().addActivity(new ActivityIntegrate2(integrator), 6000);
 
 
         //Potential

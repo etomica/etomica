@@ -82,7 +82,7 @@ public class LJMC3D extends Simulation {
         MCMoveAtom mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         potentialMaster.setCellRange(2);
         potentialMaster.reset();
@@ -112,7 +112,7 @@ public class LJMC3D extends Simulation {
 
         // equilibration
         long t1 = System.currentTimeMillis();
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 10);
         System.out.println("equilibration finished");
 
         // data collection
@@ -123,7 +123,7 @@ public class LJMC3D extends Simulation {
 
         sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
         long t2 = System.currentTimeMillis();
 

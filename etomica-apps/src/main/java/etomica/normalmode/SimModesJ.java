@@ -106,7 +106,7 @@ public class SimModesJ extends Simulation {
         ((MCMoveStepTracker) movePhaseAngle.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(movePhaseAngle);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
     }
 
     /**
@@ -205,7 +205,7 @@ public class SimModesJ extends Simulation {
             }
             double[] wvs;
         });
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), 10000);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), 10000);
         
         dumpHist.integratorStepFinished(null);
     }

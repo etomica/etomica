@@ -145,7 +145,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveVolume);
         integrator.getMoveManager().addMCMove(mcMoveBiasUB);
         integrator.getMoveManager().setEquilibrating(true);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator), numSteps);
+        this.getController().addActivity(new ActivityIntegrate2(integrator), numSteps);
         //actionIntegrate.setSleepPeriod(1);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
@@ -228,7 +228,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
 
         final TestAceticAcidMC3D_NPT sim = new TestAceticAcidMC3D_NPT(numAtoms, pressure, density, temperature, numSteps);
         System.out.println("equilibrium period = " +numSteps/10);//equilibrium period
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
 System.out.println("equilibrium finished");
 
 MeterDensity rhoMeter = new MeterDensity(sim.box);
@@ -296,7 +296,7 @@ MeterDensity rhoMeter = new MeterDensity(sim.box);
         	graphic.makeAndDisplayFrame();
         	return;
         }
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
         
     	CompoundUnit rhoUnit = new CompoundUnit(new Unit[]{Mole.UNIT,Liter.UNIT},new double[]{1,-1});
         double finalDensity = rhoMeter.getDataAsScalar();

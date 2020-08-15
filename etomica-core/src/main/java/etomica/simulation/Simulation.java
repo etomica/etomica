@@ -184,10 +184,6 @@ public class Simulation {
         return controller;
     }
 
-    public final Controller getController2() {
-        return controller;
-    }
-
     /**
      * @return the Space that was specified in the constructor.
      */

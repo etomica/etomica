@@ -64,7 +64,7 @@ public class VirialLJQB2 {
         sim.equilibrate(null, steps/40);
         
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps);
 
         double ratio = sim.dvo.getAverageAndError()[0];
         return ratio*HSB2;

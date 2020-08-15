@@ -93,7 +93,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         
         ((SimulationRestart)getController().getReinitButton().getAction()).setConfiguration(sim.configMembrane);
 
-        sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
 
         //combo box to select potentials
         sigBox = new DeviceBox();

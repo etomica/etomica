@@ -61,7 +61,7 @@ public class SoftSphere3d extends Simulation {
 
 
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        getController2().addActivity(new ActivityIntegrate2(integrator), 10000000);
+        getController().addActivity(new ActivityIntegrate2(integrator), 10000000);
 
         box.setNMolecules(species, 108);
         BoxInflate inflater = new BoxInflate(box, space);
@@ -119,7 +119,7 @@ public class SoftSphere3d extends Simulation {
         pump.setDataSink(accumulator);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
 
 
         double temp = sim.integrator.getTemperature();

@@ -246,7 +246,7 @@ public class VirialAssociatingFluid4points extends VirialAssociatingFluid {
 		for (int i = 0; i < 2; i++) {
 			System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
 		}
-sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), numSteps);
+sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), numSteps);
 
 		System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
 

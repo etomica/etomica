@@ -72,7 +72,7 @@ public class LJmuVT extends Simulation {
         //controller and integrator
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         //instantiate several potentials for selection in combo-box
         P2LennardJones potential = new P2LennardJones(space);
@@ -304,7 +304,7 @@ public class LJmuVT extends Simulation {
                 return;
             }
             long tstart = System.currentTimeMillis();
-            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
 sim.integrator.resetStepCount();
             if (numRuns==1) System.out.println("Equilibration finished");
 
@@ -332,13 +332,13 @@ sim.integrator.getEventManager().addListener(new IntegratorListener() {
                         throw new RuntimeException(ex);
                     }
                     count++;
-                    if (U<-1) sim.getController2().setMaxSteps(0);
+                    if (U<-1) sim.getController().setMaxSteps(0);
                 }
 
                 public void integratorInitialized(IntegratorEvent e) {
                 }
             });
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
             long tstop = System.currentTimeMillis();
             
             if (numRuns <= 10 || (numRuns*10/(i+1))*(i+1) == numRuns*10) {

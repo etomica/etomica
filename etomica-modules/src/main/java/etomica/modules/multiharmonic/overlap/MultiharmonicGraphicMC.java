@@ -37,7 +37,6 @@ import etomica.overlap.IntegratorOverlap;
 import etomica.overlap.MeterOverlap;
 import etomica.space.Space;
 import etomica.space1d.Vector1D;
-import etomica.units.Pixel;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.*;
 import net.miginfocom.swing.MigLayout;
@@ -1024,7 +1023,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         tab12.add(plotM.graphic(), "");
         plotTabs.add(tab12, "M");
         
-        sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS)).setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS)).setSleepPeriod(0);
     }
 
     public static void main(String[] args) {

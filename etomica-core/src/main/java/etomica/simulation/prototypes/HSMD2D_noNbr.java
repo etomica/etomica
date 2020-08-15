@@ -62,7 +62,7 @@ public class HSMD2D_noNbr extends Simulation {
         box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10}));
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setIsothermal(false);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
         box.setNMolecules(species, 64);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         P2HardSphere potential = new P2HardSphere(space);
@@ -106,7 +106,7 @@ public class HSMD2D_noNbr extends Simulation {
 
         final HSMD2D_noNbr sim = new HSMD2D_noNbr();
         final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
-        sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(10);
+        sim.getController().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(10);
 
         DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();
         pressureDisplay.setAccumulator(sim.pressureAverage);

@@ -73,7 +73,7 @@ public class Heisenberg3Pair extends Simulation {
         mcMove = new MCMoveRotate3Pair(potential, random, space);
         integrator.getMoveManager().addMCMove(mcMove);
         integrator.setTemperature(temperature);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
         AtomType type = spins.getLeafType();
 //        potentialMaster.addPotential(field, new IAtomType[] {type});
 
@@ -110,7 +110,7 @@ public class Heisenberg3Pair extends Simulation {
         MeterSpinMSquare meterMSquare = null;
         AccumulatorAverage dipoleSumSquaredAccumulator = null;
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 5);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 5);
 
         int blockNumber = 100;
 
@@ -149,7 +149,7 @@ public class Heisenberg3Pair extends Simulation {
             AEEListener.setInterval(sampleAtInterval);
             sim.integrator.getEventManager().addListener(AEEListener);
         }
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
 
         //******************************** simulation start ******************************** //

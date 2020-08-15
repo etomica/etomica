@@ -438,7 +438,7 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 
         integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
     }
 	
 	public static void main (String[] args){
@@ -526,14 +526,14 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 			return;
 		}
 		
-		sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps/5);
+		sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps/5);
 System.out.println("****System Equilibrated (20% of SimSteps)****");
 
 		long startTime = System.currentTimeMillis();
 		System.out.println("\nStart Time: " + startTime);
 		sim.integrator.getMoveManager().setEquilibrating(false);
 
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
 		
 		
 		double averageEnergy = energyAverage.getData().getValue(energyAverage.AVERAGE.index);

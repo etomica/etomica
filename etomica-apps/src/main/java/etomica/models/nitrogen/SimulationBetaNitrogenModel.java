@@ -237,7 +237,7 @@ public class SimulationBetaNitrogenModel extends Simulation{
 //		System.exit(1);
 
 
-		this.getController2().addActivity(new ActivityIntegrate2(integrator));
+		this.getController().addActivity(new ActivityIntegrate2(integrator));
 	}
 	
 	public static void main (String[] args){
@@ -312,7 +312,7 @@ public class SimulationBetaNitrogenModel extends Simulation{
 //        meterOrientListener.setInterval(numMolecule);                                      
 //        sim.integrator.getEventManager().addListener(meterOrientListener);       
 		
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps/5);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps/5);
 System.out.println("****System Equilibrated (20% of SimSteps)****");
 
 		long startTime = System.currentTimeMillis();
@@ -331,7 +331,7 @@ System.out.println("****System Equilibrated (20% of SimSteps)****");
 		IntegratorListenerAction pressureListener = new IntegratorListenerAction(pressurePump);
 		pressureListener.setInterval((int)simSteps/200);
 		sim.integrator.getEventManager().addListener(pressureListener);
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
 		
 //		sim.writeUdistribution(filename, meterOrient);
 		

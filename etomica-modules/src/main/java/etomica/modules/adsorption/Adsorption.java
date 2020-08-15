@@ -69,7 +69,7 @@ public class Adsorption extends Simulation {
 
         integratorHybrid = new IntegratorHybrid(potentialMaster, integratorMD, integratorMC, 2);
 
-        getController2().addActivity(new ActivityIntegrate2(integratorHybrid));
+        getController().addActivity(new ActivityIntegrate2(integratorHybrid));
 
         double sigma = 1;
         double lambda = 1.5;

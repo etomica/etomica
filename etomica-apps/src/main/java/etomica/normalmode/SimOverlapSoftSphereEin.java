@@ -174,7 +174,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
         accumulatorPump = new DataPumpListener(meter, accumulator, interval);
         integrator.getEventManager().addListener(accumulatorPump);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
@@ -286,7 +286,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
 
         //MeterTargetTP.openFW("x"+numMolecules+".dat")
 
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
         //MeterTargetTP.closeFW();
 
         System.out.println("average delta U " + accumulator.getData().getValue(accumulator.AVERAGE.index) + " " + accumulator.getData().getValue(accumulator.ERROR.index) + " " + accumulator.getData().getValue(accumulator.BLOCK_CORRELATION.index));
@@ -338,7 +338,7 @@ sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator),
 
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
-        this.getController2().runActivityBlocking(new ActivityIntegrate2(this.integrator), initSteps);
+        this.getController().runActivityBlocking(new ActivityIntegrate2(this.integrator), initSteps);
 
         accumulator.reset();
 

@@ -131,7 +131,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
             }
             ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
         }
-this.getController2().addActivity(new ActivityIntegrate2(integrator));
+this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         /*
          * 1-body Potential to Constraint the atom from moving too far away from
@@ -212,7 +212,7 @@ this.getController2().addActivity(new ActivityIntegrate2(integrator));
 			meterDisplacementListener.setInterval(100);
 			sim.integrator.getEventManager().addListener(meterDisplacementListener);
 
-            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
+            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
 
             DataLogger dataLogger = new DataLogger();
 	        dataLogger.setFileName(filename+"hist_dist");
@@ -257,7 +257,7 @@ this.getController2().addActivity(new ActivityIntegrate2(integrator));
 		energyPumpListener.setInterval(100);
 		sim.integrator.getEventManager().addListener(energyPumpListener);
 
-		sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps / 10); // simSteps/10
+		sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps / 10); // simSteps/10
 System.out.println("equilibrated");
 
 		long startTime = System.currentTimeMillis();
@@ -277,7 +277,7 @@ System.out.println("equilibrated");
         IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
 		sWriterListener.setInterval((int)simSteps/10);
 		sim.integrator.getEventManager().addListener(sWriterListener);
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
 
         double A = sWriter.getLastA();
 		System.out.println("A/N: " + A/nA);

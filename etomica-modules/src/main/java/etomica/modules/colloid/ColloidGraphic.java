@@ -69,7 +69,7 @@ public class ColloidGraphic extends SimulationGraphic {
     	
     	getDisplayBox(sim.box).setPixelUnit(new Pixel(2));
 
-        sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator, 0, true)).setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate2(sim.integrator, 0, true)).setSleepPeriod(0);
        
         // Simulation Time
         final DisplayTextBox displayCycles = new DisplayTextBox();

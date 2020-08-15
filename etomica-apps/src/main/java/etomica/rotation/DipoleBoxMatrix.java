@@ -60,7 +60,7 @@ public class DipoleBoxMatrix extends Simulation {
         integrator.setMaxIterations(maxIterations);
         OrientationCalcAtom calcer = new OrientationCalcAtom();
         integrator.setOrientationCalc(species, calcer);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         P2LJDipole p2 = new P2LJDipole(space, 1.0, 1.0, 2.0);
         p2.setTruncationRadius(2.5);
@@ -77,7 +77,7 @@ public class DipoleBoxMatrix extends Simulation {
         double dt = 0.01;
         if (args.length == 0) {
             DipoleBoxMatrix sim = new DipoleBoxMatrix(space, nAtoms, dt);
-            sim.getController2().setSleepPeriod(10);
+            sim.getController().setSleepPeriod(10);
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
             graphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(30));
             graphic.makeAndDisplayFrame();
@@ -87,7 +87,7 @@ public class DipoleBoxMatrix extends Simulation {
             nAtoms = Integer.parseInt(args[1]);
             DipoleBoxMatrix sim = new DipoleBoxMatrix(space, nAtoms, dt);
             sim.integrator.printInterval = 100;
-            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
+            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
         }
     }
 
@@ -96,7 +96,7 @@ public class DipoleBoxMatrix extends Simulation {
         public void init() {
             Space space = Space3D.getInstance();
             DipoleBoxMatrix sim = new DipoleBoxMatrix(space, 864, 0.01);
-            sim.getController2().setSleepPeriod(10);
+            sim.getController().setSleepPeriod(10);
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
             graphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(30));
 

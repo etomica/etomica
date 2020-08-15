@@ -117,7 +117,7 @@ public class SimDirectBetaN2RP extends Simulation {
         IntegratorListenerAction boltzmannPumpListener = new IntegratorListenerAction(boltzmannPump, 100);
         integratorTarg.getEventManager().addListener(boltzmannPumpListener);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integratorTarg));
+        this.getController().addActivity(new ActivityIntegrate2(integratorTarg));
     }
 
     /**
@@ -155,14 +155,14 @@ public class SimDirectBetaN2RP extends Simulation {
         meterOrientListener.setInterval(numMolecules);                                      
         sim.integratorTarg.getEventManager().addListener(meterOrientListener);    
         
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorTarg), numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorTarg), numSteps/10);
 System.out.println("equilibration finished");
 
 
 
         long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorTarg), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorTarg), numSteps);
 
         double average = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.AVERAGE.index);
         double error = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.ERROR.index);

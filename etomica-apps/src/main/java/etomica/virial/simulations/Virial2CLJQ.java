@@ -4,7 +4,6 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
@@ -126,7 +125,7 @@ public class Virial2CLJQ {
             // (or write) to a refpref file
             sim.initRefPref(null, 10, false);
             sim.equilibrate(null, 20);
-            sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
+            sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
             if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
                 throw new RuntimeException("Oops");
             }
@@ -158,7 +157,7 @@ public class Virial2CLJQ {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % sim.getController().getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -168,7 +167,7 @@ public class Virial2CLJQ {
             };
             sim.integratorOS.getEventManager().addListener(progressReport);
         }
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());

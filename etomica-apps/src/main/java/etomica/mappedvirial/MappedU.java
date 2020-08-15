@@ -65,7 +65,7 @@ public class MappedU extends Simulation {
 
         //controller and integrator
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
         move = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(move);
 
@@ -157,7 +157,7 @@ public class MappedU extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
 
 sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -203,7 +203,7 @@ sim.integrator.getMoveManager().setEquilibrating(false);
             meterRDF.getXDataSource().setXMax(eqncutoff);
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
         }
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
 
 

@@ -68,6 +68,6 @@ public class MultiharmonicMC extends Simulation {
         integratorOS.setAdjustStepFraction(false);
         integratorOS.setRefStepFraction(0.5);
 
-        getController2().addActivity(new ActivityIntegrate2(integratorOS, 0, true));
+        getController().addActivity(new ActivityIntegrate2(integratorOS, 0, true));
     }
 }

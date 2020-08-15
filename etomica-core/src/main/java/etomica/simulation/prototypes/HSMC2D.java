@@ -7,7 +7,6 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 
 import etomica.action.activity.ActivityIntegrate2;
-import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -54,7 +53,7 @@ public class HSMC2D extends Simulation {
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         integrator = new IntegratorMC(this, potentialMaster, box);
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        getController2().addActivity(new ActivityIntegrate2(integrator));
+        getController().addActivity(new ActivityIntegrate2(integrator));
         box.setNMolecules(species, 20);
         box.setNMolecules(species2, 20);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);

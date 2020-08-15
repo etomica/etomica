@@ -72,7 +72,7 @@ public class DropletAtomic extends Simulation {
         integrator.setTimeStep(0.005);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(5000);
-        getController2().addActivity(new ActivityIntegrate2(integrator));
+        getController().addActivity(new ActivityIntegrate2(integrator));
         integrator.setTemperature(Kelvin.UNIT.toSim(118));
 
         //potentials
@@ -98,7 +98,7 @@ public class DropletAtomic extends Simulation {
         Space space = Space3D.getInstance();
 
         DropletAtomic sim = new DropletAtomic();
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
     }//end of main
     
     public void makeDropShape() {

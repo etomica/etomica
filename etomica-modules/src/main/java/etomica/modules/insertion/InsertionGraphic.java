@@ -81,7 +81,7 @@ public class InsertionGraphic extends SimulationGraphic {
         }
         
 
-        sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
 
         //combo box to select potentials
         final String repulsionOnly = "Repulsion only";
@@ -367,7 +367,7 @@ public class InsertionGraphic extends SimulationGraphic {
     public void setPotential(String potentialDesc) {
         final boolean HS = potentialDesc.equals("Repulsion only"); 
         final boolean SW = potentialDesc.equals("Repulsion and attraction"); 
-        sim.getController2().submitActionInterrupt( new IAction() {
+        sim.getController().submitActionInterrupt(new IAction() {
             public void actionPerformed() {
                 if (HS) {
                     potentialHS.setBox(sim.box);

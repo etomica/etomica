@@ -6,7 +6,6 @@ package etomica.modules.chainequilibrium;
 
 
 import etomica.action.activity.ActivityIntegrate2;
-import etomica.action.controller.Controller;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomType;
@@ -99,7 +98,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
 
         thermometer = new MeterTemperature(box, space.D());
 
-        getController2().addActivity(new ActivityIntegrate2(integratorHard, 0, true));
+        getController().addActivity(new ActivityIntegrate2(integratorHard, 0, true));
     }
 
     public int getNMonoOl() {

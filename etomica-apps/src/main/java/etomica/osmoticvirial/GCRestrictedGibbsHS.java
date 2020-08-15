@@ -68,7 +68,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         addSpecies(species2);
 
         integrator = new IntegratorRGEMC(random, space, species1);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         double sigma1 = 1; //solute
         double sigma2 = q * sigma1; //solvent
@@ -244,7 +244,7 @@ public class GCRestrictedGibbsHS extends Simulation {
             return;
         }
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps / 10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps / 10);
 
 sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -255,7 +255,7 @@ sim.integrator.getMoveManager().setEquilibrating(false);
         AccumulatorAverageCovariance acc = new AccumulatorAverageCovariance(blockSize);
         MCMoveListenerRGE mcMoveListenerRGE = new MCMoveListenerRGE(acc, sim.box1, sim.species1, numAtoms);
         sim.integrator.getMoveEventManager().addListener(mcMoveListenerRGE);
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         System.out.println("block count " + acc.getBlockCount());
         IData iavg = acc.getData(acc.AVERAGE);

@@ -46,7 +46,7 @@ public class Droplet extends Simulation {
 
         //controller and integrator
         integrator = new IntegratorDroplet(this, potentialMaster, box);
-        getController2().addActivity(new ActivityIntegrate2(integrator), Long.MAX_VALUE, 0.0);
+        getController().addActivity(new ActivityIntegrate2(integrator), Long.MAX_VALUE, 0.0);
         integrator.setTimeStep(0.2);
         integrator.setTemperature(0);
 
@@ -90,6 +90,6 @@ public class Droplet extends Simulation {
         Space space = Space3D.getInstance();
 
         Droplet sim = new Droplet();
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
     }//end of main
 }

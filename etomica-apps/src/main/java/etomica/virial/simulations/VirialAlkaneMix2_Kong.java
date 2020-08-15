@@ -13,8 +13,6 @@ import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
@@ -368,7 +366,7 @@ public class VirialAlkaneMix2_Kong {
             // (or write) to a refpref file
             sim.initRefPref(null, 100, false);
             sim.equilibrate(null, 200);
-            sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
+            sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -406,8 +404,8 @@ public class VirialAlkaneMix2_Kong {
         sim.integratorOS.getEventManager().addListener(progressReportListener);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS)).setMaxSteps(steps);
-        sim.getController2().completeActivities();
+        sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS)).setMaxSteps(steps);
+        sim.getController().completeActivities();
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
 

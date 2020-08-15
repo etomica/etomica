@@ -58,7 +58,7 @@ public class MappedVirialLJ extends Simulation {
         //controller and integrator
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
         move = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(move);
 
@@ -149,7 +149,7 @@ public class MappedVirialLJ extends Simulation {
         
         long t1 = System.currentTimeMillis();
         
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
 
 sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -188,7 +188,7 @@ sim.integrator.getMoveManager().setEquilibrating(false);
             meterRDF.getXDataSource().setXMax(rc);
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
         }
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         IData mappedAvg = accMappedVirial.getData(accMappedVirial.AVERAGE);
         IData mappedErr = accMappedVirial.getData(accMappedVirial.ERROR);

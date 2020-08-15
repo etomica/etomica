@@ -167,7 +167,7 @@ public class VirialSwsPT {
             // (or write) to a refpref file
             sim.initRefPref(null, 1000, false);
             sim.equilibrate(null, 2000);
-            sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
+            sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -230,7 +230,7 @@ public class VirialSwsPT {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % sim.getController().getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -243,7 +243,7 @@ public class VirialSwsPT {
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         long t0 = System.currentTimeMillis();
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
         long t1 = System.currentTimeMillis();
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());

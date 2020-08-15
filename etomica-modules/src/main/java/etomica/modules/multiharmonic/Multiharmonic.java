@@ -7,7 +7,6 @@ package etomica.modules.multiharmonic;
 import etomica.action.SimulationDataAction;
 
 import etomica.action.activity.ActivityIntegrate2;
-import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -76,7 +75,7 @@ public class Multiharmonic extends Simulation {
              a = iterator.nextAtom()) {
             a.getPosition().setX(0, x0);
         }
-        getController2().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(1);
 
         potentialB = new P1Harmonic(space);
         potentialB.setX0(new Vector1D(x0 + 1));

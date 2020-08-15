@@ -507,7 +507,7 @@ public class VirialHePIXCEven {
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pushAnswer));
 
             sim.addEquilibration(steps / 100);
-            sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator));
+            sim.getController().addActivity(new ActivityIntegrate2(sim.integrator));
 
             return;
         }
@@ -537,7 +537,7 @@ public class VirialHePIXCEven {
 //        }
 
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
 
         System.out.println("Ring acceptance "+ring.getTracker().acceptanceRatio());

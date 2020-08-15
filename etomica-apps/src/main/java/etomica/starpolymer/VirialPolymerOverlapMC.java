@@ -4,7 +4,6 @@
 
 package etomica.starpolymer;
 
-import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiIndexList;
@@ -248,7 +247,7 @@ public class VirialPolymerOverlapMC {
 
 			sim.initRefPref(null, 1000, false);
             sim.equilibrate(null, 2000);
-            sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
+            sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
 
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
@@ -265,7 +264,7 @@ public class VirialPolymerOverlapMC {
 //        sim.equilibrate(null, 10);
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps(steps);
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
 
         if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
             throw new RuntimeException("Oops");

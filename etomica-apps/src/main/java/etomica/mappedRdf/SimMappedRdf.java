@@ -60,7 +60,7 @@ public class SimMappedRdf extends Simulation {
 
         //controller and integrator
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
         move = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(move);
 
@@ -140,7 +140,7 @@ public class SimMappedRdf extends Simulation {
 
         }
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps / 10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps / 10);
 
         sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -166,7 +166,7 @@ public class SimMappedRdf extends Simulation {
         DataPumpListener con = new DataPumpListener(meterRDF,acccon,numAtoms);
         sim.integrator.getEventManager().addListener(con);
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         IData rdata = meterRDF.getIndependentData(0);
         IData gdata = acccon.getData(acccon.AVERAGE);

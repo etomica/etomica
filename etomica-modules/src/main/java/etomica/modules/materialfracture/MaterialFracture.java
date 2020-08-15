@@ -57,7 +57,7 @@ public class MaterialFracture extends Simulation {
         integrator.setThermostatNoDrift(true);
         pc = new PotentialCalculationForceStress(space);
         integrator.setForceSum(pc);
-        getController2().addActivity(new ActivityIntegrate2(integrator));
+        getController().addActivity(new ActivityIntegrate2(integrator));
         p2LJ = new P2LennardJones(space, 3, 2000);
         pt = new P2SoftSphericalTruncatedForceShifted(space, p2LJ, 7);
 

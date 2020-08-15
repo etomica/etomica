@@ -7,7 +7,6 @@ package etomica.virial.simulations;
 
 import java.awt.Color;
 
-import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
@@ -89,7 +88,7 @@ public class VirialGCPMGraphic {
         // (or write) to a refpref file
         sim.initRefPref(null, 10);
         sim.equilibrate(null, 20);
-        sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
+        sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
         if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
             throw new RuntimeException("Oops");
         }

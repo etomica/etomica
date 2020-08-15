@@ -211,14 +211,14 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         integrator.getEventManager().addListener(accumulatorPump);
 
         potential.setRange(Double.POSITIVE_INFINITY);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
     }
     
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
         System.out.println("\nEquilibration Steps: " + initSteps);
-    	this.getController2().runActivityBlocking(new ActivityIntegrate2(this.integrator), initSteps);
+    	this.getController().runActivityBlocking(new ActivityIntegrate2(this.integrator), initSteps);
 
         
         accumulator.reset();
@@ -333,7 +333,7 @@ public class SimOverlapBetaN2RPScaling extends Simulation {
         
         final long startTime = System.currentTimeMillis();
        
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
         
         System.out.println("PRotConstraint counter: " + sim.pRotConstraint.counter);
         sim.writeConfiguration(configFileName);

@@ -1,36 +1,21 @@
 package etomica.virial.simulations;
 
-import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.IData;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.histogram.HistogramSimple;
-import etomica.data.types.DataGroup;
-import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.math.DoubleRange;
 import etomica.models.water.PNWaterGCPM;
 import etomica.models.water.SpeciesWater4PCOM;
 import etomica.potential.PotentialNonAdditiveDifference;
-import etomica.simulation.BenchSimVirialLJ;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.units.CompoundUnit;
 import etomica.units.Kelvin;
-import etomica.units.Unit;
-import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
-import etomica.virial.simulations.SimulationVirialOverlap2;
-import etomica.virial.simulations.VirialH2OGCPMD;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.profile.StackProfiler;
 import org.openjdk.jmh.runner.Runner;
@@ -38,7 +23,6 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import java.awt.*;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
@@ -298,7 +282,7 @@ public class BenchSimVirialH2OGCPMD {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*100) % sim.getController2().getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*100) % sim.getController().getMaxSteps() != 0) return;
                     System.out.println("**** reference ****");
                     double[] xValues = hist.xValues();
                     double[] h = hist.getHistogram();

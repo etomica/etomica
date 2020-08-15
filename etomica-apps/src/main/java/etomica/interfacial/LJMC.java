@@ -84,7 +84,7 @@ public class LJMC extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().addMCMove(mcMoveAtomBig);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         pFF = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.0, 1.0), 2.5);
         AtomType leafType = speciesFluid.getLeafType();
@@ -216,7 +216,7 @@ public class LJMC extends Simulation {
         AccumulatorAverageFixed accWF = new AccumulatorAverageFixed(bs);
         forkWF.addDataSink(accWF);
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         
         u = meterPE2.getDataAsScalar();
         System.out.println("Potential energy: "+u);

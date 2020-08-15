@@ -7,7 +7,6 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 
 import etomica.action.activity.ActivityIntegrate2;
-import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -47,7 +46,7 @@ public class SWMD2D extends Simulation {
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(0.02);
         integrator.setTemperature(1.);
-        getController2().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(1);
         AtomType leafType = species.getLeafType();
         box.setNMolecules(species, 50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);

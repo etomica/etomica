@@ -17,8 +17,6 @@ import javax.inject.Inject;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -62,7 +60,7 @@ public class DataStreamWebsocket {
                 return;
             }
 
-            sim.getController2().submitActionInterrupt(() -> {
+            sim.getController().submitActionInterrupt(() -> {
                 IData data = dump.getData();
                 dataAndInfo.setData(dump.getData());
                 dataAndInfo.setDataInfo(dump.getDataInfo());

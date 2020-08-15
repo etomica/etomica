@@ -122,7 +122,7 @@ public class SimulationVirial extends Simulation {
         integrator.setTemperature(temperature);
         integrator.getMoveManager().setEquilibrating(false);
         integrator.setEventInterval(1);
-        getController2().addActivity(new ActivityIntegrate2(integrator));
+        getController().addActivity(new ActivityIntegrate2(integrator));
 
 
         if (species[0] instanceof SpeciesSpheresMono || species[0] instanceof SpeciesSpheresRotating) {
@@ -221,7 +221,7 @@ public class SimulationVirial extends Simulation {
                 ai.actionPerformed();
             }
         };
-        return this.getController2().addActivity(activityEquilibrate, initSteps, 0.0);
+        return this.getController().addActivity(activityEquilibrate, initSteps, 0.0);
     }
 
 

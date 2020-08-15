@@ -231,7 +231,7 @@ public class SimGlass extends Simulation {
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
         sim.initConfig();
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
     }//end of main
 
     public static class GlassParams extends ParameterBase {

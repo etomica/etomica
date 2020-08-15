@@ -188,7 +188,7 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
 
         setRefPref(1.0, 30);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integratorOverlap));
+        this.getController().addActivity(new ActivityIntegrate2(integratorOverlap));
     }
 
     /**
@@ -290,7 +290,7 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
         double  AHarmonic = CalcHarmonicA.doit(sim.normalModes, D, temperature, basisSize*totalCells);
         System.out.println("Harmonic-reference free energy, A: "+AHarmonic + " " + AHarmonic/numMolecules);
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOverlap), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOverlap), numSteps);
 
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getIdealRefStepFraction()
         		+" (actual: "+sim.integratorOverlap.getRefStepFraction()+")");
@@ -487,14 +487,14 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
 
         if (refPref == -1) {
             // equilibrate off the lattice to avoid anomolous contributions
-            getController2().runActivityBlocking(new ActivityIntegrate2(integratorOverlap), initSteps / 2);
+            getController().runActivityBlocking(new ActivityIntegrate2(integratorOverlap), initSteps / 2);
 
             System.out.println("target equilibration finished");
 
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41, true), 0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41, false), 1);
             setRefPref(1, 200);
-getController2().runActivityBlocking(new ActivityIntegrate2(integratorOverlap), initSteps);
+getController().runActivityBlocking(new ActivityIntegrate2(integratorOverlap), initSteps);
 
 
             int newMinDiffLoc = dsvo.minDiffLocation();
@@ -525,7 +525,7 @@ getController2().runActivityBlocking(new ActivityIntegrate2(integratorOverlap), 
             if (integrators[i] instanceof IntegratorMC)
                 ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        this.getController2().runActivityBlocking(new ActivityIntegrate2(this.integratorOverlap), initSteps);
+        this.getController().runActivityBlocking(new ActivityIntegrate2(this.integratorOverlap), initSteps);
 
         for (int i = 0; i < 2; i++) {
             if (integrators[i] instanceof IntegratorMC)

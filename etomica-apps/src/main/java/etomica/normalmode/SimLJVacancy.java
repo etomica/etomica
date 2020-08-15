@@ -96,7 +96,7 @@ public class SimLJVacancy extends Simulation {
 //        ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(move);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
@@ -647,7 +647,7 @@ public class SimLJVacancy extends Simulation {
         IData dsfe3Data = null;
         if (!fixedDaDef) {
             // equilibrate off the lattice
-            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/40);
+            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/40);
     
             dsfe3Data = dsfe3.getData();
             if (dsfe3Data.getLength() == 0) {
@@ -692,7 +692,7 @@ public class SimLJVacancy extends Simulation {
             });
         }
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/10);
         System.out.println("equilibration finished");
 
         if (!fixedDaDef && params.doReweight) {
@@ -717,7 +717,7 @@ public class SimLJVacancy extends Simulation {
         
         // take real data
         long t1 = System.currentTimeMillis();
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
 
         System.out.println();

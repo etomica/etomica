@@ -164,7 +164,7 @@ public class VLESim extends Simulation {
 
         long steps = params.numSteps;
         long t1 = System.currentTimeMillis();
-        sim.getController2()
+        sim.getController()
                 .runActivityBlocking(new ActivityIntegrate2(sim.integratorGEMC), steps / 10);
         sim.integratorGEMC.resetStepCount();
 
@@ -180,7 +180,7 @@ public class VLESim extends Simulation {
         DataPumpListener pumpVaporDensity = new DataPumpListener(vaporDensity, accVaporDensity, interval);
         sim.integratorLiquid.getEventManager().addListener(pumpVaporDensity);
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorGEMC), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorGEMC), steps);
         long t2 = System.currentTimeMillis();
 
         IData liquidDensityData = accLiquidDensity.getData();

@@ -17,7 +17,6 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
-import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
 
@@ -79,7 +78,7 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
 		integrator.setWaveVectorNum(0);
 
 
-		getController2().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(0);
+		getController().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(0);
 
 	}
 	
