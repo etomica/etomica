@@ -121,7 +121,7 @@ public class DeviceWaveVectorSlider extends Device {
 
 	private void radioButtonChangeByClient() {
 		if(integrator != null) {
-	        controller.doActionNow(integratorBoxChangeSetOneWV);
+	        controller2.submitActionInterrupt(integratorBoxChangeSetOneWV);
 	    }
 	}
 
@@ -274,7 +274,7 @@ public class DeviceWaveVectorSlider extends Device {
 
     	ActionListener actionListen = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-				controller.doActionNow(integratorBoxChangeSetOneWV);
+				controller2.submitActionInterrupt(integratorBoxChangeSetOneWV);
             }
         };
 

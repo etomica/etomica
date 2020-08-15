@@ -3,6 +3,7 @@ package etomica.integrationtests;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import etomica.action.ActionIntegrate;
 import etomica.action.BoxInflate;
+import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -71,9 +72,7 @@ public class TestSnapshots {
             integrator.setIsothermal(false);
             integrator.setTimeStep(0.01);
 
-            ActionIntegrate ai = new ActionIntegrate(integrator);
-            ai.setMaxSteps(500);
-            getController().addAction(ai);
+            getController2().runActivityBlocking(new ActivityIntegrate2(integrator), 500);
 
             integrator.getEventManager().addListener(pm.getNeighborManager(box()));
         }

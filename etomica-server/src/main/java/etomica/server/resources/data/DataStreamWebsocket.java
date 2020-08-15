@@ -62,7 +62,7 @@ public class DataStreamWebsocket {
                 return;
             }
 
-            sim.getController().doActionNow(() -> {
+            sim.getController2().submitActionInterrupt(() -> {
                 IData data = dump.getData();
                 dataAndInfo.setData(dump.getData());
                 dataAndInfo.setDataInfo(dump.getDataInfo());

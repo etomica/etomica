@@ -62,7 +62,7 @@ public class ConfigurationWebsocket {
             }
 
 
-            sim.getController().doActionNow(() -> {
+            sim.getController2().submitActionInterrupt(() -> {
                 Boundary[] boundaries = new Boundary[sim.getBoxCount()];
                 for (int i = 0; i < sim.getBoxCount(); i++) {
                     boundaries[i] = sim.getBox(i).getBoundary();

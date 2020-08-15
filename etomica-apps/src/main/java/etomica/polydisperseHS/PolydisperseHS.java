@@ -309,7 +309,6 @@ public class PolydisperseHS extends Simulation {
             MSDCoordWriter coordWriter = new MSDCoordWriter(sim.integrator, sim.box, filename_pos, params.writeIntervalPos);
             coordWriter.setIterator(new AtomIteratorLeafFilteredType(sim.box, sim.species.getLeafType()));
             System.out.println("created MSDCoordWriter");
-            sim.getController().getEventManager().addListener(coordWriter); // TODO: controller
 
         //velWriter
             String filename_vel = "velocities";
@@ -317,7 +316,6 @@ public class PolydisperseHS extends Simulation {
             VelocityWriter velWriter = new VelocityWriter(sim.integrator, sim.box, filename_vel, params.writeIntervalVel);
             velWriter.setIterator(new AtomIteratorLeafFilteredType(sim.box, sim.species.getLeafType()));
             System.out.println("created velCoordWriter");
-            sim.getController().getEventManager().addListener(velWriter);
 
 
             int numBlocks = 100;
@@ -332,6 +330,8 @@ public class PolydisperseHS extends Simulation {
             // RDF
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF));
 
+            coordWriter.closeFile();
+            velWriter.closeFile();
 
         //Run ...
             sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numStepsProd);

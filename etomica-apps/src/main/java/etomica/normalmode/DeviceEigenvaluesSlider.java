@@ -156,7 +156,7 @@ public class DeviceEigenvaluesSlider extends Device {
 
 	private void radioButtonChangeByClient() {
 		if(integrator != null) {
-	        controller.doActionNow(integratorBoxChangeSetOneEval);
+	        controller2.submitActionInterrupt(integratorBoxChangeSetOneEval);
 	    }
 	}
 

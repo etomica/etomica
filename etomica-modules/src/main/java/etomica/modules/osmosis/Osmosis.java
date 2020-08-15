@@ -355,7 +355,7 @@ public class Osmosis extends SimulationGraphic {
 
     	    		// Need to pause controller, do action, resume controller
     	    		// which is why the action is implemented in this manner.
-    	    		sim.getController().doActionNow(setAction);
+    	    		sim.getController2().submitActionInterrupt(setAction);
     			}
     		};
 
@@ -401,7 +401,7 @@ public class Osmosis extends SimulationGraphic {
 
     	    		// Need to pause controller, do action, resume controller
     	    		// which is why the action is implemented in this manner.
-    	    		sim.getController().doActionNow(setAction);
+    	    		sim.getController2().submitActionInterrupt(setAction);
     			}
     		};
 

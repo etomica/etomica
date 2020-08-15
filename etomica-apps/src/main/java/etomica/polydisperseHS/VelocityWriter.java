@@ -21,7 +21,7 @@ import etomica.util.IListener;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class VelocityWriter implements IAction, IListener {
+public class VelocityWriter implements IAction {
 
 	public VelocityWriter(Integrator integrator, Box box, String fileName, int writeInterval) {
 		this.box = box;
@@ -95,13 +95,6 @@ public class VelocityWriter implements IAction, IListener {
 		}
 	}
 
-    public void actionPerformed(IEvent evt) {
-        if (fileWriter != null &&
-            (((ControllerEvent)evt).getType() == ControllerEvent.Type.NO_MORE_ACTIONS ||
-             ((ControllerEvent)evt).getType() == ControllerEvent.Type.HALTED)) {
-            closeFile();
-        }
-    }
 
 	private Box box;
 	private AtomIterator iterator;
