@@ -74,7 +74,6 @@ public class SimGlass extends Simulation {
         integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN);
         integrator.setThermostatInterval(1);
-        getController2().addActivity(new ActivityIntegrate2(integrator));
         integrator.setThermostatNoDrift(true);
 
         if (potentialChoice == PotentialChoice.LJ) { //3D KA-80-20; 2D KA-65-35
@@ -218,6 +217,11 @@ public class SimGlass extends Simulation {
         integrator.setTimeStep(tStepOld);
     }
 
+    @Override
+    public IntegratorMD getIntegrator() {
+        return integrator;
+    }
+
     public static void main(String[] args) {
 
         GlassParams params = new GlassParams();
@@ -227,7 +231,7 @@ public class SimGlass extends Simulation {
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep);
         sim.initConfig();
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
     }//end of main
 
     public static class GlassParams extends ParameterBase {
