@@ -41,13 +41,13 @@ public class GlassClustering {
         sim.integrator.setIntegratorMC(sim.integratorMC, 1000);
         sim.integrator.setTemperature(temperature0);
         sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps / 10);
-sim.getController().reset();
+
 
         if (temperature0 > params.temperature) {
             System.out.println("Equilibrating at T=" + params.temperature);
             sim.integrator.setTemperature(params.temperature);
-            sim.getController().actionPerformed();
-            sim.getController().reset();
+            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps / 10);
+
         }
 
         //Production

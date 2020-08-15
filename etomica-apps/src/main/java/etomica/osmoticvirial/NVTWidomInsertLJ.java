@@ -172,7 +172,7 @@ public class NVTWidomInsertLJ extends Simulation {
         }
 
         sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
-sim.getController().reset();
+
 sim.integrator.getMoveManager().setEquilibrating(false);
 
         MeterWidomInsertion meterinsert = new MeterWidomInsertion(sim.space,sim.getRandom());

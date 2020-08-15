@@ -251,7 +251,7 @@ public class EFSTungsten extends Simulation {
     	}
     	
     	sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numsteps/10);
-sim.getController().reset();
+
 System.out.println("equilibration finished");
 
         AccumulatorAverageFixed accumulatorAveragePE = null;

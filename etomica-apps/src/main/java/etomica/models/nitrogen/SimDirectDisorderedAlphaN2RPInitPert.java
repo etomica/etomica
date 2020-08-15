@@ -173,7 +173,7 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
 	        System.out.println("\nEquilibration step: " + equiStep);
 	        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), equiStep);
 	        System.out.println("Equilibration finished");
-	        sim.getController().reset();
+
 		}
         
         long startTime = System.currentTimeMillis();

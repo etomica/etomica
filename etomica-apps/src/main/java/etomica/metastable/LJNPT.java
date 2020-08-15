@@ -220,7 +220,7 @@ public class LJNPT extends Simulation {
             
             sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
 sim.integrator.resetStepCount();
-            sim.getController().reset();
+
             if (numRuns==1) System.out.println("Equilibration finished");
 
             sim.mcMoveVolume.setPressure(pressure);

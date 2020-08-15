@@ -210,7 +210,7 @@ public class TestLJAssociationMC3D_NPT_DoubleSites extends Simulation {
         System.out.println("equilibrium period = " +numSteps/5);
 sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/5);
 System.out.println("equilibrium finished");
-        sim.getController().reset();
+
 MeterDensity rhoMeter = new MeterDensity(sim.box);
         AccumulatorAverage rhoAccumulator = new AccumulatorAverageFixed(10);//Accumulator that keeps statistics for averaging and error analysis
         DataPump rhoPump = new DataPump(rhoMeter,rhoAccumulator);

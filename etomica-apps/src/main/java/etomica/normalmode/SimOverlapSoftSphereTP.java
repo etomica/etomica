@@ -416,11 +416,11 @@ public class SimOverlapSoftSphereTP extends Simulation {
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
         this.getController2().runActivityBlocking(new ActivityIntegrate2(this.integrator), initSteps);
-        getController().reset();
+
 
         accumulator.reset();
 
-        getController().reset();
+
 
     }
     

@@ -194,7 +194,7 @@ public class DLJ_NVT_1site extends Simulation {
     	}
 
         sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/5);// equilibration period
-sim.getController().reset();
+
    		sim.integrator.getMoveManager().setEquilibrating(false);
    		System.out.println("equilibration finished");
 

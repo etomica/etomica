@@ -245,7 +245,7 @@ public class GCRestrictedGibbsHS extends Simulation {
         }
 
         sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps / 10);
-sim.getController().reset();
+
 sim.integrator.getMoveManager().setEquilibrating(false);
 
         double GMI = sim.integrator.getGlobalMoveInterval();

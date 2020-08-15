@@ -276,7 +276,7 @@ System.out.println("Equilibration finished! ");
         sim.integratorMC.reset();
 
         System.out.println("Production starts...");
-        sim.getController().reset();
+
 sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorMC), 1000 * 10 * 100);
         System.out.println("Production finished! ");
         long t2 = System.currentTimeMillis();

@@ -263,7 +263,7 @@ System.out.println("equilibrated");
 		long startTime = System.currentTimeMillis();
 		System.out.println("\nStart Time: " + startTime);
 		sim.integrator.getMoveManager().setEquilibrating(false);
-		sim.getController().reset();
+
 
         meterNormalMode.reset();
 

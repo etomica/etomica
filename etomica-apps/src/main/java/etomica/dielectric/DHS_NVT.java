@@ -202,7 +202,7 @@ protected final SpeciesSpheresRotating species;
 			return ;
 		}
 		sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/5);// equilibration period
-sim.getController().reset();
+
 
 		//TODO
 		sim.integrator.getMoveManager().setEquilibrating(false);        //set the stepsize

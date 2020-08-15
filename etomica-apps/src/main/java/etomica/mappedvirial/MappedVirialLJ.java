@@ -150,7 +150,7 @@ public class MappedVirialLJ extends Simulation {
         long t1 = System.currentTimeMillis();
         
         sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
-sim.getController().reset();
+
 sim.integrator.getMoveManager().setEquilibrating(false);
 
         int nBins = 1000000;

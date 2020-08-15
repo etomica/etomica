@@ -126,7 +126,7 @@ public class AshtonWildingLJ extends Simulation {
         }
 
         sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
-sim.getController().reset();
+
 sim.integrator.getMoveManager().setEquilibrating(false);
         sim.integrator.setTemperature(temp);
 

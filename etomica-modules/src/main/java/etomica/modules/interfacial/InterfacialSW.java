@@ -133,6 +133,6 @@ public class InterfacialSW extends Simulation {
         }
             
         InterfacialSW sim = new InterfacialSW(space);
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
     }//end of main
 }

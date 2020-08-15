@@ -532,7 +532,7 @@ System.out.println("****System Equilibrated (20% of SimSteps)****");
 		long startTime = System.currentTimeMillis();
 		System.out.println("\nStart Time: " + startTime);
 		sim.integrator.getMoveManager().setEquilibrating(false);
-		sim.getController().reset();
+
 sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
 		
 		

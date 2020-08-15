@@ -196,7 +196,7 @@ public class SimLJ extends Simulation {
 
         long eqSteps = steps/10;
         sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), eqSteps);
-sim.getController().reset();
+
         sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
 System.out.println("equilibration finished ("+eqSteps+" steps)");

@@ -98,7 +98,7 @@ public class DropletAtomic extends Simulation {
         Space space = Space3D.getInstance();
 
         DropletAtomic sim = new DropletAtomic();
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
     }//end of main
     
     public void makeDropShape() {

@@ -180,7 +180,7 @@ public class DHS_NVT extends Simulation {
 	    	return ;
     	}
     	sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/5);// equilibration period
-sim.getController().reset();
+
    		sim.integrator.getMoveManager().setEquilibrating(false);
    		System.out.println("equilibration finished");
 

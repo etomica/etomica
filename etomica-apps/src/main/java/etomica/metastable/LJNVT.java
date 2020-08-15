@@ -182,7 +182,7 @@ public class LJNVT extends Simulation {
             
             sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
 sim.integrator.resetStepCount();
-            sim.getController().reset();
+
             if (numRuns==1) System.out.println("Equilibration finished");
 
             sim.integrator.setTemperature(temperature);

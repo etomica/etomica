@@ -403,7 +403,7 @@ public class SimFe extends Simulation {
 
         sim.integrator.setThermostatInterval(10);
         sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/10);
-sim.getController().reset();
+
         sim.integrator.resetStepCount();
         sim.integrator.setThermostatInterval(thermostatInterval);
 if (nve) {

@@ -157,7 +157,7 @@ public class SimDirectBetaN2RP extends Simulation {
         
         sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorTarg), numSteps/10);
 System.out.println("equilibration finished");
-        sim.getController().reset();
+
 
 
         long startTime = System.currentTimeMillis();

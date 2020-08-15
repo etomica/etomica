@@ -107,7 +107,7 @@ public class HeisenbergPair extends Simulation {
         AccumulatorAverage dipoleSumSquaredAccumulator = null;
 
         sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 5);
-sim.getController().reset();
+
         int blockNumber = 100;
 
 

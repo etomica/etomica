@@ -163,7 +163,7 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
         TestLJAssociationMC3D_NVTOld sim = new TestLJAssociationMC3D_NVTOld(numAtoms, pressure, density, wellConstant, temperature, numSteps);
         System.out.println("equilibrium period = " +numSteps/10);//equilibrium period
 sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
-sim.getController().reset();
+
 MeterDensity rhoMeter = new MeterDensity(sim.box);
         AccumulatorAverage rhoAccumulator = new AccumulatorAverageFixed(10);//Accumulator that keeps statistics for averaging and error analysis
         DataPump rhoPump = new DataPump(rhoMeter,rhoAccumulator);

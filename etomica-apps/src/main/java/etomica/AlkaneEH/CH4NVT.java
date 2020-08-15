@@ -162,7 +162,7 @@ public class CH4NVT extends Simulation {
     	
     	System.out.println("no graphic simulation involved");
    		sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/10);// equilibration period
-sim.getController().reset();
+
    		sim.integrator.getMoveManager().setEquilibrating(false);
    		System.out.println("equilibration finished");
 

@@ -398,7 +398,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
                 ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(true);
         }
 this.getController2().runActivityBlocking(new ActivityIntegrate2(this.integratorOverlap), initSteps);
-        getController().reset();
+
         for (int i = 0; i < 2; i++) {
             if (integrators[i] instanceof IntegratorMC)
                 ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(false);

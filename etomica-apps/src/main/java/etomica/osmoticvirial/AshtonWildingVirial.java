@@ -142,7 +142,7 @@ public class AshtonWildingVirial extends Simulation {
         }
 
         sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
-sim.getController().reset();
+
 sim.integrator.getMoveManager().setEquilibrating(false);
 
         MeterRmin meterRmin = new MeterRmin(sim.space, sim.box);

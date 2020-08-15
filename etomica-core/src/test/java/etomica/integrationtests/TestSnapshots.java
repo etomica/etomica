@@ -8,6 +8,7 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterList;
@@ -36,8 +37,8 @@ public class TestSnapshots {
         String coordsStr = Files.lines(Paths.get(TestSnapshots.class.getResource("HSMD3DNeighborList_021af6881.json").toURI()))
                 .findFirst().get();
 
-        Simulation sim = new HSMD3DNeighborList();
-        sim.getController().actionPerformed();
+        HSMD3DNeighborList sim = new HSMD3DNeighborList();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), 500);
         List<Vector> coords = sim.box().getLeafList().getAtoms().stream()
                 .map(IAtom::getPosition)
                 .collect(Collectors.toList());
@@ -46,6 +47,7 @@ public class TestSnapshots {
     }
 
     private static class HSMD3DNeighborList extends Simulation {
+        public final IntegratorHard integrator;
         public HSMD3DNeighborList() {
             super(Space3D.getInstance());
             this.setRandom(new RandomMersenneTwister(new int[]{1, 2, 3, 4}));
@@ -68,11 +70,10 @@ public class TestSnapshots {
             inflater.actionPerformed();
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box());
 
-            IntegratorHard integrator = new IntegratorHard(this, pm, box());
+            integrator = new IntegratorHard(this, pm, box());
             integrator.setIsothermal(false);
             integrator.setTimeStep(0.01);
 
-            getController2().runActivityBlocking(new ActivityIntegrate2(integrator), 500);
 
             integrator.getEventManager().addListener(pm.getNeighborManager(box()));
         }

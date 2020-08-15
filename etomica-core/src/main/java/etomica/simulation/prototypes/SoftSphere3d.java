@@ -119,7 +119,7 @@ public class SoftSphere3d extends Simulation {
         pump.setDataSink(accumulator);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
 
-        sim.getController().actionPerformed();
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
 
 
         double temp = sim.integrator.getTemperature();
