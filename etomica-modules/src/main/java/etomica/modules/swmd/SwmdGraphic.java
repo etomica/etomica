@@ -481,7 +481,7 @@ public class SwmdGraphic extends SimulationGraphic {
     public void setPotential(String potentialDesc) {
         final boolean HS = potentialDesc.equals("Repulsion only"); 
         final boolean SW = potentialDesc.equals("Repulsion and attraction"); 
-        sim.getController().doActionNow( new IAction() {
+        sim.getController2().submitActionInterrupt( new IAction() {
             public void actionPerformed() {
                 if (HS) {
                     potentialHS.setBox(sim.box);

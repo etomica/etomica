@@ -832,7 +832,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public void setPotential(String potentialDesc) {
         final boolean HS = potentialDesc.equals(REPULSION_ONLY); 
         final boolean SW = potentialDesc.equals(REPULSION_ATTRACTION); 
-        pc.getController().doActionNow( new IAction() {
+        pc.getController2().submitActionInterrupt( new IAction() {
             public void actionPerformed() {
                 if (HS) {
                     potentialHS.setBox(pc.box);

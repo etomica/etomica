@@ -248,10 +248,9 @@ public class StarPolymerMD extends Simulation {
             DataArrayWriter writer = new DataArrayWriter();
             writer.setIncludeHeader(false);
             dataLogger.setDataSink(writer);
-            sim.getController().getEventManager().addListener(dataLogger);
             long t3 = System.currentTimeMillis();
-            sim.getController().reset();
             sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), xsteps);
+            dataLogger.cleanUp();
             System.out.println("Dumping finished! ");
             System.out.println("time: " + (t3 - t1) / 1000.0);
         }

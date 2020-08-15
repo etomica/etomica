@@ -50,7 +50,7 @@ import java.io.IOException;
  */
 
 
-public class MSDCoordWriter implements IAction, IListener {
+public class MSDCoordWriter implements IAction {
 
 	public MSDCoordWriter(Integrator integrator, Box box, String fileName, int writeInterval) {
 		this.box = box;
@@ -135,14 +135,6 @@ public class MSDCoordWriter implements IAction, IListener {
 			intervalCount = writeInterval;
 		}
 	}
-
-    public void actionPerformed(IEvent evt) {
-        if (fileWriter != null &&
-            (((ControllerEvent)evt).getType() == ControllerEvent.Type.NO_MORE_ACTIONS ||
-             ((ControllerEvent)evt).getType() == ControllerEvent.Type.HALTED)) {
-            closeFile();
-        }
-    }
 
 	private AfterPBC afterPBCinstance;
 	private Box box;

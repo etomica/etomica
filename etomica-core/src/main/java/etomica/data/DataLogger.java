@@ -18,7 +18,7 @@ import java.util.Locale;
  * DataSink that manages a FileWriter and also listens to non-interval 
  * integrator events and sends appropriate data to a DataWriter.
  */
-public class DataLogger extends DataProcessor implements IListener, java.io.Serializable {
+public class DataLogger extends DataProcessor {
 
     private static final long serialVersionUID = 2L;
     //or attach the data. Default is not overwriting.
@@ -61,21 +61,14 @@ public class DataLogger extends DataProcessor implements IListener, java.io.Seri
         return dataInfo;
     }
     
-    /**
-     * Close file when integrator is done.
-     */
-    public void actionPerformed(IEvent evt){
-        if(evt instanceof ControllerEvent) {
-            if(dataSink != null && (((ControllerEvent)evt).getType() == ControllerEvent.Type.NO_MORE_ACTIONS ||
-                    ((ControllerEvent)evt).getType() == ControllerEvent.Type.HALTED)) {
-                if (writeOnFinishSource != null) {
-                    putData(writeOnFinishSource.getData());
-                }
-                closeFile(); //close the file when finished
-            }
+
+    public void cleanUp() {
+        if (writeOnFinishSource != null) {
+            putData(writeOnFinishSource.getData());
         }
+        closeFile(); //close the file when finished
     }
-    
+
     /**
      * Performs the open/write/close file actions in accordance with the
      * settings of the Logger.  Called by intervalAction and by the

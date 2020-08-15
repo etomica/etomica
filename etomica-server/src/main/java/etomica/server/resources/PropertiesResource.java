@@ -34,7 +34,7 @@ public class PropertiesResource {
         Property wrapperProp = wrapper.getValueProperties().stream()
                 .filter(p -> p.getName().equalsIgnoreCase(propUpdate.getProperty()))
                 .findFirst().orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
-        model.getSimulation().getController().doActionNow(() -> {
+        model.getSimulation().getController2().submitActionInterrupt(() -> {
             wrapperProp.invokeWriter(propUpdate.getNewValue());
         });
     }

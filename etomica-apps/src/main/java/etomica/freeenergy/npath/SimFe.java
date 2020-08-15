@@ -428,8 +428,9 @@ if (nve) {
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, interval);
         sim.integrator.getEventManager().addListener(pumpEnergies);
 
+        DataLogger dataLogger = null;
         if (rmsdFile != null) {
-            DataLogger dataLogger = new DataLogger();
+            dataLogger = new DataLogger();
             DataPumpListener pumpRMSD = new DataPumpListener(meterRMSD, dataLogger, 5 * interval);
             sim.integrator.getEventManager().addListener(pumpRMSD);
             dataLogger.setFileName(rmsdFile);
@@ -437,9 +438,13 @@ if (nve) {
             writer.setIncludeHeader(false);
             dataLogger.setDataSink(writer);
             dataLogger.setAppending(false);
-            sim.getController().getEventManager().addListener(dataLogger);
         }
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+
+        if (dataLogger != null) {
+            dataLogger.cleanUp();
+        }
+
 
         if (sim.mcMoveSwap != null) {
             System.out.println("swap acceptance: " + sim.mcMoveSwap.getTracker().acceptanceProbability());
