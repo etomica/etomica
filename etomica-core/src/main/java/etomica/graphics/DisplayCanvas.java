@@ -95,7 +95,7 @@ public abstract class DisplayCanvas extends javax.swing.JPanel {
     protected abstract void doPaint(Graphics g);
     
     public synchronized void paint(Graphics g) {
-        if (controller == null || !controller.isActive() || controller.isPaused()) {
+        if (!this.controller.controller2.isRunningActivityStep()) {
             // controller isn't running (we weren't called from the integrator)
             // so we need to do the drawing work here
             ensureOffScreen();
