@@ -270,7 +270,7 @@ public class VirialH2O {
 
         // this is where the simulation takes place
 
-sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), 1000);
         
         long t2 = System.currentTimeMillis(); // End time for simulation        
         

@@ -70,7 +70,7 @@ public class SimFluidSoftSphere extends Simulation {
         ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
         ((MCMoveStepTracker) move.getTracker()).setAdjustInterval(10);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
@@ -285,13 +285,13 @@ public class SimFluidSoftSphere extends Simulation {
         }
 
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         System.out.println("equilibrated");
 
         sim.integrator.getMoveManager().setEquilibrating(false);
         pressureAverage.reset();
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
         /*
         double insertionScalar = ((DataGroup)insertionAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
         System.out.println("Average insertion scalar: "+ insertionScalar);

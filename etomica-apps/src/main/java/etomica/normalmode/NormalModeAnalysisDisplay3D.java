@@ -21,7 +21,6 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
@@ -103,7 +102,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         //integrator.setEValNum(4);
 
 
-        getController2().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(0);
+        getController().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(0);
 
     }
 

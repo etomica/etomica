@@ -1,20 +1,16 @@
 package etomica.tests;
 
-import etomica.action.ActionIntegrate;
 import etomica.action.BoxInflate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -95,7 +91,7 @@ public class TestLammpsLJ extends Simulation {
         TestLammpsLJ sim = new TestLammpsLJ();
 
         long t1 = System.nanoTime();
-sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), 100);
+sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), 100);
         long t2 = System.nanoTime();
 
         System.out.println((t2 - t1) / 1_000_000 + " ms");

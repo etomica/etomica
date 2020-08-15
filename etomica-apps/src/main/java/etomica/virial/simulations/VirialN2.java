@@ -205,7 +205,7 @@ public class VirialN2 {
 
         // this is where the simulation takes place
 
-sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), 1000);
         //end of simulation
         long t2 = System.currentTimeMillis();
 

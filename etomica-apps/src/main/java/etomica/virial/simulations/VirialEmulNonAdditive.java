@@ -276,7 +276,7 @@ public class VirialEmulNonAdditive {
 //                    sim.dsvo.getOverlapAverageAndError();
 //                    throw new RuntimeException("oops");
 //                }
-                if ((sim.integratorOS.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
+                if ((sim.integratorOS.getStepCount()*10) % sim.getController().getMaxSteps() != 0) return;
                 if (Double.isInfinite(sim.dvo.getAverageAndError()[0])) {
                     sim.dvo.getAverageAndError();
                     throw new RuntimeException("oops");
@@ -293,7 +293,7 @@ public class VirialEmulNonAdditive {
                     public void integratorInitialized(IntegratorEvent e) {}
                     public void integratorStepStarted(IntegratorEvent e) {}
                     public void integratorStepFinished(IntegratorEvent e) {
-                        if ((sim.integratorOS.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
+                        if ((sim.integratorOS.getStepCount()*10) % sim.getController().getMaxSteps() != 0) return;
                         double[] xValues = hist.xValues();
                         double[] h = hist.getHistogram();
                         double[] piH = piHist.getHistogram();
@@ -319,7 +319,7 @@ public class VirialEmulNonAdditive {
 
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
         
         long t2 = System.currentTimeMillis();
         

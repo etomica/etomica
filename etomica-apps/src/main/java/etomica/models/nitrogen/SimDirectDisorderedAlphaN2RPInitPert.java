@@ -109,7 +109,7 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
         IntegratorListenerAction boltzmannPumpListener = new IntegratorListenerAction(boltzmannPump, 100);
         integrator.getEventManager().addListener(boltzmannPumpListener);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
     }
 
     public void initializeConfigFromFile(String fname){
@@ -171,7 +171,7 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
 		} else {
 			long equiStep = (numMolecules*numSteps/1000);
 	        System.out.println("\nEquilibration step: " + equiStep);
-	        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), equiStep);
+	        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), equiStep);
 	        System.out.println("Equilibration finished");
 
 		}
@@ -179,7 +179,7 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
         long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
        
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         sim.writeConfiguration(configFileName);
         double average = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.AVERAGE.index);

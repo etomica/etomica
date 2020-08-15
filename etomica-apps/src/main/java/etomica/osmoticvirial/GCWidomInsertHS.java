@@ -2,7 +2,6 @@ package etomica.osmoticvirial;
 
 
 import etomica.action.activity.ActivityIntegrate2;
-import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
@@ -67,7 +66,7 @@ public class GCWidomInsertHS extends Simulation {
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
 
         integrator = new IntegratorMC(this, potentialMaster, box);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         mcMoveInsertDelete = new MCMoveInsertDelete(potentialMaster, random, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
@@ -175,7 +174,7 @@ public class GCWidomInsertHS extends Simulation {
             return;
         }
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
 
 sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -186,7 +185,7 @@ sim.integrator.getMoveManager().setEquilibrating(false);
         AccumulatorAverageFixed acc = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pump = new DataPumpListener(meterinsert, acc);
         sim.integrator.getEventManager().addListener(pump);
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         IData iavg = acc.getData(AccumulatorAverage.AVERAGE);
         IData ierr = acc.getData(AccumulatorAverage.ERROR);

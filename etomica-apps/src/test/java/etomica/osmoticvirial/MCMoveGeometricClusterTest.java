@@ -15,7 +15,7 @@ public class MCMoveGeometricClusterTest {
     @BeforeEach
     public void setUp() throws Exception {
         ljMC3D = new LjMC3D(200,2,0.7,3);
-        ljMC3D.getController2().runActivityBlocking(new ActivityIntegrate2(ljMC3D.integrator), 10000);
+        ljMC3D.getController().runActivityBlocking(new ActivityIntegrate2(ljMC3D.integrator), 10000);
     }
 
     @Test

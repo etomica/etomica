@@ -54,7 +54,7 @@ public class VirialLJTest {
         sim.equilibrate(null, steps/40);
         Assertions.assertTrue(Math.abs(sim.refPref - 1.34) < 0.12, "Ref pref (alpha) within expected limits: "+sim.refPref);
         
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps);
 
         double[] ratioAndError = sim.dvo.getAverageAndError();
         double ratio = ratioAndError[0];

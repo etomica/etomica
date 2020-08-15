@@ -36,7 +36,6 @@ import etomica.virial.overlap.DataVirialOverlap;
 
 import java.io.*;
 import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Simulation implementing the overlap-sampling approach to evaluating a cluster
@@ -286,7 +285,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         dvo = new DataVirialOverlap(dpVirialOverlap[0], accumulators[0], accumulators[1]);
         integratorOS.setReferenceFracSource(dvo);
 
-        this.getController2().start();
+        this.getController().start();
     }
 
     public void setAccumulatorBlockSize(long newBlockSize) {
@@ -382,7 +381,7 @@ public class SimulationVirialOverlap2 extends Simulation {
             public void integratorStepStarted(IntegratorEvent e) {}
 
             public void integratorStepFinished(IntegratorEvent e) {
-                long interval = getController2().getMaxSteps() / 10;
+                long interval = getController().getMaxSteps() / 10;
                 if (integratorOS.getStepCount() % interval != 0) return;
                 System.out.print(integratorOS.getStepCount()+" steps: ");
                 if (full) {
@@ -445,7 +444,7 @@ public class SimulationVirialOverlap2 extends Simulation {
             public void integratorInitialized(IntegratorEvent e) {}
             public void integratorStepStarted(IntegratorEvent e) {}
             public void integratorStepFinished(IntegratorEvent e) {
-                long interval = getController2().getMaxSteps() / 10;
+                long interval = getController().getMaxSteps() / 10;
                 if (integratorOS.getStepCount() % interval != 0) return;
                 printTargetHistogram();
             }
@@ -559,7 +558,7 @@ public class SimulationVirialOverlap2 extends Simulation {
     public void initRefPref(String fileName, long initSteps, boolean runNow) {
         this.interactive = !runNow;
         if (!runNow) {
-            this.getController2().start();
+            this.getController().start();
         }
         // use the old refpref value as a starting point so that an initial
         // guess can be provided
@@ -617,9 +616,9 @@ public class SimulationVirialOverlap2 extends Simulation {
                 integratorOS.setAdjustStepFraction(false);
             }
             if (runNow) {
-                this.getController2().runActivityBlocking(new ActivityIntegrate2(integratorOS), initSteps);
+                this.getController().runActivityBlocking(new ActivityIntegrate2(integratorOS), initSteps);
             } else {
-                this.getController2().addActivity(new ActivityIntegrate2(integratorOS), initSteps, 0.0)
+                this.getController().addActivity(new ActivityIntegrate2(integratorOS), initSteps, 0.0)
                         .future.join();
             }
 
@@ -732,10 +731,10 @@ public class SimulationVirialOverlap2 extends Simulation {
             integratorOS.setAdjustStepFraction(false);
         }
         if (this.interactive) {
-            this.getController2().addActivity(new ActivityIntegrate2(integratorOS), initSteps, 0.0)
+            this.getController().addActivity(new ActivityIntegrate2(integratorOS), initSteps, 0.0)
                     .future.join();
         } else {
-            this.getController2().runActivityBlocking(new ActivityIntegrate2(integratorOS), initSteps);
+            this.getController().runActivityBlocking(new ActivityIntegrate2(integratorOS), initSteps);
         }
         if (adjustable) {
             integratorOS.setAdjustStepFraction(true);

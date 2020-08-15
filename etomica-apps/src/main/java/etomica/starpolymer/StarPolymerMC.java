@@ -94,7 +94,7 @@ public class StarPolymerMC extends Simulation {
 //            ((MCMoveStepTracker) bondMove.getTracker()).setNoisyAdjustment(true);
         }
 
-        this.getController2().addActivity(new ActivityIntegrate2(integratorMC));
+        this.getController().addActivity(new ActivityIntegrate2(integratorMC));
 
         potentialFene = new P2Fene(space);
         potentialWCA = new P2WCA(space);
@@ -253,7 +253,7 @@ public class StarPolymerMC extends Simulation {
             File file = new File("./resource/init_f" + f);
             writeConfigurationd.setFileName("./resource/init_f" + f);
             writeConfigurationd.actionPerformed();
-            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorMC), steps);
+            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorMC), steps);
 
             writeConfigurationd.setConfName("new conf");
             File file2 = new File("./resource/newConf_f" + f);
@@ -265,7 +265,7 @@ public class StarPolymerMC extends Simulation {
 
         System.out.println("Equilibration of " + steps + " steps starts...");
         long t1 = System.currentTimeMillis();
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorMC), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorMC), steps);
 System.out.println("Equilibration finished! ");
 
         DataFork rgFork = new DataFork();
@@ -277,7 +277,7 @@ System.out.println("Equilibration finished! ");
 
         System.out.println("Production starts...");
 
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorMC), 1000 * 10 * 100);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorMC), 1000 * 10 * 100);
         System.out.println("Production finished! ");
         long t2 = System.currentTimeMillis();
         System.out.println("time : " + (t2 - t1) / 1000.0);

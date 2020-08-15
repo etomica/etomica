@@ -143,7 +143,7 @@ public class VLESim extends Simulation {
             }
         });
 
-        this.getController2().addActivity(new ActivityIntegrate2(integratorGEMC));
+        this.getController().addActivity(new ActivityIntegrate2(integratorGEMC));
 
         if (doNBR) {
             ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxLiquid).assignCellAll();

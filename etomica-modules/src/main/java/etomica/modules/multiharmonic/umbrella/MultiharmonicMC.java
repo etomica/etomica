@@ -73,6 +73,6 @@ public class MultiharmonicMC extends Simulation {
         integrator.getEventManager().addListener(new IntegratorListenerAction(dataPumpA));
 
 
-        getController2().addActivity(new ActivityIntegrate2(integrator, 0, true));
+        getController().addActivity(new ActivityIntegrate2(integrator, 0, true));
     }
 }

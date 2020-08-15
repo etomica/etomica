@@ -90,7 +90,7 @@ public class Heisenberg extends Simulation {
         MCMoveSpinCluster spinMove = new MCMoveSpinCluster(space, random, potentialMaster, integrator, interactionS);
         integrator.getMoveManager().addMCMove(spinMove);
         integrator.setTemperature(temperature);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
         AtomType type = spins.getLeafType();
 //        potentialMaster.addPotential(field, new IAtomType[] {type});
         potentialMaster.addPotential(potential, new AtomType[]{type, type});
@@ -178,7 +178,7 @@ public class Heisenberg extends Simulation {
         }
 
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 5);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 5);
 
         int blockNumber = 100;
 
@@ -281,7 +281,7 @@ public class Heisenberg extends Simulation {
             DataPumpListener pumpEnergyMF = new DataPumpListener(meterEnergyMF, energyMFAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(pumpEnergyMF);
         }
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         long endTime = System.currentTimeMillis();
         double totalTime = (endTime - startTime) / (1000.0 * 60.0);
 

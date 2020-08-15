@@ -51,7 +51,7 @@ public class LjmdGraphic extends SimulationGraphic {
         
     	this.sim = simulation;
 
-        sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(1);
+        sim.getController().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(1);
 
 	    //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();

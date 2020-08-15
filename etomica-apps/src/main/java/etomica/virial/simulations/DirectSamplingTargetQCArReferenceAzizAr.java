@@ -8,7 +8,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.potential.P2ArgonAziz1993;
 import etomica.potential.P2QChem;
-import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
@@ -133,7 +132,7 @@ public class DirectSamplingTargetQCArReferenceAzizAr {
         
         System.out.println();
         System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize());
-sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), steps);
+sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), steps);
 
 //        IAction progressReport = new IAction() {
 //            public void actionPerformed() {

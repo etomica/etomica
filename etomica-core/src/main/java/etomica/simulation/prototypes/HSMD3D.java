@@ -94,7 +94,7 @@ public class HSMD3D extends Simulation {
         integrator.setTimeStep(0.01);
 
         ActivityIntegrate2 ai2 = new ActivityIntegrate2(integrator);
-        getController2().addActivity(ai2, Long.MAX_VALUE, 1.0);
+        getController().addActivity(ai2, Long.MAX_VALUE, 1.0);
 
         potential = new P2HardSphere(space, sigma, true);
         AtomType leafType = species.getLeafType();

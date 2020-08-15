@@ -678,7 +678,7 @@ public class VirialCO2PI {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % sim.getController().getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -698,7 +698,7 @@ public class VirialCO2PI {
                     public void integratorInitialized(IntegratorEvent e) {}
                     public void integratorStepStarted(IntegratorEvent e) {}
                     public void integratorStepFinished(IntegratorEvent e) {
-                        if ((sim.integratorOS.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
+                        if ((sim.integratorOS.getStepCount()*10) % sim.getController().getMaxSteps() != 0) return;
                         System.out.println("**** reference ****");
                         double[] xValues = hist.xValues();
                         double[] h = hist.getHistogram();
@@ -733,7 +733,7 @@ public class VirialCO2PI {
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
         long t2 = System.currentTimeMillis();
         
         if (params.doHist) {

@@ -19,8 +19,6 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -62,7 +60,7 @@ public class ConfigurationWebsocket {
             }
 
 
-            sim.getController2().submitActionInterrupt(() -> {
+            sim.getController().submitActionInterrupt(() -> {
                 Boundary[] boundaries = new Boundary[sim.getBoxCount()];
                 for (int i = 0; i < sim.getBoxCount(); i++) {
                     boundaries[i] = sim.getBox(i).getBoundary();

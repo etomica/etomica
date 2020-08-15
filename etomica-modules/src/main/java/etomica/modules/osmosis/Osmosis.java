@@ -295,7 +295,7 @@ public class Osmosis extends SimulationGraphic {
         Space sp = Space3D.getInstance();
     	sim = new OsmosisSim(sp);
 
-		sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(1);
+		sim.getController().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(1);
 
 		Osmosis osmosis = new Osmosis(sim, sp);
         SimulationGraphic.makeAndDisplayFrame(osmosis.getPanel(), APP_NAME);
@@ -355,7 +355,7 @@ public class Osmosis extends SimulationGraphic {
 
     	    		// Need to pause controller, do action, resume controller
     	    		// which is why the action is implemented in this manner.
-    	    		sim.getController2().submitActionInterrupt(setAction);
+    	    		sim.getController().submitActionInterrupt(setAction);
     			}
     		};
 
@@ -401,7 +401,7 @@ public class Osmosis extends SimulationGraphic {
 
     	    		// Need to pause controller, do action, resume controller
     	    		// which is why the action is implemented in this manner.
-    	    		sim.getController2().submitActionInterrupt(setAction);
+    	    		sim.getController().submitActionInterrupt(setAction);
     			}
     		};
 

@@ -194,12 +194,12 @@ public class SimKMCLJadatom extends Simulation{
     
     public void integratorKMC() {
         integratorKMC = new IntegratorKMC(this, potentialMaster, 0.7, this.getRandom(), new ISpecies[]{movable}, box);
-        this.getController2().addActivity(new ActivityIntegrate2(integratorKMC));
+        this.getController().addActivity(new ActivityIntegrate2(integratorKMC));
     }
     
     public void integratorKMCCluster(double temp, int steps, int totalSearch) {
         integratorKMCCluster = new IntegratorKMCCluster(this, potentialMaster, temp, totalSearch, this.getRandom(), new ISpecies[]{movable}, box);
-        this.getController2().addActivity(new ActivityIntegrate2(integratorKMCCluster), steps);
+        this.getController().addActivity(new ActivityIntegrate2(integratorKMCCluster), steps);
     }
 
     public void enableDimerSearch(String fileName, long maxSteps) {
@@ -210,7 +210,7 @@ public class SimKMCLJadatom extends Simulation{
 
         //integratorDimer.addNonintervalListener(potentialMaster.getNeighborManager(box));
         //integratorDimer.addIntervalAction(potentialMaster.getNeighborManager(box));
-        getController2().addActivity(new ActivityIntegrate2(integratorDimer), maxSteps);
+        getController().addActivity(new ActivityIntegrate2(integratorDimer), maxSteps);
     }
 
 }

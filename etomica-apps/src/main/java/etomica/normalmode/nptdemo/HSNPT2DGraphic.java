@@ -154,7 +154,7 @@ public class HSNPT2DGraphic extends SimulationGraphic {
      */
     public static void main(String[] args) {
         HSNPT2DSim sim = new HSNPT2DSim();
-        sim.getController2().setSleepPeriod(1);
+        sim.getController().setSleepPeriod(1);
         HSNPT2DGraphic graphic = new HSNPT2DGraphic(sim);
         JFrame f = graphic.makeAndDisplayFrame();
         f.setSize(700, 500);

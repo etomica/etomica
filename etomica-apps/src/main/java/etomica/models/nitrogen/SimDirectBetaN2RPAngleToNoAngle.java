@@ -154,7 +154,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
         IntegratorListenerAction boltzmannPumpListener = new IntegratorListenerAction(boltzmannPump, 100);
         integratorTarg.getEventManager().addListener(boltzmannPumpListener);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integratorTarg));
+        this.getController().addActivity(new ActivityIntegrate2(integratorTarg));
     }
 
     public void initializeConfigFromFile(String fname){
@@ -216,14 +216,14 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
 		} else {
 			long equiStep = (numMolecules*numSteps/1000);
 	        System.out.println("\nEquilibration step: " + equiStep);
-	        sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorTarg), equiStep);
+	        sim.getController().addActivity(new ActivityIntegrate2(sim.integratorTarg), equiStep);
 	        System.out.println("Equilibration finished");
 		}
         
         long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
        
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorTarg), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorTarg), numSteps);
 
         sim.writeConfiguration(configFileName);
         double average = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.AVERAGE.index);

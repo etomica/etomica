@@ -30,7 +30,7 @@ public final class SimulationRestart implements IAction {
     public SimulationRestart(Simulation sim) {
         this.simulation = sim;
         Space space = sim.getSpace();
-        controller = sim.getController2();
+        controller = sim.getController();
         if (space != null) {
             if (space.D() == 3) {
                 setConfiguration(new ConfigurationLattice(new LatticeCubicFcc(space), space));

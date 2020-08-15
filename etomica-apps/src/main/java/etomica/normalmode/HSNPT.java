@@ -90,7 +90,7 @@ public class HSNPT extends Simulation {
         potentialMaster.setRange(neighborRangeFac * sigma);
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, box);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
         AtomType type1 = species.getLeafType();
 
         P2HardSphere p2 = new P2HardSphere(space, sigma, false);
@@ -371,7 +371,7 @@ public class HSNPT extends Simulation {
             return;
         }
         long t1 = System.currentTimeMillis();
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps/10);
         if (!params.nvt) {
             volumeAvg.reset();
         }
@@ -413,7 +413,7 @@ public class HSNPT extends Simulation {
             vfw = null;
         }
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps);
         System.out.println("time "+(System.currentTimeMillis()-t1)/1000);
 
         if (!params.nvt) {

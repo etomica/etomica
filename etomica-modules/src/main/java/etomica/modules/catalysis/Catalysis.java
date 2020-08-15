@@ -80,7 +80,7 @@ public class Catalysis extends Simulation {
         integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        getController2().addActivity(new ActivityIntegrate2(integrator));
+        getController().addActivity(new ActivityIntegrate2(integrator));
 
         double sigmaO = 3.6;
         double sigmaC = 3.8;

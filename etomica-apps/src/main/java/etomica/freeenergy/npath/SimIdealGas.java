@@ -139,14 +139,14 @@ public class SimIdealGas extends Simulation {
 
         if (!graphics) {
             long eqSteps = steps/10;
-            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), eqSteps);
+            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), eqSteps);
             sim.integrator.getMoveManager().setEquilibrating(false);
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
 
         if (graphics) {
-            sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator));
+            sim.getController().addActivity(new ActivityIntegrate2(sim.integrator));
             final String APP_NAME = "SimLJ";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
             ColorScheme colorScheme = new ColorScheme() {
@@ -171,7 +171,7 @@ public class SimIdealGas extends Simulation {
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, numAtoms);
         sim.integrator.getEventManager().addListener(pumpEnergies);
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
         IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
         IData errEnergies = accEnergies.getData(accEnergies.ERROR);

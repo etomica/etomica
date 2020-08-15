@@ -4,11 +4,8 @@
 
 package etomica.simulation.prototypes;
 
-import etomica.action.ActionIntegrate;
-import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 
-import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -19,12 +16,9 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -76,7 +70,7 @@ public class LJMD3DNbr extends Simulation {
         final String APP_NAME = "LJMD3D";
         final LJMD3DNbr sim = new LJMD3DNbr();
 
-sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), 300);
+sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), 300);
 
 //        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
 //

@@ -148,7 +148,7 @@ public class SimEinStep2HCP extends Simulation {
 //        integrator.setMeterPotentialEnergy(lambda==0 ? meterPE : meterPEComposite2);
 
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
@@ -264,7 +264,7 @@ public class SimEinStep2HCP extends Simulation {
 //        DataPumpListener accumulatorPEIntPump = new DataPumpListener(meterPEInt, accumulatorPEInt, interval);
 //        sim.integrator.getEventManager().addListener(accumulatorPEIntPump)
 
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         // potentialMasterHarmonic really just gives us sum[r^2]
 
@@ -286,7 +286,7 @@ sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator),
 
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
-        this.getController2().runActivityBlocking(new ActivityIntegrate2(this.integrator), initSteps);
+        this.getController().runActivityBlocking(new ActivityIntegrate2(this.integrator), initSteps);
     }
     
     protected static class MeterPotentialEnergyComposite extends

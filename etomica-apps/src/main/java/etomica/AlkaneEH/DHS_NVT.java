@@ -7,7 +7,6 @@ package etomica.AlkaneEH;
 import etomica.action.BoxImposePbc;
 
 import etomica.action.activity.ActivityIntegrate2;
-import etomica.action.controller.Controller;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
@@ -108,7 +107,7 @@ public class DHS_NVT extends Simulation {
         moveMolecule = new MCMoveMolecule(this, potentialMaster, space);
         rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         //******************************** periodic boundary condition ******************************** //
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);
@@ -179,7 +178,7 @@ public class DHS_NVT extends Simulation {
 			simGraphic.getDisplayBox(sim.box).repaint();
 	    	return ;
     	}
-    	sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/5);// equilibration period
+    	sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/5);// equilibration period
 
    		sim.integrator.getMoveManager().setEquilibrating(false);
    		System.out.println("equilibration finished");
@@ -204,7 +203,7 @@ public class DHS_NVT extends Simulation {
         energyAccumulator.setBlockSize(50);
         IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
         sim.integrator.getEventManager().addListener(energyListener);
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
         //calculate dipoleSumSquared average
         double dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.AVERAGE.index)).x;

@@ -813,7 +813,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                         isFast = true;
                         goFastButton.setLabel("Go Slower");
                         pc.integrator.setTimeStep(10);
-                        pc.getController2().setSleepPeriod(0);
+                        pc.getController().setSleepPeriod(0);
                         setRepaintInterval(10000);
                         densityHistory.setActive(false);
                         temperatureHistory.setActive(false);
@@ -832,7 +832,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public void setPotential(String potentialDesc) {
         final boolean HS = potentialDesc.equals(REPULSION_ONLY); 
         final boolean SW = potentialDesc.equals(REPULSION_ATTRACTION); 
-        pc.getController2().submitActionInterrupt( new IAction() {
+        pc.getController().submitActionInterrupt(new IAction() {
             public void actionPerformed() {
                 if (HS) {
                     potentialHS.setBox(pc.box);

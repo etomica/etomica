@@ -4,7 +4,6 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate2;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -202,7 +201,7 @@ public class VirialCO2CH4UAMixWheatley {
             // (or write) to a refpref file
             sim.initRefPref(null, 10, false);
             sim.equilibrate(null, 20);
-            sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
+            sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
             if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
                 throw new RuntimeException("Oops");
             }
@@ -242,7 +241,7 @@ public class VirialCO2CH4UAMixWheatley {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % sim.getController().getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
@@ -250,7 +249,7 @@ public class VirialCO2CH4UAMixWheatley {
             };
             sim.integratorOS.getEventManager().addListener(progressReport);
         }
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());

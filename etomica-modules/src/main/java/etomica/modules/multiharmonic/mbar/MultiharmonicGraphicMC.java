@@ -27,7 +27,6 @@ import etomica.units.dimensions.Null;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 
 public class MultiharmonicGraphicMC extends SimulationGraphic {
@@ -410,7 +409,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 //        tab3.add(lfunPlot.graphic());
 //        tab3.add(dfunPlot.graphic(), horizGBC);
 
-        sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS)).setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS)).setSleepPeriod(0);
     }
 
     public static void main(String[] args) {

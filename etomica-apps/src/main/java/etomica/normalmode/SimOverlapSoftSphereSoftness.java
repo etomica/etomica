@@ -233,7 +233,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
 
         setRefPref(alpha, alphaSpan);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integratorOverlap));
+        this.getController().addActivity(new ActivityIntegrate2(integratorOverlap));
     }
 
     /**
@@ -289,7 +289,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         final long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOverlap), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOverlap), numSteps);
 
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
         		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
@@ -381,7 +381,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
             if (integrators[i] instanceof IntegratorMC)
                 ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        this.getController2().runActivityBlocking(new ActivityIntegrate2(this.integratorOverlap), initSteps);
+        this.getController().runActivityBlocking(new ActivityIntegrate2(this.integratorOverlap), initSteps);
 
         for (int i = 0; i < 2; i++) {
             if (integrators[i] instanceof IntegratorMC)

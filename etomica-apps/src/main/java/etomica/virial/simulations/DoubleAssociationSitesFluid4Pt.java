@@ -426,7 +426,7 @@ public class DoubleAssociationSitesFluid4Pt {
 			// (or write) to a refpref file
 			sim.initRefPref(null, 5000, false);
 			sim.equilibrate(null, 10000);
-			sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
+			sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
 			if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
 				throw new RuntimeException("Oops");
 			}
@@ -460,7 +460,7 @@ public class DoubleAssociationSitesFluid4Pt {
         for (int i = 0; i < 2; i++) {
             System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), numSteps);
 
         System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
 

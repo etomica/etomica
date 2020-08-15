@@ -111,7 +111,7 @@ public class HTTPSoftSphereSim extends Simulation {
 
         latticeEnergy = meterPE.getDataAsScalar();
 
-        getController2().addActivity(new ActivityIntegrate2(integrator));
+        getController().addActivity(new ActivityIntegrate2(integrator));
 
         if (potentialMaster instanceof PotentialMasterList) {
             // extend potential range, so that atoms that move outside the truncation range will still interact

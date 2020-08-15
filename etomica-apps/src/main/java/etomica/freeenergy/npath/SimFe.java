@@ -133,7 +133,7 @@ public class SimFe extends Simulation {
         integrator.getEventManager().addListener(potential.makeIntegratorListener(potentialMaster, box));
         integrator.setForceSum(new PotentialCalculationForceSum());
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         p1ImageHarmonic.setZeroForce(true);
 
@@ -402,7 +402,7 @@ public class SimFe extends Simulation {
         MeterRMSD meterRMSD = new MeterRMSD(sim.box, sim.space);
 
         sim.integrator.setThermostatInterval(10);
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/10);
 
         sim.integrator.resetStepCount();
         sim.integrator.setThermostatInterval(thermostatInterval);
@@ -439,7 +439,7 @@ if (nve) {
             dataLogger.setDataSink(writer);
             dataLogger.setAppending(false);
         }
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
         if (dataLogger != null) {
             dataLogger.cleanUp();

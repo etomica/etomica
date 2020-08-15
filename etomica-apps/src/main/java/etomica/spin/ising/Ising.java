@@ -67,7 +67,7 @@ public class Ising extends Simulation {
         mcmove = new MCMoveSpinFlip(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(mcmove);
 
-        getController2().addActivity(new ActivityIntegrate2(integrator));
+        getController().addActivity(new ActivityIntegrate2(integrator));
 
         AtomType type = spins.getLeafType();
         potentialMaster.addPotential(field, new AtomType[]{type});

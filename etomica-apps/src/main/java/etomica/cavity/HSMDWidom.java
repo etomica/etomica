@@ -90,7 +90,7 @@ public class HSMDWidom extends Simulation {
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.005);
 
-        getController2().addActivity(new ActivityIntegrate2(integrator));
+        getController().addActivity(new ActivityIntegrate2(integrator));
 
         potential = new P2HardSphere(space);
         AtomType leafType = species.getLeafType();
@@ -342,7 +342,7 @@ public class HSMDWidom extends Simulation {
         System.out.println("density: " + params.density);
 
         long steps = params.steps;
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 10);
         sim.integrator.resetStepCount();
 
         AccumulatorAverageFixed accRDFMapped = new AccumulatorAverageFixed(1);
@@ -401,7 +401,7 @@ public class HSMDWidom extends Simulation {
         sim.integrator.getEventManager().addListener(pumpPCC);
 
         long t1 = System.nanoTime();
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         long t2 = System.nanoTime();
 
 

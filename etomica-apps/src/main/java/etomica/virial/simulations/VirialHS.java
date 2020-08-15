@@ -398,7 +398,7 @@ public class VirialHS {
 
         long t1 = System.currentTimeMillis();
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
 
         if (!Double.isNaN(litHSB)) System.out.println("lit value "+litHSB);

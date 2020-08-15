@@ -87,7 +87,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         box.setNMolecules(species1,numAtoms);
 
         integrator = new IntegratorMC(this, potentialMaster, box);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 
@@ -249,7 +249,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
             simGraphic.makeAndDisplayFrame(appName);
             return;
         }
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
 
 sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -264,7 +264,7 @@ sim.integrator.getMoveManager().setEquilibrating(false);
         accNm = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pumpNm = new DataPumpListener(meterNMolecules, accNm);
         sim.integrator.getEventManager().addListener(pumpNm);
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
 
         double[] histRmin = accRmin.getHistograms().getHistogram();
         double[] r = accRmin.getHistograms().xValues();

@@ -192,7 +192,7 @@ public class VirialHeSC {
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), 1000);
 
         System.out.println();
         System.out.println("final reference step fraction "+sim.integratorOS.getIdealRefStepFraction());

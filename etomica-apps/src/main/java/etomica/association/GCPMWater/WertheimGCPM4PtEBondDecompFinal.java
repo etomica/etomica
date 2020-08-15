@@ -293,7 +293,7 @@ public class WertheimGCPM4PtEBondDecompFinal {
 			// (or write) to a refpref file
 			sim.initRefPref(null, 10, false);
 			sim.equilibrate(null, 20);
-			sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
+			sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
 			if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
 				throw new RuntimeException("Oops");
 			}
@@ -332,7 +332,7 @@ public class WertheimGCPM4PtEBondDecompFinal {
 		sim.integratorOS.getEventManager().addListener(progressReportListener);
 
 		sim.integratorOS.getMoveManager().setEquilibrating(false);
-		sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), numSteps);
+		sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), numSteps);
 
 		System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
 		System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());

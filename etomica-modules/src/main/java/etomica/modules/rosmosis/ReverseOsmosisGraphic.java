@@ -108,7 +108,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
             getDisplayBox(sim.box).setPixelUnit(new Pixel(40/sim.box.getBoundary().getBoxSize().getX(1)));
         }
 
-        sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
 
         //combo box to select potentials
         sigBox = new DeviceBox();

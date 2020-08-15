@@ -58,7 +58,7 @@ public class HSNPT2DSim extends Simulation {
 
         potentialMaster.setRange(sigma * 1.6);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
         AtomType leafType1 = species1.getLeafType();
         potential = new P2HardSphere(space, sigma, false);
 

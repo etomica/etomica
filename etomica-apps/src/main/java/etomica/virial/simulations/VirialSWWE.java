@@ -184,7 +184,7 @@ public class VirialSWWE {
         }
         System.out.println("\n**********Calculate B" + nPoints +" of square well potential************\n");
         System.out.println("	Display input arguments:");
-        System.out.println("	# of total steps = " + sim.getController2().getMaxSteps());
+        System.out.println("	# of total steps = " + sim.getController().getMaxSteps());
         System.out.println("	sigmaHSRef = " + sigmaHS );
         System.out.println("	sigmaSW = " + 1);
         System.out.println("	lamda = " + lambda);
@@ -195,7 +195,7 @@ public class VirialSWWE {
 
 
         long t1 = System.currentTimeMillis();
-sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), steps);
+sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
         
         
@@ -250,16 +250,16 @@ sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityInt
 			}
 		}
         
-        System.out.print("\n	Time for " + sim.getController2().getMaxSteps() + " steps = ");
+        System.out.print("\n	Time for " + sim.getController().getMaxSteps() + " steps = ");
         System.out.print(String.format(		"%.5f seconds = ", (t2-t1)/1000.0));
         System.out.print(String.format(		"%.5f minutes = ", (t2-t1)/1000.0/60.0));
         System.out.print(String.format(		"%.5f hours = ", (t2-t1)/1000.0/3600.0));
         System.out.println(String.format(	"%.5f days", (t2-t1)/1000.0/3600.0/24));
         
         System.out.print("\n	Speed = ");
-        System.out.print(String.format(		"%.6f step/seconds = ", (double)sim.getController2().getMaxSteps()/((t2-t1)/1000.0)));
-        System.out.print(String.format(		"%.6f thousand_step/second = ", ((double)sim.getController2().getMaxSteps()/((t2-t1)/1000.0))/1000.0));
-        System.out.println(String.format(		"%.6f million_step/second", ((double)sim.getController2().getMaxSteps()/((t2-t1)/1000.0))/1000000.0));
+        System.out.print(String.format(		"%.6f step/seconds = ", (double)sim.getController().getMaxSteps()/((t2-t1)/1000.0)));
+        System.out.print(String.format(		"%.6f thousand_step/second = ", ((double)sim.getController().getMaxSteps()/((t2-t1)/1000.0))/1000.0));
+        System.out.println(String.format(		"%.6f million_step/second", ((double)sim.getController().getMaxSteps()/((t2-t1)/1000.0))/1000000.0));
         System.out.println("\n**********End***********\n");
 	}
 	

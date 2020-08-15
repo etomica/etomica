@@ -103,7 +103,7 @@ public class SwmdGraphic extends SimulationGraphic {
             getDisplayBox(sim.box).setPixelUnit(new Pixel(40/sim.box.getBoundary().getBoxSize().getX(1)));
         }
 
-        sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
 
         //combo box to select potentials
         final String idealGas = "Ideal gas";
@@ -481,7 +481,7 @@ public class SwmdGraphic extends SimulationGraphic {
     public void setPotential(String potentialDesc) {
         final boolean HS = potentialDesc.equals("Repulsion only"); 
         final boolean SW = potentialDesc.equals("Repulsion and attraction"); 
-        sim.getController2().submitActionInterrupt( new IAction() {
+        sim.getController().submitActionInterrupt(new IAction() {
             public void actionPerformed() {
                 if (HS) {
                     potentialHS.setBox(sim.box);

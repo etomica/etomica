@@ -107,7 +107,7 @@ public class SWVLESim extends Simulation {
         integratorGEMC.getMoveManager().addMCMove(moleculeExchange);
 //        integratorGEMC.getMoveManager().setFrequency(volumeExchange, 0.01);
 
-        getController2().addActivity(new ActivityIntegrate2(integratorGEMC));
+        getController().addActivity(new ActivityIntegrate2(integratorGEMC));
 
         if (doNBR) {
             ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxLiquid).assignCellAll();

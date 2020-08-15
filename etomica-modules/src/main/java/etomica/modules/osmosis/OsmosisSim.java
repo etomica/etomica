@@ -128,7 +128,7 @@ public class OsmosisSim extends Simulation {
         config.initializeCoordinates(sim.box);
         simGraphic.getDisplayBox(sim.box).repaint();
         sim.integrator.setTimeStep(0.05);
-        sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
     }
 
 } 

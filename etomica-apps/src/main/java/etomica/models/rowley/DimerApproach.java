@@ -232,7 +232,7 @@ public class DimerApproach extends Simulation {
 
         if (true) {
 
-            sim.getController2().addActivity(new ActivityIntegrate2(sim.dimerApproach), 75, 100);
+            sim.getController().addActivity(new ActivityIntegrate2(sim.dimerApproach), 75, 100);
             sim.box.getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             
             // *********************

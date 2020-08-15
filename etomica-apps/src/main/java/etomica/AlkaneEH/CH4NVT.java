@@ -7,7 +7,6 @@ package etomica.AlkaneEH;
 import etomica.action.BoxImposePbc;
 
 import etomica.action.activity.ActivityIntegrate2;
-import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
@@ -101,7 +100,7 @@ public class CH4NVT extends Simulation {
         moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0
         rotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random, space);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         //******************************** periodic boundary condition ******************************** //
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);
@@ -161,7 +160,7 @@ public class CH4NVT extends Simulation {
 		}
     	
     	System.out.println("no graphic simulation involved");
-   		sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/10);// equilibration period
+   		sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/10);// equilibration period
 
    		sim.integrator.getMoveManager().setEquilibrating(false);
    		System.out.println("equilibration finished");
@@ -182,7 +181,7 @@ public class CH4NVT extends Simulation {
         DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         
         // compressibility factor Z=P/rho/T(all in sim units)
         double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());

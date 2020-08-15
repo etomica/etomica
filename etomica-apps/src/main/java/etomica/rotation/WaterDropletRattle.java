@@ -72,7 +72,7 @@ public class WaterDropletRattle {
 //        System.out.println("T="+meterTemperature.getDataAsScalar());
 //        integrator.setThermostatInterval(100);
 //        System.out.println("using rigid with dt="+dt);
-        sim.getController2().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(2);
+        sim.getController().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(2);
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
 

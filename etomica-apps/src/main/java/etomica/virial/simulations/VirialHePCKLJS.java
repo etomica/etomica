@@ -192,7 +192,7 @@ public class VirialHePCKLJS {
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         long t1 = System.currentTimeMillis();
-sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), steps);
+sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), steps);
         System.out.println();
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());

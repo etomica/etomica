@@ -113,7 +113,7 @@ public class ZeoliteSimulation extends Simulation {
         integrator.setTemperature(Kelvin.UNIT.toSim(298.0));
 
 
-        getController2().addActivity(new ActivityIntegrate2(integrator, 2, true), 1000000, 2);
+        getController().addActivity(new ActivityIntegrate2(integrator, 2, true), 1000000, 2);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         for (int i = 0; i < numAtoms.length; i++) {
             box.setNMolecules(species[i], numAtoms[i]);
@@ -159,7 +159,7 @@ public class ZeoliteSimulation extends Simulation {
 
         //      Adding coordinate writer by Mike Sellars
 
-        filename = (numAtoms[2] + "_" + getController2().getMaxSteps() + "_" + ts + "_" + interval + "_WCA");
+        filename = (numAtoms[2] + "_" + getController().getMaxSteps() + "_" + ts + "_" + interval + "_WCA");
         sp = species[2];
         /*
         MSDCoordWriter coordWriter = new MSDCoordWriter(this.space, filename,sp);

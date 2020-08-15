@@ -93,7 +93,7 @@ public class LjMd3D extends Simulation {
         integrator.setTimeStep(tStep);
         integrator.setIsothermal(true);
         integrator.setTemperature(temperature);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         potential = ss ? new P2SoftSphere(space, 1, 4, 12) : new P2LennardJones(space);
         AtomType leafType = species.getLeafType();
@@ -293,7 +293,7 @@ public class LjMd3D extends Simulation {
                 eqSteps = steps/4;
                 if (eqSteps > 4000) eqSteps = 4000;
             }
-            sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), eqSteps);
+            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), eqSteps);
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
@@ -773,7 +773,7 @@ public class LjMd3D extends Simulation {
     	}
 
     	long t1 = System.currentTimeMillis();
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
 //        try {
 //            uWriter.close();

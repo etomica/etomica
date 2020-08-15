@@ -146,7 +146,7 @@ public class Sam extends Simulation {
         integrator = new IntegratorVelocityVerletSAM(potentialMaster, random, 0.002, Kelvin.UNIT.toSim(300), box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(500);
-        getController2().addActivity(new ActivityIntegrate2(integrator));
+        getController().addActivity(new ActivityIntegrate2(integrator));
 
         AtomType typeCH2 = species.getCH2Type();
         AtomType typeCH3 = species.getCH3Type();

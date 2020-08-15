@@ -76,7 +76,7 @@ public class InterfacialSW extends Simulation {
         integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        getController2().addActivity(new ActivityIntegrate2(integrator));
+        getController().addActivity(new ActivityIntegrate2(integrator));
         integrator.setTimeStep(0.01);
 
         //species and potentials
@@ -133,6 +133,6 @@ public class InterfacialSW extends Simulation {
         }
             
         InterfacialSW sim = new InterfacialSW(space);
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
     }//end of main
 }

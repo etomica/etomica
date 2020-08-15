@@ -184,7 +184,7 @@ public class VirialAceticAcid {
             // (or write) to a refpref file
             sim.initRefPref(null, 100, false);
             sim.equilibrate(null, 200);
-            sim.getController2().addActivity(new ActivityIntegrate2(sim.integratorOS));
+            sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -226,7 +226,7 @@ public class VirialAceticAcid {
         sim.integratorOS.getEventManager().addListener(progressReportListener);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
         
         System.out.println("ideal reference step frequency "+sim.integratorOS.getIdealRefStepFraction());//optimize the uncertainty
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());//actually happened

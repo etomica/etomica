@@ -49,7 +49,7 @@ public class MCMoveClusterConformationMDTest extends MCMoveClusterMolecule {
         this.simMD = new StarPolymerMD(f, l, temperature, tStep, useNbrs);
         long step = 1000000;
         System.out.println("Equilibrating MD for " + step + " steps ....");
-        simMD.getController2().runActivityBlocking(new ActivityIntegrate2(simMD.integrator), step);
+        simMD.getController().runActivityBlocking(new ActivityIntegrate2(simMD.integrator), step);
         System.out.print("Finished it!\n");
     }
 
@@ -65,7 +65,7 @@ public class MCMoveClusterConformationMDTest extends MCMoveClusterMolecule {
         int count = 0;
 
         for (int i = 0; i < sizeConformations; i++) {
-            simMD.getController2().runActivityBlocking(new ActivityIntegrate2(simMD.integrator), steps);
+            simMD.getController().runActivityBlocking(new ActivityIntegrate2(simMD.integrator), steps);
             IAtomList atomList1 = boxMD.getMoleculeList().get(0).getChildList();
             ArrayList<Vector> pos1 = new ArrayList<>();
             for (IAtom atom : atomList1) {

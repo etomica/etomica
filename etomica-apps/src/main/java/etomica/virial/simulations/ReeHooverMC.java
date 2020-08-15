@@ -163,7 +163,7 @@ public class ReeHooverMC {
         System.out.println();
 
         System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize());
-sim.getController2().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), steps);
+sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), steps);
         
         DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
         

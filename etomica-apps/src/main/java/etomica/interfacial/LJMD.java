@@ -214,7 +214,7 @@ public class LJMD extends Simulation {
         forkWP.addDataSink(histogramWP);
 
         if (graphics) {
-            sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator));
+            sim.getController().addActivity(new ActivityIntegrate2(sim.integrator));
             final String APP_NAME = "LJMD";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
 
@@ -310,7 +310,7 @@ public class LJMD extends Simulation {
             }
         });
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
         try {
             fw.close();

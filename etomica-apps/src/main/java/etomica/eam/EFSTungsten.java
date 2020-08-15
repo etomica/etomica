@@ -7,7 +7,6 @@ package etomica.eam;
 import etomica.action.BoxInflate;
 
 import etomica.action.activity.ActivityIntegrate2;
-import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.Tungsten;
@@ -92,7 +91,7 @@ public class EFSTungsten extends Simulation {
         integrator.setThermostatInterval(100);
         integrator.setIsothermal(true);
         integrator.setThermostatNoDrift(true);
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
         box.setNMolecules(w, numatoms);
 
         //BCC W
@@ -250,7 +249,7 @@ public class EFSTungsten extends Simulation {
         	return;
     	}
     	
-    	sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numsteps/10);
+    	sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numsteps/10);
 
 System.out.println("equilibration finished");
 
@@ -283,7 +282,7 @@ System.out.println("equilibration finished");
 
 
         long t1 = System.currentTimeMillis();
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numsteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numsteps);
         long t2 = System.currentTimeMillis();
 
         if (doHistory) {

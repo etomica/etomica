@@ -266,7 +266,7 @@ public class VirialCPSHeliumNonAdditiveClassical_Correction {
         //sim.integratorOS.getEventManager().addListener(new IntegratorListenerAction(progressReport, 1 ));
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps);
 
         System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());

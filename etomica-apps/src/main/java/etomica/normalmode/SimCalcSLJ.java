@@ -77,7 +77,7 @@ public class SimCalcSLJ extends Simulation {
         integrator.getMoveManager().addMCMove(move);
         ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
@@ -200,7 +200,7 @@ public class SimCalcSLJ extends Simulation {
 		energyPumpListener.setInterval(100);
 		sim.integrator.getEventManager().addListener(energyPumpListener);
 
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps/10);
 System.out.println("equilibrated");
 
     	long startTime = System.currentTimeMillis();
@@ -220,7 +220,7 @@ System.out.println("equilibrated");
         IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
         sWriterListener.setInterval((int)simSteps/10);
         sim.integrator.getEventManager().addListener(sWriterListener);
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
 
         double A = sWriter.getLastA();
 		System.out.println("A/N: " + A/nA);

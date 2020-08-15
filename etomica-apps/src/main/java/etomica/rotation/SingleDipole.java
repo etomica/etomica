@@ -43,7 +43,7 @@ public class SingleDipole {
         OrientationCalcAtom calcer = new OrientationCalcAtom();
         integrator.setOrientationCalc(species, calcer);
         integrator.setTemperature(1);
-        sim.getController2().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(10);
+        sim.getController().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(10);
 
         BoxImposePbc pbc = new BoxImposePbc(box, space);
         pbc.setApplyToMolecules(true);

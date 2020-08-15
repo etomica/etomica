@@ -20,7 +20,6 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
 import etomica.space1d.Vector1D;
-import etomica.units.Pixel;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
@@ -30,7 +29,6 @@ import etomica.virial.overlap.DataSourceVirialOverlap;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 
 public class MultiharmonicGraphicMC extends SimulationGraphic {
@@ -335,7 +333,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 //        tab3.add(lfunPlot.graphic());
 //        tab3.add(dfunPlot.graphic(), horizGBC);
 
-        sim.getController2().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
     }
 
     public static void main(String[] args) {

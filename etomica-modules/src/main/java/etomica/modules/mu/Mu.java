@@ -62,7 +62,7 @@ public class Mu extends Simulation {
         integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        getController2().addActivity(new ActivityIntegrate2(integrator, 0, true));
+        getController().addActivity(new ActivityIntegrate2(integrator, 0, true));
 
         //instantiate several potentials for selection in combo-box
         potentialAA = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);

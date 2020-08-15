@@ -50,7 +50,7 @@ public class LJMC extends Simulation {
         //controller and integrator
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
-        getController2().addActivity(new ActivityIntegrate2(integrator));
+        getController().addActivity(new ActivityIntegrate2(integrator));
 
         //instantiate several potentials for selection in combo-box
         P2LennardJones potential = new P2LennardJones(space);
@@ -115,6 +115,6 @@ public class LJMC extends Simulation {
         }
             
         LJMC sim = new LJMC(space);
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
     }
 }

@@ -61,7 +61,7 @@ public class Swmd extends Simulation {
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
         P1HardPeriodic nullPotential = new P1HardPeriodic(space, sigma * lambda);
-        getController2().addActivity(new ActivityIntegrate2(integrator));
+        getController().addActivity(new ActivityIntegrate2(integrator));
 
         integrator.setNullPotential(nullPotential, species.getLeafType());
 
@@ -92,6 +92,6 @@ public class Swmd extends Simulation {
         }
             
         Swmd sim = new Swmd(space);
-        sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
     }
 }

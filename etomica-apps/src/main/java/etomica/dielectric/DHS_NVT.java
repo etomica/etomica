@@ -7,7 +7,6 @@ package etomica.dielectric;
 import etomica.action.BoxImposePbc;
 
 import etomica.action.activity.ActivityIntegrate2;
-import etomica.action.controller.Controller;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
@@ -123,7 +122,7 @@ protected final SpeciesSpheresRotating species;
         moveMolecule = new MCMoveMolecule(this, potentialMaster, space);        // stepSize:1.0, stepSizeMax:15.0
         rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
 
-        this.getController2().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate2(integrator));
 
         //******************************** periodic boundary condition ******************************** //
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);
@@ -201,7 +200,7 @@ protected final SpeciesSpheresRotating species;
 			simGraphic.getDisplayBox(sim.box).repaint();
 			return ;
 		}
-		sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/5);// equilibration period
+		sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/5);// equilibration period
 
 
 		//TODO
@@ -247,7 +246,7 @@ protected final SpeciesSpheresRotating species;
 
 
         sim.integrator.getEventManager().addListener(AEEListener);//TODO;
-sim.getController2().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
 
 		//calculate dipoleSumSquared average
         double dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.AVERAGE.index)).x;
