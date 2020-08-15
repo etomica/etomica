@@ -6,7 +6,7 @@ package etomica.modules.rosmosis;
 
 import etomica.action.BoxImposePbc;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.Chlorine;
@@ -231,7 +231,7 @@ public class ReverseOsmosisWater extends Simulation {
         integrator.setThermostatInterval(100);
         integrator.setTimeStep(0.002);
         integrator.setOrientationCalc(speciesSolvent, new OrientationCalcWater3P(space));
-        getController().addActivity(new ActivityIntegrate2(integrator));
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         potentialTether = new P1Tether(box, speciesMembrane, space);
         potentialTether.setEpsilon(20000 * 298 / 125);
@@ -257,7 +257,7 @@ public class ReverseOsmosisWater extends Simulation {
         }
             
         ReverseOsmosisWater sim = new ReverseOsmosisWater();
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), Long.MAX_VALUE);
     }//end of main
     
 }

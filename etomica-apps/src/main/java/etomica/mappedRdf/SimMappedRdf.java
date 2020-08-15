@@ -2,7 +2,7 @@ package etomica.mappedRdf;
 
 import etomica.action.BoxInflate;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -60,7 +60,7 @@ public class SimMappedRdf extends Simulation {
 
         //controller and integrator
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         move = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(move);
 
@@ -140,7 +140,7 @@ public class SimMappedRdf extends Simulation {
 
         }
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps / 10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps / 10);
 
         sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -166,7 +166,7 @@ public class SimMappedRdf extends Simulation {
         DataPumpListener con = new DataPumpListener(meterRDF,acccon,numAtoms);
         sim.integrator.getEventManager().addListener(con);
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
 
         IData rdata = meterRDF.getIndependentData(0);
         IData gdata = acccon.getData(acccon.AVERAGE);

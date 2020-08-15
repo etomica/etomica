@@ -4,7 +4,7 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.chem.elements.ElementSimple;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2SoftSphere;
@@ -118,7 +118,7 @@ public class VirialLJSeries {
             // (or write) to a refpref file
             sim.initRefPref(null, 10, false);
             sim.equilibrate(null, 20);
-            sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -157,7 +157,7 @@ public class VirialLJSeries {
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps);
         
 //        long[][] histogram = virialHistogram.getHistogram();
 //        int numNegBins = virialHistogram.getNumNegBins();

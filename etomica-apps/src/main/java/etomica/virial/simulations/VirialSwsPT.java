@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -167,7 +167,7 @@ public class VirialSwsPT {
             // (or write) to a refpref file
             sim.initRefPref(null, 1000, false);
             sim.equilibrate(null, 2000);
-            sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -243,7 +243,7 @@ public class VirialSwsPT {
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         long t0 = System.currentTimeMillis();
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
         long t1 = System.currentTimeMillis();
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());

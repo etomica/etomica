@@ -1,7 +1,7 @@
 package etomica.starpolymer;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
@@ -82,7 +82,7 @@ public class StarPolymerMD extends Simulation {
         integratorMC.getMoveManager().addMCMove(moveConformation);
 
         integrator = doMC ? integratorMC : integratorMD;
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         potentialFene = new P2Fene(space);
         potentialWCA = new P2WCA(space);
@@ -231,7 +231,7 @@ public class StarPolymerMD extends Simulation {
 
         System.out.println("MD starts...");
         long t1 = System.currentTimeMillis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
         System.out.println("MD finished! ");
         System.out.println("time : " + (t2 - t1) / 1000.0);
@@ -249,7 +249,7 @@ public class StarPolymerMD extends Simulation {
             writer.setIncludeHeader(false);
             dataLogger.setDataSink(writer);
             long t3 = System.currentTimeMillis();
-            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), xsteps);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), xsteps);
             dataLogger.cleanUp();
             System.out.println("Dumping finished! ");
             System.out.println("time: " + (t3 - t1) / 1000.0);

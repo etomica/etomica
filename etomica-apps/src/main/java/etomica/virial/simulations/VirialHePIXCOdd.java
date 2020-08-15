@@ -4,7 +4,7 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.ANIntergroupExchange;
@@ -726,7 +726,7 @@ public class VirialHePIXCOdd {
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), steps); //sim.ai.setMaxSteps(1000);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps); //sim.ai.setMaxSteps(1000);
         long t2 = System.currentTimeMillis();
         
         if (params.doHist) {

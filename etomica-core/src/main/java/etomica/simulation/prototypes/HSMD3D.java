@@ -8,7 +8,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.SimulationRestart;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -93,7 +93,7 @@ public class HSMD3D extends Simulation {
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
-        ActivityIntegrate2 ai2 = new ActivityIntegrate2(integrator);
+        ActivityIntegrate ai2 = new ActivityIntegrate(integrator);
         getController().addActivity(ai2, Long.MAX_VALUE, 1.0);
 
         potential = new P2HardSphere(space, sigma, true);

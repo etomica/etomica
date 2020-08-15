@@ -8,7 +8,7 @@ package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -55,7 +55,7 @@ public class HSMD3DNoNbr extends Simulation {
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
-        getController().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(1);
         potential = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
         box.setNMolecules(species, numAtoms);

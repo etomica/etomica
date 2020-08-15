@@ -6,6 +6,7 @@ package etomica.simulation.prototypes;
 
 import etomica.action.BoxInflate;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -70,7 +71,7 @@ public class LJMD3DNbr extends Simulation {
         final String APP_NAME = "LJMD3D";
         final LJMD3DNbr sim = new LJMD3DNbr();
 
-sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), 300);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), 300);
 
 //        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
 //

@@ -1,6 +1,6 @@
 package etomica.osmoticvirial;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.liquidLJ.LjMC3D;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +15,7 @@ public class MCMoveGeometricClusterTest {
     @BeforeEach
     public void setUp() throws Exception {
         ljMC3D = new LjMC3D(200,2,0.7,3);
-        ljMC3D.getController().runActivityBlocking(new ActivityIntegrate2(ljMC3D.integrator), 10000);
+        ljMC3D.getController().runActivityBlocking(new ActivityIntegrate(ljMC3D.integrator), 10000);
     }
 
     @Test

@@ -6,7 +6,7 @@ package etomica.models.nitrogen;
 
 import etomica.action.BoxInflate;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
@@ -438,7 +438,7 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 
         integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
 
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
     }
 	
 	public static void main (String[] args){
@@ -526,14 +526,14 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 			return;
 		}
 		
-		sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps/5);
+		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps/5);
 System.out.println("****System Equilibrated (20% of SimSteps)****");
 
 		long startTime = System.currentTimeMillis();
 		System.out.println("\nStart Time: " + startTime);
 		sim.integrator.getMoveManager().setEquilibrating(false);
 
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), simSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps);
 		
 		
 		double averageEnergy = energyAverage.getData().getValue(energyAverage.AVERAGE.index);

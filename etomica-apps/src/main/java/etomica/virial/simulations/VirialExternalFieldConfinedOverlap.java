@@ -6,6 +6,7 @@ package etomica.virial.simulations;
 
 import java.io.File;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.DataProcessorFunction;
@@ -153,7 +154,7 @@ public class VirialExternalFieldConfinedOverlap {
         System.out.println("equilibration finished");
 
         System.out.println("MC Move step sizes "+sim.mcMoveTranslate[0].getStepSize()+"  "+sim.mcMoveTranslate[1].getStepSize());
-sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), steps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());   

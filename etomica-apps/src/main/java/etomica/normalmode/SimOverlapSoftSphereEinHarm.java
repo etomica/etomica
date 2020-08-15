@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -223,7 +223,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
         integratorOverlap.setRefStepFraction(0.5);
         integratorOverlap.setAdjustStepFraction(false);
 
-        this.getController().addActivity(new ActivityIntegrate2(integratorOverlap));
+        this.getController().addActivity(new ActivityIntegrate(integratorOverlap));
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
@@ -313,7 +313,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOverlap), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOverlap), numSteps);
 
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
         //MeterTargetTP.closeFW();
@@ -397,7 +397,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
             if (integrators[i] instanceof IntegratorMC)
                 ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(true);
         }
-this.getController().runActivityBlocking(new ActivityIntegrate2(this.integratorOverlap), initSteps);
+this.getController().runActivityBlocking(new ActivityIntegrate(this.integratorOverlap), initSteps);
 
         for (int i = 0; i < 2; i++) {
             if (integrators[i] instanceof IntegratorMC)

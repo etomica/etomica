@@ -6,7 +6,7 @@ package etomica.association;
 
 import etomica.action.BoxInflate;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -108,7 +108,7 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         integrator.getMoveEventManager().addListener(associationManagerOriented);
         integrator.getMoveEventManager().addListener(associationManagerOriented);
         integrator.getMoveManager().setEquilibrating(true);
-        this.getController().addActivity(new ActivityIntegrate2(integrator), numSteps);
+        this.getController().addActivity(new ActivityIntegrate(integrator), numSteps);
         //actionIntegrate.setSleepPeriod(1);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
@@ -168,7 +168,7 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         }
         TestLJAssociationMC3D_NPT sim = new TestLJAssociationMC3D_NPT(numAtoms, pressure, density, wellConstant, temperature, numSteps);
         System.out.println("equilibrium period = " +numSteps/10);//equilibrium period
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps/10);
 
 MeterDensity rhoMeter = new MeterDensity(sim.box);
         AccumulatorAverage rhoAccumulator = new AccumulatorAverageFixed(10);//Accumulator that keeps statistics for averaging and error analysis
@@ -195,7 +195,7 @@ MeterDensity rhoMeter = new MeterDensity(sim.box);
         	graphic.makeAndDisplayFrame();
         	return;
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
         //Meter for measurement of the total molecule number density((number of molecules)/(volume of box)) in a box
         
         System.out.println("numAtom=" +numAtoms);

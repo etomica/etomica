@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.DiameterHashByType;
@@ -181,7 +181,7 @@ public class FourAssociationSitesFluid2Pt {
             // (or write) to a refpref file
             sim.initRefPref(null, 3000, false);
             sim.equilibrate(null, 6000);
-            sim.getController().addActivity(new ActivityIntegrate2(sim.integratorOS));
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -215,7 +215,7 @@ public class FourAssociationSitesFluid2Pt {
         for (int i = 0; i < 2; i++) {
             System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOS), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), numSteps);
 
         System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
 

@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
@@ -219,7 +219,7 @@ public class VirialHePIXC {
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pushAnswer));
 
             sim.addEquilibration(steps / 100);
-            sim.getController().addActivity(new ActivityIntegrate2(sim.integrator));
+            sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
             return;
         }
@@ -249,7 +249,7 @@ public class VirialHePIXC {
 //        }
 
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
 
 
         System.out.println("Ring acceptance "+ring.getTracker().acceptanceRatio());

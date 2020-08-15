@@ -5,7 +5,7 @@
 package etomica.heVLE;
 
 import etomica.action.BoxImposePbc;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.Helium;
@@ -165,7 +165,7 @@ public class VLESim extends Simulation {
         long steps = params.numSteps;
         long t1 = System.currentTimeMillis();
         sim.getController()
-                .runActivityBlocking(new ActivityIntegrate2(sim.integratorGEMC), steps / 10);
+                .runActivityBlocking(new ActivityIntegrate(sim.integratorGEMC), steps / 10);
         sim.integratorGEMC.resetStepCount();
 
         int interval = params.numAtoms;
@@ -180,7 +180,7 @@ public class VLESim extends Simulation {
         DataPumpListener pumpVaporDensity = new DataPumpListener(vaporDensity, accVaporDensity, interval);
         sim.integratorLiquid.getEventManager().addListener(pumpVaporDensity);
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorGEMC), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorGEMC), steps);
         long t2 = System.currentTimeMillis();
 
         IData liquidDensityData = accLiquidDensity.getData();

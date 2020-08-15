@@ -4,6 +4,7 @@
 
 package etomica.association.GCPMWater;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.ColorSchemeByType;
@@ -311,7 +312,7 @@ public class WertheimGCPM4PtThreeSiteEDecompDirectSampling {
 		sim.equilibrate(numSteps/40);
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize());
-sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
         
         DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
         double referenceAverage = ((DataDoubleArray)allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[0];

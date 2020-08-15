@@ -5,7 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.Activity2;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.action.controller.Controller;
 import etomica.data.*;
 import etomica.data.types.DataGroup;
@@ -122,7 +122,7 @@ public class SimulationVirial extends Simulation {
         integrator.setTemperature(temperature);
         integrator.getMoveManager().setEquilibrating(false);
         integrator.setEventInterval(1);
-        getController().addActivity(new ActivityIntegrate2(integrator));
+        getController().addActivity(new ActivityIntegrate(integrator));
 
 
         if (species[0] instanceof SpeciesSpheresMono || species[0] instanceof SpeciesSpheresRotating) {
@@ -196,7 +196,7 @@ public class SimulationVirial extends Simulation {
     }
 
     public Controller.ActivityHandle addEquilibration(long initSteps) {
-        ActivityIntegrate2 ai = new ActivityIntegrate2(this.integrator);
+        ActivityIntegrate ai = new ActivityIntegrate(this.integrator);
         Activity2 activityEquilibrate = new Activity2() {
             @Override
             public void preAction() {

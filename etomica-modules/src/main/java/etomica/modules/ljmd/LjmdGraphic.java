@@ -5,7 +5,7 @@
 package etomica.modules.ljmd;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
@@ -51,7 +51,7 @@ public class LjmdGraphic extends SimulationGraphic {
         
     	this.sim = simulation;
 
-        sim.getController().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(1);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator)).setSleepPeriod(1);
 
 	    //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();

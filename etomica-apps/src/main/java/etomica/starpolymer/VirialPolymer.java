@@ -5,6 +5,7 @@
 package etomica.starpolymer;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.IData;
@@ -205,7 +206,7 @@ public class VirialPolymer {
 
         long t1 = System.currentTimeMillis();
 
-        sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
 
 //        if (!Double.isNaN(litHSB)) System.out.println("lit value "+litHSB);

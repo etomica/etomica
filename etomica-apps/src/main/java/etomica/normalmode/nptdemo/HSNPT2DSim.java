@@ -4,7 +4,7 @@
 
 package etomica.normalmode.nptdemo;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
@@ -58,7 +58,7 @@ public class HSNPT2DSim extends Simulation {
 
         potentialMaster.setRange(sigma * 1.6);
 
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         AtomType leafType1 = species1.getLeafType();
         potential = new P2HardSphere(space, sigma, false);
 

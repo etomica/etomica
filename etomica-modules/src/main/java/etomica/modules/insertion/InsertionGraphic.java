@@ -6,7 +6,7 @@ package etomica.modules.insertion;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.data.*;
@@ -81,7 +81,7 @@ public class InsertionGraphic extends SimulationGraphic {
         }
         
 
-        sim.getController().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator)).setSleepPeriod(0);
 
         //combo box to select potentials
         final String repulsionOnly = "Repulsion only";

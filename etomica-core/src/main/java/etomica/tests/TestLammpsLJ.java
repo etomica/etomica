@@ -1,6 +1,7 @@
 package etomica.tests;
 
 import etomica.action.BoxInflate;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -91,7 +92,7 @@ public class TestLammpsLJ extends Simulation {
         TestLammpsLJ sim = new TestLammpsLJ();
 
         long t1 = System.nanoTime();
-sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integrator), 100);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), 100);
         long t2 = System.nanoTime();
 
         System.out.println((t2 - t1) / 1_000_000 + " ms");

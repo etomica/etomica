@@ -8,7 +8,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -87,7 +87,7 @@ public class HSMDCavity extends Simulation {
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.005);
 
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         potential = new P2HardSphereCavity(space);
         AtomType leafType = species.getLeafType();
@@ -295,7 +295,7 @@ public class HSMDCavity extends Simulation {
         System.out.println("density: " + params.density);
 
         long steps = params.steps;
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps / 10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps / 10);
 sim.integrator.resetStepCount();
 
 
@@ -345,7 +345,7 @@ sim.integrator.resetStepCount();
         sim.integrator.getEventManager().addListener(pumpPF);
 
         double t1 = System.nanoTime();
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
         double t2 = System.nanoTime();
 
         double avgCR = accCR.getData(accCR.AVERAGE).getValue(0);

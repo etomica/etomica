@@ -6,7 +6,7 @@ package etomica.kmc;
 
 import etomica.action.BoxInflate;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -194,12 +194,12 @@ public class SimKMCLJadatom extends Simulation{
     
     public void integratorKMC() {
         integratorKMC = new IntegratorKMC(this, potentialMaster, 0.7, this.getRandom(), new ISpecies[]{movable}, box);
-        this.getController().addActivity(new ActivityIntegrate2(integratorKMC));
+        this.getController().addActivity(new ActivityIntegrate(integratorKMC));
     }
     
     public void integratorKMCCluster(double temp, int steps, int totalSearch) {
         integratorKMCCluster = new IntegratorKMCCluster(this, potentialMaster, temp, totalSearch, this.getRandom(), new ISpecies[]{movable}, box);
-        this.getController().addActivity(new ActivityIntegrate2(integratorKMCCluster), steps);
+        this.getController().addActivity(new ActivityIntegrate(integratorKMCCluster), steps);
     }
 
     public void enableDimerSearch(String fileName, long maxSteps) {
@@ -210,7 +210,7 @@ public class SimKMCLJadatom extends Simulation{
 
         //integratorDimer.addNonintervalListener(potentialMaster.getNeighborManager(box));
         //integratorDimer.addIntervalAction(potentialMaster.getNeighborManager(box));
-        getController().addActivity(new ActivityIntegrate2(integratorDimer), maxSteps);
+        getController().addActivity(new ActivityIntegrate(integratorDimer), maxSteps);
     }
 
 }

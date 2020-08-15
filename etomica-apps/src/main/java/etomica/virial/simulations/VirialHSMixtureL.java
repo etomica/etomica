@@ -4,6 +4,7 @@
 
 package etomica.virial.simulations;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHash;
 import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
@@ -189,7 +190,7 @@ public class VirialHSMixtureL {
         for (int i = 0; i < 2; i++) {
             System.out.println("MC Move step size (" + i + ") " + sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), steps / blockSize);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps / blockSize);
         long t2 = System.currentTimeMillis();
 
         System.out.println("final reference step fraction " + sim.integratorOS.getIdealRefStepFraction());

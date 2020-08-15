@@ -6,7 +6,7 @@ package etomica.models.nitrogen;
 
 import etomica.action.WriteConfiguration;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
@@ -137,14 +137,14 @@ public class SimOverlapDisorderedAlphaN2TP extends Simulation {
         accumulatorPump = new DataPumpListener(meter, accumulator, numMolecules);
         integrator.getEventManager().addListener(accumulatorPump);
 
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
     }
     
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
         System.out.println("\nEquilibration Steps: " + initSteps);
-    	this.getController().runActivityBlocking(new ActivityIntegrate2(this.integrator), initSteps);
+    	this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator), initSteps);
 
         
         accumulator.reset();
@@ -267,7 +267,7 @@ public class SimOverlapDisorderedAlphaN2TP extends Simulation {
         
         final long startTime = System.currentTimeMillis();
        
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
         
         sim.writeConfiguration(configFileName);
         System.out.println("step size: " + sim.move.getStepSize());

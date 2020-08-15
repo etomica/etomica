@@ -6,7 +6,7 @@ package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
@@ -88,7 +88,7 @@ public class WaterBox {
         p2Switched.setSwitchFac(0.5);
         potentialMaster.addPotential(p2Switched, new ISpecies[]{species, species});
 
-        sim.getController().addActivity(new ActivityIntegrate2(integrator)).setSleepPeriod(2);
+        sim.getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(2);
         SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
         ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
         ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);

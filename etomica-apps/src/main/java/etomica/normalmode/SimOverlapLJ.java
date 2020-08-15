@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.DataPump;
@@ -197,7 +197,7 @@ public class SimOverlapLJ extends Simulation {
 
         setRefPref(1.0, 30);
 
-        this.getController().addActivity(new ActivityIntegrate2(integratorOverlap));
+        this.getController().addActivity(new ActivityIntegrate(integratorOverlap));
     }
 
     /**
@@ -270,7 +270,7 @@ public class SimOverlapLJ extends Simulation {
         long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integratorOverlap), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOverlap), numSteps);
 
         int totalCells = 1;
         for (int i = 0; i < D; i++) {
@@ -370,14 +370,14 @@ public class SimOverlapLJ extends Simulation {
 
         if (refPref == -1) {
             // equilibrate off the lattice to avoid anomolous contributions
-            getController().runActivityBlocking(new ActivityIntegrate2(integratorOverlap), initSteps/2);
+            getController().runActivityBlocking(new ActivityIntegrate(integratorOverlap), initSteps/2);
 
             System.out.println("target equilibration finished");
 
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,false),1);
             setRefPref(1,60);
-getController().runActivityBlocking(new ActivityIntegrate2(integratorOverlap), initSteps);
+getController().runActivityBlocking(new ActivityIntegrate(integratorOverlap), initSteps);
 
 
             int newMinDiffLoc = dsvo.minDiffLocation();
@@ -406,7 +406,7 @@ getController().runActivityBlocking(new ActivityIntegrate2(integratorOverlap), i
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        this.getController().runActivityBlocking(new ActivityIntegrate2(this.integratorOverlap), initSteps);
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integratorOverlap), initSteps);
 
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);

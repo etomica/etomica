@@ -4,7 +4,7 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.integrator.IntegratorListenerAction;
@@ -551,7 +551,7 @@ public class VirialHSBinMultiThreaded {
             }
             MeterVirialBDBinMultiThreaded.setTRatio(tRatio);
 
-            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
             long t2 = System.currentTimeMillis();
             System.out.println("thread "+iThread+" time: "+(t2-t1)*0.001);
         }

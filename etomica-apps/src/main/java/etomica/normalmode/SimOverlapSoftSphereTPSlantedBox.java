@@ -5,7 +5,7 @@
 package etomica.normalmode;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -146,7 +146,7 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
         accumulatorPump = new DataPumpListener(meter, accumulator, interval);
         integrator.getEventManager().addListener(accumulatorPump);
 
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         if (potentialMaster instanceof PotentialMasterList) {
             // extend potential range, so that atoms that move outside the truncation range will still interact
@@ -229,7 +229,7 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
         //MeterTargetTP.closeFW();
 
@@ -281,7 +281,7 @@ public class SimOverlapSoftSphereTPSlantedBox extends Simulation {
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
         System.out.println("Equilibration Steps: " + initSteps);
-        this.getController().runActivityBlocking(new ActivityIntegrate2(this.integrator), initSteps);
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator), initSteps);
 
 
         accumulator.reset();

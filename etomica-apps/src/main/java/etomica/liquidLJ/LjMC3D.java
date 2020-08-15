@@ -6,7 +6,7 @@ package etomica.liquidLJ;
 
 import etomica.action.BoxInflate;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -70,7 +70,7 @@ public class LjMC3D extends Simulation {
         mcMoveAtom = new MCMoveAtom(random, potentialMasterCell, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         potential = new P2LennardJones(space, sigma, 1.0);
         AtomType leafType = species.getLeafType();
@@ -214,7 +214,7 @@ public class LjMC3D extends Simulation {
 
         if (!graphics) {
             long eqSteps = steps/10;
-            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), eqSteps);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), eqSteps);
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
@@ -322,7 +322,7 @@ public class LjMC3D extends Simulation {
 
 
         long t1 = System.currentTimeMillis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
 
         System.out.println();

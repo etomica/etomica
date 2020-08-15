@@ -5,7 +5,7 @@
 package etomica.metastable;
 
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -72,7 +72,7 @@ public class LJNPT extends Simulation {
         //controller and integrator
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         //instantiate several potentials for selection in combo-box
         P2LennardJones potential = new P2LennardJones(space);
@@ -218,7 +218,7 @@ public class LJNPT extends Simulation {
                 return;
             }
             
-            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps/10);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps/10);
 sim.integrator.resetStepCount();
 
             if (numRuns==1) System.out.println("Equilibration finished");
@@ -253,7 +253,7 @@ sim.integrator.getEventManager().addListener(new IntegratorListener() {
                 public void integratorInitialized(IntegratorEvent e) {
                 }
             });
-sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
             
             if (numRuns <= 10 || (numRuns*10/(i+1))*(i+1) == numRuns*10) {
                 System.out.println("Run "+(i+1)+" finished");

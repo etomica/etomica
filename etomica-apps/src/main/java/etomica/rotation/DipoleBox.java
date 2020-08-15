@@ -7,7 +7,7 @@ package etomica.rotation;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
@@ -60,7 +60,7 @@ public class DipoleBox extends Simulation {
         integrator.setMaxIterations(maxIterations);
         OrientationCalcAtom calcer = new OrientationCalcAtom();
         integrator.setOrientationCalc(species, calcer);
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         P2LJDipole p2 = new P2LJDipole(space, 1.0, 1.0, 2.0);
         p2.setTruncationRadius(2.5);
@@ -87,7 +87,7 @@ public class DipoleBox extends Simulation {
             nAtoms = Integer.parseInt(args[1]);
             DipoleBox sim = new DipoleBox(space, nAtoms, dt);
             sim.integrator.printInterval = 100;
-            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), Long.MAX_VALUE);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), Long.MAX_VALUE);
         }
     }
 

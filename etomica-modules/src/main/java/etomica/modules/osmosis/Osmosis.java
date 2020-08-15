@@ -6,7 +6,7 @@ package etomica.modules.osmosis;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationLatticeWithPlane;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
@@ -295,7 +295,7 @@ public class Osmosis extends SimulationGraphic {
         Space sp = Space3D.getInstance();
     	sim = new OsmosisSim(sp);
 
-		sim.getController().addActivity(new ActivityIntegrate2(sim.integrator)).setSleepPeriod(1);
+		sim.getController().addActivity(new ActivityIntegrate(sim.integrator)).setSleepPeriod(1);
 
 		Osmosis osmosis = new Osmosis(sim, sp);
         SimulationGraphic.makeAndDisplayFrame(osmosis.getPanel(), APP_NAME);

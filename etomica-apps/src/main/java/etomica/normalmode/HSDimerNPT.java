@@ -8,7 +8,7 @@ import etomica.action.BoxInflateAnisotropic;
 import etomica.action.BoxInflateDeformable;
 import etomica.action.IAction;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
@@ -104,7 +104,7 @@ public class HSDimerNPT extends Simulation {
         }
         latticeBox = this.makeBox(new BoundaryDeformablePeriodic(space, boxDim));
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, latticeBox);
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         P2HardSphere p2 = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(p2, new AtomType[]{species.getDimerAtomType(), species.getDimerAtomType()});
@@ -666,14 +666,14 @@ public class HSDimerNPT extends Simulation {
 
             return;
         }
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps / 10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numSteps / 10);
         volumeAvg.reset();
         displacementAvg.reset();
         thetaDeviationAvg.reset();
         phiDeviationAvg.reset();
         System.out.println("equilibration finished");
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), params.numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numSteps);
 
         if (params.rho <= 0) {
             double vavg = volumeAvg.getData().getValue(volumeAvg.AVERAGE.index);

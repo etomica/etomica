@@ -5,7 +5,7 @@
 package etomica.modules.glass;
 
 import etomica.action.IAction;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.cavity.DataProcessorErrorBar;
 import etomica.data.*;
@@ -2201,7 +2201,7 @@ public class GlassGraphic extends SimulationGraphic {
                 f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
             });
         }
-        sim.getController().addActivity(new ActivityIntegrate2(sim.integrator));
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
     }
 
     /**

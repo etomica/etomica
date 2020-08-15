@@ -5,7 +5,7 @@
 package etomica.modules.vle;
 
 import etomica.action.BoxImposePbc;
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -143,7 +143,7 @@ public class VLESim extends Simulation {
             }
         });
 
-        this.getController().addActivity(new ActivityIntegrate2(integratorGEMC));
+        this.getController().addActivity(new ActivityIntegrate(integratorGEMC));
 
         if (doNBR) {
             ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxLiquid).assignCellAll();

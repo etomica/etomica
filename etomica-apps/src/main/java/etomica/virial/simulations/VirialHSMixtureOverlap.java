@@ -4,6 +4,7 @@
 
 package etomica.virial.simulations;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
 import etomica.graphics.*;
@@ -213,7 +214,7 @@ public class VirialHSMixtureOverlap {
         for (int i = 1; i < 2; i++) {
             System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(new etomica.action.activity.ActivityIntegrate2(sim.integratorOS), steps / blockSize);
+sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps / blockSize);
         long t2 = System.currentTimeMillis();
 
         System.out.println("final reference step fraction " + sim.integratorOS.getIdealRefStepFraction());

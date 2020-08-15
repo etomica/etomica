@@ -7,7 +7,7 @@ package etomica.normalmode;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHash;
 import etomica.atom.IAtom;
@@ -95,7 +95,7 @@ public class SimHSMDVacancy extends Simulation {
         integrator.setIsothermal(true);
         integrator.setTemperature(1);
         integrator.setThermostatNoDrift(true);
-        this.getController().addActivity(new ActivityIntegrate2(integrator));
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
@@ -659,7 +659,7 @@ public class SimHSMDVacancy extends Simulation {
 
 
         // equilibrate off the lattice
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/40);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps/40);
 
         IData dsfe3Data = dsfe3.getData();
         double daDefAvg = dsfe3Data.getValue(0);
@@ -697,7 +697,7 @@ public class SimHSMDVacancy extends Simulation {
             public void integratorInitialized(IntegratorEvent e) {}
         });
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps/10);
 
         if (params.doReweight) {
             dsfe3Data = dsfe3.getData();
@@ -721,7 +721,7 @@ public class SimHSMDVacancy extends Simulation {
         
         // take real data
         long t1 = System.currentTimeMillis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
         long t2 = System.currentTimeMillis();
 
         System.out.println();

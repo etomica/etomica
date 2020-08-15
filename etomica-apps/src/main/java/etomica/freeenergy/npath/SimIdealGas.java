@@ -6,7 +6,7 @@ package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
 
-import etomica.action.activity.ActivityIntegrate2;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -139,14 +139,14 @@ public class SimIdealGas extends Simulation {
 
         if (!graphics) {
             long eqSteps = steps/10;
-            sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), eqSteps);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), eqSteps);
             sim.integrator.getMoveManager().setEquilibrating(false);
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
 
         if (graphics) {
-            sim.getController().addActivity(new ActivityIntegrate2(sim.integrator));
+            sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
             final String APP_NAME = "SimLJ";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
             ColorScheme colorScheme = new ColorScheme() {
@@ -171,7 +171,7 @@ public class SimIdealGas extends Simulation {
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, numAtoms);
         sim.integrator.getEventManager().addListener(pumpEnergies);
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate2(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
 
         IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
         IData errEnergies = accEnergies.getData(accEnergies.ERROR);
