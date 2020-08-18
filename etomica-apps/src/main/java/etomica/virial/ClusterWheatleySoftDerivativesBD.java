@@ -193,6 +193,7 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
         BigDecimal el0 = BDexp(l0);
         // u = val/exp(l) - 1
         BigDecimal u = val.divide(el0, mc).subtract(BDONE, mc);
+        if (u.equals(BDZERO)) return l0;
         // log(val/exp(l)) = -u - u^2/2 - u^3/3 - ...
         BigDecimal xbd = u.negate();
         BigDecimal tvalbd = l0;
