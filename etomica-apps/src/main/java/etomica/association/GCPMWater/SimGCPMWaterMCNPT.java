@@ -204,7 +204,7 @@ public class SimGCPMWaterMCNPT extends Simulation {
         System.out.println("initial Energy "+initialEnergy);
         double initialEnthalpy = meterEV.getData().getValue(0);
         System.out.println("initial Enthaply "+initialEnthalpy+"\n");
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         System.out.println("step size of mcMoveMolecule "+sim.mcMoveMolecule.getStepSize());
         System.out.println("step size of mcMoveRotateMolecule "+sim.mcMoveRotateMolecule.getStepSize());
         System.out.println("step size of mcMoveVolume "+sim.mcMoveVolume.getStepSize());

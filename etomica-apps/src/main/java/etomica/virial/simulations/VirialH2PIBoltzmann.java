@@ -173,7 +173,7 @@ public class VirialH2PIBoltzmann {
         sim.box.trialNotify();
         sim.box.acceptNotify();
 
-        if (true) {
+        if (false) {
             double vSize = 10;
             sim.box.getBoundary().setBoxSize(Vector.of(new double[]{vSize, vSize, vSize}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -242,9 +242,9 @@ public class VirialH2PIBoltzmann {
         
         
         sim.equilibrate(steps/100);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integrator, steps);
+sim.setAccumulatorBlockSize(steps > 1000 ? steps/1000 : 1);
 
-        sim.setAccumulatorBlockSize(steps > 1000 ? steps/1000 : 1);
-        
         System.out.println("equilibration finished");
 
 //        if (false) {
@@ -265,7 +265,7 @@ public class VirialH2PIBoltzmann {
 //        }
 
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+sim.getController().runActivityBlocking(ai);
 
 
         System.out.println("Ring acceptance "+ring0.getTracker().acceptanceRatio());

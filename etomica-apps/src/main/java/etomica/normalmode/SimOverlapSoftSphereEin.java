@@ -286,7 +286,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
 
         //MeterTargetTP.openFW("x"+numMolecules+".dat")
 
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         //MeterTargetTP.closeFW();
 
         System.out.println("average delta U " + accumulator.getData().getValue(accumulator.AVERAGE.index) + " " + accumulator.getData().getValue(accumulator.ERROR.index) + " " + accumulator.getData().getValue(accumulator.BLOCK_CORRELATION.index));
@@ -338,7 +338,7 @@ sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), n
 
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
-        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator), initSteps);
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
 
         accumulator.reset();
 

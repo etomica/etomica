@@ -106,7 +106,8 @@ public class HSMD2D_noNbr extends Simulation {
 
         final HSMD2D_noNbr sim = new HSMD2D_noNbr();
         final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
-        sim.getController().addActivity(new ActivityIntegrate(sim.integrator)).setSleepPeriod(10);
+        sim.getController().setSleepPeriod(10);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
         DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();
         pressureDisplay.setAccumulator(sim.pressureAverage);

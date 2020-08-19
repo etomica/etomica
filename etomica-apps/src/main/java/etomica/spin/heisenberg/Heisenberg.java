@@ -178,7 +178,7 @@ public class Heisenberg extends Simulation {
         }
 
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps / 5);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 5));
 
         int blockNumber = 100;
 
@@ -281,7 +281,7 @@ public class Heisenberg extends Simulation {
             DataPumpListener pumpEnergyMF = new DataPumpListener(meterEnergyMF, energyMFAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(pumpEnergyMF);
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long endTime = System.currentTimeMillis();
         double totalTime = (endTime - startTime) / (1000.0 * 60.0);
 

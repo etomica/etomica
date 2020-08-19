@@ -552,7 +552,7 @@ public class VirialSQWBinMultiThreaded {
             sim.integrator.getMoveManager().setFrequency(mcMoveHST, 1-ringFrac-chainFrac);
             MeterVirialEBinMultiThreaded.setTRatio(tRatio);
 
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
             long t2 = System.currentTimeMillis();
             System.out.println("thread "+iThread+" time: "+(t2-t1)*0.001);
         }

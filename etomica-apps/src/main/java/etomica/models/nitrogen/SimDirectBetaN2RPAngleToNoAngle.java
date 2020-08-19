@@ -222,8 +222,8 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
         
         long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
-       
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorTarg), numSteps);
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorTarg, numSteps));
 
         sim.writeConfiguration(configFileName);
         double average = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.AVERAGE.index);

@@ -75,7 +75,8 @@ public class Multiharmonic extends Simulation {
              a = iterator.nextAtom()) {
             a.getPosition().setX(0, x0);
         }
-        getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(1);
+        getController().setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         potentialB = new P1Harmonic(space);
         potentialB.setX0(new Vector1D(x0 + 1));

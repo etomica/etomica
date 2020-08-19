@@ -274,7 +274,7 @@ public class SimEinStep2 extends Simulation {
 //        DataPumpListener accumulatorPEIntPump = new DataPumpListener(meterPEInt, accumulatorPEInt, interval);
 //        sim.integrator.getEventManager().addListener(accumulatorPEIntPump)
 
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         // potentialMasterHarmonic really just gives us sum[r^2]
 
@@ -296,7 +296,7 @@ sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), n
 
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
-        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator), initSteps);
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
 
     }
     

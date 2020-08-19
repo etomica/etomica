@@ -201,7 +201,7 @@ public class SimBennet extends Simulation {
         pumpTargetListener.setInterval(1000);
         sim.integrator.getEventManager().addListener(pumpTargetListener);
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         /*
          *

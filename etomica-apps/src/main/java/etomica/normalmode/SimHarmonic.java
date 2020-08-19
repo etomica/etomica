@@ -247,7 +247,7 @@ public class SimHarmonic extends Simulation {
         } else {
             //not graphic, so run simulation batch
             //S data is written to file
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
             DataGroup boltzmannData = (DataGroup)avgBoltzmann.getData();
             double pNotOverlap = ((DataDouble) boltzmannData.getData(avgBoltzmann.AVERAGE.index)).x;

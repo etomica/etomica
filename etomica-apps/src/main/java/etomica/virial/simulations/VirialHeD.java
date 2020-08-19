@@ -232,8 +232,8 @@ public class VirialHeD {
 
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
-        if (false) {
-            sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10, 10, 10}));
+        if(false) {
+    sim.box[0].getBoundary().setBoxSize(space.makeVector(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(space.makeVector(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
@@ -258,13 +258,13 @@ public class VirialHeD {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.initRefPref(null, 10, false);
-            sim.equilibrate(null, 20);
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            return;
-        }
+    return;
+}
 
         long t1 = System.currentTimeMillis();
 
@@ -323,8 +323,8 @@ public class VirialHeD {
 
         sim.initRefPref(refFileName, (steps / EqSubSteps) / 20);
         sim.equilibrate(refFileName, (steps / EqSubSteps) / 10);
-
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps / blockSize);
+System.out.println("equilibration finished");
 
         if(dorefpref){
             long t2 = System.currentTimeMillis();
@@ -333,18 +333,18 @@ public class VirialHeD {
         }
 
         IntegratorListener progressReport = new IntegratorListener() {
-            
+
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 if (sim.integratorOS.getStepCount() % 100 != 0) return;
                 System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                 double[] ratioAndError = sim.dvo.getAverageAndError();
                 System.out.println("abs average: "+ratioAndError[0]*HSBn+", error: "+ratioAndError[1]*HSBn);
             }
-            
+
             public void integratorInitialized(IntegratorEvent e) {}
-                
+
         };
         if (false) {
             sim.integratorOS.getEventManager().addListener(progressReport);
@@ -357,7 +357,7 @@ public class VirialHeD {
         for (int i=0; i<2; i++) {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps / blockSize);
+sim.getController().runActivityBlocking(ai);
 
         if (doHist) {
             double[] xValues = targHist.xValues();

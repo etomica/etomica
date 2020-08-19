@@ -137,7 +137,7 @@ public class SingleWater {
             IntegratorListenerAction writeAListener = new IntegratorListenerAction(writeA);
             writeAListener.setInterval(100);
             integrator.getEventManager().addListener(writeAListener);
-            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator), Long.MAX_VALUE);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, Long.MAX_VALUE));
         } else {
 //          ai.setSleepPeriod(10);
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);

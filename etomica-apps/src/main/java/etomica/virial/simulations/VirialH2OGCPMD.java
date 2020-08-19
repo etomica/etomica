@@ -187,8 +187,8 @@ public class VirialH2OGCPMD {
             sim.box[1].acceptNotify();
         }
         
-        if (false) {
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
+        if(false) {
+    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
@@ -214,13 +214,13 @@ public class VirialH2OGCPMD {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
 			sim.initRefPref(null, 10, false);
-            sim.equilibrate(null, 20);
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            return;
-        }
+    return;
+}
 
 
         
@@ -317,6 +317,8 @@ public class VirialH2OGCPMD {
             public void integratorInitialized(IntegratorEvent e) {}
         };
 
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+
         if (params.doHist) {
 
             final ClusterAbstractMultivalue tempcluster = targetCluster;
@@ -326,7 +328,7 @@ public class VirialH2OGCPMD {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*100) % sim.getController().getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*100) % ai.getMaxSteps() != 0) return;
                     System.out.println("**** reference ****");
                     double[] xValues = hist.xValues();
                     double[] h = hist.getHistogram();
@@ -379,8 +381,7 @@ public class VirialH2OGCPMD {
 
         sim.initRefPref(refFileName, steps/20);
         sim.equilibrate(refFileName, steps/10);
-
-        System.out.println("equilibration finished");
+System.out.println("equilibration finished");
 
         if(dorefpref){
             long t2 = System.currentTimeMillis();
@@ -392,7 +393,7 @@ public class VirialH2OGCPMD {
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(ai);
         
         if (params.doHist) {
             double[] xValues = hist.xValues();

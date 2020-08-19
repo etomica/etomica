@@ -193,7 +193,7 @@ public class PolydisperseHS extends Simulation {
                 for (double eta = params.initEta+deltaEta; eta<params.finalEta+deltaEta; eta+=deltaEta) {
                     if (eta > params.finalEta) eta = params.finalEta;
                     System.out.println(prevEta +"(current) => "+eta);
-                    sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numStepsComp);
+                    sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsComp));
 
                     System.out.println("uncompressed density: " + params.numAtoms / sim.box.getBoundary().volume());
                     System.out.println(" uncompressed energy: " + (Math.log(meterPE.getDataAsScalar())));
@@ -288,7 +288,7 @@ public class PolydisperseHS extends Simulation {
         //Compress from initEta to finalEta
             init.actionPerformed();
         //Equilibarate with finalEta
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numStepsEqu);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsEqu));
 
             System.out.println("=========================================================================");
             System.out.println("After Equilibaration: ");
@@ -333,7 +333,7 @@ public class PolydisperseHS extends Simulation {
             velWriter.closeFile();
 
         //Run ...
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numStepsProd);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numStepsProd));
 
             // statistics
             DataGroup dataP = (DataGroup)accumulatorP.getData();

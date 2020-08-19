@@ -56,7 +56,8 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
         integrator.setTemperature(temperature);
 
 
-        getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(1);
+        getController().setSleepPeriod(1);
+getController().addActivity(new ActivityIntegrate(integrator));
 
     }
 	

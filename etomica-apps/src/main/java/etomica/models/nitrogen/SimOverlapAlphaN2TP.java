@@ -153,7 +153,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
         System.out.println("\nEquilibration Steps: " + initSteps);
-    	this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator), initSteps);
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
 
         
         accumulator.reset();
@@ -283,9 +283,9 @@ public class SimOverlapAlphaN2TP extends Simulation {
 		IntegratorListenerAction orderParameterListener = new IntegratorListenerAction(orderParameterPump);
 		orderParameterListener.setInterval(numMolecules);
 		sim.integrator.getEventManager().addListener(orderParameterListener);
-		
-		
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
         //MeterTargetTP.closeFW();
         System.out.println("PRotConstraint counter: " + sim.pRotConstraint.counter);

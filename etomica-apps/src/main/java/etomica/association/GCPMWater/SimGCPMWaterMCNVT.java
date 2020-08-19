@@ -184,7 +184,7 @@ public class SimGCPMWaterMCNVT extends Simulation {
         sim.integrator.reset();
         double initialEnthalpy = meterE.getData().getValue(0);
         System.out.println("initial Energy "+initialEnthalpy+"\n");
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         System.out.println("step size of mcMoveMolecule "+sim.mcMoveMolecule.getStepSize());
         System.out.println("step size of mcMoveRotateMolecule "+sim.mcMoveRotateMolecule.getStepSize());
         

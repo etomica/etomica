@@ -55,7 +55,8 @@ public class HSMD3DNoNbr extends Simulation {
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
-        getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(1);
+        getController().setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integrator));
         potential = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
         box.setNMolecules(species, numAtoms);

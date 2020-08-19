@@ -230,7 +230,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
         IntegratorListenerAction energyDiffListenerEq = new IntegratorListenerAction(energyDiffActionEq,1);
         sim.integrator.getEventManager().addListener(energyDiffListenerEq);
         System.out.println("equilibrium period = " +numSteps/5);
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps/5);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 5));
 System.out.println("equilibrium finished");
 
 MeterDensity rhoMeter = new MeterDensity(sim.box);
@@ -339,7 +339,7 @@ MeterDensity rhoMeter = new MeterDensity(sim.box);
         IntegratorListenerAction energyDiffListener = new IntegratorListenerAction(energyDiffAction,1000);
         //sim.integrator.getEventManager().addListener(energyDiffListener)
 
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         //Meter for measurement of the total molecule number density((number of molecules)/(volume of box)) in a box
         
         System.out.println("numAtom=" +numAtoms);

@@ -61,7 +61,8 @@ public class GEMCWithRotation extends Simulation {
         integrator.setTemperature(0.420);
         integrator.setEventInterval(400);
 
-        getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(1);
+        getController().setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         box1 = this.makeBox();
         box1.setNMolecules(species, 200);

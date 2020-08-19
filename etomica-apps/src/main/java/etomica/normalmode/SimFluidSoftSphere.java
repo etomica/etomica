@@ -285,13 +285,13 @@ public class SimFluidSoftSphere extends Simulation {
         }
 
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         System.out.println("equilibrated");
 
         sim.integrator.getMoveManager().setEquilibrating(false);
         pressureAverage.reset();
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
         /*
         double insertionScalar = ((DataGroup)insertionAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
         System.out.println("Average insertion scalar: "+ insertionScalar);

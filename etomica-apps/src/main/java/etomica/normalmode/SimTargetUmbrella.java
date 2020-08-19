@@ -237,7 +237,7 @@ public class SimTargetUmbrella extends Simulation {
         outputActionListener.setInterval(20000);
         sim.integrator.getEventManager().addListener(outputActionListener);
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         try {
 	        fileWriterTargUmb.close();

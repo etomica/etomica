@@ -666,14 +666,14 @@ public class HSDimerNPT extends Simulation {
 
             return;
         }
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numSteps / 10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / 10));
         volumeAvg.reset();
         displacementAvg.reset();
         thetaDeviationAvg.reset();
         phiDeviationAvg.reset();
         System.out.println("equilibration finished");
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
 
         if (params.rho <= 0) {
             double vavg = volumeAvg.getData().getValue(volumeAvg.AVERAGE.index);

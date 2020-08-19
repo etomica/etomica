@@ -222,7 +222,7 @@ public class SimOverlapLJModule {
         System.out.println("equilibration finished");
         System.out.flush();
 
-        module.controller.runActivityBlocking(new ActivityIntegrate(module.integratorOverlap), numSteps);
+        module.controller.runActivityBlocking(new ActivityIntegrate(module.integratorOverlap, numSteps));
 
         System.out.println("final reference optimal step fraction " + module.getIntegratorOverlap().getIdealRefStepFraction() + " (actual: " + module.getIntegratorOverlap().getRefStepFraction() + ")");
 

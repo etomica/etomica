@@ -270,8 +270,8 @@ public class VirialH2PIXC {
 
 
 		sim.equilibrate(steps/100);
-
-		sim.setAccumulatorBlockSize(steps > 1000 ? steps/1000 : 1);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integrator, steps);
+sim.setAccumulatorBlockSize(steps > 1000 ? steps/1000 : 1);
 
 		System.out.println("equilibration finished");
 		final AccumulatorAverageFixed avg0 = new AccumulatorAverageFixed(steps);
@@ -288,7 +288,7 @@ public class VirialH2PIXC {
 				public void integratorStepStarted(IntegratorEvent e) {}
 				@Override
 				public void integratorStepFinished(IntegratorEvent e) {
-					if ((sim.integrator.getStepCount()*10) % sim.getController().getMaxSteps() != 0) return;
+					if ((sim.integrator.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.println(temperatureK + " " + avg0.getData(avg0.AVERAGE).getValue(0) + " " + avg0.getData(avg0.ERROR).getValue(0) + " " + avg0.getData(avg0.BLOCK_CORRELATION).getValue(0));
 				}
 			};
@@ -296,7 +296,7 @@ public class VirialH2PIXC {
 		}
 
 		sim.integrator.getMoveManager().setEquilibrating(false);
-		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+sim.getController().runActivityBlocking(ai);
 
 		if (aRef == 1) {
 			double refIntegral = Math.pow(lambda, 3.0) * Math.pow(2.0, -2.5);

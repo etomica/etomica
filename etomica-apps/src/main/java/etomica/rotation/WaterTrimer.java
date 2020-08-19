@@ -73,7 +73,8 @@ public class WaterTrimer {
 //        integrator.addIntervalAction(writeConfig);
 //        integrator.setActionInterval(writeConfig, 1000);
         if (false) {
-            sim.getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(2);
+            sim.getController().setSleepPeriod(2);
+            sim.getController().addActivity(new ActivityIntegrate(integrator));
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rigid", 1);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
@@ -98,7 +99,7 @@ public class WaterTrimer {
 //        writePDB.setFileName("water108Eq");
 //        integrator.addIntervalAction(writePDB);
 //        integrator.setActionInterval(writePDB, 10000);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, Long.MAX_VALUE));
         return null;
     }
 

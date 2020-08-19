@@ -177,7 +177,7 @@ public class ColloidSim extends Simulation {
         Space space = Space3D.getInstance();
 
         ColloidSim sim = new ColloidSim();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }
     
     public void setNumGraft(int newNumGraft) {

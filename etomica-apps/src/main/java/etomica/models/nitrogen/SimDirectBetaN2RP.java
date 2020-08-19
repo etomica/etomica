@@ -153,16 +153,16 @@ public class SimDirectBetaN2RP extends Simulation {
         MeterOrientationDistribution meterOrient = new MeterOrientationDistribution(sim.boxTarg, sim.coordinateDefTarg, sim.species);
         IntegratorListenerAction meterOrientListener = new IntegratorListenerAction(meterOrient);
         meterOrientListener.setInterval(numMolecules);                                      
-        sim.integratorTarg.getEventManager().addListener(meterOrientListener);    
-        
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorTarg), numSteps/10);
+        sim.integratorTarg.getEventManager().addListener(meterOrientListener);
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorTarg, numSteps / 10));
 System.out.println("equilibration finished");
 
 
 
         long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorTarg), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorTarg, numSteps));
 
         double average = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.AVERAGE.index);
         double error = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.ERROR.index);

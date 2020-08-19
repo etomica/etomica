@@ -769,10 +769,11 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         }
         
         if (true) {
-            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator), 1000000);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, 1000000));
         }
         else {
-            sim.getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(2);
+            sim.getController().setSleepPeriod(2);
+            sim.getController().addActivity(new ActivityIntegrate(integrator));
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
             ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
             ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);

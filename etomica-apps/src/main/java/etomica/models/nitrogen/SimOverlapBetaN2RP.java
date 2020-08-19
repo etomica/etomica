@@ -209,7 +209,7 @@ public class SimOverlapBetaN2RP extends Simulation {
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        this.getController().runActivityBlocking(new ActivityIntegrate(this.integratorOverlap), initSteps);
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integratorOverlap, initSteps));
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
         }
@@ -265,14 +265,14 @@ public class SimOverlapBetaN2RP extends Simulation {
         sim.integratorOverlap.setAdjustStepFraction(false);
         numSteps /= 1000;
         
-        sim.equilibrate(numSteps);       
-        System.out.println("equilibration finished");
+        sim.equilibrate(numSteps);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOverlap, numSteps);
+System.out.println("equilibration finished");
         System.out.flush();
- 
+
         final long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
-       
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOverlap), numSteps);
+sim.getController().runActivityBlocking(ai);
          
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getIdealRefStepFraction()
         		+" (actual: "+sim.integratorOverlap.getRefStepFraction()+")");

@@ -205,7 +205,7 @@ public class SimModesJ extends Simulation {
             }
             double[] wvs;
         });
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), 10000);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 10000));
         
         dumpHist.integratorStepFinished(null);
     }

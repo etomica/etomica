@@ -179,13 +179,15 @@ public class LJNVT extends Simulation {
                 
                 return;
             }
-            
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps/10);
+
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
 sim.integrator.resetStepCount();
 
             if (numRuns==1) System.out.println("Equilibration finished");
 
             sim.integrator.setTemperature(temperature);
+
+            ActivityIntegrate ai = new ActivityIntegrate(sim.integrator, numSteps);
 sim.integrator.getEventManager().addListener(new IntegratorListener() {
 
                 int count = 0;
@@ -209,13 +211,13 @@ sim.integrator.getEventManager().addListener(new IntegratorListener() {
                         throw new RuntimeException(ex);
                     }
                     count++;
-                    if (U<-1) sim.getController().setMaxSteps(0);
+                    if (U<-1) ai.setMaxSteps(0);
                 }
 
                 public void integratorInitialized(IntegratorEvent e) {
                 }
             });
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+            sim.getController().runActivityBlocking(ai);
             
             if (numRuns <= 10 || (numRuns*10/(i+1))*(i+1) == numRuns*10) {
                 System.out.println("Run "+(i+1)+" finished");

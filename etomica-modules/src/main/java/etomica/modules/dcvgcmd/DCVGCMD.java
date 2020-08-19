@@ -275,6 +275,6 @@ public class DCVGCMD extends Simulation {
 
     public static void main(String[] args) {
         DCVGCMD sim = new DCVGCMD();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorDCV), 5000);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorDCV, 5000));
     }
 }

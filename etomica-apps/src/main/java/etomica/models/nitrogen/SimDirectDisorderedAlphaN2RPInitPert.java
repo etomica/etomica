@@ -171,15 +171,15 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
 		} else {
 			long equiStep = (numMolecules*numSteps/1000);
 	        System.out.println("\nEquilibration step: " + equiStep);
-	        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), equiStep);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, equiStep));
 	        System.out.println("Equilibration finished");
 
 		}
         
         long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
-       
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         sim.writeConfiguration(configFileName);
         double average = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.AVERAGE.index);

@@ -66,7 +66,8 @@ public class WaterDroplet {
 
         potentialMaster.addPotential(p2Water, new ISpecies[]{species, species});
         if (false) {
-            sim.getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(2);
+            sim.getController().setSleepPeriod(2);
+            sim.getController().addActivity(new ActivityIntegrate(integrator));
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rigid", 1);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
@@ -99,7 +100,7 @@ public class WaterDroplet {
         IntegratorListenerAction writePDBListener = new IntegratorListenerAction(writePDB);
         writePDBListener.setInterval(10000);
         integrator.getEventManager().addListener(writePDBListener);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, Long.MAX_VALUE));
         return null;
     }
 

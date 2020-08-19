@@ -144,8 +144,8 @@ public class VirialB2WaterTIP4P_DHS_difference {
             sim.box[1].acceptNotify();
         }
 
-        if (false) {
-            double size = 20;
+        if(false) {
+    double size = 20;
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -174,14 +174,13 @@ public class VirialB2WaterTIP4P_DHS_difference {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.initRefPref(null, 10, false);
-            sim.equilibrate(null, 20);
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
                 throw new RuntimeException("Oops");
             }
-
-            return;
-        }
+    return;
+}
         long t1 = System.currentTimeMillis();
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref" + nPoints + "_" + temperature : null;
@@ -190,7 +189,8 @@ public class VirialB2WaterTIP4P_DHS_difference {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps / 20);
-        if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
 
@@ -217,7 +217,7 @@ public class VirialB2WaterTIP4P_DHS_difference {
                 }
 
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount() * 10) % sim.getController().getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount() * 10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount() + " steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     System.out.println("abs average: " + ratioAndError[0] * HSB[nPoints] + ", error: " + ratioAndError[1] * HSB[nPoints]);
@@ -264,7 +264,7 @@ public class VirialB2WaterTIP4P_DHS_difference {
             // only collect the histogram if we're forcing it to run the reference system
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(ai);
         if (false) {
             double[] xValues = targHist.xValues();
             double[] h = targHist.getHistogram();

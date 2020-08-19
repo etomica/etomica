@@ -342,7 +342,7 @@ public class HSMDWidom extends Simulation {
         System.out.println("density: " + params.density);
 
         long steps = params.steps;
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps / 10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
         sim.integrator.resetStepCount();
 
         AccumulatorAverageFixed accRDFMapped = new AccumulatorAverageFixed(1);
@@ -401,7 +401,7 @@ public class HSMDWidom extends Simulation {
         sim.integrator.getEventManager().addListener(pumpPCC);
 
         long t1 = System.nanoTime();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.nanoTime();
 
 

@@ -90,6 +90,6 @@ public class Droplet extends Simulation {
         Space space = Space3D.getInstance();
 
         Droplet sim = new Droplet();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }//end of main
 }

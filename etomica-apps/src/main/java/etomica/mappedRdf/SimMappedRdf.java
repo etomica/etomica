@@ -140,7 +140,7 @@ public class SimMappedRdf extends Simulation {
 
         }
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps / 10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
 
         sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -166,7 +166,7 @@ public class SimMappedRdf extends Simulation {
         DataPumpListener con = new DataPumpListener(meterRDF,acccon,numAtoms);
         sim.integrator.getEventManager().addListener(con);
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         IData rdata = meterRDF.getIndependentData(0);
         IData gdata = acccon.getData(acccon.AVERAGE);

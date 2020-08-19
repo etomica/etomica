@@ -153,7 +153,7 @@ public class ReverseOsmosis extends Simulation {
         }
             
         ReverseOsmosis sim = new ReverseOsmosis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }//end of main
     
 }

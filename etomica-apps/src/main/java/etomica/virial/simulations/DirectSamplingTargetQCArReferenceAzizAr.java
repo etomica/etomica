@@ -128,12 +128,12 @@ public class DirectSamplingTargetQCArReferenceAzizAr {
         clusterMove.initializeCoordinates(sim.box);
         
         sim.equilibrate(steps/40);
-        
-        System.out.println("Equilibration finished.");
-        
+ActivityIntegrate ai = new ActivityIntegrate(sim.integrator, steps);
+System.out.println("Equilibration finished.");
+
         System.out.println();
         System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize());
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+sim.getController().runActivityBlocking(ai);
 
 //        IAction progressReport = new IAction() {
 //            public void actionPerformed() {

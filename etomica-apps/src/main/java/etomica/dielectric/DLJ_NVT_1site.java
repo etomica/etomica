@@ -187,7 +187,7 @@ public class DLJ_NVT_1site extends Simulation {
 	    	return ;
     	}
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps/5);// equilibration period
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 5));// equilibration period
 
    		sim.integrator.getMoveManager().setEquilibrating(false);
 //   		System.out.println("equilibration finished");
@@ -227,7 +227,7 @@ public class DLJ_NVT_1site extends Simulation {
             sim.integrator.getEventManager().addListener(AEEListener);
 
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
         //calculate dipoleSumSquared average
         double dipoleSumSquared = 0;

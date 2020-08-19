@@ -226,7 +226,7 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         simGraphic.makeAndDisplayFrame("Sim CalcS Super Box");
         */
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps/10);  //simSteps/10
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps / 10));  //simSteps/10
 System.out.println("equilibrated");
         sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -241,7 +241,7 @@ System.out.println("equilibrated");
         IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
         sWriterListener.setInterval((int)simSteps/20);
         sim.integrator.getEventManager().addListener(sWriterListener);
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
         PDBWriter pdbWriter = new PDBWriter(sim.box);
         pdbWriter.setFileName("calcS_n"+exponent+"_T"+temperature+".pdb");
         pdbWriter.actionPerformed();

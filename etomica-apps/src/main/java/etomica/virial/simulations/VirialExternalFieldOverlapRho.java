@@ -157,13 +157,13 @@ public class VirialExternalFieldOverlapRho {
         sim.initRefPref("RefPref", steps/40);
         
         sim.equilibrate("RefPref", steps/20);
-        
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+System.out.println("equilibration finished");
 
 
 
         System.out.println("MC Move step sizes "+sim.mcMoveTranslate[0].getStepSize()+"  "+sim.mcMoveTranslate[1].getStepSize());
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps);
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());

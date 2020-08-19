@@ -62,7 +62,8 @@ public class HSMD2D extends Simulation {
 
         potentialMaster.setRange(sigma * 1.6);
 
-        getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(1);
+        getController().setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integrator));
         AtomType leafType1 = species1.getLeafType();
         AtomType leafType2 = species2.getLeafType();
         ((ElementSimple) leafType2.getElement()).setMass(10);

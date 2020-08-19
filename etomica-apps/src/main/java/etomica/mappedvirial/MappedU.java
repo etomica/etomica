@@ -157,7 +157,7 @@ public class MappedU extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
 
 sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -203,7 +203,7 @@ sim.integrator.getMoveManager().setEquilibrating(false);
             meterRDF.getXDataSource().setXMax(eqncutoff);
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
 
 

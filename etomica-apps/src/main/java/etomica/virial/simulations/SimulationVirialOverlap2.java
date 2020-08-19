@@ -5,7 +5,8 @@
 package etomica.virial.simulations;
 
 
-import etomica.action.activity.ActivityIntegrate;
+import etomica.action.controller.Activity;
+import etomica.action.controller.Controller;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.data.*;
@@ -73,7 +74,6 @@ public class SimulationVirialOverlap2 extends Simulation {
     protected HistogramSimple targHist;
     protected HistogramNotSoSimple targPiHist;
     protected double[] boxLengths = new double[]{0, 0};
-    private boolean interactive = false;
 
     /**
      * This constructor will create your simulation class, but you may call
@@ -364,8 +364,8 @@ public class SimulationVirialOverlap2 extends Simulation {
      *
      * The listener is returned.
      */
-    public IntegratorListener addProgressListener(final double HSB) {
-        return addProgressListener(HSB, false);
+    public IntegratorListener addProgressListener(final double HSB, long interval) {
+        return addProgressListener(HSB, interval, false);
     }
 
     /**
@@ -375,13 +375,12 @@ public class SimulationVirialOverlap2 extends Simulation {
      *
      * The listener is returned.
      */
-    public IntegratorListener addProgressListener(final double HSB, final boolean full) {
+    public IntegratorListener addProgressListener(final double HSB, long interval, final boolean full) {
         IntegratorListener progressReport = new IntegratorListener() {
 
             public void integratorStepStarted(IntegratorEvent e) {}
 
             public void integratorStepFinished(IntegratorEvent e) {
-                long interval = getController().getMaxSteps() / 10;
                 if (integratorOS.getStepCount() % interval != 0) return;
                 System.out.print(integratorOS.getStepCount()+" steps: ");
                 if (full) {
@@ -406,7 +405,7 @@ public class SimulationVirialOverlap2 extends Simulation {
      * out 10 times during the simulation and may also be printed at the
      * end of the simulation via printTargetHistogram().
      */
-    public void setupTargetHistogram() {
+    public void setupTargetHistogram(long interval) {
         targHist = new HistogramSimple(90, new DoubleRange(-1, 8));
         targPiHist = new HistogramNotSoSimple(90, new DoubleRange(-1, 8));
         IntegratorListener histListenerTarget = new IntegratorListener() {
@@ -444,7 +443,6 @@ public class SimulationVirialOverlap2 extends Simulation {
             public void integratorInitialized(IntegratorEvent e) {}
             public void integratorStepStarted(IntegratorEvent e) {}
             public void integratorStepFinished(IntegratorEvent e) {
-                long interval = getController().getMaxSteps() / 10;
                 if (integratorOS.getStepCount() % interval != 0) return;
                 printTargetHistogram();
             }
@@ -555,102 +553,107 @@ public class SimulationVirialOverlap2 extends Simulation {
         initRefPref(fileName, initSteps, true);
     }
 
-    public void initRefPref(String fileName, long initSteps, boolean runNow) {
-        this.interactive = !runNow;
-        if (!runNow) {
-            this.getController().start();
-        }
-        // use the old refpref value as a starting point so that an initial
-        // guess can be provided
-        double oldRefPref = refPref;
-        // refPref = -1 indicates we are searching for an appropriate value
-        refPref = -1.0;
-        if (fileName != null) {
-            try {
-                FileReader fileReader = new FileReader(fileName);
-                BufferedReader bufReader = new BufferedReader(fileReader);
-                String refPrefString = bufReader.readLine();
-                refPref = Double.parseDouble(refPrefString);
-                bufReader.close();
-                fileReader.close();
-                System.out.println("setting ref pref (from file) to "+refPref);
-                dpVirialOverlap[0].setNumAlpha(numAlpha);
-                dpVirialOverlap[1].setNumAlpha(numAlpha);
-                setRefPref(refPref, 1);
-                return;
-            } catch (IOException e) {
-                // file not there, which is ok.
-            }
-        }
+    public void initRefPref(String fileName, long initSteps, boolean runBlocking) {
+        Activity activityInitRefPref = new Activity() {
+            @Override
+            public void runActivity(Controller.ControllerHandle handle) {
+                // use the old refpref value as a starting point so that an initial
+                // guess can be provided
+                double oldRefPref = refPref;
+                // refPref = -1 indicates we are searching for an appropriate value
+                refPref = -1.0;
+                if (fileName != null) {
+                    try {
+                        FileReader fileReader = new FileReader(fileName);
+                        BufferedReader bufReader = new BufferedReader(fileReader);
+                        String refPrefString = bufReader.readLine();
+                        refPref = Double.parseDouble(refPrefString);
+                        bufReader.close();
+                        fileReader.close();
+                        System.out.println("setting ref pref (from file) to "+refPref);
+                        dpVirialOverlap[0].setNumAlpha(numAlpha);
+                        dpVirialOverlap[1].setNumAlpha(numAlpha);
+                        setRefPref(refPref, 1);
+                        return;
+                    } catch (IOException e) {
+                        // file not there, which is ok.
+                    }
+                }
 
-        double initAlphaSpan = 30;
-        while (true) {
-            for (int i = 0; i < 2; i++) {
-                integrators[i].getMoveManager().setEquilibrating(true);
-            }
+                double initAlphaSpan = 30;
+                while (true) {
+                    for (int i = 0; i < 2; i++) {
+                        integrators[i].getMoveManager().setEquilibrating(true);
+                    }
 
-            long oldBlockSize = blockSize;
-            // 1000 blocks
-            long newBlockSize = initSteps * integratorOS.getNumSubSteps() / 1000;
-            if (newBlockSize < 1000) {
-                // make block size at least 1000, even if it means fewer blocks
-                newBlockSize = 1000;
-            }
-            if (newBlockSize > 1000000) {
-                // needs to be an int.  1e6 steps/block is a bit crazy.
-                newBlockSize = 1000000;
-            }
-            setAccumulatorBlockSize(newBlockSize);
-            dpVirialOverlap[0].setNumAlpha(21);
-            dpVirialOverlap[1].setNumAlpha(21);
-            setRefPref(oldRefPref, initAlphaSpan);
-            boolean adjustable = integratorOS.isAdjustStepFraction();
-            if (adjustable) {
-                // we do this initialization to
-                // 1. find alpha
-                // 2. get molecules out of their starting configuration
-                // 3. find optimal mc move step sizes
-                // all of these are about as hard in the reference as in the target system
-                // so force integratorOS to run both systems equally.
-                integratorOS.setRefStepFraction(0.5);
-                integratorOS.setAdjustStepFraction(false);
-            }
-            if (runNow) {
-                this.getController().runActivityBlocking(new ActivityIntegrate(integratorOS), initSteps);
-            } else {
-                this.getController().addActivity(new ActivityIntegrate(integratorOS), initSteps, 0.0)
-                        .future.join();
-            }
+                    long oldBlockSize = blockSize;
+                    // 1000 blocks
+                    long newBlockSize = initSteps * integratorOS.getNumSubSteps() / 1000;
+                    if (newBlockSize < 1000) {
+                        // make block size at least 1000, even if it means fewer blocks
+                        newBlockSize = 1000;
+                    }
+                    if (newBlockSize > 1000000) {
+                        // needs to be an int.  1e6 steps/block is a bit crazy.
+                        newBlockSize = 1000000;
+                    }
+                    setAccumulatorBlockSize(newBlockSize);
+                    dpVirialOverlap[0].setNumAlpha(21);
+                    dpVirialOverlap[1].setNumAlpha(21);
+                    setRefPref(oldRefPref, initAlphaSpan);
+                    boolean adjustable = integratorOS.isAdjustStepFraction();
+                    if (adjustable) {
+                        // we do this initialization to
+                        // 1. find alpha
+                        // 2. get molecules out of their starting configuration
+                        // 3. find optimal mc move step sizes
+                        // all of these are about as hard in the reference as in the target system
+                        // so force integratorOS to run both systems equally.
+                        integratorOS.setRefStepFraction(0.5);
+                        integratorOS.setAdjustStepFraction(false);
+                    }
 
-            if (adjustable) {
-                integratorOS.setAdjustStepFraction(true);
-            }
+                    for (int i = 0; i < initSteps; i++) {
+                        handle.yield(integratorOS::doStep);
+                    }
 
-            for (int i = 0; i < 2; i++) {
-                integrators[i].reset();
-            }
+                    if (adjustable) {
+                        integratorOS.setAdjustStepFraction(true);
+                    }
 
-            double newRefPref = dvo.getOverlapAverage();
-            if (Double.isInfinite(newRefPref) || Double.isNaN(newRefPref)) {
-                dvo.getOverlapAverage();
-                throw new RuntimeException("oops");
-            }
-            if (newRefPref > oldRefPref * Math.exp(initAlphaSpan - 0.01) || newRefPref < oldRefPref * Math.exp(-(initAlphaSpan - 0.001))) {
-                System.out.println("guess for ref pref (" + newRefPref + ") is at the edge of the range considered");
-                oldRefPref = newRefPref;
-                continue;
-            }
+                    for (int i = 0; i < 2; i++) {
+                        integrators[i].reset();
+                    }
 
-            refPref = newRefPref;
-            System.out.println("setting initial ref pref to " + refPref);
-            setAccumulatorBlockSize(oldBlockSize);
-            dpVirialOverlap[0].setNumAlpha(15);
-            dpVirialOverlap[1].setNumAlpha(15);
-            setRefPref(refPref, 4);
-            // set refPref back to -1 so that later on we know that we've been looking for
-            // the appropriate value
-            refPref = -1;
-            break;
+                    double newRefPref = dvo.getOverlapAverage();
+                    if (Double.isInfinite(newRefPref) || Double.isNaN(newRefPref)) {
+                        dvo.getOverlapAverage();
+                        throw new RuntimeException("oops");
+                    }
+                    if (newRefPref > oldRefPref * Math.exp(initAlphaSpan - 0.01) || newRefPref < oldRefPref * Math.exp(-(initAlphaSpan - 0.001))) {
+                        System.out.println("guess for ref pref (" + newRefPref + ") is at the edge of the range considered");
+                        oldRefPref = newRefPref;
+                        continue;
+                    }
+
+                    refPref = newRefPref;
+                    System.out.println("setting initial ref pref to " + refPref);
+                    setAccumulatorBlockSize(oldBlockSize);
+                    dpVirialOverlap[0].setNumAlpha(15);
+                    dpVirialOverlap[1].setNumAlpha(15);
+                    setRefPref(refPref, 4);
+                    // set refPref back to -1 so that later on we know that we've been looking for
+                    // the appropriate value
+                    refPref = -1;
+                    break;
+                }
+            }
+        };
+
+        if (runBlocking) {
+            this.getController().runActivityBlocking(activityInitRefPref);
+        } else {
+            this.getController().addActivity(activityInitRefPref);
         }
 
     }
@@ -702,77 +705,91 @@ public class SimulationVirialOverlap2 extends Simulation {
     }
 
     public void equilibrate(String fileName, long initSteps) {
-        // run a short simulation to get reasonable MC Move step sizes and
-        // (if needed) narrow in on a reference preference
-        long oldBlockSize = blockSize;
-        // 1000 blocks
-        long newBlockSize = initSteps * integratorOS.getNumSubSteps() / 1000;
-        if (newBlockSize < 1000) {
-            // make block size at least 1000, even if it means fewer blocks
-            newBlockSize = 1000;
-        }
-        if (newBlockSize > 1000000) {
-            // needs to be an int.  1e6 steps/block is a bit crazy.
-            newBlockSize = 1000000;
-        }
-        setAccumulatorBlockSize((int)newBlockSize);
-        for (int i=0; i<2; i++) {
-            integrators[i].getMoveManager().setEquilibrating(true);
-        }
-        boolean adjustable = integratorOS.isAdjustStepFraction();
-        if (adjustable) {
-            // we do this initialization to
-            // 1. find alpha
-            // 2. get molecules out of their starting configuration
-            // 3. find optimal mc move step sizes
-            // all of these are about as hard in the reference as in the target system
-            // so force integratorOS to run both systems equally.
-            integratorOS.setRefStepFraction(0.5);
-            integratorOS.setAdjustStepFraction(false);
-        }
-        if (this.interactive) {
-            this.getController().addActivity(new ActivityIntegrate(integratorOS), initSteps, 0.0)
-                    .future.join();
+        this.equilibrate(fileName, initSteps, true);
+    }
+
+    public void equilibrate(String fileName, long initSteps, boolean runBlocking) {
+        Activity activityEquilibrate = new Activity() {
+            @Override
+            public void runActivity(Controller.ControllerHandle handle) {
+                // run a short simulation to get reasonable MC Move step sizes and
+                // (if needed) narrow in on a reference preference
+                long oldBlockSize = blockSize;
+                // 1000 blocks
+                long newBlockSize = initSteps * integratorOS.getNumSubSteps() / 1000;
+                if (newBlockSize < 1000) {
+                    // make block size at least 1000, even if it means fewer blocks
+                    newBlockSize = 1000;
+                }
+                if (newBlockSize > 1000000) {
+                    // needs to be an int.  1e6 steps/block is a bit crazy.
+                    newBlockSize = 1000000;
+                }
+                setAccumulatorBlockSize((int)newBlockSize);
+                for (int i=0; i<2; i++) {
+                    integrators[i].getMoveManager().setEquilibrating(true);
+                }
+                boolean adjustable = integratorOS.isAdjustStepFraction();
+                if (adjustable) {
+                    // we do this initialization to
+                    // 1. find alpha
+                    // 2. get molecules out of their starting configuration
+                    // 3. find optimal mc move step sizes
+                    // all of these are about as hard in the reference as in the target system
+                    // so force integratorOS to run both systems equally.
+                    integratorOS.setRefStepFraction(0.5);
+                    integratorOS.setAdjustStepFraction(false);
+                }
+                for (int i = 0; i < initSteps; i++) {
+                    handle.yield(integratorOS::doStep);
+                }
+                if (adjustable) {
+                    integratorOS.setAdjustStepFraction(true);
+                }
+
+                if (refPref == -1) {
+                    refPref = dvo.getOverlapAverage();
+                    System.out.println("setting ref pref to "+refPref);
+                    if (Double.isInfinite(refPref) || Double.isNaN(refPref)) {
+                        dvo.getOverlapAverage();
+                        throw new RuntimeException("oops");
+                    }
+                    dpVirialOverlap[0].setNumAlpha(numAlpha);
+                    dpVirialOverlap[1].setNumAlpha(numAlpha);
+                    setRefPref(refPref,1);
+                    if (fileName != null) {
+                        try {
+                            FileWriter fileWriter = new FileWriter(fileName);
+                            BufferedWriter bufWriter = new BufferedWriter(fileWriter);
+                            bufWriter.write(String.valueOf(refPref)+"\n");
+                            bufWriter.close();
+                            fileWriter.close();
+                        }
+                        catch (IOException e) {
+                            throw new RuntimeException("couldn't write to refpref file");
+                        }
+                    }
+                }
+                else {
+                    dvo.reset();
+                }
+                setAccumulatorBlockSize(oldBlockSize);
+                for (int i = 0; i < 2; i++) {
+                    integrators[i].getMoveManager().setEquilibrating(false);
+                }
+                if (extraTargetClusters.length > 0) {
+                    initBlockAccumulator();
+                }
+            }
+        };
+
+        if (runBlocking) {
+            this.getController().runActivityBlocking(activityEquilibrate);
         } else {
-            this.getController().runActivityBlocking(new ActivityIntegrate(integratorOS), initSteps);
-        }
-        if (adjustable) {
-            integratorOS.setAdjustStepFraction(true);
+            this.getController().addActivity(activityEquilibrate);
         }
 
-        if (refPref == -1) {
-            refPref = dvo.getOverlapAverage();
-            System.out.println("setting ref pref to "+refPref);
-            if (Double.isInfinite(refPref) || Double.isNaN(refPref)) {
-                dvo.getOverlapAverage();
-                throw new RuntimeException("oops");
-            }
-            dpVirialOverlap[0].setNumAlpha(numAlpha);
-            dpVirialOverlap[1].setNumAlpha(numAlpha);
-            setRefPref(refPref,1);
-            if (fileName != null) {
-                try {
-                    FileWriter fileWriter = new FileWriter(fileName);
-                    BufferedWriter bufWriter = new BufferedWriter(fileWriter);
-                    bufWriter.write(String.valueOf(refPref)+"\n");
-                    bufWriter.close();
-                    fileWriter.close();
-                }
-                catch (IOException e) {
-                    throw new RuntimeException("couldn't write to refpref file");
-                }
-            }
-        }
-        else {
-            dvo.reset();
-        }
-        setAccumulatorBlockSize(oldBlockSize);
-        for (int i = 0; i < 2; i++) {
-            integrators[i].getMoveManager().setEquilibrating(false);
-        }
-        if (extraTargetClusters.length > 0) {
-            initBlockAccumulator();
-        }
+
     }
 
     protected void writeBoxRestart(FileWriter fw, int iBox) throws IOException {

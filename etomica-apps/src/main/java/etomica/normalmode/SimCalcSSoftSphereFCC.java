@@ -212,7 +212,7 @@ this.getController().addActivity(new ActivityIntegrate(integrator));
 			meterDisplacementListener.setInterval(100);
 			sim.integrator.getEventManager().addListener(meterDisplacementListener);
 
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
 
             DataLogger dataLogger = new DataLogger();
 	        dataLogger.setFileName(filename+"hist_dist");
@@ -257,7 +257,7 @@ this.getController().addActivity(new ActivityIntegrate(integrator));
 		energyPumpListener.setInterval(100);
 		sim.integrator.getEventManager().addListener(energyPumpListener);
 
-		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps / 10); // simSteps/10
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps / 10)); // simSteps/10
 System.out.println("equilibrated");
 
 		long startTime = System.currentTimeMillis();
@@ -277,7 +277,7 @@ System.out.println("equilibrated");
         IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
 		sWriterListener.setInterval((int)simSteps/10);
 		sim.integrator.getEventManager().addListener(sWriterListener);
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
 
         double A = sWriter.getLastA();
 		System.out.println("A/N: " + A/nA);

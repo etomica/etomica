@@ -154,7 +154,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
 
             graphic.makeAndDisplayFrame();
         } else {
-            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator), 10000);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, 10000));
 //            AtomSet atoms = box.getLeafList();
 //            Printme printme = new Printme((IAtomPositioned)atoms.getAtom(0), (IAtomPositioned)atoms.getAtom(1), new DataSourceCountTime(integrator), "quat"+(dt*1000));
 //            integrator.addIntervalAction(printme);

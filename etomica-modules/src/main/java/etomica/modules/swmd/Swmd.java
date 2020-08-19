@@ -92,6 +92,6 @@ public class Swmd extends Simulation {
         }
             
         Swmd sim = new Swmd(space);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }
 }

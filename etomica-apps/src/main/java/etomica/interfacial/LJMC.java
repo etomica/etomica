@@ -216,7 +216,7 @@ public class LJMC extends Simulation {
         AccumulatorAverageFixed accWF = new AccumulatorAverageFixed(bs);
         forkWF.addDataSink(accWF);
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         
         u = meterPE2.getDataAsScalar();
         System.out.println("Potential energy: "+u);

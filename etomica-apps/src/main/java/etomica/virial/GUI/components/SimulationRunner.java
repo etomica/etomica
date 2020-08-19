@@ -481,18 +481,19 @@ public class SimulationRunner {
 	        // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
 	        // if it does continue looking for a pref, it will write the value to the file
 	    sim.equilibrate(null, SimEnv.getNoOfSteps()/40);
-	    if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, SimEnv.getNoOfSteps());
+if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
 	       throw new RuntimeException("oops");
 	    }
 	    System.out.println("equilibration finished");
 	    sim.setAccumulatorBlockSize(SimEnv.getNoOfSteps());
 
-	    sim.addProgressListener(HSB);
+	    sim.addProgressListener(HSB, ai.getMaxSteps() / 10);
 	    sim.integratorOS.getMoveManager().setEquilibrating(false);
 	    for (int i=0; i<2; i++) {
 	    	System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
 	    }
-		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), SimEnv.getNoOfSteps());
+sim.getController().runActivityBlocking(ai);
 
 	    System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
 	    System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());

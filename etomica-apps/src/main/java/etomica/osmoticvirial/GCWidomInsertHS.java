@@ -174,7 +174,7 @@ public class GCWidomInsertHS extends Simulation {
             return;
         }
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
 
 sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -185,7 +185,7 @@ sim.integrator.getMoveManager().setEquilibrating(false);
         AccumulatorAverageFixed acc = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pump = new DataPumpListener(meterinsert, acc);
         sim.integrator.getEventManager().addListener(pump);
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         IData iavg = acc.getData(AccumulatorAverage.AVERAGE);
         IData ierr = acc.getData(AccumulatorAverage.ERROR);

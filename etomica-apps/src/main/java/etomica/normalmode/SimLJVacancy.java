@@ -647,7 +647,7 @@ public class SimLJVacancy extends Simulation {
         IData dsfe3Data = null;
         if (!fixedDaDef) {
             // equilibrate off the lattice
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps/40);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 40));
     
             dsfe3Data = dsfe3.getData();
             if (dsfe3Data.getLength() == 0) {
@@ -692,7 +692,7 @@ public class SimLJVacancy extends Simulation {
             });
         }
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
         System.out.println("equilibration finished");
 
         if (!fixedDaDef && params.doReweight) {
@@ -717,7 +717,7 @@ public class SimLJVacancy extends Simulation {
         
         // take real data
         long t1 = System.currentTimeMillis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.currentTimeMillis();
 
         System.out.println();

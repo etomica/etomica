@@ -1,10 +1,8 @@
 package etomica.action.controller;
 
 import etomica.action.IAction;
-import etomica.action.activity.Activity;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.Integrator;
-import etomica.util.Debug;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -14,16 +12,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Controller {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private ActivityTask currentTask;
-    private final ArrayDeque<ActivityHandle> pendingActivities = new ArrayDeque<>(1);
-    private final LinkedBlockingQueue<IAction> actionQueue = new LinkedBlockingQueue<>();
+    private final ArrayDeque<ActivityHandle<?>> pendingActivities = new ArrayDeque<>(1);
     private boolean started = false;
     private final Object lock = new Object();
 
-    private final AtomicBoolean pauseFlag = new AtomicBoolean(true);
-    private final AtomicBoolean isRunningActivityStep = new AtomicBoolean(false);
     private static final IAction WAKE_UP = () -> {};
     private Integrator integrator;
+
+    private final ControllerHandle handle = new ControllerHandle();
+    private ActivityHandle<?> currentTask;
 
 
     public Controller() {
@@ -35,44 +32,37 @@ public class Controller {
      * `CompletableFuture` will be completed when the activity finishes.
      * @param activity the repeated action.
      * @param maxSteps
-     * @param sleepPeriodMillis
      */
-    public ActivityHandle addActivity(Activity activity, long maxSteps, double sleepPeriodMillis) {
-        this.tryToGetIntegrator(activity);
-        ActivityTask task = new ActivityTask(activity, this.actionQueue, this.pauseFlag, this.isRunningActivityStep);
-        if (this.currentTask == null) {
-            this.currentTask = task;
-        }
-        task.maxSteps = maxSteps;
-        task.sleepPeriodMillis = sleepPeriodMillis;
+
+    public ActivityHandle<ActivityIntegrate> addActivity(ActivityIntegrate activity, long maxSteps) {
+        activity.setMaxSteps(maxSteps);
+        return addActivity(activity);
+    }
+
+    public ActivityHandle<ActivityIntegrate> addActivity(ActivityIntegrate activity, long maxSteps, double sleepPeriodMillis) {
+        activity.setMaxSteps(maxSteps);
+        this.handle.sleepPeriodMillis = sleepPeriodMillis;
+        return addActivity(activity);
+    }
+
+    public <A extends Activity> ActivityHandle<A> addActivity(A activity) {
+        tryToGetIntegrator(activity);
         CompletableFuture<Void> future = new CompletableFuture<>();
-        ActivityHandle activityHandle = new ActivityHandle(future, task, this);
+        ActivityHandle<A> handle = new ActivityHandle<>(activity, future);
         synchronized (this.lock) {
-            this.pendingActivities.add(activityHandle);
+            this.pendingActivities.add(handle);
             this.processActivities();
         }
-        return activityHandle;
-    }
-
-    public ActivityHandle addActivity(Activity activity, long maxSteps) {
-        return this.addActivity(activity, maxSteps, 0.0);
-    }
-
-    public ActivityHandle addActivity(Activity activity) {
-        return this.addActivity(activity, Long.MAX_VALUE, 0.0);
+        return handle;
     }
 
     /**
      * Runs an activity to completion on the current thread.
      * @param activity
-     * @param maxSteps
      */
-    public void runActivityBlocking(Activity activity, long maxSteps) {
-        activity.preAction();
-        for (long i = 0; i < maxSteps; i++) {
-            activity.actionPerformed();
-        }
-        activity.postAction();
+    public void runActivityBlocking(Activity activity) {
+        this.handle.pauseFlag.set(false);
+        activity.runActivity(this.handle);
     }
 
     private void tryToGetIntegrator(Activity activity) {
@@ -94,15 +84,15 @@ public class Controller {
 
     private void processActivities() {
         if (this.started) {
-            for (ActivityHandle activity : pendingActivities) {
+            for (ActivityHandle<?> handle : this.pendingActivities) {
                 this.executor.submit(() -> {
-                    this.currentTask = activity.task;
+                    this.currentTask = handle;
                     try {
-                        activity.task.run();
-                        activity.future.complete(null);
+                        handle.activity.runActivity(this.handle);
+                        handle.future.complete(null);
                     } catch (Throwable e) {
                         e.printStackTrace();
-                        activity.future.completeExceptionally(e);
+                        handle.future.completeExceptionally(e);
                     }
                 });
             }
@@ -112,23 +102,22 @@ public class Controller {
     }
 
     public CompletableFuture<Void> pause() {
-        this.pauseFlag.set(true);
+        this.handle.pauseFlag.set(true);
         return submitActionInterrupt(WAKE_UP);
     }
 
     public CompletableFuture<Void> unpause() {
-        this.pauseFlag.set(false);
+        this.handle.pauseFlag.set(false);
         return submitActionInterrupt(WAKE_UP);
     }
 
     public CompletableFuture<Void> toggle() {
-        this.pauseFlag.set(!this.pauseFlag.get());
+        this.handle.pauseFlag.set(!this.handle.pauseFlag.get());
         return submitActionInterrupt(WAKE_UP);
     }
 
     public void halt() {
         this.start();
-        this.setMaxSteps(0);
         this.unpause();
         this.executor.shutdown();
         try {
@@ -156,11 +145,11 @@ public class Controller {
     }
 
     public boolean isPaused() {
-        return this.pauseFlag.get();
+        return this.handle.pauseFlag.get();
     }
 
     public boolean isRunningActivityStep() {
-        return this.isRunningActivityStep.get();
+        return this.handle.isRunningActivityStep.get();
     }
 
     public CompletableFuture<Void> submitActionInterrupt(IAction action) {
@@ -172,7 +161,7 @@ public class Controller {
             });
             return future;
         }
-        this.actionQueue.add(() -> {
+        this.handle.actionQueue.add(() -> {
             if (future.isCancelled()) {
                 System.out.println("canceled");
                 return;
@@ -191,78 +180,52 @@ public class Controller {
     public CompletableFuture<Void> addActionSequential(IAction action) {
         Activity activity = new Activity() {
             @Override
-            public void preAction() {
-
-            }
-
-            @Override
-            public void postAction() {
-
-            }
-
-            @Override
-            public void restart() {
-
-            }
-
-            @Override
-            public void actionPerformed() {
-                action.actionPerformed();
+            public void runActivity(ControllerHandle handle) {
+                handle.yield(action);
             }
         };
-        ActivityHandle handle = this.addActivity(activity, 1, 0);
+        ActivityHandle<?> handle = this.addActivity(activity);
         return handle.future;
     }
 
     public double getSleepPeriod() {
-        return this.currentTask.sleepPeriodMillis;
+        return this.handle.sleepPeriodMillis;
     }
 
     public void setSleepPeriod(double sleepPeriodMillis) {
-        this.currentTask.sleepPeriodMillis = sleepPeriodMillis;
+        this.handle.sleepPeriodMillis = sleepPeriodMillis;
     }
 
-    public long getMaxSteps() {
-        return this.currentTask.maxSteps;
+    public static class ActivityHandle<A extends Activity> {
+        public final A activity;
+        public final CompletableFuture<Void> future;
+
+
+        public ActivityHandle(A activity, CompletableFuture<Void> future) {
+            this.activity = activity;
+            this.future = future;
+        }
     }
 
-    public void setMaxSteps(long maxSteps) {
-        this.currentTask.maxSteps = maxSteps;
-    }
+    public static class ControllerHandle {
+        private final LinkedBlockingQueue<IAction> actionQueue = new LinkedBlockingQueue<>();
+        private final AtomicBoolean pauseFlag = new AtomicBoolean(true);
+        private final AtomicBoolean isRunningActivityStep = new AtomicBoolean(false);
 
-    private static class ActivityTask implements Runnable {
-        final Activity activity;
-        long maxSteps;
-        double sleepPeriodMillis;
-        final LinkedBlockingQueue<IAction> actionQueue;
-
+        private double sleepPeriodMillis = 0.0;
         private double sleepCarryover = 0.0;
         private final List<IAction> actionsToRun = new ArrayList<>();
-        private final AtomicBoolean pauseFlag;
-        private final AtomicBoolean isRunningActivityStep;
 
-        ActivityTask(Activity activity, LinkedBlockingQueue<IAction> actionQueue, AtomicBoolean pauseFlag, AtomicBoolean isRunningActivityStep) {
-            this.activity = activity;
-            this.pauseFlag = pauseFlag;
-            this.sleepPeriodMillis = 0.0;
-            this.maxSteps = Long.MAX_VALUE;
-            this.actionQueue = actionQueue;
-            this.isRunningActivityStep = isRunningActivityStep;
-        }
-
-        @Override
-        public void run() {
-            activity.preAction();
-
-            for (long currentStep = 0; currentStep < maxSteps; ) {
+        public final void yield(IAction action) {
+            while (true) {
                 if (pauseFlag.get()) {
                     // If the activity is paused, just block waiting for Action events in the queue but don't invoke
                     // the main activity. Since the only way to unpause the activity is to send an "unpause" action,
                     // this effectively suspends the thread until it is resumed while still handling action events.
                     try {
                         while (!actionQueue.isEmpty()) {
-                            IAction action = actionQueue.take();
-                            action.actionPerformed();
+                            IAction a = actionQueue.take();
+                            a.actionPerformed();
                         }
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
@@ -279,26 +242,16 @@ public class Controller {
 
                 // An action event may have paused the activity so check again.
                 if (!pauseFlag.get()) {
-                    if (Debug.ON) {
-                        if (currentStep == Debug.START) { Debug.DEBUG_NOW = true; }
-                        if (currentStep == Debug.STOP) { break; }
-                        if (Debug.DEBUG_NOW && Debug.LEVEL > 0) {
-                            System.out.println("*** integrator step " + currentStep);
-                        }
-                        Debug.stepCount = currentStep;
-                    }
-
                     this.isRunningActivityStep.set(true);
-                    activity.actionPerformed();
+                    action.actionPerformed();
                     this.isRunningActivityStep.set(false);
-                    currentStep++;
 
                     this.doSleepPeriod();
+                    break;
                 }
             }
-
-            activity.postAction();
         }
+
 
         private void doSleepPeriod() {
             if (this.sleepPeriodMillis > 0) {
@@ -314,46 +267,17 @@ public class Controller {
                 }
             }
         }
+
+        public LinkedBlockingQueue<IAction> getActionQueue() {
+            return actionQueue;
+        }
+
+        public AtomicBoolean getPauseFlag() {
+            return pauseFlag;
+        }
+
+        public AtomicBoolean getIsRunningActivityStep() {
+            return isRunningActivityStep;
+        }
     }
-
-    public static class ActivityHandle {
-        public final CompletableFuture<Void> future;
-        private final ActivityTask task;
-        private final Controller controller;
-
-        private ActivityHandle(CompletableFuture<Void> future, ActivityTask task, Controller controller) {
-            this.future = future;
-            this.task = task;
-            this.controller = controller;
-        }
-
-        public ActivityHandle setMaxSteps(long maxSteps) {
-            this.task.maxSteps = maxSteps;
-            return this;
-        }
-
-        public long getMaxSteps() {
-            return this.task.maxSteps;
-        }
-
-        public ActivityHandle setSleepPeriod(double sleepPeriodMillis) {
-            this.task.sleepPeriodMillis = sleepPeriodMillis;
-            return this;
-        }
-
-        public double getSleepPeriod() {
-            return this.task.sleepPeriodMillis;
-        }
-
-//        public void blockUntilComplete() {
-//
-//        }
-    }
-
-//    public static class ControllerFuture<T> extends CompletableFuture<T> {
-//        @Override
-//        public <U> CompletableFuture<U> newIncompleteFuture() {
-//            return super.newIncompleteFuture();
-//        }
-//    }
 }

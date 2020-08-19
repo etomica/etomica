@@ -659,7 +659,7 @@ public class SimHSMDVacancy extends Simulation {
 
 
         // equilibrate off the lattice
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps/40);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 40));
 
         IData dsfe3Data = dsfe3.getData();
         double daDefAvg = dsfe3Data.getValue(0);
@@ -697,7 +697,7 @@ public class SimHSMDVacancy extends Simulation {
             public void integratorInitialized(IntegratorEvent e) {}
         });
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
 
         if (params.doReweight) {
             dsfe3Data = dsfe3.getData();
@@ -721,7 +721,7 @@ public class SimHSMDVacancy extends Simulation {
         
         // take real data
         long t1 = System.currentTimeMillis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.currentTimeMillis();
 
         System.out.println();

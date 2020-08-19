@@ -205,8 +205,8 @@ public class VirialPolymerOverlapWithMDB3 {
         sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{lb, lb, lb}));
         sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{lb, lb, lb}));
 
-        if (false) {
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{lb, lb, lb}));
+        if(false) {
+    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{lb, lb, lb}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{lb, lb, lb}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "foo", 1);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
@@ -233,25 +233,26 @@ public class VirialPolymerOverlapWithMDB3 {
             sim.integratorOS.setNumSubSteps(1000);
 
             sim.initRefPref(null, 1000, false);
-            sim.equilibrate(null, 2000);
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+    sim.equilibrate(null, 2000, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
 
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            return;
-        }
+    return;
+}
 
         long t1 = System.currentTimeMillis();
         steps = steps / 1000;
 
         sim.initRefPref(null, steps / 20);
         sim.equilibrate(null, steps / 10);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+sim.setAccumulatorBlockSize(steps);
+        sim.integratorOS.setNumSubSteps(steps);
+sim.getController().runActivityBlocking(ai);
 //        sim.initRefPref(null, 5);
 //        sim.equilibrate(null, 10);
-        sim.setAccumulatorBlockSize(steps);
-        sim.integratorOS.setNumSubSteps(steps);
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
 
         if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
             throw new RuntimeException("Oops");

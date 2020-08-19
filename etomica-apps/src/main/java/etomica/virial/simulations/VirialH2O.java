@@ -239,10 +239,11 @@ public class VirialH2O {
         }
         
         sim.equilibrate(refFileName, steps/10);
-        System.out.println("equilibration finished");        
-        
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+System.out.println("equilibration finished");
+
         // Collecting histogram in reference system
-        final HistogramNotSoSimple h1 = new HistogramNotSoSimple(new DoubleRange(0,100));        
+        final HistogramNotSoSimple h1 = new HistogramNotSoSimple(new DoubleRange(0,100));
         final HistogramNotSoSimple h2 = new HistogramNotSoSimple(new DoubleRange(0,100));
         IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorInitialized(IntegratorEvent e) {}
@@ -261,7 +262,7 @@ public class VirialH2O {
             }
         };
         sim.integrators[1].getEventManager().addListener(histListenerTarget);
-        
+
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
@@ -271,7 +272,7 @@ public class VirialH2O {
 
         // this is where the simulation takes place
 
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(ai);
         
         long t2 = System.currentTimeMillis(); // End time for simulation        
         

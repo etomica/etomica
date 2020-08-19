@@ -311,8 +311,8 @@ public class SimulationBetaNitrogenModel extends Simulation{
 //        IntegratorListenerAction meterOrientListener = new IntegratorListenerAction(meterOrient);
 //        meterOrientListener.setInterval(numMolecule);                                      
 //        sim.integrator.getEventManager().addListener(meterOrientListener);       
-		
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps/5);
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps / 5));
 System.out.println("****System Equilibrated (20% of SimSteps)****");
 
 		long startTime = System.currentTimeMillis();
@@ -331,7 +331,7 @@ System.out.println("****System Equilibrated (20% of SimSteps)****");
 		IntegratorListenerAction pressureListener = new IntegratorListenerAction(pressurePump);
 		pressureListener.setInterval((int)simSteps/200);
 		sim.integrator.getEventManager().addListener(pressureListener);
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
 		
 //		sim.writeUdistribution(filename, meterOrient);
 		

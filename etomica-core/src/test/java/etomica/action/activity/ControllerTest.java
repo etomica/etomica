@@ -1,6 +1,7 @@
 package etomica.action.activity;
 
 import etomica.action.IAction;
+import etomica.action.controller.Activity;
 import etomica.action.controller.Controller;
 import etomica.action.controller.Controller.ActivityHandle;
 import org.junit.jupiter.api.DisplayName;
@@ -33,10 +34,10 @@ class ControllerTest {
         Controller controller = new Controller();
 
         TestActivity act = new TestActivity();
-        ActivityHandle handle = controller.addActivity(act, 20, 1);
+        act.steps = 20;
+        controller.setSleepPeriod(1);
+        ActivityHandle<?> handle = controller.addActivity(act);
 
-        assertFalse(act.didPre);
-        assertFalse(act.didPost);
         assertEquals(0, act.runCount);
 
         controller.start();
@@ -48,8 +49,6 @@ class ControllerTest {
             fail(e);
         }
 
-        assertTrue(act.didPre);
-        assertTrue(act.didPost);
         assertEquals(20, act.runCount);
     }
 
@@ -58,8 +57,10 @@ class ControllerTest {
         Controller controller = new Controller();
 
         TestActivity act = new TestActivity();
+        act.steps = 100;
+        controller.setSleepPeriod(1);
         act.time = 1;
-        ActivityHandle handle = controller.addActivity(act, 100, 1);
+        ActivityHandle<?> handle = controller.addActivity(act);
         List<TestAction> actions = Stream.generate(TestAction::new).limit(50).collect(Collectors.toList());
         controller.start();
         controller.unpause();
@@ -79,9 +80,10 @@ class ControllerTest {
         Controller controller = new Controller();
 
         TestActivity act = new TestActivity();
+        act.steps = 100;
         act.time = 1;
 
-        ActivityHandle handle = controller.addActivity(act, 100, 0);
+        ActivityHandle<?> handle = controller.addActivity(act);
 
         controller.start();
         controller.unpause();
@@ -111,35 +113,23 @@ class ControllerTest {
 
     }
 
-    static class TestActivity implements Activity {
-        volatile boolean didPre = false;
-        volatile boolean didPost = false;
+    static class TestActivity extends Activity {
         volatile int runCount = 0;
         volatile int time = 0;
-
-        @Override
-        public void preAction() {
-            didPre = true;
-        }
-
-        @Override
-        public void postAction() {
-            didPost = true;
-        }
+        private int steps;
 
         @Override
         public void restart() {
 
         }
 
+
         @Override
-        public void actionPerformed() {
-            try {
-                Thread.sleep(time);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        public void runActivity(Controller.ControllerHandle handle) {
+            for (int i = 0; i < this.steps; i++) {
+                sleep(time);
+                handle.yield(() -> runCount++);
             }
-            runCount++;
         }
     }
 

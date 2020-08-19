@@ -46,7 +46,8 @@ public class LJMD2D extends Simulation {
         box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.01);
-        getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(2);
+        getController().setSleepPeriod(2);
+        getController().addActivity(new ActivityIntegrate(integrator));
         box.setNMolecules(species, 50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         potential = new P2LennardJones(space);

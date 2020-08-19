@@ -4,8 +4,8 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.activity.Activity;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.controller.Activity;
 import etomica.action.controller.Controller;
 import etomica.data.*;
 import etomica.data.types.DataGroup;
@@ -192,36 +192,26 @@ public class SimulationVirial extends Simulation {
 	public void equilibrate(long initSteps) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
-        this.addEquilibration(initSteps).future.join();
+        getController().runActivityBlocking(makeEquilibrationActivity(initSteps));
     }
 
-    public Controller.ActivityHandle addEquilibration(long initSteps) {
-        ActivityIntegrate ai = new ActivityIntegrate(this.integrator);
-        Activity activityEquilibrate = new Activity() {
+    private Activity makeEquilibrationActivity(long initSteps) {
+        ActivityIntegrate ai = new ActivityIntegrate(integrator, initSteps);
+        return new Activity() {
             @Override
-            public void preAction() {
+            public void runActivity(Controller.ControllerHandle handle) {
                 integrator.getMoveManager().setEquilibrating(true);
-            }
-
-            @Override
-            public void postAction() {
+                ai.runActivity(handle);
                 integrator.getMoveManager().setEquilibrating(false);
                 if (accumulator != null) {
                     accumulator.reset();
                 }
             }
-
-            @Override
-            public void restart() {
-                ai.restart();
-            }
-
-            @Override
-            public void actionPerformed() {
-                ai.actionPerformed();
-            }
         };
-        return this.getController().addActivity(activityEquilibrate, initSteps, 0.0);
+    }
+
+    public Controller.ActivityHandle<?> addEquilibration(long initSteps) {
+        return getController().addActivity(makeEquilibrationActivity(initSteps));
     }
 
 

@@ -238,7 +238,7 @@ public class VirialHSMixture {
         }
 
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
 
         DataGroup allYourBase = (DataGroup) accumulator.getData();

@@ -71,7 +71,7 @@ public class LJMD3DNbr extends Simulation {
         final String APP_NAME = "LJMD3D";
         final LJMD3DNbr sim = new LJMD3DNbr();
 
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), 300);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 300));
 
 //        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
 //

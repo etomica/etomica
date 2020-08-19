@@ -251,7 +251,7 @@ public class TIP4P_NVT extends Simulation {
 //         System.out.println("number of blocks is : "+blockNumber);
 //         System.out.println("sample per block is : "+samplePerBlock);
         ////////////////////////////////////////////////////////////////////
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps / 5);//
+         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 5));//
 
         sim.integrator.getMoveManager().setEquilibrating(false);
 //         System.out.println("equilibration finished");
@@ -315,7 +315,7 @@ public class TIP4P_NVT extends Simulation {
             //AEEListener.setInterval(1);//debug only to have more test samples
             sim.integrator.getEventManager().addListener(AEEListener);
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
         //calculate dipoleSumSquared average
         double dipoleSumSquared = 0;

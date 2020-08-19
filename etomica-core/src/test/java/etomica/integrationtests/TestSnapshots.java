@@ -36,7 +36,7 @@ public class TestSnapshots {
                 .findFirst().get();
 
         HSMD3DNeighborList sim = new HSMD3DNeighborList();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), 500);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 500));
         List<Vector> coords = sim.box().getLeafList().getAtoms().stream()
                 .map(IAtom::getPosition)
                 .collect(Collectors.toList());
