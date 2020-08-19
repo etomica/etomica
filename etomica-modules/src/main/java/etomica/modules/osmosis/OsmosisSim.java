@@ -106,20 +106,20 @@ public class OsmosisSim extends Simulation {
     }
 
     public static void main(String[] args) {
-    	Space sp = Space3D.getInstance();
+        Space sp = Space3D.getInstance();
         final OsmosisSim sim = new OsmosisSim(sp);
         final ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(sp, 1.0), sp);
         config.initializeCoordinates(sim.box);
-    	Plane plane = new Plane(sim.getSpace());
+        Plane plane = new Plane(sim.getSpace());
 
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, "Osmosis Sim");
-    	((etomica.graphics.DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas).addPlane(plane);
-    	simGraphic.getController().getReinitButton().setPostAction(new IAction () {
-    		public void actionPerformed() {
-    	        config.initializeCoordinates(sim.box);
-    			simGraphic.getDisplayBox(sim.box).repaint();
-    		}
-    	});
+        ((etomica.graphics.DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box).canvas).addPlane(plane);
+        simGraphic.getController().getReinitButton().setPostAction(new IAction() {
+            public void actionPerformed() {
+                config.initializeCoordinates(sim.box);
+                simGraphic.getDisplayBox(sim.box).repaint();
+            }
+        });
         simGraphic.makeAndDisplayFrame("Osmosis Sim");
         ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.speciesSolvent.getLeafType(), Color.blue);
@@ -128,7 +128,8 @@ public class OsmosisSim extends Simulation {
         config.initializeCoordinates(sim.box);
         simGraphic.getDisplayBox(sim.box).repaint();
         sim.integrator.setTimeStep(0.05);
-        sim.getController().addActivity(new ActivityIntegrate(sim.integrator)).setSleepPeriod(0);
+        sim.getController().setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
     }
 
 } 

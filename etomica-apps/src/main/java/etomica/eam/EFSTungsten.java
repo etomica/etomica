@@ -248,8 +248,8 @@ public class EFSTungsten extends Simulation {
         	simGraphic.makeAndDisplayFrame(APP_NAME);
         	return;
     	}
-    	
-    	sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numsteps/10);
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numsteps / 10));
 
 System.out.println("equilibration finished");
 
@@ -282,7 +282,7 @@ System.out.println("equilibration finished");
 
 
         long t1 = System.currentTimeMillis();
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numsteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numsteps));
         long t2 = System.currentTimeMillis();
 
         if (doHistory) {

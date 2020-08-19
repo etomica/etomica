@@ -62,9 +62,9 @@ public class VirialLJQB2 {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(null, steps/40);
-        
-        sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+sim.integratorOS.getMoveManager().setEquilibrating(false);
+sim.getController().runActivityBlocking(ai);
 
         double ratio = sim.dvo.getAverageAndError()[0];
         return ratio*HSB2;

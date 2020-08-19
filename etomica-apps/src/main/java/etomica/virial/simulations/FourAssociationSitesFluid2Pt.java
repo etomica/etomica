@@ -148,8 +148,8 @@ public class FourAssociationSitesFluid2Pt {
         sim.integratorOS.setNumSubSteps(1000);
 
 
-        if (true) {
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        if(true) {
+    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             Species species = (Species) sim.getSpecies(0);
@@ -180,14 +180,13 @@ public class FourAssociationSitesFluid2Pt {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.initRefPref(null, 3000, false);
-            sim.equilibrate(null, 6000);
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+    sim.equilibrate(null, 6000, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-
-            return;
-        }
+    return;
+}
 			
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+sigmaABpoint+"_"+sigmaApoint+"_"+sigmaBpoint+"_"+sigma0point+"_"+temperature : null;
@@ -197,8 +196,8 @@ public class FourAssociationSitesFluid2Pt {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, numSteps/40);
-                
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, numSteps);
+System.out.println("equilibration finished");
 
         IAction progressReport = new IAction() {
             public void actionPerformed() {
@@ -215,7 +214,7 @@ public class FourAssociationSitesFluid2Pt {
         for (int i = 0; i < 2; i++) {
             System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), numSteps);
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
 

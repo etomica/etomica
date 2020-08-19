@@ -293,11 +293,12 @@ public class Osmosis extends SimulationGraphic {
         OsmosisSim sim = null;
 
         Space sp = Space3D.getInstance();
-    	sim = new OsmosisSim(sp);
+        sim = new OsmosisSim(sp);
 
-		sim.getController().addActivity(new ActivityIntegrate(sim.integrator)).setSleepPeriod(1);
+        sim.getController().setSleepPeriod(1);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
-		Osmosis osmosis = new Osmosis(sim, sp);
+        Osmosis osmosis = new Osmosis(sim, sp);
         SimulationGraphic.makeAndDisplayFrame(osmosis.getPanel(), APP_NAME);
     }
 

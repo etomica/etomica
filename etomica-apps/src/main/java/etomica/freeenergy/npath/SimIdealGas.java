@@ -139,7 +139,7 @@ public class SimIdealGas extends Simulation {
 
         if (!graphics) {
             long eqSteps = steps/10;
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), eqSteps);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, eqSteps));
             sim.integrator.getMoveManager().setEquilibrating(false);
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
@@ -171,7 +171,7 @@ public class SimIdealGas extends Simulation {
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, numAtoms);
         sim.integrator.getEventManager().addListener(pumpEnergies);
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
         IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
         IData errEnergies = accEnergies.getData(accEnergies.ERROR);

@@ -298,9 +298,8 @@ public class BnFlexibleContributionTraPPEUAMethanol {
         //****************************************************************************
 
 
-        if (graphics) {
-
-            referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        if(graphics) {
+    referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             targetBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(referenceBox).setShowBoundary(false);
@@ -337,14 +336,13 @@ public class BnFlexibleContributionTraPPEUAMethanol {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.initRefPref(null, 100, false);
-            sim.equilibrate(null, 200);
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+    sim.equilibrate(null, 200, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-
-            return;
-        }
+    return;
+}
 
 
         //****************************************************************************
@@ -358,8 +356,8 @@ public class BnFlexibleContributionTraPPEUAMethanol {
         // Run another short simulation to find MC move step sizes and maybe narrow in more on the best "refPref."
         // If it does continue looking for a refPref, it will write the value to the file.
         sim.equilibrate(refFileName, steps/20);
-
-        sim.setAccumulatorBlockSize(steps);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+sim.setAccumulatorBlockSize(steps);
 
         System.out.println();
         System.out.println("equilibration finished");
@@ -373,7 +371,7 @@ public class BnFlexibleContributionTraPPEUAMethanol {
         System.out.println();
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps);
+sim.getController().runActivityBlocking(ai);
 
         System.out.println();
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());

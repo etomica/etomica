@@ -181,19 +181,20 @@ public class VirialHePCKLJS {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, eqSteps); // 5000 IntegratorOverlap steps = 5e6 steps
-        System.out.println((eqSteps*1000) + " equilibration steps (" + eqSteps + " Integrator Overlap Steps)"); 
-        
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+System.out.println((eqSteps*1000) + " equilibration steps (" + eqSteps + " Integrator Overlap Steps)");
+
         if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
-        
+
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         long t1 = System.currentTimeMillis();
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps);
+sim.getController().runActivityBlocking(ai);
         System.out.println();
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());

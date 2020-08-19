@@ -59,7 +59,8 @@ public class MultiharmonicMC extends Simulation {
 
         box.setNMolecules(species, 10);
 
-        getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(1);
+        getController().setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         potentialB = new P1Harmonic(space);
         meter = new MeterFreeEnergy(potentialA, potentialB);

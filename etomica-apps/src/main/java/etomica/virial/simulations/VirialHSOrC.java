@@ -167,15 +167,15 @@ public class VirialHSOrC {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/10);
-        
-        System.out.println("equilibration finished");
-        
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+System.out.println("equilibration finished");
+
         if (refFrac >= 0) {
             sim.integratorOS.setRefStepFraction(refFrac);
             sim.integratorOS.setAdjustStepFraction(false);
         }
 
-        
+
         int nAcc = dataDistributer.getNumDataSinks();
         for (int i=0; i<nAcc; i++) {
             AccumulatorAverage acc = (AccumulatorAverage)dataDistributer.getDataSink(i);
@@ -189,7 +189,7 @@ public class VirialHSOrC {
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+mcDiscrete[i].getStepSize());
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(ai);
         long t2 = System.currentTimeMillis();
 
         int digits = (int)Math.ceil(-Math.log10(dr));

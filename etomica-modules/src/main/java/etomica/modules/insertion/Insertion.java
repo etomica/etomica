@@ -98,6 +98,6 @@ public class Insertion extends Simulation {
         }
             
         Insertion sim = new Insertion(space);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }
 }

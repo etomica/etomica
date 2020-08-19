@@ -214,7 +214,7 @@ public class LjMC3D extends Simulation {
 
         if (!graphics) {
             long eqSteps = steps/10;
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), eqSteps);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, eqSteps));
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
@@ -322,7 +322,7 @@ public class LjMC3D extends Simulation {
 
 
         long t1 = System.currentTimeMillis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.currentTimeMillis();
 
         System.out.println();

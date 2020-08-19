@@ -228,35 +228,36 @@ public class VirialCPSHeliumNonAdditiveClassical_Correction {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/blocks*blocksEq); // 5000 IntegratorOverlap steps = 5e6 steps
-        System.out.println((stepsPerBlock*blocksEq) + " equilibration steps ("+blocksEq+" blocks of "+stepsPerBlock+" steps)"); 
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+System.out.println((stepsPerBlock*blocksEq) + " equilibration steps ("+blocksEq+" blocks of "+stepsPerBlock+" steps)");
         if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
-        
+
         sim.setAccumulatorBlockSize(stepsPerBlock);
-        
+
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
-        
+
         IAction progressReport = new IAction() {
             public void actionPerformed() {
                 //System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                 IAtomList atoms = sim.box[1].getLeafList();
-                
+
                 r0.E( atoms.get(0).getPosition() );
                 r1.E( atoms.get(1).getPosition() );
                 r2.E( atoms.get(2).getPosition() );
-                
+
                 r01Vec.Ev1Mv2(r0,r1);
                 r02Vec.Ev1Mv2(r0,r2);
                 r12Vec.Ev1Mv2(r1,r2);
-                
+
 	    		double r01 = (Math.sqrt(r01Vec.squared()));
 	    		double r02 = (Math.sqrt(r02Vec.squared()));
 	    		double r12 = (Math.sqrt(r12Vec.squared()));
-	    		 
-	    		
+
+
 	    		double U = Kelvin.UNIT.fromSim(p3NonAdd.energy(atoms));
 	    		 System.out.println(r01+"  "+r02+"  " +r12+"  " +U);
 
@@ -266,7 +267,7 @@ public class VirialCPSHeliumNonAdditiveClassical_Correction {
         //sim.integratorOS.getEventManager().addListener(new IntegratorListenerAction(progressReport, 1 ));
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps);
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());

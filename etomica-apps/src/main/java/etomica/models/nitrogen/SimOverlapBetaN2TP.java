@@ -226,7 +226,7 @@ public class SimOverlapBetaN2TP extends Simulation {
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
         System.out.println("\nEquilibration Steps: " + initSteps);
-    	this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator), initSteps);
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
 
         
         accumulator.reset();
@@ -348,8 +348,8 @@ public class SimOverlapBetaN2TP extends Simulation {
 
         
         final long startTime = System.currentTimeMillis();
-       
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         
         sim.writeConfiguration(configFileName);
         System.out.println("step size: " + sim.move.getStepSize());

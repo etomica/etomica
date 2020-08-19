@@ -162,7 +162,7 @@ public class TestLJAssociationMC3D_NVTOld extends Simulation {
         }
         TestLJAssociationMC3D_NVTOld sim = new TestLJAssociationMC3D_NVTOld(numAtoms, pressure, density, wellConstant, temperature, numSteps);
         System.out.println("equilibrium period = " +numSteps/10);//equilibrium period
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
 
 MeterDensity rhoMeter = new MeterDensity(sim.box);
         AccumulatorAverage rhoAccumulator = new AccumulatorAverageFixed(10);//Accumulator that keeps statistics for averaging and error analysis
@@ -189,7 +189,7 @@ MeterDensity rhoMeter = new MeterDensity(sim.box);
         	graphic.makeAndDisplayFrame();
         	return;
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         
         System.out.println("numAtom=" +numAtoms);
         double avgDensity = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(rhoAccumulator.AVERAGE.index)).x;//average density

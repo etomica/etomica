@@ -66,6 +66,8 @@ public class ZeoliteSimulation extends Simulation {
     //public final P2HardSphere potential;
     public final P2LennardJones potentialMM;
 
+    public final ActivityIntegrate ai;
+
     public DisplayPlot ePlot;
     private int nAtomsMeth;
     private int interval;
@@ -113,7 +115,10 @@ public class ZeoliteSimulation extends Simulation {
         integrator.setTemperature(Kelvin.UNIT.toSim(298.0));
 
 
-        getController().addActivity(new ActivityIntegrate(integrator, 2, true), 1000000, 2);
+        getController().setSleepPeriod(2);
+        long steps = 1_000_000;
+        ai = new ActivityIntegrate(integrator, steps, true);
+        getController().addActivity(ai);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
         for (int i = 0; i < numAtoms.length; i++) {
             box.setNMolecules(species[i], numAtoms[i]);
@@ -159,7 +164,7 @@ public class ZeoliteSimulation extends Simulation {
 
         //      Adding coordinate writer by Mike Sellars
 
-        filename = (numAtoms[2] + "_" + getController().getMaxSteps() + "_" + ts + "_" + interval + "_WCA");
+        filename = (numAtoms[2] + "_" + steps + "_" + ts + "_" + interval + "_WCA");
         sp = species[2];
         /*
         MSDCoordWriter coordWriter = new MSDCoordWriter(this.space, filename,sp);

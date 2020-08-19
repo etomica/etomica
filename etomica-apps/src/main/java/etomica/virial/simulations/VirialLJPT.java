@@ -164,8 +164,8 @@ public class VirialLJPT {
 
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
-        if (false) {
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        if(false) {
+    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
@@ -190,13 +190,13 @@ public class VirialLJPT {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.initRefPref(null, 10, false);
-            sim.equilibrate(null, 20);
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            return;
-        }
+    return;
+}
 
         long t1 = System.currentTimeMillis();
         // if running interactively, don't use the file
@@ -206,8 +206,8 @@ public class VirialLJPT {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, (steps / subSteps) / 10);
-
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps / blockSize);
+System.out.println("equilibration finished");
 
         if (refFrac >= 0) {
             sim.integratorOS.setRefStepFraction(refFrac);
@@ -274,7 +274,7 @@ public class VirialLJPT {
         for (int i = 0; i < 2; i++) {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps / blockSize);
+sim.getController().runActivityBlocking(ai);
         long t2 = System.currentTimeMillis();
 
         if (doHist) {

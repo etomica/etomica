@@ -1,28 +1,47 @@
 package etomica.action.activity;
 
+import etomica.action.controller.Activity;
+import etomica.action.controller.Controller;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.Integrator;
+import etomica.util.Debug;
 
-public class ActivityIntegrate implements Activity {
+public class ActivityIntegrate extends Activity {
+
     private final Integrator integrator;
-    private final double sleepPeriod;
-    private final boolean ignoreOverlap;
-    public ActivityIntegrate(Integrator integrator) {
-        this(integrator, 0, false);
-    }
 
-    public ActivityIntegrate(Integrator integrator, double sleepPeriod, boolean ignoreOverlap) {
+    private long maxSteps;
+    private boolean ignoreOverlap;
+    private long currentStep = 0;
+
+    public ActivityIntegrate(Integrator integrator, long maxSteps, boolean ignoreOverlap) {
         this.integrator = integrator;
-        this.sleepPeriod = sleepPeriod;
+        this.maxSteps = maxSteps;
         this.ignoreOverlap = ignoreOverlap;
     }
 
-    public Integrator getIntegrator() {
-        return integrator;
+    public ActivityIntegrate(Integrator integrator, long maxSteps) {
+        this(integrator, maxSteps, false);
     }
 
+    public ActivityIntegrate(Integrator integrator) {
+        this(integrator, Long.MAX_VALUE, false);
+    }
+
+    public void doAction() {
+        if (Debug.ON) {
+            if (currentStep == Debug.START) { Debug.DEBUG_NOW = true; }
+            if (Debug.DEBUG_NOW && Debug.LEVEL > 0) {
+                System.out.println("*** integrator step " + currentStep);
+            }
+            Debug.stepCount = currentStep;
+        }
+        this.integrator.doStep();
+    }
+
+
     @Override
-    public void preAction() {
+    public void runActivity(Controller.ControllerHandle handle) {
         try {
             this.integrator.reset();
         } catch (ConfigurationOverlapException e) {
@@ -31,10 +50,11 @@ public class ActivityIntegrate implements Activity {
             }
         }
         integrator.resetStepCount();
-    }
 
-    @Override
-    public void postAction() {
+        for (currentStep = 0; currentStep < this.maxSteps; currentStep++) {
+            handle.yield(this::doAction);
+            if (Debug.ON && currentStep == Debug.STOP) { break; }
+        }
 
     }
 
@@ -54,16 +74,24 @@ public class ActivityIntegrate implements Activity {
         }
     }
 
-    @Override
-    public void actionPerformed() {
-        integrator.doStep();
+    public Integrator getIntegrator() {
+        return integrator;
+    }
+
+    public long getMaxSteps() {
+        return maxSteps;
+    }
+
+    public void setMaxSteps(long maxSteps) {
+        this.maxSteps = maxSteps;
     }
 
     public boolean isIgnoreOverlap() {
         return ignoreOverlap;
     }
 
-    double getSleepPeriod() {
-        return this.sleepPeriod;
+    public void setIgnoreOverlap(boolean ignoreOverlap) {
+        this.ignoreOverlap = ignoreOverlap;
     }
+
 }

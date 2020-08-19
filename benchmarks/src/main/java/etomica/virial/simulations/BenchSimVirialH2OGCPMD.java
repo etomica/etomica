@@ -273,66 +273,6 @@ public class BenchSimVirialH2OGCPMD {
             public void integratorInitialized(IntegratorEvent e) {}
         };
 
-        if (params.doHist) {
-
-            final ClusterAbstractMultivalue tempcluster = targetCluster;
-            long t11 = System.currentTimeMillis();
-
-            IntegratorListener histReport = new IntegratorListener() {
-                public void integratorInitialized(IntegratorEvent e) {}
-                public void integratorStepStarted(IntegratorEvent e) {}
-                public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*100) % sim.getController().getMaxSteps() != 0) return;
-                    System.out.println("**** reference ****");
-                    double[] xValues = hist.xValues();
-                    double[] h = hist.getHistogram();
-                    double[] piH = piHist.getHistogram();
-                    for (int i=0; i<xValues.length; i++) {
-                        if (!Double.isNaN(h[i])) {
-                            System.out.println(xValues[i]+" "+h[i]+" "+piH[i]);
-                        }
-                    }
-                    System.out.println("**** target ****");
-                    xValues = targHist.xValues();
-                    h = targHist.getHistogram();
-                    piH = targPiHist.getHistogram();
-                    double[] hr = targHistr.getHistogram();
-                    double [] hBD = targHistBD.getHistogram();
-                    for (int i=0; i<xValues.length; i++) {
-                        if (!Double.isNaN(h[i])) {
-                            double r = xValues[i];
-                            if (r < 0) r += 1;
-                            else r = Math.exp(r);
-                            System.out.println(r+" "+h[i]+" "+piH[i]+" "+ hr[i]+" "+hBD[i]);
-                        }
-                    }
-
-                    if(nPoints!=2&&nonAdditive==VirialH2OGCPMD.Nonadditive.NONE ){
-                        System.out.println("SoftBDcount: " + ((ClusterWheatleySoftDerivatives)tempcluster).getSoftBDcount() + " SoftBDfrac: " + ((ClusterWheatleySoftDerivatives)tempcluster).getSoftBDfrac() + " Softcount: " + ((ClusterWheatleySoftDerivatives)tempcluster).getSoftcount());
-                    }
-                    else{
-                        ClusterCoupledFlippedMultivalue foo = (ClusterCoupledFlippedMultivalue)tempcluster;
-                        System.out.println("BDcount: " + foo.getBDcount() + " BDfrac: " + foo.getBDfrac() + " totBDcount: " + foo.getBDtotcount());
-                        System.out.println("FlipCount: " + foo.getflipcount() + " Flipfrac: " + foo.getflipfrac() + " FlipTotcount: " + foo.gettotcount());
-                        xValues= foo.histe.xValues();
-                        h=foo.histe.getHistogram();
-                        for (int i=0; i<xValues.length; i++) {
-                            if (h[i]!=0) {
-                                System.out.println(Math.exp(xValues[i]) + " " + h[i]);
-                            }
-                        }
-                    }
-                    System.out.println("time: "+(System.currentTimeMillis()-t11)/1000.0);
-                }
-            };
-            sim.integratorOS.getEventManager().addListener(histReport);
-
-            System.out.println("collecting histograms");
-            // only collect the histogram if we're forcing it to run the reference system
-            sim.integrators[0].getEventManager().addListener(histListenerRef);
-            sim.integrators[1].getEventManager().addListener(histListenerTarget);
-        }
-
         sim.initRefPref(refFileName, steps/20);
         sim.equilibrate(refFileName, steps/10);
 

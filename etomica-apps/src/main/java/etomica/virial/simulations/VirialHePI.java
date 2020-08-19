@@ -715,11 +715,8 @@ public class VirialHePI {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/20);
-        
-        // make the accumulator block size equal to the # of steps performed for each overlap step.
-        // make the integratorOS aggressive so that it runs either reference or target
-        // then, we'll have some number of complete blocks in the accumulator
-        sim.setAccumulatorBlockSize(steps);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps((int)steps);
 
         if (refFreq >= 0) {
@@ -739,7 +736,7 @@ public class VirialHePI {
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
         IntegratorListener histListenerRef = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 CoordinatePairSet cPairs = sim.box[0].getCPairSet();
@@ -753,13 +750,13 @@ public class VirialHePI {
                 hist.addValue(Math.sqrt(r2Max), v);
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
-            
+
             public void integratorInitialized(IntegratorEvent e) {
             }
         };
         IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
@@ -793,7 +790,7 @@ public class VirialHePI {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.getController().getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -810,7 +807,7 @@ public class VirialHePI {
                     public void integratorInitialized(IntegratorEvent e) {}
                     public void integratorStepStarted(IntegratorEvent e) {}
                     public void integratorStepFinished(IntegratorEvent e) {
-                        if ((sim.integratorOS.getStepCount()*10) % sim.getController().getMaxSteps() != 0) return;
+                        if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                         System.out.println("**** reference ****");
                         double[] xValues = hist.xValues();
                         double[] h = hist.getHistogram();
@@ -844,8 +841,11 @@ public class VirialHePI {
             sim.integrators[0].getEventManager().addListener(histListenerRef);
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
-
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(ai);
+        
+        // make the accumulator block size equal to the # of steps performed for each overlap step.
+        // make the integratorOS aggressive so that it runs either reference or target
+        // then, we'll have some number of complete blocks in the accumulator
         long t2 = System.currentTimeMillis();
         
         if (params.doHist) {

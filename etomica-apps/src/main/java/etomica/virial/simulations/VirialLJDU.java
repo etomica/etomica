@@ -181,8 +181,8 @@ public class VirialLJDU {
 
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
-        if (false) {
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        if(false) {
+    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
@@ -207,13 +207,13 @@ public class VirialLJDU {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.initRefPref(null, 10, false);
-            sim.equilibrate(null, 20);
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            return;
-        }
+    return;
+}
 
         long t1 = System.nanoTime();
         // if running interactively, don't use the file
@@ -304,7 +304,7 @@ public class VirialLJDU {
         for (int i = 0; i < 2; i++) {
             if (i > 0 || !doChainRef) System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps / blockSize);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS, steps / blockSize));
         long t2 = System.nanoTime();
 
         if (doHist) {

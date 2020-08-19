@@ -176,8 +176,8 @@ public class VirialHSMixtureL {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, (steps / subSteps) / 10);
-
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps / blockSize);
+System.out.println("equilibration finished");
 
         if (refFrac >= 0) {
             sim.integratorOS.setRefStepFraction(refFrac);
@@ -190,7 +190,7 @@ public class VirialHSMixtureL {
         for (int i = 0; i < 2; i++) {
             System.out.println("MC Move step size (" + i + ") " + sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps / blockSize);
+sim.getController().runActivityBlocking(ai);
         long t2 = System.currentTimeMillis();
 
         System.out.println("final reference step fraction " + sim.integratorOS.getIdealRefStepFraction());

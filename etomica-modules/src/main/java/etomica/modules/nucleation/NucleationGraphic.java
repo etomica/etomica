@@ -123,7 +123,8 @@ public class NucleationGraphic extends SimulationGraphic {
         densitySlider.setEditValues(true);
         add(densitySlider);
 
-        sim.getController().addActivity(new ActivityIntegrate(sim.integrator)).setSleepPeriod(0);
+        sim.getController().setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
         // Simulation Time
         final DisplayTextBox displayCycles = new DisplayTextBox();

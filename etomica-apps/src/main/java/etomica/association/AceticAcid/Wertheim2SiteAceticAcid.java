@@ -627,8 +627,8 @@ public class Wertheim2SiteAceticAcid {
         Box referenceBox = sim.box[0];
         Box targetBox = sim.box[1];
 
-        if (true) {
-            referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        if(true) {
+    referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             targetBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             ColorSchemeByType colorScheme0 = (ColorSchemeByType) simGraphic.getDisplayBox(referenceBox).getColorScheme();
@@ -664,15 +664,14 @@ public class Wertheim2SiteAceticAcid {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.initRefPref(null, 100, false);
-            sim.equilibrate(null, 200);
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+    sim.equilibrate(null, 200, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
 
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-
-            return;
-        }
+    return;
+}
 
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+numDiagram+"_"+temperature : null;
@@ -681,7 +680,8 @@ public class Wertheim2SiteAceticAcid {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/20);
-        if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
 
@@ -708,7 +708,7 @@ public class Wertheim2SiteAceticAcid {
         sim.integratorOS.getEventManager().addListener(progressReportListener);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("ideal reference step frequency "+sim.integratorOS.getIdealRefStepFraction());//optimize the uncertainty
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());//actually happened

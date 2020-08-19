@@ -265,7 +265,8 @@ public class SimOverlapSSnxy extends Simulation {
         System.out.flush();
 
         sim.equilibrate(refFileName, numSteps/10);
-        if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOverlap, numSteps);
+if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("Simulation failed to find a valid ref pref");
         }
 
@@ -314,8 +315,7 @@ public class SimOverlapSSnxy extends Simulation {
 
         final long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
-
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOverlap), numSteps);
+sim.getController().runActivityBlocking(ai);
 
         int totalCells = 1;
         for (int i=0; i<D; i++) {
@@ -431,14 +431,14 @@ public class SimOverlapSSnxy extends Simulation {
 
         if (refPref == -1) {
             // equilibrate off the lattice to avoid anomolous contributions
-            getController().runActivityBlocking(new ActivityIntegrate(integratorOverlap), initSteps / 2);
+            getController().runActivityBlocking(new ActivityIntegrate(integratorOverlap, initSteps / 2));
 
             System.out.println("target equilibration finished");
 
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41, true), 0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41, false), 1);
             setRefPref(1, 200);
-getController().runActivityBlocking(new ActivityIntegrate(integratorOverlap), initSteps);
+            getController().runActivityBlocking(new ActivityIntegrate(integratorOverlap, initSteps));
 
 
             int newMinDiffLoc = dsvo.minDiffLocation();
@@ -469,7 +469,7 @@ getController().runActivityBlocking(new ActivityIntegrate(integratorOverlap), in
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)
                     integrators[i]).getMoveManager().setEquilibrating(true);
         }
-this.getController().runActivityBlocking(new ActivityIntegrate(this.integratorOverlap), initSteps);
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integratorOverlap, initSteps));
 
         for (int i = 0; i < 2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)

@@ -371,7 +371,7 @@ public class HSNPT extends Simulation {
             return;
         }
         long t1 = System.currentTimeMillis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / 10));
         if (!params.nvt) {
             volumeAvg.reset();
         }
@@ -413,7 +413,7 @@ public class HSNPT extends Simulation {
             vfw = null;
         }
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
         System.out.println("time "+(System.currentTimeMillis()-t1)/1000);
 
         if (!params.nvt) {

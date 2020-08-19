@@ -195,7 +195,7 @@ public class SimLJ extends Simulation {
         }
 
         long eqSteps = steps/10;
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), eqSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, eqSteps));
 
         sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
@@ -209,7 +209,7 @@ System.out.println("equilibration finished ("+eqSteps+" steps)");
         AccumulatorAverageCovariance accEnergies = new AccumulatorAverageCovariance(blockSize);
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, numAtoms);
         sim.integrator.getEventManager().addListener(pumpEnergies);
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
         IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
         IData errEnergies = accEnergies.getData(accEnergies.ERROR);

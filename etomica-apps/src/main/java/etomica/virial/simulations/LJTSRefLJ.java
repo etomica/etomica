@@ -167,12 +167,12 @@ public class LJTSRefLJ {
         
         
         sim.equilibrate(steps/40);
-        
-        System.out.println("equilibration finished");
-        
+ActivityIntegrate ai = new ActivityIntegrate(sim.integrator, steps);
+System.out.println("equilibration finished");
+
         System.out.println();
         System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize());
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+sim.getController().runActivityBlocking(ai);
 
 //        IAction progressReport = new IAction() {
 //            public void actionPerformed() {

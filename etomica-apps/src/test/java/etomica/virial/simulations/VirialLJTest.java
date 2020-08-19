@@ -52,9 +52,9 @@ public class VirialLJTest {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(null, steps/40);
-        Assertions.assertTrue(Math.abs(sim.refPref - 1.34) < 0.12, "Ref pref (alpha) within expected limits: "+sim.refPref);
-        
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+Assertions.assertTrue(Math.abs(sim.refPref - 1.34) < 0.12, "Ref pref (alpha) within expected limits: "+sim.refPref);
+sim.getController().runActivityBlocking(ai);
 
         double[] ratioAndError = sim.dvo.getAverageAndError();
         double ratio = ratioAndError[0];

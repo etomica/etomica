@@ -228,7 +228,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
 
         final TestAceticAcidMC3D_NPT sim = new TestAceticAcidMC3D_NPT(numAtoms, pressure, density, temperature, numSteps);
         System.out.println("equilibrium period = " +numSteps/10);//equilibrium period
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
 System.out.println("equilibrium finished");
 
 MeterDensity rhoMeter = new MeterDensity(sim.box);
@@ -296,7 +296,7 @@ MeterDensity rhoMeter = new MeterDensity(sim.box);
         	graphic.makeAndDisplayFrame();
         	return;
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         
     	CompoundUnit rhoUnit = new CompoundUnit(new Unit[]{Mole.UNIT,Liter.UNIT},new double[]{1,-1});
         double finalDensity = rhoMeter.getDataAsScalar();

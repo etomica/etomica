@@ -295,7 +295,7 @@ public class HSMDCavity extends Simulation {
         System.out.println("density: " + params.density);
 
         long steps = params.steps;
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps / 10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
 sim.integrator.resetStepCount();
 
 
@@ -345,7 +345,7 @@ sim.integrator.resetStepCount();
         sim.integrator.getEventManager().addListener(pumpPF);
 
         double t1 = System.nanoTime();
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         double t2 = System.nanoTime();
 
         double avgCR = accCR.getData(accCR.AVERAGE).getValue(0);

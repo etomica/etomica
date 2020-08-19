@@ -215,7 +215,7 @@ public class SimLJHTTISuperSFMD extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         long endTime = System.currentTimeMillis();
         System.out.println();
 
@@ -290,7 +290,7 @@ public class SimLJHTTISuperSFMD extends Simulation {
 
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomalous contributions
-        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator), initSteps);
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
 
     }
 

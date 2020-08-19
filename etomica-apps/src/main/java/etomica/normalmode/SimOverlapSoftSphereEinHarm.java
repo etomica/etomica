@@ -310,10 +310,9 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
             steps = numSteps/20;
         }
         sim.equilibrate(numMolecules/5);
-
-        final long startTime = System.currentTimeMillis();
-
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOverlap), numSteps);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOverlap, numSteps);
+final long startTime = System.currentTimeMillis();
+sim.getController().runActivityBlocking(ai);
 
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
         //MeterTargetTP.closeFW();
@@ -397,7 +396,7 @@ public class SimOverlapSoftSphereEinHarm extends Simulation {
             if (integrators[i] instanceof IntegratorMC)
                 ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(true);
         }
-this.getController().runActivityBlocking(new ActivityIntegrate(this.integratorOverlap), initSteps);
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integratorOverlap, initSteps));
 
         for (int i = 0; i < 2; i++) {
             if (integrators[i] instanceof IntegratorMC)

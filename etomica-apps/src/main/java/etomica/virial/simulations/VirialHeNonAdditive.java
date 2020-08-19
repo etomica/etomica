@@ -288,23 +288,24 @@ public class VirialHeNonAdditive {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/20);
-        if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
-        
+
         sim.setAccumulatorBlockSize((int)steps);
         sim.integratorOS.setNumSubSteps((int)steps);
-        
+
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
-        
+
         final HistogramNotSoSimple hist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
         final HistogramNotSoSimple piHist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
         IntegratorListener histListener = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 CoordinatePairSet cPairs = sim.box[0].getCPairSet();
@@ -318,7 +319,7 @@ public class VirialHeNonAdditive {
                 hist.addValue(Math.sqrt(r2Max), v);
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
-            
+
             public void integratorInitialized(IntegratorEvent e) {}
         };
         IntegratorListener progressReport = new IntegratorListener() {
@@ -329,7 +330,7 @@ public class VirialHeNonAdditive {
 //                    sim.dsvo.getOverlapAverageAndError();
 //                    throw new RuntimeException("oops");
 //                }
-                if ((sim.integratorOS.getStepCount()*10) % sim.getController().getMaxSteps() != 0) return;
+                if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                 if (Double.isInfinite(sim.dvo.getAverageAndError()[0])) {
                     sim.dvo.getAverageAndError();
                     throw new RuntimeException("oops");
@@ -346,7 +347,7 @@ public class VirialHeNonAdditive {
                     public void integratorInitialized(IntegratorEvent e) {}
                     public void integratorStepStarted(IntegratorEvent e) {}
                     public void integratorStepFinished(IntegratorEvent e) {
-                        if ((sim.integratorOS.getStepCount()*10) % sim.getController().getMaxSteps() != 0) return;
+                        if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                         double[] xValues = hist.xValues();
                         double[] h = hist.getHistogram();
                         double[] piH = piHist.getHistogram();
@@ -360,7 +361,7 @@ public class VirialHeNonAdditive {
                 sim.integratorOS.getEventManager().addListener(histReport);
             }
         }
-        
+
 
         if (refFrac >= 0) {
             if (params.doHist) {
@@ -372,7 +373,7 @@ public class VirialHeNonAdditive {
 
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(ai);
         
         long t2 = System.currentTimeMillis();
         

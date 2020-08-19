@@ -120,12 +120,12 @@ public class CH4NVT extends Simulation {
 		
 	// **************************** simulation part **************************** //
 	public static void main (String[] args){
-		
+
 		Param params = new Param();
 		if (args.length > 0) {
 			ParseArgs.doParseArgs(params, args);
 		} else {
-			
+
 		}
 		long t1 = System.currentTimeMillis();
 		Space space = Space3D.getInstance();
@@ -142,10 +142,10 @@ public class CH4NVT extends Simulation {
 		System.out.println("denisty(sim)="+densitySim);
 		System.out.println("temperature="+temperatureK+" Kelvin");
 		System.out.println("temperature(sim)="+temperature);
-		double boxSize = Math.pow(numberMolecules / densitySim, (1.0/3.0)); 
+		double boxSize = Math.pow(numberMolecules / densitySim, (1.0/3.0));
 		System.out.println("box size:"+boxSize+",number of molecules="+numberMolecules);
 		final CH4NVT sim = new CH4NVT(space,numberMolecules,boxSize,temperature,truncation);
-		
+
     	if (isGraphic){
 			SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(PIXEL_SIZE));
@@ -156,11 +156,11 @@ public class CH4NVT extends Simulation {
 	        simGraphic.makeAndDisplayFrame(APP_NAME);
 			simGraphic.getDisplayBox(sim.box).repaint();
 	    	return ;
-	    	
+
 		}
-    	
+
     	System.out.println("no graphic simulation involved");
-   		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps/10);// equilibration period
+   		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps/10));// equilibration period
 
    		sim.integrator.getMoveManager().setEquilibrating(false);
    		System.out.println("equilibration finished");
@@ -181,8 +181,8 @@ public class CH4NVT extends Simulation {
         DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
-        
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
+
         // compressibility factor Z=P/rho/T(all in sim units)
         double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
         double Zerr = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.ERROR.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());

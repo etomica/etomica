@@ -78,7 +78,8 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
 		integrator.setWaveVectorNum(0);
 
 
-		getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(0);
+		getController().setSleepPeriod(0);
+		getController().addActivity(new ActivityIntegrate(integrator));
 
 	}
 	

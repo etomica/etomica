@@ -139,8 +139,8 @@ public class VirialSwsPT {
 
         sim.integratorOS.setNumSubSteps(1000);
 
-        if (false) {
-            double size = 10;
+        if(false) {
+    double size = 10;
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -166,8 +166,8 @@ public class VirialSwsPT {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.initRefPref(null, 1000, false);
-            sim.equilibrate(null, 2000);
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+    sim.equilibrate(null, 2000, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -203,9 +203,8 @@ public class VirialSwsPT {
             errorBox.setLabel("error");
             errorBox.setPrecision(2);
             sim.integratorOS.getEventManager().addListener(new IntegratorListenerAction(pushAnswer));
-
-            return;
-        }
+    return;
+}
         
         // if running interactively, don't use the file
         String refFileName = isCommandline ? "refpref"+nPoints+""+order : null;
@@ -216,11 +215,10 @@ public class VirialSwsPT {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/20);
-
-
-        sim.setAccumulatorBlockSize(steps);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps((int)steps);
-        
+
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes  "+sim.mcMoveTranslate[0].getStepSize()+" "+sim.mcMoveTranslate[1].getStepSize());
 
@@ -230,7 +228,7 @@ public class VirialSwsPT {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.getController().getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -243,7 +241,7 @@ public class VirialSwsPT {
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         long t0 = System.currentTimeMillis();
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(ai);
         long t1 = System.currentTimeMillis();
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());

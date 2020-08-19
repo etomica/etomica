@@ -115,6 +115,6 @@ public class LJMC extends Simulation {
         }
             
         LJMC sim = new LJMC(space);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }
 }

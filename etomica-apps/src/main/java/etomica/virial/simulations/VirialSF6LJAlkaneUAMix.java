@@ -630,9 +630,8 @@ public static void main(String[] args) {
         sim.accumulators[1].reset();// don't want to collect these data!!!!
 
 
-        if (false) {
-
-            double size = 10;
+        if(false) {
+    double size = 10;
 
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
 
@@ -685,18 +684,16 @@ public static void main(String[] args) {
             // (or write) to a refpref file
 
             sim.initRefPref(null, 10, false);
-            sim.equilibrate(null, 20);
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
 
             if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
 
                 throw new RuntimeException("Oops");
 
             }
-
-            return;
-
-        }
+    return;
+}
 
 
         // if running interactively, don't use the file
@@ -712,8 +709,8 @@ public static void main(String[] args) {
         // if it does continue looking for a pref, it will write the value to the file
 
         sim.equilibrate(refFileName, steps/40);
-
-        if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
 
             throw new RuntimeException("oops");
 
@@ -766,7 +763,7 @@ public static void main(String[] args) {
             sim.integratorOS.setAdjustStepFraction(false);
 
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
 

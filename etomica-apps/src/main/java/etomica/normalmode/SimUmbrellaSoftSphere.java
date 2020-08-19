@@ -213,7 +213,7 @@ public class SimUmbrellaSoftSphere extends Simulation {
 
         IDataSource[] samplingMeters = new IDataSource[2];
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
 System.out.println("System Equilibrated!");
 
 
@@ -306,7 +306,7 @@ System.out.println("System Equilibrated!");
         IntegratorListenerAction outputActionListener = new IntegratorListenerAction(outputAction);
         outputActionListener.setInterval(10000);
         sim.integrator.getEventManager().addListener(outputActionListener);
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         try{
         	fileWriterHarm.close();

@@ -96,7 +96,8 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
         meterDimerFraction.setBox(box);
         thermometer = new MeterTemperature(box, space.D());
 
-        getController().addActivity(new ActivityIntegrate(integratorHard1)).setSleepPeriod(1);
+        getController().setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integratorHard1));
         integratorHard1.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
 
         Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space);

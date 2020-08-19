@@ -102,7 +102,8 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
         //integrator.setEValNum(4);
 
 
-        getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(0);
+        getController().setSleepPeriod(0);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
     }
 

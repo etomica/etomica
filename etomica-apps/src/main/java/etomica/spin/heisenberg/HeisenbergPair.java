@@ -106,7 +106,7 @@ public class HeisenbergPair extends Simulation {
         MeterSpinMSquare meterMSquare = null;
         AccumulatorAverage dipoleSumSquaredAccumulator = null;
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps / 5);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 5));
 
         int blockNumber = 100;
 
@@ -148,7 +148,7 @@ public class HeisenbergPair extends Simulation {
             AEEListener.setInterval(sampleAtInterval);
             sim.integrator.getEventManager().addListener(AEEListener);
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
 
         //******************************** simulation start ******************************** //

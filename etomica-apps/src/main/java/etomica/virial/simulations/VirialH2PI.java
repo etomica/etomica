@@ -753,8 +753,8 @@ public class VirialH2PI {
 			// run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
 			// if it does continue looking for a pref, it will write the value to the file
 			sim.equilibrate(refFileName, steps/20);
-
-			if (accumulatorDiagrams != null) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+if (accumulatorDiagrams != null) {
 				accumulatorDiagrams.reset();
 			}
 
@@ -861,7 +861,7 @@ public class VirialH2PI {
 					public void integratorStepStarted(IntegratorEvent e) {}
 					@Override
 					public void integratorStepFinished(IntegratorEvent e) {
-						if ((sim.integratorOS.getStepCount()*10) % sim.getController().getMaxSteps() != 0) return;
+						if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
 						System.out.print(sim.integratorOS.getStepCount()+" steps: ");
 						double[] ratioAndError = sim.dvo.getAverageAndError();
 						double ratio = ratioAndError[0];
@@ -882,7 +882,7 @@ public class VirialH2PI {
 						public void integratorStepStarted(IntegratorEvent e) {}
 						@Override
 						public void integratorStepFinished(IntegratorEvent e) {
-							if ((sim.integratorOS.getStepCount()*10) % sim.getController().getMaxSteps() != 0) return;
+							if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
 							System.out.println("**** reference ****");
 							double[] xValues = hist.xValues();
 							double[] h = hist.getHistogram();
@@ -916,8 +916,7 @@ public class VirialH2PI {
 				sim.integrators[0].getEventManager().addListener(histListenerRef);
 				sim.integrators[1].getEventManager().addListener(histListenerTarget);
 			}
-
-			sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(ai);
 			long t2 = System.currentTimeMillis();
 
 			if (params.doHist) {

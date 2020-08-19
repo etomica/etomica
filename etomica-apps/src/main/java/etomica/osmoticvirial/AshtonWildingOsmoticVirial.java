@@ -249,7 +249,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
             simGraphic.makeAndDisplayFrame(appName);
             return;
         }
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
 
 sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -264,7 +264,7 @@ sim.integrator.getMoveManager().setEquilibrating(false);
         accNm = new AccumulatorAverageFixed(samplesPerBlock);
         DataPumpListener pumpNm = new DataPumpListener(meterNMolecules, accNm);
         sim.integrator.getEventManager().addListener(pumpNm);
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         double[] histRmin = accRmin.getHistograms().getHistogram();
         double[] r = accRmin.getHistograms().xValues();

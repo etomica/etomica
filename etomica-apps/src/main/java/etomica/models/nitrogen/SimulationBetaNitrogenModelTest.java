@@ -525,15 +525,15 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 			simGraphic.getDisplayBox(sim.box).setDiameterHash(diameter);
 			return;
 		}
-		
-		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps/5);
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps / 5));
 System.out.println("****System Equilibrated (20% of SimSteps)****");
 
 		long startTime = System.currentTimeMillis();
 		System.out.println("\nStart Time: " + startTime);
 		sim.integrator.getMoveManager().setEquilibrating(false);
 
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
 		
 		
 		double averageEnergy = energyAverage.getData().getValue(energyAverage.AVERAGE.index);

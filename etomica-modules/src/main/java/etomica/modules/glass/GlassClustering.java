@@ -40,13 +40,13 @@ public class GlassClustering {
         sim.integrator.setIsothermal(true);
         sim.integrator.setIntegratorMC(sim.integratorMC, 1000);
         sim.integrator.setTemperature(temperature0);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numSteps / 10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / 10));
 
 
         if (temperature0 > params.temperature) {
             System.out.println("Equilibrating at T=" + params.temperature);
             sim.integrator.setTemperature(params.temperature);
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numSteps / 10);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / 10));
 
         }
 
@@ -87,7 +87,7 @@ IDataSource pTensorMeter;
 
         //Run
         double time0 = System.nanoTime();
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), params.numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
 
         //P
         double time1 = System.nanoTime();

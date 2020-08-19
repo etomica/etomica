@@ -215,8 +215,8 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
 		energyListener.setInterval(100);
 		sim.integrator.getEventManager().addListener(energyListener);
-		
-		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps / 5);
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps / 5));
 		System.out.println("****System Equilibrated (20% of SimSteps)****");
 		
 		long startTime = System.currentTimeMillis();
@@ -224,7 +224,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		sim.integrator.getMoveManager().setEquilibrating(false);
 
 
-		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), simSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
 
 		
 		double averageEnergy = energyAverage.getData().getValue(energyAverage.AVERAGE.index);

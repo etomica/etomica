@@ -119,7 +119,8 @@ public class VirialWaterOverlap {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/40);
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+System.out.println("equilibration finished");
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
         for (int i=0; i<2; i++) {
@@ -127,7 +128,7 @@ public class VirialWaterOverlap {
                                                     +sim.mcMoveRotate[i].getStepSize()
                                                     +((sim.mcMoveTranslate==null) ? "" : (" "+sim.mcMoveTranslate[i].getStepSize())));
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps);
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         

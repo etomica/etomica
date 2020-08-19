@@ -244,7 +244,7 @@ public class GCRestrictedGibbsHS extends Simulation {
             return;
         }
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps / 10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
 
 sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -255,7 +255,7 @@ sim.integrator.getMoveManager().setEquilibrating(false);
         AccumulatorAverageCovariance acc = new AccumulatorAverageCovariance(blockSize);
         MCMoveListenerRGE mcMoveListenerRGE = new MCMoveListenerRGE(acc, sim.box1, sim.species1, numAtoms);
         sim.integrator.getMoveEventManager().addListener(mcMoveListenerRGE);
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         System.out.println("block count " + acc.getBlockCount());
         IData iavg = acc.getData(acc.AVERAGE);

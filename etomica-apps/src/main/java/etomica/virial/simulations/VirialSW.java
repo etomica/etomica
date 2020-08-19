@@ -107,8 +107,8 @@ public class VirialSW {
         sim.integratorOS.setNumSubSteps(1000);
         
         
-        if (false) {
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        if(false) {
+    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
@@ -133,8 +133,8 @@ public class VirialSW {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.initRefPref(null, 10, false);
-            sim.equilibrate(null, 20);
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -173,9 +173,8 @@ public class VirialSW {
             errorBox.setPrecision(2);
             errorBox.setUnit(unit);
             sim.integratorOS.getEventManager().addListener(new IntegratorListenerAction(pushAnswer));
-
-            return;
-        }
+    return;
+}
 
         
         // if running interactively, don't use the file
@@ -186,8 +185,8 @@ public class VirialSW {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/40);
-        
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+System.out.println("equilibration finished");
 
 //        IAction progressReport = new IAction() {
 //            public void actionPerformed() {
@@ -203,7 +202,7 @@ public class VirialSW {
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize());
         }
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), steps);
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());

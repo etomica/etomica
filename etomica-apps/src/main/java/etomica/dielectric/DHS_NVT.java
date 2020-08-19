@@ -200,7 +200,7 @@ protected final SpeciesSpheresRotating species;
 			simGraphic.getDisplayBox(sim.box).repaint();
 			return ;
 		}
-		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps/5);// equilibration period
+		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 5));// equilibration period
 
 
 		//TODO
@@ -246,7 +246,7 @@ protected final SpeciesSpheresRotating species;
 
 
         sim.integrator.getEventManager().addListener(AEEListener);//TODO;
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
 		//calculate dipoleSumSquared average
         double dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.AVERAGE.index)).x;

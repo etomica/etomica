@@ -58,7 +58,7 @@ public class InsertionGraphic extends SimulationGraphic {
     
     public InsertionGraphic(final Insertion simulation) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
@@ -68,25 +68,25 @@ public class InsertionGraphic extends SimulationGraphic {
             }
         };
 
-    	this.sim = simulation;
+        this.sim = simulation;
 
         lambda = 1.5;
         double sigma = 1.0;
 
         if (sim.getSpace().D() == 2) {
-            getDisplayBox(sim.box).setPixelUnit(new Pixel(400/sim.box.getBoundary().getBoxSize().getX(1)));
+            getDisplayBox(sim.box).setPixelUnit(new Pixel(400 / sim.box.getBoundary().getBoxSize().getX(1)));
+        } else {
+            getDisplayBox(sim.box).setPixelUnit(new Pixel(40 / sim.box.getBoundary().getBoxSize().getX(1)));
         }
-        else {
-            getDisplayBox(sim.box).setPixelUnit(new Pixel(40/sim.box.getBoundary().getBoxSize().getX(1)));
-        }
-        
 
-        sim.getController().addActivity(new ActivityIntegrate(sim.integrator)).setSleepPeriod(0);
+
+        sim.getController().setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
         //combo box to select potentials
         final String repulsionOnly = "Repulsion only";
         final String repulsionAttraction = "Repulsion and attraction";
-        potentialChooser = new javax.swing.JComboBox(new String[] {
+        potentialChooser = new javax.swing.JComboBox(new String[]{
                 repulsionOnly, repulsionAttraction});
 
         lamBox = new DeviceBox();
@@ -107,17 +107,18 @@ public class InsertionGraphic extends SimulationGraphic {
 
         JPanel statePanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc2 = new GridBagConstraints();
-        gbc2.gridx = 0;  gbc2.gridy = 0;
+        gbc2.gridx = 0;
+        gbc2.gridy = 0;
         statePanel.add(tempSlider.graphic(), gbc2);
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         JPanel potentialPanel = new JPanel(new GridBagLayout());
-        potentialPanel.add(potentialChooser,vertGBC);
-        JPanel parameterPanel = new JPanel(new GridLayout(0,1));
+        potentialPanel.add(potentialChooser, vertGBC);
+        JPanel parameterPanel = new JPanel(new GridLayout(0, 1));
         parameterPanel.add(lamBox.graphic());
-        potentialPanel.add(parameterPanel,vertGBC);
-        
+        potentialPanel.add(parameterPanel, vertGBC);
+
         //
         // Tabbed pane for state, potential, controls pages
         //
@@ -125,40 +126,39 @@ public class InsertionGraphic extends SimulationGraphic {
         setupPanel.add(statePanel, "State");
         setupPanel.add(potentialPanel, "Potential");
 
-        potentialSW = new P2SquareWell(sim.getSpace(),sigma,lambda,1.0,true);
-        potentialHS = new P2HardSphere(sim.getSpace(),sigma,true);
-        
-        if(potentialChooserListener != null) potentialChooser.removeItemListener(potentialChooserListener);
-        
+        potentialSW = new P2SquareWell(sim.getSpace(), sigma, lambda, 1.0, true);
+        potentialHS = new P2HardSphere(sim.getSpace(), sigma, true);
+
+        if (potentialChooserListener != null) potentialChooser.removeItemListener(potentialChooserListener);
+
         potentialChooserListener = new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return; 
-                setPotential((String)evt.getItem());
-                if(evt.getItem() == repulsionOnly) {
+                if (evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return;
+                setPotential((String) evt.getItem());
+                if (evt.getItem() == repulsionOnly) {
                     lamBox.setEditable(false);
-                }
-                else {
-                    lamBox.setEditable(true);   
+                } else {
+                    lamBox.setEditable(true);
                 }
             }
         };
         potentialChooser.addItemListener(potentialChooserListener);
-        setPotential((String)potentialChooser.getSelectedItem());
+        setPotential((String) potentialChooser.getSelectedItem());
 
         Modifier lamModifier = new Modifier() {
             public void setValue(double newValue) {
                 potentialSW.setLambda(newValue);
                 sim.potentialGhost.setLambda(newValue);
             }
-            
+
             public double getValue() {
                 return potentialSW.getLambda();
             }
-            
+
             public String getLabel() {
                 return "lambda";
             }
-            
+
             public Dimension getDimension() {
                 return Length.DIMENSION;
             }
@@ -168,9 +168,10 @@ public class InsertionGraphic extends SimulationGraphic {
 
         //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
-        colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
+        colorScheme.setColor(sim.species.getLeafType(), java.awt.Color.red);
         getDisplayBox(sim.box).setColorScheme(new ColorScheme() {
             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotentialMaster());
+
             public Color getAtomColor(IAtom a) {
                 if ((sim.integrator.getEventManager().firingEvent() || !sim.getController().isRunningActivityStep()) && a.getType().getSpecies() == sim.speciesGhost) {
                     sim.potentialGhost.setEpsilonCore(-Double.POSITIVE_INFINITY);
@@ -180,7 +181,7 @@ public class InsertionGraphic extends SimulationGraphic {
                     meterPE.setBox(sim.box);
                     meterPE.setTarget(a);
                     double u = meterPE.getDataAsScalar();
-                    if (u==Double.POSITIVE_INFINITY) {
+                    if (u == Double.POSITIVE_INFINITY) {
                         sim.potentialGhost.setEpsilonCore(0.0);
                         sim.potentialGhost.setEpsilonWell(0.0);
                         return Color.RED;
@@ -190,7 +191,7 @@ public class InsertionGraphic extends SimulationGraphic {
                     }
                     sim.potentialGhost.setEpsilonCore(0.0);
                     sim.potentialGhost.setEpsilonWell(0.0);
-                    return new Color(0.0f, (float)((6+u)/6.0), (float)(-u/6.0));
+                    return new Color(0.0f, (float) ((6 + u) / 6.0), (float) (-u / 6.0));
                 }
                 return Color.BLACK;
             }
@@ -220,20 +221,21 @@ public class InsertionGraphic extends SimulationGraphic {
         // system sizes (since we're using ANDERSEN_SINGLE.  Smaller systems 
         // don't need as much thermostating.
         nSlider.setPostAction(new IAction() {
-            
+
             public void actionPerformed() {
-                final int n = (int)nSlider.getValue() > 0 ? (int)nSlider.getValue() : 1;
-                sim.integrator.setThermostatInterval(n > 40 ? 1 : 40/n);
+                final int n = (int) nSlider.getValue() > 0 ? (int) nSlider.getValue() : 1;
+                sim.integrator.setThermostatInterval(n > 40 ? 1 : 40 / n);
 
                 getDisplayBox(sim.box).repaint();
             }
         });
-        JPanel nSliderPanel = new JPanel(new GridLayout(0,1));
+        JPanel nSliderPanel = new JPanel(new GridLayout(0, 1));
         nSliderPanel.setBorder(new TitledBorder(null, "Number of Molecules", TitledBorder.CENTER, TitledBorder.TOP));
         nSlider.setShowBorder(false);
         nSlider.setNMajor(4);
         nSliderPanel.add(nSlider.graphic());
-        gbc2.gridx = 0;  gbc2.gridy = 1;
+        gbc2.gridx = 0;
+        gbc2.gridy = 1;
         statePanel.add(nSliderPanel, gbc2);
 
         //************* Lay out components ****************//
@@ -241,20 +243,20 @@ public class InsertionGraphic extends SimulationGraphic {
         getDisplayBox(sim.box).setScale(0.7);
 
 
-	    final IAction temperatureAction = new IAction() {
-		    public void actionPerformed() {
-		        resetDataAction.actionPerformed();
-		    }
-		};
-		tempSlider.setSliderPostAction(temperatureAction);
+        final IAction temperatureAction = new IAction() {
+            public void actionPerformed() {
+                resetDataAction.actionPerformed();
+            }
+        };
+        tempSlider.setSliderPostAction(temperatureAction);
         tempSlider.setRadioGroupPostAction(temperatureAction);
 
         final IAction resetAction = new IAction() {
-        	public void actionPerformed() {
-        	    sim.integrator.reset();
+            public void actionPerformed() {
+                sim.integrator.reset();
                 meterWidom.reset();
-        		getDisplayBox(sim.box).graphic().repaint();
-        	}
+                getDisplayBox(sim.box).graphic().repaint();
+            }
         };
 
         this.getController().getReinitButton().setPostAction(new IAction() {
@@ -286,16 +288,16 @@ public class InsertionGraphic extends SimulationGraphic {
         widomBoxes.setLabel("Widom insertion");
         widomBoxes.setPrecision(6);
         getPanel().controlPanel.add(widomBoxes.graphic(), vertGBC);
-        
+
         DataProcessor dpMu = new DataProcessorFunction(new Function() {
-            
+
             public double f(double x) {
-                if (x==0) return Double.NaN;
-                return -sim.integrator.getTemperature()*Math.log(x);
+                if (x == 0) return Double.NaN;
+                return -sim.integrator.getTemperature() * Math.log(x);
             }
         });
         accWidom.addDataSink(dpMu, new AccumulatorAverage.StatType[]{accWidom.AVERAGE});
-        
+
         AccumulatorHistory historyMu = new AccumulatorHistory(new HistoryCollapsingDiscard());
         dpMu.setDataSink(historyMu);
         historyMu.setTimeDataSource(new DataSourceCountTime(sim.integrator));
@@ -304,38 +306,37 @@ public class InsertionGraphic extends SimulationGraphic {
         historyWidomPlot.setLabel("History");
         historyWidomPlot.setDoLegend(false);
         add(historyWidomPlot);
-        
+
         HistogramDataSource widomHist = new HistogramDataSource(meterWidom.hist);
         widomHistPlot = new DisplayPlotXChart();
         DataPumpListener widomHistPump = new DataPumpListener(widomHist, widomHistPlot.getDataSet().makeDataSink(), 10);
         sim.integrator.getEventManager().addListener(widomHistPump);
         widomHistPlot.setLabel("widom");
-        widomHistPlot.getPlot().setXRange(0,1);
+        widomHistPlot.getPlot().setXRange(0, 1);
         widomHistPlot.getPlot().setYLog(true);
         widomHistPlot.setDoLegend(false);
         widomHistPlot.setXLabel("u");
         add(widomHistPlot);
-        
+
         DataProcessor widomWeight = new DataProcessor() {
             DataFunction data;
 
             protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-                data = (DataFunction)inputDataInfo.makeData();
+                data = (DataFunction) inputDataInfo.makeData();
                 dataInfo = inputDataInfo.getFactory().makeDataInfo();
                 dataInfo.addTag(tag);
                 return dataInfo;
             }
-            
+
             protected IData processData(IData inputData) {
-                double[] y1 = ((DataFunction)inputData).getData();
+                double[] y1 = ((DataFunction) inputData).getData();
                 double[] y2 = data.getData();
-                double[] x = ((DataInfoFunction)dataInfo).getXDataSource().getIndependentData(0).getData();
-                for (int i=0; i<x.length; i++) {
+                double[] x = ((DataInfoFunction) dataInfo).getXDataSource().getIndependentData(0).getData();
+                for (int i = 0; i < x.length; i++) {
                     if (x[i] > 0) {
                         y2[i] = 0;
-                    }
-                    else {
-                        y2[i] = y1[i]*Math.exp(-x[i]/sim.integrator.getTemperature());
+                    } else {
+                        y2[i] = y1[i] * Math.exp(-x[i] / sim.integrator.getTemperature());
                     }
                 }
                 return data;
@@ -345,11 +346,11 @@ public class InsertionGraphic extends SimulationGraphic {
         widom2Plot = new DisplayPlotXChart();
         widomWeight.setDataSink(widom2Plot.getDataSet().makeDataSink());
         sim.integrator.getEventManager().addListener(widomHist2Pump);
-        widom2Plot.getPlot().setXRange(0,1);
+        widom2Plot.getPlot().setXRange(0, 1);
         widom2Plot.setXLabel("u");
         widom2Plot.setDoLegend(false);
         add(widom2Plot);
-        
+
         JPanel myPlotPanel = new JPanel(new GridLayout(0, 1));
         myPlotPanel.add(widomHistPlot.graphic());
         myPlotPanel.add(widom2Plot.graphic());

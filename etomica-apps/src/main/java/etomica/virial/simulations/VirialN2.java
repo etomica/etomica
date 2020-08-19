@@ -195,7 +195,8 @@ public class VirialN2 {
         }
 
         sim.equilibrate(refFileName, steps/10);
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+System.out.println("equilibration finished");
 
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
@@ -206,7 +207,7 @@ public class VirialN2 {
 
         // this is where the simulation takes place
 
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorOS), 1000);
+sim.getController().runActivityBlocking(ai);
         //end of simulation
         long t2 = System.currentTimeMillis();
 

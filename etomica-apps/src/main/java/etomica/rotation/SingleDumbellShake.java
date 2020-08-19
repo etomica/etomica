@@ -59,7 +59,7 @@ public class SingleDumbellShake {
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
         if (false) {
-            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator), 100);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, 100));
             return null;
         }
         sim.getController().addActivity(new ActivityIntegrate(integrator), Long.MAX_VALUE, 10);

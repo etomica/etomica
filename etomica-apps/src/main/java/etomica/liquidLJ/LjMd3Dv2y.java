@@ -177,7 +177,7 @@ public class LjMd3Dv2y {
                 eqSteps = steps/4;
                 if (eqSteps > 4000) eqSteps = 4000;
             }
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), eqSteps);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, eqSteps));
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
@@ -298,7 +298,7 @@ public class LjMd3Dv2y {
 
 
     	long t1 = System.currentTimeMillis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.currentTimeMillis();
 
         System.out.println();

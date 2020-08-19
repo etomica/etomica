@@ -161,11 +161,11 @@ public class SimCalcS extends Simulation {
 
         // start simulation
         int nSteps = (int) (simTime / sim.integrator.getTimeStep());
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), nSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, nSteps / 10));
 System.out.println("equilibration finished");
         meterNormalMode.reset();
 
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), nSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, nSteps));
 
         WriteS sWriter = new WriteS(sim.space);
         sWriter.setFilename(filename);

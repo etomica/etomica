@@ -226,9 +226,9 @@ public class VirialHePIXC {
         
         
         sim.equilibrate(steps/100);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integrator, steps);
+sim.setAccumulatorBlockSize(steps > 1000 ? steps/1000 : 1);
 
-        sim.setAccumulatorBlockSize(steps > 1000 ? steps/1000 : 1);
-        
         System.out.println("equilibration finished");
 
 //        if (false) {
@@ -249,7 +249,7 @@ public class VirialHePIXC {
 //        }
 
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+sim.getController().runActivityBlocking(ai);
 
 
         System.out.println("Ring acceptance "+ring.getTracker().acceptanceRatio());

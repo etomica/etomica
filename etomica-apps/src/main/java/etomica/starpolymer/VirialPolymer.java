@@ -206,7 +206,7 @@ public class VirialPolymer {
 
         long t1 = System.currentTimeMillis();
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.currentTimeMillis();
 
 //        if (!Double.isNaN(litHSB)) System.out.println("lit value "+litHSB);

@@ -84,7 +84,7 @@ public class SimulationVirialUmbrella extends SimulationVirial {
 			SimulationVirialUmbrella sim = new SimulationVirialUmbrella(space, temperature, refCluster, 
 					new ClusterAbstract[]{targetCluster});
 			((ClusterWeightUmbrella)sim.sampleCluster).setWeightCoefficients(new double[] {1.0-weightRatio,weightRatio});
-			sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 //            sim.integrator.setEquilibrating(true);
             AccumulatorRatioAverageCovariance acc = sim.accumulator;
             DataGroup allYourBase = (DataGroup)acc.getData();

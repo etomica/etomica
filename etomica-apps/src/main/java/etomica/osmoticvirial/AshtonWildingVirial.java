@@ -140,7 +140,7 @@ public class AshtonWildingVirial extends Simulation {
             return;
         }
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps/10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
 
 sim.integrator.getMoveManager().setEquilibrating(false);
 
@@ -148,7 +148,7 @@ sim.integrator.getMoveManager().setEquilibrating(false);
         AccumulatorHistogram accRmin = new AccumulatorHistogram(new HistogramSimple(new DoubleRange(0, 4*sim.potential1.getRange())));
         DataPumpListener pumpRmin = new DataPumpListener(meterRmin,accRmin,numAtoms);
         sim.integrator.getEventManager().addListener(pumpRmin);
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         double[] histRmin = accRmin.getHistograms().getHistogram();
         double[] r = accRmin.getHistograms().xValues();
         for (int i = 0; i < histRmin.length; i++) {

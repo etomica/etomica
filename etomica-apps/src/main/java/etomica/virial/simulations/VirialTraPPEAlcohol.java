@@ -217,9 +217,8 @@ public class VirialTraPPEAlcohol {
         ****************************************************************************
         */
 
-        if (graphics) {
-
-            referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        if(graphics) {
+    referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             targetBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(referenceBox).setShowBoundary(false);
@@ -290,14 +289,13 @@ public class VirialTraPPEAlcohol {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.initRefPref(null, 100, false);
-            sim.equilibrate(null, 200);
-            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+    sim.equilibrate(null, 200, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-
-            return;
-        }
+    return;
+}
 
         /*
         ****************************************************************************

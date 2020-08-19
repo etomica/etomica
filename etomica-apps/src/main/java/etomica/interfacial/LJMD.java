@@ -310,7 +310,7 @@ public class LJMD extends Simulation {
             }
         });
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
         try {
             fw.close();

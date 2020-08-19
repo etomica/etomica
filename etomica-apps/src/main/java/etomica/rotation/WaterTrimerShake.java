@@ -100,7 +100,8 @@ public class WaterTrimerShake {
 
         potentialMaster.addPotential(pGroup, new ISpecies[]{species, species});
         if (false) {
-            sim.getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(2);
+            sim.getController().setSleepPeriod(2);
+            sim.getController().addActivity(new ActivityIntegrate(integrator));
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rigid", 1);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
@@ -120,7 +121,7 @@ public class WaterTrimerShake {
             graphic.add(ePlot);
             return graphic;
         }
-        sim.getController().runActivityBlocking(new ActivityIntegrate(integrator), Long.MAX_VALUE);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, Long.MAX_VALUE));
         return null;
     }
 

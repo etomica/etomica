@@ -125,7 +125,7 @@ public class LJMC3DDimer extends Simulation {
 
         // equilibration
         long t1 = System.currentTimeMillis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps / 10);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
         System.out.println("equilibration finished");
 
         // data collection
@@ -141,7 +141,7 @@ public class LJMC3DDimer extends Simulation {
 
         sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), steps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
         long t2 = System.currentTimeMillis();
 

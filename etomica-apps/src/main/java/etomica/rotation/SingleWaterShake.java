@@ -139,9 +139,10 @@ public class SingleWaterShake {
             IntegratorListenerAction writeAListener = new IntegratorListenerAction(writeA);
             writeAListener.setInterval(100);
             integrator.getEventManager().addListener(writeAListener);
-            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator), Long.MAX_VALUE);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, Long.MAX_VALUE));
         } else {
-            sim.getController().addActivity(new ActivityIntegrate(integrator)).setSleepPeriod(10);
+            sim.getController().setSleepPeriod(10);
+            sim.getController().addActivity(new ActivityIntegrate(integrator));
             SimulationGraphic graphic = new SimulationGraphic(sim, "SHAKE", 1);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
             ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);

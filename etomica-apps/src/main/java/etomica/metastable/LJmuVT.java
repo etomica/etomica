@@ -304,7 +304,8 @@ public class LJmuVT extends Simulation {
                 return;
             }
             long tstart = System.currentTimeMillis();
-            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps/10);
+            ActivityIntegrate activity = new ActivityIntegrate(sim.integrator, numSteps / 10);
+            sim.getController().runActivityBlocking(activity);
 sim.integrator.resetStepCount();
             if (numRuns==1) System.out.println("Equilibration finished");
 
@@ -332,13 +333,13 @@ sim.integrator.getEventManager().addListener(new IntegratorListener() {
                         throw new RuntimeException(ex);
                     }
                     count++;
-                    if (U<-1) sim.getController().setMaxSteps(0);
+                    if (U<-1) activity.setMaxSteps(0);
                 }
 
                 public void integratorInitialized(IntegratorEvent e) {
                 }
             });
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
             long tstop = System.currentTimeMillis();
             
             if (numRuns <= 10 || (numRuns*10/(i+1))*(i+1) == numRuns*10) {

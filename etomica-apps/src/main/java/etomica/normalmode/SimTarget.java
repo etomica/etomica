@@ -199,7 +199,7 @@ this.getController().addActivity(new ActivityIntegrate(integrator));
 
         //start simulation
         int nSteps = (int) (simTime / sim.integrator.getTimeStep());
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), nSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, nSteps));
 
         //get averages and confidence limits for harmonic energy
         double avgHarmonicEnergy = ((DataDouble) ((DataGroup) harmonicAvg.getData()).getData(harmonicAvg.AVERAGE.index)).x;

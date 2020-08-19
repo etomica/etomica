@@ -310,9 +310,10 @@ public class WertheimGCPM4PtThreeSiteEDecompDirectSampling {
             return;
         }
 		sim.equilibrate(numSteps/40);
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integrator, numSteps);
+System.out.println("equilibration finished");
         System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize());
-sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+sim.getController().runActivityBlocking(ai);
         
         DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
         double referenceAverage = ((DataDoubleArray)allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[0];

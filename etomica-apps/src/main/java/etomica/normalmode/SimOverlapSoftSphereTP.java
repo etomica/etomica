@@ -341,7 +341,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator), numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
         //MeterTargetTP.closeFW();
@@ -415,7 +415,7 @@ public class SimOverlapSoftSphereTP extends Simulation {
 
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
-        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator), initSteps);
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
 
 
         accumulator.reset();
