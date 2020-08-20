@@ -134,7 +134,7 @@ class ControllerTest {
     }
 
     static class TestAction implements IAction {
-        boolean ran = false;
+        volatile boolean ran = false;
         @Override
         public void actionPerformed() {
             ran = true;
