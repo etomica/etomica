@@ -32,11 +32,21 @@ public class Controller {
     private boolean started = false;
     private final Object lock = new Object();
 
-    private static final IAction WAKE_UP = () -> {};
+    private static final IAction WAKE_UP = new IAction() {
+        @Override
+        public void actionPerformed() {
+
+        }
+
+        @Override
+        public String toString() {
+            return "Wake-up action";
+        }
+    };
     private Integrator integrator;
 
     private final ControllerHandle handle = new ControllerHandle();
-    private ActivityHandle<?> currentTask;
+    private volatile ActivityHandle<?> currentTask;
 
 
     public Controller() {
@@ -101,6 +111,9 @@ public class Controller {
     private void processActivities() {
         if (this.started) {
             for (ActivityHandle<?> handle : this.pendingActivities) {
+                if (this.currentTask == null) {
+                    this.currentTask = handle;
+                }
                 this.executor.submit(() -> {
                     this.currentTask = handle;
                     try {
@@ -184,18 +197,24 @@ public class Controller {
             });
             return future;
         }
-        this.handle.actionQueue.add(() -> {
-            if (future.isCancelled()) {
-                System.out.println("canceled");
-                return;
+        this.handle.actionQueue.add(new IAction() {
+            @Override
+            public void actionPerformed() {
+                if (future.isCancelled()) {
+                    return;
+                }
+                try {
+                    action.actionPerformed();
+                    future.complete(null);
+                } catch (Throwable ex) {
+                    future.completeExceptionally(ex);
+                }
             }
-            try {
-                action.actionPerformed();
-                future.complete(null);
-            } catch (Throwable ex) {
-                future.completeExceptionally(ex);
+
+            @Override
+            public String toString() {
+                return action.toString();
             }
-            System.out.println(action);
         });
         return future;
     }
