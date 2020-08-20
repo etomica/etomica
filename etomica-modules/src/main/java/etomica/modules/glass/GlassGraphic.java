@@ -2190,13 +2190,13 @@ public class GlassGraphic extends SimulationGraphic {
             JFrame f = new JFrame();
             f.setSize(700, 500);
             JPanel panel = new JPanel();
-            panel.add(new JLabel("<html><div style='width: 200px;'>Note: high-density simulations will be slightly delayed in starting up, as the simulation works to generate a configuration without overlaps.  Please be patient.</div></html>"));
+            panel.add(new JLabel("<html><div style='width: 200px;'>Note: high-density simulations will be slightly delayed in starting up, as the simulation works to generate a configuration without overlaps. Controls probably won't work properly until this dialog disappears. </div></html>"));
             f.getContentPane().add(panel);
             f.pack();
             f.setTitle("Generating configuration");
+            f.setLocationRelativeTo(null);
             f.setVisible(true);
-            sim.getController().addActionSequential(() -> {
-                sim.initConfig();
+            sim.getController().addActivity(sim.makeInitConfigActivity()).future.whenComplete((res, ex) -> {
                 ljmdGraphic.getController().getResetAveragesButton().getAction().actionPerformed();
                 f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
             });
