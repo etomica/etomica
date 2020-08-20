@@ -7,6 +7,8 @@ package etomica.modules.glass;
 import etomica.action.BoxInflate;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.controller.Activity;
+import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -166,55 +168,64 @@ public class SimGlass extends Simulation {
         integrator.doThermostat();
     }
 
-    public void initConfig() {
-        if (potentialChoice != PotentialChoice.HS) return;
-        boolean success = false;
-        PotentialMaster potentialMaster = integrator.getPotentialMaster();
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
-        double tStepOld = integrator.getTimeStep();
-        integrator.setTimeStep(0.001);
-        for (; chs <= 100; chs++) {
-            p2AA.setCoreDiameter(chs * 0.01);
-            p2AA.setLambda(1 / (chs * 0.01));
-            double u = meterPE.getDataAsScalar();
-            if (u == Double.POSITIVE_INFINITY) {
-                chs--;
-                p2AA.setCoreDiameter(chs * 0.01);
-                p2AA.setLambda(1 / (chs * 0.01));
-                break;
-            }
-            if (chs == 100) {
-                success = true;
-                potentialMaster.removePotential(p2AA);
-                P2HardSphere p = new P2HardSphere(space, 1, false);
-                potentialMaster.addPotential(p, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
-            }
-        }
-        if (!success) {
-
-            while (chs < 100) {
-                integrator.reset();
-                for (int i = 0; i < 1000; i++) {
-                    integrator.doStep();
-                }
-                chs++;
-                p2AA.setCoreDiameter(chs * 0.01);
-                p2AA.setLambda(1 / (chs * 0.01));
-                if (meterPE.getDataAsScalar() == Double.POSITIVE_INFINITY) {
-                    chs--;
+    public Activity makeInitConfigActivity() {
+        return new Activity() {
+            @Override
+            public void runActivity(Controller.ControllerHandle handle) {
+                if (potentialChoice != PotentialChoice.HS) return;
+                boolean success = false;
+                PotentialMaster potentialMaster = integrator.getPotentialMaster();
+                MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
+                double tStepOld = integrator.getTimeStep();
+                integrator.setTimeStep(0.001);
+                for (; chs <= 100; chs++) {
                     p2AA.setCoreDiameter(chs * 0.01);
                     p2AA.setLambda(1 / (chs * 0.01));
-                    continue;
-                } else if (chs == 100) {
-                    potentialMaster.removePotential(p2AA);
-                    P2HardSphere p = new P2HardSphere(space, 1, false);
-                    potentialMaster.addPotential(p, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
+                    double u = meterPE.getDataAsScalar();
+                    if (u == Double.POSITIVE_INFINITY) {
+                        chs--;
+                        p2AA.setCoreDiameter(chs * 0.01);
+                        p2AA.setLambda(1 / (chs * 0.01));
+                        break;
+                    }
+                    if (chs == 100) {
+                        success = true;
+                        potentialMaster.removePotential(p2AA);
+                        P2HardSphere p = new P2HardSphere(space, 1, false);
+                        potentialMaster.addPotential(p, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
+                    }
                 }
+                if (!success) {
+
+                    while (chs < 100) {
+                        integrator.reset();
+                        for (int i = 0; i < 1000; i++) {
+                            handle.yield(integrator::doStep);
+                        }
+                        chs++;
+                        p2AA.setCoreDiameter(chs * 0.01);
+                        p2AA.setLambda(1 / (chs * 0.01));
+                        if (meterPE.getDataAsScalar() == Double.POSITIVE_INFINITY) {
+                            chs--;
+                            p2AA.setCoreDiameter(chs * 0.01);
+                            p2AA.setLambda(1 / (chs * 0.01));
+                            continue;
+                        } else if (chs == 100) {
+                            potentialMaster.removePotential(p2AA);
+                            P2HardSphere p = new P2HardSphere(space, 1, false);
+                            potentialMaster.addPotential(p, new AtomType[]{speciesA.getLeafType(), speciesA.getLeafType()});
+                        }
+                    }
+                }
+                integrator.reset();
+                integrator.resetStepCount();
+                integrator.setTimeStep(tStepOld);
             }
-        }
-        integrator.reset();
-        integrator.resetStepCount();
-        integrator.setTimeStep(tStepOld);
+        };
+    }
+
+    public void initConfig() {
+        this.getController().runActivityBlocking(makeInitConfigActivity());
     }
 
     @Override
