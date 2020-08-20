@@ -10,6 +10,22 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * <p>
+ * The Controller organizes and executes all actions and activities during a running simulation.
+ * </p>
+ *
+ * <p>
+ * A Simulation run consists of one or more Activities performed sequentially. An Activity is a "long-running" task
+ * considered to be the driver of the simulation; typically integration with {@link ActivityIntegrate}. The Controller
+ * facilitates interactive simulations by optionally running Activities on a separate thread and provides an interface
+ * to pause, resume, and submit Actions which can modify the simulation in a thread-safe manner. For non-interactive
+ * simulation runs, the same Activities can be executed on the current thread with {@code runActivityBlocking}.
+ * </p>
+ *
+ * @see IAction
+ * @see Activity
+ */
 public class Controller {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final ArrayDeque<ActivityHandle<?>> pendingActivities = new ArrayDeque<>(1);
@@ -26,13 +42,6 @@ public class Controller {
     public Controller() {
     }
 
-    /**
-     * Adds an Activity to be executed by the Controller on a separate thread. Activities will be run in the
-     * order they are added, with the next one starting after the current one completes. The returned
-     * `CompletableFuture` will be completed when the activity finishes.
-     * @param activity the repeated action.
-     * @param maxSteps
-     */
 
     public ActivityHandle<ActivityIntegrate> addActivity(ActivityIntegrate activity, long maxSteps) {
         activity.setMaxSteps(maxSteps);
@@ -45,6 +54,13 @@ public class Controller {
         return addActivity(activity);
     }
 
+    /**
+     * Adds an Activity to be executed by the Controller on a separate thread. Activities will be run in the
+     * order they are added, with the next one starting after the current one completes. Activities will not begin
+     * execution until the {@code start} method has been called. The returned ActivityHandle
+     * contains a `CompletableFuture` which will be completed when the activity finishes.
+     * @param activity
+     */
     public <A extends Activity> ActivityHandle<A> addActivity(A activity) {
         tryToGetIntegrator(activity);
         CompletableFuture<Void> future = new CompletableFuture<>();
@@ -152,6 +168,13 @@ public class Controller {
         return this.handle.isRunningActivityStep.get();
     }
 
+    /**
+     * Submit an Action which will be executed on the Activity thread before its next step. Since the Action is
+     * guaranteed not to run concurrently with the Activity's calculations, any modification of Simulation properties
+     * will be free of data races.
+     * @param action
+     * @return
+     */
     public CompletableFuture<Void> submitActionInterrupt(IAction action) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         if (this.currentTask == null) {
