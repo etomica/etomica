@@ -24,6 +24,10 @@ public class ActivityIntegrate extends Activity {
         this(integrator, maxSteps, false);
     }
 
+    public ActivityIntegrate(Integrator integrator, boolean ignoreOverlap) {
+        this(integrator, Long.MAX_VALUE, ignoreOverlap);
+    }
+
     public ActivityIntegrate(Integrator integrator) {
         this(integrator, Long.MAX_VALUE, false);
     }

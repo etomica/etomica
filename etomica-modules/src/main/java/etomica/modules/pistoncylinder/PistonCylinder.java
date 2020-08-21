@@ -101,7 +101,7 @@ public class PistonCylinder extends Simulation {
         integrator.setThermostatInterval(1);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setTimeStep(1.0);
-        getController().addActivity(new ActivityIntegrate(integrator, 0, true));
+        getController().addActivity(new ActivityIntegrate(integrator, true));
 
     }
 }
