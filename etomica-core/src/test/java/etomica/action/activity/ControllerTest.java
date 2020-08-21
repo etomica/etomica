@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Timeout(value = 1, unit = TimeUnit.SECONDS)
+@Timeout(value = 5, unit = TimeUnit.SECONDS)
 class ControllerTest {
 
     private static void sleep(long millis) {
@@ -57,7 +57,7 @@ class ControllerTest {
         Controller controller = new Controller();
 
         TestActivity act = new TestActivity();
-        act.steps = 100;
+        act.steps = 20;
         controller.setSleepPeriod(1);
         act.time = 1;
         ActivityHandle<?> handle = controller.addActivity(act);
