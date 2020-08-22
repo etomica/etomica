@@ -17,6 +17,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.config.ConfigurationLatticeRandom;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.CriterionBondedSimple;
 import etomica.nbr.CriterionInterMolecular;
@@ -73,7 +74,7 @@ public class SelfAssemblySim extends Simulation {
         addSpecies(speciesB);
 
         potentialMaster = new PotentialMasterList(this, 3, space);
-        ((PotentialMasterList) potentialMaster).setCellRange(1);
+        potentialMaster.setCellRange(1);
 
         controller1 = getController();
 
