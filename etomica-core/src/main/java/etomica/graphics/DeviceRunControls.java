@@ -15,6 +15,7 @@ public class DeviceRunControls extends Device {
         this.pauseDisplayed = false;
 
         this.button.addActionListener(e -> {
+            this.getController().start();
             if (controller.isPaused() == pauseDisplayed) {
                 return;
             }
