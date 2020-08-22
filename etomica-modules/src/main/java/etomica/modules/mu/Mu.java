@@ -13,7 +13,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.modules.chainequilibrium.ConfigurationLatticeRandom;
+import etomica.config.ConfigurationLatticeRandom;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P1HardBoundary;
 import etomica.simulation.Simulation;
