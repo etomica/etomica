@@ -98,7 +98,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
 
         thermometer = new MeterTemperature(box, space.D());
 
-        getController().addActivity(new ActivityIntegrate(integratorHard, 0, true));
+        getController().addActivity(new ActivityIntegrate(integratorHard, true));
     }
 
     public int getNMonoOl() {

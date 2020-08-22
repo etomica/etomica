@@ -92,7 +92,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
 
         // **** Setting Up the thermometer Meter *****
 
-        getController().addActivity(new ActivityIntegrate(integratorHard, 0, true));
+        getController().addActivity(new ActivityIntegrate(integratorHard, true));
     }
     
     public void resetBonds() {
