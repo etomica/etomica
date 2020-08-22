@@ -7,31 +7,19 @@ package etomica.modules.selfassembly;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
 import etomica.atom.*;
-import etomica.data.*;
-import etomica.data.history.HistoryCollapsingAverage;
 import etomica.graphics.*;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
-import etomica.modifier.ModifierGeneral;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
-import etomica.species.ISpecies;
 import etomica.units.*;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Quantity;
-import etomica.util.Constants.CompassDirection;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 
 /**
- * Module for chain reaction (polymerization) using ChainEquilibriumSim as the
- * simulation class.  Original module by William Scharmach and Matt Moynihan.
- * Later revamped based on module redesign by William M. Chirdon.
- *
- * @author Andrew Schultz
  */
 public class SelfAssemblyGraphic extends SimulationGraphic {
 
@@ -44,73 +32,31 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
 
     protected SelfAssemblySim sim;
 
-    public SelfAssemblyGraphic(SelfAssemblySim simulation, Space _space) {
+    public SelfAssemblyGraphic(SelfAssemblySim simulation) {
 
 		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
-        
-        int dataInterval = (int) (.04 / sim.integratorHard.getTimeStep());
-        
-        ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
-        
+
         getDisplayBox(sim.box).setPixelUnit(new Pixel(7));
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
-        // ********* Data Declaration Section *******	
-        int eMin = 0, eMax = 40;
+        // ********* Data Declaration Section *******
 
         // **** Stuff that Modifies the Simulation
 
         final IAction resetAction = getController().getSimRestart().getDataResetAction();
         
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.controller1);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
 
-        // Sliders on Well depth page
-//        final DeviceSlider ABSlider = sliders(eMin, eMax, "Diol-Carboxylic Acid", sim.ABbonded);
-//        final DeviceSlider ACSlider = sliders(eMin, eMax, "Diol-Crosslinker", sim.ACbonded);
-//        ABSlider.setPostAction(resetAction);
-//        ACSlider.setPostAction(resetAction);
-        
-//        DeviceBox solventThermoFrac = new DeviceBox();
-//        solventThermoFrac.setController(sim.getController());
-//        solventThermoFrac.setModifier(new ModifierGeneral(sim.ABbonded, "solventThermoFrac"));
-//        solventThermoFrac.setLabel("fraction heat transfer to solvent");
-//        DisplayTextBox tBox = new DisplayTextBox();
 
         DisplayTimer displayTimer = new DisplayTimer(sim.integratorHard);
         add(displayTimer);
-        
-        DataSourceCountTime timer = new DataSourceCountTime(sim.integratorHard);
-
-//        DataFork tFork = new DataFork();
-//        final DataPump tPump = new DataPump (sim.thermometer, tFork);
-//        tFork.addDataSink(tBox);
-//        add(tBox);
-//        dataStreamPumps.add(tPump);
-//        AccumulatorHistory tHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
-//        tHistory.setTimeDataSource(timer);
-//        tFork.addDataSink(tHistory);
-//        DisplayPlotXChart tPlot = new DisplayPlotXChart();
-//        tHistory.addDataSink(tPlot.getDataSet().makeDataSink());
-//        tPlot.setUnit(Kelvin.UNIT);
-//        tPlot.setLabel("Temperature");
-//        tPlot.getPlot().setYLabel("Temperature (K)");
-//        tPlot.setDoLegend(false);
-//        add(tPlot);
-//        IntegratorListenerAction tPumpListener = new IntegratorListenerAction(tPump);
-//        sim.integratorHard.getEventManager().addListener(tPumpListener);
-//        tPumpListener.setInterval(dataInterval);
 
 
         final IAction resetData = new IAction() {
             public void actionPerformed() {
                 sim.integratorHard.resetStepCount();
-//                molecularCount.reset();
-//                conversionPumpDiol.actionPerformed();
-//                conversionPumpAcid.actionPerformed();
-//                mwPump.actionPerformed();
-//                tPump.actionPerformed();
             }
         };
 
@@ -125,7 +71,7 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
             }
         });
 
-        DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.controller1, sim.integratorHard);
+        DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integratorHard);
         temperatureSelect.setUnit(Kelvin.UNIT);
         temperatureSelect.setMaximum(2000);
         temperatureSelect.setIsothermal();
@@ -365,7 +311,7 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
             }
         }
         SelfAssemblySim sim = new SelfAssemblySim(Space.getInstance(D));
-        SelfAssemblyGraphic graphic = new SelfAssemblyGraphic(sim, sim.getSpace());
+        SelfAssemblyGraphic graphic = new SelfAssemblyGraphic(sim);
         SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
     }
 

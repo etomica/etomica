@@ -35,7 +35,6 @@ public class SelfAssemblySim extends Simulation {
 
     public final PotentialMasterList potentialMaster;
     public final ConfigurationLatticeRandom config;
-    public Controller controller1;
 	public IntegratorHard integratorHard;
 	public java.awt.Component display;
 	public Box box;
@@ -75,8 +74,6 @@ public class SelfAssemblySim extends Simulation {
 
         potentialMaster = new PotentialMasterList(this, 3, space);
         potentialMaster.setCellRange(1);
-
-        controller1 = getController();
 
         double defaultEps = 50;
         sigAA = 1.0;
