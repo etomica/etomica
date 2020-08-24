@@ -34,6 +34,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Bar;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -48,7 +49,7 @@ public class TestEwaldTIP4PWater extends Simulation {
     private static final int PIXEL_SIZE = 15;
     protected final PotentialMaster potentialMaster;
     protected final Box box;
-    protected final SpeciesWater4P species;
+    protected final SpeciesGeneral species;
     protected final IntegratorMC integrator;
 
     TestEwaldTIP4PWater(Space space) {
@@ -58,8 +59,7 @@ public class TestEwaldTIP4PWater extends Simulation {
         ConfigurationLattice configuration = new ConfigurationLattice(lattice, space);
 
         ConformationWaterTIP4P config = new ConformationWaterTIP4P(space);
-        species = new SpeciesWater4P(space);
-        species.setConformation(config);
+        species = SpeciesWater4P.create(config);
         addSpecies(species);
 
         potentialMaster = new PotentialMaster();
@@ -88,7 +88,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 
         //Potential
         P2LennardJones potentialLJ = new P2LennardJones(space, 3.154, Kelvin.UNIT.toSim(78.02));
-        potentialMaster.addPotential(potentialLJ, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
+        potentialMaster.addPotential(potentialLJ, new AtomType[]{species.getTypeByName("O"), species.getTypeByName("O")});
 
         CriterionAll criterionAll = new CriterionAll();
 
@@ -137,9 +137,9 @@ public class TestEwaldTIP4PWater extends Simulation {
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-        colorScheme.setColor(sim.species.getHydrogenType(), Color.WHITE);
-        colorScheme.setColor(sim.species.getOxygenType(), Color.RED);
-        ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getMType(), 0);
+        colorScheme.setColor(sim.species.getTypeByName("H"), Color.WHITE);
+        colorScheme.setColor(sim.species.getTypeByName("O"), Color.RED);
+        ((DiameterHashByType)simGraphic.getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getTypeByName("M"), 0);
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
 

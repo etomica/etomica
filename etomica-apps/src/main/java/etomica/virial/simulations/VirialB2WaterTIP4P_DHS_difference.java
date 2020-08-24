@@ -23,6 +23,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
@@ -128,7 +129,7 @@ public class VirialB2WaterTIP4P_DHS_difference {
 
         double refIntegral = HSB[nPoints];
 
-        SpeciesWater4P species = new SpeciesWater4P(space);
+        SpeciesGeneral species = SpeciesWater4P.create();
         //simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, temperature, refCluster, targetCluster, false);
 
@@ -155,16 +156,16 @@ public class VirialB2WaterTIP4P_DHS_difference {
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             //set diameters
             DiameterHashByType diameter = new DiameterHashByType();
-            diameter.setDiameter(species.getHydrogenType(), 1);
-            diameter.setDiameter(species.getOxygenType(), 1);
-            diameter.setDiameter(species.getMType(), 1);
+            diameter.setDiameter(species.getTypeByName("H"), 1);
+            diameter.setDiameter(species.getTypeByName("O"), 1);
+            diameter.setDiameter(species.getTypeByName("M"), 1);
 
             simGraphic.getDisplayBox(sim.box[0]).setDiameterHash(diameter);
             simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);
             ColorSchemeByType colorScheme = (ColorSchemeByType) simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
-            colorScheme.setColor(species.getHydrogenType(), Color.red);
-            colorScheme.setColor(species.getOxygenType(), Color.yellow);
-            colorScheme.setColor(species.getMType(), Color.black);
+            colorScheme.setColor(species.getTypeByName("H"), Color.red);
+            colorScheme.setColor(species.getTypeByName("O"), Color.yellow);
+            colorScheme.setColor(species.getTypeByName("M"), Color.black);
 
             simGraphic.makeAndDisplayFrame();
 

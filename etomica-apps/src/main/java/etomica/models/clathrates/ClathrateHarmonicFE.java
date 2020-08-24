@@ -31,6 +31,7 @@ import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Calorie;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
@@ -45,7 +46,7 @@ public class ClathrateHarmonicFE extends Simulation {
     protected static double[] initialU;
     protected Box box;
     protected PotentialMaster potentialMaster;
-    protected SpeciesWater4P species;
+    protected SpeciesGeneral species;
     protected MeterPotentialEnergy meterPE;
     protected Potential2SoftSpherical potentialLJ;
     protected Potential2SoftSphericalLS potentialLJLS;
@@ -53,7 +54,7 @@ public class ClathrateHarmonicFE extends Simulation {
 
     public ClathrateHarmonicFE(Space space, int[] nC, double rCutRealES, double rCutLJ, double[] a0_sc, int numMolecule, String configFileName, boolean isIce, double kCut, boolean includeM) {
         super(space);
-        species = new SpeciesWater4P(space);
+        species = SpeciesWater4P.create();
         addSpecies(species);
         box = this.makeBox(new BoundaryRectangularPeriodic(space, a0_sc));
         box.setNMolecules(species, numMolecule);
@@ -79,7 +80,7 @@ public class ClathrateHarmonicFE extends Simulation {
         potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
 //XXXX Potential Master
         potentialMaster = new PotentialMaster();
-        potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
+        potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getTypeByName("O"), species.getTypeByName("O")});
         potentialMaster.addPotential(potentialES, new AtomType[0]);
         potentialLJLS.setBox(box);
 
@@ -204,7 +205,7 @@ public class ClathrateHarmonicFE extends Simulation {
             public Tensor atomicTensor(IAtom atom0, IAtom atom1) {
                 D3ESLJ.E(0);
                 //LJ
-                if (atom0.getType() == sim.species.getOxygenType() && atom1.getType() == sim.species.getOxygenType()) {
+                if (atom0.getType() == sim.species.getTypeByName("O") && atom1.getType() == sim.species.getTypeByName("O")) {
                     dr.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
                     sim.box.getBoundary().nearestImage(dr);
 
@@ -228,7 +229,7 @@ public class ClathrateHarmonicFE extends Simulation {
                         }
                     }
                     //ES
-                } else if (atom0.getType() != sim.species.getOxygenType() && atom1.getType() != sim.species.getOxygenType()) {
+                } else if (atom0.getType() != sim.species.getTypeByName("O") && atom1.getType() != sim.species.getTypeByName("O")) {
                     D3ESLJ.PE(sim.potentialES.secondDerivative(atom0, atom1));
                 }
                 return D3ESLJ;
@@ -240,11 +241,11 @@ public class ClathrateHarmonicFE extends Simulation {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "string");
             final DisplayBox display = new DisplayBox(sim, sim.box);
             simGraphic.add(display);
-            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getHydrogenType(), Color.GREEN);
-            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getOxygenType(), Color.RED);
+            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getTypeByName("H"), Color.GREEN);
+            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getTypeByName("O"), Color.RED);
             //Sabry
-            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getOxygenType(), 2.0);
-            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getHydrogenType(), 1.0);
+            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getTypeByName("O"), 2.0);
+            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getTypeByName("H"), 1.0);
 
             ((DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box).canvas).setBackgroundColor(Color.white);
             ((DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box).canvas).setBoundaryFrameColor(Color.blue);

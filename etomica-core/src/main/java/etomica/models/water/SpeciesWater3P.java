@@ -12,53 +12,27 @@ import etomica.chem.elements.Oxygen;
 import etomica.molecule.IMolecule;
 import etomica.molecule.Molecule;
 import etomica.space.Space;
+import etomica.space3d.Space3D;
 import etomica.species.Species;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Species for 3-point water molecule.
  */
-public class SpeciesWater3P extends Species {
-
-    public final static int indexH1 = 0;
-    public final static int indexH2 = 1;
-    public final static int indexO = 2;
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final AtomType oType, hType;
-    protected final boolean isDynamic;
-    public SpeciesWater3P(Space space) {
-        this(space, false);
-    }
-    public SpeciesWater3P(Space space, boolean isDynamic) {
-        super();
-        this.space = space;
-        hType = new AtomType(Hydrogen.INSTANCE);
-        oType = new AtomType(Oxygen.INSTANCE);
-        addChildType(hType);
-        addChildType(oType);
-        this.isDynamic = isDynamic;
-
-        setConformation(new ConformationWater3P(space));
+public class SpeciesWater3P {
+    public static SpeciesGeneral create() {
+        return create(false);
     }
 
-    public IMolecule makeMolecule() {
-        Molecule water = new Molecule(this, 3);
-        water.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new Atom(space, hType));
-        water.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new Atom(space, hType));
-        water.addChildAtom(isDynamic ? new AtomLeafDynamic(space, oType) : new Atom(space, oType));
-        conformation.initializePositions(water.getChildList());
-        return water;
-    }
-
-    public AtomType getHydrogenType() {
-        return hType;
-    }
-
-    public AtomType getOxygenType() {
-        return oType;
-    }
-
-    public int getNumLeafAtoms() {
-        return 3;
+    public static SpeciesGeneral create(boolean isDynamic) {
+        AtomType hType = new AtomType(Hydrogen.INSTANCE);
+        AtomType oType = new AtomType(Oxygen.INSTANCE);
+        return new SpeciesBuilder(Space3D.getInstance())
+                .withConformation(new ConformationWater3P(Space3D.getInstance()))
+                .addCount(hType, 2)
+                .addCount(oType, 1)
+                .setDynamic(isDynamic)
+                .build();
     }
 }

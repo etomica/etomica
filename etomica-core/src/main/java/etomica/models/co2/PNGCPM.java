@@ -26,6 +26,7 @@ import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -254,7 +255,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
 
         sim = new Simulation(space);
-        SpeciesWater4P speciesWater = new SpeciesWater4P(space);
+        SpeciesGeneral speciesWater = SpeciesWater4P.create();
         sim.addSpecies(speciesWater);
         box = sim.makeBox();
         box.setNMolecules(speciesWater, 3);

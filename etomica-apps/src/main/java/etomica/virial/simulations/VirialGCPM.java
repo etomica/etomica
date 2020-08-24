@@ -15,6 +15,7 @@ import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -93,8 +94,7 @@ public class VirialGCPM {
         sampleCluster1.setTemperature(temperature);
         refSample.setTemperature(temperature);
 
-        SpeciesWater4P species = new SpeciesWater4P(space);
-        species.setConformation(new ConformationWaterGCPM(space));
+        SpeciesGeneral species = SpeciesWater4P.create(new ConformationWaterGCPM(space));
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species,
                 temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1}, false);

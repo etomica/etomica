@@ -9,7 +9,9 @@ import etomica.models.water.*;
 import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.Species;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
@@ -65,20 +67,19 @@ public class VirialWaterOverlap {
         MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
 
         IPotentialMolecular pTarget = null;
-        Species species = null;
+        ISpecies species = null;
         switch (model) {
             case 0: // SPCE
                 pTarget = new P2WaterSPCE(space);
-                species = new SpeciesWater3P(space);
+                species = SpeciesWater3P.create();
                 break;
             case 1: // SPC
                 pTarget = new P2WaterSPC(space);
-                species = new SpeciesWater3P(space);
+                species = SpeciesWater3P.create();
                 break;
             case 2: // TIP4P
                 pTarget = new P2WaterTIP4P(space);
-                species = new SpeciesWater4P(space);
-                species.setConformation(new ConformationWaterTIP4P(space));
+                species = SpeciesWater4P.create();
                 break;
             default:
                 throw new RuntimeException("unknown model "+model);
