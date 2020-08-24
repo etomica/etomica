@@ -15,6 +15,7 @@ import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
@@ -216,8 +217,7 @@ public class WertheimGCPM4PtEBondDecomp {
 		}
 		targetCluster.setTemperature(temperature);
 
-		SpeciesWater4P species = new SpeciesWater4P(space);
-		species.setConformation(new ConformationWaterGCPM(space));
+		SpeciesGeneral species = SpeciesWater4P.create(false, new ConformationWaterGCPM(space));
 		final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, temperature, refCluster, targetCluster);
 		ConfigurationClusterWertheimGCPM4Pt configuration = new ConfigurationClusterWertheimGCPM4Pt(space, sim.getRandom(), pCA);
 		if (numDiagram == 28) configuration.initializeCoordinatesER(sim.box[1]);

@@ -15,6 +15,7 @@ import etomica.models.water.SpeciesWater3P;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -55,7 +56,7 @@ class EwaldSummationTest {
         double rCutRealES = 10;
         Space space = Space.getInstance(3);
         Simulation sim = new Simulation(space);
-        SpeciesWater3P species = new SpeciesWater3P(space, false);
+        SpeciesGeneral species = SpeciesWater3P.create();
         sim.addSpecies(species);
         Box box = sim.makeBox();
         ChargeAgentSourceSPCE agentSource = new ChargeAgentSourceSPCE(species);
@@ -93,12 +94,12 @@ class EwaldSummationTest {
     private static class ChargeAgentSourceSPCE implements AtomLeafAgentManager.AgentSource<EwaldSummation.MyCharge> {
         private final Map<AtomType, EwaldSummation.MyCharge> myCharge;
 
-        public ChargeAgentSourceSPCE(SpeciesWater3P species) {
+        public ChargeAgentSourceSPCE(SpeciesGeneral species) {
             myCharge = new HashMap<>();
             double chargeH = P2WaterSPCE.QH;
             double chargeO = P2WaterSPCE.QO;
-            myCharge.put(species.getHydrogenType(), new EwaldSummation.MyCharge(chargeH));
-            myCharge.put(species.getOxygenType(), new EwaldSummation.MyCharge(chargeO));
+            myCharge.put(species.getTypeByName("H"), new EwaldSummation.MyCharge(chargeH));
+            myCharge.put(species.getTypeByName("O"), new EwaldSummation.MyCharge(chargeO));
         }
 
         // *********************** set half(even # of particles ) as +ion, the other half -ion ***********************

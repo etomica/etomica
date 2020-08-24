@@ -17,6 +17,7 @@ import etomica.potential.IPotential;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
@@ -118,7 +119,7 @@ public class VirialB3C1TIP4Pwater {
         targetCluster.setTemperature(temperature);
         double refIntegral = HSB[nPoints];
 
-        SpeciesWater4P species = new SpeciesWater4P(space);
+        SpeciesGeneral species = SpeciesWater4P.create();
 
         //simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, temperature, refCluster, targetCluster, false);

@@ -34,6 +34,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -55,7 +56,7 @@ public class SimGCPMWaterMCNVT extends Simulation {
     public IntegratorMC integrator;
     public MCMoveMolecule mcMoveMolecule;
     public MCMoveRotateMolecule3D mcMoveRotateMolecule;
-    public SpeciesWater4P species;
+    public SpeciesGeneral species;
     public Box box;
     public PNWaterGCPMReactionField potential;
 
@@ -95,9 +96,8 @@ public class SimGCPMWaterMCNVT extends Simulation {
         integrator.getMoveManager().setEquilibrating(true);
         this.getController().addActivity(new ActivityIntegrate(integrator), numSteps);
         //actionIntegrate.setSleepPeriod(1);
-        species = new SpeciesWater4P(space);
+        species = SpeciesWater4P.create(new ConformationWaterGCPM(space));
         addSpecies(species);
-        species.setConformation(new ConformationWaterGCPM(space));
         box.setNMolecules(species, numMolceules);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);
@@ -162,7 +162,7 @@ public class SimGCPMWaterMCNVT extends Simulation {
 
         if (false) {
         	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,"water", 1);
-        	SpeciesWater4P species = (SpeciesWater4P)sim.getSpecies(0);
+        	SpeciesGeneral species = (SpeciesGeneral) sim.getSpecies(0);
             ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
         	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage());

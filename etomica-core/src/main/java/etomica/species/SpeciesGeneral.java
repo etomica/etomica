@@ -6,10 +6,8 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.Molecule;
 import etomica.space.Space;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
+import java.util.stream.IntStream;
 
 public class SpeciesGeneral implements ISpecies {
     private final AtomType[] atomTypes;
@@ -94,6 +92,24 @@ public class SpeciesGeneral implements ISpecies {
             }
         }
         throw new IllegalArgumentException("Name not found");
+    }
+
+    /**
+     * Gets the index within the molecule of the nth atom of given element string.
+     *
+     * @param name String matching the Element symbol for the AtomType
+     * @param number The nth atom with that type to get, starting at 1.
+     * @return the index of that atom within a molecule of this species.
+     */
+    public int getAtomByTypeName(String name, int number) {
+        return IntStream.range(0, this.atomTypes.length)
+                .filter(i -> this.atomTypes[i].getElement().getSymbol().equals(name))
+                .skip(number - 1)
+                .findFirst().orElseThrow(NoSuchElementException::new);
+    }
+
+    public int getAtomByTypeName(String name) {
+        return this.getAtomByTypeName(name, 1);
     }
 
     public AtomType getTypeByName(String typeName) {

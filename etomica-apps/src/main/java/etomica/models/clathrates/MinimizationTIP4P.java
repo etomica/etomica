@@ -26,6 +26,7 @@ import etomica.simulation.Simulation;
 import etomica.space.*;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
@@ -41,7 +42,7 @@ public class MinimizationTIP4P extends Simulation {
     protected static double selfELJ;
     protected Box box;
     protected PotentialMaster potentialMaster;
-    protected SpeciesWater4P species;
+    protected SpeciesGeneral species;
     protected MeterHarmonicEnergy meterHarm;
     protected MeterPotentialEnergy meterPE;
     protected Potential2SoftSphericalLS potentialLJLS;
@@ -49,7 +50,7 @@ public class MinimizationTIP4P extends Simulation {
 
     public MinimizationTIP4P(Space space, double rCutLJ, double rCutRealES, double[] a0, int[] nC, int nBasis, boolean isIce, double kCut, String configFile, boolean includeM) {
         super(space);
-        species = new SpeciesWater4P(space);
+        species = SpeciesWater4P.create();
         addSpecies(species);
         double[] a0_sc = new double[]{a0[0] * nC[0], a0[1] * nC[1], a0[2] * nC[2]};
         Boundary boundary = new BoundaryRectangularPeriodic(space, a0_sc);
@@ -74,7 +75,7 @@ public class MinimizationTIP4P extends Simulation {
 
         potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
         potentialMaster = new PotentialMaster();
-        potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
+        potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getTypeByName("O"), species.getTypeByName("O")});
         potentialMaster.addPotential(potentialES, new AtomType[0]);
         potentialLJLS.setBox(box);
 
@@ -357,10 +358,10 @@ public class MinimizationTIP4P extends Simulation {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "string");
             final DisplayBox display = new DisplayBox(sim, sim.box);
             simGraphic.add(display);
-            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getHydrogenType(), Color.GREEN);
-            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getOxygenType(), Color.RED);
-            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getOxygenType(), 2.0);
-            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getHydrogenType(), 1.0);
+            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getTypeByName("H"), Color.GREEN);
+            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getTypeByName("O"), Color.RED);
+            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getTypeByName("O"), 2.0);
+            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getTypeByName("H"), 1.0);
 
             ((DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box).canvas).setBackgroundColor(Color.white);
             ((DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box).canvas).setBoundaryFrameColor(Color.blue);
@@ -393,7 +394,7 @@ public class MinimizationTIP4P extends Simulation {
     public static class ChargeAgentSourceRPM implements AtomLeafAgentManager.AgentSource<MyCharge> {
         private final Map<AtomType, MyCharge> myCharge;
 
-        public ChargeAgentSourceRPM(SpeciesWater4P species, boolean isIce) {
+        public ChargeAgentSourceRPM(SpeciesGeneral species, boolean isIce) {
             myCharge = new HashMap<>();
             double chargeH;
             if (isIce) {
@@ -401,9 +402,9 @@ public class MinimizationTIP4P extends Simulation {
             } else {
                 chargeH = Electron.UNIT.toSim(0.52); // TIP4P
             }
-            myCharge.put(species.getHydrogenType(), new MyCharge(chargeH));
-            myCharge.put(species.getOxygenType(), new MyCharge(0));
-            myCharge.put(species.getMType(), new MyCharge(-2.0 * chargeH));
+            myCharge.put(species.getTypeByName("H"), new MyCharge(chargeH));
+            myCharge.put(species.getTypeByName("O"), new MyCharge(0));
+            myCharge.put(species.getTypeByName("M"), new MyCharge(-2.0 * chargeH));
         }
 
         // *********************** set half(even # of particles ) as +ion, the other half -ion ***********************

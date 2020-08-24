@@ -26,6 +26,7 @@ import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 
@@ -40,7 +41,7 @@ public class SingleWaterRattle {
     public static SimulationGraphic makeSingleWater() {
         final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesWater3P species = new SpeciesWater3P(sim.getSpace(), true);
+        SpeciesGeneral species = SpeciesWater3P.create(true);
         sim.addSpecies(species);
         final Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
         sim.addBox(box);
@@ -144,8 +145,8 @@ public class SingleWaterRattle {
             sim.getController().setSleepPeriod(10);
             sim.getController().addActivity(new ActivityIntegrate(integrator));
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rattle", 1);
-            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
-            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("H"), Color.WHITE);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("O"), Color.RED);
             return graphic;
         }
 

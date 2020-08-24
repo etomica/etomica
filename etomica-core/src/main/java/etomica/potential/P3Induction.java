@@ -24,6 +24,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGeneratorUnix;
@@ -159,8 +160,7 @@ public class P3Induction implements IPotentialAtomic {
         sim.addBox(box);
         box.setNMolecules(species, 3);
         box.getBoundary().setBoxSize(Vector.of(new double[]{10000, 10000, 10000}));
-        SpeciesWater4P water4P = new SpeciesWater4P(space);
-        water4P.setConformation(new ConformationWaterGCPM(space));
+        SpeciesGeneral water4P = SpeciesWater4P.create(new ConformationWaterGCPM(space));
         sim.addSpecies(water4P);
         sim.addBox(box2);
         box2.setNMolecules(water4P, 3);

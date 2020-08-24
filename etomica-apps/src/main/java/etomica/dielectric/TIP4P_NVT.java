@@ -43,6 +43,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -69,7 +70,7 @@ public class TIP4P_NVT extends Simulation {
     protected final MCMoveMolecule moveMolecule;//translation
     protected final MCMoveRotateMolecule3D rotateMolecule;//rotation
     protected final Box box;
-    protected SpeciesWater4P species;
+    protected SpeciesGeneral species;
     protected P2WaterTIP4PSoft pWater;
     private final static String APP_NAME = "TIP4P water";
     private static final int PIXEL_SIZE = 15;
@@ -103,7 +104,7 @@ public class TIP4P_NVT extends Simulation {
 
 //    	 setRandom(new RandomNumberGenerator(1));  // debug only
 
-         species = new SpeciesWater4P(space);
+         species = SpeciesWater4P.create();
          addSpecies(species);
          box = this.makeBox();
          box.setNMolecules(species, numberMolecules);
@@ -230,14 +231,14 @@ public class TIP4P_NVT extends Simulation {
         	  simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(PIXEL_SIZE));
         	  simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));            
         	 
-        	  ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getHydrogenType(),1);
-        	  ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getOxygenType(),1);
-        	  ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getMType(),1);
+        	  ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getTypeByName("H"),1);
+        	  ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getTypeByName("O"),1);
+        	  ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getTypeByName("M"),1);
 
             ColorSchemeByType colorScheme = (ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme();
-            colorScheme.setColor(sim.species.getHydrogenType(), Color.red);
-            colorScheme.setColor(sim.species.getOxygenType(), Color.green);
-            colorScheme.setColor(sim.species.getMType(), Color.blue);
+            colorScheme.setColor(sim.species.getTypeByName("H"), Color.red);
+            colorScheme.setColor(sim.species.getTypeByName("O"), Color.green);
+            colorScheme.setColor(sim.species.getTypeByName("M"), Color.blue);
 
             simGraphic.makeAndDisplayFrame(APP_NAME);
             simGraphic.getDisplayBox(sim.box).repaint();

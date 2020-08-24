@@ -27,6 +27,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Calorie;
 import etomica.units.Joule;
@@ -52,7 +53,7 @@ import java.io.PrintWriter;
 public class ProtonDisorderGenerator extends Simulation {
     protected Box boxO, box;
     protected SpeciesSpheresMono speciesO;
-    protected SpeciesWater4P species;
+    protected SpeciesGeneral species;
     protected Potential2SoftSpherical potentialLJ;
     protected EwaldSummation potentialES;
     protected PotentialMaster potentialMaster;
@@ -69,7 +70,7 @@ public class ProtonDisorderGenerator extends Simulation {
         ConfigurationFile config = new ConfigurationFile(configFile);
         config.initializeCoordinates(boxO);
 
-        species = new SpeciesWater4P(space);
+        species = SpeciesWater4P.create();
         addSpecies(species);
         double[] a0_sc = new double[]{a0[0] * nC[0], a0[1] * nC[1], a0[2] * nC[2]};
         Boundary boundary = new BoundaryRectangularPeriodic(space, a0_sc);
@@ -112,7 +113,7 @@ public class ProtonDisorderGenerator extends Simulation {
 
 //XXXX Potential Master
         potentialMaster = new PotentialMaster();
-        potentialMaster.addPotential(potentialLJ, new AtomType[]{species.getOxygenType(), species.getOxygenType()});
+        potentialMaster.addPotential(potentialLJ, new AtomType[]{species.getTypeByName("O"), species.getTypeByName("O")});
         potentialMaster.addPotential(potentialES, new AtomType[0]);
     }
 
@@ -271,11 +272,11 @@ public class ProtonDisorderGenerator extends Simulation {
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "string");
             final DisplayBox display = new DisplayBox(sim, sim.box);
             simGraphic.add(display);
-            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getHydrogenType(), Color.GREEN);
-            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getOxygenType(), Color.RED);
+            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getTypeByName("H"), Color.GREEN);
+            ((ColorSchemeByType) simGraphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getTypeByName("O"), Color.RED);
             //Sabry
-            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getOxygenType(), 2.0);
-            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getHydrogenType(), 1.0);
+            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getTypeByName("O"), 2.0);
+            ((DiameterHashByType) ((DisplayBox) simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.species.getTypeByName("H"), 1.0);
 
             ((DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box).canvas).setBackgroundColor(Color.white);
             ((DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box).canvas).setBoundaryFrameColor(Color.blue);

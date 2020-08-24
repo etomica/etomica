@@ -17,6 +17,8 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Tensor3D;
 import etomica.spaceNd.TensorND;
+import etomica.species.Species;
+import etomica.species.SpeciesGeneral;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,7 +30,7 @@ import java.io.PrintWriter;
 
 public class NormalModesMolecular implements NormalModes {
 
-    public NormalModesMolecular(SpeciesWater4P species, boolean waveVectorMethod , PotentialMaster potentialMaster, Box box, int[] nUniyCellsInSupBox, Primitive primitive, int basisDim, AtomicTensorAtomicPair atomicTensorAtomicPair, Space space) {
+    public NormalModesMolecular(SpeciesGeneral species, boolean waveVectorMethod , PotentialMaster potentialMaster, Box box, int[] nUniyCellsInSupBox, Primitive primitive, int basisDim, AtomicTensorAtomicPair atomicTensorAtomicPair, Space space) {
     	this.waveVectorMethod = waveVectorMethod;
         this.space = space;
         this.potentialMaster = potentialMaster;
@@ -61,7 +63,7 @@ public class NormalModesMolecular implements NormalModes {
     	IMoleculeList molList = box.getMoleculeList();
         Tensor tempTensor = space.makeTensor();
         Tensor inertiaTensor = space.makeTensor();
-        double massH2O = species.getOxygenType().getMass() + 2.0 * species.getHydrogenType().getMass();
+        double massH2O = species.getTypeByName("O").getMass() + 2.0 * species.getTypeByName("H").getMass();
     	MoleculePositionCOM comi = new MoleculePositionCOM(space);
     	Vector drk = space.makeVector();
         Tensor identity = new Tensor3D(new double[][] {{1.0,0.0,0.0}, {0.0,1.0,0.0}, {0.0,0.0,1.0}});
@@ -222,7 +224,7 @@ public class NormalModesMolecular implements NormalModes {
 	protected LatticeSumMolecularCrystal summer;
 	protected PotentialMaster potentialMaster;
 	protected final boolean waveVectorMethod;
-	protected SpeciesWater4P species;
+	protected SpeciesGeneral species;
 	protected int[] nC;
     
 }

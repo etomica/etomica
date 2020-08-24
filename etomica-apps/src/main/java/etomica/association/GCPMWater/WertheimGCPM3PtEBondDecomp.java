@@ -17,6 +17,7 @@ import etomica.models.water.SpeciesWater4P;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
@@ -169,8 +170,7 @@ public class WertheimGCPM3PtEBondDecomp {
 		clusters = (ClusterBonds[]) Arrays.addObject(clusters, new ClusterBonds(nBody, bondList, false));
 		targetCluster = new ClusterSumPolarizableWertheimProduct(clusters, new double[]{1}, new MayerFunction[]{fR, FAC, FBC, FCA, eR});
 		targetCluster.setTemperature(temperature);
-		SpeciesWater4P species = new SpeciesWater4P(space);
-		species.setConformation(new ConformationWaterGCPM(space));
+		SpeciesGeneral species = SpeciesWater4P.create(new ConformationWaterGCPM(space));
 		final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, temperature, refCluster, targetCluster);
 		ConfigurationClusterWertheimGCPM configuration = new ConfigurationClusterWertheimGCPM(space, sim.getRandom(), pAC);
 		if (numDiagram == 3) {

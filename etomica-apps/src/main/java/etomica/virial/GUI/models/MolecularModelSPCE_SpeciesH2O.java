@@ -203,25 +203,8 @@ private String[][] setParameterValues() {
 	
 	//Creates the LJAtom Species
 	public ISpecies createSpecies(){
-		SpeciesFactory factory = new SpeciesFactory() {
-	        public ISpecies makeSpecies(Space space) {
-	            Species species = new SpeciesWater3P(space);
-	            return species;
-	        }
-	    };
-	    return factory.makeSpecies(this.space);
+		return SpeciesWater3P.create();
 	}
-
-	//Creates the LJAtom Species
-		public SpeciesFactory createSpeciesFactory(){
-			SpeciesFactory factory = new SpeciesFactory() {
-		        public ISpecies makeSpecies(Space space) {
-		            Species species = new SpeciesWater3P(space);
-		            return species;
-		        }
-		    };
-		    return factory;
-		}
 
 	public int getParameterCount() {
 		return 2;
