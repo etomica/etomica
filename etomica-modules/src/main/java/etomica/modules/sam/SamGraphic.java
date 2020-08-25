@@ -58,16 +58,16 @@ public class SamGraphic extends SimulationGraphic {
         
         ((DisplayBoxCanvasG3DSys)displayBox.canvas).addPlane(new WallPlane(space, sim.wallPotential));
         
-        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getCH2Type(), new Color(190, 190, 190));
-        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getCH3Type(), new Color(230, 230, 230));
-        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getSulfurType(), new Color(255, 200, 50));
+        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getTypeByName("CH2"), new Color(190, 190, 190));
+        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getTypeByName("CH3"), new Color(230, 230, 230));
+        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getTypeByName("S"), new Color(255, 200, 50));
         ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.speciesSurface.getLeafType(), new Color(218, 165, 32));
         
         DiameterHashByType diameterHash = (DiameterHashByType)displayBox.getDiameterHash();
         diameterHash.setDiameter(sim.speciesSurface.getLeafType(), 3.0);
-        diameterHash.setDiameter(sim.species.getCH2Type(), sim.p2CH2.getSigma());
-        diameterHash.setDiameter(sim.species.getCH3Type(), sim.p2CH3.getSigma());
-        diameterHash.setDiameter(sim.species.getSulfurType(), sim.p2S.getSigma());
+        diameterHash.setDiameter(sim.species.getTypeByName("CH2"), sim.p2CH2.getSigma());
+        diameterHash.setDiameter(sim.species.getTypeByName("CH3"), sim.p2CH3.getSigma());
+        diameterHash.setDiameter(sim.species.getTypeByName("S"), sim.p2S.getSigma());
 
 
         getController().getReinitButton().setPostAction(getPaintAction(sim.box));
@@ -402,7 +402,7 @@ public class SamGraphic extends SimulationGraphic {
                 ((P2LennardJones)sim.p2SulfurSurfaceLJ.getWrappedPotential()).setEpsilon(sinusoidalEnabled ? 0 : 
                     ((P2LennardJones)sim.p2CH2Surface.getWrappedPotential()).getEpsilon());
                 sim.p2SurfaceBond.setSpringConstant(sinusoidalEnabled ? 0 : sim.harmonicStrength);
-                sim.integrator.setSulfurType(sinusoidalEnabled ? sim.species.getSulfurType() : null);
+                sim.integrator.setSulfurType(sinusoidalEnabled ? sim.species.getTypeByName("S") : null);
 
                 sim.wallPotential.setWallPosition(20);
                 wallPositionSlider.doUpdate();
