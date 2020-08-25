@@ -29,6 +29,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
+import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 
@@ -48,7 +49,7 @@ public class DCVGCMD extends Simulation {
     public P1WCAPorousWall potentialwallPorousB, potentialwallPorousB1;
     public SpeciesSpheresMono species1;
     public SpeciesSpheresMono species2;
-    public SpeciesTube speciesTube;
+    public SpeciesSpheres speciesTube;
     public Box box;
     public DataSourceGroup fluxMeters;
     public MeterFlux meterFlux0, meterFlux1, meterFlux2, meterFlux3;
@@ -77,7 +78,13 @@ public class DCVGCMD extends Simulation {
         species1.setIsDynamic(true);
         species2 = new SpeciesSpheresMono(this, space);
         species2.setIsDynamic(true);
-        speciesTube = new SpeciesTube(20, 40, space);
+        speciesTube = new SpeciesSpheres(
+               20 * 40,
+               new ElementSimple("T", Double.POSITIVE_INFINITY),
+               new ConformationTube(_space, 20),
+               _space
+        );
+        speciesTube.setIsDynamic(true);
         addSpecies(species1);
         addSpecies(species2);
         addSpecies(speciesTube);
