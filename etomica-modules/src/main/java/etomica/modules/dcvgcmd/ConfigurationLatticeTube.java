@@ -15,6 +15,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -45,7 +46,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
 	    this.speciesSpheres = speciesSpheres;
 	}
 	
-	public void setSpeciesTube(SpeciesTube speciesTube) {
+	public void setSpeciesTube(SpeciesSpheres speciesTube) {
 	    this.speciesTube = speciesTube;
 	}
 	
@@ -164,6 +165,6 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
     private final IndexIteratorSizable indexIterator;
     private final MoleculeActionTranslateTo atomActionTranslateTo;
     protected SpeciesSpheresMono[] speciesSpheres;
-    protected SpeciesTube speciesTube;
+    protected SpeciesSpheres speciesTube;
     private final double length;
 }
