@@ -35,6 +35,10 @@ public class SpeciesGeneral implements ISpecies {
         this.uniqueAtomTypes = unique.toArray(new AtomType[0]);
         this.isDynamic = isDynamic;
         this.space = space;
+
+        for (AtomType atomType : unique) {
+            atomType.setSpecies(this);
+        }
     }
 
     @Override
@@ -83,6 +87,10 @@ public class SpeciesGeneral implements ISpecies {
     @Override
     public void initializeConformation(IMolecule molecule) {
         this.conformation.initializePositions(molecule.getChildList());
+    }
+
+    public IConformation getConformation() {
+        return this.conformation;
     }
 
     public int getByName(String atomName) {
