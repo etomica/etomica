@@ -486,10 +486,10 @@ public class DeviceSlider extends Device {
                      actionFuture.cancel(false);
                  }
                  actionFuture = doAction(() -> {
-                     if (newValue == modifyAction.getValue()) {
+                     if (unit.toSim(newValue) == modifyAction.getValue()) {
                          return;
                      }
-                     modifyAction.setValueForAction(newValue);
+                     modifyAction.setValueForAction(unit.toSim(newValue));
                      targetAction.actionPerformed();
                  });
                  this.actionFuture.whenComplete((res, ex) -> {
