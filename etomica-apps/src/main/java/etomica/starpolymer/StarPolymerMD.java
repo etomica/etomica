@@ -39,7 +39,6 @@ public class StarPolymerMD extends Simulation {
     public SpeciesPolymerMono species;
     public IntegratorBox integrator;
     public IntegratorVelocityVerlet integratorMD;
-    public IntegratorMC integratorMC;
     public P2Fene potentialFene;
     public P2WCA potentialWCA;
     public PotentialMaster potentialMaster;
@@ -55,15 +54,9 @@ public class StarPolymerMD extends Simulation {
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector3D(1.5 * l * 2, 1.5 * l * 2, 1.5 * l * 2));
         box.setNMolecules(species, 1);
-        if (false) {
-            ConformationStarPolymerAll conf = new ConformationStarPolymerAll(this.getSpace(), "./resource/f5L40.xyz", 0);
-            conf.initializePositions(box.getMoleculeList().get(0).getChildList());
-        }
         ArrayList<ArrayList<int[]>> pairArray = getPairArray(f, l);
         int[][] boundedPairs = pairArray.get(0).toArray(new int[0][0]);
         int[][] nonBoundedPairs = pairArray.get(1).toArray(new int[0][0]);
-        boolean doMC = false;
-        if (doMC) useNbrs = false;
         if (l < 30) useNbrs = false;
         if (useNbrs) {
             potentialMaster = new PotentialMasterList(this, 2, space);
@@ -77,11 +70,7 @@ public class StarPolymerMD extends Simulation {
         integratorMD.setThermostat(IntegratorMD.ThermostatType.ANDERSEN);
         integratorMD.setThermostatInterval(500);
 
-        integratorMC = new IntegratorMC(this, potentialMaster, box);
-        MCMoveUpdateConformation moveConformation = new MCMoveUpdateConformation(this, space, "./resource/f5L40.xyz");
-        integratorMC.getMoveManager().addMCMove(moveConformation);
-
-        integrator = doMC ? integratorMC : integratorMD;
+        integrator = integratorMD;
         this.getController().addActivity(new ActivityIntegrate(integrator));
 
         potentialFene = new P2Fene(space);

@@ -48,7 +48,7 @@ public class StarPolymerMC extends Simulation {
     public P2WCA potentialWCA;
     public PotentialMaster potentialMaster;
 
-    public StarPolymerMC(int f, int l, double temperature, double tStep, boolean fromFile) {
+    public StarPolymerMC(int f, int l) {
         super(Space3D.getInstance());
         this.f = f;
         this.l = l;
@@ -59,10 +59,6 @@ public class StarPolymerMC extends Simulation {
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector3D(1.5 * l * 2, 1.5 * l * 2, 1.5 * l * 2));
         box.setNMolecules(species, 1);
-        if (fromFile) {
-            ConformationStarPolymerAll conf = new ConformationStarPolymerAll(this.getSpace(), "./resource/f5L40.xyz", 0);
-            conf.initializePositions(box.getMoleculeList().get(0).getChildList());
-        }
         ArrayList<ArrayList<int[]>> pairArray = getPairArray(f, l);
         int[][] boundedPairs = pairArray.get(0).toArray(new int[0][0]);
         int[][] nonBoundedPairs = pairArray.get(1).toArray(new int[0][0]);
@@ -76,23 +72,18 @@ public class StarPolymerMC extends Simulation {
         }
 
         integratorMC = new IntegratorMC(this, potentialMaster, box);
-        if (fromFile) {
-            MCMoveUpdateConformation moveConformation = new MCMoveUpdateConformation(this, space, "./resource/f5L40.xyz");
-            integratorMC.getMoveManager().addMCMove(moveConformation);
-        } else {
 //            MCMoveAtom atomMove = new MCMoveAtom(random, potentialMaster, space);
 //            integratorMC.getMoveManager().addMCMove(atomMove);
 //            ((MCMoveStepTracker) atomMove.getTracker()).setNoisyAdjustment(true);
 //            MCMoveWiggle wiggleMove = new MCMoveWiggle(potentialMaster, random, 1, l, space);
 //            integratorMC.getMoveManager().addMCMove(wiggleMove);
 //            ((MCMoveStepTracker) wiggleMove.getTracker()).setNoisyAdjustment(true);
-            MCMoveRotateArm rotateArmMove = new MCMoveRotateArm(potentialMaster, random, 1, l, space);
-            integratorMC.getMoveManager().addMCMove(rotateArmMove);
+        MCMoveRotateArm rotateArmMove = new MCMoveRotateArm(potentialMaster, random, 1, l, space);
+        integratorMC.getMoveManager().addMCMove(rotateArmMove);
 //            ((MCMoveStepTracker) rotateArmMove.getTracker()).setNoisyAdjustment(true);
-            MCMoveBondLength bondMove = new MCMoveBondLength(potentialMaster, random, 1, l, space);
-            integratorMC.getMoveManager().addMCMove(bondMove);
+        MCMoveBondLength bondMove = new MCMoveBondLength(potentialMaster, random, 1, l, space);
+        integratorMC.getMoveManager().addMCMove(bondMove);
 //            ((MCMoveStepTracker) bondMove.getTracker()).setNoisyAdjustment(true);
-        }
 
         this.getController().addActivity(new ActivityIntegrate(integratorMC));
 
@@ -175,7 +166,7 @@ public class StarPolymerMC extends Simulation {
         boolean fromFile = false;
         boolean writeConf = false;
 
-        final StarPolymerMC sim = new StarPolymerMC(f, l, temperature, tStep, fromFile);
+        final StarPolymerMC sim = new StarPolymerMC(f, l);
 
         final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         double u = meterPE.getDataAsScalar();
