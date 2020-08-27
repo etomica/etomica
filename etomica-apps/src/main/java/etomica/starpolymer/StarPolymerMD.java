@@ -27,6 +27,7 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -36,7 +37,7 @@ public class StarPolymerMD extends Simulation {
 
     public Box box;
     public int f, l;
-    public SpeciesPolymerMono species;
+    public SpeciesGeneral species;
     public IntegratorBox integrator;
     public IntegratorVelocityVerlet integratorMD;
     public P2Fene potentialFene;
@@ -47,8 +48,9 @@ public class StarPolymerMD extends Simulation {
         super(Space3D.getInstance());
         this.f = f;
         this.l = l;
-        species = new SpeciesPolymerMono(this, getSpace(), f, l);
-        species.setIsDynamic(true);
+        species = SpeciesPolymerMono.create(getSpace(), AtomType.simpleFromSim(this), f, l)
+                .setDynamic(true)
+                .build();
         addSpecies(species);
 
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));

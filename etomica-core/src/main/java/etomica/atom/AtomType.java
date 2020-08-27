@@ -7,6 +7,7 @@ package etomica.atom;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.IElement;
 import etomica.meta.annotations.IgnoreProperty;
+import etomica.simulation.Simulation;
 import etomica.species.ISpecies;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Mass;
@@ -38,6 +39,14 @@ public class AtomType {
      */
     public static AtomType simple(String symbol, double mass) {
         return new AtomType(new ElementSimple(symbol, mass));
+    }
+
+    public static AtomType simple(String symbol) {
+        return new AtomType(new ElementSimple(symbol));
+    }
+
+    public static AtomType simpleFromSim(Simulation sim) {
+        return new AtomType(new ElementSimple(sim));
     }
 
     /**
