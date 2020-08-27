@@ -18,6 +18,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -124,36 +125,19 @@ public class VirialCO2AnthraceneTraPPE {
 		// initialize
         // put SpeciesFactoryCO2 and SpeciesFactoryAn here and these classes contain conformations already
         
-        // this is CO2
-        SpeciesFactory factoryCO2 = new SpeciesFactory() {
-            public ISpecies makeSpecies(Space space) { //declare
-            	SpeciesTraPPECO2 species = new SpeciesTraPPECO2(space);
-                      return species;
-            }
-        };
-
-        // this is for 
-        SpeciesFactory factoryAn = new SpeciesFactory() {
-            public ISpecies makeSpecies(Space space) {
-            	SpeciesTraPPEAnthracene species = new SpeciesTraPPEAnthracene(space);
-                      return species;
-            }
-        };
-        
-        
           // now is the simulation!!!
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{new SpeciesTraPPECO2(space), new SpeciesTraPPEAnthracene(space)}, nTypes, temperature, new ClusterAbstract[]{refCluster, targetCluster},
+        SpeciesGeneral speciesCO2 = SpeciesTraPPECO2.create(space);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{speciesCO2, new SpeciesTraPPEAnthracene(space)}, nTypes, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                 new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)}, false);
         
         //put the species in the box
         SpeciesTraPPEAnthracene speciesAn = (SpeciesTraPPEAnthracene)sim.getSpecies(1);
-        SpeciesTraPPECO2 speciesCO2 = (SpeciesTraPPECO2)sim.getSpecies(0);
         sim.integratorOS.setNumSubSteps(1000);
 
         AtomType typeC = speciesAn.getCType();
         AtomType typeCH = speciesAn.getCHType();
-        AtomType typeC_CO2 = speciesCO2.getCarbonType();
-        AtomType typeO = speciesCO2.getOxygenType();
+        AtomType typeC_CO2 = speciesCO2.getTypeByName("C");
+        AtomType typeO = speciesCO2.getTypeByName("O");
 
         pAn.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));
         pAn.addPotential(pCCH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeCH}));

@@ -23,6 +23,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -123,7 +124,7 @@ public class VirialCO2CH4Mix {
             targetDiagrams[i].setTemperature(temperature);
         }
 
-        SpeciesTraPPECO2 speciesCO2 = new SpeciesTraPPECO2(space);// CO2
+        SpeciesGeneral speciesCO2 = SpeciesTraPPECO2.create(space);
         SpeciesMethane speciesCH4 = new SpeciesMethane(space); // CH4
         
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), 

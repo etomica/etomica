@@ -27,6 +27,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -245,7 +246,7 @@ public static void main(String[] args) {
         	targetDiagrams[i].setTemperature(temperature);
         }
         
-        SpeciesTraPPECO2 speciesCO2 = new SpeciesTraPPECO2(space);// CO2
+        SpeciesGeneral speciesCO2 = SpeciesTraPPECO2.create(space);
         SpeciesAlkane speciesAlkane = new SpeciesAlkane(space, nSpheres);// alkane-TraPPE-UA
    
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), 

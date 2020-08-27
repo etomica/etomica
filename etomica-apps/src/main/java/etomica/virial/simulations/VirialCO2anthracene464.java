@@ -17,6 +17,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -132,33 +133,18 @@ public class VirialCO2anthracene464 {
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 		// initialize
       
-      
-        // put SpeciesFactoryCO2 and SpeciesFactoryAn here and these classes contain conformations already
-        
-        // this is CO2 species factory, apply spherical species factory, SpeciesFactorySpheres is a subclass of SpeciesFactory
-        SpeciesFactorySpheres factoryCO2 = new SpeciesFactorySpheres();
-        
-        // this is anthracene species factory, apply  species factory
-        SpeciesFactory factoryAn = new SpeciesFactory() {
-            public ISpecies makeSpecies(Space space) {
-            	SpeciesAnthracene3site464 species = new SpeciesAnthracene3site464(space);
-                      return species;
-            }
-        };
-              
-        
         // now let us do the simulation!!!
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{new SpeciesTraPPECO2(space), new SpeciesAnthracene3site464(space)}, nTypes, temperature, new ClusterAbstract[]{refCluster, targetCluster},
+        SpeciesGeneral speciesAn = SpeciesAnthracene3site464.create(space);
+        SpeciesGeneral speciesTraPPECO2 = SpeciesTraPPECO2.create(space);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{speciesTraPPECO2, speciesAn}, nTypes, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                 new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)}, false);
         
         //put the species in the box
-        SpeciesSpheresMono speciesCO2 = (SpeciesSpheresMono)sim.getSpecies(0);
-        SpeciesAnthracene3site464 speciesAn = (SpeciesAnthracene3site464)sim.getSpecies(1);
         sim.integratorOS.setNumSubSteps(1000);
 
-        AtomType typeC = speciesAn.getCType();
-        AtomType typeCH = speciesAn.getCHType();
-        AtomType typeCO2 = speciesCO2.getLeafType();
+        AtomType typeC = speciesAn.getTypeByName("C6H2");
+        AtomType typeCH = speciesAn.getTypeByName("C4H4");
+        AtomType typeCO2 = speciesTraPPECO2.getTypeByName("C");
 
        // interaction between one site potential to the another site potential
         //between two solutes
