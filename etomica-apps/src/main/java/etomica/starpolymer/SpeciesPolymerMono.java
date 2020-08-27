@@ -15,6 +15,8 @@ import etomica.molecule.Molecule;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Species in which molecules are each made of a single spherical atom.
@@ -26,65 +28,11 @@ import etomica.species.Species;
  *
  * @author David Kofke
  */
-public class SpeciesPolymerMono extends Species {
+public class SpeciesPolymerMono {
 
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final AtomType leafAtomType;
-    protected boolean isDynamic;
-    private int f, l;
-
-    /**
-     * Constructs instance with a default element
-     */
-    public SpeciesPolymerMono(Simulation sim, Space _space, int f, int l) {
-        this(_space, new ElementSimple(sim), f, l);
-    }
-
-    public SpeciesPolymerMono(Space _space, IElement element, int f, int l) {
-        this(_space, new AtomType(element), f, l);
-    }
-
-    public SpeciesPolymerMono(Space space, AtomType leafAtomType, int f, int l) {
-        super();
-        this.space = space;
-        this.leafAtomType = leafAtomType;
-        addChildType(leafAtomType);
-        this.f = f;
-        this.l = l;
-        setConformation(new ConformationStarPolymerGraft(space, f, l));
-    }
-
-    public void setIsDynamic(boolean newIsDynamic) {
-        isDynamic = newIsDynamic;
-    }
-
-    public boolean isDynamic() {
-        return isDynamic;
-    }
-
-    public AtomType getLeafType() {
-        return leafAtomType;
-    }
-
-    /**
-     * Constructs a new group.
-     */
-    public IMolecule makeMolecule() {
-        Molecule group = new Molecule(this, f * l + 1);
-        for (int i = 0; i < f * l + 1; i++) {
-            group.addChildAtom(makeLeafAtom());
-        }
-        conformation.initializePositions(group.getChildList());
-        return group;
-    }
-
-    protected IAtom makeLeafAtom() {
-        return isDynamic ? new AtomLeafDynamic(space, leafAtomType)
-                : new Atom(space, leafAtomType);
-    }
-
-    public int getNumLeafAtoms() {
-        return f * l + 1;
+    public static SpeciesBuilder create(Space space, AtomType type, int f, int l) {
+        return new SpeciesBuilder(space)
+                .addCount(type, f * l + 1)
+                .withConformation(new ConformationStarPolymerGraft(space, f, l));
     }
 }

@@ -22,6 +22,7 @@ import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
@@ -60,7 +61,8 @@ public class VirialPolymerOverlapWithMD {
         final double temperature = 1.0;
 
         Space space = Space3D.getInstance();
-        SpeciesPolymerMono species = new SpeciesPolymerMono(space, new ElementSimple("A"), f, l);
+        SpeciesGeneral species = SpeciesPolymerMono.create(space, AtomType.simple("A"), f, l)
+                .build();
 
         final double sigmaTranslate = 30.0;
         final double refDiameter = 11.0;
