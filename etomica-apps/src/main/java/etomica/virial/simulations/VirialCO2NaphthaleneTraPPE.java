@@ -18,6 +18,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -124,39 +125,19 @@ public class VirialCO2NaphthaleneTraPPE {
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 		// initialize
       
-      
-        // put SpeciesFactoryCO2 and SpeciesFactoryNa here and these classes contain conformations already
-        
-        // this is CO2
-        SpeciesFactory factoryCO2 = new SpeciesFactory() {
-            public ISpecies makeSpecies(Space space) { //declare
-            	SpeciesTraPPECO2 species = new SpeciesTraPPECO2(space);
-                      return species;
-            }
-        };
-
-        // this is for Na
-        SpeciesFactory factoryNa = new SpeciesFactory() {
-            public ISpecies makeSpecies(Space space) {
-            	SpeciesTraPPENaphthalene species = new SpeciesTraPPENaphthalene(space);
-                      return species;
-            }
-        };
-        
-        
           // now is the simulation!!!
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{new SpeciesTraPPECO2(space), new SpeciesTraPPENaphthalene(space)}, nTypes, temperature, new ClusterAbstract[]{refCluster, targetCluster},
+        SpeciesGeneral speciesCO2 = SpeciesTraPPECO2.create(space);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{speciesCO2, new SpeciesTraPPENaphthalene(space)}, nTypes, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                 new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)}, true);
         
         //put the species in the box
         SpeciesTraPPENaphthalene speciesNa = (SpeciesTraPPENaphthalene)sim.getSpecies(1);
-        SpeciesTraPPECO2 speciesCO2 = (SpeciesTraPPECO2)sim.getSpecies(0);
-                sim.integratorOS.setNumSubSteps(1000);
+        sim.integratorOS.setNumSubSteps(1000);
 
         AtomType typeC = speciesNa.getCType();
         AtomType typeCH = speciesNa.getCHType();
-        AtomType typeC_CO2 = speciesCO2.getCarbonType();
-        AtomType typeO = speciesCO2.getOxygenType();
+        AtomType typeC_CO2 = speciesCO2.getTypeByName("C");
+        AtomType typeO = speciesCO2.getTypeByName("O");
 
         pNa.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));
         pNa.addPotential(pCCH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeCH}));

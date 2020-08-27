@@ -32,6 +32,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -211,7 +212,7 @@ public class VirialCO2N2Mix {
             targetDiagrams[i].setTemperature(temperature);
         }
 
-        SpeciesTraPPECO2 speciesCO2 = new SpeciesTraPPECO2(space);// CO2
+        SpeciesGeneral speciesCO2 = SpeciesTraPPECO2.create(space);
         // N2
         final IConformation conformation = new IConformation() {
         	public void initializePositions(IAtomList atomList) {

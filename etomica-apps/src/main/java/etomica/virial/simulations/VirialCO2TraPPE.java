@@ -13,6 +13,7 @@ import etomica.potential.P2CO2TraPPE;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -76,7 +77,8 @@ public class VirialCO2TraPPE {
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
     
     // to do simulation
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesTraPPECO2(space), temperature,refCluster,targetCluster,false);
+        SpeciesGeneral speciesCO2 = SpeciesTraPPECO2.create(space);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesCO2, temperature,refCluster,targetCluster,false);
         sim.box[1].getSampleCluster().value(sim.box[1]);
         sim.integratorOS.setNumSubSteps(1000);
              // graphic part
