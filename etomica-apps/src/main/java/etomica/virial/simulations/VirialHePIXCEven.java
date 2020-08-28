@@ -13,6 +13,7 @@ import etomica.atom.IAtomList;
 import etomica.atom.iterator.ANIntergroupCoupled;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.ElementChemical;
+import etomica.chem.elements.Helium;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.IDataInfo;
@@ -27,6 +28,8 @@ import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheres;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -372,7 +375,11 @@ public class VirialHePIXCEven {
         System.out.println(steps+" steps");
         double heMass = 4.002602;
         double lambda = Constants.PLANCK_H/Math.sqrt(2*Math.PI*heMass*temperature);
-        SpeciesSpheres species = new SpeciesSpheres(space, nBeads, new AtomType(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
+        SpeciesGeneral species = new SpeciesBuilder(space)
+                .addCount(AtomType.element(Helium.INSTANCE), nBeads)
+                .withConformation(new ConformationLinear(space))
+                .build();
+
         // the temperature here goes to the integrator, which uses it for the purpose of intramolecular interactions
         // we handle that manually below, so just set T=1 here
         

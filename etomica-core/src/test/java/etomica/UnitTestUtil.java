@@ -7,13 +7,11 @@ package etomica;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
+import etomica.config.ConformationLinear;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheres;
-import etomica.species.SpeciesSpheresHetero;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.*;
 
 /**
  * Contains some convenience methods and fields useful for implementing unit
@@ -62,7 +60,10 @@ public class UnitTestUtil {
         ISpecies species1 = null;
         int nBox = 0;
         if (n0 != null) {
-            species0 = new SpeciesSpheres(sim, space, nA0);
+            species0 = new SpeciesBuilder(space)
+                    .withConformation(new ConformationLinear(space))
+                    .addCount(AtomType.simpleFromSim(sim), nA0)
+                    .build();
             sim.addSpecies(species0);
             nBox = n0.length;
         }
