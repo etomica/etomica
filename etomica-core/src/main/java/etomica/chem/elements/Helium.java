@@ -14,9 +14,8 @@ public class Helium extends ElementChemical {
     }
 	
     protected Helium(String symbol, double mass) {
-        super(symbol, mass, 1);
+        super(symbol, mass, 2);
     }
     
-    private static final long serialVersionUID = 1L;
     public static final Helium INSTANCE = new Helium("He");
 }
