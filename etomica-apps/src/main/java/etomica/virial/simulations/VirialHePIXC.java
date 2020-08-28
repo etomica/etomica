@@ -11,6 +11,7 @@ import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.ElementChemical;
+import etomica.chem.elements.Helium;
 import etomica.config.ConformationLinear;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -25,6 +26,8 @@ import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheres;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -98,7 +101,10 @@ public class VirialHePIXC {
         System.out.println(steps+" steps");
         double heMass = 4.002602;
         double lambda = Constants.PLANCK_H/Math.sqrt(2*Math.PI*heMass*temperature);
-        SpeciesSpheres species = new SpeciesSpheres(space, nSpheres, new AtomType(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
+        SpeciesGeneral species = new SpeciesBuilder(space)
+                .addCount(new AtomType(Helium.INSTANCE), nSpheres)
+                .withConformation(new ConformationLinear(space, 0))
+                .build();
         // the temperature here goes to the integrator, which uses it for the purpose of intramolecular interactions
         // we handle that manually below, so just set T=1 here
         final SimulationVirial sim = new SimulationVirial(space, species, 1.0, samplingCluster, refCluster, new ClusterAbstract[]{targetCluster});
@@ -145,7 +151,7 @@ public class VirialHePIXC {
 //        sim.box.acceptNotify();
 
 
-        AtomType type = species.getLeafType();
+        AtomType type = species.getAtomType(0);
         pTargetGroup.addPotential(p2, new ApiIntergroupCoupled());
         
         

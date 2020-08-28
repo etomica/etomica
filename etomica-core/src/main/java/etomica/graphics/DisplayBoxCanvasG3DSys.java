@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
-        AgentSource<Ball>, BondManager {
+        AgentSource<Ball> {
 
 
     protected final Map<AtomType, OrientedSite[]> atomTypeOrientedManager;

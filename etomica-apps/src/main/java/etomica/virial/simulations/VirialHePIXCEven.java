@@ -433,7 +433,7 @@ public class VirialHePIXCEven {
 //        sim.box.acceptNotify();
 
 
-        AtomType type = species.getLeafType();
+        AtomType type = species.getAtomType(0);
         
         
         

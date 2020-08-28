@@ -6,9 +6,11 @@ package etomica.simulation.prototypes;
 
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
+import etomica.atom.IAtom;
+import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
-import etomica.chem.models.ModelChain;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorHistogram;
@@ -18,16 +20,20 @@ import etomica.data.meter.MeterRadiusGyration;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.molecule.IMolecule;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.CriterionBondedSimple;
 import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2HardSphere;
+import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheres;
+import etomica.species.ISpecies;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Molecular dynamics of chains of hard spheres.
@@ -38,9 +44,8 @@ public class ChainHSMD3D extends Simulation {
 
     public Box box;
     public IntegratorHard integrator;
-    public SpeciesSpheres species;
+    public SpeciesGeneral species;
     public P2HardSphere potential;
-    private ModelChain model;
     public AccumulatorHistogram histogramRG;
     public DataPumpListener pumpRG;
 
@@ -48,10 +53,16 @@ public class ChainHSMD3D extends Simulation {
         super(Space3D.getInstance());
 
         int chainLength = 4;
-        model = new ModelChain(space, true);
-        model.setNumAtoms(chainLength);
-        model.setBondingPotential(new P2HardBond(space, 1.0, 0.15, true));
-        species = (SpeciesSpheres) model.makeSpecies(this);
+        P2HardBond potentialBond = new P2HardBond(space, 1.0, 0.15, true);
+        ConformationLinear conformation = new ConformationLinear(space);
+        conformation.setBondLength(1.0);
+        conformation.setAngle(1, 0.35);
+        species = new SpeciesBuilder(space)
+                .withConformation(conformation)
+                .setDynamic(true)
+                .addCount(AtomType.simpleFromSim(this), chainLength)
+                .build();
+        this.addSpecies(species);
 
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         int numAtoms = 108;
@@ -65,9 +76,9 @@ public class ChainHSMD3D extends Simulation {
 
         getController().addActivity(new ActivityIntegrate(integrator, true));
 
-        potentialMaster.addModel(model);
-        ((ConformationLinear) model.getConformation()).setBondLength(1.0);
-        ((ConformationLinear) model.getConformation()).setAngle(1, 0.35);
+        PotentialGroup group = potentialMaster.makePotentialGroup(1);
+        group.addPotential(potentialBond, ApiBuilder.makeAdjacentPairIterator());
+        potentialMaster.addPotential(group, new ISpecies[]{species});
 
         double l = 14.4573 * Math.pow((chainLength * numAtoms / 2020.0), 1.0 / 3.0);
         box.getBoundary().setBoxSize(Vector.of(new double[]{l, l, l}));
@@ -76,9 +87,9 @@ public class ChainHSMD3D extends Simulation {
         config.initializeCoordinates(box);
         integrator.getEventManager().addListener(potentialMaster.getNeighborManager(box));
 
-        potential = new P2HardSphere(space, 1.0, true);
-        AtomType leafType = species.getLeafType();
-        potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
+        this.potential = new P2HardSphere(space, 1.0, true);
+        AtomType leafType = species.getAtomType(0);
+        potentialMaster.addPotential(this.potential, new AtomType[]{leafType, leafType});
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
         nonBondedCriterion.setBonded(false);
         ((CriterionInterMolecular) potentialMaster.getCriterion(leafType, leafType)).setIntraMolecularCriterion(nonBondedCriterion);
@@ -100,8 +111,13 @@ public class ChainHSMD3D extends Simulation {
         plotRG.setDoLegend(false);
         simGraphic.add(plotRG);
         simGraphic.getController().getDataStreamPumps().add(sim.pumpRG);
-        BondListener bl = new BondListener(sim.box, (DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box).canvas);
-        bl.addModel(sim.model);
+        for (IMolecule molecule : sim.box.getMoleculeList(sim.species)) {
+            for (int i = 1; i < molecule.getChildList().size(); i++) {
+                IAtom atom1 = molecule.getChildList().get(i - 1);
+                IAtom atom2 = molecule.getChildList().get(i);
+                ((DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box).canvas).makeBond(new AtomPair(atom1, atom2), null);
+            }
+        }
         ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box, sim.getRandom());
         simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
 
