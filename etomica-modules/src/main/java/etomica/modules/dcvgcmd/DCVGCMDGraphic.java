@@ -166,7 +166,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
         DiameterHashByType diameterHash = (DiameterHashByType) getDisplayBox(sim.box).getDiameterHash();
         diameterHash.setDiameter(sim.species1.getLeafType(), 3.0);
         diameterHash.setDiameter(sim.species2.getLeafType(), 3.0);
-        diameterHash.setDiameter(sim.speciesTube.getLeafType(), 3.0);
+        diameterHash.setDiameter(sim.speciesTube.getAtomType(0), 3.0);
 
         //panel for Mu's
         JPanel muPanel = new JPanel(new java.awt.GridBagLayout());

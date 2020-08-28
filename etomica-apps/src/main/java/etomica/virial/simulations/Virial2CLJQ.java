@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.atom.DiameterHashByType;
@@ -15,6 +16,8 @@ import etomica.potential.P22CLJQ;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheres;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -99,8 +102,12 @@ public class Virial2CLJQ {
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 		
         ConformationLinear conformation = new ConformationLinear(space, bondL);
-        
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheres(2, new ElementSimple("TS"), conformation, space), temperature,refCluster,targetCluster);
+
+        SpeciesGeneral ts = new SpeciesBuilder(space)
+                .addCount(AtomType.simple("TS"), 2)
+                .withConformation(conformation)
+                .build();
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, ts, temperature,refCluster,targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
 
         if(false) {

@@ -7,6 +7,7 @@ package etomica.rotation;
 import etomica.action.BoxImposePbc;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConformationLinear;
 import etomica.graphics.SimulationGraphic;
@@ -18,6 +19,8 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheres;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -27,7 +30,10 @@ public class SingleDumbellShake {
     public static SimulationGraphic makeSingleWater() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesSpheres species = new SpeciesSpheres(sim, space, 2);
+        SpeciesGeneral species = new SpeciesBuilder(space)
+                .withConformation(new ConformationLinear(space))
+                .addCount(AtomType.simpleFromSim(sim), 2)
+                .build();
         ((ConformationLinear) species.getConformation()).setAngle(0, 0);
         ((ConformationLinear) species.getConformation()).setAngle(1, 0.5 * Math.PI);
         ((ConformationLinear) species.getConformation()).setBondLength(2);

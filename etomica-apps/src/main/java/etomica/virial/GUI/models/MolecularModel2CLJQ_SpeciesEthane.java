@@ -4,17 +4,17 @@
 
 package etomica.virial.GUI.models;
 
+import etomica.atom.AtomType;
 import etomica.config.ConformationLinear;
 import etomica.potential.P22CLJQ;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.Species;
+import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesSpheres;
 import etomica.units.Kelvin;
 import etomica.virial.GUI.components.SimpleElementForSimilarSpecies;
-import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesFactoryTangentSpheres;
 
 public class MolecularModel2CLJQ_SpeciesEthane implements IMolecularModel_SpeciesFactory,Cloneable{
 	private static String MoleculeDisplayName = "C2H6 - 2CCLJQ";
@@ -28,10 +28,8 @@ public class MolecularModel2CLJQ_SpeciesEthane implements IMolecularModel_Specie
 	
 	
 	private double bondLength;
-	
-	
-	private ConformationLinear conformation;
-	
+
+
 	private int SpeciesID;
 	
 	private String[] PotentialSites = {"CH3"};
@@ -157,34 +155,18 @@ public class MolecularModel2CLJQ_SpeciesEthane implements IMolecularModel_Specie
 	public void setSpeciesID(int speciesID) {
 		SpeciesID = speciesID;
 	}
-	//Getter for ConformationLinear class
-	public ConformationLinear getConformation() {
-		return this.conformation;
+
+	public ISpecies createSpecies(){
+
+		simpleElement = SimpleElementForSimilarSpecies.getInstance();
+		return new SpeciesBuilder(space)
+				.withConformation(new ConformationLinear(this.space, this.bondLength))
+				.addCount(AtomType.element(simpleElement.getTSelement()), 2)
+				.build();
+
 	}
 
-	public void setConformation() {
-		this.conformation = new ConformationLinear(this.space, this.bondLength);
-	}
-	
-	//Creates the LJ Molecule Species
-	public ISpecies createSpecies(){
-		setConformation();
-		simpleElement = SimpleElementForSimilarSpecies.getInstance();
-		Species ethaneSpecies = new SpeciesSpheres(2, simpleElement.getTSelement(), conformation, space);
-		//SpeciesFactory speciesFactory = new SpeciesFactoryTangentSpheres(2,this.getConformation());
-		
-		//return speciesFactory.makeSpecies(this.space);
-		return ethaneSpecies;
-	}
-	
-	//Creates the LJ Molecule Species
-	public SpeciesFactory createSpeciesFactory(){
-		setConformation();
-		SpeciesFactory speciesFactory = new SpeciesFactoryTangentSpheres(2,this.getConformation());
-		return speciesFactory;
-	}
-	
-	
+
 	public double getSigma(int index) {
 		return sigma[index];
 	}

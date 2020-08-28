@@ -74,6 +74,10 @@ public class SpeciesGeneral implements ISpecies {
         return this.uniqueAtomTypes.length;
     }
 
+    public int getLeafAtomCount() {
+        return this.atomTypes.length;
+    }
+
     @Override
     public AtomType getAtomType(int index) {
         return this.uniqueAtomTypes[index];

@@ -32,6 +32,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheres;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -50,8 +52,11 @@ public class TestSWChain extends Simulation {
     public TestSWChain(Space _space, int numMolecules, double simTime, Configuration config) {
         super(_space);
 
-        SpeciesSpheres species = new SpeciesSpheres(this, _space, chainLength);
-        species.setIsDynamic(true);
+        SpeciesGeneral species = new SpeciesBuilder(space)
+                .withConformation(new ConformationLinear(space))
+                .addCount(AtomType.simpleFromSim(this), chainLength)
+                .setDynamic(true)
+                .build();
         addSpecies(species);
 
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
@@ -79,7 +84,7 @@ public class TestSWChain extends Simulation {
 
         P2SquareWell potential = new P2SquareWell(space, sigma, sqwLambda, 0.5, false);
 
-        AtomType sphereType = species.getLeafType();
+        AtomType sphereType = species.getAtomType(0);
         potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
         CriterionInterMolecular sqwCriterion = (CriterionInterMolecular) potentialMaster.getCriterion(sphereType, sphereType);
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());

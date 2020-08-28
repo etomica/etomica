@@ -25,6 +25,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheres;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -367,10 +369,13 @@ public class VirialHePIXCOdd {
         System.out.println(steps+" steps ("+blocks+" blocks of "+stepsPerBlock+" steps)");
         System.out.println(1000+" steps per overlap-sampling block");
         
-        SpeciesSpheres[] species = new SpeciesSpheres[nRings];
+        SpeciesGeneral[] species = new SpeciesGeneral[nRings];
         int[] simMolecules = new int[nRings];
         for (int i=0;i<nRings;i++) {
-            species[i] = new SpeciesSpheres(space, (rings[i] * nBeads), new AtomType(new ElementChemical("He" + rings[i] + i, heMass, 2)), new ConformationLinear(space, 0));
+            species[i] = new SpeciesBuilder(space)
+                    .withConformation(new ConformationLinear(space, 0))
+                    .addCount(AtomType.simple("He" + rings[i] + i, heMass), rings[i] * nBeads)
+                    .build();
             simMolecules[i] = 1;
         }
       

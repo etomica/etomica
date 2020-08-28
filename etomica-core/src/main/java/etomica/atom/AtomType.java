@@ -49,6 +49,10 @@ public class AtomType {
         return new AtomType(new ElementSimple(sim));
     }
 
+    public static AtomType element(IElement element) {
+        return new AtomType(element);
+    }
+
     /**
      * @return the index for this IAtomType, within the context of an Simulation.  The index is the IAtomType's position
      * in the list of atom types in the simulation.

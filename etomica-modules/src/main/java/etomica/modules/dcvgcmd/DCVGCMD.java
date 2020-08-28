@@ -29,6 +29,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
@@ -49,7 +51,7 @@ public class DCVGCMD extends Simulation {
     public P1WCAPorousWall potentialwallPorousB, potentialwallPorousB1;
     public SpeciesSpheresMono species1;
     public SpeciesSpheresMono species2;
-    public SpeciesSpheres speciesTube;
+    public SpeciesGeneral speciesTube;
     public Box box;
     public DataSourceGroup fluxMeters;
     public MeterFlux meterFlux0, meterFlux1, meterFlux2, meterFlux3;
@@ -78,13 +80,11 @@ public class DCVGCMD extends Simulation {
         species1.setIsDynamic(true);
         species2 = new SpeciesSpheresMono(this, space);
         species2.setIsDynamic(true);
-        speciesTube = new SpeciesSpheres(
-               20 * 40,
-               new ElementSimple("T", Double.POSITIVE_INFINITY),
-               new ConformationTube(_space, 20),
-               _space
-        );
-        speciesTube.setIsDynamic(true);
+        speciesTube = new SpeciesBuilder(space)
+                .addCount(AtomType.simple("T", Double.POSITIVE_INFINITY), 20 * 40)
+                .withConformation(new ConformationTube(space, 20))
+                .setDynamic(true)
+                .build();
         addSpecies(species1);
         addSpecies(species2);
         addSpecies(speciesTube);
@@ -99,7 +99,7 @@ public class DCVGCMD extends Simulation {
         //Default.makeLJDefaults();
         //Default.BOX_SIZE = 14.0;
 
-        AtomType tubetype = speciesTube.getLeafType();
+        AtomType tubetype = speciesTube.getAtomType(0);
         AtomType speciestype = species1.getLeafType();
         AtomType speciestype1 = species2.getLeafType();
         ((ElementSimple) speciestype.getElement()).setMass(mass);
