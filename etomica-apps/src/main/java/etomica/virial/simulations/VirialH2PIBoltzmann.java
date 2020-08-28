@@ -26,6 +26,8 @@ import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheres;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -105,7 +107,10 @@ public class VirialH2PIBoltzmann {
         double h2Mass = 2*Hydrogen.INSTANCE.getMass();
         double lambda = Constants.PLANCK_H/Math.sqrt(2*Math.PI*h2Mass*temperature);
         double energyFac = nSpheres*Math.PI/(lambda*lambda);
-        SpeciesSpheres species = new SpeciesSpheres(space, nSpheres, new AtomType(new ElementChemical("He", h2Mass, 2)), new ConformationLinear(space, 0));
+        SpeciesGeneral species = new SpeciesBuilder(space)
+                .addCount(AtomType.simple("He", h2Mass), nSpheres)
+                .withConformation(new ConformationLinear(space, 0))
+                .build();
         // the temperature here goes to the integrator, which uses it for the purpose of intramolecular interactions
         // we handle that manually below, so just set T=1 here
         final SimulationVirial sim = new SimulationVirial(space, species, 1.0, samplingCluster, refCluster, new ClusterAbstract[]{targetCluster});
@@ -159,7 +164,7 @@ public class VirialH2PIBoltzmann {
 //        sim.box.acceptNotify();
 
 
-        AtomType type = species.getLeafType();
+        AtomType type = species.getAtomType(0);
         pTargetGroup.addPotential(p2, new ApiIntergroupCoupled());
 
 

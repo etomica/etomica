@@ -14,6 +14,7 @@ import etomica.atom.iterator.ANIntergroupCoupled;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
 import etomica.chem.elements.ElementChemical;
+import etomica.chem.elements.Helium;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.DataPumpListener;
@@ -37,6 +38,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheres;
 import etomica.units.*;
 import etomica.units.dimensions.*;
@@ -289,7 +292,10 @@ public class VirialHePI_PotentialCorrection {
         }
         System.out.println(steps+" steps ("+blocks+" blocks of "+stepsPerBlock+" steps)");
         System.out.println(1000+" steps per overlap-sampling block");
-        SpeciesSpheres species = new SpeciesSpheres(space, nBeads, new AtomType(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
+        SpeciesGeneral species = new SpeciesBuilder(space)
+                .addCount(new AtomType(Helium.INSTANCE), nBeads)
+                .withConformation(new ConformationLinear(space, 0))
+                .build();
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                  targetDiagrams, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
@@ -392,7 +398,7 @@ public class VirialHePI_PotentialCorrection {
             ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
 
 
-            AtomType type = species.getLeafType();
+            AtomType type = species.getAtomType(0);
             DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
             diameterManager.setDiameter(type, 0.02+1.0/nBeads);
             displayBox1.setDiameterHash(diameterManager);

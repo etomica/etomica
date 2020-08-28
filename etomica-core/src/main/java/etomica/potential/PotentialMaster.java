@@ -10,8 +10,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.box.Box;
-import etomica.chem.models.Model;
-import etomica.chem.models.Model.PotentialAndIterator;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
@@ -104,22 +102,6 @@ public class PotentialMaster {
         if (lrcMaster != null) {
             lrcMaster.calculate(box, id, pc);
         }
-    }
-
-    /**
-     * Add the given Model's intramolecular potentials to this PotentialMaster
-     */
-    public void addModel(Model newModel) {
-        if (getPotential(new ISpecies[]{newModel.getSpecies()}) != null) {
-            throw new IllegalArgumentException(newModel + " has already been added");
-        }
-        PotentialAndIterator[] potentialsAndIterators = newModel.getPotentials();
-        PotentialGroup pGroup = makePotentialGroup(1);
-        for (int i = 0; i < potentialsAndIterators.length; i++) {
-            pGroup.addPotential(potentialsAndIterators[i].getPotential(),
-                    potentialsAndIterators[i].getIterator());
-        }
-        addPotential(pGroup, new ISpecies[]{newModel.getSpecies()});
     }
 
     /**
