@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.*;
 import etomica.data.types.DataGroup;
@@ -15,7 +16,7 @@ import etomica.math.function.IFunction;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Pixel;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
@@ -101,7 +102,7 @@ public class VirialHSOrC {
 
         System.out.println(steps+" steps");
 		
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature, refCluster, targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), temperature, refCluster, targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
         
         sim.integratorOS.setAggressiveAdjustStepFraction(true);

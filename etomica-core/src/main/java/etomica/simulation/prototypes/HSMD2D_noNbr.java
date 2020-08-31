@@ -28,7 +28,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 2D.
@@ -43,7 +43,7 @@ public class HSMD2D_noNbr extends Simulation {
     public AccumulatorAverageCollapsing temperatureAverage;
     public AccumulatorHistory temperatureHistory;
     public Box box;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public IntegratorHard integrator;
     public DataPump pressurePump;
     public DataPump temperaturePump;
@@ -52,8 +52,7 @@ public class HSMD2D_noNbr extends Simulation {
     public HSMD2D_noNbr() {
         super(Space2D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);

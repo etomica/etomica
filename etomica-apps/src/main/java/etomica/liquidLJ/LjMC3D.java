@@ -28,7 +28,7 @@ import etomica.potential.Potential0Lrc;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
@@ -43,7 +43,7 @@ public class LjMC3D extends Simulation {
     
     public final PotentialMasterCell potentialMasterCell;
     public IntegratorMC integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
     public MCMoveAtom mcMoveAtom;
@@ -52,8 +52,7 @@ public class LjMC3D extends Simulation {
     public LjMC3D(int numAtoms, double temperature, double density, double rcShort) {
         super(Space3D.getInstance());
         setRandom(new RandomMersenneTwister(1));
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
         box = this.makeBox();
         box.setNMolecules(species, numAtoms);

@@ -10,6 +10,7 @@ import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialFailedEvent;
+import etomica.species.ISpecies;
 import etomica.species.Species;
 import etomica.units.dimensions.Null;
 import etomica.util.IEvent;
@@ -20,10 +21,10 @@ public class MCMoveListenerRGE implements IListener {
     DataDoubleArray data;
     AccumulatorAverage accumulatorAverage;
     Box box;
-    Species species;
+    ISpecies species;
     int numAtoms;
 
-    public MCMoveListenerRGE(AccumulatorAverage accumulatorAverage, Box box, Species species, int numAtoms){
+    public MCMoveListenerRGE(AccumulatorAverage accumulatorAverage, Box box, ISpecies species, int numAtoms){
         DataInfo dataInfo = new DataDoubleArray.DataInfoDoubleArray("0/1", Null.DIMENSION, new int[]{numAtoms/2+1});
         accumulatorAverage.putDataInfo(dataInfo);
         this.accumulatorAverage = accumulatorAverage;

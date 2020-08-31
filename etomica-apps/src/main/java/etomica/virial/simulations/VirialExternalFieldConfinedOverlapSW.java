@@ -7,6 +7,7 @@ package etomica.virial.simulations;
 import java.io.File;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.DataProcessorFunction;
@@ -19,7 +20,7 @@ import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -113,7 +114,7 @@ public class VirialExternalFieldConfinedOverlapSW {
 		MeterVirialExternalFieldOverlapConfinedSW meter = new MeterVirialExternalFieldOverlapConfinedSW(refDiagrams, fTarget, walldistance, lambdaWF, temperature, epsilonWF );
 		
 		final ClusterWeightSumWall targetSampleCluster =  new ClusterWeightSumWall(meter, nPoints);
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature, new ClusterAbstract[] {refCluster,targetSampleCluster}, new ClusterWeight[] {sampleCluster, targetSampleCluster}, false);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), temperature, new ClusterAbstract[] {refCluster,targetSampleCluster}, new ClusterWeight[] {sampleCluster, targetSampleCluster}, false);
 		
         do {
 			for (int i = 1; i<nPoints; i++){

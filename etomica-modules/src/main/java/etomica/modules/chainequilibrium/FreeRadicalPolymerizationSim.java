@@ -22,7 +22,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 
 public class FreeRadicalPolymerizationSim extends Simulation implements AgentSource<IAtom[]> {
@@ -32,8 +32,8 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
 	public IntegratorHard integratorHard;
 	public java.awt.Component display;
 	public Box box;
-	public SpeciesSpheresMono speciesA; // initiator
-	public SpeciesSpheresMono speciesB; // monomer
+	public SpeciesGeneral speciesA; // initiator
+	public SpeciesGeneral speciesB; // monomer
 	public P2SquareWellBonded p2AA;
 	public P2SquareWellRadical p2AB, p2BB;
 
@@ -46,10 +46,8 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
     public FreeRadicalPolymerizationSim(Space space) {
         super(space);
 
-        speciesA = new SpeciesSpheresMono(this, space);
-        speciesA.setIsDynamic(true);
-        speciesB = new SpeciesSpheresMono(this, space);
-        speciesB.setIsDynamic(true);
+        speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesA);
         addSpecies(speciesB);
 

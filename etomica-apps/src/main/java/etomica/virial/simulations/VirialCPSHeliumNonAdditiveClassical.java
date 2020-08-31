@@ -8,6 +8,7 @@ package etomica.virial.simulations;
 import java.awt.Color;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.space.Vector;
 import etomica.chem.elements.ElementSimple;
@@ -18,7 +19,7 @@ import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.potential.P3CPSNonAdditiveHeSimplified;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.virial.ClusterAbstract;
@@ -163,7 +164,7 @@ public class VirialCPSHeliumNonAdditiveClassical {
         refCluster.setTemperature(temperature);
 
         
-        SpeciesSpheresMono species = new SpeciesSpheresMono(space, new ElementSimple("A"));
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, temperature, refCluster,total ? targetClusterT : targetCluster, false);
                 
         

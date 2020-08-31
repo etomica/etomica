@@ -29,7 +29,7 @@ import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -50,7 +50,7 @@ public class AshtonWildingOsmoticVirial extends Simulation {
     protected MCMoveAtom mcMoveAtom;
     protected MCMoveInsertDelete mcMoveInsertDelete;
     protected MCMoveGeometricCluster mcMoveGeometricCluster;
-    protected SpeciesSpheresMono species1, species2;
+    protected SpeciesGeneral species1, species2;
     
 
     /**
@@ -77,8 +77,8 @@ public class AshtonWildingOsmoticVirial extends Simulation {
         double sigma2 = q * sigma1; //solvent
         double sigma12 = (sigma1+sigma2)/2;
 
-        species1 = new SpeciesSpheresMono(this, space);
-        species2 = new SpeciesSpheresMono(this, space);
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species1);
         addSpecies(species2);
 

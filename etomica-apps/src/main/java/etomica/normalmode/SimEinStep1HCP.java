@@ -28,7 +28,7 @@ import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
@@ -58,7 +58,7 @@ public class SimEinStep1HCP extends Simulation {
     public SimEinStep1HCP(Space _space, final int numAtoms, double density, final double temperature, double spring, int exponent, double rc, double coa) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMasterList(this, rc, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);

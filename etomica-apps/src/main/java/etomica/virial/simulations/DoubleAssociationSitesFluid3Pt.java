@@ -136,7 +136,7 @@ public class DoubleAssociationSitesFluid3Pt {
          }
 
         targetCluster.setTemperature(temperature);
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesSpheresRotating(space, new ElementSimple("O")),
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesSpheresRotating.create(space, new ElementSimple("O")),
                 temperature, refCluster, targetCluster);
         if (chainIndex == 1) {
             ConfigurationClusterChain configuration = new ConfigurationClusterChain(space);

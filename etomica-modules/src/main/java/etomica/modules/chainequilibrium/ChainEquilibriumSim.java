@@ -25,7 +25,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 
 public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom[]> {
@@ -36,8 +36,8 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
 	public java.awt.Component display;
 	public Box box;
 	public MeterTemperature thermometer;
-	public SpeciesSpheresMono speciesA;
-	public SpeciesSpheresMono speciesB;
+	public SpeciesGeneral speciesA;
+	public SpeciesGeneral speciesB;
 //    public SpeciesSpheresMono speciesC;
 	public P2HardSphere p2AA, p2BB; //, p2CC, p2BC;
 	public P2SquareWellBonded ABbonded; //, ACbonded;
@@ -50,10 +50,8 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
     public ChainEquilibriumSim(Space space) {
         super(space);
 
-        speciesA = new SpeciesSpheresMono(this, space);
-        speciesA.setIsDynamic(true);
-        speciesB = new SpeciesSpheresMono(this, space);
-        speciesB.setIsDynamic(true);
+        speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesA);
         addSpecies(speciesB);
 

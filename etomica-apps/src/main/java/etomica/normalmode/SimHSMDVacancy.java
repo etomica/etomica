@@ -43,7 +43,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.statmech.HardSphereSolid;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
@@ -60,7 +60,7 @@ public class SimHSMDVacancy extends Simulation {
     
     public final PotentialMasterList potentialMasterList;
     public IntegratorHardMDMC integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2HardSphere potential;
     public IntegratorMC integratorMC;
@@ -70,8 +70,7 @@ public class SimHSMDVacancy extends Simulation {
 
     public SimHSMDVacancy(final int numAtoms, double density, double tStep, int hybridInterval, final int numV, final double mu) {
         super(Space3D.getInstance());
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         double L = Math.pow(4.0 / density, 1.0 / 3.0);

@@ -27,7 +27,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Energy;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -62,7 +62,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
     public SimOverlapSoftSphereEin(Space _space, int numAtoms, double density, boolean slanty, double temperature, double spring, double frac, double[] otherFrac, double[] alpha, int exponent, int numAlpha, double alphaSpan, long numSteps, double rc) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         if (slanty) {

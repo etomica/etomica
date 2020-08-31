@@ -32,7 +32,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -46,7 +46,7 @@ public class LJMC extends Simulation {
     
     public final PotentialMasterCell potentialMasterCell;
     public IntegratorMC integrator;
-    public SpeciesSpheresMono speciesFluid, speciesTopWall, speciesBottomWall;
+    public SpeciesGeneral speciesFluid, speciesTopWall, speciesBottomWall;
     public Box box;
     public P2SoftSphericalTruncatedForceShifted pFF, pTW, pBW;
     public ConfigurationLammps config;
@@ -55,11 +55,11 @@ public class LJMC extends Simulation {
     public LJMC(double temperature, String lammpsFile) {
         super(Space3D.getInstance());
 
-        speciesFluid = new SpeciesSpheresMono(space, new ElementSimple("F"));
+        speciesFluid = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("F")));
         addSpecies(speciesFluid);
-        speciesTopWall = new SpeciesSpheresMono(space, new ElementSimple("TW"));
+        speciesTopWall = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("TW")));
         addSpecies(speciesTopWall);
-        speciesBottomWall = new SpeciesSpheresMono(space, new ElementSimple("BW"));
+        speciesBottomWall = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("BW")));
         addSpecies(speciesBottomWall);
 
         BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(2, space);

@@ -34,7 +34,7 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simulation using Henkelman's Dimer method to find a saddle point for
@@ -54,7 +54,7 @@ public class SimDimerLJadatom extends Simulation{
     public IntegratorDimerMin integratorDimerMin;
     public Box box;
     public Vector[] saddle, normal;
-    public SpeciesSpheresMono fixed, movable;
+    public SpeciesGeneral fixed, movable;
 //    public P2LennardJones potential;
     public CalcGradientDifferentiable calcGradientDifferentiable;
     public CalcVibrationalModes calcVibrationalModes;
@@ -71,10 +71,8 @@ public class SimDimerLJadatom extends Simulation{
         super(Space3D.getInstance());
 
         //SPECIES
-        fixed = new SpeciesSpheresMono(space, new ElementSimple("A", Double.POSITIVE_INFINITY));
-        fixed.setIsDynamic(true);
-        movable = new SpeciesSpheresMono(this, space);
-        movable.setIsDynamic(true);
+        fixed = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A", Double.POSITIVE_INFINITY)), true);
+        movable = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(fixed);
         addSpecies(movable);
 

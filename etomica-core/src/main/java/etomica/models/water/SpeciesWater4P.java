@@ -32,6 +32,10 @@ public class SpeciesWater4P {
     }
 
     public static SpeciesGeneral create(boolean isDynamic, IConformation conformation) {
+        return create(isDynamic, conformation, false);
+    }
+
+    public static SpeciesGeneral create(boolean isDynamic, IConformation conformation, boolean isOriented) {
         AtomType hType = new AtomType(Hydrogen.INSTANCE);
         AtomType oType = new AtomType(Oxygen.INSTANCE);
         AtomType mType = new AtomType(new ElementSimple("M", 0.0));
@@ -41,6 +45,7 @@ public class SpeciesWater4P {
                 .addCount(oType, 1)
                 .addCount(mType, 1)
                 .setDynamic(isDynamic)
+                .setMoleculeOriented(isOriented)
                 .build();
     }
 }

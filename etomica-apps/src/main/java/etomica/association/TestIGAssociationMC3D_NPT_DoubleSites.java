@@ -10,6 +10,7 @@ import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.box.Box;
+import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
@@ -30,6 +31,7 @@ import etomica.potential.P2HardAssociationConeSW;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Degree;
 import etomica.util.ParameterBase;
@@ -45,7 +47,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
     public MCMoveAtomMonomer mcMoveAtomMonomer;
     public MCMoveAtomSmer mcMoveAtomSmer;
     public MCMoveRotateAssociated mcMoveRotate;
-    public SpeciesSpheresRotating species;
+    public SpeciesGeneral species;
     public Box box;
     public P2HardAssociationConeSW potential;
     public MCMoveSmer mcMoveSmer;
@@ -62,7 +64,7 @@ public class TestIGAssociationMC3D_NPT_DoubleSites extends Simulation {
     public TestIGAssociationMC3D_NPT_DoubleSites(int numAtoms, double pressure, double density, double wellConstant, double temperature,double truncationRadius,int maxChainLength, boolean useUB, long numSteps) {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresRotating(this, space);//Species in which molecules are made of a single atom of type OrientedSphere
+        species = SpeciesSpheresRotating.create(space, new ElementSimple(this), false,true);//Species in which molecules are made of a single atom of type OrientedSphere
         addSpecies(species);
 
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);

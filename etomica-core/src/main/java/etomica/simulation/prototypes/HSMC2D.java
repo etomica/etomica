@@ -21,7 +21,7 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Hard sphere Monte Carlo Simulation of two species in 2D.
@@ -36,7 +36,7 @@ public class HSMC2D extends Simulation {
 
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
-    public SpeciesSpheresMono species, species2;
+    public SpeciesGeneral species, species2;
     public Box box;
     public P2HardSphere potential11, potential12, potential22;
     public DataSourceCountSteps meterCycles;
@@ -44,8 +44,8 @@ public class HSMC2D extends Simulation {
     public HSMC2D() {
         super(Space2D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species2 = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
         addSpecies(species2);
 

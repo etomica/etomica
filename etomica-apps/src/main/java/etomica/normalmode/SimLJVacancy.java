@@ -42,7 +42,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.statmech.LennardJones;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
@@ -61,7 +61,7 @@ public class SimLJVacancy extends Simulation {
     
     public final PotentialMasterCell potentialMaster;
     public IntegratorMC integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public Potential2SoftSpherical p2LJ;
     public P2SoftSphericalTruncated potential;
@@ -71,8 +71,7 @@ public class SimLJVacancy extends Simulation {
 
     public SimLJVacancy(final int numAtoms, double temperature, double density, double rc, final int numV, final double bmu, final boolean ss, boolean shifted) {
         super(Space3D.getInstance());
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         double L = Math.pow(4.0 / density, 1.0 / 3.0);

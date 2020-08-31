@@ -6,6 +6,7 @@ package etomica.virial.simulations;
 
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
@@ -16,7 +17,7 @@ import etomica.potential.P2HePCKLJS;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
@@ -130,7 +131,7 @@ public class VirialHePCKLJS {
         sampleCluster1.setTemperature(temperature);
         refSample.setTemperature(temperature);
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), 
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))),
                 temperature, refCluster,targetCluster, false);
         
         System.out.println((steps*1000)+" steps ("+steps+" IntegratorOverlap steps of 1000 steps)");
@@ -150,7 +151,7 @@ public class VirialHePCKLJS {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-            SpeciesSpheresMono species = (SpeciesSpheresMono)sim.getSpecies(0);
+            SpeciesGeneral species = (SpeciesGeneral) sim.getSpecies(0);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             simGraphic.makeAndDisplayFrame();

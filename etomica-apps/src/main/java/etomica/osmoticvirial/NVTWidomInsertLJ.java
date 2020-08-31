@@ -21,7 +21,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -33,8 +33,8 @@ public class NVTWidomInsertLJ extends Simulation {
 
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
-    public SpeciesSpheresMono species1; //solvent
-    public SpeciesSpheresMono species2; //solute
+    public SpeciesGeneral species1; //solvent
+    public SpeciesGeneral species2; //solute
     public Box box;
     public P2LennardJones potential1, potential2, potential12;
 
@@ -48,8 +48,8 @@ public class NVTWidomInsertLJ extends Simulation {
         double sigma12 = (sigma1+sigma2)/2;
         double epsilon12 = Math.sqrt(epsilon1*epsilon2) ;
 
-        species1 = new SpeciesSpheresMono(this, space);
-        species2 = new SpeciesSpheresMono(this, space);
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species1);
         addSpecies(species2);
         box = new Box(space);

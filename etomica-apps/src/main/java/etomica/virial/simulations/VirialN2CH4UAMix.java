@@ -26,8 +26,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
-import etomica.species.SpeciesSpheresMono;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -144,7 +144,7 @@ public class VirialN2CH4UAMix {
         SpeciesSpheresHetero speciesN2 = new SpeciesSpheresHetero(space, new IElement[]{new ElementSimple("B"), Nitrogen.INSTANCE});
         speciesN2.setChildCount(new int[]{1,2});
         speciesN2.setConformation(conformation);        
-        SpeciesSpheresMono speciesCH4 = new SpeciesSpheresMono(space, new ElementSimple("A"));//CH4
+        SpeciesGeneral speciesCH4 = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
        
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), 
         		                                             ClusterWeightAbs.makeWeightCluster(targetCluster)};

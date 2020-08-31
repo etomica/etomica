@@ -28,7 +28,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
@@ -72,7 +72,7 @@ public class SimOverlapSoftSphereReweighting extends Simulation {
     public SimOverlapSoftSphereReweighting(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent) {
         super(_space);
         this.fname = filename;
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMasterTarget = new PotentialMasterMonatomic(this);

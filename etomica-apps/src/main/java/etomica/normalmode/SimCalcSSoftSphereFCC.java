@@ -22,7 +22,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Pixel;
 
 /**
@@ -48,7 +48,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
     public SimCalcSSoftSphereFCC(Space _space, int numAtoms, double density, double temperature, int exponent) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMasterList(this, space);

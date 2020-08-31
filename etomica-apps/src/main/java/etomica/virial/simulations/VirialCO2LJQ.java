@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorEvent;
@@ -13,7 +14,7 @@ import etomica.potential.P2LJQQ;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
@@ -86,7 +87,7 @@ public class VirialCO2LJQ {
         //set initial conformation
       
     // to do simulation
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature,refCluster,targetCluster,false);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), temperature,refCluster,targetCluster,false);
         sim.box[1].getSampleCluster().value(sim.box[1]);
         sim.integratorOS.setNumSubSteps(1000);
              // graphic part

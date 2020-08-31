@@ -17,6 +17,7 @@ import etomica.potential.P2SemiclassicalAtomic.AtomInfo;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Kelvin;
 import etomica.units.Mole;
@@ -119,7 +120,7 @@ public class VirialN2 {
 
         // make species
         ElementSimple n2 = new ElementSimple("N2", 2*Nitrogen.INSTANCE.getMass());
-        final SpeciesSpheresRotating speciesN2 = new SpeciesSpheresRotating(space,n2);
+        final SpeciesGeneral speciesN2 = SpeciesSpheresRotating.create(space, n2);
 
         // make simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesN2, temperature, refCluster, tarCluster);

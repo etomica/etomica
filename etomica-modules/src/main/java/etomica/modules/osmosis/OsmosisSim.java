@@ -27,7 +27,7 @@ import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 import java.awt.*;
 
@@ -43,7 +43,7 @@ public class OsmosisSim extends Simulation {
     protected final static int initialSolvent = 50;
     private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
-    public SpeciesSpheresMono speciesSolvent,speciesSolute;
+    public SpeciesGeneral speciesSolvent,speciesSolute;
     public Box box;
     public P2HardSphere potentialAA,potentialBB,potentialAB;
     public P1HardBoundary boundaryHardA;
@@ -57,11 +57,9 @@ public class OsmosisSim extends Simulation {
 
         final double sigma = 1.0;
 
-        speciesSolvent = new SpeciesSpheresMono(this, space);
-        speciesSolvent.setIsDynamic(true);
+        speciesSolvent = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesSolvent);
-        speciesSolute = new SpeciesSpheresMono(this, space);
-        speciesSolute.setIsDynamic(true);
+        speciesSolute = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesSolute);
 
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);

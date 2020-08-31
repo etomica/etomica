@@ -21,7 +21,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 
 /**
@@ -32,7 +32,7 @@ import etomica.species.SpeciesSpheresMono;
 public class MultiharmonicMC extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    protected final SpeciesSpheresMono species;
+    protected final SpeciesGeneral species;
     protected final Box box;
     protected final P1Harmonic potentialA, potentialB;
     protected final IntegratorMC integrator;
@@ -43,7 +43,7 @@ public class MultiharmonicMC extends Simulation {
     protected final DataPump dataPumpA;
     public MultiharmonicMC() {
         super(Space1D.getInstance());
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
         PotentialMaster potentialMasterA = new PotentialMasterMonatomic(this);
         PotentialMaster potentialMasterB = new PotentialMasterMonatomic(this);

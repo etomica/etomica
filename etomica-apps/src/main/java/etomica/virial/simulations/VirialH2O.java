@@ -25,6 +25,7 @@ import etomica.potential.PotentialMolecularMonatomic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
@@ -192,8 +193,7 @@ public class VirialH2O {
         tarSubtract.setTemperature(temperature);
         diffClusterNew.setTemperature(temperature);
         // make species
-        final SpeciesSpheresRotating speciesH2O = new SpeciesSpheresRotating(space, new ElementSimple("H2O",Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
-        speciesH2O.setAxisSymmetric(false);
+        final SpeciesGeneral speciesH2O = SpeciesSpheresRotating.create(space, new ElementSimple("H2O",Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()), false, false);
         
         // make simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesH2O, temperature, refCluster, diffClusterNew);

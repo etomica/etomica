@@ -117,7 +117,7 @@ public class SingleAssociationSiteFluid3Pt {
 		ClusterAbstract refCluster = Standard.virialCluster(nBody, fRef, nBody > 3, eRef, true);
 		refCluster.setTemperature(temperature);
 		targetCluster.setTemperature(temperature);
-		final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesSpheresRotating(space, new ElementSimple("O")), temperature, refCluster, targetCluster);
+		final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesSpheresRotating.create(space, new ElementSimple("O")), temperature, refCluster, targetCluster);
 		ConfigurationClusterMove configuration = new ConfigurationClusterMove(space, sim.getRandom());
 		configuration.initializeCoordinates(sim.box[1]);
 		sim.setAccumulatorBlockSize((int) numSteps * 10);

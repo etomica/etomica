@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -22,7 +23,7 @@ import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -178,7 +179,7 @@ public class VirialHeD {
 
         System.out.println(steps + " steps (" + (steps / blockSize) + " blocks of " + blockSize + ")");
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), nPoints, temperature,refCluster,targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), nPoints, temperature,refCluster,targetCluster);
         if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
 
         ClusterAbstract[] targetDiagrams = null;

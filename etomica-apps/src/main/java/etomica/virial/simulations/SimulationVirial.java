@@ -7,6 +7,7 @@ package etomica.virial.simulations;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.controller.Activity;
 import etomica.action.controller.Controller;
+import etomica.atom.AtomTypeOriented;
 import etomica.data.*;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
@@ -15,10 +16,7 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheres;
-import etomica.species.SpeciesSpheresMono;
-import etomica.species.SpeciesSpheresRotating;
+import etomica.species.*;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.*;
 
@@ -124,10 +122,22 @@ public class SimulationVirial extends Simulation {
         integrator.setEventInterval(1);
         getController().addActivity(new ActivityIntegrate(integrator));
 
+        boolean doRotate = false;
+        boolean multiAtomic = false;
+        for (int i=0; i<species.length; i++) {
+            addSpecies(species[i]);
+            SpeciesGeneral sp = (SpeciesGeneral) species[i];
+            if (sp.getLeafAtomCount() == 1 && sp.getLeafType() instanceof AtomTypeOriented) {
+                doRotate = true;
+            }
+            if (sp.getLeafAtomCount() > 1) {
+                multiAtomic = true;
+            }
+        }
 
-        if (species[0] instanceof SpeciesSpheresMono || species[0] instanceof SpeciesSpheresRotating) {
+        if (!multiAtomic) {
             mcMoveTranslate = new MCMoveClusterAtomMulti(random, space);
-            if (species[0] instanceof SpeciesSpheresRotating) {
+            if (doRotate) {
                 mcMoveRotate = new MCMoveClusterAtomRotateMulti(random, space);
                 integrator.getMoveManager().addMCMove(mcMoveRotate);
             }
@@ -135,13 +145,11 @@ public class SimulationVirial extends Simulation {
             mcMoveTranslate = new MCMoveClusterMoleculeMulti(this, space);
             mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(getRandom(), space);
             mcMoveRotate.setStepSize(Math.PI);
-            if (species[0] instanceof SpeciesSpheres) {
-                if (doWiggle) {
-                    mcMoveWiggle = new MCMoveClusterWiggleMulti(this, potentialMaster, nMolecules, space);
-                    integrator.getMoveManager().addMCMove(mcMoveWiggle);
-                    mcMoveReptate = new MCMoveClusterReptateMulti(this, potentialMaster, nMolecules - 1);
-                    integrator.getMoveManager().addMCMove(mcMoveReptate);
-                }
+            if (doWiggle) {
+                mcMoveWiggle = new MCMoveClusterWiggleMulti(this, potentialMaster, nMolecules, space);
+                integrator.getMoveManager().addMCMove(mcMoveWiggle);
+                mcMoveReptate = new MCMoveClusterReptateMulti(this, potentialMaster, nMolecules - 1);
+                integrator.getMoveManager().addMCMove(mcMoveReptate);
             }
             integrator.getMoveManager().addMCMove(mcMoveRotate);
         }

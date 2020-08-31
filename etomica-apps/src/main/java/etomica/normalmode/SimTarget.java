@@ -29,7 +29,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -53,7 +53,7 @@ public class SimTarget extends Simulation {
     public SimTarget(Space _space, int numAtoms, double density) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         PotentialMaster potentialMaster = (space.D() == 1 ? new PotentialMasterList(this, space) : new PotentialMasterMonatomic(this));

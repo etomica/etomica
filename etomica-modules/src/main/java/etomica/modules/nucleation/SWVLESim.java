@@ -27,13 +27,13 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.random.RandomMersenneTwister;
 
 public class SWVLESim extends Simulation {
 
     public final Box boxLiquid, boxVapor;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final IntegratorMC integratorLiquid, integratorVapor;
     public final IntegratorManagerMC integratorGEMC;
 
@@ -51,7 +51,7 @@ public class SWVLESim extends Simulation {
 
         double initBoxSize = Math.pow(initNumMolecules / density, (1.0 / D));
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         boxLiquid = this.makeBox(new BoundaryRectangularPeriodic(space, initBoxSize));

@@ -21,12 +21,12 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.random.RandomMersenneTwister;
 
 public class Insertion extends Simulation {
     
-    public SpeciesSpheresMono species, speciesGhost;
+    public SpeciesGeneral species, speciesGhost;
     public Box box;
     public IntegratorHard integrator;
     public P2HardWrapper potentialWrapper;
@@ -38,11 +38,9 @@ public class Insertion extends Simulation {
         setRandom(new RandomMersenneTwister(2));
 
         // species
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);//index 1
         addSpecies(species);
-        speciesGhost = new SpeciesSpheresMono(this, space);
-        speciesGhost.setIsDynamic(true);
+        speciesGhost = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         ((ElementSimple) speciesGhost.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
         addSpecies(speciesGhost);
 

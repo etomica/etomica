@@ -30,7 +30,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * MC simulation of FCC soft-sphere model in 2D with tabulation of the
@@ -53,7 +53,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
     public SimCalcSSoftSphere2D(Space _space, int numAtoms, int[] nCells, double temperature, int exponent) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMasterMonatomic(this);

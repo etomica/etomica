@@ -28,7 +28,6 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesGeneral;
-import etomica.species.SpeciesSpheresMono;
 import etomica.units.Calorie;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
@@ -52,7 +51,7 @@ import java.io.PrintWriter;
  */
 public class ProtonDisorderGenerator extends Simulation {
     protected Box boxO, box;
-    protected SpeciesSpheresMono speciesO;
+    protected SpeciesGeneral speciesO;
     protected SpeciesGeneral species;
     protected Potential2SoftSpherical potentialLJ;
     protected EwaldSummation potentialES;
@@ -60,7 +59,7 @@ public class ProtonDisorderGenerator extends Simulation {
 
     public ProtonDisorderGenerator(Space space, String configFile, int nBasis, int[] nC, double[] a0, boolean isIce, int numMolecule, double rCutRealES, double kCut) {
         super(space);
-        speciesO = new SpeciesSpheresMono(this, space);
+        speciesO = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(speciesO);
         Boundary boundaryO = new BoundaryRectangularPeriodic(space, a0);
         boxO = new Box(boundaryO, space);
@@ -85,7 +84,7 @@ public class ProtonDisorderGenerator extends Simulation {
 //			precision_s = 2.800672811371045;}
 //		else {throw new RuntimeException("improper precision value!");}
 
-        ChargeAgentSourceRPM agentSource = new MinimizationTIP4P.ChargeAgentSourceRPM(species, isIce);
+        ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
 //		AtomLeafAgentManager atomAgentManager = new AtomLeafAgentManager(agentSource, box);
         AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<>(agentSource, box);
 

@@ -29,7 +29,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Pixel;
 
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public class SimHarmonic extends Simulation {
 
     public Box box;
     public Boundary boundary;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public NormalModes normalModes;
     public int[] nCells;
     public CoordinateDefinition coordinateDefinition;
@@ -55,7 +55,7 @@ public class SimHarmonic extends Simulation {
 
         int D = space.D();
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         if (space.D() == 1) {

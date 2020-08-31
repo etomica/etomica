@@ -14,7 +14,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMD;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 public class ZeoliteSimStart extends IntegratorActionAdapter{
 
@@ -95,6 +95,6 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
     private int interval;
     private ZeoliteSimulation sim;
     private String filename;
-    private SpeciesSpheresMono sp;
+    private SpeciesGeneral sp;
     private zeoliteSimGraphic graphic;
 }

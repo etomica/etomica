@@ -14,7 +14,7 @@ import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.random.RandomMersenneTwister;
 import org.junit.jupiter.api.Test;
 
@@ -50,8 +50,7 @@ public class TestSnapshots {
             super(Space3D.getInstance());
             this.setRandom(new RandomMersenneTwister(new int[]{1, 2, 3, 4}));
 
-            SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-            species.setIsDynamic(true);
+            SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
             addSpecies(species);
 
             addBox(new Box(this.space));

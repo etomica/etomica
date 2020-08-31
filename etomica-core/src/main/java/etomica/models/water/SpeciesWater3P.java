@@ -4,16 +4,10 @@
 
 package etomica.models.water;
 
-import etomica.atom.Atom;
-import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomType;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.molecule.IMolecule;
-import etomica.molecule.Molecule;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 
@@ -26,6 +20,10 @@ public class SpeciesWater3P {
     }
 
     public static SpeciesGeneral create(boolean isDynamic) {
+        return create(isDynamic, false);
+    }
+
+    public static SpeciesGeneral create(boolean isDynamic, boolean isOriented) {
         AtomType hType = new AtomType(Hydrogen.INSTANCE);
         AtomType oType = new AtomType(Oxygen.INSTANCE);
         return new SpeciesBuilder(Space3D.getInstance())
@@ -33,6 +31,7 @@ public class SpeciesWater3P {
                 .addCount(hType, 2)
                 .addCount(oType, 1)
                 .setDynamic(isDynamic)
+                .setMoleculeOriented(isOriented)
                 .build();
     }
 }

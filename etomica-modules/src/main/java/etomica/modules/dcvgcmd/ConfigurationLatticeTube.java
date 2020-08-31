@@ -16,8 +16,6 @@ import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.SpeciesGeneral;
-import etomica.species.SpeciesSpheres;
-import etomica.species.SpeciesSpheresMono;
 
 /**
  * Creates a configuration using a CubicLattice to specify positions.  Has
@@ -32,7 +30,6 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
     }
 	/**
 	 * Constructor for ConfigurationLatticeTube.
-	 * @param space
 	 */
 	public ConfigurationLatticeTube(BravaisLatticeCrystal lattice,
 			        double length, IndexIteratorSizable indexIterator,
@@ -43,7 +40,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         atomActionTranslateTo = new MoleculeActionTranslateTo(lattice.getSpace());
 	}
 	
-	public void setSpeciesSpheres(SpeciesSpheresMono[] speciesSpheres) {
+	public void setSpeciesSpheres(SpeciesGeneral[] speciesSpheres) {
 	    this.speciesSpheres = speciesSpheres;
 	}
 	
@@ -165,7 +162,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
     private static final long serialVersionUID = 1L;
     private final IndexIteratorSizable indexIterator;
     private final MoleculeActionTranslateTo atomActionTranslateTo;
-    protected SpeciesSpheresMono[] speciesSpheres;
+    protected SpeciesGeneral[] speciesSpheres;
     protected SpeciesGeneral speciesTube;
     private final double length;
 }

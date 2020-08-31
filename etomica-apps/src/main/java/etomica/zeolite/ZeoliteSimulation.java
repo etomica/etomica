@@ -24,7 +24,7 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2WCA;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 
 
@@ -59,7 +59,7 @@ public class ZeoliteSimulation extends Simulation {
     /**
      * The single hard-sphere species.
      */
-    public final SpeciesSpheresMono[] species;
+    public final SpeciesGeneral[] species;
     /**
      * The hard-sphere potential governing the interactions.
      */
@@ -71,7 +71,7 @@ public class ZeoliteSimulation extends Simulation {
     public DisplayPlot ePlot;
     private int nAtomsMeth;
     private int interval;
-    private SpeciesSpheresMono sp;
+    private SpeciesGeneral sp;
     private String filename;
 
     public ZeoliteSimulation() {
@@ -84,10 +84,9 @@ public class ZeoliteSimulation extends Simulation {
         ConfigurationFileXYZ config = new ConfigurationFileXYZ("2unitcell.xyz", space);
         int[] numAtoms = config.getNumAtoms();
 
-        species = new SpeciesSpheresMono[numAtoms.length];
+        species = new SpeciesGeneral[numAtoms.length];
         for (int i = 0; i < numAtoms.length; i++) {
-            species[i] = new SpeciesSpheresMono(this, space);
-            species[i].setIsDynamic(true);
+            species[i] = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
             addSpecies(species[i]);
             if (i != (numAtoms.length - 1)) {
                 // all elements except the last (methane) are fixed
@@ -304,7 +303,7 @@ public class ZeoliteSimulation extends Simulation {
         return filename;
     }
 
-    SpeciesSpheresMono getSpeciesRMS() {
+    SpeciesGeneral getSpeciesRMS() {
         return sp;
     }
 

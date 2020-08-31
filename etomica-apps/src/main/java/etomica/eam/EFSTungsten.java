@@ -29,7 +29,7 @@ import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MeterDADB;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.units.dimensions.Energy;
 import etomica.util.ParameterBase;
@@ -67,7 +67,7 @@ public class EFSTungsten extends Simulation {
     private static final String APP_NAME = "MEAM Md3D";
     public final PotentialMasterList potentialMaster;
     public IntegratorVelocityVerlet integrator;
-    public SpeciesSpheresMono w;
+    public SpeciesGeneral w;
     public Box box;
     public PotentialEFS potentialN;
     public DisplayBox display;
@@ -79,8 +79,7 @@ public class EFSTungsten extends Simulation {
     public EFSTungsten(int numatoms, double density, double temperature) {
         super(Space3D.getInstance());
 
-        w = new SpeciesSpheresMono(space, Tungsten.INSTANCE);
-        w.setIsDynamic(true);
+        w = SpeciesGeneral.monatomic(space, AtomType.element(Tungsten.INSTANCE), true);
         addSpecies(w);
 
         potentialMaster = new PotentialMasterList(this, space);

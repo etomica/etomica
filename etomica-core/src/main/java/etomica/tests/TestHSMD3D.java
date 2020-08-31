@@ -17,7 +17,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -30,17 +30,15 @@ import etomica.util.ParseArgs;
 public class TestHSMD3D extends Simulation {
     
     public IntegratorHard integrator;
-    public SpeciesSpheresMono species, species2;
+    public SpeciesGeneral species, species2;
     public Box box;
 
     public TestHSMD3D(Space _space, int numAtoms, Configuration config) {
         super(_space);
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
-        species2 = new SpeciesSpheresMono(this, space);
-        species2.setIsDynamic(true);
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species2);
 
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);

@@ -18,7 +18,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Colloid simulation.  Design by Alberto Striolo.
@@ -28,7 +28,7 @@ import etomica.species.SpeciesSpheresMono;
 public class ColloidSim extends Simulation {
     
     public PotentialMasterList potentialMaster;
-    public SpeciesSpheresMono species, speciesColloid;
+    public SpeciesGeneral species, speciesColloid;
     public Box box;
     public IntegratorHard integrator;
 
@@ -47,11 +47,9 @@ public class ColloidSim extends Simulation {
         super(Space3D.getInstance());
 
         //species
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
-        speciesColloid = new SpeciesSpheresMono(this, space);
-        speciesColloid.setIsDynamic(true);
+        speciesColloid = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesColloid);
 
         potentialMaster = new PotentialMasterList(this, 6, space);

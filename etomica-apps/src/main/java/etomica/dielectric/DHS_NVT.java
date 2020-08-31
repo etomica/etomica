@@ -41,6 +41,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -65,7 +66,7 @@ public class DHS_NVT extends Simulation {
     private final static String APP_NAME = "dipolar HS, dielectric constant";
     private static final int PIXEL_SIZE = 15;
 //	private static final long serialVersionUID = 1L;
-protected final SpeciesSpheresRotating species;
+protected final SpeciesGeneral species;
     protected final PotentialMaster potentialMaster;
 	protected final IntegratorMC integrator;
 	protected final MCMoveMolecule moveMolecule;//translation mc move
@@ -79,8 +80,7 @@ protected final SpeciesSpheresRotating species;
 //		setRandom(new RandomNumberGenerator(1)); //debug only  TODO remember its still setrandom be to 1
 
 
-        species = new SpeciesSpheresRotating(space, new ElementSimple("A"));
-        species.setAxisSymmetric(true);
+        species = SpeciesSpheresRotating.create(space, new ElementSimple("A"), false,true);
         addSpecies(species);
         box = this.makeBox();
         box.setNMolecules(species, numberMolecules);

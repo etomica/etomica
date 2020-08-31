@@ -21,7 +21,7 @@ import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
@@ -202,7 +202,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
 
 
         ModifierAtomDiameter sigMembraneModifier = new ModifierAtomDiameter(sim.speciesMembrane, sim.potentialMM,
-                new SpeciesSpheresMono[]{sim.speciesSolute, sim.speciesSolvent}, new P2LennardJones[]{sim.potentialM1, sim.potentialM2},
+                new SpeciesGeneral[]{sim.speciesSolute, sim.speciesSolvent}, new P2LennardJones[]{sim.potentialM1, sim.potentialM2},
                 diameterManager);
         ModifierEpsilon epsModifier = new ModifierEpsilon(sim.potentialMM, new P2LennardJones[]{sim.potential11, sim.potential22},
                 new P2LennardJones[]{sim.potentialM1, sim.potentialM2});
@@ -522,8 +522,8 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
 
     protected static class ModifierAtomDiameter implements Modifier {
         
-        public ModifierAtomDiameter(SpeciesSpheresMono species, P2LennardJones potential,
-                SpeciesSpheresMono[] otherSpecies, P2LennardJones[] otherPotentials, DiameterHashByType diameterManager) {
+        public ModifierAtomDiameter(SpeciesGeneral species, P2LennardJones potential,
+                SpeciesGeneral[] otherSpecies, P2LennardJones[] otherPotentials, DiameterHashByType diameterManager) {
             this.species = species;
             this.otherSpecies = otherSpecies;
             this.potential = potential;
@@ -582,8 +582,8 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
             return getLabel();
         }
         
-        protected final SpeciesSpheresMono species;
-        protected final SpeciesSpheresMono[] otherSpecies;
+        protected final SpeciesGeneral species;
+        protected final SpeciesGeneral[] otherSpecies;
         protected final P2LennardJones potential;
         protected final P2LennardJones[] otherPotentials;
         protected final DiameterHashByType diameterHash;

@@ -43,6 +43,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -67,14 +68,14 @@ public class DLJ_NVT_1site extends Simulation {
 	protected final MCMoveMolecule moveMolecule;//translation
 	protected final MCMoveRotate rotateMolecule;//rotation, atomic
 	protected final Box box;
-    protected SpeciesSpheresRotating species;
+    protected SpeciesGeneral species;
 
 	//************************************* constructor ********************************************//
     public DLJ_NVT_1site(Space space, int numberMolecules, final double sigmaLJ, double epsilonLJ, double mu,
                          double dielectricOutside, double boxSize, double temperature, double truncation) {
         super(space);
         //setRandom(new RandomNumberGenerator(1));
-        species = new SpeciesSpheresRotating(space, new ElementSimple("A"));
+        species = SpeciesSpheresRotating.create(space, new ElementSimple("A"));
         addSpecies(species);
         box = this.makeBox();
         box.setNMolecules(species, numberMolecules);

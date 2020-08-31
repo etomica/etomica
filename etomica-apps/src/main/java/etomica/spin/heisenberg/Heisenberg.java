@@ -27,7 +27,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -51,7 +51,7 @@ public class Heisenberg extends Simulation {
     private static final String APP_NAME = "Heisenberg";
     public PotentialMasterSite potentialMaster; // difference betweet Pmaster pmastersite
     public Box box;
-    public SpeciesSpheresMono spins;
+    public SpeciesGeneral spins;
     public P2Spin potential;
     public MCMoveRotate mcMove;
     private IntegratorMC integrator;
@@ -69,7 +69,7 @@ public class Heisenberg extends Simulation {
 //        setRandom(new RandomNumberGenerator(1)); //debug only
 //        System.out.println("============================the RandomSeed is one ===========================");
 
-        spins = new SpeciesSpheresRotating(space, new ElementSimple("A"));
+        spins = SpeciesSpheresRotating.create(space, new ElementSimple("A"));
 
         addSpecies(spins);
 

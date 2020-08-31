@@ -7,6 +7,7 @@ package etomica.virial.simulations;
 
 import etomica.action.controller.Activity;
 import etomica.action.controller.Controller;
+import etomica.atom.AtomTypeOriented;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.data.*;
@@ -27,9 +28,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
-import etomica.species.SpeciesSpheresRotating;
+import etomica.species.*;
 import etomica.units.dimensions.Null;
 import etomica.virial.*;
 import etomica.virial.overlap.DataProcessorVirialOverlap;
@@ -194,10 +193,11 @@ public class SimulationVirialOverlap2 extends Simulation {
         boolean multiAtomic = false;
         for (int i=0; i<species.length; i++) {
             addSpecies(species[i]);
-            if (!(species[i] instanceof SpeciesSpheresMono) || species[i] instanceof SpeciesSpheresRotating ) {
+            SpeciesGeneral sp = (SpeciesGeneral) species[i];
+            if (sp.getLeafAtomCount() == 1 && sp.getLeafType() instanceof AtomTypeOriented) {
                 doRotate = true;
             }
-            if (!(species[i] instanceof SpeciesSpheresMono || species[i] instanceof SpeciesSpheresRotating)) {
+            if (sp.getLeafAtomCount() > 1) {
                 multiAtomic = true;
             }
         }

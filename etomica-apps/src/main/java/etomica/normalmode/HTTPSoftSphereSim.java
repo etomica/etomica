@@ -20,7 +20,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Applet to illustrate HTTP method
@@ -33,13 +33,13 @@ public class HTTPSoftSphereSim extends Simulation {
     public IntegratorMC integrator;
     protected PotentialMaster potentialMaster;
     protected double latticeEnergy;
-    protected SpeciesSpheresMono species;
+    protected SpeciesGeneral species;
     protected P1ConstraintNbr p1Constraint;
     protected CoordinateDefinitionLeaf coordinateDefinition;
     public HTTPSoftSphereSim(Space _space, int numAtoms,  double temperature) {
         super(_space);
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMasterList(this, space);

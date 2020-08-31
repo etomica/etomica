@@ -68,7 +68,7 @@ public class UnitTestUtil {
             nBox = n0.length;
         }
         if (n1 != null) {
-            species1 = new SpeciesSpheresMono(sim, space);
+            species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(sim));
             sim.addSpecies(species1);
             nBox = n1.length;
         }

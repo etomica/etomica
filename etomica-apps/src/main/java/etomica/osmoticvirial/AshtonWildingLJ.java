@@ -20,7 +20,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -34,7 +34,7 @@ public class AshtonWildingLJ extends Simulation {
     protected P2LennardJones potential;
     protected IntegratorMC integrator;
     protected MCMoveAtom mcMoveAtom;
-    protected SpeciesSpheresMono species1;
+    protected SpeciesGeneral species1;
     
 
     /**
@@ -48,7 +48,7 @@ public class AshtonWildingLJ extends Simulation {
         double sigma1 = 1.0;
         box = new Box(space);
         addBox(box);
-        species1 = new SpeciesSpheresMono(this, space);
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species1);
         box.setNMolecules(species1, numAtoms);
 

@@ -24,7 +24,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 
 /**
@@ -35,7 +35,7 @@ import etomica.units.Kelvin;
 public class DropletAtomic extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final Box box;
     public final IntegratorVelocityVerlet integrator;
 
@@ -52,8 +52,7 @@ public class DropletAtomic extends Simulation {
     public DropletAtomic() {
         super(Space3D.getInstance());
         //species
-        species = new SpeciesSpheresMono(space, Argon.INSTANCE);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.element(Argon.INSTANCE), true);
         addSpecies(species);
 
         //construct box

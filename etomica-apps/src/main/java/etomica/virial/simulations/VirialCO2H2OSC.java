@@ -27,6 +27,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.ElectronVolt;
 import etomica.units.Kelvin;
@@ -84,7 +85,7 @@ public class VirialCO2H2OSC {
         final double HSB = Standard.BHS(nPoints, sigmaHSRef);
 
         System.out.println("Overlap sampling for CO2/H2O mixture at " + temperatureK + " K");
-        System.out.println("nTypes: "+java.util.Arrays.toString(nTypes));
+        System.out.println("nTypes: "+ Arrays.toString(nTypes));
         if (nonAdditive != Nonadditive.NONE) {
             if (nonAdditive == Nonadditive.DISPERSION) {
                 System.out.println("Including non-additive dispersion");
@@ -113,9 +114,8 @@ public class VirialCO2H2OSC {
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
 
-        SpeciesSpheresRotating speciesCO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+Oxygen.INSTANCE.getMass()*2));
-        SpeciesSpheresRotating speciesH2O = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+Hydrogen.INSTANCE.getMass()*2));
-        speciesH2O.setAxisSymmetric(false);
+        SpeciesGeneral speciesCO2 = SpeciesSpheresRotating.create(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass()+Oxygen.INSTANCE.getMass()*2));
+        SpeciesGeneral speciesH2O = SpeciesSpheresRotating.create(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+Hydrogen.INSTANCE.getMass()*2), false, false);
         P2CO2Hellmann p2cCO2 = new P2CO2Hellmann(space, P2CO2Hellmann.Parameters.B);
         IPotentialAtomic p2aCO2 = level == Level.CLASSICAL ? null : (level == Level.SEMICLASSICAL_FH ? p2cCO2.makeSemiclassical(temperature) : new P2SemiclassicalAtomic(space, p2cCO2, temperature));
 

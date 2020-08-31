@@ -31,8 +31,6 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
-import etomica.species.SpeciesSpheres;
-import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 
 /**
@@ -49,8 +47,8 @@ public class DCVGCMD extends Simulation {
     public P1WCAWall potentialwall1;
     public P1WCAPorousWall potentialwallPorousA, potentialwallPorousA1;
     public P1WCAPorousWall potentialwallPorousB, potentialwallPorousB1;
-    public SpeciesSpheresMono species1;
-    public SpeciesSpheresMono species2;
+    public SpeciesGeneral species1;
+    public SpeciesGeneral species2;
     public SpeciesGeneral speciesTube;
     public Box box;
     public DataSourceGroup fluxMeters;
@@ -76,10 +74,8 @@ public class DCVGCMD extends Simulation {
         //Instantiate classes
         super(_space);
 
-        species1 = new SpeciesSpheresMono(this, space);
-        species1.setIsDynamic(true);
-        species2 = new SpeciesSpheresMono(this, space);
-        species2.setIsDynamic(true);
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         speciesTube = new SpeciesBuilder(space)
                 .addCount(AtomType.simple("T", Double.POSITIVE_INFINITY), 20 * 40)
                 .withConformation(new ConformationTube(space, 20))
@@ -207,7 +203,7 @@ public class DCVGCMD extends Simulation {
         // 40),new BasisMonatomic(3));
         double length = 0.25;
         config = new ConfigurationLatticeTube(new LatticeCubicFcc(space), length, space);
-        config.setSpeciesSpheres(new SpeciesSpheresMono[]{species1, species2});
+        config.setSpeciesSpheres(new SpeciesGeneral[]{species1, species2});
         config.setSpeciesTube(speciesTube);
         config.initializeCoordinates(box);
 

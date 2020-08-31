@@ -19,7 +19,7 @@ import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Hard-sphere molecular dynamics simulation of two species in 2D.
@@ -33,7 +33,8 @@ import etomica.species.SpeciesSpheresMono;
 public class HSMD2D extends Simulation {
 
     public IntegratorHard integrator;
-    public SpeciesSpheresMono species1, species2;
+    public SpeciesGeneral species1;
+    public SpeciesGeneral species2;
     public Box box;
     public Potential2 potential11;
     public Potential2 potential12;
@@ -42,10 +43,8 @@ public class HSMD2D extends Simulation {
     public HSMD2D() {
         super(Space2D.getInstance());
 
-        species1 = new SpeciesSpheresMono(this, space);
-        species1.setIsDynamic(true);
-        species2 = new SpeciesSpheresMono(this, space);
-        species2.setIsDynamic(true);
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species1);
         addSpecies(species2);
 

@@ -33,7 +33,7 @@ import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -56,7 +56,7 @@ public class SimLJHTTISuperHCP2 extends Simulation {
     public MCMoveAtomCoupled atomMove;
     public PotentialMasterList potentialMaster;
     public Potential2SoftSpherical potential;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
 
     public SimLJHTTISuperHCP2(Space _space, int numAtoms, double density, double coa, double temperature, double rc, boolean ss, int[] seeds) {
         super(_space);
@@ -64,7 +64,7 @@ public class SimLJHTTISuperHCP2 extends Simulation {
             setRandom(new RandomMersenneTwister(seeds));
         }
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         // TARGET

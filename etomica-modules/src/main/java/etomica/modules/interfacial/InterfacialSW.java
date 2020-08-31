@@ -26,8 +26,8 @@ import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
-import etomica.species.SpeciesSpheresMono;
 
 /**
  * Simulation for interfacial tension module.  Simulation itself is just a
@@ -38,7 +38,7 @@ import etomica.species.SpeciesSpheresMono;
 public class InterfacialSW extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final SpeciesSpheresHetero surfactant;
     public final Box box;
     public final IntegratorHard integrator;
@@ -51,8 +51,7 @@ public class InterfacialSW extends Simulation {
     public InterfacialSW(Space _space) {
         super(_space);
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
         surfactant = new SpeciesSpheresHetero(this, space, 2);
         surfactant.setIsDynamic(true);

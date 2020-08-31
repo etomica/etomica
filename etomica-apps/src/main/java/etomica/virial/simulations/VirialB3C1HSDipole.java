@@ -17,6 +17,7 @@ import etomica.potential.P2HSDipole;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Pixel;
 import etomica.util.Arrays;
@@ -87,8 +88,7 @@ public class VirialB3C1HSDipole {
         targetCluster.setTemperature(temperature);
         double refIntegral = HSB[nPoints];
 
-        SpeciesSpheresRotating species = new SpeciesSpheresRotating(space, new ElementSimple("A")); 
-        species.setIsDynamic(true);
+        SpeciesGeneral species = SpeciesSpheresRotating.create(space, new ElementSimple("A"), true, true);
         //simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species, temperature,refCluster,targetCluster,false);
         

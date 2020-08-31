@@ -14,7 +14,7 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Mesoscale simulation for Droplet module.
@@ -23,7 +23,7 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class Droplet extends Simulation {
 
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final Box box;
     public final IntegratorDroplet integrator;
     public final P2Cohesion p2;
@@ -36,8 +36,7 @@ public class Droplet extends Simulation {
         super(Space3D.getInstance());
 
         //species
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));

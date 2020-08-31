@@ -20,7 +20,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -42,7 +42,7 @@ public class Heisenberg3Pair extends Simulation {
 
     private static final String APP_NAME = "Heisenberg";
     public Box box;
-    public SpeciesSpheresMono spins;
+    public SpeciesGeneral spins;
     public P2Spin potential;
     public MCMoveRotate3Pair mcMove;
     private IntegratorMC integrator;
@@ -63,7 +63,7 @@ public class Heisenberg3Pair extends Simulation {
         addBox(box);
         int numAtoms = numberMolecules;
 
-        spins = new SpeciesSpheresRotating(space, new ElementSimple("A"));
+        spins = SpeciesSpheresRotating.create(space, new ElementSimple("A"));
 
         addSpecies(spins);
         box.setNMolecules(spins, numAtoms);

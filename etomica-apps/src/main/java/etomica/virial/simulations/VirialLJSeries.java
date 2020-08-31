@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.graphics.SimulationGraphic;
 import etomica.potential.P2SoftSphere;
@@ -12,7 +13,7 @@ import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.*;
@@ -101,7 +102,7 @@ public class VirialLJSeries {
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 		
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature,refCluster,targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), temperature,refCluster,targetCluster);
         
         if(false) {
     sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));

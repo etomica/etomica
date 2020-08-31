@@ -31,7 +31,7 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -54,7 +54,7 @@ public class HSMDCavity extends Simulation {
     /**
      * The single hard-sphere species.
      */
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     /**
      * The hard-sphere potential governing the interactions.
      */
@@ -71,8 +71,7 @@ public class HSMDCavity extends Simulation {
 
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         box = this.makeBox();

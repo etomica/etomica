@@ -40,7 +40,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.SimpleUnit;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Null;
@@ -58,7 +58,7 @@ public class LjMd3D extends Simulation {
     public final PotentialMasterList potentialMasterList;
     public final PotentialMasterMonatomic potentialMasterLong, potentialMasterLongCut;
     public IntegratorVelocityVerlet integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public Potential2SoftSpherical potential;
     public IntegratorMC integratorMC;
@@ -68,8 +68,7 @@ public class LjMd3D extends Simulation {
     public LjMd3D(int numAtoms, double temperature, double density, double pressure, double tStep, double rcShort, double rcLong, int hybridInterval, IFunction vBias, boolean ss) {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         box = this.makeBox();
