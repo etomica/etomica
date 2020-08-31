@@ -6,6 +6,7 @@ package etomica.modules.rheology;
 
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
 import etomica.simulation.Simulation;
@@ -13,7 +14,7 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simulation for rheology module.
@@ -23,15 +24,14 @@ import etomica.species.SpeciesSpheresMono;
 public class SimulationRheology extends Simulation {
 
     public final Box box;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final IntegratorPolymer integrator;
 
     public final ConfigurationPolymer config;
     
     public SimulationRheology(Space space) {
         super(space);
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         Vector d = space.makeVector();
