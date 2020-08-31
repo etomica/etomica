@@ -22,7 +22,7 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Calorie;
 import etomica.units.Kelvin;
 import etomica.units.Mole;
@@ -39,7 +39,7 @@ import etomica.util.random.RandomNumberGeneratorUnix;
 public class Catalysis extends Simulation {
     
     private static final long serialVersionUID = 1L;
-    public final SpeciesSpheresMono speciesO, speciesC, speciesSurface;
+    public final SpeciesGeneral speciesO, speciesC, speciesSurface;
     public final Box box;
     public final IntegratorHard integrator;
 
@@ -59,14 +59,11 @@ public class Catalysis extends Simulation {
         super(_space);
         this.setRandom(random);
         //species
-        speciesO = new SpeciesSpheresMono(space, Oxygen.INSTANCE);
-        speciesO.setIsDynamic(true);
+        speciesO = SpeciesGeneral.monatomic(space, AtomType.element(Oxygen.INSTANCE), true);
         addSpecies(speciesO);
-        speciesC = new SpeciesSpheresMono(space, Carbon.INSTANCE);
-        speciesC.setIsDynamic(true);
+        speciesC = SpeciesGeneral.monatomic(space, AtomType.element(Carbon.INSTANCE), true);
         addSpecies(speciesC);
-        speciesSurface = new SpeciesSpheresMono(space, new ElementSimple("Surface", Double.POSITIVE_INFINITY));
-        speciesSurface.setIsDynamic(true);
+        speciesSurface = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("Surface", Double.POSITIVE_INFINITY)), true);
         addSpecies(speciesSurface);
 
         //construct box

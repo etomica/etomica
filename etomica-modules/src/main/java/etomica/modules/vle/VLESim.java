@@ -8,6 +8,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.mcmove.MCMoveMoleculeExchangeVLE;
@@ -29,6 +30,7 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Debye;
 import etomica.units.Kelvin;
@@ -38,7 +40,7 @@ import etomica.util.IListener;
 public class VLESim extends Simulation {
 
     public final Box boxLiquid, boxVapor;
-    public final SpeciesSpheresRotating species;
+    public final SpeciesGeneral species;
     public final IntegratorMC integratorLiquid, integratorVapor;
     public final IntegratorManagerMC integratorGEMC;
     protected final P2LJQ p2LJQ;
@@ -62,7 +64,7 @@ public class VLESim extends Simulation {
 
         double initBoxSize = Math.pow(initNumMolecules / density, (1.0 / 3.0));
 
-        species = new SpeciesSpheresRotating(this, space);
+        species = SpeciesSpheresRotating.create(space, new ElementSimple(this), false,true);
         addSpecies(species);
 
         boxLiquid = this.makeBox(new BoundaryRectangularPeriodic(space, initBoxSize));

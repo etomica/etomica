@@ -25,7 +25,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Energy;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
@@ -92,7 +92,7 @@ public class SimOverlapLJModule {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(sim, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(sim));
         sim.addSpecies(species);
 
         PotentialMaster potentialMasterTarget = new PotentialMasterMonatomic(sim);

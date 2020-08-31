@@ -25,14 +25,14 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
 
 public class SimGlass extends Simulation {
 
-    public SpeciesSpheresMono speciesA, speciesB;
+    public SpeciesGeneral speciesA, speciesB;
     public Box box;
     public IntegratorMD integrator;
 
@@ -58,11 +58,9 @@ public class SimGlass extends Simulation {
         }
         this.potentialChoice = pc;
         //species
-        speciesA = new SpeciesSpheresMono(this, space);
-        speciesA.setIsDynamic(true);
+        speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesA);
-        speciesB = new SpeciesSpheresMono(this, space);
-        speciesB.setIsDynamic(true);
+        speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesB);
 
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.99, space);

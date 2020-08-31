@@ -5,7 +5,6 @@
 package etomica.modules.selfassembly;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.controller.Controller;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -27,8 +26,8 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
-import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 
 public class SelfAssemblySim extends Simulation {
@@ -39,7 +38,7 @@ public class SelfAssemblySim extends Simulation {
 	public java.awt.Component display;
 	public Box box;
 	public MeterTemperature thermometer;
-	public SpeciesSpheresMono speciesA;
+	public SpeciesGeneral speciesA;
 	public SpeciesSpheresHetero speciesB;
 	public final P2SquareWell p2AA, p2AB1, p2AB2, p2B1B1, p2B1B2, p2B2B2;
 	public final P2Tether p2Bond;
@@ -62,8 +61,7 @@ public class SelfAssemblySim extends Simulation {
         nB1 = 1;
         nB2 = 5;
 
-        speciesA = new SpeciesSpheresMono(space, typeA);
-        speciesA.setIsDynamic(true);
+        speciesA = SpeciesGeneral.monatomic(space, typeA, true);
         speciesB = new SpeciesSpheresHetero(space, new AtomType[] {typeB1, typeB2});
         speciesB.setConformation(new ConformationLinear(space,0.501));
         speciesB.setChildCount(new int[] {nB1, nB2});

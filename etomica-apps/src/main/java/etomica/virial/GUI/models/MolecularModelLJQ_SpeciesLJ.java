@@ -9,10 +9,10 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.Species;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.virial.GUI.components.SimpleElementForSimilarSpecies;
 import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesFactoryOrientedSpheres;
 
 public class MolecularModelLJQ_SpeciesLJ implements IMolecularModel_SpeciesFactory,Cloneable{
 	
@@ -141,17 +141,9 @@ private String[][] setParameterValues() {
 	//Creates the LJAtom Species
 	public ISpecies createSpecies(){
 		simpleElement = SimpleElementForSimilarSpecies.getInstance();
-		Species speciesLJQ = new SpeciesSpheresRotating(this.space, simpleElement.getOelement());
+		SpeciesGeneral speciesLJQ = SpeciesSpheresRotating.create(space, simpleElement.getOelement());
         return speciesLJQ;
 	}
-	
-	//Creates the LJAtom Species
-	public SpeciesFactory createSpeciesFactory(){
-			SpeciesFactory speciesFactory;
-			speciesFactory = new SpeciesFactoryOrientedSpheres();
-	        return speciesFactory;
-		}
-	
 	
 	//Testing Class
 	public static void main(String[] args){

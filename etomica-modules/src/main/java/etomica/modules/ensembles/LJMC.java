@@ -23,12 +23,12 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 public class LJMC extends Simulation {
     
     private static final long serialVersionUID = 1L;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final Box box;
 
     public final IntegratorMC integrator;
@@ -39,8 +39,7 @@ public class LJMC extends Simulation {
     public LJMC(Space _space) {
         super(_space);
         //species
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);//index 1
         addSpecies(species);
 
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, 2.5, space);

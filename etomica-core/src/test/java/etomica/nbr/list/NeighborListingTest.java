@@ -11,14 +11,13 @@ import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.molecule.IMolecule;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculation;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -41,8 +40,8 @@ class NeighborListingTest {
     
     private static final double NBR_RANGE = 4.8;
     private static final double POTENTIAL_RANGE = 4;
-    private SpeciesSpheresMono speciesA;
-    private SpeciesSpheresMono speciesB;
+    private SpeciesGeneral speciesA;
+    private SpeciesGeneral speciesB;
     private Simulation sim;
 
     private static Set<IAtom> getSameTypeNbrs(Box box, IAtom atom, double range) {
@@ -72,10 +71,8 @@ class NeighborListingTest {
     @BeforeEach
     void setup() {
         sim = new Simulation(Space3D.getInstance());
-        speciesA = new SpeciesSpheresMono(sim.getSpace(), new AtomType(new ElementSimple("A")));
-        speciesA.setIsDynamic(true);
-        speciesB = new SpeciesSpheresMono(sim.getSpace(), new AtomType(new ElementSimple("B")));
-        speciesB.setIsDynamic(true);
+        speciesA = SpeciesGeneral.monatomic(sim.getSpace(), new AtomType(new ElementSimple("A")), true);
+        speciesB = SpeciesGeneral.monatomic(sim.getSpace(), new AtomType(new ElementSimple("B")), true);
         sim.addSpecies(speciesA);
         sim.addSpecies(speciesB);
         box = sim.makeBox();

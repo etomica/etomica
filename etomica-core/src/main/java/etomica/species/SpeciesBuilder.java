@@ -5,7 +5,6 @@ import etomica.config.ConformationGeneric;
 import etomica.config.IConformation;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.space3d.Space3D;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -15,10 +14,13 @@ public class SpeciesBuilder {
     private final List<AtomType> atomTypes;
     private final List<String> atomNames;
     private final List<Vector> atomPositions;
+    private Vector momentOfInertia;
     private IConformation conformation;
     private final List<int[]> orientation;
     private boolean isDynamic;
+    private boolean isMoleculeOriented;
     private final Space space;
+    private SpeciesGeneral.AtomFactory atomFactory;
 
     public SpeciesBuilder(Space space) {
         this.atomTypes = new ArrayList<>();
@@ -27,7 +29,9 @@ public class SpeciesBuilder {
         this.orientation = new ArrayList<>(2);
         this.atomNames = new ArrayList<>();
         this.isDynamic = false;
+        this.isMoleculeOriented = false;
         this.space = space;
+        this.momentOfInertia = null;
     }
 
     public SpeciesBuilder setDynamic(boolean isDynamic) {
@@ -35,8 +39,24 @@ public class SpeciesBuilder {
         return this;
     }
 
+    public SpeciesBuilder setMoleculeOriented(boolean isMoleculeOriented) {
+        this.isMoleculeOriented = isMoleculeOriented;
+        return this;
+    }
+
+    public SpeciesBuilder setMomentOfInertia(Vector momentOfInertia) {
+        this.momentOfInertia = momentOfInertia;
+        return this;
+    }
+
     public SpeciesBuilder withConformation(IConformation conformation) {
         this.conformation = conformation;
+        this.check();
+        return this;
+    }
+
+    public SpeciesBuilder withAtomFactory(SpeciesGeneral.AtomFactory atomFactory) {
+        this.atomFactory = atomFactory;
         this.check();
         return this;
     }
@@ -82,14 +102,21 @@ public class SpeciesBuilder {
             this.conformation = new ConformationGeneric(this.atomPositions.toArray(new Vector[0]));
         }
 
+        if (this.atomFactory == null) {
+            // Don't make dynamic atoms if molecule is oriented and dynamic;
+            this.atomFactory = SpeciesGeneral.defaultAtomFactory(this.space, this.isDynamic && !this.isMoleculeOriented);
+        }
+
         return new SpeciesGeneral(
                 this.atomTypes.toArray(new AtomType[0]),
                 this.conformation,
                 this.atomNames.toArray(new String[0]),
                 this.orientation.toArray(new int[0][]),
                 this.isDynamic,
-                this.space
-        );
+                this.isMoleculeOriented,
+                this.momentOfInertia,
+                this.space,
+                this.atomFactory);
     }
 
     private void check() {

@@ -21,7 +21,7 @@ import etomica.potential.P2Ideal;
 import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -36,7 +36,7 @@ public class AshtonWildingVirial extends Simulation {
     public Potential2 potential1;
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
-    public SpeciesSpheresMono species1;
+    public SpeciesGeneral species1;
 
 
     /**
@@ -53,7 +53,7 @@ public class AshtonWildingVirial extends Simulation {
 
         box = new Box(space);
         addBox(box);
-        species1 = new SpeciesSpheresMono(this, space);
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species1);
         box.setNMolecules(species1, numAtoms);
 

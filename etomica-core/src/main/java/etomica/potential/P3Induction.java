@@ -152,8 +152,7 @@ public class P3Induction implements IPotentialAtomic {
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesSpheresRotating species = new SpeciesSpheresRotating(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
-        species.setAxisSymmetric(false);
+        SpeciesGeneral species = SpeciesSpheresRotating.create(space, new ElementSimple("H2O", Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()), false, false);
         sim.addSpecies(species);
         Box box = new Box(space);
         Box box2 = new Box(space);
@@ -197,7 +196,7 @@ public class P3Induction implements IPotentialAtomic {
         double[] qH2O = P2WaterSzalewicz.getQ();
         Vector[] qSiteH2O = P2WaterSzalewicz.getSites(space);
         polH2O.E(qSiteH2O[0]);
-        P3Induction.MyAgent agentH2O = new P3Induction.MyAgent(new double[]{alphaH2O}, new Vector[]{polH2O}, qH2O, qSiteH2O);
+        MyAgent agentH2O = new MyAgent(new double[]{alphaH2O}, new Vector[]{polH2O}, qH2O, qSiteH2O);
 
         paramsManager.put(species.getLeafType(), agentH2O);
 

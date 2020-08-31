@@ -16,6 +16,7 @@ import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.species.Species;
 import etomica.util.random.IRandom;
 
@@ -47,7 +48,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
     protected MeterPotentialEnergy energyMeter;
     protected IAtom atom;
     protected final HashMap<IAtom, Box> originalBox;
-    protected final Species solute;
+    protected final ISpecies solute;
     protected final boolean mixedPM;
 
     /**
@@ -60,7 +61,7 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
      * @param seed specifies the molecules that are selected for the initial trial move; may be null, in which case
      *                any molecule in the box could be used for initial trial
      */
-    public MCMoveGeometricClusterRestrictedGE(PotentialMaster potentialMaster, Space space, IRandom random, Box box1, Box box2, Species seed) {
+    public MCMoveGeometricClusterRestrictedGE(PotentialMaster potentialMaster, Space space, IRandom random, Box box1, Box box2, ISpecies seed) {
 
         super(potentialMaster);
         clusterAtoms1 = new HashSet<>();

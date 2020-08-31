@@ -11,7 +11,7 @@ import etomica.data.DataSourceScalar;
 import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculeOrientedDynamic;
 import etomica.simulation.Simulation;
-import etomica.species.ISpeciesOriented;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Temperature;
 
@@ -61,7 +61,7 @@ public class MeterTemperature extends DataSourceScalar {
 	            if (nMolecules > 0) {
 	                IMolecule molecule = box.getMoleculeList(sim.getSpecies(i)).get(0);
 	                if (molecule instanceof MoleculeOrientedDynamic) {
-	                    if (Double.isInfinite(((ISpeciesOriented)sim.getSpecies(i)).getMass())) {
+	                    if (Double.isInfinite(((SpeciesGeneral)sim.getSpecies(i)).getMass())) {
 	                        continue;
 	                    }
                         totalD += 6*nMolecules;

@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -26,7 +27,7 @@ import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.CompoundDimension;
 import etomica.units.CompoundUnit;
 import etomica.units.dimensions.Dimension;
@@ -103,7 +104,7 @@ public class VirialSW {
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 		
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature,refCluster,targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), temperature,refCluster,targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
         
         

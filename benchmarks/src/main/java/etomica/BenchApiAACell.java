@@ -1,6 +1,7 @@
 package etomica;
 
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiInterArrayList;
@@ -17,8 +18,7 @@ import etomica.potential.IteratorDirective;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -51,7 +51,7 @@ public class BenchApiAACell {
     @Setup
     public void setUp() {
         Simulation sim = new Simulation(Space3D.getInstance());
-        Species s = new SpeciesSpheresMono(sim, sim.getSpace());
+        SpeciesGeneral s = SpeciesGeneral.monatomic(sim.getSpace(), AtomType.simpleFromSim(sim));
         sim.addSpecies(s);
         Box box = sim.makeBox();
         double l = 14.4573 * Math.pow((numAtoms / 2000.0), 1.0 / 3.0);

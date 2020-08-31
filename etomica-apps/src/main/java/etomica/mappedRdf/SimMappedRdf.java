@@ -22,7 +22,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -31,7 +31,7 @@ import etomica.util.ParseArgs;
  */
 public class SimMappedRdf extends Simulation {
 
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public IntegratorMC integrator;
     public MCMoveAtom move;
@@ -43,7 +43,7 @@ public class SimMappedRdf extends Simulation {
         super(_space);
 
         //species and potentials
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         //construct box

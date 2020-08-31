@@ -20,7 +20,7 @@ import etomica.integrator.IntegratorRigidMatrixIterative.BoxImposePbcMolecule;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.math.function.Function;
 import etomica.models.water.OrientationCalcWater3P;
-import etomica.models.water.SpeciesWater3POriented;
+import etomica.models.water.SpeciesWater3P;
 import etomica.molecule.*;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.potential.*;
@@ -32,8 +32,8 @@ import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.ISpeciesOriented;
 import etomica.species.SpeciesAgentManager;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -96,7 +96,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
+        SpeciesGeneral species = SpeciesWater3P.create(true, true);
         sim.addSpecies(species);
         Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
         sim.addBox(box);
@@ -132,8 +132,8 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         pHH.setCharge1(hCharge);
         pHH.setCharge2(hCharge);
         P2LennardJones p2 = new P2LennardJones(sim.getSpace(), 3.1670, Kelvin.UNIT.toSim(78.23));
-        AtomType oType = species.getOxygenType();
-        AtomType hType = species.getHydrogenType();
+        AtomType oType = species.getTypeByName("O");
+        AtomType hType = species.getTypeByName("H");
 
         potentialMaster.addPotential(p2 /*new P2SoftSphericalTruncatedShifted(p2, boxlength*0.5)*/, new AtomType[]{oType, oType});
         PotentialGroup pGroup = potentialMaster.getPotential(new ISpecies[]{species, species});
@@ -218,7 +218,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
 
             MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent(molecule);
             Vector angularMomentum = ((IMoleculeOrientedKinetic)molecule).getAngularVelocity();
-            ISpeciesOriented orientedType = (ISpeciesOriented)molecule.getType();
+            SpeciesGeneral orientedType = (SpeciesGeneral)molecule.getType();
             Vector moment = orientedType.getMomentOfInertia();
 
             if (stepCount%printInterval == 0) {
@@ -382,7 +382,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             }
 
             //advance linear velocity to full timestep
-            ((IAtomKinetic)molecule).getVelocity().PEa1Tv1(0.5*timeStep/((ISpeciesOriented)molecule.getType()).getMass(), agent.force);
+            ((IAtomKinetic)molecule).getVelocity().PEa1Tv1(0.5*timeStep/((SpeciesGeneral)molecule.getType()).getMass(), agent.force);
 
             //advance momentum to full timestep
             ((IAtomOrientedKinetic)molecule).getAngularVelocity().PEa1Tv1(0.5*timeStep, agent.torque);
@@ -421,7 +421,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent(molecule);
             Vector velocity = ((IMoleculeKinetic)molecule).getVelocity();
             Vector angularMomentum = ((IMoleculeOrientedKinetic)molecule).getAngularVelocity();
-            double mass = ((ISpeciesOriented)molecule.getType()).getMass();
+            double mass = ((SpeciesGeneral)molecule.getType()).getMass();
 //            System.out.println("mass = "+mass);
             int D = velocity.getD();
             for(int i=0; i<D; i++) {
@@ -433,7 +433,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             for(int i=0; i<D; i++) {
                 angularVelocity.setX(i,random.nextGaussian());
             }
-            angularMomentum.Ea1Tv1(temperature, ((ISpeciesOriented)molecule.getType()).getMomentOfInertia());
+            angularMomentum.Ea1Tv1(temperature, ((SpeciesGeneral)molecule.getType()).getMomentOfInertia());
             angularMomentum.map(new Function.Sqrt());
             angularMomentum.TE(angularVelocity);
             //angularMomentum is now the correct body-fixed angular momentum
@@ -467,7 +467,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             }
 
             Vector velocity = ((IMoleculeKinetic) molecule).getVelocity();
-            double mass = ((ISpeciesOriented) molecule.getType()).getMass();
+            double mass = ((SpeciesGeneral) molecule.getType()).getMass();
             momentum.PEa1Tv1(mass, velocity);
             totalMass += mass;
         }
@@ -487,7 +487,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
                 }
                 continue;
             }
-            double mass = ((ISpeciesOriented) molecule.getType()).getMass();
+            double mass = (molecule.getType()).getMass();
             if (mass < Double.POSITIVE_INFINITY) ((IMoleculeKinetic) molecule).getVelocity().ME(momentum);
         }
     }

@@ -6,6 +6,7 @@ package etomica.normalmode;
 
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.crystal.Basis;
@@ -16,7 +17,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * 
@@ -31,7 +32,7 @@ public class NormalModeAnalysisDisplay1D extends Simulation {
 	public NormalModeAnalysisDisplay1D() {
         super(Space1D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         boundary = new BoundaryRectangularPeriodic(space, numAtoms / density);
@@ -95,7 +96,7 @@ getController().addActivity(new ActivityIntegrate(integrator));
 	protected Primitive primitive;
 	protected Basis basis;
 	protected int[] nCells;
-	protected SpeciesSpheresMono species;
+	protected SpeciesGeneral species;
 	protected NormalModes1DHR nm;
 	protected CoordinateDefinitionLeaf coordinateDefinition;
 	protected WaveVectorFactory waveVectorFactory;

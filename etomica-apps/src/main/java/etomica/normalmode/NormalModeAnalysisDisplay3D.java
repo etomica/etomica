@@ -22,7 +22,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Pixel;
 
 /**
@@ -41,7 +41,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
     protected Primitive primitive;
     protected Basis basis;
     protected int[] nCells;
-    protected SpeciesSpheresMono species;
+    protected SpeciesGeneral species;
     protected NormalModes3D nm;
     protected WaveVectorFactory waveVectorFactory;
     protected CoordinateDefinitionLeaf coordinateDefinition;
@@ -57,7 +57,7 @@ public class NormalModeAnalysisDisplay3D extends Simulation {
     public NormalModeAnalysisDisplay3D() {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         L = Math.pow(4.0 / density, 1.0 / 3.0);

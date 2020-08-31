@@ -22,7 +22,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * MD simulation of hard spheres in 1D or 3D with tabulation of the
@@ -44,7 +44,7 @@ public class SimCalcSLJ extends Simulation {
     public SimCalcSLJ(Space _space, int numAtoms, double density, double temperature) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMasterMonatomic(this);

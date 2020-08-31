@@ -41,7 +41,7 @@ import etomica.potential.PotentialCalculationForceSum;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
@@ -56,7 +56,7 @@ public class SimFe extends Simulation {
     
     public final PotentialMasterList potentialMaster;
     public IntegratorVelocityVerlet integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2EAM potential;
     public P1ImageHarmonic p1ImageHarmonic;
@@ -64,8 +64,7 @@ public class SimFe extends Simulation {
 
     public SimFe(Crystal crystal, int numAtoms, double temperature, double density, double w, int offsetDim, int numInnerSteps, boolean swap, boolean doHarmonic, double timeStep) {
         super(Space3D.getInstance());
-        species = new SpeciesSpheresMono(space, Iron.INSTANCE);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.element(Iron.INSTANCE), true);
         addSpecies(species);
         box = this.makeBox();
         box.setNMolecules(species, numAtoms);

@@ -24,7 +24,7 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 import javax.swing.*;
 
@@ -37,8 +37,8 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
     public etomica.action.SimulationRestart restartAction;
     public boolean initializing = true;
     public MeterTemperature thermometer;
-    public SpeciesSpheresMono speciesA;
-    public SpeciesSpheresMono speciesB;
+    public SpeciesGeneral speciesA;
+    public SpeciesGeneral speciesB;
     public P2SquareWellBonded AAbonded;
     public P2SquareWellBonded ABbonded;
     public P2SquareWellBonded BBbonded;
@@ -50,10 +50,8 @@ public class ReactionEquilibrium extends Simulation implements AgentSource<IAtom
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
 
-        speciesA = new SpeciesSpheresMono(this, space);
-        speciesA.setIsDynamic(true);
-        speciesB = new SpeciesSpheresMono(this, space);
-        speciesB.setIsDynamic(true);
+        speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesA);
         addSpecies(speciesB);
 

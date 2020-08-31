@@ -13,7 +13,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simulation that attempts to replicate a LAMMPS benchmark. The input file is
@@ -56,8 +56,7 @@ public class TestLammpsLJ extends Simulation {
     public TestLammpsLJ() {
         super(Space3D.getInstance());
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         Box box = this.makeBox();

@@ -23,7 +23,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 
 /**
@@ -39,7 +39,7 @@ public class Multiharmonic extends Simulation {
     MeterEnergy meterEnergy;
     AccumulatorAverageCollapsing accumulatorEnergy;
     AccumulatorHistory historyEnergy;
-    SpeciesSpheresMono species;
+    SpeciesGeneral species;
     Box box;
     P1Harmonic potentialA, potentialB;
     IntegratorVelocityVerlet integrator;
@@ -50,8 +50,7 @@ public class Multiharmonic extends Simulation {
     DataSourceCountTime timeCounter;
     public Multiharmonic() {
         super(Space1D.getInstance());
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double x0 = 0;

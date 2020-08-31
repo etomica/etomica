@@ -33,7 +33,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
@@ -52,7 +52,7 @@ public class HSNPT extends Simulation {
     
     public final PotentialMasterList potentialMaster;
     public final IntegratorMC integrator;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final Box box;
     public final CoordinateDefinition coordinateDefinition;
     public final P2HardSphere pCross;
@@ -60,15 +60,13 @@ public class HSNPT extends Simulation {
     public HSNPT(Space _space, int numAtoms, double rho, boolean nvt, boolean fancyMove, double sigma2) {
         super(_space);
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         double sigma = 1.0;
-        SpeciesSpheresMono species2 = null;
+        SpeciesGeneral species2 = null;
         if (sigma2 != sigma) {
-            species2 = new SpeciesSpheresMono(this, space);
-            species.setIsDynamic(true);
+            species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
             addSpecies(species2);
         }
 

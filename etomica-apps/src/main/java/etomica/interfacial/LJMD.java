@@ -35,7 +35,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomNumberGenerator;
@@ -52,7 +52,7 @@ public class LJMD extends Simulation {
     
     public final PotentialMasterList potentialMaster;
     public IntegratorFixedWall integrator;
-    public SpeciesSpheresMono speciesFluid, speciesTopWall, speciesBottomWall;
+    public SpeciesGeneral speciesFluid, speciesTopWall, speciesBottomWall;
     public Box box;
     public P2SoftSphericalTruncatedForceShifted pFF, pTW, pBW;
     public ConfigurationLammps config;
@@ -62,14 +62,11 @@ public class LJMD extends Simulation {
         super(Space3D.getInstance());
         setRandom(new RandomNumberGenerator(2));
 
-        speciesFluid = new SpeciesSpheresMono(space, new ElementSimple("F"));
-        speciesFluid.setIsDynamic(true);
+        speciesFluid = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("F")), true);
         addSpecies(speciesFluid);
-        speciesTopWall = new SpeciesSpheresMono(space, new ElementSimple("TW", fixedWall ? Double.POSITIVE_INFINITY : 1));
-        speciesTopWall.setIsDynamic(true);
+        speciesTopWall = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("TW", fixedWall ? Double.POSITIVE_INFINITY : 1)), true);
         addSpecies(speciesTopWall);
-        speciesBottomWall = new SpeciesSpheresMono(space, new ElementSimple("BW", Double.POSITIVE_INFINITY));
-        speciesBottomWall.setIsDynamic(true);
+        speciesBottomWall = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("BW", Double.POSITIVE_INFINITY)), true);
         addSpecies(speciesBottomWall);
 
         BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(2, space);

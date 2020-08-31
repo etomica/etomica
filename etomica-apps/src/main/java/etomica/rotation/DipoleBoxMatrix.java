@@ -8,6 +8,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
@@ -23,6 +24,7 @@ import etomica.space.Vector;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotatingMolecule;
 import etomica.units.Pixel;
 
@@ -33,8 +35,8 @@ public class DipoleBoxMatrix extends Simulation {
     
     public DipoleBoxMatrix(Space space, int nAtoms, double dt) {
         super(space);
-        SpeciesSpheresRotatingMolecule species = new SpeciesSpheresRotatingMolecule(this, space, Vector.of(new double[]{0.025, 0.025, 0.025}));
-        species.setIsDynamic(true);
+        SpeciesGeneral species = SpeciesSpheresRotatingMolecule
+                .create(space, AtomType.simpleFromSim(this), Vector.of(0.025, 0.025, 0.025), true);
         addSpecies(species);
         box = this.makeBox(new BoundaryRectangularPeriodic(getSpace(), 10));
         box.setNMolecules(species, nAtoms);

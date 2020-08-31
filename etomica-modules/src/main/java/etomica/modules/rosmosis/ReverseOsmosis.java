@@ -21,7 +21,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Dalton;
 import etomica.units.Kelvin;
 
@@ -33,7 +33,7 @@ import etomica.units.Kelvin;
 public class ReverseOsmosis extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    public SpeciesSpheresMono speciesSolvent, speciesSolute, speciesMembrane;
+    public SpeciesGeneral speciesSolvent, speciesSolute, speciesMembrane;
     public Box box;
     public IntegratorVelocityVerlet integrator;
     public P2LennardJones potential11, potential12, potential22;
@@ -47,20 +47,17 @@ public class ReverseOsmosis extends Simulation {
         super(Space3D.getInstance());
 
         //solute (1)
-        speciesSolute = new SpeciesSpheresMono(this, space);
-        speciesSolute.setIsDynamic(true);
+        speciesSolute = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         ((ElementSimple) speciesSolute.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(40));
         addSpecies(speciesSolute);
 
         //solvent (2)
-        speciesSolvent = new SpeciesSpheresMono(this, space);
-        speciesSolvent.setIsDynamic(true);
+        speciesSolvent = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         ((ElementSimple) speciesSolvent.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(40));
         addSpecies(speciesSolvent);
 
         //membrane
-        speciesMembrane = new SpeciesSpheresMono(this, space);
-        speciesMembrane.setIsDynamic(true);
+        speciesMembrane = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         ((ElementSimple) speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
         addSpecies(speciesMembrane);
 

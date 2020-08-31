@@ -23,7 +23,7 @@ import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.*;
@@ -305,8 +305,8 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
         ColorSchemeByType colorScheme = (ColorSchemeByType) getDisplayBox(sim.box).getColorScheme();
         colorScheme.setColor(sim.speciesSodium.getLeafType(), Color.BLUE);
         colorScheme.setColor(sim.speciesChlorine.getLeafType(), Color.GREEN);
-        colorScheme.setColor(sim.speciesSolvent.getOxygenType(), Color.RED);
-        colorScheme.setColor(sim.speciesSolvent.getHydrogenType(), Color.WHITE);
+        colorScheme.setColor(sim.speciesSolvent.getTypeByName("O"), Color.RED);
+        colorScheme.setColor(sim.speciesSolvent.getTypeByName("H"), Color.WHITE);
         colorScheme.setColor(sim.speciesMembrane.getLeafType(), Color.CYAN);
 
         //meters and displays
@@ -586,8 +586,8 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
 
     protected static class ModifierAtomDiameter implements Modifier {
         
-        public ModifierAtomDiameter(SpeciesSpheresMono species, P2LennardJones potential,
-                P2LennardJones[] crossPotentials, P2LennardJones[] otherPurePotentials, DiameterHashByType diameterManager) {
+        public ModifierAtomDiameter(SpeciesGeneral species, P2LennardJones potential,
+                                    P2LennardJones[] crossPotentials, P2LennardJones[] otherPurePotentials, DiameterHashByType diameterManager) {
             this.species = species;
             this.potential = potential;
             this.crossPotentials = crossPotentials;
@@ -624,7 +624,7 @@ public class ReverseOsmosisWaterGraphic extends SimulationGraphic {
             return getLabel();
         }
         
-        protected final SpeciesSpheresMono species;
+        protected final SpeciesGeneral species;
         protected final P2LennardJones potential;
         protected final P2LennardJones[] crossPotentials;
         protected final P2LennardJones[] otherPurePotentials;

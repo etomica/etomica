@@ -22,7 +22,7 @@ import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -36,8 +36,8 @@ public class GCWidomInsertHS extends Simulation {
     protected MCMoveAtom mcMoveAtom;
     protected MCMoveInsertDelete mcMoveInsertDelete ;
     protected MCMoveGeometricCluster mcMoveGeometricCluster;
-    protected SpeciesSpheresMono species1;
-    protected SpeciesSpheresMono species2;
+    protected SpeciesGeneral species1;
+    protected SpeciesGeneral species2;
     protected Box box;
     protected P2HardSphere potential1, potential12;
     protected Potential2 potential2;
@@ -56,8 +56,8 @@ public class GCWidomInsertHS extends Simulation {
         double sigma2 = q * sigma1; //solvent
         double sigma12 = (sigma1+sigma2)/2;
 
-        species1 = new SpeciesSpheresMono(this, space);
-        species2 = new SpeciesSpheresMono(this, space);
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species1);
         addSpecies(species2);
         box = new Box(new BoundaryRectangularPeriodic(space, 4 * sigma1), space);

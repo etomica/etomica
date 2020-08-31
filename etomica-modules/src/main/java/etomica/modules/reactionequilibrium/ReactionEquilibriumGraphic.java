@@ -20,7 +20,7 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Angstrom;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -374,7 +374,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		//	public DeviceSlider nSlider;
 		public DeviceNSelector nSlider;
 
-        public MySpeciesEditor(SpeciesSpheresMono s, String label) {
+        public MySpeciesEditor(SpeciesGeneral s, String label) {
             super();
             nSlider = new DeviceNSelector(sim.getController());
 			nSlider.setResetAction(new SimulationRestart(sim));
@@ -413,7 +413,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
         public final DeviceBox mass = new DeviceBox();
 
-        public MassEditor(SpeciesSpheresMono species, String label) {
+        public MassEditor(SpeciesGeneral species, String label) {
             super();
             //listener for changes to mass textbox
             mass.setModifier(new ModifierGeneral(species.getLeafType().getElement(), "mass"));
@@ -440,13 +440,13 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 	class DiameterModifier implements Modifier {
 		P2SquareWellBonded potentialRR, potentialRB, potentialBB;
 
-		SpeciesSpheresMono speciesR, speciesB;
+		SpeciesGeneral speciesR, speciesB;
 
 		DisplayBox display;
 
 		DiameterModifier(P2SquareWellBonded potentialRR,
 				P2SquareWellBonded potentialRB, P2SquareWellBonded potentialBB,
-				SpeciesSpheresMono speciesR, SpeciesSpheresMono speciesB) {
+				SpeciesGeneral speciesR, SpeciesGeneral speciesB) {
 			this.potentialRR = potentialRR;
 			this.potentialRB = potentialRB;
 			this.potentialBB = potentialBB;

@@ -32,6 +32,7 @@ import etomica.potential.P2SpheroPolyhedron;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesPolyhedron;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
@@ -78,9 +79,9 @@ public class VirialPolyhedra2 {
 
         final P2SpheroPolyhedron p2 = new P2SpheroPolyhedron(space);
 
-        SpeciesPolyhedron[] allSpecies = new SpeciesPolyhedron[1];
+        SpeciesGeneral[] allSpecies = new SpeciesGeneral[1];
         ShapeData shapeData = ShapeParser.doParse("shape/"+shape+".dat", space);
-        allSpecies[0] = new SpeciesPolyhedron(space, shapeData.vertices, 0.0, new ElementSimple("P"));
+        allSpecies[0] = SpeciesPolyhedron.create(space, shapeData.vertices, 0.0, new ElementSimple("P"));
         double shsref = 2*((AtomTypeSpheroPolyhedron)allSpecies[0].getAtomType(0)).getOuterRadius();
         final double sigmaHSRef = shsref;
         double B2 = shapeData.B2;

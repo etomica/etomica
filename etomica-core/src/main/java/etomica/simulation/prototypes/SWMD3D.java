@@ -24,7 +24,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SquareWell;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simple square-well molecular dynamics simulation in 3D
@@ -32,7 +32,7 @@ import etomica.species.SpeciesSpheresMono;
 public class SWMD3D extends Simulation {
 
     public IntegratorHard integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2SquareWell potential;
     public DisplayBox display;
@@ -40,8 +40,7 @@ public class SWMD3D extends Simulation {
     public SWMD3D() {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.5, space);

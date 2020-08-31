@@ -12,10 +12,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorRigidIterative;
-import etomica.models.water.DipoleSourceWater;
-import etomica.models.water.OrientationCalcWater3P;
-import etomica.models.water.P2WaterSPCSoft;
-import etomica.models.water.SpeciesWater3POriented;
+import etomica.models.water.*;
 import etomica.molecule.MoleculePositionCOM;
 import etomica.potential.P2MoleculeSoftTruncatedSwitched;
 import etomica.potential.P2ReactionFieldDipole;
@@ -25,6 +22,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -36,7 +34,7 @@ public class WaterBox {
     public static SimulationGraphic makeWaterBox() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(Space3D.getInstance());
-        SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
+        SpeciesGeneral species = SpeciesWater3P.create(true, true);
         sim.addSpecies(species);
         Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
         sim.addBox(box);
@@ -91,8 +89,8 @@ public class WaterBox {
         sim.getController().setSleepPeriod(2);
         sim.getController().addActivity(new ActivityIntegrate(integrator));
         SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
-        ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
-        ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
+        ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("H"), Color.WHITE);
+        ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("O"), Color.RED);
         return graphic;
     }
     public static void main(String[] args) {

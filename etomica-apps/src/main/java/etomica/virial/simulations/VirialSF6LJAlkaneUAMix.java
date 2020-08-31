@@ -30,7 +30,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.Constants;
@@ -348,7 +348,7 @@ public static void main(String[] args) {
 
         }
 
-        SpeciesSpheresMono speciesSF6 = new SpeciesSpheresMono(space, new ElementSimple("A"));//species SF6
+        SpeciesGeneral speciesSF6 = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
 
         SpeciesAlkane speciesAlkane = new SpeciesAlkane(space, nSpheres);// species alkane TraPPE-UA
 

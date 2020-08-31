@@ -24,7 +24,6 @@ import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
-import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -119,7 +118,7 @@ public class VirialCO2CH4UAMix {
         }
 
         SpeciesGeneral speciesCO2 = SpeciesTraPPECO2.create(space);
-        SpeciesSpheresMono speciesCH4 = new SpeciesSpheresMono(space, new ElementSimple("A"));//CH4
+        SpeciesGeneral speciesCH4 = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
        
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), 
         		                                             ClusterWeightAbs.makeWeightCluster(targetCluster)};

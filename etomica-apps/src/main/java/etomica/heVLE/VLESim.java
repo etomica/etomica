@@ -26,7 +26,7 @@ import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.util.IListener;
 import etomica.util.ParameterBase;
@@ -35,7 +35,7 @@ import etomica.util.ParseArgs;
 public class VLESim extends Simulation {
 
     public final Box boxLiquid, boxVapor;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final IntegratorMC integratorLiquid, integratorVapor;
     public final IntegratorManagerMC integratorGEMC;
     protected final Potential2SoftSpherical p2;
@@ -56,7 +56,7 @@ public class VLESim extends Simulation {
 
         double initBoxSize = Math.pow(initNumMolecules / density, (1.0 / 3.0));
 
-        species = new SpeciesSpheresMono(space, Helium.INSTANCE);
+        species = SpeciesGeneral.monatomic(space, AtomType.element(Helium.INSTANCE));
         addSpecies(species);
 
         System.out.println("box size: " + initBoxSize);

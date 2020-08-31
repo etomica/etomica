@@ -34,7 +34,6 @@ import etomica.space3d.IOrientation3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
-import etomica.species.SpeciesSpheresMono;
 import etomica.units.Calorie;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -53,7 +52,7 @@ public class Sam extends Simulation {
     public final P2Harmonic p2SurfaceBond;
     public final double harmonicStrength;
     public SpeciesGeneral species;
-    public SpeciesSpheresMono speciesSurface;
+    public SpeciesGeneral speciesSurface;
     public Box box;
     public IntegratorVelocityVerletSAM integrator;
 
@@ -94,8 +93,7 @@ public class Sam extends Simulation {
                 .build();
         addSpecies(species);
 
-        speciesSurface = new SpeciesSpheresMono(this, space);
-        speciesSurface.setIsDynamic(true);
+        speciesSurface = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         ((ElementSimple) speciesSurface.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
         addSpecies(speciesSurface);
 

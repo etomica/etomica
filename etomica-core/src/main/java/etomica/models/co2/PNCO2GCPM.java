@@ -27,6 +27,7 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Electron;
@@ -758,7 +759,7 @@ for (int iter=0; iter<maxIter; iter++) {
         System.out.println(u);
 
         sim = new Simulation(space);
-        SpeciesSpheresRotating species2CO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass() + 2 * Oxygen.INSTANCE.getMass()));
+        SpeciesGeneral species2CO2 = SpeciesSpheresRotating.create(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass() + 2 * Oxygen.INSTANCE.getMass()));
         sim.addSpecies(species2CO2);
         box = sim.makeBox();
         box.setNMolecules(species2CO2, 2);
@@ -828,7 +829,7 @@ for (int iter=0; iter<maxIter; iter++) {
 
 
         sim = new Simulation(space);
-        SpeciesSpheresRotating species2CO2 = new SpeciesSpheresRotating(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass() + 2 * Oxygen.INSTANCE.getMass()));
+        SpeciesGeneral species2CO2 = SpeciesSpheresRotating.create(space, new ElementSimple("CO2", Carbon.INSTANCE.getMass() + 2 * Oxygen.INSTANCE.getMass()));
         sim.addSpecies(species2CO2);
         box = sim.makeBox();
         box.setNMolecules(species2CO2, 3);

@@ -32,7 +32,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.statmech.LennardJones;
 import etomica.units.Pixel;
 import etomica.units.SimpleUnit;
@@ -50,7 +50,7 @@ import java.util.List;
 public class LJmuVT extends Simulation {
     
     public final PotentialMasterCell potentialMaster;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final Box box;
     public final IntegratorMC integrator;
     public final MCMoveInsertDelete mcMoveID;
@@ -62,8 +62,7 @@ public class LJmuVT extends Simulation {
         }
 
         //species
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);//index 1
         addSpecies(species);
 
         potentialMaster = new PotentialMasterCell(this, rc, space);

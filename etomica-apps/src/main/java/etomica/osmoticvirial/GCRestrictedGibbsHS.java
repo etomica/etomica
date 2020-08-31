@@ -24,7 +24,7 @@ import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -41,8 +41,8 @@ public class GCRestrictedGibbsHS extends Simulation {
     protected IntegratorRGEMC integrator;
     protected MCMoveAtom mcMoveAtom;
     protected MCMoveInsertDelete mcMoveInsertDelete1, mcMoveInsertDelete2;
-    protected SpeciesSpheresMono species1;
-    protected SpeciesSpheresMono species2;
+    protected SpeciesGeneral species1;
+    protected SpeciesGeneral species2;
     protected Box box1, box2;
     protected P2HardSphere potential1, potential12;
     protected Potential2 potential2;
@@ -62,8 +62,8 @@ public class GCRestrictedGibbsHS extends Simulation {
         PotentialMasterCell pmc = potentialMaster instanceof PotentialMasterCell ? (PotentialMasterCell) potentialMaster : null;
         mcMoveInsertDelete1 = new MCMoveInsertDelete(potentialMaster, random, space);
         mcMoveInsertDelete2 = new MCMoveInsertDelete(potentialMaster, random, space);
-        species1 = new SpeciesSpheresMono(this, space);
-        species2 = new SpeciesSpheresMono(this, space);
+        species1 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species1);
         addSpecies(species2);
 

@@ -29,7 +29,7 @@ import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 import java.io.File;
 
@@ -45,14 +45,14 @@ public class SimFluidSoftSphere extends Simulation {
     private static final int PIXEL_SIZE = 10;
     public static String filename;
     public IntegratorMC integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
 
     public Box box;
     public PotentialMaster potentialMaster;
     public SimFluidSoftSphere(Space _space, int numAtoms, double density, double temperature, int exponent) {
         super(_space);
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMaster();

@@ -7,6 +7,7 @@ package etomica.rotation;
 import etomica.action.BoxImposePbc;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
@@ -20,6 +21,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotatingMolecule;
 
 public class SingleDipole {
@@ -27,7 +29,8 @@ public class SingleDipole {
     public static SimulationGraphic makeDipole() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesSpheresRotatingMolecule species = new SpeciesSpheresRotatingMolecule(sim, space);
+        SpeciesGeneral species = SpeciesSpheresRotatingMolecule
+                .create(space, AtomType.simpleFromSim(sim), null, false);
         sim.addSpecies(species);
         Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
         sim.addBox(box);

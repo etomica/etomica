@@ -25,7 +25,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * MC simulation of FCC soft-sphere model in 3D with tabulation of the
@@ -45,7 +45,7 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
     public Primitive primitive;
     public Basis basis;
     public int[] nCells;
-    public SpeciesSpheresMono speciesA, speciesB;
+    public SpeciesGeneral speciesA, speciesB;
     public CoordinateDefinitionLeafSuperBox coordinateDefinition;
     protected P2SoftSphericalTruncatedShifted pTruncatedAA;
     protected P2SoftSphericalTruncatedShifted pTruncatedAB;
@@ -53,8 +53,8 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
     public SimCalcSSoftSphereFCCSuperBox(Space _space, int numAtoms, double density, double temperature, int exponent) {
         super(_space);
 
-        speciesA = new SpeciesSpheresMono(this, space);
-        speciesB = new SpeciesSpheresMono(this, space);
+        speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(speciesA);
         addSpecies(speciesB);
 

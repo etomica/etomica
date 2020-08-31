@@ -92,7 +92,7 @@ public class VirialHardAssociationCone {
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 		
         //final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), temperature,refCluster,targetCluster);
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesSpheresRotating(space, new ElementSimple("O")), temperature, refCluster, targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesSpheresRotating.create(space, new ElementSimple("O")), temperature, refCluster, targetCluster);
         //sim.integratorOS.setStepFreq0(0.5);
         //sim.integratorOS.setAdjustStepFreq(false);
         /**sim.integratorOS.setNumSubSteps(1000);

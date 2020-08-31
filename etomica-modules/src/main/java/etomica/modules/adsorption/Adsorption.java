@@ -21,7 +21,7 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simulation for Adsorption module.
@@ -32,7 +32,7 @@ import etomica.species.SpeciesSpheresMono;
 public class Adsorption extends Simulation {
     
     private static final long serialVersionUID = 1L;
-    public final SpeciesSpheresMono speciesA, speciesB;
+    public final SpeciesGeneral speciesA, speciesB;
     public final Box box;
     public final IntegratorHard integratorMD;
     public final IntegratorMC integratorMC;
@@ -47,11 +47,9 @@ public class Adsorption extends Simulation {
         super(Space3D.getInstance());
 
         //species
-        speciesA = new SpeciesSpheresMono(space, new ElementSimple(this));
-        speciesA.setIsDynamic(true);
+        speciesA = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple(this)), true);
         addSpecies(speciesA);
-        speciesB = new SpeciesSpheresMono(space, new ElementSimple(this));
-        speciesB.setIsDynamic(true);
+        speciesB = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple(this)), true);
         addSpecies(speciesB);
 
         //construct box

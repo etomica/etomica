@@ -15,6 +15,7 @@ import etomica.potential.P2O2Bartolomei;
 import etomica.potential.PotentialMolecularMonatomic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
@@ -96,8 +97,8 @@ public class VirialO2 {
         tarCluster.setTemperature(temperature);
         
         // make species
-        SpeciesSpheresRotating speciesUranium = new SpeciesSpheresRotating(space,new ElementSimple("U",238.02891));
-        
+        SpeciesGeneral speciesUranium = SpeciesSpheresRotating.create(space, new ElementSimple("U", 238.02891));
+
         // make simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesUranium, temperature, refCluster, tarCluster);
 //        sim.init();

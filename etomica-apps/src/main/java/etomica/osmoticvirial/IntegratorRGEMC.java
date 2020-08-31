@@ -8,6 +8,7 @@ import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.species.Species;
 import etomica.util.random.IRandom;
 
@@ -21,9 +22,9 @@ public class IntegratorRGEMC extends IntegratorManagerMC {
 
     private MCMoveGeometricClusterRestrictedGE mcMoveGeometricClusterRestrictedGE;
     private Space space;
-    private Species seed;
+    private final ISpecies seed;
 
-    public IntegratorRGEMC(IRandom random, Space space, Species seed) {
+    public IntegratorRGEMC(IRandom random, Space space, ISpecies seed) {
         super(random);
         this.space = space;
         this.seed = seed;

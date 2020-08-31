@@ -22,7 +22,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -30,7 +30,7 @@ import etomica.species.SpeciesSpheresMono;
 public class LJMD3DNbr extends Simulation {
 
     public IntegratorVelocityVerlet integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
     public MeterPotentialEnergy energy;
@@ -41,8 +41,7 @@ public class LJMD3DNbr extends Simulation {
     public LJMD3DNbr() {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space);

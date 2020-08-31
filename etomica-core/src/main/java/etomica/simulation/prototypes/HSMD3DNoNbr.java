@@ -22,7 +22,7 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Three-dimensional hard-sphere molecular dynamics simulation with no
@@ -34,14 +34,13 @@ public class HSMD3DNoNbr extends Simulation {
 
     public Box box;
     public IntegratorHard integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public P2HardSphere potential;
 
     public HSMD3DNoNbr() {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);

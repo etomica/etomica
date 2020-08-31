@@ -21,12 +21,12 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 public class Mu extends Simulation {
     
     private static final long serialVersionUID = 1L;
-    public final SpeciesSpheresMono speciesA, speciesB;
+    public final SpeciesGeneral speciesA, speciesB;
     public final Box box;
     public final IntegratorHard integrator;
 
@@ -39,11 +39,9 @@ public class Mu extends Simulation {
         super(_space);
 
         //species
-        speciesA = new SpeciesSpheresMono(this, space);
-        speciesA.setIsDynamic(true);
+        speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesA);
-        speciesB = new SpeciesSpheresMono(this, space);
-        speciesB.setIsDynamic(true);
+        speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesB);
 
         box = this.makeBox(new BoundaryRectangularSlit(0, space));

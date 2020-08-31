@@ -6,6 +6,7 @@ package etomica.normalmode;
 
 import Jama.Matrix;
 
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.integrator.IntegratorMD;
 import etomica.lattice.crystal.Basis;
@@ -19,7 +20,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simulation class of hard spheres in 1D or 3D that calculates the dq/dx
@@ -30,7 +31,7 @@ public class SimCalcJ extends Simulation {
     public SimCalcJ(Space _space, int numAtoms) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         Basis basis;

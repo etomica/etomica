@@ -24,7 +24,7 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.CompoundUnit;
 import etomica.units.SimpleUnit;
 import etomica.units.Unit;
@@ -42,7 +42,7 @@ public class SimLJ extends Simulation {
     
     public final PotentialMasterCell potentialMasterCell;
     public IntegratorMC integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
     public MCMoveAtomNPath mcMoveAtom;
@@ -52,7 +52,7 @@ public class SimLJ extends Simulation {
 
     public SimLJ(int numAtoms, double temperature, double density, double rc, double w, int offsetDim) {
         super(Space3D.getInstance());
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
         box = this.makeBox();
         box.setNMolecules(species, numAtoms);

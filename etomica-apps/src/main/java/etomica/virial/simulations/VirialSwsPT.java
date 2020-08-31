@@ -6,6 +6,7 @@ package etomica.virial.simulations;
 
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -21,7 +22,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.CompoundDimension;
@@ -117,7 +118,7 @@ public class VirialSwsPT {
         System.out.println(steps+" steps (1000 blocks of "+(steps/1000)+")");
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)};
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(space, new ElementSimple("A"));
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{species},
                 new int[]{nPoints},1.0, new ClusterAbstract[]{refCluster, targetCluster}, sampleClusters, true);

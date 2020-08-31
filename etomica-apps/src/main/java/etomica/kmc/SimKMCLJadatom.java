@@ -30,7 +30,7 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simulation using Henkelman's Dimer method to find a saddle point for
@@ -49,7 +49,7 @@ public class SimKMCLJadatom extends Simulation{
     public IntegratorKMCCluster integratorKMCCluster;
     public IntegratorDimerRT integratorDimer;
     public Box box;
-    public SpeciesSpheresMono fixed, movable;
+    public SpeciesGeneral fixed, movable;
     public IMoleculeList movableSet;
     public Vector adAtomPos;
     
@@ -59,8 +59,8 @@ public class SimKMCLJadatom extends Simulation{
 
         //SPECIES
         double sigma = 1.0;
-        fixed = new SpeciesSpheresMono(space, new ElementSimple("A", Double.POSITIVE_INFINITY));
-        movable = new SpeciesSpheresMono(this, space);
+        fixed = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A", Double.POSITIVE_INFINITY)));
+        movable = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(fixed);
         addSpecies(movable);
 
