@@ -10,9 +10,7 @@ import etomica.potential.P22CLJQ;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.Species;
 import etomica.species.SpeciesBuilder;
-import etomica.species.SpeciesSpheres;
 import etomica.units.Kelvin;
 import etomica.virial.GUI.components.SimpleElementForSimilarSpecies;
 

@@ -11,9 +11,7 @@ import etomica.potential.P22CLJQ;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.Species;
 import etomica.species.SpeciesBuilder;
-import etomica.species.SpeciesSpheres;
 import etomica.virial.GUI.components.SimpleElementForSimilarSpecies;
 
 public class MolecularModel2CLJQ_SpeciesLJ implements IMolecularModel_SpeciesFactory,Cloneable{

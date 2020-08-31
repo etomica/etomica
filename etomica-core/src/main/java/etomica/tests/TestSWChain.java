@@ -34,7 +34,6 @@ import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
-import etomica.species.SpeciesSpheres;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
