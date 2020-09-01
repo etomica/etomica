@@ -24,6 +24,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.BohrRadius;
 import etomica.units.Kelvin;
@@ -127,28 +129,20 @@ public class VirialH2PISimple {
 		tarCluster.setTemperature(temperature);
 
 		// make species
-		AtomTypeOriented atype = new AtomTypeOriented(Hydrogen.INSTANCE, space);
-		SpeciesSpheresHetero speciesH2 = null;
-		if (blOption == blOptions.FIXED_GROUND) {
-			speciesH2 = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype}) {
-				@Override
-				protected IAtom makeLeafAtom(AtomType leafType) {
-					double bl = BohrRadius.UNIT.toSim(1.448736);
+		AtomTypeOriented atype = new AtomTypeOriented(Hydrogen.INSTANCE, space.makeVector());
+		SpeciesGeneral speciesH2 = new SpeciesBuilder(space)
+				.addCount(atype, nBeads)
+				.withConformation(new ConformationLinear(space, 0))
+				.withAtomFactory((leafType) -> {
+					double bl;
+					if (blOption == blOptions.FIXED_GROUND) {
+						bl = BohrRadius.UNIT.toSim(1.448736);
+					} else {
+						bl = AtomHydrogen.getAvgBondLength(temperatureK);
+					}
 					return new AtomHydrogen(space, (AtomTypeOriented) leafType, bl);
-				}
-			};
-		}
-		else {
-			speciesH2 = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype}) {
-				@Override
-				protected IAtom makeLeafAtom(AtomType leafType) {
-					double bl = AtomHydrogen.getAvgBondLength(temperatureK);
-					return new AtomHydrogen(space, (AtomTypeOriented) leafType, bl);
-				}
-			};
-		}
-		speciesH2.setChildCount(new int [] {nBeads});
-		speciesH2.setConformation(new ConformationLinear(space, 0));
+				})
+				.build();
 
 		// make simulation
 		final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesH2, temperature, refCluster, tarCluster);

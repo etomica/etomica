@@ -10,6 +10,7 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiIntergroupCoupled;
+import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.config.ConformationLinear;
 import etomica.data.IData;
@@ -21,6 +22,8 @@ import etomica.molecule.IMoleculeList;
 import etomica.potential.P2O2Bartolomei;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.BohrRadius;
 import etomica.units.Kelvin;
@@ -114,15 +117,14 @@ public class VirialO2PI {
         tarCluster.setTemperature(temperature);
 
         // make species
-        AtomTypeOriented atype = new AtomTypeOriented(Oxygen.INSTANCE, space);
-        SpeciesSpheresHetero speciesO2 = null;
-        speciesO2 = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype}) {
-            protected IAtom makeLeafAtom(AtomType leafType) {
-                return new AtomHydrogen(space, (AtomTypeOriented) leafType, blO2);
-            }
-        };
-        speciesO2.setChildCount(new int [] {nBeads});
-        speciesO2.setConformation(new ConformationLinear(space, 0));
+        SpeciesGeneral speciesO2 = new SpeciesBuilder(space)
+                .addCount(new AtomTypeOriented(Oxygen.INSTANCE, space.makeVector()), nBeads)
+                .withConformation(new ConformationLinear(space, 0))
+                .withAtomFactory(atype -> {
+                    return new AtomHydrogen(space, (AtomTypeOriented) atype, blO2);
+                })
+                .build();
+
         // make simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesO2, temperature, refCluster, tarCluster);
 //        sim.init();
