@@ -27,6 +27,8 @@ import etomica.potential.P1IntraMolecular;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.BohrRadius;
 import etomica.units.Kelvin;
@@ -111,16 +113,15 @@ public class VirialH2PIXC {
 		//        System.exit(1);
 		double lambda = Constants.PLANCK_H/Math.sqrt(2*Math.PI*hMass*temperature);
 		//        SpeciesSpheres species = new SpeciesSpheres(space, nSpheres, new AtomType(new ElementChemical("He", h2Mass, 2)), new ConformationLinear(space, 0));
-		AtomTypeOriented atype = new AtomTypeOriented(Hydrogen.INSTANCE, space);
-		SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype}) {
-			@Override
-			protected IAtom makeLeafAtom(AtomType leafType) {
-				double bl = BohrRadius.UNIT.toSim(1.448736);// AtomHydrogen.getAvgBondLength(temperatureK);
-				return new AtomHydrogen(space, (AtomTypeOriented) leafType, bl);
-			}
-		};
-		species.setChildCount(new int [] {nSpheres});
-		species.setConformation(new ConformationLinear(space, 0));
+
+		SpeciesGeneral species = new SpeciesBuilder(space)
+				.addCount(new AtomTypeOriented(Hydrogen.INSTANCE, space.makeVector()), nSpheres)
+				.withConformation(new ConformationLinear(space, 0))
+				.withAtomFactory(atype -> {
+					double bl = BohrRadius.UNIT.toSim(1.448736);// AtomHydrogen.getAvgBondLength(temperatureK);
+					return new AtomHydrogen(space, (AtomTypeOriented) atype, bl);
+				})
+				.build();
 
 		// the temperature here goes to the integrator, which uses it for the purpose of intramolecular interactions
 		// we handle that manually below, so just set T=1 here

@@ -37,6 +37,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.*;
 import etomica.units.dimensions.*;
@@ -322,17 +324,19 @@ public class VirialCO2PI {
         }
         
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
-        AtomTypeOriented atype = new AtomTypeOriented(new ElementSimple("CO2", Carbon.INSTANCE.getMass() + 2 * Oxygen.INSTANCE.getMass()), space);
-        SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype}) {
-            protected IAtom makeLeafAtom(AtomType leafType) {
-                double bl = 2*p2c.getPos(5);
-                return new AtomHydrogen(space, (AtomTypeOriented) leafType, bl);
-            }
-        };
-        species.setChildCount(new int [] {nBeads});
-        species.setConformation(new ConformationLinear(space, 0));
-        
-        
+        SpeciesGeneral species = new SpeciesBuilder(space)
+                .withAtomFactory(atype -> {
+                    double bl = 2*p2c.getPos(5);
+                    return new AtomHydrogen(space, (AtomTypeOriented) atype, bl);
+                })
+                .addCount(
+                        new AtomTypeOriented(new ElementSimple("CO2", Carbon.INSTANCE.getMass() + 2 * Oxygen.INSTANCE.getMass()), space.makeVector()),
+                        nBeads)
+                .withConformation(new ConformationLinear(space, 0))
+                .build();
+
+
+
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                  targetDiagrams, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
@@ -368,7 +372,7 @@ public class VirialCO2PI {
         
         System.out.println("regrow full ring");
         MCMoveClusterRingRegrow ring0 = new MCMoveClusterRingRegrow(sim.getRandom(), space);
-        double lambda = Constants.PLANCK_H/Math.sqrt(2*Math.PI*atype.getMass()*temperature);
+        double lambda = Constants.PLANCK_H/Math.sqrt(2*Math.PI*species.getLeafType().getMass()*temperature);
         ring0.setEnergyFactor(nBeads*Math.PI/(lambda*lambda));
         
         MCMoveClusterRingRegrow ring1 = new MCMoveClusterRingRegrow(sim.getRandom(), space);
