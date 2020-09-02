@@ -26,6 +26,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
@@ -41,7 +42,7 @@ public class SimDirectBetaN2RP extends Simulation {
     public SimDirectBetaN2RP(Space space, int numMolecules, double density, double temperature, double[] angle) {
         super(space);
 
-        species = new SpeciesN2(space);
+        species = SpeciesN2.create(false);
         addSpecies(species);
 
         PotentialMaster potentialMasterTarg = new PotentialMaster();
@@ -180,7 +181,7 @@ System.out.println("equilibration finished");
     
     protected AccumulatorAverageFixed boltzmannAverage;
     protected Box boxTarg;
-    protected SpeciesN2 species;
+    protected SpeciesGeneral species;
     protected CoordinateDefinitionNitrogen coordinateDefTarg;
     protected IntegratorMC integratorTarg;
     

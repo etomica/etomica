@@ -23,6 +23,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Pixel;
 
 /**
@@ -46,7 +47,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 		super(space);
 		this.space = space;
 
-        species = new SpeciesN2(space);
+        species = SpeciesN2.create(false);
         addSpecies(species);
 
 		int nCell = (int) Math.round(Math.pow((numMolecule / 4), 1.0 / 3.0));
@@ -59,9 +60,6 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 		int division = 2;
 		Basis basisFCC = new BasisCubicFcc();
 		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell / division, nCell / division, nCell / division});
-
-		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		species.setConformation(conformation);
 
 		Boundary boundary = new BoundaryRectangularPeriodic(space, nCell * unitCellLength);
 		box = this.makeBox(boundary);
@@ -297,9 +295,9 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 			simGraphic.getDisplayBox(test.box).setPixelUnit(new Pixel(10));
 			
 			DiameterHashByType diameter = new DiameterHashByType();
-			diameter.setDiameter(test.species.getNitrogenType(), 3.1);
-			diameter.setDiameter(test.species.getPType(), 0.0);
-			
+			diameter.setDiameter(test.species.getTypeByName("N"), 3.1);
+			diameter.setDiameter(test.species.getTypeByName("P"), 0.0);
+
 			simGraphic.getDisplayBox(test.box).setDiameterHash(diameter);
 			
 	
@@ -320,6 +318,6 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2 extends Simul
 	protected CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen cAN2nD;
 	protected CalcAnalytical2ndDerivativeNitrogen cA2nD;
 	protected FindPairMoleculeIndex findPair;
-	protected SpeciesN2 species;
+	protected SpeciesGeneral species;
 	private static final long serialVersionUID = 1L;
 }

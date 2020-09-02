@@ -17,6 +17,7 @@ import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -105,13 +106,13 @@ public class Virial7SiteRigidSF6 {
   //      };
     
         // do simulation
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new Species7SiteRigidSF6(space), temperature,refCluster,targetCluster,false);
+        SpeciesGeneral species = Species7SiteRigidSF6.create(false);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, species, temperature,refCluster,targetCluster,false);
         sim.box[1].getSampleCluster().value(sim.box[1]);
         sim.integratorOS.setNumSubSteps(1000);
         
-        Species7SiteRigidSF6 species = (Species7SiteRigidSF6)sim.getSpecies(0);
-        AtomType typeS = species.getSType();
-        AtomType typeF = species.getFType();
+        AtomType typeS = species.getTypeByName("S");
+        AtomType typeF = species.getTypeByName("F");
 
         pGroup.addPotential(p2S, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeS, typeS}));
         pGroup.addPotential(pSF, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeS, typeF}));

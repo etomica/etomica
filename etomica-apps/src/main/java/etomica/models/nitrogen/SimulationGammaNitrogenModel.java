@@ -34,6 +34,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pascal;
 import etomica.units.Pixel;
@@ -69,7 +70,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		Basis basisBCC = new BasisCubicBcc();
 		Basis basis = new BasisBigCell(space, basisBCC, new int[]{nCell, nCell, nCell});
 
-		species = new SpeciesN2ShellModel(space);
+		species = SpeciesN2ShellModel.create(false);
 		addSpecies(species);
 
         potentialMaster = new PotentialMaster();
@@ -175,12 +176,12 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
 		    
 			DiameterHashByType diameter = new DiameterHashByType();
-			diameter.setDiameter(sim.species.getNitrogenType(), 3.1);
-			diameter.setDiameter(sim.species.getPType(), 0.0);
+			diameter.setDiameter(sim.species.getTypeByName("N"), 3.1);
+			diameter.setDiameter(sim.species.getTypeByName("P"), 0.0);
 			
 			simGraphic.getDisplayBox(sim.box).setDiameterHash(diameter);
 			
-			System.out.println("Diameter is: " + diameter.getDiameter(sim.species.getPType()));
+			System.out.println("Diameter is: " + diameter.getDiameter(sim.species.getTypeByName("P")));
 		    
 				
 		
@@ -251,6 +252,6 @@ public class SimulationGammaNitrogenModel extends Simulation{
 	protected PotentialMolecular potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;
-	protected SpeciesN2ShellModel species;
+	protected SpeciesGeneral species;
 	private static final long serialVersionUID = 1L;
 }

@@ -31,6 +31,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -115,7 +116,7 @@ public class VirialCO2H2OGCPM {
             }
         });
 
-        SpeciesWater4PCOM speciesWater = new SpeciesWater4PCOM(space);
+        SpeciesGeneral speciesWater = SpeciesWater4PCOM.create(false);
 
         Map<AtomType, GCPMAgent> paramsManager = new HashMap<>();
         final PNGCPM pTarget = new PNGCPM(space, paramsManager, 6);
@@ -167,10 +168,10 @@ public class VirialCO2H2OGCPM {
         System.out.println("random seeds: "+Arrays.toString(sim.getRandomSeeds()));
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
 
-        paramsManager.put(speciesWater.getHydrogenType(), new GCPMAgent(1.0,0,0.455,12.75,Electron.UNIT.toSim(0.6113),0,0,0));
-        paramsManager.put(speciesWater.getOxygenType(), new GCPMAgent(3.69,Kelvin.UNIT.toSim(110),0,12.75,0,0,0,0,0));
-        paramsManager.put(speciesWater.getMType(), new GCPMAgent(1.0,0,0.610,12.75,Electron.UNIT.toSim(-1.2226),0,0,0));
-        paramsManager.put(speciesWater.getCOMType(), new GCPMAgent(1.0,0,0.610,12.75,0,1.444,1.444,0));
+        paramsManager.put(speciesWater.getTypeByName("H"), new GCPMAgent(1.0,0,0.455,12.75,Electron.UNIT.toSim(0.6113),0,0,0));
+        paramsManager.put(speciesWater.getTypeByName("O"), new GCPMAgent(3.69,Kelvin.UNIT.toSim(110),0,12.75,0,0,0,0,0));
+        paramsManager.put(speciesWater.getTypeByName("M"), new GCPMAgent(1.0,0,0.610,12.75,Electron.UNIT.toSim(-1.2226),0,0,0));
+        paramsManager.put(speciesWater.getTypeByName("COM"), new GCPMAgent(1.0,0,0.610,12.75,0,1.444,1.444,0));
 
         double qC = Electron.UNIT.toSim(0.6642);
         paramsManager.put(speciesCO2.getAtomType(0), new GCPMAgent(3.193,Kelvin.UNIT.toSim(71.34),0.61/1.0483,15.5,qC,4.05,1.95,16.0/9.0*Kelvin.UNIT.toSim(2.52e4)) {

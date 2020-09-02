@@ -127,15 +127,15 @@ public class VirialCO2NaphthaleneTraPPE {
       
           // now is the simulation!!!
         SpeciesGeneral speciesCO2 = SpeciesTraPPECO2.create(space);
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{speciesCO2, new SpeciesTraPPENaphthalene(space)}, nTypes, temperature, new ClusterAbstract[]{refCluster, targetCluster},
+        SpeciesGeneral speciesNa = SpeciesTraPPENaphthalene.create(false);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{speciesCO2, speciesNa}, nTypes, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                 new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)}, true);
         
         //put the species in the box
-        SpeciesTraPPENaphthalene speciesNa = (SpeciesTraPPENaphthalene)sim.getSpecies(1);
         sim.integratorOS.setNumSubSteps(1000);
 
-        AtomType typeC = speciesNa.getCType();
-        AtomType typeCH = speciesNa.getCHType();
+        AtomType typeC = speciesNa.getTypeByName("C");
+        AtomType typeCH = speciesNa.getTypeByName("CH");
         AtomType typeC_CO2 = speciesCO2.getTypeByName("C");
         AtomType typeO = speciesCO2.getTypeByName("O");
 

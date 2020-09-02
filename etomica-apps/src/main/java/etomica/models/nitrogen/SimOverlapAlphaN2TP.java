@@ -30,6 +30,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
@@ -56,7 +57,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
         Basis basisFCC = new BasisCubicFcc();
         Basis basis = new BasisBigCell(space, basisFCC, new int[]{nC[0], nC[1], nC[2]});
 
-        species = new SpeciesN2(space);
+        species = SpeciesN2.create(false);
         addSpecies(species);
 
         double[] boxSize = new double[]{nC[0] * a, nC[1] * a, nC[2] * a};
@@ -354,7 +355,7 @@ public class SimOverlapAlphaN2TP extends Simulation {
     public MeterTargetTPMolecule meter;
     protected PotentialMasterListMolecular potentialMaster;
     protected double latticeEnergy;
-    protected SpeciesN2 species;
+    protected SpeciesGeneral species;
     protected CoordinateDefinitionNitrogen coordinateDef;
     protected P2Nitrogen potential;
     protected PRotConstraint pRotConstraint;

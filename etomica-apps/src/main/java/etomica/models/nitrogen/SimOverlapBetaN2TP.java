@@ -35,6 +35,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
@@ -54,7 +55,7 @@ public class SimOverlapBetaN2TP extends Simulation {
     		double[] alpha, int numAlpha, double alphaSpan, long numSteps, boolean isBeta, boolean isBetaHCP, double rcScale) {
         super(space);
 
-        species = new SpeciesN2(space);
+        species = SpeciesN2.create(false);
         addSpecies(species);
 
         BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
@@ -415,7 +416,7 @@ public class SimOverlapBetaN2TP extends Simulation {
     public MeterTargetTPMolecule meter;
     protected PotentialMasterListMolecular potentialMaster;
     protected double latticeEnergy;
-    protected SpeciesN2 species;
+    protected SpeciesGeneral species;
     protected CoordinateDefinitionNitrogen coordinateDef;
     protected P2Nitrogen potential;
     protected MCMoveRotateMolecule3D rotate;

@@ -34,6 +34,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 
@@ -63,7 +64,7 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		Basis basisFCC = new BasisCubicFcc();
 		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nC[0], nC[1], nC[2]});
 
-		species = new SpeciesN2(space);
+		species = SpeciesN2.create(false);
 		addSpecies(species);
 
         potentialMaster = new PotentialMasterListMolecular(this, space);
@@ -212,8 +213,8 @@ public class SimulationAlphaNitrogenModel extends Simulation{
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 		    	    
 			DiameterHashByType diameter = new DiameterHashByType();
-			diameter.setDiameter(sim.species.getNitrogenType(), 3.1);
-			diameter.setDiameter(sim.species.getPType(), 0.0);
+			diameter.setDiameter(sim.species.getTypeByName("N"), 3.1);
+			diameter.setDiameter(sim.species.getTypeByName("P"), 0.0);
 			simGraphic.getDisplayBox(sim.box).setDiameterHash(diameter);
 			
 		    simGraphic.makeAndDisplayFrame("Alpha-Phase Nitrogen Crystal Structure");
@@ -311,6 +312,6 @@ System.out.println("****System Equilibrated (20% of SimSteps)****");
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;
-	protected SpeciesN2 species;
+	protected SpeciesGeneral species;
 	private static final long serialVersionUID = 1L;
 }

@@ -30,6 +30,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
 
@@ -47,7 +48,7 @@ public class SimDirectBetaN2RPAngleToNoAngle extends Simulation {
     public SimDirectBetaN2RPAngleToNoAngle(Space space, int numMolecules, double density, double temperature, double angle, long numSteps) {
         super(space);
 
-        SpeciesN2 species = new SpeciesN2(space);
+        SpeciesGeneral species = SpeciesN2.create(false);
         addSpecies(species);
 
         BoxAgentSourceCellManagerListMolecular boxAgentSourceTarg = new BoxAgentSourceCellManagerListMolecular(this, null, space);
