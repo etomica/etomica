@@ -203,7 +203,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         }
         accumulatorPumps = new DataPumpListener[2];
         mcMoveTranslate = new MCMoveBoxStep[2];
-        if (doRotate) {
+        if (doRotate || multiAtomic) {
             mcMoveRotate = new MCMoveBoxStep[2];
         }
         if (doWiggle) {
