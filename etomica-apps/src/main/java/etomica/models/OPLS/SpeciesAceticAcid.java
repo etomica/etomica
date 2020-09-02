@@ -4,16 +4,15 @@
 
 package etomica.models.OPLS;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomType;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.molecule.IMolecule;
-import etomica.molecule.Molecule;
 import etomica.space.Space;
-import etomica.species.Species;
+import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Species for OPLS acetic acid
@@ -21,72 +20,28 @@ import etomica.species.Species;
  * @author Hye Min Kim
  * Nov, 2011
  */
-public class SpeciesAceticAcid extends Species {
+public class SpeciesAceticAcid {
 
     public final static int indexCH3 = 0;
     public final static int indexC = 1;
     public final static int indexDBO = 2;
     public final static int indexSBO = 3;
     public final static int indexH = 4;
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final AtomType cH3Type, cType, dBOType, sBOType, hType;
-    
-    public SpeciesAceticAcid(Space space) {
 
-        super();
-
-        this.space = space;
-
-        cH3Type = new AtomType(new ElementSimple("cH3", 15.0107));//mass doesn't affect anything in MC simulation
-        cType = new AtomType(Carbon.INSTANCE);
-        dBOType = new AtomType(Oxygen.INSTANCE);
-        sBOType = new AtomType(Oxygen.INSTANCE);
-        hType = new AtomType(Hydrogen.INSTANCE);
-
-        addChildType(cH3Type);
-        addChildType(cType);
-        addChildType(dBOType);
-        addChildType(sBOType);
-        addChildType(hType);
-
-        setConformation(new ConformationAceticAcid(space));
-     }
-
-     public IMolecule makeMolecule() {
-         Molecule aceticAcid = new Molecule(this, 3);
-
-         aceticAcid.addChildAtom(new Atom(space, cH3Type));//0
-         aceticAcid.addChildAtom(new Atom(space, cType));//1
-         aceticAcid.addChildAtom(new Atom(space, dBOType));//2
-         aceticAcid.addChildAtom(new Atom(space, sBOType));//3
-         aceticAcid.addChildAtom(new Atom(space, hType));//4
-
-         conformation.initializePositions(aceticAcid.getChildList());
-         return aceticAcid;
-     }
-
-    public AtomType getCH3Type() {
-         return cH3Type;
-     }
-
-    public AtomType getCType() {
-         return cType;
-     }
-
-    public AtomType getDBOType() {
-         return dBOType;
-     }
-
-    public AtomType getSBOType() {
-         return sBOType;
-     }
-
-    public AtomType getHType() {
-         return hType;
-     }
-
-     public int getNumLeafAtoms() {
-         return 5;
-     }
+    public static SpeciesGeneral create() {
+        Space space = Space3D.getInstance();
+        AtomType cH3Type = new AtomType(new ElementSimple("CH3", 15.0107));//mass doesn't affect anything in MC simulation
+        AtomType cType = new AtomType(Carbon.INSTANCE);
+        AtomType dBOType = new AtomType(Oxygen.INSTANCE, "DBO");
+        AtomType sBOType = new AtomType(Oxygen.INSTANCE, "SBO");
+        AtomType hType = new AtomType(Hydrogen.INSTANCE);
+        return new SpeciesBuilder(space)
+                .withConformation(new ConformationAceticAcid(space))
+                .addCount(cH3Type, 1)
+                .addCount(cType, 1)
+                .addCount(dBOType, 1)
+                .addCount(sBOType, 1)
+                .addCount(hType, 1)
+                .build();
+    }
 }
