@@ -31,6 +31,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -235,8 +236,8 @@ public class VirialN2CH4Mix {
         speciesN2.setChildCount(new int[]{1,2});
         speciesN2.setConformation(conformation);
         // CH4
-        SpeciesMethane speciesCH4 = new SpeciesMethane(space);
-        
+        SpeciesGeneral speciesCH4 = SpeciesMethane.create(false);
+
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), 
         		                                             ClusterWeightAbs.makeWeightCluster(targetCluster)};
 

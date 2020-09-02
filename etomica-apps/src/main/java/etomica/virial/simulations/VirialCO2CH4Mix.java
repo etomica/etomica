@@ -125,8 +125,8 @@ public class VirialCO2CH4Mix {
         }
 
         SpeciesGeneral speciesCO2 = SpeciesTraPPECO2.create(space);
-        SpeciesMethane speciesCH4 = new SpeciesMethane(space); // CH4
-        
+        SpeciesGeneral speciesCH4 = SpeciesMethane.create(false);
+
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), 
         		                                             ClusterWeightAbs.makeWeightCluster(targetCluster)};
 

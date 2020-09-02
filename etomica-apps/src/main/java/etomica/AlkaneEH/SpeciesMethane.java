@@ -4,15 +4,13 @@
 
 package etomica.AlkaneEH;
 
-import etomica.atom.Atom;
-import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomType;
 import etomica.chem.elements.Carbon;
-import etomica.chem.elements.ElementSimple;
-import etomica.molecule.IMolecule;
-import etomica.molecule.Molecule;
+import etomica.chem.elements.Hydrogen;
 import etomica.space.Space;
-import etomica.species.Species;
+import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Species for methane with explicit hydrogen
@@ -20,59 +18,23 @@ import etomica.species.Species;
  * @author shu
  * 01-27-2013
  */
-public class SpeciesMethane extends Species {
+public class SpeciesMethane {
 
     public final static int indexC = 0;
     public final static int indexH1 = 1;
     public final static int indexH2 = 2;
     public final static int indexH3 = 3;
     public final static int indexH4 = 4;
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final boolean isDynamic;
-    protected final AtomType cType, hType;
 
-    public SpeciesMethane(Space space) {
-        this(space, false);
-    }
-    public SpeciesMethane(Space space, boolean isDynamic) {
-        super();
-        this.space = space;
-        this.isDynamic = isDynamic;
-
-        cType = new AtomType(Carbon.INSTANCE);
-        hType = new AtomType(new ElementSimple("cH3", 1.0));
-        addChildType(cType);
-        addChildType(hType);
-        setConformation(new ConformationMethane(space));
-     }
-
-     public IMolecule makeMolecule() {
-         Molecule methane = new Molecule(this, 5);
-
-         // The order in which the child atoms are added is important; it must match the site indices.
-         methane.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
-
-         methane.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new Atom(space, hType));
-         methane.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new Atom(space, hType));
-         methane.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new Atom(space, hType));
-         methane.addChildAtom(isDynamic ? new AtomLeafDynamic(space, hType) : new Atom(space, hType));
-
-         conformation.initializePositions(methane.getChildList());
-
-         return methane;
-
-     }
-
-    public AtomType getCType() {
-         return cType;
-     }
-
-    public AtomType getHType() {
-         return hType;
-     }
-
-    public int getNumLeafAtoms() {
-         return 5;
+     public static SpeciesGeneral create(boolean isDynamic) {
+         AtomType cType = new AtomType(Carbon.INSTANCE);
+         AtomType hType = new AtomType(Hydrogen.INSTANCE);
+         Space space = Space3D.getInstance();
+         return new SpeciesBuilder(space)
+                 .setDynamic(isDynamic)
+                 .withConformation(new ConformationMethane(space))
+                 .addCount(cType, 1)
+                 .addCount(hType, 4)
+                 .build();
      }
 }

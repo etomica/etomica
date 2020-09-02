@@ -16,6 +16,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -91,24 +92,18 @@ public class VirialPh464 {
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
         
         // species phenanthrene
-        SpeciesFactory factoryAn = new SpeciesFactory() {
-            public ISpecies makeSpecies(Space space) {
-            	SpeciesPh3site464 species = new SpeciesPh3site464(space);
-                      return species;
-            }
-        };
-    
-    // do simulation
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesPh3site464(space), temperature, refCluster, targetCluster, false);
+
+        // do simulation
+        SpeciesGeneral speciesPh = SpeciesPh3site464.create(false);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesPh, temperature, refCluster, targetCluster, false);
         sim.box[1].getSampleCluster().value(sim.box[1]);
         sim.integratorOS.setNumSubSteps(1000);
                 
         //put the species in the box
-        SpeciesPh3site464 speciesPh = (SpeciesPh3site464)sim.getSpecies(0);
         sim.integratorOS.setNumSubSteps(1000);
 
-        AtomType typeC = speciesPh.getCType();
-        AtomType typeCH = speciesPh.getCHType();
+        AtomType typeC = speciesPh.getTypeByName("C");
+        AtomType typeCH = speciesPh.getTypeByName("CH");
 
         pTarget.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));
         pTarget.addPotential(pCCH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeCH}));

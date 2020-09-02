@@ -26,25 +26,25 @@ import etomica.space.Space;
 	  protected final double angleCCC =  112.7 * Math.PI/180; // CCC bond angle, in radians (mcWiggle will change this appropriately)
 	  protected final double angleHCH =  107.8 * Math.PI/180; // HCH bond angle, in radians (mcWiggle will change this appropriately)
 	  protected final double angleCCH = 110.7 * Math.PI/180;
-	  protected double angleCCC_half = angleCCC / 2.0;
+	protected double angleCCC_half = angleCCC / 2.0;
 	  protected double angleHCH_half = angleHCH / 2.0;
-	  protected SpeciesAlkaneEH speciesAlkaneEH ;
-	  protected int numCarbons, numCH2, numH ; 
-	  public ConformationAlkaneEH(Space space, SpeciesAlkaneEH speciesAlkaneEH){
+	  protected int numCarbons, numCH2, numH ;
+	  public ConformationAlkaneEH(Space space, int numCarbons){
 		  this.space = space;
-		  this.speciesAlkaneEH = speciesAlkaneEH;
-		  this.numCarbons = speciesAlkaneEH.numCarbons;
-		  this.numCH2 = speciesAlkaneEH.numCH2;
-		  this.numH = speciesAlkaneEH.numH;
+		  this.numCarbons = numCarbons;
+		  numCH2 = numCarbons - 2;
+		  numH = numCarbons * 2 + 2;
 	  }
 
-	  public void initializePositions(IAtomList atomList) {
-		  
-		  /////////////////////////// C0 and c[n-1] atoms ////////////////////////////////////////////////////
-		  IAtom c0 = atomList.get(speciesAlkaneEH.indexC_3_1);// carbon atom in CH3 group on the left(label: "0")
+	public void initializePositions(IAtomList atomList) {
+
+		int indexC_3_1 = 0;
+        int indexC_3_2 = numCarbons - 1;
+		/////////////////////////// C0 and c[n-1] atoms ////////////////////////////////////////////////////
+		  IAtom c0 = atomList.get(indexC_3_1);// carbon atom in CH3 group on the left(label: "0")
 		  c0.getPosition().E(new double[]{0.0,0.0,0.0});// put at the origin
 		  
-		  IAtom cEnd = atomList.get(speciesAlkaneEH.indexC_3_2);// carbon atom in CH3 group on the right(label:"n-1")
+		  IAtom cEnd = atomList.get(indexC_3_2);// carbon atom in CH3 group on the right(label:"n-1")
 		  double cEndX = (numCarbons-1) * CCbondL * Math.sin(angleCCC_half);
 		  double cEndY = (1-(numCarbons%2)) * CCbondL * Math.cos(angleCCC_half);// even number: not on x-axis; odd number: on x-axis
 		  cEnd.getPosition().E(new double[]{cEndX,cEndY,0.0});

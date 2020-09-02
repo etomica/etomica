@@ -12,10 +12,13 @@ import etomica.chem.elements.ElementSimple;
 import etomica.molecule.IMolecule;
 import etomica.molecule.Molecule;
 import etomica.space.Space;
+import etomica.space3d.Space3D;
 import etomica.species.Species;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 
 /**
- *  
+ *
  * Species Anthracene molecule
  * this is for TraPPE, the Anthracene is rigid , LJ potential, 10 interaction site
  * reference: TraPPE 4, UA description of linear and branched alkanes and alkylbenzenes, Siepmann
@@ -24,7 +27,7 @@ import etomica.species.Species;
  * March.19.2011
  *
  */
-public class SpeciesTraPPEAnthracene extends Species {
+public class SpeciesTraPPEAnthracene {
 
     public final static int indexC1 = 0;
     public final static int indexC2 = 1;
@@ -40,59 +43,16 @@ public class SpeciesTraPPEAnthracene extends Species {
     public final static int indexCH8 = 11;
     public final static int indexCH9 = 12;
     public final static int indexCH10 = 13;
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final boolean isDynamic;
-    protected final AtomType cType, chType;
-    public SpeciesTraPPEAnthracene(Space space) {
-        this(space, false);
+
+    public static SpeciesGeneral create(boolean isDynamic) {
+        AtomType chType = new AtomType(new ElementSimple("CH", 13.0107));
+        AtomType cType = new AtomType(Carbon.INSTANCE);
+        Space space = Space3D.getInstance();
+        return new SpeciesBuilder(space)
+                .withConformation(new ConformationAnthraceneTraPPE(space))
+                .setDynamic(isDynamic)
+                .addCount(cType, 4)
+                .addCount(chType, 10)
+                .build();
     }
-    public SpeciesTraPPEAnthracene(Space space, boolean isDynamic) {
-        super();
-        this.space = space;
-        this.isDynamic = isDynamic;
-        // no change for chType and cType, adopted from naphthalene totally
-        chType = new AtomType(new ElementSimple("CH", 13.0107));
-        cType = new AtomType(Carbon.INSTANCE);
-        ////should change because it is not united atom!!!
-        addChildType(chType);
-        addChildType(cType);
-
-        setConformation(new ConformationAnthraceneTraPPE(space));
-     }
-
-    public IMolecule makeMolecule() {
-         Molecule Anthracene = new Molecule(this, 14);
-         // 4 Carbon without H, 10 Carbon with H
-         Anthracene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
-         Anthracene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
-         Anthracene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
-         Anthracene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
-
-         Anthracene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Anthracene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Anthracene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Anthracene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Anthracene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Anthracene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Anthracene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Anthracene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Anthracene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Anthracene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-
-         conformation.initializePositions(Anthracene.getChildList());
-         return Anthracene;
-     }
-
-    public AtomType getCType() {
-         return cType;
-     }
-
-    public AtomType getCHType() {
-         return chType;
-     }
-
-     public int getNumLeafAtoms() {
-         return 14;
-     }
 }

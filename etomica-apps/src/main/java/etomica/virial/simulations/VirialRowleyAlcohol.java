@@ -28,6 +28,7 @@ import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.virial.*;
@@ -208,16 +209,16 @@ public class VirialRowleyAlcohol {
         PotentialMaster potentialMaster = new PotentialMaster();
 
         if(ethanol) {
-            sim = new SimulationVirialOverlap2(space, new SpeciesEthanol(space, pointCharges),
+            SpeciesGeneral species = SpeciesEthanol.create(pointCharges);
+            sim = new SimulationVirialOverlap2(space, species,
                     temperature, refCluster, targetCluster); //use first constructor; no need for intramolecular movement MC trial
-            SpeciesEthanol species = (SpeciesEthanol) sim.getSpecies(0);
             EthanolPotentialHelper.initPotential(space, species, U_a_b, pointCharges);
             //potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
         }
         else {
-            sim = new SimulationVirialOverlap2(space, new SpeciesMethanol(space, pointCharges),
+            SpeciesGeneral species = SpeciesMethanol.create(pointCharges);
+            sim = new SimulationVirialOverlap2(space, species,
                     temperature, refCluster, targetCluster); //use first constructor; no need for intramolecular movement MC trial
-            SpeciesMethanol species = (SpeciesMethanol) sim.getSpecies(0);
 
             MethanolPotentialHelper.initPotential(space, species, U_a_b, pointCharges, sigmaOC, sigmaOH);
             //potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
@@ -360,15 +361,16 @@ public class VirialRowleyAlcohol {
 
             if (ethanol) {
 
-                SpeciesEthanol species = (SpeciesEthanol) sim.getSpecies(0);
-
+                SpeciesGeneral species = (SpeciesGeneral) sim.getSpecies(0);
                 // Create instances of the types of molecular sites
-                AtomType type_O = species.getOxygenType();
-                AtomType type_aC = species.getAlphaCarbonType();
-                AtomType type_C = species.getCarbonType();
-                AtomType type_aH = species.getAlphaHydrogenType();
-                AtomType type_H = species.getHydrogenType();
-                AtomType type_X = species.getXType();
+
+                AtomType type_O = species.getTypeByName("O");
+                AtomType type_aC = species.getTypeByName("AC");
+                AtomType type_C = species.getTypeByName("C");
+                AtomType type_aH = species.getTypeByName("AH");
+                AtomType type_H = species.getTypeByName("H");
+                AtomType type_X = species.getTypeByName("X");
+
 
                 // Set color of each site type for each simulation
 
@@ -388,14 +390,14 @@ public class VirialRowleyAlcohol {
 
             } else {
 
-                SpeciesMethanol species = (SpeciesMethanol) sim.getSpecies(0);
+                SpeciesGeneral species = (SpeciesGeneral) sim.getSpecies(0);
 
                 // Create instances of the types of molecular sites
-                AtomType type_O = species.getOxygenType();
-                AtomType type_aC = species.getAlphaCarbonType();
-                AtomType type_aH = species.getAlphaHydrogenType();
-                AtomType type_H = species.getHydrogenType();
-                AtomType type_X = species.getXType();
+                AtomType type_O = species.getTypeByName("O");
+                AtomType type_aC = species.getTypeByName("AC");
+                AtomType type_aH = species.getTypeByName("AH");
+                AtomType type_H = species.getTypeByName("H");
+                AtomType type_X = species.getTypeByName("X");
 
                 // Set color of each site type for each simulation
 
