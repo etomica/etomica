@@ -27,6 +27,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
@@ -41,14 +42,14 @@ import java.awt.*;
  * Wertheim coefficients calculation for acetic acid using IMPROVED OPLS united-atom model.
  * For the calculation of diagrams having fR only, Hard-Sphere system is used as reference.
  * For the calculation of diagrams having F, Hard-Chain system is used as reference.  
- *   
+ *
  *@author Hye Min Kim
  * Fab, 2012
- *  
+ *
  */
 
-public class Wertheim2SiteAceticAcid { 
-	
+public class Wertheim2SiteAceticAcid {
+
     public static void main(String[] args) {
         WertheimParam params = new WertheimParam();
         Space space = Space3D.getInstance();
@@ -98,12 +99,12 @@ public class Wertheim2SiteAceticAcid {
         P2HardAssociationRefAceticAcidTwoSite pARef = new P2HardAssociationRefAceticAcidTwoSite();//hard-chain reference potential
 
         MayerEGeneral eR = new MayerEGeneral(pR);//repulsion eR function
-	    MayerGeneral fR = new MayerGeneral(pR);//Mayer f function of reference part
-	    MayerGeneral fAB = new MayerGeneral(pAB);
-	    MayerGeneral fBA = new MayerGeneral(pBA);
-	    MayerFunctionProductGeneral FAB = new MayerFunctionProductGeneral(space, new MayerFunction[]{eR,fAB}, new double[]{1,1});
-	    MayerFunctionProductGeneral FABFBA = new MayerFunctionProductGeneral(space, new MayerFunction[]{FAB,fBA}, new double[]{1,1});
-	    MayerGeneral fARef = new MayerGeneral(pARef);
+        MayerGeneral fR = new MayerGeneral(pR);//Mayer f function of reference part
+        MayerGeneral fAB = new MayerGeneral(pAB);
+        MayerGeneral fBA = new MayerGeneral(pBA);
+        MayerFunctionProductGeneral FAB = new MayerFunctionProductGeneral(space, new MayerFunction[]{eR,fAB}, new double[]{1,1});
+        MayerFunctionProductGeneral FABFBA = new MayerFunctionProductGeneral(space, new MayerFunction[]{FAB,fBA}, new double[]{1,1});
+        MayerGeneral fARef = new MayerGeneral(pARef);
 
         int nBondTypes = 4;//fR, FAB, FAB2, eR
         ClusterBonds[] clusters = new ClusterBonds[0];
@@ -118,409 +119,409 @@ public class Wertheim2SiteAceticAcid {
         double HOCFraction = 0.5*(maxCosHOC-minCosHOC);
 
         if (numDiagram >10 && numDiagram < 42 && !specialRef){
-        	throw new RuntimeException("specialRef should be true.");
+            throw new RuntimeException("specialRef should be true.");
         }
 
         if (numDiagram == 2 || numDiagram == 3){//2 point diagrams having FAB or FABFBA
-        	HSB[2] = -hardShellVol*OHOFraction*HOCFraction;
-        	refBondList[1] = new int [][]{{0,1}};
+            HSB[2] = -hardShellVol*OHOFraction*HOCFraction;
+            refBondList[1] = new int [][]{{0,1}};
         }
         else if (numDiagram == 5){//3 point diagrams having 1 FAB
-        	if (specialRef){
-        		if (associationEnergyCal == 5000.0){
-        			if (temperatureK == 400) HSB[3] = -hardSphereVol*253.2825;
-        			else if  (temperatureK == 450) HSB[3] = -hardSphereVol*95.97541;
-        			else if  (temperatureK == 500) HSB[3] = -hardSphereVol*46.83418;
-        			else if  (temperatureK == 550) HSB[3] = -hardSphereVol*26.35662;
-        			else if  (temperatureK == 600) HSB[3] = -hardSphereVol*16.87148;
-        			else if  (temperatureK == 650) HSB[3] = -hardSphereVol*11.65923;
-        		}
-            	refBondList[0] = new int [][]{{1,2}};
-            	refBondList[1] = new int [][]{{0,1}};
-        	}
-        	else {
-        		HSB[3] = hardSphereVol*hardShellVol*OHOFraction*HOCFraction;
-        		refBondList[0] = new int [][]{{1,2}};
-        		refBondList[1] = new int [][]{{0,1}};
-        	}
+            if (specialRef){
+                if (associationEnergyCal == 5000.0){
+                    if (temperatureK == 400) HSB[3] = -hardSphereVol*253.2825;
+                    else if  (temperatureK == 450) HSB[3] = -hardSphereVol*95.97541;
+                    else if  (temperatureK == 500) HSB[3] = -hardSphereVol*46.83418;
+                    else if  (temperatureK == 550) HSB[3] = -hardSphereVol*26.35662;
+                    else if  (temperatureK == 600) HSB[3] = -hardSphereVol*16.87148;
+                    else if  (temperatureK == 650) HSB[3] = -hardSphereVol*11.65923;
+                }
+                refBondList[0] = new int [][]{{1,2}};
+                refBondList[1] = new int [][]{{0,1}};
+            }
+            else {
+                HSB[3] = hardSphereVol*hardShellVol*OHOFraction*HOCFraction;
+                refBondList[0] = new int [][]{{1,2}};
+                refBondList[1] = new int [][]{{0,1}};
+            }
         }
         else if (numDiagram == 6){//3 point diagrams having 1 FABFBA
-        	if (specialRef){
-        		if (associationEnergyCal == 5000.0){
-        			if (temperatureK == 400) HSB[3] = -Math.pow(hardSphereVol,1)*173.8722;
-        			else if  (temperatureK == 450) HSB[3] = -Math.pow(hardSphereVol,1)*48.31472;
-        			else if  (temperatureK == 500) HSB[3] = -Math.pow(hardSphereVol,1)*17.67929;
-        			else if  (temperatureK == 550) HSB[3] = -Math.pow(hardSphereVol,1)*7.784599;
-        			else if  (temperatureK == 600) HSB[3] = -Math.pow(hardSphereVol,1)*3.819302;
-        			else if  (temperatureK == 650) HSB[3] = -Math.pow(hardSphereVol,1)*2.100071;
-        		}
-        		refBondList[0] = new int [][]{{1,2}};
-            	refBondList[2] = new int [][]{{0,1}};
-        	}
-        	else {
-        		HSB[3] = hardSphereVol*hardShellVol*OHOFraction*HOCFraction;
-        		refBondList[0] = new int [][]{{1,2}};
-        		refBondList[1] = new int [][]{{0,1}};
-        	}
+            if (specialRef){
+                if (associationEnergyCal == 5000.0){
+                    if (temperatureK == 400) HSB[3] = -Math.pow(hardSphereVol,1)*173.8722;
+                    else if  (temperatureK == 450) HSB[3] = -Math.pow(hardSphereVol,1)*48.31472;
+                    else if  (temperatureK == 500) HSB[3] = -Math.pow(hardSphereVol,1)*17.67929;
+                    else if  (temperatureK == 550) HSB[3] = -Math.pow(hardSphereVol,1)*7.784599;
+                    else if  (temperatureK == 600) HSB[3] = -Math.pow(hardSphereVol,1)*3.819302;
+                    else if  (temperatureK == 650) HSB[3] = -Math.pow(hardSphereVol,1)*2.100071;
+                }
+                refBondList[0] = new int [][]{{1,2}};
+                refBondList[2] = new int [][]{{0,1}};
+            }
+            else {
+                HSB[3] = hardSphereVol*hardShellVol*OHOFraction*HOCFraction;
+                refBondList[0] = new int [][]{{1,2}};
+                refBondList[1] = new int [][]{{0,1}};
+            }
         }
         else if (numDiagram == 7){//3 point diagrams having 2 FAB
-        	if (specialRef){
-        		if (associationEnergyCal == 5000.0){
-        			if (temperatureK == 400) HSB[3] = 253.2825*253.2825;
-        			else if  (temperatureK == 450) HSB[3] = 95.97541*95.97541;
-        			else if  (temperatureK == 500) HSB[3] = 46.83418*46.83418;
-        			else if  (temperatureK == 550) HSB[3] = 26.35662*26.35662;
-        			else if  (temperatureK == 600) HSB[3] = 16.87148*16.87148;
-        			else if  (temperatureK == 650) HSB[3] = 11.65923*11.65923;
-        		}
-        		refBondList[1] = new int [][]{{0,1},{1,2}};
-        	}
-        	else {
-        		HSB[3] = Math.pow(hardShellVol,2)*Math.pow(OHOFraction, 2)*Math.pow(HOCFraction,2);
-        		refBondList[1] = new int [][]{{0,1},{1,2}};
-        	}
+            if (specialRef){
+                if (associationEnergyCal == 5000.0){
+                    if (temperatureK == 400) HSB[3] = 253.2825*253.2825;
+                    else if  (temperatureK == 450) HSB[3] = 95.97541*95.97541;
+                    else if  (temperatureK == 500) HSB[3] = 46.83418*46.83418;
+                    else if  (temperatureK == 550) HSB[3] = 26.35662*26.35662;
+                    else if  (temperatureK == 600) HSB[3] = 16.87148*16.87148;
+                    else if  (temperatureK == 650) HSB[3] = 11.65923*11.65923;
+                }
+                refBondList[1] = new int [][]{{0,1},{1,2}};
+            }
+            else {
+                HSB[3] = Math.pow(hardShellVol,2)*Math.pow(OHOFraction, 2)*Math.pow(HOCFraction,2);
+                refBondList[1] = new int [][]{{0,1},{1,2}};
+            }
         }
         else if (numDiagram >10 && numDiagram < 16){//4 point diagrams having 1 FAB
-        	if (specialRef){
-        		if (associationEnergyCal == 5000.0){
-        			if (temperatureK == 400) HSB[4] = Math.pow(hardSphereVol,2)*253.2825;
-        			else if  (temperatureK == 450) HSB[4] = Math.pow(hardSphereVol,2)*95.97541;
-        			else if  (temperatureK == 500) HSB[4] = Math.pow(hardSphereVol,2)*46.83418;
-        			else if  (temperatureK == 550) HSB[4] = Math.pow(hardSphereVol,2)*26.35662;
-        			else if  (temperatureK == 600) HSB[4] = Math.pow(hardSphereVol,2)*16.87148;
-        			else if  (temperatureK == 650) HSB[4] = Math.pow(hardSphereVol,2)*11.65923;
-        		}
-            	refBondList[0] = new int [][]{{1,2},{2,3}};
-            	refBondList[1] = new int [][]{{0,1}};
-        	}
-        	else {
-        		HSB[4] = -Math.pow(hardSphereVol,2)*hardShellVol*OHOFraction*HOCFraction;
-        		refBondList[0] = new int [][]{{1,2},{2,3}};
-        		refBondList[1] = new int [][]{{0,1}};
-        	}
+            if (specialRef){
+                if (associationEnergyCal == 5000.0){
+                    if (temperatureK == 400) HSB[4] = Math.pow(hardSphereVol,2)*253.2825;
+                    else if  (temperatureK == 450) HSB[4] = Math.pow(hardSphereVol,2)*95.97541;
+                    else if  (temperatureK == 500) HSB[4] = Math.pow(hardSphereVol,2)*46.83418;
+                    else if  (temperatureK == 550) HSB[4] = Math.pow(hardSphereVol,2)*26.35662;
+                    else if  (temperatureK == 600) HSB[4] = Math.pow(hardSphereVol,2)*16.87148;
+                    else if  (temperatureK == 650) HSB[4] = Math.pow(hardSphereVol,2)*11.65923;
+                }
+                refBondList[0] = new int [][]{{1,2},{2,3}};
+                refBondList[1] = new int [][]{{0,1}};
+            }
+            else {
+                HSB[4] = -Math.pow(hardSphereVol,2)*hardShellVol*OHOFraction*HOCFraction;
+                refBondList[0] = new int [][]{{1,2},{2,3}};
+                refBondList[1] = new int [][]{{0,1}};
+            }
         }
         else if (numDiagram >15 && numDiagram < 21){//4 point diagrams having 1 FABFBA
-        	if (specialRef){
-        		if (associationEnergyCal == 5000.0){
-        			if (temperatureK == 400) HSB[4] = Math.pow(hardSphereVol,2)*173.8722;
-        			else if  (temperatureK == 450) HSB[4] = Math.pow(hardSphereVol,2)*48.31472;
-        			else if  (temperatureK == 500) HSB[4] = Math.pow(hardSphereVol,2)*17.67929;
-        			else if  (temperatureK == 550) HSB[4] = Math.pow(hardSphereVol,2)*7.784599;
-        			else if  (temperatureK == 600) HSB[4] = Math.pow(hardSphereVol,2)*3.819302;
-        			else if  (temperatureK == 650) HSB[4] = Math.pow(hardSphereVol,2)*2.100071;
-        		}
-            	refBondList[0] = new int [][]{{1,2},{2,3}};
-            	refBondList[2] = new int [][]{{0,1}};
-        	}
-        	else {
-        		HSB[4] = -Math.pow(hardSphereVol,2)*hardShellVol*OHOFraction*HOCFraction;
-        		refBondList[0] = new int [][]{{1,2},{2,3}};
-        		refBondList[1] = new int [][]{{0,1}};
-        	}
+            if (specialRef){
+                if (associationEnergyCal == 5000.0){
+                    if (temperatureK == 400) HSB[4] = Math.pow(hardSphereVol,2)*173.8722;
+                    else if  (temperatureK == 450) HSB[4] = Math.pow(hardSphereVol,2)*48.31472;
+                    else if  (temperatureK == 500) HSB[4] = Math.pow(hardSphereVol,2)*17.67929;
+                    else if  (temperatureK == 550) HSB[4] = Math.pow(hardSphereVol,2)*7.784599;
+                    else if  (temperatureK == 600) HSB[4] = Math.pow(hardSphereVol,2)*3.819302;
+                    else if  (temperatureK == 650) HSB[4] = Math.pow(hardSphereVol,2)*2.100071;
+                }
+                refBondList[0] = new int [][]{{1,2},{2,3}};
+                refBondList[2] = new int [][]{{0,1}};
+            }
+            else {
+                HSB[4] = -Math.pow(hardSphereVol,2)*hardShellVol*OHOFraction*HOCFraction;
+                refBondList[0] = new int [][]{{1,2},{2,3}};
+                refBondList[1] = new int [][]{{0,1}};
+            }
         }
         else if (numDiagram >20 && numDiagram < 25){//4 point diagrams having 2 FAB
-        	if (specialRef){
-        		if (associationEnergyCal == 5000.0){
-        			if (temperatureK == 400) HSB[4] = -Math.pow(hardSphereVol,1)*253.2825*253.2825;
-        			else if  (temperatureK == 450) HSB[4] = -Math.pow(hardSphereVol,1)*95.97541*95.97541;
-        			else if  (temperatureK == 500) HSB[4] = -Math.pow(hardSphereVol,1)*46.83418*46.83418;
-        			else if  (temperatureK == 550) HSB[4] = -Math.pow(hardSphereVol,1)*26.35662*26.35662;
-        			else if  (temperatureK == 600) HSB[4] = -Math.pow(hardSphereVol,1)*16.87148*16.87148;
-        			else if  (temperatureK == 650) HSB[4] = -Math.pow(hardSphereVol,1)*11.65923*11.65923;
-        		}
-            	refBondList[0] = new int [][]{{1,2}};
-            	refBondList[1] = new int [][]{{0,1},{2,3}};
-        	}
-        	else {
-        		HSB[4] = -Math.pow(hardSphereVol,1)*Math.pow((hardShellVol*OHOFraction*HOCFraction),2);
-        		refBondList[0] = new int [][]{{1,2}};
-        		refBondList[1] = new int [][]{{0,1},{2,3}};
-        	}
+            if (specialRef){
+                if (associationEnergyCal == 5000.0){
+                    if (temperatureK == 400) HSB[4] = -Math.pow(hardSphereVol,1)*253.2825*253.2825;
+                    else if  (temperatureK == 450) HSB[4] = -Math.pow(hardSphereVol,1)*95.97541*95.97541;
+                    else if  (temperatureK == 500) HSB[4] = -Math.pow(hardSphereVol,1)*46.83418*46.83418;
+                    else if  (temperatureK == 550) HSB[4] = -Math.pow(hardSphereVol,1)*26.35662*26.35662;
+                    else if  (temperatureK == 600) HSB[4] = -Math.pow(hardSphereVol,1)*16.87148*16.87148;
+                    else if  (temperatureK == 650) HSB[4] = -Math.pow(hardSphereVol,1)*11.65923*11.65923;
+                }
+                refBondList[0] = new int [][]{{1,2}};
+                refBondList[1] = new int [][]{{0,1},{2,3}};
+            }
+            else {
+                HSB[4] = -Math.pow(hardSphereVol,1)*Math.pow((hardShellVol*OHOFraction*HOCFraction),2);
+                refBondList[0] = new int [][]{{1,2}};
+                refBondList[1] = new int [][]{{0,1},{2,3}};
+            }
         }
         else if (numDiagram >24 && numDiagram < 29){//4 point diagrams having 1 FAB and 1 FABFBA
-        	if (specialRef){
-        		if (associationEnergyCal == 5000.0){
-        			if (temperatureK == 400) HSB[4] = -Math.pow(hardSphereVol,1)*253.2825*173.8722;
-        			else if  (temperatureK == 450) HSB[4] = -Math.pow(hardSphereVol,1)*95.97541*48.31472;
-        			else if  (temperatureK == 500) HSB[4] = -Math.pow(hardSphereVol,1)*46.83418*17.67929;
-        			else if  (temperatureK == 550) HSB[4] = -Math.pow(hardSphereVol,1)*26.35662*7.784599;
-        			else if  (temperatureK == 600) HSB[4] = -Math.pow(hardSphereVol,1)*16.87148*3.819302;
-        			else if  (temperatureK == 650) HSB[4] = -Math.pow(hardSphereVol,1)*11.65923*2.100071;
-        		}
-            	refBondList[0] = new int [][]{{1,2}};
-            	refBondList[1] = new int [][]{{0,1}};
-            	refBondList[2] = new int [][]{{2,3}};
-        	}
-        	else {
-        		HSB[4] = -Math.pow(hardSphereVol,1)*Math.pow((hardShellVol*OHOFraction*HOCFraction),2);
-            	refBondList[0] = new int [][]{{1,2}};
-            	refBondList[1] = new int [][]{{0,1},{2,3}};
-        	}
+            if (specialRef){
+                if (associationEnergyCal == 5000.0){
+                    if (temperatureK == 400) HSB[4] = -Math.pow(hardSphereVol,1)*253.2825*173.8722;
+                    else if  (temperatureK == 450) HSB[4] = -Math.pow(hardSphereVol,1)*95.97541*48.31472;
+                    else if  (temperatureK == 500) HSB[4] = -Math.pow(hardSphereVol,1)*46.83418*17.67929;
+                    else if  (temperatureK == 550) HSB[4] = -Math.pow(hardSphereVol,1)*26.35662*7.784599;
+                    else if  (temperatureK == 600) HSB[4] = -Math.pow(hardSphereVol,1)*16.87148*3.819302;
+                    else if  (temperatureK == 650) HSB[4] = -Math.pow(hardSphereVol,1)*11.65923*2.100071;
+                }
+                refBondList[0] = new int [][]{{1,2}};
+                refBondList[1] = new int [][]{{0,1}};
+                refBondList[2] = new int [][]{{2,3}};
+            }
+            else {
+                HSB[4] = -Math.pow(hardSphereVol,1)*Math.pow((hardShellVol*OHOFraction*HOCFraction),2);
+                refBondList[0] = new int [][]{{1,2}};
+                refBondList[1] = new int [][]{{0,1},{2,3}};
+            }
         }
         else if ((numDiagram >28 && numDiagram < 32)){//4 point diagrams having 2 FABFBA
-        	if (specialRef){//D3*D3*sigmaHSRef is the reference value
-        		if (associationEnergyCal == 5000.0){
-        			if (temperatureK == 400) HSB[4] = -Math.pow(hardSphereVol,1)*173.8722*173.8722;
-        			else if  (temperatureK == 450) HSB[4] = -Math.pow(hardSphereVol,1)*48.31472*48.31472;
-        			else if  (temperatureK == 500) HSB[4] = -Math.pow(hardSphereVol,1)*17.67929*17.67929;
-        			else if  (temperatureK == 550) HSB[4] = -Math.pow(hardSphereVol,1)*7.784599*7.784599;
-        			else if  (temperatureK == 600) HSB[4] = -Math.pow(hardSphereVol,1)*3.819302*3.819302;
-        			else if  (temperatureK == 650) HSB[4] = -Math.pow(hardSphereVol,1)*2.100071*2.100071;
-        		}
-        	}
-        	else {
-        		HSB[4] = -Math.pow(hardSphereVol,1)*Math.pow((hardShellVol*OHOFraction*HOCFraction),2);
-        	}
-        	refBondList[0] = new int [][]{{1,2}};
-        	refBondList[1] = new int [][]{{0,1},{2,3}};
+            if (specialRef){//D3*D3*sigmaHSRef is the reference value
+                if (associationEnergyCal == 5000.0){
+                    if (temperatureK == 400) HSB[4] = -Math.pow(hardSphereVol,1)*173.8722*173.8722;
+                    else if  (temperatureK == 450) HSB[4] = -Math.pow(hardSphereVol,1)*48.31472*48.31472;
+                    else if  (temperatureK == 500) HSB[4] = -Math.pow(hardSphereVol,1)*17.67929*17.67929;
+                    else if  (temperatureK == 550) HSB[4] = -Math.pow(hardSphereVol,1)*7.784599*7.784599;
+                    else if  (temperatureK == 600) HSB[4] = -Math.pow(hardSphereVol,1)*3.819302*3.819302;
+                    else if  (temperatureK == 650) HSB[4] = -Math.pow(hardSphereVol,1)*2.100071*2.100071;
+                }
+            }
+            else {
+                HSB[4] = -Math.pow(hardSphereVol,1)*Math.pow((hardShellVol*OHOFraction*HOCFraction),2);
+            }
+            refBondList[0] = new int [][]{{1,2}};
+            refBondList[1] = new int [][]{{0,1},{2,3}};
         }
         else if (numDiagram >31 && numDiagram < 37){//4 point diagrams having 2 adjacent FAB
-        	if (specialRef){//D2*D2*sigmaHSRef is the reference value
-        		if (associationEnergyCal == 5000.0){
-        			if (temperatureK == 400) HSB[4] = -Math.pow(hardSphereVol,1)*253.2825*253.2825;
-        			else if  (temperatureK == 450) HSB[4] = -Math.pow(hardSphereVol,1)*95.97541*95.97541;
-        			else if  (temperatureK == 500) HSB[4] = -Math.pow(hardSphereVol,1)*46.83418*46.83418;
-        			else if  (temperatureK == 550) HSB[4] = -Math.pow(hardSphereVol,1)*26.35662*26.35662;
-        			else if  (temperatureK == 600) HSB[4] = -Math.pow(hardSphereVol,1)*16.87148*16.87148;
-        			else if  (temperatureK == 650) HSB[4] = -Math.pow(hardSphereVol,1)*11.65923*11.65923;
-        		}
-        	}
-        	else {
-        		HSB[4] = -Math.pow(hardSphereVol,1)*Math.pow((hardShellVol*OHOFraction*HOCFraction),2);
-        	}
-        	refBondList[0] = new int [][]{{2,3}};
-        	refBondList[1] = new int [][]{{0,1},{1,2}};
+            if (specialRef){//D2*D2*sigmaHSRef is the reference value
+                if (associationEnergyCal == 5000.0){
+                    if (temperatureK == 400) HSB[4] = -Math.pow(hardSphereVol,1)*253.2825*253.2825;
+                    else if  (temperatureK == 450) HSB[4] = -Math.pow(hardSphereVol,1)*95.97541*95.97541;
+                    else if  (temperatureK == 500) HSB[4] = -Math.pow(hardSphereVol,1)*46.83418*46.83418;
+                    else if  (temperatureK == 550) HSB[4] = -Math.pow(hardSphereVol,1)*26.35662*26.35662;
+                    else if  (temperatureK == 600) HSB[4] = -Math.pow(hardSphereVol,1)*16.87148*16.87148;
+                    else if  (temperatureK == 650) HSB[4] = -Math.pow(hardSphereVol,1)*11.65923*11.65923;
+                }
+            }
+            else {
+                HSB[4] = -Math.pow(hardSphereVol,1)*Math.pow((hardShellVol*OHOFraction*HOCFraction),2);
+            }
+            refBondList[0] = new int [][]{{2,3}};
+            refBondList[1] = new int [][]{{0,1},{1,2}};
         }
         else if (numDiagram >36 && numDiagram < 42){//4 point diagrams having 3 adjacent FAB
-        	if (specialRef){//D2*D2*D2 is the reference value
-        		if (associationEnergyCal == 5000.0){
-        			if (temperatureK == 400) HSB[4] = 253.2825*253.2825*253.2825;
-        			else if  (temperatureK == 450) HSB[4] = 95.97541*95.97541*95.97541;
-        			else if  (temperatureK == 500) HSB[4] = 46.83418*46.83418*46.83418;
-        			else if  (temperatureK == 550) HSB[4] = 26.35662*26.35662*26.35662;
-        			else if  (temperatureK == 600) HSB[4] = 16.87148*16.87148*16.87148;
-        			else if  (temperatureK == 650) HSB[4] = 11.65923*11.65923*11.65923;
-        		}
-        	}
-        	else {
-        		HSB[4] = -Math.pow((hardShellVol*OHOFraction*HOCFraction),3);
-        	}
-        	refBondList[1] = new int [][]{{0,1},{1,2},{2,3}};
+            if (specialRef){//D2*D2*D2 is the reference value
+                if (associationEnergyCal == 5000.0){
+                    if (temperatureK == 400) HSB[4] = 253.2825*253.2825*253.2825;
+                    else if  (temperatureK == 450) HSB[4] = 95.97541*95.97541*95.97541;
+                    else if  (temperatureK == 500) HSB[4] = 46.83418*46.83418*46.83418;
+                    else if  (temperatureK == 550) HSB[4] = 26.35662*26.35662*26.35662;
+                    else if  (temperatureK == 600) HSB[4] = 16.87148*16.87148*16.87148;
+                    else if  (temperatureK == 650) HSB[4] = 11.65923*11.65923*11.65923;
+                }
+            }
+            else {
+                HSB[4] = -Math.pow((hardShellVol*OHOFraction*HOCFraction),3);
+            }
+            refBondList[1] = new int [][]{{0,1},{1,2},{2,3}};
         }
         if (numDiagram == 1) {
-        	bondList[0]=new int [][]{{0,1}};
+            bondList[0]=new int [][]{{0,1}};
         }
         else if (numDiagram == 2) {
-        	bondList[1]=new int [][]{{0,1}};
+            bondList[1]=new int [][]{{0,1}};
         }
         else if (numDiagram == 3) {
-        	bondList[2]=new int [][]{{0,1}};
+            bondList[2]=new int [][]{{0,1}};
         }
         else if (numDiagram == 4) {
-        	bondList[0]=new int [][]{{0,1},{1,2},{2,0}};
+            bondList[0]=new int [][]{{0,1},{1,2},{2,0}};
         }
         else if (numDiagram == 5) {
-        	bondList[0] = new int [][]{{1,2},{2,0}};
-        	bondList[1] = new int [][]{{0,1}};
+            bondList[0] = new int [][]{{1,2},{2,0}};
+            bondList[1] = new int [][]{{0,1}};
         }
         else if (numDiagram == 6) {
-        	bondList[0] = new int [][]{{1,2},{2,0}};
-        	bondList[2] = new int [][]{{0,1}};
+            bondList[0] = new int [][]{{1,2},{2,0}};
+            bondList[2] = new int [][]{{0,1}};
         }
         else if (numDiagram == 7) {
-        	bondList[0] = new int [][]{{2,0}};
-        	bondList[1] = new int [][]{{0,1},{1,2}};
+            bondList[0] = new int [][]{{2,0}};
+            bondList[1] = new int [][]{{0,1},{1,2}};
         }
         else if (numDiagram == 8) {
-        	bondList[0]=new int [][]{{0,1},{1,2},{2,3},{3,0}};
+            bondList[0]=new int [][]{{0,1},{1,2},{2,3},{3,0}};
         }
         else if (numDiagram == 9) {
-        	bondList[0]=new int [][]{{0,1},{1,2},{2,3},{3,0},{0,2}};
+            bondList[0]=new int [][]{{0,1},{1,2},{2,3},{3,0},{0,2}};
         }
         else if (numDiagram == 10) {
-        	bondList[0]=new int [][]{{0,1},{1,2},{2,3},{3,0},{0,2},{3,1}};
+            bondList[0]=new int [][]{{0,1},{1,2},{2,3},{3,0},{0,2},{3,1}};
         }
         else if (numDiagram == 11) {
-        	bondList[0]=new int [][]{{1,2},{2,3},{3,0}};
-        	bondList[1] = new int [][]{{0,1}};
+            bondList[0]=new int [][]{{1,2},{2,3},{3,0}};
+            bondList[1] = new int [][]{{0,1}};
         }
         else if (numDiagram == 12) {
-        	bondList[0]=new int [][]{{1,2},{2,3},{3,0},{0,2}};
-        	bondList[1] = new int [][]{{0,1}};
+            bondList[0]=new int [][]{{1,2},{2,3},{3,0},{0,2}};
+            bondList[1] = new int [][]{{0,1}};
         }
         else if (numDiagram == 13) {
-        	bondList[0]=new int [][]{{1,2},{2,3},{3,0},{1,3}};
-        	bondList[1] = new int [][]{{0,1}};
+            bondList[0]=new int [][]{{1,2},{2,3},{3,0},{1,3}};
+            bondList[1] = new int [][]{{0,1}};
         }
         else if (numDiagram == 14) {
-        	bondList[0]=new int [][]{{1,2},{3,0},{0,2},{1,3}};
-        	bondList[1] = new int [][]{{0,1}};
+            bondList[0]=new int [][]{{1,2},{3,0},{0,2},{1,3}};
+            bondList[1] = new int [][]{{0,1}};
         }
         else if (numDiagram == 15) {
-        	bondList[0]=new int [][]{{1,2},{2,3},{3,0},{0,2},{1,3}};
-        	bondList[1] = new int [][]{{0,1}};
+            bondList[0]=new int [][]{{1,2},{2,3},{3,0},{0,2},{1,3}};
+            bondList[1] = new int [][]{{0,1}};
         }
         else if (numDiagram == 16) {
-        	bondList[0]=new int [][]{{1,2},{2,3},{3,0}};
-        	bondList[2] = new int [][]{{0,1}};
+            bondList[0]=new int [][]{{1,2},{2,3},{3,0}};
+            bondList[2] = new int [][]{{0,1}};
         }
         else if (numDiagram == 17) {
-        	bondList[0]=new int [][]{{1,2},{2,3},{3,0},{0,2}};
-        	bondList[2] = new int [][]{{0,1}};
+            bondList[0]=new int [][]{{1,2},{2,3},{3,0},{0,2}};
+            bondList[2] = new int [][]{{0,1}};
         }
         else if (numDiagram == 18) {
-        	bondList[0]=new int [][]{{1,2},{2,3},{3,0},{1,3}};
-        	bondList[2] = new int [][]{{0,1}};
+            bondList[0]=new int [][]{{1,2},{2,3},{3,0},{1,3}};
+            bondList[2] = new int [][]{{0,1}};
         }
         else if (numDiagram == 19) {
-        	bondList[0]=new int [][]{{1,2},{3,0},{0,2},{1,3}};
-        	bondList[2] = new int [][]{{0,1}};
+            bondList[0]=new int [][]{{1,2},{3,0},{0,2},{1,3}};
+            bondList[2] = new int [][]{{0,1}};
         }
         else if (numDiagram == 20) {
-        	bondList[0]=new int [][]{{1,2},{2,3},{3,0},{0,2},{1,3}};
-        	bondList[2] = new int [][]{{0,1}};
+            bondList[0]=new int [][]{{1,2},{2,3},{3,0},{0,2},{1,3}};
+            bondList[2] = new int [][]{{0,1}};
         }
         else if (numDiagram == 21) {
-        	bondList[0]=new int [][]{{1,2},{3,0}};
-        	bondList[1] = new int [][]{{0,1},{2,3}};
+            bondList[0]=new int [][]{{1,2},{3,0}};
+            bondList[1] = new int [][]{{0,1},{2,3}};
         }
         else if (numDiagram == 22) {
-        	bondList[0]=new int [][]{{1,2},{3,0},{2,0}};
-        	bondList[1] = new int [][]{{0,1},{2,3}};
+            bondList[0]=new int [][]{{1,2},{3,0},{2,0}};
+            bondList[1] = new int [][]{{0,1},{2,3}};
         }
         else if (numDiagram == 23) {
-        	bondList[0]=new int [][]{{1,2},{3,0},{1,3}};
-        	bondList[1] = new int [][]{{0,1},{2,3}};
+            bondList[0]=new int [][]{{1,2},{3,0},{1,3}};
+            bondList[1] = new int [][]{{0,1},{2,3}};
         }
         else if (numDiagram == 24) {
-        	bondList[0]=new int [][]{{1,2},{3,0},{2,0},{1,3}};
-        	bondList[1] = new int [][]{{0,1},{2,3}};
+            bondList[0]=new int [][]{{1,2},{3,0},{2,0},{1,3}};
+            bondList[1] = new int [][]{{0,1},{2,3}};
         }
         else if (numDiagram == 25) {
-        	bondList[0]=new int [][]{{1,2},{3,0}};
-        	bondList[1] = new int [][]{{0,1}};
-        	bondList[2] = new int [][]{{2,3}};
+            bondList[0]=new int [][]{{1,2},{3,0}};
+            bondList[1] = new int [][]{{0,1}};
+            bondList[2] = new int [][]{{2,3}};
         }
         else if (numDiagram == 26) {
-        	bondList[0]=new int [][]{{1,2},{3,0},{2,0}};
-        	bondList[1] = new int [][]{{0,1}};
-        	bondList[2] = new int [][]{{2,3}};
+            bondList[0]=new int [][]{{1,2},{3,0},{2,0}};
+            bondList[1] = new int [][]{{0,1}};
+            bondList[2] = new int [][]{{2,3}};
         }
         else if (numDiagram == 27) {
-        	bondList[0]=new int [][]{{1,2},{3,0},{1,3}};
-        	bondList[1] = new int [][]{{0,1}};
-        	bondList[2] = new int [][]{{2,3}};
+            bondList[0]=new int [][]{{1,2},{3,0},{1,3}};
+            bondList[1] = new int [][]{{0,1}};
+            bondList[2] = new int [][]{{2,3}};
         }
         else if (numDiagram == 28) {
-        	bondList[0]=new int [][]{{1,2},{3,0},{2,0},{1,3}};
-        	bondList[1] = new int [][]{{0,1}};
-        	bondList[2] = new int [][]{{2,3}};
+            bondList[0]=new int [][]{{1,2},{3,0},{2,0},{1,3}};
+            bondList[1] = new int [][]{{0,1}};
+            bondList[2] = new int [][]{{2,3}};
         }
         else if (numDiagram == 29) {
-        	bondList[0]=new int [][]{{1,2},{3,0}};
-        	bondList[2] = new int [][]{{0,1},{2,3}};
+            bondList[0]=new int [][]{{1,2},{3,0}};
+            bondList[2] = new int [][]{{0,1},{2,3}};
         }
         else if (numDiagram == 30) {
-        	bondList[0]=new int [][]{{1,2},{3,0},{2,0}};
-        	bondList[2] = new int [][]{{0,1},{2,3}};
+            bondList[0]=new int [][]{{1,2},{3,0},{2,0}};
+            bondList[2] = new int [][]{{0,1},{2,3}};
         }
         else if (numDiagram == 31) {
-        	bondList[0]=new int [][]{{1,2},{3,0},{2,0},{1,3}};
-        	bondList[2] = new int [][]{{0,1},{2,3}};
+            bondList[0]=new int [][]{{1,2},{3,0},{2,0},{1,3}};
+            bondList[2] = new int [][]{{0,1},{2,3}};
         }
         else if (numDiagram == 32) {
-        	bondList[0]=new int [][]{{2,3},{3,0}};
-        	bondList[1] = new int [][]{{0,1},{1,2}};
+            bondList[0]=new int [][]{{2,3},{3,0}};
+            bondList[1] = new int [][]{{0,1},{1,2}};
         }
         else if (numDiagram == 33) {
-        	bondList[0]=new int [][]{{2,3},{3,0},{0,2}};
-        	bondList[1] = new int [][]{{0,1},{1,2}};
+            bondList[0]=new int [][]{{2,3},{3,0},{0,2}};
+            bondList[1] = new int [][]{{0,1},{1,2}};
         }
         else if (numDiagram == 34) {
-        	bondList[0]=new int [][]{{2,3},{3,1},{0,2}};
-        	bondList[1] = new int [][]{{0,1},{1,2}};
+            bondList[0]=new int [][]{{2,3},{3,1},{0,2}};
+            bondList[1] = new int [][]{{0,1},{1,2}};
         }
         else if (numDiagram == 35) {
-        	bondList[0]=new int [][]{{2,3},{3,0},{1,3}};
-        	bondList[1] = new int [][]{{0,1},{1,2}};
+            bondList[0]=new int [][]{{2,3},{3,0},{1,3}};
+            bondList[1] = new int [][]{{0,1},{1,2}};
         }
         else if (numDiagram == 36) {
-        	bondList[0]=new int [][]{{2,3},{3,0},{0,2},{1,3}};
-        	bondList[1] = new int [][]{{0,1},{1,2}};
+            bondList[0]=new int [][]{{2,3},{3,0},{0,2},{1,3}};
+            bondList[1] = new int [][]{{0,1},{1,2}};
         }
         else if (numDiagram == 37) {
-        	bondList[0]=new int [][]{{3,0}};
-        	bondList[1] = new int [][]{{0,1},{1,2},{2,3}};
+            bondList[0]=new int [][]{{3,0}};
+            bondList[1] = new int [][]{{0,1},{1,2},{2,3}};
         }
         else if (numDiagram == 38) {
-        	bondList[0]=new int [][]{{3,0},{0,2}};
-        	bondList[1] = new int [][]{{0,1},{1,2},{2,3}};
+            bondList[0]=new int [][]{{3,0},{0,2}};
+            bondList[1] = new int [][]{{0,1},{1,2},{2,3}};
         }
         else if (numDiagram == 39) {
-        	bondList[0]=new int [][]{{2,0},{1,3}};
-        	bondList[1] = new int [][]{{0,1},{1,2},{2,3}};
+            bondList[0]=new int [][]{{2,0},{1,3}};
+            bondList[1] = new int [][]{{0,1},{1,2},{2,3}};
         }
         else if (numDiagram == 40) {
-        	bondList[0]=new int [][]{{3,0},{1,3}};
-        	bondList[1] = new int [][]{{0,1},{1,2},{2,3}};
+            bondList[0]=new int [][]{{3,0},{1,3}};
+            bondList[1] = new int [][]{{0,1},{1,2},{2,3}};
         }
         else if (numDiagram == 41) {
-        	bondList[0]=new int [][]{{3,0},{0,2},{1,3}};
-        	bondList[1] = new int [][]{{0,1},{1,2},{2,3}};
+            bondList[0]=new int [][]{{3,0},{0,2},{1,3}};
+            bondList[1] = new int [][]{{0,1},{1,2},{2,3}};
         }
         else {
-        	throw new RuntimeException("This is strange");
+            throw new RuntimeException("This is strange");
         }
 
         clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
         targetCluster = new ClusterSum(clusters,new double []{1}, new MayerFunction[]{fR,FAB,FABFBA,eR, fARef});
         if (numDiagram == 1) {
-        	System.out.println("Flipping is applied");
-        	((ClusterSum)targetCluster).setCaching(false);
-        	targetCluster = new ClusterCoupledFlipped(targetCluster, space);
+            System.out.println("Flipping is applied");
+            ((ClusterSum)targetCluster).setCaching(false);
+            targetCluster = new ClusterCoupledFlipped(targetCluster, space);
         }
         targetCluster.setTemperature(temperature);
 
         ClusterAbstract refCluster = Standard.virialCluster(nBody, fRef, nBody>3, eRef, true);
         if (numDiagram == 2 || numDiagram == 3 || (numDiagram > 4 && numDiagram < 8)||(numDiagram > 10 && numDiagram < 25)) {
-    		ClusterBonds refBonds = new ClusterBonds(nBody,refBondList, false);
-        	if (specialRef){
-        		System.out.println("D2 (or D3) * Hard-Sphere reference is used.");
-            	refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fRef, FAB, FABFBA});
-        	}
-        	else {
-        		System.out.println("Hard Chain Reference is used.");
+            ClusterBonds refBonds = new ClusterBonds(nBody,refBondList, false);
+            if (specialRef){
+                System.out.println("D2 (or D3) * Hard-Sphere reference is used.");
+                refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fRef, FAB, FABFBA});
+            }
+            else {
+                System.out.println("Hard Chain Reference is used.");
 
-        		refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fRef, fARef});
-        	}
+                refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fRef, fARef});
+            }
         }
         else if ((numDiagram > 24 && numDiagram < 29)) {
-        	ClusterBonds refBonds = new ClusterBonds(nBody,refBondList, false);
-        	System.out.println("D2 * D3 * Hard-Sphere reference is used.");
-        	refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fRef, FAB, FABFBA});
+            ClusterBonds refBonds = new ClusterBonds(nBody,refBondList, false);
+            System.out.println("D2 * D3 * Hard-Sphere reference is used.");
+            refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fRef, FAB, FABFBA});
         }
         else if ((numDiagram > 28 && numDiagram < 32)) {
-        	ClusterBonds refBonds = new ClusterBonds(nBody,refBondList, false);
-        	System.out.println("D3 * D3 * Hard-Sphere reference is used.");
-        	refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fRef, FABFBA});
+            ClusterBonds refBonds = new ClusterBonds(nBody,refBondList, false);
+            System.out.println("D3 * D3 * Hard-Sphere reference is used.");
+            refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fRef, FABFBA});
         }
         else if ((numDiagram > 31 && numDiagram < 37)) {
-        	ClusterBonds refBonds = new ClusterBonds(nBody,refBondList, false);
-        	System.out.println("D2 * D2 * Hard-Sphere reference is used.");
-        	refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fRef, FAB});
+            ClusterBonds refBonds = new ClusterBonds(nBody,refBondList, false);
+            System.out.println("D2 * D2 * Hard-Sphere reference is used.");
+            refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fRef, FAB});
         }
         else if ((numDiagram > 36 && numDiagram < 42)) {
-        	ClusterBonds refBonds = new ClusterBonds(nBody,refBondList, false);
-        	System.out.println("D2 * D2 * D2 is used.");
-        	refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fRef, FAB});
+            ClusterBonds refBonds = new ClusterBonds(nBody,refBondList, false);
+            System.out.println("D2 * D2 * D2 is used.");
+            refCluster = new ClusterSum(new ClusterBonds[]{refBonds}, new double []{1}, new MayerFunction[]{fRef, FAB});
         }
         refCluster.setTemperature(temperature);
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
         steps /= 1000;
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2 (space,new SpeciesAceticAcid(space),temperature,refCluster,targetCluster, false);
+        SpeciesGeneral species = SpeciesAceticAcid.create();
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2 (space, species,temperature,refCluster,targetCluster, false);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
-        SpeciesAceticAcid species = (SpeciesAceticAcid)sim.getSpecies(0);
 
         AceticAcidModPotentialHelper.initPotential(space, species, p);
         AceticAcidModPotentialHelper.initPotential(space, species, pR);
@@ -536,41 +537,41 @@ public class Wertheim2SiteAceticAcid {
 
         System.out.println("B"+nBody+"HS: "+HSB[nBody]);
 
-       //set the initial configuration to satisfy the associations among particles
+        //set the initial configuration to satisfy the associations among particles
         if (numDiagram == 2 || numDiagram == 5 || (numDiagram >10 && numDiagram < 16)){
-        	ConfigurationClusterAceticAcid configuration = new ConfigurationClusterAceticAcid(space, sim.getRandom(), FAB);
-        	configuration.initializeCoordinates(sim.box[1],false,false);
-        	configuration.initializeCoordinates(sim.box[0],false,false);
+            ConfigurationClusterAceticAcid configuration = new ConfigurationClusterAceticAcid(space, sim.getRandom(), FAB);
+            configuration.initializeCoordinates(sim.box[1],false,false);
+            configuration.initializeCoordinates(sim.box[0],false,false);
         }
         else if (numDiagram == 3 || numDiagram == 6|| (numDiagram >15 && numDiagram < 21)){
-        	ConfigurationClusterAceticAcid configuration = new ConfigurationClusterAceticAcid(space, sim.getRandom(), FABFBA);
-        	configuration.initializeCoordinates(sim.box[1],false,false);
-        	configuration.initializeCoordinates(sim.box[0],false,false);
+            ConfigurationClusterAceticAcid configuration = new ConfigurationClusterAceticAcid(space, sim.getRandom(), FABFBA);
+            configuration.initializeCoordinates(sim.box[1],false,false);
+            configuration.initializeCoordinates(sim.box[0],false,false);
         }
         else if (numDiagram == 7 || (numDiagram >31 && numDiagram < 37)){
-        	ConfigurationClusterAceticAcid configuration = new ConfigurationClusterAceticAcid(space, sim.getRandom(), FAB);
-        	configuration.initializeCoordinates(sim.box[1],true,false);
-        	configuration.initializeCoordinates(sim.box[0],true,false);
+            ConfigurationClusterAceticAcid configuration = new ConfigurationClusterAceticAcid(space, sim.getRandom(), FAB);
+            configuration.initializeCoordinates(sim.box[1],true,false);
+            configuration.initializeCoordinates(sim.box[0],true,false);
         }
         else if (numDiagram >20 && numDiagram < 25){
-        	ConfigurationClusterAceticAcid configuration = new ConfigurationClusterAceticAcid(space, sim.getRandom(), FAB);
-        	configuration.initializeCoordinates(sim.box[1],false,true);
-        	configuration.initializeCoordinates(sim.box[0],false,true);
+            ConfigurationClusterAceticAcid configuration = new ConfigurationClusterAceticAcid(space, sim.getRandom(), FAB);
+            configuration.initializeCoordinates(sim.box[1],false,true);
+            configuration.initializeCoordinates(sim.box[0],false,true);
         }
         else if (numDiagram >24 && numDiagram < 29){
-        	ConfigurationClusterAceticAcid configuration = new ConfigurationClusterAceticAcid(space, sim.getRandom(), FAB, FABFBA);
-        	configuration.initializeCoordinates2(sim.box[1],false,true);
-        	configuration.initializeCoordinates2(sim.box[0],false,true);
+            ConfigurationClusterAceticAcid configuration = new ConfigurationClusterAceticAcid(space, sim.getRandom(), FAB, FABFBA);
+            configuration.initializeCoordinates2(sim.box[1],false,true);
+            configuration.initializeCoordinates2(sim.box[0],false,true);
         }
         else if (numDiagram >28 && numDiagram < 32){
-        	ConfigurationClusterAceticAcid configuration = new ConfigurationClusterAceticAcid(space, sim.getRandom(), FABFBA);
-        	configuration.initializeCoordinates(sim.box[1],false,true);
-        	configuration.initializeCoordinates(sim.box[0],false,true);
+            ConfigurationClusterAceticAcid configuration = new ConfigurationClusterAceticAcid(space, sim.getRandom(), FABFBA);
+            configuration.initializeCoordinates(sim.box[1],false,true);
+            configuration.initializeCoordinates(sim.box[0],false,true);
         }
         else if (numDiagram >36 && numDiagram < 42){
-        	ConfigurationClusterAceticAcid configuration = new ConfigurationClusterAceticAcid(space, sim.getRandom(), FAB);
-        	configuration.initializeCoordinates(sim.box[1],true,true);
-        	configuration.initializeCoordinates(sim.box[0],true,true);
+            ConfigurationClusterAceticAcid configuration = new ConfigurationClusterAceticAcid(space, sim.getRandom(), FAB);
+            configuration.initializeCoordinates(sim.box[1],true,true);
+            configuration.initializeCoordinates(sim.box[0],true,true);
         }
 
         // bond angle bending is governed by harmonic potential
@@ -628,7 +629,7 @@ public class Wertheim2SiteAceticAcid {
         Box targetBox = sim.box[1];
 
         if(true) {
-    referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             targetBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             ColorSchemeByType colorScheme0 = (ColorSchemeByType) simGraphic.getDisplayBox(referenceBox).getColorScheme();
@@ -636,11 +637,11 @@ public class Wertheim2SiteAceticAcid {
             DiameterHashByType diameterScheme0 = (DiameterHashByType) simGraphic.getDisplayBox(referenceBox).getDiameterHash();
             DiameterHashByType diameterScheme1 = (DiameterHashByType) simGraphic.getDisplayBox(targetBox).getDiameterHash();
 
-            AtomType typeCH3 = species.getCH3Type();
-            AtomType typeC = species.getCType();
-            AtomType typeDBO = species.getDBOType();
-            AtomType typeSBO = species.getSBOType();
-            AtomType typeH = species.getHType();
+            AtomType typeCH3 = species.getTypeByName("CH3");
+            AtomType typeC = species.getTypeByName("C");
+            AtomType typeDBO = species.getTypeByName("DBO");
+            AtomType typeSBO = species.getTypeByName("SBO");
+            AtomType typeH = species.getTypeByName("H");
             colorScheme0.setColor(typeCH3, Color.GREEN);
             diameterScheme0.setDiameter(typeCH3, 2*1.7);
             colorScheme0.setColor(typeC, Color.BLUE);
@@ -664,14 +665,14 @@ public class Wertheim2SiteAceticAcid {
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
             sim.initRefPref(null, 100, false);
-    sim.equilibrate(null, 200, false);
-    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+            sim.equilibrate(null, 200, false);
+            sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
 
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-    return;
-}
+            return;
+        }
 
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+numDiagram+"_"+temperature : null;
@@ -680,8 +681,8 @@ public class Wertheim2SiteAceticAcid {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/20);
-ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
-if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+        if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
 
@@ -697,40 +698,40 @@ if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPr
                 +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[1].getStepSize())));
 
         IAction progressReport = new IAction() {
-        	public void actionPerformed() {
-        		System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-        		double[] ratioAndError = sim.dvo.getAverageAndError();
-        		System.out.println("abs average: "+ratioAndError[0]*HSB[nBody]+", error: "+ratioAndError[1]*Math.abs(HSB[nBody]));
-        	}
+            public void actionPerformed() {
+                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
+                double[] ratioAndError = sim.dvo.getAverageAndError();
+                System.out.println("abs average: "+ratioAndError[0]*HSB[nBody]+", error: "+ratioAndError[1]*Math.abs(HSB[nBody]));
+            }
         };
         IntegratorListenerAction progressReportListener = new IntegratorListenerAction(progressReport);
         progressReportListener.setInterval(100);
         sim.integratorOS.getEventManager().addListener(progressReportListener);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-sim.getController().runActivityBlocking(ai);
+        sim.getController().runActivityBlocking(ai);
 
         System.out.println("ideal reference step frequency "+sim.integratorOS.getIdealRefStepFraction());//optimize the uncertainty
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());//actually happened
 
         sim.printResults(HSB[nBody]);
- }
+    }
 
     /**
      * Inner class for parameters
      */
     public static class WertheimParam extends ParameterBase {
 
-    	public int nBody = 3;       
-    	public double temperature = 400.0;// Kelvin       
-    	public long numSteps = 10000000;
-    	public double sigmaHSRef = 5.0;
-    	public double associationEnergy = 5000.0;
-    	public int numDiagram = 4;
-    	public boolean specialRef = false;
+        public int nBody = 3;
+        public double temperature = 400.0;// Kelvin
+        public long numSteps = 10000000;
+        public double sigmaHSRef = 5.0;
+        public double associationEnergy = 5000.0;
+        public int numDiagram = 4;
+        public boolean specialRef = false;
     }
-    	
-   
+
+
 }
 
 

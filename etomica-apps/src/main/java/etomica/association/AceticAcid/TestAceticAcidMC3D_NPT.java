@@ -46,6 +46,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -71,7 +72,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
     public MCMoveTorsionAceticAcid mcMoveTorsion;
     public MCMoveWiggleAceticAcid mcMoveWiggle;
     public MCMoveBiasUBMolecule mcMoveBiasUB;
-    public SpeciesAceticAcid species;
+    public SpeciesGeneral species;
     public Box box;
     public PotentialGroup potential;
     public P2ReactionFieldDipole reactionField;
@@ -83,7 +84,7 @@ public class TestAceticAcidMC3D_NPT extends Simulation {
     public TestAceticAcidMC3D_NPT(int numAtoms, double pressureBar, double densityMolLiter, double temperatureK, long numSteps) {
         super(Space3D.getInstance());
 
-        species = new SpeciesAceticAcid(space);
+        species = SpeciesAceticAcid.create();
         addSpecies(species);
 
         PotentialMaster potentialMaster = new PotentialMaster();

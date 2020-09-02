@@ -24,6 +24,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -86,10 +87,10 @@ public class VirialAceticAcid {
         refCluster.setTemperature(temperature);
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
         steps /= 1000;
-        
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2 (space,new SpeciesAceticAcid(space),temperature,refCluster,targetCluster, false);
+
+        SpeciesGeneral species = SpeciesAceticAcid.create();
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2 (space, species,temperature,refCluster,targetCluster, false);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
-    	SpeciesAceticAcid species = (SpeciesAceticAcid)sim.getSpecies(0);
     	AceticAcidModPotentialHelper.initPotential(space, species, p);
 
     	// bond angle bending is governed by harmonic potential
@@ -155,11 +156,11 @@ public class VirialAceticAcid {
             DiameterHashByType diameterScheme0 = (DiameterHashByType) simGraphic.getDisplayBox(referenceBox).getDiameterHash();
             DiameterHashByType diameterScheme1 = (DiameterHashByType) simGraphic.getDisplayBox(targetBox).getDiameterHash();
 
-            AtomType typeCH3 = species.getCH3Type();
-            AtomType typeC = species.getCType();
-            AtomType typeDBO = species.getDBOType();
-            AtomType typeSBO = species.getSBOType();
-            AtomType typeH = species.getHType();
+            AtomType typeCH3 = species.getTypeByName("CH3");
+            AtomType typeC = species.getTypeByName("C");
+            AtomType typeDBO = species.getTypeByName("DBO");
+            AtomType typeSBO = species.getTypeByName("SBO");
+            AtomType typeH = species.getTypeByName("H");
             colorScheme0.setColor(typeCH3, Color.GREEN);
             diameterScheme0.setDiameter(typeCH3, 2 * 1.7);
             colorScheme0.setColor(typeC, Color.BLUE);
