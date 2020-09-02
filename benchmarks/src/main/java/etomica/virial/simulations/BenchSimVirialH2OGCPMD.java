@@ -12,6 +12,7 @@ import etomica.potential.PotentialNonAdditiveDifference;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.*;
@@ -105,7 +106,7 @@ public class BenchSimVirialH2OGCPMD {
 
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
 
-        SpeciesWater4PCOM speciesWater = new SpeciesWater4PCOM(space);
+        SpeciesGeneral speciesWater = SpeciesWater4PCOM.create(false);
 
         final PNWaterGCPM pTarget = new PNWaterGCPM(space);
 

@@ -20,6 +20,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 
 
 /**
@@ -42,7 +43,7 @@ public class MinimizeGammaNitrogenLatticeParameter extends Simulation {
     protected PotentialMaster potentialMaster;
     protected PotentialMolecular potential;
     protected CoordinateDefinitionNitrogen coordinateDef;
-    protected SpeciesN2ShellModel species;
+    protected SpeciesGeneral species;
 
     public MinimizeGammaNitrogenLatticeParameter(Space space, int numMolecule, double density, double ratio) {
         super(space);
@@ -58,7 +59,7 @@ public class MinimizeGammaNitrogenLatticeParameter extends Simulation {
         Basis basisBCC = new BasisCubicBcc();
         Basis basis = new BasisBigCell(space, basisBCC, new int[]{nCell, nCell, nCell});
 
-        species = new SpeciesN2ShellModel(space);
+        species = SpeciesN2ShellModel.create(false);
         addSpecies(species);
 
         potentialMaster = new PotentialMaster();

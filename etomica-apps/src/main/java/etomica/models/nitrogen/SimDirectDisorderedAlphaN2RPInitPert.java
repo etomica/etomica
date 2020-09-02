@@ -27,6 +27,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.species.Species;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 
 import java.io.File;
@@ -51,7 +52,7 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
         Basis basisFCC = new BasisCubicFcc();
         Basis basis = new BasisBigCell(space, basisFCC, new int[]{nC, nC, nC});
 
-        Species species = new SpeciesN2(space);
+        SpeciesGeneral species = SpeciesN2.create(false);
         addSpecies(species);
 
         Boundary boundary = new BoundaryRectangularPeriodic(space, nC * a);

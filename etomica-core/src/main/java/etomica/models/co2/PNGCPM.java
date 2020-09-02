@@ -225,7 +225,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         double y2 = 7.;
         final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesWater4PCOM speciesWaterCOM = new SpeciesWater4PCOM(space);
+        SpeciesGeneral speciesWaterCOM = SpeciesWater4PCOM.create(false);
         sim.addSpecies(speciesWaterCOM);
         Box box = new Box(space);
         sim.addBox(box);
@@ -242,10 +242,10 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         translator.actionPerformed(mol2);
 
         Map<AtomType, GCPMAgent> typeManager = new HashMap<>();
-        typeManager.put(speciesWaterCOM.getHydrogenType(), new GCPMAgent(1.0, 0, 0.455, 12.75, Electron.UNIT.toSim(0.6113), 0, 0, 0));
-        typeManager.put(speciesWaterCOM.getOxygenType(), new GCPMAgent(3.69, Kelvin.UNIT.toSim(110), 0, 12.75, 0, 0, 0, 0, 0));
-        typeManager.put(speciesWaterCOM.getMType(), new GCPMAgent(1.0, 0, 0.610, 12.75, Electron.UNIT.toSim(-1.2226), 0, 0, 0));
-        typeManager.put(speciesWaterCOM.getCOMType(), new GCPMAgent(1.0, 0, 0.610, 12.75, 0, 1.444, 1.444, 0));
+        typeManager.put(speciesWaterCOM.getTypeByName("H"), new GCPMAgent(1.0,0,0.455,12.75,Electron.UNIT.toSim(0.6113),0,0,0));
+        typeManager.put(speciesWaterCOM.getTypeByName("O"), new GCPMAgent(3.69,Kelvin.UNIT.toSim(110),0,12.75,0,0,0,0,0));
+        typeManager.put(speciesWaterCOM.getTypeByName("M"), new GCPMAgent(1.0,0,0.610,12.75,Electron.UNIT.toSim(-1.2226),0,0,0));
+        typeManager.put(speciesWaterCOM.getTypeByName("COM"), new GCPMAgent(1.0,0,0.610,12.75,0,1.444,1.444,0));
         PNGCPM p2 = new PNGCPM(space, typeManager, 4);
         p2.setBox(box);
         IMoleculeList molecules = box.getMoleculeList();

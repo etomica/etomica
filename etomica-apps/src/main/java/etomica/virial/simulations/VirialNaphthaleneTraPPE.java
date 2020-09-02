@@ -15,6 +15,7 @@ import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -91,16 +92,16 @@ public class VirialNaphthaleneTraPPE {
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 
     // do simulation
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesTraPPENaphthalene(space), temperature, refCluster, targetCluster, false);
+        SpeciesGeneral speciesNa = SpeciesTraPPENaphthalene.create(false);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesNa, temperature, refCluster, targetCluster, false);
         sim.box[1].getSampleCluster().value(sim.box[1]);
         sim.integratorOS.setNumSubSteps(1000);
                 
         //put the species in the box
-        SpeciesTraPPENaphthalene speciesNa = (SpeciesTraPPENaphthalene)sim.getSpecies(0);
         sim.integratorOS.setNumSubSteps(1000);
 
-        AtomType typeC = speciesNa.getCType();
-        AtomType typeCH = speciesNa.getCHType();
+        AtomType typeC = speciesNa.getTypeByName("C");
+        AtomType typeCH = speciesNa.getTypeByName("CH");
 
         pNa.addPotential(p2C, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeC}));
         pNa.addPotential(pCCH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeC, typeCH}));

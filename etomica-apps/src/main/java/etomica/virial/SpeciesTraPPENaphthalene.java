@@ -12,7 +12,10 @@ import etomica.chem.elements.ElementSimple;
 import etomica.molecule.IMolecule;
 import etomica.molecule.Molecule;
 import etomica.space.Space;
+import etomica.space3d.Space3D;
 import etomica.species.Species;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 
 /**
  *  
@@ -24,7 +27,7 @@ import etomica.species.Species;
  * Oct, 20, 2010
  *
  */
-public class SpeciesTraPPENaphthalene extends Species {
+public class SpeciesTraPPENaphthalene {
 
     public final static int indexC1 = 0;
     public final static int indexC2 = 1;
@@ -36,54 +39,16 @@ public class SpeciesTraPPENaphthalene extends Species {
     public final static int indexCH6 = 7;
     public final static int indexCH7 = 8;
     public final static int indexCH8 = 9;
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final boolean isDynamic;
-    protected final AtomType cType, chType;
-    public SpeciesTraPPENaphthalene(Space space) {
-        this(space, false);
-    }
-    public SpeciesTraPPENaphthalene(Space space, boolean isDynamic) {
-        super();
-        this.space = space;
-        this.isDynamic = isDynamic;
 
-        chType = new AtomType(new ElementSimple("CH", 13.0107));
-        cType = new AtomType(Carbon.INSTANCE);
-        ////should change because it is not united atom!!!
-        addChildType(chType);
-        addChildType(cType);
-
-        setConformation(new ConformationNaphthaleneTraPPE(space));
-     }
-
-    public IMolecule makeMolecule() {
-         Molecule Naphthalene = new Molecule(this, 10);
-         // 2 Carbon without H, 8 Carbon with H
-         Naphthalene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
-         Naphthalene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
-
-         Naphthalene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Naphthalene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Naphthalene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Naphthalene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Naphthalene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Naphthalene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Naphthalene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Naphthalene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         conformation.initializePositions(Naphthalene.getChildList());
-         return Naphthalene;
-     }
-
-    public AtomType getCType() {
-         return cType;
-     }
-
-    public AtomType getCHType() {
-         return chType;
-     }
-
-     public int getNumLeafAtoms() {
-         return 10;
+     public static SpeciesGeneral create(boolean isDynamic) {
+         AtomType chType = new AtomType(new ElementSimple("CH", 13.0107));
+         AtomType cType = new AtomType(Carbon.INSTANCE);
+         Space space = Space3D.getInstance();
+         return new SpeciesBuilder(space)
+                 .setDynamic(isDynamic)
+                 .withConformation(new ConformationNaphthaleneTraPPE(space))
+                 .addCount(cType, 2)
+                 .addCount(chType, 8)
+                 .build();
      }
 }

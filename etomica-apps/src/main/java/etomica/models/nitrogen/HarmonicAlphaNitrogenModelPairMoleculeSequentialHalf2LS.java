@@ -21,6 +21,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 
 /**
  * This class is created to take care of Java out of memory problem when creating
@@ -45,7 +46,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 		super(space);
 		this.space = space;
 
-        species = new SpeciesN2(space);
+        species = SpeciesN2.create(false);
         addSpecies(species);
 
 		int nCell = (int) Math.round(Math.pow((numMolecule / 4), 1.0 / 3.0));
@@ -58,9 +59,6 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 		int division = 2;
 		Basis basisFCC = new BasisCubicFcc();
 		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell / division, nCell / division, nCell / division});
-
-		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		species.setConformation(conformation);
 
 		Boundary boundary = new BoundaryRectangularPeriodicSwitch(space);
 		box = this.makeBox(boundary);
@@ -364,7 +362,7 @@ public class HarmonicAlphaNitrogenModelPairMoleculeSequentialHalf2LS extends Sim
 	protected CalcHalfAnalyticHalfNumeric2ndDerivativeNitrogen cAN2nD;
 	protected CalcAnalytical2ndDerivativeNitrogen cA2nD;
 	protected FindPairMoleculeIndex findPair;
-	protected SpeciesN2 species;
+	protected SpeciesGeneral species;
 	protected AtomActionTranslateBy translateBy;
 	protected MoleculeChildAtomAction atomGroupActionTranslate;
 	protected Vector lsPosition;

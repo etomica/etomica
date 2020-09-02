@@ -30,6 +30,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
@@ -48,7 +49,7 @@ public class SimOverlapBetaN2RP extends Simulation {
     		double[] angle, double alpha, double alphaSpan, int numAlpha) {
         super(space);
 
-        SpeciesN2 species = new SpeciesN2(space);
+        SpeciesGeneral species = SpeciesN2.create(false);
         addSpecies(species);
 
         potentialMasterTarg = new PotentialMaster();

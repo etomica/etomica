@@ -12,6 +12,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.potential.PotentialNonAdditiveDifference;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.species.SpeciesGeneral;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ public class ClusterWheatleyMultibodyDerivativesTest {
 
     @BeforeEach
     public void setUp() {
-        SpeciesWater4PCOM speciesWater = new SpeciesWater4PCOM(space);
+        SpeciesGeneral speciesWater = SpeciesWater4PCOM.create(false);
         final PNWaterGCPM pTarget = new PNWaterGCPM(space);
         MayerGeneral fTarget = new MayerGeneral(pTarget);
         PNWaterGCPM.PNWaterGCPMCached p2 = pTarget.makeCachedPairPolarization();

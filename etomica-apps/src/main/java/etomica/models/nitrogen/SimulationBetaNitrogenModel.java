@@ -39,6 +39,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -62,8 +63,8 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		super(space);
 		this.space = space;
 
-        species = new SpeciesN2(space);
-        addSpecies(species);
+		species = SpeciesN2.create(false);
+		addSpecies(species);
 
 		BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
 		BoxAgentManager<NeighborCellManagerMolecular> boxAgentManager = new BoxAgentManager<NeighborCellManagerMolecular>(boxAgentSource, this);
@@ -287,8 +288,8 @@ public class SimulationBetaNitrogenModel extends Simulation{
 		    simGraphic.makeAndDisplayFrame("Beta-Phase Nitrogen Crystal Structure");
 		    
 		    DiameterHashByType diameter = new DiameterHashByType();
-			diameter.setDiameter(sim.species.getNitrogenType(), 3.1);
-			diameter.setDiameter(sim.species.getPType(), 0.0);
+			diameter.setDiameter(sim.species.getTypeByName("N"), 3.1);
+			diameter.setDiameter(sim.species.getTypeByName("P"), 0.0);
 			
 			simGraphic.getDisplayBox(sim.box).setDiameterHash(diameter);
 			
@@ -385,6 +386,6 @@ System.out.println("****System Equilibrated (20% of SimSteps)****");
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;
-	protected SpeciesN2 species;
+	protected SpeciesGeneral species;
 	private static final long serialVersionUID = 1L;
 }

@@ -34,6 +34,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pascal;
 import etomica.units.Pixel;
@@ -70,9 +71,7 @@ public class SimOverlapNitrogenModel extends Simulation {
         Basis basisFCC = new BasisCubicFcc();
         Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
 
-        ConformationNitrogen conformation = new ConformationNitrogen(space);
-        species = new SpeciesN2(space);
-        species.setConformation(conformation);
+        species = SpeciesN2.create(false);
         addSpecies(species);
 
         potentialMasterTarget = new PotentialMaster();
@@ -472,7 +471,7 @@ sim.getController().runActivityBlocking(ai);
     protected PotentialMaster potentialMasterTarget;
     protected MeterHarmonicEnergy meterHarmonicEnergy;
     protected double latticeEnergy;
-    protected SpeciesN2 species;
+    protected SpeciesGeneral species;
     protected int nCell;
     protected IntegratorMC integratorHarmonic, integratorTarget;
     

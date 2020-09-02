@@ -15,6 +15,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 
 
@@ -43,7 +44,7 @@ public class FindBetaN2AngleFromParameter extends Simulation{
 		Basis basisHCP = new BasisHcp();
 		Basis basis = new BasisBigCell(space, basisHCP, new int[]{nC, nC, nC});
 		
-		SpeciesN2 species = new SpeciesN2(space);
+		SpeciesGeneral species = SpeciesN2.create(false);
 		addSpecies(species);
 		
 		Box box = new Box(space);

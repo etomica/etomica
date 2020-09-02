@@ -39,6 +39,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Null;
 import etomica.util.IEvent;
 import etomica.util.IListener;
@@ -62,7 +63,7 @@ public class HSDimerNPT extends Simulation {
     public static boolean doGraphics = true;
     public final PotentialMasterList potentialMaster;
     public final IntegratorMC integrator;
-    public final SpeciesHSDimer species;
+    public final SpeciesGeneral species;
     public final Box box, latticeBox;
     public final CoordinateDefinitionHSDimer coordinateDefinition;
     public final double theta;
@@ -70,7 +71,7 @@ public class HSDimerNPT extends Simulation {
     public HSDimerNPT(final Space space, int numMolecules, boolean fancyMove, double pSet, double rho, int[] nC, int cp, double L, double thetaFrac, double targetAcc) {
         super(space);
 
-        species = new SpeciesHSDimer(space, true, L);
+        species = SpeciesHSDimer.create(space, true, L);
         addSpecies(species);
 
         potentialMaster = new PotentialMasterList(this, 2, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(2), space);
@@ -107,7 +108,7 @@ public class HSDimerNPT extends Simulation {
         this.getController().addActivity(new ActivityIntegrate(integrator));
 
         P2HardSphere p2 = new P2HardSphere(space, sigma, false);
-        potentialMaster.addPotential(p2, new AtomType[]{species.getDimerAtomType(), species.getDimerAtomType()});
+        potentialMaster.addPotential(p2, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
         box = this.makeBox(boundary);
@@ -485,7 +486,7 @@ public class HSDimerNPT extends Simulation {
 
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DiameterHashByType diameter = new DiameterHashByType();
-            diameter.setDiameter(sim.species.getDimerAtomType(), 1.0);
+            diameter.setDiameter(sim.species.getLeafType(), 1.0);
             graphic.getDisplayBox(sim.box).setDiameterHash(diameter);
 
 //			ColorSchemeNeighbor colorScheme = new ColorSchemeNeighbor(sim, sim.potentialMaster, sim.box);
