@@ -23,11 +23,16 @@ public class AtomType {
     protected final IElement element;
     protected int index;
     protected ISpecies species;
+    private final String name;
 
     public AtomType(IElement element) {
-        super();
+        this(element, element.getSymbol());
+    }
+
+    public AtomType(IElement element, String name) {
         this.element = element;
-        index = -1;
+        this.name = name;
+        this.index = -1;
     }
 
     /**
@@ -53,12 +58,25 @@ public class AtomType {
         return new AtomType(element);
     }
 
+    public static AtomType element(IElement element, String name) {
+        return new AtomType(element, name);
+    }
+
     /**
      * @return the index for this IAtomType, within the context of an Simulation.  The index is the IAtomType's position
      * in the list of atom types in the simulation.
      */
     public int getIndex() {
         return index;
+    }
+
+    /**
+     *
+     * @return the name of this AtomType. The name is by default the symbol of the element, but must be unique within
+     * a Species.
+     */
+    public String getName() {
+        return this.name;
     }
 
     /**
@@ -114,6 +132,6 @@ public class AtomType {
 
     @Override
     public String toString() {
-        return AtomType.class.getSimpleName() + "[" + this.element.getSymbol() + "]";
+        return AtomType.class.getSimpleName() + "[" + this.name + "]";
     }
 }

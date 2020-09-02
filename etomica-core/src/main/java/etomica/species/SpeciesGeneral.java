@@ -188,7 +188,7 @@ public class SpeciesGeneral implements ISpecies {
      */
     public int getAtomByTypeName(String name, int number) {
         return IntStream.range(0, this.atomTypes.length)
-                .filter(i -> this.atomTypes[i].getElement().getSymbol().equals(name))
+                .filter(i -> this.atomTypes[i].getName().equals(name))
                 .skip(number - 1)
                 .findFirst().orElseThrow(NoSuchElementException::new);
     }
@@ -199,7 +199,7 @@ public class SpeciesGeneral implements ISpecies {
 
     public AtomType getTypeByName(String typeName) {
         for (AtomType type : this.uniqueAtomTypes) {
-            if (type.getElement().getSymbol().equals(typeName)) {
+            if (type.getName().equals(typeName)) {
                 return type;
             }
         }
