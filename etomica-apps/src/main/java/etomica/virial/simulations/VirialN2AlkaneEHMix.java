@@ -36,6 +36,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -288,7 +289,7 @@ public class VirialN2AlkaneEHMix {
         speciesN2.setChildCount(new int[]{1,2});
         speciesN2.setConformation(conformation);
         // alkane-TraPPE-EH
-        SpeciesAlkaneEH speciesAlkaneEH = new SpeciesAlkaneEH(space, nSpheres);
+        SpeciesGeneral speciesAlkaneEH = SpeciesAlkaneEH.create(nSpheres);
         
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), 
         		                                             ClusterWeightAbs.makeWeightCluster(targetCluster)};
@@ -319,9 +320,9 @@ public class VirialN2AlkaneEHMix {
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
         steps /= 1000;
 
-        AtomType typeCH3 = speciesAlkaneEH.getC_3Type();// C in CH3
-        AtomType typeCH2 = speciesAlkaneEH.getC_2Type();// C in CH2
-        AtomType typeH = speciesAlkaneEH.getHType();  // H
+        AtomType typeCH3 = speciesAlkaneEH.getTypeByName("C3");// C in CH3
+        AtomType typeCH2 = speciesAlkaneEH.getTypeByName("C2");// C in CH2
+        AtomType typeH = speciesAlkaneEH.getTypeByName("H");  // H
         AtomType typeN = speciesN2.getAtomType(1);// N in N2
         
         // alkane potential
@@ -715,17 +716,17 @@ public class VirialN2AlkaneEHMix {
             DiameterHashByType diameter = new DiameterHashByType();
             diameter.setDiameter(speciesN2.getAtomType(0), 0.2);
             diameter.setDiameter(speciesN2.getAtomType(1), 0.3);
-            diameter.setDiameter(speciesAlkaneEH.getC_2Type(), 0.3);
-            diameter.setDiameter(speciesAlkaneEH.getC_3Type(), 0.4);
-            diameter.setDiameter(speciesAlkaneEH.getHType(), 0.2);
+            diameter.setDiameter(speciesAlkaneEH.getTypeByName("C2"), 0.3);
+            diameter.setDiameter(speciesAlkaneEH.getTypeByName("C3"), 0.4);
+            diameter.setDiameter(speciesAlkaneEH.getTypeByName("H"), 0.2);
 
             simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);
             ColorSchemeByType colorScheme = (ColorSchemeByType) simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
             colorScheme.setColor(speciesN2.getAtomType(0), Color.blue);
             colorScheme.setColor(speciesN2.getAtomType(1), Color.red);
-            colorScheme.setColor(speciesAlkaneEH.getC_2Type(), Color.green);
-            colorScheme.setColor(speciesAlkaneEH.getC_3Type(), Color.yellow);
-            colorScheme.setColor(speciesAlkaneEH.getHType(), Color.cyan);
+            colorScheme.setColor(speciesAlkaneEH.getTypeByName("C2"), Color.green);
+            colorScheme.setColor(speciesAlkaneEH.getTypeByName("C3"), Color.yellow);
+            colorScheme.setColor(speciesAlkaneEH.getTypeByName("H"), Color.cyan);
 
             ((DisplayBoxCanvasG3DSys) dBox1.canvas).setBackgroundColor(Color.WHITE);
 

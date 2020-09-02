@@ -33,6 +33,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
@@ -201,8 +202,8 @@ public class VirialAlkaneEHTest {
         
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)};
 
-        SpeciesAlkaneEH species = new SpeciesAlkaneEH(space, nSpheres);
-        
+        SpeciesGeneral species = SpeciesAlkaneEH.create(nSpheres);
+
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{species},
                 new int[]{alkaneFlex ?(nPoints+1):nPoints },temperature, new ClusterAbstract[]{refCluster, targetCluster},targetDiagrams, sampleClusters, false);
         
@@ -234,9 +235,9 @@ public class VirialAlkaneEHTest {
         steps /= 1000;
 
 
-        AtomType typeCH3 = species.getC_3Type();// C in CH3
-        AtomType typeCH2 = species.getC_2Type();// C in CH2
-        AtomType typeH = species.getHType();  // H
+        AtomType typeCH3 = species.getTypeByName("C3");// C in CH3
+        AtomType typeCH2 = species.getTypeByName("C2");// C in CH2
+        AtomType typeH = species.getTypeByName("H");  // H
 
         pTargetGroup.addPotential(pHH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeH}));//H-H
         pTargetGroup.addPotential(pCH2H, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeH, typeCH2}));//H-CH2

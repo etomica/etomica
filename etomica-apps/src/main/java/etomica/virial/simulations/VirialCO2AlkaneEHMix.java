@@ -274,7 +274,7 @@ public class VirialCO2AlkaneEHMix {
         }
 
         SpeciesGeneral speciesCO2 = SpeciesTraPPECO2.create(space);
-        SpeciesAlkaneEH speciesAlkaneEH = new SpeciesAlkaneEH(space, nSpheres);// alkaneEH
+        SpeciesGeneral speciesAlkaneEH = SpeciesAlkaneEH.create(nSpheres);
         
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), 
         		                                             ClusterWeightAbs.makeWeightCluster(targetCluster)};
@@ -305,9 +305,9 @@ public class VirialCO2AlkaneEHMix {
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
         steps /= 1000;
 
-        AtomType typeCH3 = speciesAlkaneEH.getC_3Type();// C in CH3
-        AtomType typeCH2 = speciesAlkaneEH.getC_2Type();// C in CH2
-        AtomType typeH = speciesAlkaneEH.getHType();  // H
+        AtomType typeCH3 = speciesAlkaneEH.getTypeByName("C3");// C in CH3
+        AtomType typeCH2 = speciesAlkaneEH.getTypeByName("C2");// C in CH2
+        AtomType typeH = speciesAlkaneEH.getTypeByName("H");  // H in alkane
         AtomType typeC = speciesCO2.getAtomType(0);
         AtomType typeO = speciesCO2.getAtomType(1);
         
@@ -706,17 +706,17 @@ public class VirialCO2AlkaneEHMix {
             DiameterHashByType diameter = new DiameterHashByType();
             diameter.setDiameter(speciesCO2.getAtomType(0), 0.2);
             diameter.setDiameter(speciesCO2.getAtomType(1), 0.3);
-            diameter.setDiameter(speciesAlkaneEH.getC_2Type(), 0.3);
-            diameter.setDiameter(speciesAlkaneEH.getC_3Type(), 0.4);
-            diameter.setDiameter(speciesAlkaneEH.getHType(), 0.2);
+            diameter.setDiameter(speciesAlkaneEH.getTypeByName("C2"), 0.3);
+            diameter.setDiameter(speciesAlkaneEH.getTypeByName("C3"), 0.4);
+            diameter.setDiameter(speciesAlkaneEH.getTypeByName("H"), 0.2);
 
             simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);
             ColorSchemeByType colorScheme = (ColorSchemeByType) simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
             colorScheme.setColor(speciesCO2.getAtomType(0), Color.blue);
             colorScheme.setColor(speciesCO2.getAtomType(1), Color.red);
-            colorScheme.setColor(speciesAlkaneEH.getC_2Type(), Color.green);
-            colorScheme.setColor(speciesAlkaneEH.getC_3Type(), Color.yellow);
-            colorScheme.setColor(speciesAlkaneEH.getHType(), Color.cyan);
+            colorScheme.setColor(speciesAlkaneEH.getTypeByName("C2"), Color.green);
+            colorScheme.setColor(speciesAlkaneEH.getTypeByName("C3"), Color.yellow);
+            colorScheme.setColor(speciesAlkaneEH.getTypeByName("H"), Color.cyan);
 
             ((DisplayBoxCanvasG3DSys) dBox1.canvas).setBackgroundColor(Color.WHITE);
 

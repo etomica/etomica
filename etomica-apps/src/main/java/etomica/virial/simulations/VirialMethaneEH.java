@@ -18,6 +18,7 @@ import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -86,7 +87,7 @@ public class VirialMethaneEH {
         
         ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget, nPoints>3, eTarget, true);
         targetCluster.setTemperature(temperature);
-        SpeciesMethane species = new SpeciesMethane(space);
+        SpeciesGeneral species = SpeciesMethane.create(false);
 
         //simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species, temperature,refCluster,targetCluster,false);

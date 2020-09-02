@@ -34,6 +34,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.Constants;
@@ -52,7 +53,7 @@ public class CH4NVT extends Simulation {
 	private static final long serialVersionUID = 1L;
     private final static String APP_NAME = "methane, TraPPE-EH model";
     private static final int PIXEL_SIZE = 15;
-    protected final SpeciesMethane speciesCH4;
+    protected final SpeciesGeneral speciesCH4;
     protected final PotentialMaster potentialMaster;
 	protected final IntegratorMC integrator;
 	protected final MCMoveMolecule moveMolecule;//translation mc move
@@ -64,7 +65,7 @@ public class CH4NVT extends Simulation {
 
         super(space);
         //setRandom(new RandomNumberGenerator(1));
-        speciesCH4 = new SpeciesMethane(space);
+        speciesCH4 = SpeciesMethane.create(false);
         addSpecies(speciesCH4);
         box = this.makeBox();
         box.setNMolecules(speciesCH4, numberMolecules);
@@ -151,8 +152,8 @@ public class CH4NVT extends Simulation {
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(PIXEL_SIZE));
 	        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 	        //***********************************  set diameters  ******************************************************
-	        ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.speciesCH4.getCType(),.1);
-	        ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.speciesCH4.getHType(),.1);
+	        ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.speciesCH4.getTypeByName("C"),.1);
+	        ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.speciesCH4.getTypeByName("H"),.1);
 	        simGraphic.makeAndDisplayFrame(APP_NAME);
 			simGraphic.getDisplayBox(sim.box).repaint();
 	    	return ;
