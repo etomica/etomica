@@ -29,7 +29,7 @@ public class SpeciesMethanol {
     public final static int indexX = 6;
     public static SpeciesGeneral create(boolean pointCharges) {
         AtomType oType = new AtomType(Oxygen.INSTANCE);
-        AtomType acType = new AtomType(Carbon.INSTANCE);
+        AtomType acType = new AtomType(Carbon.INSTANCE, "AC");
         AtomType ahType = new AtomType(Hydrogen.INSTANCE, "AH");
         AtomType hType = new AtomType(Hydrogen.INSTANCE);
         AtomType xType = new AtomType(new ElementSimple("X", 1.0));
