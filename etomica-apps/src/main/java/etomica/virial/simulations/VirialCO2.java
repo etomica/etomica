@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.IElement;
@@ -17,6 +18,8 @@ import etomica.potential.P2CO2EMP2;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -71,21 +74,20 @@ public class VirialCO2 {
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 		
-        final IConformation conformation = new IConformation() {
-            
-            public void initializePositions(IAtomList atomList) {
-                // atoms are C, O and O, so we arrange them as 1-0-2
-                double bondL = 1.1491;
-                atomList.get(0).getPosition().E(0);
-                atomList.get(1).getPosition().E(0);
-                atomList.get(1).getPosition().setX(0, -bondL);
-                atomList.get(2).getPosition().E(0);
-                atomList.get(2).getPosition().setX(0, +bondL);
-            }
+        final IConformation conformation = atomList -> {
+            // atoms are C, O and O, so we arrange them as 1-0-2
+            double bondL = 1.1491;
+            atomList.get(0).getPosition().E(0);
+            atomList.get(1).getPosition().E(0);
+            atomList.get(1).getPosition().setX(0, -bondL);
+            atomList.get(2).getPosition().E(0);
+            atomList.get(2).getPosition().setX(0, +bondL);
         };
-        SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-        species.setChildCount(new int[]{1,2});
-        species.setConformation(conformation);
+        SpeciesGeneral species = new SpeciesBuilder(space)
+                .addCount(AtomType.element(Carbon.INSTANCE), 1)
+                .addCount(AtomType.element(Oxygen.INSTANCE), 2)
+                .withConformation(conformation)
+                .build();
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species, temperature,refCluster,targetCluster,false);
         sim.box[1].getSampleCluster().value(sim.box[1]);
         sim.integratorOS.setNumSubSteps(1000);

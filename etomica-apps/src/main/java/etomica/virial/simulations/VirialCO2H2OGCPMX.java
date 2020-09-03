@@ -31,6 +31,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
@@ -100,26 +101,23 @@ public class VirialCO2H2OGCPMX {
         }
 
         double temperature = Kelvin.UNIT.toSim(temperatureK);
-        
+
         System.out.println("Reference diagram: B"+nPoints+" for hard spheres with diameter " + sigmaHSRef + " Angstroms");
-        
+
         System.out.println("  B"+nPoints+"HS: "+HSB);
-		
+
         final Space space = Space3D.getInstance();
-        
+
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
 
-        
-        SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-        speciesCO2.setChildCount(new int[]{1,2});
-        speciesCO2.setConformation(new IConformation() {
-            
-            public void initializePositions(IAtomList atomList) {
-                atomList.get(0).getPosition().E(0);
-                atomList.get(1).getPosition().setX(0,1.161);
-                atomList.get(2).getPosition().setX(0,-1.161);
-            }
-        });
+
+        double bondL = 1.161;
+        AtomType oType = AtomType.element(Oxygen.INSTANCE);
+        SpeciesGeneral speciesCO2 = new SpeciesBuilder(space)
+                .addAtom(AtomType.element(Carbon.INSTANCE), space.makeVector())
+                .addAtom(oType, Vector.of(-bondL, 0, 0))
+                .addAtom(oType, Vector.of(+bondL, 0, 0))
+                .build();
 
         SpeciesGeneral speciesWater = SpeciesWater4PCOM.create(false);
 
@@ -178,13 +176,13 @@ public class VirialCO2H2OGCPMX {
             }
         }
 
-        
+
         targetCluster.setTemperature(temperature);
 
         ClusterWheatleyHS refCluster = new ClusterWheatleyHS(nPoints, fRef);
 
         System.out.println(steps+" steps (1000 IntegratorOverlap steps of "+(steps/1000)+")");
- 		
+
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{speciesCO2,speciesWater}, nTypes, temperature, refCluster, targetCluster);
 //        sim.setRandom(new RandomMersenneTwister(new int[]{1941442288, -303985770, -1766960871, 2058398830}));
         sim.init();
@@ -207,7 +205,7 @@ public class VirialCO2H2OGCPMX {
         });
         double qO = -0.5*qC;
         paramsManager.put(speciesCO2.getAtomType(1), new GCPMAgent(3.193*1.0483,Kelvin.UNIT.toSim(67.72),0.61,15.5,qO,0,0,0));
-        
+
         if (nonAdditive != Nonadditive.NONE) {
             MoleculeActionTranslateTo act = new MoleculeActionTranslateTo(space);
             Vector pos = space.makeVector();
@@ -222,7 +220,7 @@ public class VirialCO2H2OGCPMX {
             sim.box[1].trialNotify();
             sim.box[1].acceptNotify();
         }
-        
+
         if(false) {
     sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
@@ -257,11 +255,11 @@ public class VirialCO2H2OGCPMX {
 }
 
 
-        
+
         long t1 = System.currentTimeMillis();
-        
+
         sim.integratorOS.setNumSubSteps(1000);
-        
+
         if (refFrac >= 0) {
             sim.integratorOS.setRefStepFraction(refFrac);
             sim.integratorOS.setAdjustStepFraction(false);
@@ -269,7 +267,7 @@ public class VirialCO2H2OGCPMX {
 
         steps /= 1000;
         sim.setAccumulatorBlockSize(steps);
-        
+
         System.out.println();
         String refFileName = null;
         if (isCommandline) {
@@ -387,11 +385,11 @@ System.out.println("equilibration finished");
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
 sim.getController().runActivityBlocking(ai);
-        
+
         if (params.doHist) {
             double[] xValues = hist.xValues();
             double[] h = hist.getHistogram();
-            
+
             System.out.println("final ref histogram");
             for (int i=0; i<xValues.length; i++) {
                 if (!Double.isNaN(h[i])) {
@@ -405,9 +403,9 @@ sim.getController().runActivityBlocking(ai);
         System.out.println();
         System.out.println("final reference step fraction "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step fraction "+sim.integratorOS.getRefStepFraction());
-        
+
         System.out.println();
-        
+
         sim.printResults(HSB);
 
         DataGroup allYourBase = (DataGroup)sim.accumulators[1].getData();

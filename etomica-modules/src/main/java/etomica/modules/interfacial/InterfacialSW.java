@@ -6,6 +6,7 @@ package etomica.modules.interfacial;
 
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.Atom;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
@@ -26,6 +27,7 @@ import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 
@@ -39,7 +41,7 @@ public class InterfacialSW extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public final SpeciesGeneral species;
-    public final SpeciesSpheresHetero surfactant;
+    public final SpeciesGeneral surfactant;
     public final Box box;
     public final IntegratorHard integrator;
 
@@ -53,11 +55,12 @@ public class InterfacialSW extends Simulation {
 
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
-        surfactant = new SpeciesSpheresHetero(this, space, 2);
-        surfactant.setIsDynamic(true);
-        surfactant.setChildCount(new int[]{1, 1});
-        surfactant.setTotalChildren(2);
-        ((ConformationLinear) surfactant.getConformation()).setBondLength(0.9);
+        surfactant = new SpeciesBuilder(space)
+                .addCount(AtomType.simpleFromSim(this), 1)
+                .addCount(AtomType.simpleFromSim(this), 1)
+                .withConformation(new ConformationLinear(space, 0.9))
+                .setDynamic(true)
+                .build();
         addSpecies(surfactant);
 
         double pRange = 2.0;

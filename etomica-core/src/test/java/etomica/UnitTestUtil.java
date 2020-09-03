@@ -112,13 +112,11 @@ public class UnitTestUtil {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         for (int i = 0; i < nMolecules.length; i++) {
-            AtomType[] leafTypes = new AtomType[nAtoms[i].length];
+            SpeciesBuilder builder = new SpeciesBuilder(space);
             for (int j = 0; j < nAtoms[i].length; j++) {
-                leafTypes[j] = new AtomType(new ElementSimple(sim));
+                builder.addCount(AtomType.simpleFromSim(sim), nAtoms[i][j]);
             }
-            SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, leafTypes);
-            species.setChildCount(nAtoms[i]);
-            sim.addSpecies(species);
+            sim.addSpecies(builder.build());
         }
         Box box = new Box(space);
         sim.addBox(box);

@@ -61,8 +61,11 @@ public class SpeciesBuilder {
         return this;
     }
 
-    public SpeciesBuilder addAtom(AtomType type, Vector position) {
-        return this.addAtom(type, position, "");
+    public SpeciesBuilder addAtom(AtomType type, Vector... positions) {
+        for (Vector pos : positions) {
+            this.addAtom(type, pos, "");
+        }
+        return this;
     }
 
     public SpeciesBuilder addAtom(AtomType type, Vector position, String name) {
@@ -99,6 +102,9 @@ public class SpeciesBuilder {
     public SpeciesGeneral build() {
         // TODO check conditions
         if (this.conformation == null) {
+            if (this.atomPositions.size() != this.atomTypes.size()) {
+                throw new IllegalStateException("If specifying atom type counts, a Conformation must be provided");
+            }
             this.conformation = new ConformationGeneric(this.atomPositions.toArray(new Vector[0]));
         }
 

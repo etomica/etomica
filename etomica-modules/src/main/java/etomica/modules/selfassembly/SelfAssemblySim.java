@@ -25,9 +25,7 @@ import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.ISpecies;
-import etomica.species.SpeciesGeneral;
-import etomica.species.SpeciesSpheresHetero;
+import etomica.species.*;
 import etomica.units.Kelvin;
 
 public class SelfAssemblySim extends Simulation {
@@ -39,7 +37,7 @@ public class SelfAssemblySim extends Simulation {
 	public Box box;
 	public MeterTemperature thermometer;
 	public SpeciesGeneral speciesA;
-	public SpeciesSpheresHetero speciesB;
+	public SpeciesGeneralMutable speciesB;
 	public final P2SquareWell p2AA, p2AB1, p2AB2, p2B1B1, p2B1B2, p2B2B2;
 	public final P2Tether p2Bond;
     public ActivityIntegrate activityIntegrate;
@@ -62,11 +60,8 @@ public class SelfAssemblySim extends Simulation {
         nB2 = 5;
 
         speciesA = SpeciesGeneral.monatomic(space, typeA, true);
-        speciesB = new SpeciesSpheresHetero(space, new AtomType[] {typeB1, typeB2});
-        speciesB.setConformation(new ConformationLinear(space,0.501));
-        speciesB.setChildCount(new int[] {nB1, nB2});
 
-        speciesB.setIsDynamic(true);
+        speciesB = new SpeciesGeneralMutable(this.makeSpeciesB(nB1, nB2));
         addSpecies(speciesA);
         addSpecies(speciesB);
 
@@ -171,7 +166,7 @@ public class SelfAssemblySim extends Simulation {
 
     public void setNB1(int nB1) {
         this.nB1 = nB1;
-        speciesB.setChildCount(new int[] {nB1, nB2});
+        speciesB.setSpecies(this.makeSpeciesB(nB1, nB2));
         box.setNMolecules(speciesB, 0);
         box.setNMolecules(speciesB, nB);
 
@@ -182,7 +177,7 @@ public class SelfAssemblySim extends Simulation {
 
     public void setNB2(int nB2) {
         this.nB2 = nB2;
-        speciesB.setChildCount(new int[] {nB1, nB2});
+        speciesB.setSpecies(this.makeSpeciesB(nB1, nB2));
         box.setNMolecules(speciesB, 0);
         box.setNMolecules(speciesB, nB);
     }
@@ -198,5 +193,14 @@ public class SelfAssemblySim extends Simulation {
     }
     public AtomType getTypeB2() {
         return typeB2;
+    }
+
+    public SpeciesGeneral makeSpeciesB(int nB1, int nB2) {
+        return new SpeciesBuilder(space)
+                .addCount(typeB1, nB1)
+                .addCount(typeB2, nB2)
+                .withConformation(new ConformationLinear(space, 0.501))
+                .setDynamic(true)
+                .build();
     }
 }

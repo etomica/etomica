@@ -27,6 +27,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -128,30 +130,14 @@ public class VirialN2AlkaneUARigid {
         ClusterAbstract targetCluster = Standard.virialClusterMixture(nPoints, new MayerFunction[][]{{fN2,fN2Alkane},{fN2Alkane,fAlkane}},
                 new MayerFunction[][]{{eN2,eN2Alkane},{eN2Alkane,eAlkane}}, nTypes);
         targetCluster.setTemperature(temperature);
-		
-        final IConformation conformation = new IConformation() {
-            
-            public void initializePositions(IAtomList atomList) {
-                // atoms are C, O and O, so we arrange them as 1-0-2
-                double bondL = 1.10;
-                atomList.get(0).getPosition().E(0);
-                atomList.get(1).getPosition().E(0);
-                atomList.get(1).getPosition().setX(0, -0.5 * bondL);
-                atomList.get(2).getPosition().E(0);
-                atomList.get(2).getPosition().setX(0, + 0.5 * bondL);
-                
-   /*             atomList.getAtom(0).getPosition().E(0);
-                atomList.getAtom(1).getPosition().E(0);// @ the origin
-                atomList.getAtom(2).getPosition().E(0);
-                atomList.getAtom(0).getPosition().setX(0, 0.5 * bondL );
-                atomList.getAtom(2).getPosition().setX(0, bondL);
-                */
-            }
-        };
-        
-        SpeciesSpheresHetero speciesN2 = new SpeciesSpheresHetero(space, new IElement[]{new ElementSimple("A"), Nitrogen.INSTANCE});
-        speciesN2.setChildCount(new int[]{1,2});
-        speciesN2.setConformation(conformation);
+
+        AtomType nType = AtomType.element(Nitrogen.INSTANCE);
+        double bondL = 1.10;
+        SpeciesGeneral speciesN2 = new SpeciesBuilder(space)
+                .addAtom(AtomType.simple("A"), space.makeVector())
+                .addAtom(nType, Vector.of(-0.5 * bondL))
+                .addAtom(nType, Vector.of(+0.5 * bondL))
+                .build();
         SpeciesAlkane speciesAlkane = new SpeciesAlkane(space, nSpheres);
         
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{speciesN2,speciesAlkane}, nTypes, temperature,new ClusterAbstract[]{refCluster,targetCluster},
