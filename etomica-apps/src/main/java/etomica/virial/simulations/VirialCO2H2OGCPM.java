@@ -31,6 +31,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
@@ -104,17 +105,13 @@ public class VirialCO2H2OGCPM {
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
 
-        
-        SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-        speciesCO2.setChildCount(new int[]{1,2});
-        speciesCO2.setConformation(new IConformation() {
-            
-            public void initializePositions(IAtomList atomList) {
-                atomList.get(0).getPosition().E(0);
-                atomList.get(1).getPosition().setX(0,1.161);
-                atomList.get(2).getPosition().setX(0,-1.161);
-            }
-        });
+        double bondL = 1.161;
+        AtomType oType = AtomType.element(Oxygen.INSTANCE);
+        SpeciesGeneral speciesCO2 = new SpeciesBuilder(space)
+                .addAtom(AtomType.element(Carbon.INSTANCE), space.makeVector())
+                .addAtom(oType, Vector.of(-bondL, 0, 0))
+                .addAtom(oType, Vector.of(+bondL, 0, 0))
+                .build();
 
         SpeciesGeneral speciesWater = SpeciesWater4PCOM.create(false);
 

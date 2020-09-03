@@ -26,6 +26,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
@@ -130,20 +131,13 @@ public class VirialN2CH4UAMix {
         
         
         // N2
-        final IConformation conformation = new IConformation() {
-        	public void initializePositions(IAtomList atomList) {
-                // atoms are C, O and O, so we arrange them as 1-0-2
-                double bondL = 1.10;
-                atomList.get(0).getPosition().E(0);
-                atomList.get(1).getPosition().E(0);
-                atomList.get(1).getPosition().setX(0, -0.5 * bondL);
-                atomList.get(2).getPosition().E(0);
-                atomList.get(2).getPosition().setX(0, + 0.5 * bondL);
-            }
-        };
-        SpeciesSpheresHetero speciesN2 = new SpeciesSpheresHetero(space, new IElement[]{new ElementSimple("B"), Nitrogen.INSTANCE});
-        speciesN2.setChildCount(new int[]{1,2});
-        speciesN2.setConformation(conformation);        
+        AtomType nType = AtomType.element(Nitrogen.INSTANCE);
+        double bondL = 1.10;
+        SpeciesGeneral speciesN2 = new SpeciesBuilder(space)
+                .addAtom(AtomType.simple("B"), space.makeVector())
+                .addAtom(nType, Vector.of(-0.5 * bondL))
+                .addAtom(nType, Vector.of(+0.5 * bondL))
+                .build();
         SpeciesGeneral speciesCH4 = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
        
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), 

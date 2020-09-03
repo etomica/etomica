@@ -26,6 +26,7 @@ import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
@@ -94,18 +95,15 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         double z = 4.;
         final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-        speciesCO2.setChildCount(new int[]{1, 2});
-        speciesCO2.setConformation(new IConformation() {
-
-            public void initializePositions(IAtomList atomList) {
-                atomList.get(0).getPosition().E(0);
-                atomList.get(1).getPosition().setX(0, 1.161);
-                atomList.get(2).getPosition().setX(0, -1.161);
-            }
-        });
+        double bondL = 1.161;
+        AtomType oType = AtomType.element(Oxygen.INSTANCE);
+        SpeciesGeneral speciesCO2 = new SpeciesBuilder(space)
+                .addAtom(AtomType.element(Carbon.INSTANCE), space.makeVector())
+                .addAtom(oType, Vector.of(-bondL, 0, 0))
+                .addAtom(oType, Vector.of(+bondL, 0, 0))
+                .build();
         sim.addSpecies(speciesCO2);
-        Box box = new etomica.box.Box(space);
+        Box box = new Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 2);
         box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
@@ -161,18 +159,15 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         double y2 = 2.;
         final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-        speciesCO2.setChildCount(new int[]{1, 2});
-        speciesCO2.setConformation(new IConformation() {
-
-            public void initializePositions(IAtomList atomList) {
-                atomList.get(0).getPosition().E(0);
-                atomList.get(1).getPosition().setX(0, 1.161);
-                atomList.get(2).getPosition().setX(0, -1.161);
-            }
-        });
+        double bondL = 1.161;
+        AtomType oType = AtomType.element(Oxygen.INSTANCE);
+        SpeciesGeneral speciesCO2 = new SpeciesBuilder(space)
+                .addAtom(AtomType.element(Carbon.INSTANCE), space.makeVector())
+                .addAtom(oType, Vector.of(-bondL, 0, 0))
+                .addAtom(oType, Vector.of(+bondL, 0, 0))
+                .build();
         sim.addSpecies(speciesCO2);
-        Box box = new etomica.box.Box(space);
+        Box box = new Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 3);
         box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
@@ -206,7 +201,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         typeManager.put(speciesCO2.getAtomType(1), new GCPMAgent(3.193 * 1.0483, Kelvin.UNIT.toSim(67.72), 0.61, 15.5, qO, 0, 0, 0));
         PNGCPM p2 = new PNGCPM(space, typeManager, 2);
         p2.setBox(box);
-        PNGCPM.P3GCPMAxilrodTeller p3 = p2.makeAxilrodTeller();
+        P3GCPMAxilrodTeller p3 = p2.makeAxilrodTeller();
         IMoleculeList molecules = box.getMoleculeList();
         double u = p2.energy(molecules);
         System.out.println(u);

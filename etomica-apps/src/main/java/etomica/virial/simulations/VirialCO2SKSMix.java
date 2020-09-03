@@ -27,6 +27,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -120,21 +122,13 @@ public class VirialCO2SKSMix {
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 		
-        final IConformation conformation = new IConformation() {
-            
-            public void initializePositions(IAtomList atomList) {
-                // atoms are C, O and O, so we arrange them as 1-0-2
-                double bondL = 1.1491;
-                atomList.get(0).getPosition().E(0);
-                atomList.get(1).getPosition().E(0);
-                atomList.get(1).getPosition().setX(0, -bondL);
-                atomList.get(2).getPosition().E(0);
-                atomList.get(2).getPosition().setX(0, +bondL);
-            }
-        };
-        SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-        speciesCO2.setChildCount(new int[]{1,2});
-        speciesCO2.setConformation(conformation);
+        double bondL = 1.1491;
+        AtomType oType = AtomType.element(Oxygen.INSTANCE);
+        SpeciesGeneral speciesCO2 = new SpeciesBuilder(space)
+                .addAtom(AtomType.element(Carbon.INSTANCE), space.makeVector())
+                .addAtom(oType, Vector.of(-bondL, 0, 0))
+                .addAtom(oType, Vector.of(+bondL, 0, 0))
+                .build();
 
         SpeciesAlkane speciesAlkane = new SpeciesAlkane(space, nSpheres);
         

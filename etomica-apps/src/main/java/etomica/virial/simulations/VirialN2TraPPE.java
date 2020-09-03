@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
@@ -19,6 +20,8 @@ import etomica.potential.P2CO2EMP;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -108,24 +111,16 @@ public class VirialN2TraPPE {
         targetCluster.setTemperature(temperature);
         
         // nitrogen conformation
-        final IConformation conformation = new IConformation() {
-        	public void initializePositions(IAtomList atomList) {
-        		// atoms are N-COM("A")-N, 1-0-2 
-        		double bondL = 1.10;// length of N--N
-                atomList.get(0).getPosition().E(0);// COM("A")
-                atomList.get(1).getPosition().E(0);// Nitrogen atom on the left
-                atomList.get(1).getPosition().setX(0, -0.5 * bondL);
-                atomList.get(2).getPosition().E(0);// Nitrogen atom on the right
-                atomList.get(2).getPosition().setX(0, +0.5 * bondL);
-            }
-        };
-        
-        SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new IElement[]{new ElementSimple("A"), Nitrogen.INSTANCE});
-        species.setChildCount(new int[]{1,2});
-        species.setConformation(conformation);
-        
+        AtomType nType = AtomType.element(Nitrogen.INSTANCE);
+        double bondL = 1.10;
+        SpeciesGeneral speciesN2 = new SpeciesBuilder(space)
+                .addAtom(AtomType.simple("A"), space.makeVector())
+                .addAtom(nType, Vector.of(-0.5 * bondL))
+                .addAtom(nType, Vector.of(+0.5 * bondL))
+                .build();
+
         //simulation
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species, temperature,refCluster,targetCluster, false);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,speciesN2, temperature,refCluster,targetCluster, false);
 //        sim.box[1].getSampleCluster().value(sim.box[1]);
         sim.integratorOS.setNumSubSteps(1000);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
@@ -143,8 +138,8 @@ public class VirialN2TraPPE {
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             //set diameters
             DiameterHashByType diameter = new DiameterHashByType();
-            diameter.setDiameter(species.getAtomType(0), 0.2);
-            diameter.setDiameter(species.getAtomType(1), 0.2);
+            diameter.setDiameter(speciesN2.getAtomType(0), 0.2);
+            diameter.setDiameter(speciesN2.getAtomType(1), 0.2);
 
 
             simGraphic.getDisplayBox(sim.box[0]).setDiameterHash(diameter);
