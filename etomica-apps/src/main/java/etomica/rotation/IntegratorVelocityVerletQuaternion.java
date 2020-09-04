@@ -6,7 +6,6 @@ package etomica.rotation;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.MoleculeChildAtomAction;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.atom.iterator.ApiBuilder;
@@ -447,49 +446,51 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             rotationTensor.transform(angularMomentum);
         }
     }
-    
-    public void randomizeMomentum(IAtomKinetic atom) {
-        if (atom instanceof Atom) {
-            super.randomizeMomentum(atom);
-            return;
+
+    public void shiftMomenta() {
+        IMoleculeList moleculeList = box.getMoleculeList();
+        int nMolecules = moleculeList.size();
+        momentum.E(0);
+        double totalMass = 0;
+        for (int iMolecule = 0; iMolecule < nMolecules; iMolecule++) {
+            IMolecule molecule = moleculeList.get(iMolecule);
+            MyTypeAgent typeAgent = (MyTypeAgent) typeAgentManager.getAgent(molecule.getType());
+            if (typeAgent == null) {
+                for (IAtom a : molecule.getChildList()) {
+                    double mass = a.getType().getMass();
+                    if (mass != Double.POSITIVE_INFINITY) {
+                        momentum.PEa1Tv1(mass, ((IAtomKinetic) a).getVelocity());
+                        totalMass += mass;
+                    }
+                }
+                continue;
+            }
+
+            Vector velocity = ((IMoleculeKinetic) molecule).getVelocity();
+            double mass = ((ISpeciesOriented) molecule.getType()).getMass();
+            momentum.PEa1Tv1(mass, velocity);
+            totalMass += mass;
         }
 
-        MyTypeAgent typeAgent = (MyTypeAgent)typeAgentManager.getAgent(((IMolecule)atom).getType());
-        if (typeAgent == null) {
-            super.randomizeMomentum(atom);
-            return;
-        }
+        if (totalMass == 0) return;
+        momentum.TE(1.0 / totalMass);
+        //momentum is now net velocity
+        //set net momentum to 0
+        for (int iMolecule = 0; iMolecule < nMolecules; iMolecule++) {
+            IMolecule molecule = moleculeList.get(iMolecule);
+            MyTypeAgent typeAgent = (MyTypeAgent) typeAgentManager.getAgent(molecule.getType());
 
-        MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent((IMolecule)atom);
-        Vector velocity = atom.getVelocity();
-        Vector angularMomentum = ((IAtomOrientedKinetic)atom).getAngularVelocity();
-        double mass = ((ISpeciesOriented)((IMolecule)atom).getType()).getMass();
-        int D = velocity.getD();
-        for(int i=0; i<D; i++) {
-            velocity.setX(i,random.nextGaussian());
+            if (typeAgent == null) {
+                for (IAtom a : molecule.getChildList()) {
+                    double mass = a.getType().getMass();
+                    if (mass < Double.POSITIVE_INFINITY) ((IAtomKinetic) a).getVelocity().ME(momentum);
+                }
+                continue;
+            }
+            double mass = ((ISpeciesOriented) molecule.getType()).getMass();
+            if (mass < Double.POSITIVE_INFINITY) ((IMoleculeKinetic) molecule).getVelocity().ME(momentum);
         }
-        velocity.TE(Math.sqrt(temperature/mass));
-
-        for(int i=0; i<D; i++) {
-            angularVelocity.setX(i,random.nextGaussian());
-        }
-        angularVelocity.TE(Math.sqrt(temperature/mass));
-        typeAgent.calcer.calcOrientation((IMolecule)atom, agent.quat);
-        rotationTensor.setQuaternions(agent.quat);
-        // body-fixed to space-fixed, so invert
-        rotationTensor.invert();
-        rotationTensor.transform(angularVelocity);
-
-        angularMomentum.E(angularVelocity);
-        angularMomentum.TE(angularMomentum);
-        angularMomentum.TE(temperature);
-        Vector moment = ((ISpeciesOriented)((IMolecule)atom).getType()).getMomentOfInertia();
-        angularMomentum.DE(moment);
-        angularMomentum.map(new Function.Sqrt());
-        angularMomentum.DE(moment);
     }
-    
-    public void shiftMomenta() {}
 
 //--------------------------------------------------------------
 
