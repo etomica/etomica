@@ -20,7 +20,6 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.Species;
 import etomica.units.*;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.CompoundDimension;
@@ -344,7 +343,7 @@ public class SimulationRunner {
     		  targetCluster = Standard.virialClusterMixture(nPoints,f,e,nTypes);
     	      targetCluster.setTemperature(temperature);  
     	      
-    	      ISpecies[] species =  new Species[noOfSpecies];
+    	      ISpecies[] species =  new ISpecies[noOfSpecies];
     	      for(int i=0;i<noOfSpecies;i++){
     	    	  species[i] = speciesDataModel.getSpecies(i);
     	      }

@@ -9,7 +9,6 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.species.Species;
 import etomica.util.random.IRandom;
 
 /**

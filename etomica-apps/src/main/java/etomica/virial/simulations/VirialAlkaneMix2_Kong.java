@@ -24,6 +24,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.virial.*;
@@ -193,8 +194,8 @@ public class VirialAlkaneMix2_Kong {
 //        sim.integratorOS.setStepFreq0(1);
 
 
-        SpeciesAlkane species1 = (SpeciesAlkane)sim.species[0];
-        SpeciesAlkane species2 = (SpeciesAlkane)sim.species[1];
+        SpeciesGeneral species1 = (SpeciesGeneral)sim.species[0];
+        SpeciesGeneral species2 = (SpeciesGeneral)sim.species[1];
         AtomType typeCH3A = species1.getAtomType(0);
         AtomType typeCH3B = species2.getAtomType(0);
         AtomType typeCH2A = species1.getAtomType(1);

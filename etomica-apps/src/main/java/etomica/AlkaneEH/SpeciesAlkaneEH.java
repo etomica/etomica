@@ -5,15 +5,9 @@
 package etomica.AlkaneEH;
 
 
-import etomica.atom.Atom;
-import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomType;
-import etomica.atom.IAtom;
-import etomica.molecule.IMolecule;
-import etomica.molecule.Molecule;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 

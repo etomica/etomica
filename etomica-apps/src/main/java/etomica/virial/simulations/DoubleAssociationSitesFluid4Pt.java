@@ -14,7 +14,6 @@ import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
@@ -415,7 +414,7 @@ public class DoubleAssociationSitesFluid4Pt {
 			SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 			simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
 			simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-			Species species = (Species) sim.getSpecies(0);
+			ISpecies species = sim.getSpecies(0);
 			AtomType typeLJ = species.getAtomType(0);
 			simGraphic.makeAndDisplayFrame();
 
