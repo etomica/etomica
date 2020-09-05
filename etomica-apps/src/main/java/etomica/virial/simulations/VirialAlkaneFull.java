@@ -31,6 +31,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
@@ -179,7 +180,7 @@ public class VirialAlkaneFull {
      
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)};
 
-        SpeciesAlkane species = new SpeciesAlkane(space, nSpheres);
+        SpeciesGeneral species = SpeciesAlkane.create(nSpheres);
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{species},
                 new int[]{alkaneFlex ? (nPoints+1) : nPoints},temperature, new ClusterAbstract[]{refCluster, targetCluster},targetDiagrams,  sampleClusters, true);

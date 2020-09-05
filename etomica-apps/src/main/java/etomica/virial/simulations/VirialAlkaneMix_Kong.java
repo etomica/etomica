@@ -130,21 +130,10 @@ public class VirialAlkaneMix_Kong extends VirialAlkaneMix {
         
         ElementSimple CH3element = new ElementSimple("CH3",15);
         ElementSimple CH2element = new ElementSimple("CH2",14);
-        
-        SpeciesFactorySpheres2 speciesFactoryEthane = new SpeciesFactorySpheres2(space, 2, CH3element, CH2element);
-        speciesFactoryEthane.setBondL(bondL);
-                
-        SpeciesFactorySpheres2 speciesFactoryMethane = new SpeciesFactorySpheres2(space,1, CH3element, CH2element);
-        
-        SpeciesFactory[] speciesFactory = new SpeciesFactory[2];
-        
-        speciesFactory[0] = speciesFactoryMethane;
-        speciesFactory[1] = speciesFactoryEthane;
-
 
         ISpecies[] species = new ISpecies[] {
-                speciesFactory[0].makeSpecies(space),
-                speciesFactory[1].makeSpecies(space)
+                SpeciesAlkane.create(2, AtomType.element(CH3element), AtomType.element(CH2element), bondL, SpeciesAlkane.nominalBondTheta),
+                SpeciesAlkane.create(1, AtomType.element(CH3element), AtomType.element(CH2element))
         };
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(

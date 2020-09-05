@@ -25,6 +25,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -87,7 +88,7 @@ public class VirialAlkaneSKS {
         refCluster.setTemperature(temperature);
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
-        SpeciesAlkane species = new SpeciesAlkane(space, nSpheres);
+        SpeciesGeneral species = SpeciesAlkane.create(nSpheres);
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species,
                           temperature,refCluster,targetCluster, nSpheres > 2);
 //        ((MCMoveStepTracker)sim.mcMoveTranslate[0].getTracker()).setNoisyAdjustment(true);

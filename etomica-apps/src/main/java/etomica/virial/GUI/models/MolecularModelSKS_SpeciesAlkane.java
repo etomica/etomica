@@ -4,15 +4,16 @@
 
 package etomica.virial.GUI.models;
 
+import etomica.atom.AtomType;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.virial.GUI.components.SimpleElementForSimilarSpecies;
 import etomica.virial.SpeciesAlkane;
 import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesFactorySiepmannSpheres;
 
 public class MolecularModelSKS_SpeciesAlkane  implements IMolecularModel_SpeciesFactory {
 	private String MoleculeDisplayName;
@@ -238,33 +239,17 @@ public void setSigmaHSRef(double sigmaHSRef) {
 	
 	//Creates the LJAtom Species
 	public ISpecies createSpecies(){
-		SpeciesFactory factory;
-		SpeciesAlkane species;
+		SpeciesGeneral species;
 		simpleElementCreator = SimpleElementForSimilarSpecies.getInstance();
 		if(AlkaneIndex != 0){
-			species = new SpeciesAlkane(this.space,this.AlkaneIndex,simpleElementCreator.getCH2element(),simpleElementCreator.getCH2element());
-			//factory = new SpeciesFactorySiepmannSpheres(this.space,this.AlkaneIndex,);
+			species = SpeciesAlkane.create(this.AlkaneIndex, AtomType.element(simpleElementCreator.getCH3element()), AtomType.element(simpleElementCreator.getCH2element()));
 		}
 		else{
 			String number = Double.toString(this.getDoubleDefaultParameters("NUMBER"));
 			String[] IntSteps= number.split("\\.");
-			//factory = new SpeciesFactorySiepmannSpheres(this.space,Integer.parseInt(IntSteps[0]));
-			species = new SpeciesAlkane(this.space,Integer.parseInt(IntSteps[0]),simpleElementCreator.getCH2element(),simpleElementCreator.getCH2element());
+			species = SpeciesAlkane.create(Integer.parseInt(IntSteps[0]), AtomType.element(simpleElementCreator.getCH3element()), AtomType.element(simpleElementCreator.getCH2element()));
 		}
-	    //return factory.makeSpecies(this.space);
 		return species;
-	}
-	
-	public SpeciesFactory createSpeciesFactory(){
-		SpeciesFactory factory;
-		if(AlkaneIndex != 0){
-			factory = new SpeciesFactorySiepmannSpheres(this.space,this.AlkaneIndex);}
-		else{
-			String number = Double.toString(this.getDoubleDefaultParameters("NUMBER"));
-			String[] IntSteps= number.split("\\.");
-			factory = new SpeciesFactorySiepmannSpheres(this.space,Integer.parseInt(IntSteps[0]));
-		}
-	    return factory;
 	}
 
 
@@ -283,10 +268,10 @@ public void setSigmaHSRef(double sigmaHSRef) {
 
 	public void setParameter(String Parameter, String ParameterValue) {
 		// TODO Auto-generated method stub
-		
+
 		for(int i=0;i<PotentialSites.length;i++){
 			if(Parameter.toUpperCase().equals(EnumPotentialParamDescription.SIGMA.toString()+PotentialSites[i])){
-				setSigma(Double.parseDouble(ParameterValue),i); 
+				setSigma(Double.parseDouble(ParameterValue),i);
 			}
 			if(Parameter.toUpperCase().equals(EnumPotentialParamDescription.EPSILON.toString()+PotentialSites[i])){
 				setEpsilon(Double.parseDouble(ParameterValue),i); 

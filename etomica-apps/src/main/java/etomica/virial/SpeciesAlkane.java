@@ -5,71 +5,41 @@
 package etomica.virial;
 
 import etomica.atom.AtomType;
-import etomica.chem.elements.Element;
-import etomica.chem.elements.ElementSimple;
 import etomica.config.ConformationChainZigZag2;
 import etomica.molecule.IMolecule;
 import etomica.molecule.Molecule;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresHetero;
 
-public class SpeciesAlkane extends SpeciesSpheresHetero {
+public class SpeciesAlkane {
 
     // parameters for TraPPE
-    protected static final double nominalBondL = 1.54;
-    protected static final double nominalBondTheta = Math.PI * 114 / 180;
-    private static final long serialVersionUID = 1L;
+    public static final double nominalBondL = 1.54;
+    public static final double nominalBondTheta = Math.PI * 114 / 180;
 
-    public SpeciesAlkane(Space _space, int numCarbons) {
-        this(_space,numCarbons, new ElementSimple("CH3", 15), new ElementSimple("CH2", 14));
+    public static SpeciesGeneral create(int numCarbons) {
+        return create(numCarbons, AtomType.simple("CH3", 15), AtomType.simple("CH2", 14));
     }
 
-    public SpeciesAlkane(Space _space, int numCarbons, ElementSimple CH3element, ElementSimple CH2element) {
-    	super(_space, makeAtomTypes(new Element[]{CH3element, CH2element}));
-        setTotalChildren(numCarbons);
-        setConformationParameters(nominalBondL, nominalBondTheta);
-    }
-    
-    public void setConformationParameters(double bondL, double bondTheta) {
-        Vector vector1 = space.makeVector();
-        vector1.setX(0, bondL);
-        Vector vector2 = space.makeVector();
-        vector2.setX(0, -bondL*Math.cos(bondTheta));
-        vector2.setX(1, bondL*Math.sin(bondTheta));
-        conformation = new ConformationChainZigZag2(space, vector1, vector2);
+    public static SpeciesGeneral create(int numCarbons, AtomType ch3Type, AtomType ch2Type) {
+        return create(numCarbons, ch3Type, ch2Type, nominalBondL, nominalBondTheta);
     }
 
-    public IMolecule makeMolecule() {
-        Molecule group = new Molecule(this, totalChildCount);
-        //make straight alkane CH3-CH2-...-CH2-CH3
-        group.addChildAtom(makeLeafAtom(this.getCH3Type()));
-        for(int j = 0; j < childCount[1]; j++) {
-            group.addChildAtom(makeLeafAtom(this.getCH2Type()));//CH2
-        }
-        if (childCount[0] > 1) {
-            group.addChildAtom(makeLeafAtom(this.getCH3Type()));//CH3
-        }
-        conformation.initializePositions(group.getChildList());
-        return group;
-    }
-
-    public AtomType getCH3Type() {
-        return this.getAtomType(0);
-    }
-
-    public AtomType getCH2Type() {
-        return this.getAtomType(1);
-    }
-
-    public void setTotalChildren(int newTotalChildren) {
-        if (newTotalChildren > 1) {
-            childCount[0] = 2;// CH3
-            childCount[1] = newTotalChildren - 2;//CH2
-        }
-        else {
-            childCount[0] = 1;// CH4???????????????????????
-            childCount[1] = 0;
-        }
+    public static SpeciesGeneral create(int numCarbons, AtomType ch3Type, AtomType ch2Type, double bondL, double bondTheta) {
+        Space space = Space3D.getInstance();
+        ConformationChainZigZag2 conf = new ConformationChainZigZag2(
+                space,
+                Vector.of(bondL, 0, 0),
+                Vector.of(-bondL * Math.cos(bondTheta), bondL * Math.sin(bondTheta), 0)
+        );
+        return new SpeciesBuilder(Space3D.getInstance())
+                .addCount(ch3Type, Math.min(2, numCarbons))
+                .addCount(ch2Type, Math.max(numCarbons - 2, 0))
+                .withConformation(conf)
+                .build();
     }
 }

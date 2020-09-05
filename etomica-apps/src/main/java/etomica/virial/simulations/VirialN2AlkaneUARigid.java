@@ -138,8 +138,8 @@ public class VirialN2AlkaneUARigid {
                 .addAtom(nType, Vector.of(-0.5 * bondL))
                 .addAtom(nType, Vector.of(+0.5 * bondL))
                 .build();
-        SpeciesAlkane speciesAlkane = new SpeciesAlkane(space, nSpheres);
-        
+        SpeciesGeneral speciesAlkane = SpeciesAlkane.create(nSpheres);
+
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{speciesN2,speciesAlkane}, nTypes, temperature,new ClusterAbstract[]{refCluster,targetCluster},
                 new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)},false);
        
@@ -275,15 +275,15 @@ public class VirialN2AlkaneUARigid {
             DiameterHashByType diameter = new DiameterHashByType();
             diameter.setDiameter(speciesN2.getAtomType(0), 0.2);
             diameter.setDiameter(speciesN2.getAtomType(1), 0.3);
-            diameter.setDiameter(speciesAlkane.getCH2Type(), 0.3);
-            diameter.setDiameter(speciesAlkane.getCH3Type(), 0.4);
+            diameter.setDiameter(speciesAlkane.getTypeByName("CH2"), 0.3);
+            diameter.setDiameter(speciesAlkane.getTypeByName("CH3"), 0.4);
 
             simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);
             ColorSchemeByType colorScheme = (ColorSchemeByType) simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
             colorScheme.setColor(speciesN2.getAtomType(0), Color.blue);
             colorScheme.setColor(speciesN2.getAtomType(1), Color.red);
-            colorScheme.setColor(speciesAlkane.getCH2Type(), Color.green);
-            colorScheme.setColor(speciesAlkane.getCH3Type(), Color.yellow);
+            colorScheme.setColor(speciesAlkane.getTypeByName("CH2"), Color.green);
+            colorScheme.setColor(speciesAlkane.getTypeByName("CH3"), Color.yellow);
 
             ((DisplayBoxCanvasG3DSys) dBox1.canvas).setBackgroundColor(Color.WHITE);
 
