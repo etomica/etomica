@@ -116,6 +116,7 @@ public class UnitTestUtil {
             for (int j = 0; j < nAtoms[i].length; j++) {
                 builder.addCount(AtomType.simpleFromSim(sim), nAtoms[i][j]);
             }
+            builder.withConformation(new ConformationLinear(space));
             sim.addSpecies(builder.build());
         }
         Box box = new Box(space);

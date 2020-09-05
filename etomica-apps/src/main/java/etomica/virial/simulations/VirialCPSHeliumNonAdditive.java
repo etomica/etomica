@@ -21,6 +21,7 @@ import etomica.potential.P2HePCKLJS;
 import etomica.potential.P3CPSNonAdditiveHe;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.Constants;

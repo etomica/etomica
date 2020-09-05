@@ -10,6 +10,7 @@ import etomica.potential.P2ElectrostaticWithHardCore;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -26,7 +27,7 @@ import etomica.util.Constants;
 public class MethanolPotentialHelper {
 	
 	
-	public static void initPotential(Space space, SpeciesGeneral species, PotentialGroup U_a_b) {
+	public static void initPotential(Space space, ISpecies species, PotentialGroup U_a_b) {
 		
 
 	        
