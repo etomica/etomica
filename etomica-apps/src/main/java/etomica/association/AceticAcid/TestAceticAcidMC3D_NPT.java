@@ -258,7 +258,7 @@ MeterDensity rhoMeter = new MeterDensity(sim.box);
 
         if (false) {
         	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,"acetic acid", 1);
-        	SpeciesGeneral species = (SpeciesGeneral) sim.getSpecies(0);
+        	ISpecies species = sim.getSpecies(0);
             AtomType typeCH3 = species.getTypeByName("CH3");
             AtomType typeC = species.getTypeByName("C");
             AtomType typeDBO = species.getTypeByName("DBO");

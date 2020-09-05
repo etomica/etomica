@@ -361,7 +361,7 @@ public class VirialRowleyAlcohol {
 
             if (ethanol) {
 
-                SpeciesGeneral species = (SpeciesGeneral) sim.getSpecies(0);
+                ISpecies species = sim.getSpecies(0);
                 // Create instances of the types of molecular sites
 
                 AtomType type_O = species.getTypeByName("O");
@@ -390,7 +390,7 @@ public class VirialRowleyAlcohol {
 
             } else {
 
-                SpeciesGeneral species = (SpeciesGeneral) sim.getSpecies(0);
+                ISpecies species = sim.getSpecies(0);
 
                 // Create instances of the types of molecular sites
                 AtomType type_O = species.getTypeByName("O");

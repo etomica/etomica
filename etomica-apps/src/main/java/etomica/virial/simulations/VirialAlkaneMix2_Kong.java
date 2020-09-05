@@ -194,8 +194,8 @@ public class VirialAlkaneMix2_Kong {
 //        sim.integratorOS.setStepFreq0(1);
 
 
-        SpeciesGeneral species1 = (SpeciesGeneral)sim.species[0];
-        SpeciesGeneral species2 = (SpeciesGeneral)sim.species[1];
+        ISpecies species1 = sim.species[0];
+        ISpecies species2 = sim.species[1];
         AtomType typeCH3A = species1.getAtomType(0);
         AtomType typeCH3B = species2.getAtomType(0);
         AtomType typeCH2A = species1.getAtomType(1);

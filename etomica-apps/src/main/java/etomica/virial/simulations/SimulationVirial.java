@@ -126,7 +126,7 @@ public class SimulationVirial extends Simulation {
         boolean multiAtomic = false;
         for (int i=0; i<species.length; i++) {
             addSpecies(species[i]);
-            SpeciesGeneral sp = (SpeciesGeneral) species[i];
+            ISpecies sp = species[i];
             if (sp.getLeafAtomCount() == 1 && sp.getLeafType() instanceof AtomTypeOriented) {
                 doRotate = true;
             }

@@ -61,7 +61,7 @@ public class MeterTemperature extends DataSourceScalar {
 	            if (nMolecules > 0) {
 	                IMolecule molecule = box.getMoleculeList(sim.getSpecies(i)).get(0);
 	                if (molecule instanceof MoleculeOrientedDynamic) {
-	                    if (Double.isInfinite(((SpeciesGeneral)sim.getSpecies(i)).getMass())) {
+	                    if (Double.isInfinite(sim.getSpecies(i).getMass())) {
 	                        continue;
 	                    }
                         totalD += 6*nMolecules;
