@@ -127,10 +127,12 @@ public class SpeciesGeneral implements ISpecies {
         return molecule;
     }
 
+    @Override
     public boolean isDynamic() {
         return isDynamic;
     }
 
+    @Override
     public Space getSpace() {
         return space;
     }
@@ -140,6 +142,7 @@ public class SpeciesGeneral implements ISpecies {
         return this.uniqueAtomTypes.length;
     }
 
+    @Override
     public int getLeafAtomCount() {
         return this.atomTypes.length;
     }
@@ -149,6 +152,7 @@ public class SpeciesGeneral implements ISpecies {
         return this.uniqueAtomTypes[index];
     }
 
+    @Override
     public AtomType getLeafType() {
         if (this.uniqueAtomTypes.length > 1) {
             throw new RuntimeException("Species " + this.toString() + " has more than one atom type");
@@ -170,6 +174,7 @@ public class SpeciesGeneral implements ISpecies {
         return this.conformation;
     }
 
+    @Override
     public int getByName(String atomName) {
         for (int i = 0; i < this.atomNames.length; i++) {
             if (this.atomNames[i].equals(atomName) && !atomName.isEmpty()) {
@@ -179,13 +184,7 @@ public class SpeciesGeneral implements ISpecies {
         throw new IllegalArgumentException("Name not found");
     }
 
-    /**
-     * Gets the index within the molecule of the nth atom of given element string.
-     *
-     * @param name String matching the Element symbol for the AtomType
-     * @param number The nth atom with that type to get, starting at 1.
-     * @return the index of that atom within a molecule of this species.
-     */
+    @Override
     public int getAtomByTypeName(String name, int number) {
         return IntStream.range(0, this.atomTypes.length)
                 .filter(i -> this.atomTypes[i].getName().equals(name))
@@ -193,10 +192,12 @@ public class SpeciesGeneral implements ISpecies {
                 .findFirst().orElseThrow(NoSuchElementException::new);
     }
 
+    @Override
     public int getAtomByTypeName(String name) {
         return this.getAtomByTypeName(name, 1);
     }
 
+    @Override
     public AtomType getTypeByName(String typeName) {
         for (AtomType type : this.uniqueAtomTypes) {
             if (type.getName().equals(typeName)) {
@@ -206,10 +207,12 @@ public class SpeciesGeneral implements ISpecies {
         throw new IllegalArgumentException("Type not found: " + typeName);
     }
 
+    @Override
     public Vector getMomentOfInertia() {
         return this.momentOfInertia;
     }
 
+    @Override
     public double getMass() {
         return mass;
     }
