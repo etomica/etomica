@@ -6,7 +6,6 @@ package etomica.modules.interfacial;
 
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.Atom;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
@@ -29,7 +28,6 @@ import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
-import etomica.species.SpeciesSpheresHetero;
 
 /**
  * Simulation for interfacial tension module.  Simulation itself is just a

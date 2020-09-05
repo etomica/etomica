@@ -4,7 +4,6 @@
 
 package etomica.atom.iterator;
 
-import etomica.atom.AtomType;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.Molecule;
@@ -13,7 +12,6 @@ import etomica.molecule.iterator.MoleculeIteratorSinglet;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
-import etomica.species.SpeciesSpheresHetero;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
