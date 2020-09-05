@@ -17,7 +17,6 @@ import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
-import etomica.species.Species;
 import etomica.util.random.IRandom;
 
 import java.util.*;

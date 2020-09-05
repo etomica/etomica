@@ -1,17 +1,11 @@
 package etomica.osmoticvirial;
 
-import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIterator;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataInfo;
 import etomica.data.types.DataDoubleArray;
-import etomica.integrator.mcmove.MCMove;
-import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
-import etomica.integrator.mcmove.MCMoveTrialFailedEvent;
 import etomica.species.ISpecies;
-import etomica.species.Species;
 import etomica.units.dimensions.Null;
 import etomica.util.IEvent;
 import etomica.util.IListener;

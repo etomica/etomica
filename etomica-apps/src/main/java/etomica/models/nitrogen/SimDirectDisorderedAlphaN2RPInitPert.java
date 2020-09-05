@@ -26,7 +26,6 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.species.Species;
 import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 

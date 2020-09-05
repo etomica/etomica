@@ -6,7 +6,6 @@ package etomica.normalmode;
 
 import etomica.box.Box;
 import etomica.lattice.crystal.Primitive;
-import etomica.models.water.SpeciesWater4P;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePositionCOM;
@@ -17,7 +16,6 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Tensor3D;
 import etomica.spaceNd.TensorND;
-import etomica.species.Species;
 import etomica.species.SpeciesGeneral;
 
 import java.io.IOException;

@@ -22,7 +22,6 @@ import etomica.modifier.ModifierBoolean;
 import etomica.simulation.Simulation;
 import etomica.space.*;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
 import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.dimensions.Dimension;

@@ -10,8 +10,6 @@ import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.Species;
-import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;

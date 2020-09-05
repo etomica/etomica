@@ -6,6 +6,7 @@ package etomica.species;
 
 import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.config.IConformation;
 import etomica.meta.annotations.IgnoreProperty;
 import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMaster;
@@ -68,4 +69,6 @@ public interface ISpecies {
      * changed by this method.
      */
     void initializeConformation(IMolecule molecule);
+
+    IConformation getConformation();
 }

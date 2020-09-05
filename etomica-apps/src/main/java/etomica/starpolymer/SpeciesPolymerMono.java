@@ -4,19 +4,9 @@
 
 package etomica.starpolymer;
 
-import etomica.atom.Atom;
-import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomType;
-import etomica.atom.IAtom;
-import etomica.chem.elements.ElementSimple;
-import etomica.chem.elements.IElement;
-import etomica.molecule.IMolecule;
-import etomica.molecule.Molecule;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.species.Species;
 import etomica.species.SpeciesBuilder;
-import etomica.species.SpeciesGeneral;
 
 /**
  * Species in which molecules are each made of a single spherical atom.
