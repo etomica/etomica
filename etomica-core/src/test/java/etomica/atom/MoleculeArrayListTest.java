@@ -10,7 +10,6 @@ import etomica.molecule.MoleculeArrayList;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
-import etomica.species.SpeciesSpheresHetero;
 import etomica.util.Debug;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

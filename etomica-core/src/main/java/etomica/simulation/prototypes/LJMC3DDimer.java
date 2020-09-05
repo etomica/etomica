@@ -34,7 +34,6 @@ import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
-import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Bar;
 import etomica.units.Debye;
 import etomica.units.Kelvin;

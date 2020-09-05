@@ -6,14 +6,11 @@ package etomica.virial;
 
 import etomica.atom.AtomType;
 import etomica.config.ConformationChainZigZag2;
-import etomica.molecule.IMolecule;
-import etomica.molecule.Molecule;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
-import etomica.species.SpeciesSpheresHetero;
 
 public class SpeciesAlkane {
 

@@ -6,21 +6,16 @@ package etomica.virial.GUI.models;
 
 
 import etomica.atom.AtomType;
-import etomica.atom.IAtomList;
 import etomica.chem.elements.Carbon;
-import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
-import etomica.config.IConformation;
 import etomica.potential.P2CO2EMP2;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
-import etomica.species.SpeciesSpheresHetero;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
-import etomica.virial.SpeciesFactory;
 
 public class MolecularModelEMP2_SpeciesCO2 implements IMolecularModel_SpeciesFactory,Cloneable{
 	private static String MoleculeDisplayName = "CO2 - EPM";
