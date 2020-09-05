@@ -350,11 +350,11 @@ public static void main(String[] args) {
 
         SpeciesGeneral speciesSF6 = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A")));
 
-        SpeciesAlkane speciesAlkane = new SpeciesAlkane(space, nSpheres);// species alkane TraPPE-UA
+    SpeciesGeneral speciesAlkane = SpeciesAlkane.create(nSpheres);
 
-   
 
-        ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), 
+
+    ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),
 
                                                         ClusterWeightAbs.makeWeightCluster(targetCluster)};
 
@@ -657,9 +657,8 @@ public static void main(String[] args) {
 
             diameter.setDiameter(speciesSF6.getAtomType(0), 0.2);
 
-            diameter.setDiameter(speciesAlkane.getCH2Type(), 0.3);
-
-            diameter.setDiameter(speciesAlkane.getCH3Type(), 0.4);
+            diameter.setDiameter(speciesAlkane.getTypeByName("CH2"), 0.3);
+            diameter.setDiameter(speciesAlkane.getTypeByName("CH3"), 0.4);
 
             simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);
 
@@ -667,9 +666,8 @@ public static void main(String[] args) {
 
             colorScheme.setColor(speciesSF6.getAtomType(0), Color.blue);
 
-            colorScheme.setColor(speciesAlkane.getCH2Type(), Color.green);
-
-            colorScheme.setColor(speciesAlkane.getCH3Type(), Color.yellow);
+            colorScheme.setColor(speciesAlkane.getTypeByName("CH2"), Color.green);
+            colorScheme.setColor(speciesAlkane.getTypeByName("CH3"), Color.yellow);
 
             ((DisplayBoxCanvasG3DSys) dBox1.canvas).setBackgroundColor(Color.WHITE);
 

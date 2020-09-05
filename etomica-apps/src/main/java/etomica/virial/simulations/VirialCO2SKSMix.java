@@ -130,8 +130,8 @@ public class VirialCO2SKSMix {
                 .addAtom(oType, Vector.of(+bondL, 0, 0))
                 .build();
 
-        SpeciesAlkane speciesAlkane = new SpeciesAlkane(space, nSpheres);
-        
+        SpeciesGeneral speciesAlkane = SpeciesAlkane.create(nSpheres);
+
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{speciesCO2,speciesAlkane}, nTypes, temperature,new ClusterAbstract[]{refCluster,targetCluster},
                 new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)},true);
         ((MCMoveClusterWiggleMulti)sim.mcMoveWiggle[0]).setSpecies(sim.getSpecies(1));
@@ -230,12 +230,12 @@ public class VirialCO2SKSMix {
             dBox0.setShowBoundary(false);
             dBox1.setShowBoundary(false);
             DiameterHashByType diameterHash = (DiameterHashByType) dBox1.getDiameterHash();
-            diameterHash.setDiameter(((SpeciesAlkane) sim.getSpecies(1)).getCH2Type(), sigmaCH2);
-            diameterHash.setDiameter(((SpeciesAlkane) sim.getSpecies(1)).getCH3Type(), sigmaCH3);
+            diameterHash.setDiameter(speciesAlkane.getTypeByName("CH2"), 0.3);
+            diameterHash.setDiameter(speciesAlkane.getTypeByName("CH3"), 0.4);
             dBox0.setDiameterHash(diameterHash);
             ColorSchemeByType colorScheme = (ColorSchemeByType) dBox1.getColorScheme();
-            colorScheme.setColor(((SpeciesAlkane) sim.getSpecies(1)).getCH2Type(), new Color(190, 190, 190));
-            colorScheme.setColor(((SpeciesAlkane) sim.getSpecies(1)).getCH3Type(), new Color(240, 240, 240));
+            colorScheme.setColor(speciesAlkane.getTypeByName("CH2"), Color.green);
+            colorScheme.setColor(speciesAlkane.getTypeByName("CH3"), Color.yellow);
             colorScheme.setColor(sim.getSpecies(0).getAtomType(0), new Color(100, 100, 150));
             colorScheme.setColor(sim.getSpecies(0).getAtomType(1), Color.RED);
             dBox0.setColorScheme(colorScheme);

@@ -152,34 +152,31 @@ public class VirialAlkaneMix2 {
         
         ElementSimple CH3element = new ElementSimple("CH3",15);
         ElementSimple CH2element = new ElementSimple("CH2",14);
-        SpeciesFactorySpheres2 speciesFactoryComp1 = new SpeciesFactorySpheres2(space,nSpheres1, CH3element, CH2element);//make alkane model-component1
-        if (nSpheres1 == 2) {
-        	speciesFactoryComp1.setBondL(bondL1);
+        double bondLComp1;
+        switch (nSpheres1) {
+            case 2:
+                bondLComp1 = bondL1;
+                break;
+            case 3:
+                bondLComp1 = bondL2;
+                break;
+            default:
+                bondLComp1 = bondL3;
         }
-        if (nSpheres1 ==3) {
-        	speciesFactoryComp1.setBondL(bondL2);
-        } else {
-        	speciesFactoryComp1.setBondL(bondL3);
+        double bondLComp2;
+        switch (nSpheres2) {
+            case 2:
+                bondLComp2 = bondL1;
+                break;
+            case 3:
+                bondLComp2 = bondL2;
+                break;
+            default:
+                bondLComp2 = bondL3;
         }
-        SpeciesFactorySpheres2 speciesFactoryComp2 = new SpeciesFactorySpheres2(space,nSpheres2,CH3element, CH2element);//make alkane model-component2
-        if (nSpheres2 == 2) {
-        	speciesFactoryComp2.setBondL(bondL1);
-        }
-        if (nSpheres2 ==3) {
-        	speciesFactoryComp2.setBondL(bondL2);
-        } else {
-        	speciesFactoryComp1.setBondL(bondL3);
-        }
-
-        SpeciesFactory[] speciesFactory = new SpeciesFactory[2];
-        
-        speciesFactory[0] = speciesFactoryComp1;
-        speciesFactory[1] = speciesFactoryComp2;
-
-
         ISpecies[] species = new ISpecies[] {
-                speciesFactory[0].makeSpecies(space),
-                speciesFactory[1].makeSpecies(space)
+                SpeciesAlkane.create(nSpheres1, AtomType.element(CH3element), AtomType.element(CH2element), bondLComp1, SpeciesAlkane.nominalBondTheta),
+                SpeciesAlkane.create(nSpheres2, AtomType.element(CH3element), AtomType.element(CH2element), bondLComp2, SpeciesAlkane.nominalBondTheta),
         };
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(
