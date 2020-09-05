@@ -160,7 +160,7 @@ public class VirialHePCKLJSTempDeriv {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-            SpeciesGeneral species = (SpeciesGeneral) sim.getSpecies(0);
+            ISpecies species = sim.getSpecies(0);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             simGraphic.makeAndDisplayFrame();

@@ -162,7 +162,7 @@ public class SimGCPMWaterMCNVT extends Simulation {
 
         if (false) {
         	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,"water", 1);
-        	SpeciesGeneral species = (SpeciesGeneral) sim.getSpecies(0);
+        	ISpecies species = sim.getSpecies(0);
             ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
         	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage());

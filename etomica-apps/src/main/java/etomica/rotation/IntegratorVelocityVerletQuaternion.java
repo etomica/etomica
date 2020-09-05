@@ -218,7 +218,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
 
             MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent(molecule);
             Vector angularMomentum = ((IMoleculeOrientedKinetic)molecule).getAngularVelocity();
-            SpeciesGeneral orientedType = (SpeciesGeneral)molecule.getType();
+            ISpecies orientedType = molecule.getType();
             Vector moment = orientedType.getMomentOfInertia();
 
             if (stepCount%printInterval == 0) {
@@ -382,7 +382,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             }
 
             //advance linear velocity to full timestep
-            ((IAtomKinetic)molecule).getVelocity().PEa1Tv1(0.5*timeStep/((SpeciesGeneral)molecule.getType()).getMass(), agent.force);
+            ((IAtomKinetic)molecule).getVelocity().PEa1Tv1(0.5*timeStep/molecule.getType().getMass(), agent.force);
 
             //advance momentum to full timestep
             ((IAtomOrientedKinetic)molecule).getAngularVelocity().PEa1Tv1(0.5*timeStep, agent.torque);
@@ -421,7 +421,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent(molecule);
             Vector velocity = ((IMoleculeKinetic)molecule).getVelocity();
             Vector angularMomentum = ((IMoleculeOrientedKinetic)molecule).getAngularVelocity();
-            double mass = ((SpeciesGeneral)molecule.getType()).getMass();
+            double mass = molecule.getType().getMass();
 //            System.out.println("mass = "+mass);
             int D = velocity.getD();
             for(int i=0; i<D; i++) {
@@ -433,7 +433,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             for(int i=0; i<D; i++) {
                 angularVelocity.setX(i,random.nextGaussian());
             }
-            angularMomentum.Ea1Tv1(temperature, ((SpeciesGeneral)molecule.getType()).getMomentOfInertia());
+            angularMomentum.Ea1Tv1(temperature, molecule.getType().getMomentOfInertia());
             angularMomentum.map(new Function.Sqrt());
             angularMomentum.TE(angularVelocity);
             //angularMomentum is now the correct body-fixed angular momentum
@@ -467,7 +467,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             }
 
             Vector velocity = ((IMoleculeKinetic) molecule).getVelocity();
-            double mass = ((SpeciesGeneral) molecule.getType()).getMass();
+            double mass = molecule.getType().getMass();
             momentum.PEa1Tv1(mass, velocity);
             totalMass += mass;
         }

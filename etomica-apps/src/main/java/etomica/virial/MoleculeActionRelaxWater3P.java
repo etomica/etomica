@@ -24,7 +24,7 @@ public class MoleculeActionRelaxWater3P implements MoleculeAction {
     }
     
     public void actionPerformed(IMolecule molecule) {
-        SpeciesGeneral species = (SpeciesGeneral) molecule.getType();
+        ISpecies species = molecule.getType();
         IAtom O = molecule.getChildList().get(species.getAtomByTypeName("O"));
         IAtom H1 = molecule.getChildList().get(species.getAtomByTypeName("H", 1));
         IAtom H2 = molecule.getChildList().get(species.getAtomByTypeName("H", 2));

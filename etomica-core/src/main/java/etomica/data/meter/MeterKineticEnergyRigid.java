@@ -59,12 +59,12 @@ public class MeterKineticEnergyRigid extends DataSourceScalar {
             if (molecule0 instanceof IMoleculeOrientedKinetic) {
                 for (int j = 0; j<moleculeList.size(); j++) {
                     IMoleculeOrientedKinetic moleculeOrientedKinetic = (IMoleculeOrientedKinetic)moleculeList.get(j);
-                    double mass = ((SpeciesGeneral)molecule0.getType()).getMass();
+                    double mass = molecule0.getType().getMass();
                     if (Double.isInfinite(mass)) {
                         continue;
                     }
                     ke += 0.5*mass*((IMoleculeKinetic)molecule0).getVelocity().squared();
-                    Vector moment = ((SpeciesGeneral)molecule0.getType()).getMomentOfInertia();
+                    Vector moment = molecule0.getType().getMomentOfInertia();
         
                     angularVelocity.E(moleculeOrientedKinetic.getAngularVelocity());
                     rotationTensor.setOrientation((IOrientationFull3D)moleculeOrientedKinetic.getOrientation());
