@@ -1,7 +1,10 @@
 package etomica.species;
 
 import etomica.atom.AtomType;
+import etomica.config.IConformation;
 import etomica.molecule.IMolecule;
+import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 
@@ -60,8 +63,18 @@ public class SpeciesGeneralMutable implements ISpecies {
     }
 
     @Override
+    public int getLeafAtomCount() {
+        return species.getLeafAtomCount();
+    }
+
+    @Override
     public AtomType getAtomType(int index) {
         return species.getAtomType(index);
+    }
+
+    @Override
+    public AtomType getLeafType() {
+        return species.getLeafType();
     }
 
     @Override
@@ -72,5 +85,55 @@ public class SpeciesGeneralMutable implements ISpecies {
     @Override
     public void initializeConformation(IMolecule molecule) {
         species.initializeConformation(molecule);
+    }
+
+    @Override
+    public IConformation getConformation() {
+        return species.getConformation();
+    }
+
+    @Override
+    public int getByName(String atomName) {
+        return species.getByName(atomName);
+    }
+
+    @Override
+    public int getAtomByTypeName(String name, int number) {
+        return species.getAtomByTypeName(name, number);
+    }
+
+    @Override
+    public int getAtomByTypeName(String name) {
+        return species.getAtomByTypeName(name);
+    }
+
+    @Override
+    public AtomType getTypeByName(String typeName) {
+        return species.getTypeByName(typeName);
+    }
+
+    @Override
+    public Vector getMomentOfInertia() {
+        return species.getMomentOfInertia();
+    }
+
+    @Override
+    public double getMass() {
+        return species.getMass();
+    }
+
+    @Override
+    public String toString() {
+        return species.toString();
+    }
+
+    @Override
+    public boolean isDynamic() {
+        return species.isDynamic();
+    }
+
+    @Override
+    public Space getSpace() {
+        return species.getSpace();
     }
 }
