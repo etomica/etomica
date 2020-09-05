@@ -13,6 +13,7 @@ import etomica.models.water.SpeciesWater3P;
 import etomica.molecule.IMolecule;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesGeneral;
 
 public class MoleculeActionRelaxWater3P implements MoleculeAction {

@@ -16,6 +16,7 @@ import etomica.potential.P2MoleculeMonatomic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;

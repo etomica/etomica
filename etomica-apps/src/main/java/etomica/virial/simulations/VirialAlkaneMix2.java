@@ -193,8 +193,8 @@ public class VirialAlkaneMix2 {
 //        sim.integratorOS.setStepFreq0(1);
 
 
-        SpeciesAlkane species1 = (SpeciesAlkane)sim.species[0];
-        SpeciesAlkane species2 = (SpeciesAlkane)sim.species[1];
+        ISpecies species1 = sim.species[0];
+        ISpecies species2 = sim.species[1];
         AtomType typeCH3A = species1.getAtomType(0);
         AtomType typeCH3B = species2.getAtomType(0);
         AtomType typeCH2A = species1.getAtomType(1);

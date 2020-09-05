@@ -148,8 +148,8 @@ public class VirialAlkaneMix_Kong extends VirialAlkaneMix {
         //        sim.integratorOS.setAdjustStepFreq(false);
 //        sim.integratorOS.setStepFreq0(1);
 
-        SpeciesAlkane speciesCH4 = (SpeciesAlkane)sim.species[0];
-        SpeciesAlkane speciesCH3 = (SpeciesAlkane)sim.species[1];
+        ISpecies speciesCH4 = sim.species[0];
+        ISpecies speciesCH3 = sim.species[1];
         AtomType typeCH4 = speciesCH4.getAtomType(0);
         AtomType typeCH3 = speciesCH3.getAtomType(0);
         pMethaneMethaneGroup.addPotential(p2CH4, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH4, typeCH4}));
