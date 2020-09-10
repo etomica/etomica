@@ -60,6 +60,9 @@ project(':etomica-core') {
 
         compile files("$rootProject.projectDir/libs/ptolemy.jar")
 
+        compile fileTree(dir: "$rootProject.projectDir/libs/jogl", include: "*.jar")
+        compile "org.joml:joml:1.9.25"
+
         compile project(':etomica-graphics3D')
     }
 
