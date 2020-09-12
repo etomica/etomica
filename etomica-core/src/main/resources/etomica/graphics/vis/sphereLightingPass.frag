@@ -17,6 +17,7 @@ struct DirLight {
     vec3 specular;
 };
 uniform DirLight light;
+uniform vec3 backgroundColor;
 
 void main() {
 
@@ -44,4 +45,7 @@ void main() {
     float fac = smoothstep(0.3, 0.4, edgeFac);
     vec3 color = (ambientColor + diffuseColor + spec);
     FragColor = vec4(color * fac, 1.0);
+    if (normal == vec3(0)) {
+        FragColor = vec4(backgroundColor, 0);
+    }
 }

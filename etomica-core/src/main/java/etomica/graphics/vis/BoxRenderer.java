@@ -41,19 +41,27 @@ public class BoxRenderer implements GLEventListener, MouseMotionListener, MouseW
     private ShaderProgram shaderLightingPass;
     private ShaderProgram shaderSSAO;
     private ShaderProgram shaderSSAOBlur;
+    private ShaderProgram shaderBox;
 
     private int spheresVAO;
     private int quadVAO;
+    private int boxVAO;
+    private int boxVBO;
     private int positionsVBO;
     FloatBuffer positions;
+    FloatBuffer boxVertices;
     int atomCount;
+    private final int boxEdgeCount;
 
     private FloatBuffer ssaoKernel;
     private int noiseTexture;
 
-    public BoxRenderer(int initialAtomCount) {
+    public BoxRenderer(int initialAtomCount, int boxEdgeCount) {
         atomCount = initialAtomCount;
         positions = GLBuffers.newDirectFloatBuffer(initialAtomCount * 3);
+
+        this.boxEdgeCount = boxEdgeCount;
+        this.boxVertices = GLBuffers.newDirectFloatBuffer(boxEdgeCount * 2 * 3);
     }
 
     private void makeFramebuffers(GL3 gl) {
@@ -91,7 +99,7 @@ public class BoxRenderer implements GLEventListener, MouseMotionListener, MouseW
         gBufferFBO.bind(gl);
         gl.glDrawBuffers(3, new int[]{ gl.GL_COLOR_ATTACHMENT0, gl.GL_COLOR_ATTACHMENT1, gl.GL_COLOR_ATTACHMENT2}, 0);
 
-        gBufferFBO.attachRenderbuffer(gl, FBObject.Attachment.Type.DEPTH, FBObject.DEFAULT_BITS);
+        gBufferFBO.attachRenderbuffer(gl, FBObject.Attachment.Type.DEPTH, 24);
         System.out.println(gBufferFBO.getStatusString());
         if (!gBufferFBO.isStatusValid()) {
             throw new RuntimeException();
@@ -173,6 +181,13 @@ public class BoxRenderer implements GLEventListener, MouseMotionListener, MouseW
         shaderSSAOBlur.link(gl, System.err);
         this.shaderSSAOBlur.useProgram(gl, true);
         setUniform(gl, shaderSSAOBlur, new GLUniformData("ssaoInput", 0));
+
+        this.shaderBox = new ShaderProgram();
+        ShaderCode boxVert = ShaderCode.create(gl, gl.GL_VERTEX_SHADER, 1, this.getClass(), new String[]{"box.vert"}, false);
+        ShaderCode boxFrag = ShaderCode.create(gl, gl.GL_FRAGMENT_SHADER, 1, this.getClass(), new String[]{"box.frag"}, false);
+        shaderBox.add(gl, boxVert, System.err);
+        shaderBox.add(gl, boxFrag, System.err);
+        shaderBox.link(gl, System.err);
     }
 
     private void makeBuffers(GL3 gl) {
@@ -191,6 +206,17 @@ public class BoxRenderer implements GLEventListener, MouseMotionListener, MouseW
 
         gl.glGenVertexArrays(1, intBuf);
         this.quadVAO = intBuf.get(0);
+
+        gl.glGenVertexArrays(1, intBuf);
+        this.boxVAO = intBuf.get(0);
+        gl.glBindVertexArray(boxVAO);
+
+        gl.glGenBuffers(1, intBuf);
+        this.boxVBO = intBuf.get(0);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, boxVBO);
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, boxVertices.capacity() * Float.BYTES, boxVertices, gl.GL_STREAM_DRAW);
+        gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, false, 3 * Float.BYTES, 0);
+        gl.glEnableVertexAttribArray(0);
 
 
     }
@@ -256,6 +282,10 @@ public class BoxRenderer implements GLEventListener, MouseMotionListener, MouseW
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, this.positionsVBO);
         synchronized (this.positions) {
             gl.glBufferSubData(gl.GL_ARRAY_BUFFER, 0, positions.capacity() * Float.BYTES, positions);
+        }
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, this.boxVBO);
+        synchronized (this.boxVertices) {
+            gl.glBufferSubData(gl.GL_ARRAY_BUFFER, 0, boxVertices.capacity() * Float.BYTES, boxVertices);
         }
 
         // Geometry pass
@@ -331,11 +361,23 @@ public class BoxRenderer implements GLEventListener, MouseMotionListener, MouseW
         setUniform(gl, this.shaderLightingPass, new GLUniformData("light.ambient", 3, GLBuffers.newDirectFloatBuffer(new float[]{0.9f, 0.9f, 0.9f})));
         setUniform(gl, this.shaderLightingPass, new GLUniformData("light.diffuse", 3, GLBuffers.newDirectFloatBuffer(new float[]{0.4f, 0.4f, 0.4f})));
         setUniform(gl, this.shaderLightingPass, new GLUniformData("light.specular", 3, GLBuffers.newDirectFloatBuffer(new float[]{0.9f, 0.9f, 0.9f})));
+        setUniform(gl, this.shaderLightingPass, new GLUniformData("backgroundColor", 3, GLBuffers.newDirectFloatBuffer(new float[]{0.7f, 0.7f, 0.7f})));
 
         // render quad
         gl.glBindVertexArray(this.quadVAO);
         gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4);
         gl.glBindVertexArray(0);
+
+        gl.glBindFramebuffer(gl.GL_READ_FRAMEBUFFER, gBufferFBO.getReadFramebuffer());
+        gl.glBindFramebuffer(gl.GL_DRAW_FRAMEBUFFER, 0);
+        gl.glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, gl.GL_DEPTH_BUFFER_BIT, gl.GL_NEAREST);
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0);
+
+        gl.glUseProgram(shaderBox.program());
+        setUniform(gl, this.shaderBox, new GLUniformData("view", 4, 4, view.get(matBuffer)));
+        setUniform(gl, this.shaderBox, new GLUniformData("projection", 4, 4, projection.get(matBuffer)));
+        gl.glBindVertexArray(this.boxVAO);
+        gl.glDrawArrays(gl.GL_LINES, 0, this.boxEdgeCount * 2);
     }
 
     @Override

@@ -12,13 +12,15 @@ uniform mat4 projection;
 uniform float width;
 uniform float height;
 
-const float radius = 1.0;
+const float radius = 0.5;
 const float bias = 0.025;
 
 void main() {
+    FragColor = 1;
+    vec3 normal = texture(gNormal, TexCoords).rgb;
+    if (normal == vec3(0)) { return; } // Don't know if this is a good idea or not
     vec2 noiseScale = vec2(width / 4.0, height / 4.0);
     vec3 fragPos = texture(gPosition, TexCoords).xyz;
-    vec3 normal = texture(gNormal, TexCoords).rgb;
     vec3 randomVec = texture(texNoise, TexCoords * noiseScale).rgb;
 
     vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
@@ -26,7 +28,7 @@ void main() {
     mat3 TBN = mat3(tangent, bitangent, normal);
 
     float occlusion = 0.0;
-    for (int i = 0; i < 64; i++) {
+    for (int i = 0; i < 32; i++) {
         vec3 occSample = TBN * ssaoKernel[i];
         occSample = fragPos + occSample * radius;
 
@@ -38,7 +40,8 @@ void main() {
         float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
         occlusion += (sampleDepth >= occSample.z + bias ? 1.0 : 0.0) * rangeCheck;
     }
-    occlusion = 1.0 - (occlusion / 64);
-    FragColor = occlusion;
+    occlusion = 1.0 - (occlusion / 32);
+    const float power = 2.0;
+    FragColor = pow(occlusion, power);
 //    FragColor=1;
 }
