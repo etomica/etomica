@@ -17,19 +17,27 @@ import etomica.simulation.prototypes.LJMD3D;
 import etomica.simulation.prototypes.LJMD3DNbr;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
+import net.miginfocom.swing.MigLayout;
 
-import javax.swing.SwingUtilities;
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.nio.FloatBuffer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 
 public class DisplayBoxOpenGL extends Display {
 
     private final GLCanvas canvas;
+    private final JPanel panel = new JPanel(new MigLayout());
     private final BoxRenderer renderer;
     private final Box box;
     private final Controller controller;
@@ -43,11 +51,18 @@ public class DisplayBoxOpenGL extends Display {
         GLCapabilities caps = new GLCapabilities(profile);
         caps.setDepthBits(24);
         this.canvas = new GLCanvas(caps);
+        this.panel.add(canvas);
         int boxEdgeCount = box.getBoundary().getShape().getEdges().length;
         this.renderer = new BoxRenderer(box.getLeafList().size(), boxEdgeCount);
 
+        JCheckBox checkBox = new JCheckBox("Enable SSAO", true);
+        checkBox.addItemListener(e -> {
+            getRenderer().setEnableSSAO(e.getStateChange() != ItemEvent.DESELECTED);
+        });
+        this.panel.add(checkBox);
+
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(() -> {
+        ScheduledFuture<?> future = scheduler.scheduleAtFixedRate(() -> {
             controller.submitActionInterrupt(() -> {
                 synchronized (renderer.positions) {
                     FloatBuffer pos = renderer.positions;
@@ -76,6 +91,7 @@ public class DisplayBoxOpenGL extends Display {
                 }
             });
         }, 0, 33, TimeUnit.MILLISECONDS);
+        scheduler.schedule(() -> future.cancel(false), 5, TimeUnit.SECONDS);
 
         canvas.addGLEventListener(renderer);
         canvas.addMouseMotionListener(renderer);
@@ -89,11 +105,15 @@ public class DisplayBoxOpenGL extends Display {
 
     @Override
     public Component graphic() {
-        return this.canvas;
+        return this.panel;
     }
 
     public void startAnimation() {
         animator.start();
+    }
+
+    public BoxRenderer getRenderer() {
+        return this.renderer;
     }
 
 

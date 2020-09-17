@@ -8,6 +8,7 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
 uniform sampler2D ssao;
+uniform bool useSSAO;
 
 struct DirLight {
     vec3 direction;
@@ -25,7 +26,7 @@ void main() {
     vec3 normal = texture(gNormal, TexCoords).rgb;
     vec3 diffuse = texture(gAlbedoSpec, TexCoords).rgb;
     float specular = texture(gAlbedoSpec, TexCoords).a;
-    float ao = texture(ssao, TexCoords).r;
+    float ao = useSSAO ? texture(ssao, TexCoords).r : 1;
 
     vec3 viewDir = normalize(frag_pos);
 

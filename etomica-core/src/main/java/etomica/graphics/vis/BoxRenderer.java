@@ -28,6 +28,9 @@ public class BoxRenderer implements GLEventListener, MouseMotionListener, MouseW
     private int mouseX;
     private int mouseY;
 
+
+    private boolean enableSSAO = true;
+
     private FBObject gBufferFBO;
     private FBObject.TextureAttachment gPosition;
     private FBObject.TextureAttachment gNormal;
@@ -313,29 +316,31 @@ public class BoxRenderer implements GLEventListener, MouseMotionListener, MouseW
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0);
 
         // SSAO pass
-        ssaoFBO.bind(gl);
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT);
-        gl.glUseProgram(shaderSSAO.program());
-        setUniform(gl, shaderSSAO, new GLUniformData("ssaoKernel", 3, this.ssaoKernel));
-        setUniform(gl, shaderSSAO, new GLUniformData("projection", 4, 4, projection.get(matBuffer)));
-        setUniform(gl, shaderSSAO, new GLUniformData("width", (float)width));
-        setUniform(gl, shaderSSAO, new GLUniformData("height", (float)height));
-        gl.glActiveTexture(gl.GL_TEXTURE0);
-        gl.glBindTexture(gl.GL_TEXTURE_2D, gPosition.getName());
-        gl.glActiveTexture(gl.GL_TEXTURE1);
-        gl.glBindTexture(gl.GL_TEXTURE_2D, gNormal.getName());
-        gl.glActiveTexture(gl.GL_TEXTURE2);
-        gl.glBindTexture(gl.GL_TEXTURE_2D, noiseTexture);
-        gl.glBindVertexArray(this.quadVAO);
-        gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4);
+        if (this.enableSSAO) {
+            ssaoFBO.bind(gl);
+            gl.glClear(gl.GL_COLOR_BUFFER_BIT);
+            gl.glUseProgram(shaderSSAO.program());
+            setUniform(gl, shaderSSAO, new GLUniformData("ssaoKernel", 3, this.ssaoKernel));
+            setUniform(gl, shaderSSAO, new GLUniformData("projection", 4, 4, projection.get(matBuffer)));
+            setUniform(gl, shaderSSAO, new GLUniformData("width", (float)width));
+            setUniform(gl, shaderSSAO, new GLUniformData("height", (float)height));
+            gl.glActiveTexture(gl.GL_TEXTURE0);
+            gl.glBindTexture(gl.GL_TEXTURE_2D, gPosition.getName());
+            gl.glActiveTexture(gl.GL_TEXTURE1);
+            gl.glBindTexture(gl.GL_TEXTURE_2D, gNormal.getName());
+            gl.glActiveTexture(gl.GL_TEXTURE2);
+            gl.glBindTexture(gl.GL_TEXTURE_2D, noiseTexture);
+            gl.glBindVertexArray(this.quadVAO);
+            gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4);
 
-        ssaoBlurFBO.bind(gl);
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT);
-        gl.glUseProgram(shaderSSAOBlur.program());
-        gl.glActiveTexture(gl.GL_TEXTURE0);
-        gl.glBindTexture(gl.GL_TEXTURE_2D, ssaoColorBuffer.getName());
-        gl.glBindVertexArray(this.quadVAO);
-        gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4);
+            ssaoBlurFBO.bind(gl);
+            gl.glClear(gl.GL_COLOR_BUFFER_BIT);
+            gl.glUseProgram(shaderSSAOBlur.program());
+            gl.glActiveTexture(gl.GL_TEXTURE0);
+            gl.glBindTexture(gl.GL_TEXTURE_2D, ssaoColorBuffer.getName());
+            gl.glBindVertexArray(this.quadVAO);
+            gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4);
+        }
 
         // Lighting pass
         // -------------
@@ -352,9 +357,14 @@ public class BoxRenderer implements GLEventListener, MouseMotionListener, MouseW
         gl.glBindTexture(gl.GL_TEXTURE_2D, gNormal.getName());
         gl.glActiveTexture(gl.GL_TEXTURE2);
         gl.glBindTexture(gl.GL_TEXTURE_2D, gAlbedoSpec.getName());
-        gl.glActiveTexture(gl.GL_TEXTURE3);
-        gl.glBindTexture(gl.GL_TEXTURE_2D, ssaoColorBufferBlur.getName());
 
+        if (this.enableSSAO) {
+            gl.glActiveTexture(gl.GL_TEXTURE3);
+            gl.glBindTexture(gl.GL_TEXTURE_2D, ssaoColorBufferBlur.getName());
+            setUniform(gl, this.shaderLightingPass, new GLUniformData("useSSAO", gl.GL_TRUE));
+        } else {
+            setUniform(gl, this.shaderLightingPass, new GLUniformData("useSSAO", gl.GL_FALSE));
+        }
         Vector3f lightDir = new Vector3f(.5f, .5f, -1);
         lightDir.mulDirection(view);
         setUniform(gl, this.shaderLightingPass, new GLUniformData("light.direction", 3, lightDir.get(GLBuffers.newDirectFloatBuffer(3))));
@@ -421,5 +431,13 @@ public class BoxRenderer implements GLEventListener, MouseMotionListener, MouseW
         } else {
             zoom *= 1.05f;
         }
+    }
+
+    public boolean isEnableSSAO() {
+        return enableSSAO;
+    }
+
+    public void setEnableSSAO(boolean enableSSAO) {
+        this.enableSSAO = enableSSAO;
     }
 }
