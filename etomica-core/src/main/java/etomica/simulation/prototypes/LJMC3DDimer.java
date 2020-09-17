@@ -139,6 +139,7 @@ public class LJMC3DDimer extends Simulation {
         sim.integrator.getEventManager().addListener(pump);
 
         MeterPressureMolecular meterPM = new MeterPressureMolecular(sim.space);
+        meterPM.setIntegrator(sim.integrator);
         AccumulatorAverageFixed accp = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumpP = new DataPumpListener(meterPM, accp, params.numAtoms);
         sim.integrator.getEventManager().addListener(pumpP);
@@ -171,6 +172,7 @@ public class LJMC3DDimer extends Simulation {
             }
 
             LJMC3DDimer sim = new LJMC3DDimer(params);
+            sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             ((DiameterHashByType) graphic.getDisplayBox(sim.box()).getDiameterHash()).setDiameter(sim.species().getAtomType(0), 3.0058);
             ((DiameterHashByType) graphic.getDisplayBox(sim.box()).getDiameterHash()).setDiameter(sim.species().getAtomType(1), 3.56379);
