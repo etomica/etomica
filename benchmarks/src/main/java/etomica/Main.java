@@ -13,12 +13,20 @@ public class Main {
     public static void main(String[] args) throws RunnerException {
 
         Options opts = new OptionsBuilder()
-                .include("BenchBox")
+                .include("BenchBox.benchNewBox")
+                .jvmArgs(
+                        "-XX:+UnlockDiagnosticVMOptions",
+                        "-XX:+TraceClassLoading",
+                        "-XX:+LogCompilation",
+                        "-XX:+PrintAssembly",
+                        "-XX:-UseCompressedOops"
+                )
 //                .jvmArgs(
 //                        "-XX:+UnlockDiagnosticVMOptions",
-//                        "-XX:+PrintAssembly",
+////                        "-XX:+PrintAssembly",
 //                        "-XX:PrintAssemblyOptions=intel",
-//                        "-XX:CompileCommand=print,*BoxBench.bench*")
+//                        "-XX:CompileCommand=print,etomica/BenchBox.bench*"
+//                )
                 .build();
 
         new Runner(opts).run();

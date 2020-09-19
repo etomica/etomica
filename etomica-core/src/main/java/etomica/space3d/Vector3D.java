@@ -69,9 +69,9 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     public void E(Vector u) {
-        x = ((Vector3D) u).x;
-        y = ((Vector3D) u).y;
-        z = ((Vector3D) u).z;
+        x = u.getX(0);
+        y = u.getX(1);
+        z = u.getX(2);
     }
 
     public void E(double a) {
@@ -96,21 +96,21 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
     
     public void Ea1Tv1(double a1, Vector u) {
-        x = a1 * ((Vector3D) u).x;
-        y = a1 * ((Vector3D) u).y;
-        z = a1 * ((Vector3D) u).z;
+        x = a1 * u.getX(0);
+        y = a1 * u.getX(1);
+        z = a1 * u.getX(2);
     }
 
     public void PEa1Tv1(double a1, Vector u) {
-        x += a1 * ((Vector3D) u).x;
-        y += a1 * ((Vector3D) u).y;
-        z += a1 * ((Vector3D) u).z;
+        x += a1 * u.getX(0);
+        y += a1 * u.getX(1);
+        z += a1 * u.getX(2);
     }
 
     public void PE(Vector u) {
-        x += ((Vector3D) u).x;
-        y += ((Vector3D) u).y;
-        z += ((Vector3D) u).z;
+        x += u.getX(0);
+        y += u.getX(1);
+        z += u.getX(2);
     }
 
     public void PE(double a) {
@@ -120,9 +120,9 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     public void ME(Vector u) {
-        x -= ((Vector3D) u).x;
-        y -= ((Vector3D) u).y;
-        z -= ((Vector3D) u).z;
+        x -= u.getX(0);
+        y -= u.getX(1);
+        z -= u.getX(2);
     }
 
     public void TE(double a) {
@@ -132,27 +132,27 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     public void TE(Vector u) {
-        x *= ((Vector3D) u).x;
-        y *= ((Vector3D) u).y;
-        z *= ((Vector3D) u).z;
+        x *= u.getX(0);
+        y *= u.getX(1);
+        z *= u.getX(2);
     }
 
     public void DE(Vector u) {
-        x /= ((Vector3D) u).x;
-        y /= ((Vector3D) u).y;
-        z /= ((Vector3D) u).z;
+        x /= u.getX(0);
+        y /= u.getX(1);
+        z /= u.getX(2);
     }
 
     public void Ev1Pv2(Vector u1, Vector u2) {
-        x = ((Vector3D) u1).x + ((Vector3D) u2).x;
-        y = ((Vector3D) u1).y + ((Vector3D) u2).y;
-        z = ((Vector3D) u1).z + ((Vector3D) u2).z;
+        x = u1.getX(0) + u2.getX(0);
+        y = u1.getX(1) + u2.getX(1);
+        z = u1.getX(2) + u2.getX(2);
     }
 
     public void Ev1Mv2(Vector u1, Vector u2) {
-        x = ((Vector3D) u1).x - ((Vector3D) u2).x;
-        y = ((Vector3D) u1).y - ((Vector3D) u2).y;
-        z = ((Vector3D) u1).z - ((Vector3D) u2).z;
+        x = u1.getX(0) - u2.getX(0);
+        y = u1.getX(1) - u2.getX(1);
+        z = u1.getX(2) - u2.getX(2);
     }
     
     public void mod(Vector u) {
@@ -179,15 +179,14 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     public double Mv1Squared(Vector u) {
-        double dx = x - ((Vector3D) u).x;
-        double dy = y - ((Vector3D) u).y;
-        double dz = z - ((Vector3D) u).z;
+        double dx = x - u.getX(0);
+        double dy = y - u.getX(1);
+        double dz = z - u.getX(2);
         return dx * dx + dy * dy + dz * dz;
     }
 
     public double dot(Vector u) {
-        return x * ((Vector3D) u).x + y * ((Vector3D) u).y + z
-                * ((Vector3D) u).z;
+        return x * u.getX(0) + y * u.getX(1) + z * u.getX(2);
     }
 
     /*

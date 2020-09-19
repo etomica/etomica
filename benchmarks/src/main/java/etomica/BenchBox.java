@@ -3,6 +3,8 @@ package etomica;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.system.VectorSystem;
+import etomica.box.system.ViewVector3D;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.simulation.Simulation;
@@ -29,6 +31,13 @@ public class BenchBox {
     double[] coords1dColMajor = new double[3 * 1000];
     IVecSys vecSys;
     int off = coords1dColMajor.length / 3;
+    VectorSystem vecs;
+    private AtomView[] atoms;
+    private Vector[] posArr;
+
+    private static class AtomView {
+        Vector pos;
+    }
 
     @Setup(Level.Trial)
     public void setUp() {
@@ -41,6 +50,9 @@ public class BenchBox {
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
 
+        vecs = new VectorSystem(Space3D.getInstance(), 1000);
+        atoms = new AtomView[1000];
+        posArr = new Vector[1000];
 
         for (int i = 0; i < box.getLeafList().size(); i++) {
             box.getLeafList().get(i).getPosition().assignTo(coords[i]);
@@ -53,12 +65,18 @@ public class BenchBox {
             coords1dColMajor[0 + i] = pos.getX(0);
             coords1dColMajor[len + i] = pos.getX(1);
             coords1dColMajor[2 * len + i] = pos.getX(2);
+
+            vecs.get(i).E(box.getLeafList().get(i).getPosition());
+            atoms[i] = new AtomView();
+            atoms[i].pos = vecs.get(i);
+
+            posArr[i] = box.getLeafList().get(i).getPosition();
         }
-        vecSys = new VectorSystem(coords1d);
+        vecSys = new VectorSystem2(coords1d);
 
     }
 
-//    @Benchmark
+    @Benchmark
     public double benchNormalBox() {
         Vector dr = box.getSpace().makeVector();
         double sum = 0;
@@ -67,6 +85,50 @@ public class BenchBox {
             Vector v = atoms.get(i).getPosition();
             for (int j = 0; j < atoms.size(); j++) {
                 dr.Ev1Mv2(v, atoms.get(j).getPosition());
+                sum += dr.squared();
+            }
+        }
+        return sum;
+    }
+
+    @Benchmark
+    public double benchNormalBoxNoAtoms() {
+        Vector dr = box.getSpace().makeVector();
+        double sum = 0;
+        for (int i = 0; i < posArr.length; i++) {
+            Vector v = posArr[i];
+            for (int j = 0; j < posArr.length; j++) {
+                dr.Ev1Mv2(v, posArr[j]);
+                sum += dr.squared();
+            }
+        }
+        return sum;
+    }
+
+    @Benchmark
+    public double benchNewBox() {
+        VectorSystem tmp = new VectorSystem(Space3D.getInstance(), 1);
+        Vector dr = tmp.get(0);
+        double sum = 0;
+        for (int i = 0; i < atoms.length; i++) {
+            Vector v = atoms[i].pos;
+            for (int j = 0; j < atoms.length; j++) {
+                dr.Ev1Mv2(v, atoms[j].pos);
+                sum += dr.squared();
+            }
+        }
+        return sum;
+    }
+
+    @Benchmark
+    public double benchNewBoxNoAtoms() {
+        VectorSystem tmp = new VectorSystem(Space3D.getInstance(), 1);
+        Vector dr = tmp.get(0);
+        double sum = 0;
+        for (int i = 0; i < vecs.size(); i++) {
+            Vector v = vecs.get(i);
+            for (int j = 0; j < vecs.size(); j++) {
+                dr.Ev1Mv2(v, vecs.get(i));
                 sum += dr.squared();
             }
         }
@@ -174,11 +236,11 @@ public class BenchBox {
         int rows();
     }
 
-    public static final class VectorSystem implements IVecSys {
+    public static final class VectorSystem2 implements IVecSys {
         private final double[] coords1d;
         private final int rows;
 
-        public VectorSystem(double[] coords) {
+        public VectorSystem2(double[] coords) {
             coords1d = coords.clone();
             rows = coords1d.length / 3;
         }
