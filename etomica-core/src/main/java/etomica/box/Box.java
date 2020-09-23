@@ -18,6 +18,8 @@ import etomica.species.ISpecies;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 
+import java.util.function.Consumer;
+
 /**
  * A Box collects all atoms that interact with one another; atoms in different
  * boxes do not interact. These are the important features of a Box:
@@ -131,9 +133,13 @@ public class Box {
      * @return the new molecule
      */
     public IMolecule addNewMolecule(ISpecies species) {
-        IMolecule aNew = species.makeMolecule();
-        addMolecule(aNew);
-        return aNew;
+        return this.addNewMolecule(species, (mol) -> {});
+    }
+
+    public IMolecule addNewMolecule(ISpecies species, Consumer<IMolecule> initMolecule) {
+        IMolecule mol = species.makeMolecule();
+        addMolecule(mol, initMolecule);
+        return mol;
     }
 
     /**
@@ -144,7 +150,7 @@ public class Box {
      *
      * @param molecule the molecule to be added to the Box
      */
-    public void addMolecule(IMolecule molecule) {
+    private void addMolecule(IMolecule molecule, Consumer<IMolecule> initMolecule) {
         int speciesIndex = molecule.getType().getIndex();
         if (Debug.ON) {
             for (int i = 0; i < moleculeLists[speciesIndex].size(); i++) {
@@ -164,6 +170,7 @@ public class Box {
             childAtom.setLeafIndex(nLeafAtoms++);
             leafList.add(childAtom);
         }
+        initMolecule.accept(molecule);
         eventManager.moleculeAdded(molecule);
 
         if (Debug.ON) {
@@ -227,12 +234,10 @@ public class Box {
         MoleculeArrayList moleculeList = moleculeLists[speciesIndex];
         int currentNMolecules = moleculeList.size();
         int moleculeLeafAtoms = 0;
-        IMolecule newMolecule0 = null;
         if (currentNMolecules > 0) {
             moleculeLeafAtoms = moleculeList.get(0).getChildList().size();
         } else if (n > currentNMolecules) {
-            newMolecule0 = species.makeMolecule();
-            moleculeLeafAtoms = newMolecule0.getChildList().size();
+            moleculeLeafAtoms = species.getLeafAtomCount();
         }
         notifyNewMolecules(species, (n - currentNMolecules), moleculeLeafAtoms);
         if (n < 0) {
@@ -241,12 +246,8 @@ public class Box {
         if (n > currentNMolecules) {
             moleculeLists[species.getIndex()].ensureCapacity(n);
             leafList.ensureCapacity(leafList.size() + (n - currentNMolecules) * moleculeLeafAtoms);
-            if (newMolecule0 != null) {
-                addMolecule(newMolecule0);
-                currentNMolecules++;
-            }
             for (int i = currentNMolecules; i < n; i++) {
-                addMolecule(species.makeMolecule());
+                this.addNewMolecule(species);
             }
         } else {
             for (int i = currentNMolecules; i > n; i--) {

@@ -31,6 +31,13 @@ public class MoleculeOrientedDynamic extends MoleculeOriented implements IMolecu
         return velocity;
     }
 
+    @Override
+    public void copyFrom(IMolecule other) {
+        super.copyFrom(other);
+        this.angularMomentum.E(((MoleculeOrientedDynamic) other).angularMomentum);
+        this.velocity.E(((MoleculeOrientedDynamic) other).velocity);
+    }
+
     private static final long serialVersionUID = 1L;
     protected final Vector angularMomentum;
     protected final Vector velocity;

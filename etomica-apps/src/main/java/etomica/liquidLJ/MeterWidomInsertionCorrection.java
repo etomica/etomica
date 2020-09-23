@@ -57,7 +57,6 @@ public class MeterWidomInsertionCorrection implements IDataSource {
      */
     public void setSpecies(ISpecies s) {
         species = s;
-        testMolecule = s.makeMolecule();
     }
 
     /**
@@ -112,18 +111,19 @@ public class MeterWidomInsertionCorrection implements IDataSource {
 //        System.out.println(Math.exp(-(u0Full-u0Fast) / temperature));
         double sumFast = 0.0; //sum for local insertion average
         double sumFull = 0.0;
-        energyMeterFast.setTarget(testMolecule);
-        energyMeterFull.setTarget(testMolecule);
         double[] x = data.getData();
         for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
             atomTranslator.setDestination(positionSource.randomPosition());
-            atomTranslator.actionPerformed(testMolecule);
-            box.addMolecule(testMolecule);
+            IMolecule molecule = box.addNewMolecule(species, mol -> {
+                atomTranslator.actionPerformed(mol);
+            });
+            energyMeterFast.setTarget(molecule);
+            energyMeterFull.setTarget(molecule);
             double uFast = epsFactor*energyMeterFast.getDataAsScalar();
             sumFast += Math.exp(-uFast / temperature);
             double uFull = epsFactor*energyMeterFull.getDataAsScalar();
             sumFull += Math.exp(-uFull / temperature);;
-            box.removeMolecule(testMolecule);
+            box.removeMolecule(molecule);
         }
         
         double dx = u0Full-u0Fast;
@@ -198,7 +198,6 @@ public class MeterWidomInsertionCorrection implements IDataSource {
     protected final DataTag tag;
     private int nInsert;
     private ISpecies species;
-    private IMolecule testMolecule;// prototype insertion molecule
     private MoleculeActionTranslateTo atomTranslator;
     protected RandomPositionSource positionSource;
     private MeterPotentialEnergy energyMeterFast, energyMeterFull;

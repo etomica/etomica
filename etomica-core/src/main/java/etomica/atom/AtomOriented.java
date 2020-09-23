@@ -37,4 +37,10 @@ public class AtomOriented extends Atom implements
     public IOrientation getOrientation() {
         return iOrientation;
     }
+
+    @Override
+    public void copyFrom(IAtom atom) {
+        super.copyFrom(atom);
+        this.iOrientation.E(((AtomOriented) atom).iOrientation);
+    }
 }

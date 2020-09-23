@@ -140,6 +140,11 @@ public final class Vector1D implements Vector, java.io.Serializable {
             x += dimensions1D.x;
     }
 
+    @Override
+    public Vector duplicate() {
+        return new Vector1D(x);
+    }
+
     public void setRandomSphere(IRandom random) {
         randomDirection(random);
     }

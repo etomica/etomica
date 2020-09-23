@@ -44,4 +44,10 @@ public class AtomOrientedDynamic extends AtomLeafDynamic implements
     public IOrientation getOrientation() {
         return iOrientation;
     }
+
+    public void copyFrom(IAtom other) {
+        super.copyFrom(other);
+        this.iOrientation.E(((AtomOrientedDynamic) other).iOrientation);
+        this.angularVelocity.E(((AtomOrientedDynamic) other).angularVelocity);
+    }
 }

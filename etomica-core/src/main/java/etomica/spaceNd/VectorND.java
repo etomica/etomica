@@ -208,6 +208,11 @@ public final class VectorND implements Vector, java.io.Serializable {
         }
     }
 
+    @Override
+    public Vector duplicate() {
+        return new VectorND(this.x.clone());
+    }
+
     /**
      * Creating a random unit vector on unit sphere Uses only two random number
      * generator at a time

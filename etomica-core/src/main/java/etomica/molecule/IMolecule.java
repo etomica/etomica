@@ -33,4 +33,6 @@ public interface IMolecule {
      * Returns the ISpecies of this IMolecule.
      */
     public ISpecies getType();
+
+    void copyFrom(IMolecule other);
 }

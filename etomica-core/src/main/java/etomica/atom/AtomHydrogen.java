@@ -35,4 +35,9 @@ public class AtomHydrogen extends AtomOriented {
         bondLength = x;
     }
 
+    @Override
+    public void copyFrom(IAtom atom) {
+        super.copyFrom(atom);
+        this.bondLength = ((AtomHydrogen) atom).bondLength;
+    }
 }

@@ -14,6 +14,7 @@ import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
 import etomica.integrator.Integrator;
+import etomica.molecule.IMolecule;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.NeighborCellManager;
@@ -204,14 +205,10 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
         numNewDeleteCandidates = 0;
         if (dirty || lastStepCount != integrator.getStepCount()) findCandidates();
         if (insert) {
-            if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.size()-1);
-            else testMolecule = species.makeMolecule();
-            IAtom testAtom = testMolecule.getChildList().get(0);
 
             int nInsertCandidates = insertCandidates.size();
             if (nInsertCandidates == 0) {
-                reservoir.add(testMolecule);
-                // test molecule is no longer in the simulation and should not be 
+                // test molecule is no longer in the simulation and should not be
                 // returned by affectedAtoms
                 testMolecule = null;
                 return false;
@@ -234,13 +231,15 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
                 dest.TE(nbrDistance);
                 dest.PE(dr);
             }
-            testAtom.getPosition().E(partner.getPosition());
-            testAtom.getPosition().PE(dest);
-            testAtom.getPosition().PE(box.getBoundary().centralImage(testAtom.getPosition()));
-            if (forced==2) {
-                testAtom.getPosition().E(oldPosition);
-            }
-            box.addMolecule(testMolecule);
+            testMolecule = box.addNewMolecule(species, mol -> {
+                IAtom testAtom = mol.getChildList().get(0);
+                testAtom.getPosition().E(partner.getPosition());
+                testAtom.getPosition().PE(dest);
+                testAtom.getPosition().PE(box.getBoundary().centralImage(testAtom.getPosition()));
+                if (forced==2) {
+                    testAtom.getPosition().E(oldPosition);
+                }
+            });
             energyMeter.setTarget(testMolecule);
             uNew = energyMeter.getDataAsScalar();
 
@@ -249,6 +248,7 @@ public class MCMoveInsertDeleteLatticeVacancy extends MCMoveInsertDeleteBiased i
             // we also need to see how many times testAtom shows up as a neighbor
             // of a deleteCandidate
 
+            IAtom testAtom = testMolecule.getChildList().get(0);
             Vector pi = testAtom.getPosition();
             atomIterator.setAtom(testAtom);
             ((AtomsetIteratorDirectable)atomIterator).setDirection(null);

@@ -20,4 +20,10 @@ public class AtomLeafDynamic extends Atom implements IAtomKinetic {
     public Vector getVelocity() {
         return velocity;
     }
+
+    @Override
+    public void copyFrom(IAtom atom) {
+        super.copyFrom(atom);
+        this.velocity.E(((AtomLeafDynamic) atom).getVelocity());
+    }
 }

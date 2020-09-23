@@ -8,6 +8,7 @@ import etomica.box.RandomPositionSource;
 import etomica.box.RandomPositionSourceRectangular;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMove;
+import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.cell.PotentialMasterCell;
@@ -275,12 +276,14 @@ public class MCMoveGeometricClusterRestrictedGE extends MCMove {
     }
 
     private void moveAtom(IAtom atom, Box box){
+        Box otherBox = box==box1?box2:box1;
         Vector position = atom.getPosition();
         position.TE(-1);
         position.PEa1Tv1(2,pivot);
+        otherBox.addNewMolecule(atom.getParentGroup().getType(), mol -> {
+            mol.getChildList().get(0).getPosition().E(atom.getPosition());
+        });
         box.removeMolecule(atom.getParentGroup());
-        Box otherBox = box==box1?box2:box1;
-        otherBox.addMolecule(atom.getParentGroup());
     }
 
     @Override

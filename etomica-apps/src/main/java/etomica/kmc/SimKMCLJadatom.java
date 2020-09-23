@@ -86,8 +86,7 @@ public class SimKMCLJadatom extends Simulation{
 
         //ADATOM CREATION AND PLACEMENT
 
-        IMolecule iMolecule = movable.makeMolecule();
-        box.addMolecule(iMolecule);
+        IMolecule iMolecule = box.addNewMolecule(movable);
         adAtomPos = iMolecule.getChildList().get(0).getPosition();
         //adAtomPos = getSpace().makeVector();
         adAtomPos.setX(0, 3.5);
@@ -146,9 +145,10 @@ public class SimKMCLJadatom extends Simulation{
             }
         }
         for (int i = 0; i<movableList.size(); i++){
-            IMolecule newMolecule = movable.makeMolecule();
-            box.addMolecule(newMolecule);
-            newMolecule.getChildList().get(0).getPosition().E(movableList.get(i).getChildList().get(0).getPosition());
+            Vector pos = movableList.get(i).getChildList().get(0).getPosition();
+            box.addNewMolecule(movable, mol -> {
+                mol.getChildList().get(0).getPosition().E(pos);
+            });
             box.removeMolecule(movableList.get(i));
         }
         movableSet = box.getMoleculeList(movable);
