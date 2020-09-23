@@ -331,4 +331,8 @@ public final class Vector3D implements Vector, java.io.Serializable {
         }
         return a;
     }
+
+    public Vector3D duplicate() {
+        return new Vector3D(this.x, this.y, this.z);
+    }
 }

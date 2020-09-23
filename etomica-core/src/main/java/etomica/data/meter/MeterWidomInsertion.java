@@ -68,7 +68,6 @@ public class MeterWidomInsertion extends DataSourceScalar {
      */
     public void setSpecies(ISpecies s) {
         species = s;
-        testMolecule = s.makeMolecule();
     }
 
     /**
@@ -107,12 +106,13 @@ public class MeterWidomInsertion extends DataSourceScalar {
      */
     public double getDataAsScalar() {
         double sum = 0.0; //sum for local insertion average
-        energyMeter.setTarget(testMolecule);
         if (integrator != null) temperature = integrator.getTemperature();
         for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
             atomTranslator.setDestination(positionSource.randomPosition());
-            atomTranslator.actionPerformed(testMolecule);
-            box.addMolecule(testMolecule);
+            IMolecule testMolecule = box.addNewMolecule(species, mol -> {
+                atomTranslator.actionPerformed(mol);
+            });
+            energyMeter.setTarget(testMolecule);
             double u = energyMeter.getDataAsScalar();
             sum += Math.exp(-u / temperature);
             if (Double.isInfinite(sum)) {
@@ -193,7 +193,6 @@ public class MeterWidomInsertion extends DataSourceScalar {
      */
     private int nInsert;
     private ISpecies species;
-    private IMolecule testMolecule;// prototype insertion molecule
     private boolean residual; // flag to specify if total or residual chemical
                               // potential evaluated. Default true
     private MoleculeActionTranslateTo atomTranslator;

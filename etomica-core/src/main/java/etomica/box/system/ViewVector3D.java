@@ -2,6 +2,7 @@ package etomica.box.system;
 
 import etomica.math.function.IFunction;
 import etomica.space.Vector;
+import etomica.space3d.Vector3D;
 import etomica.util.random.IRandom;
 
 import java.util.Arrays;
@@ -259,6 +260,11 @@ public class ViewVector3D implements Vector {
         while (z < 0.0)
             z += uz;
         this.set(x, y, z);
+    }
+
+    @Override
+    public Vector duplicate() {
+        return new Vector3D(x(), y(), z());
     }
 
     public void mapWith(Vector v, DoubleBinaryOperator fn) {

@@ -78,15 +78,16 @@ public class ConfigurationCatalysis implements Configuration {
         dim.setX(1, dim.getX(1)/0.9);
         box.getBoundary().setBoxSize(dim);
         
-        IMoleculeList molecules = pretendBox.getMoleculeList();
         Vector shift = space.makeVector();
         shift.setX(0, -1.901);
-        while (molecules.size()>0) {
-            IMolecule molecule1 = molecules.get(0);
-            pretendBox.removeMolecule(molecule1);
-            box.addMolecule(molecule1);
-            IMolecule molecule2 = speciesO.makeMolecule();
-            box.addMolecule(molecule2);
+        IMoleculeList molecules = pretendBox.getMoleculeList();
+        while (molecules.size() > 0) {
+            IMolecule pretendMol = molecules.get(0);
+            IMolecule molecule1 = box.addNewMolecule(pretendMol.getType());
+            molecule1.copyFrom(pretendMol);
+            pretendBox.removeMolecule(pretendMol);
+
+            IMolecule molecule2 = box.addNewMolecule(speciesO);
             IAtom atom1 = molecule1.getChildList().get(0);
             Vector pos1 = atom1.getPosition();
             IAtom atom2 = molecule2.getChildList().get(0);
@@ -96,6 +97,8 @@ public class ConfigurationCatalysis implements Configuration {
             ((CatalysisAgent)agentManager.getAgent(atom1)).bondedAtom1 = atom2;
             ((CatalysisAgent)agentManager.getAgent(atom2)).bondedAtom1 = atom1;
         }
+        pretendBox.setNMolecules(speciesO, 0);
+        pretendBox.setNMolecules(speciesC, 0);
 
         Primitive primitive = new PrimitiveOrthorhombic(space, cellSizeX, dim.getX(1), cellSizeZ);
         BasisOrthorhombicHexagonal3D basisSurface = new BasisOrthorhombicHexagonal3D(space);
@@ -106,10 +109,10 @@ public class ConfigurationCatalysis implements Configuration {
         config.initializeCoordinates(pretendBox);
 
         molecules = pretendBox.getMoleculeList(speciesSurface);
-        for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = molecules.get(0);
-            pretendBox.removeMolecule(molecule);
-            box.addMolecule(molecule);
+        for (int i = 0; i < nMolecules; i++) {
+            IMolecule pretendMol = molecules.get(0);
+            box.addNewMolecule(speciesSurface).copyFrom(pretendMol);
+            pretendBox.removeMolecule(pretendMol);
         }
         
 //        pretendBox.setNMolecules(speciesSurface, nMolecules);

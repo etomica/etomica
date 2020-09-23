@@ -35,7 +35,6 @@ public class MeterWidomCavity implements IDataSource, DataSourceIndependent {
     private final MeterPotentialEnergy energyMeter;
     protected Box box;
     protected final Vector dr, r0;
-    protected IMolecule testMolecule;
 
     public MeterWidomCavity(Box box, IRandom random, PotentialMaster potentialMaster) {
         setNInsert(100);
@@ -64,7 +63,6 @@ public class MeterWidomCavity implements IDataSource, DataSourceIndependent {
      */
     public void setSpecies(ISpecies s) {
         species = s;
-        testMolecule = species.makeMolecule();
     }
 
     /**
@@ -93,10 +91,6 @@ public class MeterWidomCavity implements IDataSource, DataSourceIndependent {
         double[] y = data.getData();
         IAtomList atoms = box.getLeafList();
         double[] r = rData.getData();
-        IAtom testAtom = testMolecule.getChildList().get(0);
-        energyMeter.setTarget(testAtom);
-        Vector testR = testAtom.getPosition();
-        for (int j = 0; j < y.length; j++) y[j] = 0;
         for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
             IAtom atom0 = atoms.get(random.nextInt(atoms.size()));
             r0.E(atom0.getPosition());
@@ -108,13 +102,18 @@ public class MeterWidomCavity implements IDataSource, DataSourceIndependent {
                     y[j]++;
                     continue;
                 }
-                testR.E(r0);
-                testR.PEa1Tv1(r[j], dr);
-                Vector shift = box.getBoundary().centralImage(testR);
-                testR.PE(shift);
-                box.addMolecule(testMolecule);
+                int finalJ = j;
+                IMolecule molecule = box.addNewMolecule(species, mol -> {
+                    IAtom testAtom = mol.getChildList().get(0);
+                    Vector testR = testAtom.getPosition();
+                    testR.E(r0);
+                    testR.PEa1Tv1(r[finalJ], dr);
+                    Vector shift = box.getBoundary().centralImage(testR);
+                    testR.PE(shift);
+                    energyMeter.setTarget(testAtom);
+                });
                 double u = energyMeter.getDataAsScalar();
-                box.removeMolecule(testMolecule);
+                box.removeMolecule(molecule);
                 if (u == 0) y[j]++;
             }
             atom0.getPosition().E(r0);

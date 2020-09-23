@@ -90,6 +90,16 @@ public class Molecule implements IMolecule, java.io.Serializable {
         return species;
     }
 
+    @Override
+    public void copyFrom(IMolecule other) {
+        if (this.getType() != other.getType()) {
+            throw new IllegalArgumentException();
+        }
+        for (int i = 0; i < this.getChildList().size(); i++) {
+            this.getChildList().get(i).copyFrom(other.getChildList().get(i));
+        }
+    }
+
     private static final long serialVersionUID = 1L;
     
     protected int index;

@@ -219,6 +219,11 @@ public final class Vector2D implements Vector, java.io.Serializable {
             y += dimensions2D.y;
     }
 
+    @Override
+    public Vector duplicate() {
+        return new Vector2D(x, y);
+    }
+
     public boolean isNaN() {
         return Double.isNaN(x) || Double.isNaN(y);
     }

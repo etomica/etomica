@@ -137,18 +137,9 @@ public class MCMoveSemigrand extends MCMoveBox {
             uOld = energyMeter.getDataAsScalar();
         }
         box.removeMolecule(deleteMolecule);
-        
-        int size = reservoirs[iInsert].size();
-        if(size>0) {
-            insertMolecule = reservoirs[iInsert].remove(size-1);
-            box.addMolecule(insertMolecule);
-        }
-        else {
-            insertMolecule = speciesSet[iInsert].makeMolecule();
-            box.addMolecule(insertMolecule);
-        }
+
         moleculeTranslator.setDestination(atomPositionDefinition.position(deleteMolecule));
-        moleculeTranslator.actionPerformed(insertMolecule);
+        insertMolecule = box.addNewMolecule(speciesSet[iInsert], moleculeTranslator::actionPerformed);
         //in general, should also randomize orintation and internal coordinates
         uNew = Double.NaN;
         return true;
@@ -169,7 +160,7 @@ public class MCMoveSemigrand extends MCMoveBox {
 
     public void rejectNotify() {
         //put deleted molecule back into box
-        box.addMolecule(deleteMolecule);
+        box.addNewMolecule(deleteMolecule.getType(), moleculeTranslator::actionPerformed);
         //remove inserted molecule and put in reservoir
         box.removeMolecule(insertMolecule);
         reservoirs[iInsert].add(insertMolecule);

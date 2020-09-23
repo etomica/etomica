@@ -66,12 +66,15 @@ public class ConfigurationMembraneWater implements Configuration {
         configLattice.initializeCoordinates(pretendBox);
         // move molecules over to the real box
         IMoleculeList molecules = pretendBox.getMoleculeList(speciesSolvent);
-        for (int i=nMolecules-1; i>-1; i--) {
+        for (IMolecule mol : molecules) {
             // molecules will be reversed in order, but that's OK
-            IMolecule atom = molecules.get(i);
-            pretendBox.removeMolecule(atom);
-            box.addMolecule(atom);
+            box.addNewMolecule(mol.getType(), newMol -> {
+                newMol.copyFrom(mol);
+            });
+
         }
+
+        pretendBox.setNMolecules(speciesSolvent, 0);
 
         nMolecules = (int)Math.round(pretendBox.getBoundary().volume() * solutionChamberDensity);
         int nSolutes = (int)(nMolecules * soluteMoleFraction);
@@ -82,30 +85,25 @@ public class ConfigurationMembraneWater implements Configuration {
         configLattice.initializeCoordinates(pretendBox);
         // move molecules over to the real box
         ISpecies[] fluidSpecies = new ISpecies[]{speciesSolute1, speciesSolvent};
-        for (int iSpecies=0; iSpecies<fluidSpecies.length; iSpecies++) {
-            molecules = pretendBox.getMoleculeList(fluidSpecies[iSpecies]);
-            for (int i = molecules.size()-1; i>-1; i--) {
+        for (ISpecies species : fluidSpecies) {
+            molecules = pretendBox.getMoleculeList(species);
+            for (int i = 0; i < molecules.size(); i++) {
+                IMolecule mol = molecules.get(i);
                 // molecules will be reversed in order, but that's OK
-                IMolecule molecule = molecules.get(i);
-                pretendBox.removeMolecule(molecule);
                 // we need to translate the molecules into the proper chamber
-                double x = positionDefinition.position(molecule).getX(membraneDim);
-                if (x < 0) {
-                    translationVector.setX(membraneDim, -0.5*chamberLength - membraneTotalThickness);
-                }
-                else {
-                    translationVector.setX(membraneDim, 0.5*chamberLength + membraneTotalThickness);
-                }
-                translator.actionPerformed(molecule);
-                if (fluidSpecies[iSpecies] == speciesSolute1 && i % 2 == 0) {
-                    // insert speciesSolute2 instead
-                    IMolecule solute2 = speciesSolute2.makeMolecule();
-                    translationVector.E(positionDefinition.position(molecule));
-                    translator.actionPerformed(solute2);
-                    molecule = solute2;
+                double x = positionDefinition.position(mol).getX(membraneDim);
+                double sign = Math.signum(x);
+                translationVector.setX(membraneDim, sign * 0.5 * chamberLength + sign * membraneTotalThickness);
+                translator.actionPerformed(mol);
+                if (species == speciesSolute1 && i % 2 == 0) {
+                    box.addNewMolecule(speciesSolute2, newMol -> {
+                       translationVector.E(positionDefinition.position(mol));
+                       translator.actionPerformed(newMol);
+                    });
                     translationVector.E(0);
+                } else {
+                    box.addNewMolecule(species).copyFrom(mol);
                 }
-                box.addMolecule(molecule);
             }
         }
 
@@ -158,18 +156,18 @@ public class ConfigurationMembraneWater implements Configuration {
             double membraneShift = shifts[iShift]*boxDimensions.getX(membraneDim) - membraneCenter;
             // move molecules over to the real box
             molecules = pretendBox.getMoleculeList(speciesMembrane);
-            for (int i = molecules.size()-1; i>-1; i--) {
+            for (IMolecule mol : molecules) {
                 // molecules will be reversed in order, but that's OK
-                IMolecule molecule = molecules.get(i);
-                IAtom atom = molecule.getChildList().get(0);
+                IAtom atom = mol.getChildList().get(0);
                 double x = atom.getPosition().getX(membraneDim);
                 if (Math.abs(x - membraneCenter) > 0.5 * membraneTotalThickness) {
                     // we encountered a pretend atom in our pretend box!
                     continue;
                 }
                 atom.getPosition().setX(membraneDim, x + membraneShift);
-                pretendBox.removeMolecule(molecule);
-                box.addMolecule(molecule);
+                box.addNewMolecule(mol.getType(), newMol -> {
+                    newMol.copyFrom(mol);
+                });
             }
         }
         

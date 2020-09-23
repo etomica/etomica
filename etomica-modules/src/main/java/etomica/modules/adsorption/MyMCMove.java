@@ -59,12 +59,6 @@ public class MyMCMove extends MCMoveInsertDelete {
 		insert = (random.nextInt(2) == 0);
 		if(insert) {
 			uOld = 0.0;
-			if(!reservoir.isEmpty()) {
-			    testMolecule = reservoir.remove(reservoir.size()-1);
-			}
-			else {
-			    testMolecule = species.makeMolecule();
-			}
             position.E(positionSource.randomPosition());
 			double z = position.getX(dim);
             double zBoundary = box.getBoundary().getBoxSize().getX(dim);
@@ -82,8 +76,7 @@ public class MyMCMove extends MCMoveInsertDelete {
             }
 			position.setX(dim,z);
 			atomTranslator.setDestination(position);
-			atomTranslator.actionPerformed(testMolecule);
-            box.addMolecule(testMolecule);
+            testMolecule = box.addNewMolecule(species, atomTranslator::actionPerformed);
 		} else {//delete
 			if(activeAtoms.size() == 0) {
 				testMolecule = null;//added this line 09/19/02

@@ -79,10 +79,16 @@ public class MCMoveSwap extends MCMoveBox {
         atomB.getPosition().E(tmp);
         if (potential instanceof PotentialMasterList) {
             // need to remove/add so neighbor list manager notices
+            Vector aPos = atomA.getPosition().duplicate();
             box.removeMolecule(atomA.getParentGroup());
-            box.addMolecule(atomA.getParentGroup());
+            box.addNewMolecule(speciesA, m -> {
+                m.getChildList().get(0).getPosition().E(aPos);
+            });
+            Vector bPos = atomB.getPosition().duplicate();
             box.removeMolecule(atomB.getParentGroup());
-            box.addMolecule(atomB.getParentGroup());
+            box.addNewMolecule(speciesB, m -> {
+                m.getChildList().get(0).getPosition().E(bPos);
+            });
         }
         return true;
     }
@@ -107,10 +113,16 @@ public class MCMoveSwap extends MCMoveBox {
         atomA.getPosition().E(atomB.getPosition());
         atomB.getPosition().E(tmp);
         if (potential instanceof PotentialMasterList) {
+            Vector aPos = atomA.getPosition().duplicate();
             box.removeMolecule(atomA.getParentGroup());
-            box.addMolecule(atomA.getParentGroup());
+            box.addNewMolecule(speciesA, m -> {
+                m.getChildList().get(0).getPosition().E(aPos);
+            });
+            Vector bPos = atomB.getPosition().duplicate();
             box.removeMolecule(atomB.getParentGroup());
-            box.addMolecule(atomB.getParentGroup());
+            box.addNewMolecule(speciesB, m -> {
+                m.getChildList().get(0).getPosition().E(bPos);
+            });
         }
     }
 }

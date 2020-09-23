@@ -116,10 +116,6 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
         numNewDeleteCandidates = 0;
         if (dirty || lastStepCount < integrator.getStepCount()) findCandidates();
         if(insert) {
-            if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.size()-1);
-            else testMolecule = species.makeMolecule();
-            IAtom testAtom = testMolecule.getChildList().get(0);
-
             int nInsertCandidates = insertCandidates.size();
             if (nInsertCandidates == 0) return false;
             IAtom partner = box.getLeafList().get(insertCandidates.get(random.nextInt(nInsertCandidates)));
@@ -131,14 +127,17 @@ public class MCMoveInsertDeleteVacancy extends MCMoveInsertDeleteBiased implemen
                 dest.TE(maxInsertDistance);
                 r2 = dest.squared();
             }
-            testAtom.getPosition().E(partner.getPosition());
-            testAtom.getPosition().PE(dest);
-            if (forced==2) {
-                testAtom.getPosition().E(oldPosition);
-            }
-            box.addMolecule(testMolecule);
+            testMolecule = box.addNewMolecule(species, mol -> {
+                IAtom testAtom = mol.getChildList().get(0);
+                testAtom.getPosition().E(partner.getPosition());
+                testAtom.getPosition().PE(dest);
+                if (forced==2) {
+                    testAtom.getPosition().E(oldPosition);
+                }
+            });
             energyMeter.setTarget(testMolecule);
             uNew = energyMeter.getDataAsScalar();
+            IAtom testAtom = testMolecule.getChildList().get(0);
 
             // inserting testAtom might change some deleteCandidates
             // some existing deleteCandidates with nbrs=12 might have 13 now

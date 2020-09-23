@@ -95,6 +95,11 @@ public class Atom implements IAtom, java.io.Serializable {
         return position;
     }
 
+     @Override
+     public void copyFrom(IAtom atom) {
+        this.position.E(atom.getPosition());
+     }
+
      public int getLeafIndex() {
         return leafIndex;
     }

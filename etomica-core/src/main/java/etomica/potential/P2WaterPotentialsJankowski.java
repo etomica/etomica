@@ -2016,6 +2016,11 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
                 return comA;
             }
 
+            @Override
+            public void copyFrom(IAtom atom) {
+                assert false;
+            }
+
             public IMolecule getParentGroup() {
                 return null;
             }
@@ -2079,6 +2084,11 @@ public class P2WaterPotentialsJankowski implements IPotentialAtomic {
 
             public Vector getPosition() {
                 return comB;
+            }
+
+            @Override
+            public void copyFrom(IAtom atom) {
+                assert false;
             }
 
             public IMolecule getParentGroup() {

@@ -14,6 +14,7 @@ import etomica.molecule.IMolecule;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Null;
 
 /**
@@ -25,11 +26,12 @@ import etomica.units.dimensions.Null;
  */
 public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned {
 
-    public DataSourcePositionedBoltzmannFactor(Space space) {
+    public DataSourcePositionedBoltzmannFactor(Space space, SpeciesGeneral species) {
         data = new DataDouble();
         dataInfo = new DataInfoDouble("chemical potential", Null.DIMENSION);
         tag = new DataTag();
         atomTranslator = new MoleculeActionTranslateTo(space);
+        this.species = species;
     }
 
     /**
@@ -42,24 +44,18 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
     }
 
     /**
-     * Sets the ISpecies for which the chemical potential is to be measured.
-     */
-    public void setSpecies(ISpecies newSpecies) {
-        testMolecule = newSpecies.makeMolecule();
-    }
-
-    /**
      * Returns the ISpecies for which the chemical potential is to be measured.
      */
     public ISpecies getSpecies() {
-        return testMolecule.getType();
+        return species;
     }
 
     public IData getData(Vector a) {
-        atomTranslator.setDestination(a);
-        atomTranslator.actionPerformed(testMolecule);
         Box box = integrator.getBox();
-        box.addMolecule(testMolecule);
+        atomTranslator.setDestination(a);
+        IMolecule testMolecule = box.addNewMolecule(species, mol -> {
+            atomTranslator.actionPerformed(mol);
+        });
         energyMeter.setTarget(testMolecule);
         double temp = integrator.getTemperature();
         data.x = Math.exp(-energyMeter.getDataAsScalar()/temp);
@@ -83,11 +79,11 @@ public class DataSourcePositionedBoltzmannFactor implements DataSourcePositioned
         return tag;
     }
 
-    protected IMolecule testMolecule;// prototype insertion molecule
     protected MoleculeActionTranslateTo atomTranslator;
     protected MeterPotentialEnergy energyMeter;
     protected final DataInfoDouble dataInfo;
     protected final DataDouble data;
     protected IntegratorBox integrator;
     protected final DataTag tag;
+    private final ISpecies species;
 }

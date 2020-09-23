@@ -423,10 +423,10 @@ public class MuGraphic extends SimulationGraphic {
                 }
                 else {
                     for (int i=0; i<(d-oldValue); i++) {
-                        IMolecule m = species.makeMolecule();
-                        Vector p = m.getChildList().get(0).getPosition();
-                        p.setX(0, -7.5);
-                        box.addMolecule(m);
+                        box.addNewMolecule(species, m -> {
+                            Vector p = m.getChildList().get(0).getPosition();
+                            p.setX(0, -7.5);
+                        });
                     }
                 }
                 sim.integrator.reset();
@@ -458,10 +458,10 @@ public class MuGraphic extends SimulationGraphic {
                 }
                 else {
                     for (int i=0; i<(d-oldValue); i++) {
-                        IMolecule m = species.makeMolecule();
-                        Vector p = m.getChildList().get(0).getPosition();
-                        p.setX(0, -7.5);
-                        box.addMolecule(m);
+                        box.addNewMolecule(species, m -> {
+                            Vector p = m.getChildList().get(0).getPosition();
+                            p.setX(0, -7.5);
+                        });
                     }
                 }
                 sim.integrator.reset();

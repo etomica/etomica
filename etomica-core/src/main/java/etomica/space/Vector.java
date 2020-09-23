@@ -263,4 +263,6 @@ public interface Vector {
         }
 
     }
+
+    Vector duplicate();
 }
