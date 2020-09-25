@@ -237,8 +237,8 @@ public class SpeciesGeneral implements ISpecies {
                 return isDynamic ? new AtomOrientedDynamic(space, atomType)
                         : new AtomOriented(space, atomType);
             } else {
-                return isDynamic ? new AtomLeafDynamic(space, atomType)
-                        : new Atom(space, atomType);
+                return isDynamic ? new AtomLeafDynamic(space, atomType, space.makeVector(), space.makeVector())
+                        : new Atom(space, atomType, space.makeVector());
             }
         };
     }

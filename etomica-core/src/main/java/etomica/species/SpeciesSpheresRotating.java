@@ -37,7 +37,7 @@ public class SpeciesSpheresRotating {
                 .withConformation(new ConformationLinear(space))
                 .withAtomFactory((atomType -> {
                     return isDynamic ? new AtomOrientedDynamic(space, atomType, isAxisSymmetric)
-                            : new AtomOriented(space, atomType, isAxisSymmetric);
+                            : new AtomOriented(space, atomType, space.makeVector(), isAxisSymmetric);
                 }))
                 .build();
     }

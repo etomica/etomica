@@ -25,10 +25,10 @@ public class Atom implements IAtom, java.io.Serializable {
      protected IMolecule parent;
      protected int leafIndex;
 
-     public Atom(Space space, AtomType type) {
+     public Atom(Space space, AtomType type, Vector position) {
         super();
         this.type = type;
-        position = space.makeVector();
+        this.position = position;
     }
 
     /**
@@ -37,9 +37,7 @@ public class Atom implements IAtom, java.io.Serializable {
      * unique to the new atom; depth is 0.
      */
     public Atom(Space space) {
-        super();
-        type = null;
-        position = space.makeVector();
+        this(space, null, space.makeVector());
     }
 
      /**
