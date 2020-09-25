@@ -1,4 +1,4 @@
-package etomica.box.system;
+package etomica.box.storage;
 
 import etomica.math.function.IFunction;
 import etomica.space.Vector;

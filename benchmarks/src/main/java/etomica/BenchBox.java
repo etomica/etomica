@@ -3,8 +3,7 @@ package etomica;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.box.system.VectorSystem;
-import etomica.box.system.ViewVector3D;
+import etomica.box.storage.VectorStorage;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.simulation.Simulation;
@@ -31,7 +30,7 @@ public class BenchBox {
     double[] coords1dColMajor = new double[3 * 1000];
     IVecSys vecSys;
     int off = coords1dColMajor.length / 3;
-    VectorSystem vecs;
+    VectorStorage vecs;
     private AtomView[] atoms;
     private Vector[] posArr;
 
@@ -50,7 +49,7 @@ public class BenchBox {
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
 
-        vecs = new VectorSystem(Space3D.getInstance(), 1000);
+        vecs = new VectorStorage(Space3D.getInstance(), 1000);
         atoms = new AtomView[1000];
         posArr = new Vector[1000];
 
@@ -107,7 +106,7 @@ public class BenchBox {
 
     @Benchmark
     public double benchNewBox() {
-        VectorSystem tmp = new VectorSystem(Space3D.getInstance(), 1);
+        VectorStorage tmp = new VectorStorage(Space3D.getInstance(), 1);
         Vector dr = tmp.get(0);
         double sum = 0;
         for (int i = 0; i < atoms.length; i++) {
@@ -122,7 +121,7 @@ public class BenchBox {
 
     @Benchmark
     public double benchNewBoxNoAtoms() {
-        VectorSystem tmp = new VectorSystem(Space3D.getInstance(), 1);
+        VectorStorage tmp = new VectorStorage(Space3D.getInstance(), 1);
         Vector dr = tmp.get(0);
         double sum = 0;
         for (int i = 0; i < vecs.size(); i++) {
@@ -135,7 +134,7 @@ public class BenchBox {
         return sum;
     }
 
-//    @Benchmark
+    @Benchmark
     public double benchCoords() {
         double sum = 0;
         for (int i = 0; i < coords.length; i++) {
@@ -170,7 +169,7 @@ public class BenchBox {
 
     }
 
-//    @Benchmark
+    @Benchmark
     public double benchCoords1d() {
         double sum = 0;
         for (int i = 0; i < coords.length; i++) {
@@ -187,7 +186,7 @@ public class BenchBox {
         return sum;
     }
 
-//    @Benchmark
+    @Benchmark
     public double benchCoords1dColMajor() {
         double sum = 0;
         for (int i = 0; i < coords.length; i++) {

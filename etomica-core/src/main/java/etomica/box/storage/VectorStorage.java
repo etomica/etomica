@@ -1,21 +1,24 @@
-package etomica.box.system;
+package etomica.box.storage;
 
 import etomica.space.Space;
 import etomica.space.Vector;
 
 import java.util.Arrays;
+import java.util.BitSet;
 
-public class VectorSystem {
+public class VectorStorage {
     private double[] data;
     private Vector[] viewVectors;
+    private final BitSet validBits;
     private int count;
     private final int stride;
     private final Space space;
 
 
-    public VectorSystem(Space space, int count) {
+    public VectorStorage(Space space, int count) {
         this.stride = space.D();
         this.data = new double[count * stride];
+        this.validBits = new BitSet(count);
         this.count = count;
         this.viewVectors = new Vector[count];
         this.space = space;

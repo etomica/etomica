@@ -8,6 +8,9 @@ import etomica.action.BoxInflate;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.box.storage.DoubleStorage;
+import etomica.box.storage.OrientationStorage;
+import etomica.box.storage.VectorStorage;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
@@ -18,6 +21,9 @@ import etomica.species.ISpecies;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -67,6 +73,20 @@ public class Box {
     protected MoleculeArrayList[] moleculeLists;
     private final Boundary boundary;
     private int index;
+
+    private int atomCount;
+    private int moleculeCount;
+    private final Map<Object, VectorStorage> atomVectorStorageMap = new HashMap<>();
+    private final Map<Object, DoubleStorage> atomDoubleStorageMap = new HashMap<>();
+    private final Map<Object, OrientationStorage> atomOrientationsStorageMap = new HashMap<>();
+    private final Map<Object, VectorStorage> molVectorStorageMap = new HashMap<>();
+    private final Map<Object, DoubleStorage> molDoubleStorageMap = new HashMap<>();
+    private final Map<Object, OrientationStorage> molOrientationsStorageMap = new HashMap<>();
+
+
+    public VectorStorage getVectors(Object token) {
+        return this.atomVectorStorageMap.computeIfAbsent(token, t -> new VectorStorage(space, atomCount));
+    }
 
     /**
      * Constructs box with default rectangular periodic boundary.

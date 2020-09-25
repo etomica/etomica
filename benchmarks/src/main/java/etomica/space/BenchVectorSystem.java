@@ -1,10 +1,8 @@
 package etomica.space;
 
-import etomica.box.system.VectorSystem;
-import etomica.box.system.ViewVector3D;
+import etomica.box.storage.VectorStorage;
 import etomica.space3d.Space3D;
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.profile.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -21,23 +19,23 @@ import java.util.concurrent.TimeUnit;
 @Fork(value = 1)
 public class BenchVectorSystem {
 
-    VectorSystem vectorSystem;
+    VectorStorage vectorStorage;
     Vector singleVec;
-    VectorSystem singleVecSys;
+    VectorStorage singleVecSys;
     double scalar;
 
     @Setup
     public void setUp() {
-        vectorSystem = new VectorSystem(Space3D.getInstance(), 1000);
+        vectorStorage = new VectorStorage(Space3D.getInstance(), 1000);
         singleVec = Vector.of(1.0, 2.0, 3.0);
-        singleVecSys = new VectorSystem(Space3D.getInstance(), 1);
+        singleVecSys = new VectorStorage(Space3D.getInstance(), 1);
         scalar = new Random().nextDouble();
     }
 
     @Benchmark
     public Vector benchAddViewView() {
-        vectorSystem.get(5).PE(vectorSystem.get(6));
-        return vectorSystem.get(5);
+        vectorStorage.get(5).PE(vectorStorage.get(6));
+        return vectorStorage.get(5);
     }
 
     @Benchmark
@@ -48,14 +46,14 @@ public class BenchVectorSystem {
 
     @Benchmark
     public Vector benchAddViewSingle() {
-        vectorSystem.get(5).PE(singleVec);
-        return vectorSystem.get(5);
+        vectorStorage.get(5).PE(singleVec);
+        return vectorStorage.get(5);
     }
 
     @Benchmark
     public Vector benchAddViewScalar() {
-        vectorSystem.get(5).PE(scalar);
-        return vectorSystem.get(5);
+        vectorStorage.get(5).PE(scalar);
+        return vectorStorage.get(5);
     }
 
     @Benchmark
