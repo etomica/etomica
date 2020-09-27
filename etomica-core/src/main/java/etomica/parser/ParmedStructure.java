@@ -149,28 +149,30 @@ public class ParmedStructure {
      *
      * @return a List containing all the molecules of a species in the structure.
      */
+    // TODO: Update this class to work with new Box
     public List<IMolecule> getMolecules() {
-        List<IMolecule> moleculeList = new ArrayList<>();
-        SpeciesGeneral species = getSpecies();
-
-        //TODO: extract by species, i.e. don't assume all molecules are same species
-        for(JsonNode moleculeNode : root.get("residues")) {
-            IMolecule molecule = species.makeMolecule();
-
-            JsonNode atomsListNode = moleculeNode.get("atoms");
-            IAtomList atomList = molecule.getChildList();
-            for(int i = 0; i < atomList.size(); i++) {
-                JsonNode atomNode = atomsListNode.get(i);
-                atomList.get(i).getPosition().E(new Vector3D(
-                        atomNode.get("xx").asDouble(),
-                        atomNode.get("xy").asDouble(),
-                        atomNode.get("xz").asDouble()
-                ));
-
-            }
-            moleculeList.add(molecule);
-        }
-        return moleculeList;
+        throw new UnsupportedOperationException();
+//        List<IMolecule> moleculeList = new ArrayList<>();
+//        SpeciesGeneral species = getSpecies();
+//
+//        //TODO: extract by species, i.e. don't assume all molecules are same species
+//        for(JsonNode moleculeNode : root.get("residues")) {
+//            IMolecule molecule = species.makeMolecule();
+//
+//            JsonNode atomsListNode = moleculeNode.get("atoms");
+//            IAtomList atomList = molecule.getChildList();
+//            for(int i = 0; i < atomList.size(); i++) {
+//                JsonNode atomNode = atomsListNode.get(i);
+//                atomList.get(i).getPosition().E(new Vector3D(
+//                        atomNode.get("xx").asDouble(),
+//                        atomNode.get("xy").asDouble(),
+//                        atomNode.get("xz").asDouble()
+//                ));
+//
+//            }
+//            moleculeList.add(molecule);
+//        }
+//        return moleculeList;
     }
 
     /**

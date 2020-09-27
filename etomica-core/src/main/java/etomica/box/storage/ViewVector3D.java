@@ -9,11 +9,19 @@ import java.util.Arrays;
 import java.util.function.DoubleBinaryOperator;
 
 public class ViewVector3D implements Vector {
-    private final int index;
-    private final double[] data;
+    private int index;
+    private double[] data;
 
     ViewVector3D(int index, double[] data) {
         this.index = index;
+        this.data = data;
+    }
+
+    void setIndex(int i) {
+        this.index = i;
+    }
+
+    void setData(double[] data) {
         this.data = data;
     }
 

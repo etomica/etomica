@@ -29,7 +29,9 @@ public class SpeciesPolyhedron {
         return new SpeciesBuilder(space)
                 .addCount(new AtomTypeSpheroPolyhedron(element, space, vertices, sweepRadius), 1)
                 .withConformation(new ConformationLinear(space))
-                .withAtomFactory((atomType -> new AtomOrientedQuaternion(space, atomType)))
+                .withAtomFactory(((atomType, box, id) -> {
+                    return new AtomOrientedQuaternion(space, atomType);
+                }))
                 .build();
     }
 }

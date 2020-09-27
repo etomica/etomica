@@ -6,10 +6,7 @@ package etomica.modules.sam;
 
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomType;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
+import etomica.atom.*;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
@@ -20,10 +17,7 @@ import etomica.config.ConformationChainZigZag;
 import etomica.graphics.DisplayCanvas;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.crystal.Basis;
-import etomica.molecule.IMolecule;
-import etomica.molecule.IMoleculeList;
-import etomica.molecule.IMoleculePositionDefinition;
-import etomica.molecule.MoleculePositionGeometricCenter;
+import etomica.molecule.*;
 import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterList;
@@ -303,12 +297,14 @@ public class Sam extends Simulation {
         vector2.Ev1Mv2(vector0, vector1);
 
         if (iChain == 0) {
-            IMolecule molecule = species.makeMolecule();
-            Vector moleculePos = space.makeVector();
-            moleculePos.E(positionDefinition.position(molecule));
-            Vector sulfurPosition = molecule.getChildList().get(0).getPosition();
+            IAtomList dummyAtoms = new AtomArrayList(species.getLeafAtomCount());
+            for (int i = 0; i < species.getLeafAtomCount(); i++) {
+                dummyAtoms.add(new Atom(space, species.getAtomType(0), space.makeVector()));
+            }
+            species.getConformation().initializePositions(dummyAtoms);
+            Vector moleculePos = MoleculePositionCOM.centerOfMass(dummyAtoms, space.makeVector());
+            Vector sulfurPosition = dummyAtoms.get(0).getPosition();
             sulfurPosition.ME(moleculePos);
-            molecule = null;
             sulfurPosition.TE(-1);
             sulfurPosition.setX(1, sulfurPosition.getX(1)+2.5);
 

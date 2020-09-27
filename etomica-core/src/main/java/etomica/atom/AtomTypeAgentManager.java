@@ -32,7 +32,7 @@ public final class AtomTypeAgentManager<E> {
         this.agents = new IndexMap<>();
 
         for (ISpecies species : sim.getSpeciesList()) {
-            for (AtomType atomType : species.getAtomTypes()) {
+            for (AtomType atomType : species.getUniqueAtomTypes()) {
                 this.agents.put(atomType.getIndex(), agentSource.makeAgent(atomType));
             }
         }
@@ -62,7 +62,7 @@ public final class AtomTypeAgentManager<E> {
      * Releases the agents associated with the given AtomType and its children.
      */
     private void releaseAgents(ISpecies parentType) {
-        for (AtomType leafType : parentType.getAtomTypes()) {
+        for (AtomType leafType : parentType.getUniqueAtomTypes()) {
             E agent = agents.get(leafType.getIndex());
             if (agent != null) {
                 agentSource.releaseAgent(agent, leafType);

@@ -4,6 +4,7 @@
 
 package etomica.molecule;
 
+import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
@@ -17,10 +18,10 @@ import etomica.species.ISpecies;
  */
 public class MoleculeOrientedDynamic extends MoleculeOriented implements IMoleculeOrientedKinetic {
 
-    public MoleculeOrientedDynamic(Space space, ISpecies species, int numLeafAtoms) {
-        super(space, species, numLeafAtoms);
-        angularMomentum = space.makeVector();
-        velocity = space.makeVector();
+    public MoleculeOrientedDynamic(ISpecies species, IOrientation orientation, Vector position, Vector angularMomentum, Vector velocity) {
+        super(species, orientation, position);
+        this.angularMomentum = angularMomentum;
+        this.velocity = velocity;
     }
 
     public Vector getAngularVelocity() {

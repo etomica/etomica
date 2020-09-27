@@ -11,9 +11,9 @@ import etomica.species.ISpecies;
 
 public class Molecule implements IMolecule, java.io.Serializable {
 
-    public Molecule(ISpecies species, int numLeafAtoms) {
+    public Molecule(ISpecies species) {
         this.species = species;
-        childList = new AtomArrayList(numLeafAtoms);
+        childList = new AtomArrayList(species.getLeafAtomCount());
     }
     
     /**

@@ -17,22 +17,12 @@ public class AtomOriented extends Atom implements
     protected final IOrientation iOrientation;
 
     public AtomOriented(Space space, AtomType type) {
-        this(space, type, space.makeVector(), false);
+        this(space, type, space.makeVector(), space.makeOrientation());
     }
 
-    public AtomOriented(Space space, AtomType type, Vector position, boolean isAxisSymmetric) {
+    public AtomOriented(Space space, AtomType type, Vector position, IOrientation orientation) {
         super(space, type, position);
-        if (space.D() == 3) {
-            if (isAxisSymmetric) {
-                iOrientation = new Orientation3D(space);
-            }
-            else {
-                iOrientation = new OrientationFull3D(space);
-            }
-        }
-        else {
-            iOrientation = space.makeOrientation();
-        }
+        iOrientation = orientation;
     }
 
     public IOrientation getOrientation() {
