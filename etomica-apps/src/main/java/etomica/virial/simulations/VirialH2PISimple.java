@@ -132,7 +132,7 @@ public class VirialH2PISimple {
 		SpeciesGeneral speciesH2 = new SpeciesBuilder(space)
 				.addCount(atype, nBeads)
 				.withConformation(new ConformationLinear(space, 0))
-				.withAtomFactory((leafType) -> {
+				.withAtomFactory((leafType, box, id) -> {
 					double bl;
 					if (blOption == blOptions.FIXED_GROUND) {
 						bl = BohrRadius.UNIT.toSim(1.448736);

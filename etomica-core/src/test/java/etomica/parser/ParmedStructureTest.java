@@ -47,39 +47,41 @@ public class ParmedStructureTest {
     public void testGetSpecies() throws Exception {
         SpeciesGeneral species = structure.getSpecies();
 
-        Assertions.assertEquals(
-                12.01078,
-                species.makeMolecule().getChildList().get(0).getType().getMass(),
-                EPSILON
-        );
-
-        Assertions.assertTrue(
-                species.makeMolecule().getChildList().get(0).getPosition()
-                .equals(new Vector3D(0.0, 0.0, 0.0))
-        );
+        Assertions.fail();
+//        Assertions.assertEquals(
+//                12.01078,
+//                species.makeMolecule().getChildList().get(0).getType().getMass(),
+//                EPSILON
+//        );
+//
+//        Assertions.assertTrue(
+//                species.makeMolecule().getChildList().get(0).getPosition()
+//                .equals(new Vector3D(0.0, 0.0, 0.0))
+//        );
     }
 
     @Test
     public void testGetIntermolecularPotential() throws JsonProcessingException {
-        PotentialGroup potentialGroup = structure.getIntermolecularPotential();
-        SpeciesGeneral species = structure.getSpecies();
-        potentialGroup.setBox(structure.getBox());
-
-        IMolecule mol1 = species.makeMolecule();
-        IMolecule mol2 = species.makeMolecule();
-
-        MoleculeActionTranslateTo act = new MoleculeActionTranslateTo(Space3D.getInstance());
-        act.setDestination(new Vector3D(5, 5, 5));
-        act.actionPerformed(mol2);
-
-        Assertions.assertEquals(
-                -0.002102905446227447,
-                potentialGroup.energy(new MoleculePair(
-                        mol1,
-                        mol2
-                )),
-                EPSILON
-        );
+        Assertions.fail();
+//        PotentialGroup potentialGroup = structure.getIntermolecularPotential();
+//        SpeciesGeneral species = structure.getSpecies();
+//        potentialGroup.setBox(structure.getBox());
+//
+//        IMolecule mol1 = species.makeMolecule();
+//        IMolecule mol2 = species.makeMolecule();
+//
+//        MoleculeActionTranslateTo act = new MoleculeActionTranslateTo(Space3D.getInstance());
+//        act.setDestination(new Vector3D(5, 5, 5));
+//        act.actionPerformed(mol2);
+//
+//        Assertions.assertEquals(
+//                -0.002102905446227447,
+//                potentialGroup.energy(new MoleculePair(
+//                        mol1,
+//                        mol2
+//                )),
+//                EPSILON
+//        );
 
     }
 

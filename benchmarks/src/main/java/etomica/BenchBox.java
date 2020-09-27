@@ -134,7 +134,7 @@ public class BenchBox {
         return sum;
     }
 
-    @Benchmark
+//    @Benchmark
     public double benchCoords() {
         double sum = 0;
         for (int i = 0; i < coords.length; i++) {
@@ -186,7 +186,7 @@ public class BenchBox {
         return sum;
     }
 
-    @Benchmark
+//    @Benchmark
     public double benchCoords1dColMajor() {
         double sum = 0;
         for (int i = 0; i < coords.length; i++) {

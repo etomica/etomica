@@ -8,9 +8,7 @@ import etomica.action.BoxInflate;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.box.storage.DoubleStorage;
-import etomica.box.storage.OrientationStorage;
-import etomica.box.storage.VectorStorage;
+import etomica.box.storage.*;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
@@ -21,10 +19,9 @@ import etomica.species.ISpecies;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * A Box collects all atoms that interact with one another; atoms in different
@@ -83,9 +80,42 @@ public class Box {
     private final Map<Object, DoubleStorage> molDoubleStorageMap = new HashMap<>();
     private final Map<Object, OrientationStorage> molOrientationsStorageMap = new HashMap<>();
 
+    private final List<Storage> allAtomStorage = new ArrayList<>();
+    private final List<Storage> allMoleculeStorage = new ArrayList<>();
 
-    public VectorStorage getVectors(Object token) {
-        return this.atomVectorStorageMap.computeIfAbsent(token, t -> new VectorStorage(space, atomCount));
+
+    public VectorStorage getAtomVectors(Object token) {
+        return this.atomVectorStorageMap.computeIfAbsent(token, t -> {
+            VectorStorage storage = new VectorStorage(space, atomCount);
+            allAtomStorage.add(storage);
+            return storage;
+        });
+    }
+
+    public OrientationStorage getAtomOrientations(Tokens.OrientationsToken token) {
+        boolean isAxisSymmetric = token.isAxisSymmetric();
+        return this.atomOrientationsStorageMap.computeIfAbsent(token, t -> {
+            OrientationStorage storage = new OrientationStorage(space, atomCount, isAxisSymmetric);
+            allAtomStorage.add(storage);
+            return storage;
+        });
+    }
+
+    public VectorStorage getMolVectors(Object token) {
+        return this.molVectorStorageMap.computeIfAbsent(token, t -> {
+            VectorStorage storage = new VectorStorage(space, moleculeCount);
+            allMoleculeStorage.add(storage);
+            return storage;
+        });
+    }
+
+    public OrientationStorage getMolOrientations(Tokens.OrientationsToken token) {
+        boolean isAxisSymmetric = token.isAxisSymmetric();
+        return this.molOrientationsStorageMap.computeIfAbsent(token, t -> {
+            OrientationStorage storage = new OrientationStorage(space, moleculeCount, isAxisSymmetric);
+            allMoleculeStorage.add(storage);
+            return storage;
+        });
     }
 
     /**
@@ -162,6 +192,38 @@ public class Box {
         return mol;
     }
 
+    private void addMolecule(ISpecies species) {
+        int numAtoms = species.getLeafAtomCount();
+
+        int molIdx = this.addMoleculeStorage(1);
+        int atomIdxStart = this.addMoleculeStorage(numAtoms);
+
+        IMolecule molecule = species.initMolecule(this, molIdx, atomIdxStart);
+    }
+
+    public int addMoleculeStorage(int nMolecules) {
+        this.allMoleculeStorage.forEach(s -> s.addNull(nMolecules));
+        int newIdxStart = this.moleculeCount;
+        this.moleculeCount += nMolecules;
+        return newIdxStart;
+    }
+
+    public int addAtomStorage(int nAtoms) {
+        this.allAtomStorage.forEach(s -> s.addNull(nAtoms));
+        int newIdxStart = this.atomCount;
+        this.atomCount += nAtoms;
+        return newIdxStart;
+    }
+
+    private void ensureCapacityMolecules(int newMolecules) {
+        this.allMoleculeStorage.forEach(s -> s.ensureCapacity(newMolecules));
+    }
+
+    private void ensureCapacityAtoms(int newAtoms) {
+        this.allAtomStorage.forEach(s -> s.ensureCapacity(newAtoms));
+    }
+
+
     /**
      * Adds the given molecule to the this Box.  The molecule should not
      * already be in this Box and should not be in another Box.  The molecule
@@ -171,35 +233,36 @@ public class Box {
      * @param molecule the molecule to be added to the Box
      */
     private void addMolecule(IMolecule molecule, Consumer<IMolecule> initMolecule) {
-        int speciesIndex = molecule.getType().getIndex();
-        if (Debug.ON) {
-            for (int i = 0; i < moleculeLists[speciesIndex].size(); i++) {
-                if (moleculeLists[speciesIndex].get(i) == molecule) {
-                    throw new RuntimeException("you bastard!");
-                }
-            }
-        }
-        molecule.setIndex(moleculeLists[speciesIndex].size());
-        moleculeLists[speciesIndex].add(molecule);
-        allMoleculeList.setMoleculeLists(moleculeLists);
 
-        IAtomList childList = molecule.getChildList();
-        int nLeafAtoms = leafList.size();
-        for (int iChild = 0; iChild < childList.size(); iChild++) {
-            IAtom childAtom = childList.get(iChild);
-            childAtom.setLeafIndex(nLeafAtoms++);
-            leafList.add(childAtom);
-        }
-        initMolecule.accept(molecule);
-        eventManager.moleculeAdded(molecule);
-
-        if (Debug.ON) {
-            for (int i = 0; i < moleculeLists[speciesIndex].size(); i++) {
-                if (moleculeLists[speciesIndex].get(i).getIndex() != i) {
-                    throw new RuntimeException("oops " + molecule + " " + moleculeLists[speciesIndex].get(i) + " " + i);
-                }
-            }
-        }
+//        int speciesIndex = molecule.getType().getIndex();
+//        if (Debug.ON) {
+//            for (int i = 0; i < moleculeLists[speciesIndex].size(); i++) {
+//                if (moleculeLists[speciesIndex].get(i) == molecule) {
+//                    throw new RuntimeException("you bastard!");
+//                }
+//            }
+//        }
+//        molecule.setIndex(moleculeLists[speciesIndex].size());
+//        moleculeLists[speciesIndex].add(molecule);
+//        allMoleculeList.setMoleculeLists(moleculeLists);
+//
+//        IAtomList childList = molecule.getChildList();
+//        int nLeafAtoms = leafList.size();
+//        for (int iChild = 0; iChild < childList.size(); iChild++) {
+//            IAtom childAtom = childList.get(iChild);
+//            childAtom.setLeafIndex(nLeafAtoms++);
+//            leafList.add(childAtom);
+//        }
+//        initMolecule.accept(molecule);
+//        eventManager.moleculeAdded(molecule);
+//
+//        if (Debug.ON) {
+//            for (int i = 0; i < moleculeLists[speciesIndex].size(); i++) {
+//                if (moleculeLists[speciesIndex].get(i).getIndex() != i) {
+//                    throw new RuntimeException("oops " + molecule + " " + moleculeLists[speciesIndex].get(i) + " " + i);
+//                }
+//            }
+//        }
     }
 
     /**

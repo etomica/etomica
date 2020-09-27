@@ -45,7 +45,7 @@ public class SpeciesManagerTest {
 		for(int i = 0; i < simulation.getSpeciesCount(); i++) {
 			Assertions.assertSame(species[i], simulation.getSpecies(i));
 			Assertions.assertSame(i, species[i].getIndex());
-			for(int j = 0; j < species[i].getAtomTypeCount(); j++) {
+			for(int j = 0; j < species[i].getUniqueAtomTypeCount(); j++) {
 			    Assertions.assertSame(expectedChildIndex, species[i].getAtomType(j).getIndex());
 			    expectedChildIndex++;
 			}

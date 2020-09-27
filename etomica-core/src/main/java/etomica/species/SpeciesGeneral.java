@@ -1,8 +1,11 @@
 package etomica.species;
 
 import etomica.atom.*;
+import etomica.box.Box;
+import etomica.box.storage.Tokens;
 import etomica.config.IConformation;
 import etomica.molecule.*;
+import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -72,23 +75,22 @@ public class SpeciesGeneral implements ISpecies {
             return null;
         }
         // make a pretend molecule and calculate its moment of inertia
-        IMolecule molecule = makeMolecule();
-        IAtomList children = molecule.getChildList();
-        conformation.initializePositions(children);
-        Vector com = space.makeVector();
-        MoleculePositionCOM positionCOM = new MoleculePositionCOM(space);
-        com.E(positionCOM.position(molecule));
+        IAtomList dummyAtoms = new AtomArrayList(this.getLeafAtomCount());
+        for (AtomType atomType : this.atomTypes) {
+            dummyAtoms.add(new Atom(space, atomType, space.makeVector()));
+        }
+        conformation.initializePositions(dummyAtoms);
+        Vector com = MoleculePositionCOM.centerOfMass(dummyAtoms, space.makeVector());
         double[] I = new double[3];
         Vector xWork = space.makeVector();
         Vector moment = space.makeVector();
-        for (int i = 0; i<children.size(); i++) {
-            IAtom atom = children.get(i);
+        for (IAtom atom : dummyAtoms) {
             xWork.Ev1Mv2(atom.getPosition(), com);
             double atomMass = atom.getType().getMass();
-            for (int j=0; j<3; j++) {
-                for (int k=0; k<3; k++) {
-                    if (j==k) continue;
-                    I[j] += atomMass*xWork.getX(k)*xWork.getX(k);
+            for (int j = 0; j < 3; j++) {
+                for (int k = 0; k < 3; k++) {
+                    if (j == k) continue;
+                    I[j] += atomMass * xWork.getX(k) * xWork.getX(k);
                 }
             }
         }
@@ -108,19 +110,46 @@ public class SpeciesGeneral implements ISpecies {
 
     @Override
     public IMolecule makeMolecule() {
+//        Molecule molecule;
+//        if (this.isMoleculeOriented) {
+//            if (this.isDynamic) {
+//                Vector
+//                molecule = new MoleculeOrientedDynamic(this, this.atomTypes.length);
+//            } else {
+//                molecule = new MoleculeOriented(this, );
+//            }
+//        } else {
+//            molecule = new Molecule(this, this.atomTypes.length);
+//        }
+//
+//        for (AtomType atomType : this.atomTypes) {
+////            IAtom atom = this.atomFactory.makeAtom(atomType);
+////            molecule.addChildAtom(atom);
+//        }
+//        this.conformation.initializePositions(molecule.getChildList());
+//        return molecule;
+    }
+
+    public IMolecule initMolecule(Box box, int molIdx, int atomIdxStart) {
         Molecule molecule;
         if (this.isMoleculeOriented) {
+            IOrientation orientation = box.getMolOrientations(Tokens.ORIENTATION_FULL).create(molIdx);
+            Vector position = box.getMolVectors(Tokens.VELOCITY).create(molIdx);
             if (this.isDynamic) {
-                molecule = new MoleculeOrientedDynamic(space, this, this.atomTypes.length);
+                Vector angularMomentum = box.getMolVectors(Tokens.ANGULAR_MOMENTUM).create(molIdx);
+                Vector velocity = box.getMolVectors(Tokens.VELOCITY).create(molIdx);
+                molecule = new MoleculeOrientedDynamic(this, orientation, position, angularMomentum, velocity);
             } else {
-                molecule = new MoleculeOriented(space, this, this.atomTypes.length);
+                molecule = new MoleculeOriented(this, orientation, position);
             }
         } else {
-            molecule = new Molecule(this, this.atomTypes.length);
+            molecule = new Molecule(this);
         }
 
-        for (AtomType atomType : this.atomTypes) {
-            IAtom atom = this.atomFactory.makeAtom(atomType);
+        for (int i = 0; i < atomTypes.length; i++) {
+            AtomType type = atomTypes[i];
+            int atomIdx = atomIdxStart + i;
+            IAtom atom = this.atomFactory.makeAtom(type, box, atomIdx);
             molecule.addChildAtom(atom);
         }
         this.conformation.initializePositions(molecule.getChildList());
@@ -138,7 +167,7 @@ public class SpeciesGeneral implements ISpecies {
     }
 
     @Override
-    public int getAtomTypeCount() {
+    public int getUniqueAtomTypeCount() {
         return this.uniqueAtomTypes.length;
     }
 
@@ -161,8 +190,13 @@ public class SpeciesGeneral implements ISpecies {
     }
 
     @Override
-    public List<AtomType> getAtomTypes() {
+    public List<AtomType> getUniqueAtomTypes() {
         return Arrays.asList(this.uniqueAtomTypes);
+    }
+
+    @Override
+    public List<AtomType> getAtomTypes() {
+        return Arrays.asList(this.atomTypes);
     }
 
     @Override
@@ -232,18 +266,29 @@ public class SpeciesGeneral implements ISpecies {
     }
 
     public static AtomFactory defaultAtomFactory(Space space, boolean isDynamic) {
-        return atomType -> {
+        return (atomType, box, id) -> {
+            Vector position = box.getAtomVectors(Tokens.POSITION).create(id);
             if (atomType instanceof AtomTypeOriented) {
-                return isDynamic ? new AtomOrientedDynamic(space, atomType)
-                        : new AtomOriented(space, atomType);
+                IOrientation orientation = box.getAtomOrientations(Tokens.ORIENTATION_FULL).create(id);
+                if (isDynamic) {
+                    Vector velocity = box.getAtomVectors(Tokens.VELOCITY).create(id);
+                    Vector angularVel = box.getAtomVectors(Tokens.ANGULAR_VELOCITY).create(id);
+                    return new AtomOrientedDynamic(space, atomType, orientation, position, velocity, angularVel);
+                } else {
+                    return new AtomOriented(space, atomType, position, orientation);
+                }
             } else {
-                return isDynamic ? new AtomLeafDynamic(space, atomType, space.makeVector(), space.makeVector())
-                        : new Atom(space, atomType, space.makeVector());
+                if (isDynamic) {
+                    Vector velocity = box.getAtomVectors(Tokens.VELOCITY).create(id);
+                    return new AtomLeafDynamic(space, atomType, position, velocity);
+                } else {
+                    return new Atom(space, atomType, position);
+                }
             }
         };
     }
 
     public interface AtomFactory {
-        IAtom makeAtom(AtomType atomType);
+        IAtom makeAtom(AtomType atomType, Box box, int id);
     }
 }

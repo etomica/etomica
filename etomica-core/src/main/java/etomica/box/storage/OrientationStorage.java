@@ -5,61 +5,61 @@ import etomica.space.Space;
 import etomica.space3d.Orientation3D;
 import etomica.space3d.OrientationFull3D;
 
-import java.util.Arrays;
-
-public class OrientationStorage {
-    private double[] data;
-    private IOrientation[] viewOrientations;
-    private int count;
-    private final int stride;
+public class OrientationStorage extends DoubleStructStorage<IOrientation> {
     private final Space space;
     private final boolean isAxisSymmetric;
 
 
     public OrientationStorage(Space space, int count, boolean isAxisSymmetric) {
-        int stride = space.D();
-        if (isAxisSymmetric) {
-            stride *= 2;
-        }
-        this.stride = stride;
-        this.data = new double[count * stride];
-        this.count = count;
-        this.viewOrientations = new IOrientation[count];
+        super(isAxisSymmetric ? space.D() : space.D() * 2, count, IOrientation.class);
         this.space = space;
         this.isAxisSymmetric = isAxisSymmetric;
-        this.makeVectors();
     }
 
-    private void makeVectors() {
-        for (int i = 0; i < viewOrientations.length; i++) {
+    protected IOrientation makeView(int i) {
+        switch (space.D()) {
+            case 3:
+                if (!this.isAxisSymmetric) {
+                    return new OrientationFull3D(space,
+                            new ViewVector3D(i * stride, this.data),
+                            new ViewVector3D(i * stride + 3, this.data));
+                } else {
+                    return new Orientation3D(new ViewVector3D(i * stride, this.data));
+                }
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    @Override
+    protected void updateIndex(IOrientation view, int newIdx) {
+        switch (space.D()) {
+            case 3:
+                ((ViewVector3D) view.getDirection()).setIndex(newIdx * stride);
+                if (!this.isAxisSymmetric) {
+                    OrientationFull3D o = (OrientationFull3D) view;
+                    ((ViewVector3D) o.getSecondaryDirection()).setIndex(newIdx * stride + 3);
+                }
+                break;
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
+    @Override
+    protected void updateData(IOrientation[] views, double[] newData) {
+        for (IOrientation view : views) {
             switch (space.D()) {
                 case 3:
-                    if (this.isAxisSymmetric) {
-                        viewOrientations[i] = new OrientationFull3D(space,
-                                new ViewVector3D(i * stride, this.data),
-                                new ViewVector3D(i * stride + 3, this.data));
-                    } else {
-                        viewOrientations[i] = new Orientation3D(new ViewVector3D(i * stride, this.data));
+                    ((ViewVector3D) view.getDirection()).setData(newData);
+                    if (!this.isAxisSymmetric) {
+                        OrientationFull3D o = (OrientationFull3D) view;
+                        ((ViewVector3D) o.getSecondaryDirection()).setData(newData);
                     }
                     break;
                 default:
-                    throw new IllegalArgumentException();
+                    throw new IllegalStateException();
             }
         }
-    }
-
-    public IOrientation get(int i) {
-        return this.viewOrientations[i];
-    }
-
-    public void resize(int newSize) {
-        this.count = newSize;
-        this.data = Arrays.copyOf(this.data, newSize * stride);
-        this.viewOrientations = new IOrientation[newSize];
-        this.makeVectors();
-    }
-
-    public int size() {
-        return this.count;
     }
 }
