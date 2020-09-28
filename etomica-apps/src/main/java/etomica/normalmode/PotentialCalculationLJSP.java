@@ -15,7 +15,7 @@ import etomica.space.Vector;
 public class PotentialCalculationLJSP implements PotentialCalculation {
 		
 	public PotentialCalculationLJSP(Space space, Box box, CoordinateDefinition coordinateDefinition, double temperature, double dP, double f1, double fe, double fee){
-		sum = new double[1];
+		sum = new double[9];
 //		sum = new double[14];
         this.space = space;
         this.temperature = temperature;
@@ -78,8 +78,8 @@ public class PotentialCalculationLJSP implements PotentialCalculation {
 //			double dW  = potentialSoft.du(rij2);
 //	        double d2W = potentialSoft.d2u(rij2);
 	        sum[0] += g[j].dot(drij); //fij.drij
-//	        sum[1] += g[j].dot(rij); //fij.rij
-//	        sum[2] += g[j].dot(Rij); //fij.Rij
+	        sum[1] += g[j].dot(rij); //fij.rij
+	        sum[2] += g[j].dot(Rij); //fij.Rij
 //	        
 //	        sum[3] += function(rij, T1ij, T1ij, dW, d2W); //Br
 //	        sum[4] += function(rij, T1ij, drij, dW, d2W); //(dP/dT)r
@@ -104,8 +104,8 @@ public class PotentialCalculationLJSP implements PotentialCalculation {
 //	        
 ////Sigmaij
 //	        //xx
-//	        sum[7] += g[j].getX(0)* rij.getX(0);//fxrx:
-//	        sum[8] += g[j].getX(0)* Rij.getX(0);//fxRx:
+	        sum[7] += g[j].getX(0)* rij.getX(0);//fxrx:
+	        sum[8] += g[j].getX(0)* Rij.getX(0);//fxRx:
 //	        //xz
 //	        sum[9]  +=   g[j].getX(0)*rij.getX(2);//fxrz
 //	        sum[10] +=   g[j].getX(0)*Rij.getX(2);//fxRz

@@ -140,7 +140,7 @@ public class SimLJPropsCij extends Simulation {
         final SimLJPropsCij sim = new SimLJPropsCij(Space.getInstance(3), numAtoms, density, temperature, rc, isLRC, ex,gamma);
 
 
-        if (false) {  
+        if (!false) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.setPaintInterval(sim.box, 1000);
             ColorScheme colorScheme = new ColorScheme() {
