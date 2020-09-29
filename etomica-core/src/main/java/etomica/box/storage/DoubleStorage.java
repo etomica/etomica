@@ -36,7 +36,9 @@ public class DoubleStorage implements Storage {
         this.data = Arrays.copyOf(data, newSize);
         this.views = Arrays.copyOf(views, newSize);
         for (DoubleWrapper view : views) {
-            view.data = data;
+            if (view != null) {
+                view.data = data;
+            }
         }
     }
 
