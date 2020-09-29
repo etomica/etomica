@@ -73,7 +73,7 @@ public final class Vector2D implements Vector, java.io.Serializable {
         y = ((Vector2D) u).y;
     }
 
-    public void E(double[] u) {
+    public void E(double... u) {
         if(u.length != 2){throw new IllegalArgumentException("Vector2D must be given a 2 element array.");}
         x = u[0];
         y = u[1];

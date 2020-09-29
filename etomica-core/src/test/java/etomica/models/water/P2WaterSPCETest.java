@@ -27,6 +27,7 @@ public class P2WaterSPCETest {
     public void setUp() throws Exception {
         box = new Box(Space3D.getInstance());
         ISpecies species = SpeciesWater3P.create();
+        species.setIndex(0);
         box.addSpeciesNotify(species);
         IMolecule mol1 = box.addNewMolecule(species);
         IMolecule mol2 = box.addNewMolecule(species);

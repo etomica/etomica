@@ -108,28 +108,6 @@ public class SpeciesGeneral implements ISpecies {
         this.index = newIndex;
     }
 
-    @Override
-    public IMolecule makeMolecule() {
-//        Molecule molecule;
-//        if (this.isMoleculeOriented) {
-//            if (this.isDynamic) {
-//                Vector
-//                molecule = new MoleculeOrientedDynamic(this, this.atomTypes.length);
-//            } else {
-//                molecule = new MoleculeOriented(this, );
-//            }
-//        } else {
-//            molecule = new Molecule(this, this.atomTypes.length);
-//        }
-//
-//        for (AtomType atomType : this.atomTypes) {
-////            IAtom atom = this.atomFactory.makeAtom(atomType);
-////            molecule.addChildAtom(atom);
-//        }
-//        this.conformation.initializePositions(molecule.getChildList());
-//        return molecule;
-    }
-
     public IMolecule initMolecule(Box box, int molIdx, int atomIdxStart) {
         Molecule molecule;
         if (this.isMoleculeOriented) {
@@ -145,6 +123,7 @@ public class SpeciesGeneral implements ISpecies {
         } else {
             molecule = new Molecule(this);
         }
+        molecule.setGlobalIndex(molIdx);
 
         for (int i = 0; i < atomTypes.length; i++) {
             AtomType type = atomTypes[i];

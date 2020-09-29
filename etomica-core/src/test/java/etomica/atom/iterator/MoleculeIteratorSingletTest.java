@@ -41,8 +41,8 @@ class MoleculeIteratorSingletTest {
     public void setUp() {
         ISpecies species = new SpeciesBuilder(Space3D.getInstance()).build();
         singletIterator = new MoleculeIteratorSinglet();
-        testAtom1 = new Molecule(species, 0);
-        testAtom2 = new Molecule(species, 0);
+        testAtom1 = new Molecule(species);
+        testAtom2 = new Molecule(species);
         list1 = makeTestList(new IMoleculeList[]{new MoleculeSetSinglet(testAtom1)});
         list2 = makeTestList(new IMoleculeList[]{new MoleculeSetSinglet(testAtom2)});
     }

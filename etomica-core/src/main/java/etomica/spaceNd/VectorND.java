@@ -73,7 +73,7 @@ public final class VectorND implements Vector, java.io.Serializable {
         }
     }
 
-    public void E(double[] u) {
+    public void E(double... u) {
         for (int i=0; i<x.length; i++) {
             x[i] = u[i];
         }

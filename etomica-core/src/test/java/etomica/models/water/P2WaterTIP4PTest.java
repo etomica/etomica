@@ -29,6 +29,8 @@ public class P2WaterTIP4PTest {
     public void setUp() throws Exception {
         box = new Box(Space3D.getInstance());
         ISpecies species = SpeciesWater4P.create();
+        species.setIndex(0);
+        box.addSpeciesNotify(species);
         IMolecule mol1 = box.addNewMolecule(species);
         IMolecule mol2 = box.addNewMolecule(species);
 

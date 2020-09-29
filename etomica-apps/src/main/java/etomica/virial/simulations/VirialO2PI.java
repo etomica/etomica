@@ -8,6 +8,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomHydrogen;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.iterator.ApiIntergroupCoupled;
+import etomica.box.storage.DoubleStorage;
+import etomica.box.storage.Tokens;
 import etomica.chem.elements.Oxygen;
 import etomica.config.ConformationLinear;
 import etomica.data.IData;
@@ -116,8 +118,10 @@ public class VirialO2PI {
         SpeciesGeneral speciesO2 = new SpeciesBuilder(space)
                 .addCount(new AtomTypeOriented(Oxygen.INSTANCE, space.makeVector()), nBeads)
                 .withConformation(new ConformationLinear(space, 0))
-                .withAtomFactory(atype -> {
-                    return new AtomHydrogen(space, (AtomTypeOriented) atype, blO2);
+                .withAtomFactory((atype, box, id) -> {
+                    DoubleStorage.DoubleWrapper blWrapper = box.getAtomDoubles(Tokens.BOND_LENGTH).create(id);
+                    blWrapper.set(blO2);
+                    return new AtomHydrogen(space, (AtomTypeOriented) atype, blWrapper);
                 })
                 .build();
 

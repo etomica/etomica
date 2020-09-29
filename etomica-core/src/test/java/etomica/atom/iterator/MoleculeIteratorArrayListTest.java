@@ -45,7 +45,7 @@ class MoleculeIteratorArrayListTest {
         for(int i=0; i<=10; i++) {
             list = generalIteratorMethodTests(iterator);
             Assertions.assertEquals(list.size(), i);
-            atomList.add(new Molecule(species, 0));
+            atomList.add(new Molecule(species));
         }
         list = generalIteratorMethodTests(iterator);
         
@@ -54,7 +54,7 @@ class MoleculeIteratorArrayListTest {
         iterator.setList(arrayList);
         list = generalIteratorMethodTests(iterator);
         Assertions.assertEquals(list.size(), 0);
-        arrayList.add(new Molecule(species, 0));
+        arrayList.add(new Molecule(species));
         list = generalIteratorMethodTests(iterator);
         Assertions.assertEquals(list.size(), 1);
         

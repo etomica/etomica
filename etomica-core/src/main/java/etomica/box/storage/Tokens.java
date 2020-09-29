@@ -8,6 +8,7 @@ public class Tokens {
 
     public static final OrientationsToken ORIENTATION_FULL = () -> false;
     public static final OrientationsToken ORIENTATION = () -> true;
+    public static final Object BOND_LENGTH = new Object();
 
     public interface OrientationsToken {
         boolean isAxisSymmetric();
