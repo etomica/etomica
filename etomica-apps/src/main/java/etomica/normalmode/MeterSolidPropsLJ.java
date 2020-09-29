@@ -180,9 +180,9 @@ public class MeterSolidPropsLJ implements IDataSource {
 
 
 //Sigma_11
-        x[10] = 1/volume*fxrx;//conv
-        x[11] = 1/volume*fxrx - (dSigma11 /temperature*volume+1)/(3.0*(nMol-1)*volume)*fdr;// Map1 (along dr1)
-        x[12] = 1/volume*fxRx - (dSigma11 /temperature*volume+1)/(3.0*(nMol-1)*volume)*fdr;//Map2 (along dr0)
+        x[10] = density*temperature + 1/volume*fxrx;//conv
+        x[11] = (nMol-1)/volume*temperature - dSigma11 + 1/volume*fxrx - (dSigma11/temperature*volume+1)/(3.0*(nMol-1)*volume)*fdr;//Map1 (along dr)
+        x[12] =  -dSigma11 + 1/volume*fxRx - (dSigma11 /temperature*volume+1)/(3.0*(nMol-1)*volume)*fdr;//Map2 (along dr0)
 ////sigma_12
 //        x[13] = -1/volume*fxrz;//conv
 //        x[14] = -1/volume*fxrz + dSigma/temperature/(3.0*(nMol-1))*fdr;//Map1

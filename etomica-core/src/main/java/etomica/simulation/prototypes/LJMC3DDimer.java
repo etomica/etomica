@@ -158,6 +158,7 @@ public class LJMC3DDimer extends Simulation {
 
         System.out.println("energy avg: " + avg + "  err: " + err + "  cor: " + cor);
         System.out.println("time: " + (t2 - t1) * 0.001);
+
     }
 
     public static class Graphic {

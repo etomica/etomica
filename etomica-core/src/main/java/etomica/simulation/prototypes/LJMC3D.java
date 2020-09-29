@@ -99,6 +99,7 @@ public class LJMC3D extends Simulation {
         }
 
         LJMC3D sim = new LJMC3D(params);
+
         long steps = params.steps;
         int interval = 10;
         int blocks = 100;
@@ -135,6 +136,8 @@ public class LJMC3D extends Simulation {
 
         System.out.println("energy avg: " + avg + "  err: " + err + "  cor: " + cor);
         System.out.println("time: " + (t2 - t1) * 0.001);
+
+
     }
 
     public static class Graphic {

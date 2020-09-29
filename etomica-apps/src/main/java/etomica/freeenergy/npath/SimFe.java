@@ -203,7 +203,7 @@ public class SimFe extends Simulation {
         LjMC3DParams params = new LjMC3DParams();
         ParseArgs.doParseArgs(params, args);
         if (args.length==0) {
-            params.graphics = false;
+            params.graphics = !false;
             params.numAtoms = 1024;
             params.steps = 10000;
             params.density = 0.150375939849624;
@@ -483,7 +483,7 @@ if (nve) {
         public double T = 2.0;
         public double density = 0.3;
         public long steps = 100000;
-        public boolean graphics = false;
+        public boolean graphics = true;
         public double w = 1;
         public int offsetDim = 0;
         public int numInnerSteps = 10;
