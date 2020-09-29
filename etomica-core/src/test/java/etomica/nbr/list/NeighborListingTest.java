@@ -28,7 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NeighborListingTest {
     private NeighborListManager nlm;
@@ -37,9 +38,9 @@ class NeighborListingTest {
 
     private Map<IAtom, Set<IAtom>> pmNbrsSame;
     private Map<IAtom, Set<IAtom>> pmNbrsAB;
-    
-    private static final double NBR_RANGE = 4.8;
-    private static final double POTENTIAL_RANGE = 4;
+
+    private static final double NBR_RANGE = 3.5;
+    private static final double POTENTIAL_RANGE = 3.;
     private SpeciesGeneral speciesA;
     private SpeciesGeneral speciesB;
     private Simulation sim;
@@ -176,7 +177,7 @@ class NeighborListingTest {
             BoxInflate inflate = new BoxInflate(box, box.getSpace());
             inflate.setScale(1.2);
             inflate.actionPerformed();
-            nlm.updateNbrsIfNeeded();
+            nlm.reset();
         }
 
         @Test
@@ -230,7 +231,7 @@ class NeighborListingTest {
             for (int i = 0; i < 50; i++) {
                 box.addNewMolecule(speciesA).getChildList().get(0).getPosition().E(rand.randomPosition());
             }
-            nlm.updateNbrsIfNeeded();
+            nlm.reset();
         }
 
         @Test
@@ -279,7 +280,7 @@ class NeighborListingTest {
         @BeforeEach
         void setRange() {
             pm.setRange(NBR_RANGE + 1);
-            nlm.updateNbrsIfNeeded();
+            nlm.reset();
         }
 
         @Test
@@ -287,8 +288,8 @@ class NeighborListingTest {
             for (IAtom atom : box.getLeafList()) {
                 int typeIdx = atom.getType().getIndex();
                 int otherTypeIdx = typeIdx == 1 ? 0 : 1;
-                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE);
-                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE);
+                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE + 1);
+                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE + 1);
 
                 Set<IAtom> sameTypeNbrList = new HashSet<>();
                 sameTypeNbrList.addAll(nlm.getUpList(atom)[atom.getType().getIndex()]);
@@ -314,8 +315,8 @@ class NeighborListingTest {
             });
 
             for (IAtom atom : box.getLeafList()) {
-                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE);
-                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE);
+                Set<IAtom> sameTypeNbrs = getSameTypeNbrs(box, atom, NBR_RANGE + 1);
+                Set<IAtom> otherTypeNbrs = getOtherTypeNbrs(box, atom, NBR_RANGE + 1);
 
                 assertEquals(sameTypeNbrs, pmNbrsSame.computeIfAbsent(atom, a -> new HashSet<>()), atom + " same-type neighbors");
                 assertEquals(otherTypeNbrs, pmNbrsAB.computeIfAbsent(atom, a -> new HashSet<>()), atom + " other-type neighbors");
