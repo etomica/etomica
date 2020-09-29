@@ -11,6 +11,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
+import etomica.box.storage.DoubleStorage;
+import etomica.box.storage.Tokens;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Oxygen;
@@ -324,9 +326,11 @@ public class VirialCO2PI {
         
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
         SpeciesGeneral species = new SpeciesBuilder(space)
-                .withAtomFactory(atype -> {
+                .withAtomFactory((atype, box, id) -> {
                     double bl = 2*p2c.getPos(5);
-                    return new AtomHydrogen(space, (AtomTypeOriented) atype, bl);
+                    DoubleStorage.DoubleWrapper blWrapper = box.getAtomDoubles(Tokens.BOND_LENGTH).create(id);
+                    blWrapper.set(bl);
+                    return new AtomHydrogen(space, (AtomTypeOriented) atype, blWrapper);
                 })
                 .addCount(
                         new AtomTypeOriented(new ElementSimple("CO2", Carbon.INSTANCE.getMass() + 2 * Oxygen.INSTANCE.getMass()), space.makeVector()),

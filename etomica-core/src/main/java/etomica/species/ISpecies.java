@@ -36,11 +36,6 @@ public interface ISpecies {
      */
     void setIndex(int newIndex);
 
-    /**
-     * Builds and returns the IMolecule of this ISpecies.
-     */
-    IMolecule makeMolecule();
-
     IMolecule initMolecule(Box box, int molIdx, int atomIdxStart);
 
     /**

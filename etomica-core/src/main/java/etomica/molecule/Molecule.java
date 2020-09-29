@@ -81,7 +81,17 @@ public class Molecule implements IMolecule, java.io.Serializable {
     public final void setIndex(int newIndex) {
         index = newIndex;
     }
-    
+
+    @Override
+    public void setGlobalIndex(int idx) {
+        this.globalIdx = idx;
+    }
+
+    @Override
+    public int getGlobalIndex() {
+        return globalIdx;
+    }
+
     public final int getIndex() {
         return index;
     }
@@ -103,6 +113,7 @@ public class Molecule implements IMolecule, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     
     protected int index;
+    protected int globalIdx;
     protected final AtomArrayList childList;
     protected final ISpecies species;
 }

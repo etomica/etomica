@@ -6,6 +6,8 @@ import etomica.space3d.Vector3D;
 import etomica.util.random.IRandom;
 
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.function.DoubleBinaryOperator;
 
 public class ViewVector3D implements Vector {
@@ -84,7 +86,7 @@ public class ViewVector3D implements Vector {
 
     @Override
     public double dot(Vector u) {
-        return x() * u.getX(0) + y() * u.getX(1) + z() * getX(2);
+        return x() * u.x() + y() * u.y() + z() * u.z();
     }
 
     @Override
@@ -127,7 +129,7 @@ public class ViewVector3D implements Vector {
     }
 
     @Override
-    public void E(double[] a) {
+    public void E(double... a) {
         System.arraycopy(a, 0, this.data, this.index, 3);
     }
 
@@ -226,9 +228,9 @@ public class ViewVector3D implements Vector {
     @Override
     public void XE(Vector u) {
         set(
-                x() * u.getX(1) - y() * u.getX(0),
-                y() * u.getX(2) - z() * u.getX(1),
-                z() * u.getX(0) - x() * u.getX(2)
+                y() * u.z() - z() * u.y(),
+                z() * u.x() - x() * u.z(),
+                x() * u.y() - y() * u.x()
         );
     }
 
@@ -252,21 +254,24 @@ public class ViewVector3D implements Vector {
         double x = x();
         double y = y();
         double z = z();
-        double ux = dimensions.getX(0) / 2;
-        double uy = dimensions.getX(1) / 2;
-        double uz = dimensions.getX(2) / 2;
-        while (x > ux)
-            x -= ux;
-        while (x < 0.0)
-            x += ux;
-        while (y > uy)
-            y -= uy;
-        while (y < 0.0)
-            y += uy;
-        while (z > uz)
-            z -= uz;
-        while (z < 0.0)
-            z += uz;
+        double dx = dimensions.x();
+        double dy = dimensions.y();
+        double dz = dimensions.z();
+        double halfX = dimensions.x() / 2;
+        double halfY = dimensions.y() / 2;
+        double halfZ = dimensions.z() / 2;
+        while (x > halfX)
+            x -= dx;
+        while (x < -halfX)
+            x += dx;
+        while (y > halfY)
+            y -= dy;
+        while (y < -halfY)
+            y += dy;
+        while (z > halfZ)
+            z -= dz;
+        while (z < -halfZ)
+            z += dz;
         this.set(x, y, z);
     }
 
@@ -279,5 +284,30 @@ public class ViewVector3D implements Vector {
         this.data[index] = fn.applyAsDouble(this.data[index], v.getX(0));
         this.data[index + 1] = fn.applyAsDouble(this.data[index + 1], v.getX(1));
         this.data[index + 2] = fn.applyAsDouble(this.data[index + 2], v.getX(2));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (!(o instanceof Vector) || ((Vector) o).getD() != this.getD()) {
+            return false;
+        }
+        Vector v = ((Vector) o);
+        return v.x() == this.x() && v.y() == this.y() && v.z() == this.z();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x(), y(), z());
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", ViewVector3D.class.getSimpleName() + "(", ")")
+                .add(Double.toString(x()))
+                .add(Double.toString(y()))
+                .add(Double.toString(z()))
+                .toString();
     }
 }

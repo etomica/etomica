@@ -53,6 +53,18 @@ public interface Vector {
      */
     public double getX(int i);
 
+    default double x() {
+        return getX(0);
+    }
+
+    default double y() {
+        return getX(1);
+    }
+
+    default double z() {
+        return getX(2);
+    }
+
     /**
      * Returns the square magnitude of this vector, e.g., x^2 + y^2 for D = 2.
      */
@@ -101,8 +113,9 @@ public interface Vector {
     /**
      * Sets the components of this vector equal to the corresponding elements of
      * the given array. Inverse of the assignTo method.
+     * @param a
      */
-    void E(double[] a);
+    void E(double... a);
 
     /**
      * Plus-equals (+=) operation. Increments each component of this vector by

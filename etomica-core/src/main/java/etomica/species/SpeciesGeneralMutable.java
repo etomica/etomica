@@ -44,19 +44,6 @@ public class SpeciesGeneralMutable implements ISpecies {
     }
 
     @Override
-    public IMolecule makeMolecule() {
-        IMolecule mol = species.makeMolecule();
-        try {
-            Field species = mol.getClass().getDeclaredField("species");
-            species.setAccessible(true);
-            species.set(mol, this);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-        return mol;
-    }
-
-    @Override
     public IMolecule initMolecule(Box box, int molIdx, int atomIdxStart) {
         IMolecule mol = species.initMolecule(box, molIdx, atomIdxStart);
         try {

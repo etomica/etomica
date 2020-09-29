@@ -24,6 +24,10 @@ public interface IMolecule {
      */
     public void setIndex(int index);
 
+    void setGlobalIndex(int idx);
+
+    int getGlobalIndex();
+
     /**
      * Returns the atoms in the molecule as an IAtomList.
      */

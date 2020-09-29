@@ -17,10 +17,6 @@ public abstract class DoubleStructStorage<V> implements Storage {
         @SuppressWarnings("unchecked")
         final V[] views = (V[]) Array.newInstance(viewClass, count);
         this.views = views;
-
-        for (int i = 0; i < views.length; i++) {
-            views[i] = makeView(i);
-        }
     }
 
     protected abstract V makeView(int i);

@@ -8,6 +8,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.atom.iterator.ANIntragroupExchange;
 import etomica.atom.iterator.ApiIntergroupCoupled;
+import etomica.box.storage.DoubleStorage;
+import etomica.box.storage.Tokens;
 import etomica.chem.elements.Hydrogen;
 import etomica.config.ConformationLinear;
 import etomica.data.IData;
@@ -139,7 +141,9 @@ public class VirialH2PISimple {
 					} else {
 						bl = AtomHydrogen.getAvgBondLength(temperatureK);
 					}
-					return new AtomHydrogen(space, (AtomTypeOriented) leafType, bl);
+					DoubleStorage.DoubleWrapper blWrapper = box.getAtomDoubles(Tokens.BOND_LENGTH).create(id);
+					blWrapper.set(bl);
+					return new AtomHydrogen(space, (AtomTypeOriented) leafType, blWrapper);
 				})
 				.build();
 

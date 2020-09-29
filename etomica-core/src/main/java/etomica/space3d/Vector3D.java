@@ -8,6 +8,8 @@ import etomica.math.function.IFunction;
 import etomica.util.random.IRandom;
 import etomica.space.Vector;
 
+import java.util.Objects;
+
 /**
  * Implementation of the Vector class for a 3-dimensional space.
  */
@@ -59,9 +61,20 @@ public final class Vector3D implements Vector, java.io.Serializable {
         array[2] = z;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (!(o instanceof Vector) || ((Vector) o).getD() != this.getD()) {
+            return false;
+        }
+        Vector v = ((Vector) o);
+        return v.x() == this.x() && v.y() == this.y() && v.z() == this.z();
+    }
+
     public boolean equals(Vector v) {
-        return (x == ((Vector3D) v).x) && (y == ((Vector3D) v).y)
-                && (z == ((Vector3D) v).z);
+        return (x == v.x()) && (y == v.y())
+                && (z == v.z());
     }
 
     public boolean isZero() {
@@ -86,7 +99,7 @@ public final class Vector3D implements Vector, java.io.Serializable {
         z = c;
     }
 
-    public void E(double[] u) {
+    public void E(double... u) {
         if(u.length != 3){ 
             throw new IllegalArgumentException("Vector3D must be given a 3 element array.");
         }
@@ -156,22 +169,18 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
     
     public void mod(Vector u) {
-        mod((Vector3D) u);
-    }
-
-    public void mod(Vector3D u) {
-        while (x > u.x)
-            x -= u.x;
+        while (x > u.x())
+            x -= u.x();
         while (x < 0.0)
-            x += u.x;
-        while (y > u.y)
-            y -= u.y;
+            x += u.x();
+        while (y > u.y())
+            y -= u.y();
         while (y < 0.0)
-            y += u.y;
-        while (z > u.z)
-            z -= u.z;
+            y += u.y();
+        while (z > u.z())
+            z -= u.z();
         while (z < 0.0)
-            z += u.z;
+            z += u.z();
     }
 
     public double squared() {
@@ -240,24 +249,23 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     @Override
-    public void nearestImage(Vector dimensions) {
-        Vector3D dimensions3D = ((Vector3D) dimensions);
-        final double halfX = dimensions3D.x / 2;
-        final double halfY = dimensions3D.y / 2;
-        final double halfZ = dimensions3D.z / 2;
+    public void nearestImage(Vector dim) {
+        final double halfX = dim.x() / 2;
+        final double halfY = dim.y() / 2;
+        final double halfZ = dim.z() / 2;
 
         while (x > halfX)
-            x -= dimensions3D.x;
+            x -= dim.x();
         while (x < -halfX)
-            x += dimensions3D.x;
+            x += dim.x();
         while (y > halfY)
-            y -= dimensions3D.y;
+            y -= dim.y();
         while (y < -halfY)
-            y += dimensions3D.y;
+            y += dim.y();
         while (z > halfZ)
-            z -= dimensions3D.z;
+            z -= dim.z();
         while (z < -halfZ)
-            z += dimensions3D.z;
+            z += dim.z();
     }
 
     /**
@@ -334,5 +342,10 @@ public final class Vector3D implements Vector, java.io.Serializable {
 
     public Vector3D duplicate() {
         return new Vector3D(this.x, this.y, this.z);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, z);
     }
 }

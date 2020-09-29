@@ -70,22 +70,21 @@ public class LJMD3DNbr extends Simulation {
         final String APP_NAME = "LJMD3D";
         final LJMD3DNbr sim = new LJMD3DNbr();
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 300));
+//        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 300));
 
-//        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
-//
-//        ActivityIntegrate activityIntegrate = new ActivityIntegrate(sim.integrator);
-//        activityIntegrate.setSleepPeriod(1);
-//        sim.getController().addAction(activityIntegrate);
-//
-//        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-//        simGraphic.getController().getDataStreamPumps().add(sim.pump);
-//
-//        simGraphic.makeAndDisplayFrame(APP_NAME);
-//
-//        DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
-//        display.setAccumulator(sim.avgEnergy);
-//        simGraphic.add(display);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(sim.integrator);
+        sim.getController().addActivity(activityIntegrate);
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
+
+
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+        simGraphic.getController().getDataStreamPumps().add(sim.pump);
+
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+
+        DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
+        display.setAccumulator(sim.avgEnergy);
+        simGraphic.add(display);
     }
 
     public static class Applet extends javax.swing.JApplet {

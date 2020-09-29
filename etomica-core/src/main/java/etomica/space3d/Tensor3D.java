@@ -106,17 +106,17 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         if(v.length != 3) {
             throw new IllegalArgumentException("Tensor requires 3 vector for assignment");
         }
-        ((Vector3D)v[0]).x = xx; ((Vector3D)v[1]).x = xy; ((Vector3D)v[2]).x = xz;
-        ((Vector3D)v[0]).y = yx; ((Vector3D)v[1]).y = yy; ((Vector3D)v[2]).y = yz;
-        ((Vector3D)v[0]).z = zx; ((Vector3D)v[1]).z = zy; ((Vector3D)v[2]).z = zz;
+        double[][] arr = new double[3][3];
+        this.assignTo(arr);
+        for (int i = 0; i < arr.length; i++) {
+            v[i].E(arr[i]);
+        }
     }
 
     public void Ev1v2(Vector v1, Vector v2) {
-        Vector3D u1 = (Vector3D)v1;
-        Vector3D u2 = (Vector3D)v2;
-        xx=u1.x*u2.x; xy=u1.x*u2.y; xz=u1.x*u2.z;
-        yx=u1.y*u2.x; yy=u1.y*u2.y; yz=u1.y*u2.z;
-        zx=u1.z*u2.x; zy=u1.z*u2.y; zz=u1.z*u2.z;
+        xx=v1.x()*v2.x(); xy=v1.x()*v2.y(); xz=v1.x()*v2.z();
+        yx=v1.y()*v2.x(); yy=v1.y()*v2.y(); yz=v1.y()*v2.z();
+        zx=v1.z()*v2.x(); zy=v1.z()*v2.y(); zz=v1.z()*v2.z();
     }
     
     public void E(double a) {

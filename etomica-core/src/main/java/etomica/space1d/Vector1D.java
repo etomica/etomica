@@ -66,7 +66,7 @@ public final class Vector1D implements Vector, java.io.Serializable {
         x = a;
     }
 
-    public void E(double[] a) {
+    public void E(double... a) {
         x = a[0];
     }
 

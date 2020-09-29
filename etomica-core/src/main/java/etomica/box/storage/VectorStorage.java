@@ -46,6 +46,8 @@ public class VectorStorage extends DoubleStructStorage<Vector> {
     @Override
     protected void updateData(Vector[] views, double[] newData) {
         for (Vector view : views) {
+            if (view == null) { continue; }
+
             switch (space.D()) {
                 case 3:
                     ((ViewVector3D) view).setData(newData);

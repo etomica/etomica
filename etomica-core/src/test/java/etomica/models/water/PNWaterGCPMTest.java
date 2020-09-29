@@ -28,6 +28,7 @@ public class PNWaterGCPMTest {
     public void setUp() throws Exception {
         box = new Box(Space3D.getInstance());
         ISpecies species = SpeciesWater4PCOM.create(false);
+        species.setIndex(0);
         box.addSpeciesNotify(species);
         IMolecule mol1 = box.addNewMolecule(species);
         IMolecule mol2 = box.addNewMolecule(species);
