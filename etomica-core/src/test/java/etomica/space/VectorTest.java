@@ -61,7 +61,8 @@ class VectorTest {
                     v1.normalize();
                     v2.normalize();
                     v1.PE(v2);
-                }, "normalize")
+                }, "normalize"),
+                withString((v1, v2) -> v1.E(v1.Mv1Squared(v2)), "Mv1Squared")
         );
     }
 
@@ -94,6 +95,7 @@ class VectorTest {
                 () -> assertEquals(base1, vBase1, "viewVec <op> vec"),
                 () -> assertEquals(base1, vBase2, "viewVec <op> viewVec")
         );
+
     }
 
     @Test
