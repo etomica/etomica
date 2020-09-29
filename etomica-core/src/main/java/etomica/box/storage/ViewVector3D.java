@@ -96,9 +96,9 @@ public class ViewVector3D implements Vector {
 
     @Override
     public double Mv1Squared(Vector v1) {
-        double dx = x() - v1.getX(0);
-        double dy = x() - v1.getX(1);
-        double dz = x() - v1.getX(2);
+        double dx = x() - v1.x();
+        double dy = y() - v1.y();
+        double dz = z() - v1.z();
         return dx * dx + dy * dy + dz * dz;
     }
 
