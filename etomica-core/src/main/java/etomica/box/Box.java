@@ -17,11 +17,12 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.util.Arrays;
-import etomica.util.Debug;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 /**
  * A Box collects all atoms that interact with one another; atoms in different
@@ -234,7 +235,7 @@ public class Box {
         }
 
         molList.removeAndReplace(molSpeciesIdx);
-        if (molSpeciesIdx < molList.size() - 1) {
+        if (molSpeciesIdx < molList.size()) {
             IMolecule replacingMolecule = molList.get(molSpeciesIdx);
             replacingMolecule.setIndex(molSpeciesIdx);
             eventManager.moleculeIndexChanged(replacingMolecule, molList.size());
@@ -243,11 +244,9 @@ public class Box {
         this.allMoleculeStorage.forEach(s -> s.swapRemove(molIdx));
 
         allMoleculeList.removeAndReplace(molIdx);
-        if (molIdx < allMoleculeList.size() - 1) {
+        if (molIdx < allMoleculeList.size()) {
             IMolecule replacingMolecule = allMoleculeList.get(molIdx);
-            replacingMolecule.setIndex(molIdx);
-        } else {
-            allMoleculeList.remove(molIdx);
+            replacingMolecule.setGlobalIndex(molIdx);
         }
 
         eventManager.moleculeRemoved(molecule);
@@ -262,7 +261,7 @@ public class Box {
         this.allAtomStorage.forEach(s -> s.swapRemove(atomIdx));
         this.atomCount--;
         leafList.removeAndReplace(atomIdx);
-        if (atomIdx < leafList.size() - 1) {
+        if (atomIdx < leafList.size()) {
             IAtom replacingAtom = leafList.get(atomIdx);
             replacingAtom.setLeafIndex(atomIdx);
             eventManager.atomLeafIndexChanged(replacingAtom, leafList.size());
