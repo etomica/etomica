@@ -5,8 +5,8 @@
 package etomica.space3d;
 
 import etomica.math.function.IFunction;
-import etomica.util.random.IRandom;
 import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 import java.util.Objects;
 
@@ -271,10 +271,10 @@ public final class Vector3D implements Vector, java.io.Serializable {
     /**
      * Creating a random unit vector on unit sphere Uses only two random number
      * generator at a time
-     * 
+     * <p>
      * Based on M.P. Allen and D.J. Tildesley, Computer Simulation of Liquids, p 349.
-     * 
-     * @author Jayant Singh
+     * (taken from Marsaglia, G. (1972), Choosing a point from the surface of a sphere,
+     * Ann. math. Stat. 43, 645-646.)
      */
     public void setRandomSphere(IRandom random) {
         double z1, z2, zsq;
@@ -326,16 +326,16 @@ public final class Vector3D implements Vector, java.io.Serializable {
 
     //cube root via look-up and Newton/Halley iteration
     //see here: http://metamerist.com/cbrt/cbrt.htm
-    protected static double cubeRoot(double R) {
-        int iR = (int)(R*nLookUp);
+    public static double cubeRoot(double R) {
+        int iR = (int) (R * nLookUp);
         // method is accurate to machine precision except for very small r.
         // fall back to pow
-        if (iR < 10) return Math.pow(R, 1.0/3.0);
+        if (iR < 10) return Math.pow(R, 1.0 / 3.0);
         double a = lookUp[iR];
-        for(int i=0; i<2; i++) {
-            double a3 = a*a*a;
+        for (int i = 0; i < 2; i++) {
+            double a3 = a * a * a;
             double t1 = a3 + R;
-            a = a*(t1+R)/(t1+a3);
+            a = a * (t1 + R) / (t1 + a3);
         }
         return a;
     }

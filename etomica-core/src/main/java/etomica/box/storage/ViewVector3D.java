@@ -63,7 +63,7 @@ public class ViewVector3D implements Vector {
 
     @Override
     public boolean equals(Vector v) {
-        return x() == v.getX(0) && y() == v.getX(1) && z() == v.getX(2);
+        return x() == v.x() && y() == v.y() && z() == v.z();
     }
 
     @Override
@@ -118,9 +118,9 @@ public class ViewVector3D implements Vector {
 
     @Override
     public void E(Vector u) {
-        xSet(u.getX(0));
-        ySet(u.getX(1));
-        zSet(u.getX(2));
+        xSet(u.x());
+        ySet(u.y());
+        zSet(u.z());
     }
 
     @Override
@@ -165,9 +165,9 @@ public class ViewVector3D implements Vector {
 
     @Override
     public void Ea1Tv1(double a, Vector v1) {
-        this.data[index] = v1.getX(0) * a;
-        this.data[index + 1] = v1.getX(1) * a;
-        this.data[index + 2] = v1.getX(2) * a;
+        this.data[index] = v1.x() * a;
+        this.data[index + 1] = v1.y() * a;
+        this.data[index + 2] = v1.z() * a;
     }
 
     @Override
@@ -177,16 +177,16 @@ public class ViewVector3D implements Vector {
 
     @Override
     public void Ev1Pv2(Vector v1, Vector v2) {
-        this.data[index] = v1.getX(0) + v2.getX(0);
-        this.data[index + 1] = v1.getX(1) + v2.getX(1);
-        this.data[index + 2] = v1.getX(2) + v2.getX(2);
+        this.data[index] = v1.x() + v2.x();
+        this.data[index + 1] = v1.y() + v2.y();
+        this.data[index + 2] = v1.z() + v2.z();
     }
 
     @Override
     public void Ev1Mv2(Vector v1, Vector v2) {
-        this.data[index] = v1.getX(0) - v2.getX(0);
-        this.data[index + 1] = v1.getX(1) - v2.getX(1);
-        this.data[index + 2] = v1.getX(2) - v2.getX(2);
+        this.data[index] = v1.x() - v2.x();
+        this.data[index + 1] = v1.y() - v2.y();
+        this.data[index + 2] = v1.z() - v2.z();
     }
 
     @Override
@@ -194,9 +194,9 @@ public class ViewVector3D implements Vector {
         double x = x();
         double y = y();
         double z = z();
-        double ux = u.getX(0);
-        double uy = u.getX(1);
-        double uz = u.getX(2);
+        double ux = u.x();
+        double uy = u.y();
+        double uz = u.z();
         while (x > ux)
             x -= ux;
         while (x < 0.0)
@@ -234,19 +234,52 @@ public class ViewVector3D implements Vector {
         );
     }
 
+    /**
+     * Creating a random unit vector on unit sphere Uses only two random number
+     * generator at a time
+     * <p>
+     * Based on M.P. Allen and D.J. Tildesley, Computer Simulation of Liquids, p 349.
+     * (taken from Marsaglia, G. (1972), Choosing a point from the surface of a sphere,
+     * Ann. math. Stat. 43, 645-646.)
+     */
     @Override
     public void setRandomSphere(IRandom random) {
+        double z1, z2, zsq;
+        do {
+            z1 = 2.0 * random.nextFixedDouble() - 1.0;
+            z2 = 2.0 * random.nextFixedDouble() - 1.0;
+            zsq = z1 * z1 + z2 * z2;
+        } while (zsq > 1.0);
 
+        double ranh = 2.0 * Math.sqrt(1.0 - zsq);
+        data[index] = z1 * ranh;
+        data[index + 1] = z2 * ranh;
+        data[index + 2] = 1.0 - 2.0 * zsq;
     }
 
     @Override
     public void setRandomCube(IRandom random) {
-
+        data[index] = random.nextFixedDouble() - 0.5;
+        data[index + 1] = random.nextFixedDouble() - 0.5;
+        data[index + 2] = random.nextFixedDouble() - 0.5;
     }
 
+    //generate point on surface of sphere according to method (4) here:
+    //http://www.math.niu.edu/~rusin/known-math/96/sph.rand  (403)
+    //and scale into the interior according to r^2
     @Override
     public void setRandomInSphere(IRandom random) {
-
+        double r = Vector3D.cubeRoot(random.nextFixedDouble());
+        double u, v, s;
+        do {
+            u = 1.0 - 2.0 * random.nextFixedDouble();
+            v = 1.0 - 2.0 * random.nextFixedDouble();
+            s = u * u + v * v;
+        } while (s > 1);
+        double ra = 2. * r * Math.sqrt(1. - s);
+        data[index] = ra * u;
+        data[index + 1] = ra * v;
+        data[index + 2] = r * (2 * s - 1.);
     }
 
     @Override
@@ -281,9 +314,9 @@ public class ViewVector3D implements Vector {
     }
 
     public void mapWith(Vector v, DoubleBinaryOperator fn) {
-        this.data[index] = fn.applyAsDouble(this.data[index], v.getX(0));
-        this.data[index + 1] = fn.applyAsDouble(this.data[index + 1], v.getX(1));
-        this.data[index + 2] = fn.applyAsDouble(this.data[index + 2], v.getX(2));
+        this.data[index] = fn.applyAsDouble(this.data[index], v.x());
+        this.data[index + 1] = fn.applyAsDouble(this.data[index + 1], v.y());
+        this.data[index + 2] = fn.applyAsDouble(this.data[index + 2], v.z());
     }
 
     @Override
