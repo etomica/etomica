@@ -156,41 +156,41 @@ public final class Vector3D implements Vector, java.io.Serializable {
         z /= u.getX(2);
     }
 
-    public void Ev1Pv2(Vector u1, Vector u2) {
-        x = u1.getX(0) + u2.getX(0);
-        y = u1.getX(1) + u2.getX(1);
-        z = u1.getX(2) + u2.getX(2);
+    public void Ev1Pv2(Vector v1, Vector v2) {
+        x = v1.getX(0) + v2.getX(0);
+        y = v1.getX(1) + v2.getX(1);
+        z = v1.getX(2) + v2.getX(2);
     }
 
-    public void Ev1Mv2(Vector u1, Vector u2) {
-        x = u1.getX(0) - u2.getX(0);
-        y = u1.getX(1) - u2.getX(1);
-        z = u1.getX(2) - u2.getX(2);
+    public void Ev1Mv2(Vector v1, Vector v2) {
+        x = v1.getX(0) - v2.getX(0);
+        y = v1.getX(1) - v2.getX(1);
+        z = v1.getX(2) - v2.getX(2);
     }
-    
-    public void mod(Vector u) {
-        while (x > u.x())
-            x -= u.x();
+
+    public void mod(Vector v) {
+        while (x > v.x())
+            x -= v.x();
         while (x < 0.0)
-            x += u.x();
-        while (y > u.y())
-            y -= u.y();
+            x += v.x();
+        while (y > v.y())
+            y -= v.y();
         while (y < 0.0)
-            y += u.y();
-        while (z > u.z())
-            z -= u.z();
+            y += v.y();
+        while (z > v.z())
+            z -= v.z();
         while (z < 0.0)
-            z += u.z();
+            z += v.z();
     }
 
     public double squared() {
         return x * x + y * y + z * z;
     }
 
-    public double Mv1Squared(Vector u) {
-        double dx = x - u.getX(0);
-        double dy = y - u.getX(1);
-        double dz = z - u.getX(2);
+    public double Mv1Squared(Vector v1) {
+        double dx = x - v1.getX(0);
+        double dy = y - v1.getX(1);
+        double dz = z - v1.getX(2);
         return dx * dx + dy * dy + dz * dz;
     }
 

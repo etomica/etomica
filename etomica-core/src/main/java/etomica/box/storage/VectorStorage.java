@@ -3,9 +3,6 @@ package etomica.box.storage;
 import etomica.space.Space;
 import etomica.space.Vector;
 
-import java.util.Arrays;
-import java.util.BitSet;
-
 public class VectorStorage extends DoubleStructStorage<Vector> {
     private final Space space;
 
@@ -16,6 +13,10 @@ public class VectorStorage extends DoubleStructStorage<Vector> {
 
     private static Class<? extends Vector> getVectorClass(Space space) {
         switch (space.D()) {
+            case 1:
+                return ViewVector1D.class;
+            case 2:
+                return ViewVector2D.class;
             case 3:
                 return ViewVector3D.class;
             default:
@@ -25,6 +26,10 @@ public class VectorStorage extends DoubleStructStorage<Vector> {
 
     protected Vector makeView(int idx) {
         switch (space.D()) {
+            case 1:
+                return new ViewVector1D(idx, data);
+            case 2:
+                return new ViewVector2D(idx * 2, data);
             case 3:
                 return new ViewVector3D(idx * 3, data);
             default:
@@ -35,6 +40,10 @@ public class VectorStorage extends DoubleStructStorage<Vector> {
     @Override
     protected void updateIndex(Vector view, int newIdx) {
         switch (space.D()) {
+            case 1:
+                ((ViewVector1D) view).setIndex(newIdx * stride);
+            case 2:
+                ((ViewVector2D) view).setIndex(newIdx * stride);
             case 3:
                 ((ViewVector3D) view).setIndex(newIdx * stride);
                 break;
@@ -49,6 +58,12 @@ public class VectorStorage extends DoubleStructStorage<Vector> {
             if (view == null) { continue; }
 
             switch (space.D()) {
+                case 1:
+                    ((ViewVector1D) view).setData(newData);
+                    break;
+                case 2:
+                    ((ViewVector2D) view).setData(newData);
+                    break;
                 case 3:
                     ((ViewVector3D) view).setData(newData);
                     break;
