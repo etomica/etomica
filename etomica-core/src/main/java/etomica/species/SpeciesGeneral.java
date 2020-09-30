@@ -112,7 +112,7 @@ public class SpeciesGeneral implements ISpecies {
         Molecule molecule;
         if (this.isMoleculeOriented) {
             IOrientation orientation = box.getMolOrientations(Tokens.ORIENTATION_FULL).create(molIdx);
-            Vector position = box.getMolVectors(Tokens.VELOCITY).create(molIdx);
+            Vector position = box.getMolVectors(Tokens.POSITION).create(molIdx);
             if (this.isDynamic) {
                 Vector angularMomentum = box.getMolVectors(Tokens.ANGULAR_MOMENTUM).create(molIdx);
                 Vector velocity = box.getMolVectors(Tokens.VELOCITY).create(molIdx);
