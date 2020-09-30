@@ -33,7 +33,7 @@ public class TestSimShortRuns {
         // This beautiful method will search through constructible simulations looking for ones
         // with one and only one field of type Integrator (getIntegrator isn't reliable, and with
         // more than one we don't know which one to use), instantiate the simulations, and return the integrators.
-        List<Class<?>> classes =  SCAN.classNamesToClassRefs(SCAN.getNamesOfSubclassesOf(Simulation.class));
+        List<Class<?>> classes =  SCAN.getSubclasses(Simulation.class.getName()).loadClasses();
         List<Arguments> args = new ArrayList<>();
 
         for (Class<?> cl : classes) {
