@@ -4,10 +4,10 @@
 
 package etomica.space1d;
 
-import etomica.math.function.IFunction;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.exception.MethodNotImplementedException;
+import etomica.math.function.IFunction;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Implementation of the Vector class for a 1-dimensional space. In this case the vector
@@ -30,12 +30,12 @@ public final class Vector1D implements Vector, java.io.Serializable {
         x = a[0];
     }
 
-    public Vector1D(Vector1D u) {
+    public Vector1D(Vector u) {
         this.E(u);
     }
 
     public boolean equals(Vector v) {
-        return (x == ((Vector1D) v).x);
+        return (x == v.x());
     }
 
     public boolean isZero() {
@@ -75,8 +75,8 @@ public final class Vector1D implements Vector, java.io.Serializable {
         x = a1 * u1.x;
     }
 
-    public void PEa1Tv1(double a1, Vector u) {
-        x += a1 * ((Vector1D) u).x;
+    public void PEa1Tv1(double a1, Vector v) {
+        x += a1 * v.x();
     }
 
     public void PE(double a) {
@@ -87,30 +87,24 @@ public final class Vector1D implements Vector, java.io.Serializable {
         x *= a;
     }
 
-    public void Ev1Pv2(Vector u1, Vector u2) {
-        x = ((Vector1D) u1).x + ((Vector1D) u2).x;
+    public void Ev1Pv2(Vector v1, Vector v2) {
+        x = v1.x() + v2.x();
     }
 
-    public void Ev1Mv2(Vector u1, Vector u2) {
-        Vector1D v1 = (Vector1D) u1;
-        Vector1D v2 = (Vector1D) u2;
-        x = v1.x - v2.x;
+    public void Ev1Mv2(Vector v1, Vector v2) {
+        x = v1.x() - v2.x();
     }
 
-    public double Mv1Squared(Vector u1) {
-        double dx = x - ((Vector1D) u1).x;
+    public double Mv1Squared(Vector v1) {
+        double dx = x - v1.x();
         return dx * dx;
     }
-    
-    public void mod(Vector u) {
-        mod((Vector1D) u);
-    }
 
-    public void mod(Vector1D u) {
-        while (x > u.x)
-            x -= u.x;
+    public void mod(Vector v) {
+        while (x > v.x())
+            x -= v.x();
         while (x < 0.0)
-            x += u.x;
+            x += v.x();
     }
 
     public double squared() {
@@ -131,13 +125,12 @@ public final class Vector1D implements Vector, java.io.Serializable {
 
     @Override
     public void nearestImage(Vector dimensions) {
-        Vector1D dimensions1D = ((Vector1D) dimensions);
-        final double halfX = dimensions1D.x / 2;
+        final double halfX = dimensions.x() / 2;
 
         while (x > halfX)
-            x -= dimensions1D.x;
+            x -= dimensions.x();
         while (x < -halfX)
-            x += dimensions1D.x;
+            x += dimensions.x();
     }
 
     @Override
@@ -153,28 +146,28 @@ public final class Vector1D implements Vector, java.io.Serializable {
         x = random.nextInt(2) * 2 - 1;
     }
 
-    public void E(Vector u) {
-        x = ((Vector1D) u).x;
+    public void E(Vector v) {
+        x = v.x();
     }
 
-    public void PE(Vector u) {
-        x += ((Vector1D) u).x;
+    public void PE(Vector v) {
+        x += v.x();
     }
 
-    public void ME(Vector u) {
-        x -= ((Vector1D) u).x;
+    public void ME(Vector v) {
+        x -= v.x();
     }
 
-    public void TE(Vector u) {
-        x *= ((Vector1D) u).x;
+    public void TE(Vector v) {
+        x *= v.x();
     }
 
-    public void DE(Vector u) {
-        x /= ((Vector1D) u).x;
+    public void DE(Vector v) {
+        x /= v.x();
     }
 
-    public double dot(Vector u) {
-        return ((Vector1D) u).x * x;
+    public double dot(Vector v) {
+        return v.x() * x;
     }
 
     public boolean isNaN() {

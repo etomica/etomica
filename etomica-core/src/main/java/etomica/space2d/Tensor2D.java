@@ -5,8 +5,8 @@
 package etomica.space2d;
 
 import etomica.math.function.IFunction;
-import etomica.space.Vector;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Implementation of a tensor for a 2-dimensional space.  Tensor is formed from four elements.
@@ -67,43 +67,50 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
     }
     
     public void E(Vector[] v) {
-        if(v.length != 2) {
+        if (v.length != 2) {
             throw new IllegalArgumentException("Tensor requires 2 vectors to set its values");
         }
-        xx = ((Vector2D)v[0]).x; xy = ((Vector2D)v[1]).x;
-        yx = ((Vector2D)v[0]).y; yy = ((Vector2D)v[1]).y;
+        xx = v[0].x();
+        xy = v[1].x();
+        yx = v[0].y();
+        yy = v[1].y();
     }
 
     public void diagE(Vector v) {
         this.E(0.0);
-        Vector2D v3 = (Vector2D)v;
-        xx = v3.x;
-        yy = v3.y;
+        xx = v.x();
+        yy = v.y();
     }
     
     public void assignTo(Vector[] v) {
-        if(v.length != 2) {
+        if (v.length != 2) {
             throw new IllegalArgumentException("Tensor requires 2 vectors for assignment");
         }
-        ((Vector2D)v[0]).x = xx; ((Vector2D)v[1]).x = xy;
-        ((Vector2D)v[0]).y = yx; ((Vector2D)v[1]).y = yy;
+        double[][] a = new double[2][2];
+        a[0][0] = xx;
+        a[1][0] = xy;
+        a[0][1] = yx;
+        a[1][1] = yy;
+        for (int i = 0; i < 2; i++) {
+            v[i].E(a[i]);
+        }
     }
-   
-    public void Ev1v2(Vector u1, Vector u2) {
-        xx=((Vector2D)u1).x*((Vector2D)u2).x;
-        xy=((Vector2D)u1).x*((Vector2D)u2).y;
-        yx=((Vector2D)u1).y*((Vector2D)u2).x;
-        yy=((Vector2D)u1).y*((Vector2D)u2).y;
+
+    public void Ev1v2(Vector v1, Vector v2) {
+        xx = v1.x() * v2.x();
+        xy = v1.x() * v2.y();
+        yx = v1.y() * v2.x();
+        yy = v1.y() * v2.y();
     }
-    
+
     public void E(double a) {
         xx = xy = yx = yy = a;
     }
-    
+
     public void PE(double a) {
-        xx+=a;
-        xy+=a;
-        yx+=a;
+        xx += a;
+        xy += a;
+        yx += a;
         yy+=a;
     }
     
@@ -120,10 +127,10 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
     }
     
     public void PEv1v2(Vector v1, Vector v2) {
-        xx+=((Vector2D)v1).x*((Vector2D)v2).x;
-        xy+=((Vector2D)v1).x*((Vector2D)v2).y;
-        yx+=((Vector2D)v1).y*((Vector2D)v2).x;
-        yy+=((Vector2D)v1).y*((Vector2D)v2).y;
+        xx += v1.x() * v2.x();
+        xy += v1.x() * v2.y();
+        yx += v1.y() * v2.x();
+        yy += v1.y() * v2.y();
     }
     
     public void PEa1Tt1(double a1, Tensor t1) {
@@ -134,10 +141,10 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
     }
 
     public void MEv1v2(Vector v1, Vector v2) {
-        xx-=((Vector2D)v1).x*((Vector2D)v2).x;
-        xy-=((Vector2D)v1).x*((Vector2D)v2).y;
-        yx-=((Vector2D)v1).y*((Vector2D)v2).x;
-        yy-=((Vector2D)v1).y*((Vector2D)v2).y;
+        xx -= v1.x() * v2.x();
+        xy -= v1.x() * v2.y();
+        yx -= v1.y() * v2.x();
+        yy -= v1.y() * v2.y();
     }
     
     public void ME(Tensor t) {

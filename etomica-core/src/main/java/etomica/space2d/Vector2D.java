@@ -4,10 +4,10 @@
 
 package etomica.space2d;
 
-import etomica.math.function.IFunction;
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.exception.MethodNotImplementedException;
+import etomica.math.function.IFunction;
+import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 /**
  * Implementation of the Vector class for a 2-dimensional space.
@@ -46,7 +46,7 @@ public final class Vector2D implements Vector, java.io.Serializable {
     }
 
     public boolean equals(Vector v) {
-        return (x == ((Vector2D) v).x) && (y == ((Vector2D) v).y);
+        return (x == v.x()) && (y == v.y());
     }
 
     public boolean isZero() {
@@ -69,8 +69,8 @@ public final class Vector2D implements Vector, java.io.Serializable {
     }
 
     public void E(Vector u) {
-        x = ((Vector2D) u).x;
-        y = ((Vector2D) u).y;
+        x = u.x();
+        y = u.y();
     }
 
     public void E(double... u) {
@@ -89,21 +89,19 @@ public final class Vector2D implements Vector, java.io.Serializable {
         y = b;
     }
 
-    public void Ea1Tv1(double a1, Vector u) {
-        Vector2D u1 = (Vector2D) u;
-        x = a1 * u1.x;
-        y = a1 * u1.y;
+    public void Ea1Tv1(double a1, Vector v) {
+        x = a1 * v.x();
+        y = a1 * v.y();
     }
 
-    public void PEa1Tv1(double a1, Vector u) {
-        Vector2D u1 = (Vector2D) u;
-        x += a1 * u1.x;
-        y += a1 * u1.y;
+    public void PEa1Tv1(double a1, Vector v) {
+        x += a1 * v.x();
+        y += a1 * v.y();
     }
 
-    public void PE(Vector u) {
-        x += ((Vector2D) u).x;
-        y += ((Vector2D) u).y;
+    public void PE(Vector v) {
+        x += v.x();
+        y += v.y();
     }
 
     public void PE(double a) {
@@ -111,9 +109,9 @@ public final class Vector2D implements Vector, java.io.Serializable {
         y += a;
     }
 
-    public void ME(Vector u) {
-        x -= ((Vector2D) u).x;
-        y -= ((Vector2D) u).y;
+    public void ME(Vector v) {
+        x -= v.x();
+        y -= v.y();
     }
 
     public void TE(double a) {
@@ -121,55 +119,49 @@ public final class Vector2D implements Vector, java.io.Serializable {
         y *= a;
     }
 
-    public void TE(Vector u) {
-        x *= ((Vector2D) u).x;
-        y *= ((Vector2D) u).y;
+    public void TE(Vector v) {
+        x *= v.x();
+        y *= v.y();
     }
 
-    public void DE(Vector u) {
-        x /= ((Vector2D) u).x;
-        y /= ((Vector2D) u).y;
+    public void DE(Vector v) {
+        x /= v.x();
+        y /= v.y();
     }
 
-    public double Mv1Squared(Vector u) {
-        Vector2D u1 = (Vector2D) u;
-        double dx = x - u1.x;
-        double dy = y - u1.y;
+    public double Mv1Squared(Vector v1) {
+        double dx = x - v1.x();
+        double dy = y - v1.y();
         return dx * dx + dy * dy;
     }
 
-    public void Ev1Pv2(Vector u1, Vector u2) {
-        Vector2D v1 = (Vector2D) u1;
-        Vector2D v2 = (Vector2D) u2;
-        x = v1.x + v2.x;
-        y = v1.y + v2.y;
+    public void Ev1Pv2(Vector v1, Vector v2) {
+        x = v1.x() + v2.x();
+        y = v1.y() + v2.y();
     }
 
-    public void Ev1Mv2(Vector u1, Vector u2) {
-        Vector2D v1 = (Vector2D) u1;
-        Vector2D v2 = (Vector2D) u2;
-        x = v1.x - v2.x;
-        y = v1.y - v2.y;
+    public void Ev1Mv2(Vector v1, Vector v2) {
+        x = v1.x() - v2.x();
+        y = v1.y() - v2.y();
     }
 
-    public void mod(Vector u) {
-        Vector2D u2 = (Vector2D) u;
-        while (x > u2.x)
-            x -= u2.x;
+    public void mod(Vector v) {
+        while (x > v.x())
+            x -= v.x();
         while (x < 0.0)
-            x += u2.x;
-        while (y > u2.y)
-            y -= u2.y;
+            x += v.x();
+        while (y > v.y())
+            y -= v.y();
         while (y < 0.0)
-            y += u2.y;
+            y += v.y();
     }
 
     public double squared() {
         return x * x + y * y;
     }
 
-    public double dot(Vector u) {
-        return x * ((Vector2D) u).x + y * ((Vector2D) u).y;
+    public double dot(Vector v) {
+        return x * v.x() + y * v.y();
     }
 
     public void normalize() {
@@ -205,18 +197,17 @@ public final class Vector2D implements Vector, java.io.Serializable {
 
     @Override
     public void nearestImage(Vector dimensions) {
-        Vector2D dimensions2D = ((Vector2D) dimensions);
-        final double halfX = dimensions2D.x / 2;
-        final double halfY = dimensions2D.y / 2;
+        final double halfX = dimensions.x() / 2;
+        final double halfY = dimensions.y() / 2;
 
         while (x > halfX)
-            x -= dimensions2D.x;
+            x -= dimensions.x();
         while (x < -halfX)
-            x += dimensions2D.x;
+            x += dimensions.x();
         while (y > halfY)
-            y -= dimensions2D.y;
+            y -= dimensions.y();
         while (y < -halfY)
-            y += dimensions2D.y;
+            y += dimensions.y();
     }
 
     @Override
