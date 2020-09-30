@@ -6,8 +6,8 @@ package etomica.space3d;
 
 
 import etomica.math.function.IFunction;
-import etomica.space.Vector;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.util.Debug;
 
 public class Tensor3D implements Tensor, java.io.Serializable {
@@ -103,13 +103,21 @@ public class Tensor3D implements Tensor, java.io.Serializable {
     }
     
     public void assignTo(Vector[] v) {
-        if(v.length != 3) {
+        if (v.length != 3) {
             throw new IllegalArgumentException("Tensor requires 3 vector for assignment");
         }
-        double[][] arr = new double[3][3];
-        this.assignTo(arr);
-        for (int i = 0; i < arr.length; i++) {
-            v[i].E(arr[i]);
+        double[][] a = new double[3][3];
+        a[0][0] = xx;
+        a[1][0] = xy;
+        a[2][0] = xz;
+        a[0][1] = yx;
+        a[1][1] = yy;
+        a[2][1] = yz;
+        a[0][2] = zx;
+        a[1][2] = zy;
+        a[2][2] = zz;
+        for (int i = 0; i < 3; i++) {
+            v[i].E(a[i]);
         }
     }
 
