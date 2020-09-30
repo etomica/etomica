@@ -49,6 +49,10 @@ public class OrientationStorage extends DoubleStructStorage<IOrientation> {
     @Override
     protected void updateData(IOrientation[] views, double[] newData) {
         for (IOrientation view : views) {
+            if (view == null) {
+                continue;
+            }
+
             switch (space.D()) {
                 case 3:
                     ((ViewVector3D) view.getDirection()).setData(newData);
