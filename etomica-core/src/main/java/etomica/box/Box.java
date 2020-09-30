@@ -192,6 +192,14 @@ public class Box {
         return "Box " + getIndex();
     }
 
+    public int getAtomCount() {
+        return atomCount;
+    }
+
+    public int getMoleculeCount() {
+        return moleculeCount;
+    }
+
     /**
      * Creates a molecule of the given species and adds it to the box
      *
@@ -242,6 +250,7 @@ public class Box {
         }
 
         this.allMoleculeStorage.forEach(s -> s.swapRemove(molIdx));
+        this.moleculeCount--;
 
         allMoleculeList.removeAndReplace(molIdx);
         if (molIdx < allMoleculeList.size()) {
