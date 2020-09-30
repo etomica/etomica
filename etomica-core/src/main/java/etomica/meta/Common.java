@@ -1,10 +1,10 @@
 package etomica.meta;
 
-import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
-import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ScanResult;
 
 public class Common {
 
-    public static final ScanResult CLASSPATH_SCAN = new FastClasspathScanner("etomica").verbose().scan();
+    public static final ScanResult CLASSPATH_SCAN = new ClassGraph().acceptPackages("etomica").verbose().scan();
 
 }

@@ -15,9 +15,9 @@ public class ComponentIndex<T> {
 
     public List<Class<?>> getComponentSet() {
         if (componentClass.isInterface()) {
-            return CLASSPATH_SCAN.classNamesToClassRefs(CLASSPATH_SCAN.getNamesOfClassesImplementing(componentClass));
+            return CLASSPATH_SCAN.getClassesImplementing(componentClass.getName()).loadClasses();
         } else {
-            return CLASSPATH_SCAN.classNamesToClassRefs(CLASSPATH_SCAN.getNamesOfSubclassesOf(componentClass));
+            return CLASSPATH_SCAN.getSubclasses(componentClass.getName()).loadClasses();
         }
 
     }

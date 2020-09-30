@@ -1,15 +1,12 @@
 package etomica;
 
-import etomica.normalmode.NormalModeAnalysisDisplay3D;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
-import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
-import org.junit.jupiter.api.Assumptions;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ScanResult;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -20,13 +17,15 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class TestSimConstructors {
-    public static final ScanResult SCAN = new FastClasspathScanner("etomica").scan();
+    public static final ScanResult SCAN = new ClassGraph()
+            .acceptPackages("etomica")
+            .scan();
     private static final List<Constructor<?>> constructors = new ArrayList<>();
     private static final List<Constructor<?>> spaceConstructors = new ArrayList<>();
 
     @BeforeAll
     static void setUp() {
-        List<Class<?>> classes =  SCAN.classNamesToClassRefs(SCAN.getNamesOfSubclassesOf(Simulation.class));
+        List<Class<?>> classes =  SCAN.getSubclasses(Simulation.class.getName()).loadClasses();
         for (Class<?> cls : classes) {
             try {
                 constructors.add(cls.getConstructor());
