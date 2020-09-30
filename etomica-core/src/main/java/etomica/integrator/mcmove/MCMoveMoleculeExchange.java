@@ -98,11 +98,12 @@ public class MCMoveMoleculeExchange extends MCMove {
 
         positionSource.setBox(iBox);
         moleculeTranslator.setDestination(positionSource.randomPosition());         //place at random in insertion box
-        iBox.addNewMolecule(molecule.getType(), mol -> {
+        IMolecule newMolecule = iBox.addNewMolecule(molecule.getType(), mol -> {
             mol.copyFrom(molecule);
             moleculeTranslator.actionPerformed(mol);
         });
         dBox.removeMolecule(molecule);
+        molecule = newMolecule;
         uNew = Double.NaN;
         return true;
     }//end of doTrial
