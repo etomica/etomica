@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 
 public class DoubleStorage implements Storage {
+    private static final double SIZE_INCREASE_RATIO = 0.3;
     private double[] data;
     private DoubleWrapper[] views;
     private final BitSet validBits;
@@ -47,15 +48,14 @@ public class DoubleStorage implements Storage {
     }
 
     public void add(int n) {
-        if (count + n > data.length) {
-            resize(count + n);
-        }
-        validBits.set(count, count + n);
-        count += n;
+        this.addNull(n);
+        validBits.set(count - n, count);
     }
 
     public void addNull(int n) {
-        ensureCapacity(n);
+        if (this.count + n >= this.data.length) {
+            resize(Math.max((int) (count * (1.0 + SIZE_INCREASE_RATIO) + 1), count + n));
+        }
         validBits.clear(count, count + n);
         count += n;
     }
