@@ -9,6 +9,8 @@ public abstract class DoubleStructStorage<V> implements Storage {
     private int count;
     protected final int stride;
 
+    private static final double SIZE_INCREASE_RATIO = 0.3;
+
     public DoubleStructStorage(int stride, int count, Class<? extends V> viewClass) {
         this.stride = stride;
         this.count = count;
@@ -45,7 +47,9 @@ public abstract class DoubleStructStorage<V> implements Storage {
     }
 
     public void addNull(int n) {
-        ensureCapacity(n);
+        if (this.count + n > this.views.length) {
+            resize(Math.max((int) (count * (1.0 + SIZE_INCREASE_RATIO) + 1), count + n));
+        }
         count += n;
     }
 
