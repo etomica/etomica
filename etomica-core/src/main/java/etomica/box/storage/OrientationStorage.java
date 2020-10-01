@@ -2,6 +2,7 @@ package etomica.box.storage;
 
 import etomica.space.IOrientation;
 import etomica.space.Space;
+import etomica.space2d.Orientation2D;
 import etomica.space3d.Orientation3D;
 import etomica.space3d.OrientationFull3D;
 
@@ -18,6 +19,10 @@ public class OrientationStorage extends DoubleStructStorage<IOrientation> {
 
     protected IOrientation makeView(int i) {
         switch (space.D()) {
+            case 1:
+                throw new IllegalArgumentException("We don't know how to make 1D Orientation that uses storage");
+            case 2:
+                return new Orientation2D(new ViewVector2D(i * stride, this.data));
             case 3:
                 if (!this.isAxisSymmetric) {
                     return new OrientationFull3D(space,
@@ -34,6 +39,12 @@ public class OrientationStorage extends DoubleStructStorage<IOrientation> {
     @Override
     protected void updateIndex(IOrientation view, int newIdx) {
         switch (space.D()) {
+            case 1:
+                ((ViewVector1D) view.getDirection()).setIndex(newIdx * stride);
+                break;
+            case 2:
+                ((ViewVector2D) view.getDirection()).setIndex(newIdx * stride);
+                break;
             case 3:
                 ((ViewVector3D) view.getDirection()).setIndex(newIdx * stride);
                 if (!this.isAxisSymmetric) {
@@ -54,6 +65,12 @@ public class OrientationStorage extends DoubleStructStorage<IOrientation> {
             }
 
             switch (space.D()) {
+                case 1:
+                    ((ViewVector1D) view.getDirection()).setData(newData);
+                    break;
+                case 2:
+                    ((ViewVector2D) view.getDirection()).setData(newData);
+                    break;
                 case 3:
                     ((ViewVector3D) view.getDirection()).setData(newData);
                     if (!this.isAxisSymmetric) {
