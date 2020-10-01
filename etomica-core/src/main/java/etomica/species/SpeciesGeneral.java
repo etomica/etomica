@@ -248,7 +248,7 @@ public class SpeciesGeneral implements ISpecies {
         return (atomType, box, id) -> {
             Vector position = box.getAtomVectors(Tokens.POSITION).create(id);
             if (atomType instanceof AtomTypeOriented) {
-                IOrientation orientation = box.getAtomOrientations(Tokens.ORIENTATION_FULL).create(id);
+                IOrientation orientation = box.getAtomOrientations(space.D() == 3 ? Tokens.ORIENTATION_FULL : Tokens.ORIENTATION).create(id);
                 if (isDynamic) {
                     Vector velocity = box.getAtomVectors(Tokens.VELOCITY).create(id);
                     Vector angularVel = box.getAtomVectors(Tokens.ANGULAR_VELOCITY).create(id);
