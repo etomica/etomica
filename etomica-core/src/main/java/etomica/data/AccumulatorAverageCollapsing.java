@@ -100,6 +100,7 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
 
     public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         if (incomingDataInfo.getLength() > 1) {
+            // Can only handle single data.
             throw new RuntimeException("AccumulatorAverageCollapsing can only handle single data");
         }
         return super.processDataInfo(incomingDataInfo);

@@ -12,6 +12,7 @@ import java.util.Objects;
 
 public class SimulationEventManager {
 
+
     private final List<SimulationListener> listeners = new ArrayList<>();
     private final Simulation simulation;
 

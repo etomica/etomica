@@ -47,8 +47,8 @@ public final class Pressure extends Dimension {
                 return Pressure.DIMENSION;
             case 2:
                 return Pressure2D.DIMENSION;
-//            case 1:
-//                return Length.DIMENSION;
+            case 1:
+                return Length.DIMENSION;        // This case was commented out.
             default:
                 throw new IllegalArgumentException("Pressure dimension defined only for D = 2, 3; you gave D = "+D);
         }

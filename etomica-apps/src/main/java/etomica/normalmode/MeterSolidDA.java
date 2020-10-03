@@ -33,9 +33,9 @@ public class MeterSolidDA implements IDataSource {
     public MeterSolidDA(Space space, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, boolean doD2) {
         this.coordinteDefinition = coordinateDefinition;
         tag = new DataTag();
-    	this.potentialMaster = potentialMaster;
+    	this.potentialMaster = potentialMaster;     // Passes in the potentialMaster.
         iteratorDirective = new IteratorDirective();
-        iteratorDirective.includeLrc = false;
+        iteratorDirective.includeLrc = false;       // Not including Long-range contributions.
         pc = new PotentialCalculationSolidSuper(space, coordinateDefinition);
         pc.setDoSecondDerivative(doD2);
         dim = space.D();

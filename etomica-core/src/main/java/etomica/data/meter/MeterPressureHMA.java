@@ -12,26 +12,17 @@ import etomica.potential.PotentialCalculationVirialSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.units.dimensions.Pressure;
-import etomica.util.Constants;
 
-/**
- * Meter for evaluation of the soft-potential pressure in a box.
- * Requires that temperature be set in order to calculation ideal-gas
- * contribution to pressure; default is to use zero temperature, which
- * causes this contribution to be omitted.
- *
- * @author David Kofke
- */
-
-public class MeterPressure extends DataSourceScalar {
+public class MeterPressureHMA extends DataSourceScalar {
 
     // Constructor takes a Space object.
-    public MeterPressure(Space space) {
-    	super("Pressure",Pressure.dimension(space.D()));    // passes 'label' and dimensions for pressure.
-    	dim = space.D();    // creates variable dim, which holds the dimensions of the space.
+    public MeterPressureHMA(Space space) {
+        super("Pressure",Pressure.dimension(space.D()));    // passes 'label' and dimensions for pressure.
+        dim = space.D();    // creates variable dim, which holds the dimensions of the space.
         iteratorDirective = new IteratorDirective();    // Contains instructions on how the atoms are selected.
-        iteratorDirective.includeLrc = true;    // Indicates if long-range contributions should be included.
+        iteratorDirective.includeLrc = false;    // Indicates if long-range contributions should be included.
         virial = new PotentialCalculationVirialSum();       // Creates a PotentialCalculation object which will compute viral across all iterated atoms.
+
     }
 
     /**
@@ -47,7 +38,7 @@ public class MeterPressure extends DataSourceScalar {
     public void setPotentialMaster(PotentialMaster newPotentialMaster) {
         potentialMaster = newPotentialMaster;
     }   // This controls all potentials within a simulation. e.g. If you need to calculate the energy, forces, etc.
-    
+
     public void setTemperature(double newTemperature) {
         temperature = newTemperature;
     }
@@ -70,30 +61,30 @@ public class MeterPressure extends DataSourceScalar {
      * long-range correction for potential truncation (true) or not (false).
      */
     public void setIncludeLrc(boolean b) {
-    	iteratorDirective.includeLrc = b;
+        iteratorDirective.includeLrc = b;
     }
-    
+
     /**
      * Indicates whether calculated energy should include
      * long-range correction for potential truncation (true) or not (false).
      */
     public boolean isIncludeLrc() {
-    	return iteratorDirective.includeLrc;
+        return iteratorDirective.includeLrc;
     }
 
-	 /**
-	  * Computes total pressure in box by summing virial over all pairs, and adding
-	  * ideal-gas contribution.
-	  */
+    /**
+     * Computes total pressure in box by summing virial over all pairs, and adding
+     * ideal-gas contribution.
+     */
     public double getDataAsScalar() {
         if (integrator == null && (potentialMaster == null || box == null)) {
             throw new IllegalStateException("You must call setIntegrator before using this class");
         }
-    	virial.zeroSum();
-    	Box b = box;
-    	if (b == null) {
-    	    b = integrator.getBox();
-    	}
+        virial.zeroSum();
+        Box b = box;
+        if (b == null) {
+            b = integrator.getBox();
+        }
         if (potentialMaster != null) {
             potentialMaster.calculate(b, iteratorDirective, virial);
         }
@@ -102,7 +93,7 @@ public class MeterPressure extends DataSourceScalar {
         }
         double temp = (integrator != null) ? integrator.getTemperature() : temperature;
         //System.out.println("fac="+(1/(box.getBoundary().volume()*box.getSpace().D())));
-        return (b.getMoleculeList().size() / b.getBoundary().volume()) * temp - virial.getSum() / (b.getBoundary().volume() * dim);
+        return (b.getMoleculeList().size() / b.getBoundary().volume())*temp - virial.getSum()/(b.getBoundary().volume()*dim);
     }
 
     private IntegratorBox integrator;

@@ -17,6 +17,8 @@ import etomica.atom.IAtomList;
  * @see PotentialMaster
  * @see PotentialGroup
  */
+
+// This class can perform various actions on a set of atoms, using an arbitrary potential. (e.g. energy, forces, etc.)
 public interface PotentialCalculation {
  	
 	/**
@@ -24,6 +26,8 @@ public interface PotentialCalculation {
 	 * @param atoms IAtomSet the atom sets for which the calculation is performed.
 	 * @param potential The potential used to apply the action defined by this class.
 	 */
+	// All objects that inherit from the PotentialCalculation class must have a doCalculation() method.
+	// What exactly are these 'potentials'?
 	public void doCalculation(IAtomList atoms, IPotentialAtomic potential);
 	
 }

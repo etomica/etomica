@@ -33,16 +33,18 @@ import java.util.List;
  */
 public class PotentialMaster {
 
-    protected PotentialMasterLrc lrcMaster;
-    protected IteratorFactory iteratorFactory;
+    protected PotentialMasterLrc lrcMaster;     // Collections potentials used for Long-range interactions.
+    protected IteratorFactory iteratorFactory;  // This class is used to construct iterators.
     protected List<PotentialLinker> potentialList;
     protected boolean enabled = true;
-    protected boolean isPotentialHard = false;
+    protected boolean isPotentialHard = false;      // tells PotentialMaster if it's dealing with a hard potential.
 
     public PotentialMaster() {
         this(IteratorFactory.INSTANCE);
     }
 
+    // Constructor takes iteratorFactory object.
+    // Sets a particular instance of iteratorFactory
     public PotentialMaster(IteratorFactory iteratorFactory) {
         this.iteratorFactory = iteratorFactory;
         potentialList = new ArrayList<PotentialLinker>();

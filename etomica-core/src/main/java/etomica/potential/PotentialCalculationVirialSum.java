@@ -21,7 +21,7 @@ public class PotentialCalculationVirialSum implements PotentialCalculation {
         if (!(potential instanceof PotentialSoft)) {
             return;
         }
-        sum += ((PotentialSoft)potential).virial(atoms);
+        sum += ((PotentialSoft)potential).virial(atoms);	// This will sum the energy values.
 	}
 	
 	/**

@@ -32,10 +32,11 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
      * Adds forces due to given potential acting on the atoms produced by the iterator.
      * Implemented for only 1- and 2-body potentials.
      */
+    // Takes a list of IAtoms, and  IPotentialAtomic object.
     public void doCalculation(IAtomList atoms, IPotentialAtomic potential) {
         PotentialSoft potentialSoft = (PotentialSoft)potential;
-        int nBody = potential.nBody();
-        Vector[] f = potentialSoft.gradient(atoms);
+        int nBody = potential.nBody();      // This is the number of atoms on which the potential depends. (e.g. Nearest-neighbor or 2nd nearest-neighbor.)
+        Vector[] f = potentialSoft.gradient(atoms);     // Returns a vector of the gradient of energy. (indicates how the energy would change if the first atom moves)
         if (f==null) return;
         switch(nBody) {
         	case 0:
