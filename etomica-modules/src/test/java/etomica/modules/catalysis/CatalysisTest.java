@@ -7,6 +7,11 @@ import etomica.util.random.RandomMersenneTwister;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.IntStream;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class CatalysisTest {
@@ -31,7 +36,7 @@ class CatalysisTest {
     void testDensities() {
         assertDoesNotThrow(() -> actionIntegrate.actionPerformed());
         assertAll(
-                () -> assertEquals(3.5144282273534565e-5, densityCO.getDataAsScalar(), delta, "CO density"),
+                () -> assertEquals(3.28013301219656E-5, densityCO.getDataAsScalar(), delta, "CO density"),
                 () -> assertEquals(3.983018657667251e-5, densityO2.getDataAsScalar(), delta, "O2 density"),
                 () -> assertEquals(2.342952151568971e-6, densityCO2.getDataAsScalar(), delta, "CO2 density")
         );
