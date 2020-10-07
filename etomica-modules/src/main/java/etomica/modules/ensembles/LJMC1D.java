@@ -88,7 +88,7 @@ public class LJMC1D extends Simulation {
         } else {
             mcMoveAtom = null;
             mcMoveHarmonicStep = new MCMoveHarmonicStep(potentialMaster, random);
-            double[][] eigenvalues = new double[modes.length][N];
+            double[][] eigenvectors = new double[modes.length][N];
             int[] moveModes = new int[modes.length];
             int maxmode = N / 2;
             for (int i = 0; i < modes.length; i++) {
@@ -96,18 +96,18 @@ public class LJMC1D extends Simulation {
                 boolean doCos = modes[i] <= N / 2;
                 int k = doCos ? modes[i] : (modes[i] - maxmode);
                 for (int j = 0; j < N; j++) {
-                    double arg = 2 * Math.PI / N * k * j;
-                    eigenvalues[i][j] = doCos ? Math.cos(arg) : Math.sin(arg);
+                    double arg = -2 * Math.PI / N * k * j;
+                    eigenvectors[i][j] = 2 * (doCos ? Math.cos(arg) : Math.sin(arg)) / Math.sqrt(N);
                 }
             }
-            mcMoveHarmonicStep.setEigenVectors(eigenvalues);
+            mcMoveHarmonicStep.setEigenVectors(eigenvectors);
         }
     }
 
     public static void main(String[] args) throws IOException {
         Space space = Space.getInstance(1);
 
-        String path = "/Users/sykherebrown/Masters Research/1D Harmonic Crystal Output/";
+        String path = "";
 
         double[] temperatureList = new double[] { 0.1, 0.5, 1.0, 2.0, 3.0 };
         int [] systemSizeList = new int[] { 75, 150 };
@@ -138,7 +138,7 @@ public class LJMC1D extends Simulation {
                         if (truncationRadius / latticeConstant <= 1.001)
                             continue;
 
-                        LJMC1D sim = new LJMC1D(space, temperature, N, truncationRadius, rho);
+                        LJMC1D sim = new LJMC1D(space, temperature, N, truncationRadius, rho, new int[]{1, 2});
 
                         // Equilibration first. What exactly is this doing?
                         // TODO: Find out what this block of code does.
