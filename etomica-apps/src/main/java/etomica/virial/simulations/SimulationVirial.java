@@ -16,7 +16,7 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.species.*;
+import etomica.species.ISpecies;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.*;
 
@@ -125,7 +125,6 @@ public class SimulationVirial extends Simulation {
         boolean doRotate = false;
         boolean multiAtomic = false;
         for (int i=0; i<species.length; i++) {
-            addSpecies(species[i]);
             ISpecies sp = species[i];
             if (sp.getLeafAtomCount() == 1 && sp.getLeafType() instanceof AtomTypeOriented) {
                 doRotate = true;
