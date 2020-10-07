@@ -30,27 +30,22 @@ public class LJMCGraphic extends SimulationGraphic {
     protected boolean constMu = false;
 
     public LJMCGraphic(final LJMC simulation, Space _space) {
-        // simulation - this is contains a LJMC object. This object is created once.
-        // _space - this variable is a space object.
 
-        // Constructed from the base-class SimulationGraphic
     	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
-    	// An arraylist containing DataPump objects.
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         
     	this.sim = simulation;
 
-	    // Display of box, timer
-        ColorSchemeByType colorScheme = new ColorSchemeByType();        // colorScheme object.
-        colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);     // setting the color.
-        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());     // creating the display box and setting the color scheme.
+	    //display of box, timer
+        ColorSchemeByType colorScheme = new ColorSchemeByType();
+        colorScheme.setColor(sim.species.getLeafType(), Color.red);
+        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 
         DataSourceCountSteps timeCounter = new DataSourceCountSteps(sim.integrator);
 
 		// Number density box
-	    final MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-        densityMeter.setBox(sim.box);
+	    final MeterDensity densityMeter = new MeterDensity(sim.box);
         AccumulatorHistory dHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         dHistory.setTimeDataSource(timeCounter);
         final AccumulatorAverageCollapsing dAccumulator = new AccumulatorAverageCollapsing();
@@ -265,9 +260,9 @@ public class LJMCGraphic extends SimulationGraphic {
         final DeviceButton slowButton = new DeviceButton(sim.getController(), null);
         slowButton.setAction(new IAction() {
             public void actionPerformed() {
-                int sleep = (int) sim.activityIntegrate.getSleepPeriod();
+                int sleep = (int) sim.getController().getSleepPeriod();
                 sleep = 1-sleep;
-                sim.activityIntegrate.setSleepPeriod(sleep);
+                sim.getController().setSleepPeriod(sleep);
                 slowButton.setLabel(sleep == 0 ? "Slow" : "Fast");
             }
         });

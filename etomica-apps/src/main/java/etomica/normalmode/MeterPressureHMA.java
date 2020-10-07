@@ -51,7 +51,7 @@ public class MeterPressureHMA implements IDataSource {
     protected Vector dr;
     private FileWriter fileWriter;
 
-    public MeterPressureHMA(Space space, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, boolean doD2) throws IOException {
+    public MeterPressureHMA(Space space, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, boolean doD2) {
         this.coordinateDefinition = coordinateDefinition;
         this.potentialMaster = potentialMaster;
         this.doD2 = doD2;

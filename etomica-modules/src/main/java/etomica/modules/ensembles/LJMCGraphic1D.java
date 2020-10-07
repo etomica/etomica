@@ -12,12 +12,11 @@ import etomica.data.meter.*;
 import etomica.graphics.*;
 import etomica.math.DoubleRange;
 import etomica.modifier.ModifierBoolean;
+import etomica.normalmode.MeterPressureHMA;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.normalmode.MeterPressureHMA;
-import etomica.data.DataSplitter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,7 +32,7 @@ public class LJMCGraphic1D extends SimulationGraphic {
     protected boolean volumeChanges = false;
     protected boolean constMu = false;
 
-    public LJMCGraphic1D(final LJMC1D simulation, Space _space) throws IOException {
+    public LJMCGraphic1D(final LJMC1D simulation, Space _space) {
         // simulation - this contains a LJMC1D object. This object is created once.
         // _space - this variable is a space object.
 
@@ -47,14 +46,13 @@ public class LJMCGraphic1D extends SimulationGraphic {
 
         // Display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
-        colorScheme.setColor(sim.species.getLeafType(),java.awt.Color.red);
+        colorScheme.setColor(sim.species.getLeafType(), Color.red);
         getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 
         DataSourceCountSteps timeCounter = new DataSourceCountSteps(sim.integrator);
 
         // Number density box
-        final MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-        densityMeter.setBox(sim.box);
+        final MeterDensity densityMeter = new MeterDensity(sim.box);
         AccumulatorHistory dHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         dHistory.setTimeDataSource(timeCounter);
         final AccumulatorAverageCollapsing dAccumulator = new AccumulatorAverageCollapsing();
@@ -345,9 +343,9 @@ public class LJMCGraphic1D extends SimulationGraphic {
         final DeviceButton slowButton = new DeviceButton(sim.getController(), null);
         slowButton.setAction(new IAction() {
             public void actionPerformed() {
-                int sleep = (int) sim.activityIntegrate.getSleepPeriod();
+                int sleep = (int) sim.getController().getSleepPeriod();
                 sleep = 1-sleep;
-                sim.activityIntegrate.setSleepPeriod(sleep);
+                sim.getController().setSleepPeriod(sleep);
                 slowButton.setLabel(sleep == 0 ? "Slow" : "Fast");
             }
         });
@@ -373,14 +371,9 @@ public class LJMCGraphic1D extends SimulationGraphic {
             sp = Space1D.getInstance();
         }
 
-        try {
-            LJMCGraphic1D ljmcGraphic = new LJMCGraphic1D(new LJMC1D(sp), sp);
-            SimulationGraphic.makeAndDisplayFrame
-                    (ljmcGraphic.getPanel(), APP_NAME);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+        LJMCGraphic1D ljmcGraphic = new LJMCGraphic1D(new LJMC1D(sp), sp);
+        SimulationGraphic.makeAndDisplayFrame
+                (ljmcGraphic.getPanel(), APP_NAME);
     }
 
     public static class Applet extends javax.swing.JApplet {
@@ -390,11 +383,7 @@ public class LJMCGraphic1D extends SimulationGraphic {
                     "defeatSystemEventQueueCheck", Boolean.TRUE);
             Space sp = Space1D.getInstance();
             LJMCGraphic1D ljmcGraphic = null;
-            try {
-                ljmcGraphic = new LJMCGraphic1D(new LJMC1D(sp), sp);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            ljmcGraphic = new LJMCGraphic1D(new LJMC1D(sp), sp);
 
             getContentPane().add(ljmcGraphic.getPanel());
         }

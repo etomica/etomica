@@ -10,9 +10,7 @@ import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
-import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -20,14 +18,13 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space1d.Space1D;
-import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 public class Ljmd1D extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public IntegratorVelocityVerlet integrator;
     public ActivityIntegrate activityIntegrate;
@@ -36,8 +33,7 @@ public class Ljmd1D extends Simulation {
         super(_space);
 
         //species
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.99, space);
@@ -50,8 +46,6 @@ public class Ljmd1D extends Simulation {
         integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
         integrator.setTimeStep(0.01);
         //   integrator.setDoSleep(false);
 
@@ -82,7 +76,7 @@ public class Ljmd1D extends Simulation {
         }
 
         Ljmd1D sim = new Ljmd1D(space);
-        sim.getController().actionPerformed();
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
     }//end of main
 
 }

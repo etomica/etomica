@@ -7,8 +7,9 @@ package etomica.modules.ensembles;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.data.*;
-import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataPumpListener;
+import etomica.data.DataSplitter;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
@@ -25,18 +26,16 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.SpeciesSpheresMono;
-import java.io.FileWriter;
-import java.io.File;
+import etomica.species.SpeciesGeneral;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class LJMC1D extends Simulation {
     // The final keyword tells use that each of these variables are created once.
-    private static final long serialVersionUID = 1L;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final Box box;
-    public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
     public final MCMoveAtomCoupled mcMoveAtom;
     public final MCMoveVolume mcMoveVolume;
@@ -44,12 +43,14 @@ public class LJMC1D extends Simulation {
     public PotentialMasterList potentialMaster;
     public final  CoordinateDefinitionLeaf coordinates;
 
+    public IntegratorMC getIntegrator() {
+        return integrator;
+    }
 
     public LJMC1D(Space _space) {
         super(_space);
         // species
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMasterList(this, 6.5, space);        // This holds the various potentials to be calculated during the simulation.
@@ -59,8 +60,6 @@ public class LJMC1D extends Simulation {
         // Controller and integrator
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, 3.0, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
 
         P2LennardJones potential = new P2LennardJones(space);
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential, 4.1);
@@ -120,8 +119,7 @@ public class LJMC1D extends Simulation {
         super(_space);
 
         // Species.
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMasterList(this, 6.5, space);        // This holds the various potentials to be calculated during the simulation.
@@ -130,8 +128,6 @@ public class LJMC1D extends Simulation {
         // Controller and integrator.
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
 
         P2LennardJones potential = new P2LennardJones(space);
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
@@ -225,9 +221,7 @@ public class LJMC1D extends Simulation {
 
                         // Equilibration first. What exactly is this doing?
                         // TODO: Find out what this block of code does.
-                        sim.activityIntegrate.setMaxSteps(steps / 10);
-                        sim.getController().actionPerformed();
-                        sim.getController().reset();
+                        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps/10));
 
                         MeterPressureHMA pMeterHMA = new MeterPressureHMA(space, sim.potentialMaster, sim.coordinates, true);
                         pMeterHMA.setTemperature(sim.integrator.getTemperature());
@@ -250,8 +244,7 @@ public class LJMC1D extends Simulation {
                         sim.integrator.getEventManager().addListener(pPump);
 
                         // Production code.
-                        sim.activityIntegrate.setMaxSteps(steps);
-                        sim.getController().actionPerformed();
+                        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
                         // TODO: Is the standard deviation of the pressure more useful, compared to the error?
                         int pressureIndex = pAccumulatorConventional.AVERAGE.index;      // index 1 represents the pressure's average.
