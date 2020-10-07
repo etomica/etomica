@@ -12,11 +12,11 @@ import etomica.data.DataPumpListener;
 import etomica.data.DataSplitter;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MCMoveAtomCoupled;
+import etomica.normalmode.MCMoveHarmonicStep;
 import etomica.normalmode.MeterPressureHMA;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.P2LennardJones;
@@ -36,8 +36,9 @@ public class LJMC1D extends Simulation {
     public final Box box;
     public final IntegratorMC integrator;
     public final MCMoveAtomCoupled mcMoveAtom;
+    public final MCMoveHarmonicStep mcMoveHarmonicStep;
     public PotentialMasterList potentialMaster;
-    public final  CoordinateDefinitionLeaf coordinates;
+    public final CoordinateDefinitionLeaf coordinates;
 
 
     public LJMC1D(Space _space) {
@@ -45,6 +46,10 @@ public class LJMC1D extends Simulation {
     }
 
     public LJMC1D(Space _space, double temperature, int N, double truncationRadius, double rho) {
+        this(_space, temperature, N, truncationRadius, rho, new int[0]);
+    }
+
+    public LJMC1D(Space _space, double temperature, int N, double truncationRadius, double rho, int[] modes) {
         super(_space);
 
         // Species.
@@ -74,12 +79,29 @@ public class LJMC1D extends Simulation {
         p2Truncated.setTruncationRadius(100);       // returns the strength, irrespective of how far the atoms are.
 
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
-        mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, meterPE, random, space);
-        mcMoveAtom.setPotential(new IPotentialAtomic[]{p2Truncated});
-        mcMoveAtom.setDoExcludeNonNeighbors(true);
-        integrator.getMoveManager().addMCMove(mcMoveAtom);
-        ((MCMoveStepTracker) mcMoveAtom.getTracker()).setMaxAdjustInterval(50000);
-        ((MCMoveStepTracker) mcMoveAtom.getTracker()).setMinAdjustStep(1.05);
+        if (modes.length == 0) {
+            mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, meterPE, random, space);
+            mcMoveAtom.setPotential(new IPotentialAtomic[]{p2Truncated});
+            mcMoveAtom.setDoExcludeNonNeighbors(true);
+            integrator.getMoveManager().addMCMove(mcMoveAtom);
+            mcMoveHarmonicStep = null;
+        } else {
+            mcMoveAtom = null;
+            mcMoveHarmonicStep = new MCMoveHarmonicStep(potentialMaster, random);
+            double[][] eigenvalues = new double[modes.length][N];
+            int[] moveModes = new int[modes.length];
+            int maxmode = N / 2;
+            for (int i = 0; i < modes.length; i++) {
+                moveModes[i] = i;
+                boolean doCos = modes[i] <= N / 2;
+                int k = doCos ? modes[i] : (modes[i] - maxmode);
+                for (int j = 0; j < N; j++) {
+                    double arg = 2 * Math.PI / N * k * j;
+                    eigenvalues[i][j] = doCos ? Math.cos(arg) : Math.sin(arg);
+                }
+            }
+            mcMoveHarmonicStep.setEigenVectors(eigenvalues);
+        }
     }
 
     public static void main(String[] args) throws IOException {
