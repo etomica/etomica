@@ -12,12 +12,10 @@ import etomica.data.DataPumpListener;
 import etomica.data.DataSplitter;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
+import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.normalmode.CoordinateDefinitionLeaf;
-import etomica.normalmode.MCMoveAtomCoupled;
-import etomica.normalmode.MCMoveHarmonicStep;
-import etomica.normalmode.MeterPressureHMA;
+import etomica.normalmode.*;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -73,8 +71,9 @@ public class LJMC1D extends Simulation {
         dim.E(L);
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, N);
-        coordinates = new CoordinateDefinitionLeaf(box, new PrimitiveCubic(space, 1 / rho), space);
-        coordinates.initializeCoordinates(new int[]{N});
+        BasisBigCell basis = new BasisBigCell(space, new BasisMonatomic(space), new int[]{N});
+        coordinates = new CoordinateDefinitionLeaf(box, new PrimitiveCubic(space, L), basis, space);
+        coordinates.initializeCoordinates(new int[]{1});
         potentialMaster.reset();
         p2Truncated.setTruncationRadius(100);       // returns the strength, irrespective of how far the atoms are.
 
@@ -100,7 +99,10 @@ public class LJMC1D extends Simulation {
                     eigenvectors[i][j] = 2 * (doCos ? Math.cos(arg) : Math.sin(arg)) / Math.sqrt(N);
                 }
             }
+            mcMoveHarmonicStep.setCoordinateDefinition(coordinates);
+            mcMoveHarmonicStep.setModes(moveModes);
             mcMoveHarmonicStep.setEigenVectors(eigenvectors);
+            integrator.getMoveManager().addMCMove(mcMoveHarmonicStep);
         }
     }
 
