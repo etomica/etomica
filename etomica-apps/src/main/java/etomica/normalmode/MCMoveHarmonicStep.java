@@ -47,6 +47,8 @@ public class MCMoveHarmonicStep extends MCMoveBoxStep {
      */
     public void setModes(int[] newModes) {
         modes = newModes;
+        q = new double[modes.length];
+        qOld = new double[modes.length];
     }
     
     /**
@@ -86,14 +88,16 @@ public class MCMoveHarmonicStep extends MCMoveBoxStep {
             for (int j=0; j<coordinateDim; j++) {
                 u[j] += delta * eigenVectors[modes[i]][j] / sqrtCells;
             }
+            q[i] += delta;
         }
 
         // Set all the atoms to the new values of u
         for (int iCell = 0; iCell<cells.length; iCell++) {
             coordinateDefinition.setToU(cells[iCell].molecules, u);
         }
-        
+
         energyNew = energyMeter.getDataAsScalar();
+        System.out.println(q[0] + " " + q[1] + " " + energyNew);
         return true;
     }
 
@@ -102,6 +106,9 @@ public class MCMoveHarmonicStep extends MCMoveBoxStep {
     }
     
     public void acceptNotify() {
+        for (int i = 0; i < q.length; i++) {
+            qOld[i] = q[i];
+        }
     }
 
     public double energyChange() {
@@ -111,15 +118,18 @@ public class MCMoveHarmonicStep extends MCMoveBoxStep {
     public void rejectNotify() {
         // Set all the atoms back to the old values of u
         BasisCell[] cells = coordinateDefinition.getBasisCells();
-        for (int iCell = 0; iCell<cells.length; iCell++) {
+        for (int iCell = 0; iCell < cells.length; iCell++) {
             coordinateDefinition.setToU(cells[iCell].molecules, uOld);
+        }
+        for (int i = 0; i < q.length; i++) {
+            q[i] = qOld[i];
         }
     }
 
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
     protected final AtomIteratorLeafAtoms iterator;
-    protected double[] uOld, u;
+    protected double[] uOld, u, q, qOld;
     private double[][] eigenVectors;
     protected final IRandom random;
     protected double energyOld, energyNew, latticeEnergy;
