@@ -267,7 +267,6 @@ public class SimLJPropsCij extends Simulation {
             simGraphic.add(historyPE);
             simGraphic.add(historyP);
             simGraphic.add(historyPij);
-
             return;
         }
 
