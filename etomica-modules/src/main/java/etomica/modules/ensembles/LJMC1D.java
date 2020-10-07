@@ -12,9 +12,7 @@ import etomica.data.DataPumpListener;
 import etomica.data.DataSplitter;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.normalmode.CoordinateDefinitionLeaf;
@@ -38,78 +36,12 @@ public class LJMC1D extends Simulation {
     public final Box box;
     public final IntegratorMC integrator;
     public final MCMoveAtomCoupled mcMoveAtom;
-    public final MCMoveVolume mcMoveVolume;
-    public final MCMoveInsertDelete mcMoveID;
     public PotentialMasterList potentialMaster;
     public final  CoordinateDefinitionLeaf coordinates;
 
 
     public LJMC1D(Space _space) {
-        super(_space);
-        // species
-        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
-        addSpecies(species);
-
-        potentialMaster = new PotentialMasterList(this, 6.5, space);        // This holds the various potentials to be calculated during the simulation.
-        potentialMaster.setCellRange(2);
-        int N = 150;
-
-        // Controller and integrator
-        box = this.makeBox();
-        integrator = new IntegratorMC(potentialMaster, random, 3.0, box);
-
-        P2LennardJones potential = new P2LennardJones(space);
-        P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(space, potential, 4.1);
-        potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
-
-        //construct box
-        Vector dim = space.makeVector(1);
-        double L = 75;
-        dim.E(L);
-        box.getBoundary().setBoxSize(dim);
-        box.setNMolecules(species, N);
-        coordinates = new CoordinateDefinitionLeaf(box, new PrimitiveCubic(space, L / N), space);
-        coordinates.initializeCoordinates(new int[]{N});
-        potentialMaster.reset();
-        p2Truncated.setTruncationRadius(100);       // returns the strength, irrespective of how far the atoms are.
-
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
-        mcMoveAtom = new MCMoveAtomCoupled(potentialMaster, meterPE, random, space);
-        mcMoveAtom.setPotential(new IPotentialAtomic[]{p2Truncated});
-        mcMoveAtom.setDoExcludeNonNeighbors(true);
-        integrator.getMoveManager().addMCMove(mcMoveAtom);
-        ((MCMoveStepTracker) mcMoveAtom.getTracker()).setMaxAdjustInterval(50000);
-        ((MCMoveStepTracker) mcMoveAtom.getTracker()).setMinAdjustStep(1.05);
-
-        mcMoveVolume = new MCMoveVolume(potentialMaster, random, space, 1) {
-            public boolean doTrial() {
-                double vOld = box.getBoundary().volume();
-                uOld = energyMeter.getDataAsScalar();
-                hOld = uOld + pressure * vOld;
-                biasOld = vBias.f(vOld);
-                vScale = (2. * random.nextDouble() - 1.) * stepSize;
-                vNew = vOld * Math.exp(vScale); //Step in ln(V)
-                if (vNew < Math.pow(6, space.D())) return false;
-                double rScale = Math.exp(vScale / D);
-                inflate.setScale(rScale);
-                inflate.actionPerformed();
-                uNew = energyMeter.getDataAsScalar();
-                hNew = uNew + pressure * vNew;
-                return true;
-            }
-        };
-
-        mcMoveID = new MCMoveInsertDelete(potentialMaster, random, space) {
-            public void acceptNotify() {
-                if (moleculeList.size() > 999 && insert) {
-                    rejectNotify();
-                    uNew = 0;
-                    return;
-                }
-                super.acceptNotify();
-            }
-        };
-        mcMoveID.setSpecies(species);
+        this(_space, 3.0, 150, 4.1, 2);
     }
 
     public LJMC1D(Space _space, double temperature, int N, double truncationRadius, double rho) {
@@ -148,36 +80,6 @@ public class LJMC1D extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         ((MCMoveStepTracker) mcMoveAtom.getTracker()).setMaxAdjustInterval(50000);
         ((MCMoveStepTracker) mcMoveAtom.getTracker()).setMinAdjustStep(1.05);
-
-        mcMoveVolume = new MCMoveVolume(potentialMaster, random, space, 1) {
-            public boolean doTrial() {
-                double vOld = box.getBoundary().volume();
-                uOld = energyMeter.getDataAsScalar();
-                hOld = uOld + pressure * vOld;
-                biasOld = vBias.f(vOld);
-                vScale = (2. * random.nextDouble() - 1.) * stepSize;
-                vNew = vOld * Math.exp(vScale); //Step in ln(V)
-                if (vNew < Math.pow(6, space.D())) return false;
-                double rScale = Math.exp(vScale / D);
-                inflate.setScale(rScale);
-                inflate.actionPerformed();
-                uNew = energyMeter.getDataAsScalar();
-                hNew = uNew + pressure * vNew;
-                return true;
-            }
-        };
-
-        mcMoveID = new MCMoveInsertDelete(potentialMaster, random, space) {
-            public void acceptNotify() {
-                if (moleculeList.size() > 999 && insert) {
-                    rejectNotify();
-                    uNew = 0;
-                    return;
-                }
-                super.acceptNotify();
-            }
-        };
-        mcMoveID.setSpecies(species);
     }
 
     public static void main(String[] args) throws IOException {
