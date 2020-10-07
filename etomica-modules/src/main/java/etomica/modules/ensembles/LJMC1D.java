@@ -43,9 +43,6 @@ public class LJMC1D extends Simulation {
     public PotentialMasterList potentialMaster;
     public final  CoordinateDefinitionLeaf coordinates;
 
-    public IntegratorMC getIntegrator() {
-        return integrator;
-    }
 
     public LJMC1D(Space _space) {
         super(_space);

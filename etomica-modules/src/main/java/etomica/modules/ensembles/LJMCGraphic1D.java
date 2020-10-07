@@ -5,6 +5,7 @@
 package etomica.modules.ensembles;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.data.*;
 import etomica.data.histogram.HistogramCollapsing;
 import etomica.data.history.HistoryCollapsingAverage;
@@ -20,7 +21,6 @@ import etomica.space3d.Space3D;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class LJMCGraphic1D extends SimulationGraphic {
@@ -361,17 +361,18 @@ public class LJMCGraphic1D extends SimulationGraphic {
                 int D = Integer.parseInt(args[0]);
                 if (D == 3) {
                     sp = Space3D.getInstance();
-                }
-                else {
+                } else {
                     sp = Space2D.getInstance();
                 }
-            } catch(NumberFormatException e) {}
-        }
-        else {
+            } catch (NumberFormatException e) {
+            }
+        } else {
             sp = Space1D.getInstance();
         }
 
-        LJMCGraphic1D ljmcGraphic = new LJMCGraphic1D(new LJMC1D(sp), sp);
+        LJMC1D sim = new LJMC1D(sp);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
+        LJMCGraphic1D ljmcGraphic = new LJMCGraphic1D(sim, sp);
         SimulationGraphic.makeAndDisplayFrame
                 (ljmcGraphic.getPanel(), APP_NAME);
     }
