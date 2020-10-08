@@ -78,7 +78,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             int nLeaf = leafList.size();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
-                Vector force = agentManager.getAgent(a);
+                Vector force = forces.get(a);
                 Vector r = a.getPosition();
                 Vector v = a.getVelocity();
                 if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
@@ -182,7 +182,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             if (bondConstraints == null) {
                 continue;
             }
-            bondConstraints.redistributeForces(molecule, agentManager);
+            bondConstraints.redistributeForces(molecule, forces);
         }
 
         //Finish integration step
@@ -193,10 +193,10 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
             Vector velocity = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                System.out.println("second "+a+" v="+velocity+", f="+agentManager.getAgent(a));
+                System.out.println("second "+a+" v="+velocity+", f="+forces.get(a));
             }
             if (a.getType().getMass() != 0) {
-                velocity.PEa1Tv1(0.5*timeStep*a.getType().rm(),agentManager.getAgent(a));  //p += f(new)*dt/2
+                velocity.PEa1Tv1(0.5*timeStep*a.getType().rm(),forces.get(a));  //p += f(new)*dt/2
             }
         }
 
@@ -288,7 +288,7 @@ public class IntegratorVelocityVerletRattle extends IntegratorVelocityVerletShak
             if (bondConstraints == null) {
                 continue;
             }
-            bondConstraints.redistributeForces(molecule, agentManager);
+            bondConstraints.redistributeForces(molecule, forces);
             
             IAtomList childList = molecule.getChildList();
             int[][] bondedAtoms = bondConstraints.bondedAtoms;

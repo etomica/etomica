@@ -9,6 +9,8 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.data.*;
 import etomica.data.histogram.Histogram;
 import etomica.data.histogram.HistogramNotSoSimple;
@@ -32,7 +34,7 @@ public class MeterMeanForce implements IDataSource, DataSourceIndependent, IActi
     protected final PotentialCalculationForceSum pcForce;
     protected final Box box;
     protected final IteratorDirective allAtoms;
-    protected final AtomLeafAgentManager<Vector> forceManager;
+    private final VectorStorage forces;
     protected final Space space;
     protected final Potential2SoftSpherical p2;
     protected final Vector dr, fij;
@@ -48,9 +50,8 @@ public class MeterMeanForce implements IDataSource, DataSourceIndependent, IActi
         this.p2 = p2;
         this.box = box;
         this.potentialMaster = potentialMaster;
-        pcForce = new PotentialCalculationForceSum();
-        forceManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
-        pcForce.setAgentManager(forceManager);
+        this.forces = box.getAtomStorage(Tokens.vectorsDefault());
+        pcForce = new PotentialCalculationForceSum(forces);
         allAtoms = new IteratorDirective();
         dr = space.makeVector();
         fij = space.makeVector();
@@ -85,7 +86,7 @@ public class MeterMeanForce implements IDataSource, DataSourceIndependent, IActi
         int n = list.size();
         for (int i=0; i<n; i++) {
             IAtom a = list.get(i);
-            Vector fi = forceManager.getAgent(a);
+            Vector fi = forces.get(a);
             for (int j=i+1; j<n; j++) {
                 IAtom b = list.get(j);
                 dr.Ev1Mv2(b.getPosition(),a.getPosition());
@@ -93,7 +94,7 @@ public class MeterMeanForce implements IDataSource, DataSourceIndependent, IActi
                 double r2 = dr.squared();
                 double r = Math.sqrt(r2);
                 if (r > p2.getRange()) continue;
-                Vector fj = forceManager.getAgent(b);
+                Vector fj = forces.get(b);
                 fij.Ev1Mv2(fj,fi);
                 double fdr = 0.5*fij.dot(dr)/r;
                 hist.addValue(r, fdr);

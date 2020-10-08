@@ -10,6 +10,8 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialMaster;
@@ -31,7 +33,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
     Vector work;
 
     protected AtomLeafAgentManager<Agent> agentManager;
-    private AtomLeafAgentManager<Vector> forces;
+    private VectorStorage forces;
 
     public IntegratorVerlet(Simulation sim, PotentialMaster potentialMaster, Box box) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, box);
@@ -42,7 +44,8 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
         super(potentialMaster,random,timeStep,temperature, box);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
-        forceSum = new PotentialCalculationForcePressureSum(space);
+        this.forces = box.getAtomStorage(Tokens.FORCES);
+        forceSum = new PotentialCalculationForcePressureSum(forces);
         allAtoms = new IteratorDirective();
         // but we're also calculating the pressure tensor, which does have LRC.
         // things deal with this OK.
@@ -52,8 +55,6 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
         pressureTensor = space.makeTensor();
         workTensor = space.makeTensor();
         agentManager = new AtomLeafAgentManager<Agent>(this, box);
-        forces = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
-        forceSum.setAgentManager(forces);
     }
 
     public final void setTimeStep(double t) {
@@ -83,7 +84,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource<
             pressureTensor.PE(workTensor);
             
             Agent agent = agentManager.getAgent(a);
-            Vector force = forces.getAgent(a);
+            Vector force = forces.get(a);
             Vector r = a.getPosition();
             work.E(r);
             r.PE(agent.rMrLast);

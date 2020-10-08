@@ -9,6 +9,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.storage.VectorStorage;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListenerMD;
 import etomica.molecule.IMoleculeList;
@@ -18,13 +19,13 @@ import etomica.species.ISpecies;
 
 public class FixedWall implements IntegratorListenerMD {
 
-    protected final AtomLeafAgentManager<Vector> agentManager;
+    private final VectorStorage forces;
     protected final Box box;
     protected final ISpecies species;
     
-    public FixedWall(Space space, Box box, AtomLeafAgentManager<Vector> agentManager, ISpecies species) {
+    public FixedWall(Space space, Box box, VectorStorage forces, ISpecies species) {
         this.box = box;
-        this.agentManager = agentManager;
+        this.forces = forces;
         this.species = species;
     }
     
@@ -68,7 +69,7 @@ public class FixedWall implements IntegratorListenerMD {
             IAtomList atoms = molecules.get(i).getChildList();
             for (int j = 0; j<atoms.size(); j++) {
                 IAtom jAtom = atoms.get(j);
-                fz += agentManager.getAgent(jAtom).getX(2);
+                fz += forces.get(jAtom).getX(2);
                 totMass += jAtom.getType().getMass();
             }
         }
@@ -79,7 +80,7 @@ public class FixedWall implements IntegratorListenerMD {
             IAtomList atoms = molecules.get(i).getChildList();
             for (int j = 0; j<atoms.size(); j++) {
                 IAtom jAtom = atoms.get(j);
-                Vector jf = agentManager.getAgent(jAtom);
+                Vector jf = forces.get(jAtom);
                 jf.E(0);
                 jf.setX(2, fz*jAtom.getType().getMass());
             }

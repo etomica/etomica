@@ -7,6 +7,8 @@ package etomica.normalmode;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.lattice.crystal.Primitive;
 import etomica.molecule.*;
 import etomica.potential.IteratorDirective;
@@ -20,7 +22,9 @@ import etomica.spaceNd.TensorND;
 
 public class LatticeSumMolecularCrystal {
 
-    public LatticeSumMolecularCrystal(PotentialMaster potentialMaster, Box box, final Space space, int basisDim, Primitive primitive) {
+	private final VectorStorage forces;
+
+	public LatticeSumMolecularCrystal(PotentialMaster potentialMaster, Box box, final Space space, int basisDim, Primitive primitive) {
 
     	this.potentialMaster = potentialMaster;
     	this.box = box;
@@ -38,9 +42,8 @@ public class LatticeSumMolecularCrystal {
         kFactory.makeWaveVectors(box);
         double[] kCoefficients = kFactory.getCoefficients(); //kCoefficients=0.5 non-deg.; = 1 degenerate twice!
 
-		PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum();
-		atomAgentManager = new AtomLeafAgentManager<>(a -> space.makeVector() , box);
-        pcForce.setAgentManager(atomAgentManager);
+		forces = box.getAtomStorage(Tokens.FORCES);
+		PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum(forces);
         IteratorDirective id = new IteratorDirective();
         id.includeLrc = false;
         potentialMaster.calculate(box, id, pcForce);
@@ -175,7 +178,7 @@ public class LatticeSumMolecularCrystal {
                 Tensor3D tmpDrr2 = new Tensor3D();
 	        	IAtom atom = mol0.getChildList().get(atomk);
 	        	
-	        	Vector fk = atomAgentManager.getAgent(atom);//gradient NOT fk
+	        	Vector fk = forces.get(atom);//gradient NOT fk
 	        	Xk.TE(-1);
 	            tmpDrr1.Ev1v2(Xk, fk);
 	            if(true){ //Symmetrize? SUM_over_atoms{tmpDrr1} should = ZERO; i.e. torque=0
@@ -213,7 +216,6 @@ public class LatticeSumMolecularCrystal {
     protected WaveVectorFactorySimple kFactory;
     protected final Tensor[] tmpAtomicTensor3;//46X4=184 atoms dimentional array of 3dim Tensor
 	protected PotentialMaster potentialMaster;
-	protected AtomLeafAgentManager<Vector> atomAgentManager;
 	protected   Tensor tmpDrr1;
 
     public interface AtomicTensorAtomicPair{

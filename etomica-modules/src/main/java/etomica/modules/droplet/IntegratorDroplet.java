@@ -10,6 +10,8 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.integrator.IntegratorMD;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForcePressureSum;
@@ -37,7 +39,7 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
     protected final Vector dr;
 
     protected AtomLeafAgentManager<MyAgent> agentManager;
-    private AtomLeafAgentManager<Vector> forces;
+    private final VectorStorage forces;
 
     public IntegratorDroplet(Simulation sim, PotentialMaster potentialMaster, Box box) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, box);
@@ -48,7 +50,8 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         super(potentialMaster,random,timeStep,temperature, box);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
-        forceSum = new PotentialCalculationForcePressureSum(space);
+        forces = box.getAtomStorage(Tokens.FORCES);
+        forceSum = new PotentialCalculationForcePressureSum(forces);
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         // but we're also calculating the pressure tensor, which does have LRC.
@@ -65,8 +68,6 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
         workTensor2 = space.makeTensor();
         dr = space.makeVector();
         agentManager = new AtomLeafAgentManager<MyAgent>(this, box);
-        forces = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
-        forceSum.setAgentManager(forces);
     }
     
 //--------------------------------------------------------------
@@ -176,13 +177,13 @@ public class IntegratorDroplet extends IntegratorMD implements AgentSource<Integ
             Vector v = a.getVelocity();
             dr.E(0);
             stokeslet(sp);
-            Vector iForce = forces.getAgent(a);
+            Vector iForce = forces.get(a);
             dr.Ea1Tv1(dv,iForce);
             workTensor.transform(dr);
             v.PE(dr);
             for (int jLeaf=iLeaf+1; jLeaf<nLeaf; jLeaf++) {
                 IAtomKinetic aj = (IAtomKinetic)leafList.get(jLeaf);
-                Vector jForce = forces.getAgent(aj);
+                Vector jForce = forces.get(aj);
                 dr.Ev1Mv2(a.getPosition(),aj.getPosition());
                 stokeslet(sp);
                 // reuse as tensor * f

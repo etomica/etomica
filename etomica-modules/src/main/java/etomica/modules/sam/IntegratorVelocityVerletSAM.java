@@ -49,7 +49,7 @@ public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
-            Vector force = agentManager.getAgent(a);
+            Vector force = forces.get(a);
             Vector r = a.getPosition();
             Vector v = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
@@ -80,9 +80,9 @@ public class IntegratorVelocityVerletSAM extends IntegratorVelocityVerlet {
             workTensor.TE(a.getType().getMass());
             pressureTensor.PE(workTensor);
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                System.out.println("second "+a+" v="+velocity+", f="+ agentManager.getAgent(a));
+                System.out.println("second "+a+" v="+velocity+", f="+ forces.get(a));
             }
-            velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(), agentManager.getAgent(a));  //p += f(new)*dt/2
+            velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(), forces.get(a));  //p += f(new)*dt/2
             if (a.getType() == sulfurType) {
                 velocity.setX(1, 0);
             }

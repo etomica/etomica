@@ -96,7 +96,7 @@ public class LJMD extends Simulation {
         potentialMaster.addPotential(pTW, new AtomType[]{leafType, speciesTopWall.getLeafType()});
 
         if (!fixedWall) {
-            FixedWall fixedWallListener = new FixedWall(space, box, integrator.getAgentManager(), speciesTopWall);
+            FixedWall fixedWallListener = new FixedWall(space, box, integrator.getForces(), speciesTopWall);
             integrator.setFixedWall(fixedWallListener);
             int nWall = box.getMoleculeList(speciesTopWall).size();
             double Lxy = boundary.getBoxSize().getX(0);

@@ -240,7 +240,7 @@ public class Sam extends Simulation {
         potentialMaster.addPotential(wallPotential, new AtomType[]{typeCH2});
         potentialMaster.addPotential(wallPotential, new AtomType[]{typeCH3});
 
-        forceSum = new PotentialCalculationForceSumWall(wallPotential);
+        forceSum = new PotentialCalculationForceSumWall(wallPotential, integrator.getForces());
         integrator.setForceSum(forceSum);
 
         P2LennardJones p2Surface = new P2LennardJones(space, 3.0, Kelvin.UNIT.toSim(50));

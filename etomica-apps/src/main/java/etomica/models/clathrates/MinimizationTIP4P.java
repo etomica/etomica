@@ -8,6 +8,8 @@ import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.WriteConfiguration;
 import etomica.atom.*;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationFileBinary;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -147,11 +149,9 @@ public class MinimizationTIP4P extends Simulation {
         final MinimizationTIP4P sim = new MinimizationTIP4P(Space3D.getInstance(3), rCutLJ, rCutRealES, a0, nC, nBasis, isIce, kCut, configFileName, includeM);
         final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
-        PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum();
+        VectorStorage forces = sim.box.getAtomStorage(Tokens.FORCES);
+        PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum(forces);
 
-        AtomLeafAgentManager<Vector> atomAgentManager = new AtomLeafAgentManager<>(a -> sim.space.makeVector(), sim.box);
-
-        pcForce.setAgentManager(atomAgentManager);
         MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(sim.space);
         MoleculePositionGeometricCenter pos = new MoleculePositionGeometricCenter(sim.space);
 
@@ -200,7 +200,7 @@ public class MinimizationTIP4P extends Simulation {
                     Vector pO = atoms.get(SpeciesWater4P.indexO).getPosition();
                     for (int j = 0; j < atoms.size(); j++) {
                         IAtom atomj = atoms.get(j);
-                        Vector fj = atomAgentManager.getAgent(atomj);
+                        Vector fj = forces.get(atomj);
                         f.PE(fj);
                         if (j != SpeciesWater4P.indexO) {
                             dr.Ev1Mv2(atomj.getPosition(), pO);
@@ -337,7 +337,7 @@ public class MinimizationTIP4P extends Simulation {
             T.E(0);
             for (int j = 0; j < iMol.getChildList().size(); j++) {
                 IAtom jAtom = iMol.getChildList().get(j);
-                Vector fj = atomAgentManager.getAgent(jAtom);
+                Vector fj = forces.get(jAtom);
                 fSum.PE(fj);
                 r.Ev1Mv2(jAtom.getPosition(), iMol.getChildList().get(2).getPosition());
                 sim.box.getBoundary().nearestImage(r);

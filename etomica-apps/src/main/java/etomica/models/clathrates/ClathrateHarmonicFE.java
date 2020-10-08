@@ -6,6 +6,8 @@ package etomica.models.clathrates;
 
 import etomica.atom.*;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationFileBinary;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -258,10 +260,8 @@ public class ClathrateHarmonicFE extends Simulation {
 //Sabry		
 
         if (false) {
-            PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum();
-
-            AtomLeafAgentManager<Vector> atomAgentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), sim.box);
-            pcForce.setAgentManager(atomAgentManager);
+            VectorStorage forces = sim.box.getAtomStorage(Tokens.FORCES);
+            PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum(sim.box.getAtomStorage(Tokens.FORCES));
 
             IteratorDirective id = new IteratorDirective();
             id.includeLrc = false;
@@ -340,7 +340,7 @@ public class ClathrateHarmonicFE extends Simulation {
                         IAtom atomj = atoms.get(j);
 
                         Vector fndx = space.makeVector();
-                        fndx.E(atomAgentManager.getAgent(atomj));
+                        fndx.E(forces.get(atomj));
 //			            System.out.println(fndx);
                         f4dx.PE(fndx);
                         dr.Ev1Mv2(atomj.getPosition(), atoms.get(2).getPosition());
