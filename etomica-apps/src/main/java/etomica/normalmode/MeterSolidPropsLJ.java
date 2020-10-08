@@ -6,6 +6,8 @@ package etomica.normalmode;
 
 import etomica.atom.AtomLeafAgentManager;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -26,7 +28,7 @@ public class MeterSolidPropsLJ implements IDataSource {
     protected final CoordinateDefinition coordinateDefinition;
     protected final DataSourceScalar meterPE;
     protected final PotentialMaster potentialMaster;
-    protected final AtomLeafAgentManager<Vector> forceManager;
+    private final VectorStorage forces;
     protected final IteratorDirective id;
     protected final Vector dr;
     protected double ULat, PLat;
@@ -59,9 +61,8 @@ public class MeterSolidPropsLJ implements IDataSource {
         this.meterPE = meterPE;
         this.potentialMaster = potentialMaster;
         id = new IteratorDirective();
-        pcForceSum = new PotentialCalculationForceSum();
-        forceManager = new AtomLeafAgentManager<>(a -> space.makeVector(), coordinateDefinition.getBox());
-        pcForceSum.setAgentManager(forceManager);
+        this.forces = coordinateDefinition.getBox().getAtomStorage(Tokens.vectorsDefault());
+        pcForceSum = new PotentialCalculationForceSum(forces);
         dr = space.makeVector();
         this.temperature = temperature;
         this.dP = dP;

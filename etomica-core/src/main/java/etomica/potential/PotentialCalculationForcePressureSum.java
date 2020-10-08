@@ -5,6 +5,7 @@
 package etomica.potential;
 
 import etomica.atom.IAtomList;
+import etomica.box.storage.VectorStorage;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -16,12 +17,12 @@ import etomica.space.Vector;
  * gradient calculation).
  */
 public class PotentialCalculationForcePressureSum extends PotentialCalculationForceSum {
-        
-    private static final long serialVersionUID = 1L;
+
     protected final Tensor pressureTensor;
-    
-    public PotentialCalculationForcePressureSum(Space space) {
-        pressureTensor = space.makeTensor();
+
+    public PotentialCalculationForcePressureSum(VectorStorage forces) {
+        super(forces);
+        pressureTensor = forces.getSpace().makeTensor();
     }
     
     /**
@@ -45,18 +46,18 @@ public class PotentialCalculationForcePressureSum extends PotentialCalculationFo
 		Vector[] f = potentialSoft.gradient(atoms, pressureTensor);
 		switch(nBody) {
 			case 1:
-				integratorAgentManager.getAgent(atoms.get(0)).ME(f[0]);
+				forces.get(atoms.get(0)).ME(f[0]);
 				break;
 			case 2:
-                integratorAgentManager.getAgent(atoms.get(0)).ME(f[0]);
-                integratorAgentManager.getAgent(atoms.get(1)).ME(f[1]);
+                forces.get(atoms.get(0)).ME(f[0]);
+                forces.get(atoms.get(1)).ME(f[1]);
 		 		break;
             default:
                 //XXX atoms.count might not equal f.length.  The potential might size its 
                 //array of vectors to be large enough for one AtomSet and then not resize it
                 //back down for another AtomSet with fewer atoms.
                 for (int i = 0; i<atoms.size(); i++) {
-                    integratorAgentManager.getAgent(atoms.get(i)).ME(f[i]);
+                    forces.get(atoms.get(i)).ME(f[i]);
                 }
 		}
 	}

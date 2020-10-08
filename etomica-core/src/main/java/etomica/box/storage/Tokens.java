@@ -3,10 +3,12 @@ package etomica.box.storage;
 import etomica.space.Space;
 
 public class Tokens {
-    public static final Token<VectorStorage> POSITION = defaultVectors();
-    public static final Token<VectorStorage> VELOCITY = defaultVectors();
-    public static final Token<VectorStorage> ANGULAR_VELOCITY = defaultVectors();
-    public static final Token<VectorStorage> ANGULAR_MOMENTUM = defaultVectors();
+    public static final Token<VectorStorage> POSITION = vectorsNullByDefault();
+    public static final Token<VectorStorage> VELOCITY = vectorsNullByDefault();
+    public static final Token<VectorStorage> ANGULAR_VELOCITY = vectorsNullByDefault();
+    public static final Token<VectorStorage> ANGULAR_MOMENTUM = vectorsNullByDefault();
+    public static final Token<VectorStorage> FORCES = vectorsDefault();
+
 
     public static final Token<OrientationStorage> ORIENTATION_FULL = defaultOrientations(false);
 
@@ -18,7 +20,7 @@ public class Tokens {
         void init(int idx, T storage);
     }
 
-    public static Token<VectorStorage> defaultVectors() {
+    public static Token<VectorStorage> vectorsNullByDefault() {
         return new Token<VectorStorage>() {
             @Override
             public VectorStorage createStorage(Space space) {
@@ -58,6 +60,10 @@ public class Tokens {
                 init.init(idx, storage);
             }
         };
+    }
+
+    public static Token<VectorStorage> vectorsDefault() {
+        return vectors((idx, storage) -> storage.create(idx));
     }
     
     public static Token<DoubleStorage> doubles(Initializer<DoubleStorage> init) {

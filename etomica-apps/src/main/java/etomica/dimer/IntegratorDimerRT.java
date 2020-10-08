@@ -12,6 +12,8 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.IAtom;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
 import etomica.molecule.IMoleculeList;
@@ -39,7 +41,7 @@ import java.io.IOException;
 
 public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vector> {
 
-	public Box box1, box2;
+	public final Box box1, box2;
 	public Simulation sim;
 	public double deltaR;
 	public double dTheta, deltaXl, dXl;
@@ -72,7 +74,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 	public ISpecies [] movableSpecies;
 	public PotentialCalculationForceSum force0, force1, force2;
 	public AtomArrayList list, list1, list2;
-	public AtomLeafAgentManager<Vector> atomAgent0, atomAgent1, atomAgent2;
+	public final VectorStorage forces0, forces1, forces2;
 	public IteratorDirective allatoms;
 	public String file;
 	public CalcVibrationalModes vib;
@@ -89,9 +91,15 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 		super(potentialMaster, temperature, box);
 		this.random1 = random;
 		this.sim = aSim;
-		this.force0 = new PotentialCalculationForceSum();
-		this.force1 = new PotentialCalculationForceSum();
-		this.force2 = new PotentialCalculationForceSum();
+		box1 = sim.makeBox(box.getBoundary());
+		box2 = sim.makeBox(box.getBoundary());
+
+		this.forces0 = box.getAtomStorage(Tokens.FORCES);
+		this.forces1 = box1.getAtomStorage(Tokens.FORCES);
+		this.forces2 = box2.getAtomStorage(Tokens.FORCES);
+		this.force0 = new PotentialCalculationForceSum(forces0);
+		this.force1 = new PotentialCalculationForceSum(forces1);
+		this.force2 = new PotentialCalculationForceSum(forces2);
 		this.allatoms = new IteratorDirective();
 		this.movableSpecies = aspecies;
 
@@ -293,9 +301,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 			workVector3[i] = space.makeVector();
 		}
 
-		box1 = sim.makeBox(box.getBoundary());
-		box2 = sim.makeBox(box.getBoundary());
-
 		if (potentialMaster instanceof PotentialMasterList) {
 			this.getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(box1));
 		}
@@ -303,14 +308,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 		energyBox0 = new MeterPotentialEnergy(potentialMaster, box);
 		energyBox1 = new MeterPotentialEnergy(potentialMaster, box1);
 		energyBox2 = new MeterPotentialEnergy(potentialMaster, box2);
-
-		atomAgent0 = new AtomLeafAgentManager<>(this, box);
-		atomAgent1 = new AtomLeafAgentManager<>(this, box1);
-		atomAgent2 = new AtomLeafAgentManager<>(this, box2);
-
-		force0.setAgentManager(atomAgent0);
-		force1.setAgentManager(atomAgent1);
-		force2.setAgentManager(atomAgent2);
 
 		for (int i = 0; i < sim.getSpeciesCount(); i++) {
 			ISpecies species = sim.getSpecies(i);
@@ -744,8 +741,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 		
 		// Copy forces of dimer end and center (R1, R) to local array
 		for(int i=0; i<aF1.length; i++){
-			aF1[i].E(atomAgent1.getAgent(list1.get(i)));
-			aF[i].E(atomAgent0.getAgent(list.get(i)));
+			aF1[i].E(forces1.get(list1.get(i).getLeafIndex()));
+			aF[i].E(forces0.get(list.get(i).getLeafIndex()));
 			aF2[i].Ea1Tv1(2.0, aF[i]);
 			aF2[i].ME(aF1[i]);	
 		}
@@ -758,7 +755,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 	    
 	 // Copy forces of dimer end and center (R1, R) to local array
 	    for(int i=0; i<aF1star.length; i++){
-			aF1star[i].E(atomAgent1.getAgent(list1.get(i)));
+			aF1star[i].E(forces1.get(list1.get(i).getLeafIndex()));
 			aF2star[i].Ea1Tv1(2.0, aF[i]);
 			aF2star[i].ME(aF1star[i]);	
 		}
@@ -770,7 +767,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 	    
 	 // Copy forces of dimer end and center (R1, R) to local array
 	    for(int i=0; i<aF.length; i++){
-	    	aF[i].E(atomAgent0.getAgent(list.get(i)));
+	    	aF[i].E(forces0.get(list.get(i).getLeafIndex()));
 		}
 	}
 	

@@ -4,8 +4,8 @@
 
 package etomica.potential;
 
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtomList;
+import etomica.box.storage.VectorStorage;
 import etomica.space.Vector;
 
 /**
@@ -14,10 +14,10 @@ import etomica.space.Vector;
  */
 public class PotentialCalculationForceSum implements PotentialCalculation {
         
-    protected AtomLeafAgentManager<Vector> integratorAgentManager;
+    protected final VectorStorage forces;
 
-    public void setAgentManager(AtomLeafAgentManager<Vector> agentManager) {
-        integratorAgentManager = agentManager;
+    public PotentialCalculationForceSum(VectorStorage forces) {
+        this.forces = forces;
     }
 
     /**
@@ -25,7 +25,9 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
      *
      */
     public void reset(){
-        this.integratorAgentManager.getAgents().values().forEach((agent) -> agent.E(0));
+        for (int i = 0; i < forces.size(); i++) {
+            forces.get(i).E(0);
+        }
     }
 
     /**
@@ -39,25 +41,24 @@ public class PotentialCalculationForceSum implements PotentialCalculation {
         if (f==null) return;
         switch(nBody) {
         	case 0:
-        		IAtomList boxAtoms = integratorAgentManager.getBox().getLeafList();
-        		for (int i = 0; i<boxAtoms.size(); i++) {
-        			integratorAgentManager.getAgent(boxAtoms.get(i)).ME(f[i]);
+        		for (int i = 0; i< forces.size(); i++) {
+        			forces.get(i).ME(f[i]);
         		}
         		break;
 
             case 1:
-                integratorAgentManager.getAgent(atoms.get(0)).ME(f[0]);
+                forces.get(atoms.get(0).getLeafIndex()).ME(f[0]);
                 break;
             case 2:
-                integratorAgentManager.getAgent(atoms.get(0)).ME(f[0]);
-                integratorAgentManager.getAgent(atoms.get(1)).ME(f[1]);
+                forces.get(atoms.get(0).getLeafIndex()).ME(f[0]);
+                forces.get(atoms.get(1).getLeafIndex()).ME(f[1]);
                 break;
             default:
                 //TODO atoms.count might not equal f.length.  The potential might size its
                 //array of vectors to be large enough for one IAtomSet and then not resize it
                 //back down for another IAtomSet with fewer atoms.
                 for (int i = 0; i<atoms.size(); i++) {
-                    integratorAgentManager.getAgent(atoms.get(i)).ME(f[i]);
+                    forces.get(atoms.get(i).getLeafIndex()).ME(f[i]);
                 }
 		}
 	}

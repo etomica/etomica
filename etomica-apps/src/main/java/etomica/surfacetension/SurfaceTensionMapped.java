@@ -8,6 +8,8 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.data.DataProcessor;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
@@ -38,7 +40,7 @@ public class SurfaceTensionMapped extends DataProcessor {
     protected final MeterProfileByVolume densityProfileMeter;
     protected final PotentialMaster potentialMaster;
     protected final PotentialCalculationForceSum pcForce;
-    protected final AtomLeafAgentManager<Vector> forceAgentManager;
+    private final VectorStorage forces;
     protected final Space space;
     protected final Box box;
     protected final IteratorDirective allAtoms;
@@ -56,9 +58,8 @@ public class SurfaceTensionMapped extends DataProcessor {
         fit = new FitTanh();
         
         this.potentialMaster = potentialMaster;
-        pcForce = new PotentialCalculationForceSum();
-        forceAgentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
-        pcForce.setAgentManager(forceAgentManager);
+        this.forces = box.getAtomStorage(Tokens.vectorsDefault());
+        pcForce = new PotentialCalculationForceSum(forces);
         allAtoms = new IteratorDirective();
     }
 
@@ -94,7 +95,7 @@ public class SurfaceTensionMapped extends DataProcessor {
         double jFac = (param[1]-param[0])/(2*L) * ((tL2-tL1)*c*L + 2*Math.log(cL1/cL2))/(tL1+tL2);
         for (int i = 0; i<atoms.size(); i++) {
             IAtom atom = atoms.get(i);
-            Vector f = forceAgentManager.getAgent(atom);
+            Vector f = forces.get(atom);
             double px = atom.getPosition().getX(0);
             double t1 = Math.tanh(c * (px + param[3]));
             double t2 = Math.tanh(c * (px - param[3]));

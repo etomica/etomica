@@ -8,8 +8,9 @@ import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorBox;
@@ -38,7 +39,7 @@ public class IntegratorDimerMin extends IntegratorBox {
 
 	public Simulation sim;
 	public Box boxMin;
-	public AtomLeafAgentManager<Vector> atomAgent0, atomAgentMin;
+	public final VectorStorage forces0, forcesMin;
 	public PotentialCalculationForceSum force0, forceMin;
 	public IteratorDirective allatoms;
 	public FileWriter fileWriter;
@@ -84,8 +85,11 @@ public class IntegratorDimerMin extends IntegratorBox {
 							  ISpecies[] aspecies, Boolean normalDir, Box box) {
 		super(potentialMaster, temperature, box);
 		this.sim = aSim;
-		this.force0 = new PotentialCalculationForceSum();
-		this.forceMin = new PotentialCalculationForceSum();
+		boxMin = sim.makeBox(box.getBoundary());
+		this.forces0 = box.getAtomStorage(Tokens.FORCES);
+		this.forcesMin = boxMin.getAtomStorage(Tokens.FORCES);
+		this.force0 = new PotentialCalculationForceSum(forces0);
+		this.forceMin = new PotentialCalculationForceSum(forcesMin);
 		this.allatoms = new IteratorDirective();
 		this.movableSpecies = aspecies;
 		this.normalD = normalDir;
@@ -99,6 +103,7 @@ public class IntegratorDimerMin extends IntegratorBox {
 		Frot = 1;
 		rotate = true;
 		minFound = false;
+
 	}
 	
 	/**
@@ -207,7 +212,6 @@ public class IntegratorDimerMin extends IntegratorBox {
 			Fpara[i] = space.makeVector();
 		}
 
-		boxMin = sim.makeBox(box.getBoundary());
 
 		if (potentialMaster instanceof PotentialMasterList) {
 			getEventManager().addListener(((PotentialMasterList) potentialMaster).getNeighborManager(boxMin));
@@ -218,11 +222,6 @@ public class IntegratorDimerMin extends IntegratorBox {
 		energyBoxMin.setBox(boxMin);
 
 		// Offset Rmin (half-dimer end) from initial configuration, along N.		
-		atomAgent0 = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
-		atomAgentMin = new AtomLeafAgentManager<>(a -> space.makeVector(), boxMin);
-
-		force0.setAgentManager(atomAgent0);
-		forceMin.setAgentManager(atomAgentMin);
 
 //		ISpecies [] species = sim.getSpeciesManager().getSpecies();
 
@@ -482,8 +481,8 @@ public class IntegratorDimerMin extends IntegratorBox {
 		// Copy forces of dimer ends (R1, R2) to local array
 		for(int i=0; i<aF1.length; i++){
 			
-			aF[i].E(atomAgent0.getAgent(list.get(i)));
-			aF1[i].E(atomAgentMin.getAgent(listMin.get(i)));
+			aF[i].E(forces0.get(list.get(i).getLeafIndex()));
+			aF1[i].E(forcesMin.get(listMin.get(i).getLeafIndex()));
 			aF2[i].Ea1Tv1(2.0, aF[i]);
 			aF2[i].ME(aF1[i]);
 			
@@ -505,7 +504,7 @@ public class IntegratorDimerMin extends IntegratorBox {
         
      // Copy forces of dimer end and center (R1, R) to local array
         for(int i=0; i<aF1star.length; i++){
-            aF1star[i].E(atomAgentMin.getAgent(listMin.get(i)));
+            aF1star[i].E(forcesMin.get(listMin.get(i).getLeafIndex()));
             aF2star[i].Ea1Tv1(2.0, aF[i]);
             aF2star[i].ME(aF1star[i]);
         }

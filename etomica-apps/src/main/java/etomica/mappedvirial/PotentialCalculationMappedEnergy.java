@@ -9,6 +9,7 @@ import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.storage.VectorStorage;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -26,7 +27,7 @@ public class PotentialCalculationMappedEnergy implements PotentialCalculation {
 
     protected final Box box;
     protected final IteratorDirective allAtoms;
-    protected final AtomLeafAgentManager<Vector> forceManager;
+    private final VectorStorage forces;
     protected final Space space;
     protected double beta;
     protected final Vector dr;
@@ -43,12 +44,12 @@ public class PotentialCalculationMappedEnergy implements PotentialCalculation {
     protected double x0, vCut;
     protected double vShift;
 
-    public PotentialCalculationMappedEnergy(Space space, Box box, int nbins, AtomLeafAgentManager<Vector> forceManager) {
+    public PotentialCalculationMappedEnergy(Space space, Box box, int nbins, VectorStorage forces) {
         this.space = space;
         this.box = box;
         this.nbins = nbins;
         pair = new AtomPair();
-        this.forceManager = forceManager;
+        this.forces = forces;
         allAtoms = new IteratorDirective();
         dr = space.makeVector();
         cumint = new double[nbins+1];
@@ -197,8 +198,8 @@ public class PotentialCalculationMappedEnergy implements PotentialCalculation {
         sum += v-u;
 
         if (r<x0) {
-            Vector fi = forceManager.getAgent(a);
-            Vector fj = forceManager.getAgent(b);
+            Vector fi = forces.get(a);
+            Vector fj = forces.get(b);
             double fifj = (fi.dot(dr) - fj.dot(dr))/r;
             double xs = calcXs(r, u);
             double wp = 0.5*fifj;

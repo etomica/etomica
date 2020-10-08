@@ -1,5 +1,8 @@
 package etomica.box.storage;
 
+import etomica.atom.IAtom;
+import etomica.molecule.IMolecule;
+
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Objects;
@@ -24,6 +27,14 @@ public abstract class AbstractObjectStorage<V> implements Storage {
 
     public V get(int i) {
         return objects[i];
+    }
+
+    public V get(IAtom atom) {
+        return get(atom.getLeafIndex());
+    }
+
+    public V get(IMolecule molecule) {
+        return get(molecule.getGlobalIndex());
     }
 
     public V create(int i) {

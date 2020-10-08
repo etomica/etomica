@@ -79,4 +79,8 @@ public class VectorStorage extends DoubleStructStorage<Vector> {
             }
         }
     }
+
+    public Space getSpace() {
+        return this.space;
+    }
 }

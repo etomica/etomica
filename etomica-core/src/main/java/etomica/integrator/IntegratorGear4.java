@@ -12,6 +12,8 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -43,7 +45,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
     static final double GEAR4 = 1./24.;
 
     protected AtomLeafAgentManager<IntegratorGear4.Agent> agentManager;
-    protected AtomLeafAgentManager<Vector> forces;
+    protected VectorStorage forces;
 
     public IntegratorGear4(Simulation sim, PotentialMaster potentialMaster, Box box) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, box);
@@ -52,7 +54,8 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
     public IntegratorGear4(PotentialMaster potentialMaster, IRandom random,
                            double timeStep, double temperature, Box box) {
         super(potentialMaster,random,timeStep,temperature, box);
-        forceSum = new PotentialCalculationForceSum();
+        forces = box.getAtomStorage(Tokens.vectorsDefault());
+        forceSum = new PotentialCalculationForceSum(forces);
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         allAtoms.setIncludeLrc(false);
@@ -61,18 +64,6 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
 
         setTimeStep(timeStep);
         agentManager = new AtomLeafAgentManager<IntegratorGear4.Agent>(this, box);
-        forces = new AtomLeafAgentManager<>(new AgentSource<Vector>() {
-            @Override
-            public Vector makeAgent(IAtom a, Box agentBox) {
-                return space.makeVector();
-            }
-
-            @Override
-            public void releaseAgent(Vector agent, IAtom atom, Box agentBox) {
-
-            }
-        }, box);
-        forceSum.setAgentManager(forces);
     }
 
     public void setTimeStep(double dt) {
@@ -114,7 +105,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             Agent agent = agentManager.getAgent(a);
-            Vector force = forces.getAgent(a);
+            Vector force = forces.get(a);
             Vector r = a.getPosition();
             Vector v = a.getVelocity();
             work1.E(v);
@@ -188,7 +179,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource<Integra
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             Agent agent = agentManager.getAgent(a);
-            Vector force = forces.getAgent(a);
+            Vector force = forces.get(a);
             agent.dr1.E(a.getVelocity());
             agent.dr2.Ea1Tv1(a.getType().rm(), force);
             agent.dr3.E(0.0);

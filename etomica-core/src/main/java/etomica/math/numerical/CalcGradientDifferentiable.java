@@ -6,6 +6,8 @@ package etomica.math.numerical;
 
 import etomica.atom.AtomLeafAgentManager;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.math.function.FunctionMultiDimensionalDifferentiable;
 import etomica.molecule.IMoleculeList;
 import etomica.nbr.list.PotentialMasterList;
@@ -34,7 +36,7 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
     FiniteDifferenceDerivative finiteDifferenceDerivative;
     public IteratorDirective allAtoms;
     PotentialCalculationForceSum force;
-    AtomLeafAgentManager<Vector> atomAgent;
+    private final VectorStorage forces;
     int gradDcomponent, startAtom, stopAtom;
     IMoleculeList movableSet;
     private final Space space;
@@ -49,12 +51,11 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         if(potentialMaster instanceof PotentialMasterList){
             ((PotentialMasterList)potentialMaster).getNeighborManager(box).reset();
          }
-        
-        force = new PotentialCalculationForceSum();
+
+        forces = box.getAtomStorage(Tokens.vectorsDefault());
+        force = new PotentialCalculationForceSum(forces);
         allAtoms = new IteratorDirective();
-        atomAgent = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
-        force.setAgentManager(atomAgent);
-        
+
         finiteDifferenceDerivative = new FiniteDifferenceDerivative(this);
         finiteDifferenceDerivative.setH(0.00001);
     }
@@ -76,7 +77,7 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         potentialMaster.calculate(box, allAtoms, force);
         
         //not used
-        return atomAgent.getAgent(movableSet.get(gradDcomponent/3).getChildList().get(0)).getX(gradDcomponent%3);
+        return forces.get(movableSet.get(gradDcomponent/3).getChildList().get(0).getLeafIndex()).getX(gradDcomponent%3);
 
     }
     
@@ -109,14 +110,14 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         f(position);
         
         for(int j=0; j<forceRow.length; j++){
-            forceRow[j] = -atomAgent.getAgent(movableSet.get(j/3).getChildList().get(0)).getX(j%3);
+            forceRow[j] = -forces.get(movableSet.get(j/3).getChildList().get(0).getLeafIndex()).getX(j%3);
         }
         
         position[elem]-=2*newH;
         f(position);
         
         for(int j=0; j<forceRow.length; j++){
-            forceRow[j] -= -atomAgent.getAgent(movableSet.get(j/3).getChildList().get(0)).getX(j%3);
+            forceRow[j] -= -forces.get(movableSet.get(j/3).getChildList().get(0).getLeafIndex()).getX(j%3);
             forceRow[j] /= (2.0*newH);
         }
         

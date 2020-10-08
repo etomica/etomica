@@ -5,6 +5,7 @@
 package etomica.modules.sam;
 
 import etomica.atom.IAtomList;
+import etomica.box.storage.VectorStorage;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialSoft;
@@ -13,7 +14,8 @@ import etomica.space.Vector;
 public class PotentialCalculationForceSumWall extends
         PotentialCalculationForceSum {
 
-    public PotentialCalculationForceSumWall(P1WCAWall wallPotential) {
+    public PotentialCalculationForceSumWall(P1WCAWall wallPotential, VectorStorage forces) {
+        super(forces);
         this.wallPotential = wallPotential;
     }
     
@@ -38,13 +40,13 @@ public class PotentialCalculationForceSumWall extends
             case 1:
                 if (f[0].squared() > 2.5e9) {
                     double scale = 50000/Math.sqrt(f[0].squared());
-                    integratorAgentManager.getAgent(atoms.get(0)).PEa1Tv1(-scale, f[0]);
+                    forces.get(atoms.get(0)).PEa1Tv1(-scale, f[0]);
                     if (potential == wallPotential) {
                         wallForceSum += scale*f[0].getX(wallPotential.getWallDim());
                     }
                 }
                 else {
-                    integratorAgentManager.getAgent(atoms.get(0)).ME(f[0]);
+                    forces.get(atoms.get(0)).ME(f[0]);
                     if (potential == wallPotential) {
                         wallForceSum += f[0].getX(wallPotential.getWallDim());
                     }
@@ -53,18 +55,18 @@ public class PotentialCalculationForceSumWall extends
             case 2:
                 if (f[0].squared() > 2.5e9) {
                     double scale = 50000/Math.sqrt(f[0].squared());
-                    integratorAgentManager.getAgent(atoms.get(0)).PEa1Tv1(-scale, f[0]);
-                    integratorAgentManager.getAgent(atoms.get(1)).PEa1Tv1(-scale, f[1]);
+                    forces.get(atoms.get(0)).PEa1Tv1(-scale, f[0]);
+                    forces.get(atoms.get(1)).PEa1Tv1(-scale, f[1]);
                 }
                 else {
-                    integratorAgentManager.getAgent(atoms.get(0)).ME(f[0]);
-                    integratorAgentManager.getAgent(atoms.get(1)).ME(f[1]);
+                    forces.get(atoms.get(0)).ME(f[0]);
+                    forces.get(atoms.get(1)).ME(f[1]);
                 }
                 break;
             default:
                 // we hit this for bonding potentials
                 for (int i = 0; i<atoms.size(); i++) {
-                    integratorAgentManager.getAgent(atoms.get(i)).ME(f[i]);
+                    forces.get(atoms.get(i)).ME(f[i]);
                 }
         }
     }

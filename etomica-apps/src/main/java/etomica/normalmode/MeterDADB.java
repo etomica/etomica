@@ -8,6 +8,8 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.data.*;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
@@ -29,7 +31,7 @@ public class MeterDADB implements IDataSource {
     protected final DataSourceScalar meterPE;
     protected final PotentialCalculationForceSum pcForceSum;
     protected final PotentialMaster potentialMaster;
-    protected final AtomLeafAgentManager<Vector> forceManager;
+    private final VectorStorage forces;
     protected final IteratorDirective id;
     protected final Vector dr;
     protected double latticeEnergy;
@@ -48,9 +50,8 @@ public class MeterDADB implements IDataSource {
         this.meterPE = meterPE;
         this.potentialMaster = potentialMaster;
         id = new IteratorDirective();
-        pcForceSum = new PotentialCalculationForceSum();
-        forceManager = new AtomLeafAgentManager<>(a -> space.makeVector(), coordinateDefinition.getBox());
-        pcForceSum.setAgentManager(forceManager);
+        this.forces = coordinateDefinition.getBox().getAtomStorage(Tokens.vectorsDefault());
+        pcForceSum = new PotentialCalculationForceSum(forces);
         dr = space.makeVector();
         MeterPotentialEnergy meterPE2 = new MeterPotentialEnergy(potentialMaster, coordinateDefinition.getBox());
         latticeEnergy = meterPE2.getDataAsScalar();
@@ -76,7 +77,7 @@ public class MeterDADB implements IDataSource {
             Vector lPos = coordinateDefinition.getLatticePosition(atom);
             Vector pos = atom.getPosition();
             dr.Ev1Mv2(pos, lPos);
-            Vector force = forceManager.getAgent(atom);
+            Vector force = forces.get(atom);
             sum += force.dot(dr);
         }
         if (justDADB) {

@@ -6,6 +6,8 @@ package etomica.mappedvirial;
 
 import etomica.atom.AtomLeafAgentManager;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.data.DataSourceScalar;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForceSum;
@@ -21,18 +23,17 @@ public class MeterMappedU extends DataSourceScalar {
     protected final PotentialCalculationForceSum pcForce;
     protected final Box box;
     protected final IteratorDirective allAtoms;
-    protected final AtomLeafAgentManager<Vector> forceManager;
     protected final PotentialCalculationMappedEnergy pc;
+    private final VectorStorage forces;
 
     public MeterMappedU(Space space, PotentialMaster potentialMaster, Box box, int nbins) {
         super("pma",Energy.DIMENSION);
         this.space = space;
         this.box = box;
         this.potentialMaster = potentialMaster;
-        pcForce = new PotentialCalculationForceSum();
-        forceManager = new AtomLeafAgentManager<>(a -> space.makeVector(), box);
-        pcForce.setAgentManager(forceManager);
-        pc = new PotentialCalculationMappedEnergy(space, box, nbins, forceManager);
+        this.forces = box.getAtomStorage(Tokens.vectorsDefault());
+        pcForce = new PotentialCalculationForceSum(forces);
+        pc = new PotentialCalculationMappedEnergy(space, box, nbins, forces);
         allAtoms = new IteratorDirective();
     }
 
