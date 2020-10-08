@@ -6,8 +6,13 @@ import etomica.space.Vector;
 public class VectorStorage extends DoubleStructStorage<Vector> {
     private final Space space;
 
+    public VectorStorage(Space space) {
+        this(space, 0);
+    }
+
     public VectorStorage(Space space, int count) {
-        super(space.D(), count, getVectorClass(space));
+        super(space.D(), getVectorClass(space));
+        this.addNull(count);
         this.space = space;
     }
 
@@ -24,7 +29,7 @@ public class VectorStorage extends DoubleStructStorage<Vector> {
         }
     }
 
-    protected Vector makeView(int idx) {
+    protected Vector createObject(int idx) {
         switch (space.D()) {
             case 1:
                 return new ViewVector1D(idx, data);
@@ -42,8 +47,10 @@ public class VectorStorage extends DoubleStructStorage<Vector> {
         switch (space.D()) {
             case 1:
                 ((ViewVector1D) view).setIndex(newIdx * stride);
+                break;
             case 2:
                 ((ViewVector2D) view).setIndex(newIdx * stride);
+                break;
             case 3:
                 ((ViewVector3D) view).setIndex(newIdx * stride);
                 break;

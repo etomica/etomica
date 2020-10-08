@@ -1,9 +1,13 @@
 package etomica.box;
 
 import etomica.atom.AtomType;
+import etomica.box.storage.DoubleStorage;
+import etomica.box.storage.Token;
+import etomica.box.storage.Tokens;
 import etomica.config.ConformationLinear;
 import etomica.molecule.IMolecule;
 import etomica.simulation.Simulation;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
@@ -94,5 +98,56 @@ class BoxTest {
         box.setNMolecules(s2, 0);
         box.addNewMolecule(s2);
         assertEquals(1, box.getMoleculeCount());
+    }
+
+    @Test
+    void storageTokens() {
+        Token<DoubleStorage> tok = new Token<DoubleStorage>() {
+            @Override
+            public DoubleStorage createStorage(Space space) {
+                return new DoubleStorage();
+            }
+
+            @Override
+            public void init(int idx, DoubleStorage storage) {
+                storage.create(idx).set(5.0);
+            }
+        };
+        // Storage created before molecules added
+        DoubleStorage storageA = box.getAtomStorage(tok);
+        DoubleStorage storageM = box.getMolStorage(tok);
+
+        box.setNMolecules(s1, 10);
+        box.setNMolecules(s2, 10);
+
+        for (int i = 0; i < box.getMoleculeCount(); i++) {
+            assertEquals(5.0, storageM.get(i));
+        }
+        for (int i = 0; i < box.getAtomCount(); i++) {
+            assertEquals(5.0, storageA.get(i));
+        }
+
+        Token<DoubleStorage> tok2 = new Token<DoubleStorage>() {
+            @Override
+            public DoubleStorage createStorage(Space space) {
+                return new DoubleStorage();
+            }
+
+            @Override
+            public void init(int idx, DoubleStorage storage) {
+                storage.create(idx).set(11.0);
+            }
+        };
+
+        DoubleStorage storageA2 = box.getAtomStorage(tok2);
+        DoubleStorage storageM2 = box.getMolStorage(tok2);
+
+        for (int i = 0; i < box.getMoleculeCount(); i++) {
+            assertEquals(11.0, storageM2.get(i));
+        }
+        for (int i = 0; i < box.getAtomCount(); i++) {
+            assertEquals(11.0, storageA2.get(i));
+        }
+
     }
 }

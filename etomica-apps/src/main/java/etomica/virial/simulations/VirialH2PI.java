@@ -492,7 +492,7 @@ public class VirialH2PI {
 						} else {
 							bl = AtomHydrogen.getAvgBondLength(temperatureK);
 						}
-						DoubleStorage.DoubleWrapper blWrapper = box.getAtomDoubles(Tokens.BOND_LENGTH).create(id);
+						DoubleStorage.DoubleWrapper blWrapper = box.getAtomStorage(Tokens.BOND_LENGTH).create(id);
 						blWrapper.set(bl);
 						return new AtomHydrogen(space, (AtomTypeOriented) leafType, blWrapper);
 					})

@@ -119,7 +119,7 @@ public class VirialO2PI {
                 .addCount(new AtomTypeOriented(Oxygen.INSTANCE, space.makeVector()), nBeads)
                 .withConformation(new ConformationLinear(space, 0))
                 .withAtomFactory((atype, box, id) -> {
-                    DoubleStorage.DoubleWrapper blWrapper = box.getAtomDoubles(Tokens.BOND_LENGTH).create(id);
+                    DoubleStorage.DoubleWrapper blWrapper = box.getAtomStorage(Tokens.BOND_LENGTH).create(id);
                     blWrapper.set(blO2);
                     return new AtomHydrogen(space, (AtomTypeOriented) atype, blWrapper);
                 })

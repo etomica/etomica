@@ -11,13 +11,13 @@ public class OrientationStorage extends DoubleStructStorage<IOrientation> {
     private final boolean isAxisSymmetric;
 
 
-    public OrientationStorage(Space space, int count, boolean isAxisSymmetric) {
-        super(isAxisSymmetric ? space.D() : space.D() * 2, count, IOrientation.class);
+    public OrientationStorage(Space space, boolean isAxisSymmetric) {
+        super(isAxisSymmetric ? space.D() : space.D() * 2, IOrientation.class);
         this.space = space;
         this.isAxisSymmetric = isAxisSymmetric;
     }
 
-    protected IOrientation makeView(int i) {
+    protected IOrientation createObject(int i) {
         switch (space.D()) {
             case 1:
                 throw new IllegalArgumentException("We don't know how to make 1D Orientation that uses storage");

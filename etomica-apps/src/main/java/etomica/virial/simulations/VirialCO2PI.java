@@ -328,7 +328,7 @@ public class VirialCO2PI {
         SpeciesGeneral species = new SpeciesBuilder(space)
                 .withAtomFactory((atype, box, id) -> {
                     double bl = 2*p2c.getPos(5);
-                    DoubleStorage.DoubleWrapper blWrapper = box.getAtomDoubles(Tokens.BOND_LENGTH).create(id);
+                    DoubleStorage.DoubleWrapper blWrapper = box.getAtomStorage(Tokens.BOND_LENGTH).create(id);
                     blWrapper.set(bl);
                     return new AtomHydrogen(space, (AtomTypeOriented) atype, blWrapper);
                 })

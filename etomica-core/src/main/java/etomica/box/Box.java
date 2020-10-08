@@ -18,6 +18,9 @@ import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.util.Arrays;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +64,16 @@ import java.util.function.Consumer;
  */
 public class Box {
 
+    private static final MethodHandle MH;
+
+    static {
+        try {
+            MH = MethodHandles.publicLookup().findVirtual(Token.class, "init", MethodType.methodType(void.class, int.class, Storage.class));
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * List of leaf atoms in box
      */
@@ -74,66 +87,43 @@ public class Box {
 
     private int atomCount;
     private int moleculeCount;
-    private final Map<Object, VectorStorage> atomVectorStorageMap = new HashMap<>();
-    private final Map<Object, DoubleStorage> atomDoubleStorageMap = new HashMap<>();
-    private final Map<Object, OrientationStorage> atomOrientationsStorageMap = new HashMap<>();
-    private final Map<Object, VectorStorage> molVectorStorageMap = new HashMap<>();
-    private final Map<Object, DoubleStorage> molDoubleStorageMap = new HashMap<>();
-    private final Map<Object, OrientationStorage> molOrientationsStorageMap = new HashMap<>();
+
+    private final Map<Token<?>, Storage> atomStorageMap = new HashMap<>();
+    private final Map<Token<?>, Storage> molStorageMap = new HashMap<>();
 
     private final List<Storage> allAtomStorage = new ArrayList<>();
     private final List<Storage> allMoleculeStorage = new ArrayList<>();
 
-
-    public VectorStorage getAtomVectors(Object token) {
-        return this.atomVectorStorageMap.computeIfAbsent(token, t -> {
-            VectorStorage storage = new VectorStorage(space, atomCount);
+    public <T extends Storage> T getAtomStorage(Token<T> token) {
+        @SuppressWarnings("unchecked")
+        final T s = (T) this.atomStorageMap.computeIfAbsent(token, t -> {
+            @SuppressWarnings("unchecked")
+            T storage = (T) t.createStorage(space);
+            storage.addNull(atomCount);
+            for (int i = 0; i < atomCount; i++) {
+                token.init(i, storage);
+            }
             allAtomStorage.add(storage);
             return storage;
         });
+        return s;
     }
 
-    public DoubleStorage getAtomDoubles(Object token) {
-        return this.atomDoubleStorageMap.computeIfAbsent(token, t -> {
-            DoubleStorage storage = new DoubleStorage(atomCount);
-            allAtomStorage.add(storage);
-            return storage;
-        });
-    }
-
-    public OrientationStorage getAtomOrientations(Tokens.OrientationsToken token) {
-        boolean isAxisSymmetric = token.isAxisSymmetric();
-        return this.atomOrientationsStorageMap.computeIfAbsent(token, t -> {
-            OrientationStorage storage = new OrientationStorage(space, atomCount, isAxisSymmetric);
-            allAtomStorage.add(storage);
-            return storage;
-        });
-    }
-
-    public VectorStorage getMolVectors(Object token) {
-        return this.molVectorStorageMap.computeIfAbsent(token, t -> {
-            VectorStorage storage = new VectorStorage(space, moleculeCount);
+    public <T extends Storage> T getMolStorage(Token<T> token) {
+        @SuppressWarnings("unchecked")
+        final T s = (T) this.molStorageMap.computeIfAbsent(token, t -> {
+            @SuppressWarnings("unchecked")
+            T storage = (T) t.createStorage(space);
+            storage.addNull(moleculeCount);
+            for (int i = 0; i < moleculeCount; i++) {
+                token.init(i, storage);
+            }
             allMoleculeStorage.add(storage);
             return storage;
         });
+        return s;
     }
 
-    public DoubleStorage getMolDoubles(Object token) {
-        return this.molDoubleStorageMap.computeIfAbsent(token, t -> {
-            DoubleStorage storage = new DoubleStorage(moleculeCount);
-            allMoleculeStorage.add(storage);
-            return storage;
-        });
-    }
-
-    public OrientationStorage getMolOrientations(Tokens.OrientationsToken token) {
-        boolean isAxisSymmetric = token.isAxisSymmetric();
-        return this.molOrientationsStorageMap.computeIfAbsent(token, t -> {
-            OrientationStorage storage = new OrientationStorage(space, moleculeCount, isAxisSymmetric);
-            allMoleculeStorage.add(storage);
-            return storage;
-        });
-    }
 
     /**
      * Constructs box with default rectangular periodic boundary.
@@ -230,8 +220,22 @@ public class Box {
         }
 
         initMolecule.accept(molecule);
+        initStorage(this.molStorageMap, molIdx);
+        for (int i = atomIdxStart; i < atomIdxStart + numAtoms; i++) {
+            initStorage(this.atomStorageMap, i);
+        }
         eventManager.moleculeAdded(molecule);
         return molecule;
+    }
+
+    private static void initStorage(Map<Token<?>, Storage> storageMap, int idx) {
+        storageMap.forEach((token, storage) -> {
+            try {
+                MH.invokeExact(token, idx, storage);
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+        });
     }
 
     public void removeMolecule(IMolecule molecule) {

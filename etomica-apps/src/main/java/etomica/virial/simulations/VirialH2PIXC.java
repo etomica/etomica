@@ -120,7 +120,7 @@ public class VirialH2PIXC {
 				.withConformation(new ConformationLinear(space, 0))
 				.withAtomFactory((aType, box, id) -> {
 					double bl = BohrRadius.UNIT.toSim(1.448736);// AtomHydrogen.getAvgBondLength(temperatureK);
-					DoubleStorage.DoubleWrapper blWrapper = box.getAtomDoubles(Tokens.BOND_LENGTH).create(id);
+					DoubleStorage.DoubleWrapper blWrapper = box.getAtomStorage(Tokens.BOND_LENGTH).create(id);
 					blWrapper.set(bl);
 					return new AtomHydrogen(space, (AtomTypeOriented) aType, blWrapper);
 				})
