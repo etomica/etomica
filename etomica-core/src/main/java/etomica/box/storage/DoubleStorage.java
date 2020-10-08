@@ -10,11 +10,11 @@ public class DoubleStorage implements Storage {
     private final BitSet validBits;
     private int count;
 
-    public DoubleStorage(int count) {
+    public DoubleStorage() {
+        this.count = 0;
         this.data = new double[count];
         this.views = new DoubleWrapper[count];
         this.validBits = new BitSet(count);
-        this.count = count;
     }
 
     public double get(int i) {

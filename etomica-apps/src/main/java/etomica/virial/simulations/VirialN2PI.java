@@ -145,7 +145,7 @@ public class VirialN2PI {
                 .addCount(atype, nBeads)
                 .withConformation(new ConformationLinear(space, 0))
                 .withAtomFactory((leafType, box, id) -> {
-                    DoubleStorage.DoubleWrapper blWrapper = box.getAtomDoubles(Tokens.BOND_LENGTH).create(id);
+                    DoubleStorage.DoubleWrapper blWrapper = box.getAtomStorage(Tokens.BOND_LENGTH).create(id);
                     blWrapper.set(blN2);
                     return new AtomHydrogen(space, (AtomTypeOriented) leafType, blWrapper);
                 })

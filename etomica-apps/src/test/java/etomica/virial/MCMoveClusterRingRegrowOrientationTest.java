@@ -53,7 +53,7 @@ class MCMoveClusterRingRegrowOrientationTest {
                     .addCount(new AtomTypeOriented(Hydrogen.INSTANCE, space.makeVector()), p)
                     .withConformation(new ConformationLinear(space))
                     .withAtomFactory((atomType, box, id) -> {
-                        DoubleStorage.DoubleWrapper blWrapper = box.getAtomDoubles(Tokens.BOND_LENGTH).create(id);
+                        DoubleStorage.DoubleWrapper blWrapper = box.getAtomStorage(Tokens.BOND_LENGTH).create(id);
                         blWrapper.set(1);
                         return new AtomHydrogen(space, ((AtomTypeOriented) atomType), blWrapper);
                     })

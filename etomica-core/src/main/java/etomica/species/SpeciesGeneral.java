@@ -111,11 +111,11 @@ public class SpeciesGeneral implements ISpecies {
     public IMolecule initMolecule(Box box, int molIdx, int atomIdxStart) {
         Molecule molecule;
         if (this.isMoleculeOriented) {
-            IOrientation orientation = box.getMolOrientations(Tokens.ORIENTATION_FULL).create(molIdx);
-            Vector position = box.getMolVectors(Tokens.POSITION).create(molIdx);
+            IOrientation orientation = box.getMolStorage(Tokens.ORIENTATION_FULL).create(molIdx);
+            Vector position = box.getMolStorage(Tokens.POSITION).create(molIdx);
             if (this.isDynamic) {
-                Vector angularMomentum = box.getMolVectors(Tokens.ANGULAR_MOMENTUM).create(molIdx);
-                Vector velocity = box.getMolVectors(Tokens.VELOCITY).create(molIdx);
+                Vector angularMomentum = box.getMolStorage(Tokens.ANGULAR_MOMENTUM).create(molIdx);
+                Vector velocity = box.getMolStorage(Tokens.VELOCITY).create(molIdx);
                 molecule = new MoleculeOrientedDynamic(this, orientation, position, angularMomentum, velocity);
             } else {
                 molecule = new MoleculeOriented(this, orientation, position);
@@ -246,19 +246,19 @@ public class SpeciesGeneral implements ISpecies {
 
     public static AtomFactory defaultAtomFactory(Space space, boolean isDynamic) {
         return (atomType, box, id) -> {
-            Vector position = box.getAtomVectors(Tokens.POSITION).create(id);
+            Vector position = box.getAtomStorage(Tokens.POSITION).create(id);
             if (atomType instanceof AtomTypeOriented) {
-                IOrientation orientation = box.getAtomOrientations(space.D() == 3 ? Tokens.ORIENTATION_FULL : Tokens.ORIENTATION).create(id);
+                IOrientation orientation = box.getAtomStorage(space.D() == 3 ? Tokens.ORIENTATION_FULL : Tokens.ORIENTATION).create(id);
                 if (isDynamic) {
-                    Vector velocity = box.getAtomVectors(Tokens.VELOCITY).create(id);
-                    Vector angularVel = box.getAtomVectors(Tokens.ANGULAR_VELOCITY).create(id);
+                    Vector velocity = box.getAtomStorage(Tokens.VELOCITY).create(id);
+                    Vector angularVel = box.getAtomStorage(Tokens.ANGULAR_VELOCITY).create(id);
                     return new AtomOrientedDynamic(space, atomType, orientation, position, velocity, angularVel);
                 } else {
                     return new AtomOriented(space, atomType, position, orientation);
                 }
             } else {
                 if (isDynamic) {
-                    Vector velocity = box.getAtomVectors(Tokens.VELOCITY).create(id);
+                    Vector velocity = box.getAtomStorage(Tokens.VELOCITY).create(id);
                     return new AtomLeafDynamic(space, atomType, position, velocity);
                 } else {
                     return new Atom(space, atomType, position);
