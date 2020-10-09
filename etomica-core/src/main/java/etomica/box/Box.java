@@ -68,7 +68,7 @@ public class Box {
 
     static {
         try {
-            MH = MethodHandles.publicLookup().findVirtual(Token.class, "init", MethodType.methodType(void.class, int.class, Storage.class));
+            MH = MethodHandles.publicLookup().findVirtual(Token.class, "init", MethodType.methodType(void.class, int.class, Storage.class, Box.class));
         } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -101,7 +101,7 @@ public class Box {
             T storage = (T) t.createStorage(space);
             storage.addNull(atomCount);
             for (int i = 0; i < atomCount; i++) {
-                token.init(i, storage);
+                token.init(i, storage, this);
             }
             allAtomStorage.add(storage);
             return storage;
@@ -116,7 +116,7 @@ public class Box {
             T storage = (T) t.createStorage(space);
             storage.addNull(moleculeCount);
             for (int i = 0; i < moleculeCount; i++) {
-                token.init(i, storage);
+                token.init(i, storage, this);
             }
             allMoleculeStorage.add(storage);
             return storage;
@@ -228,10 +228,10 @@ public class Box {
         return molecule;
     }
 
-    private static void initStorage(Map<Token<?>, Storage> storageMap, int idx) {
+    private void initStorage(Map<Token<?>, Storage> storageMap, int idx) {
         storageMap.forEach((token, storage) -> {
             try {
-                MH.invokeExact(token, idx, storage);
+                MH.invokeExact(token, idx, storage, this);
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
             }

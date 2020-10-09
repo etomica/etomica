@@ -1,10 +1,11 @@
 package etomica.models.clathrates;
 
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.storage.DoubleStorage;
+import etomica.box.storage.Tokens;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationFileBinary;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -17,7 +18,6 @@ import etomica.models.water.ConfigurationFileTIP4P;
 import etomica.models.water.SpeciesWater4P;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.EwaldSummation;
-import etomica.potential.EwaldSummation.MyCharge;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMaster;
@@ -84,9 +84,8 @@ public class ProtonDisorderGenerator extends Simulation {
 //			precision_s = 2.800672811371045;}
 //		else {throw new RuntimeException("improper precision value!");}
 
-        ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
 //		AtomLeafAgentManager atomAgentManager = new AtomLeafAgentManager(agentSource, box);
-        AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<>(agentSource, box);
+        DoubleStorage charges = box.getAtomStorage(Tokens.doubles(new ChargeAgentSourceRPM(species, isIce)));
 
         double sigma, epsilon;
 //		if(isIce){
@@ -108,7 +107,7 @@ public class ProtonDisorderGenerator extends Simulation {
 
         potentialLJ = new P2LennardJones(space, sigma, epsilon);
         potentialLJ.setBox(box);
-        potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
+        potentialES = new EwaldSummation(box, charges, space, kCut, rCutRealES);
 
 //XXXX Potential Master
         potentialMaster = new PotentialMaster();
