@@ -29,13 +29,20 @@ public class P2SoftSphericalTruncatedForceShifted extends
         fShift = potential.du(r2Cutoff)/rCut;
         shift = potential.u(r2Cutoff) - fShift*rCut;
     }
-    
+
     public double u(double r2) {
-        return (r2 < r2Cutoff) ? (potential.u(r2) - fShift*Math.sqrt(r2) - shift) : 0.0;
+        return (r2 < r2Cutoff) ? (potential.u(r2) - fShift * Math.sqrt(r2) - shift) : 0.0;
     }
-    
+
     public double du(double r2) {
-        return (r2 < r2Cutoff) ? (potential.du(r2) - fShift*Math.sqrt(r2)) : 0.0;
+        return (r2 < r2Cutoff) ? (potential.du(r2) - fShift * Math.sqrt(r2)) : 0.0;
+    }
+
+    public void udu(double r2, double[] u, double[] du) {
+        if (r2 > r2Cutoff) return;
+        potential.udu(r2, u, du);
+        u[0] -= fShift * Math.sqrt(r2) + shift;
+        du[0] -= fShift * Math.sqrt(r2);
     }
 
     protected double fShift;

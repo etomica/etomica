@@ -10,10 +10,7 @@ import etomica.action.SimulationRestart;
 import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.graphics.DisplayPlot.PopupListener;
-import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorListenerAction;
-import etomica.integrator.IntegratorManagerMC;
+import etomica.integrator.*;
 import etomica.simulation.Simulation;
 import etomica.simulation.SimulationContainer;
 import etomica.simulation.prototypes.HSMD2D;
@@ -173,8 +170,9 @@ public class SimulationGraphic implements SimulationContainer {
      * added to boxList.  If a box handled by an Integrator is in BoxList, a new DisplayBox is not created.
      */
     private void setupDisplayBox(Integrator integrator, LinkedList<Box> boxList) {
-        if (integrator instanceof IntegratorBox) {
-            Box box = ((IntegratorBox) integrator).getBox();
+        if (integrator instanceof IntegratorBox || integrator instanceof IntegratorBoxFasterer) {
+            // TODO: make this not terrible
+            Box box = integrator instanceof IntegratorBox ? ((IntegratorBox) integrator).getBox() : ((IntegratorBoxFasterer) integrator).getBox();
             if (boxList.contains(box)) return;
             boxList.add(box);
             final DisplayBox display = new DisplayBox(simulation, box);

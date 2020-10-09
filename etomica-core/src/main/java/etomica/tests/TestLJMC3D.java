@@ -5,7 +5,6 @@
 package etomica.tests;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -13,16 +12,15 @@ import etomica.config.Configuration;
 import etomica.config.Configurations;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataPump;
-import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterPressure;
+import etomica.data.DataPumpListener;
+import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
+import etomica.data.meter.MeterPressureFasterer;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
-import etomica.integrator.IntegratorListenerAction;
-import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.IntegratorMCFasterer;
+import etomica.integrator.mcmove.MCMoveAtomFasterer;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.nbr.cell.PotentialMasterCell;
+import etomica.nbr.cell.PotentialMasterCellFasterer;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -36,25 +34,26 @@ import etomica.util.ParseArgs;
  * Initial configurations at http://rheneas.eng.buffalo.edu/etomica/tests/
  */
 public class TestLJMC3D extends Simulation {
-    
-    public IntegratorMC integrator;
-    public MCMoveAtom mcMoveAtom;
+
+    public IntegratorMCFasterer integrator;
+    public MCMoveAtomFasterer mcMoveAtom;
     public SpeciesGeneral species;
     public Box box;
+    public PotentialMasterCellFasterer potentialMaster;
     public P2LennardJones potential;
 
-    public TestLJMC3D(int numAtoms, int numSteps, Configuration config) {
+    public TestLJMC3D(int numAtoms, Configuration config) {
         super(Space3D.getInstance());
 
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         double sigma = 1.0;
         box = this.makeBox();
-        integrator = new IntegratorMC(this, potentialMaster, box);
-        mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        mcMoveAtom.setStepSize(0.2 * sigma);
+        potentialMaster = new PotentialMasterCellFasterer(this, box, 2);
+        integrator = new IntegratorMCFasterer(this, potentialMaster, box);
+        mcMoveAtom = new MCMoveAtomFasterer(random, potentialMaster, box);
+        mcMoveAtom.setStepSize(0.275 * sigma);
         ((MCMoveStepTracker) mcMoveAtom.getTracker()).setTunable(false);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().setEquilibrating(false);
@@ -64,69 +63,66 @@ public class TestLJMC3D extends Simulation {
         inflater.actionPerformed();
         potential = new P2LennardJones(space, sigma, 1.0);
         double truncationRadius = 3.0 * sigma;
-        if (truncationRadius > 0.5 * box.getBoundary().getBoxSize().getX(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is" + 0.5 * box.getBoundary().getBoxSize().getX(0));
-        }
+
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(space, potential, truncationRadius);
-        potentialMaster.setCellRange(3);
-        potentialMaster.setRange(potentialTruncated.getRange());
         AtomType leafType = species.getLeafType();
-        potentialMaster.addPotential(potentialTruncated, new AtomType[]{leafType, leafType});
-        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
+        potentialMaster.setPairPotential(leafType, leafType, potentialTruncated);
 
         config.initializeCoordinates(box);
-        potentialMaster.getNbrCellManager(box).assignCellAll();
-//        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),box,1);
-//        integrator.addListener(writeConfig);
+
+        potentialMaster.init();
     }
- 
+
     public static void main(String[] args) {
         SimParams params = new SimParams();
         ParseArgs.doParseArgs(params, args);
         int numAtoms = params.numAtoms;
         Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3D.class);
 
-        TestLJMC3D sim = new TestLJMC3D(numAtoms, params.numSteps, config);
+        TestLJMC3D sim = new TestLJMC3D(numAtoms, config);
 
-        MeterPressure pMeter = new MeterPressure(sim.space);
-        pMeter.setIntegrator(sim.integrator);
+        MeterPressureFasterer pMeter = new MeterPressureFasterer(sim.box, sim.potentialMaster);
+        pMeter.setTemperature(sim.integrator.getTemperature());
         AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(10);
-        DataPump pPump = new DataPump(pMeter,pAccumulator);
-        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pPump);
-        pumpListener.setInterval(2*numAtoms);
-        sim.integrator.getEventManager().addListener(pumpListener);
-        MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+        DataPumpListener pPump = new DataPumpListener(pMeter, pAccumulator, 2 * numAtoms);
+        sim.integrator.getEventManager().addListener(pPump);
+        MeterPotentialEnergyFromIntegratorFasterer energyMeter = new MeterPotentialEnergyFromIntegratorFasterer(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(10);
-        DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
+        DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator, 10);
         energyAccumulator.setBlockSize(50);
-        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
+        sim.integrator.getEventManager().addListener(energyPump);
 
+        long t1 = System.nanoTime();
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
+        long t2 = System.nanoTime();
+        System.out.println("time: " + (t2 - t1) / 1e9);
 
-        double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
-        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
+        System.out.println("Move acceptance: " + sim.mcMoveAtom.getTracker().acceptanceProbability());
+
+        double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
+        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
         avgPE /= numAtoms;
-        System.out.println("Z="+Z);
-        System.out.println("PE/epsilon="+avgPE);
+        System.out.println("Z=" + Z);
+        System.out.println("PE/epsilon=" + avgPE);
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.STANDARD_DEVIATION.index)).x;
+        double Cv = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
         Cv /= temp;
-        Cv *= Cv/numAtoms;
-        System.out.println("Cv/k="+Cv);
-        
-        if (Double.isNaN(Z) || Math.abs(Z+0.25) > 0.2) {
+        Cv *= Cv / numAtoms;
+        System.out.println("Cv/k=" + Cv);
+
+        if (Double.isNaN(Z) || Math.abs(Z + 0.25 - 0.4) > 0.2) {
             System.exit(1);
         }
-        if (Double.isNaN(avgPE) || Math.abs(avgPE+4.56) > 0.04) {
-            System.exit(1);
+        if (Double.isNaN(avgPE) || Math.abs(avgPE + 4.56 - 0.2) > 0.04) {
+            System.exit(2);
         }
-        if (Double.isNaN(Cv) || Math.abs(Cv-0.61) > 0.45) {  // actual average seems to be 0.51
-            System.exit(1);
+        if (Double.isNaN(Cv) || Math.abs(Cv - 0.61) > 0.45) {  // actual average seems to be 0.51
+            System.exit(3);
         }
     }
 
     public static class SimParams extends ParameterBase {
         public int numAtoms = 500;
-        public int numSteps = 200000;
+        public int numSteps = 400000;
     }
 }

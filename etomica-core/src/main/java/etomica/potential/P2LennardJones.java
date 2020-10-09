@@ -41,19 +41,26 @@ public class P2LennardJones extends Potential2SoftSpherical {
      * The derivative r*du/dr.
      */
     public double du(double r2) {
-        double s2 = sigmaSquared/r2;
-        double s6 = s2*s2*s2;
-        return -epsilon48*s6*(s6 - 0.5);
+        double s2 = sigmaSquared / r2;
+        double s6 = s2 * s2 * s2;
+        return -epsilon48 * s6 * (s6 - 0.5);
     }
 
-   /**
-    * The second derivative of the pair energy, times the square of the
-    * separation:  r^2 d^2u/dr^2.
-    */
+    public void udu(double r2, double[] u, double[] du) {
+        double s2 = sigmaSquared / r2;
+        double s6 = s2 * s2 * s2;
+        u[0] = epsilon4 * s6 * (s6 - 1.0);
+        du[0] = -epsilon48 * s6 * (s6 - 0.5);
+    }
+
+    /**
+     * The second derivative of the pair energy, times the square of the
+     * separation:  r^2 d^2u/dr^2.
+     */
     public double d2u(double r2) {
-        double s2 = sigmaSquared/r2;
-        double s6 = s2*s2*s2;
-        return epsilon624*s6*(s6 - _168div624);
+        double s2 = sigmaSquared / r2;
+        double s6 = s2 * s2 * s2;
+        return epsilon624 * s6 * (s6 - _168div624);
     }
             
     /**

@@ -25,25 +25,31 @@ public final class Arrays {
      * in the given array.  New array is one element larger than given array,
      * and is of same type as given array.  newObject is placed at the end of 
      * the new array.
-     * @param objects array with objects to be put in new array
-     * @param newObject object placed at end of new array
-     * @return new array
-     */
+	 * @param objects array with objects to be put in new array
+	 * @param newObject object placed at end of new array
+	 * @return new array
+	 */
 	public static <T> T[] addObject(T[] objects, T newObject) {
-		objects = copyOf(objects,objects.length+1);
-		objects[objects.length-1] = newObject;
+		objects = copyOf(objects, objects.length + 1);
+		objects[objects.length - 1] = newObject;
 		return objects;
 	}
 
-    /**
-     * Returns an array formed by removing the given object from the given array.  
-     * New array is one element smaller than given array,
-     * and is of same type as given array.  Order of objects in the new
-     * array is unchanged from their order in the original array. 
-     * If object is not in the given array,
-     * method returns original array without performing any action.
-     * @param array array with the objects
-     * @param object object being removed
+	public static int[] addInt(int[] ints, int x) {
+		ints = copyOf(ints, ints.length + 1);
+		ints[ints.length - 1] = x;
+		return ints;
+	}
+
+	/**
+	 * Returns an array formed by removing the given object from the given array.
+	 * New array is one element smaller than given array,
+	 * and is of same type as given array.  Order of objects in the new
+	 * array is unchanged from their order in the original array.
+	 * If object is not in the given array,
+	 * method returns original array without performing any action.
+	 * @param array array with the objects
+	 * @param object object being removed
      * @return new array with the object removed
      */
 	public static <T> T[] removeObject(T[] array, T object) {

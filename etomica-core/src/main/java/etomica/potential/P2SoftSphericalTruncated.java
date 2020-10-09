@@ -58,15 +58,22 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
     /**
      * Returns the derivative (r du/dr) of the wrapped potential if the separation
      * is less than the cutoff value
+     *
      * @param r2 the squared distance between the atoms
      */
     public double du(double r2) {
         return (r2 < r2Cutoff) ? potential.du(r2) : 0.0;
     }
 
+    public void udu(double r2, double[] u, double[] du) {
+        if (r2 > r2Cutoff) return;
+        potential.udu(r2, u, du);
+    }
+
     /**
      * Returns the 2nd derivative (r^2 d^2u/dr^2) of the wrapped potential if the separation
      * is less than the cutoff value
+     *
      * @param r2 the squared distance between the atoms
      */
     public double d2u(double r2) {

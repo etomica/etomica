@@ -34,10 +34,17 @@ public class P2SoftSphericalTruncatedShifted extends P2SoftSphericalTruncated {
     /**
      * Returns the energy of the wrapped potential if the separation
      * is less than the cutoff value
+     *
      * @param r2 the squared distance between the atoms
      */
     public double u(double r2) {
         return (r2 < r2Cutoff) ? (potential.u(r2) - shift) : 0.0;
+    }
+
+    public void udu(double r2, double[] u, double[] du) {
+        if (r2 > r2Cutoff) return;
+        potential.udu(r2, u, du);
+        u[0] -= shift;
     }
 
     /**
