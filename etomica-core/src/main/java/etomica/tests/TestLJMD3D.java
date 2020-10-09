@@ -5,7 +5,6 @@
 package etomica.tests;
 
 import etomica.action.BoxInflate;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -40,7 +39,7 @@ public class TestLJMD3D extends Simulation {
     public AccumulatorAverageCollapsing avgEnergy;
     public DataPump pump;
 
-    public TestLJMD3D(int numAtoms, int numSteps, Configuration config) {
+    public TestLJMD3D(int numAtoms, Configuration config) {
         super(Space3D.getInstance());
 
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
@@ -72,7 +71,7 @@ public class TestLJMD3D extends Simulation {
         int numAtoms = params.numAtoms;
         Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3D.class);
 
-        TestLJMD3D sim = new TestLJMD3D(numAtoms, params.numSteps / params.numAtoms, config);
+        TestLJMD3D sim = new TestLJMD3D(numAtoms, config);
 
         MeterPressure pMeter = new MeterPressure(sim.getSpace());
         pMeter.setIntegrator(sim.integrator);
@@ -89,7 +88,7 @@ public class TestLJMD3D extends Simulation {
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
 
         long t1 = System.currentTimeMillis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / params.numAtoms));
         long t2 = System.currentTimeMillis();
 
         double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
