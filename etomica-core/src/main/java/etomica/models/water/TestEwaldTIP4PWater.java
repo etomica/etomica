@@ -7,10 +7,11 @@ package etomica.models.water;
 import etomica.action.BoxImposePbc;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
+import etomica.box.storage.DoubleStorage;
+import etomica.box.storage.Tokens;
 import etomica.config.ConfigurationLattice;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -27,7 +28,6 @@ import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.CriterionAll;
 import etomica.potential.EwaldSummation;
-import etomica.potential.EwaldSummation.MyCharge;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -93,9 +93,12 @@ public class TestEwaldTIP4PWater extends Simulation {
         CriterionAll criterionAll = new CriterionAll();
 
         //Ewald Summation
-        ChargeAgentSourceTIP4PWater agentSource = new ChargeAgentSourceTIP4PWater();
-        AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
-        EwaldSummation ewaldSummation = new EwaldSummation(box, atomAgentManager, space, 4, 9);
+        DoubleStorage charges = box.getAtomStorage(Tokens.doubles((idx, storage, box) -> {
+            int childIdx = box.getLeafList().get(idx).getIndex();
+            double charge = ConformationWaterTIP4P.Echarge[childIdx];
+            storage.create(idx).set(charge);
+        }));
+        EwaldSummation ewaldSummation = new EwaldSummation(box, charges, space, 4, 9);
 //		ewaldSummation.setCriterion(criterionAll);
 //		ewaldSummation.setBondedIterator(new ApiIntragroup());
         potentialMaster.addPotential(ewaldSummation, new AtomType[0]);

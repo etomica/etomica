@@ -1,5 +1,6 @@
 package etomica.box.storage;
 
+import etomica.box.Box;
 import etomica.space.Space;
 
 public class Tokens {
@@ -17,7 +18,7 @@ public class Tokens {
     public static final Token<DoubleStorage> BOND_LENGTH = defaultDoubles();
 
     public interface Initializer<T extends Storage> {
-        void init(int idx, T storage);
+        void init(int idx, T storage, Box box);
     }
 
     public static Token<VectorStorage> vectorsNullByDefault() {
@@ -56,14 +57,14 @@ public class Tokens {
             }
 
             @Override
-            public void init(int idx, VectorStorage storage) {
-                init.init(idx, storage);
+            public void init(int idx, VectorStorage storage, Box box) {
+                init.init(idx, storage, box);
             }
         };
     }
 
     public static Token<VectorStorage> vectorsDefault() {
-        return vectors((idx, storage) -> storage.create(idx));
+        return vectors((idx, storage, box) -> storage.create(idx));
     }
     
     public static Token<DoubleStorage> doubles(Initializer<DoubleStorage> init) {
@@ -74,8 +75,8 @@ public class Tokens {
             }
 
             @Override
-            public void init(int idx, DoubleStorage storage) {
-                init.init(idx, storage);
+            public void init(int idx, DoubleStorage storage, Box box) {
+                init.init(idx, storage, box);
             }
         };
     }
@@ -88,7 +89,7 @@ public class Tokens {
             }
 
             @Override
-            public void init(int idx, ObjectStorage<T> storage) {
+            public void init(int idx, ObjectStorage<T> storage, Box box) {
                 storage.create(idx);
             }
         };

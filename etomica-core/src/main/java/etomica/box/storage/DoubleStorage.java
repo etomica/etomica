@@ -1,5 +1,8 @@
 package etomica.box.storage;
 
+import etomica.atom.IAtom;
+import etomica.molecule.IMolecule;
+
 import java.util.Arrays;
 import java.util.BitSet;
 
@@ -21,11 +24,20 @@ public class DoubleStorage implements Storage {
         return this.data[i];
     }
 
+    public double get(IAtom atom) {
+        return this.get(atom.getLeafIndex());
+    }
+
+    public double get(IMolecule mol) {
+        return this.get(mol.getGlobalIndex());
+    }
+
     public DoubleWrapper create(int i) {
         DoubleWrapper w = new DoubleWrapper();
         w.data = data;
         w.idx = i;
         views[i] = w;
+        validBits.set(i);
         return w;
     }
 

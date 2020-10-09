@@ -8,6 +8,8 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
+import etomica.box.storage.DoubleStorage;
+import etomica.box.storage.Tokens;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationResourceFile;
 import etomica.models.water.P2WaterSPCE;
@@ -59,13 +61,12 @@ class EwaldSummationTest {
         SpeciesGeneral species = SpeciesWater3P.create();
         sim.addSpecies(species);
         Box box = sim.makeBox();
-        ChargeAgentSourceSPCE agentSource = new ChargeAgentSourceSPCE(species);
-        AtomLeafAgentManager<EwaldSummation.MyCharge> atomAgentManager = new AtomLeafAgentManager<EwaldSummation.MyCharge>(agentSource, box);
 
+        DoubleStorage charges = box.getAtomStorage(Tokens.doubles(new ChargeAgentSourceSPCE(species)));
         box.setNMolecules(species, numofmolecules);
         box.getBoundary().setBoxSize(new Vector3D(boxlength, boxlength, boxlength));
 
-        es = new EwaldSummation(box, atomAgentManager, space, kcut, rCutRealES);
+        es = new EwaldSummation(box, charges, space, kcut, rCutRealES);
         es.setAlpha(5.6 / boxlength);
 
         Configuration config = new ConfigurationResourceFile(
@@ -91,25 +92,21 @@ class EwaldSummationTest {
 
     }
 
-    private static class ChargeAgentSourceSPCE implements AtomLeafAgentManager.AgentSource<EwaldSummation.MyCharge> {
-        private final Map<AtomType, EwaldSummation.MyCharge> myCharge;
+    private static class ChargeAgentSourceSPCE implements Tokens.Initializer<DoubleStorage> {
+        private final Map<AtomType, Double> myCharge;
 
         public ChargeAgentSourceSPCE(SpeciesGeneral species) {
             myCharge = new HashMap<>();
             double chargeH = P2WaterSPCE.QH;
             double chargeO = P2WaterSPCE.QO;
-            myCharge.put(species.getTypeByName("H"), new EwaldSummation.MyCharge(chargeH));
-            myCharge.put(species.getTypeByName("O"), new EwaldSummation.MyCharge(chargeO));
+            myCharge.put(species.getTypeByName("H"), chargeH);
+            myCharge.put(species.getTypeByName("O"), chargeO);
         }
 
         // *********************** set half(even # of particles ) as +ion, the other half -ion ***********************
-        public EwaldSummation.MyCharge makeAgent(IAtom a, Box agentBox) {
-            return myCharge.get(a.getType());
+        @Override
+        public void init(int idx, DoubleStorage storage, Box box) {
+            storage.create(idx).set(myCharge.get(box.getLeafList().get(idx).getType()));
         }
-
-        public void releaseAgent(EwaldSummation.MyCharge agent, IAtom atom, Box agentBox) {
-            // Do nothing
-        }
-
     }
 }

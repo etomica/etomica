@@ -3,7 +3,6 @@ package etomica.box;
 import etomica.atom.AtomType;
 import etomica.box.storage.DoubleStorage;
 import etomica.box.storage.Token;
-import etomica.box.storage.Tokens;
 import etomica.config.ConformationLinear;
 import etomica.molecule.IMolecule;
 import etomica.simulation.Simulation;
@@ -109,7 +108,7 @@ class BoxTest {
             }
 
             @Override
-            public void init(int idx, DoubleStorage storage) {
+            public void init(int idx, DoubleStorage storage, Box box) {
                 storage.create(idx).set(5.0);
             }
         };
@@ -134,7 +133,7 @@ class BoxTest {
             }
 
             @Override
-            public void init(int idx, DoubleStorage storage) {
+            public void init(int idx, DoubleStorage storage, Box box) {
                 storage.create(idx).set(11.0);
             }
         };

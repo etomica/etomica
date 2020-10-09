@@ -8,6 +8,7 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.storage.DoubleStorage;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
@@ -25,8 +26,8 @@ import org.apache.commons.math3.special.Erf;
 
 public class EwaldSummation implements PotentialSoft{
     protected final Space space;
-    protected final AtomLeafAgentManager<MyCharge> atomAgentManager;
     protected final Box box;
+    private final DoubleStorage charges;
     protected double alpha, alpha2,alpha3;//sqrt of the Frenkel's alpha, follow other authors' convention
     protected final double[] boxSize, basis;
     protected final double volume;
@@ -46,10 +47,10 @@ public class EwaldSummation implements PotentialSoft{
     protected boolean doRealSum = true;
 
 	// *********************************************** constructor ************************************ // 
-    public EwaldSummation(Box box, AtomLeafAgentManager<MyCharge> atomAgentManager, Space _space, double kCut, double rCutRealES){
+    public EwaldSummation(Box box, DoubleStorage charges, Space _space, double kCut, double rCutRealES){
 
         this.box = box;
-        this.atomAgentManager = atomAgentManager;
+        this.charges = charges;
         this.space = _space;
         this.secondDerivative = space.makeTensor();
         this.tempTensorkk = space.makeTensor();
@@ -106,7 +107,7 @@ public class EwaldSummation implements PotentialSoft{
         double uReal = 0.0;
         for (int i=0; i < nAtoms; i++){//H
             IAtom atomA = box.getLeafList().get(i);
-            double chargeA = atomAgentManager.getAgent(atomA).charge;
+            double chargeA = charges.get(i);
 
             if (chargeA==0) continue;
  
@@ -118,7 +119,7 @@ public class EwaldSummation implements PotentialSoft{
      
                 if(aIndex == bIndex && nRealShells[0]==0 && nRealShells[1]==0 && nRealShells[2]==0) continue;//Skip atom-pairs in the same molecule in the orig. cell.
       
-                double chargeB = atomAgentManager.getAgent(atomB).charge;
+                double chargeB = charges.get(j);
               
                 if (chargeB==0) continue;
 
@@ -178,7 +179,7 @@ public class EwaldSummation implements PotentialSoft{
                     for (int i=0; i<nAtoms; i++){
                         IAtom atom = atoms.get(i);
                         Vector position = atom.getPosition();
-                        double charge = atomAgentManager.getAgent(atom).charge;
+                        double charge = charges.get(i);
 						if (charge==0) continue;
 						double k_r_dot = kVector.dot(position);
 						structureFactorReal += charge * Math.cos(k_r_dot);// >>>>>>>>>>>>> calculated from cos*cos + sin*sin
@@ -202,8 +203,7 @@ public class EwaldSummation implements PotentialSoft{
         IAtomList atoms = box.getLeafList();
         int nAtoms = atoms.size();
         for (int i=0; i<nAtoms; i++){
-            IAtom atom = atoms.get(i);
-            double charge = atomAgentManager.getAgent(atom).charge;
+            double charge = charges.get(i);
             uSelf += charge*charge;
         }
 
@@ -219,12 +219,12 @@ public class EwaldSummation implements PotentialSoft{
             for (int siteA=0; siteA<numSites; siteA++){
                 IAtom atomA = molecule.getChildList().get(siteA);
                 Vector positionA = atomA.getPosition();
-                double chargeA = atomAgentManager.getAgent(atomA).charge;
+                double chargeA = charges.get(atomA);
                 if (chargeA==0) continue;
                 for (int siteB=siteA+1; siteB<numSites; siteB++){
                     IAtom atomB = molecule.getChildList().get(siteB);
                     Vector positionB = atomB.getPosition();
-                    double chargeB = atomAgentManager.getAgent(atomB).charge;
+                    double chargeB = charges.get(atomB);
                     if (chargeB==0) continue;
                     rAB.Ev1Mv2(positionA, positionB);
                     box.getBoundary().nearestImage(rAB);
@@ -252,14 +252,6 @@ public class EwaldSummation implements PotentialSoft{
     }
 
     public void setBox(Box box) {
-    }
-
-    //******************************** inner class ********************************************//
-    public static class MyCharge{
-        public MyCharge(double charge){
-            this.charge = charge;
-        }
-        public final double charge;
     }
 
     public double energy(IAtomList atoms) {
@@ -313,7 +305,7 @@ public class EwaldSummation implements PotentialSoft{
             //Real gradient  //Cross Interaction
             for (int i=0; i < nAtoms; i++){
                 IAtom atomA = box.getLeafList().get(i);
-                double chargeA = atomAgentManager.getAgent(atomA).charge;
+                double chargeA = charges.get(i);
                 if (chargeA==0) continue;
                 int aIndex = atomA.getParentGroup().getIndex(); // molecule a
                 Vector positionA = atomA.getPosition();
@@ -323,7 +315,7 @@ public class EwaldSummation implements PotentialSoft{
     
                     if(nRealShells[0] == 0 && nRealShells[1] == 0 && nRealShells[2] == 0 && aIndex == bIndex) continue;//Skip same molecules!
     
-                    double chargeB = atomAgentManager.getAgent(atomB).charge;
+                    double chargeB = charges.get(j);
                     if (chargeB==0) continue;
                     Vector positionB = atomB.getPosition();
                     rAB.Ev1Mv2(positionA, positionB); //rAB == rA - rB
@@ -368,7 +360,7 @@ public class EwaldSummation implements PotentialSoft{
                     for (int j=0; j< nAtoms ; j++){ // Loop over atoms (4*nBasis)
                         IAtom atom = box.getLeafList().get(j);
                         Vector position = atom.getPosition();
-                        double chargej = atomAgentManager.getAgent(atom).charge;
+                        double chargej = charges.get(j);
                         double kr = position.dot(kVector);
                         sinkrj[j] = chargej * Math.sin(kr);
                         coskrj[j] = chargej * Math.cos(kr);
@@ -392,12 +384,12 @@ public class EwaldSummation implements PotentialSoft{
             int numSites = molecule.getChildList().size();
             for (int siteA=0; siteA<numSites; siteA++){
                 IAtom atomA = molecule.getChildList().get(siteA); // index = 0, 1, 2, 3|||leafIndex=0...184
-                double chargeA = atomAgentManager.getAgent(atomA).charge;
+                double chargeA = charges.get(atomA);
                 if (chargeA==0) continue;
                 Vector positionA = atomA.getPosition();
                 for (int siteB=siteA+1; siteB<numSites; siteB++){
                     IAtom atomB = molecule.getChildList().get(siteB);
-                    double chargeB = atomAgentManager.getAgent(atomB).charge;
+                    double chargeB = charges.get(atomB);
                     if (chargeB==0) continue;
                     Vector positionB = atomB.getPosition();
 
@@ -426,8 +418,8 @@ public class EwaldSummation implements PotentialSoft{
         rAB.Ev1Mv2(pos0,pos1);
         box.getBoundary().nearestImage(rAB);
 
-        double q0 = atomAgentManager.getAgent(atom0).charge;
-        double q1 = atomAgentManager.getAgent(atom1).charge;
+        double q0 = charges.get(atom0);
+        double q1 = charges.get(atom1);
         secondDerivative.E(0);
         if (q0*q1 == 0) return secondDerivative;
         double coeff = 4.0*Math.PI/volume;
@@ -541,10 +533,10 @@ public class EwaldSummation implements PotentialSoft{
 
         public double energy(IAtomList atoms) {
             IAtom atomA = atoms.get(0);
-            double chargeA = atomAgentManager.getAgent(atomA).charge;
+            double chargeA = charges.get(atomA);
 
             IAtom atomB = atoms.get(1);
-            double chargeB = atomAgentManager.getAgent(atomB).charge;
+            double chargeB = charges.get(atomB);
             
             Vector positionA = atomA.getPosition();
             Vector positionB = atomB.getPosition();
@@ -575,11 +567,11 @@ public class EwaldSummation implements PotentialSoft{
         public Vector[] gradient(IAtomList atoms) {
             //Real gradient  //Cross Interaction
             IAtom atomA = atoms.get(0);
-            double chargeA = atomAgentManager.getAgent(atomA).charge;
+            double chargeA = charges.get(atomA);
             Vector positionA = atomA.getPosition();
             IAtom atomB = atoms.get(1);
 
-            double chargeB = atomAgentManager.getAgent(atomB).charge;
+            double chargeB = charges.get(atomB);
 
             Vector positionB = atomB.getPosition();
             rAB.Ev1Mv2(positionA, positionB); //rAB == rA - rB
