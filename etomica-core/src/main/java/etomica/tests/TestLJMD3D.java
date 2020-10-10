@@ -26,6 +26,8 @@ import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
+import java.util.Arrays;
+
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
  */
@@ -72,6 +74,7 @@ public class TestLJMD3D extends Simulation {
         Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3DSlowerer.class);
 
         TestLJMD3D sim = new TestLJMD3D(numAtoms, config);
+        System.out.println("random seeds: " + Arrays.toString(sim.getRandomSeeds()));
 
         MeterPressureFromIntegratorFasterer pMeter = new MeterPressureFromIntegratorFasterer(sim.integrator);
         AccumulatorAverage pAccumulator = new AccumulatorAverageFixed(50);
