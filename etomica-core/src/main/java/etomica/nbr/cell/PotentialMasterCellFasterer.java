@@ -100,9 +100,9 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
         return uTot;
     }
 
-    public double computeOne(IAtom iAtom) {
-        int i = iAtom.getLeafIndex();
+    public double computeOne(int i) {
         Vector ri = positions.get(i);
+        IAtom iAtom = box.getLeafList().get(i);
         int iType = iAtom.getType().getIndex();
         IAtomList atoms = box.getLeafList();
         uAtomsChanged.clear();
