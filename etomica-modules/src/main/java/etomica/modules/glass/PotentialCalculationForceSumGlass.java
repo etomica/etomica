@@ -3,6 +3,7 @@ package etomica.modules.glass;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.storage.VectorStorage;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialSoft;
@@ -16,8 +17,8 @@ public class PotentialCalculationForceSumGlass extends PotentialCalculationForce
     private final double[][][] stress;
     private final Tensor stressPair;
 
-    public PotentialCalculationForceSumGlass(Box box) {
-        super(box.getSpace());
+    public PotentialCalculationForceSumGlass(Box box, VectorStorage forces) {
+        super(forces);
         this.box = box;
         int n = box.getLeafList().size();
         int D = box.getSpace().D();
@@ -48,8 +49,8 @@ public class PotentialCalculationForceSumGlass extends PotentialCalculationForce
         stressPair.E(0);
         Vector[] f = potentialSoft.gradient(atoms, stressPair);
         pressureTensor.PE(stressPair);
-        integratorAgentManager.getAgent(atoms.get(0)).ME(f[0]);
-        integratorAgentManager.getAgent(atoms.get(1)).ME(f[1]);
+        forces.get(atoms.get(0)).ME(f[0]);
+        forces.get(atoms.get(1)).ME(f[1]);
         int idx0 = atoms.get(0).getLeafIndex();
         int idx1 = atoms.get(1).getLeafIndex();
         int D = f.length;

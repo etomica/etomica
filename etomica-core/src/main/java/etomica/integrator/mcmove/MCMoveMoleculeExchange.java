@@ -95,12 +95,15 @@ public class MCMoveMoleculeExchange extends MCMove {
             energyMeter.setTarget(molecule);
             uOld = energyMeter.getDataAsScalar();
         }
-        dBox.removeMolecule(molecule);
 
         positionSource.setBox(iBox);
         moleculeTranslator.setDestination(positionSource.randomPosition());         //place at random in insertion box
-        moleculeTranslator.actionPerformed(molecule);
-        iBox.addMolecule(molecule);
+        IMolecule newMolecule = iBox.addNewMolecule(molecule.getType(), mol -> {
+            mol.copyFrom(molecule);
+            moleculeTranslator.actionPerformed(mol);
+        });
+        dBox.removeMolecule(molecule);
+        molecule = newMolecule;
         uNew = Double.NaN;
         return true;
     }//end of doTrial
@@ -170,11 +173,13 @@ public class MCMoveMoleculeExchange extends MCMove {
     }
     
     public void rejectNotify() {
-        iBox.removeMolecule(molecule);
         translationVector.Ea1Tv1(-1,moleculeTranslator.getTranslationVector());
         ((AtomActionTranslateBy)moleculeReplacer.getAtomAction()).setTranslationVector(translationVector);
-        moleculeReplacer.actionPerformed(molecule);
-        dBox.addMolecule(molecule);
+        dBox.addNewMolecule(molecule.getType(), mol -> {
+            mol.copyFrom(molecule);
+            moleculeReplacer.actionPerformed(mol);
+        });
+        iBox.removeMolecule(molecule);
     }
 
     public final AtomIterator affectedAtoms(Box box) {

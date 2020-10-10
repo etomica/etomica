@@ -35,18 +35,17 @@ public class MCMoveInsertDelete extends MCMoveBox {
     //directive must specify "BOTH" to get energy with all atom pairs
     protected final MeterPotentialEnergy energyMeter;
     protected final AtomIteratorArrayListSimple affectedAtomIterator = new AtomIteratorArrayListSimple();
-    protected final MoleculeArrayList reservoir;
     protected final MoleculeActionTranslateTo atomTranslator;
     //chemical potential
     protected double mu;
     protected ISpecies species;
-    protected IMolecule testMolecule;
     protected double uOld;
     protected double uNew = Double.NaN;
     protected boolean insert;
     protected IMoleculeList moleculeList;
     protected IRandom random;
     protected RandomPositionSource positionSource;
+    protected IMolecule testMolecule;
 
     /**
      * Constructs using default isPotentialHard = false
@@ -61,7 +60,6 @@ public class MCMoveInsertDelete extends MCMoveBox {
         setMu(0.0);
         energyMeter.setIncludeLrc(true);
         atomTranslator = new MoleculeActionTranslateTo(space);
-        reservoir = new MoleculeArrayList();
         this.random = random;
         perParticleFrequency = true;
         positionSource = new RandomPositionSourceRectangular(space, random);
@@ -114,13 +112,9 @@ public class MCMoveInsertDelete extends MCMoveBox {
         insert = (random.nextInt(2) == 0);
         if (insert) {
             uOld = 0.0;
-            
-            if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.size()-1);
-            else testMolecule = species.makeMolecule();
 
             atomTranslator.setDestination(positionSource.randomPosition());
-            atomTranslator.actionPerformed(testMolecule);
-            box.addMolecule(testMolecule);
+            testMolecule = box.addNewMolecule(species, atomTranslator::actionPerformed);
         } else {//delete
             if (box.getNMolecules(species) == 0) {
                 testMolecule = null;
@@ -163,7 +157,6 @@ public class MCMoveInsertDelete extends MCMoveBox {
         if (!insert) {
             // accepted deletion - remove from box and add to reservoir
             box.removeMolecule(testMolecule);
-            reservoir.add(testMolecule);
         }
     }
 
@@ -171,8 +164,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
         if (insert) {
             // rejected insertion - remove from box and return to reservoir
             box.removeMolecule(testMolecule);
-            reservoir.add(testMolecule);
-            // test molecule is no longer in the simulation and should not be 
+            // test molecule is no longer in the simulation and should not be
             // returned by affectedAtoms
             testMolecule = null;
         }

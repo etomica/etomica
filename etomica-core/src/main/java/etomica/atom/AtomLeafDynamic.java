@@ -12,12 +12,18 @@ public class AtomLeafDynamic extends Atom implements IAtomKinetic {
     private static final long serialVersionUID = 1L;
     protected final Vector velocity;
 
-    public AtomLeafDynamic(Space space, AtomType type) {
-        super(space, type);
-        velocity = space.makeVector();
+    public AtomLeafDynamic(Space space, AtomType type, Vector position, Vector velocity) {
+        super(space, type, position);
+        this.velocity = velocity;
     }
 
     public Vector getVelocity() {
         return velocity;
+    }
+
+    @Override
+    public void copyFrom(IAtom atom) {
+        super.copyFrom(atom);
+        this.velocity.E(((AtomLeafDynamic) atom).getVelocity());
     }
 }

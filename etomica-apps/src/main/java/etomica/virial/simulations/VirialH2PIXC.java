@@ -7,6 +7,8 @@ package etomica.virial.simulations;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
+import etomica.box.storage.DoubleStorage;
+import etomica.box.storage.Tokens;
 import etomica.chem.elements.Hydrogen;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverageFixed;
@@ -116,9 +118,11 @@ public class VirialH2PIXC {
 		SpeciesGeneral species = new SpeciesBuilder(space)
 				.addCount(new AtomTypeOriented(Hydrogen.INSTANCE, space.makeVector()), nSpheres)
 				.withConformation(new ConformationLinear(space, 0))
-				.withAtomFactory(atype -> {
+				.withAtomFactory((aType, box, id) -> {
 					double bl = BohrRadius.UNIT.toSim(1.448736);// AtomHydrogen.getAvgBondLength(temperatureK);
-					return new AtomHydrogen(space, (AtomTypeOriented) atype, bl);
+					DoubleStorage.DoubleWrapper blWrapper = box.getAtomStorage(Tokens.BOND_LENGTH).create(id);
+					blWrapper.set(bl);
+					return new AtomHydrogen(space, (AtomTypeOriented) aType, blWrapper);
 				})
 				.build();
 

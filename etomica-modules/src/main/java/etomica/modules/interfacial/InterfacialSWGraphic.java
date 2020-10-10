@@ -97,7 +97,6 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                 IMoleculeList surfactants = pretendBox.getMoleculeList(sim.surfactant);
                 for (int i=0; i<numSurfactants; i++) {
                     IMolecule surfactant = surfactants.get(0);
-                    pretendBox.removeMolecule(surfactant);
                     double deltaX = 0.55 * dim.getX(0);
                     if (surfactant.getChildList().get(0).getPosition().getX(0) < 0) {
                         deltaX = -deltaX;
@@ -106,7 +105,9 @@ public class InterfacialSWGraphic extends SimulationGraphic {
                         Vector pos = surfactant.getChildList().get(j).getPosition();
                         pos.setX(0, pos.getX(0) + deltaX);
                     }
-                    sim.box.addMolecule(surfactant);
+                    sim.box.addNewMolecule(sim.surfactant, mol -> {
+                        mol.copyFrom(surfactant);
+                    });
                 }
                 sim.removeBox(pretendBox);
 
@@ -454,9 +455,8 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         DisplayPlotXChart muPlot = new DisplayPlotXChart();
         muProfileMeter = new MeterProfile(space, sim.getRandom());
         muProfileMeter.setBox(sim.box);
-        DataSourcePositionedBoltzmannFactor meterChemicalPotential = new DataSourcePositionedBoltzmannFactor(space);
+        DataSourcePositionedBoltzmannFactor meterChemicalPotential = new DataSourcePositionedBoltzmannFactor(space, sim.species);
         meterChemicalPotential.setIntegrator(sim.integrator);
-        meterChemicalPotential.setSpecies(sim.species);
         muProfileMeter.setDataSource(meterChemicalPotential);
         AccumulatorAverageFixed chemicalPotentialAverage = new AccumulatorAverageFixed(10);
         chemicalPotentialAverage.setPushInterval(10);

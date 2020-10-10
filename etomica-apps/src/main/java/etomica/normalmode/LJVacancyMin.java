@@ -8,6 +8,8 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterPressure;
 import etomica.lattice.crystal.Basis;
@@ -135,9 +137,8 @@ public class LJVacancyMin extends Simulation {
         sim.potentialMaster.calculate(sim.box, all, pcEnergy);
         double u0 = pcEnergy.getSum();
 
-        PotentialCalculationForceSum pc = new PotentialCalculationForceSum();
-        AtomLeafAgentManager<Vector> forceManager = new AtomLeafAgentManager<>(a -> sim.space.makeVector(), sim.box);
-        pc.setAgentManager(forceManager);
+        VectorStorage forces = sim.box.getAtomStorage(Tokens.vectorsDefault());
+        PotentialCalculationForceSum pc = new PotentialCalculationForceSum(forces);
 
         double[] d = new double[3*(numAtoms-1)];
         double[] dir = new double[d.length];
@@ -155,7 +156,7 @@ public class LJVacancyMin extends Simulation {
             double dSum = 0;
             for (int j=0; j<numAtoms-1; j++) {
                 IAtom jAtom = sim.box.getLeafList().get(j);
-                Vector fj = forceManager.getAgent(jAtom);
+                Vector fj = forces.get(jAtom);
                 Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     d[3*j+k] = fj.getX(k);
@@ -185,7 +186,7 @@ public class LJVacancyMin extends Simulation {
             dSum = 0;
             for (int j=0; j<numAtoms-1; j++) {
                 IAtom jAtom = sim.box.getLeafList().get(j);
-                Vector fj = forceManager.getAgent(jAtom);
+                Vector fj = forces.get(jAtom);
                 Vector pj = jAtom.getPosition();
                 for (int k=0; k<pj.getD(); k++) {
                     d[3*j+k] = fj.getX(k);

@@ -8,6 +8,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.atom.iterator.ANIntragroupExchange;
 import etomica.atom.iterator.ApiIntergroupCoupled;
+import etomica.box.storage.DoubleStorage;
+import etomica.box.storage.Tokens;
 import etomica.chem.elements.Hydrogen;
 import etomica.config.ConformationLinear;
 import etomica.data.IData;
@@ -132,14 +134,16 @@ public class VirialH2PISimple {
 		SpeciesGeneral speciesH2 = new SpeciesBuilder(space)
 				.addCount(atype, nBeads)
 				.withConformation(new ConformationLinear(space, 0))
-				.withAtomFactory((leafType) -> {
+				.withAtomFactory((leafType, box, id) -> {
 					double bl;
 					if (blOption == blOptions.FIXED_GROUND) {
 						bl = BohrRadius.UNIT.toSim(1.448736);
 					} else {
 						bl = AtomHydrogen.getAvgBondLength(temperatureK);
 					}
-					return new AtomHydrogen(space, (AtomTypeOriented) leafType, bl);
+					DoubleStorage.DoubleWrapper blWrapper = box.getAtomStorage(Tokens.BOND_LENGTH).create(id);
+					blWrapper.set(bl);
+					return new AtomHydrogen(space, (AtomTypeOriented) leafType, blWrapper);
 				})
 				.build();
 

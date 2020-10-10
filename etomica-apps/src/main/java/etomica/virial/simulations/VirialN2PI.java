@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.atom.iterator.ApiIntergroupCoupled;
+import etomica.box.storage.DoubleStorage;
+import etomica.box.storage.Tokens;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Nitrogen;
 import etomica.config.ConformationLinear;
@@ -142,7 +144,11 @@ public class VirialN2PI {
         SpeciesGeneral speciesN2 = new SpeciesBuilder(space)
                 .addCount(atype, nBeads)
                 .withConformation(new ConformationLinear(space, 0))
-                .withAtomFactory((leafType) -> new AtomHydrogen(space, (AtomTypeOriented) leafType, blN2))
+                .withAtomFactory((leafType, box, id) -> {
+                    DoubleStorage.DoubleWrapper blWrapper = box.getAtomStorage(Tokens.BOND_LENGTH).create(id);
+                    blWrapper.set(blN2);
+                    return new AtomHydrogen(space, (AtomTypeOriented) leafType, blWrapper);
+                })
                 .build();
         // make simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesN2, temperature, refCluster, tarCluster);

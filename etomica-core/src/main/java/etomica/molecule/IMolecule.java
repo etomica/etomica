@@ -24,6 +24,10 @@ public interface IMolecule {
      */
     public void setIndex(int index);
 
+    void setGlobalIndex(int idx);
+
+    int getGlobalIndex();
+
     /**
      * Returns the atoms in the molecule as an IAtomList.
      */
@@ -33,4 +37,6 @@ public interface IMolecule {
      * Returns the ISpecies of this IMolecule.
      */
     public ISpecies getType();
+
+    void copyFrom(IMolecule other);
 }

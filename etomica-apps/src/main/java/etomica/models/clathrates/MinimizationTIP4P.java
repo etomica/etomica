@@ -8,6 +8,9 @@ import etomica.action.MoleculeActionTranslateTo;
 import etomica.action.WriteConfiguration;
 import etomica.atom.*;
 import etomica.box.Box;
+import etomica.box.storage.DoubleStorage;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationFileBinary;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -21,7 +24,6 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.normalmode.MeterHarmonicEnergy;
 import etomica.potential.*;
-import etomica.potential.EwaldSummation.MyCharge;
 import etomica.simulation.Simulation;
 import etomica.space.*;
 import etomica.space3d.RotationTensor3D;
@@ -56,8 +58,7 @@ public class MinimizationTIP4P extends Simulation {
         Boundary boundary = new BoundaryRectangularPeriodic(space, a0_sc);
         box = this.makeBox(boundary);
         box.setNMolecules(species, nBasis * nC[0] * nC[1] * nC[2]);
-        ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
-        AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
+        DoubleStorage charges = box.getAtomStorage(Tokens.doubles(new ChargeAgentSourceRPM(species, isIce)));
         double sigma, epsilon;
         if (isIce) {
             sigma = 3.1668;
@@ -73,7 +74,7 @@ public class MinimizationTIP4P extends Simulation {
 
         potentialLJLS = new Potential2SoftSphericalLS(space, rCutLJ, a0_sc, potentialLJ);
 
-        potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
+        potentialES = new EwaldSummation(box, charges, space, kCut, rCutRealES);
         potentialMaster = new PotentialMaster();
         potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getTypeByName("O"), species.getTypeByName("O")});
         potentialMaster.addPotential(potentialES, new AtomType[0]);
@@ -147,11 +148,9 @@ public class MinimizationTIP4P extends Simulation {
         final MinimizationTIP4P sim = new MinimizationTIP4P(Space3D.getInstance(3), rCutLJ, rCutRealES, a0, nC, nBasis, isIce, kCut, configFileName, includeM);
         final MeterPotentialEnergy meterPotentialEnergy = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         double latticeEnergy = meterPotentialEnergy.getDataAsScalar();
-        PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum();
+        VectorStorage forces = sim.box.getAtomStorage(Tokens.FORCES);
+        PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum(forces);
 
-        AtomLeafAgentManager<Vector> atomAgentManager = new AtomLeafAgentManager<>(a -> sim.space.makeVector(), sim.box);
-
-        pcForce.setAgentManager(atomAgentManager);
         MoleculeActionTranslateTo translator = new MoleculeActionTranslateTo(sim.space);
         MoleculePositionGeometricCenter pos = new MoleculePositionGeometricCenter(sim.space);
 
@@ -200,7 +199,7 @@ public class MinimizationTIP4P extends Simulation {
                     Vector pO = atoms.get(SpeciesWater4P.indexO).getPosition();
                     for (int j = 0; j < atoms.size(); j++) {
                         IAtom atomj = atoms.get(j);
-                        Vector fj = atomAgentManager.getAgent(atomj);
+                        Vector fj = forces.get(atomj);
                         f.PE(fj);
                         if (j != SpeciesWater4P.indexO) {
                             dr.Ev1Mv2(atomj.getPosition(), pO);
@@ -337,7 +336,7 @@ public class MinimizationTIP4P extends Simulation {
             T.E(0);
             for (int j = 0; j < iMol.getChildList().size(); j++) {
                 IAtom jAtom = iMol.getChildList().get(j);
-                Vector fj = atomAgentManager.getAgent(jAtom);
+                Vector fj = forces.get(jAtom);
                 fSum.PE(fj);
                 r.Ev1Mv2(jAtom.getPosition(), iMol.getChildList().get(2).getPosition());
                 sim.box.getBoundary().nearestImage(r);
@@ -391,8 +390,8 @@ public class MinimizationTIP4P extends Simulation {
     }
 
     // ********************* charges & epsilon_r ********************************//
-    public static class ChargeAgentSourceRPM implements AtomLeafAgentManager.AgentSource<MyCharge> {
-        private final Map<AtomType, MyCharge> myCharge;
+    public static class ChargeAgentSourceRPM implements Tokens.Initializer<DoubleStorage> {
+        private final Map<AtomType, Double> myCharge;
 
         public ChargeAgentSourceRPM(SpeciesGeneral species, boolean isIce) {
             myCharge = new HashMap<>();
@@ -402,18 +401,16 @@ public class MinimizationTIP4P extends Simulation {
             } else {
                 chargeH = Electron.UNIT.toSim(0.52); // TIP4P
             }
-            myCharge.put(species.getTypeByName("H"), new MyCharge(chargeH));
-            myCharge.put(species.getTypeByName("O"), new MyCharge(0));
-            myCharge.put(species.getTypeByName("M"), new MyCharge(-2.0 * chargeH));
+            myCharge.put(species.getTypeByName("H"), chargeH);
+            myCharge.put(species.getTypeByName("O"), 0.0);
+            myCharge.put(species.getTypeByName("M"), -2.0 * chargeH);
         }
 
         // *********************** set half(even # of particles ) as +ion, the other half -ion ***********************
-        public MyCharge makeAgent(IAtom a, Box agentBox) {
-            return myCharge.get(a.getType());
-        }
 
-        public void releaseAgent(MyCharge agent, IAtom atom, Box agentBox) {
-            // Do nothing
+        @Override
+        public void init(int idx, DoubleStorage storage, Box box) {
+            storage.create(idx).set(myCharge.get(box.getLeafList().get(idx).getType()));
         }
     }
 

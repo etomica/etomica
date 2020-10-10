@@ -5,8 +5,10 @@
 package etomica.space3d;
 
 import etomica.math.function.IFunction;
-import etomica.util.random.IRandom;
 import etomica.space.Vector;
+import etomica.util.random.IRandom;
+
+import java.util.Objects;
 
 /**
  * Implementation of the Vector class for a 3-dimensional space.
@@ -59,9 +61,20 @@ public final class Vector3D implements Vector, java.io.Serializable {
         array[2] = z;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (!(o instanceof Vector) || ((Vector) o).getD() != this.getD()) {
+            return false;
+        }
+        Vector v = ((Vector) o);
+        return v.x() == this.x() && v.y() == this.y() && v.z() == this.z();
+    }
+
     public boolean equals(Vector v) {
-        return (x == ((Vector3D) v).x) && (y == ((Vector3D) v).y)
-                && (z == ((Vector3D) v).z);
+        return (x == v.x()) && (y == v.y())
+                && (z == v.z());
     }
 
     public boolean isZero() {
@@ -69,9 +82,9 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     public void E(Vector u) {
-        x = ((Vector3D) u).x;
-        y = ((Vector3D) u).y;
-        z = ((Vector3D) u).z;
+        x = u.getX(0);
+        y = u.getX(1);
+        z = u.getX(2);
     }
 
     public void E(double a) {
@@ -86,7 +99,7 @@ public final class Vector3D implements Vector, java.io.Serializable {
         z = c;
     }
 
-    public void E(double[] u) {
+    public void E(double... u) {
         if(u.length != 3){ 
             throw new IllegalArgumentException("Vector3D must be given a 3 element array.");
         }
@@ -96,21 +109,21 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
     
     public void Ea1Tv1(double a1, Vector u) {
-        x = a1 * ((Vector3D) u).x;
-        y = a1 * ((Vector3D) u).y;
-        z = a1 * ((Vector3D) u).z;
+        x = a1 * u.getX(0);
+        y = a1 * u.getX(1);
+        z = a1 * u.getX(2);
     }
 
     public void PEa1Tv1(double a1, Vector u) {
-        x += a1 * ((Vector3D) u).x;
-        y += a1 * ((Vector3D) u).y;
-        z += a1 * ((Vector3D) u).z;
+        x += a1 * u.getX(0);
+        y += a1 * u.getX(1);
+        z += a1 * u.getX(2);
     }
 
     public void PE(Vector u) {
-        x += ((Vector3D) u).x;
-        y += ((Vector3D) u).y;
-        z += ((Vector3D) u).z;
+        x += u.getX(0);
+        y += u.getX(1);
+        z += u.getX(2);
     }
 
     public void PE(double a) {
@@ -120,9 +133,9 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     public void ME(Vector u) {
-        x -= ((Vector3D) u).x;
-        y -= ((Vector3D) u).y;
-        z -= ((Vector3D) u).z;
+        x -= u.getX(0);
+        y -= u.getX(1);
+        z -= u.getX(2);
     }
 
     public void TE(double a) {
@@ -132,62 +145,57 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     public void TE(Vector u) {
-        x *= ((Vector3D) u).x;
-        y *= ((Vector3D) u).y;
-        z *= ((Vector3D) u).z;
+        x *= u.getX(0);
+        y *= u.getX(1);
+        z *= u.getX(2);
     }
 
     public void DE(Vector u) {
-        x /= ((Vector3D) u).x;
-        y /= ((Vector3D) u).y;
-        z /= ((Vector3D) u).z;
+        x /= u.getX(0);
+        y /= u.getX(1);
+        z /= u.getX(2);
     }
 
-    public void Ev1Pv2(Vector u1, Vector u2) {
-        x = ((Vector3D) u1).x + ((Vector3D) u2).x;
-        y = ((Vector3D) u1).y + ((Vector3D) u2).y;
-        z = ((Vector3D) u1).z + ((Vector3D) u2).z;
+    public void Ev1Pv2(Vector v1, Vector v2) {
+        x = v1.getX(0) + v2.getX(0);
+        y = v1.getX(1) + v2.getX(1);
+        z = v1.getX(2) + v2.getX(2);
     }
 
-    public void Ev1Mv2(Vector u1, Vector u2) {
-        x = ((Vector3D) u1).x - ((Vector3D) u2).x;
-        y = ((Vector3D) u1).y - ((Vector3D) u2).y;
-        z = ((Vector3D) u1).z - ((Vector3D) u2).z;
-    }
-    
-    public void mod(Vector u) {
-        mod((Vector3D) u);
+    public void Ev1Mv2(Vector v1, Vector v2) {
+        x = v1.getX(0) - v2.getX(0);
+        y = v1.getX(1) - v2.getX(1);
+        z = v1.getX(2) - v2.getX(2);
     }
 
-    public void mod(Vector3D u) {
-        while (x > u.x)
-            x -= u.x;
+    public void mod(Vector v) {
+        while (x > v.x())
+            x -= v.x();
         while (x < 0.0)
-            x += u.x;
-        while (y > u.y)
-            y -= u.y;
+            x += v.x();
+        while (y > v.y())
+            y -= v.y();
         while (y < 0.0)
-            y += u.y;
-        while (z > u.z)
-            z -= u.z;
+            y += v.y();
+        while (z > v.z())
+            z -= v.z();
         while (z < 0.0)
-            z += u.z;
+            z += v.z();
     }
 
     public double squared() {
         return x * x + y * y + z * z;
     }
 
-    public double Mv1Squared(Vector u) {
-        double dx = x - ((Vector3D) u).x;
-        double dy = y - ((Vector3D) u).y;
-        double dz = z - ((Vector3D) u).z;
+    public double Mv1Squared(Vector v1) {
+        double dx = x - v1.getX(0);
+        double dy = y - v1.getX(1);
+        double dz = z - v1.getX(2);
         return dx * dx + dy * dy + dz * dz;
     }
 
     public double dot(Vector u) {
-        return x * ((Vector3D) u).x + y * ((Vector3D) u).y + z
-                * ((Vector3D) u).z;
+        return x * u.getX(0) + y * u.getX(1) + z * u.getX(2);
     }
 
     /*
@@ -241,33 +249,32 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     @Override
-    public void nearestImage(Vector dimensions) {
-        Vector3D dimensions3D = ((Vector3D) dimensions);
-        final double halfX = dimensions3D.x / 2;
-        final double halfY = dimensions3D.y / 2;
-        final double halfZ = dimensions3D.z / 2;
+    public void nearestImage(Vector dim) {
+        final double halfX = dim.x() / 2;
+        final double halfY = dim.y() / 2;
+        final double halfZ = dim.z() / 2;
 
         while (x > halfX)
-            x -= dimensions3D.x;
+            x -= dim.x();
         while (x < -halfX)
-            x += dimensions3D.x;
+            x += dim.x();
         while (y > halfY)
-            y -= dimensions3D.y;
+            y -= dim.y();
         while (y < -halfY)
-            y += dimensions3D.y;
+            y += dim.y();
         while (z > halfZ)
-            z -= dimensions3D.z;
+            z -= dim.z();
         while (z < -halfZ)
-            z += dimensions3D.z;
+            z += dim.z();
     }
 
     /**
      * Creating a random unit vector on unit sphere Uses only two random number
      * generator at a time
-     * 
+     * <p>
      * Based on M.P. Allen and D.J. Tildesley, Computer Simulation of Liquids, p 349.
-     * 
-     * @author Jayant Singh
+     * (taken from Marsaglia, G. (1972), Choosing a point from the surface of a sphere,
+     * Ann. math. Stat. 43, 645-646.)
      */
     public void setRandomSphere(IRandom random) {
         double z1, z2, zsq;
@@ -319,17 +326,26 @@ public final class Vector3D implements Vector, java.io.Serializable {
 
     //cube root via look-up and Newton/Halley iteration
     //see here: http://metamerist.com/cbrt/cbrt.htm
-    protected static double cubeRoot(double R) {
-        int iR = (int)(R*nLookUp);
+    public static double cubeRoot(double R) {
+        int iR = (int) (R * nLookUp);
         // method is accurate to machine precision except for very small r.
         // fall back to pow
-        if (iR < 10) return Math.pow(R, 1.0/3.0);
+        if (iR < 10) return Math.pow(R, 1.0 / 3.0);
         double a = lookUp[iR];
-        for(int i=0; i<2; i++) {
-            double a3 = a*a*a;
+        for (int i = 0; i < 2; i++) {
+            double a3 = a * a * a;
             double t1 = a3 + R;
-            a = a*(t1+R)/(t1+a3);
+            a = a * (t1 + R) / (t1 + a3);
         }
         return a;
+    }
+
+    public Vector3D duplicate() {
+        return new Vector3D(this.x, this.y, this.z);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, z);
     }
 }

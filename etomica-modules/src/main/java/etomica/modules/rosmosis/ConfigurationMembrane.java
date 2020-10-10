@@ -66,12 +66,14 @@ public class ConfigurationMembrane implements Configuration {
         configLattice.initializeCoordinates(pretendBox);
         // move molecules over to the real box
         IMoleculeList molecules = pretendBox.getMoleculeList(speciesSolvent);
-        for (int i=nMolecules-1; i>-1; i--) {
+        for (IMolecule mol : molecules) {
             // molecules will be reversed in order, but that's OK
-            IMolecule atom = molecules.get(i);
-            pretendBox.removeMolecule(atom);
-            box.addMolecule(atom);
+            box.addNewMolecule(mol.getType(), newMol -> {
+                newMol.copyFrom(mol);
+            });
         }
+
+        box.setNMolecules(speciesSolvent, 0);
 
         nMolecules = (int)Math.round(pretendBox.getBoundary().volume() * solutionChamberDensity);
         int nSolutes = (int)(nMolecules * soluteMoleFraction);
@@ -82,23 +84,21 @@ public class ConfigurationMembrane implements Configuration {
         ISpecies[] fluidSpecies = new ISpecies[]{speciesSolute, speciesSolvent};
         for (int iSpecies=0; iSpecies<2; iSpecies++) {
             molecules = pretendBox.getMoleculeList(fluidSpecies[iSpecies]);
-            for (int i = molecules.size()-1; i>-1; i--) {
-                // molecules will be reversed in order, but that's OK
-                IMolecule molecule = molecules.get(i);
-                pretendBox.removeMolecule(molecule);
-                // we need to translate the molecules into the proper chamber
-                double x = positionDefinition.position(molecule).getX(membraneDim);
-                if (x < 0) {
-                    translationVector.setX(membraneDim, -0.5*chamberLength - membraneThickness);
-                }
-                else {
-                    translationVector.setX(membraneDim, 0.5*chamberLength + membraneThickness);
-                }
-                translator.actionPerformed(molecule);
-                box.addMolecule(molecule);
+            for (IMolecule mol : molecules) {
+                box.addNewMolecule(mol.getType(), newMol -> {
+                    newMol.copyFrom(mol);
+                    // we need to translate the molecules into the proper chamber
+                    double x = positionDefinition.position(newMol).getX(membraneDim);
+                    double sign = Math.signum(x);
+                    translationVector.setX(membraneDim, sign * 0.5 * chamberLength + sign * membraneThickness);
+                    translator.actionPerformed(newMol);
+                });
             }
         }
-        
+
+        pretendBox.setNMolecules(speciesSolvent, 0);
+        pretendBox.setNMolecules(speciesSolute, 0);
+
         int pretendNumMembraneLayers = numMembraneLayers;
         double pretendMembraneThickness = membraneThickness;
         double membraneCenter = 0;
@@ -146,18 +146,18 @@ public class ConfigurationMembrane implements Configuration {
             double membraneShift = shifts[iShift]*boxDimensions.getX(membraneDim) - membraneCenter;
             // move molecules over to the real box
             molecules = pretendBox.getMoleculeList(speciesMembrane);
-            for (int i = molecules.size()-1; i>-1; i--) {
+            for (IMolecule mol : molecules) {
                 // molecules will be reversed in order, but that's OK
-                IMolecule molecule = molecules.get(i);
-                IAtom atom = molecule.getChildList().get(0);
+                IAtom atom = mol.getChildList().get(0);
                 double x = atom.getPosition().getX(membraneDim);
                 if (Math.abs(x - membraneCenter) > 0.5 * membraneThickness) {
                     // we encountered a pretend atom in our pretend box!
                     continue;
                 }
                 atom.getPosition().setX(membraneDim, x + membraneShift);
-                pretendBox.removeMolecule(molecule);
-                box.addMolecule(molecule);
+                box.addNewMolecule(mol.getType(), newMol -> {
+                    newMol.copyFrom(mol);
+                });
             }
         }
         

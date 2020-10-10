@@ -4,13 +4,13 @@
 
 package etomica.space2d;
 
-import java.io.Serializable;
-
-import etomica.util.random.IRandom;
-import etomica.space.Vector;
 import etomica.space.IOrientation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.util.Constants;
+import etomica.util.random.IRandom;
+
+import java.io.Serializable;
 
 /**
  * Orientation in a 2-dimensional space. Orientation can be expressed in terms
@@ -30,11 +30,10 @@ public class Orientation2D implements IOrientation2D, Serializable {
     }
 
     /**
-     * Constructs with orientation as specified by the given angle theta.
-     * @throws Exception if vector has 0 length
+     * Constructs with orientation that holds the given direction
      */
     public Orientation2D(Vector direction) {
-        this.direction = Space.makeVector(2);
+        this.direction = direction;
         setDirection(direction);
     }
     
@@ -75,7 +74,6 @@ public class Orientation2D implements IOrientation2D, Serializable {
         rotateBy((2. * random.nextDouble() - 1.0) * tStep);
     }
 
-    private static final long serialVersionUID = 1L;
     protected double angle;
     protected Vector direction;
 }

@@ -54,7 +54,6 @@ public class MeterWidomInsertionP extends DataSourceScalar {
      */
     public void setSpecies(ISpecies s) {
         species = s;
-        testMolecule = s.makeMolecule();
     }
 
     /**
@@ -100,18 +99,19 @@ public class MeterWidomInsertionP extends DataSourceScalar {
         boxInflate.setTargetDensity(n0*n0/(v0*(n0+1)));
         boxInflate.actionPerformed();
         double u1 = energyMeter.getDataAsScalar();
-        energyMeter.setTarget(testMolecule);
         if (integrator != null) temperature = integrator.getTemperature();
         for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
             atomTranslator.setDestination(positionSource.randomPosition());
-            atomTranslator.actionPerformed(testMolecule);
-            box.addMolecule(testMolecule);
+            IMolecule molecule = box.addNewMolecule(species, mol -> {
+                atomTranslator.actionPerformed(mol);
+            });
+            energyMeter.setTarget(molecule);
             double u = energyMeter.getDataAsScalar();
             sum += Math.exp(-epsFactor * (u+u1-u0) / temperature);
             if (Double.isInfinite(sum)) {
                 throw new RuntimeException("oops");
             }
-            box.removeMolecule(testMolecule);
+            box.removeMolecule(molecule);
         }
         boxInflate.setTargetDensity(n0/v0);
         boxInflate.actionPerformed();
@@ -183,7 +183,6 @@ public class MeterWidomInsertionP extends DataSourceScalar {
      */
     private int nInsert;
     private ISpecies species;
-    private IMolecule testMolecule;// prototype insertion molecule
     private MoleculeActionTranslateTo atomTranslator;
     protected RandomPositionSource positionSource;
     private MeterPotentialEnergy energyMeter;

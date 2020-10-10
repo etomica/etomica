@@ -6,6 +6,9 @@ package etomica.models.clathrates;
 
 import etomica.atom.*;
 import etomica.box.Box;
+import etomica.box.storage.DoubleStorage;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationFileBinary;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -22,7 +25,6 @@ import etomica.molecule.IMolecule;
 import etomica.normalmode.LatticeSumMolecularCrystal.AtomicTensorAtomicPair;
 import etomica.normalmode.NormalModesMolecular;
 import etomica.potential.*;
-import etomica.potential.EwaldSummation.MyCharge;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
@@ -58,8 +60,7 @@ public class ClathrateHarmonicFE extends Simulation {
         addSpecies(species);
         box = this.makeBox(new BoundaryRectangularPeriodic(space, a0_sc));
         box.setNMolecules(species, numMolecule);
-        ChargeAgentSourceRPM agentSource = new ChargeAgentSourceRPM(species, isIce);
-        AtomLeafAgentManager<MyCharge> atomAgentManager = new AtomLeafAgentManager<MyCharge>(agentSource, box);
+        DoubleStorage charges = box.getAtomStorage(Tokens.doubles(new ChargeAgentSourceRPM(species, isIce)));
         double sigma, epsilon;
         if (isIce) {
             sigma = 3.1668;
@@ -77,7 +78,7 @@ public class ClathrateHarmonicFE extends Simulation {
         potentialLJ = new P2LennardJones(space, sigma, epsilon);
         //To get U
         potentialLJLS = new Potential2SoftSphericalLS(space, rCutLJ, a0_sc, new P2LennardJones(space, sigma, epsilon));
-        potentialES = new EwaldSummation(box, atomAgentManager, space, kCut, rCutRealES);
+        potentialES = new EwaldSummation(box, charges, space, kCut, rCutRealES);
 //XXXX Potential Master
         potentialMaster = new PotentialMaster();
         potentialMaster.addPotential(potentialLJLS, new AtomType[]{species.getTypeByName("O"), species.getTypeByName("O")});
@@ -258,10 +259,8 @@ public class ClathrateHarmonicFE extends Simulation {
 //Sabry		
 
         if (false) {
-            PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum();
-
-            AtomLeafAgentManager<Vector> atomAgentManager = new AtomLeafAgentManager<>(a -> space.makeVector(), sim.box);
-            pcForce.setAgentManager(atomAgentManager);
+            VectorStorage forces = sim.box.getAtomStorage(Tokens.FORCES);
+            PotentialCalculationForceSum pcForce = new PotentialCalculationForceSum(sim.box.getAtomStorage(Tokens.FORCES));
 
             IteratorDirective id = new IteratorDirective();
             id.includeLrc = false;
@@ -340,7 +339,7 @@ public class ClathrateHarmonicFE extends Simulation {
                         IAtom atomj = atoms.get(j);
 
                         Vector fndx = space.makeVector();
-                        fndx.E(atomAgentManager.getAgent(atomj));
+                        fndx.E(forces.get(atomj));
 //			            System.out.println(fndx);
                         f4dx.PE(fndx);
                         dr.Ev1Mv2(atomj.getPosition(), atoms.get(2).getPosition());

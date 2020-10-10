@@ -130,7 +130,7 @@ public class SimFe extends Simulation {
         integrator.setTemperature(temperature);
         integrator.setThermostatNoDrift(true);
         integrator.getEventManager().addListener(potential.makeIntegratorListener(potentialMaster, box));
-        integrator.setForceSum(new PotentialCalculationForceSum());
+        integrator.setForceSum(new PotentialCalculationForceSum(integrator.getForces()));
 
         this.getController().addActivity(new ActivityIntegrate(integrator));
 

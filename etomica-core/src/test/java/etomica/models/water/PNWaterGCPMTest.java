@@ -11,6 +11,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculePair;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
+import etomica.species.ISpecies;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,10 +22,16 @@ import org.junit.jupiter.api.Test;
 public class PNWaterGCPMTest {
     private IMoleculeList molecules;
     private static final double EPSILON = 7e-7;
+    Box box;
+
     @BeforeEach
     public void setUp() throws Exception {
-        IMolecule mol1 = SpeciesWater4PCOM.create(false).makeMolecule();
-        IMolecule mol2 = SpeciesWater4PCOM.create(false).makeMolecule();
+        box = new Box(Space3D.getInstance());
+        ISpecies species = SpeciesWater4PCOM.create(false);
+        species.setIndex(0);
+        box.addSpeciesNotify(species);
+        IMolecule mol1 = box.addNewMolecule(species);
+        IMolecule mol2 = box.addNewMolecule(species);
 
         MoleculeActionTranslateTo act = new MoleculeActionTranslateTo(Space3D.getInstance());
         act.setDestination(new Vector3D(4, 4, 4));

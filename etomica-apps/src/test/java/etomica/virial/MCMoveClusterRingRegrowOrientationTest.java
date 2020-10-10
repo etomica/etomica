@@ -2,6 +2,8 @@ package etomica.virial;
 
 import etomica.atom.AtomHydrogen;
 import etomica.atom.AtomTypeOriented;
+import etomica.box.storage.DoubleStorage;
+import etomica.box.storage.Tokens;
 import etomica.chem.elements.Hydrogen;
 import etomica.config.ConformationLinear;
 import etomica.integrator.IntegratorMC;
@@ -50,8 +52,10 @@ class MCMoveClusterRingRegrowOrientationTest {
             SpeciesGeneral species = new SpeciesBuilder(space)
                     .addCount(new AtomTypeOriented(Hydrogen.INSTANCE, space.makeVector()), p)
                     .withConformation(new ConformationLinear(space))
-                    .withAtomFactory(atomType -> {
-                        return new AtomHydrogen(space, ((AtomTypeOriented) atomType), 1);
+                    .withAtomFactory((atomType, box, id) -> {
+                        DoubleStorage.DoubleWrapper blWrapper = box.getAtomStorage(Tokens.BOND_LENGTH).create(id);
+                        blWrapper.set(1);
+                        return new AtomHydrogen(space, ((AtomTypeOriented) atomType), blWrapper);
                     })
                     .build();
             sim.addSpecies(species);

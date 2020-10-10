@@ -4,6 +4,7 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.storage.VectorStorage;
 import etomica.data.DataSourceUniform;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.Potential2SoftSpherical;
@@ -35,11 +36,11 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
     protected final int nbins;
     protected final Space space;
     protected final double[] cumint;
-    protected final AtomLeafAgentManager<Vector> forceManager;
     protected Potential2SoftSpherical p2;
+    private final VectorStorage forces;
 
 
-    public PotentialCalculationMappedRdf(double rcforHandfinmap, Space space, Box box, int nbins, AtomLeafAgentManager<Vector> forceManager) {
+    public PotentialCalculationMappedRdf(double rcforHandfinmap, Space space, Box box, int nbins, VectorStorage forces) {
         dr = space.makeVector();
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
         xDataSource.setTypeMax(DataSourceUniform.LimitType.HALF_STEP);
@@ -60,7 +61,7 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
         cumint = new double[nbins + 1];
         vol = box.getBoundary().volume();
 
-        this.forceManager = forceManager;
+        this.forces = forces;
     }
 
     public DataSourceUniform getXDataSource() {
@@ -190,8 +191,8 @@ public class PotentialCalculationMappedRdf implements PotentialCalculation {
         if (r2 < xMaxSquared) {
             for (int k = 0; k < xDataSource.getData().getLength(); k++) {
                 double R = xDataSource.getData().getValue(k);
-                Vector fi = forceManager.getAgent(atom0);
-                Vector fj = forceManager.getAgent(atom1);
+                Vector fi = forces.get(atom0);
+                Vector fj = forces.get(atom1);
                      double xu = R < r ? 1 : 0; //calcXu(r, u, R);
                //      gSum[k] -= ((xu/(4 * Math.PI)))* wp*beta;               //add once for each atom
                      //replaced fi.dot(dr)-fj.dot(dr) terms with fi.dot(dr)

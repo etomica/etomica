@@ -280,16 +280,17 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
                continue;            
             }
             // Check to see if this atom needs to be fixed.
-            IMolecule a = null;
             if(transformedPosition.getX(2)>(box.getBoundary().getBoxSize().getX(2)/2.0 - cutoff)){
-                a = fixedSpecies.makeMolecule();
+                box.addNewMolecule(fixedSpecies, mol -> {
+                    mol.getChildList().get(0).getPosition().E(transformedPosition);
+                });
             }
             else{
-                a = mobileSpecies.makeMolecule();
+                box.addNewMolecule(mobileSpecies, mol -> {
+                    mol.getChildList().get(0).getPosition().E(transformedPosition);
+                });
             }
-            box.addMolecule(a);
-            a.getChildList().get(0).getPosition().E(transformedPosition);
-            
+
         }
         
         /**
@@ -353,17 +354,17 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             }
             
             // Check to see if this atom needs to be fixed. Notice signs/inequalities
-            IMolecule a = null;
             if(transformedPosition.getX(2)<(-box.getBoundary().getBoxSize().getX(2)/2.0 + cutoff)){
-                a = fixedSpecies.makeMolecule();
+                box.addNewMolecule(fixedSpecies, mol -> {
+                    mol.getChildList().get(0).getPosition().E(transformedPosition);
+                });
             }
             else{
-                a = mobileSpecies.makeMolecule();
+                box.addNewMolecule(mobileSpecies, mol -> {
+                    mol.getChildList().get(0).getPosition().E(transformedPosition);
+                });
             }
-            box.addMolecule(a);
-            a.getChildList().get(0).getPosition().E(transformedPosition);
-            
-        }      
+        }
       
         
         /**

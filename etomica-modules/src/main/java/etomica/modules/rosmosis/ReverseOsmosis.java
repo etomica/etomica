@@ -134,7 +134,7 @@ public class ReverseOsmosis extends Simulation {
 //        integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
 //        integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
-        forceSum = new PotentialCalculationForceSumWallForce(potentialTether);
+        forceSum = new PotentialCalculationForceSumWallForce(potentialTether, integrator.getForces());
         integrator.setForceSum(forceSum);
     }
     

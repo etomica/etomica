@@ -7,6 +7,7 @@ package etomica.modules.glass;
 import etomica.action.IAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
+import etomica.box.storage.Tokens;
 import etomica.cavity.DataProcessorErrorBar;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
@@ -1677,7 +1678,7 @@ public class GlassGraphic extends SimulationGraphic {
             ((IntegratorHard) sim.integrator).addCollisionListener(ahsc);
             stressSource = ahsc;
         } else {
-            PotentialCalculationForceSumGlass pcForce = new PotentialCalculationForceSumGlass(sim.box);
+            PotentialCalculationForceSumGlass pcForce = new PotentialCalculationForceSumGlass(sim.box, sim.box.getAtomStorage(Tokens.FORCES));
             ((IntegratorVelocityVerlet) sim.integrator).setForceSum(pcForce);
             stressSource = pcForce;
         }

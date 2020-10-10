@@ -4,6 +4,7 @@
 
 package etomica.molecule;
 
+import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.IOrientation3D;
@@ -19,14 +20,10 @@ import etomica.species.ISpecies;
  */
 public class MoleculeOriented extends Molecule implements IMoleculeOriented {
 
-    public MoleculeOriented(Space space, ISpecies species, int numLeafAtoms) {
-        this(space, species, numLeafAtoms, false);
-    }
-
-    public MoleculeOriented(Space space, ISpecies species, int numLeafAtoms, boolean isAxisSymmetric) {
-        super(species, numLeafAtoms);
-        orientation = isAxisSymmetric ? new Orientation3D(space) : new OrientationFull3D(space);
-        position = space.makeVector();
+    public MoleculeOriented(ISpecies species, IOrientation orientation, Vector position) {
+        super(species);
+        this.orientation = (IOrientation3D) orientation;
+        this.position = position;
     }
 
     public IOrientation3D getOrientation() {
@@ -35,6 +32,13 @@ public class MoleculeOriented extends Molecule implements IMoleculeOriented {
 
     public Vector getPosition() {
         return position;
+    }
+
+    @Override
+    public void copyFrom(IMolecule other) {
+        super.copyFrom(other);
+        this.orientation.E(((MoleculeOriented) other).orientation);
+        this.position.E(((MoleculeOriented) other).position);
     }
 
     private static final long serialVersionUID = 1L;

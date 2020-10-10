@@ -73,7 +73,7 @@ public final class VectorND implements Vector, java.io.Serializable {
         }
     }
 
-    public void E(double[] u) {
+    public void E(double... u) {
         for (int i=0; i<x.length; i++) {
             x[i] = u[i];
         }
@@ -206,6 +206,11 @@ public final class VectorND implements Vector, java.io.Serializable {
             while (x[i] < -dimensionsND.x[i] / 2)
                 x[i] += dimensionsND.x[i];
         }
+    }
+
+    @Override
+    public Vector duplicate() {
+        return new VectorND(this.x.clone());
     }
 
     /**

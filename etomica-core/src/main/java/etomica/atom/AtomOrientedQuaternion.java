@@ -13,7 +13,7 @@ public class AtomOrientedQuaternion extends Atom {
     protected final VectorND quaternion;
 
     public AtomOrientedQuaternion(Space space, AtomType type) {
-        super(space, type);
+        super(space, type, space.makeVector());
         quaternion = new VectorND(4);
         quaternion.setX(0, 1);
     }

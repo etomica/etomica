@@ -10,6 +10,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
@@ -57,9 +59,9 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
     protected final MoleculeChildAtomAction translator;
     protected final Simulation sim;
     private final IteratorDirective allAtoms;
+    private final VectorStorage forces;
     public int printInterval;
     protected PotentialCalculationForceSum forceSum;
-    protected AtomLeafAgentManager<Vector> leafAgentManager;
     protected MoleculeAgentManager moleculeAgentManager;
 
     public IntegratorVelocityVerletQuaternion(Simulation sim, PotentialMaster potentialMaster, Box box) {
@@ -70,7 +72,8 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
                                               double timeStep, double temperature, Box box) {
         super(potentialMaster,sim.getRandom(),timeStep,temperature, box);
         this.sim = sim;
-        forceSum = new PotentialCalculationForcePressureSum(this.space);
+        this.forces = box.getAtomStorage(Tokens.FORCES);
+        forceSum = new PotentialCalculationForcePressureSum(this.forces);
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         // but we're also calculating the pressure tensor, which does have LRC.
@@ -88,9 +91,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         translateBy = new AtomActionTranslateBy(this.space);
         translator = new MoleculeChildAtomAction(translateBy);
         printInterval = 10;
-        leafAgentManager = new AtomLeafAgentManager<>(a -> this.space.makeVector(), box);
         moleculeAgentManager = new MoleculeAgentManager(sim, this.box, this);
-        forceSum.setAgentManager(leafAgentManager);
     }
 
     public static void main(String[] args) {
@@ -203,7 +204,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             if (typeAgent == null) {
                 for (int iLeaf = 0; iLeaf<children.size(); iLeaf++) {
                     IAtomKinetic a = (IAtomKinetic)children.get(iLeaf);
-                    Vector force = leafAgentManager.getAgent(a);
+                    Vector force = forces.get(a);
                     Vector r = a.getPosition();
                     Vector v = a.getVelocity();
                     KE += v.squared()* a.getType().getMass();
@@ -358,9 +359,9 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
                     workTensor.TE(a.getType().getMass());
                     pressureTensor.PE(workTensor);
                     if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                        System.out.println("second "+a+" v="+velocity+", f="+ leafAgentManager.getAgent(a));
+                        System.out.println("second "+a+" v="+velocity+", f="+ forces.get(a));
                     }
-                    velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(), leafAgentManager.getAgent(a));  //p += f(new)*dt/2
+                    velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(), forces.get(a));  //p += f(new)*dt/2
                 }
 
                 continue;
@@ -373,7 +374,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             Vector moleculePosition = ((IMoleculePositioned)molecule).getPosition();
             for (int i = 0; i<children.size(); i++) {
                 IAtomKinetic atom = (IAtomKinetic)children.get(i);
-                Vector atomForce = leafAgentManager.getAgent(atom);
+                Vector atomForce = forces.get(atom);
                 agent.force.PE(atomForce);
 
                 xWork.Ev1Mv2(atom.getPosition(), moleculePosition);
@@ -529,7 +530,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             IAtomList children = molecule.getChildList();
             for (int i = 0; i<children.size(); i++) {
                 IAtom atom = children.get(i);
-                Vector force = leafAgentManager.getAgent(atom);
+                Vector force = forces.get(atom);
                 agent.force.PE(force);
 
                 xWork.Ev1Mv2(atom.getPosition(), position);

@@ -5,8 +5,8 @@
 package etomica.space1d;
 
 import etomica.math.function.IFunction;
-import etomica.space.Vector;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 
 /**
  * Implementation of a tensor for a 1-dimensional space. In this case the tensor
@@ -95,7 +95,8 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         return xx;
     }
 
-    public void transpose() {}
+    public void transpose() {
+    }
 
     public void invert() {
         xx = 1.0 / xx;
@@ -105,24 +106,24 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
         xx = ((Tensor1D) t).xx;
     }
 
-    public void Ev1v2(Vector u1, Vector u2) {
-        xx = ((Vector1D) u1).x * ((Vector1D) u2).x;
+    public void Ev1v2(Vector v1, Vector v2) {
+        xx = v1.x() * v2.x();
     }
 
     public void PE(Tensor t) {
         xx += ((Tensor1D) t).xx;
     }
 
-    public void PEv1v2(Vector u1, Vector u2) {
-        xx += ((Vector1D) u1).x * ((Vector1D) u2).x;
-    }
-    
-    public void PEa1Tt1(double a1, Tensor t1) {
-        xx += a1*((Tensor1D)t1).xx;
+    public void PEv1v2(Vector v1, Vector v2) {
+        xx += v1.x() * v2.x();
     }
 
-    public void MEv1v2(Vector u1, Vector u2) {
-        xx -= ((Vector1D) u1).x * ((Vector1D) u2).x;
+    public void PEa1Tt1(double a1, Tensor t1) {
+        xx += a1 * ((Tensor1D) t1).xx;
+    }
+
+    public void MEv1v2(Vector v1, Vector v2) {
+        xx -= v1.x() * v2.x();
     }
 
     public void ME(Tensor t) {

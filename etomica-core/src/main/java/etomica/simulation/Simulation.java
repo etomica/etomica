@@ -4,8 +4,6 @@
 
 package etomica.simulation;
 
-import etomica.action.IAction;
-
 import etomica.action.controller.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -236,14 +234,14 @@ public class Simulation {
         int atomTypeMaxIndex = 0;
 
         for (ISpecies s : speciesList) {
-            atomTypeMaxIndex += s.getAtomTypeCount();
+            atomTypeMaxIndex += s.getUniqueAtomTypeCount();
         }
 
         int index = speciesList.size();
         species.setIndex(index);
         speciesList.add(species);
 
-        for (AtomType atomType : species.getAtomTypes()) {
+        for (AtomType atomType : species.getUniqueAtomTypes()) {
             atomType.setIndex(atomTypeMaxIndex++);
             atomTypeAddedNotify(atomType);
         }

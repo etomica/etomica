@@ -4,6 +4,8 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -20,7 +22,6 @@ import etomica.units.dimensions.Null;
 public class MeterMappedRdf implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
     protected final PotentialCalculationForceSum pcForce;
-    protected final AtomLeafAgentManager<Vector> forceManager;
     protected double density;
     protected double rcforHandfinmap;
 
@@ -31,16 +32,9 @@ public class MeterMappedRdf implements IDataSource, DataSourceIndependent, AtomL
         this.potentialMaster = potentialMaster;
         this.rcforHandfinmap = rcforHandfinmap;
 
-        pcForce = new PotentialCalculationForceSum();
-        if (box != null) {
-            forceManager = new AtomLeafAgentManager<>(this, box);
-            pcForce.setAgentManager(forceManager);
-        }
-        else {
-            forceManager = null;
-        }
-
-        pc = new PotentialCalculationMappedRdf(rcforHandfinmap, space, box, nbins, forceManager);
+        VectorStorage forces = box.getAtomStorage(Tokens.vectorsDefault());
+        pcForce = new PotentialCalculationForceSum(forces);
+        pc = new PotentialCalculationMappedRdf(rcforHandfinmap, space, box, nbins, forces);
 
         xDataSource = pc.getXDataSource();
 

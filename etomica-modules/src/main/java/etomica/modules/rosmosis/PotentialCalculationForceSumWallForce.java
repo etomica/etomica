@@ -5,6 +5,7 @@
 package etomica.modules.rosmosis;
 
 import etomica.atom.IAtomList;
+import etomica.box.storage.VectorStorage;
 import etomica.potential.IPotential;
 import etomica.potential.IPotentialAtomic;
 import etomica.potential.PotentialCalculationForceSum;
@@ -17,7 +18,8 @@ import etomica.space.Vector;
  */
 public class PotentialCalculationForceSumWallForce extends PotentialCalculationForceSum implements IPotentialCalculationWallForce {
 
-    public PotentialCalculationForceSumWallForce(IPotential potentialTether) {
+    public PotentialCalculationForceSumWallForce(IPotential potentialTether, VectorStorage forces) {
+        super(forces);
         this.potentialTether = potentialTether;
     }
     
@@ -53,18 +55,18 @@ public class PotentialCalculationForceSumWallForce extends PotentialCalculationF
                             wallForce -= gradient[0].getX(0);
                         }
                     }
-                    integratorAgentManager.getAgent(atoms.get(0)).ME(gradient[0]);
+                    forces.get(atoms.get(0)).ME(gradient[0]);
                     break;
                 case 2:
-                    integratorAgentManager.getAgent(atoms.get(0)).ME(gradient[0]);
-                    integratorAgentManager.getAgent(atoms.get(1)).ME(gradient[1]);
+                    forces.get(atoms.get(0)).ME(gradient[0]);
+                    forces.get(atoms.get(1)).ME(gradient[1]);
                     break;
                 default:
                     //XXX atoms.count might not equal f.length.  The potential might size its 
                     //array of vectors to be large enough for one AtomSet and then not resize it
                     //back down for another AtomSet with fewer atoms.
                     for (int i = 0; i<atoms.size(); i++) {
-                        integratorAgentManager.getAgent(atoms.get(i)).ME(gradient[i]);
+                        forces.get(atoms.get(i)).ME(gradient[i]);
                     }
             }
         }

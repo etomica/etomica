@@ -6,6 +6,7 @@ package etomica.atom;
 
 import etomica.space.IOrientation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Orientation3D;
 import etomica.space3d.OrientationFull3D;
 
@@ -16,25 +17,21 @@ public class AtomOriented extends Atom implements
     protected final IOrientation iOrientation;
 
     public AtomOriented(Space space, AtomType type) {
-        this(space, type, false);
+        this(space, type, space.makeVector(), space.makeOrientation());
     }
 
-    public AtomOriented(Space space, AtomType type, boolean isAxisSymmetric) {
-        super(space, type);
-        if (space.D() == 3) {
-            if (isAxisSymmetric) {
-                iOrientation = new Orientation3D(space);
-            }
-            else {
-                iOrientation = new OrientationFull3D(space);
-            }
-        }
-        else {
-            iOrientation = space.makeOrientation();
-        }
+    public AtomOriented(Space space, AtomType type, Vector position, IOrientation orientation) {
+        super(space, type, position);
+        iOrientation = orientation;
     }
 
     public IOrientation getOrientation() {
         return iOrientation;
+    }
+
+    @Override
+    public void copyFrom(IAtom atom) {
+        super.copyFrom(atom);
+        this.iOrientation.E(((AtomOriented) atom).iOrientation);
     }
 }

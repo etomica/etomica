@@ -11,9 +11,9 @@ import etomica.species.ISpecies;
 
 public class Molecule implements IMolecule, java.io.Serializable {
 
-    public Molecule(ISpecies species, int numLeafAtoms) {
+    public Molecule(ISpecies species) {
         this.species = species;
-        childList = new AtomArrayList(numLeafAtoms);
+        childList = new AtomArrayList(species.getLeafAtomCount());
     }
     
     /**
@@ -81,7 +81,17 @@ public class Molecule implements IMolecule, java.io.Serializable {
     public final void setIndex(int newIndex) {
         index = newIndex;
     }
-    
+
+    @Override
+    public void setGlobalIndex(int idx) {
+        this.globalIdx = idx;
+    }
+
+    @Override
+    public int getGlobalIndex() {
+        return globalIdx;
+    }
+
     public final int getIndex() {
         return index;
     }
@@ -90,9 +100,20 @@ public class Molecule implements IMolecule, java.io.Serializable {
         return species;
     }
 
+    @Override
+    public void copyFrom(IMolecule other) {
+        if (this.getType() != other.getType()) {
+            throw new IllegalArgumentException();
+        }
+        for (int i = 0; i < this.getChildList().size(); i++) {
+            this.getChildList().get(i).copyFrom(other.getChildList().get(i));
+        }
+    }
+
     private static final long serialVersionUID = 1L;
     
     protected int index;
+    protected int globalIdx;
     protected final AtomArrayList childList;
     protected final ISpecies species;
 }

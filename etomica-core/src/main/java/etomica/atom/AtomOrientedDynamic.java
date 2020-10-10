@@ -22,7 +22,7 @@ public class AtomOrientedDynamic extends AtomLeafDynamic implements
     }
 
     public AtomOrientedDynamic(Space space, AtomType type, boolean isAxisSymmetric) {
-        super(space, type);
+        super(space, type, space.makeVector(), space.makeVector());
         if (space.D() == 3) {
             if (isAxisSymmetric) {
                 iOrientation = new Orientation3D(space);
@@ -37,11 +37,23 @@ public class AtomOrientedDynamic extends AtomLeafDynamic implements
         angularVelocity = space.makeVector();  //XXX wrong! see https://rheneas.eng.buffalo.edu/bugzilla/show_bug.cgi?id=128
     }
 
+    public AtomOrientedDynamic(Space space, AtomType type, IOrientation orientation, Vector position, Vector velocity, Vector angularVelocity) {
+        super(space, type, position, velocity);
+        this.iOrientation = orientation;
+        this.angularVelocity = angularVelocity;
+    }
+
     public Vector getAngularVelocity() {
         return angularVelocity;
     }
 
     public IOrientation getOrientation() {
         return iOrientation;
+    }
+
+    public void copyFrom(IAtom other) {
+        super.copyFrom(other);
+        this.iOrientation.E(((AtomOrientedDynamic) other).iOrientation);
+        this.angularVelocity.E(((AtomOrientedDynamic) other).angularVelocity);
     }
 }

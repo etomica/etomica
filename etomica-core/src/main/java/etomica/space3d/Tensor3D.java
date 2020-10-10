@@ -6,8 +6,8 @@ package etomica.space3d;
 
 
 import etomica.math.function.IFunction;
-import etomica.space.Vector;
 import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.util.Debug;
 
 public class Tensor3D implements Tensor, java.io.Serializable {
@@ -71,12 +71,18 @@ public class Tensor3D implements Tensor, java.io.Serializable {
     }
     
     public void E(Vector[] v) {
-        if(v.length != 3) {
+        if (v.length != 3) {
             throw new IllegalArgumentException("Tensor requires 3 vectors to set its values");
         }
-        xx = ((Vector3D)v[0]).x; xy = ((Vector3D)v[1]).x; xz = ((Vector3D)v[2]).x;
-        yx = ((Vector3D)v[0]).y; yy = ((Vector3D)v[1]).y; yz = ((Vector3D)v[2]).y;
-        zx = ((Vector3D)v[0]).z; zy = ((Vector3D)v[1]).z; zz = ((Vector3D)v[2]).z;
+        xx = v[0].x();
+        xy = v[1].x();
+        xz = v[2].x();
+        yx = v[0].y();
+        yy = v[1].y();
+        yz = v[2].y();
+        zx = v[0].z();
+        zy = v[1].z();
+        zz = v[2].z();
     }
 
     public void E(double[] d) {
@@ -96,27 +102,34 @@ public class Tensor3D implements Tensor, java.io.Serializable {
 
     public void diagE(Vector v) {
         this.E(0.0);
-        Vector3D v3 = (Vector3D)v;
-        xx = v3.x;
-        yy = v3.y;
-        zz = v3.z;
+        xx = v.x();
+        yy = v.y();
+        zz = v.z();
     }
     
     public void assignTo(Vector[] v) {
-        if(v.length != 3) {
+        if (v.length != 3) {
             throw new IllegalArgumentException("Tensor requires 3 vector for assignment");
         }
-        ((Vector3D)v[0]).x = xx; ((Vector3D)v[1]).x = xy; ((Vector3D)v[2]).x = xz;
-        ((Vector3D)v[0]).y = yx; ((Vector3D)v[1]).y = yy; ((Vector3D)v[2]).y = yz;
-        ((Vector3D)v[0]).z = zx; ((Vector3D)v[1]).z = zy; ((Vector3D)v[2]).z = zz;
+        double[][] a = new double[3][3];
+        a[0][0] = xx;
+        a[1][0] = xy;
+        a[2][0] = xz;
+        a[0][1] = yx;
+        a[1][1] = yy;
+        a[2][1] = yz;
+        a[0][2] = zx;
+        a[1][2] = zy;
+        a[2][2] = zz;
+        for (int i = 0; i < 3; i++) {
+            v[i].E(a[i]);
+        }
     }
 
     public void Ev1v2(Vector v1, Vector v2) {
-        Vector3D u1 = (Vector3D)v1;
-        Vector3D u2 = (Vector3D)v2;
-        xx=u1.x*u2.x; xy=u1.x*u2.y; xz=u1.x*u2.z;
-        yx=u1.y*u2.x; yy=u1.y*u2.y; yz=u1.y*u2.z;
-        zx=u1.z*u2.x; zy=u1.z*u2.y; zz=u1.z*u2.z;
+        xx=v1.x()*v2.x(); xy=v1.x()*v2.y(); xz=v1.x()*v2.z();
+        yx=v1.y()*v2.x(); yy=v1.y()*v2.y(); yz=v1.y()*v2.z();
+        zx=v1.z()*v2.x(); zy=v1.z()*v2.y(); zz=v1.z()*v2.z();
     }
     
     public void E(double a) {
@@ -181,19 +194,27 @@ public class Tensor3D implements Tensor, java.io.Serializable {
     }
     
     public void PEv1v2(Vector v1, Vector v2) {
-        Vector3D u1 = (Vector3D)v1;
-        Vector3D u2 = (Vector3D)v2;
-        xx+=u1.x*u2.x; xy+=u1.x*u2.y; xz+=u1.x*u2.z;
-        yx+=u1.y*u2.x; yy+=u1.y*u2.y; yz+=u1.y*u2.z;
-        zx+=u1.z*u2.x; zy+=u1.z*u2.y; zz+=u1.z*u2.z;
+        xx += v1.x() * v2.x();
+        xy += v1.x() * v2.y();
+        xz += v1.x() * v2.z();
+        yx += v1.y() * v2.x();
+        yy += v1.y() * v2.y();
+        yz += v1.y() * v2.z();
+        zx += v1.z() * v2.x();
+        zy += v1.z() * v2.y();
+        zz += v1.z() * v2.z();
     }
     
     public void MEv1v2(Vector v1, Vector v2) {
-        Vector3D u1 = (Vector3D)v1;
-        Vector3D u2 = (Vector3D)v2;
-        xx-=u1.x*u2.x; xy-=u1.x*u2.y; xz-=u1.x*u2.z;
-        yx-=u1.y*u2.x; yy-=u1.y*u2.y; yz-=u1.y*u2.z;
-        zx-=u1.z*u2.x; zy-=u1.z*u2.y; zz-=u1.z*u2.z;
+        xx -= v1.x() * v2.x();
+        xy -= v1.x() * v2.y();
+        xz -= v1.x() * v2.z();
+        yx -= v1.y() * v2.x();
+        yy -= v1.y() * v2.y();
+        yz -= v1.y() * v2.z();
+        zx -= v1.z() * v2.x();
+        zy -= v1.z() * v2.y();
+        zz -= v1.z() * v2.z();
     }
     
     public void PEa1Tt1(double a1, Tensor t1) {
@@ -262,12 +283,11 @@ public class Tensor3D implements Tensor, java.io.Serializable {
     }
 
     public void transform(Vector v) {
-        Vector3D v3D = (Vector3D) v;
-        double x1 = xx * v3D.x + xy * v3D.y + xz * v3D.z;
-        double y1 = yx * v3D.x + yy * v3D.y + yz * v3D.z;
-        v3D.z = zx * v3D.x + zy * v3D.y + zz * v3D.z;
-        v3D.x = x1;
-        v3D.y = y1;
+        double x1 = xx * v.x() + xy * v.y() + xz * v.z();
+        double y1 = yx * v.x() + yy * v.y() + yz * v.z();
+        v.setX(2, zx * v.x() + zy * v.y() + zz * v.z());
+        v.setX(0, x1);
+        v.setX(1, y1);
     }
 
     public boolean equals(Tensor t) {

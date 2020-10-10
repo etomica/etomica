@@ -8,6 +8,7 @@ import etomica.action.BoxInflate;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.box.storage.*;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeArrayList;
@@ -16,7 +17,15 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.util.Arrays;
-import etomica.util.Debug;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * A Box collects all atoms that interact with one another; atoms in different
@@ -55,16 +64,66 @@ import etomica.util.Debug;
  */
 public class Box {
 
+    private static final MethodHandle MH;
+
+    static {
+        try {
+            MH = MethodHandles.publicLookup().findVirtual(Token.class, "init", MethodType.methodType(void.class, int.class, Storage.class, Box.class));
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * List of leaf atoms in box
      */
     protected final AtomArrayList leafList;
-    protected final AtomSetAllMolecules allMoleculeList;
+    protected final MoleculeArrayList allMoleculeList;
     private final BoxEventManager eventManager;
     private final Space space;
     protected MoleculeArrayList[] moleculeLists;
     private final Boundary boundary;
     private int index;
+
+    private int atomCount;
+    private int moleculeCount;
+
+    private final Map<Token<?>, Storage> atomStorageMap = new HashMap<>();
+    private final Map<Token<?>, Storage> molStorageMap = new HashMap<>();
+
+    private final List<Storage> allAtomStorage = new ArrayList<>();
+    private final List<Storage> allMoleculeStorage = new ArrayList<>();
+
+    public <T extends Storage> T getAtomStorage(Token<T> token) {
+        @SuppressWarnings("unchecked")
+        final T s = (T) this.atomStorageMap.computeIfAbsent(token, t -> {
+            @SuppressWarnings("unchecked")
+            T storage = (T) t.createStorage(space);
+            storage.addNull(atomCount);
+            for (int i = 0; i < atomCount; i++) {
+                token.init(i, storage, this);
+            }
+            allAtomStorage.add(storage);
+            return storage;
+        });
+        return s;
+    }
+
+    public <T extends Storage> T getMolStorage(Token<T> token) {
+        @SuppressWarnings("unchecked")
+        final T s = (T) this.molStorageMap.computeIfAbsent(token, t -> {
+            @SuppressWarnings("unchecked")
+            T storage = (T) t.createStorage(space);
+            storage.addNull(moleculeCount);
+            for (int i = 0; i < moleculeCount; i++) {
+                token.init(i, storage, this);
+            }
+            allMoleculeStorage.add(storage);
+            return storage;
+        });
+        return s;
+    }
+
 
     /**
      * Constructs box with default rectangular periodic boundary.
@@ -89,8 +148,7 @@ public class Box {
         this.boundary.setBox(this);
 
         moleculeLists = new MoleculeArrayList[0];
-        allMoleculeList = new AtomSetAllMolecules();
-        allMoleculeList.setMoleculeLists(moleculeLists);
+        allMoleculeList = new MoleculeArrayList();
         leafList = new AtomArrayList();
     }
 
@@ -124,6 +182,14 @@ public class Box {
         return "Box " + getIndex();
     }
 
+    public int getAtomCount() {
+        return atomCount;
+    }
+
+    public int getMoleculeCount() {
+        return moleculeCount;
+    }
+
     /**
      * Creates a molecule of the given species and adds it to the box
      *
@@ -131,86 +197,110 @@ public class Box {
      * @return the new molecule
      */
     public IMolecule addNewMolecule(ISpecies species) {
-        IMolecule aNew = species.makeMolecule();
-        addMolecule(aNew);
-        return aNew;
+        return addNewMolecule(species, mol -> {});
     }
 
-    /**
-     * Adds the given molecule to the this Box.  The molecule should not
-     * already be in this Box and should not be in another Box.  The molecule
-     * should be a member of an ISpecies which has been added to the
-     * Simulation. No exceptions are thrown if these conditions are violated.
-     *
-     * @param molecule the molecule to be added to the Box
-     */
-    public void addMolecule(IMolecule molecule) {
-        int speciesIndex = molecule.getType().getIndex();
-        if (Debug.ON) {
-            for (int i = 0; i < moleculeLists[speciesIndex].size(); i++) {
-                if (moleculeLists[speciesIndex].get(i) == molecule) {
-                    throw new RuntimeException("you bastard!");
-                }
-            }
-        }
+    public IMolecule addNewMolecule(ISpecies species, Consumer<IMolecule> initMolecule) {
+        int numAtoms = species.getLeafAtomCount();
+
+        int molIdx = this.addMoleculeStorage(1);
+        int atomIdxStart = this.addAtomStorage(numAtoms);
+
+        IMolecule molecule = species.initMolecule(this, molIdx, atomIdxStart);
+        int speciesIndex = species.getIndex();
         molecule.setIndex(moleculeLists[speciesIndex].size());
         moleculeLists[speciesIndex].add(molecule);
-        allMoleculeList.setMoleculeLists(moleculeLists);
+        allMoleculeList.add(molecule);
 
-        IAtomList childList = molecule.getChildList();
-        int nLeafAtoms = leafList.size();
-        for (int iChild = 0; iChild < childList.size(); iChild++) {
-            IAtom childAtom = childList.get(iChild);
-            childAtom.setLeafIndex(nLeafAtoms++);
+        int nListAtoms = leafList.size();
+        for (int i = 0; i < molecule.getChildList().size(); i++) {
+            IAtom childAtom = molecule.getChildList().get(i);
+            childAtom.setLeafIndex(nListAtoms++);
             leafList.add(childAtom);
         }
-        eventManager.moleculeAdded(molecule);
 
-        if (Debug.ON) {
-            for (int i = 0; i < moleculeLists[speciesIndex].size(); i++) {
-                if (moleculeLists[speciesIndex].get(i).getIndex() != i) {
-                    throw new RuntimeException("oops " + molecule + " " + moleculeLists[speciesIndex].get(i) + " " + i);
-                }
+        initMolecule.accept(molecule);
+        initStorage(this.molStorageMap, molIdx);
+        for (int i = atomIdxStart; i < atomIdxStart + numAtoms; i++) {
+            initStorage(this.atomStorageMap, i);
+        }
+        eventManager.moleculeAdded(molecule);
+        return molecule;
+    }
+
+    private void initStorage(Map<Token<?>, Storage> storageMap, int idx) {
+        storageMap.forEach((token, storage) -> {
+            try {
+                MH.invokeExact(token, idx, storage, this);
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
             }
+        });
+    }
+
+    public void removeMolecule(IMolecule molecule) {
+        int molSpeciesIdx = molecule.getIndex();
+        int molIdx = molecule.getGlobalIndex();
+        MoleculeArrayList molList = moleculeLists[molecule.getType().getIndex()];
+        if (molList.get(molSpeciesIdx) != molecule) {
+            throw new IllegalArgumentException("can't find " + molecule);
+        }
+
+        molList.removeAndReplace(molSpeciesIdx);
+        if (molSpeciesIdx < molList.size()) {
+            IMolecule replacingMolecule = molList.get(molSpeciesIdx);
+            replacingMolecule.setIndex(molSpeciesIdx);
+            eventManager.moleculeIndexChanged(replacingMolecule, molList.size());
+        }
+
+        this.allMoleculeStorage.forEach(s -> s.swapRemove(molIdx));
+        this.moleculeCount--;
+
+        allMoleculeList.removeAndReplace(molIdx);
+        if (molIdx < allMoleculeList.size()) {
+            IMolecule replacingMolecule = allMoleculeList.get(molIdx);
+            replacingMolecule.setGlobalIndex(molIdx);
+        }
+
+        eventManager.moleculeRemoved(molecule);
+
+        for (IAtom atom : molecule.getChildList()) {
+            removeAtom(atom.getLeafIndex());
+        }
+
+    }
+
+    private void removeAtom(int atomIdx) {
+        this.allAtomStorage.forEach(s -> s.swapRemove(atomIdx));
+        this.atomCount--;
+        leafList.removeAndReplace(atomIdx);
+        if (atomIdx < leafList.size()) {
+            IAtom replacingAtom = leafList.get(atomIdx);
+            replacingAtom.setLeafIndex(atomIdx);
+            eventManager.atomLeafIndexChanged(replacingAtom, leafList.size());
         }
     }
 
-    /**
-     * Removes the given molecule from this Box.
-     *
-     * @param molecule the molecule to be removed from the Box
-     * @throws IllegalArgumentException if the given molecule is not in the Box
-     */
-    public void removeMolecule(IMolecule molecule) {
-        int moleculeIndex = molecule.getIndex();
-        MoleculeArrayList moleculeList = moleculeLists[molecule.getType().getIndex()];
-        if (moleculeList.get(moleculeIndex) != molecule) {
-            throw new IllegalArgumentException("can't find " + molecule);
-        }
-        if (moleculeIndex < moleculeList.size() - 1) {
-            moleculeList.removeAndReplace(moleculeIndex);
-            IMolecule replacingMolecule = moleculeList.get(moleculeIndex);
-            replacingMolecule.setIndex(moleculeIndex);
-            eventManager.moleculeIndexChanged(replacingMolecule, moleculeList.size());
-        } else {
-            moleculeList.remove(moleculeIndex);
-        }
-        allMoleculeList.setMoleculeLists(moleculeLists);
+    public int addMoleculeStorage(int nMolecules) {
+        this.allMoleculeStorage.forEach(s -> s.addNull(nMolecules));
+        int newIdxStart = this.moleculeCount;
+        this.moleculeCount += nMolecules;
+        return newIdxStart;
+    }
 
-        eventManager.moleculeRemoved(molecule);
-        IAtomList childList = molecule.getChildList();
-        for (int iChild = 0; iChild < childList.size(); iChild++) {
-            IAtom childAtom = childList.get(iChild);
-            int leafIndex = childAtom.getLeafIndex();
-            leafList.removeAndReplace(leafIndex);
-            if (leafList.size() > leafIndex) {
-                IAtom movedAtom = leafList.get(leafIndex);
-                int movedLeafIndex = movedAtom.getLeafIndex();
-                movedAtom.setLeafIndex(leafIndex);
-                eventManager.atomLeafIndexChanged(movedAtom, movedLeafIndex);
-            }
-        }
-        leafList.maybeTrimToSize();
+    public int addAtomStorage(int nAtoms) {
+        this.allAtomStorage.forEach(s -> s.addNull(nAtoms));
+        int newIdxStart = this.atomCount;
+        this.atomCount += nAtoms;
+        return newIdxStart;
+    }
+
+    private void ensureCapacityMolecules(int newMolecules) {
+        this.allMoleculeStorage.forEach(s -> s.ensureCapacity(newMolecules));
+    }
+
+    private void ensureCapacityAtoms(int newAtoms) {
+        this.allAtomStorage.forEach(s -> s.ensureCapacity(newAtoms));
     }
 
     /**
@@ -223,30 +313,23 @@ public class Box {
      * @throws IllegalArgumentException if n < 0.
      */
     public void setNMolecules(ISpecies species, int n) {
-        int speciesIndex = species.getIndex();
-        MoleculeArrayList moleculeList = moleculeLists[speciesIndex];
-        int currentNMolecules = moleculeList.size();
-        int moleculeLeafAtoms = 0;
-        IMolecule newMolecule0 = null;
-        if (currentNMolecules > 0) {
-            moleculeLeafAtoms = moleculeList.get(0).getChildList().size();
-        } else if (n > currentNMolecules) {
-            newMolecule0 = species.makeMolecule();
-            moleculeLeafAtoms = newMolecule0.getChildList().size();
-        }
-        notifyNewMolecules(species, (n - currentNMolecules), moleculeLeafAtoms);
         if (n < 0) {
             throw new IllegalArgumentException("Number of molecules cannot be negative");
         }
+        int speciesIndex = species.getIndex();
+        MoleculeArrayList moleculeList = moleculeLists[speciesIndex];
+        int currentNMolecules = moleculeList.size();
         if (n > currentNMolecules) {
+            int moleculeLeafAtoms = species.getLeafAtomCount();
+            notifyNewMolecules(species, (n - currentNMolecules), moleculeLeafAtoms);
             moleculeLists[species.getIndex()].ensureCapacity(n);
             leafList.ensureCapacity(leafList.size() + (n - currentNMolecules) * moleculeLeafAtoms);
-            if (newMolecule0 != null) {
-                addMolecule(newMolecule0);
-                currentNMolecules++;
-            }
+
+            ensureCapacityAtoms((n - currentNMolecules) * moleculeLeafAtoms);
+            ensureCapacityMolecules(n - currentNMolecules);
+
             for (int i = currentNMolecules; i < n; i++) {
-                addMolecule(species.makeMolecule());
+                this.addNewMolecule(species);
             }
         } else {
             for (int i = currentNMolecules; i > n; i--) {
@@ -316,20 +399,7 @@ public class Box {
      * @param species the added species
      */
     public void addSpeciesNotify(ISpecies species) {
-        moleculeLists = (MoleculeArrayList[]) Arrays.addObject(moleculeLists, new MoleculeArrayList());
-        allMoleculeList.setMoleculeLists(moleculeLists);
-    }
-
-    /**
-     * Notifies the Box that a Species has been removed.  This method should
-     * only be called by the simulation.  This triggers the removal of all
-     * molecules of the given species from this box.
-     *
-     * @param species the removed species
-     */
-    public void removeSpeciesNotify(ISpecies species) {
-        moleculeLists = (MoleculeArrayList[]) Arrays.removeObject(moleculeLists, moleculeLists[species.getIndex()]);
-        allMoleculeList.setMoleculeLists(moleculeLists);
+        moleculeLists = Arrays.addObject(moleculeLists, new MoleculeArrayList());
     }
 
     /**

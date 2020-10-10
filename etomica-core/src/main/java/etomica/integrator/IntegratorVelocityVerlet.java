@@ -7,6 +7,8 @@ package etomica.integrator;
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
@@ -24,7 +26,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
 
-    protected AtomLeafAgentManager<Vector> agentManager;
+    protected final VectorStorage forces;
 
     public IntegratorVelocityVerlet(Simulation sim, PotentialMaster potentialMaster, Box box) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0, box);
@@ -35,7 +37,8 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         super(potentialMaster,random,timeStep,temperature, box);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
-        forceSum = new PotentialCalculationForcePressureSum(space);
+        forces = box.getAtomStorage(Tokens.FORCES);
+        forceSum = new PotentialCalculationForcePressureSum(forces);
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         // but we're also calculating the pressure tensor, which does have LRC.
@@ -43,24 +46,18 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         allAtoms.setIncludeLrc(true);
         pressureTensor = space.makeTensor();
         workTensor = space.makeTensor();
-        agentManager = new AtomLeafAgentManager<>(this, box);
-        forceSum.setAgentManager(agentManager);
     }
 
     public PotentialCalculationForceSum getForceSum() {
         return forceSum;
     }
 
-    public AtomLeafAgentManager<Vector> getAgentManager() {
-        return agentManager;
+    public VectorStorage getForces() {
+        return this.forces;
     }
 
     public void setForceSum(PotentialCalculationForceSum pc){
         forceSum = pc;
-        if(box != null){
-            forceSum.setAgentManager(agentManager);
-        }
-        
     }
 
 //--------------------------------------------------------------
@@ -81,7 +78,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
-            Vector force = agentManager.getAgent(a);
+            Vector force = forces.get(a);
             Vector r = a.getPosition();
             Vector v = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
@@ -112,9 +109,9 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
             workTensor.TE(a.getType().getMass());
             pressureTensor.PE(workTensor);
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                System.out.println("second "+a+" v="+velocity+", f="+ agentManager.getAgent(a));
+                System.out.println("second "+a+" v="+velocity+", f="+ forces.get(a));
             }
-            velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(), agentManager.getAgent(a));  //p += f(new)*dt/2
+            velocity.PEa1Tv1(0.5*timeStep* a.getType().rm(), forces.get(a));  //p += f(new)*dt/2
         }
 
         pressureTensor.TE(1/box.getBoundary().volume());

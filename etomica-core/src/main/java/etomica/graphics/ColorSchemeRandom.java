@@ -7,33 +7,35 @@ import java.awt.Color;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
+import etomica.box.storage.ObjectStorage;
+import etomica.box.storage.Token;
+import etomica.box.storage.Tokens;
+import etomica.space.Space;
 import etomica.util.random.IRandom;
-import etomica.atom.AtomLeafAgentManager;
-import etomica.atom.AtomLeafAgentManager.AgentSource;
 
-public class ColorSchemeRandom extends ColorScheme implements AgentSource<Color> {
+public class ColorSchemeRandom extends ColorScheme {
     
     public ColorSchemeRandom(Box box, IRandom random) {
     	super();
-        this.random = random;
-        agentManager = new AtomLeafAgentManager<Color>(this, box);
+        Token<ObjectStorage<Color>> colors = Tokens.objects(
+                new ObjectStorage.Factory<Color>() {
+                    @Override
+                    public Class<? extends Color> getVClass() {
+                        return Color.class;
+                    }
+
+                    @Override
+                    public Color create(int idx) {
+                        return new Color((float) random.nextDouble(), (float) random.nextDouble(), (float) random.nextDouble());
+                    }
+                }
+        );
+        colorStorage = box.getAtomStorage(colors);
     }
     
     public Color getAtomColor(IAtom a) {
-        return agentManager.getAgent(a);
+        return colorStorage.get(a.getLeafIndex());
     }
    
-    public Class getAgentClass() {
-        return Color.class;
-    }
-    
-    public Color makeAgent(IAtom a, Box agentBox) {
-        return new Color((float)random.nextDouble(),(float)random.nextDouble(),(float)random.nextDouble());
-    }
-    
-    public void releaseAgent(Color agent, IAtom atom, Box agentBox) {}
-
-    private static final long serialVersionUID = 2L;
-    private final AtomLeafAgentManager<Color> agentManager;
-    private final IRandom random;
+    private final ObjectStorage<Color> colorStorage;
 }

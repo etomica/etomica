@@ -33,12 +33,13 @@ public class MoleculePositionCOM implements IMoleculePositionDefinition, Seriali
     }
     
     public Vector position(IMolecule molecule) {
+        return centerOfMass(molecule.getChildList(), center);
+    }
+
+    public static Vector centerOfMass(IAtomList atoms, Vector center) {
         double massSum = 0;
         center.E(0.0);
-        IAtomList children = molecule.getChildList();
-        int nAtoms = children.size();
-        for (int i=0; i<nAtoms; i++) {
-            IAtom a = children.get(i);
+        for (IAtom a : atoms) {
             double mass = a.getType().getMass();
             center.PEa1Tv1(mass, a.getPosition());
             massSum += mass;
