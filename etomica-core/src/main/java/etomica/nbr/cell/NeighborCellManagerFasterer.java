@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.nbr.cell;
 
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.space.Vector;
 
 import java.util.Arrays;
@@ -23,6 +23,7 @@ public class NeighborCellManagerFasterer {
     protected Vector[] rawBoxOffsets = new Vector[0];
     protected int[] cellNextAtom;
     protected int[] atomCell;
+    protected final VectorStorage positions;
 
     public NeighborCellManagerFasterer(Box box, int cellRange) {
         this.box = box;
@@ -31,6 +32,7 @@ public class NeighborCellManagerFasterer {
         numCells = new int[3];
         jump = new int[3];
         cellNextAtom = atomCell = cellOffsets = wrapMap = cellLastAtom = new int[0];
+        positions = box.getAtomStorage(Tokens.POSITION);
     }
 
     public int cellForCoord(Vector r) {
@@ -205,11 +207,9 @@ public class NeighborCellManagerFasterer {
         for (int i = 0; i < cellLastAtom.length; i++) {
             cellLastAtom[i] = -1;
         }
-        IAtomList atoms = box.getLeafList();
         for (int iAtom = 0; iAtom < numAtoms; iAtom++) {
             int cellNum = 0;
-            IAtom atom = atoms.get(iAtom);
-            Vector r = atom.getPosition();
+            Vector r = positions.get(iAtom);
             for (int i = 0; i < 3; i++) {
                 double x = (r.getX(i) + boxHalf.getX(i)) / bs.getX(i);
                 int y = ((int) (cellRange + x * (numCells[i] - 2 * cellRange)));
@@ -223,8 +223,7 @@ public class NeighborCellManagerFasterer {
         }
     }
 
-    public void removeAtom(IAtom atom) {
-        int iAtom = atom.getLeafIndex();
+    public void removeAtom(int iAtom) {
         int oldCell = atomCell[iAtom];
         if (oldCell > -1) {
             // delete from old cell
@@ -240,10 +239,10 @@ public class NeighborCellManagerFasterer {
         }
     }
 
-    public void updateAtom(IAtom atom) {
+    public void updateAtom(int iAtom) {
         int cellNum = 0;
         final Vector bs = box.getBoundary().getBoxSize();
-        Vector r = atom.getPosition();
+        Vector r = positions.get(iAtom);
         for (int i = 0; i < 3; i++) {
             double x = (r.getX(i) + boxHalf.getX(i)) / bs.getX(i);
             int y = ((int) (cellRange + x * (numCells[i] - 2 * cellRange)));
@@ -252,7 +251,6 @@ public class NeighborCellManagerFasterer {
             cellNum += y * jump[i];
         }
 
-        int iAtom = atom.getLeafIndex();
         int oldCell = atomCell[iAtom];
         // check if existing assignment is right
         if (cellNum == oldCell) return;

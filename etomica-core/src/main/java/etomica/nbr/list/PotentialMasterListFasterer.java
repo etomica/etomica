@@ -71,8 +71,8 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
 
         if (skipBondedPair(this.isPureAtoms, iAtom, jAtom, this.bondedAtoms)) return 0;
 
-        Vector ri = iAtom.getPosition();
-        Vector rj = jAtom.getPosition();
+        Vector ri = positions.get(i);
+        Vector rj = positions.get(j);
         dr.Ev1Mv2(rj, ri);
         dr.PE(jbo);
         double r2 = dr.squared();
@@ -90,7 +90,7 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
         boolean needsUpdate = false;
         for (int i = 0; i < boxNumAtoms; i++) {
             IAtom iAtom = atoms.get(i);
-            Vector ri = iAtom.getPosition();
+            Vector ri = positions.get(i);
             double r2 = ri.Mv1Squared(oldAtomPositions[i]);
             if (r2 > maxR2[iAtom.getType().getIndex()]) {
                 if (Debug.ON && safetyFac > 0 && r2 > maxR2Unsafe[iAtom.getType().getIndex()]) {
@@ -211,10 +211,9 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
 
         for (int i = 0; i < numAtoms; i++) {
             IAtom iAtom = atoms.get(i);
-            Vector ri = iAtom.getPosition();
+            Vector ri = positions.get(i);
             int iType = iAtom.getType().getIndex();
             Potential2Soft[] iPotentials = pairPotentials[iType];
-            Vector fi = doForces ? forces[i] : null;
             int iNumNbrs = numAtomNbrsUp[i];
             int[] iNbrs = nbrs[i];
             Vector[] iNbrBoxOffsets = nbrBoxOffsets[i];
@@ -223,7 +222,7 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
                 IAtom jAtom = atoms.get(jj);
                 int jType = jAtom.getType().getIndex();
                 Potential2Soft pij = iPotentials[jType];
-                Vector rj = jAtom.getPosition();
+                Vector rj = positions.get(jj);
                 Vector jbo = iNbrBoxOffsets[j];
                 uTot += handleComputeAll(doForces, i, jj, ri, rj, jbo, pij);
             }

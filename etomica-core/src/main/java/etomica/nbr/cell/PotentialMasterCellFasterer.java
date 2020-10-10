@@ -49,8 +49,8 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
         cellManager.init();
     }
 
-    public void updateAtom(IAtom atom) {
-        cellManager.updateAtom(atom);
+    public void updateAtom(int iAtom) {
+        cellManager.updateAtom(iAtom);
     }
 
     public double computeAll(boolean doForces) {
@@ -66,7 +66,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
         int[] cellLastAtom = cellManager.getCellLastAtom();
         for (int i = 0; i < atoms.size(); i++) {
             IAtom iAtom = atoms.get(i);
-            Vector ri = iAtom.getPosition();
+            Vector ri = positions.get(i);
             int iType = iAtom.getType().getIndex();
             Potential2Soft[] ip = pairPotentials[iType];
             int j = i;
@@ -77,7 +77,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 Potential2Soft pij = ip[jType];
                 if (pij == null) continue;
                 if (skipBondedPair(isPureAtoms, iAtom, jAtom, bondedAtoms)) continue;
-                uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij);
+                uTot += handleComputeAll(doForces, i, j, ri, positions.get(j), jbo, pij);
             }
             int iCell = atomCell[i];
             for (int cellOffset : cellOffsets) {
@@ -90,7 +90,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                     Potential2Soft pij = ip[jType];
                     if (pij == null) continue;
                     if (skipBondedPair(isPureAtoms, iAtom, jAtom, bondedAtoms)) continue;
-                    uTot += handleComputeAll(doForces, i, j, ri, jAtom.getPosition(), jbo, pij);
+                    uTot += handleComputeAll(doForces, i, j, ri, positions.get(j), jbo, pij);
                 }
             }
         }
@@ -102,7 +102,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
 
     public double computeOne(IAtom iAtom) {
         int i = iAtom.getLeafIndex();
-        Vector ri = iAtom.getPosition();
+        Vector ri = positions.get(i);
         int iType = iAtom.getType().getIndex();
         IAtomList atoms = box.getLeafList();
         uAtomsChanged.clear();
@@ -130,7 +130,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 Potential2Soft pij = ip[jType];
                 if (pij == null) continue;
                 if (skipBondedPair(isPureAtoms, iAtom, jAtom, bondedAtoms)) continue;
-                Vector rj = jAtom.getPosition();
+                Vector rj = positions.get(j);
                 u1 += handleComputeOne(pij, ri, rj, jbo, i, j);
             }
         }
@@ -144,7 +144,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 Potential2Soft pij = ip[jType];
                 if (pij == null) continue;
                 if (skipBondedPair(isPureAtoms, iAtom, jAtom, bondedAtoms)) continue;
-                u1 += handleComputeOne(pij, ri, jAtom.getPosition(), jbo, i, j);
+                u1 += handleComputeOne(pij, ri, positions.get(j), jbo, i, j);
             }
 
             // now down
@@ -157,7 +157,7 @@ public class PotentialMasterCellFasterer extends PotentialMasterFasterer {
                 Potential2Soft pij = ip[jType];
                 if (pij == null) continue;
                 if (skipBondedPair(isPureAtoms, iAtom, jAtom, bondedAtoms)) continue;
-                u1 += handleComputeOne(pij, ri, jAtom.getPosition(), jbo, i, j);
+                u1 += handleComputeOne(pij, ri, positions.get(j), jbo, i, j);
             }
         }
 

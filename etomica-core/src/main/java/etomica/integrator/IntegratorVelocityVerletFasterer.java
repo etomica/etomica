@@ -5,7 +5,7 @@
 package etomica.integrator;
 
 import etomica.atom.AtomSetSinglet;
-import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.PotentialMasterFasterer;
@@ -43,10 +43,10 @@ public class IntegratorVelocityVerletFasterer extends IntegratorMDFasterer {
         int nLeaf = leafList.size();
         Vector[] forces = potentialMaster.getForces();
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
+            IAtom a = leafList.get(iLeaf);
             Vector force = forces[iLeaf];
-            Vector r = a.getPosition();
-            Vector v = a.getVelocity();
+            Vector r = positions.get(iLeaf);
+            Vector v = velocities.get(iLeaf);
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("first " + a + " r=" + r + ", v=" + v + ", f=" + force);
             }
@@ -62,9 +62,9 @@ public class IntegratorVelocityVerletFasterer extends IntegratorMDFasterer {
 
         //Finish integration step
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
+            IAtom a = leafList.get(iLeaf);
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
-            Vector velocity = a.getVelocity();
+            Vector velocity = velocities.get(iLeaf);
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                 System.out.println("second " + a + " v=" + velocity + ", f=" + forces[iLeaf]);
             }

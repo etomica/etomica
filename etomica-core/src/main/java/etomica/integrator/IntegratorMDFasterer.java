@@ -11,6 +11,8 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.*;
+import etomica.box.storage.Tokens;
+import etomica.box.storage.VectorStorage;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
@@ -47,6 +49,7 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
     protected AtomLeafAgentManager<Vector> oldPositionAgentManager = null;
     protected IntegratorMC integratorMC;
     protected int mcSteps;
+    protected final VectorStorage positions, velocities;
 
     /**
      * Constructs integrator with a default for non-isothermal sampling.
@@ -74,6 +77,8 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
         if (thermostat == ThermostatType.HYBRID_MC) {
             oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(this.space), this.box);
         }
+        positions = box.getAtomStorage(Tokens.POSITION);
+        velocities = box.getAtomStorage(Tokens.VELOCITY);
     }
 
     /**
@@ -294,7 +299,7 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
                         IAtomList leafAtoms = box.getLeafList();
                         for (int i = 0; i < leafAtoms.size(); i++) {
                             IAtom a = leafAtoms.get(i);
-                            a.getPosition().E(oldPositionAgentManager.getAgent(a));
+                            positions.get(i).E(oldPositionAgentManager.getAgent(a));
                         }
                         oldEnergy = oldPotentialEnergy;
 //                        System.out.println("rejected "+energyDiff+" => "+oldEnergy);
@@ -305,7 +310,7 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
                         IAtomList leafAtoms = box.getLeafList();
                         for (int i = 0; i < leafAtoms.size(); i++) {
                             IAtom a = leafAtoms.get(i);
-                            oldPositionAgentManager.getAgent(a).E(a.getPosition());
+                            oldPositionAgentManager.getAgent(a).E(positions.get(i));
                         }
                         oldPotentialEnergy = newPotentialEnergy;
                         oldEnergy = newPotentialEnergy;
@@ -318,7 +323,7 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
                     IAtomList leafAtoms = box.getLeafList();
                     for (int i = 0; i < leafAtoms.size(); i++) {
                         IAtom a = leafAtoms.get(i);
-                        oldPositionAgentManager.getAgent(a).E(a.getPosition());
+                        oldPositionAgentManager.getAgent(a).E(positions.get(i));
                     }
                     oldPotentialEnergy = potentialMaster.getOldEnergy();
                     oldEnergy = oldPotentialEnergy;
@@ -331,7 +336,7 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
                     IAtomList leafAtoms = box.getLeafList();
                     for (int i = 0; i < leafAtoms.size(); i++) {
                         IAtom a = leafAtoms.get(i);
-                        oldPositionAgentManager.getAgent(a).E(a.getPosition());
+                        oldPositionAgentManager.getAgent(a).E(positions.get(i));
                     }
                     randomizeMomenta();
                     if (thermostatNoDrift) {
@@ -499,7 +504,7 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
                 IAtom a = leafList.get(iLeaf);
                 double mass = a.getType().getMass();
                 if (mass != Double.POSITIVE_INFINITY) {
-                    momentum.PEa1Tv1(mass, ((IAtomKinetic) a).getVelocity());
+                    momentum.PEa1Tv1(mass, velocities.get(iLeaf));
                     totalMass += mass;
                 }
             }
@@ -508,19 +513,19 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
             //momentum is now net velocity
             //set net momentum to 0
             for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-                IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
+                IAtom a = leafList.get(iLeaf);
                 double rm = a.getType().rm();
                 if (rm != 0 && rm != Double.POSITIVE_INFINITY) {
-                    a.getVelocity().ME(momentum);
+                    velocities.get(iLeaf).ME(momentum);
                 }
             }
             if (Debug.ON) {
                 momentum.E(0);
                 for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-                    IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
+                    IAtom a = leafList.get(iLeaf);
                     double mass = a.getType().getMass();
                     if (mass != Double.POSITIVE_INFINITY) {
-                        momentum.PEa1Tv1(mass, a.getVelocity());
+                        momentum.PEa1Tv1(mass, velocities.get(iLeaf));
                     }
                 }
                 momentum.TE(1.0 / totalMass);
@@ -555,10 +560,10 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
             double sum = 0.0;
             int nLeafNotFixed = 0;
             for (int iAtom = 0; iAtom < nLeaf; iAtom++) {
-                IAtomKinetic atom = (IAtomKinetic) leafList.get(iAtom);
+                IAtom atom = leafList.get(iAtom);
                 double mass = atom.getType().getMass();
                 if (mass == Double.POSITIVE_INFINITY) continue;
-                double v = atom.getVelocity().getX(i);
+                double v = velocities.get(iAtom).getX(i);
                 sum += mass * v * v;
                 nLeafNotFixed++;
             }
@@ -581,8 +586,7 @@ public abstract class IntegratorMDFasterer extends IntegratorBoxFasterer impleme
             currentKineticEnergy += 0.5 * sum * s * s;
             if (s == 1) continue;
             for (int iAtom = 0; iAtom < nLeaf; iAtom++) {
-                IAtomKinetic atom = (IAtomKinetic) leafList.get(iAtom);
-                Vector vel = atom.getVelocity();
+                Vector vel = velocities.get(iAtom);
                 vel.setX(i, vel.getX(i) * s); //scale momentum
             }
         }
