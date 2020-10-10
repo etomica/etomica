@@ -84,7 +84,7 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
         return 0;
     }
 
-    public void checUpdateNbrs() {
+    public void checkUpdateNbrs() {
         IAtomList atoms = box.getLeafList();
         int boxNumAtoms = atoms.size();
         boolean needsUpdate = false;
@@ -241,7 +241,7 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
 
     @Override
     public void integratorStepStarted(IntegratorEvent e) {
-        checUpdateNbrs();
+        checkUpdateNbrs();
     }
 
     @Override
