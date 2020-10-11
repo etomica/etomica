@@ -1,7 +1,7 @@
 apply plugin: 'eclipse'
 
 wrapper {
-    gradleVersion = '5.0'
+    gradleVersion = '6.6'
 }
 
 tasks.withType(JavaCompile) {
@@ -12,7 +12,6 @@ tasks.withType(JavaCompile) {
 subprojects {
     apply plugin: 'java'
     apply plugin: 'eclipse'
-    apply plugin: 'findbugs'
 
     if(rootProject.hasProperty("main")) {
         apply plugin: 'application'
@@ -31,25 +30,6 @@ subprojects {
         testCompile 'org.junit.jupiter:junit-jupiter-api:5.2.0-M1'
         testCompile 'org.junit.jupiter:junit-jupiter-params:5.2.0-M1'
         testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.2.0-M1'
-    }
-
-
-    tasks.withType(FindBugs) {
-        reports {
-            xml.enabled false
-            html.enabled true
-            html.stylesheet resources.text.fromFile("$rootProject.projectDir/config/xsl/findbugs-custom.xsl")
-        }
-    }
-
-    findbugs {
-
-        /*
-        Hack to prevent findbugs from running every time the project is build (as a dependency of check).
-        Run findbugs explicitly with findbugsAll.
-         */
-        sourceSets = []
-        ignoreFailures = true
     }
 
     test {
