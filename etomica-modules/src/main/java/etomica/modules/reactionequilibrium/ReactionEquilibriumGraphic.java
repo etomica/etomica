@@ -20,7 +20,7 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Angstrom;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -245,7 +245,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
          
 		//display for history of mole fractions
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integratorHard1);
-        DisplayPlot plot = new DisplayPlot();
+        DisplayPlotXChart plot = new DisplayPlotXChart();
         plot.setLabel("Composition");
         plot.setDoLegend(true);
 //        int nData = sim.meterDimerFraction.getDataInfo().getLength();
@@ -280,7 +280,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         densityDisplay.setLabelType(LabelType.BORDER);
 
 //        filter3.setDataSink(new DataSinkConsole());
-		DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+		DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
 
 		//************* Lay out components ****************//
 
@@ -289,39 +289,39 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		//panel for the species editors
 		JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
 		speciesEditors.add(AEditor);
-		speciesEditors.add(BEditor);
-		speciesEditors.setBorder(new TitledBorder(
-				null, "Species Adjustment", TitledBorder.CENTER, TitledBorder.TOP));
+        speciesEditors.add(BEditor);
+        speciesEditors.setBorder(new TitledBorder(
+                null, "Species Adjustment", TitledBorder.CENTER, TitledBorder.TOP));
 
-		JPanel massEditors = new JPanel(new java.awt.GridLayout(0, 1));
+        JPanel massEditors = new JPanel(new java.awt.GridLayout(0, 1));
         massEditors.add(AMassEditor);
         massEditors.add(BMassEditor);
 
-		//panel of well-depth sliders
-		JPanel epsilonSliders = new JPanel(new java.awt.GridLayout(0, 1));
-		epsilonSliders.add(AASlider.graphic(null));
-		epsilonSliders.add(ABSlider.graphic(null));
-		epsilonSliders.add(BBSlider.graphic(null));
+        //panel of well-depth sliders
+        JPanel epsilonSliders = new JPanel(new java.awt.GridLayout(0, 1));
+        epsilonSliders.add(AASlider.graphic());
+        epsilonSliders.add(ABSlider.graphic());
+        epsilonSliders.add(BBSlider.graphic());
 
-		//panel of well-width sliders
-		JPanel lambdaSliders = new JPanel(new java.awt.GridLayout(0, 1));
-		lambdaSliders.add(AAWellSlider.graphic(null));
-		lambdaSliders.add(ABWellSlider.graphic(null));
-		lambdaSliders.add(BBWellSlider.graphic(null));
+        //panel of well-width sliders
+        JPanel lambdaSliders = new JPanel(new java.awt.GridLayout(0, 1));
+        lambdaSliders.add(AAWellSlider.graphic());
+        lambdaSliders.add(ABWellSlider.graphic());
+        lambdaSliders.add(BBWellSlider.graphic());
 
-		//panel for size slider
-		JPanel sizeSliders = new JPanel(new java.awt.GridLayout(0, 1));
-		sizeSliders.add(sizeSlider.graphic(null));
+        //panel for size slider
+        JPanel sizeSliders = new JPanel(new java.awt.GridLayout(0, 1));
+        sizeSliders.add(sizeSlider.graphic());
 
-		//tabbed pane for both sets of sliders
-		final javax.swing.JTabbedPane sliderPanel = new javax.swing.JTabbedPane();
-		sliderPanel.setBorder(new TitledBorder(
-				null, "Potential Adjustment", TitledBorder.CENTER, TitledBorder.TOP));
-		sliderPanel.add("Well depth (K)", epsilonSliders);
-		sliderPanel.add("Core size (%)", lambdaSliders);
-		sliderPanel.add("Atom size (\u00C5)", sizeSliders);
-		sliderPanel.addChangeListener(new javax.swing.event.ChangeListener() {
-			public void stateChanged(javax.swing.event.ChangeEvent event) {
+        //tabbed pane for both sets of sliders
+        final javax.swing.JTabbedPane sliderPanel = new javax.swing.JTabbedPane();
+        sliderPanel.setBorder(new TitledBorder(
+                null, "Potential Adjustment", TitledBorder.CENTER, TitledBorder.TOP));
+        sliderPanel.add("Well depth (K)", epsilonSliders);
+        sliderPanel.add("Core size (%)", lambdaSliders);
+        sliderPanel.add("Atom size (\u00C5)", sizeSliders);
+        sliderPanel.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent event) {
 				sliderPanel.invalidate();
 				sliderPanel.validate();
 			}
@@ -345,11 +345,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
                 tPump.actionPerformed();
                 tBox.putData(tempAccum.getData());
-                tBox.repaint();
 
                 dimerPump.actionPerformed();
                 densityDisplay.putData(densityAccum.getData());
-                densityDisplay.repaint();
 
                 getDisplayBox(sim.box).graphic().repaint();
             }
@@ -376,7 +374,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		//	public DeviceSlider nSlider;
 		public DeviceNSelector nSlider;
 
-        public MySpeciesEditor(SpeciesSpheresMono s, String label) {
+        public MySpeciesEditor(SpeciesGeneral s, String label) {
             super();
             nSlider = new DeviceNSelector(sim.getController());
 			nSlider.setResetAction(new SimulationRestart(sim));
@@ -415,7 +413,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
         public final DeviceBox mass = new DeviceBox();
 
-        public MassEditor(SpeciesSpheresMono species, String label) {
+        public MassEditor(SpeciesGeneral species, String label) {
             super();
             //listener for changes to mass textbox
             mass.setModifier(new ModifierGeneral(species.getLeafType().getElement(), "mass"));
@@ -442,13 +440,13 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 	class DiameterModifier implements Modifier {
 		P2SquareWellBonded potentialRR, potentialRB, potentialBB;
 
-		SpeciesSpheresMono speciesR, speciesB;
+		SpeciesGeneral speciesR, speciesB;
 
 		DisplayBox display;
 
 		DiameterModifier(P2SquareWellBonded potentialRR,
 				P2SquareWellBonded potentialRB, P2SquareWellBonded potentialBB,
-				SpeciesSpheresMono speciesR, SpeciesSpheresMono speciesB) {
+				SpeciesGeneral speciesR, SpeciesGeneral speciesB) {
 			this.potentialRR = potentialRR;
 			this.potentialRB = potentialRB;
 			this.potentialBB = potentialBB;

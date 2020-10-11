@@ -4,19 +4,6 @@
 
 package etomica.graphics;
 
-import java.awt.Component;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Formatter;
-import java.util.LinkedList;
-
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.AbstractTableModel;
-
 import etomica.data.*;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterPressureHard;
@@ -24,6 +11,16 @@ import etomica.data.types.DataDoubleArray;
 import etomica.simulation.prototypes.HSMD2D;
 import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
+
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Formatter;
+import java.util.LinkedList;
 
 /**
  * Presents data in a tabular form.
@@ -76,7 +73,7 @@ public class DisplayTable extends Display implements DataTableListener {
      */
     public void dataChanged(DataSet dummyTable) {
         tableSource.fireTableDataChanged();
-        repaint();
+        table.repaint();
     }
 
     /**
@@ -196,11 +193,7 @@ public class DisplayTable extends Display implements DataTableListener {
         maxFloat = Math.pow(10, nColumns);
     }
 
-    public void repaint() {
-        table.repaint();
-    }
-
-    public Component graphic(Object obj) {
+    public Component graphic() {
         return panel;
     }
 

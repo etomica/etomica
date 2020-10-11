@@ -4,14 +4,14 @@
 
 package etomica.atom.iterator;
 
-import etomica.atom.AtomType;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.Molecule;
 import etomica.molecule.MoleculeSetSinglet;
 import etomica.molecule.iterator.MoleculeIteratorSinglet;
+import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresHetero;
+import etomica.species.SpeciesBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ class MoleculeIteratorSingletTest {
 
     @BeforeEach
     public void setUp() {
-        ISpecies species = new SpeciesSpheresHetero(getInstance(), new AtomType[0]);
+        ISpecies species = new SpeciesBuilder(Space3D.getInstance()).build();
         singletIterator = new MoleculeIteratorSinglet();
         testAtom1 = new Molecule(species, 0);
         testAtom2 = new Molecule(species, 0);

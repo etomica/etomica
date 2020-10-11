@@ -5,31 +5,20 @@
 package etomica.virial;
 
 import etomica.atom.AtomHydrogen;
-import etomica.atom.AtomTypeOriented;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
-import etomica.chem.elements.Hydrogen;
-import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.math.Quaternion;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.IOrientation3D;
-import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresHetero;
-import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.random.IRandom;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
 /**
  * MCMove that fully regrows the beads of a ring polymer by rotating the images, accepting or
@@ -61,73 +50,6 @@ public class MCMoveClusterRingRegrowOrientation extends MCMoveBox {
 		utilityVec1 = space.makeVector();
 		utilityVec2 = space.makeVector();
 		utilityVec3 = space.makeVector();
-	}
-
-	public static void main(String[] args) {
-		Space space = Space3D.getInstance();
-		ClusterWeight cluster = new ClusterWeight() {
-
-			@Override
-			public double value(BoxCluster box) {
-				// TODO Auto-generated method stub
-				return 1;
-			}
-
-			@Override
-			public void setTemperature(double temperature) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public int pointCount() {
-				// TODO Auto-generated method stub
-				return 1;
-			}
-
-			@Override
-			public ClusterAbstract makeCopy() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		};
-		Simulation sim = new Simulation(space);
-		AtomTypeOriented atype = new AtomTypeOriented(Hydrogen.INSTANCE, space);
-		SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype});
-		sim.addSpecies(species);
-        BoxCluster box = new BoxCluster(cluster, space);
-        sim.addBox(box);
-		File file1 = new File("acceptance.dat");
-		if (file1.exists()) {
-			file1.delete();
-		}
-		for (int p = 2; p <= 512; p *= 2) {
-            box.setNMolecules(species, 0);
-            species.setChildCount(new int[]{p});
-            box.setNMolecules(species, 1);
-            IntegratorMC integrator = new IntegratorMC(sim, null, box);
-            MCMoveClusterRingRegrowOrientation move = new MCMoveClusterRingRegrowOrientation(sim.getRandom(), space, p);
-
-            for (int iTemp = 40; iTemp <= 40; iTemp += 2) {
-                move.acc = 0;
-                move.setStiffness(Kelvin.UNIT.toSim(iTemp), species.getAtomType(0).getMass());
-                integrator.getMoveManager().addMCMove(move);
-                integrator.reset();
-                int total = 100;
-                for (int i = 0; i < total; i++) {
-                    integrator.doStep();
-                }
-                try {
-                    FileWriter Temp = new FileWriter("acceptance.dat", true);
-                    Temp.write(iTemp + " " + p + " " + move.getStiffness() + " " + ((double) move.acc) / total + "\n");
-                    Temp.close();
-                } catch (IOException ex1) {
-                    throw new RuntimeException(ex1);
-                }
-                System.out.println("p = " + p + " ,Temp = " + iTemp + " ,acceptance ratio = " + ((double) move.acc) / total);
-            }
-
-        }
 	}
 
 	@Override

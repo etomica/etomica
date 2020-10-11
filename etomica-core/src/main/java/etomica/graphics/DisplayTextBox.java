@@ -110,7 +110,9 @@ public class DisplayTextBox extends Display implements IDataSink, javax.swing.ev
      */
     public etomica.units.Unit getUnit() {return unit;}
     
-    public java.awt.Component graphic(Object obj) {return panel;}
+    public java.awt.Component graphic() {
+        return panel;
+    }
     
     
     /**

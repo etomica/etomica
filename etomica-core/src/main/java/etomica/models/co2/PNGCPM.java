@@ -9,9 +9,7 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.Carbon;
-import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
-import etomica.config.IConformation;
 import etomica.models.water.PNWaterGCPM;
 import etomica.models.water.SpeciesWater4P;
 import etomica.models.water.SpeciesWater4PCOM;
@@ -26,7 +24,8 @@ import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresHetero;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 
@@ -93,18 +92,15 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         double z = 4.;
         final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-        speciesCO2.setChildCount(new int[]{1, 2});
-        speciesCO2.setConformation(new IConformation() {
-
-            public void initializePositions(IAtomList atomList) {
-                atomList.get(0).getPosition().E(0);
-                atomList.get(1).getPosition().setX(0, 1.161);
-                atomList.get(2).getPosition().setX(0, -1.161);
-            }
-        });
+        double bondL = 1.161;
+        AtomType oType = AtomType.element(Oxygen.INSTANCE);
+        SpeciesGeneral speciesCO2 = new SpeciesBuilder(space)
+                .addAtom(AtomType.element(Carbon.INSTANCE), space.makeVector())
+                .addAtom(oType, Vector.of(-bondL, 0, 0))
+                .addAtom(oType, Vector.of(+bondL, 0, 0))
+                .build();
         sim.addSpecies(speciesCO2);
-        Box box = new etomica.box.Box(space);
+        Box box = new Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 2);
         box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
@@ -160,18 +156,15 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         double y2 = 2.;
         final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-        speciesCO2.setChildCount(new int[]{1, 2});
-        speciesCO2.setConformation(new IConformation() {
-
-            public void initializePositions(IAtomList atomList) {
-                atomList.get(0).getPosition().E(0);
-                atomList.get(1).getPosition().setX(0, 1.161);
-                atomList.get(2).getPosition().setX(0, -1.161);
-            }
-        });
+        double bondL = 1.161;
+        AtomType oType = AtomType.element(Oxygen.INSTANCE);
+        SpeciesGeneral speciesCO2 = new SpeciesBuilder(space)
+                .addAtom(AtomType.element(Carbon.INSTANCE), space.makeVector())
+                .addAtom(oType, Vector.of(-bondL, 0, 0))
+                .addAtom(oType, Vector.of(+bondL, 0, 0))
+                .build();
         sim.addSpecies(speciesCO2);
-        Box box = new etomica.box.Box(space);
+        Box box = new Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 3);
         box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
@@ -205,7 +198,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         typeManager.put(speciesCO2.getAtomType(1), new GCPMAgent(3.193 * 1.0483, Kelvin.UNIT.toSim(67.72), 0.61, 15.5, qO, 0, 0, 0));
         PNGCPM p2 = new PNGCPM(space, typeManager, 2);
         p2.setBox(box);
-        PNGCPM.P3GCPMAxilrodTeller p3 = p2.makeAxilrodTeller();
+        P3GCPMAxilrodTeller p3 = p2.makeAxilrodTeller();
         IMoleculeList molecules = box.getMoleculeList();
         double u = p2.energy(molecules);
         System.out.println(u);
@@ -224,7 +217,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         double y2 = 7.;
         final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesWater4PCOM speciesWaterCOM = new SpeciesWater4PCOM(space);
+        SpeciesGeneral speciesWaterCOM = SpeciesWater4PCOM.create(false);
         sim.addSpecies(speciesWaterCOM);
         Box box = new Box(space);
         sim.addBox(box);
@@ -241,10 +234,10 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         translator.actionPerformed(mol2);
 
         Map<AtomType, GCPMAgent> typeManager = new HashMap<>();
-        typeManager.put(speciesWaterCOM.getHydrogenType(), new GCPMAgent(1.0, 0, 0.455, 12.75, Electron.UNIT.toSim(0.6113), 0, 0, 0));
-        typeManager.put(speciesWaterCOM.getOxygenType(), new GCPMAgent(3.69, Kelvin.UNIT.toSim(110), 0, 12.75, 0, 0, 0, 0, 0));
-        typeManager.put(speciesWaterCOM.getMType(), new GCPMAgent(1.0, 0, 0.610, 12.75, Electron.UNIT.toSim(-1.2226), 0, 0, 0));
-        typeManager.put(speciesWaterCOM.getCOMType(), new GCPMAgent(1.0, 0, 0.610, 12.75, 0, 1.444, 1.444, 0));
+        typeManager.put(speciesWaterCOM.getTypeByName("H"), new GCPMAgent(1.0,0,0.455,12.75,Electron.UNIT.toSim(0.6113),0,0,0));
+        typeManager.put(speciesWaterCOM.getTypeByName("O"), new GCPMAgent(3.69,Kelvin.UNIT.toSim(110),0,12.75,0,0,0,0,0));
+        typeManager.put(speciesWaterCOM.getTypeByName("M"), new GCPMAgent(1.0,0,0.610,12.75,Electron.UNIT.toSim(-1.2226),0,0,0));
+        typeManager.put(speciesWaterCOM.getTypeByName("COM"), new GCPMAgent(1.0,0,0.610,12.75,0,1.444,1.444,0));
         PNGCPM p2 = new PNGCPM(space, typeManager, 4);
         p2.setBox(box);
         IMoleculeList molecules = box.getMoleculeList();
@@ -254,7 +247,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
 
         sim = new Simulation(space);
-        SpeciesWater4P speciesWater = new SpeciesWater4P(space);
+        SpeciesGeneral speciesWater = SpeciesWater4P.create();
         sim.addSpecies(speciesWater);
         box = sim.makeBox();
         box.setNMolecules(speciesWater, 3);

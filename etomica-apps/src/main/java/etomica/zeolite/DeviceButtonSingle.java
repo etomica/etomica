@@ -6,7 +6,7 @@ package etomica.zeolite;
 //This class includes a main method to demonstrate its use
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.graphics.Device;
 
 import javax.swing.*;
@@ -77,7 +77,7 @@ public class DeviceButtonSingle extends Device {
     /**
      * Returns the GUI element for display in the simulation.
      */
-    public java.awt.Component graphic(Object obj) {
+    public java.awt.Component graphic() {
         return button;
     }
     

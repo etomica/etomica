@@ -25,8 +25,8 @@ import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.OrientationFull3D;
 import etomica.space3d.RotationTensor3D;
 import etomica.species.ISpecies;
-import etomica.species.ISpeciesOriented;
 import etomica.species.SpeciesAgentManager;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -152,8 +152,8 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
 
             IntegratorRigidIterative.MoleculeAgent agent = (IntegratorRigidIterative.MoleculeAgent) moleculeAgentManager.getAgent(molecule);
             IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
-            Vector moment = ((ISpeciesOriented)molecule.getType()).getMomentOfInertia();
-            double mass = ((ISpeciesOriented)molecule.getType()).getMass();
+            Vector moment = molecule.getType().getMomentOfInertia();
+            double mass = molecule.getType().getMass();
             IOrientationFull3D orientation = (IOrientationFull3D)orientedMolecule.getOrientation();
 
             // use the angular velocity field to store angular momentum during the time step  :(
@@ -293,8 +293,8 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
             
             IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
             IntegratorRigidIterative.MoleculeAgent agent = (IntegratorRigidIterative.MoleculeAgent) moleculeAgentManager.getAgent(molecule);
-            Vector moment = ((ISpeciesOriented)molecule.getType()).getMomentOfInertia();
-            double mass = ((ISpeciesOriented)molecule.getType()).getMass();
+            Vector moment = molecule.getType().getMomentOfInertia();
+            double mass = molecule.getType().getMass();
             //calc torque and linear force
             for (int i = 0; i<children.size(); i++) {
                 IAtom atom = children.get(i);
@@ -377,7 +377,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
                 continue;
             }
             IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
-            double mass = ((ISpeciesOriented)((IMolecule)orientedMolecule).getType()).getMass();
+            double mass = ((IMolecule)orientedMolecule).getType().getMass();
             momentum.PEa1Tv1(mass, orientedMolecule.getVelocity());
             totalMass += mass;
         }
@@ -402,9 +402,9 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
             IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
             Vector velocity = orientedMolecule.getVelocity();
             velocity.ME(momentum);
-            KE += velocity.squared() * ((ISpeciesOriented)molecule.getType()).getMass();
+            KE += velocity.squared() * molecule.getType().getMass();
 
-            Vector moment = ((ISpeciesOriented)molecule.getType()).getMomentOfInertia();
+            Vector moment = molecule.getType().getMomentOfInertia();
 
             tempAngularVelocity.E(orientedMolecule.getAngularVelocity());
             rotationTensor.setOrientation((IOrientationFull3D)orientedMolecule.getOrientation());
@@ -465,7 +465,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
                     }
                     continue;
                 }
-                double mass = ((ISpeciesOriented)m.getType()).getMass();
+                double mass = m.getType().getMass();
                 if (mass != Double.POSITIVE_INFINITY) {
                     momentum.PEa1Tv1(mass, ((IMoleculeKinetic) m).getVelocity());
                     totalMass += mass;
@@ -488,7 +488,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
                     }
                     continue;
                 }
-                double mass = ((ISpeciesOriented)m.getType()).getMass();
+                double mass = m.getType().getMass();
                 if (mass != Double.POSITIVE_INFINITY) {
                     ((IMoleculeKinetic)m).getVelocity().ME(momentum);
                 }
@@ -505,7 +505,7 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
                         }
                         continue;
                     }
-                    double mass = ((ISpeciesOriented)m.getType()).getMass();
+                    double mass = m.getType().getMass();
                     if (mass != Double.POSITIVE_INFINITY) {
                         momentum.PEa1Tv1(mass, ((IMoleculeKinetic) m).getVelocity());
                     }
@@ -537,8 +537,8 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
 
             MoleculeOrientedDynamic orientedMolecule = (MoleculeOrientedDynamic)molecule;
             Vector velocity = orientedMolecule.getVelocity();
-            double mass = ((ISpeciesOriented)molecule.getType()).getMass();
-            Vector moment = ((ISpeciesOriented)molecule.getType()).getMomentOfInertia();
+            double mass = molecule.getType().getMass();
+            Vector moment = molecule.getType().getMomentOfInertia();
             int D = velocity.getD();
             for(int i=0; i<D; i++) {
                 velocity.setX(i,random.nextGaussian());
@@ -581,8 +581,8 @@ public class IntegratorRigidMatrixIterative extends IntegratorMD implements Spec
 
             MoleculeOrientedDynamic orientedMolecule = (MoleculeOrientedDynamic)atom;
             Vector velocity = orientedMolecule.getVelocity();
-            double mass = ((ISpeciesOriented)((IMolecule)atom).getType()).getMass();
-            Vector moment = ((ISpeciesOriented)((IMolecule)atom).getType()).getMomentOfInertia();
+            double mass = ((IMolecule)atom).getType().getMass();
+            Vector moment = ((IMolecule)atom).getType().getMomentOfInertia();
             int D = velocity.getD();
             for(int i=0; i<D; i++) {
                 velocity.setX(i,random.nextGaussian());

@@ -4,20 +4,18 @@
 
 package etomica.zeolite;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.IAction;
-import etomica.action.activity.ControllerEvent;
 import etomica.atom.IAtom;
+import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.integrator.Integrator;
-import etomica.space.Vector;
-import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.space.Space;
-import etomica.util.IEvent;
-import etomica.util.IListener;
+import etomica.integrator.IntegratorMD;
+import etomica.space.Vector;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 /* =====SUMMARY======
  * At each 'writeInterval', which corresponds to a certain number of simulation steps,
@@ -49,50 +47,35 @@ import etomica.util.IListener;
  */
 
 
-public class MSDCoordWriter implements IAction, IListener {
-	
-	public MSDCoordWriter(Space _space, String fileName) throws RuntimeException {
-	    throw new RuntimeException("MSDCoordWriter is not usable due to the removal of " +
-	                               "action priorities.");
-/*
-		// Creates an instance of subclass AfterPBC
-		iterator = new AtomIteratorLeafAtoms();
-        afterPBCinstance = new AfterPBC(_space,iterator);
-		this.fileName = fileName;
-		setWriteInterval(1);
-*/
+public class MSDCoordWriter implements IAction {
+
+	public MSDCoordWriter(Integrator integrator, Box box, String fileName, int writeInterval) {
+		this.box = box;
+		iterator = new AtomIteratorLeafAtoms(box);
+		afterPBCinstance = new AfterPBC(box, iterator);
+		integrator.getEventManager().addListener(new IntegratorListenerAction(afterPBCinstance));
+		integrator.getEventManager().addListener(new IntegratorListenerAction(this));
+
+		setWriteInterval(writeInterval);
+		double timestep = ((IntegratorMD)integrator).getTimeStep();
+		try {
+			fileWriter = new FileWriter(fileName, false);
+//			fileWriter.write(iterator.size() + "\n");
+			fileWriter.write("   write_interval " + writeInterval + "      timestep " + timestep+ "\n");
+		} catch (IOException e) {
+			System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
+		}
 	}
-	
-	public void setBox(Box newBox){
-		
-		box = newBox;
-		iterator.setBox(box);
-		afterPBCinstance.setBox(box);
+
+	public AfterPBC getAfterPBC() {
+		return afterPBCinstance;
 	}
-    
-    public void setIterator(AtomIteratorBoxDependent newIterator) {
+
+	public void setIterator(AtomIterator newIterator) {
         iterator = newIterator;
         afterPBCinstance.setIterator(iterator);
     }
-	
-	public void setIntegrator(Integrator integrator){
-		integrator.getEventManager().addListener(new IntegratorListenerAction(this));
-//        integrator.setIntervalActionPriority(this, 50);
-		integrator.getEventManager().addListener(new IntegratorListenerAction(afterPBCinstance));
-//        integrator.setIntervalActionPriority(afterPBCinstance, 200);
-	}
-	
-	// Methods involved with file creation/closing
-	public void openFile(){
-		try { 
-			fileWriter = new FileWriter(fileName, false);
-			fileWriter.write(iterator.size()+"\n");
-		}
-	    catch(IOException e) {
-            System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
-        }
-	}
-	
+
 	public void closeFile(){
         try {
             fileWriter.close();
@@ -113,7 +96,8 @@ public class MSDCoordWriter implements IAction, IListener {
 	}
 	
 	public void actionPerformed() {
-		afterPBCinstance.updateAtomOldCoord();
+		// our listener may fire after we do; ensure we've unwrapped these coordinates
+		afterPBCinstance.unwrap();
 		if (--intervalCount == 0){
 			Vector boxdim = box.getBoundary().getBoxSize();
 			// Gets atomPBIarray from AfterPBC subclass, through the subclass instance
@@ -132,13 +116,14 @@ public class MSDCoordWriter implements IAction, IListener {
 						actualDistance = atomPBIarray[i][j] * boxdim.getX(j) + atomPosition.getX(j);
 						fileWriter.write(""+actualDistance);
 						if(j!=boxdim.getD()-1){
-							fileWriter.write("\t");
+							fileWriter.write(" ");
 						}
 						
 					}
-					fileWriter.write("\n");
+					fileWriter.write(" ");
 					i++;
 				}
+				fileWriter.write("\n");
 			}
 			catch (IOException e) {
 	            throw new RuntimeException(e);
@@ -147,91 +132,82 @@ public class MSDCoordWriter implements IAction, IListener {
 			intervalCount = writeInterval;
 		}
 	}
-	
-	// *
-	public int getPriority() {
-		return 50;
-	}
-
-    public void actionPerformed(IEvent evt) {
-        if (fileWriter != null &&
-            (((ControllerEvent)evt).getType() == ControllerEvent.Type.NO_MORE_ACTIONS ||
-             ((ControllerEvent)evt).getType() == ControllerEvent.Type.HALTED)) {
-            closeFile();
-        }
-    }
 
 	private AfterPBC afterPBCinstance;
 	private Box box;
-	private AtomIteratorBoxDependent iterator;
+	private AtomIterator iterator;
 	private int writeInterval;
 	private int intervalCount;
-	private String fileName;
 	private FileWriter fileWriter;
-	
-	/*
-	 * -------------------------SUBCLASS AfterPBC----------------------------------
-	 */
-	
-	private static class AfterPBC implements IAction {
-		
-		public AfterPBC(Space _space, AtomIteratorBoxDependent iterator){
-			workVector = _space.makeVector();
+
+	public static class AfterPBC implements IAction {
+
+		public AfterPBC(Box box, AtomIterator iterator) {
+			workVector = box.getSpace().makeVector();
 			this.iterator = iterator;
-			this.space = _space;
+			atomOldCoord = new Vector[box.getLeafList().size()];
+			for (int j = 0; j < atomOldCoord.length; j++) {
+				atomOldCoord[j] = box.getSpace().makeVector();
+			}
+
+			atomPBIarray = new int[box.getLeafList().size()][box.getSpace().D()];
+			boxDim = box.getBoundary().getBoxSize();
+			interval = 10;
+			initAtomOldCoord();
+		}
+
+		public void setInterval(int newInterval) {
+			interval = newInterval;
+			intervalCountdown = interval;
 		}
 		
 		// Method called in main class (see above)
 		public int [][] getAtomPBIarray(){
 			return atomPBIarray;
 		}
-				
-		public void setBox(Box box){
-			atomOldCoord = new Vector[box.getLeafList().size()];
-			for (int j=0; j < atomOldCoord.length; j++){
-				atomOldCoord[j] = space.makeVector();
-			}
-						
-			atomPBIarray = new int[box.getLeafList().size()][space.D()];
-			iterator.setBox(box);
-			boxDim = box.getBoundary().getBoxSize();
-			updateAtomOldCoord();
-		}
-        
-        public void setIterator(AtomIteratorBoxDependent newIterator) {
+
+		public void setIterator(AtomIterator newIterator) {
             iterator = newIterator;
         }
 		
 		// Method called in main and sub class (see directly above and above)
-		public void updateAtomOldCoord(){
+		public void initAtomOldCoord() {
 			iterator.reset();
 			int i=0;
-            for (IAtom atom = iterator.nextAtom();
-                 atom != null; atom = iterator.nextAtom()) {
+			for (IAtom atom = iterator.nextAtom();
+				 atom != null; atom = iterator.nextAtom()) {
 				atomOldCoord[i].E(atom.getPosition());
 				i++;
 			}
+			intervalCountdown = interval;
 		}
-		
+
 		public void actionPerformed() {
+			intervalCountdown--;
+			if (intervalCountdown == 0) unwrap();
+		}
+
+		public void unwrap() {
+			intervalCountdown = interval;
 			iterator.reset();
 			int i=0;
-			
+
 			// workVector is modified to hold a value of box lengths an atom has traveled
 			// atomPBIarray is filled here
-            for (IAtom atom = iterator.nextAtom();
-                 atom != null; atom = iterator.nextAtom()) {
+			for (IAtom atom = iterator.nextAtom();
+				 atom != null; atom = iterator.nextAtom()) {
 				workVector.E(atomOldCoord[i]);
-				workVector.ME(atom.getPosition()); 
+				workVector.ME(atom.getPosition());
 				workVector.DE(boxDim);
-				
-				for (int j=0;j < boxDim.getD();j++){
-					
+
+				for (int j = 0; j < boxDim.getD(); j++){
+
 					// Before Math.round, workVector is -/+ 0.9999,1.000,1.0001,0.000
 					// Value will truncate when added to atomPBIarray, we must make workVector a whole number
 					atomPBIarray[i][j] += Math.round(workVector.getX(j));
-					
+
 				}
+				atomOldCoord[i].E(atom.getPosition());
 				i++;
 			}
 		}
@@ -240,8 +216,7 @@ public class MSDCoordWriter implements IAction, IListener {
 		private int [][] atomPBIarray;
 		private Vector workVector;
 		private Vector[] atomOldCoord;
-		private AtomIteratorBoxDependent iterator;
-		private final Space space;
+		private AtomIterator iterator;
+		private int interval, intervalCountdown;
 	}
-	
 }

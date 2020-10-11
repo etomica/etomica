@@ -5,6 +5,7 @@
 package etomica.models.nitrogen;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
@@ -33,6 +34,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.units.Pascal;
@@ -57,7 +59,7 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
         double c = 6.263463;//6.284;
         int numMolecule = nC[0] * nC[1] * nC[2] * 2;
 
-        species = new SpeciesN2(space);
+        species = SpeciesN2.create(false);
         addSpecies(species);
 
         potentialMaster = new PotentialMaster();
@@ -437,8 +439,7 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 
         integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
     }
 	
 	public static void main (String[] args){
@@ -519,25 +520,21 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 		    simGraphic.makeAndDisplayFrame("Beta-Phase Nitrogen Crystal Structure");
 		    
 		    DiameterHashByType diameter = new DiameterHashByType();
-			diameter.setDiameter(sim.species.getNitrogenType(), 3.1);
-			diameter.setDiameter(sim.species.getPType(), 0.0);
-			
+            diameter.setDiameter(sim.species.getTypeByName("N"), 3.1);
+            diameter.setDiameter(sim.species.getTypeByName("P"), 0.0);
+
 			simGraphic.getDisplayBox(sim.box).setDiameterHash(diameter);
 			return;
 		}
-		
-		sim.activityIntegrate.setMaxSteps(simSteps/5);
-		sim.getController().actionPerformed();
-		System.out.println("****System Equilibrated (20% of SimSteps)****");
-		
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps / 5));
+System.out.println("****System Equilibrated (20% of SimSteps)****");
+
 		long startTime = System.currentTimeMillis();
 		System.out.println("\nStart Time: " + startTime);
 		sim.integrator.getMoveManager().setEquilibrating(false);
-		sim.getController().reset();
 
-		
-		sim.activityIntegrate.setMaxSteps(simSteps);
-		sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
 		
 		
 		double averageEnergy = energyAverage.getData().getValue(energyAverage.AVERAGE.index);
@@ -579,10 +576,10 @@ public class SimulationBetaNitrogenModelTest extends Simulation{
 	protected Space space;
 	protected PotentialMaster potentialMaster;
 	protected IntegratorMC integrator;
-	protected ActivityIntegrate activityIntegrate;
+	
 	protected PotentialMolecular potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;
-	protected SpeciesN2 species;
+	protected SpeciesGeneral species;
 	private static final long serialVersionUID = 1L;
 }

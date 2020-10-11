@@ -181,7 +181,7 @@ public class RheologyGraphic extends SimulationGraphic {
             }
         });
 
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
         getPanel().controlPanel.add(delaySlider.graphic(), SimulationPanel.getVertGBC());
 
         final DeviceButton showFlowButton = new DeviceButton(sim.getController());

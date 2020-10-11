@@ -6,6 +6,7 @@ package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -15,7 +16,7 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorRigidIterative;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.models.water.OrientationCalcWater3P;
-import etomica.models.water.SpeciesWater3POriented;
+import etomica.models.water.SpeciesWater3P;
 import etomica.molecule.MoleculeOriented;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -24,6 +25,7 @@ import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.random.RandomNumberGenerator;
@@ -40,7 +42,7 @@ public class SingleWater {
         final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
         ((RandomNumberGenerator) sim.getRandom()).getWrappedRandom().setSeed(2000);
-        SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
+        SpeciesGeneral species = SpeciesWater3P.create(true, true);
         sim.addSpecies(species);
         final Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
         sim.addBox(box);
@@ -59,9 +61,8 @@ public class SingleWater {
 //        integrator.setIsothermal(true);
         integrator.setTemperature(Kelvin.UNIT.toSim(148.5));
 //        integrator.setThermostatInterval(100);
-        ActivityIntegrate ai = new ActivityIntegrate(integrator);
+        sim.getController().addActivity(new ActivityIntegrate(integrator));
 //        System.out.println("using rigid with dt="+dt);
-        sim.getController().addAction(ai);
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
 
@@ -137,12 +138,12 @@ public class SingleWater {
             IntegratorListenerAction writeAListener = new IntegratorListenerAction(writeA);
             writeAListener.setInterval(100);
             integrator.getEventManager().addListener(writeAListener);
-            sim.getController().actionPerformed();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, Long.MAX_VALUE));
         } else {
 //          ai.setSleepPeriod(10);
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
-            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
-            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("H"), Color.WHITE);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("O"), Color.RED);
             return graphic;
         }
         return null;

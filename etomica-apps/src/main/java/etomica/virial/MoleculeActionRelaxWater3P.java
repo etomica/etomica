@@ -13,6 +13,8 @@ import etomica.models.water.SpeciesWater3P;
 import etomica.molecule.IMolecule;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 
 public class MoleculeActionRelaxWater3P implements MoleculeAction {
     public MoleculeActionRelaxWater3P(Space space) {
@@ -23,9 +25,10 @@ public class MoleculeActionRelaxWater3P implements MoleculeAction {
     }
     
     public void actionPerformed(IMolecule molecule) {
-        IAtom O = molecule.getChildList().get(SpeciesWater3P.indexO);
-        IAtom H1 = molecule.getChildList().get(SpeciesWater3P.indexH1);
-        IAtom H2 = molecule.getChildList().get(SpeciesWater3P.indexH2);
+        ISpecies species = molecule.getType();
+        IAtom O = molecule.getChildList().get(species.getAtomByTypeName("O"));
+        IAtom H1 = molecule.getChildList().get(species.getAtomByTypeName("H", 1));
+        IAtom H2 = molecule.getChildList().get(species.getAtomByTypeName("H", 2));
         // normalize OH1
         Vector p1 = H1.getPosition();
         p1.ME(O.getPosition());
@@ -46,7 +49,6 @@ public class MoleculeActionRelaxWater3P implements MoleculeAction {
         p2.PE(O.getPosition());
     }
 
-    private static final long serialVersionUID = 1L;
     private final Vector work;
     private final double sinAngle, cosAngle, distance;
 }

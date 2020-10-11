@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -26,7 +27,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Energy;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -48,7 +49,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
     public final PotentialMasterMonatomic potentialMasterHarmonic;
     public final double latticeEnergy;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public int[] nCells;
@@ -61,7 +62,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
     public SimOverlapSoftSphereEin(Space _space, int numAtoms, double density, boolean slanty, double temperature, double spring, double frac, double[] otherFrac, double[] alpha, int exponent, int numAlpha, double alphaSpan, long numSteps, double rc) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         if (slanty) {
@@ -173,9 +174,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
         accumulatorPump = new DataPumpListener(meter, accumulator, interval);
         integrator.getEventManager().addListener(accumulatorPump);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
@@ -269,8 +268,6 @@ public class SimOverlapSoftSphereEin extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
-
         final MeterPotentialEnergy meterPEHarmonic = new MeterPotentialEnergy(sim.potentialMasterHarmonic, sim.box);
         final MeterPotentialEnergy meterPETarget = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         meterPETarget.setIncludeLrc(false);
@@ -287,18 +284,19 @@ public class SimOverlapSoftSphereEin extends Simulation {
         DataPumpListener accumulatorPump = new DataPumpListener(meterPEdiff, accumulator, interval);
         sim.integrator.getEventManager().addListener(accumulatorPump);
 
-        //MeterTargetTP.openFW("x"+numMolecules+".dat");
-        sim.getController().actionPerformed();
+        //MeterTargetTP.openFW("x"+numMolecules+".dat")
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         //MeterTargetTP.closeFW();
 
-        System.out.println("average delta U " + accumulator.getData().getValue(AccumulatorAverage.AVERAGE.index) + " " + accumulator.getData().getValue(AccumulatorAverage.ERROR.index) + " " + accumulator.getData().getValue(AccumulatorAverage.BLOCK_CORRELATION.index));
+        System.out.println("average delta U " + accumulator.getData().getValue(accumulator.AVERAGE.index) + " " + accumulator.getData().getValue(accumulator.ERROR.index) + " " + accumulator.getData().getValue(accumulator.BLOCK_CORRELATION.index));
 
         System.out.println("\nratio averages:\n");
 
         DataGroup data = (DataGroup)sim.accumulator.getData();
-        IData dataErr = data.getData(AccumulatorAverage.ERROR.index);
-        IData dataAvg = data.getData(AccumulatorAverage.AVERAGE.index);
-        IData dataCorrelation = data.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData dataErr = data.getData(sim.accumulator.ERROR.index);
+        IData dataAvg = data.getData(sim.accumulator.AVERAGE.index);
+        IData dataCorrelation = data.getData(sim.accumulator.BLOCK_CORRELATION.index);
         for (int i=0; i<otherFrac.length; i++) {
             System.out.println(otherFrac[i]);
             double[] iAlpha = sim.meter.getAlpha(i);
@@ -314,7 +312,7 @@ public class SimOverlapSoftSphereEin extends Simulation {
             // but we're going to be interpolating anyway and the covariance is almost
             // completely insensitive to choice of alpha.  so just take the covariance for
             // the middle alphas.
-            IData dataCov = data.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+            IData dataCov = data.getData(((AccumulatorAverageCovariance) accumulator).BLOCK_COVARIANCE.index);
             System.out.print("covariance "+otherFrac[1]+" / "+otherFrac[0]+"   ");
             for (int i=0; i<numAlpha; i++) {
                 i = (numAlpha-1)/2;
@@ -340,13 +338,10 @@ public class SimOverlapSoftSphereEin extends Simulation {
 
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
-        activityIntegrate.setMaxSteps(initSteps);
-        getController().actionPerformed();
-        getController().reset();
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
 
         accumulator.reset();
 
-        getController().reset();
 
     }
     

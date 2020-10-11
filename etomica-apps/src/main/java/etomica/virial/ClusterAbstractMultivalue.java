@@ -6,6 +6,11 @@ package etomica.virial;
 
 public interface ClusterAbstractMultivalue extends ClusterAbstract {
 
-    public double[] getAllLastValues(BoxCluster box);
+    /**
+     * @return number of values returned by getAllLastValues
+     */
+    int getNumValues();
+
+    double[] getAllLastValues(BoxCluster box);
         
 }

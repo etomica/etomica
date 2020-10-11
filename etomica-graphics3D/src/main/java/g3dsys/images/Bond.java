@@ -5,7 +5,6 @@
 package g3dsys.images;
 
 import g3dsys.control.G3DSys;
-
 import org.jmol.g3d.Graphics3D;
 import org.jmol.util.Point3f;
 import org.jmol.util.Point3i;
@@ -85,6 +84,14 @@ public class Bond extends Figure {
 
   public Point3f getEndpoint1() { return p1; }
   public Point3f getEndpoint2() { return p2; }
+
+  public Ball getBall1() {
+    return ball1;
+  }
+
+  public Ball getBall2() {
+    return ball2;
+  }
   
   public short getColor1() { return ball1.getColor(); }
   public short getColor2() { return ball2.getColor(); }

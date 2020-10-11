@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -16,11 +17,11 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
@@ -28,7 +29,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Pixel;
 
 import java.util.ArrayList;
@@ -41,10 +42,10 @@ public class SimHarmonic extends Simulation {
 	private static final String APP_NAME = "Sim Harmonic";
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public NormalModes normalModes;
     public int[] nCells;
     public CoordinateDefinition coordinateDefinition;
@@ -54,7 +55,7 @@ public class SimHarmonic extends Simulation {
 
         int D = space.D();
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         if (space.D() == 1) {
@@ -74,8 +75,7 @@ public class SimHarmonic extends Simulation {
 
         integrator = new IntegratorMC(this, null, box);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
         integrator.getMoveManager().addMCMove(move);
@@ -247,13 +247,11 @@ public class SimHarmonic extends Simulation {
         } else {
             //not graphic, so run simulation batch
             //S data is written to file
-            sim.activityIntegrate.setMaxSteps(steps);
-
-            sim.getController().actionPerformed();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
             DataGroup boltzmannData = (DataGroup)avgBoltzmann.getData();
-            double pNotOverlap = ((DataDouble) boltzmannData.getData(AccumulatorAverage.AVERAGE.index)).x;
-            double pError = ((DataDouble) boltzmannData.getData(AccumulatorAverage.ERROR.index)).x;
+            double pNotOverlap = ((DataDouble) boltzmannData.getData(avgBoltzmann.AVERAGE.index)).x;
+            double pError = ((DataDouble) boltzmannData.getData(avgBoltzmann.ERROR.index)).x;
 
             System.out.println("avg HS Boltzmann factor "+pNotOverlap+" +/- "+pError);
 

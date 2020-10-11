@@ -5,6 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.IAction;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -26,7 +27,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 
@@ -43,11 +44,11 @@ public class SimUmbrella extends Simulation {
 	private static final String APP_NAME = "Sim Umbrella's";
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public Basis basis;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public NormalModes normalModes;
     public int[] nCells;
     public CoordinateDefinition coordinateDefinition;
@@ -80,7 +81,7 @@ public class SimUmbrella extends Simulation {
         }
         //System.out.println("refPref is: "+ refPref);
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         int D = space.D();
@@ -96,8 +97,7 @@ public class SimUmbrella extends Simulation {
         //Target
         box.setNMolecules(species, numAtoms);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         nCells = new int[]{n, n, n};
         basis = new BasisCubicFcc();
@@ -317,19 +317,19 @@ public class SimUmbrella extends Simulation {
         		long idStep = sim.integrator.getStepCount();
 
 
-                double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.AVERAGE.index);
-                double wTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.AVERAGE.index);
+                double wHarmonic = dataAverageHarmonic.getData().getValue(dataAverageHarmonic.AVERAGE.index);
+                double wTarget = dataAverageTarget.getData().getValue(dataAverageTarget.AVERAGE.index);
 
 		        /*
                  * Qharmonic = < e0 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
 		         *  Qtarget  = < e1 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
 		         *
 		         */
-                double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.AVERAGE.index);
-                double Qtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.AVERAGE.index);
+                double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(dataAverageSamplingHarmonic.AVERAGE.index);
+                double Qtarget = dataAverageSamplingTarget.getData().getValue(dataAverageSamplingTarget.AVERAGE.index);
 
-                double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.ERROR.index);
-                double eQtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.ERROR.index);
+                double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(dataAverageSamplingHarmonic.ERROR.index);
+                double eQtarget = dataAverageSamplingTarget.getData().getValue(dataAverageSamplingTarget.ERROR.index);
 
 		        /*
 		         * deltaFE_harmonic: beta*(FE_harmonic - FE_umbrella) = - ln(Qharmonic)
@@ -373,8 +373,7 @@ public class SimUmbrella extends Simulation {
         outputActionListener.setInterval((int)numSteps/100);
         sim.integrator.getEventManager().addListener(outputActionListener);
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         try{
 	        fileWriterSimUmb.close();
@@ -384,21 +383,21 @@ public class SimUmbrella extends Simulation {
         }
 
 
-        double wHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.AVERAGE.index);
-        double wTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.AVERAGE.index);
+        double wHarmonic = dataAverageHarmonic.getData().getValue(dataAverageHarmonic.AVERAGE.index);
+        double wTarget = dataAverageTarget.getData().getValue(dataAverageTarget.AVERAGE.index);
 
-        double eHarmonic = dataAverageHarmonic.getData().getValue(AccumulatorAverage.ERROR.index);
-        double eTarget = dataAverageTarget.getData().getValue(AccumulatorAverage.ERROR.index);
+        double eHarmonic = dataAverageHarmonic.getData().getValue(dataAverageHarmonic.ERROR.index);
+        double eTarget = dataAverageTarget.getData().getValue(dataAverageTarget.ERROR.index);
         /*
          * Qharmonic = < e0 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
          *  Qtarget  = < e1 / [sqrt(e1^2 + alpha^2 * e0^2)]>umbrella
          *
          */
-        double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.AVERAGE.index);
-        double Qtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.AVERAGE.index);
+        double Qharmonic = dataAverageSamplingHarmonic.getData().getValue(dataAverageSamplingHarmonic.AVERAGE.index);
+        double Qtarget = dataAverageSamplingTarget.getData().getValue(dataAverageSamplingTarget.AVERAGE.index);
 
-        double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(AccumulatorAverage.ERROR.index);
-        double eQtarget = dataAverageSamplingTarget.getData().getValue(AccumulatorAverage.ERROR.index);
+        double eQharmonic = dataAverageSamplingHarmonic.getData().getValue(dataAverageSamplingHarmonic.ERROR.index);
+        double eQtarget = dataAverageSamplingTarget.getData().getValue(dataAverageSamplingTarget.ERROR.index);
 
         /*
          * deltaFE_harmonic: beta*(FE_harmonic - FE_umbrella) = - ln(Qharmonic)

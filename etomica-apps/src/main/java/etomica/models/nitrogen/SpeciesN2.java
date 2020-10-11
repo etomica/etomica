@@ -4,16 +4,13 @@
 
 package etomica.models.nitrogen;
 
-import etomica.atom.Atom;
-import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Nitrogen;
-import etomica.molecule.IMolecule;
-import etomica.molecule.Molecule;
 import etomica.space.Space;
-import etomica.space.Vector;
-import etomica.species.Species;
+import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 
 /**
  * 
@@ -24,7 +21,7 @@ import etomica.species.Species;
  * @author Tai Boon Tan
  *
  */
-public class SpeciesN2 extends Species {
+public class SpeciesN2 {
 
     public final static int indexN1 = 0;
     public final static int indexN2 = 1;
@@ -32,52 +29,16 @@ public class SpeciesN2 extends Species {
     public final static int indexP2left = 3;
     public final static int indexP1right = 4;
     public final static int indexP2right = 5;
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final boolean isDynamic;
-    protected final AtomType nType, pType;
-    public SpeciesN2(Space space) {
-        this(space, false);
+
+    public static SpeciesGeneral create(boolean isDynamic) {
+        AtomType nType = new AtomType(Nitrogen.INSTANCE);
+        AtomType pType = new AtomType(new ElementSimple("P", 1.0));
+        Space space = Space3D.getInstance();
+        return new SpeciesBuilder(space)
+                .setDynamic(isDynamic)
+                .withConformation(new ConformationNitrogen(space))
+                .addCount(nType, 2)
+                .addCount(pType, 4)
+                .build();
     }
-    public SpeciesN2(Space space, boolean isDynamic) {
-        super();
-        this.space = space;
-        this.isDynamic = isDynamic;
-
-        nType = new AtomType(Nitrogen.INSTANCE);
-        pType = new AtomType(new ElementSimple("P", 1.0));
-        addChildType(nType);
-        addChildType(pType);
-
-        setConformation(new ConformationNitrogen(space));
-     }
-
-     public IMolecule makeMolecule() {
-         Molecule nitrogen = new Molecule(this, 6);
-         nitrogen.addChildAtom(isDynamic ? new AtomLeafDynamic(space, nType) : new Atom(space, nType));
-         nitrogen.addChildAtom(isDynamic ? new AtomLeafDynamic(space, nType) : new Atom(space, nType));
-         nitrogen.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
-         nitrogen.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
-         nitrogen.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
-         nitrogen.addChildAtom(isDynamic ? new AtomLeafDynamic(space, pType) : new Atom(space, pType));
-
-         conformation.initializePositions(nitrogen.getChildList());
-         return nitrogen;
-     }
-
-    public AtomType getNitrogenType() {
-         return nType;
-     }
-
-    public AtomType getPType() {
-         return pType;
-     }
-
-     public int getNumLeafAtoms() {
-         return 6;
-     }
-
-     public void initializeConformation(IMolecule molecule, Vector v) {
-         ((ConformationNitrogen)conformation).initializePositions(molecule.getChildList(), v);
-     }
 }

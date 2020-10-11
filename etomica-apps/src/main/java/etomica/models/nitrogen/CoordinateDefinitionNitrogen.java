@@ -25,6 +25,7 @@ import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Tensor3D;
+import etomica.species.SpeciesGeneral;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomNumberGenerator;
 
@@ -818,7 +819,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
                 //Putting the molecule back to its nominal orientation
                 // when u3 and u4 equal to zero
                 if (check == 0.0) {
-                    ((ConformationNitrogen) ((SpeciesN2) molecule.getType()).getConformation()).initializePositions(molecule.getChildList(), siteOrientation[0]);
+                    ((ConformationNitrogen) molecule.getType().getConformation()).initializePositions(molecule.getChildList(), siteOrientation[0]);
                     j += coordinateDim / molecules.size();
                     continue;
                 }
@@ -875,7 +876,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
                 orientVector.Ea1Tv1(costheta, siteOrientation[0]);
                 orientVector.PEa1Tv1(sintheta, axis);
                 if (orientVector.isNaN()) throw new RuntimeException();
-                ((ConformationNitrogen) ((SpeciesN2) molecule.getType()).getConformation()).initializePositions(molecule.getChildList(), orientVector);
+                ((ConformationNitrogen) molecule.getType().getConformation()).initializePositions(molecule.getChildList(), orientVector);
 
                 j += coordinateDim / molecules.size();
 
@@ -902,7 +903,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
         //Putting the molecule back to its nominal orientation
         // when u3 and u4 equal to zero
         if (check == 0.0) {
-            ((ConformationNitrogen) ((SpeciesN2) molecule.getType()).getConformation()).initializePositions(molecule.getChildList(), siteOrientation[0]);
+            ((ConformationNitrogen) molecule.getType().getConformation()).initializePositions(molecule.getChildList(), siteOrientation[0]);
             Vector site = getLatticePosition(molecule);
 
             atomActionTranslateTo.setDestination(site);
@@ -969,7 +970,7 @@ public class CoordinateDefinitionNitrogen extends CoordinateDefinitionMolecule
 
         orientVector.Ea1Tv1(costheta, siteOrientation[0]);
         orientVector.PEa1Tv1(sintheta, axis);
-        ((ConformationNitrogen) ((SpeciesN2) molecule.getType()).getConformation()).initializePositions(molecule.getChildList(), orientVector);
+        ((ConformationNitrogen) molecule.getType().getConformation()).initializePositions(molecule.getChildList(), orientVector);
 
         Vector site = getLatticePosition(molecule);
         for (int k = 0; k < site.getD(); k++) {

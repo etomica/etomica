@@ -5,6 +5,7 @@
 package etomica.virial.GUI.models;
 
 
+import etomica.models.co2.SpeciesTraPPECO2;
 import etomica.potential.P2CO2TraPPE;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -12,7 +13,6 @@ import etomica.species.ISpecies;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesTraPPECO2;
 
 public class MolecularModelTrappe_SpeciesCO2 implements IMolecularModel_SpeciesFactory,Cloneable{
 	private static String MoleculeDisplayName = "CO2 - Trappe";
@@ -210,25 +210,9 @@ private String[][] setParameterValues() {
 	
 	//Creates the LJAtom Species
 	public ISpecies createSpecies(){
-		SpeciesFactory factory = new SpeciesFactory() {
-	        public ISpecies makeSpecies(Space space) {
-	        	SpeciesTraPPECO2 species = new SpeciesTraPPECO2(space);
-	            return species;
-	        }
-	    };
-	    return factory.makeSpecies(this.space);
+		return SpeciesTraPPECO2.create(this.space);
 	}
 	
-	public SpeciesFactory createSpeciesFactory(){
-		SpeciesFactory factory = new SpeciesFactory() {
-	        public ISpecies makeSpecies(Space space) {
-	        	SpeciesTraPPECO2 species = new SpeciesTraPPECO2(space);
-	            return species;
-	        }
-	    };
-	    return factory;
-	}
-
 
 	public int getParameterCount() {
 		return 2;

@@ -4,10 +4,10 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.IDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -16,13 +16,13 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisHcp;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.NeighborListManagerSlanty;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.overlap.IntegratorOverlap;
@@ -32,7 +32,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
@@ -55,7 +55,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
     public IntegratorOverlap integratorOverlap;
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
-    public ActivityIntegrate activityIntegrate;
+
     public Box boxTarget, boxHarmonic;
     public Boundary boundaryTarget, boundaryHarmonic;
     public int[] nCells;
@@ -82,7 +82,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
         meters = new IDataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         // TARGET
@@ -213,9 +213,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
 
         setRefPref(1.0, 30);
 
-        activityIntegrate = new ActivityIntegrate(integratorOverlap);
-
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integratorOverlap));
 
         if (potentialMasterTarget instanceof PotentialMasterList) {
             // extend potential range, so that atoms that move outside the truncation range will still interact
@@ -281,7 +279,8 @@ public class SimOverlapSoftSphereHCP extends Simulation {
         System.out.flush();
 
         sim.equilibrate(refFileName, numSteps / 10);
-        if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOverlap, numSteps);
+if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("Simulation failed to find a valid ref pref");
         }
 
@@ -290,9 +289,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
 
         final long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
-
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         double AHarmonic = CalcHarmonicA.doit(sim.normalModes, D, temperature, numMolecules);
         System.out.println("Harmonic-reference free energy, A: " + AHarmonic + " " + AHarmonic / numMolecules);
@@ -311,14 +308,14 @@ public class SimOverlapSoftSphereHCP extends Simulation {
         System.out.println("target free energy per particle: " + (AHarmonic - temperature * Math.log(ratio)) / numMolecules
                 + " ;error: " + temperature * (error / ratio) / numMolecules);
         DataGroup allYourBase = (DataGroup) sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        System.out.println("harmonic ratio average: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]
-                + " stdev: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[1]
-                + " error: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[1]);
+        System.out.println("harmonic ratio average: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
+                + " stdev: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index)).getData()[1]
+                + " error: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
 
         allYourBase = (DataGroup) sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
-        System.out.println("target ratio average: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]
-                + " stdev: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[1]
-                + " error: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[1]);
+        System.out.println("target ratio average: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]
+                + " stdev: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index)).getData()[1]
+                + " error: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[1].ERROR.index)).getData()[1]);
 
 
         long endTime = System.currentTimeMillis();
@@ -398,17 +395,15 @@ public class SimOverlapSoftSphereHCP extends Simulation {
 
         if (refPref == -1) {
             // equilibrate off the lattice to avoid anomolous contributions
-            activityIntegrate.setMaxSteps(initSteps/2);
-            getController().actionPerformed();
-            getController().reset();
+            getController().runActivityBlocking(new ActivityIntegrate(integratorOverlap, initSteps / 2));
+
             System.out.println("target equilibration finished");
 
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,false),1);
             setRefPref(1,200);
-            activityIntegrate.setMaxSteps(initSteps);
-            getController().actionPerformed();
-            getController().reset();
+            getController().runActivityBlocking(new ActivityIntegrate(integratorOverlap, initSteps));
+
 
             int newMinDiffLoc = dsvo.minDiffLocation();
             refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
@@ -425,7 +420,7 @@ public class SimOverlapSoftSphereHCP extends Simulation {
             // set refPref back to -1 so that later on we know that we've been looking for
             // the appropriate value
             refPref = -1;
-            getController().reset();
+
         }
 
     }
@@ -433,13 +428,11 @@ public class SimOverlapSoftSphereHCP extends Simulation {
     public void equilibrate(String fileName, long initSteps) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
-        activityIntegrate.setMaxSteps(initSteps);
-
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        getController().actionPerformed();
-        getController().reset();
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integratorOverlap, initSteps));
+
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
         }

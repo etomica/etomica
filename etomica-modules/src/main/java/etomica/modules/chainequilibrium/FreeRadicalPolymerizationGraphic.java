@@ -14,10 +14,11 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.modifier.ModifierNMolecule;
+import etomica.potential.P2SquareWell;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.units.dimensions.Dimension;
 import etomica.units.*;
+import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Quantity;
 import etomica.util.Constants.CompassDirection;
 
@@ -62,7 +63,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
 
         final IAction resetAction = getController().getSimRestart().getDataResetAction();
         
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.controller1, sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
 
         // Sliders on Well depth page
         final DeviceSlider AASlider = sliders(eMin, eMax/2, "initiator-initiatior", sim.p2AA);
@@ -72,7 +73,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         
         DeviceBox solventThermoFrac = new DeviceBox();
         solventThermoFrac.setController(sim.getController());
-        solventThermoFrac.setModifier(new ModifierGeneral(sim.p2AA, "solventThermoFrac"));
+        solventThermoFrac.setModifier(new ModifierGeneral(new P2SquareWell[]{sim.p2AA, sim.p2AB, sim.p2BB}, "solventThermoFrac"));
         solventThermoFrac.setLabel("fraction heat transfer to solvent");
         DisplayTextBox tBox = new DisplayTextBox();
 
@@ -89,7 +90,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         AccumulatorHistory tHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         tHistory.setTimeDataSource(timer);
         tFork.addDataSink(tHistory);
-        DisplayPlot tPlot = new DisplayPlot();
+        DisplayPlotXChart tPlot = new DisplayPlotXChart();
         tHistory.addDataSink(tPlot.getDataSet().makeDataSink());
         tPlot.setUnit(Kelvin.UNIT);
         tPlot.setLabel("Temperature");
@@ -158,18 +159,18 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         getController().getResetAveragesButton().setLabel("Reset");
         getController().getResetAveragesButton().setPostAction(resetData);
 
-        DisplayPlot compositionPlot = new DisplayPlot();
+        DisplayPlotXChart compositionPlot = new DisplayPlotXChart();
         accumulator.addDataSink(compositionPlot.getDataSet().makeDataSink(),new AccumulatorAverage.StatType[]{accumulator.AVERAGE});
         compositionPlot.setDoLegend(false);
 
-        DisplayPlot mwPlot = new DisplayPlot();
+        DisplayPlotXChart mwPlot = new DisplayPlotXChart();
         mwPlot.setLabel("Degree of polymerization");
         mwHistory.addDataSink(mwPlot.getDataSet().makeDataSink());
         mwPlot.setLegend(new DataTag[]{mwHistory.getTag()}, "Number Avg");
         mw2History.addDataSink(mwPlot.getDataSet().makeDataSink());
         mwPlot.setLegend(new DataTag[]{mw2History.getTag()}, "Weight Avg");
 
-        DisplayPlot conversionPlot = new DisplayPlot();
+        DisplayPlotXChart conversionPlot = new DisplayPlotXChart();
         conversionHistoryAcc.addDataSink(conversionPlot.getDataSet().makeDataSink());
         conversionPlot.setDoLegend(false);
 //        conversionPlot.setLegend(new DataTag[]{reactionConversion.getTag()}, "reaction conversion");
@@ -193,7 +194,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
             }
         });
 
-        DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.controller1, sim.integratorHard);
+        DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integratorHard);
         temperatureSelect.setUnit(Kelvin.UNIT);
         temperatureSelect.setMaximum(1200);
         temperatureSelect.setIsothermal();
@@ -214,18 +215,18 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         
         final DeviceButton atomFilterButton;
         if (space.D() == 3) {
-            final AtomFilterChainLength atomFilter = new AtomFilterChainLength(sim.agentManager);
+            final AtomTestChainLength atomFilter = new AtomTestChainLength(sim.agentManager);
             atomFilter.setBox(sim.box);
             atomFilterButton = new DeviceButton(sim.getController());
             atomFilterButton.setAction(new IAction() {
                 public void actionPerformed() {
                     DisplayBox displayBox = getDisplayBox(sim.box);
-                    if (displayBox.getAtomFilter() == null) {
-                        displayBox.setAtomFilter(atomFilter);
+                    if (displayBox.getAtomTestDoDisplay() == null) {
+                        displayBox.setAtomTestDoDisplay(atomFilter);
                         atomFilterButton.setLabel("Show all");
                     }
                     else {
-                        displayBox.setAtomFilter(null);
+                        displayBox.setAtomTestDoDisplay(null);
                         atomFilterButton.setLabel("Show only longest chain");
                     }
                     displayBox.repaint();
@@ -318,8 +319,8 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
             }
         });
         conversionPanel.add(conversionHistoryLength.graphic(),vertGBC);
-        
-        getPanel().tabbedPane.add("Conversion" , conversionPanel);
+
+        getPanel().tabbedPane.add("Conversion", conversionPanel);
 
         JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
         JPanel epsilonSliders = new JPanel(new java.awt.GridBagLayout());
@@ -328,8 +329,8 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         speciesEditors.add(nSliderA.graphic());
         speciesEditors.add(nSliderB.graphic());
 
-        epsilonSliders.add(AASlider.graphic(null), vertGBC);
-        epsilonSliders.add(BSlider.graphic(null), vertGBC);
+        epsilonSliders.add(AASlider.graphic(), vertGBC);
+        epsilonSliders.add(BSlider.graphic(), vertGBC);
         epsilonSliders.add(solventThermoFrac.graphic(), vertGBC);
         epsilonSliders.add(combinationProbabilityBox.graphic(), vertGBC);
 
@@ -337,7 +338,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
         if (space.D() == 3) {
             controls.add(atomFilterButton.graphic(), vertGBC);
         }
-        
+
         final JTabbedPane sliderPanel = new JTabbedPane();
         //panel for all the controls
         getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);

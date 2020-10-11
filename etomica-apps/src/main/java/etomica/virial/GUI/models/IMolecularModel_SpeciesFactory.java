@@ -30,8 +30,6 @@ public interface IMolecularModel_SpeciesFactory {
 	//Added June 20, 2011
 	public String[][] getParamAndValues();
 
-	public SpeciesFactory createSpeciesFactory();
-	
 	public ISpecies createSpecies();
 
 	public Object clone();

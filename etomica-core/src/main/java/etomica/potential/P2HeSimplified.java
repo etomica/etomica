@@ -63,12 +63,21 @@ public class P2HeSimplified extends Potential2SoftSpherical {
         double r10 = r6*r4;
         return A0*A1*A1*Math.exp(-A1*r)*r2 - 42*A2/(r6) - A3*(useC10? 110/r10 : 72/r8);
     }
-            
+
     /**
      *  Integral used for corrections to potential truncation.
      */
     public double uInt(double rC) {
-        return 0;
+        double A = 4 * Math.PI;
+        double sc = 1 / rC;
+        double sc2 = sc * sc;
+        double sc3 = sc * sc * sc;
+        double sc6 = sc3 * sc3;
+        double sc8 = sc6 * sc2;
+        double sc10 = sc8 * sc2;
+        double a = useC10 ? 10 : 8;
+        // ignore exp term
+        return -A * (A3 * (useC10 ? sc10 : sc8) / (a - 3) + A2 * sc6 / (6. - 3)) / sc3;
     }
 
     public P2HeQFH makeQFH(double temperature) {

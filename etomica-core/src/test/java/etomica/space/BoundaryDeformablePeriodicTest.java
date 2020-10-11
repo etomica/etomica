@@ -5,6 +5,7 @@
 package etomica.space;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
@@ -12,7 +13,7 @@ import etomica.lattice.IndexIteratorRectangular;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Pixel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -81,7 +82,7 @@ public class BoundaryDeformablePeriodicTest {
 
     public static SimulationGraphic makeDisplay(BoundaryDeformablePeriodicTest test) {
         Simulation sim = new Simulation(test.space);
-        SpeciesSpheresMono species = new SpeciesSpheresMono(sim, test.space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(test.space, AtomType.simpleFromSim(sim));
         sim.addSpecies(species);
         Box box = new Box(test.boundary, test.space);
         sim.addBox(box);

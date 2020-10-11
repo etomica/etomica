@@ -117,6 +117,28 @@ public class DisplayPlot extends Display implements DataSetListener {
             }
         };
         popupMenu.addPopupMenuListener(popupMenuListener);
+
+        JMenu logMenuItem = new JMenu("toggle log");
+        JMenuItem xlogMenuItem = new JMenuItem("x");
+        xlogMenuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                boolean log = plot.getXLog();
+                plot.setXLog(!log);
+                doUpdate();
+            }
+        });
+        logMenuItem.add(xlogMenuItem);
+        JMenuItem ylogMenuItem = new JMenuItem("y");
+        ylogMenuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                boolean log = plot.getYLog();
+                plot.setYLog(!log);
+                doUpdate();
+            }
+        });
+        logMenuItem.add(ylogMenuItem);
+        popupMenu.add(logMenuItem);
+
         plot.addMouseListener(new PopupListener(popupMenu));
     }
 
@@ -345,7 +367,9 @@ public class DisplayPlot extends Display implements DataSetListener {
     /**
      * Overrides superclass method to return a JPanel holding the plot.
      */
-    public java.awt.Component graphic(Object obj) {return panel;}
+    public java.awt.Component graphic() {
+        return panel;
+    }
 
 
     /**

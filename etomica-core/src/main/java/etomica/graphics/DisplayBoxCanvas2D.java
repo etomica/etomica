@@ -4,11 +4,11 @@
 
 package etomica.graphics;
 
-import etomica.action.activity.Controller;
-import etomica.space.Boundary;
+import etomica.action.controller.Controller;
 import etomica.atom.*;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
+import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Pixel;
@@ -24,19 +24,17 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     protected final Space space;
     private final int[] atomOrigin;
     private final Vector boundingBox;
-    Vector vec2;
-    private TextField scaleText = new TextField();
     private Font font = new Font("sansserif", Font.PLAIN, 10);
     //  private int annotationHeight = font.getFontMetrics().getHeight();
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
+    protected Color orientationColor = Color.RED;
+    protected double orientationLength = 1.0;
 
     public DisplayBoxCanvas2D(DisplayBox _box, Space _space, Controller controller) {
         super(controller);
     	this.space = _space;
-        scaleText.setVisible(true);
-        scaleText.setEditable(false);
-        scaleText.setBounds(0,0,100,50);
+
         displayBox = _box;
         atomOrigin = new int[space.D()];
         boundingBox = space.makeVector();
@@ -47,7 +45,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             public void componentShown(ComponentEvent e) {}
             public void componentResized(ComponentEvent e) { refreshSize(); }});
     }
-    
+
     protected void refreshSize() {
         Dimension dim = getSize();
         Vector boxDim = displayBox.getBox().getBoundary().getBoxSize();
@@ -87,7 +85,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         createOffScreen(width,height);
     }
 
-    protected void drawAtom(Graphics g, int origin[], IAtom a) {
+    protected void drawAtom(Graphics g, int[] origin, IAtom a) {
         Vector r = a.getPosition();
         int sigmaP, xP, yP, baseXP, baseYP;
 
@@ -107,16 +105,22 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         sigmaP = (sigmaP == 0) ? 1 : sigmaP;
         xP = baseXP - (sigmaP>>1);
         yP = baseYP - (sigmaP>>1);
-        g.fillOval(xP, yP, sigmaP, sigmaP);
         /* Draw the orientation line, if any */
         if(drawOrientation) {
             Vector dir = ((IAtomOriented)a).getOrientation().getDirection();
-            int dxy = (int)(toPixels*0.5*sigma);
-            int dx = (int)(dxy*dir.getX(0));
-            int dy = (int)(dxy*dir.getX(1));
+            double dxy = 2*(toPixels * 0.5 * sigma);
+            int dx = (int) (.7*orientationLength * dxy * dir.getX(0));
+            int dy = (int) (.7*orientationLength * dxy * dir.getX(1));
             g.setColor(Color.red);
-            xP += dxy; yP += dxy;
-            g.drawLine(xP-dx, yP-dy, xP+dx, yP+dy);
+            xP += (int) dxy;
+            yP += (int) dxy;
+            g.drawLine(xP, yP, xP + dx/2, yP + dy/2);
+            g.fillOval(xP+dx/2-sigmaP/2, yP+dy/2-sigmaP/2, sigmaP, sigmaP);
+            g.setColor(Color.black);
+            g.drawLine(xP, yP, xP - dx/2, yP - dy/2);
+            g.fillOval(xP-dx/2-sigmaP/2, yP-dy/2-sigmaP/2, sigmaP, sigmaP);
+        } else {
+            g.fillOval(xP, yP, sigmaP, sigmaP);
         }
     }
 
@@ -140,9 +144,9 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         //Draw other features if indicated
         // and the boundary is an etomica boundary.  Non-etomica objects
         // do not have a shape.
-        if(drawBoundary>DRAW_BOUNDARY_NONE && displayBox.getBox().getBoundary() instanceof Boundary ) {
+        if (drawBoundary > DRAW_BOUNDARY_NONE) {
             g.setColor(Color.gray);
-            Polygon shape = (Polygon)((Boundary)displayBox.getBox().getBoundary()).getShape();
+            Polygon shape = (Polygon) displayBox.getBox().getBoundary().getShape();
             LineSegment[] edges = shape.getEdges();
             int ox = origin[0] + (int)(toPixels*boundingBox.getX(0)*0.5);
             int oy = origin[1] + (int)(toPixels*boundingBox.getX(1)*0.5);
@@ -163,7 +167,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             Drawable obj = (Drawable)iter.next();
             obj.draw(g, origin, toPixels);
         }
-            
+
         //Color all atoms according to colorScheme in DisplayBox
 //        displayBox.getColorScheme().colorAllAtoms();
 
@@ -171,7 +175,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
 //        vec2 = vert[2].M(vert[0]);
 //        vec2.ME(vec);
 //        vec2.TE(0.5);
-        
+
         atomOrigin[0] = origin[0] + (int)(0.5*toPixels*boundingBox.getX(0));
         atomOrigin[1] = origin[1] + (int)(0.5*toPixels*boundingBox.getX(1));
 //        vec.TE(0.0);
@@ -183,13 +187,13 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         }
         IAtomList leafList = displayBox.getBox().getLeafList();
         int nLeaf = leafList.size();
-        AtomFilter atomFilter = displayBox.getAtomFilter();
-        if (atomFilter instanceof AtomFilterCollective) {
-            ((AtomFilterCollective)atomFilter).resetFilter();
+        AtomTest atomTest = displayBox.getAtomTestDoDisplay();
+        if (atomTest instanceof AtomTestCollective) {
+            ((AtomTestCollective) atomTest).resetTest();
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom a = leafList.get(iLeaf);
-            if(atomFilter != null && atomFilter.test(a)) continue;
+            if (atomTest != null && !atomTest.test(a)) continue;
             if(this instanceof DisplayBoxSpin2D) {
             	drawAtom(g, origin, a);
             }
@@ -197,7 +201,7 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
                 drawAtom(g, atomOrigin, a);
             }
         }
-            
+
         //Draw overflow images if so indicated
         if(displayBox.getDrawOverflow()) {
             Boundary boundary = displayBox.getBox().getBoundary();
@@ -216,14 +220,12 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
         }
 
         //Draw periodic images if indicated ONLY for an etomica Boundary
-        if(displayBox.getBox().getBoundary() instanceof Boundary) {
-        	if(displayBox.getImageShells() > 0) {
+        if (displayBox.getImageShells() > 0) {
 
-	            double[][] origins = ((Boundary)displayBox.getBox().getBoundary()).imageOrigins(displayBox.getImageShells());  //more efficient to save rather than recompute each time
-	            for(int i=0; i<origins.length; i++) {
-	                g.copyArea(displayBox.getOrigin()[0],displayBox.getOrigin()[1],displayBox.getDrawSize()[0],displayBox.getDrawSize()[1],(int)(toPixels*origins[i][0]),(int)(toPixels*origins[i][1]));
-	            }
-        	}
+            double[][] origins = displayBox.getBox().getBoundary().imageOrigins(displayBox.getImageShells());  //more efficient to save rather than recompute each time
+            for (int i = 0; i < origins.length; i++) {
+                g.copyArea(displayBox.getOrigin()[0], displayBox.getOrigin()[1], displayBox.getDrawSize()[0], displayBox.getDrawSize()[1], (int) (toPixels * origins[i][0]), (int) (toPixels * origins[i][1]));
+            }
         }
         //Draw bar showing scale if indicated
         if(writeScale) {
@@ -231,7 +233,20 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             g.fillRect(0,getSize().height-annotationHeight,getSize().width,annotationHeight);
             g.setColor(Color.black);
             g.setFont(font);
-            g.drawString("Scale: "+Integer.toString((int)(100*displayBox.getScale()))+"%", 0, getSize().height-3);
+            g.drawString("Scale: " + (int) (100 * displayBox.getScale()) + "%", 0, getSize().height - 3);
         }
     }//end of doPaint
+
+    public void setOrientationColor(Color color) {
+        orientationColor = color;
+    }
+
+    /**
+     * Sets the length of the drawn orientation line as a fraction of diameter
+     *
+     * @param orientationLength [copy/paste]
+     */
+    public void setOrientationLength(double orientationLength) {
+        this.orientationLength = orientationLength;
+    }
 }  //end of DisplayBox.Canvas

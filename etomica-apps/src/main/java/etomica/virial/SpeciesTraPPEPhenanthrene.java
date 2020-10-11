@@ -4,18 +4,16 @@
 
 package etomica.virial;
 
-import etomica.atom.Atom;
-import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomType;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.ElementSimple;
-import etomica.molecule.IMolecule;
-import etomica.molecule.Molecule;
 import etomica.space.Space;
-import etomica.species.Species;
+import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 
 /**
- *  
+ *
  * Species Phenanthrene molecule
  * this is for TraPPE, the Phenanthrene is rigid , LJ potential
  * reference: TraPPE 4, UA description of linear and branched alkanes and alkylbenzenes, Siepmann
@@ -24,7 +22,7 @@ import etomica.species.Species;
  * March.19.2011
  *
  */
-public class SpeciesTraPPEPhenanthrene extends Species {
+public class SpeciesTraPPEPhenanthrene {
 
     public final static int indexC1 = 0;
     public final static int indexC2 = 1;
@@ -40,59 +38,16 @@ public class SpeciesTraPPEPhenanthrene extends Species {
     public final static int indexCH8 = 11;
     public final static int indexCH9 = 12;
     public final static int indexCH10 = 13;
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final boolean isDynamic;
-    protected final AtomType cType, chType;
-    public SpeciesTraPPEPhenanthrene(Space space) {
-        this(space, false);
+
+    public static SpeciesGeneral create(boolean isDynamic) {
+        AtomType chType = new AtomType(new ElementSimple("CH", 13.0107));
+        AtomType cType = new AtomType(Carbon.INSTANCE);
+        Space space = Space3D.getInstance();
+        return new SpeciesBuilder(space)
+                .setDynamic(isDynamic)
+                .withConformation(new ConformationPhenanthreneTraPPE(space))
+                .addCount(cType, 4)
+                .addCount(chType, 10)
+                .build();
     }
-    public SpeciesTraPPEPhenanthrene(Space space, boolean isDynamic) {
-        super();
-        this.space = space;
-        this.isDynamic = isDynamic;
-
-        chType = new AtomType(new ElementSimple("CH", 13.0107));
-        cType = new AtomType(Carbon.INSTANCE);
-        ////should change because it is not united atom!!!
-        addChildType(chType);
-        addChildType(cType);
-
-        setConformation(new ConformationPhenanthreneTraPPE(space));
-     }
-
-    public IMolecule makeMolecule() {
-         Molecule Phenanthrene = new Molecule(this, 14);
-         // 4 Carbon without H, 8 Carbon with H
-         Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
-         Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
-         Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
-         Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, cType) : new Atom(space, cType));
-
-         Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-         Phenanthrene.addChildAtom(isDynamic ? new AtomLeafDynamic(space, chType) : new Atom(space, chType));
-
-         conformation.initializePositions(Phenanthrene.getChildList());
-         return Phenanthrene;
-     }
-
-    public AtomType getCType() {
-         return cType;
-     }
-
-    public AtomType getCHType() {
-         return chType;
-     }
-
-     public int getNumLeafAtoms() {
-         return 14;
-     }
 }

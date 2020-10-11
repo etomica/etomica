@@ -5,11 +5,15 @@
 package etomica.mappedvirial;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.*;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataPump;
+import etomica.data.DataPumpListener;
+import etomica.data.IData;
 import etomica.data.histogram.Histogram;
 import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterRDFPC;
@@ -25,7 +29,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -35,18 +39,18 @@ import java.util.ArrayList;
 
 public class MappedVirialLJVGr extends Simulation {
     
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public IntegratorMC integrator;
     public MCMoveAtom move;
-    public ActivityIntegrate activityIntegrate;
+
     public P2SoftSphericalTruncated p2Truncated;
     
     public MappedVirialLJVGr(Space _space, int numAtoms, double temperature, double density, double rc) {
         super(_space);
 
         //species
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, rc, space);
@@ -55,8 +59,7 @@ public class MappedVirialLJVGr extends Simulation {
         //controller and integrator
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         move = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(move);
 
@@ -147,13 +150,11 @@ public class MappedVirialLJVGr extends Simulation {
         }
         
         long t1 = System.currentTimeMillis();
-        
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.integrator.getMoveManager().setEquilibrating(false);
-        
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
+
+sim.integrator.getMoveManager().setEquilibrating(false);
+
         int nBins = 1000000;
         long numSamples = numSteps/numAtoms;
         long samplesPerBlock = numSamples/nBlocks;
@@ -186,27 +187,26 @@ public class MappedVirialLJVGr extends Simulation {
             int nbins = (int)Math.round(rc/0.01);
             meterF = new MeterMeanForce(space, sim.integrator.getPotentialMaster(), sim.p2Truncated, sim.box, nbins);
             if (computeP && computePMA) sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterF, numAtoms));
-    
+
             meterRDF = new MeterRDFPC(space, sim.integrator.getPotentialMaster(), sim.box);
             meterRDF.setBox(sim.box);
             meterRDF.getXDataSource().setNValues(nbins);
             meterRDF.getXDataSource().setXMax(rc);
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
         }
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
-        sim.getController().actionPerformed();
-
-        IData mappedAvg = accMappedVirial.getData(AccumulatorAverage.AVERAGE);
-        IData mappedErr = accMappedVirial.getData(AccumulatorAverage.ERROR);
-        IData mappedCor = accMappedVirial.getData(AccumulatorAverage.BLOCK_CORRELATION);
+        IData mappedAvg = accMappedVirial.getData(accMappedVirial.AVERAGE);
+        IData mappedErr = accMappedVirial.getData(accMappedVirial.ERROR);
+        IData mappedCor = accMappedVirial.getData(accMappedVirial.BLOCK_CORRELATION);
         double avg = mappedAvg.getValue(0);
         double err = mappedErr.getValue(0);
         double cor = mappedCor.getValue(0);
         if (computePMA) System.out.print(String.format("avg: %13.6e   err: %11.4e   cor: % 4.2f\n", avg, err, cor));
 
-        double pAvg = accP.getData(AccumulatorAverage.AVERAGE).getValue(0);
-        double pErr = accP.getData(AccumulatorAverage.ERROR).getValue(0);
-        double pCor = accP.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
+        double pAvg = accP.getData(accP.AVERAGE).getValue(0);
+        double pErr = accP.getData(accP.ERROR).getValue(0);
+        double pCor = accP.getData(accP.BLOCK_CORRELATION).getValue(0);
         if (computeP) System.out.print(String.format("Pressure     avg: %13.6e   err: %11.4e   cor: % 4.2f\n", pAvg, pErr, pCor));
 
         if (functionsFile != null) {

@@ -6,6 +6,7 @@ package etomica.rotation;
 
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
+import etomica.chem.elements.ElementSimple;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.IMoleculeOriented;
 import etomica.potential.IPotentialMolecularTorque;
@@ -15,6 +16,7 @@ import etomica.space.*;
 import etomica.space3d.IOrientation3D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.random.RandomNumberGenerator;
 
@@ -245,8 +247,7 @@ public class P2LJDipole extends PotentialMolecular implements IPotentialMolecula
         RandomNumberGenerator random = new RandomNumberGenerator();
         Space3D space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesSpheresRotating species = new SpeciesSpheresRotating(sim, space);
-        species.setIsDynamic(true);
+        SpeciesGeneral species = SpeciesSpheresRotating.create(space, new ElementSimple(sim), true, true);
         sim.addSpecies(species);
         Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
         sim.addBox(box);

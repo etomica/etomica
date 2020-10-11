@@ -7,7 +7,6 @@ package etomica.modules.rheology;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.molecule.IMoleculeList;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.CompoundDimension;
@@ -31,16 +30,11 @@ public class MeterEndToEnd extends DataSourceScalar {
     }
     
     public double getDataAsScalar() {
-        IMoleculeList molecules = box.getMoleculeList();
-        double ee_tot = 0;
-        for (int i = 0; i<molecules.size(); i++) {
-            IAtomList atoms = molecules.get(i).getChildList();
-            dr.E(atoms.get(atoms.size()-1).getPosition());
-            dr.ME(atoms.get(0).getPosition());
-            box.getBoundary().nearestImage(dr);
-            ee_tot += dr.squared();
-        }
-        return ee_tot/molecules.size();
+        IAtomList atoms = box.getLeafList();
+        dr.E(atoms.get(atoms.size() - 1).getPosition());
+        dr.ME(atoms.get(0).getPosition());
+        box.getBoundary().nearestImage(dr);
+        return dr.squared();
     }
 
     protected Box box;

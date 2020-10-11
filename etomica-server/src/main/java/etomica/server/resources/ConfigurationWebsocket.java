@@ -19,8 +19,6 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -57,12 +55,12 @@ public class ConfigurationWebsocket {
         SimulationWrapper wrapper = (SimulationWrapper) model.getWrapper(sim);
 
         Runnable sendConfigurationUpdate = () -> {
-            if(sim.getController().isPaused() || !sim.getController().isActive()) {
+            if(sim.getController().isPaused()) {
                 return;
             }
 
 
-            sim.getController().doActionNow(() -> {
+            sim.getController().submitActionInterrupt(() -> {
                 Boundary[] boundaries = new Boundary[sim.getBoxCount()];
                 for (int i = 0; i < sim.getBoxCount(); i++) {
                     boundaries[i] = sim.getBox(i).getBoundary();

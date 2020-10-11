@@ -7,11 +7,9 @@ package etomica.species;
 import etomica.atom.Atom;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
-import etomica.chem.elements.ElementSimple;
 import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculeOriented;
 import etomica.molecule.MoleculeOrientedDynamic;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -21,57 +19,14 @@ import etomica.space.Vector;
  *
  * @author Andrew Schultz
  */
-public class SpeciesSpheresRotatingMolecule extends SpeciesSpheresMono implements ISpeciesOriented {
+public class SpeciesSpheresRotatingMolecule {
 
-    private static final long serialVersionUID = 1L;
-    protected Vector moment;
-
-    public SpeciesSpheresRotatingMolecule(Simulation sim, Space _space) {
-        this(sim, _space, makeNominalMoment(_space));
-    }
-
-    public SpeciesSpheresRotatingMolecule(Simulation sim, Space _space, Vector moment) {
-        this(_space, new AtomType(new ElementSimple(sim)), moment);
-    }
-
-    public SpeciesSpheresRotatingMolecule(Space _space, AtomType atomType, Vector moment) {
-        super(_space, atomType);
-        this.moment = _space.makeVector();
-        this.moment.E(moment);
-    }
-
-    protected static final Vector makeNominalMoment(Space space) {
-        Vector m = space.makeVector();
-        m.E(1);
-        return m;
-    }
-
-    /**
-     * Constructs a new group.
-     */
-     public IMolecule makeMolecule() {
-         MoleculeOriented group = isDynamic ? new MoleculeOrientedDynamic(space, this, 1)
-                                            : new MoleculeOriented(space, this, 1);
-         group.addChildAtom(makeLeafAtom());
-         return group;
-     }
-
-    protected IAtom makeLeafAtom() {
-        return new Atom(space, leafAtomType);
-    }
-
-    public double getMass() {
-        return leafAtomType.getMass();
-    }
-
-    public Vector getMomentOfInertia() {
-        return moment;
-    }
-
-    /**
-     * Sets the species' moment of inertia to the given moment.
-     */
-    public void setMomentOfInertia(Vector newMoment) {
-        moment.E(newMoment);
+    public static SpeciesGeneral create(Space space, AtomType atomType, Vector moment, boolean isDynamic) {
+        return new SpeciesBuilder(space)
+                .addAtom(atomType, space.makeVector())
+                .setMoleculeOriented(true)
+                .setMomentOfInertia(moment)
+                .setDynamic(isDynamic)
+                .build();
     }
 }

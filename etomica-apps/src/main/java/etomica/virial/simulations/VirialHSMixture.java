@@ -5,6 +5,8 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageFixed;
@@ -14,9 +16,10 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.space.Vector;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -28,7 +31,7 @@ import java.awt.*;
 /**
  * Calculation for virial coefficients of hard sphere mixture
  *
- * @author Pavan and Andrew
+ * @author Arpit, Pavan and Andrew
  */
 public class VirialHSMixture {
 
@@ -38,14 +41,16 @@ public class VirialHSMixture {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.nPoints = 5;
+            params.nPoints = 6;
             params.numSteps = 10000000L;
             params.ref = VirialHSParam.CHAIN_TREE;
             params.chainFrac = 0.5;
-            params.q = 0.5;
-            params.nonAdd = 0.05;
-            params.cff = 1;
-            params.D = 2;
+            params.q = 0.2;
+            params.nonAdd = 0.0;
+            params.cff = 3;
+            params.D = 3;
+            params.L = 6;
+            params.flag = true; //To account for boundary of box while computing distance
         }
         final int nSmall = params.cff;
         final int nPoints = params.nPoints;
@@ -59,9 +64,12 @@ public class VirialHSMixture {
         nonAdd[0][1] = nonAdd[1][0] = params.nonAdd;
         final double chainFrac = params.chainFrac;
         final int D = params.D;
+        final double L = params.L;
+        final boolean flag = params.flag;
         System.out.println("Number of points: " + nPoints);
         System.out.println("Dimensions: " + D);
         System.out.println("nonAdd: " + params.nonAdd);
+        System.out.println("Box Length: " + L);
         Space space = Space.getInstance(D);
         long t1 = System.currentTimeMillis();
 
@@ -86,8 +94,9 @@ public class VirialHSMixture {
             }
         }
 
-        MayerHSMixture fTarget = MayerHSMixture.makeTargetF(nPoints, pairSigma);
-        MayerFunction fRefPos = MayerHSMixture.makeReferenceF(space, nPoints, pairSigma);
+        Boundary b = new BoundaryRectangularPeriodic(space, L * sigmaB);
+        MayerHSMixture fTarget = MayerHSMixture.makeTargetF(space, nPoints, pairSigma, b);
+        MayerHSMixture fRefPos = MayerHSMixture.makeReferenceF(space, nPoints, pairSigma, b);
 
         final ClusterAbstract targetCluster = new ClusterWheatleyHS(nPoints, fTarget);
         targetCluster.setTemperature(1.0);
@@ -112,6 +121,12 @@ public class VirialHSMixture {
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc, ct});
             ((ClusterWeightUmbrella) refCluster).setWeightCoefficients(new double[]{chainFrac / cc.numDiagrams(), (1 - chainFrac) / ct.numDiagrams()});
             ri = 1;
+        } else if (ref == VirialHSParam.RANDOM) {
+            System.out.println("using random particles in box reference");
+            ClusterConstant cc = new ClusterConstant(nPoints, Math.pow(1.0/L, 3.0*(nPoints-1)));
+            refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc});
+            ((ClusterWeightUmbrella) refCluster).setWeightCoefficients(new double[]{1.0});
+            ri = 1;
         } else {
             throw new RuntimeException();
         }
@@ -123,7 +138,7 @@ public class VirialHSMixture {
         ClusterAbstract[] targetDiagrams = new ClusterAbstract[]{targetCluster};
 
         System.out.println(steps + " steps ");
-        final SimulationVirial sim = new SimulationVirial(space, new SpeciesSpheresMono(space, new ElementSimple("A")), 1.0, ClusterWeightAbs.makeWeightCluster(refCluster), refCluster, targetDiagrams, false);
+        final SimulationVirial sim = new SimulationVirial(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), 1.0, ClusterWeightAbs.makeWeightCluster(refCluster), refCluster, targetDiagrams, false);
         MeterVirialBD meter = new MeterVirialBD(sim.allValueClusters);
         meter.setBox(sim.box);
         sim.setMeter(meter);
@@ -145,10 +160,13 @@ public class VirialHSMixture {
             MCMoveClusterAtomHSChainMix mcMoveHSC = new MCMoveClusterAtomHSChainMix(sim.getRandom(), space, pairSigma);
             sim.integrator.getMoveManager().addMCMove(mcMoveHSC);
             sim.integrator.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
+        } else if (ref == VirialHSParam.RANDOM) {
+            MCMoveClusterAtomInBox mcMoveHS = new MCMoveClusterAtomInBox(sim.getRandom(), space);
+            sim.integrator.getMoveManager().addMCMove(mcMoveHS);
         }
 
         if (false) {
-            sim.box.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+            sim.box.getBoundary().setBoxSize(space.makeVector(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box);
 //            displayBox0.setPixelUnit(new Pixel(300.0/size));
@@ -169,7 +187,7 @@ public class VirialHSMixture {
 
             sim.setAccumulatorBlockSize(1000);
 
-            final JPanel panelParentGroup = new JPanel(new java.awt.GridBagLayout());
+            final JPanel panelParentGroup = new JPanel(new GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;
             gbc.gridwidth = 2;
@@ -221,8 +239,7 @@ public class VirialHSMixture {
         }
 
 
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
 
         DataGroup allYourBase = (DataGroup) accumulator.getData();
@@ -253,13 +270,15 @@ public class VirialHSMixture {
     public static class VirialHSParam extends ParameterBase {
         public int nPoints = 3;
         public long numSteps = 100000000;
-        public static final int TREE = 0, CHAINS = 1, CHAIN_TAIL = 4, CHAIN_TREE = 5, CRINGS = 6, RING_TREE = 7, RINGS = 8, RING_CHAIN_TREES = 9;
+        public static final int TREE = 0, CHAINS = 1, CHAIN_TAIL = 4, CHAIN_TREE = 5, CRINGS = 6, RING_TREE = 7, RINGS = 8, RING_CHAIN_TREES = 9, RANDOM = 10;
         public int ref = CHAIN_TREE;
         public double chainFrac = 0.5;
         public double q = 0.1;
         public int cff = 0;
         public double nonAdd = 0;
         public int D = 3;
+        public double L = 3;
+        public boolean flag = true;
     }
 
 }

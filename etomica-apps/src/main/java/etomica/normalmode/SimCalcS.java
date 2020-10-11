@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -17,7 +18,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * MD simulation of hard spheres in 1D or 3D with tabulation of the
@@ -27,7 +28,7 @@ public class SimCalcS extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public IntegratorMD integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary bdry;
     public Primitive primitive;
@@ -35,7 +36,7 @@ public class SimCalcS extends Simulation {
     public SimCalcS(Space _space, int numAtoms, double density) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
@@ -74,8 +75,7 @@ public class SimCalcS extends Simulation {
         integrator.setTemperature(1.0);
 
         integrator.setIsothermal(false);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         // activityIntegrate.setMaxSteps(nSteps);
 
 
@@ -161,14 +161,11 @@ public class SimCalcS extends Simulation {
 
         // start simulation
         int nSteps = (int) (simTime / sim.integrator.getTimeStep());
-        sim.activityIntegrate.setMaxSteps(nSteps/10);
-        sim.getController().actionPerformed();
-        System.out.println("equilibration finished");
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, nSteps / 10));
+System.out.println("equilibration finished");
         meterNormalMode.reset();
-        sim.getController().reset();
 
-        sim.activityIntegrate.setMaxSteps(nSteps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, nSteps));
 
         WriteS sWriter = new WriteS(sim.space);
         sWriter.setFilename(filename);

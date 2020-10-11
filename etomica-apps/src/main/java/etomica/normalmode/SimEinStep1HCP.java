@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -27,7 +28,7 @@ import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
@@ -46,7 +47,7 @@ public class SimEinStep1HCP extends Simulation {
 
     public final PotentialMasterList potentialMaster;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public BoundaryDeformableLattice boundary;
     public int[] nCells;
@@ -57,7 +58,7 @@ public class SimEinStep1HCP extends Simulation {
     public SimEinStep1HCP(Space _space, final int numAtoms, double density, final double temperature, double spring, int exponent, double rc, double coa) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMasterList(this, rc, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(rc), space);
@@ -121,9 +122,7 @@ public class SimEinStep1HCP extends Simulation {
         atomMove.setTemperature(temperature);
         integrator.getMoveManager().addMCMove(atomMove);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
@@ -246,15 +245,14 @@ public class SimEinStep1HCP extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         //MeterTargetTP.openFW("x"+numMolecules+".dat");
-        sim.getController().actionPerformed();
         //MeterTargetTP.closeFW();
 
         DataGroup data = (DataGroup)accumulator.getData();
-        IData dataErr = data.getData(AccumulatorAverage.ERROR.index);
-        IData dataAvg = data.getData(AccumulatorAverage.AVERAGE.index);
+        IData dataErr = data.getData(accumulator.ERROR.index);
+        IData dataAvg = data.getData(accumulator.AVERAGE.index);
         double avg = dataAvg.getValue(0);
         double err = dataErr.getValue(0);
         System.out.println("Qratio  "+avg+" "+err);

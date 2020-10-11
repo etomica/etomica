@@ -6,7 +6,7 @@ package etomica.dimer;
 
 import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.box.Box;
@@ -43,7 +43,7 @@ public class IntegratorDimerMin extends IntegratorBox {
 	public IteratorDirective allatoms;
 	public FileWriter fileWriter;
 	public MeterPotentialEnergy energyBox0, energyBoxMin;
-	public ActivityIntegrate activityIntegrate;
+
 
 	public Vector[] N, Nstar;
 	public Vector NDelta, NstarDelta;
@@ -534,7 +534,4 @@ public class IntegratorDimerMin extends IntegratorBox {
 
 	}
 	
-	public void setActivityIntegrate(ActivityIntegrate ai){
-		activityIntegrate = ai;
-	}
 }

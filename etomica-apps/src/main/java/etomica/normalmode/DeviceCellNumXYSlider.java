@@ -5,7 +5,7 @@
       package etomica.normalmode;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
@@ -232,8 +232,8 @@ public class DeviceCellNumXYSlider extends Device {
     /**
      * @return The panel that holds all graphical objects for the DeviceCellNumXYSlider.
      */
-    public Component graphic(Object obj) {
-    	return numCellPanel;
+    public Component graphic() {
+        return numCellPanel;
     }
 
 
@@ -355,28 +355,6 @@ public class DeviceCellNumXYSlider extends Device {
         }
     }
 
-    //
-    //main method to test device
-    //
-    public static void main(String[] args) {
-        final String APP_NAME = "Device Wave Vectors Number Slider";
-
-       
-        etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
-        NormalModeAnalysisDisplay2D sim = new NormalModeAnalysisDisplay2D();
-        
-        DeviceCellNumXYSlider device = new DeviceCellNumXYSlider(new Controller());
-        device.setMinimum(1);
-        device.setMaximum(50);
-        //device.setWaveVectorNum(0);
-        
-        
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-        graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
-        graphic.add(device);
-        graphic.makeAndDisplayFrame(APP_NAME);
-
-    }
 
 
 

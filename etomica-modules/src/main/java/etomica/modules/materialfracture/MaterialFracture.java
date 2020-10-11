@@ -5,6 +5,7 @@
 package etomica.modules.materialfracture;
 
 import etomica.action.BoxImposePbc;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -23,13 +24,13 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 public class MaterialFracture extends Simulation {
 
     public final Box box;
     public final ConfigurationLattice config;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final IntegratorVelocityVerlet integrator;
     public final PotentialCalculationForceStress pc;
     public final P2SoftSphericalTruncatedForceShifted pt;
@@ -39,8 +40,7 @@ public class MaterialFracture extends Simulation {
     public MaterialFracture() {
         super(Space2D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         ((ElementSimple) species.getLeafType().getElement()).setMass(40);
         addSpecies(species);
 
@@ -56,7 +56,7 @@ public class MaterialFracture extends Simulation {
         integrator.setThermostatNoDrift(true);
         pc = new PotentialCalculationForceStress(space);
         integrator.setForceSum(pc);
-        getController().addAction(new ActivityIntegrate(integrator));
+        getController().addActivity(new ActivityIntegrate(integrator));
         p2LJ = new P2LennardJones(space, 3, 2000);
         pt = new P2SoftSphericalTruncatedForceShifted(space, p2LJ, 7);
 

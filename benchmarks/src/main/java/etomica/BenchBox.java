@@ -1,5 +1,6 @@
 package etomica;
 
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -9,11 +10,9 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheres;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import org.openjdk.jmh.annotations.*;
 
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
@@ -35,7 +34,7 @@ public class BenchBox {
     public void setUp() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesSpheresMono species = new SpeciesSpheresMono(sim, sim.getSpace());
+        SpeciesGeneral species = SpeciesGeneral.monatomic(sim.getSpace(), AtomType.simpleFromSim(sim));
         sim.addSpecies(species);
         box = sim.makeBox();
         box.setNMolecules(species, 1000);

@@ -11,12 +11,13 @@ import etomica.potential.P2ModifiedMorse;
 import etomica.potential.P2Morse;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 
 public class MethanolPotentialHelper {
 	
 	
-	public static void initPotential(Space space, SpeciesMethanol species, PotentialGroup U_a_b, boolean pointCharges, double sigmaOC, double sigmaOH) {
+	public static void initPotential(Space space, SpeciesGeneral species, PotentialGroup U_a_b, boolean pointCharges, double sigmaOC, double sigmaOH) {
 		
 		IPotentialAtomic u_O_O;
 		IPotentialAtomic u_O_aC;
@@ -253,11 +254,11 @@ public class MethanolPotentialHelper {
 		}
 
 
-        AtomType type_O = species.getOxygenType();
-        AtomType type_aC = species.getAlphaCarbonType();
-        AtomType type_aH = species.getAlphaHydrogenType();
-        AtomType type_H = species.getHydrogenType();
-        AtomType type_X = species.getXType();
+        AtomType type_O = species.getTypeByName("O");
+        AtomType type_aC = species.getTypeByName("AC");
+        AtomType type_aH = species.getTypeByName("AH");
+        AtomType type_H = species.getTypeByName("H");
+        AtomType type_X = species.getTypeByName("X");
 
 		/*
 		****************************************************************************

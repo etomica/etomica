@@ -8,6 +8,7 @@ import etomica.math.SpecialFunctions;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.ArrayList;
 
 
 /**
@@ -31,11 +32,15 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
     protected double beta;
     public static boolean pushme = false;
     protected double tol;
-    protected ClusterWheatleySoftBD clusterBD;
+    protected ClusterWheatleySoftDerivativesBD clusterBDBD;
     protected boolean debug = false;
     protected boolean doCaching = true;
     protected final BigDecimal[][] binomial;
     protected BigDecimal BDbeta;
+    protected int precisionLimit;
+    protected double rCut2 = Double.POSITIVE_INFINITY;
+    protected static BigDecimal E;
+    protected final ArrayList<BigDecimal> Epow = new ArrayList<>();
 
     public ClusterWheatleySoftDerivativesBD(int nPoints, MayerFunction f, int precision, int nDer) {
         this.n = nPoints;
@@ -62,12 +67,20 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
                 binomial[m][l] = new BigDecimal(SpecialFunctions.factorial(m) / (SpecialFunctions.factorial(l) * SpecialFunctions.factorial(m - l)));
             }
         }
+        E = BDExpInternal(BDONE);
+        Epow.add(E);
+    }
+
+    public void setPrecisionLimit(int newLimit) {
+        if (newLimit > 300) newLimit = 300;
+        precisionLimit = newLimit;
+        clusterBDBD = null;
     }
 
     public void setDoCaching(boolean newDoCaching) {
         doCaching = newDoCaching;
-        if (clusterBD != null) {
-            clusterBD.setDoCaching(doCaching);
+        if (clusterBDBD != null) {
+            clusterBDBD.setDoCaching(doCaching);
         }
     }
 
@@ -119,20 +132,72 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
         return value[0];
     }
 
-    protected BigDecimal BDlog(BigDecimal val) {
-        BigDecimal u = val.subtract(BDONE, mc);
-        if (u.abs().doubleValue() > 0.01) {
-            return new BigDecimal(Math.log(val.doubleValue()));
-        } else {
-            double x = -u.doubleValue();
-            double tval = 0;
-            double xn = 1;
-            for (int i = 1; i < 11; i++) {
-                xn *= x;
-                tval -= xn / i;
-            }
-            return new BigDecimal(tval);
+    /**
+     * @return BigDecimal exp.  Should handle any |val| < 2^31
+     */
+    protected BigDecimal BDexp(BigDecimal val) {
+        if (val.doubleValue() < 0) {
+            return BDONE.divide(BDexp(val.negate()), mc);
         }
+        // first compute exp of integer part of x using precomputed exp(y)
+        // where y is a power of 2
+        int ival = val.intValue();
+        BigDecimal rv = BDONE;
+        while (ival > 0) {
+            int i = 31 - Integer.numberOfLeadingZeros(ival);
+            if (i == -1) break;
+            while (Epow.size() <= i) {
+                BigDecimal ej = Epow.get(Epow.size() - 1);
+                Epow.add(ej.multiply(ej, mc));
+            }
+            rv = rv.multiply(Epow.get(i), mc);
+            ival -= 1 << i;
+        }
+        // now compute exp of float part of x using Taylor series.
+        // convergence should be good because x<1
+        BigDecimal fval = val.subtract(new BigDecimal(val.intValue()), mc);
+        rv = rv.multiply(BDExpInternal(fval), mc);
+        return rv;
+    }
+
+    /**
+     * @return BigDecimal exponential from Taylor series expansion about x=0
+     */
+    protected BigDecimal BDExpInternal(BigDecimal val) {
+        BigDecimal rv = BDONE;
+        BigDecimal vpow = val;
+        double etol = Math.pow(10, -mc.getPrecision());
+        for (int i = 1; ; i++) {
+            BigDecimal term = vpow.divide(new BigDecimal(SpecialFunctions.factorial(i)), mc);
+            rv = rv.add(term, mc);
+            if (term.divide(rv, mc).doubleValue() < etol) return rv;
+            vpow = vpow.multiply(val, mc);
+        }
+    }
+
+    /**
+     * @return BigDecimal natural log
+     */
+    protected BigDecimal BDlog(BigDecimal val) {
+        // log(val) = l + log(val/exp(l))
+        // l is the double approx to log(val)
+        // val/exp(l) is very close to one; log(val/exp(l)) can be computed easily with Taylor series
+        BigDecimal l0 = new BigDecimal(Math.log(val.doubleValue()), mc);
+        BigDecimal el0 = BDexp(l0);
+        // u = val/exp(l) - 1
+        BigDecimal u = val.divide(el0, mc).subtract(BDONE, mc);
+        // log(val/exp(l)) = -u - u^2/2 - u^3/3 - ...
+        BigDecimal xbd = u.negate();
+        BigDecimal tvalbd = l0;
+        BigDecimal xnbd = BDONE;
+        double ltol = Math.pow(10, -mc.getPrecision());
+        for (int i = 1; i < 1000; i++) {
+            xnbd = xnbd.multiply(xbd, mc);
+            BigDecimal term = xnbd.divide(new BigDecimal(i), mc);
+            tvalbd = tvalbd.subtract(term);
+            if (term.divide(tvalbd, mc).doubleValue() < ltol) break;
+        }
+        return tvalbd;
     }
 
     /**
@@ -187,11 +252,27 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
         }
     }
 
+    public void setRCut(double newRCut) {
+        rCut2 = newRCut * newRCut;
+    }
+
     /**
      * Returns the cluster value for the given configuration.  You must call
      * doCheck(BoxCluster) before calling this method.
      */
     public void calcValue(BoxCluster box) {
+        CoordinatePairSet cPairs = box.getCPairSet();
+        double rMax = 0;
+        for(int i=0; i<n-1; i++) {
+            for(int j=i+1; j<n; j++) {
+                if (cPairs.getr2(i,j) > rCut2) {
+                    value[0] = 0;
+                    return;
+                }
+                if (cPairs.getr2(i,j) > rMax) rMax = cPairs.getr2(i,j);
+            }
+        }
+
         double maxR2 = 0.1;
         if (pushme) {
             // force the system to hang out between minMaxR2 and maxMaxR2
@@ -367,11 +448,21 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
             }
         }
         if (Math.abs(fB[nf - 1][0].doubleValue()) < tol) {
-            if (clusterBD != null) {
-                value[0] = clusterBD.value(box);
-            } else {
-                value[0] = 0;
+            if (mc.getPrecision() >= precisionLimit) {
+                for (int m = 0; m <= nDer; m++) {
+                    value[m] = 0;
+                }
+                return;
             }
+            if (clusterBDBD == null) {
+                int p = mc.getPrecision() + 20;
+                if (p > precisionLimit) p = precisionLimit;
+                clusterBDBD = new ClusterWheatleySoftDerivativesBD(n, f, p, nDer);
+                clusterBDBD.setTemperature(1 / beta);
+                clusterBDBD.setDoCaching(doCaching);
+                clusterBDBD.setPrecisionLimit(precisionLimit);
+            }
+            System.arraycopy(clusterBDBD.getAllLastValues(box), 0, value, 0, nDer + 1);
             return;
         }
 //        System.out.println("fQ"+" "+Arrays.toString(fQ[nf-1]));
@@ -429,9 +520,13 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
     public void setTemperature(double temperature) {
         beta = 1 / temperature;
         BDbeta = new BigDecimal(beta, mc);
-        if (clusterBD != null) {
-            clusterBD.setTemperature(temperature);
+        if (clusterBDBD != null) {
+            clusterBDBD.setTemperature(temperature);
         }
+    }
+
+    public int getNumValues() {
+        return value.length;
     }
 
     public double[] getAllLastValues(BoxCluster box) {
@@ -464,7 +559,6 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
         }
 
         public void setTemperature(double temperature) {
-
 
         }
 

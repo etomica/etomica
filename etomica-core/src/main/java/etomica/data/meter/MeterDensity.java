@@ -18,8 +18,9 @@ import etomica.units.dimensions.Volume;
  */
 public class MeterDensity extends DataSourceScalar {
     
-    public MeterDensity(Space space) {
-        super("Number Density",new DimensionRatio(Quantity.DIMENSION, Volume.dimension(space.D())));
+    public MeterDensity(Box box) {
+        super("Number Density",new DimensionRatio(Quantity.DIMENSION, Volume.dimension(box.getSpace().D())));
+        this.box = box;
     }
 
     public void setSpecies(ISpecies s) {
@@ -30,8 +31,7 @@ public class MeterDensity extends DataSourceScalar {
     }
 
     public double getDataAsScalar() {
-        if (box == null) throw new IllegalStateException("must call setBox before using meter");
-        return (species == null ? 
+        return (species == null ?
         			box.getMoleculeList().size() :
         			box.getNMolecules(species))
 				/box.getBoundary().volume();
@@ -43,14 +43,7 @@ public class MeterDensity extends DataSourceScalar {
     public Box getBox() {
         return box;
     }
-    /**
-     * @param box The box to set.
-     */
-    public void setBox(Box box) {
-        this.box = box;
-    }
 
-    private static final long serialVersionUID = 1L;
-    private Box box;
+    private final Box box;
     private ISpecies species;
 }

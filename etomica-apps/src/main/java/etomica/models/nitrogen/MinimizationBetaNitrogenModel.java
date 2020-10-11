@@ -34,6 +34,7 @@ import etomica.space.*;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 
 import java.util.Arrays;
@@ -53,7 +54,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
         super(space);
         this.space = space;
 
-        species = new SpeciesN2(space);
+        species = SpeciesN2.create(false);
         addSpecies(species);
 
         BoxAgentSourceCellManagerListMolecular boxAgentSource = new BoxAgentSourceCellManagerListMolecular(this, null, space);
@@ -444,7 +445,7 @@ public class MinimizationBetaNitrogenModel extends Simulation{
 	protected P2Nitrogen potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;
-	protected SpeciesN2 species;
+	protected SpeciesGeneral species;
 	protected MeterHarmonicEnergy meterHarm;
 	protected MeterPotentialEnergy meterPE;
 	protected static double[] initialU;

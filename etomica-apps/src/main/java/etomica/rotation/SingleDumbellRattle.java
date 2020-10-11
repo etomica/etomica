@@ -5,7 +5,9 @@
 package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
+
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConformationLinear;
 import etomica.graphics.SimulationGraphic;
@@ -18,7 +20,8 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 
@@ -27,7 +30,10 @@ public class SingleDumbellRattle {
     public static SimulationGraphic makeSingleWater() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesSpheres species = new SpeciesSpheres(sim, space, 2);
+        SpeciesGeneral species = new SpeciesBuilder(space)
+                .withConformation(new ConformationLinear(space))
+                .addCount(AtomType.simpleFromSim(sim), 2)
+                .build();
         ((ConformationLinear) species.getConformation()).setAngle(0, 0);
         ((ConformationLinear) species.getConformation()).setAngle(1, 0.5 * Math.PI);
         ((ConformationLinear) species.getConformation()).setBondLength(2);
@@ -50,9 +56,7 @@ public class SingleDumbellRattle {
         integrator.setIsothermal(false);
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
 //        integrator.setThermostatInterval(100);
-        ActivityIntegrate ai = new ActivityIntegrate(integrator);
 //        System.out.println("using rigid with dt="+dt);
-        sim.getController().addAction(ai);
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
 
@@ -61,11 +65,10 @@ public class SingleDumbellRattle {
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
 
         if (false) {
-            ai.setMaxSteps(100);
-            sim.getController().actionPerformed();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, 100));
             return null;
         }
-        ai.setSleepPeriod(10);
+        sim.getController().addActivity(new ActivityIntegrate(integrator), Long.MAX_VALUE, 10);
         SimulationGraphic graphic = new SimulationGraphic(sim, "SHAKE", 1);
         return graphic;
     }

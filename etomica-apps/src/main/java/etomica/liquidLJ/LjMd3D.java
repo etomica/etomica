@@ -6,13 +6,14 @@ package etomica.liquidLJ;
 
 import etomica.action.BoxInflate;
 import etomica.action.WriteConfigurationBinary;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationFileBinary;
 import etomica.config.ConfigurationLattice;
-import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.*;
 import etomica.data.DataSplitter.IDataSinkFactory;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.history.HistoryCollapsingDiscard;
@@ -39,7 +40,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.SimpleUnit;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Null;
@@ -56,9 +57,8 @@ public class LjMd3D extends Simulation {
     
     public final PotentialMasterList potentialMasterList;
     public final PotentialMasterMonatomic potentialMasterLong, potentialMasterLongCut;
-    public final ActivityIntegrate ai;
     public IntegratorVelocityVerlet integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public Potential2SoftSpherical potential;
     public IntegratorMC integratorMC;
@@ -68,34 +68,31 @@ public class LjMd3D extends Simulation {
     public LjMd3D(int numAtoms, double temperature, double density, double pressure, double tStep, double rcShort, double rcLong, int hybridInterval, IFunction vBias, boolean ss) {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
-        double nbrRange = rcShort * 1.6;
-        potentialMasterList = new PotentialMasterList(this, nbrRange, space);
-        potentialMasterList.setCellRange(2);
         box = this.makeBox();
-        integrator = new IntegratorVelocityVerlet(this, potentialMasterList, box);
-        integrator.setTimeStep(tStep);
-        integrator.setIsothermal(true);
-        integrator.setTemperature(temperature);
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
         box.setNMolecules(species, numAtoms);
 
+        BoxInflate inflater = new BoxInflate(box, space);
+        inflater.setTargetDensity(density);
+        inflater.actionPerformed();
+
         double L = Math.pow(numAtoms / density, 1.0 / 3.0);
+        double nbrRange = rcShort * 1.6;
         if (nbrRange > 0.5 * L) {
             if (rcShort > 0.4 * L) {
                 throw new RuntimeException("rcShort is too large");
             }
             nbrRange = 0.495 * L;
-            potentialMasterList.setRange(nbrRange);
         }
-
-        BoxInflate inflater = new BoxInflate(box, space);
-        inflater.setTargetDensity(density);
-        inflater.actionPerformed();
+        potentialMasterList = new PotentialMasterList(this, nbrRange, space);
+        potentialMasterList.setCellRange(2);
+        integrator = new IntegratorVelocityVerlet(this, potentialMasterList, box);
+        integrator.setTimeStep(tStep);
+        integrator.setIsothermal(true);
+        integrator.setTemperature(temperature);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         potential = ss ? new P2SoftSphere(space, 1, 4, 12) : new P2LennardJones(space);
         AtomType leafType = species.getLeafType();
@@ -295,9 +292,7 @@ public class LjMd3D extends Simulation {
                 eqSteps = steps/4;
                 if (eqSteps > 4000) eqSteps = 4000;
             }
-            sim.ai.setMaxSteps(eqSteps);
-            sim.getController().actionPerformed();
-            sim.getController().reset();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, eqSteps));
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
@@ -384,7 +379,7 @@ public class LjMd3D extends Simulation {
             }
             
             protected IData processData(IData inputData) {
-                data.x = ((DataGroup) inputData).getData(AccumulatorAverage.MOST_RECENT.index).getValue(2);
+                data.x = ((DataGroup) inputData).getData(avgEnergy.MOST_RECENT.index).getValue(2);
                 return data;
             }
         };
@@ -529,7 +524,7 @@ public class LjMd3D extends Simulation {
             }
             
             protected IData processData(IData inputData) {
-                double avgFast = avgWidomFast.getData(AccumulatorAverage.AVERAGE).getValue(0);
+                double avgFast = avgWidomFast.getData(avgWidomFast.AVERAGE).getValue(0);
                 data.x = avgFast;
                 if (avgFast > 0) {
                     double avgFull = inputData.getValue(0);
@@ -547,7 +542,7 @@ public class LjMd3D extends Simulation {
             }
         };
 
-        avgWidomCorrection.addDataSink(dpWidomCorrection, new StatType[]{AccumulatorAverage.AVERAGE});
+        avgWidomCorrection.addDataSink(dpWidomCorrection, new StatType[]{avgWidomCorrection.AVERAGE});
         Function muFunction = new Function() {
             public double f(double x) {
                 if (x==0) return Double.NaN;
@@ -555,7 +550,7 @@ public class LjMd3D extends Simulation {
             }
         };
         DataProcessorFunction muFast = new DataProcessorFunction(muFunction);
-        avgWidomFast.addDataSink(muFast, new StatType[]{AccumulatorAverage.AVERAGE});
+        avgWidomFast.addDataSink(muFast, new StatType[]{avgWidomFast.AVERAGE});
         DataProcessorFunction muCorrected = new DataProcessorFunction(muFunction);
         dpWidomCorrection.setDataSink(muCorrected);
 
@@ -581,7 +576,7 @@ public class LjMd3D extends Simulation {
             }
         };
         DataProcessorFunction muDFast = new DataProcessorFunction(muFunction);
-        avgWidomDFast.addDataSink(muDFast, new StatType[]{AccumulatorAverage.AVERAGE});
+        avgWidomDFast.addDataSink(muDFast, new StatType[]{avgWidomDFast.AVERAGE});
 
         
     	if (graphics) {
@@ -627,7 +622,7 @@ public class LjMd3D extends Simulation {
                     return dataInfo;
                 }
                 protected IData processData(IData inputData) {
-                    IData avg = ((DataGroup) inputData).getData(AccumulatorAverage.AVERAGE.index);
+                    IData avg = ((DataGroup) inputData).getData(avgEnergy.AVERAGE.index);
                     data.x = avg.getValue(1)/avg.getValue(2);
                     return data;
                 }
@@ -647,8 +642,8 @@ public class LjMd3D extends Simulation {
                     return dataInfo;
                 }
                 protected IData processData(IData inputData) {
-                    IData avg = ((DataGroup) inputData).getData(AccumulatorAverage.AVERAGE.index);
-                    data.x = avg.getValue(1) / (avg.getValue(3) * avg.getValue(2)) * avgEnergyFast.getData(AccumulatorAverage.AVERAGE).getValue(0);
+                    IData avg = ((DataGroup) inputData).getData(avgEnergy.AVERAGE.index);
+                    data.x = avg.getValue(1) / (avg.getValue(3) * avg.getValue(2)) * avgEnergyFast.getData(avgEnergyFast.AVERAGE).getValue(0);
                     return data;
                 }
             };
@@ -667,7 +662,7 @@ public class LjMd3D extends Simulation {
                     return dataInfo;
                 }
                 protected IData processData(IData inputData) {
-                    IData avg = ((DataGroup) inputData).getData(AccumulatorAverage.AVERAGE.index);
+                    IData avg = ((DataGroup) inputData).getData(avgEnergy.AVERAGE.index);
                     data.x = avg.getValue(0);
                     return data;
                 }
@@ -721,7 +716,7 @@ public class LjMd3D extends Simulation {
             AccumulatorAverageFixed avgRawPressure = new AccumulatorAverageFixed(bs);
             pressureFork.addDataSink(avgRawPressure);
             avgRawPressure.setPushInterval(1);
-            avgRawPressure.addDataSink(pressureAvgHistory, new StatType[]{AccumulatorAverage.AVERAGE});
+            avgRawPressure.addDataSink(pressureAvgHistory, new StatType[]{avgRawPressure.AVERAGE});
             
             AccumulatorHistory pressureHistoryFast = new AccumulatorHistory(new HistoryCollapsingAverage());
             pressureHistoryFast.setTimeDataSource(timeDataSource);
@@ -777,8 +772,7 @@ public class LjMd3D extends Simulation {
     	}
 
     	long t1 = System.currentTimeMillis();
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.currentTimeMillis();
 //        try {
 //            uWriter.close();
@@ -800,19 +794,19 @@ public class LjMd3D extends Simulation {
 
 
         if (!calcMu) {
-            double uFastAvg = avgEnergyFast.getData(AccumulatorAverage.AVERAGE).getValue(0);
-            double uFastErr = avgEnergyFast.getData(AccumulatorAverage.ERROR).getValue(0);
-            double uFastCor = avgEnergyFast.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
+            double uFastAvg = avgEnergyFast.getData(avgEnergyFast.AVERAGE).getValue(0);
+            double uFastErr = avgEnergyFast.getData(avgEnergyFast.ERROR).getValue(0);
+            double uFastCor = avgEnergyFast.getData(avgEnergyFast.BLOCK_CORRELATION).getValue(0);
             System.out.println(avgEnergyFast.getBlockCount()+" fast energy blocks");
     
             System.out.println(String.format("potential energy (fast): %20.15e   %10.4e   %4.2f", uFastAvg/numAtoms, uFastErr/numAtoms, uFastCor));
 
-            IData uAvgData = avgEnergy.getData(AccumulatorAverage.AVERAGE);
-            IData uRatioData = avgEnergy.getData(AccumulatorRatioAverageCovarianceFull.RATIO);
-            IData uErrData = avgEnergy.getData(AccumulatorAverage.ERROR);
-            IData uRatioErrData = avgEnergy.getData(AccumulatorRatioAverageCovarianceFull.RATIO_ERROR);
-            IData uCorData = avgEnergy.getData(AccumulatorAverage.BLOCK_CORRELATION);
-            IData uCovData = avgEnergy.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
+            IData uAvgData = avgEnergy.getData(avgEnergy.AVERAGE);
+            IData uRatioData = avgEnergy.getData(avgEnergy.RATIO);
+            IData uErrData = avgEnergy.getData(avgEnergy.ERROR);
+            IData uRatioErrData = avgEnergy.getData(avgEnergy.RATIO_ERROR);
+            IData uCorData = avgEnergy.getData(avgEnergy.BLOCK_CORRELATION);
+            IData uCovData = avgEnergy.getData(avgEnergy.BLOCK_COVARIANCE);
     
             double uFullAvg = uAvgData.getValue(0);
             double uFullErr = uErrData.getValue(0);
@@ -879,20 +873,20 @@ public class LjMd3D extends Simulation {
                 System.out.println(String.format("rc: %3.1f  A-Afast: %20.15e   %10.4e  %4.2f (%d samples)", cutoffs[i], (ulrc + uFacCut[i] + feAvgCut)/numAtoms, feErrCut/numAtoms, feCorCut, accFECut.getNumRawData()));
             }
 
-            double pFastAvg = avgPressureFast.getData(AccumulatorAverage.AVERAGE).getValue(0);
-            double pFastErr = avgPressureFast.getData(AccumulatorAverage.ERROR).getValue(0);
-            double pFastCor = avgPressureFast.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0);
+            double pFastAvg = avgPressureFast.getData(avgPressureFast.AVERAGE).getValue(0);
+            double pFastErr = avgPressureFast.getData(avgPressureFast.ERROR).getValue(0);
+            double pFastCor = avgPressureFast.getData(avgPressureFast.BLOCK_CORRELATION).getValue(0);
             System.out.println(avgPressureFast.getBlockCount()+" fast pressure blocks");
 
             System.out.println(String.format("pressure (fast): %20.15e   %10.4e   %4.2f", pFastAvg, pFastErr, pFastCor));
 
 
-            IData pAvgData = avgPressure.getData(AccumulatorAverage.AVERAGE);
-            IData pRatioData = avgPressure.getData(AccumulatorRatioAverageCovarianceFull.RATIO);
-            IData pErrData = avgPressure.getData(AccumulatorAverage.ERROR);
-            IData pRatioErrData = avgPressure.getData(AccumulatorRatioAverageCovarianceFull.RATIO_ERROR);
-            IData pCorData = avgPressure.getData(AccumulatorAverage.BLOCK_CORRELATION);
-            IData pCovData = avgPressure.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
+            IData pAvgData = avgPressure.getData(avgPressure.AVERAGE);
+            IData pRatioData = avgPressure.getData(avgPressure.RATIO);
+            IData pErrData = avgPressure.getData(avgPressure.ERROR);
+            IData pRatioErrData = avgPressure.getData(avgPressure.RATIO_ERROR);
+            IData pCorData = avgPressure.getData(avgPressure.BLOCK_CORRELATION);
+            IData pCovData = avgPressure.getData(avgPressure.BLOCK_COVARIANCE);
 
             double pFullAvg = pAvgData.getValue(0);
             double pFullErr = pErrData.getValue(0);

@@ -4,6 +4,7 @@
 
 package etomica.rotation;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistory;
@@ -20,7 +21,7 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorRigidMatrixIterative;
 import etomica.models.water.OrientationCalcWater4P;
 import etomica.models.water.P2WaterTIP4PSoft;
-import etomica.models.water.SpeciesWater4POriented;
+import etomica.models.water.SpeciesWater4P;
 import etomica.molecule.MoleculePositionCOM;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -28,6 +29,7 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 
@@ -38,7 +40,8 @@ public class WaterDropletMatrix {
     public static SimulationGraphic makeWaterDroplet() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesWater4POriented species = new SpeciesWater4POriented(sim.getSpace(), true);
+        OrientationCalcWater4P calcer = new OrientationCalcWater4P(sim.getSpace());
+        SpeciesGeneral species = SpeciesWater4P.create(true, calcer, true);
         sim.addSpecies(species);
         Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
         sim.addBox(box);
@@ -52,24 +55,21 @@ public class WaterDropletMatrix {
         IntegratorRigidMatrixIterative integrator = new IntegratorRigidMatrixIterative(sim, potentialMaster, timeInterval, 1, box);
         integrator.printInterval = 100;
         integrator.setMaxIterations(maxIterations);
-        OrientationCalcWater4P calcer = new OrientationCalcWater4P(sim.getSpace());
-        species.setConformation(calcer);
         config.initializeCoordinates(box);
         integrator.setOrientationCalc(species, calcer);
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
 //        integrator.setIsothermal(true);
         integrator.setThermostatInterval(100);
-        ActivityIntegrate ai = new ActivityIntegrate(integrator);
-        sim.getController().addAction(ai);
 
         P2WaterTIP4PSoft p2Water = new P2WaterTIP4PSoft(sim.getSpace(), Double.POSITIVE_INFINITY, new MoleculePositionCOM(space));
         potentialMaster.addPotential(p2Water, new ISpecies[]{species, species});
 
         if (false) {
-            ai.setSleepPeriod(2);
+            sim.getController().setSleepPeriod(2);
+            sim.getController().addActivity(new ActivityIntegrate(integrator));
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Matrix", 1);
-            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
-            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("H"), Color.WHITE);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("O"), Color.RED);
 
             MeterEnergy meterE = new MeterEnergy(potentialMaster, box);
             meterE.setKinetic(new MeterKineticEnergyFromIntegrator(integrator));
@@ -86,7 +86,7 @@ public class WaterDropletMatrix {
             graphic.add(ePlot);
             return graphic;
         }
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, Long.MAX_VALUE));
         return null;
     }
 

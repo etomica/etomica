@@ -4,6 +4,8 @@
 
 package etomica.data.meter;
 
+import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.*;
@@ -16,6 +18,8 @@ import etomica.lattice.crystal.PrimitiveGeneral;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
+
+import java.util.Arrays;
 
 /**
  * Meter for calculation of structure factor of atoms for all wave vectors less
@@ -36,38 +40,68 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
     protected final DataTag tag, xTag;
     protected DataDoubleArray xData;
     protected DataInfoDoubleArray xDataInfo;
+    protected final AtomSignalSource signalSource;
+    protected double cutoff;
+    protected double[] phaseAngles;
+    protected boolean normalizeByN;
 
     /**
      * Creates meter with default to compute the structure factor for all atoms
      * in the box.  All wave vectors consistent with the box shape and with
      * magnitude less than cutoff are included.
      */
-	public MeterStructureFactor(Space space, Box aBox, double cutoff) {
-	    this.space = space;
-	    this.box = aBox;
+    public MeterStructureFactor(Box aBox, double cutoff) {
+        this(aBox, cutoff, new AtomSignalSourceByType());
+    }
+
+    public MeterStructureFactor(Box aBox, double cutoff, AtomSignalSource signalSource) {
+        this.signalSource = signalSource;
+        this.box = aBox;
+        space = aBox.getSpace();
         atomList = box.getLeafList();
         tag = new DataTag();
         xTag = new DataTag();
-	    setCutoff(cutoff);
-	}
-	
-	protected void resetData() {
+        setCutoff(cutoff);
+    }
+
+    /**
+     * Normalizing by N will produce a structure factor that is insensitive to
+     * finite-size effects if there is no long-range order.  With long-range
+     * order, normalizing by N^2 (the default) will produce a structure factor
+     * that is insensitive to finite-size effects.
+     */
+    public void setNormalizeByN(boolean normalizeByN) {
+        this.normalizeByN = normalizeByN;
+    }
+
+    public AtomSignalSource getSignalSource() {
+        return signalSource;
+    }
+
+    protected void resetData() {
         xData = new DataDoubleArray(waveVec.length);
         xDataInfo = new DataInfoDoubleArray("q", Null.DIMENSION, new int[]{waveVec.length});
         xDataInfo.addTag(xTag);
+        if (waveVec != null && waveVec.length > 0 && waveVec[0] != null) {
+            double[] x = xData.getData();
+            for (int i = 0; i < waveVec.length; i++) {
+                x[i] = Math.sqrt(waveVec[i].squared());
+            }
+        }
 
-	    dataInfo = new DataInfoFunction("Structure Factor", Null.DIMENSION, this);
+        dataInfo = new DataInfoFunction("Structure Factor", Null.DIMENSION, this);
         dataInfo.addTag(tag);
         data = new DataFunction(new int[]{waveVec.length}, struct);
-	}
+        phaseAngles = new double[waveVec.length];
+    }
 
-	protected int makeWaveVector(double cutoff) {
+    protected int makeWaveVector(double cutoff) {
         int nVec = 0;
         double[] x = xData == null ? null : xData.getData();
-        Vector[] edges = new Vector[3];
-        edges[0] = box.getBoundary().getEdgeVector(0);
-        edges[1] = box.getBoundary().getEdgeVector(1);
-        edges[2] = box.getBoundary().getEdgeVector(2);
+        Vector[] edges = new Vector[space.D()];
+        for (int i = 0; i < space.D(); i++) {
+            edges[i] = box.getBoundary().getEdgeVector(i);
+        }
         Primitive primitiveBox = new PrimitiveGeneral(space, edges);
         Primitive recip = primitiveBox.makeReciprocal();
         Vector[] basis = recip.vectors();
@@ -83,9 +117,6 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
         }
 
         int[] idx = new int[space.D()];
-        idx[0] = 0;
-        idx[1] = 0;
-        idx[2] = 1;
         while (true) {
             Vector v = space.makeVector();
             boolean success = false;
@@ -113,55 +144,77 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
             nVec++;
         }
         return nVec;
-	}
+    }
 
     /**
      * Sets the wave vector cutoff.  All wave vectors consistent with the box
      * shape that have a magnitude less than the cutoff will be computed.
      * @param cutoff the cutoff for the wave vector magnitude
      */
-	public void setCutoff(double cutoff) {
-	    waveVec = null;
-	    int nVec = makeWaveVector(cutoff);
+    public void setCutoff(double cutoff) {
+        waveVec = null;
+        int nVec = makeWaveVector(cutoff);
         struct = new double[nVec];
-	    waveVec = new Vector[nVec];
+        waveVec = new Vector[nVec];
         resetData();
         makeWaveVector(cutoff);
-	}
-	
-	/**
-	 * @param waveVec Sets a custom wave vector array.
-	 */
-	public void setWaveVec(Vector[] waveVec){
-	    this.waveVec = space.makeVectorArray(waveVec.length);
-	    struct = new double[waveVec.length];
-		for(int i=0; i<waveVec.length; i++){
-			this.waveVec[i].E(waveVec[i]);
-		}
-		resetData();
-	}
-	
-	/**
-	 * @param atomList Sets the list of atoms for factor calculation.
-	 */
-	public void setAtoms(IAtomList atomList){
-		this.atomList = atomList;
-	}
+        this.cutoff = cutoff;
+    }
+
+    public double getCutoff() {
+        return cutoff;
+    }
+
+    /**
+     * @param waveVec Sets a custom wave vector array.
+     */
+    public void setWaveVec(Vector[] waveVec){
+        this.waveVec = space.makeVectorArray(waveVec.length);
+        struct = new double[waveVec.length];
+        for(int i=0; i<waveVec.length; i++){
+          this.waveVec[i].E(waveVec[i]);
+        }
+        resetData();
+    }
+
+    /**
+     * @param atomList Sets the list of atoms for factor calculation.
+     */
+    public void setAtoms(IAtomList atomList){
+        this.atomList = atomList;
+    }
 
     public IData getData() {
+        if (signalSource!=null && !signalSource.ready()) {
+            Arrays.fill(struct, Double.NaN);
+            return data;
+        }
+
         long numAtoms = atomList.size();
         long n2 = numAtoms*numAtoms;
-        for(int k=0; k<waveVec.length; k++){
+        Arrays.fill(struct, 0);
+        for(int k = 0; k<waveVec.length; k++){
             double term1 = 0;
             double term2 = 0;
-            for(int i=0; i<numAtoms; i++){
-                double dotprod = waveVec[k].dot(atomList.get(i).getPosition());
-                term1 += Math.cos(dotprod);
-                term2 += Math.sin(dotprod);
+            for (IAtom atom : atomList) {
+                double signal = signalSource == null ? 1.0 : signalSource.signal(atom);
+                if (signal == 0) continue;
+                double dotprod = waveVec[k].dot(atom.getPosition());
+                term1 += signal * Math.cos(dotprod);
+                term2 += signal * Math.sin(dotprod);
             }
-            struct[k] = ((term1*term1) + (term2*term2))/n2;
+            struct[k] = ((term1 * term1) + (term2 * term2)) / (normalizeByN ? numAtoms : n2);
+            phaseAngles[k] = Math.atan2(term1, term2);
         }
         return data;
+    }
+
+    public Vector[] getWaveVectors() {
+        return waveVec;
+    }
+
+    public double[] getPhaseAngles() {
+        return phaseAngles;
     }
 
     public DataTag getTag() {
@@ -188,4 +241,31 @@ public class MeterStructureFactor implements IDataSource, DataSourceIndependent 
         return xTag;
     }
 
+    public interface AtomSignalSource {
+        default boolean ready() {return true;};
+        double signal(IAtom atom);
+    }
+
+    public static class AtomSignalSourceByType implements AtomSignalSource {
+        protected double[] signal = new double[0];
+
+        /**
+         * Sets the given atom type to have the given form factor
+         * https://en.wikipedia.org/wiki/Structure_factor
+         */
+        public void setAtomTypeFactor(AtomType atomType, double factor) {
+            int idx = atomType.getIndex();
+            if (idx >= signal.length) {
+                int oldLength = signal.length;
+                signal = Arrays.copyOf(signal, atomType.getIndex() + 1);
+                for (int i = oldLength; i < idx; i++) signal[i] = 1;
+            }
+            signal[idx] = factor;
+        }
+
+        public double signal(IAtom atom) {
+            int idx = atom.getType().getIndex();
+            return idx < signal.length ? signal[idx] : 1.0;
+        }
+    }
 }

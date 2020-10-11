@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -24,7 +25,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Energy;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
@@ -43,7 +44,7 @@ public class SimOverlapLJModule {
     public IntegratorOverlap integratorOverlap;
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
-    public ActivityIntegrate activityIntegrate;
+
     public Box boxTarget, boxHarmonic;
     public Boundary boundaryTarget, boundaryHarmonic;
     public int[] nCells;
@@ -91,7 +92,7 @@ public class SimOverlapLJModule {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(sim, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(sim));
         sim.addSpecies(species);
 
         PotentialMaster potentialMasterTarget = new PotentialMasterMonatomic(sim);
@@ -221,8 +222,7 @@ public class SimOverlapLJModule {
         System.out.println("equilibration finished");
         System.out.flush();
 
-        module.getActivityIntegrate().setMaxSteps(numSteps);
-        module.getController().actionPerformed();
+        module.controller.runActivityBlocking(new ActivityIntegrate(module.integratorOverlap, numSteps));
 
         System.out.println("final reference optimal step fraction " + module.getIntegratorOverlap().getIdealRefStepFraction() + " (actual: " + module.getIntegratorOverlap().getRefStepFraction() + ")");
 

@@ -29,13 +29,12 @@ import etomica.units.dimensions.Null;
  *
  * @author David Kofke
  */
-public class MeterRDF implements IAction, IDataSource, DataSourceIndependent, java.io.Serializable {
+public class MeterRDF implements IAction, IDataSource, DataSourceIndependent {
 
-    private static final long serialVersionUID = 1L;
     protected final Space space;
     protected final DataSourceUniform xDataSource;
     protected final DataTag tag;
-    private final Vector dr;
+    protected final Vector dr;
     protected Box box;
     protected long[] gSum;
     protected DataFunction data;
@@ -45,8 +44,9 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent, ja
     protected long callCount;
     protected AtomType type1, type2;
     private IDataInfo dataInfo;
-    private Boundary boundary;
     private String name;
+    protected boolean resetAfterData;
+    protected final boolean singleSample;
 
 	/**
 	 * Creates meter with default to compute pair correlation for all
@@ -54,7 +54,12 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent, ja
 	 * @param space
 	 */
     public MeterRDF(Space space) {
+        this(space, false);
+    }
+
+    public MeterRDF(Space space, boolean singleSample) {
 	    this.space = space;
+        this.singleSample = singleSample;
 
         xDataSource = new DataSourceUniform("r", Length.DIMENSION);
         xDataSource.setTypeMax(LimitType.HALF_STEP);
@@ -93,12 +98,17 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent, ja
      * Zero's out the RDF sum tracked by this meter.
      */
     public void reset() {
-        rData = (DataDoubleArray)xDataSource.getData();
+        rData = (DataDoubleArray) xDataSource.getData();
         xMax = xDataSource.getXMax();
-        data = new DataFunction(new int[] {rData.getLength()});
+        data = new DataFunction(new int[]{rData.getLength()});
         gSum = new long[rData.getLength()];
         dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, this);
         dataInfo.addTag(tag);
+        zeroData();
+    }
+
+    public void zeroData() {
+        for (int i = 0; i < gSum.length; i++) gSum[i] = 0;
         callCount = 0;
     }
 
@@ -115,6 +125,7 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent, ja
         double xMaxSquared = xMax*xMax;
         iterator.setBox(box);
         iterator.reset();
+        Boundary boundary = box.getBoundary();
         // iterate over all pairs
         for (IAtomList pair = iterator.next(); pair != null;
              pair = iterator.next()) {
@@ -135,14 +146,20 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent, ja
      * meter was reset or had some parameter changed (xMax or # of bins).
 	 */
 	public IData getData() {
-        if (rData != xDataSource.getData() ||
-            data.getLength() != rData.getLength() ||
-            xDataSource.getXMax() != xMax) {
-            reset();
-            //that zeroed everything.  just return the zeros.
-            return data;
-        }
 
+        if (singleSample) {
+            zeroData();
+            actionPerformed();
+        }
+        else {
+            if (rData != xDataSource.getData() ||
+                    data.getLength() != rData.getLength() ||
+                    xDataSource.getXMax() != xMax) {
+                reset();
+                //that zeroed everything.  just return the zeros.
+                return data;
+            }
+        }
         final double[] y = data.getData();
         long numAtomPairs = 0;
         if (type1 == null) {
@@ -199,7 +216,6 @@ public class MeterRDF implements IAction, IDataSource, DataSourceIndependent, ja
      */
     public void setBox(Box box) {
         this.box = box;
-        boundary = box.getBoundary();
     }
 
     public String getName() {

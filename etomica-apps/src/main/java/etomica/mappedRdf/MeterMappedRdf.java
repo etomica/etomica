@@ -1,60 +1,55 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 package etomica.mappedRdf;
 
-import etomica.action.IAction;
-import etomica.atom.AtomType;
-import etomica.atom.IAtomList;
-import etomica.atom.iterator.ApiLeafAtoms;
-import etomica.atom.iterator.AtomsetIteratorBoxDependent;
+import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomPair;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
-import etomica.space.Boundary;
+import etomica.potential.IteratorDirective;
+import etomica.potential.PotentialCalculationForceSum;
+import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
 
 /**
- * Created by aksharag on 5/16/17.
+ * Calculates pair distribution using mapped averaging
  */
-public class MeterMappedRdf implements IAction, IDataSource, DataSourceIndependent, java.io.Serializable {
+public class MeterMappedRdf implements IDataSource, DataSourceIndependent, AtomLeafAgentManager.AgentSource<Vector> {
 
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final DataSourceUniform xDataSource;
-    protected final DataTag tag;
-    private final Vector dr;
-    protected Box box;
-    protected long[] gSum;
-    protected DataFunction data;
-    protected DataDoubleArray rData;
-    protected AtomsetIteratorBoxDependent iterator;
-    protected double xMax;
-    protected long callCount;
-    protected AtomType type1, type2;
-    private IDataInfo dataInfo;
-    private Boundary boundary;
-    private String name;
+    protected final PotentialCalculationForceSum pcForce;
+    protected final AtomLeafAgentManager<Vector> forceManager;
+    protected double density;
+    protected double rcforHandfinmap;
 
-    public MeterMappedRdf(Space space) {
+    public MeterMappedRdf(double rcforHandfinmap, Space space, PotentialMaster potentialMaster, Box box, int nbins, double density) {
         this.space = space;
+        this.box = box;
+        this.density = density;
+        this.potentialMaster = potentialMaster;
+        this.rcforHandfinmap = rcforHandfinmap;
 
-        xDataSource = new DataSourceUniform("r", Length.DIMENSION);
-        xDataSource.setTypeMax(DataSourceUniform.LimitType.HALF_STEP);
-        xDataSource.setTypeMin(DataSourceUniform.LimitType.HALF_STEP);
+        pcForce = new PotentialCalculationForceSum();
+        if (box != null) {
+            forceManager = new AtomLeafAgentManager<>(this, box);
+            pcForce.setAgentManager(forceManager);
+        }
+        else {
+            forceManager = null;
+        }
 
-        rData = (DataDoubleArray)xDataSource.getData();
-        data = new DataFunction(new int[] {rData.getLength()});
-        gSum = new long[rData.getLength()];
-        dataInfo = new DataFunction.DataInfoFunction("g(r)_map", Null.DIMENSION, this);
+        pc = new PotentialCalculationMappedRdf(rcforHandfinmap, space, box, nbins, forceManager);
 
-        iterator = new ApiLeafAtoms();
-        dr = space.makeVector();
+        xDataSource = pc.getXDataSource();
+
+        rData = (DataDoubleArray) xDataSource.getData();
+        data = new DataFunction(new int[]{rData.getLength()});
+        dataInfo = new DataFunction.DataInfoFunction("g(r)", Null.DIMENSION, this);
+
+        allAtoms = new IteratorDirective();
+
         tag = new DataTag();
         dataInfo.addTag(tag);
     }
@@ -67,56 +62,18 @@ public class MeterMappedRdf implements IAction, IDataSource, DataSourceIndepende
         return tag;
     }
 
-    public void setAtomType(AtomType type) {
-        type1 = type;
-        type2 = type;
-    }
-
-    public void setAtomTypes(AtomType type1, AtomType type2) {
-        this.type1 = type1;
-        this.type2 = type2;
-    }
-
     /**
      * Zero's out the RDF sum tracked by this meter.
      */
     public void reset() {
-        rData = (DataDoubleArray)xDataSource.getData();
+        rData = (DataDoubleArray) xDataSource.getData();
         xMax = xDataSource.getXMax();
-        data = new DataFunction(new int[] {rData.getLength()});
-        gSum = new long[rData.getLength()];
+        pc.getXDataSource().setNValues(rData.getLength());
+        pc.getXDataSource().setXMax(xMax);
+        data = new DataFunction(new int[]{rData.getLength()});
         dataInfo = new DataFunction.DataInfoFunction("g(r)", Null.DIMENSION, this);
         dataInfo.addTag(tag);
-        callCount = 0;
     }
-
-    /**
-     * Takes the RDF for the current configuration of the given box.
-     */
-    public void actionPerformed() {
-        if (rData != xDataSource.getData() ||
-                data.getLength() != rData.getLength() ||
-                xDataSource.getXMax() != xMax) {
-            reset();
-        }
-
-        double xMaxSquared = xMax * xMax;
-        iterator.setBox(box);
-        iterator.reset();
-        // iterate over all pairs
-        for (IAtomList pair = iterator.next(); pair != null;
-             pair = iterator.next()) {
-            if (type1 != null && (pair.get(0).getType() != type1 || pair.get(1).getType() != type2)) continue;
-            dr.Ev1Mv2(pair.get(1).getPosition(), pair.get(0).getPosition());
-            boundary.nearestImage(dr);
-             double r2 = dr.squared();       //compute pair separation
-             if(r2 < xMaxSquared) {
-                int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
-                 gSum[index]++;                        //add once for each atom
-              }
-             }
-                        callCount++;
-        }
 
     /**
      * Returns the RDF, averaged over the calls to actionPerformed since the
@@ -127,34 +84,40 @@ public class MeterMappedRdf implements IAction, IDataSource, DataSourceIndepende
                 data.getLength() != rData.getLength() ||
                 xDataSource.getXMax() != xMax) {
             reset();
-            //that zeroed everything.  just return the zeros.
-            return data;
+        }
+        pcForce.reset();
+        pc.reset();
+        potentialMaster.calculate(box, allAtoms, pcForce);
+        long numAtoms = box.getLeafList().size();
+
+        potentialMaster.calculate(box, allAtoms, pc);
+        AtomPair foo = new AtomPair();
+        for (int i = 0; i < numAtoms; i++) {
+
+            foo.atom0 = box.getLeafList().get(i);
+            for (int j = i + 1; j < numAtoms; j++) {
+                foo.atom1 = box.getLeafList().get(j);
+                pc.doCalculation(foo, null);
+            }
         }
 
         final double[] y = data.getData();
-        long numAtomPairs = 0;
-        if (type1 == null) {
-            long numAtoms = box.getLeafList().size();
-            numAtomPairs = numAtoms*(numAtoms-1)/2;
-        }
-        else {
-            iterator.setBox(box);
-            iterator.reset();
-            for (IAtomList pair = iterator.next(); pair != null; pair = iterator.next()) {
-                if (pair.get(0).getType() != type1 || pair.get(1).getType() != type2) continue;
-                numAtomPairs++;
-            }
-        }
-        double norm = numAtomPairs * callCount / box.getBoundary().volume();
+
         double[] r = rData.getData();
-        double dx2 = 0.5*(xMax - xDataSource.getXMin())/r.length;
-        for(int i=0;i<r.length; i++) {
-            //double vShell = space.sphereVolume(r[i]+dx2)-space.sphereVolume(r[i]-dx2);
-            y[i] = gSum[i] / (norm);
+        double[] gSum = pc.getGSum();
+        double vol = box.getBoundary().volume();
+        //      System.out.println("metervol " + box.getBoundary().volume());
+
+        for (int i = 0; i < r.length; i++) {
+//            double vShell = space.sphereVolume(r[i]+dx2)-space.sphereVolume(r[i]-dx2);
+            // y[i] = (gR[i]*callCount+gSum[i])*01/(norm*vShell);
+
+            y[i] = numAtoms * (numAtoms - 1) / (vol * vol) + (gSum[i]);
+            //    y[i] =  (gSum[i] / (norm)) ;
+
         }
+        //       System.out.println(y[10]);
         return data;
-
-
     }
 
     public DataSourceUniform getXDataSource() {
@@ -162,11 +125,11 @@ public class MeterMappedRdf implements IAction, IDataSource, DataSourceIndepende
     }
 
     public DataDoubleArray getIndependentData(int i) {
-        return (DataDoubleArray)xDataSource.getData();
+        return (DataDoubleArray) xDataSource.getData();
     }
 
     public DataDoubleArray.DataInfoDoubleArray getIndependentDataInfo(int i) {
-        return (DataDoubleArray.DataInfoDoubleArray)xDataSource.getDataInfo();
+        return (DataDoubleArray.DataInfoDoubleArray) xDataSource.getDataInfo();
     }
 
     public DataTag getIndependentTag() {
@@ -188,15 +151,41 @@ public class MeterMappedRdf implements IAction, IDataSource, DataSourceIndepende
      * @param box The box to set.
      */
     public void setBox(Box box) {
+        pc.setBox(box);
         this.box = box;
-        boundary = box.getBoundary();
     }
 
     public String getName() {
         return name;
     }
 
+    public PotentialCalculationMappedRdf getPotentialCalculation() {
+        return pc;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
+
+
+    protected Box box;
+    protected final Space space;
+    protected DataFunction data;
+    private IDataInfo dataInfo;
+    protected DataDoubleArray rData;
+    protected IteratorDirective allAtoms;
+    protected final DataSourceUniform xDataSource;
+    protected double xMax;
+    private String name;
+    protected final DataTag tag;
+    protected final PotentialMaster potentialMaster;
+    protected final PotentialCalculationMappedRdf pc;
+
+    public Vector makeAgent(IAtom a, Box agentBox) {
+        return space.makeVector();
+    }
+
+    public void releaseAgent(Vector agent, IAtom atom, Box agentBox) {
+    }
+
 }

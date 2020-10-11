@@ -4,11 +4,15 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.data.*;
+import etomica.data.AccumulatorAverageCovariance;
+import etomica.data.DataPumpListener;
+import etomica.data.DataSourceCountSteps;
+import etomica.data.IData;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
@@ -28,7 +32,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
@@ -42,7 +46,7 @@ public class SimLJHTTISuper extends Simulation {
 
     public final CoordinateDefinitionLeaf coordinateDefinition;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public int[] nCells;
@@ -51,13 +55,13 @@ public class SimLJHTTISuper extends Simulation {
     public MCMoveAtomCoupled atomMove;
     public PotentialMasterList potentialMaster;
     public Potential2SoftSpherical potential;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public SimLJHTTISuper(Space _space, int numAtoms, double density, double temperature, double rc, boolean ss, int[] seeds) {
         super(_space);
         if (seeds != null) {
             setRandom(new RandomMersenneTwister(seeds));
         }
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMasterList(this, space);
@@ -95,9 +99,9 @@ public class SimLJHTTISuper extends Simulation {
 
         potentialMaster.lrcMaster().setEnabled(false);
 
-        int cellRange = 7;
+        int cellRange = 2;
         potentialMaster.setRange(rc);
-        potentialMaster.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+        potentialMaster.setCellRange(cellRange); // NeighborCellManager handles this even if cells are a bit small
         // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
         potentialMaster.getNeighborManager(box).reset();
         int potentialCells = potentialMaster.getNbrCellManager(box).getLattice().getSize()[0];
@@ -105,9 +109,7 @@ public class SimLJHTTISuper extends Simulation {
             throw new RuntimeException("oops (" + potentialCells + " < " + (cellRange * 2 + 1) + ")");
         }
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
@@ -231,8 +233,8 @@ public class SimLJHTTISuper extends Simulation {
             potentialMasterData.addPotential(potentialT, new AtomType[]{sphereType, sphereType});
             potentialMasterData.lrcMaster().setEnabled(false);
 
-            int cellRange = 7;
-            potentialMasterData.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+            int cellRange = 2;
+            potentialMasterData.setCellRange(cellRange);
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
             potentialMasterData.getNeighborManager(sim.box).reset();
             int potentialCells = potentialMasterData.getNbrCellManager(sim.box).getLattice().getSize()[0];
@@ -258,8 +260,8 @@ public class SimLJHTTISuper extends Simulation {
             potentialMasterDataLJ.addPotential(potentialLJ, new AtomType[]{sphereType, sphereType});
             potentialMasterDataLJ.lrcMaster().setEnabled(false);
 
-            int cellRange = 7;
-            potentialMasterDataLJ.setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+            int cellRange = 2;
+            potentialMasterDataLJ.setCellRange(cellRange);
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
             potentialMasterDataLJ.getNeighborManager(sim.box).reset();
             int potentialCells = potentialMasterDataLJ.getNbrCellManager(sim.box).getLattice().getSize()[0];
@@ -459,16 +461,14 @@ public class SimLJHTTISuper extends Simulation {
 
         final long startTime = System.currentTimeMillis();
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
-
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         long endTime = System.currentTimeMillis();
         System.out.println();
 
-        IData avgRawData = avgSolid.getData(AccumulatorAverage.AVERAGE);
-        IData errRawData = avgSolid.getData(AccumulatorAverage.ERROR);
-        IData corRawData = avgSolid.getData(AccumulatorAverage.BLOCK_CORRELATION);
-        IData covRawData = avgSolid.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
+        IData avgRawData = avgSolid.getData(avgSolid.AVERAGE);
+        IData errRawData = avgSolid.getData(avgSolid.ERROR);
+        IData corRawData = avgSolid.getData(avgSolid.BLOCK_CORRELATION);
+        IData covRawData = avgSolid.getData(avgSolid.BLOCK_COVARIANCE);
 
         int j = 0;
         for (int i=0; i<cutoffs.length; i++) {
@@ -481,9 +481,9 @@ public class SimLJHTTISuper extends Simulation {
         System.out.println("\n");
 
         if (nCutoffsLS>0) {
-            avgRawData = accPULS.getData(AccumulatorAverage.AVERAGE);
-            errRawData = accPULS.getData(AccumulatorAverage.ERROR);
-            corRawData = accPULS.getData(AccumulatorAverage.BLOCK_CORRELATION);
+            avgRawData = accPULS.getData(accPULS.AVERAGE);
+            errRawData = accPULS.getData(accPULS.ERROR);
+            corRawData = accPULS.getData(accPULS.BLOCK_CORRELATION);
 
             j = 0;
             for (int i=0; i<cutoffsLS.length; i++) {
@@ -496,16 +496,16 @@ public class SimLJHTTISuper extends Simulation {
             System.out.println("\n");
         }
 
-        IData avgData = accPUBlocks.getData(AccumulatorAverage.AVERAGE);
-        IData errData = accPUBlocks.getData(AccumulatorAverage.ERROR);
-        IData corData = accPUBlocks.getData(AccumulatorAverage.BLOCK_CORRELATION);
-        IData covData = accPUBlocks.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
+        IData avgData = accPUBlocks.getData(accPUBlocks.AVERAGE);
+        IData errData = accPUBlocks.getData(accPUBlocks.ERROR);
+        IData corData = accPUBlocks.getData(accPUBlocks.BLOCK_CORRELATION);
+        IData covData = accPUBlocks.getData(accPUBlocks.BLOCK_COVARIANCE);
 
         int n = errData.getLength();
 
-        avgRawData = avgSolid.getData(AccumulatorAverage.AVERAGE);
-        errRawData = avgSolid.getData(AccumulatorAverage.ERROR);
-        covRawData = avgSolid.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
+        avgRawData = avgSolid.getData(avgSolid.AVERAGE);
+        errRawData = avgSolid.getData(avgSolid.ERROR);
+        covRawData = avgSolid.getData(avgSolid.BLOCK_COVARIANCE);
 
         int jRaw = 0;
         j = 0;
@@ -591,12 +591,12 @@ public class SimLJHTTISuper extends Simulation {
 
         if (nCutoffsLS > 0) {
 
-            avgRawData = accPULS.getData(AccumulatorAverage.AVERAGE);
+            avgRawData = accPULS.getData(accPULS.AVERAGE);
 
-            avgData = accPULSBlocks.getData(AccumulatorAverage.AVERAGE);
-            errData = accPULSBlocks.getData(AccumulatorAverage.ERROR);
-            covData = accPULSBlocks.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE);
-            corData = accPULSBlocks.getData(AccumulatorAverage.BLOCK_CORRELATION);
+            avgData = accPULSBlocks.getData(accPULSBlocks.AVERAGE);
+            errData = accPULSBlocks.getData(accPULSBlocks.ERROR);
+            covData = accPULSBlocks.getData(accPULSBlocks.BLOCK_COVARIANCE);
+            corData = accPULSBlocks.getData(accPULSBlocks.BLOCK_CORRELATION);
 
             n = errData.getLength();
 
@@ -682,9 +682,8 @@ public class SimLJHTTISuper extends Simulation {
 
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomalous contributions
-        activityIntegrate.setMaxSteps(initSteps);
-        getController().actionPerformed();
-        getController().reset();
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
+
         integrator.getMoveManager().setEquilibrating(false);
     }
     

@@ -15,13 +15,12 @@ import etomica.chem.elements.ElementSimple;
 import etomica.molecule.IMolecule;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;
-import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresCustom;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 
 import java.util.*;
 
@@ -46,7 +45,7 @@ public class ParmedStructure {
     private static final double SIGMA_FACTOR = 1 / Math.pow(2, 1/6);
     private final JsonNode root;
     private Map<String, AtomType> atomTypes;
-    private SpeciesSpheresCustom species;
+    private SpeciesGeneral species;
 
     /**
      * Constructs a ParmedStructure with the data contained in root.
@@ -76,29 +75,21 @@ public class ParmedStructure {
         return new Box(new BoundaryRectangularPeriodic(SPACE, boxCoordinates), SPACE);
     }
 
-    public SpeciesSpheresCustom getSpecies() {
+    public SpeciesGeneral getSpecies() {
         if(!Objects.isNull(species)) {
             return this.species;
         }
 
         ensureAtomTypes();
 
-        SpeciesSpheresCustom theSpecies = new SpeciesSpheresCustom(
-                SPACE,
-                atomTypes.values().toArray(new AtomType[]{})
-        );
+        SpeciesBuilder builder = new SpeciesBuilder(SPACE);
 
-        // LinkedHashMap keySet is guaranteed to be in insertion order
-        List<String> atomTypeIndices = new ArrayList<>(atomTypes.keySet());
-        List<Integer> speciesAtomTypes = new ArrayList<>();
-        List<Vector> atomPositions = new ArrayList<>();
         JsonNode speciesAtoms = root.get("residues").get(0).get("atoms");
 
         for(JsonNode atomNode : speciesAtoms) {
             String atomType = atomNode.get("type").asText();
-            speciesAtomTypes.add(atomTypeIndices.indexOf(atomType));
 
-            atomPositions.add(new Vector3D(
+            builder.addAtom(atomTypes.get(atomType), new Vector3D(
                     atomNode.get("xx").asDouble(),
                     atomNode.get("xy").asDouble(),
                     atomNode.get("xz").asDouble()
@@ -106,18 +97,8 @@ public class ParmedStructure {
 
         }
 
-        // need to convert the list of Integers into array of ints
-        theSpecies.setChildAtomTypes(speciesAtomTypes.stream().mapToInt(i -> i).toArray());
-
-        theSpecies.setConformation(atomList -> {
-            for(int i = 0; i < atomList.size(); i++) {
-                Vector atomVec = atomPositions.get(i);
-                atomList.get(i).getPosition().E(atomVec);
-            }
-        });
-
-        this.species = theSpecies;
-        return theSpecies;
+        this.species = builder.build();
+        return this.species;
     }
 
     /**
@@ -170,7 +151,7 @@ public class ParmedStructure {
      */
     public List<IMolecule> getMolecules() {
         List<IMolecule> moleculeList = new ArrayList<>();
-        SpeciesSpheresCustom species = getSpecies();
+        SpeciesGeneral species = getSpecies();
 
         //TODO: extract by species, i.e. don't assume all molecules are same species
         for(JsonNode moleculeNode : root.get("residues")) {

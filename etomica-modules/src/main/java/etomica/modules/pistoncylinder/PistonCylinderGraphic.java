@@ -8,7 +8,7 @@ import etomica.action.ActionGroupSeries;
 import etomica.action.IAction;
 import etomica.action.IntegratorReset;
 import etomica.action.SimulationRestart;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.atom.DiameterHashByElementType;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
@@ -18,8 +18,8 @@ import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.graphics.DeviceBox.LabelType;
-import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorMD;
 import etomica.math.function.Function;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
@@ -70,8 +70,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public JPanel pressureSliderPanel;
     public MeterDensity densityMeter;
     public DeviceToggleButton fixPistonButton;
-    public DisplayPlot plotT, plotD, plotP;
-    public DisplayPlot plotRDF;
+    public DisplayPlotXChart plotT, plotD, plotP;
+    public DisplayPlotXChart plotRDF;
     public DataPumpListener rdfPump;
     public IntegratorListenerAction rdfListener;
     public Unit tUnit, dUnit, pUnit, mUnit;
@@ -387,7 +387,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     	    scaleSlider.getSlider().setLabelTable(scaleLabels);
         }
 
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(pc.getController(), (ActivityIntegrate)pc.getController().getAllActions()[0]);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(pc.getController());
         
         // Add panels to the control panel
         getPanel().controlPanel.add(setupPanel, vertGBC);
@@ -410,9 +410,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 	    // Plots tabbed page
         //
 
-        plotD = new DisplayPlot();
-        plotT = new DisplayPlot();
-        plotP = new DisplayPlot();
+        plotD = new DisplayPlotXChart();
+        plotT = new DisplayPlotXChart();
+        plotP = new DisplayPlotXChart();
 
         JPanel myPlotPanel = new JPanel(new GridLayout(0, 1));
         myPlotPanel.add(plotD.graphic());
@@ -428,7 +428,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 		thermometer = new MeterTemperature(pc.box, space.D());
 
         if (doRDF) {
-            plotRDF = new DisplayPlot();
+            plotRDF = new DisplayPlotXChart();
             plotRDF.setDoLegend(false);
             plotRDF.setLabel("RDF");
             add(plotRDF);
@@ -679,8 +679,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         plotP.setLegend(new DataTag[]{targetPressureDataSource.getTag()}, "target");
         dataStreamPumps.add(pump);
 
-        densityMeter = new MeterDensity(pc.getSpace()); //pc.pistonPotential,1);
-        densityMeter.setBox(pc.box);
+        densityMeter = new MeterDensity(pc.box);
         final AccumulatorHistory densityHistory = new AccumulatorHistory();
         densityHistory.setTimeDataSource(meterCycles);
         densityHistory.getHistory().setHistoryLength(historyLength);
@@ -709,11 +708,11 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         java.awt.Dimension d = plotT.getPlot().getPreferredSize();
         d.width -= 100;
         d.height = 210;
-        plotT.getPlot().setSize(d);
-        plotP.getPlot().setSize(d);
-        plotD.getPlot().setSize(d);
+        plotT.getPanel().setSize(d);
+        plotP.getPanel().setSize(d);
+        plotD.getPanel().setSize(d);
         if (doRDF) {
-            plotRDF.getPlot().setSize(d);
+            plotRDF.getPanel().setSize(d);
         }
 
         d.width += 40;
@@ -784,18 +783,14 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 catch (ConfigurationOverlapException e) {}
 
                 densityDisplayTextBox.putData(densityAvg.getData());
-                densityDisplayTextBox.repaint();
 
                 temperatureDisplayTextBox.putData(temperatureAvg.getData());
-                temperatureDisplayTextBox.repaint();
 
                 pressureDisplayTextBox.putData(pressureAvg.getData());
-                pressureDisplayTextBox.repaint();
-                
+
                 displayBox.repaint();
                 
                 displayCycles.putData(meterCycles.getData());
-                displayCycles.repaint();
             }
         });
         
@@ -818,7 +813,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                         isFast = true;
                         goFastButton.setLabel("Go Slower");
                         pc.integrator.setTimeStep(10);
-                        pc.ai.setSleepPeriod(0);
+                        pc.getController().setSleepPeriod(0);
                         setRepaintInterval(10000);
                         densityHistory.setActive(false);
                         temperatureHistory.setActive(false);
@@ -837,7 +832,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public void setPotential(String potentialDesc) {
         final boolean HS = potentialDesc.equals(REPULSION_ONLY); 
         final boolean SW = potentialDesc.equals(REPULSION_ATTRACTION); 
-        pc.getController().doActionNow( new IAction() {
+        pc.getController().submitActionInterrupt(new IAction() {
             public void actionPerformed() {
                 if (HS) {
                     potentialHS.setBox(pc.box);

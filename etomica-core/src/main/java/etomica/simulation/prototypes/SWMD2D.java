@@ -5,8 +5,8 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -19,7 +19,7 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simple square-well molecular dynamics simulation in 2D
@@ -28,28 +28,25 @@ public class SWMD2D extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2SquareWell potential;
-    public Controller controller;
     public DisplayBox display;
 
     public SWMD2D() {
         super(Space2D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double sigma = 0.8;
         box = this.makeBox();
         integrator = new IntegratorHard(this, potentialMaster, box);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
         integrator.setTimeStep(0.02);
         integrator.setTemperature(1.);
-        getController().addAction(activityIntegrate);
+        getController().setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integrator));
         AtomType leafType = species.getLeafType();
         box.setNMolecules(species, 50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);

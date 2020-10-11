@@ -5,34 +5,32 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
-import etomica.chem.elements.ElementChemical;
+import etomica.chem.elements.Helium;
 import etomica.config.ConformationLinear;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorRatioAverageCovariance;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.*;
-import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.mcmove.MCMoveBox;
 import etomica.molecule.IMoleculeList;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheres;
-import etomica.units.*;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
+import etomica.units.Kelvin;
+import etomica.units.Pixel;
+import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.CompoundDimension;
-import etomica.units.dimensions.DimensionRatio;
-import etomica.units.dimensions.Quantity;
-import etomica.units.dimensions.Volume;
 import etomica.util.Constants;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
@@ -101,7 +99,10 @@ public class VirialHePIXC {
         System.out.println(steps+" steps");
         double heMass = 4.002602;
         double lambda = Constants.PLANCK_H/Math.sqrt(2*Math.PI*heMass*temperature);
-        SpeciesSpheres species = new SpeciesSpheres(space, nSpheres, new AtomType(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
+        SpeciesGeneral species = new SpeciesBuilder(space)
+                .addCount(new AtomType(Helium.INSTANCE), nSpheres)
+                .withConformation(new ConformationLinear(space, 0))
+                .build();
         // the temperature here goes to the integrator, which uses it for the purpose of intramolecular interactions
         // we handle that manually below, so just set T=1 here
         final SimulationVirial sim = new SimulationVirial(space, species, 1.0, samplingCluster, refCluster, new ClusterAbstract[]{targetCluster});
@@ -148,7 +149,7 @@ public class VirialHePIXC {
 //        sim.box.acceptNotify();
 
 
-        AtomType type = species.getLeafType();
+        AtomType type = species.getAtomType(0);
         pTargetGroup.addPotential(p2, new ApiIntergroupCoupled());
         
         
@@ -195,10 +196,10 @@ public class VirialHePIXC {
             final DisplayTextBox errorBox = new DisplayTextBox();
             errorBox.setLabel("Error");
             JLabel jLabelPanelParentGroup = new JLabel("ratio");
-            final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
+            final JPanel panelParentGroup = new JPanel(new BorderLayout());
             panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
-            panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.WEST);
-            panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
+            panelParentGroup.add(averageBox.graphic(), BorderLayout.WEST);
+            panelParentGroup.add(errorBox.graphic(), BorderLayout.EAST);
             simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
 
 
@@ -207,9 +208,9 @@ public class VirialHePIXC {
                 
                 public void actionPerformed() {
                     DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
-                    data.x = ((DataDoubleArray) allYourBase.getData(AccumulatorRatioAverageCovariance.RATIO.index)).getData()[1];
+                    data.x = ((DataDoubleArray) allYourBase.getData(sim.accumulator.RATIO.index)).getData()[1];
                     averageBox.putData(data);
-                    data.x = ((DataDoubleArray) allYourBase.getData(AccumulatorRatioAverageCovariance.RATIO_ERROR.index)).getData()[1];
+                    data.x = ((DataDoubleArray) allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[1];
                     errorBox.putData(data);
                 }
             };
@@ -221,23 +222,17 @@ public class VirialHePIXC {
             errorBox.setPrecision(2);
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pushAnswer));
 
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.equilibrate(steps/100);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
-            
+            sim.addEquilibration(steps / 100);
+            sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
+
             return;
         }
         
         
         sim.equilibrate(steps/100);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integrator, steps);
+sim.setAccumulatorBlockSize(steps > 1000 ? steps/1000 : 1);
 
-        sim.setAccumulatorBlockSize(steps > 1000 ? steps/1000 : 1);
-        
         System.out.println("equilibration finished");
 
 //        if (false) {
@@ -246,7 +241,7 @@ public class VirialHePIXC {
 //                public void integratorInitialized(IIntegratorEvent e) {}
 //                public void integratorStepStarted(IIntegratorEvent e) {}
 //                public void integratorStepFinished(IIntegratorEvent e) {
-//                    if ((sim.integrator.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+//                    if ((sim.integrator.getStepCount()*10) % sim.getController2().getMaxSteps() != 0) return;
 //                    System.out.print(sim.integrator.getStepCount()+" steps: ");
 //                    double[] ratioAndError = sim.dsvo.getOverlapAverageAndError();
 //                    double ratio = ratioAndError[0];
@@ -258,8 +253,7 @@ public class VirialHePIXC {
 //        }
 
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
 
         System.out.println("Ring acceptance "+ring.getTracker().acceptanceRatio());
@@ -272,16 +266,16 @@ public class VirialHePIXC {
         DataGroup allYourBase = (DataGroup)sim.accumulator.getData();
         
         System.out.println();
-        System.out.println("reference average: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[0]
-                + " stdev: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[0]
-                + " error: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[0]);
+        System.out.println("reference average: " + ((DataDoubleArray) allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[0]
+                + " stdev: " + ((DataDoubleArray) allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[0]
+                + " error: " + ((DataDoubleArray) allYourBase.getData(sim.accumulator.ERROR.index)).getData()[0]);
 
-        double ratio = ((DataDoubleArray) allYourBase.getData(AccumulatorRatioAverageCovariance.RATIO.index)).getData()[1];
-        double error = ((DataDoubleArray) allYourBase.getData(AccumulatorRatioAverageCovariance.RATIO_ERROR.index)).getData()[1];
+        double ratio = ((DataDoubleArray) allYourBase.getData(sim.accumulator.RATIO.index)).getData()[1];
+        double error = ((DataDoubleArray) allYourBase.getData(sim.accumulator.RATIO_ERROR.index)).getData()[1];
 
-        System.out.println("target average: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]
-                + " stdev: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index)).getData()[1]
-                + " error: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[1]);
+        System.out.println("target average: " + ((DataDoubleArray) allYourBase.getData(sim.accumulator.AVERAGE.index)).getData()[1]
+                + " stdev: " + ((DataDoubleArray) allYourBase.getData(sim.accumulator.STANDARD_DEVIATION.index)).getData()[1]
+                + " error: " + ((DataDoubleArray) allYourBase.getData(sim.accumulator.ERROR.index)).getData()[1]);
 
         System.out.println();
         System.out.println("ratio average: "+ratio+", error: "+error);

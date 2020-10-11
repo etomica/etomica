@@ -4,14 +4,14 @@
 
 package etomica.normalmode;
 
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
-import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 import java.io.Serializable;
 
@@ -62,7 +62,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
         int nCells = 6;
         Space sp = Space1D.getInstance();
         Simulation sim = new Simulation(sp);
-        ISpecies species = new SpeciesSpheresMono(sim, sp);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(sp, AtomType.simpleFromSim(sim));
         sim.addSpecies(species);
         Box box = new Box(sim.getSpace());
         sim.addBox(box);

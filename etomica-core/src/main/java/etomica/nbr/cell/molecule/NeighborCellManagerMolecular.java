@@ -11,6 +11,7 @@ import etomica.box.BoxCellManager;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
+import etomica.integrator.mcmove.MCMoveTrialFailedEvent;
 import etomica.lattice.CellLattice;
 import etomica.molecule.*;
 import etomica.simulation.Simulation;
@@ -272,9 +273,9 @@ public class NeighborCellManagerMolecular implements BoxCellManager, BoundaryEve
  * 
  */
         public void actionPerformed(IEvent evt) {
-        	
-        	
-            if (evt instanceof MCMoveTrialCompletedEvent && ((MCMoveTrialCompletedEvent)evt).isAccepted()) {
+
+
+            if (evt instanceof MCMoveTrialFailedEvent || (evt instanceof MCMoveTrialCompletedEvent && ((MCMoveTrialCompletedEvent) evt).isAccepted())) {
             	
                 return;
             }

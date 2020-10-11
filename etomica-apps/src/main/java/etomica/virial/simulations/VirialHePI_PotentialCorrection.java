@@ -7,14 +7,18 @@ package etomica.virial.simulations;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ANIntergroupCoupled;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
-import etomica.chem.elements.ElementChemical;
+import etomica.chem.elements.Helium;
 import etomica.config.ConformationLinear;
-import etomica.data.*;
+import etomica.data.AccumulatorAverageCovariance;
+import etomica.data.DataPumpListener;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
@@ -33,13 +37,11 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
+import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.CompoundDimension;
-import etomica.units.dimensions.DimensionRatio;
-import etomica.units.dimensions.Quantity;
-import etomica.units.dimensions.Volume;
 import etomica.util.Constants;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
@@ -288,7 +290,10 @@ public class VirialHePI_PotentialCorrection {
         }
         System.out.println(steps+" steps ("+blocks+" blocks of "+stepsPerBlock+" steps)");
         System.out.println(1000+" steps per overlap-sampling block");
-        SpeciesSpheres species = new SpeciesSpheres(space, nBeads, new AtomType(new ElementChemical("He", heMass, 2)), new ConformationLinear(space, 0));
+        SpeciesGeneral species = new SpeciesBuilder(space)
+                .addCount(new AtomType(Helium.INSTANCE), nBeads)
+                .withConformation(new ConformationLinear(space, 0))
+                .build();
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                  targetDiagrams, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
@@ -391,7 +396,7 @@ public class VirialHePI_PotentialCorrection {
             ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
 
 
-            AtomType type = species.getLeafType();
+            AtomType type = species.getAtomType(0);
             DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
             diameterManager.setDiameter(type, 0.02+1.0/nBeads);
             displayBox1.setDiameterHash(diameterManager);
@@ -409,7 +414,7 @@ public class VirialHePI_PotentialCorrection {
 //            sim.getController().removeAction(sim.ai);
 //            sim.getController().addAction(new IAction() {
 //                public void actionPerformed() {
-//                    sim.initRefPref(null, 10);
+//                    sim.initRefPref(null, 10, false);
 //                    sim.equilibrate(null, 20);
 //                    sim.ai.setMaxSteps(Long.MAX_VALUE);
 //                }
@@ -424,10 +429,10 @@ public class VirialHePI_PotentialCorrection {
             final DisplayTextBox errorBox = new DisplayTextBox();
             errorBox.setLabel("Error");
             JLabel jLabelPanelParentGroup = new JLabel("B"+nPoints+" (L/mol)^"+(nPoints-1));
-            final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
+            final JPanel panelParentGroup = new JPanel(new BorderLayout());
             panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
-            panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.WEST);
-            panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
+            panelParentGroup.add(averageBox.graphic(), BorderLayout.WEST);
+            panelParentGroup.add(errorBox.graphic(), BorderLayout.EAST);
             simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
             
             IAction pushAnswer = new IAction() {
@@ -491,8 +496,8 @@ public class VirialHePI_PotentialCorrection {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, blocksEq*stepsPerBlock/1000);
-        
-        if (accumulatorDiagrams != null) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+if (accumulatorDiagrams != null) {
             accumulatorDiagrams.reset();
         }
 
@@ -502,12 +507,12 @@ public class VirialHePI_PotentialCorrection {
         sim.setAccumulatorBlockSize(stepsPerBlock);
         //sim.integratorOS.setNumSubSteps((int)steps);
         //sim.integratorOS.setAgressiveAdjustStepFraction(true);
-        
+
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
 
-        
+
         final HistogramNotSoSimple targHist = new HistogramNotSoSimple(70, new DoubleRange(-1, 8));
         final HistogramNotSoSimple targPiHist = new HistogramNotSoSimple(70, new DoubleRange(-1, 8));
         final HistogramNotSoSimple hist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
@@ -515,7 +520,7 @@ public class VirialHePI_PotentialCorrection {
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
         IntegratorListener histListenerRef = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 CoordinatePairSet cPairs = sim.box[0].getCPairSet();
@@ -529,13 +534,13 @@ public class VirialHePI_PotentialCorrection {
                 hist.addValue(Math.sqrt(r2Max), v);
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
-            
+
             public void integratorInitialized(IntegratorEvent e) {
             }
         };
         IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
@@ -569,7 +574,7 @@ public class VirialHePI_PotentialCorrection {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -586,7 +591,7 @@ public class VirialHePI_PotentialCorrection {
                     public void integratorInitialized(IntegratorEvent e) {}
                     public void integratorStepStarted(IntegratorEvent e) {}
                     public void integratorStepFinished(IntegratorEvent e) {
-                        if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                        if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                         System.out.println("**** reference ****");
                         double[] xValues = hist.xValues();
                         double[] h = hist.getHistogram();
@@ -620,9 +625,7 @@ public class VirialHePI_PotentialCorrection {
             sim.integrators[0].getEventManager().addListener(histListenerRef);
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
-
-        sim.ai.setMaxSteps(1000);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
         long t2 = System.currentTimeMillis();
         
         if (params.doHist) {
@@ -642,9 +645,9 @@ public class VirialHePI_PotentialCorrection {
         sim.printResults(refIntegral);
 
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-        IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
-        IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
-        IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
+        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
+        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
         int nTotal = (targetDiagrams.length+2);
         double oVar = dataCov.getValue(nTotal*nTotal-1);
@@ -673,13 +676,13 @@ public class VirialHePI_PotentialCorrection {
         System.out.println();
 
         DataGroup allData0 = (DataGroup)sim.accumulators[0].getData();
-        IData dataAuto0 = allData0.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData dataAuto0 = allData0.getData(sim.accumulators[0].BLOCK_CORRELATION.index);
         System.out.println("reference autocorrelation function: "+dataAuto0.getValue(0));
         System.out.println("reference overlap autocorrelation function: "+dataAuto0.getValue(1));
         
         System.out.println();
 
-        IData dataAuto = allData.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData dataAuto = allData.getData(sim.accumulators[1].BLOCK_CORRELATION.index);
         System.out.println("target autocorrelation function: "+dataAuto.getValue(0));
         System.out.println("target overlap autocorrelation function: "+dataAuto.getValue(1));
         

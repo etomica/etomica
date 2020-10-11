@@ -3,35 +3,30 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.virial.simulations;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCovariance;
-import etomica.data.AccumulatorRatioAverageCovarianceFull;
-import etomica.integrator.IntegratorEvent;
-import etomica.integrator.IntegratorListener;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
+import etomica.integrator.IntegratorEvent;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.mcmove.MCMove;
 import etomica.potential.P2O2Bartolomei;
 import etomica.potential.PotentialMolecularMonatomic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterWheatleyHS;
-import etomica.virial.ClusterWheatleySoft;
-import etomica.virial.MayerGeneral;
-import etomica.virial.MayerHardSphere;
+import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 public class VirialO2 {
     public static void main(String[] args) {
@@ -102,8 +97,8 @@ public class VirialO2 {
         tarCluster.setTemperature(temperature);
         
         // make species
-        SpeciesSpheresRotating speciesUranium = new SpeciesSpheresRotating(space,new ElementSimple("U",238.02891));
-        
+        SpeciesGeneral speciesUranium = SpeciesSpheresRotating.create(space, new ElementSimple("U", 238.02891));
+
         // make simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesUranium, temperature, refCluster, tarCluster);
 //        sim.init();
@@ -136,12 +131,12 @@ public class VirialO2 {
         }
         
         sim.equilibrate(refFileName, steps/10);
-        System.out.println("equilibration finished");
-        
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+System.out.println("equilibration finished");
+
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
@@ -151,7 +146,7 @@ public class VirialO2 {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -166,7 +161,8 @@ public class VirialO2 {
             sim.integratorOS.getEventManager().addListener(progressReport);
         }
         // this is where the simulation takes place
-        sim.getController().actionPerformed();
+
+sim.getController().runActivityBlocking(ai);
         //end of simulation
         long t2 = System.currentTimeMillis();
         
@@ -199,17 +195,17 @@ public class VirialO2 {
         double error = ratioAndError[1];
         double bn = ratio*HSB[nPoints];
         double bnError = error*Math.abs(HSB[nPoints]);
-        
+
         System.out.println("ratio average: "+ratio+" error: "+error);
         System.out.println("abs average: "+bn+" error: "+bnError);
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData();
-        IData ratioData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO.index);
-        IData ratioErrorData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO_ERROR.index);
-        IData averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
-        IData stdevData = allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index);
-        IData errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
-        IData correlationData = allYourBase.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
-        IData covarianceData = allYourBase.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+        IData ratioData = allYourBase.getData(sim.accumulators[0].RATIO.index);
+        IData ratioErrorData = allYourBase.getData(sim.accumulators[0].RATIO_ERROR.index);
+        IData averageData = allYourBase.getData(sim.accumulators[0].AVERAGE.index);
+        IData stdevData = allYourBase.getData(sim.accumulators[0].STANDARD_DEVIATION.index);
+        IData errorData = allYourBase.getData(sim.accumulators[0].ERROR.index);
+        IData correlationData = allYourBase.getData(sim.accumulators[0].BLOCK_CORRELATION.index);
+        IData covarianceData = allYourBase.getData(sim.accumulators[0].BLOCK_COVARIANCE.index);
         double correlationCoef = covarianceData.getValue(1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue(3));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;
         double refAvg = averageData.getValue(0);
@@ -219,15 +215,15 @@ public class VirialO2 {
                               averageData.getValue(0), stdevData.getValue(0), errorData.getValue(0), correlationData.getValue(0)));
         System.out.print(String.format("reference overlap average: %20.15e stdev: %9.4e error: %9.3e cor: %6.4f\n",
                               averageData.getValue(1), stdevData.getValue(1), errorData.getValue(1), correlationData.getValue(1)));
-        
+
         allYourBase = (DataGroup)sim.accumulators[1].getData();
-        ratioData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO.index);
-        ratioErrorData = allYourBase.getData(AccumulatorRatioAverageCovarianceFull.RATIO_ERROR.index);
-        averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
-        stdevData = allYourBase.getData(AccumulatorAverage.STANDARD_DEVIATION.index);
-        errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
-        correlationData = allYourBase.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
-        covarianceData = allYourBase.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+        ratioData = allYourBase.getData(sim.accumulators[1].RATIO.index);
+        ratioErrorData = allYourBase.getData(sim.accumulators[1].RATIO_ERROR.index);
+        averageData = allYourBase.getData(sim.accumulators[1].AVERAGE.index);
+        stdevData = allYourBase.getData(sim.accumulators[1].STANDARD_DEVIATION.index);
+        errorData = allYourBase.getData(sim.accumulators[1].ERROR.index);
+        correlationData = allYourBase.getData(sim.accumulators[1].BLOCK_CORRELATION.index);
+        covarianceData = allYourBase.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
         int n = sim.numExtraTargetClusters;
         correlationCoef = covarianceData.getValue(n+1)/Math.sqrt(covarianceData.getValue(0)*covarianceData.getValue((n+2)*(n+2)-1));
         correlationCoef = (Double.isNaN(correlationCoef) || Double.isInfinite(correlationCoef)) ? 0 : correlationCoef;

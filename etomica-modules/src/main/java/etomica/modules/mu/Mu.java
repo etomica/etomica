@@ -4,6 +4,7 @@
 
 package etomica.modules.mu;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -12,7 +13,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.modules.chainequilibrium.ConfigurationLatticeRandom;
+import etomica.config.ConfigurationLatticeRandom;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P1HardBoundary;
 import etomica.simulation.Simulation;
@@ -20,15 +21,15 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 public class Mu extends Simulation {
     
     private static final long serialVersionUID = 1L;
-    public final SpeciesSpheresMono speciesA, speciesB;
+    public final SpeciesGeneral speciesA, speciesB;
     public final Box box;
     public final IntegratorHard integrator;
-    public final ActivityIntegrate activityIntegrate;
+
     public final P2SquareWellOneSide potentialAA, potentialAB, potentialBB;
     public final P1MagicWall p1WallA, p1WallB;
     public final P1HardBoundary p1BoundaryA, p1BoundaryB;
@@ -38,11 +39,9 @@ public class Mu extends Simulation {
         super(_space);
 
         //species
-        speciesA = new SpeciesSpheresMono(this, space);
-        speciesA.setIsDynamic(true);
+        speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesA);
-        speciesB = new SpeciesSpheresMono(this, space);
-        speciesB.setIsDynamic(true);
+        speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesB);
 
         box = this.makeBox(new BoundaryRectangularSlit(0, space));
@@ -61,8 +60,7 @@ public class Mu extends Simulation {
         integrator.setIsothermal(true);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        activityIntegrate = new ActivityIntegrate(integrator, 0, true);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integrator, true));
 
         //instantiate several potentials for selection in combo-box
         potentialAA = new P2SquareWellOneSide(space, sigma, lambda, epsilon, true);

@@ -4,6 +4,7 @@
 
 package etomica.models.nitrogen;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverageFixed;
@@ -25,6 +26,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
@@ -40,7 +42,7 @@ public class SimDirectBetaN2RP extends Simulation {
     public SimDirectBetaN2RP(Space space, int numMolecules, double density, double temperature, double[] angle) {
         super(space);
 
-        species = new SpeciesN2(space);
+        species = SpeciesN2.create(false);
         addSpecies(species);
 
         PotentialMaster potentialMasterTarg = new PotentialMaster();
@@ -116,8 +118,7 @@ public class SimDirectBetaN2RP extends Simulation {
         IntegratorListenerAction boltzmannPumpListener = new IntegratorListenerAction(boltzmannPump, 100);
         integratorTarg.getEventManager().addListener(boltzmannPumpListener);
 
-        activityIntegrate = new ActivityIntegrate(integratorTarg);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integratorTarg));
     }
 
     /**
@@ -153,19 +154,16 @@ public class SimDirectBetaN2RP extends Simulation {
         MeterOrientationDistribution meterOrient = new MeterOrientationDistribution(sim.boxTarg, sim.coordinateDefTarg, sim.species);
         IntegratorListenerAction meterOrientListener = new IntegratorListenerAction(meterOrient);
         meterOrientListener.setInterval(numMolecules);                                      
-        sim.integratorTarg.getEventManager().addListener(meterOrientListener);    
-        
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
-        sim.getController().actionPerformed();     
-        System.out.println("equilibration finished");
-        sim.getController().reset();
-     
- 
+        sim.integratorTarg.getEventManager().addListener(meterOrientListener);
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorTarg, numSteps / 10));
+System.out.println("equilibration finished");
+
+
+
         long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
-       
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorTarg, numSteps));
 
         double average = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.AVERAGE.index);
         double error = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.ERROR.index);
@@ -180,10 +178,10 @@ public class SimDirectBetaN2RP extends Simulation {
     }
 
     private static final long serialVersionUID = 1L;
-    protected ActivityIntegrate activityIntegrate;
+    
     protected AccumulatorAverageFixed boltzmannAverage;
     protected Box boxTarg;
-    protected SpeciesN2 species;
+    protected SpeciesGeneral species;
     protected CoordinateDefinitionNitrogen coordinateDefTarg;
     protected IntegratorMC integratorTarg;
     

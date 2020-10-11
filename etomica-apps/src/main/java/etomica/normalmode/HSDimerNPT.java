@@ -7,6 +7,7 @@ package etomica.normalmode;
 import etomica.action.BoxInflateAnisotropic;
 import etomica.action.BoxInflateDeformable;
 import etomica.action.IAction;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -38,6 +39,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Null;
 import etomica.util.IEvent;
 import etomica.util.IListener;
@@ -61,16 +63,15 @@ public class HSDimerNPT extends Simulation {
     public static boolean doGraphics = true;
     public final PotentialMasterList potentialMaster;
     public final IntegratorMC integrator;
-    public final SpeciesHSDimer species;
+    public final SpeciesGeneral species;
     public final Box box, latticeBox;
-    public final ActivityIntegrate activityIntegrate;
     public final CoordinateDefinitionHSDimer coordinateDefinition;
     public final double theta;
 
     public HSDimerNPT(final Space space, int numMolecules, boolean fancyMove, double pSet, double rho, int[] nC, int cp, double L, double thetaFrac, double targetAcc) {
         super(space);
 
-        species = new SpeciesHSDimer(space, true, L);
+        species = SpeciesHSDimer.create(space, true, L);
         addSpecies(species);
 
         potentialMaster = new PotentialMasterList(this, 2, new NeighborListManagerSlanty.NeighborListSlantyAgentSource(2), space);
@@ -104,11 +105,10 @@ public class HSDimerNPT extends Simulation {
         }
         latticeBox = this.makeBox(new BoundaryDeformablePeriodic(space, boxDim));
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, latticeBox);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         P2HardSphere p2 = new P2HardSphere(space, sigma, false);
-        potentialMaster.addPotential(p2, new AtomType[]{species.getDimerAtomType(), species.getDimerAtomType()});
+        potentialMaster.addPotential(p2, new AtomType[]{species.getLeafType(), species.getLeafType()});
 
         Boundary boundary = new BoundaryDeformablePeriodic(space, boxDim);
         box = this.makeBox(boundary);
@@ -486,7 +486,7 @@ public class HSDimerNPT extends Simulation {
 
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DiameterHashByType diameter = new DiameterHashByType();
-            diameter.setDiameter(sim.species.getDimerAtomType(), 1.0);
+            diameter.setDiameter(sim.species.getLeafType(), 1.0);
             graphic.getDisplayBox(sim.box).setDiameterHash(diameter);
 
 //			ColorSchemeNeighbor colorScheme = new ColorSchemeNeighbor(sim, sim.potentialMaster, sim.box);
@@ -517,7 +517,7 @@ public class HSDimerNPT extends Simulation {
 
                 AccumulatorHistory volumeAvgHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
                 volumeAvgHistory.setTimeDataSource(stepCounter);
-                volumeAvg.addDataSink(volumeAvgHistory, new StatType[]{AccumulatorAverage.AVERAGE});
+                volumeAvg.addDataSink(volumeAvgHistory, new StatType[]{volumeAvg.AVERAGE});
                 volumeAvgHistory.setDataSink(volumePlot.getDataSet().makeDataSink());
                 AccumulatorHistory volumeAvgPHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
                 volumeAvgPHistory.setTimeDataSource(stepCounter);
@@ -535,13 +535,13 @@ public class HSDimerNPT extends Simulation {
                         return data;
                     }
                 };
-                volumeAvg.addDataSink(volumeAvgP, new StatType[]{AccumulatorAverage.AVERAGE, AccumulatorAverage.ERROR});
+                volumeAvg.addDataSink(volumeAvgP, new StatType[]{volumeAvg.AVERAGE, volumeAvg.ERROR});
                 volumeAvgP.setDataSink(volumeAvgPHistory);
                 volumeAvgPHistory.setDataSink(volumePlot.getDataSet().makeDataSink());
 
                 AccumulatorHistory volumeStdevHistory = new AccumulatorHistory(new HistoryCollapsingDiscard());
                 volumeStdevHistory.setTimeDataSource(stepCounter);
-                volumeAvg.addDataSink(volumeStdevHistory, new StatType[]{AccumulatorAverage.STANDARD_DEVIATION});
+                volumeAvg.addDataSink(volumeStdevHistory, new StatType[]{volumeAvg.STANDARD_DEVIATION});
                 DisplayPlot volumeStdevPlot = new DisplayPlot();
                 volumeStdevHistory.setDataSink(volumeStdevPlot.getDataSet().makeDataSink());
                 volumeStdevPlot.setLabel("volume stdev");
@@ -667,38 +667,36 @@ public class HSDimerNPT extends Simulation {
 
             return;
         }
-        sim.activityIntegrate.setMaxSteps(params.numSteps / 10);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / 10));
         volumeAvg.reset();
         displacementAvg.reset();
         thetaDeviationAvg.reset();
         phiDeviationAvg.reset();
         System.out.println("equilibration finished");
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.activityIntegrate.setMaxSteps(params.numSteps);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
 
         if (params.rho <= 0) {
-            double vavg = volumeAvg.getData().getValue(AccumulatorAverage.AVERAGE.index);
-            double verr = volumeAvg.getData().getValue(AccumulatorAverage.ERROR.index);
-            double vstdev = volumeAvg.getData().getValue(AccumulatorAverage.STANDARD_DEVIATION.index);
-            double vcorr = volumeAvg.getData().getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
+            double vavg = volumeAvg.getData().getValue(volumeAvg.AVERAGE.index);
+            double verr = volumeAvg.getData().getValue(volumeAvg.ERROR.index);
+            double vstdev = volumeAvg.getData().getValue(volumeAvg.STANDARD_DEVIATION.index);
+            double vcorr = volumeAvg.getData().getValue(volumeAvg.BLOCK_CORRELATION.index);
             System.out.println("avg volume " + vavg + "  err " + verr + "  stdev " + vstdev + "  correlation " + vcorr);
             System.out.println("avg density " + numMolecules / vavg + " " + numMolecules / (vavg * vavg) * verr);
         } else {
-            double davg = displacementAvg.getData().getValue(AccumulatorAverage.AVERAGE.index);
-            double dstdev = displacementAvg.getData().getValue(AccumulatorAverage.STANDARD_DEVIATION.index);
-            double derr = displacementAvg.getData().getValue(AccumulatorAverage.ERROR.index);
+            double davg = displacementAvg.getData().getValue(displacementAvg.AVERAGE.index);
+            double dstdev = displacementAvg.getData().getValue(displacementAvg.STANDARD_DEVIATION.index);
+            double derr = displacementAvg.getData().getValue(displacementAvg.ERROR.index);
             System.out.println("displacement avg " + davg + " stdev " + dstdev + " err " + derr);
 
-            double thetaavg = thetaDeviationAvg.getData().getValue(AccumulatorAverage.AVERAGE.index);
-            double thetastdev = thetaDeviationAvg.getData().getValue(AccumulatorAverage.STANDARD_DEVIATION.index);
-            double thetaerr = thetaDeviationAvg.getData().getValue(AccumulatorAverage.ERROR.index);
+            double thetaavg = thetaDeviationAvg.getData().getValue(thetaDeviationAvg.AVERAGE.index);
+            double thetastdev = thetaDeviationAvg.getData().getValue(thetaDeviationAvg.STANDARD_DEVIATION.index);
+            double thetaerr = thetaDeviationAvg.getData().getValue(thetaDeviationAvg.ERROR.index);
             System.out.println("cos theta avg " + thetaavg + " stdev " + thetastdev + " err " + thetaerr);
 
-            double phiavg = phiDeviationAvg.getData().getValue(AccumulatorAverage.AVERAGE.index);
-            double phistdev = phiDeviationAvg.getData().getValue(AccumulatorAverage.STANDARD_DEVIATION.index);
-            double phierr = phiDeviationAvg.getData().getValue(AccumulatorAverage.ERROR.index);
+            double phiavg = phiDeviationAvg.getData().getValue(phiDeviationAvg.AVERAGE.index);
+            double phistdev = phiDeviationAvg.getData().getValue(phiDeviationAvg.STANDARD_DEVIATION.index);
+            double phierr = phiDeviationAvg.getData().getValue(phiDeviationAvg.ERROR.index);
             System.out.println("phi/sintheta avg " + phiavg + " stdev " + phistdev + " err " + phierr);
         }
     }

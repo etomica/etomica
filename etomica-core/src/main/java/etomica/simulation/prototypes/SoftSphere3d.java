@@ -6,11 +6,11 @@ package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountSteps;
@@ -27,7 +27,7 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simple soft-sphere Monte Carlo simulation in 3D.
@@ -38,7 +38,7 @@ public class SoftSphere3d extends Simulation {
 
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2SoftSphere potential;
     public PotentialMaster potentialMaster;
@@ -51,7 +51,7 @@ public class SoftSphere3d extends Simulation {
     public SoftSphere3d(double density, int exponent, double temperature) {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMasterMonatomic(this);
@@ -61,9 +61,7 @@ public class SoftSphere3d extends Simulation {
 
 
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setMaxSteps(10000000);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integrator), 10000000);
 
         box.setNMolecules(species, 108);
         BoxInflate inflater = new BoxInflate(box, space);
@@ -121,12 +119,12 @@ public class SoftSphere3d extends Simulation {
         pump.setDataSink(accumulator);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
 
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
 
 
         double temp = sim.integrator.getTemperature();
-        double Cv = ((DataDouble) ((DataGroup) accumulator.getData()).getData(AccumulatorAverage.STANDARD_DEVIATION.index)).x;
-        double energy = ((DataDouble) ((DataGroup) accumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
+        double Cv = ((DataDouble) ((DataGroup) accumulator.getData()).getData(accumulator.STANDARD_DEVIATION.index)).x;
+        double energy = ((DataDouble) ((DataGroup) accumulator.getData()).getData(accumulator.AVERAGE.index)).x;
         Cv /= temp;
         Cv *= Cv / numAtoms;
         System.out.println("Cv/k: " + Cv);

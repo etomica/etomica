@@ -9,13 +9,13 @@ import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.chem.elements.ElementSimple;
-import etomica.config.ConformationGeneric;
 import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresCustom;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 
 import java.io.BufferedReader;
@@ -44,6 +44,8 @@ public class ParserLAMMPS {
         double[] epsilon = null;
         // let's assume we have "real" LAMMPS units -- Angstroms, kCal/mol
         Unit eUnit = new UnitRatio(new PrefixedUnit(Prefix.KILO, Calorie.UNIT), Mole.UNIT);
+
+		SpeciesBuilder builder = new SpeciesBuilder(Space3D.getInstance());
         
         for (String line : lines) {
         	if (line.length() == 0) continue;
@@ -119,13 +121,13 @@ public class ParserLAMMPS {
         		if (heading.equals("atoms")) {
         			int idx = Integer.parseInt(fields[0]);
         			int molIdx = Integer.parseInt(fields[1]);
-        			atomTypeId[idx-1] = Integer.parseInt(fields[2])-1;
-        			atomCounts[atomTypeId[idx-1]]++;
         			charges[idx] = Double.parseDouble(fields[3]);
         			coords[idx-1] = opts.space.makeVector();
         			coords[idx-1].setX(0, Double.parseDouble(fields[4]));
         			coords[idx-1].setX(1, Double.parseDouble(fields[5]));
         			coords[idx-1].setX(2, Double.parseDouble(fields[6]));
+
+        			builder.addAtom(atomTypes[idx - 1], coords[idx - 1]);
         		}
         		if (heading.equals("bonds")) {
         			int idx = Integer.parseInt(fields[1]);
@@ -144,10 +146,8 @@ public class ParserLAMMPS {
         		heading = line.toLowerCase();
         	}
         }
-        SpeciesSpheresCustom species = new SpeciesSpheresCustom(opts.space, atomTypes);
-        species.setChildAtomTypes(atomTypeId);
-        species.setConformation(new ConformationGeneric(coords));
-        
+        SpeciesGeneral species = builder.build();
+
         PotentialGroup pInter = new PotentialGroup(2, opts.space);
         for (int i=1; i<=atomTypes.length; i++) {
         	for (int j=i; j<=atomTypes.length; j++) {

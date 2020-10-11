@@ -11,8 +11,8 @@ import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.graphics.*;
-import etomica.lattice.CellLattice;
 import etomica.integrator.IntegratorListenerAction;
+import etomica.lattice.CellLattice;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.cell.Cell;
@@ -53,8 +53,8 @@ public class DropletAtomicGraphic extends SimulationGraphic {
     	        sim.makeDropShape();
     	    }
     	});
-    	
-    	final AtomFilterLiquidAtomic liquidFilter = new AtomFilterLiquidAtomic(sim.potentialMaster, sim.box);
+
+        final AtomTestLiquidAtomic liquidFilter = new AtomTestLiquidAtomic(sim.potentialMaster, sim.box);
     	sim.potentialMaster.reset();
     	final ColorSchemeLiquidVapor colorScheme = new ColorSchemeLiquidVapor(liquidFilter);
     	colorScheme.setDoResetFilter(true);
@@ -65,10 +65,10 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         cutawayButton.setAction(new IAction() {
             public void actionPerformed() {
                 if (filterIsActive) {
-                    getDisplayBox(sim.box).setAtomFilter(null);
+                    getDisplayBox(sim.box).setAtomTestDoDisplay(null);
                 }
                 else {
-                    getDisplayBox(sim.box).setAtomFilter(liquidFilter);
+                    getDisplayBox(sim.box).setAtomTestDoDisplay(liquidFilter);
                 }
                 filterIsActive = !filterIsActive;
                 colorScheme.setDoResetFilter(!filterIsActive);
@@ -231,7 +231,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 //        eFork.addDataSink(eHistory);
 //        eHistory.setTimeDataSource(timeCounter);
         
-        DisplayPlot ePlot = new DisplayPlot();
+        DisplayPlotXChart ePlot = new DisplayPlotXChart();
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
 //        keHistory.setDataSink(ePlot.getDataSet().makeDataSink());
 //        eHistory.setDataSink(ePlot.getDataSet().makeDataSink());
@@ -256,7 +256,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         dFork.addDataSink(dHistory);
         dHistory.setTimeDataSource(timeCounter);
         
-        DisplayPlot deformationPlot = new DisplayPlot();
+        DisplayPlotXChart deformationPlot = new DisplayPlotXChart();
         dHistory.setDataSink(deformationPlot.getDataSet().makeDataSink());
         deformationPlot.setLabel("Deformation");
         deformationPlot.getPlot().setYLabel("Deformation");
@@ -269,7 +269,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
         rFork.addDataSink(rHistory);
         rHistory.setTimeDataSource(timeCounter);
         
-        DisplayPlot radiusPlot = new DisplayPlot();
+        DisplayPlotXChart radiusPlot = new DisplayPlotXChart();
         rHistory.setDataSink(radiusPlot.getDataSet().makeDataSink());
         radiusPlot.setLabel("Radius");
         radiusPlot.getPlot().setYLabel("Radius ("+Angstrom.UNIT.symbol()+")");
@@ -311,7 +311,7 @@ public class DropletAtomicGraphic extends SimulationGraphic {
 //        vdFork.addDataSink(vdHistory);
 //        vdHistory.setTimeDataSource(timeCounter);
 //        
-//        DisplayPlot dPlot = new DisplayPlot();
+//        DisplayPlotXChart dPlot = new DisplayPlotXChart();
 //        ldHistory.setDataSink(dPlot.getDataSet().makeDataSink());
 //        vdHistory.setDataSink(dPlot.getDataSet().makeDataSink());
 //        dPlot.setLabel("Density");

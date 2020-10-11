@@ -106,7 +106,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
                 iSubSteps = numSubSteps/100 + (int)(numSubSteps*(1-0.01*nIntegrators) * stepFreq[i]);
             }
             for (int j=0; j<iSubSteps; j++) {
-                integrators.get(j).doStep();
+                integrators.get(i).doStep();
             }
             totNumSubSteps[i] += iSubSteps;
         }

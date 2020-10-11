@@ -4,7 +4,7 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
@@ -25,6 +25,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -87,7 +88,7 @@ public class VirialAlkaneSKS {
         refCluster.setTemperature(temperature);
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
-        SpeciesAlkane species = new SpeciesAlkane(space, nSpheres);
+        SpeciesGeneral species = SpeciesAlkane.create(nSpheres);
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species,
                           temperature,refCluster,targetCluster, nSpheres > 2);
 //        ((MCMoveStepTracker)sim.mcMoveTranslate[0].getTracker()).setNoisyAdjustment(true);
@@ -165,24 +166,24 @@ public class VirialAlkaneSKS {
             pIntra.addPotential(p2CH2,new ApiIndexList(pairs));
         }
 
-        if (false) {
-            double size = (nSpheres+5)*1.5;
+        if(false) {
+    double size = (nSpheres + 5) * 1.5;
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
+            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
-            displayBox0.setPixelUnit(new Pixel(300.0/size));
-            displayBox1.setPixelUnit(new Pixel(300.0/size));
+            displayBox0.setPixelUnit(new Pixel(300.0 / size));
+            displayBox1.setPixelUnit(new Pixel(300.0 / size));
             displayBox0.setShowBoundary(false);
             displayBox1.setShowBoundary(false);
-            ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setBackgroundColor(Color.WHITE);
-            ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
-            
-            
-            DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
-            diameterManager.setDiameter(typeCH2, 0.8*sigmaCH2);
-            diameterManager.setDiameter(typeCH3, 0.8*sigmaCH3);
+            ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
+
+
+            DiameterHashByType diameterManager = (DiameterHashByType) displayBox0.getDiameterHash();
+            diameterManager.setDiameter(typeCH2, 0.8 * sigmaCH2);
+            diameterManager.setDiameter(typeCH3, 0.8 * sigmaCH3);
             displayBox1.setDiameterHash(diameterManager);
             ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
             displayBox0.setColorScheme(colorScheme);
@@ -192,24 +193,17 @@ public class VirialAlkaneSKS {
 
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-                
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null, 20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 10, false);
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            
-            return;
-        }
+    return;
+}
         
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+temperature : null;
@@ -218,9 +212,9 @@ public class VirialAlkaneSKS {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/20);
-        
-        sim.setAccumulatorBlockSize((int)steps);
-        
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+sim.setAccumulatorBlockSize((int)steps);
+
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize()+" "
                 +sim.mcMoveRotate[0].getStepSize()+" "
@@ -243,7 +237,7 @@ public class VirialAlkaneSKS {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
@@ -253,8 +247,7 @@ public class VirialAlkaneSKS {
         }
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());

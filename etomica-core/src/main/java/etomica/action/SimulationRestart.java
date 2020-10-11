@@ -4,12 +4,9 @@
 
 package etomica.action;
 
-import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.Integrator;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
@@ -20,7 +17,7 @@ import etomica.space.Space;
  * Action that invokes reset method of all registered simulation elements,
  * effectively initializing the entire simulation.
  */
-public final class SimulationRestart extends SimulationActionAdapter {
+public final class SimulationRestart implements IAction {
 
     private static final long serialVersionUID = 1L;
     protected Configuration configuration;
@@ -28,9 +25,11 @@ public final class SimulationRestart extends SimulationActionAdapter {
     protected SimulationDataAction accumulatorAction;
     protected IAction postAction;
     private final Controller controller;
+    private final Simulation simulation;
 
     public SimulationRestart(Simulation sim) {
-        super.setSimulation(sim, sim.getSpace());
+        this.simulation = sim;
+        Space space = sim.getSpace();
         controller = sim.getController();
         if (space != null) {
             if (space.D() == 3) {
@@ -81,32 +80,7 @@ public final class SimulationRestart extends SimulationActionAdapter {
             }
         }
 
-        IAction myAction = null;
-        IAction[] currentActions = controller.getCurrentActions();
-        if (currentActions.length == 1) {
-            myAction = currentActions[0];
-        } else if (currentActions.length == 0) {
-            // we've reset the controller, which turns all the "current" actions to "pending"
-            IAction[] pendingActions = controller.getPendingActions();
-            if (pendingActions.length == 1) {
-                myAction = pendingActions[0];
-            }
-        }
-        if (myAction instanceof ActivityIntegrate) {
-            Integrator integrator = ((ActivityIntegrate) myAction).getIntegrator();
-            if (integrator.getStepCount() > 0) {
-                integrator.resetStepCount();
-            }
-            if (integrator.isInitialized()) {
-                try {
-                    integrator.reset();
-                } catch (ConfigurationOverlapException e) {
-                    if (!ignoreOverlap) {
-                        throw e;
-                    }
-                }
-            }
-        }
+        this.controller.restartCurrentActivity();
 
         accumulatorAction.actionPerformed();
         if (postAction != null) postAction.actionPerformed();

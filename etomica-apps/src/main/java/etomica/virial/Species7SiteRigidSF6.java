@@ -4,15 +4,13 @@
 
 package etomica.virial;
 
-import etomica.atom.Atom;
-import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomType;
 import etomica.chem.elements.Fluorine;
 import etomica.chem.elements.Sulfur;
-import etomica.molecule.IMolecule;
-import etomica.molecule.Molecule;
 import etomica.space.Space;
-import etomica.species.Species;
+import etomica.space3d.Space3D;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Species SF6, 7 sites, LJ, rigid, no partial charge
@@ -21,7 +19,7 @@ import etomica.species.Species;
  * @author shu
  * 01-18-2013
  */
-public class Species7SiteRigidSF6 extends Species {
+public class Species7SiteRigidSF6 {
 
     public final static int indexS = 0;
     public final static int indexF1 = 1;
@@ -30,54 +28,16 @@ public class Species7SiteRigidSF6 extends Species {
     public final static int indexF4 = 4;
     public final static int indexF5 = 5;
     public final static int indexF6 = 6;
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final boolean isDynamic;
-    protected final AtomType sType;
-    protected final AtomType fType;
-    public Species7SiteRigidSF6(Space space) {
-        this(space, false);
+
+    public static SpeciesGeneral create(boolean isDynamic) {
+        AtomType sType = new AtomType(Sulfur.INSTANCE);
+        AtomType fType = new AtomType(Fluorine.INSTANCE);
+        Space space = Space3D.getInstance();
+        return new SpeciesBuilder(space)
+                .setDynamic(isDynamic)
+                .withConformation(new Conformation7SiteRigidSF6(space))
+                .addCount(sType, 1)
+                .addCount(fType, 6)
+                .build();
     }
-    public Species7SiteRigidSF6(Space space, boolean isDynamic) {
-        super();
-        this.space = space;
-        this.isDynamic = isDynamic;
-
-        sType = new AtomType(Sulfur.INSTANCE);
-        fType = new AtomType(Fluorine.INSTANCE);
-
-        addChildType(sType);
-        addChildType(fType);
-
-        setConformation(new Conformation7SiteRigidSF6(space));
-     }
-
-     public IMolecule makeMolecule() {
-         Molecule SF6 = new Molecule(this, 7);
-         // 1 sulfur, 6 fluoride
-         SF6.addChildAtom(isDynamic ? new AtomLeafDynamic(space, sType) : new Atom(space, sType));
-         SF6.addChildAtom(isDynamic ? new AtomLeafDynamic(space, fType) : new Atom(space, fType));
-         SF6.addChildAtom(isDynamic ? new AtomLeafDynamic(space, fType) : new Atom(space, fType));
-         SF6.addChildAtom(isDynamic ? new AtomLeafDynamic(space, fType) : new Atom(space, fType));
-         SF6.addChildAtom(isDynamic ? new AtomLeafDynamic(space, fType) : new Atom(space, fType));
-         SF6.addChildAtom(isDynamic ? new AtomLeafDynamic(space, fType) : new Atom(space, fType));
-         SF6.addChildAtom(isDynamic ? new AtomLeafDynamic(space, fType) : new Atom(space, fType));
-
-         conformation.initializePositions(SF6.getChildList());
-         return SF6;
-     }
-
-    public AtomType getSType() {
-         return sType;
-     }
-
-    public AtomType getFType() {
-         return fType;
-     }
-
-     public int getNumLeafAtoms() {
-         return 7;
-     }
-     
-    
 }

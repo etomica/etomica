@@ -5,6 +5,7 @@
 package etomica.kmc;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -29,7 +30,7 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simulation using Henkelman's Dimer method to find a saddle point for
@@ -48,8 +49,7 @@ public class SimKMCLJadatom extends Simulation{
     public IntegratorKMCCluster integratorKMCCluster;
     public IntegratorDimerRT integratorDimer;
     public Box box;
-    public SpeciesSpheresMono fixed, movable;
-    public ActivityIntegrate activityIntegrateKMC, activityIntegrateKMCCluster, activityIntegrateDimer;
+    public SpeciesGeneral fixed, movable;
     public IMoleculeList movableSet;
     public Vector adAtomPos;
     
@@ -59,8 +59,8 @@ public class SimKMCLJadatom extends Simulation{
 
         //SPECIES
         double sigma = 1.0;
-        fixed = new SpeciesSpheresMono(space, new ElementSimple("A", Double.POSITIVE_INFINITY));
-        movable = new SpeciesSpheresMono(this, space);
+        fixed = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A", Double.POSITIVE_INFINITY)));
+        movable = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(fixed);
         addSpecies(movable);
 
@@ -194,15 +194,12 @@ public class SimKMCLJadatom extends Simulation{
     
     public void integratorKMC() {
         integratorKMC = new IntegratorKMC(this, potentialMaster, 0.7, this.getRandom(), new ISpecies[]{movable}, box);
-        activityIntegrateKMC = new ActivityIntegrate(integratorKMC);
-        getController().addAction(activityIntegrateKMC);
+        this.getController().addActivity(new ActivityIntegrate(integratorKMC));
     }
     
     public void integratorKMCCluster(double temp, int steps, int totalSearch) {
         integratorKMCCluster = new IntegratorKMCCluster(this, potentialMaster, temp, totalSearch, this.getRandom(), new ISpecies[]{movable}, box);
-        activityIntegrateKMCCluster = new ActivityIntegrate(integratorKMCCluster);
-        activityIntegrateKMCCluster.setMaxSteps(steps);
-        getController().addAction(activityIntegrateKMCCluster);
+        this.getController().addActivity(new ActivityIntegrate(integratorKMCCluster), steps);
     }
 
     public void enableDimerSearch(String fileName, long maxSteps) {
@@ -213,10 +210,7 @@ public class SimKMCLJadatom extends Simulation{
 
         //integratorDimer.addNonintervalListener(potentialMaster.getNeighborManager(box));
         //integratorDimer.addIntervalAction(potentialMaster.getNeighborManager(box));
-        activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
-        integratorDimer.setActivityIntegrate(activityIntegrateDimer);
-        getController().addAction(activityIntegrateDimer);
-        activityIntegrateDimer.setMaxSteps(maxSteps);
+        getController().addActivity(new ActivityIntegrate(integratorDimer), maxSteps);
     }
 
 }
