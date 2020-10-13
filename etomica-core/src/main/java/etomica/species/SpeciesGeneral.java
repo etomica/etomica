@@ -130,6 +130,7 @@ public class SpeciesGeneral implements ISpecies {
             int atomIdx = atomIdxStart + i;
             IAtom atom = this.atomFactory.makeAtom(type, box, atomIdx);
             molecule.addChildAtom(atom);
+            box.getAtomStorage(Tokens.ATOM_TYPE_ID).create(atomIdx, type.getIndex());
         }
         this.conformation.initializePositions(molecule.getChildList());
         return molecule;

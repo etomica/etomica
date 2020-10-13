@@ -9,6 +9,7 @@ public class Tokens {
     public static final Token<VectorStorage> ANGULAR_VELOCITY = vectorsNullByDefault();
     public static final Token<VectorStorage> ANGULAR_MOMENTUM = vectorsNullByDefault();
     public static final Token<VectorStorage> FORCES = vectorsDefault();
+    public static final Token<IntStorage> ATOM_TYPE_ID = ints();
 
 
     public static final Token<OrientationStorage> ORIENTATION_FULL = defaultOrientations(false);
@@ -77,6 +78,15 @@ public class Tokens {
             @Override
             public void init(int idx, DoubleStorage storage, Box box) {
                 init.init(idx, storage, box);
+            }
+        };
+    }
+
+    public static Token<IntStorage> ints() {
+        return new Token<IntStorage>() {
+            @Override
+            public IntStorage createStorage(Space space) {
+                return new IntStorage();
             }
         };
     }

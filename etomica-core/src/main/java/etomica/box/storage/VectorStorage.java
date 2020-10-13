@@ -2,9 +2,11 @@ package etomica.box.storage;
 
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.space3d.Vector3D;
 
 public class VectorStorage extends DoubleStructStorage<Vector> {
     private final Space space;
+    private final int D;
 
     public VectorStorage(Space space) {
         this(space, 0);
@@ -14,6 +16,7 @@ public class VectorStorage extends DoubleStructStorage<Vector> {
         super(space.D(), getVectorClass(space));
         this.addNull(count);
         this.space = space;
+        this.D = space.D();
     }
 
     private static Class<? extends Vector> getVectorClass(Space space) {
@@ -82,5 +85,33 @@ public class VectorStorage extends DoubleStructStorage<Vector> {
 
     public Space getSpace() {
         return this.space;
+    }
+
+    public Vector load(int i) {
+        Vector v = space.makeVector();
+        switch (space.D()) {
+            case 3:
+                v.setX(0, this.data[i * stride]);
+                v.setX(1, this.data[i * stride + 1]);
+                v.setX(2, this.data[i * stride + 2]);
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+        return v;
+    }
+
+    public static Vector diff(VectorStorage vectorStorage, int idx1, int idx2) {
+        switch (vectorStorage.D) {
+            case 3:
+                Vector3D v = new Vector3D(
+                        vectorStorage.data[idx1 * vectorStorage.stride] - vectorStorage.data[idx2 * vectorStorage.stride],
+                        vectorStorage.data[idx1 * vectorStorage.stride + 1] - vectorStorage.data[idx2 * vectorStorage.stride + 1],
+                        vectorStorage.data[idx1 * vectorStorage.stride + 2] - vectorStorage.data[idx2 * vectorStorage.stride + 2]
+                );
+                return v;
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 }

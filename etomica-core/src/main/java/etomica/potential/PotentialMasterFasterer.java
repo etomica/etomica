@@ -7,6 +7,7 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.storage.IntStorage;
 import etomica.box.storage.Tokens;
 import etomica.box.storage.VectorStorage;
 import etomica.molecule.IMolecule;
@@ -31,7 +32,8 @@ public class PotentialMasterFasterer {
     protected final IntArrayList uAtomsChanged;
     protected Vector zero;
     protected double virialTot;
-    protected Vector[] forces;
+//    protected Vector[] forces;
+    protected final VectorStorage forces;
     protected final Space space;
 
     protected final boolean isPureAtoms;
@@ -40,6 +42,7 @@ public class PotentialMasterFasterer {
     protected Map<Potential2Soft, List<int[]>>[] bondedPairs;
     protected Map<Potential2Soft, int[][]>[] bondedPartners;
     protected final VectorStorage positions;
+    protected final IntStorage atomTypeIds;
 
     public PotentialMasterFasterer(Simulation sim, Box box) {
         space = box.getSpace();
@@ -49,13 +52,14 @@ public class PotentialMasterFasterer {
         pairPotentials = new Potential2Soft[lastTypeIndex + 1][lastTypeIndex + 1];
         this.box = box;
         positions = box.getAtomStorage(Tokens.POSITION);
+        atomTypeIds = box.getAtomStorage(Tokens.ATOM_TYPE_ID);
         dr = sim.getSpace().makeVector();
 
         uAtom = new double[box.getLeafList().size()];
         uAtomsChanged = new IntArrayList(16);
         duAtom = new DoubleArrayList(16);
         zero = box.getSpace().makeVector();
-        forces = new Vector[0];
+        forces = box.getAtomStorage(Tokens.vectorsDefault());
 
         isPureAtoms = speciesList.stream().allMatch(s -> s.getLeafAtomCount() == 1);
         bondedAtoms = new int[sim.getSpeciesCount()][][];
@@ -71,7 +75,7 @@ public class PotentialMasterFasterer {
     public void init() {
     }
 
-    public Vector[] getForces() {
+    public VectorStorage getForces() {
         return forces;
     }
 
@@ -121,6 +125,7 @@ public class PotentialMasterFasterer {
     }
 
     protected double handleComputeAll(boolean doForces, int iAtom, int jAtom, Vector ri, Vector rj, Vector jbo, Potential2Soft pij) {
+        Vector dr = space.makeVector();
         dr.Ev1Mv2(rj, ri);
         dr.PE(jbo);
         double[] u = {0};
@@ -137,8 +142,8 @@ public class PotentialMasterFasterer {
         virialTot += duij;
         if (doForces) {
             dr.TE(duij / r2);
-            forces[iAtom].PE(dr);
-            forces[jAtom].ME(dr);
+            forces.get(iAtom).PE(dr);
+            forces.get(iAtom).ME(dr);
         }
         return uij;
     }
@@ -203,8 +208,8 @@ public class PotentialMasterFasterer {
         if (doForces) {
             double duij = du[0];
             dr.TE(duij / r2);
-            forces[iAtom].PE(dr);
-            forces[jAtom].ME(dr);
+            forces.get(iAtom).PE(dr);
+            forces.get(jAtom).ME(dr);
         }
         return uij;
     }
@@ -232,17 +237,12 @@ public class PotentialMasterFasterer {
         virialTot = 0;
 
         int numAtoms = box.getLeafList().size();
-        if (doForces && numAtoms > forces.length) {
-            int oldLength = forces.length;
-            forces = Arrays.copyOf(forces, numAtoms);
-            for (int i = oldLength; i < numAtoms; i++) forces[i] = box.getSpace().makeVector();
-        }
         if (numAtoms > uAtom.length) {
             uAtom = new double[numAtoms];
         }
         for (int i = 0; i < numAtoms; i++) {
             uAtom[i] = 0;
-            if (doForces) forces[i].E(0);
+            if (doForces) forces.get(i).E(0);
         }
     }
 

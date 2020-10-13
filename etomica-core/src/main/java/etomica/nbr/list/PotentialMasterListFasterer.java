@@ -6,6 +6,7 @@ package etomica.nbr.list;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.box.storage.VectorStorage;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.nbr.cell.PotentialMasterCellFasterer;
@@ -67,13 +68,14 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
     }
 
     private int checkNbrPair(int i, int j, IAtom iAtom, IAtom jAtom, double rc2, Vector jbo, Potential2Soft[] iPotentials) {
-        if (iPotentials[jAtom.getType().getIndex()] == null) return 0;
+        if (iPotentials[atomTypeIds.get(j)] == null) return 0;
 
         if (skipBondedPair(this.isPureAtoms, iAtom, jAtom, this.bondedAtoms)) return 0;
 
-        Vector ri = positions.get(i);
-        Vector rj = positions.get(j);
-        dr.Ev1Mv2(rj, ri);
+//        Vector ri = positions.get(i);
+//        Vector rj = positions.get(j);
+//        dr.Ev1Mv2(rj, ri);
+        Vector dr = VectorStorage.diff(positions, j, i);
         dr.PE(jbo);
         double r2 = dr.squared();
         if (r2 > rc2) return 0;
@@ -210,21 +212,35 @@ public class PotentialMasterListFasterer extends PotentialMasterCellFasterer imp
         int numAtoms = atoms.size();
 
         for (int i = 0; i < numAtoms; i++) {
-            IAtom iAtom = atoms.get(i);
-            Vector ri = positions.get(i);
-            int iType = iAtom.getType().getIndex();
+            int iType = atomTypeIds.get(i);
             Potential2Soft[] iPotentials = pairPotentials[iType];
             int iNumNbrs = numAtomNbrsUp[i];
             int[] iNbrs = nbrs[i];
             Vector[] iNbrBoxOffsets = nbrBoxOffsets[i];
             for (int j = 0; j < iNumNbrs; j++) {
                 int jj = iNbrs[j];
-                IAtom jAtom = atoms.get(jj);
-                int jType = jAtom.getType().getIndex();
+                int jType = atomTypeIds.get(jj);
                 Potential2Soft pij = iPotentials[jType];
-                Vector rj = positions.get(jj);
                 Vector jbo = iNbrBoxOffsets[j];
-                uTot += handleComputeAll(doForces, i, jj, ri, rj, jbo, pij);
+
+                Vector dr = VectorStorage.diff(positions, jj, i);
+                dr.PE(jbo);
+                double[] u = {0};
+                double[] du = {0};
+                double r2 = dr.squared();
+                pij.udu(r2, u, du);
+                double uij = u[0];
+                if (uij == 0) continue;
+                uAtom[i] += 0.5 * uij;
+                uAtom[jj] += 0.5 * uij;
+                double duij = du[0];
+                virialTot += duij;
+                if (doForces) {
+                    dr.TE(duij / r2);
+                    forces.get(i).PE(dr);
+                    forces.get(jj).ME(dr);
+                }
+                uTot += uij;
             }
         }
 
