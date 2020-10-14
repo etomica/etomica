@@ -85,6 +85,7 @@ public class PotentialMasterFasterer {
 
     public void setPairPotential(AtomType atomType1, AtomType atomType2, Potential2Soft p12) {
         pairPotentials[atomType1.getIndex()][atomType2.getIndex()] = p12;
+        pairPotentials[atomType2.getIndex()][atomType1.getIndex()] = p12;
     }
 
     public void setBondingPotential(ISpecies species, Potential2Soft potential, List<int[]> bondedIndices) {
