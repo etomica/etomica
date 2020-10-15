@@ -8,9 +8,19 @@ import etomica.config.Configuration;
 import etomica.config.ConfigurationResourceFile;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
+import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterPressureFasterer;
 import etomica.tests.TestLJMC3D;
+import etomica.tests.TestLJMC3DBrute;
+import etomica.tests.TestLJMC3DSlowBrute;
+import etomica.tests.TestLJMC3DSlowerer;
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.profile.LinuxPerfAsmProfiler;
+import org.openjdk.jmh.profile.LinuxPerfNormProfiler;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.util.concurrent.TimeUnit;
 
@@ -24,8 +34,10 @@ public class BenchSimLJMC3D {
     @Param({"200000"})
     private int numSteps;
 
+    private TestLJMC3DSlowerer simSlowerer;
+    private TestLJMC3DSlowBrute simSlowBrute;
     private TestLJMC3D sim;
-    private MeterPressureFasterer pMeter;
+    private TestLJMC3DBrute simBrute;
 
     @Setup(Level.Iteration)
     public void setUp() {
@@ -35,23 +47,106 @@ public class BenchSimLJMC3D {
                 TestLJMC3D.class
         );
 
-        sim = new TestLJMC3D(numMolecules, config);
+//        {
+//            simSlowBrute = new TestLJMC3DSlowBrute(numMolecules, numSteps, config);
+//
+//            MeterPressure pMeter = new MeterPressure(simSlowBrute.space);
+//            pMeter.setIntegrator(simSlowBrute.integrator);
+//            DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
+//            simSlowBrute.integrator.getEventManager().addListener(pumpListener);
+//            simSlowBrute.integrator.reset();
+//        }
 
-        pMeter = new MeterPressureFasterer(sim.box, sim.potentialMaster);
-        pMeter.setTemperature(sim.integrator.getTemperature());
-        DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
-        sim.integrator.getEventManager().addListener(pumpListener);
-        sim.integrator.reset();
+        {
+            simSlowerer = new TestLJMC3DSlowerer(numMolecules, config);
+
+            MeterPressure pMeter = new MeterPressure(simSlowerer.space);
+            pMeter.setIntegrator(simSlowerer.integrator);
+            DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
+            simSlowerer.integrator.getEventManager().addListener(pumpListener);
+            simSlowerer.integrator.reset();
+        }
+
+//        {
+//            simBrute = new TestLJMC3DBrute(numMolecules, numSteps, config);
+//
+//            MeterPressureFasterer pMeter = new MeterPressureFasterer(simBrute.box, simBrute.potentialMaster);
+//            pMeter.setTemperature(simBrute.integrator.getTemperature());
+//            DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
+//            simBrute.integrator.getEventManager().addListener(pumpListener);
+//            simBrute.integrator.reset();
+//        }
+
+        {
+            sim = new TestLJMC3D(numMolecules, config);
+
+            MeterPressureFasterer pMeter = new MeterPressureFasterer(sim.box, sim.potentialMaster);
+            pMeter.setTemperature(sim.integrator.getTemperature());
+            DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
+            sim.integrator.getEventManager().addListener(pumpListener);
+            sim.integrator.reset();
+        }
+
+    }
+
+//    //    @Benchmark
+//    @BenchmarkMode(Mode.Throughput)
+//    @OutputTimeUnit(TimeUnit.SECONDS)
+//    @Warmup(time = 1, iterations = 5)
+//    @Measurement(time = 3, iterations = 5)
+//    public void integratorStepSlowBrute() {
+//        simSlowBrute.integrator.doStep();
+//    }
+
+//        @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    @Warmup(time = 1, iterations = 5)
+    @Measurement(time = 3, iterations = 5)
+    public void integratorStepSlowererer() {
+        simSlowerer.integrator.doStep();
+    }
+
+//    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    @Warmup(time = 1, iterations = 5)
+    @Measurement(time = 10, iterations = 3)
+    public void integratorStepBrute() {
+        simBrute.integrator.doStep();
     }
 
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
     @Warmup(time = 1, iterations = 5)
-    @Measurement(time = 3, iterations = 5)
-    public long integratorStep() {
+    @Measurement(time = 10, iterations = 3)
+    public void integratorStep() {
         sim.integrator.doStep();
-        return sim.integrator.getStepCount();
+    }
+
+    public static void main(String[] args) throws RunnerException {
+
+        Options opts = new OptionsBuilder()
+                .include(BenchSimLJMC3D.class.getSimpleName())
+//                .jvmArgsAppend(
+//                        "-XX:+UnlockDiagnosticVMOptions",
+//                        "-XX:+TraceClassLoading",
+//                        "-XX:+LogCompilation",
+//                        "-XX:+PrintAssembly",
+//                        "-XX:PrintAssemblyOptions=intel"
+////                        "-XX:-UseCompressedOops"
+//                )
+//                .jvmArgs(
+//                        "-XX:+UnlockDiagnosticVMOptions",
+//                        "-XX:+PrintAssembly",
+//                        "-XX:PrintAssemblyOptions=intel",
+//                        "-XX:CompileCommand=print,*BoxBench.bench*")
+//                .addProfiler(LinuxPerfAsmProfiler.class, "frequency=5000;intelSyntax=true")
+//                .addProfiler(LinuxPerfNormProfiler.class)
+                .build();
+
+        new Runner(opts).run();
     }
 }
 
