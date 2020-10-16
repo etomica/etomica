@@ -114,4 +114,32 @@ public class VectorStorage extends DoubleStructStorage<Vector> {
                 throw new IllegalArgumentException();
         }
     }
+
+    public Vector diffOffset(int idx1, int idx2, Vector offset) {
+        switch (D) {
+            case 3:
+                Vector3D o = ((Vector3D) offset);
+                Vector3D v = new Vector3D(
+                        data[idx1 * 3] - data[idx2 * 3] + o.x,
+                        data[idx1 * 3 + 1] - data[idx2 * 3 + 1] + o.y,
+                        data[idx1 * 3 + 2] - data[idx2 * 3 + 2] + o.z
+                );
+                return v;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    public double diffOffsetSquared(int idx1, int idx2, Vector offset) {
+        switch (D) {
+            case 3:
+                Vector3D o = ((Vector3D) offset);
+                double x = data[idx1 * 3] - data[idx2 * 3] + o.x;
+                double y = data[idx1 * 3 + 1] - data[idx2 * 3 + 1] + o.y;
+                double z = data[idx1 * 3 + 2] - data[idx2 * 3 + 2] + o.z;
+                return x * x + y * y + z * z;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
 }

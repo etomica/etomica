@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 public final class Vector3D implements Vector, java.io.Serializable {
 
-    protected double x, y, z;
+    public double x, y, z;
     private static final long serialVersionUID = 1L;
 
     public int getD() {
@@ -55,6 +55,21 @@ public final class Vector3D implements Vector, java.io.Serializable {
         return ((i == 0) ? x : (i == 1) ? y : z);
     }
 
+    @Override
+    public double x() {
+        return x;
+    }
+    
+    @Override
+    public double y() {
+        return y;
+    }
+    
+    @Override
+    public double z() {
+        return z;
+    }
+
     public void assignTo(double[] array) {
         array[0] = x;
         array[1] = y;
@@ -82,9 +97,9 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     public void E(Vector u) {
-        x = u.getX(0);
-        y = u.getX(1);
-        z = u.getX(2);
+        x = u.x();
+        y = u.y();
+        z = u.z();
     }
 
     public void E(double a) {
@@ -109,21 +124,21 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
     
     public void Ea1Tv1(double a1, Vector u) {
-        x = a1 * u.getX(0);
-        y = a1 * u.getX(1);
-        z = a1 * u.getX(2);
+        x = a1 * u.x();
+        y = a1 * u.y();
+        z = a1 * u.z();
     }
 
     public void PEa1Tv1(double a1, Vector u) {
-        x += a1 * u.getX(0);
-        y += a1 * u.getX(1);
-        z += a1 * u.getX(2);
+        x += a1 * u.x();
+        y += a1 * u.y();
+        z += a1 * u.z();
     }
 
     public void PE(Vector u) {
-        x += u.getX(0);
-        y += u.getX(1);
-        z += u.getX(2);
+        x += u.x();
+        y += u.y();
+        z += u.z();
     }
 
     public void PE(double a) {
@@ -133,9 +148,9 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     public void ME(Vector u) {
-        x -= u.getX(0);
-        y -= u.getX(1);
-        z -= u.getX(2);
+        x -= u.x();
+        y -= u.y();
+        z -= u.z();
     }
 
     public void TE(double a) {
@@ -145,27 +160,27 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     public void TE(Vector u) {
-        x *= u.getX(0);
-        y *= u.getX(1);
-        z *= u.getX(2);
+        x *= u.x();
+        y *= u.y();
+        z *= u.z();
     }
 
     public void DE(Vector u) {
-        x /= u.getX(0);
-        y /= u.getX(1);
-        z /= u.getX(2);
+        x /= u.x();
+        y /= u.y();
+        z /= u.z();
     }
 
     public void Ev1Pv2(Vector v1, Vector v2) {
-        x = v1.getX(0) + v2.getX(0);
-        y = v1.getX(1) + v2.getX(1);
-        z = v1.getX(2) + v2.getX(2);
+        x = v1.x() + v2.x();
+        y = v1.y() + v2.y();
+        z = v1.z() + v2.z();
     }
 
     public void Ev1Mv2(Vector v1, Vector v2) {
-        x = v1.getX(0) - v2.getX(0);
-        y = v1.getX(1) - v2.getX(1);
-        z = v1.getX(2) - v2.getX(2);
+        x = v1.x() - v2.x();
+        y = v1.y() - v2.y();
+        z = v1.z() - v2.z();
     }
 
     public void mod(Vector v) {
@@ -188,14 +203,14 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     public double Mv1Squared(Vector v1) {
-        double dx = x - v1.getX(0);
-        double dy = y - v1.getX(1);
-        double dz = z - v1.getX(2);
+        double dx = x - v1.x();
+        double dy = y - v1.y();
+        double dz = z - v1.z();
         return dx * dx + dy * dy + dz * dz;
     }
 
     public double dot(Vector u) {
-        return x * u.getX(0) + y * u.getX(1) + z * u.getX(2);
+        return x * u.x() + y * u.y() + z * u.z();
     }
 
     /*
@@ -291,9 +306,9 @@ public final class Vector3D implements Vector, java.io.Serializable {
     }
 
     public void XE(Vector u) {//cross product
-        double xNew = y * u.getX(2) - z * u.getX(1);
-        double yNew = z * u.getX(0) - x * u.getX(2);
-        z = x * u.getX(1) - y * u.getX(0);
+        double xNew = y * u.z() - z * u.y();
+        double yNew = z * u.x() - x * u.z();
+        z = x * u.y() - y * u.x();
         y = yNew;
         x = xNew;
     }
