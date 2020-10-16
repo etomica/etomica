@@ -8,6 +8,8 @@ import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 import java.util.Map;
 
@@ -200,6 +202,45 @@ class ChartPanel extends JPanel {
 
             this.add(displayDataMenu);
 
+            JMenu copyDataMenu = new JMenu("Copy Data");
+            this.addPopupMenuListener(new PopupMenuListener() {
+                @Override
+                public void popupMenuWillBecomeVisible(PopupMenuEvent popupMenuEvent) {
+                    copyDataMenu.removeAll();
+                    for (Map.Entry<String, XYSeries> entry : chart.getSeriesMap().entrySet()) {
+                        XYSeries series = entry.getValue();
+                        String label = series.getLabel();
+                        JMenuItem menuItem = new JMenuItem(label);
+                        menuItem.addActionListener(e -> {
+                            StringBuilder sb = new StringBuilder();
+                            sb.append(chart.getXAxisTitle()).append("\t").append(label).append("\n");
+
+                            double[] xValues = series.getXData();
+                            double[] yValues = series.getYData();
+
+                            for (int i = 0; i < xValues.length; i++) {
+                                sb.append(xValues[i]).append("\t").append(yValues[i]).append("\n");
+                            }
+                            StringSelection selection = new StringSelection(sb.toString());
+                            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                            clipboard.setContents(selection, null);
+                        });
+                        copyDataMenu.add(menuItem);
+                    }
+                }
+
+                @Override
+                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+
+                }
+
+                @Override
+                public void popupMenuCanceled(PopupMenuEvent e) {
+
+                }
+            });
+
+            this.add(copyDataMenu);
 
         }
     }
