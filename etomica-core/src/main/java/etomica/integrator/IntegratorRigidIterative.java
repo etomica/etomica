@@ -7,6 +7,7 @@ package etomica.integrator;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.BoxImposePbc;
 import etomica.action.MoleculeChildAtomAction;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.box.Box;
@@ -17,10 +18,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.math.function.Function;
-import etomica.models.water.DipoleSourceWater;
-import etomica.models.water.OrientationCalcWater3P;
-import etomica.models.water.P2WaterSPCSoft;
-import etomica.models.water.SpeciesWater3POriented;
+import etomica.models.water.*;
 import etomica.molecule.*;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.potential.*;
@@ -31,8 +29,8 @@ import etomica.space3d.OrientationFull3D;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.ISpeciesOriented;
 import etomica.species.SpeciesAgentManager;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Electron;
 import etomica.units.Joule;
 import etomica.units.Kelvin;
@@ -161,7 +159,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
             MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent(molecule);
             IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
             IOrientationFull3D orientation = (IOrientationFull3D)orientedMolecule.getOrientation();
-            Vector moment = ((ISpeciesOriented)molecule.getType()).getMomentOfInertia();
+            Vector moment = molecule.getType().getMomentOfInertia();
 
             // use the angular velocity field to store angular momentum during the time step  :(
             Vector angularMomentum = orientedMolecule.getAngularVelocity();
@@ -240,7 +238,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
 //            System.out.println("o "+orientation.getDirection()+" "+orientation.getSecondaryDirection());
             calcer.setOrientation(molecule, orientation);
             //advance linear velocity to half timestep
-            orientedMolecule.getVelocity().PEa1Tv1(0.5*timeStep/((ISpeciesOriented)molecule.getType()).getMass(), agent.force);
+            orientedMolecule.getVelocity().PEa1Tv1(0.5*timeStep/molecule.getType().getMass(), agent.force);
             
             //advance position to full timestep
             Vector transVec = ((AtomActionTranslateBy)translator.getAtomAction()).getTranslationVector();
@@ -298,12 +296,12 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
             }
             
             //advance linear velocity to full timestep
-            double mass = ((ISpeciesOriented)molecule.getType()).getMass();
+            double mass = molecule.getType().getMass();
             orientedMolecule.getVelocity().PEa1Tv1(0.5*timeStep/mass, agent.force);
 
             //advance momentum to full timestep
             Vector angularVelocity = orientedMolecule.getAngularVelocity();
-            Vector moment = ((ISpeciesOriented)molecule.getType()).getMomentOfInertia();
+            Vector moment = molecule.getType().getMomentOfInertia();
 
             // we actually stored the half-timestep angular momentum in this field...
             // advance to full timestep
@@ -370,7 +368,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
                 continue;
             }
             IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
-            double mass = ((ISpeciesOriented)((IMolecule)orientedMolecule).getType()).getMass();
+            double mass = ((IMolecule)orientedMolecule).getType().getMass();
             momentum.PEa1Tv1(mass, orientedMolecule.getVelocity());
             totalMass += mass;
         }
@@ -393,9 +391,9 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
             }
             IMoleculeOrientedKinetic orientedMolecule = (IMoleculeOrientedKinetic)molecule;
             orientedMolecule.getVelocity().ME(momentum);
-            KE += orientedMolecule.getVelocity().squared() * ((ISpeciesOriented)molecule.getType()).getMass();
+            KE += orientedMolecule.getVelocity().squared() * molecule.getType().getMass();
 
-            Vector moment = ((ISpeciesOriented)molecule.getType()).getMomentOfInertia();
+            Vector moment = molecule.getType().getMomentOfInertia();
 
             tempAngularVelocity.E(orientedMolecule.getAngularVelocity());
             rotationTensor.setOrientation((IOrientationFull3D)orientedMolecule.getOrientation());
@@ -456,7 +454,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
                     }
                     continue;
                 }
-                double mass = ((ISpeciesOriented)m.getType()).getMass();
+                double mass = m.getType().getMass();
                 if (mass != Double.POSITIVE_INFINITY) {
                     momentum.PEa1Tv1(mass, ((IMoleculeKinetic) m).getVelocity());
                     totalMass += mass;
@@ -479,7 +477,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
                     }
                     continue;
                 }
-                double mass = ((ISpeciesOriented)m.getType()).getMass();
+                double mass = m.getType().getMass();
                 if (mass != Double.POSITIVE_INFINITY) {
                     ((IMoleculeKinetic)m).getVelocity().ME(momentum);
                 }
@@ -496,7 +494,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
                         }
                         continue;
                     }
-                    double mass = ((ISpeciesOriented)m.getType()).getMass();
+                    double mass = m.getType().getMass();
                     if (mass != Double.POSITIVE_INFINITY) {
                         momentum.PEa1Tv1(mass, ((IMoleculeKinetic) m).getVelocity());
                     }
@@ -528,9 +526,9 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
 
             MoleculeOrientedDynamic orientedMolecule = (MoleculeOrientedDynamic)molecule;
             Vector velocity = orientedMolecule.getVelocity();
-            Vector moment = ((ISpeciesOriented)molecule.getType()).getMomentOfInertia();
+            Vector moment = molecule.getType().getMomentOfInertia();
 
-            double mass = ((ISpeciesOriented)molecule.getType()).getMass();
+            double mass = molecule.getType().getMass();
             int D = velocity.getD();
             for(int i=0; i<D; i++) {
                 velocity.setX(i,random.nextGaussian());
@@ -575,7 +573,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
 
             MoleculeOrientedDynamic orientedMolecule = (MoleculeOrientedDynamic)atom;
             Vector velocity = orientedMolecule.getVelocity();
-            double mass = ((ISpeciesOriented)orientedMolecule.getType()).getMass();
+            double mass = orientedMolecule.getType().getMass();
             int D = velocity.getD();
             for(int i=0; i<D; i++) {
                 velocity.setX(i,random.nextGaussian());
@@ -583,7 +581,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
             velocity.TE(Math.sqrt(temperature/mass));
 
             Vector angularVelocity = orientedMolecule.getAngularVelocity();
-            Vector moment = ((ISpeciesOriented)orientedMolecule.getType()).getMomentOfInertia();
+            Vector moment = orientedMolecule.getType().getMomentOfInertia();
             for(int i=0; i<D; i++) {
                 angularVelocity.setX(i,random.nextGaussian());
             }
@@ -710,7 +708,7 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
+        SpeciesGeneral species = SpeciesWater3P.create(true, true);
         sim.addSpecies(species);
         boolean periodic = true;
         Box box;
@@ -740,8 +738,6 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         OrientationCalcWater3P calcer = new OrientationCalcWater3P(sim.getSpace());
         integrator.setOrientationCalc(species, calcer);
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
-        ActivityIntegrate ai = new ActivityIntegrate(integrator);
-        sim.getController().addAction(ai);
 
         P2WaterSPCSoft p2Water = new P2WaterSPCSoft(sim.getSpace());
         
@@ -770,14 +766,14 @@ public class IntegratorRigidIterative extends IntegratorMD implements SpeciesAge
         }
         
         if (true) {
-            ai.setMaxSteps(1000000);
-            ai.actionPerformed();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, 1000000));
         }
         else {
-            ai.setSleepPeriod(2);
+            sim.getController().setSleepPeriod(2);
+            sim.getController().addActivity(new ActivityIntegrate(integrator));
             SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
-            ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
-            ((ColorSchemeByType)graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("H"), Color.WHITE);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("O"), Color.RED);
             graphic.makeAndDisplayFrame();
         }
     }

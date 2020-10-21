@@ -5,8 +5,8 @@
 package etomica.dielectric;
 
 import etomica.action.BoxImposePbc;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeOriented;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtomList;
@@ -25,11 +25,11 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayBoxCanvasG3DSys.OrientedSite;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.molecule.DipoleSource;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculePositionDefinition;
@@ -41,6 +41,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -64,15 +65,13 @@ import java.util.Calendar;
 public class DHS_NVT extends Simulation {
     private final static String APP_NAME = "dipolar HS, dielectric constant";
     private static final int PIXEL_SIZE = 15;
-    public final ActivityIntegrate activityIntegrate;
 //	private static final long serialVersionUID = 1L;
-protected final SpeciesSpheresRotating species;
+protected final SpeciesGeneral species;
     protected final PotentialMaster potentialMaster;
 	protected final IntegratorMC integrator;
 	protected final MCMoveMolecule moveMolecule;//translation mc move
 	protected final MCMoveRotate rotateMolecule;//atomic rotation mc move
 	protected final Box box;
-	public Controller controller; 
 
 	//************************************* constructor ********************************************//
     public DHS_NVT(Space space, int numberMolecules, final double HSDiameter, double mu,
@@ -81,8 +80,7 @@ protected final SpeciesSpheresRotating species;
 //		setRandom(new RandomNumberGenerator(1)); //debug only  TODO remember its still setrandom be to 1
 
 
-        species = new SpeciesSpheresRotating(space, new ElementSimple("A"));
-        species.setAxisSymmetric(true);
+        species = SpeciesSpheresRotating.create(space, new ElementSimple("A"), false,true);
         addSpecies(species);
         box = this.makeBox();
         box.setNMolecules(species, numberMolecules);
@@ -124,8 +122,7 @@ protected final SpeciesSpheresRotating species;
         moveMolecule = new MCMoveMolecule(this, potentialMaster, space);        // stepSize:1.0, stepSizeMax:15.0
         rotateMolecule = new MCMoveRotate(potentialMaster, random, space);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         //******************************** periodic boundary condition ******************************** //
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);
@@ -203,9 +200,8 @@ protected final SpeciesSpheresRotating species;
 			simGraphic.getDisplayBox(sim.box).repaint();
 			return ;
 		}
-		sim.activityIntegrate.setMaxSteps(steps/5);// equilibration period
-        sim.getController().actionPerformed();
-        sim.getController().reset();
+		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 5));// equilibration period
+
 
 		//TODO
 		sim.integrator.getMoveManager().setEquilibrating(false);        //set the stepsize
@@ -249,21 +245,19 @@ protected final SpeciesSpheresRotating species;
 		//TODO
 
 
-        sim.integrator.getEventManager().addListener(AEEListener);//TODO
-        sim.activityIntegrate.setMaxSteps(steps);
-
-		sim.getController().actionPerformed();
+        sim.integrator.getEventManager().addListener(AEEListener);//TODO;
+		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
 		//calculate dipoleSumSquared average
-        double dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
-        double dipoleSumSquaredERR = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(AccumulatorAverage.ERROR.index)).x;
+        double dipoleSumSquared = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.AVERAGE.index)).x;
+        double dipoleSumSquaredERR = ((DataDouble) ((DataGroup) dipoleSumSquaredAccumulator.getData()).getData(dipoleSumSquaredAccumulator.ERROR.index)).x;
         //TODO
-        double sum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(0);
-        double ERsum0 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(0);
-        double sum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index).getValue(1);
-        double ERsum1 = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverage.ERROR.index).getValue(1);
+        double sum0 = ((DataGroup) AEEAccumulator.getData()).getData(AEEAccumulator.AVERAGE.index).getValue(0);
+        double ERsum0 = ((DataGroup) AEEAccumulator.getData()).getData(AEEAccumulator.ERROR.index).getValue(0);
+        double sum1 = ((DataGroup) AEEAccumulator.getData()).getData(AEEAccumulator.AVERAGE.index).getValue(1);
+        double ERsum1 = ((DataGroup) AEEAccumulator.getData()).getData(AEEAccumulator.ERROR.index).getValue(1);
 
-        IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+        IData covariance = ((DataGroup) AEEAccumulator.getData()).getData(AEEAccumulator.BLOCK_COVARIANCE.index);
         covariance.getValue(1);
 //		double AEE = sum0 + sum1*sum1;
 //		double AEEER = Math.sqrt(ERsum0*ERsum0 + 4*sum1*sum1*ERsum1*ERsum1 -
@@ -304,7 +298,7 @@ protected final SpeciesSpheresRotating species;
 //		System.out.println("(epsilon-1)/(epsilon+2): "+A);
 //		System.out.println("dielectric constant is:  "+dielectricConstant);
 
-        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
+        double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;
         avgPE /= numberMolecules;
 //		System.out.println("PE/epsilon:"+avgPE);
         long endTime = System.currentTimeMillis();

@@ -21,12 +21,11 @@ import java.util.LinkedList;
  * writeRasmolScript can be called to write a script that will properly 
  * initialize the atomic radii.
  */
-public class PDBWriter implements IAction, Serializable {
+public class PDBWriter implements IAction {
 
-    private static final long serialVersionUID = 1L;
     private static final char[] elements = new char[]{'H', 'O', 'F', 'N', 'C', 'P', 'S'};
     private static final int[] elementNum = new int[]{1, 8, 9, 7, 6, 15, 16};
-    private final LinkedList<ElementLinker> elementAtomType = new LinkedList<ElementLinker>();
+    private final LinkedList<ElementLinker> elementAtomType = new LinkedList<>();
     private File file;
     private int elementCount = 0;
     private IAtomList leafList;
@@ -72,9 +71,7 @@ public class PDBWriter implements IAction, Serializable {
             throw new RuntimeException(e);
         }
         int atomCount = 0;
-        int nLeaf = leafList.size();
-        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.get(iLeaf);
+        for (IAtom atom : leafList) {
             Iterator<ElementLinker> elementIterator = elementAtomType.iterator();
             int elementIndex = -1;
             while (elementIterator.hasNext()) {
@@ -89,8 +86,8 @@ public class PDBWriter implements IAction, Serializable {
                 elementCount++;
                 elementAtomType.add(thisElement);
             }
-            formatter.format("ATOM%7d%3s                %8.3f%8.3f%8.3f\n", new Integer(atomCount), new Character(elements[elementIndex]),
-                    new Double(atom.getPosition().getX(0)), new Double(atom.getPosition().getX(1)), new Double(atom.getPosition().getX(2)));
+            formatter.format("ATOM%7d%3s                %8.3f%8.3f%8.3f\n", atomCount, elements[elementIndex],
+                    atom.getPosition().getX(0), atom.getPosition().getX(1), atom.getPosition().getX(2));
             atomCount++;
         }
         formatter.close();
@@ -114,11 +111,9 @@ public class PDBWriter implements IAction, Serializable {
             throw new RuntimeException(e);
         }
         try {
-            Iterator<ElementLinker> elementIterator = elementAtomType.iterator();
-            while (elementIterator.hasNext()) {
-                ElementLinker thisElement = elementIterator.next();
-                fileWriter.write("select elemno="+elementNum[thisElement.elementIndex]+"\n");
-                fileWriter.write("spacefill "+diameterHash.getDiameter(thisElement.type)*0.5);
+            for (ElementLinker thisElement : elementAtomType) {
+                fileWriter.write("select elemno=" + elementNum[thisElement.elementIndex] + "\n");
+                fileWriter.write("spacefill " + diameterHash.getDiameter(thisElement.type) * 0.5);
             }
             fileWriter.close();
         } catch(IOException e) {

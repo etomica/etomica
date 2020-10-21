@@ -244,7 +244,10 @@ public class PotentialMasterList extends PotentialMasterNbr {
         maxPotentialRange = 0;
         for (int i = 0; i < rangedPotentials.length; i++) {
             for (int j = 0; j < rangedPotentials.length; j++) {
-                if (rangedPotentials[i][j] == null) criteria[i][j] = null;
+                if (rangedPotentials[i][j] == null) {
+                    criteria[i][j] = null;
+                    continue;
+                }
                 double pRange = rangedPotentials[i][j].getRange();
                 if (pRange == Double.POSITIVE_INFINITY) {
                     continue;

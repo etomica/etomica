@@ -20,6 +20,7 @@ import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -43,16 +44,15 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         final Device controllerButtons = getController();
         getPanel().graphicsPanel.remove(controllerButtons.graphic());
         getPanel().footerPanel.add(controllerButtons.graphic());
-        getPanel().graphicsPanel.setLayout(new GridBagLayout());
+        getPanel().graphicsPanel.setLayout(new MigLayout("flowy, fillx"));
         
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
         dataStreamPumps.add(simulation.dataPump);
         dataStreamPumps.add(simulation.dataPumpEnergy);
 
-        displayBox.setPixelUnit(new Pixel(350/sim.box.getBoundary().getBoxSize().getX(0)));
         ((DiameterHashByType)displayBox.getDiameterHash()).setDiameter(sim.species.getLeafType(), 0.02);
 
-        final DisplayPlot plot = new DisplayPlot();
+        final DisplayPlotXChart plot = new DisplayPlotXChart();
         DataProcessorFunction log = new DataProcessorFunction(new Function() {
             public double f(double x) {return -Math.log(x);}
         });
@@ -63,14 +63,14 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         history.setDataSink(plot.getDataSet().makeDataSink());
         plot.setLegend(new DataTag[]{history.getTag()}, "measured");
         
-        final DisplayPlot energyPlot = new DisplayPlot();
+        final DisplayPlotXChart energyPlot = new DisplayPlotXChart();
         sim.historyEnergy.setTimeDataSource(sim.timeCounter);
         sim.historyEnergy.setDataSink(energyPlot.getDataSet().makeDataSink());
         energyPlot.setLegend(new DataTag[]{sim.historyEnergy.getTag()}, "measured");
         
-        DeviceSlider x0Slider = new DeviceSlider(sim.controller);
-        final DeviceSlider omegaASlider = new DeviceSlider(sim.controller);
-        final DeviceSlider omegaBSlider = new DeviceSlider(sim.controller);
+        DeviceSlider x0Slider = new DeviceSlider(sim.getController());
+        final DeviceSlider omegaASlider = new DeviceSlider(sim.getController());
+        final DeviceSlider omegaBSlider = new DeviceSlider(sim.getController());
         x0Slider.setShowValues(true);
         omegaASlider.setShowValues(true);
         omegaBSlider.setShowValues(true);
@@ -148,7 +148,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         plot.getPlot().setTitle("Free energy difference");
         energyPlot.getPlot().setTitle("Average energy");
 
-        final DisplayPlot uPlot = new DisplayPlot();
+        final DisplayPlotXChart uPlot = new DisplayPlotXChart();
         final double yMax = 2.0;
         uPlot.getPlot().setYRange(0.0, yMax);
         
@@ -167,10 +167,10 @@ public class MultiharmonicGraphic extends SimulationGraphic {
 
         final DataSourceFunction uA = new DataSourceFunction("A",Null.DIMENSION,fUA,100,"x",Length.DIMENSION);
         final DataSourceFunction uB = new DataSourceFunction("B",Null.DIMENSION,fUB,100,"x",Length.DIMENSION);
-        uA.getXSource().setXMin(-sim.box.getBoundary().getBoxSize().getX(0));
-        uB.getXSource().setXMin(-sim.box.getBoundary().getBoxSize().getX(0));
-        uA.getXSource().setXMax(sim.box.getBoundary().getBoxSize().getX(0));
-        uB.getXSource().setXMax(sim.box.getBoundary().getBoxSize().getX(0));
+        uA.getXSource().setXMin(-sim.box.getBoundary().getBoxSize().getX(0) / 2);
+        uB.getXSource().setXMin(-sim.box.getBoundary().getBoxSize().getX(0) / 2);
+        uA.getXSource().setXMax(sim.box.getBoundary().getBoxSize().getX(0) / 2);
+        uB.getXSource().setXMax(sim.box.getBoundary().getBoxSize().getX(0) / 2);
         final DataPump uAPump = new DataPump(uA, uPlot.getDataSet().makeDataSink());
         final DataPump uBPump = new DataPump(uB, uPlot.getDataSet().makeDataSink());
         IAction uUpdate = new IAction() {
@@ -187,46 +187,34 @@ public class MultiharmonicGraphic extends SimulationGraphic {
 
         uPlot.getDataSet().setUpdatingOnAnyChange(true);
 
-        GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
-        GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
-
         //controls -- start/pause and sliders
         JTabbedPane sliderPanel = new JTabbedPane();
         sliderPanel.add(x0Slider.graphic(), "x0");
         sliderPanel.add(omegaASlider.graphic(), "omegaA");
         sliderPanel.add(omegaBSlider.graphic(), "omegaB");
         
-        energyPlot.setSize(350,250);
-        
-        JPanel topPanel = new JPanel(new GridBagLayout());
-        JPanel displayPanel = new JPanel(new GridBagLayout());
+        JPanel topPanel = new JPanel(new MigLayout("novisualpadding"));
+        JPanel displayPanel = new JPanel(new MigLayout("flowy"));
         topPanel.add(sliderPanel);
-        topPanel.add(nSlider.graphic(), vertGBC);
-        displayPanel.add(uPlot.graphic(), vertGBC);
-        displayPanel.add(displayBox.graphic(), vertGBC);
-        GridBagConstraints mygbc = new GridBagConstraints();
-        mygbc.gridx = 1;
-        mygbc.gridy = 0;
-        mygbc.gridheight = 2;
-        topPanel.add(displayPanel, mygbc);
-        
-        plot.setSize(350, 250);
-        uPlot.setSize(450, 250);
+        topPanel.add(displayPanel, "span 1 2, wrap");
+        topPanel.add(nSlider.graphic());
+        displayPanel.add(uPlot.graphic());
+        displayPanel.add(displayBox.graphic(), "growx, center, gapx 4% 9%");
 
         getPanel().graphicsPanel.add(topPanel);
 
         JTabbedPane plotTabs = new JTabbedPane();
-        JPanel tab1 = new JPanel(new GridBagLayout());
+        JPanel tab1 = new JPanel(new MigLayout());
         plotTabs.add(tab1, "Energy");
         tab1.add(energyPlot.graphic());
 
-        getPanel().graphicsPanel.add(plotTabs, vertGBC);
+        getPanel().graphicsPanel.add(plotTabs);
 
         getController().getReinitButton().setPostAction(new IAction() {
         	public void actionPerformed() {
                 displayBox.repaint();
-                energyPlot.getPlot().repaint();
-                plot.getPlot().repaint();
+                energyPlot.getPanel().repaint();
+                plot.getPanel().repaint();
         	}
         });
 
@@ -245,10 +233,9 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         });
         accumulatorEnergy.setDataSink(negative);
         negative.setDataSink(feFork);
-        DisplayPlot funPlot = new DisplayPlot();
+        DisplayPlotXChart funPlot = new DisplayPlotXChart();
         funPlot.getPlot().setTitle("Free Energy Difference Convergence");
         funPlot.setDoLegend(false);
-        funPlot.setSize(350, 250);
         feFork.addDataSink(funPlot.getDataSet().makeDataSink());
         funPlot.getPlot().setXLog(true);
         
@@ -265,10 +252,10 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         dpLower.setDataSink(funPlot.getDataSet().makeDataSink());
         funPlot.setLegend(new DataTag[]{dpLower.getTag()}, "FE lower bound");
         
-        JPanel tab2 = new JPanel(new GridBagLayout());
+        JPanel tab2 = new JPanel(new MigLayout());
         plotTabs.add(tab2, "Free Energy");
         tab2.add(funPlot.graphic());
-        tab2.add(plot.graphic(), horizGBC);
+        tab2.add(plot.graphic());
         
         DataProcessorVar dpstdev = new DataProcessorVar();
         dpstdev.setAccumulator(accumulatorEnergy);
@@ -292,9 +279,8 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         DataProcessorDyDLnx dlndAdlnx = new DataProcessorDyDLnx();
         lndAdlnx.setDataSink(dlndAdlnx);
 
-        DisplayPlot dfunPlot = new DisplayPlot();
+        DisplayPlotXChart dfunPlot = new DisplayPlotXChart();
         dfunPlot.getPlot().setTitle("d(ln(x))/dlnN");
-        dfunPlot.setSize(350, 250);
         dlndAdlnx.setDataSink(dfunPlot.getDataSet().makeDataSink());
         dfunPlot.setLegend(new DataTag[]{dlndAdlnx.getTag()}, "x=-dA/dlnN");
         dfunPlot.getPlot().setXLog(true);
@@ -318,8 +304,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         dlnstdevDlnx.setDataSink(dfunPlot.getDataSet().makeDataSink());
         dfunPlot.setLegend(new DataTag[]{dlnstdevDlnx.getTag()}, "x=var_A");
 
-        DisplayPlot lfunPlot = new DisplayPlot();
-        lfunPlot.setSize(300, 250);
+        DisplayPlotXChart lfunPlot = new DisplayPlotXChart();
         lfunPlot.getPlot().setTitle("x");
         ndAdlnxFork.addDataSink(lfunPlot.getDataSet().makeDataSink());
         lfunPlot.setLegend(new DataTag[]{ndAdlnxFork.getTag()}, "x=-dA/dlnN");
@@ -332,10 +317,10 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         biasFork.addDataSink(lfunPlot.getDataSet().makeDataSink());
         lfunPlot.setLegend(new DataTag[]{biasFork.getTag()}, "x=b");
 
-        JPanel tab3 = new JPanel(new GridBagLayout());
+        JPanel tab3 = new JPanel(new MigLayout());
         plotTabs.add(tab3, "Bias");
         tab3.add(lfunPlot.graphic());
-        tab3.add(dfunPlot.graphic(), horizGBC);
+        tab3.add(dfunPlot.graphic());
     }
 
     public static void main(String[] args) {

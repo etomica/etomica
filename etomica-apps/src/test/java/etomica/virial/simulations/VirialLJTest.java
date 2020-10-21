@@ -4,12 +4,14 @@
 
 package etomica.virial.simulations;
 
+import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
 import org.junit.jupiter.api.Assertions;
@@ -43,7 +45,7 @@ public class VirialLJTest {
         ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, true);
         refCluster.setTemperature(temperature);
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("LJ")), temperature,refCluster,targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("LJ"))), temperature,refCluster,targetCluster);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         sim.integratorOS.setNumSubSteps(1000);
         // this will run a short simulation to find it
@@ -51,10 +53,9 @@ public class VirialLJTest {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(null, steps/40);
-        Assertions.assertTrue(Math.abs(sim.refPref - 1.34) < 0.12, "Ref pref (alpha) within expected limits: "+sim.refPref);
-        
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+Assertions.assertTrue(Math.abs(sim.refPref - 1.34) < 0.12, "Ref pref (alpha) within expected limits: "+sim.refPref);
+sim.getController().runActivityBlocking(ai);
 
         double[] ratioAndError = sim.dvo.getAverageAndError();
         double ratio = ratioAndError[0];

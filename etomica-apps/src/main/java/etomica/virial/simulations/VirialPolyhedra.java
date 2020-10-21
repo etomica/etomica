@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -32,6 +33,7 @@ import etomica.potential.P2SpheroPolyhedron;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesPolyhedron;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
@@ -163,11 +165,11 @@ public class VirialPolyhedra {
 //        if (nTO>0 && sigmaTO>shsref) shsref = sigmaTO;
 //        final double sigmaHSRef = shsref;
         
-        SpeciesPolyhedron[] allSpecies = new SpeciesPolyhedron[shapes.length];
+        SpeciesGeneral[] allSpecies = new SpeciesGeneral[shapes.length];
         double shsref = 0;
         for (int i=0; i<shapes.length; i++) {
             List<Vector> vertices = ShapeParser.doParse("shape/"+shapes[i]+".dat", space).vertices;
-            allSpecies[i] = new SpeciesPolyhedron(space, vertices, 0.0, new ElementSimple("P"+i));
+            allSpecies[i] = SpeciesPolyhedron.create(space, vertices, 0.0, new ElementSimple("P" + i));
             double s = 2*((AtomTypeSpheroPolyhedron)allSpecies[i].getAtomType(0)).getOuterRadius();
             shsref = shsref < s ? s : shsref;
         }
@@ -451,7 +453,7 @@ public class VirialPolyhedra {
 
             sim.setAccumulatorBlockSize(1000);
             
-            final JPanel panelParentGroup = new JPanel(new java.awt.GridBagLayout());
+            final JPanel panelParentGroup = new JPanel(new GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;
             gbc.gridwidth = 2;
@@ -489,9 +491,9 @@ public class VirialPolyhedra {
                 
                 DataDouble data = new DataDouble();
             };
-            IDataInfo dataInfoSteps = new DataDouble.DataInfoDouble("B"+nPoints, Null.DIMENSION);
+            IDataInfo dataInfoSteps = new DataInfoDouble("B"+nPoints, Null.DIMENSION);
             stepsBox.putDataInfo(dataInfoSteps);
-            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, Null.DIMENSION);
+            IDataInfo dataInfo = new DataInfoDouble("B"+nPoints, Null.DIMENSION);
             averageBox.putDataInfo(dataInfo);
             averageBox.setLabel("average");
             errorBox.putDataInfo(dataInfo);
@@ -530,15 +532,14 @@ public class VirialPolyhedra {
 
         long t1 = System.currentTimeMillis();
 
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.currentTimeMillis();
 
         
 
         DataGroup allYourBase = (DataGroup)accumulator.getData();
-        IData averageData = allYourBase.getData(AccumulatorAverage.AVERAGE.index);
-        IData errorData = allYourBase.getData(AccumulatorAverage.ERROR.index);
+        IData averageData = allYourBase.getData(accumulator.AVERAGE.index);
+        IData errorData = allYourBase.getData(accumulator.ERROR.index);
         
         System.out.println();
         

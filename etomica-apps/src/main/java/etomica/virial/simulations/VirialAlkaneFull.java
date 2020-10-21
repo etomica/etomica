@@ -5,14 +5,13 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
@@ -32,12 +31,10 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
+import etomica.units.dimensions.*;
 import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.CompoundDimension;
-import etomica.units.dimensions.DimensionRatio;
-import etomica.units.dimensions.Quantity;
-import etomica.units.dimensions.Volume;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -183,7 +180,7 @@ public class VirialAlkaneFull {
      
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)};
 
-        SpeciesAlkane species = new SpeciesAlkane(space, nSpheres);
+        SpeciesGeneral species = SpeciesAlkane.create(nSpheres);
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new ISpecies[]{species},
                 new int[]{alkaneFlex ? (nPoints+1) : nPoints},temperature, new ClusterAbstract[]{refCluster, targetCluster},targetDiagrams,  sampleClusters, true);
@@ -286,65 +283,59 @@ public class VirialAlkaneFull {
             pIntra.addPotential(p2CH2,new ApiIndexList(pairs));
         }
 
-        if (false) {
-            double size = (nSpheres+5)*1.5;
+        if(false) {
+    double size = (nSpheres + 5) * 1.5;
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
+            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
-            displayBox0.setPixelUnit(new Pixel(300.0/size));
-            displayBox1.setPixelUnit(new Pixel(300.0/size));
+            displayBox0.setPixelUnit(new Pixel(300.0 / size));
+            displayBox1.setPixelUnit(new Pixel(300.0 / size));
             displayBox0.setShowBoundary(false);
             displayBox1.setShowBoundary(false);
-            ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setBackgroundColor(Color.WHITE);
-            ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
-            
-            
-            DiameterHashByType diameterManager = (DiameterHashByType)displayBox0.getDiameterHash();
-            diameterManager.setDiameter(typeCH2, 0.2*sigmaCH2);
-            diameterManager.setDiameter(typeCH3, 0.2*sigmaCH3);
+            ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
+
+
+            DiameterHashByType diameterManager = (DiameterHashByType) displayBox0.getDiameterHash();
+            diameterManager.setDiameter(typeCH2, 0.2 * sigmaCH2);
+            diameterManager.setDiameter(typeCH3, 0.2 * sigmaCH3);
             displayBox1.setDiameterHash(diameterManager);
             ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
             displayBox0.setColorScheme(colorScheme);
             colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[1], sim.getRandom());
             displayBox1.setColorScheme(colorScheme);
-            
-            
+
+
             simGraphic.makeAndDisplayFrame();
 
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-                
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null, 20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 10, false);
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            
+
             final DisplayTextBox averageBox = new DisplayTextBox();
             averageBox.setLabel("Average");
             final DisplayTextBox errorBox = new DisplayTextBox();
             errorBox.setLabel("Error");
-            JLabel jLabelPanelParentGroup = new JLabel("B"+nPoints+" (L/mol)^"+(nPoints-1));
-            final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
-            panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
-            panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.WEST);
-            panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
+            JLabel jLabelPanelParentGroup = new JLabel("B" + nPoints + " (L/mol)^" + (nPoints - 1));
+            final JPanel panelParentGroup = new JPanel(new BorderLayout());
+            panelParentGroup.add(jLabelPanelParentGroup, CompassDirection.NORTH.toString());
+            panelParentGroup.add(averageBox.graphic(), BorderLayout.WEST);
+            panelParentGroup.add(errorBox.graphic(), BorderLayout.EAST);
             simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
-            
+
             IAction pushAnswer = new IAction() {
                 DataDouble data = new DataDouble();
-                
+
                 public void actionPerformed() {
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -355,8 +346,8 @@ public class VirialAlkaneFull {
                     errorBox.putData(data);
                 }
             };
-            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
-            Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});
+            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B" + nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints - 1}));
+            Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints - 1});
             averageBox.putDataInfo(dataInfo);
             averageBox.setLabel("average");
             averageBox.setUnit(unit);
@@ -365,9 +356,8 @@ public class VirialAlkaneFull {
             errorBox.setPrecision(2);
             errorBox.setUnit(unit);
             sim.integratorOS.getEventManager().addListener(new IntegratorListenerAction(pushAnswer));
-            
-            return;
-        }
+    return;
+}
         
         // if running interactively, don't use the file
         String refFileName = isCommandline ? "refpref"+nPoints+"_"+temperature : null;
@@ -378,15 +368,12 @@ public class VirialAlkaneFull {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/20);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+sim.setAccumulatorBlockSize(steps);
 
-        sim.setAccumulatorBlockSize(steps);
-        
         System.out.println("equilibration finished");
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps((int)steps);
-        sim.ai.setMaxSteps(1000);
-        
-        
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize()+" "
                 +sim.mcMoveRotate[0].getStepSize()+" "
                 +(sim.mcMoveWiggle==null ? "" : (""+sim.mcMoveWiggle[0].getStepSize())));
@@ -404,7 +391,7 @@ public class VirialAlkaneFull {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -416,16 +403,16 @@ public class VirialAlkaneFull {
         }
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());
         sim.printResults(refIntegral);
         
         DataGroup allData = (DataGroup)sim.accumulators[1].getData();
-        IData dataAvg = allData.getData(AccumulatorAverage.AVERAGE.index);
-        IData dataErr = allData.getData(AccumulatorAverage.ERROR.index);
-        IData dataCov = allData.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
+        IData dataAvg = allData.getData(sim.accumulators[1].AVERAGE.index);
+        IData dataErr = allData.getData(sim.accumulators[1].ERROR.index);
+        IData dataCov = allData.getData(sim.accumulators[1].BLOCK_COVARIANCE.index);
         // we'll ignore block correlation -- whatever effects are here should be in the full target results
         int nTotal = (targetDiagrams.length+2);
         double oVar = dataCov.getValue(nTotal*nTotal-1);

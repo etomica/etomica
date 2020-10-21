@@ -8,13 +8,13 @@ import etomica.action.IntegratorActionAdapter;
 import etomica.atom.iterator.AtomIteratorLeafFilteredType;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.meter.MeterEnergy;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.species.SpeciesSpheresMono;
-import etomica.data.history.HistoryCollapsingDiscard;
+import etomica.integrator.IntegratorMD;
+import etomica.species.SpeciesGeneral;
 
 public class ZeoliteSimStart extends IntegratorActionAdapter{
 
@@ -38,8 +38,8 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	
         	
         	//Set Max Steps Based on SimulationParameters.xls
-        	sim.activityIntegrate.setMaxSteps(3270000/2);
-        	sim.activityIntegrate.setSleepPeriod(0);
+        	sim.ai.setMaxSteps(3270000/2);
+        	sim.getController().setSleepPeriod(0);
         	((IntegratorMD)integrator).setThermostatInterval(327000);
         	//Keeping another graphic of the total energy drift
         	MeterEnergy eMeter = new MeterEnergy(((IntegratorBox)integrator).getPotentialMaster(), sim.box);
@@ -69,12 +69,8 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	sp = sim.getSpeciesRMS();
         	System.out.println(filename);
         	//sim.integrator.setTimeStep(0.00);
-        	MSDCoordWriter coordWriter = new MSDCoordWriter(sim.getSpace(), filename);
-        	coordWriter.setBox(sim.box);
+            MSDCoordWriter coordWriter = new MSDCoordWriter(sim.integrator, sim.box, filename, interval);
             coordWriter.setIterator(new AtomIteratorLeafFilteredType(sim.box, sp.getLeafType()));
-            coordWriter.setIntegrator(sim.integrator);
-            coordWriter.setWriteInterval(interval);
-            coordWriter.openFile();
             System.out.println("created MSDCoordWriter");
         	
         }
@@ -99,6 +95,6 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
     private int interval;
     private ZeoliteSimulation sim;
     private String filename;
-    private SpeciesSpheresMono sp;
+    private SpeciesGeneral sp;
     private zeoliteSimGraphic graphic;
 }

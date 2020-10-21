@@ -23,6 +23,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Disordered alpha-phase
@@ -46,7 +47,7 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialLS extend
 		super(space);
 		this.space = space;
 
-        SpeciesN2 species = new SpeciesN2(space);
+		SpeciesGeneral species = SpeciesN2.create(false);
         addSpecies(species);
 
         potentialMaster = new PotentialMaster();
@@ -58,9 +59,6 @@ public class HarmonicDisorderedAlphaNitrogenModelPairMoleculeSequentialLS extend
 
 		Basis basisFCC = new BasisCubicFcc();
 		Basis basis = new BasisBigCell(space, basisFCC, new int[]{nCell, nCell, nCell});
-
-		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		species.setConformation(conformation);
 
 		Boundary boundary = new BoundaryRectangularPeriodic(space);
 		box = this.makeBox(boundary);

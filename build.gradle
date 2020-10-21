@@ -1,7 +1,11 @@
+plugins {
+    id 'org.beryx.runtime' version '1.11.1' apply false
+}
+
 apply plugin: 'eclipse'
 
 wrapper {
-    gradleVersion = '6.6'
+    gradleVersion = '6.4.1'
 }
 
 tasks.withType(JavaCompile) {
@@ -27,15 +31,13 @@ subprojects {
     targetCompatibility = 1.8
 
     dependencies {
-        testCompile 'org.junit.jupiter:junit-jupiter-api:5.2.0-M1'
-        testCompile 'org.junit.jupiter:junit-jupiter-params:5.2.0-M1'
-        testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.2.0-M1'
+        testImplementation 'org.junit.jupiter:junit-jupiter:5.6.2'
     }
 
     test {
-        useJUnitPlatform()
-        testLogging.showStandardStreams = true
+        useJUnitPlatform { }
         testLogging {
+            events "skipped", "failed", "standardOut", "standardError"
             exceptionFormat "full"
         }
     }
@@ -52,6 +54,9 @@ project(':etomica-core') {
         compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
         compile 'com.github.therapi:therapi-runtime-javadoc:0.2.1'
         compile "io.github.lukehutch:fast-classpath-scanner:2.9.4"
+        compile "org.knowm.xchart:xchart:3.6.4"
+        compile 'com.miglayout:miglayout-swing:5.2'
+        compile "com.formdev:flatlaf:0.37"
 
         compile files("$rootProject.projectDir/libs/ptolemy.jar")
 
@@ -60,6 +65,23 @@ project(':etomica-core') {
 
     processResources.dependsOn ':setupPython'
     clean.dependsOn ':cleanPython'
+
+    task writeBuildProperties(type: WriteProperties) {
+        def resDir = sourceSets.main.output.resourcesDir
+        outputFile = file("$resDir/build.properties")
+        property 'date', LocalDateTime.now()
+
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = stdout
+        }
+        def commit = stdout.toString().trim()
+
+        property 'commit', commit
+    }
+
+    processResources.dependsOn writeBuildProperties
 }
 
 project(':etomica-apps') {
@@ -71,7 +93,42 @@ project(':etomica-apps') {
 }
 
 project(':etomica-modules') {
-    
+    apply plugin: 'application'
+    apply plugin: 'org.beryx.runtime'
+
+    jar {
+        manifest {
+            attributes "Main-Class": "etomica.modules.ModuleLauncher"
+        }
+    }
+
+    application {
+        mainClassName = 'etomica.modules.ModuleLauncher'
+    }
+
+    runtime {
+        imageDir = file("$buildDir/etomica_modules")
+        imageZip = file("$buildDir/etomica_modules.zip")
+        modules = ['java.desktop', 'java.logging']
+        options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+
+        jpackage {
+            skipInstaller = true
+        }
+    }
+
+    task archiveModulesApp(type: Zip) {
+        dependsOn ":etomica-modules:jpackage"
+        if (org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+            from "$buildDir/jpackage"
+        } else {
+            from "$buildDir/jpackage/etomica-modules"
+        }
+
+        archiveFileName = "etomica-modules.zip"
+        destinationDirectory = file("$buildDir/dist")
+    }
+
     dependencies {
         compile project(':etomica-apps')
     }
@@ -85,9 +142,6 @@ project(':etomica-graph') {
         compile 'org.apache.xmlgraphics:fop:1.0'
     }
 }
-
-task findbugsAll
-subprojects { project -> findbugsAll.dependsOn("${project.path}:findbugsMain")}
 
 task setupPython(type:Exec) {
     onlyIf {

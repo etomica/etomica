@@ -7,6 +7,7 @@ package etomica.normalmode;
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
 import etomica.action.WriteConfiguration;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -28,7 +29,7 @@ import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 import java.io.File;
 
@@ -44,14 +45,14 @@ public class SimFluidSoftSphere extends Simulation {
     private static final int PIXEL_SIZE = 10;
     public static String filename;
     public IntegratorMC integrator;
-    public SpeciesSpheresMono species;
-    public ActivityIntegrate activityIntegrate;
+    public SpeciesGeneral species;
+
     public Box box;
     public PotentialMaster potentialMaster;
     public SimFluidSoftSphere(Space _space, int numAtoms, double density, double temperature, int exponent) {
         super(_space);
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMaster();
@@ -69,8 +70,7 @@ public class SimFluidSoftSphere extends Simulation {
         ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
         ((MCMoveStepTracker) move.getTracker()).setAdjustInterval(10);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         config.initializeCoordinates(box);
@@ -209,7 +209,7 @@ public class SimFluidSoftSphere extends Simulation {
         IAction pressureCheck = new IAction(){
         	public void actionPerformed(){
         		System.out.println("Var[density/sqrt(2)]: "+ d/(Math.sqrt(2)*Math.pow(temp, 3.0/(double)n))+ " ,Z: "
-                        + pressureAverage.getData().getValue(AccumulatorAverage.AVERAGE.index) / (d * temp));
+                        + pressureAverage.getData().getValue(pressureAverage.AVERAGE.index) / (d * temp));
 
         	}
         };
@@ -241,18 +241,19 @@ public class SimFluidSoftSphere extends Simulation {
 
         File configFileNew = new File(filename + ".pos");
 
+        long steps = 0;
         if(configFileNew.exists()){
     		System.out.println("\n***using "+ configFileNew);
-			sim.activityIntegrate.setMaxSteps(10);
+			steps = 10;
         	sim.initializeConfigFromFile(filename);
 
         } else {
 
             if (density_div_sqrt2 < density60Freeze){
-	        	sim.activityIntegrate.setMaxSteps(simSteps/10);  //simSteps/10
+                steps = simSteps / 10;
 
             } else if (density_div_sqrt2 >= density60Freeze && density_div_sqrt2 <= density90Freeze) {
-                sim.activityIntegrate.setMaxSteps(simSteps/4);
+                steps = simSteps / 4;
 
             } else if (density_div_sqrt2 > density90Freeze){
 	        	File configFile09Freeze;
@@ -273,7 +274,7 @@ public class SimFluidSoftSphere extends Simulation {
 
                 } else {
 	        		System.out.println("\n***using "+ configFile09Freeze);
-	        		sim.activityIntegrate.setMaxSteps(simSteps/10);
+	        		steps = simSteps / 10;
 	        		sim.rescaleBox(density90Freeze*Math.sqrt(2));
                     sim.initializeConfigFromFile(fileName09Freeze);
                     sim.rescaleBox(density);
@@ -284,15 +285,13 @@ public class SimFluidSoftSphere extends Simulation {
         }
 
 
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         System.out.println("equilibrated");
 
         sim.integrator.getMoveManager().setEquilibrating(false);
         pressureAverage.reset();
-        sim.getController().reset();
 
-        sim.activityIntegrate.setMaxSteps(simSteps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
         /*
         double insertionScalar = ((DataGroup)insertionAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index);
         System.out.println("Average insertion scalar: "+ insertionScalar);
@@ -303,14 +302,14 @@ public class SimFluidSoftSphere extends Simulation {
 
         sim.writeConfiguration(filename);
 
-        System.out.println("Average Energy: " + energyAverage.getData().getValue(AccumulatorAverage.AVERAGE.index)
-                + " ,Error Energy: " + energyAverage.getData().getValue(AccumulatorAverage.ERROR.index));
-        System.out.println("Average Pressure: " + pressureAverage.getData().getValue(AccumulatorAverage.AVERAGE.index)
-                + " ,Error Pressure: " + pressureAverage.getData().getValue(AccumulatorAverage.ERROR.index));
+        System.out.println("Average Energy: " + energyAverage.getData().getValue(energyAverage.AVERAGE.index)
+                + " ,Error Energy: " + energyAverage.getData().getValue(energyAverage.ERROR.index));
+        System.out.println("Average Pressure: " + pressureAverage.getData().getValue(pressureAverage.AVERAGE.index)
+                + " ,Error Pressure: " + pressureAverage.getData().getValue(pressureAverage.ERROR.index));
         System.out.println(" ");
 
         System.out.println("Var[density/sqrt(2)]: "+ density/(Math.sqrt(2)*Math.pow(temperature, 3/(double)exponent))+ " ,Z: "
-                + pressureAverage.getData().getValue(AccumulatorAverage.AVERAGE.index) / (density * temperature));
+                + pressureAverage.getData().getValue(pressureAverage.AVERAGE.index) / (density * temperature));
 
     }
 

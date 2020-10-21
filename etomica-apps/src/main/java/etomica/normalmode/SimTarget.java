@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -28,7 +29,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class SimTarget extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public BravaisLattice lattice;
@@ -52,7 +53,7 @@ public class SimTarget extends Simulation {
     public SimTarget(Space _space, int numAtoms, double density) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         PotentialMaster potentialMaster = (space.D() == 1 ? new PotentialMasterList(this, space) : new PotentialMasterMonatomic(this));
@@ -80,10 +81,9 @@ public class SimTarget extends Simulation {
         integrator = new IntegratorHard(this, potentialMaster, box);
 
         integrator.setIsothermal(false);
-        activityIntegrate = new ActivityIntegrate(integrator);
         double timeStep = 0.4;
         integrator.setTimeStep(timeStep);
-        getController().addAction(activityIntegrate);
+this.getController().addActivity(new ActivityIntegrate(integrator));
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, space);
         coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
@@ -199,17 +199,16 @@ public class SimTarget extends Simulation {
 
         //start simulation
         int nSteps = (int) (simTime / sim.integrator.getTimeStep());
-        sim.activityIntegrate.setMaxSteps(nSteps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, nSteps));
 
         //get averages and confidence limits for harmonic energy
-        double avgHarmonicEnergy = ((DataDouble) ((DataGroup) harmonicAvg.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
-        double errorHarmonicEnergy = ((DataDouble) ((DataGroup) harmonicAvg.getData()).getData(AccumulatorAverage.ERROR.index)).x;
+        double avgHarmonicEnergy = ((DataDouble) ((DataGroup) harmonicAvg.getData()).getData(harmonicAvg.AVERAGE.index)).x;
+        double errorHarmonicEnergy = ((DataDouble) ((DataGroup) harmonicAvg.getData()).getData(harmonicAvg.ERROR.index)).x;
         System.out.println("avg harmonic energy: "+avgHarmonicEnergy+" +/- "+errorHarmonicEnergy);
 
         //compute free-energy quantities, independent-mode approximation
-        DataDoubleArray harmonicModesAvg = (DataDoubleArray) ((DataGroup) harmonicSingleAvg.getData()).getData(AccumulatorAverage.AVERAGE.index);
-        DataDoubleArray harmonicModesErr = (DataDoubleArray) ((DataGroup) harmonicSingleAvg.getData()).getData(AccumulatorAverage.ERROR.index);
+        DataDoubleArray harmonicModesAvg = (DataDoubleArray) ((DataGroup) harmonicSingleAvg.getData()).getData(harmonicSingleAvg.AVERAGE.index);
+        DataDoubleArray harmonicModesErr = (DataDoubleArray) ((DataGroup) harmonicSingleAvg.getData()).getData(harmonicSingleAvg.ERROR.index);
         double deltaA = 0;
         double deltaAerr = 0;
         int nData = harmonicModesAvg.getLength();
@@ -237,8 +236,8 @@ public class SimTarget extends Simulation {
         }
 
         //results for averaging without independent-mode approximation
-        deltaA = ((DataDouble) ((DataGroup) harmonicBoltzAvg.getData()).getData(AccumulatorAverage.AVERAGE.index)).x;
-        deltaAerr = ((DataDouble) ((DataGroup) harmonicBoltzAvg.getData()).getData(AccumulatorAverage.ERROR.index)).x / deltaA;
+        deltaA = ((DataDouble) ((DataGroup) harmonicBoltzAvg.getData()).getData(harmonicBoltzAvg.AVERAGE.index)).x;
+        deltaAerr = ((DataDouble) ((DataGroup) harmonicBoltzAvg.getData()).getData(harmonicBoltzAvg.ERROR.index)).x / deltaA;
         deltaA = Math.log(deltaA);
 
         System.out.println("Harmonic free energy correction: "+deltaA+" +/- "+deltaAerr);

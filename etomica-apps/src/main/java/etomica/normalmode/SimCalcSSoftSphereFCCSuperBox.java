@@ -5,6 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.PDBWriter;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -24,7 +25,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * MC simulation of FCC soft-sphere model in 3D with tabulation of the
@@ -38,13 +39,13 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public Primitive primitive;
     public Basis basis;
     public int[] nCells;
-    public SpeciesSpheresMono speciesA, speciesB;
+    public SpeciesGeneral speciesA, speciesB;
     public CoordinateDefinitionLeafSuperBox coordinateDefinition;
     protected P2SoftSphericalTruncatedShifted pTruncatedAA;
     protected P2SoftSphericalTruncatedShifted pTruncatedAB;
@@ -52,8 +53,8 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
     public SimCalcSSoftSphereFCCSuperBox(Space _space, int numAtoms, double density, double temperature, int exponent) {
         super(_space);
 
-        speciesA = new SpeciesSpheresMono(this, space);
-        speciesB = new SpeciesSpheresMono(this, space);
+        speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(speciesA);
         addSpecies(speciesB);
 
@@ -103,8 +104,7 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         integrator.getMoveManager().addMCMove(move);
         ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         move.setPotential(pTruncatedAA);
 
@@ -226,11 +226,10 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         simGraphic.makeAndDisplayFrame("Sim CalcS Super Box");
         */
 
-        sim.activityIntegrate.setMaxSteps(simSteps/10);  //simSteps/10
-        sim.getController().actionPerformed();
-        System.out.println("equilibrated");
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps / 10));  //simSteps/10
+System.out.println("equilibrated");
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.getController().reset();
+
         meterNormalMode.reset();
 
         WriteS sWriter = new WriteS(sim.space);
@@ -242,15 +241,13 @@ public class SimCalcSSoftSphereFCCSuperBox extends Simulation {
         IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
         sWriterListener.setInterval((int)simSteps/20);
         sim.integrator.getEventManager().addListener(sWriterListener);
-
-        sim.activityIntegrate.setMaxSteps(simSteps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
         PDBWriter pdbWriter = new PDBWriter(sim.box);
         pdbWriter.setFileName("calcS_n"+exponent+"_T"+temperature+".pdb");
         pdbWriter.actionPerformed();
 
-        System.out.println("Average Energy: " + energyAverage.getData().getValue(AccumulatorAverage.AVERAGE.index) / nA);
-        System.out.println("Error Energy: " + energyAverage.getData().getValue(AccumulatorAverage.ERROR.index) / nA);
+        System.out.println("Average Energy: " + energyAverage.getData().getValue(energyAverage.AVERAGE.index) / nA);
+        System.out.println("Error Energy: " + energyAverage.getData().getValue(energyAverage.ERROR.index) / nA);
         System.out.println(" ");
         /*
         System.out.println("Average Pressure: "+ ((DataGroup)pressureAverage.getData()).getValue(AccumulatorAverage.StatType.AVERAGE.index));

@@ -5,12 +5,13 @@
 package etomica.liquidLJ;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.config.ConfigurationFileBinary;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.DataPumpListener;
 import etomica.data.IData;
@@ -27,10 +28,12 @@ import etomica.potential.Potential0Lrc;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
+
+import java.io.File;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -39,9 +42,8 @@ import etomica.util.random.RandomMersenneTwister;
 public class LjMC3D extends Simulation {
     
     public final PotentialMasterCell potentialMasterCell;
-    public final ActivityIntegrate ai;
     public IntegratorMC integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
     public MCMoveAtom mcMoveAtom;
@@ -50,8 +52,7 @@ public class LjMC3D extends Simulation {
     public LjMC3D(int numAtoms, double temperature, double density, double rcShort) {
         super(Space3D.getInstance());
         setRandom(new RandomMersenneTwister(1));
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
         box = this.makeBox();
         box.setNMolecules(species, numAtoms);
@@ -68,8 +69,7 @@ public class LjMC3D extends Simulation {
         mcMoveAtom = new MCMoveAtom(random, potentialMasterCell, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         potential = new P2LennardJones(space, sigma, 1.0);
         AtomType leafType = species.getLeafType();
@@ -116,6 +116,7 @@ public class LjMC3D extends Simulation {
             params.T = 1.5;
         }
 
+        boolean useRho = false;
         final int numAtoms = params.numAtoms;
         final double temperature = params.T;
         final double density = params.density;
@@ -124,6 +125,8 @@ public class LjMC3D extends Simulation {
         int nrcMax = params.nrcMax;
         boolean graphics = params.graphics;
         int nAccBlocks = params.nAccBlocks;
+        double v2 = 1 / (density * density);
+        double y = 4 * v2 * v2 / temperature;
 
         int longInterval = numAtoms*2;
         int intervalLS = longInterval*5;
@@ -138,11 +141,79 @@ public class LjMC3D extends Simulation {
         double L = Math.pow(numAtoms/density, 1.0/3.0);
         final LjMC3D sim = new LjMC3D(numAtoms, temperature, density, rcShort);
 
+        String configFilename;
+        if (useRho) {
+            configFilename = String.format("configN%d_rho%4.2f", numAtoms, density);
+            File inConfigFile = new File(configFilename + ".pos");
+            if (inConfigFile.exists()) {
+                ConfigurationFileBinary configFile = new ConfigurationFileBinary(configFilename);
+                configFile.initializeCoordinates(sim.box);
+                System.out.println("Continuing from previous configuration");
+            } else {
+                // try 8x fewer atoms
+                String tmpConfigFilename = String.format("configN%d_rho%4.2f", numAtoms / 8, density);
+                inConfigFile = new File(tmpConfigFilename + ".pos");
+                if (inConfigFile.exists()) {
+                    System.out.println("bringing configuration up from N=" + numAtoms / 8);
+                    ConfigurationFileBinary configFile = new ConfigurationFileBinary(tmpConfigFilename);
+                    ConfigurationFileBinary.replicate(configFile, sim.box, new int[]{2, 2, 2}, Space3D.getInstance());
+                } else {
+                    // try higher density, then lower density
+                    for (int i = 10; i >= -10; i--) {
+                        if (i == 0) continue;
+                        double rho0 = i > 0 ? (density + 0.01 * (11 - i)) : (density + 0.01 * i);
+                        tmpConfigFilename = String.format("configN%d_rho%4.2f", numAtoms, rho0);
+                        inConfigFile = new File(tmpConfigFilename + ".pos");
+                        if (inConfigFile.exists()) {
+                            System.out.println(String.format("bringing configuration from rho=%4.2f", rho0));
+                            ConfigurationFileBinary configFile = new ConfigurationFileBinary(tmpConfigFilename);
+                            configFile.initializeCoordinates(sim.box);
+                            break;
+                        }
+                    }
+                }
+            }
+        } else {
+            if (Double.parseDouble(String.format("%4.2f", v2)) != v2) {
+                throw new RuntimeException(String.format("you're just trying to cause trouble, use v2=%4.2f", v2));
+            }
+            configFilename = String.format("configN%d_V%4.2f_y%4.2f", numAtoms, v2, y);
+            File inConfigFile = new File(configFilename + ".pos");
+            if (inConfigFile.exists()) {
+                ConfigurationFileBinary configFile = new ConfigurationFileBinary(configFilename);
+                configFile.initializeCoordinates(sim.box);
+                System.out.println("Continuing from previous configuration");
+            } else {
+                // try 8x fewer atoms
+                String tmpConfigFilename = String.format("configN%d_V%4.2f_y%4.2f", numAtoms / 8, v2, y);
+                inConfigFile = new File(tmpConfigFilename + ".pos");
+                if (inConfigFile.exists()) {
+                    System.out.println("bringing configuration up from N=" + numAtoms / 8);
+                    ConfigurationFileBinary configFile = new ConfigurationFileBinary(tmpConfigFilename);
+                    ConfigurationFileBinary.replicate(configFile, sim.box, new int[]{2, 2, 2}, Space3D.getInstance());
+                } else {
+                    // try lower temperature, then higher temperature
+                    for (int i = 10; i >= -10; i--) {
+                        if (i == 0) continue;
+                        double y0 = i > 0 ? (y + 0.01 * (11 - i)) : (y + 0.01 * i);
+                        tmpConfigFilename = String.format("configN%d_V%4.2f_y%4.2f", numAtoms, v2, y0);
+                        inConfigFile = new File(tmpConfigFilename + ".pos");
+                        if (inConfigFile.exists()) {
+                            System.out.println(String.format("bringing configuration from y=%4.2f", y0));
+                            ConfigurationFileBinary configFile = new ConfigurationFileBinary(tmpConfigFilename);
+                            configFile.initializeCoordinates(sim.box);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        sim.potentialMasterCell.getNbrCellManager(sim.box).assignCellAll();
+
+
         if (!graphics) {
             long eqSteps = steps/10;
-            sim.ai.setMaxSteps(eqSteps);
-            sim.getController().actionPerformed();
-            sim.getController().reset();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, eqSteps));
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
@@ -250,17 +321,16 @@ public class LjMC3D extends Simulation {
 
 
         long t1 = System.currentTimeMillis();
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.currentTimeMillis();
 
         System.out.println();
 
         DataGroup dataPU = (DataGroup)accPU.getData();
-        IData avgPU = dataPU.getData(AccumulatorAverage.AVERAGE.index);
-        IData errPU = dataPU.getData(AccumulatorAverage.ERROR.index);
-        IData covPU = dataPU.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-        IData corPU = dataPU.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData avgPU = dataPU.getData(accPU.AVERAGE.index);
+        IData errPU = dataPU.getData(accPU.ERROR.index);
+        IData covPU = dataPU.getData(accPU.BLOCK_COVARIANCE.index);
+        IData corPU = dataPU.getData(accPU.BLOCK_CORRELATION.index);
         
         int j = 0;
         for (int i=0; i<cutoffs.length; i++) {
@@ -282,10 +352,10 @@ public class LjMC3D extends Simulation {
         System.out.println();
         
         DataGroup dataPULS = (DataGroup)accPULS.getData();
-        IData avgPULS = dataPULS.getData(AccumulatorAverage.AVERAGE.index);
-        IData errPULS = dataPULS.getData(AccumulatorAverage.ERROR.index);
-        IData covPULS = dataPULS.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-        IData corPULS = dataPULS.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData avgPULS = dataPULS.getData(accPULS.AVERAGE.index);
+        IData errPULS = dataPULS.getData(accPULS.ERROR.index);
+        IData covPULS = dataPULS.getData(accPULS.BLOCK_COVARIANCE.index);
+        IData corPULS = dataPULS.getData(accPULS.BLOCK_CORRELATION.index);
         
         j = 0;
         for (int i=0; i<cutoffsLS.length; i++) {
@@ -308,10 +378,10 @@ public class LjMC3D extends Simulation {
         System.out.println();
         
         DataGroup dataPU1 = (DataGroup)accPUBlocks.getData();
-        IData avgPU1 = dataPU1.getData(AccumulatorAverage.AVERAGE.index);
-        IData errPU1 = dataPU1.getData(AccumulatorAverage.ERROR.index);
-        IData covPU1 = dataPU1.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-        IData corPU1 = dataPU1.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData avgPU1 = dataPU1.getData(accPUBlocks.AVERAGE.index);
+        IData errPU1 = dataPU1.getData(accPUBlocks.ERROR.index);
+        IData covPU1 = dataPU1.getData(accPUBlocks.BLOCK_COVARIANCE.index);
+        IData corPU1 = dataPU1.getData(accPUBlocks.BLOCK_CORRELATION.index);
         
         int n = avgPU1.getLength();
         int nRaw = avgPU.getLength();
@@ -333,6 +403,7 @@ public class LjMC3D extends Simulation {
             double avgU = avgPU.getValue(jRaw+0);
             double errU = errPU.getValue(jRaw+0);
             double corUW = covPU.getValue((jRaw+0)*nRaw+jRaw+4) / Math.sqrt(covPU.getValue((jRaw+0)*nRaw+jRaw+0) * covPU.getValue((jRaw+4)*nRaw+jRaw+4));
+            if (errW == 0) corUW = 0;
             if (Double.isNaN(corUW)) corUW = 0;
             double biasU = ratioW2 - errU*errW/(avgU*avgW)*corUW;
             errU = Math.abs(avgU/avgW)*Math.sqrt(errU*errU/(avgU*avgU) + ratioW2 - 2*errU*errW/(avgU*avgW)*corUW);
@@ -343,6 +414,7 @@ public class LjMC3D extends Simulation {
             double avgP = avgPU.getValue(jRaw+1);
             double errP = errPU.getValue(jRaw+1);
             double corPW = covPU.getValue((jRaw+1)*nRaw+jRaw+4) / Math.sqrt(covPU.getValue((jRaw+1)*nRaw+jRaw+1) * covPU.getValue((jRaw+4)*nRaw+jRaw+4));
+            if (errW == 0) corPW = 0;
             if (Double.isNaN(corPW)) corPW = 0;
             double biasP = ratioW2 - errP*errW/(avgP*avgW)*corPW;
             errP = Math.abs(avgP/avgW)*Math.sqrt(errP*errP/(avgP*avgP) + ratioW2 - 2*errP*errW/(avgP*avgW)*corPW);
@@ -356,6 +428,7 @@ public class LjMC3D extends Simulation {
             double avgDADy = avgPU.getValue(jRaw+2);
             double errDADy = errPU.getValue(jRaw+2);
             double corDADyW = covPU.getValue((jRaw+2)*nRaw+jRaw+4) / Math.sqrt(covPU.getValue((jRaw+2)*nRaw+jRaw+2) * covPU.getValue((jRaw+4)*nRaw+jRaw+4));
+            if (errW == 0) corDADyW = 0;
             if (Double.isNaN(corDADyW)) corDADyW = 0;
             double biasDADy = ratioW2 - errDADy*errW/(avgDADy*avgW)*corDADyW;
             errDADy = Math.abs(avgDADy/avgW)*Math.sqrt(errDADy*errDADy/(avgDADy*avgDADy) + ratioW2 - 2*errDADy*errW/(avgDADy*avgW)*corDADyW);
@@ -366,6 +439,7 @@ public class LjMC3D extends Simulation {
             double avgDADv2 = avgPU.getValue(jRaw+3);
             double errDADv2 = errPU.getValue(jRaw+3);
             double corDADv2W = covPU.getValue((jRaw+3)*nRaw+jRaw+4) / Math.sqrt(covPU.getValue((jRaw+3)*nRaw+jRaw+3) * covPU.getValue((jRaw+4)*nRaw+jRaw+4));
+            if (errW == 0) corDADv2W = 0;
             if (Double.isNaN(corDADv2W)) corDADv2W = 0;
             double biasDADv2 = ratioW2 - errDADv2*errW/(avgDADv2*avgW)*corDADv2W;
             errDADv2 = Math.abs(avgDADv2/avgW)*Math.sqrt(errDADv2*errDADv2/(avgDADv2*avgDADv2) + ratioW2 - 2*errDADv2*errW/(avgDADv2*avgW)*corDADv2W);
@@ -390,13 +464,13 @@ public class LjMC3D extends Simulation {
             double[][] puSelfLRC = pLS.energyVirialCut(selfPair);
 
             dataPU = (DataGroup)accPULS.getData();
-            avgPU = dataPU.getData(AccumulatorAverage.AVERAGE.index);
+            avgPU = dataPU.getData(accPULS.AVERAGE.index);
 
             dataPU1 = (DataGroup)accPULSBlocks.getData();
-            avgPU1 = dataPU1.getData(AccumulatorAverage.AVERAGE.index);
-            errPU1 = dataPU1.getData(AccumulatorAverage.ERROR.index);
-            covPU1 = dataPU1.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-            corPU1 = dataPU1.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+            avgPU1 = dataPU1.getData(accPULSBlocks.AVERAGE.index);
+            errPU1 = dataPU1.getData(accPULSBlocks.ERROR.index);
+            covPU1 = dataPU1.getData(accPULSBlocks.BLOCK_COVARIANCE.index);
+            corPU1 = dataPU1.getData(accPULSBlocks.BLOCK_CORRELATION.index);
 
             n = avgPU.getLength();
             int n1 = avgPU1.getLength();

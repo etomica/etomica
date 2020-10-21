@@ -4,27 +4,42 @@
 
 package etomica.data;
 
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.math.function.Function;
 import etomica.math.function.IFunction;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * AccumulatorAverage that maintains a fixed block size.
  * This is standard accumulator for collecting averages in production runs.
  * <p>
  * This accumulator accepts any type of Data
+ * <p>
+ * The average value is based on block averages -- it does not include samples
+ * that are not part of blocks.  Average and error are computed using a
+ * formulation that reduces numeric roundoff.
+ * <p>
+ * The standard deviation does include samples not included in a complete block
+ * and uses a simpler formulation that is more vulnerable to roundoff.
  */
 public class AccumulatorAverageFixed extends AccumulatorAverage {
 
     protected final IFunction negativeChop, sanityCheckBC;
-    protected IData sum; //sum(value)
-    protected IData sumBlockSquare;//sum(blockAvg^2)
-    protected IData currentBlockSum;//block_sum(value)
+    protected IData blockVarSum;//sum((blockAvg-totalAvg)^2)
+    protected IData currentBlockAvg;
     protected IData sumSquare;//sum(value^2)
     protected IData mostRecentBlock, correlationSum, firstBlock;
     protected IData work, work2;
-    protected boolean doStrictBlockData = false;
     protected IDataSink blockDataSink;
+    protected String blockFilename;
+    protected double[][] savedBlockData;
+    protected int numSavedBlockData;
 
     /**
      * Default constructor sets block size to 1000 and sets the
@@ -63,19 +78,7 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
      * @return value of DoStrictBlockData
      */
     public boolean getDoStrictBlockData() {
-        return doStrictBlockData;
-    }
-
-    /**
-     * Sets the accumulator to base statistics only on block data (where that
-     * makes sense).  The primary effect here is that data does not go into
-     * the average unless it is part of a complete block.  Because of how it
-     * is computed, the standard deviation is unaffected by this flag.
-     *
-     * @param newDoStrictBlockData
-     */
-    public void setDoStrictBlockData(boolean newDoStrictBlockData) {
-        doStrictBlockData = newDoStrictBlockData;
+        return true;
     }
 
     /**
@@ -83,6 +86,64 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
      */
     public IDataSink getBlockDataSink() {
         return blockDataSink;
+    }
+
+    /**
+     * Configures the accumulator to write block data to the given file.
+     * The data can be read back in later so long as the underlying data
+     * is DataDoubleArray.
+     */
+    public void setWriteBlocks(String filename) {
+        blockFilename = filename;
+        numSavedBlockData = 0;
+        savedBlockData = new double[0][0];
+    }
+
+    /**
+     * Reads block data from the given file.  The accumulator's state (for
+     * block data) will match that when the file was last written to.
+     */
+    public void readBlockData(String filename) {
+        if (!(currentBlockAvg instanceof DataDoubleArray)) {
+            throw new RuntimeException("Can only read into DataDoubleArray");
+        }
+        try {
+            FileReader fr = new FileReader(filename);
+            BufferedReader bufReader = new BufferedReader(fr);
+            String line;
+            while ((line = bufReader.readLine()) != null) {
+                String[] bits = line.split(" ");
+                if (bits.length != mostRecentBlock.getLength()) {
+                    throw new RuntimeException("Excepted " + mostRecentBlock.getLength() + " values, but found " + bits.length + " in file " + filename);
+                }
+                double[] x = ((DataDoubleArray) currentBlockAvg).getData();
+                for (int i = 0; i < x.length; i++) {
+                    x[i] = Double.parseDouble(bits[i]);
+                }
+                doBlockSum();
+            }
+            fr.close();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public void writeBlockData() {
+        if (blockFilename == null) throw new RuntimeException("no block file specified");
+        try {
+            FileWriter fw = new FileWriter(blockFilename, true);
+            for (int i = 0; i < numSavedBlockData; i++) {
+                fw.write("" + savedBlockData[i][0]);
+                for (int j = 1; j < savedBlockData[i].length; j++) {
+                    fw.write(" " + savedBlockData[i][j]);
+                }
+                fw.write("\n");
+            }
+            numSavedBlockData = 0;
+            fw.close();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     /**
@@ -111,13 +172,26 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
             return false;
 
         mostRecent.E(data);
-        currentBlockSum.PE(data);
+        work.E(data);
+        work.ME(currentBlockAvg);
+        work.TE(1.0 / (blockSize - blockCountDown + 1));
+        currentBlockAvg.PE(work);
         work.E(data);
         work.TE(data);
         sumSquare.PE(work);
         if (--blockCountDown == 0) {//count down to zero to determine
             // completion of block
             doBlockSum();
+            if (blockFilename != null) {
+                if (numSavedBlockData == savedBlockData.length) {
+                    savedBlockData = Arrays.copyOf(savedBlockData, numSavedBlockData + 1);
+                    savedBlockData[numSavedBlockData] = new double[mostRecentBlock.getLength()];
+                }
+                for (int i = 0; i < mostRecentBlock.getLength(); i++) {
+                    savedBlockData[numSavedBlockData][i] = mostRecentBlock.getValue(i);
+                }
+                numSavedBlockData++;
+            }
             if (blockDataSink != null) {
                 blockDataSink.putData(mostRecentBlock);
             }
@@ -137,43 +211,47 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
      */
     protected void doBlockSum() {
         count++;
-        sum.PE(currentBlockSum);
+        // we may have set average to NaN in getData()
+        if (count == 1) average.E(0);
+        work.E(currentBlockAvg);
+        work.ME(average);
+        work.TE(1.0 / count);
+        work2.E(currentBlockAvg);
+        work2.ME(average);
+        average.PE(work);
+        work.E(currentBlockAvg);
+        work.ME(average);
+        work2.TE(work);
+        blockVarSum.PE(work2);
         blockCountDown = blockSize;
-        currentBlockSum.DE(blockSize);//compute block average
-        work.E(currentBlockSum);
-        work.TE(currentBlockSum);
-        sumBlockSquare.PE(work);
         if (count > 1) {
-            work.E(currentBlockSum);
+            work.E(currentBlockAvg);
             work.TE(mostRecentBlock);
             correlationSum.PE(work);
         } else {
-            firstBlock.E(currentBlockSum);
+            firstBlock.E(currentBlockAvg);
         }
         //reset blocks
-        mostRecentBlock.E(currentBlockSum);
-        currentBlockSum.E(0.0);
+        mostRecentBlock.E(currentBlockAvg);
+        currentBlockAvg.E(0.0);
     }
 
     public IData getData() {
-        if (sum == null)
+        if (average == null)
             return null;
-        if (count > 0) {
-            // calculate block average (discarded if !doStrictBlockData)
-            average.E(sum);
-            average.DE(count * blockSize);
-            work.E(average);
-            work.TE(average);
+        if (count == 0) {
+            average.E(Double.NaN);
         }
         if (count > 1) {
             // calculate other block properties (these require 2 or more blocks)
 
-            error.E(sumBlockSquare);
+            error.E(blockVarSum);
             error.DE(count);
-            error.ME(work);
             error.map(negativeChop);
 
             // error's intermediate value is useful for calculating block correlation
+            work.E(average);
+            work.TE(average);
             blockCorrelation.E(average);
             blockCorrelation.TE(-2 * count);
             blockCorrelation.PE(firstBlock);
@@ -206,25 +284,17 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         long nTotalData = count * blockSize + (blockSize - blockCountDown);
         if (nTotalData > 0) {
             // now use *all* of the data
-            if (!doStrictBlockData) {
-                average.E(sum);
-                average.PE(currentBlockSum);
-                average.DE(nTotalData);
-                work.E(average);
-                work.TE(average);
-            } else {
-                work.E(sum);
-                work.PE(currentBlockSum);
-                work.DE(nTotalData);
-                work.TE(average);
-            }
+            work.E(currentBlockAvg);
+            work.ME(average);
+            work.TE((double) (blockSize - blockCountDown) / (blockSize * (1 + count) - blockCountDown));
+            work.PE(average);
+            work.TE(work);
             standardDeviation.E(sumSquare);
             standardDeviation.DE(nTotalData);
             standardDeviation.ME(work);
             standardDeviation.map(negativeChop);
             standardDeviation.map(Function.Sqrt.INSTANCE);
         } else {
-            average.E(Double.NaN);
             standardDeviation.E(Double.NaN);
         }
         return dataGroup;
@@ -232,12 +302,12 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
 
     public void reset() {
         super.reset();
-        if (sum == null) {
+        if (average == null) {
             return;
         }
-        sum.E(0);
-        sumBlockSquare.E(0);
-        currentBlockSum.E(0);
+        average.E(0);
+        blockVarSum.E(0);
+        currentBlockAvg.E(0);
         sumSquare.E(0);
         correlationSum.E(0);
         firstBlock.E(Double.NaN);
@@ -245,9 +315,8 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
     }
 
     public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
-        sum = incomingDataInfo.makeData();
-        sumBlockSquare = incomingDataInfo.makeData();
-        currentBlockSum = incomingDataInfo.makeData();
+        blockVarSum = incomingDataInfo.makeData();
+        currentBlockAvg = incomingDataInfo.makeData();
         sumSquare = incomingDataInfo.makeData();
         firstBlock = incomingDataInfo.makeData();
         correlationSum = incomingDataInfo.makeData();

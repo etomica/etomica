@@ -1,8 +1,8 @@
 package etomica.integrationtests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import etomica.action.ActionIntegrate;
 import etomica.action.BoxInflate;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -14,7 +14,7 @@ import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.random.RandomMersenneTwister;
 import org.junit.jupiter.api.Test;
 
@@ -35,8 +35,8 @@ public class TestSnapshots {
         String coordsStr = Files.lines(Paths.get(TestSnapshots.class.getResource("HSMD3DNeighborList_021af6881.json").toURI()))
                 .findFirst().get();
 
-        Simulation sim = new HSMD3DNeighborList();
-        sim.getController().actionPerformed();
+        HSMD3DNeighborList sim = new HSMD3DNeighborList();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 500));
         List<Vector> coords = sim.box().getLeafList().getAtoms().stream()
                 .map(IAtom::getPosition)
                 .collect(Collectors.toList());
@@ -45,12 +45,12 @@ public class TestSnapshots {
     }
 
     private static class HSMD3DNeighborList extends Simulation {
+        public final IntegratorHard integrator;
         public HSMD3DNeighborList() {
             super(Space3D.getInstance());
             this.setRandom(new RandomMersenneTwister(new int[]{1, 2, 3, 4}));
 
-            SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
-            species.setIsDynamic(true);
+            SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
             addSpecies(species);
 
             addBox(new Box(this.space));
@@ -67,13 +67,10 @@ public class TestSnapshots {
             inflater.actionPerformed();
             new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box());
 
-            IntegratorHard integrator = new IntegratorHard(this, pm, box());
+            integrator = new IntegratorHard(this, pm, box());
             integrator.setIsothermal(false);
             integrator.setTimeStep(0.01);
 
-            ActionIntegrate ai = new ActionIntegrate(integrator);
-            ai.setMaxSteps(500);
-            getController().addAction(ai);
 
             integrator.getEventManager().addListener(pm.getNeighborManager(box()));
         }

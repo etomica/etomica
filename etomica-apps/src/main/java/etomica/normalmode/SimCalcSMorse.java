@@ -5,6 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.PDBWriter;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -18,7 +19,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * MC simulation of Morse model in 3D with tabulation of the
@@ -30,7 +31,7 @@ public class SimCalcSMorse extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public Primitive primitive;
@@ -40,7 +41,7 @@ public class SimCalcSMorse extends Simulation {
     public SimCalcSMorse(Space _space, int numAtoms, double density, double temperature) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
@@ -68,8 +69,7 @@ public class SimCalcSMorse extends Simulation {
         integrator.getMoveManager().addMCMove(move);
         ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         // activityIntegrate.setMaxSteps(nSteps);
 
 
@@ -173,11 +173,10 @@ public class SimCalcSMorse extends Simulation {
 //        logger.setWriteOnInterval(true);
 //        DataPump pump = new DataPump(m, logger);
 //        sim.integrator.addListener(new IntervalActionAdapter(pump));
-        sim.activityIntegrate.setMaxSteps(simSteps/10);
-        sim.getController().actionPerformed();
-        System.out.println("equilibrated");
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps / 10));
+System.out.println("equilibrated");
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.getController().reset();
+
         meterNormalMode.reset();
 
         WriteS sWriter = new WriteS(sim.space);
@@ -189,9 +188,7 @@ public class SimCalcSMorse extends Simulation {
         IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
         sWriterListener.setInterval((int)simSteps/10);
         sim.integrator.getEventManager().addListener(sWriterListener);
-
-        sim.activityIntegrate.setMaxSteps(simSteps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
         PDBWriter pdbWriter = new PDBWriter(sim.box);
         pdbWriter.setFileName("calcS.pdb");
         pdbWriter.actionPerformed();

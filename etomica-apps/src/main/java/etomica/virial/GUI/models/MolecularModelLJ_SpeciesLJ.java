@@ -5,15 +5,13 @@
 package etomica.virial.GUI.models;
 
 
+import etomica.atom.AtomType;
 import etomica.potential.P2LennardJones;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.Species;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.virial.GUI.components.SimpleElementForSimilarSpecies;
-import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesFactorySpheres;
 
 public class MolecularModelLJ_SpeciesLJ implements IMolecularModel_SpeciesFactory,Cloneable{
 	
@@ -147,13 +145,7 @@ private String[][] setParameterValues() {
 	//Creates the LJAtom Species
 	public ISpecies createSpecies(){
 		simpleElement = SimpleElementForSimilarSpecies.getInstance();
-		Species speciesLJ = new SpeciesSpheresMono(this.space, simpleElement.getAelement());
-        return speciesLJ;
-	}
-
-	public SpeciesFactory createSpeciesFactory(){
-		SpeciesFactory speciesFactory = new SpeciesFactorySpheres();
-        return speciesFactory;
+		return SpeciesGeneral.monatomic(this.space, AtomType.element(simpleElement.getAelement()));
 	}
 
 	public int getParameterCount() {

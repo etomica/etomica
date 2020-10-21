@@ -5,8 +5,9 @@
 package etomica.math.numerical;
 
 import etomica.action.IAction;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.DataSourceIndependentSimple;
@@ -111,10 +112,12 @@ public class AkimaSplineSmootherDyApp {
         morePlotPanel.add(plotey.graphic(), "ey");
         
         IntegratorSmoother integrator = new IntegratorSmoother(fitter);
-        ActivityIntegrate ai = new ActivityIntegrate(integrator);
+
+        // TODO !!
         Controller controller = new Controller();
-        controller.addAction(ai);
-        
+        controller.addActivity(new ActivityIntegrate(integrator));
+        controller.start();
+
         DisplayPlot ePlot = new DisplayPlot();
         ePlot.getPlot().setYLog(true);
         ePlot.getDataSet().setUpdatingOnAnyChange(true);
@@ -246,7 +249,7 @@ public class AkimaSplineSmootherDyApp {
         });
         controlPanel.add(loadTrueButton, gbc);
         
-        DeviceControllerButton startButton = new DeviceControllerButton(controller);
+        DeviceRunControls startButton = new DeviceRunControls(controller);
         controlPanel.add(startButton.graphic(), gbc);
         
         JPanel dPanel = new JPanel(new GridLayout(2, 2));

@@ -9,10 +9,8 @@ import etomica.models.water.SpeciesWater3P;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.Species;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
-import etomica.virial.SpeciesFactory;
 
 public class MolecularModelSPCE_SpeciesH2O implements IMolecularModel_SpeciesFactory,Cloneable{
 	private static String MoleculeDisplayName = "H2O - SPCE";
@@ -203,25 +201,8 @@ private String[][] setParameterValues() {
 	
 	//Creates the LJAtom Species
 	public ISpecies createSpecies(){
-		SpeciesFactory factory = new SpeciesFactory() {
-	        public ISpecies makeSpecies(Space space) {
-	            Species species = new SpeciesWater3P(space);
-	            return species;
-	        }
-	    };
-	    return factory.makeSpecies(this.space);
+		return SpeciesWater3P.create();
 	}
-
-	//Creates the LJAtom Species
-		public SpeciesFactory createSpeciesFactory(){
-			SpeciesFactory factory = new SpeciesFactory() {
-		        public ISpecies makeSpecies(Space space) {
-		            Species species = new SpeciesWater3P(space);
-		            return species;
-		        }
-		    };
-		    return factory;
-		}
 
 	public int getParameterCount() {
 		return 2;

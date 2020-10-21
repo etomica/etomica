@@ -82,7 +82,7 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
         if (!neighborIterator.hasNext()) {
             return null;
         }
-        pair.atom0 = ((AtomSite)neighborIterator.next()).getAtom();
+        pair.atom1 = ((AtomSite)neighborIterator.next()).getAtom();
         return pair;
     }
 

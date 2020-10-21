@@ -6,9 +6,7 @@ package etomica.integrator;
 
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.*;
-import etomica.util.Arrays;
 import etomica.util.EventManager;
-import etomica.util.IEvent;
 import etomica.util.random.IRandom;
 
 import java.util.ArrayList;
@@ -24,10 +22,10 @@ import java.util.List;
 
 public class IntegratorManagerMC extends Integrator {
 
-    protected final EventManager<IEvent> eventManager;
+    protected final EventManager<MCMoveEvent> eventManager;
     protected final IRandom random;
-    private final IEvent trialEvent;
-    private final IEvent acceptedEvent, rejectedEvent;
+    private final MCMoveEvent trialEvent;
+    private final MCMoveEvent acceptedEvent, rejectedEvent;
     protected double globalMoveProbability;
     protected MCMoveManager moveManager;
     protected final List<Integrator> integrators;
@@ -173,7 +171,7 @@ public class IntegratorManagerMC extends Integrator {
         }
     }
 
-    public EventManager<IEvent> getMoveEventManager() {
+    public EventManager<MCMoveEvent> getMoveEventManager() {
         return eventManager;
     }
 

@@ -66,14 +66,13 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         final HistoryPlotBits dHPB, peHPB, pHPB, widomHPB;
         final DataPumpListener pPump, dPump, pePump;
         if (moduleNum == 1) {
-            MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-            densityMeter.setBox(sim.box);
+            MeterDensity densityMeter = new MeterDensity(sim.box);
             dPump = new DataPumpListener(densityMeter, null, 100);
             dataStreamPumps.add(dPump);
 
             historyPanel = new JPanel(new GridLayout(0, 1));
             dHPB = makeHistoryPlot(dataStreamPumps, timeCounter, historyPanel, dPump, "Density");
-            DisplayPlot dPlot = dHPB.plot;
+            DisplayPlotXChart dPlot = dHPB.plot;
             dHPB.avg.setPushInterval(10);
 
             MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
@@ -162,19 +161,17 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             final DisplayTextBoxesCAE muDisplay = new DisplayTextBoxesCAE();
             muDisplay.setAccumulator(widomHPB.avg);
             muDisplay.setDoShowCurrent(false);
+            muDisplay.setLabel("Chemical Potential");
             resetDisplays = new IAction() {
                 public void actionPerformed() {
                     dPump.actionPerformed();
 
                     dDisplay.putData(dHPB.avg.getData());
-                    dDisplay.repaint();
 
                     pPump.actionPerformed();
                     pDisplay.putData(pHPB.avg.getData());
-                    pDisplay.repaint();
                     pePump.actionPerformed();
                     peDisplay.putData(peHPB.avg.getData());
-                    peDisplay.repaint();
                 }
             };
             add(dDisplay);
@@ -319,9 +316,9 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         final DeviceButton slowButton = new DeviceButton(sim.getController(), null);
         slowButton.setAction(new IAction() {
             public void actionPerformed() {
-                int sleep = sim.activityIntegrate.getSleepPeriod();
+                int sleep = (int) sim.getController().getSleepPeriod();
                 sleep = 1 - sleep;
-                sim.activityIntegrate.setSleepPeriod(sleep);
+                sim.getController().setSleepPeriod(sleep);
                 slowButton.setLabel(sleep == 0 ? "Slow" : "Fast");
             }
         });
@@ -332,7 +329,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
     }
 
     public static class HistoryPlotBits {
-        public DisplayPlot plot;
+        public DisplayPlotXChart plot;
         public DataFork fork;
         public AccumulatorHistory history;
         public AccumulatorAverage avg;
@@ -349,7 +346,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         rv.avg.setPushInterval(1);
         dataStreamPumps.add(pump);
 
-        rv.plot = new DisplayPlot();
+        rv.plot = new DisplayPlotXChart();
         rv.history.setDataSink(rv.plot.getDataSet().makeDataSink());
         rv.plot.setLegend(new DataTag[]{rv.history.getTag()}, "history");
         rv.plot.setDoLegend(true);
@@ -384,7 +381,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         rv.avg.setPushInterval(1);
         dataStreamPumps.add(pump);
 
-        rv.plot = new DisplayPlot();
+        rv.plot = new DisplayPlotXChart();
         rv.plot.setDoLegend(false);
         rv.plot.getPlot().setYLabel(name);
         rv.plot.setLabel(name);
@@ -407,7 +404,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
     protected JScrollPane createStatPanel(DataFork fork, Dimension paneSize, AccumulatorFactory accFactory, boolean doHistory) {
         JPanel panel = new JPanel(new GridLayout(0, 1));
         JScrollPane pane = new JScrollPane(panel);
-        pane.setPreferredSize(paneSize);
+//        pane.setPreferredSize(paneSize);
 
         DataCollector collectorErr = new DataCollector();
         DataCollector collectorCor = new DataCollector();
@@ -415,7 +412,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         DataCollector collectorSamples = new DataCollector();
         DataCollector collectorErrCorrected = new DataCollector();
         DataCollector collectorDiffCorrected = new DataCollector();
-        DisplayPlot blockHistoryPlot = doHistory ? new DisplayPlot() : null;
+        DisplayPlotXChart blockHistoryPlot = doHistory ? new DisplayPlotXChart() : null;
         if (doHistory) {
             blockHistoryPlot.getPlot().setYLabel("Block Averages");
             panel.add(blockHistoryPlot.graphic());
@@ -454,7 +451,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
                 }
             }
         }
-        DisplayPlot peErrorPlot = new DisplayPlot();
+        DisplayPlotXChart peErrorPlot = new DisplayPlotXChart();
         DataPumpListener peAccPumpErr = new DataPumpListener(collectorErr, peErrorPlot.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(peAccPumpErr);
         peErrorPlot.setLabel("PE Error");
@@ -463,7 +460,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         peErrorPlot.getPlot().setYLog(true);
         peErrorPlot.getPlot().setYLabel("Error");
         panel.add(peErrorPlot.graphic());
-        DisplayPlot peCorPlot = new DisplayPlot();
+        DisplayPlotXChart peCorPlot = new DisplayPlotXChart();
         DataPumpListener peAccPumpCor = new DataPumpListener(collectorCor, peCorPlot.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(peAccPumpCor);
         peCorPlot.setLabel("PE Correlation");
@@ -472,7 +469,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         peCorPlot.getPlot().setXLog(true);
         peCorPlot.getPlot().setYRange(-1, 1);
         panel.add(peCorPlot.graphic());
-        DisplayPlot peDifficultyPlot = new DisplayPlot();
+        DisplayPlotXChart peDifficultyPlot = new DisplayPlotXChart();
         DataPumpListener peAccPumpDifficulty = new DataPumpListener(collectorDifficulty, peDifficultyPlot.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(peAccPumpDifficulty);
         peDifficultyPlot.setLabel("PE Difficulty");
@@ -481,7 +478,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         peDifficultyPlot.getPlot().setXLog(true);
         peDifficultyPlot.getPlot().setYLog(true);
         panel.add(peDifficultyPlot.graphic());
-        DisplayPlot peSamplesPlot = new DisplayPlot();
+        DisplayPlotXChart peSamplesPlot = new DisplayPlotXChart();
         DataPumpListener peAccPumpSamples = new DataPumpListener(collectorSamples, peSamplesPlot.getDataSet().makeDataSink(), 1000);
         sim.integrator.getEventManager().addListener(peAccPumpSamples);
         peSamplesPlot.setLabel("PE Samples");
@@ -506,16 +503,18 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         if (untransform) {
             panelLinear = new JPanel(new GridLayout(0, 1));
             JScrollPane paneLinear = new JScrollPane(panelLinear);
-            paneLinear.setPreferredSize(paneSize);
+//            paneLinear.setPreferredSize(paneSize); // TODO fit on one page
             addAsTab(paneLinear, "histograms", true);
         }
         JScrollPane paneLog = new JScrollPane(panelLog);
-        paneLog.setPreferredSize(paneSize);
+//        paneLog.setPreferredSize(paneSize);
         addAsTab(paneLog, "histograms (" + (untransform ? "log scale" : "-\u03BC/kT") + ")", true);
 
-        DisplayPlot blockHistogramPlotAll = new DisplayPlot();
+        DisplayPlotXChart blockHistogramPlotAll = new DisplayPlotXChart();
         blockHistogramPlotAll.getPlot().setYLabel("Block Histogram");
         panelLog.add(blockHistogramPlotAll.graphic());
+        blockHistogramPlotAll.getChart().getStyler()
+                .setPlotGridLinesVisible(false);
         blockHistogramPlotAll.getDataSet().setUpdatingOnAnyChange(true);
         if (untransform) {
             blockHistogramPlotAll.getPlot().setXLog(true);
@@ -525,8 +524,10 @@ public class StatisticsMCGraphic extends SimulationGraphic {
             blockHistogramPlotAll.setXLabel("-\u03BC/kT");
         }
         blockHistogramPlotAll.getPlot().setYLog(true);
-        DisplayPlot blockHistogramPlotAllBS = new DisplayPlot();
+        DisplayPlotXChart blockHistogramPlotAllBS = new DisplayPlotXChart();
         blockHistogramPlotAllBS.getPlot().setYLabel("Block Histogram (BS)");
+        blockHistogramPlotAllBS.getChart().getStyler()
+                .setPlotGridLinesVisible(false);
         panelLog.add(blockHistogramPlotAllBS.graphic());
         blockHistogramPlotAllBS.getDataSet().setUpdatingOnAnyChange(true);
         if (untransform) {
@@ -546,9 +547,9 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         accBS.setMaxNumBlocks(13);
         accBS.setWithReplacement(true);
         for (int i = 0; i < 30; i += 5) {
-            DisplayPlot blockHistogramPlot = null;
+            DisplayPlotXChart blockHistogramPlot = null;
             if (untransform) {
-                blockHistogramPlot = new DisplayPlot();
+                blockHistogramPlot = new DisplayPlotXChart();
                 blockHistogramPlot.getPlot().setYLabel("Block Histogram (" + (1L << i) + " samples)");
                 panelLinear.add(blockHistogramPlot.graphic());
                 blockHistogramPlot.getPlot().setYLog(true);

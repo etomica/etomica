@@ -5,7 +5,7 @@
 package etomica.graphics;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.simulation.Simulation;
@@ -147,9 +147,9 @@ public class DeviceThermoSelector extends Device {
      * Returns the GUI element for display in the simulation.
      * Consists of a combo box used for the selector.
      */
-    public java.awt.Component graphic(Object obj) {
+    public java.awt.Component graphic() {
         return panel;
-       // return selector;
+        // return selector;
     }
     
     private javax.swing.JComboBox selector;

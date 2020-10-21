@@ -5,12 +5,12 @@
 package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.IData;
@@ -24,7 +24,7 @@ import etomica.potential.P2LennardJones;
 import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -37,9 +37,8 @@ import java.awt.*;
 public class SimIdealGas extends Simulation {
 
     public final PotentialMasterCell potentialMasterCell;
-    public final ActivityIntegrate ai;
     public IntegratorMC integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
     public MCMoveAtomNPath mcMoveAtom;
@@ -49,7 +48,7 @@ public class SimIdealGas extends Simulation {
 
     public SimIdealGas(int numAtoms, double temperature, double density, double w, int offsetDim) {
         super(Space3D.getInstance());
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
         box = this.makeBox();
         box.setNMolecules(species, numAtoms);
@@ -69,9 +68,6 @@ public class SimIdealGas extends Simulation {
         double sigma = 1.0;
         integrator = new IntegratorMC(this, potentialMasterCell, box);
         integrator.setTemperature(temperature);
-
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
 
         Vector offset = space.makeVector();
         offset.setX(offsetDim, box.getBoundary().getBoxSize().getX(offsetDim) * 0.5);
@@ -143,15 +139,14 @@ public class SimIdealGas extends Simulation {
 
         if (!graphics) {
             long eqSteps = steps/10;
-            sim.ai.setMaxSteps(eqSteps);
-            sim.getController().actionPerformed();
-            sim.getController().reset();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, eqSteps));
             sim.integrator.getMoveManager().setEquilibrating(false);
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
 
         if (graphics) {
+            sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
             final String APP_NAME = "SimLJ";
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 3);
             ColorScheme colorScheme = new ColorScheme() {
@@ -176,11 +171,11 @@ public class SimIdealGas extends Simulation {
         DataPumpListener pumpEnergies = new DataPumpListener(dsEnergies, accEnergies, numAtoms);
         sim.integrator.getEventManager().addListener(pumpEnergies);
 
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
-        IData avgEnergies = accEnergies.getData(AccumulatorAverage.AVERAGE);
-        IData errEnergies = accEnergies.getData(AccumulatorAverage.ERROR);
-        IData corEnergies = accEnergies.getData(AccumulatorAverage.BLOCK_CORRELATION);
+        IData avgEnergies = accEnergies.getData(accEnergies.AVERAGE);
+        IData errEnergies = accEnergies.getData(accEnergies.ERROR);
+        IData corEnergies = accEnergies.getData(accEnergies.BLOCK_CORRELATION);
 
         System.out.println("swap acceptance: "+sim.mcMoveSwap.getTracker().acceptanceProbability());
         System.out.println("simple move step size: "+((MCMoveStepTracker)sim.mcMoveAtom.getTracker()).getAdjustStepSize());

@@ -5,6 +5,7 @@
 package etomica.freeenergy.npath;
 
 import etomica.action.BoxInflate;
+import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -14,7 +15,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -24,12 +25,12 @@ import etomica.util.ParseArgs;
  
 public class SimLattice extends Simulation {
 
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
 
     public SimLattice(int numAtoms, double temperature, double density, double w, int offsetDim) {
         super(Space3D.getInstance());
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
         box = this.makeBox();
         box.setNMolecules(species, numAtoms);

@@ -64,7 +64,7 @@ public class Orientation2D implements IOrientation2D, Serializable {
             angle += Constants.TWO_PI;
         }
         direction.setX(0, Math.cos(angle));
-        direction.setX(1, Math.cos(angle));
+        direction.setX(1, Math.sin(angle));
     }
 
     /**

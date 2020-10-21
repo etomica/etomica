@@ -5,6 +5,7 @@
 package etomica.simulation.prototypes;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -26,7 +27,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -40,7 +41,6 @@ import etomica.util.ParseArgs;
 public class LJMC3D extends Simulation {
 
     public final PotentialMasterCell potentialMaster;
-    public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
 
     /**
@@ -56,7 +56,7 @@ public class LJMC3D extends Simulation {
     public LJMC3D(SimParams params) {
         super(Space3D.getInstance());
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         double rc = 3;
@@ -82,8 +82,7 @@ public class LJMC3D extends Simulation {
         MCMoveAtom mcMoveAtom = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         potentialMaster.setCellRange(2);
         potentialMaster.reset();
@@ -113,20 +112,18 @@ public class LJMC3D extends Simulation {
 
         // equilibration
         long t1 = System.currentTimeMillis();
-        sim.activityIntegrate.setMaxSteps(steps / 10);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
         System.out.println("equilibration finished");
 
         // data collection
         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverageFixed acc = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pump = new DataPumpListener(meterPE, acc, interval);
-        sim.getIntegrator().getEventManager().addListener(pump);
+        sim.integrator.getEventManager().addListener(pump);
 
-        sim.activityIntegrate.setMaxSteps(steps);
-        sim.getIntegrator().resetStepCount();
+        sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
         long t2 = System.currentTimeMillis();
 
@@ -157,7 +154,7 @@ public class LJMC3D extends Simulation {
             AccumulatorHistory accPE = new AccumulatorHistory(new HistoryCollapsingAverage());
             accPE.setTimeDataSource(timeSource);
             DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, 10);
-            sim.getIntegrator().getEventManager().addListener(pumpPE);
+            sim.integrator.getEventManager().addListener(pumpPE);
 
             DisplayPlot historyPE = new DisplayPlot();
             accPE.setDataSink(historyPE.getDataSet().makeDataSink());

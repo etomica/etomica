@@ -4,31 +4,53 @@
 
 package etomica.virial;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.data.histogram.HistogramExpanding;
+import etomica.math.DoubleRange;
+import etomica.math.SpecialFunctions;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.IMoleculePositionDefinition;
 import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.util.random.IRandom;
 
 public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalue {
 
-    /**
-     * cluster must have caching disabled
-     */
-    public ClusterCoupledFlippedMultivalue(ClusterAbstractMultivalue cluster, Space space, int nDer) {
-        this(cluster, space, 0,nDer);
-    }
+    protected final ClusterAbstractMultivalue wrappedCluster;
+    protected final ClusterAbstractMultivalue wrappedClusterBD;
+    protected final Space space;
+    protected final boolean[] flippedAtoms;
+    protected final double minFlipDistance;
+    protected final int nDer;
+    protected  final double tol;
+    protected final boolean countflips = true;
+    protected long cPairID = -1, lastCPairID = -1;
+    protected double value[], lastValue[];
+    protected IMoleculePositionDefinition positionDefinition;
+    protected long flipcount = 0;
+    protected long BDcount = 0;
+    protected long totcount = 0;
+    protected boolean pushme=false;
+    private Vector childAtomVector;
+    public HistogramExpanding histe;
+    protected boolean[][] printed = new boolean[100][2];
+    public boolean doPrint = false;
+    public IRandom random;
+    public double BDAccFrac = 1;
+    public double FlipAccFrac;
     
     /**
      * cluster must have caching disabled
      * configurations will be flipped when the minimum distance between any two molecules
      * exceeds minFlipDistance.  set minFlipDistance to 0 to always flip.
      */
-    public ClusterCoupledFlippedMultivalue(ClusterAbstractMultivalue cluster, Space space, double minFlipDistance, int nDer) {
+    public ClusterCoupledFlippedMultivalue(ClusterAbstractMultivalue cluster, ClusterAbstractMultivalue clusterBD,Space space, double minFlipDistance, int nDer, double tol) {
         this.space = space;
         wrappedCluster = cluster;
+        wrappedClusterBD = clusterBD;
         childAtomVector = space.makeVector();
         flippedAtoms = new boolean[cluster.pointCount()];
         positionDefinition = new MoleculePositionGeometricCenter(space);
@@ -36,10 +58,18 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
         value = new double[nDer+1];
         lastValue = new double[nDer+1];
         this.nDer = nDer;
-        }
+        this.tol = tol;
+        histe = new HistogramExpanding(1.0,new DoubleRange(-40,0));
+        FlipAccFrac= 1/Math.sqrt(Math.pow(2, wrappedCluster.pointCount()));
+    }
 
     public ClusterAbstract makeCopy() {
-        return new ClusterCoupledFlippedMultivalue((ClusterAbstractMultivalue)wrappedCluster.makeCopy(), space, minFlipDistance, nDer);
+        if (wrappedClusterBD==null){
+            return new ClusterCoupledFlippedMultivalue((ClusterAbstractMultivalue)wrappedCluster.makeCopy(),null, space, minFlipDistance, nDer, tol);
+        }
+        else {
+            return new ClusterCoupledFlippedMultivalue((ClusterAbstractMultivalue) wrappedCluster.makeCopy(), (ClusterAbstractMultivalue) wrappedClusterBD.makeCopy(), space, minFlipDistance, nDer, tol);
+        }
     }
 
     public int pointCount() {
@@ -49,7 +79,9 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
     public ClusterAbstract getSubCluster() {
         return wrappedCluster;
     }
-    
+
+    public void setBDAccFrac(double p, IRandom rng ){ BDAccFrac = p; random = rng;}
+
     public double value(BoxCluster box) {
         CoordinatePairSet cPairs = box.getCPairSet();
         long thisCPairID = cPairs.getID();
@@ -70,79 +102,201 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
             return value[0];
         }
 
-        // a new cluster    
-        lastCPairID = cPairID;      
+        // a new cluster
+        lastCPairID = cPairID;
         for(int m=0; m<value.length; m++){
             lastValue[m] = value[m];
         }
         cPairID = thisCPairID;
 
         final int pointCount = wrappedCluster.pointCount();
-        
+
         boolean flipit = false;
         totcount++;
         double minR2 = minFlipDistance*minFlipDistance;
         double maxR2 = 0;
         for (int i=0; i<pointCount; i++) {
-            flippedAtoms[i] = false;
             for (int j=i+1; j<pointCount; j++) {
+                if (box.getCPairSet().getr2(i,j)>maxR2) maxR2 = box.getCPairSet().getr2(i,j);
                 if (box.getCPairSet().getr2(i,j) > minR2) {
-                    if (debugme && box.getCPairSet().getr2(i,j)>maxR2) maxR2 = box.getCPairSet().getr2(i,j);
-                    if (false && box.getCPairSet().getr2(i,j) > 2*minR2) debugme=true; 
-                    flipit=true; 
-                    if(countflips)flipcount+=1;
+                    if (false && box.getCPairSet().getr2(i,j) > 2*minR2) debugme=true;
+                    flipit=true;
                 }
             }
         }
 //        if (debugme)System.out.println("FLIPIT " + flipit);
-        double[] v = wrappedCluster.getAllLastValues(box);
-        for(int m=0;m<value.length;m++){
-            value[m] = v[m];
+        if(flipit&&countflips) flipcount++;
+        if(pushme&&maxR2<minR2){
+            value[0] = 1e-20;
+            return value[0];
         }
-        
-        if (!flipit) { 
-//            if (debugme)System.out.println("4 "+"clusterSum "+cPairID+" returning V[0] "+v[0]);
-            return v[0];
-        }
-        if (debugme) System.out.print(String.format("%6.3f %10.4e ", Math.sqrt(maxR2), v[0]));
 
-        IMoleculeList atomList = box.getMoleculeList();
-        // loop through the atoms, toggling each one until we toggle one "on"
-        // this should generate each combination of flipped/unflipped for all
-        // the molecules
-        while (true) {
-            boolean didFlipTrue = false;
-            for (int i=0; !didFlipTrue && i<pointCount; i++) {
-                flippedAtoms[i] = !flippedAtoms[i];
-                didFlipTrue = flippedAtoms[i];
-                flip(atomList.get(i));
+        ClusterAbstractMultivalue currentcluster = wrappedCluster;
+
+        int n = wrappedCluster.pointCount();
+        double bfac = (1.0-n)/ SpecialFunctions.factorial(n);
+        int printIdx = (int)(Math.sqrt(maxR2)/10);
+
+        double[] varr = new double[(1<<n)+1];
+        varr[1] = Double.NaN;
+        boolean doBD = random == null|| random.nextDouble()<BDAccFrac;
+        boolean doFLip = random == null || random.nextDouble()<FlipAccFrac;
+
+        if ( flipit && !doFLip){
+            value[0]=0;
+            return value[0];
+        }
+
+        for (int pass=0; pass<2; pass++){
+            if(pass==1){
+                if (wrappedClusterBD == null) {
+                    value[0] = 0;
+                    return value[0];
+                }
+                currentcluster = wrappedClusterBD;
             }
-            if (!didFlipTrue) {
-                // if we flipped every atom from true to false, we must be done
+
+            double doubleval = value[0];
+            double[] v = currentcluster.getAllLastValues(box);
+            if(pass==0)varr[0] = v[0]/bfac;
+
+            if (doPrint && pass==1 && !printed[printIdx][1] ) {
+                System.out.println("BD "+v[0]/bfac);
+            }
+            for (int m = 0; m < value.length; m++) {
+                value[m] = v[m];
+            }
+
+            if (!flipit) {
+                if (Math.abs(value[0]/bfac)<tol && pass==0 && value[0]!=0){
+                    if(!doBD){
+                        value[0]=0;
+                        return value[0];
+                    }
+                    BDcount++;
+                    if (doPrint && !printed[printIdx][1] ) {
+                        varr[1]=Double.NaN;
+                        printConfig(box,varr);
+                    }
+                    continue;
+                }
+                if( doPrint && !printed[printIdx][pass]){
+                    if(pass==0){
+                        varr[1]=Double.NaN;
+                        printConfig(box,varr);
+                    }
+                    printed[printIdx][pass] = true;
+                }
+                return v[0];
+            }
+            if (debugme) System.out.print(String.format("%6.3f %10.4e ", Math.sqrt(maxR2), v[0]));
+
+            for (int i=0; i<pointCount; i++) {
+                flippedAtoms[i] = false;
+            }
+
+            IMoleculeList atomList = box.getMoleculeList();
+            // loop through the atoms, toggling each one until we toggle one "on"
+            // this should generate each combination of flipped/unflipped for all
+            // the molecules
+
+            int flipn = 1;
+            while (true) {
+                boolean didFlipTrue = false;
+                for (int i = 0; !didFlipTrue && i < pointCount; i++) {
+                    flippedAtoms[i] = !flippedAtoms[i];
+                    didFlipTrue = flippedAtoms[i];
+                    flip(atomList.get(i));
+                }
+                if (!didFlipTrue) {
+                    // if we flipped every atom from true to false, we must be done
+                    break;
+                }
+                v = currentcluster.getAllLastValues(box);
+                if(pass==0){
+                    varr[flipn]=v[0]/bfac;
+                    flipn++;
+                }
+                if (doPrint && pass==1 && !printed[printIdx][1]) {
+                    System.out.println("BD "+ v[0]/bfac);
+                }
+                if (debugme) System.out.print(String.format("%10.4e ", v[0]));
+                for (int m = 0; m < value.length; m++) {
+                    value[m] += v[m];
+                }
+                if (Double.isNaN(value[0])) {
+                    throw new RuntimeException("oops");
+                }
+            }
+            for (int m = 0; m < value.length; m++) {
+                value[m] /= (1<<pointCount);
+            }
+            if(pass==0)varr[varr.length-1] = value[0]/bfac;
+
+            if (doPrint && pass==1 && !printed[printIdx][1]) {
+                System.out.println("avg "+value[0]/bfac + "\n");
+                printed[printIdx][1] = true;
+            }
+            if(pass==0&&value[0]!=0)histe.addValue(Math.log(Math.abs(value[0]/bfac)));
+            if (debugme) System.out.print(String.format("%10.4e\n", value[0]));
+
+            if(false&&pushme&&pass==1)System.out.println(Math.sqrt(maxR2)+" "+ doubleval+" "+value[0]);
+
+            if ( Math.abs(value[0]/bfac)>tol || value[0]==0) {
+                if(doPrint && pass==0 && !printed[printIdx][0]){
+                    printConfig(box,varr);
+                    printed[printIdx][0]=true;
+                }
                 break;
             }
-            v = wrappedCluster.getAllLastValues(box);
-            if (debugme) System.out.print(String.format("%10.4e ", v[0]));
-            for(int m=0;m<value.length;m++){
-                value[m] += v[m];
+            if(pass==0 ){
+                if(!doBD){
+                    value[0]=0;
+                    return value[0];
+                }
+                BDcount+=1<<pointCount;
+                if(doPrint && !printed[printIdx][1]) {
+                    printConfig(box, varr);
+                }
             }
-            if (Double.isNaN(value[0])) {throw new RuntimeException("oops");}
         }
-        for(int m=0;m<value.length;m++){
-            value[m] /=  Math.pow(2, pointCount);
+        double a = (flipit ? FlipAccFrac : 1) * (currentcluster==wrappedClusterBD ? BDAccFrac : 1);
+
+        for (int m = 0; m < value.length; m++) {
+            value[m] /= a;
         }
-        if (debugme) System.out.print(String.format("%10.4e\n", value[0]));
-        
-        
-//        if (debugme) System.out.println("5 "+"clusterSum "+cPairID+" returning NEW "+value[0]);
         return value[0];
     }
-    
+
+    private void printConfig(BoxCluster box, double[] varr) {
+        System.out.println();
+        int nmols = box.getMoleculeList().size();
+        for(int i=0; i<nmols;i++){
+            IMolecule mol = box.getMoleculeList().get(i);
+            int natoms = mol.getChildList().size();
+            for(int j=0; j<natoms;j++){
+                IAtom atom = mol.getChildList().get(j);
+                Vector p = atom.getPosition();
+                System.out.println(atom.getType().getElement().getSymbol() + " " + p.getX(0) + " " + p.getX(1) +" "+ p.getX(2));
+            }
+
+        }
+        for(int i =0; i<varr.length; i++) {
+            if(Double.isNaN(varr[i])) break;
+            if(i==varr.length-1)System.out.print("avg ");
+            System.out.println(varr[i]);
+        }
+    }
+
+    public int getNumValues() {
+        return value.length;
+    }
+
     public double[] getAllLastValues(BoxCluster box) {
         value(box);
         return value;
     }
-    
+
     protected void flip(IMolecule flippedMolecule) {
         Vector COM = positionDefinition.position(flippedMolecule);
 		IAtomList childAtoms = flippedMolecule.getChildList();
@@ -155,30 +309,25 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
 
     public void setTemperature(double temperature) {
         wrappedCluster.setTemperature(temperature);
+        if(wrappedClusterBD!=null)wrappedClusterBD.setTemperature(temperature);
     }
-    
+
     public long getflipcount(){
         return flipcount;
     }
-    
+
     public long gettotcount(){
         return totcount;
     }
-    
+
     public double getflipfrac(){
         return ((double)flipcount)/totcount;
     }
-    
-    protected final ClusterAbstractMultivalue wrappedCluster;
-    protected final Space space;
-    protected long cPairID = -1, lastCPairID = -1;
-    protected double value[], lastValue[];
-    protected final boolean[] flippedAtoms;
-    private Vector childAtomVector;
-    protected IMoleculePositionDefinition positionDefinition;
-    protected final double minFlipDistance;
-    protected final int nDer;
-    protected final boolean countflips = true;
-    protected long flipcount = 0;
-    protected long totcount = 0;
+
+    public long getBDcount() {return BDcount;}
+
+    public long getBDtotcount(){return (totcount-flipcount)+(flipcount*(1<<pointCount()));}
+
+    public double getBDfrac() {return ((double)BDcount)/getBDtotcount();}
+
 }

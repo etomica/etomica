@@ -7,15 +7,14 @@ package etomica.normalmode;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IDataSource;
 import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.IteratorDirective;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
 /**
@@ -134,11 +133,10 @@ public class MeterSolidDACut implements IDataSource {
     	pc.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, pc);
         double[] p1 = pc.getPressure1();
-        Vector[] p1XYZ = pc.getPressure1XYZ();
         double[] virial = pc.getVirialSum();
         double[] energy = pc.getEnergySum();
         double[] dadb = pc.getDADBSum();
-        Vector[] dadbXYZ = pc.getDADBXYZ();
+        double[] pzxy = pc.getPzxy();
 
         double[] p1DADv2 = p1;
         double[] energyDADv2 = energy;
@@ -159,7 +157,7 @@ public class MeterSolidDACut implements IDataSource {
             double buc = (0.5*dadb[i] + (energy[i] - latticeEnergy[i]))/temperature/N;
             double fac2 = (-1/V + bpRes[i])/(dim*N-dim);
             double Zc = (p1[i] + fac2*dadb[i] - latticePressure[i])/(rho*temperature);
-            double PcZaniso = 3*((p1XYZ[i].getX(2) - 0.5*(p1XYZ[i].getX(0)+p1XYZ[i].getX(1))) + fac2*(dadbXYZ[i].getX(2) - 0.5*(dadbXYZ[i].getX(0)+dadbXYZ[i].getX(1))));
+            double PZaniso = pzxy[i] / V;
             x[j+0] = energy[i]/N;
             x[j+1] = measuredP;
             x[j+2] = buc;
@@ -176,8 +174,8 @@ public class MeterSolidDACut implements IDataSource {
             }
 
             x[j+4] = (4*buc-Zc)*rho*rho/2;
-            
-            x[j+5] = PcZaniso;
+
+            x[j + 5] = PZaniso;
             j+=6;
         }
 

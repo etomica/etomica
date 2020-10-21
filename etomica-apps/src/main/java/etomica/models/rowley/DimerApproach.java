@@ -5,6 +5,7 @@
 package etomica.models.rowley;
 
 import etomica.action.IntegratorDimerApproach;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -23,6 +24,7 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 
 import java.awt.*;
@@ -47,8 +49,6 @@ public class DimerApproach extends Simulation {
     // True to use model with point charges, false to use model without point charges
     public final static boolean pointCharges = true;
 	public final static long serialVersionUID = 1L;
-	public static SpeciesEthanol speciesEthanol;
-	public static SpeciesMethanol speciesMethanol;
 	public static MeterPotentialEnergy meterPE;
     // True to consider ethanol, false to consider methanol
     static boolean ethanol = false;
@@ -61,7 +61,7 @@ public class DimerApproach extends Simulation {
     static IAtom atom_O_B;
     static IAtom atom_aC_B;
     static IAtom atom_aH_B;
-    public ISpecies species;
+    public SpeciesGeneral species;
     public Box box;
     public PotentialMaster potentialMaster;
     public IntegratorDimerApproach dimerApproach;
@@ -77,12 +77,10 @@ public class DimerApproach extends Simulation {
         // The Species
         // *************
         if (ethanol) {
-            species = new SpeciesEthanol(space, pointCharges);
-            speciesEthanol = (SpeciesEthanol) species;
+            species = SpeciesEthanol.create(pointCharges);
 
         } else {
-            species = new SpeciesMethanol(space, pointCharges);
-            speciesMethanol = (SpeciesMethanol) species;
+            species = SpeciesMethanol.create(pointCharges);
         }
         addSpecies(species);
 
@@ -94,12 +92,12 @@ public class DimerApproach extends Simulation {
 
         PotentialGroup U_a_b = new PotentialGroup(2);
         if (ethanol) {
-            EthanolPotentialHelper.initPotential(space, speciesEthanol, U_a_b, pointCharges);
+            EthanolPotentialHelper.initPotential(space, species, U_a_b, pointCharges);
 
         } else {
             double sigmaOC = 0.00001;
             double sigmaOH = 0.05;
-            MethanolPotentialHelper.initPotential(space, speciesMethanol, U_a_b, pointCharges, sigmaOC, sigmaOH);
+            MethanolPotentialHelper.initPotential(space, species, U_a_b, pointCharges, sigmaOC, sigmaOH);
         }
         box.setNMolecules(species, 2); // 2 molecules in box...
         U_a_b.setBox(box);
@@ -141,11 +139,6 @@ public class DimerApproach extends Simulation {
         // Must be called after above set methods
         dimerApproach.initializeCoordinates();
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(dimerApproach);
-        activityIntegrate.setMaxSteps(75);
-        activityIntegrate.setSleepPeriod(100);
-
-        getController().addAction(activityIntegrate);
 
     }
 
@@ -234,8 +227,9 @@ public class DimerApproach extends Simulation {
 	     ****************************************************************************
 	     */
 
-        if (true) { 
-            
+        if (true) {
+
+            sim.getController().addActivity(new ActivityIntegrate(sim.dimerApproach), 75, 100);
             sim.box.getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             
             // *********************
@@ -278,13 +272,13 @@ public class DimerApproach extends Simulation {
             	
             	// Create instances of the types of molecular sites
 
-                AtomType type_O = speciesEthanol.getOxygenType();
-                AtomType type_aC = speciesEthanol.getAlphaCarbonType();
-                AtomType type_C = speciesEthanol.getCarbonType();
-                AtomType type_aH = speciesEthanol.getAlphaHydrogenType();
-                AtomType type_H = speciesEthanol.getHydrogenType();
-                AtomType type_X = speciesEthanol.getXType();
-                
+                AtomType type_O = sim.species.getTypeByName("O");
+                AtomType type_aC = sim.species.getTypeByName("AC");
+                AtomType type_C = sim.species.getTypeByName("C");
+                AtomType type_aH = sim.species.getTypeByName("AH");
+                AtomType type_H = sim.species.getTypeByName("H");
+                AtomType type_X = sim.species.getTypeByName("X");
+
                 // Set color of each site type for each simulation
                 
                 colorScheme.setColor(type_O, Color.RED);
@@ -298,12 +292,12 @@ public class DimerApproach extends Simulation {
             	
             	// Create instances of the types of molecular sites
 
-                AtomType type_O = speciesMethanol.getOxygenType();
-                AtomType type_aC = speciesMethanol.getAlphaCarbonType();
-                AtomType type_aH = speciesMethanol.getAlphaHydrogenType();
-                AtomType type_H = speciesMethanol.getHydrogenType();
-                AtomType type_X = speciesMethanol.getXType();
-                
+                AtomType type_O = sim.species.getTypeByName("O");
+                AtomType type_aC = sim.species.getTypeByName("AC");
+                AtomType type_aH = sim.species.getTypeByName("AH");
+                AtomType type_H = sim.species.getTypeByName("H");
+                AtomType type_X = sim.species.getTypeByName("X");
+
                 // Set color of each site type for each simulation
                 
                 colorScheme.setColor(type_O, Color.RED);
@@ -395,10 +389,6 @@ public class DimerApproach extends Simulation {
             
             return;
             
-        } else {
-        	// this method is called when graphics are used and the start button is pressed 
-        	// must be included here:
-    		sim.getController().actionPerformed();
         }
 	}
 	

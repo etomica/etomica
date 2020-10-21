@@ -6,6 +6,7 @@ package etomica.rotation;
 
 import etomica.action.PDBWriter;
 import etomica.action.WriteConfiguration;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.data.AccumulatorHistory;
@@ -22,13 +23,14 @@ import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorRigidIterative;
 import etomica.models.water.OrientationCalcWater3P;
 import etomica.models.water.P2WaterSPCSoft;
-import etomica.models.water.SpeciesWater3POriented;
+import etomica.models.water.SpeciesWater3P;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 
@@ -39,7 +41,7 @@ public class WaterDroplet {
     public static SimulationGraphic makeWaterDroplet() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
+        SpeciesGeneral species = SpeciesWater3P.create(true, true);
         sim.addSpecies(species);
         Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
         sim.addBox(box);
@@ -58,8 +60,6 @@ public class WaterDroplet {
         integrator.setOrientationCalc(species, calcer);
         integrator.setTemperature(Kelvin.UNIT.toSim(220));
         integrator.setThermostatInterval(1000);
-        ActivityIntegrate ai = new ActivityIntegrate(integrator);
-        sim.getController().addAction(ai);
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
 
@@ -67,10 +67,11 @@ public class WaterDroplet {
 
         potentialMaster.addPotential(p2Water, new ISpecies[]{species, species});
         if (false) {
-            ai.setSleepPeriod(2);
+            sim.getController().setSleepPeriod(2);
+            sim.getController().addActivity(new ActivityIntegrate(integrator));
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rigid", 1);
-            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
-            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("H"), Color.WHITE);
+            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("O"), Color.RED);
 
             MeterEnergy meterE = new MeterEnergy(potentialMaster, box);
             meterE.setKinetic(new MeterKineticEnergyFromIntegrator(integrator));
@@ -100,7 +101,7 @@ public class WaterDroplet {
         IntegratorListenerAction writePDBListener = new IntegratorListenerAction(writePDB);
         writePDBListener.setInterval(10000);
         integrator.getEventManager().addListener(writePDBListener);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, Long.MAX_VALUE));
         return null;
     }
 

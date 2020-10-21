@@ -8,7 +8,6 @@ import etomica.atom.*;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxCellManager;
-import etomica.lattice.CellLattice;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.nbr.*;
@@ -189,6 +188,9 @@ public class PotentialMasterCell extends PotentialMasterNbr {
                 }
                 calculate(targetAtom, neighborIterators.getAgent(box), pc, id.direction());
             } else {
+                setBoxForCriteria(box);
+                setBoxForPotentials(box);
+
                 for (int i = 0; i < targetMolecule.getChildList().size(); i++) {
                     calculate(targetMolecule.getChildList().get(i), neighborIterators.getAgent(box), pc, id.direction());
                 }
@@ -206,7 +208,7 @@ public class PotentialMasterCell extends PotentialMasterNbr {
         }
     }
 
-    private void calculate(IAtom atom, NeighborIterator neighborIterator, PotentialCalculation pc, IteratorDirective.Direction direction) {
+    protected void calculate(IAtom atom, NeighborIterator neighborIterator, PotentialCalculation pc, IteratorDirective.Direction direction) {
         calculate1Body(atom, pc);
         NeighborCriterion[] myCriteria = criteria[atom.getType().getIndex()];
         IPotentialAtomic[] potentials = rangedPotentials[atom.getType().getIndex()];

@@ -4,6 +4,8 @@
 
 package etomica.virial.simulations;
 
+import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageCovariance;
@@ -14,7 +16,7 @@ import etomica.molecule.IMoleculeList;
 import etomica.potential.IPotential;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
@@ -159,7 +161,7 @@ public class VirialSWWE {
         
         ClusterAbstract[] targetDiagrams = new ClusterAbstract[]{targetCluster};
         
-        final SimulationVirial sim = new SimulationVirial(space,new SpeciesSpheresMono(space, new ElementSimple("A")), 1.0,ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, targetDiagrams);
+        final SimulationVirial sim = new SimulationVirial(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), 1.0,ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, targetDiagrams);
         MeterVirialSWWE meter = new MeterVirialSWWE(targetCluster);
         meter.setBox(sim.box);
         sim.setMeter(meter);
@@ -182,22 +184,20 @@ public class VirialSWWE {
             
 //            System.out.println("Inside if2---> chainFrac = " + chainFrac + ", treeFrac = " + treeFrac + ", ringFrac = " + ringFrac);
         }
-        sim.ai.setMaxSteps(steps);
-        
         System.out.println("\n**********Calculate B" + nPoints +" of square well potential************\n");
         System.out.println("	Display input arguments:");
-        System.out.println("	# of total steps = " + sim.ai.getMaxSteps());
+        System.out.println("	# of total steps = " + steps);
         System.out.println("	sigmaHSRef = " + sigmaHS );
         System.out.println("	sigmaSW = " + 1);
         System.out.println("	lamda = " + lambda);
         System.out.println("	Y_Value = " + 1);
         System.out.println("	chainFrac = " + chainFrac + ", treeFrac = " + treeFrac + ", ringFrac = " + ringFrac);
-        
-        System.out.println("\n	*****" + sim.ai.getMaxSteps() + " steps for chain, tree and ring generation ");
-        
-        
+
+        System.out.println("\n	*****" + steps + " steps for chain, tree and ring generation ");
+
+
         long t1 = System.currentTimeMillis();
-        sim.getController().actionPerformed();//The core part: Running the simulation!
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.currentTimeMillis();
         
         
@@ -252,16 +252,16 @@ public class VirialSWWE {
 			}
 		}
         
-        System.out.print("\n	Time for " + sim.ai.getMaxSteps() + " steps = ");
+        System.out.print("\n	Time for " + steps + " steps = ");
         System.out.print(String.format(		"%.5f seconds = ", (t2-t1)/1000.0));
         System.out.print(String.format(		"%.5f minutes = ", (t2-t1)/1000.0/60.0));
         System.out.print(String.format(		"%.5f hours = ", (t2-t1)/1000.0/3600.0));
         System.out.println(String.format(	"%.5f days", (t2-t1)/1000.0/3600.0/24));
         
         System.out.print("\n	Speed = ");
-        System.out.print(String.format(		"%.6f step/seconds = ", (double)sim.ai.getMaxSteps()/((t2-t1)/1000.0)));
-        System.out.print(String.format(		"%.6f thousand_step/second = ", ((double)sim.ai.getMaxSteps()/((t2-t1)/1000.0))/1000.0));
-        System.out.println(String.format(		"%.6f million_step/second", ((double)sim.ai.getMaxSteps()/((t2-t1)/1000.0))/1000000.0));
+        System.out.print(String.format(		"%.6f step/seconds = ", (double)steps/((t2-t1)/1000.0)));
+        System.out.print(String.format(		"%.6f thousand_step/second = ", ((double)steps/((t2-t1)/1000.0))/1000.0));
+        System.out.println(String.format(		"%.6f million_step/second", ((double)steps/((t2-t1)/1000.0))/1000000.0));
         System.out.println("\n**********End***********\n");
 	}
 	

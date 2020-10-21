@@ -3,24 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.TextField;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.util.Iterator;
 
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
+import etomica.atom.AtomTest;
+import etomica.atom.AtomTestCollective;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.space.Boundary;
-import etomica.space.Vector;
-import etomica.atom.AtomFilter;
-import etomica.atom.AtomFilterCollective;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.Pixel;
+
+import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.util.Iterator;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
@@ -169,9 +166,9 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         }
         IAtomList leafList = displayBox.getBox().getLeafList();
         int nLeaf = leafList.size();
-        AtomFilter atomFilter = displayBox.getAtomFilter();
-        if (atomFilter instanceof AtomFilterCollective) {
-            ((AtomFilterCollective)atomFilter).resetFilter();
+        AtomTest atomFilter = displayBox.getAtomTestDoDisplay();
+        if (atomFilter instanceof AtomTestCollective) {
+            ((AtomTestCollective) atomFilter).resetTest();
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom a = leafList.get(iLeaf);

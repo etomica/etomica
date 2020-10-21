@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -21,7 +22,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Pixel;
 
 /**
@@ -34,7 +35,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public Primitive primitive, primitiveUnitCell;
@@ -47,7 +48,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
     public SimCalcSSoftSphereFCC(Space _space, int numAtoms, double density, double temperature, int exponent) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMasterList(this, space);
@@ -111,12 +112,6 @@ public class SimCalcSSoftSphereFCC extends Simulation {
         integrator.getMoveManager().addMCMove(move);
         ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        /*
-         * 1-body Potential to Constraint the atom from moving too far away from
-         * its lattice-site
-         */
         p1Constraint = new P1Constraint(space, primitiveUnitCell.getSize()[0], box, coordinateDefinition);
         potentialMaster.addPotential(p1Constraint, new AtomType[]{sphereType});
 
@@ -136,7 +131,12 @@ public class SimCalcSSoftSphereFCC extends Simulation {
             }
             ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
         }
-        getController().addAction(activityIntegrate);
+this.getController().addActivity(new ActivityIntegrate(integrator));
+
+        /*
+         * 1-body Potential to Constraint the atom from moving too far away from
+         * its lattice-site
+         */
     }
 
 	/**
@@ -212,8 +212,7 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 			meterDisplacementListener.setInterval(100);
 			sim.integrator.getEventManager().addListener(meterDisplacementListener);
 
-            sim.activityIntegrate.setMaxSteps(simSteps);
-			sim.activityIntegrate.actionPerformed();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
 
             DataLogger dataLogger = new DataLogger();
 	        dataLogger.setFileName(filename+"hist_dist");
@@ -258,14 +257,13 @@ public class SimCalcSSoftSphereFCC extends Simulation {
 		energyPumpListener.setInterval(100);
 		sim.integrator.getEventManager().addListener(energyPumpListener);
 
-		sim.activityIntegrate.setMaxSteps(simSteps / 10); // simSteps/10
-		sim.getController().actionPerformed();
-		System.out.println("equilibrated");
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps / 10)); // simSteps/10
+System.out.println("equilibrated");
 
 		long startTime = System.currentTimeMillis();
 		System.out.println("\nStart Time: " + startTime);
 		sim.integrator.getMoveManager().setEquilibrating(false);
-		sim.getController().reset();
+
 
         meterNormalMode.reset();
 
@@ -279,14 +277,12 @@ public class SimCalcSSoftSphereFCC extends Simulation {
         IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
 		sWriterListener.setInterval((int)simSteps/10);
 		sim.integrator.getEventManager().addListener(sWriterListener);
-
-        sim.activityIntegrate.setMaxSteps(simSteps);
-		sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
 
         double A = sWriter.getLastA();
 		System.out.println("A/N: " + A/nA);
-        System.out.println("Average Energy: " + energyAverage.getData().getValue(AccumulatorAverage.AVERAGE.index)
-                + " ,Error: " + energyAverage.getData().getValue(AccumulatorAverage.ERROR.index));
+        System.out.println("Average Energy: " + energyAverage.getData().getValue(energyAverage.AVERAGE.index)
+                + " ,Error: " + energyAverage.getData().getValue(energyAverage.ERROR.index));
         System.out.println(" ");
 
         long endTime = System.currentTimeMillis();

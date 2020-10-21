@@ -5,11 +5,11 @@
 package etomica.liquidLJ;
 
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.Potential2Soft;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Methods for a soft (non-impulsive), spherically-symmetric pair potential.
@@ -48,9 +48,7 @@ public class Potential2SoftSphericalLSMultiLatSlanty extends Potential2SoftSpher
         drA.ME(drTmp);
         
         for (int i=0; i<rCut2.length; i++) {
-            rv.dadbSum[i] = rv.energySum[i] = rv.sum1[i] = rv.virialSum[i] = 0;
-            rv.pSumXYZ1[i].E(0);
-            rv.pSumXYZ2[i].E(0);
+            rv.dadbSum[i] = rv.energySum[i] = rv.sum1[i] = rv.virialSum[i] = rv.pzxySum[i] = 0;
         }
         for(int nx = -nShells[0]; nx <= nShells[0]; nx++) {
         	xLxyz.Ea1Tv1(nx, xLat);
@@ -73,15 +71,14 @@ public class Potential2SoftSphericalLSMultiLatSlanty extends Potential2SoftSpher
                     pTmp1.Ea1Tv1(-dpu/dr2, drTmp);
                     pTmp1.TE(drLatTmp);
                     double dadb = -dpu/dr2*drTmp.dot(drA);
-                    pTmp2.Ea1Tv1(-dpu/dr2, drTmp);
-                    pTmp2.TE(drA);
+                    pTmp1.Ea1Tv1(-dpu / dr2, drTmp);
+                    double pzxy = pTmp1.getX(2) * dr.getX(2) - (pTmp1.getX(0) * dr.getX(0) + pTmp1.getX(1) * dr.getX(1)) / 2;
                 	if (isSelf) {
                 	    pu *= 0.5;
                 	    dpu *= 0.5;
                 	    p1 *= 0.5;
                 	    dadb *= 0.5;
-                	    pTmp1.TE(0.5);
-                        pTmp2.TE(0.5);
+                        pzxy *= 0.5;
                 	}
                     for (int i=rCut2.length-1; i>=0; i--) {
                         if (dr2Lat > rCut2[i]) break;
@@ -89,8 +86,7 @@ public class Potential2SoftSphericalLSMultiLatSlanty extends Potential2SoftSpher
                         rv.virialSum[i] += dpu;
                         rv.sum1[i] += p1;
                         rv.dadbSum[i] += dadb;
-                        rv.pSumXYZ1[i].PE(pTmp1);
-                        rv.pSumXYZ2[i].PE(pTmp2);
+                        rv.pzxySum[i] += pzxy;
                     }
                 }
             }

@@ -55,6 +55,6 @@ public class MCMoveTracker {
         chiSum = 0;
     }
     
-    protected long nTrials, nAccept;
+    public long nTrials, nAccept;
     protected double chiSum;
 }

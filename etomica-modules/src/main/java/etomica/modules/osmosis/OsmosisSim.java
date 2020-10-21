@@ -5,6 +5,7 @@
 package etomica.modules.osmosis;
 
 import etomica.action.IAction;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -26,7 +27,7 @@ import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 import java.awt.*;
 
@@ -42,13 +43,13 @@ public class OsmosisSim extends Simulation {
     protected final static int initialSolvent = 50;
     private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
-    public SpeciesSpheresMono speciesSolvent,speciesSolute;
+    public SpeciesGeneral speciesSolvent,speciesSolute;
     public Box box;
     public P2HardSphere potentialAA,potentialBB,potentialAB;
     public P1HardBoundary boundaryHardA;
     public P1HardBoundary boundaryHardB;
     public P1HardWall boundarySemiB;
-    public ActivityIntegrate activityIntegrate;
+
 
     public OsmosisSim(Space _space) {
 
@@ -56,11 +57,9 @@ public class OsmosisSim extends Simulation {
 
         final double sigma = 1.0;
 
-        speciesSolvent = new SpeciesSpheresMono(this, space);
-        speciesSolvent.setIsDynamic(true);
+        speciesSolvent = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesSolvent);
-        speciesSolute = new SpeciesSpheresMono(this, space);
-        speciesSolute.setIsDynamic(true);
+        speciesSolute = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesSolute);
 
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
@@ -100,28 +99,25 @@ public class OsmosisSim extends Simulation {
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(space, 1.0), space);
         config.initializeCoordinates(box);
     }
 
     public static void main(String[] args) {
-    	Space sp = Space3D.getInstance();
+        Space sp = Space3D.getInstance();
         final OsmosisSim sim = new OsmosisSim(sp);
         final ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(sp, 1.0), sp);
         config.initializeCoordinates(sim.box);
-    	Plane plane = new Plane(sim.getSpace());
+        Plane plane = new Plane(sim.getSpace());
 
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, "Osmosis Sim");
-    	((etomica.graphics.DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas).addPlane(plane);
-    	simGraphic.getController().getReinitButton().setPostAction(new IAction () {
-    		public void actionPerformed() {
-    	        config.initializeCoordinates(sim.box);
-    			simGraphic.getDisplayBox(sim.box).repaint();
-    		}
-    	});
+        ((etomica.graphics.DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box).canvas).addPlane(plane);
+        simGraphic.getController().getReinitButton().setPostAction(new IAction() {
+            public void actionPerformed() {
+                config.initializeCoordinates(sim.box);
+                simGraphic.getDisplayBox(sim.box).repaint();
+            }
+        });
         simGraphic.makeAndDisplayFrame("Osmosis Sim");
         ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.speciesSolvent.getLeafType(), Color.blue);
@@ -130,7 +126,8 @@ public class OsmosisSim extends Simulation {
         config.initializeCoordinates(sim.box);
         simGraphic.getDisplayBox(sim.box).repaint();
         sim.integrator.setTimeStep(0.05);
-        sim.activityIntegrate.setSleepPeriod(1);
+        sim.getController().setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
     }
 
 } 

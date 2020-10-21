@@ -25,7 +25,11 @@ public class ClusterWeightUmbrella implements ClusterWeight, java.io.Serializabl
 	}
     
     public ClusterAbstract makeCopy() {
-        ClusterWeightUmbrella newCluster = new ClusterWeightUmbrella(clusterArray);
+        ClusterAbstract[] copies = new ClusterAbstract[clusterArray.length];
+        for (int i = 0; i < copies.length; i++) {
+            copies[i] = clusterArray[i].makeCopy();
+        }
+        ClusterWeightUmbrella newCluster = new ClusterWeightUmbrella(copies);
         newCluster.setWeightCoefficients(weightCoefficients);
         return newCluster;
     }

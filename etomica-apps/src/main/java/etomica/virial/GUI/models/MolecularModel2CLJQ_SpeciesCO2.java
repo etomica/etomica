@@ -5,17 +5,15 @@
 package etomica.virial.GUI.models;
 
 
+import etomica.atom.AtomType;
 import etomica.config.ConformationLinear;
 import etomica.potential.P22CLJQ;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.Species;
-import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesBuilder;
 import etomica.units.Kelvin;
 import etomica.virial.GUI.components.SimpleElementForSimilarSpecies;
-import etomica.virial.SpeciesFactory;
-import etomica.virial.SpeciesFactoryTangentSpheres;
 
 public class MolecularModel2CLJQ_SpeciesCO2 implements IMolecularModel_SpeciesFactory,Cloneable{
 	private static String MoleculeDisplayName = "CO2 - 2CCLJQ";
@@ -29,10 +27,8 @@ public class MolecularModel2CLJQ_SpeciesCO2 implements IMolecularModel_SpeciesFa
 	
 	
 	private double bondLength;
-	
-	
-	private ConformationLinear conformation;
-	
+
+
 	private int SpeciesID;
 	
 	private String[] PotentialSites = {"CO2"};
@@ -158,33 +154,18 @@ public class MolecularModel2CLJQ_SpeciesCO2 implements IMolecularModel_SpeciesFa
 	public void setSpeciesID(int speciesID) {
 		SpeciesID = speciesID;
 	}
-	//Getter for ConformationLinear class
-	public ConformationLinear getConformation() {
-		return this.conformation;
-	}
 
-	public void setConformation() {
-		this.conformation = new ConformationLinear(this.space, this.bondLength);
-	}
-	
 	//Creates the LJ Molecule Species
 	public ISpecies createSpecies(){
-		
-		setConformation();
+
 		simpleElement = SimpleElementForSimilarSpecies.getInstance();
-		Species co2Species = new SpeciesSpheres(2, simpleElement.getTSelement(), conformation, space);
-		return co2Species;
+		return new SpeciesBuilder(space)
+                .withConformation(new ConformationLinear(this.space, this.bondLength))
+				.addCount(AtomType.element(simpleElement.getTSelement()), 2)
+				.build();
 
 	}
-	
-	//Creates the LJ Molecule Species
-	public SpeciesFactory createSpeciesFactory(){
-		
-		setConformation();
-		SpeciesFactory speciesFactory = new SpeciesFactoryTangentSpheres(2,this.getConformation());
-		return speciesFactory;
-	}
-	
+
 	public double getSigma(int index) {
 		return sigma[index];
 	}

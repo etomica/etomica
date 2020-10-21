@@ -17,7 +17,7 @@ import etomica.space.Space;
 import etomica.util.random.IRandom;
 
 /**
- * Elementary Monte Carlo trial that exchanges volume between two boxs.  Trial
+ * Elementary Monte Carlo trial that exchanges volume between two boxes.  Trial
  * consists of a volume increase in one box (selected at random) and an equal
  * volume decrease in the other.  Used in Gibbs ensemble simulations.
  *
@@ -44,21 +44,21 @@ public class MCMoveVolumeExchange extends MCMoveStep {
     private transient double hOld, v1Scale, v2Scale;
 
     public MCMoveVolumeExchange(PotentialMaster potentialMaster, IRandom random,
-                                Space _space,
+                                Space space,
                                 IntegratorBox integrator1,
                                 IntegratorBox integrator2) {
         super(potentialMaster, new MCMoveStepTracker());
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        ROOT = 1.0/_space.D();
+        ROOT = 1.0/space.D();
         setStepSizeMax(Double.MAX_VALUE);
         setStepSizeMin(Double.MIN_VALUE);
         setStepSize(0.1);
         box1AtomIterator = new AtomIteratorLeafAtoms();
         box2AtomIterator = new AtomIteratorLeafAtoms();
         energyMeter.setIncludeLrc(true);
-        inflate1 = new BoxInflate(_space);
-        inflate2 = new BoxInflate(_space);
+        inflate1 = new BoxInflate(space);
+        inflate2 = new BoxInflate(space);
         this.integrator1 = integrator1;
         this.integrator2 = integrator2;
         firstBox = integrator1.getBox();

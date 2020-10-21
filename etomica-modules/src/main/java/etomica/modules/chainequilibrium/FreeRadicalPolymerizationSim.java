@@ -4,8 +4,8 @@
 
 package etomica.modules.chainequilibrium;
 
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomType;
@@ -22,22 +22,21 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 
 public class FreeRadicalPolymerizationSim extends Simulation implements AgentSource<IAtom[]> {
 
     public final PotentialMaster potentialMaster;
     public final ConfigurationLatticeFreeRadical config;
-    public Controller controller1;
 	public IntegratorHard integratorHard;
 	public java.awt.Component display;
 	public Box box;
-	public SpeciesSpheresMono speciesA; // initiator
-	public SpeciesSpheresMono speciesB; // monomer
+	public SpeciesGeneral speciesA; // initiator
+	public SpeciesGeneral speciesB; // monomer
 	public P2SquareWellBonded p2AA;
 	public P2SquareWellRadical p2AB, p2BB;
-    public ActivityIntegrate activityIntegrate;
+
     public AtomLeafAgentManager<IAtom[]> agentManager = null;
 
     public FreeRadicalPolymerizationSim() {
@@ -47,17 +46,13 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
     public FreeRadicalPolymerizationSim(Space space) {
         super(space);
 
-        speciesA = new SpeciesSpheresMono(this, space);
-        speciesA.setIsDynamic(true);
-        speciesB = new SpeciesSpheresMono(this, space);
-        speciesB.setIsDynamic(true);
+        speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesA);
         addSpecies(speciesB);
 
         potentialMaster = new PotentialMasterList(this, 3, space);
         ((PotentialMasterList) potentialMaster).setCellRange(1);
-
-        controller1 = getController();
 
         double diameter = 1.0;
         double lambda = 2.0;
@@ -95,8 +90,7 @@ public class FreeRadicalPolymerizationSim extends Simulation implements AgentSou
 
         // **** Setting Up the thermometer Meter *****
 
-        activityIntegrate = new ActivityIntegrate(integratorHard, 1, true);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integratorHard, true));
     }
     
     public void resetBonds() {

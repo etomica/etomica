@@ -7,6 +7,7 @@ package etomica.virial;
 import etomica.models.water.ConformationWaterGCPM;
 import etomica.models.water.SpeciesWater4P;
 import etomica.space.Space;
+import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 
 
@@ -15,8 +16,6 @@ import etomica.species.ISpecies;
  */
 public class SpeciesFactoryWaterGCPM implements SpeciesFactory, java.io.Serializable {
     public ISpecies makeSpecies(Space _space) {
-        SpeciesWater4P species = new SpeciesWater4P(_space);
-        species.setConformation(new ConformationWaterGCPM(_space));
-        return species;
+        return SpeciesWater4P.create(new ConformationWaterGCPM(Space3D.getInstance()));
     }
 }

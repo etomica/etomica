@@ -5,16 +5,14 @@
 package etomica.rotation;
 
 import etomica.action.BoxImposePbc;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorRigidIterative;
-import etomica.models.water.DipoleSourceWater;
-import etomica.models.water.OrientationCalcWater3P;
-import etomica.models.water.P2WaterSPCSoft;
-import etomica.models.water.SpeciesWater3POriented;
+import etomica.models.water.*;
 import etomica.molecule.MoleculePositionCOM;
 import etomica.potential.P2MoleculeSoftTruncatedSwitched;
 import etomica.potential.P2ReactionFieldDipole;
@@ -24,6 +22,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -35,7 +34,7 @@ public class WaterBox {
     public static SimulationGraphic makeWaterBox() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(Space3D.getInstance());
-        SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
+        SpeciesGeneral species = SpeciesWater3P.create(true, true);
         sim.addSpecies(species);
         Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), 10), space);
         sim.addBox(box);
@@ -58,9 +57,7 @@ public class WaterBox {
 //        integrator.setIsothermal(true);
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
         integrator.setThermostatInterval(100);
-        ActivityIntegrate ai = new ActivityIntegrate(integrator);
 //        System.out.println("using rigid with dt="+dt);
-        sim.getController().addAction(ai);
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
 
@@ -89,10 +86,11 @@ public class WaterBox {
         p2Switched.setSwitchFac(0.5);
         potentialMaster.addPotential(p2Switched, new ISpecies[]{species, species});
 
-        ai.setSleepPeriod(2);
+        sim.getController().setSleepPeriod(2);
+        sim.getController().addActivity(new ActivityIntegrate(integrator));
         SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
-        ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
-        ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
+        ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("H"), Color.WHITE);
+        ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("O"), Color.RED);
         return graphic;
     }
     public static void main(String[] args) {

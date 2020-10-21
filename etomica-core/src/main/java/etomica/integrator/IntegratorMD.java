@@ -41,7 +41,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
     protected MeterTemperature meterTemperature;
     protected double currentTime;
     protected boolean thermostatting = false;
-    protected boolean thermostatNoDrift = false;
+    protected boolean thermostatNoDrift = false, alwaysScaleMomenta = false;
     protected double oldEnergy = Double.NaN, oldPotentialEnergy = Double.NaN;
     protected long nRejected = 0, nAccepted = 0;
     protected AtomLeafAgentManager<Vector> oldPositionAgentManager = null;
@@ -117,6 +117,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
         if (thermostat == ThermostatType.HYBRID_MC && isothermal && oldPositionAgentManager == null) {
             oldPositionAgentManager = new AtomLeafAgentManager<Vector>(new VectorSource(space), box);
         }
+        oldEnergy = Double.NaN;
     }
 
     protected void doStepInternal() {
@@ -176,6 +177,10 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
      * @throws RuntimeException if HYBRID_MC thermostat is not enabled or if isothermal is false
      */
     public void setIntegratorMC(IntegratorMC integratorMC, int mcSteps) {
+        if (integratorMC == null) {
+            this.integratorMC = integratorMC;
+            return;
+        }
         if (thermostat != ThermostatType.HYBRID_MC || !isothermal) {
             throw new RuntimeException("integratorMC only works with HYBRID MC thermostat");
         }
@@ -208,6 +213,22 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
      * @return flag specifying whether net momentum should be removed after application of thermostat
      */
     public boolean isThermostatNoDrift() {return thermostatNoDrift;}
+
+    /**
+     * Configure thermostat to always scale randomized momenta to match the set
+     * temperature
+     */
+    public void setAlwaysScaleRandomizedMomenta(boolean alwaysScale) {
+        alwaysScaleMomenta = alwaysScale;
+    }
+
+    /**
+     * Returns true if the thermostat is set to always scale randomized momenta
+     * to match the set temperature
+     */
+    public boolean getAlwaysScaleRandomizedMomenta() {
+        return alwaysScaleMomenta;
+    }
 
     /**
      *
@@ -469,6 +490,12 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxEventList
         int nLeaf = leafList.size();
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
             atomActionRandomizeVelocity.actionPerformed(leafList.get(iLeaf));
+        }
+        if (alwaysScaleMomenta) {
+            if (thermostatNoDrift) {
+                shiftMomenta();
+            }
+            scaleMomenta();
         }
     }
 

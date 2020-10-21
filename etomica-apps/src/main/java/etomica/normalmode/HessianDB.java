@@ -6,7 +6,7 @@ package etomica.normalmode;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -25,7 +25,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Tensor3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -49,7 +49,7 @@ public class HessianDB extends Simulation {
     public Primitive primitive, primitiveUnitCell;
     public Basis basis, basisFCC;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public int[] nCells;
     public MCMoveHarmonic move;
     public CoordinateDefinition coordinateDefinition;
@@ -60,7 +60,7 @@ public class HessianDB extends Simulation {
     public HessianDB(Space _space, int numAtoms, double density, double temperature, int exponent, String filename) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         /*

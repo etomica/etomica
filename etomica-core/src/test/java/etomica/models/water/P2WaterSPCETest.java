@@ -23,8 +23,8 @@ public class P2WaterSPCETest {
     private static final double EPSILON = 4e-7;
     @BeforeEach
     public void setUp() throws Exception {
-        IMolecule mol1 = new SpeciesWater3P(Space3D.getInstance()).makeMolecule();
-        IMolecule mol2 = new SpeciesWater3P(Space3D.getInstance()).makeMolecule();
+        IMolecule mol1 = SpeciesWater3P.create().makeMolecule();
+        IMolecule mol2 = SpeciesWater3P.create().makeMolecule();
 
         MoleculeActionTranslateTo act = new MoleculeActionTranslateTo(Space3D.getInstance());
         act.setDestination(new Vector3D(4, 4, 4));

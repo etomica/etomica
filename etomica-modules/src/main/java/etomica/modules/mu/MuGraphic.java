@@ -29,7 +29,7 @@ import etomica.molecule.IMolecule;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Pixel;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.*;
@@ -216,7 +216,7 @@ public class MuGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(profilePumpB);
         dataStreamPumps.add(profilePumpB);
 
-        DisplayPlot profilePlot = new DisplayPlot();
+        DisplayPlotXChart profilePlot = new DisplayPlotXChart();
         densityProfileAvgA.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvgA.AVERAGE});
         densityProfileAvgB.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvgB.AVERAGE});
         profilePlot.setLegend(new DataTag[]{densityProfileMeterA.getTag()}, "A");
@@ -365,7 +365,7 @@ public class MuGraphic extends SimulationGraphic {
         DataProcessorMu muIGB = new DataProcessorMu(null, sim.integrator);
         densityIGBHistory.setDataSink(muIGB);
 
-        DisplayPlot muPlot = new DisplayPlot();
+        DisplayPlotXChart muPlot = new DisplayPlotXChart();
         muPlot.setLabel("Chemical Potential");
         muSQWA.setDataSink(muPlot.getDataSet().makeDataSink());
         muHistoryA.setPushInterval(100);
@@ -498,14 +498,13 @@ public class MuGraphic extends SimulationGraphic {
         		getDisplayBox(sim.box).graphic().repaint();
         		
         		displayCycles.putData(meterCycles.getData());
-        		displayCycles.repaint();
         	}
         };
 
         this.getController().getReinitButton().setPostAction(resetAction);
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
         
         getPanel().controlPanel.add(displayCycles.graphic(), vertGBC);
         getPanel().controlPanel.add(setupPanel, vertGBC);
@@ -646,7 +645,7 @@ public class MuGraphic extends SimulationGraphic {
 
     protected static class ModifierAtomDiameter implements Modifier {
 
-        public ModifierAtomDiameter(MuGraphic simGraphic, SpeciesSpheresMono species, P2SquareWellOneSide p2,
+        public ModifierAtomDiameter(MuGraphic simGraphic, SpeciesGeneral species, P2SquareWellOneSide p2,
                 P2SquareWellOneSide p2Mix, P2SquareWellOneSide p2Other) {
             this.simGraphic = simGraphic;
             this.species = species;
@@ -689,7 +688,7 @@ public class MuGraphic extends SimulationGraphic {
         }
 
         protected final MuGraphic simGraphic;
-        protected final SpeciesSpheresMono species;
+        protected final SpeciesGeneral species;
         protected final P2SquareWellOneSide p2, p2Mix, p2Other;
     }
     

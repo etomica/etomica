@@ -4,11 +4,9 @@
 
 package etomica.simulation.prototypes;
 
-import etomica.action.ActionIntegrate;
-import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -19,15 +17,12 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -35,10 +30,9 @@ import etomica.species.SpeciesSpheresMono;
 public class LJMD3DNbr extends Simulation {
 
     public IntegratorVelocityVerlet integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
-    public Controller controller;
     public MeterPotentialEnergy energy;
     public AccumulatorAverageCollapsing avgEnergy;
     public DataPump pump;
@@ -47,8 +41,7 @@ public class LJMD3DNbr extends Simulation {
     public LJMD3DNbr() {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 4, space);
@@ -77,10 +70,7 @@ public class LJMD3DNbr extends Simulation {
         final String APP_NAME = "LJMD3D";
         final LJMD3DNbr sim = new LJMD3DNbr();
 
-        ActionIntegrate ai = new ActionIntegrate(sim.integrator);
-        ai.setMaxSteps(300);
-        sim.getController().addAction(ai);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, 300));
 
 //        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
 //

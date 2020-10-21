@@ -4,10 +4,10 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.IDataSource;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -27,7 +27,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
@@ -52,7 +52,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
     public IntegratorOverlap integratorOverlap;
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
-    public ActivityIntegrate activityIntegrate;
+
     public Box boxTarg, boxRef;
     public Boundary boundaryTarg, boundaryRef;
     public int[] nCells;
@@ -71,7 +71,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
                                         double harmonicFudge, int[] exponent, double alpha, double alphaSpan, int numAlpha) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMasterTarg = new PotentialMasterList(this, space);
@@ -233,8 +233,7 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
 
         setRefPref(alpha, alphaSpan);
 
-        activityIntegrate = new ActivityIntegrate(integratorOverlap);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integratorOverlap));
     }
 
     /**
@@ -284,14 +283,13 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         System.out.flush();
 
         sim.equilibrate(numSteps);
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOverlap, numSteps);
+System.out.println("equilibration finished");
         System.out.flush();
 
         final long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
-
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()
         		+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
@@ -310,12 +308,12 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         	double ratio_err = sim.dsvo.getError(i);
 
             DataGroup dataRatio0 = (DataGroup)sim.accumulators[0].getData(i);
-            double ratio0 = ((DataDoubleArray) dataRatio0.getData(AccumulatorAverage.AVERAGE.index)).getData()[1];
-            double ratio0_err = ((DataDoubleArray) dataRatio0.getData(AccumulatorAverage.ERROR.index)).getData()[1];
+            double ratio0 = ((DataDoubleArray) dataRatio0.getData(sim.accumulators[0].AVERAGE.index)).getData()[1];
+            double ratio0_err = ((DataDoubleArray) dataRatio0.getData(sim.accumulators[0].ERROR.index)).getData()[1];
 
         	DataGroup dataRatio1 = (DataGroup)sim.accumulators[1].getData(i);
-            double ratio1 = ((DataDoubleArray) dataRatio1.getData(AccumulatorAverage.AVERAGE.index)).getData()[1];
-            double ratio1_err = ((DataDoubleArray) dataRatio1.getData(AccumulatorAverage.ERROR.index)).getData()[1];
+            double ratio1 = ((DataDoubleArray) dataRatio1.getData(sim.accumulators[1].AVERAGE.index)).getData()[1];
+            double ratio1_err = ((DataDoubleArray) dataRatio1.getData(sim.accumulators[1].ERROR.index)).getData()[1];
 
         	System.out.println("    "+sim.accumulators[0].getBennetBias(i)+
         			" "+ ratio  + " " + ratio_err +
@@ -334,12 +332,12 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
         //System.out.println("free energy difference: "+(-temperature*Math.log(ratio))+" ,error: "+temperature*(error/ratio));
 
         DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-        System.out.println("ref_ratio_average: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]
-                + " error: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[1]);
+        System.out.println("ref_ratio_average: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[0].AVERAGE.index)).getData()[1]
+                + " error: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[0].ERROR.index)).getData()[1]);
 
         allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
-        System.out.println("targ_ratio_average: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.AVERAGE.index)).getData()[1]
-                + " error: " + ((DataDoubleArray) allYourBase.getData(AccumulatorAverage.ERROR.index)).getData()[1]);
+        System.out.println("targ_ratio_average: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[1].AVERAGE.index)).getData()[1]
+                + " error: " + ((DataDoubleArray) allYourBase.getData(sim.accumulators[1].ERROR.index)).getData()[1]);
 
 
         long endTime = System.currentTimeMillis();
@@ -379,14 +377,12 @@ public class SimOverlapSoftSphereSoftness extends Simulation {
 
     public void equilibrate(long initSteps) {
 
-        activityIntegrate.setMaxSteps(initSteps);
-
         for (int i = 0; i < 2; i++) {
             if (integrators[i] instanceof IntegratorMC)
                 ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        getController().actionPerformed();
-        getController().reset();
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integratorOverlap, initSteps));
+
         for (int i = 0; i < 2; i++) {
             if (integrators[i] instanceof IntegratorMC)
                 ((IntegratorMC) integrators[i]).getMoveManager().setEquilibrating(false);

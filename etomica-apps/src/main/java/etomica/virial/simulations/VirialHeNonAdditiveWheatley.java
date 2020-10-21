@@ -5,6 +5,8 @@
 package etomica.virial.simulations;
 
 
+import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -20,13 +22,15 @@ import etomica.potential.*;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
 
 import java.awt.*;
+import java.util.Arrays;
 
 /**
  * Adapted by Andrew from VirialHeNonAdditive
@@ -64,6 +68,8 @@ public class VirialHeNonAdditiveWheatley {
         double refFrac = params.refFrac;
         final boolean subtractApprox = params.subtractApprox;
         final boolean calcApprox = !subtractApprox && params.calcApprox;
+        final double sigma = !calcApprox && !subtractApprox ? params.sigma : 0;
+        final boolean doTotal = params.doTotal;
         
         double vhs = 4.0/3.0*Math.PI*Math.pow(sigmaHSRef, 3);
         final double HSBn = SpecialFunctions.factorial(nPoints)/2*Math.pow(vhs, nPoints-1);
@@ -76,6 +82,8 @@ public class VirialHeNonAdditiveWheatley {
         if (calcApprox) System.out.println("Calculating coefficients for approximate potential");
         if (subtractApprox) {
             System.out.println("computing difference from approximate He");
+        } else if (doTotal) {
+            System.out.println("computing total");
         }
 
         final double temperature = Kelvin.UNIT.toSim(temperatureK);
@@ -95,8 +103,8 @@ public class VirialHeNonAdditiveWheatley {
                 return r2 < sigmaHSRef*sigmaHSRef ? 1 : 0;
             }
         };
-        
-        MayerGeneralSpherical fTarget;
+
+        MayerGeneralSpherical fTarget, fTargetSigma;
         MayerGeneralSpherical fTargetApprox;
         if (semiClassical) {
             P2HeSimplified p2cApprox = new P2HeSimplified(space);
@@ -104,29 +112,35 @@ public class VirialHeNonAdditiveWheatley {
             
             P2HePCKLJS p2c = new P2HePCKLJS(space);
             Potential2Spherical p2 = p2c.makeQFH(temperature);
+            P2HePCKLJS p2cs = new P2HePCKLJS(space, sigma);
+            Potential2Spherical p2s = p2cs.makeQFH(temperature);
 
             fTarget = new MayerGeneralSpherical(calcApprox ? p2Approx : p2);
             fTargetApprox = new MayerGeneralSpherical(p2Approx);
-
+            fTargetSigma = new MayerGeneralSpherical(p2s);
         } else {
             P2HeSimplified p2Approx = new P2HeSimplified(space);
             
             P2HePCKLJS p2 = new P2HePCKLJS(space);
+            P2HePCKLJS p2s = new P2HePCKLJS(space, sigma);
 
             fTarget = new MayerGeneralSpherical(calcApprox ? p2Approx : p2);
             fTargetApprox = new MayerGeneralSpherical(p2Approx);
+            fTargetSigma = new MayerGeneralSpherical(p2s);
         }
 
         IPotentialAtomicMultibody p3 = new P3CPSNonAdditiveHe(space);
+        IPotentialAtomicMultibody p3sigma = new P3CPSNonAdditiveHe(space, sigma);
         P3CPSNonAdditiveHeSimplified p3Approx = new P3CPSNonAdditiveHeSimplified(space);
         p3Approx.setParameters(temperatureK);
 
         final MayerFunctionSphericalThreeBody f3Target = new MayerFunctionSphericalThreeBody(calcApprox ? p3Approx : p3);
-        
+
         MayerFunctionNonAdditive[] fNA = new MayerFunctionNonAdditive[4];
         fNA[3] = f3Target;
         ClusterWheatleyMultibody fullTargetCluster = new ClusterWheatleyMultibody(nPoints, fTarget, fNA);
         fullTargetCluster.setTolerance(1e-14);
+        fullTargetCluster.setDoTotal(doTotal);
         ClusterAbstract refCluster = new ClusterChainHS(nPoints, fRef);
 
         ClusterAbstract targetCluster = null;
@@ -137,19 +151,27 @@ public class VirialHeNonAdditiveWheatley {
             final ClusterWheatleyMultibody[] targetSubtract = new ClusterWheatleyMultibody[1];
             targetSubtract[0] = new ClusterWheatleyMultibody(nPoints, fTargetApprox, fNAapprox);
             targetSubtract[0].setTolerance(1e-14);
+            targetSubtract[0].setDoTotal(doTotal);
             targetCluster = new ClusterDifference(fullTargetCluster, targetSubtract);
-        }
-        else {
+        } else if (sigma != 0) {
+            MayerFunctionSphericalThreeBody f3TargetSigma = new MayerFunctionSphericalThreeBody(p3sigma);
+            MayerFunctionNonAdditive[] fNAsigma = new MayerFunctionNonAdditive[4];
+            fNAsigma[3] = f3TargetSigma;
+            ClusterWheatleyMultibody targetSigma = new ClusterWheatleyMultibody(nPoints, fTargetSigma, fNAsigma);
+            targetSigma.setTolerance(1e-14);
+            targetSigma.setDoTotal(doTotal);
+            targetCluster = new ClusterDifference(targetSigma, new ClusterAbstract[]{fullTargetCluster});
+        } else {
             targetCluster = fullTargetCluster;
         }
 
         targetCluster.setTemperature(temperature);
     	
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), nPoints,
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), nPoints,
                 temperature, refCluster,targetCluster);
         sim.init();
         int[] seeds = sim.getRandomSeeds();
-        System.out.println("Random seeds: "+java.util.Arrays.toString(seeds));
+        System.out.println("Random seeds: "+ Arrays.toString(seeds));
 
 
         sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
@@ -183,7 +205,7 @@ public class VirialHeNonAdditiveWheatley {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-            SpeciesSpheresMono species = (SpeciesSpheresMono)sim.getSpecies(0);
+            ISpecies species = sim.getSpecies(0);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
             simGraphic.makeAndDisplayFrame();
@@ -193,15 +215,13 @@ public class VirialHeNonAdditiveWheatley {
                 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
 //            sim.getController().addAction(new IAction() {
 //                public void actionPerformed() {
-//                    sim.initRefPref(null, 0);
+//                    sim.initRefPref(null, 0, false);
 //                    sim.equilibrate(null,0);
 //                    sim.ai.setMaxSteps(Long.MAX_VALUE);
 //                }
 //            });
-            sim.getController().addAction(sim.ai);
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
@@ -234,21 +254,22 @@ public class VirialHeNonAdditiveWheatley {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/20);
-        if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
-        
+
         sim.setAccumulatorBlockSize((int)steps);
         sim.integratorOS.setNumSubSteps((int)steps);
-        
+
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
-        
+
         final HistogramSimple targHist = new HistogramSimple(200, new DoubleRange(-1, 6));
         IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 CoordinatePairSet cPairs = sim.box[1].getCPairSet();
                 for (int i=0; i<nPoints; i++) {
@@ -276,7 +297,7 @@ public class VirialHeNonAdditiveWheatley {
 //                    sim.dsvo.getOverlapAverageAndError();
 //                    throw new RuntimeException("oops");
 //                }
-                if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                 if (Double.isInfinite(sim.dvo.getAverageAndError()[0])) {
                     sim.dvo.getAverageAndError();
                     throw new RuntimeException("oops");
@@ -293,7 +314,7 @@ public class VirialHeNonAdditiveWheatley {
                     public void integratorInitialized(IntegratorEvent e) {}
                     public void integratorStepStarted(IntegratorEvent e) {}
                     public void integratorStepFinished(IntegratorEvent e) {
-                        if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                        if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                         double[] xValues = targHist.xValues();
                         double[] h = targHist.getHistogram();
                         for (int i=0; i<xValues.length; i++) {
@@ -313,7 +334,7 @@ public class VirialHeNonAdditiveWheatley {
                 sim.integratorOS.getEventManager().addListener(histReport);
             }
         }
-        
+
 
         if (params.doHist) {
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
@@ -326,8 +347,7 @@ public class VirialHeNonAdditiveWheatley {
 
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(1000);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
         
         long t2 = System.currentTimeMillis();
         
@@ -373,6 +393,7 @@ public class VirialHeNonAdditiveWheatley {
         public boolean semiClassical = false;
         public boolean calcApprox = false;
         public boolean subtractApprox = false;
-        public boolean minMulti = false;
+        public double sigma = 0;
+        public boolean doTotal = false;
     }
 }

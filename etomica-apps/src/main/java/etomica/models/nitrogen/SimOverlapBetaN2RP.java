@@ -4,6 +4,7 @@
 
 package etomica.models.nitrogen;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.data.DataPump;
@@ -29,6 +30,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
@@ -47,7 +49,7 @@ public class SimOverlapBetaN2RP extends Simulation {
     		double[] angle, double alpha, double alphaSpan, int numAlpha) {
         super(space);
 
-        SpeciesN2 species = new SpeciesN2(space);
+        SpeciesGeneral species = SpeciesN2.create(false);
         addSpecies(species);
 
         potentialMasterTarg = new PotentialMaster();
@@ -170,8 +172,7 @@ public class SimOverlapBetaN2RP extends Simulation {
 
         setRefPref(alpha, alphaSpan);
 
-        activityIntegrate = new ActivityIntegrate(integratorOverlap);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integratorOverlap));
     }
 
     public void setRefPref(double alpha, double alphaSpan) {
@@ -206,13 +207,10 @@ public class SimOverlapBetaN2RP extends Simulation {
 
     public void equilibrate(long initSteps) {
 
-        activityIntegrate.setMaxSteps(initSteps);
-
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        getController().actionPerformed();
-        getController().reset();
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integratorOverlap, initSteps));
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
         }
@@ -268,15 +266,14 @@ public class SimOverlapBetaN2RP extends Simulation {
         sim.integratorOverlap.setAdjustStepFraction(false);
         numSteps /= 1000;
         
-        sim.equilibrate(numSteps);       
-        System.out.println("equilibration finished");
+        sim.equilibrate(numSteps);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOverlap, numSteps);
+System.out.println("equilibration finished");
         System.out.flush();
- 
+
         final long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
-       
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
          
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getIdealRefStepFraction()
         		+" (actual: "+sim.integratorOverlap.getRefStepFraction()+")");
@@ -333,7 +330,7 @@ public class SimOverlapBetaN2RP extends Simulation {
     public IntegratorOverlap integratorOverlap;
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
-    public ActivityIntegrate activityIntegrate;
+
     public Box boxTarg, boxRef;
     public int[] nCells;
     public Basis basis;

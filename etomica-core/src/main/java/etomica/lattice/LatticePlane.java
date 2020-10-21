@@ -4,7 +4,7 @@
 
 package etomica.lattice;
 
-import etomica.atom.AtomFilter;
+import etomica.atom.AtomTest;
 import etomica.atom.IAtom;
 import etomica.lattice.crystal.Primitive;
 import etomica.math.geometry.Plane;
@@ -15,8 +15,11 @@ import etomica.space.Vector;
  * Class describing a plane through a lattice.  Holds a Plane
  * object and a Primitive.  The orientation of the plane is 
  * specified using Miller indices defined according to the primitive.
+ *
+ * As an AtomTest, returns true if the IAtom is on the "negative" side
+ * of the plane.
  */
-public class LatticePlane implements AtomFilter, java.io.Serializable {
+public class LatticePlane implements AtomTest, java.io.Serializable {
     
     private static final long serialVersionUID = 1L;
     private final Plane plane;

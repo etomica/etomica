@@ -6,6 +6,7 @@ package etomica.modules.crystalviewer;
 
 import javax.swing.JTabbedPane;
 
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.space.Vector;
 import etomica.graphics.DisplayBox;
@@ -29,7 +30,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Pixel;
 
 
@@ -38,7 +39,7 @@ public class CrystalViewer extends SimulationPanel {
 	final static String APP_NAME = "Crystal Viewer";
     protected final Simulation sim;
 
-    protected SpeciesSpheresMono species;
+    protected SpeciesGeneral species;
     protected Box box;
     BoundaryDeformableLattice boundary;
     protected Vector center;
@@ -54,7 +55,7 @@ public class CrystalViewer extends SimulationPanel {
         sim = new Simulation(space);
         center = space.makeVector();
 
-        species = new SpeciesSpheresMono(sim, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(sim));
         sim.addSpecies(species);
 
         BasisMonatomic basisMonatomic = new BasisMonatomic(space);
@@ -117,7 +118,8 @@ public class CrystalViewer extends SimulationPanel {
     
  
     public static void main(String[] args) {
-        
+
+        SimulationGraphic.initGraphics();
         SimulationPanel viewer = new CrystalViewer();
         SimulationGraphic.makeAndDisplayFrame(viewer, APP_NAME);
     }

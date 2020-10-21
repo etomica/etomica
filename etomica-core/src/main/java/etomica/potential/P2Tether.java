@@ -86,7 +86,7 @@ public class P2Tether extends Potential2HardSpherical {
      * interacting beyond the tetherlength distance.  
      */
     public double getRange() {
-        return tetherLength;
+        return Double.POSITIVE_INFINITY;
     }
   
     /**

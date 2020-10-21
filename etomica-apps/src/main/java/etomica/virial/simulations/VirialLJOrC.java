@@ -4,23 +4,15 @@
 
 package etomica.virial.simulations;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
-
-import etomica.math.function.IFunction;
+import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageFixed;
-import etomica.data.DataDistributer;
-import etomica.data.DataFork;
-import etomica.data.DataSplitter;
-import etomica.data.IData;
-import etomica.data.IDataSink;
+import etomica.data.*;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
+import etomica.math.function.IFunction;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.P2WCA;
@@ -28,22 +20,16 @@ import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Pixel;
 import etomica.util.Arrays;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.CalcFFT;
-import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterDifference;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterWheatleySoft;
-import etomica.virial.MCMoveClusterAtomDiscrete;
-import etomica.virial.MCMoveClusterAtomMulti;
-import etomica.virial.MayerFunction;
-import etomica.virial.MayerGeneralSpherical;
-import etomica.virial.MayerSphericalPlus;
+import etomica.virial.*;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * LJ simulation using Mayer sampling to evaluate cluster integrals
@@ -142,7 +128,7 @@ public class VirialLJOrC {
 
         System.out.println(steps+" steps");
 		
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresMono(space, new ElementSimple("A")), temperature, refCluster, targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), temperature, refCluster, targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
         
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
@@ -155,9 +141,7 @@ public class VirialLJOrC {
         DataDistributer.Indexer indexer = null;
         DataSplitter.IDataSinkFactory accFac = new DataSplitter.IDataSinkFactory() {
             public IDataSink makeDataSink(int i) {
-                AccumulatorAverageFixed a = new AccumulatorAverageFixed(bs);
-                a.setDoStrictBlockData(true);
-                return a;
+                return new AccumulatorAverageFixed(bs);
             }
         };
 
@@ -210,15 +194,15 @@ public class VirialLJOrC {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/10);
-        
-        System.out.println("equilibration finished");
-        
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+System.out.println("equilibration finished");
+
         if (refFrac >= 0) {
             sim.integratorOS.setRefStepFraction(refFrac);
             sim.integratorOS.setAdjustStepFraction(false);
         }
 
-        
+
         int nAcc = dataDistributer.getNumDataSinks();
         for (int i=0; i<nAcc; i++) {
             AccumulatorAverage acc = (AccumulatorAverage)dataDistributer.getDataSink(i);
@@ -229,11 +213,10 @@ public class VirialLJOrC {
 
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+mcDiscrete[i].getStepSize());
         }
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
         long t2 = System.currentTimeMillis();
 
         int digits = (int)Math.ceil(-Math.log10(dr));

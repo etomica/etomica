@@ -6,7 +6,7 @@
 package etomica.graphics;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.simulation.prototypes.HSMD2D;
 
 import javax.swing.*;
@@ -70,7 +70,7 @@ public class DeviceButton extends Device {
                     doAction(targetAction);
                 }
                 catch (RuntimeException e) {
-                    System.err.println(e+" "+e.getMessage());
+                    e.printStackTrace();
                 }
             }
         };
@@ -80,7 +80,7 @@ public class DeviceButton extends Device {
     /**
      * Returns the GUI element for display in the simulation.
      */
-    public java.awt.Component graphic(Object obj) {
+    public java.awt.Component graphic() {
         return button;
     }
     

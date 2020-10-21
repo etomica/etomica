@@ -5,13 +5,13 @@
 package etomica.eam;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.Tungsten;
-import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.*;
 import etomica.data.history.History;
 import etomica.data.history.HistoryCollapsingAverage;
 import etomica.data.meter.MeterEnergy;
@@ -29,7 +29,7 @@ import etomica.normalmode.CoordinateDefinitionLeaf;
 import etomica.normalmode.MeterDADB;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.units.dimensions.Energy;
 import etomica.util.ParameterBase;
@@ -67,21 +67,19 @@ public class EFSTungsten extends Simulation {
     private static final String APP_NAME = "MEAM Md3D";
     public final PotentialMasterList potentialMaster;
     public IntegratorVelocityVerlet integrator;
-    public SpeciesSpheresMono w;
+    public SpeciesGeneral w;
     public Box box;
     public PotentialEFS potentialN;
-    public Controller controller;
     public DisplayBox display;
     public MeterEnergy energy;
-    public ActivityIntegrate activityIntegrate;
+
     public IDataInfo info2;
     public CoordinateDefinition coordinateDefinition;
 
     public EFSTungsten(int numatoms, double density, double temperature) {
         super(Space3D.getInstance());
 
-        w = new SpeciesSpheresMono(space, Tungsten.INSTANCE);
-        w.setIsDynamic(true);
+        w = SpeciesGeneral.monatomic(space, AtomType.element(Tungsten.INSTANCE), true);
         addSpecies(w);
 
         potentialMaster = new PotentialMasterList(this, space);
@@ -92,8 +90,7 @@ public class EFSTungsten extends Simulation {
         integrator.setThermostatInterval(100);
         integrator.setIsothermal(true);
         integrator.setThermostatNoDrift(true);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         box.setNMolecules(w, numatoms);
 
         //BCC W
@@ -182,10 +179,10 @@ public class EFSTungsten extends Simulation {
             sim.integrator.getEventManager().addListener((DADBPump));
             sim.integrator.getEventManager().addListener((pressurePump));
 
-            accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{AccumulatorAverage.MOST_RECENT});
-            accumulatorAverageKE.addDataSink(kineticAccumulator, new StatType[]{AccumulatorAverage.MOST_RECENT});
-            accumulatorAverageDADB.addDataSink(DADBAccumulator, new StatType[]{AccumulatorAverage.MOST_RECENT});
-            accumulatorAveragePressure.addDataSink(pressureAccumulator, new StatType[]{AccumulatorAverage.MOST_RECENT});
+            accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{accumulatorAveragePE.MOST_RECENT});
+            accumulatorAverageKE.addDataSink(kineticAccumulator, new StatType[]{accumulatorAverageKE.MOST_RECENT});
+            accumulatorAverageDADB.addDataSink(DADBAccumulator, new StatType[]{accumulatorAverageDADB.MOST_RECENT});
+            accumulatorAveragePressure.addDataSink(pressureAccumulator, new StatType[]{accumulatorAveragePressure.MOST_RECENT});
 
             DisplayPlot plotPE = new DisplayPlot();
             plotPE.setLabel("PE Plot");
@@ -217,8 +214,8 @@ public class EFSTungsten extends Simulation {
         	DataProcessorCvMD dataProcessorKE = new DataProcessorCvMD();
         	dataProcessorKE.setIntegrator(sim.integrator);
 
-            accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{AccumulatorAverage.STANDARD_DEVIATION});
-            accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{AccumulatorAverage.STANDARD_DEVIATION});
+            accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{accumulatorAveragePE.STANDARD_DEVIATION});
+            accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{accumulatorAverageKE.STANDARD_DEVIATION});
            
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
             ArrayList<DataPump> dataStreamPumps = simGraphic.getController().getDataStreamPumps();
@@ -250,12 +247,10 @@ public class EFSTungsten extends Simulation {
         	simGraphic.makeAndDisplayFrame(APP_NAME);
         	return;
     	}
-    	
-    	sim.activityIntegrate.setMaxSteps(numsteps/10);
-    	sim.getController().actionPerformed();
-        sim.getController().reset();
-        sim.activityIntegrate.setMaxSteps(numsteps);
-        System.out.println("equilibration finished");
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numsteps / 10));
+
+System.out.println("equilibration finished");
 
         AccumulatorAverageFixed accumulatorAveragePE = null;
         AccumulatorAverageFixed accumulatorAverageDADB = null;
@@ -281,12 +276,12 @@ public class EFSTungsten extends Simulation {
 	        dadbPump = new DataPumpListener(DADBMeter, accumulatorHistoryDADB, 10);
 
 	        sim.integrator.getEventManager().addListener(energyPump);
-	        sim.integrator.getEventManager().addListener(dadbPump);        	
+	        sim.integrator.getEventManager().addListener(dadbPump);
         }
-        
-        
+
+
         long t1 = System.currentTimeMillis();
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numsteps));
         long t2 = System.currentTimeMillis();
 
         if (doHistory) {
@@ -317,19 +312,19 @@ public class EFSTungsten extends Simulation {
         	}
         }
 
-        double PE = accumulatorAveragePE.getData(AccumulatorAverage.AVERAGE).getValue(0)
+        double PE = accumulatorAveragePE.getData(accumulatorAveragePE.AVERAGE).getValue(0)
                     /sim.box.getLeafList().size();
-        double PEerror = accumulatorAveragePE.getData(AccumulatorAverage.ERROR).getValue(0)
+        double PEerror = accumulatorAveragePE.getData(accumulatorAveragePE.ERROR).getValue(0)
                 /sim.box.getLeafList().size();
-        double PEcor = accumulatorAveragePE.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0)
+        double PEcor = accumulatorAveragePE.getData(accumulatorAveragePE.BLOCK_CORRELATION).getValue(0)
                 /sim.box.getLeafList().size();
         double PV = Pascal.UNIT.toSim(0)*1e9/(Mole.UNIT.toSim(1/16.870e24));
 
-        double dadb = accumulatorAverageDADB.getData(AccumulatorAverage.AVERAGE).getValue(0)
+        double dadb = accumulatorAverageDADB.getData(accumulatorAverageDADB.AVERAGE).getValue(0)
                 /sim.box.getLeafList().size();
-        double dadbError = accumulatorAverageDADB.getData(AccumulatorAverage.ERROR).getValue(0)
+        double dadbError = accumulatorAverageDADB.getData(accumulatorAverageDADB.ERROR).getValue(0)
                 /sim.box.getLeafList().size();
-        double dadbCor = accumulatorAverageDADB.getData(AccumulatorAverage.BLOCK_CORRELATION).getValue(0)
+        double dadbCor = accumulatorAverageDADB.getData(accumulatorAverageDADB.BLOCK_CORRELATION).getValue(0)
                 /sim.box.getLeafList().size();
 	
         System.out.println("PE(eV) "+ElectronVolt.UNIT.fromSim(PE)+" error: "+ElectronVolt.UNIT.fromSim(PEerror)+ " corrolation: "+PEcor);

@@ -4,6 +4,7 @@
 
 package etomica.interfacial;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomSourceRandomSpecies;
 import etomica.atom.AtomType;
@@ -31,7 +32,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -44,9 +45,8 @@ import java.util.List;
 public class LJMC extends Simulation {
     
     public final PotentialMasterCell potentialMasterCell;
-    public final ActivityIntegrate ai;
     public IntegratorMC integrator;
-    public SpeciesSpheresMono speciesFluid, speciesTopWall, speciesBottomWall;
+    public SpeciesGeneral speciesFluid, speciesTopWall, speciesBottomWall;
     public Box box;
     public P2SoftSphericalTruncatedForceShifted pFF, pTW, pBW;
     public ConfigurationLammps config;
@@ -55,11 +55,11 @@ public class LJMC extends Simulation {
     public LJMC(double temperature, String lammpsFile) {
         super(Space3D.getInstance());
 
-        speciesFluid = new SpeciesSpheresMono(space, new ElementSimple("F"));
+        speciesFluid = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("F")));
         addSpecies(speciesFluid);
-        speciesTopWall = new SpeciesSpheresMono(space, new ElementSimple("TW"));
+        speciesTopWall = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("TW")));
         addSpecies(speciesTopWall);
-        speciesBottomWall = new SpeciesSpheresMono(space, new ElementSimple("BW"));
+        speciesBottomWall = SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("BW")));
         addSpecies(speciesBottomWall);
 
         BoundaryRectangularSlit boundary = new BoundaryRectangularSlit(2, space);
@@ -84,8 +84,7 @@ public class LJMC extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().addMCMove(mcMoveAtomBig);
 
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         pFF = new P2SoftSphericalTruncatedForceShifted(space, new P2LennardJones(space, 1.0, 1.0), 2.5);
         AtomType leafType = speciesFluid.getLeafType();
@@ -162,7 +161,7 @@ public class LJMC extends Simulation {
         densityProfileAvg.setPushInterval(10);
         DataPump profilePump = new DataPumpListener(densityProfileMeter, densityProfileAvg, 1000);
         DataDump profileDump = new DataDump();
-        densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
+        densityProfileAvg.addDataSink(profileDump, new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
         IntegratorListenerAction profilePumpListener = new IntegratorListenerAction(profilePump);
         sim.integrator.getEventManager().addListener(profilePumpListener);
         profilePumpListener.setInterval(10);
@@ -203,7 +202,7 @@ public class LJMC extends Simulation {
             
 
             DisplayPlot profilePlot = new DisplayPlot();
-            densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{AccumulatorAverage.AVERAGE});
+            densityProfileAvg.addDataSink(profilePlot.getDataSet().makeDataSink(), new AccumulatorAverage.StatType[]{densityProfileAvg.AVERAGE});
             profilePlot.setLabel("density");
             simGraphic.add(profilePlot);
             
@@ -217,19 +216,18 @@ public class LJMC extends Simulation {
         AccumulatorAverageFixed accWF = new AccumulatorAverageFixed(bs);
         forkWF.addDataSink(accWF);
 
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         
         u = meterPE2.getDataAsScalar();
         System.out.println("Potential energy: "+u);
         System.out.println("Wall force: "+meterWF.getDataAsScalar());
 
-        double avgPE = accPE.getData().getValue(AccumulatorAverage.AVERAGE.index);
-        double errPE = accPE.getData().getValue(AccumulatorAverage.ERROR.index);
-        double corPE = accPE.getData().getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
-        double avgWF = accWF.getData().getValue(AccumulatorAverage.AVERAGE.index);
-        double errWF = accWF.getData().getValue(AccumulatorAverage.ERROR.index);
-        double corWF = accWF.getData().getValue(AccumulatorAverage.BLOCK_CORRELATION.index);
+        double avgPE = accPE.getData().getValue(accPE.AVERAGE.index);
+        double errPE = accPE.getData().getValue(accPE.ERROR.index);
+        double corPE = accPE.getData().getValue(accPE.BLOCK_CORRELATION.index);
+        double avgWF = accWF.getData().getValue(accWF.AVERAGE.index);
+        double errWF = accWF.getData().getValue(accWF.ERROR.index);
+        double corWF = accWF.getData().getValue(accWF.BLOCK_CORRELATION.index);
         
         if (steps>100000) {
             System.out.println(String.format("Average potential energy: %25.15e %10.4e % 5.3f\n",avgPE,errPE,corPE));

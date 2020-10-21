@@ -4,7 +4,9 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.space.Vector;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
@@ -16,8 +18,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
-import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Pixel;
 
 /**
@@ -36,7 +37,7 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
 
 		setNCells(new int[]{getDimx(), getDimy()});
 
-		species = new SpeciesSpheresMono(this, space);
+		species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
 		addSpecies(species);
 
 		Vector[] dimension = space.makeVectorArray(space.D());
@@ -78,10 +79,8 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
 		integrator.setWaveVectorNum(0);
 
 
-		ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-		activityIntegrate.setSleepPeriod(0);
-
-		getController().addAction(activityIntegrate);
+		getController().setSleepPeriod(0);
+		getController().addActivity(new ActivityIntegrate(integrator));
 
 	}
 	
@@ -131,12 +130,12 @@ public class NormalModeAnalysisDisplay2D extends Simulation {
 	
 	
 	protected IntegratorHarmonic integrator;
-	protected ActivityIntegrate activityIntegrate;
+	
 	protected Box box;
 	protected BoundaryDeformablePeriodic boundary;
 	protected Primitive primitive;
 	protected Basis basis;
-	protected SpeciesSpheresMono species;
+	protected SpeciesGeneral species;
 	protected NormalModes nm;
 	protected CoordinateDefinitionLeaf coordinateDefinition;
 	protected WaveVectorFactory waveVectorFactory;

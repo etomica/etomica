@@ -4,14 +4,15 @@
 
 package etomica.modules.chainequilibrium;
 
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.config.ConfigurationLatticeRandom;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
@@ -24,24 +25,23 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 
 public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom[]> {
 
     public final PotentialMaster potentialMaster;
     public final ConfigurationLatticeRandom config;
-    public Controller controller1;
 	public IntegratorHard integratorHard;
 	public java.awt.Component display;
 	public Box box;
 	public MeterTemperature thermometer;
-	public SpeciesSpheresMono speciesA;
-	public SpeciesSpheresMono speciesB;
+	public SpeciesGeneral speciesA;
+	public SpeciesGeneral speciesB;
 //    public SpeciesSpheresMono speciesC;
 	public P2HardSphere p2AA, p2BB; //, p2CC, p2BC;
 	public P2SquareWellBonded ABbonded; //, ACbonded;
-    public ActivityIntegrate activityIntegrate;
+
     public AtomLeafAgentManager<IAtom[]> agentManager = null;
     public int nCrossLinkersAcid;
     public int nDiol, nDiAcid;
@@ -50,17 +50,13 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
     public ChainEquilibriumSim(Space space) {
         super(space);
 
-        speciesA = new SpeciesSpheresMono(this, space);
-        speciesA.setIsDynamic(true);
-        speciesB = new SpeciesSpheresMono(this, space);
-        speciesB.setIsDynamic(true);
+        speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
+        speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(speciesA);
         addSpecies(speciesB);
 
         potentialMaster = new PotentialMasterList(this, 3, space);
         ((PotentialMasterList) potentialMaster).setCellRange(1);
-
-        controller1 = getController();
 
         double diameter = 1.0;
         double lambda = 2.0;
@@ -101,8 +97,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource<IAtom
 
         thermometer = new MeterTemperature(box, space.D());
 
-        activityIntegrate = new ActivityIntegrate(integratorHard, 1, true);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integratorHard, true));
     }
 
     public int getNMonoOl() {

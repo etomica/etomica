@@ -11,6 +11,7 @@ import etomica.atom.IAtomList;
 import etomica.data.*;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.history.HistoryCollapsingAverage;
+import etomica.data.history.HistoryCollapsingDiscard;
 import etomica.data.history.HistoryScrolling;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
@@ -57,16 +58,16 @@ public class SamGraphic extends SimulationGraphic {
         
         ((DisplayBoxCanvasG3DSys)displayBox.canvas).addPlane(new WallPlane(space, sim.wallPotential));
         
-        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getCH2Type(), new Color(190, 190, 190));
-        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getCH3Type(), new Color(230, 230, 230));
-        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getSulfurType(), new Color(255, 200, 50));
+        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getTypeByName("CH2"), new Color(190, 190, 190));
+        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getTypeByName("CH3"), new Color(230, 230, 230));
+        ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.species.getTypeByName("S"), new Color(255, 200, 50));
         ((ColorSchemeByType)displayBox.getColorScheme()).setColor(sim.speciesSurface.getLeafType(), new Color(218, 165, 32));
         
         DiameterHashByType diameterHash = (DiameterHashByType)displayBox.getDiameterHash();
         diameterHash.setDiameter(sim.speciesSurface.getLeafType(), 3.0);
-        diameterHash.setDiameter(sim.species.getCH2Type(), sim.p2CH2.getSigma());
-        diameterHash.setDiameter(sim.species.getCH3Type(), sim.p2CH3.getSigma());
-        diameterHash.setDiameter(sim.species.getSulfurType(), sim.p2S.getSigma());
+        diameterHash.setDiameter(sim.species.getTypeByName("CH2"), sim.p2CH2.getSigma());
+        diameterHash.setDiameter(sim.species.getTypeByName("CH3"), sim.p2CH3.getSigma());
+        diameterHash.setDiameter(sim.species.getTypeByName("S"), sim.p2S.getSigma());
 
 
         getController().getReinitButton().setPostAction(getPaintAction(sim.box));
@@ -305,7 +306,7 @@ public class SamGraphic extends SimulationGraphic {
         wallPressureHistory.setTimeDataSource(timeCounter);
         fork.addDataSink(wallPressureHistory);
         wallPressureHistory.setPushInterval(10);
-        DisplayPlot pressurePlot = new DisplayPlot();
+        DisplayPlotXChart pressurePlot = new DisplayPlotXChart();
         pressurePlot.setUnit(Bar.UNIT);
         wallPressureHistory.setDataSink(pressurePlot.getDataSet().makeDataSink());
         pressurePlot.setLabel("Stress");
@@ -334,7 +335,7 @@ public class SamGraphic extends SimulationGraphic {
         AccumulatorHistory tiltHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         tiltHistory.setTimeDataSource(timeCounter);
         tiltFork.addDataSink(tiltHistory);
-        DisplayPlot tiltPlot = new DisplayPlot();
+        DisplayPlotXChart tiltPlot = new DisplayPlotXChart();
         tiltHistory.setDataSink(tiltPlot.getDataSet().makeDataSink());
         tiltPlot.setLegend(new DataTag[]{tiltHistory.getTag()}, "net tilt");
         tiltPlot.setUnit(Degree.UNIT);
@@ -352,39 +353,39 @@ public class SamGraphic extends SimulationGraphic {
         DataPipe stressStrainPipe = new DataPipeStressStrain(sim);
         fork.addDataSink(stressStrainPipe);
         stressStrainPipe.setDataSink(stressStrainHistogram);
-        final DisplayPlot stressStrainPlot = new DisplayPlot();
+        final DisplayPlotXChart stressStrainPlot = new DisplayPlotXChart();
         stressStrainHistogram.setDataSink(stressStrainPlot.getDataSet().makeDataSink());
         stressStrainPlot.setLabel("Stress vs. Strain");
         stressStrainPlot.setXLabel("Wall Position");
         stressStrainPlot.setDoLegend(false);
         add(stressStrainPlot);
         
-        AccumulatorHistory energyTilt = new AccumulatorHistory(new HistoryScrolling(1));
+        AccumulatorHistory energyTilt = new AccumulatorHistory(new HistoryCollapsingDiscard(10000));
         energyTilt.setTimeDataSource(new DataSourceScalar("Tilt Angle", Angle.DIMENSION) {
             public double getDataAsScalar() {
                 return meterTilt.getData().getValue(0);
             }
         });
         DataPump energyTiltPump = new DataPump(meterPE, energyTilt);
+        getController().getDataStreamPumps().add(energyTiltPump);
         IntegratorListenerAction energyTiltPumpListener = new IntegratorListenerAction(energyTiltPump);
         sim.integrator.getEventManager().addListener(energyTiltPumpListener);
         energyTiltPumpListener.setInterval(10);
-        final DisplayPlot energyTiltPlot = new DisplayPlot();
+        final DisplayPlotXChart energyTiltPlot = new DisplayPlotXChart();
         energyTiltPlot.setXUnit(Degree.UNIT);
         energyTilt.setDataSink(energyTiltPlot.getDataSet().makeDataSink());
         energyTiltPlot.setLabel("Energy vs. Tilt");
         energyTiltPlot.setDoLegend(false);
-        energyTiltPlot.setDoClear(false);
         energyTiltPlot.setDoDrawLines(new DataTag[]{energyTilt.getTag()}, false);
         add(energyTiltPlot);
         getController().getResetAveragesButton().setPostAction(new IAction() {
             public void actionPerformed() {
-                energyTiltPlot.getPlot().clear(false);
-                stressStrainPlot.getPlot().clear(false);
+                energyTiltPlot.clearData();
+                stressStrainPlot.clearData();
             }
         });
 
-        DisplayPlot plot = new DisplayPlot();
+        DisplayPlotXChart plot = new DisplayPlotXChart();
         historyKE.setDataSink(plot.getDataSet().makeDataSink());
         plot.setLegend(new DataTag[]{meterKE.getTag()}, "KE");
         historyPE.setDataSink(plot.getDataSet().makeDataSink());
@@ -401,7 +402,7 @@ public class SamGraphic extends SimulationGraphic {
                 ((P2LennardJones)sim.p2SulfurSurfaceLJ.getWrappedPotential()).setEpsilon(sinusoidalEnabled ? 0 : 
                     ((P2LennardJones)sim.p2CH2Surface.getWrappedPotential()).getEpsilon());
                 sim.p2SurfaceBond.setSpringConstant(sinusoidalEnabled ? 0 : sim.harmonicStrength);
-                sim.integrator.setSulfurType(sinusoidalEnabled ? sim.species.getSulfurType() : null);
+                sim.integrator.setSulfurType(sinusoidalEnabled ? sim.species.getTypeByName("S") : null);
 
                 sim.wallPotential.setWallPosition(20);
                 wallPositionSlider.doUpdate();

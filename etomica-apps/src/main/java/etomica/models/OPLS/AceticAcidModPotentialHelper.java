@@ -10,6 +10,7 @@ import etomica.potential.P2ElectrostaticWithHardCore;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 
@@ -22,7 +23,7 @@ import etomica.units.Kelvin;
 public class AceticAcidModPotentialHelper {
 	
 	
-	public static void initPotential(Space space, SpeciesAceticAcid species, PotentialGroup p) {
+	public static void initPotential(Space space, SpeciesGeneral species, PotentialGroup p) {
 		double epsilonCH3 = Kelvin.UNIT.toSim(98.0); 
 		double epsilonC = Kelvin.UNIT.toSim(41.0);
 		double epsilonDBO = Kelvin.UNIT.toSim(79.0);
@@ -169,11 +170,11 @@ public class AceticAcidModPotentialHelper {
         uHH.setCharge2(qH);
         uHH.setSigma(0);
 
-        AtomType typeCH3 = species.getCH3Type();
-        AtomType typeC = species.getCType();
-        AtomType typeDBO = species.getDBOType();
-        AtomType typeSBO = species.getSBOType();
-        AtomType typeH = species.getHType();
+            AtomType typeCH3 = species.getTypeByName("CH3");
+            AtomType typeC = species.getTypeByName("C");
+            AtomType typeDBO = species.getTypeByName("DBO");
+            AtomType typeSBO = species.getTypeByName("SBO");
+            AtomType typeH = species.getTypeByName("H");
 
 
         p.addPotential(uLJCH3CH3, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCH3, typeCH3}));

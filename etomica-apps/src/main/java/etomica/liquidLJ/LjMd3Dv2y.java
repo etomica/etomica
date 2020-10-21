@@ -5,10 +5,10 @@
 package etomica.liquidLJ;
 
 import etomica.action.WriteConfigurationBinary;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
 import etomica.config.ConfigurationFileBinary;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCovariance;
 import etomica.data.DataPumpListener;
 import etomica.data.IData;
@@ -177,9 +177,7 @@ public class LjMd3Dv2y {
                 eqSteps = steps/4;
                 if (eqSteps > 4000) eqSteps = 4000;
             }
-            sim.ai.setMaxSteps(eqSteps);
-            sim.getController().actionPerformed();
-            sim.getController().reset();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, eqSteps));
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
@@ -300,8 +298,7 @@ public class LjMd3Dv2y {
 
 
     	long t1 = System.currentTimeMillis();
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.currentTimeMillis();
 
         System.out.println();
@@ -318,10 +315,10 @@ public class LjMd3Dv2y {
         System.out.println();
 
         DataGroup dataPU = (DataGroup)accPU.getData();
-        IData avgPU = dataPU.getData(AccumulatorAverage.AVERAGE.index);
-        IData errPU = dataPU.getData(AccumulatorAverage.ERROR.index);
-        IData covPU = dataPU.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-        IData corPU = dataPU.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData avgPU = dataPU.getData(accPU.AVERAGE.index);
+        IData errPU = dataPU.getData(accPU.ERROR.index);
+        IData covPU = dataPU.getData(accPU.BLOCK_COVARIANCE.index);
+        IData corPU = dataPU.getData(accPU.BLOCK_CORRELATION.index);
         
         int j = 0;
         for (int i=0; i<cutoffs.length; i++) {
@@ -344,9 +341,9 @@ public class LjMd3Dv2y {
         
         if (nCutoffsLS > 0) {
             DataGroup dataPULS = (DataGroup)accPULS.getData();
-            IData avgPULS = dataPULS.getData(AccumulatorAverage.AVERAGE.index);
-            IData errPULS = dataPULS.getData(AccumulatorAverage.ERROR.index);
-            IData corPULS = dataPULS.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+            IData avgPULS = dataPULS.getData(accPULS.AVERAGE.index);
+            IData errPULS = dataPULS.getData(accPULS.ERROR.index);
+            IData corPULS = dataPULS.getData(accPULS.BLOCK_CORRELATION.index);
 
             j = 0;
             for (int i=0; i<cutoffsLS.length; i++) {
@@ -370,10 +367,10 @@ public class LjMd3Dv2y {
         }
         
         DataGroup dataPU1 = (DataGroup)accPUBlocks.getData();
-        IData avgPU1 = dataPU1.getData(AccumulatorAverage.AVERAGE.index);
-        IData errPU1 = dataPU1.getData(AccumulatorAverage.ERROR.index);
-        IData covPU1 = dataPU1.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-        IData corPU1 = dataPU1.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+        IData avgPU1 = dataPU1.getData(accPUBlocks.AVERAGE.index);
+        IData errPU1 = dataPU1.getData(accPUBlocks.ERROR.index);
+        IData covPU1 = dataPU1.getData(accPUBlocks.BLOCK_COVARIANCE.index);
+        IData corPU1 = dataPU1.getData(accPUBlocks.BLOCK_CORRELATION.index);
         
         int n = avgPU1.getLength();
         int nRaw = avgPU.getLength();
@@ -462,13 +459,13 @@ public class LjMd3Dv2y {
             if (pLJLS!=null) puSelfLJLRC = pLJLS.energyVirialCut(selfPair);
 
             dataPU = (DataGroup)accPULS.getData();
-            avgPU = dataPU.getData(AccumulatorAverage.AVERAGE.index);
+            avgPU = dataPU.getData(accPULS.AVERAGE.index);
 
             dataPU1 = (DataGroup)accPULSBlocks.getData();
-            avgPU1 = dataPU1.getData(AccumulatorAverage.AVERAGE.index);
-            errPU1 = dataPU1.getData(AccumulatorAverage.ERROR.index);
-            covPU1 = dataPU1.getData(AccumulatorAverageCovariance.BLOCK_COVARIANCE.index);
-            corPU1 = dataPU1.getData(AccumulatorAverage.BLOCK_CORRELATION.index);
+            avgPU1 = dataPU1.getData(accPULSBlocks.AVERAGE.index);
+            errPU1 = dataPU1.getData(accPULSBlocks.ERROR.index);
+            covPU1 = dataPU1.getData(accPULSBlocks.BLOCK_COVARIANCE.index);
+            corPU1 = dataPU1.getData(accPULSBlocks.BLOCK_CORRELATION.index);
 
             n = avgPU.getLength();
             int n1 = avgPU1.getLength();

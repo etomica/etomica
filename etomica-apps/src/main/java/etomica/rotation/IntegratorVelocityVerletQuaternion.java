@@ -20,7 +20,7 @@ import etomica.integrator.IntegratorRigidMatrixIterative.BoxImposePbcMolecule;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.math.function.Function;
 import etomica.models.water.OrientationCalcWater3P;
-import etomica.models.water.SpeciesWater3POriented;
+import etomica.models.water.SpeciesWater3P;
 import etomica.molecule.*;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
 import etomica.potential.*;
@@ -32,8 +32,8 @@ import etomica.space.Vector;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.ISpeciesOriented;
 import etomica.species.SpeciesAgentManager;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
@@ -96,7 +96,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesWater3POriented species = new SpeciesWater3POriented(sim.getSpace(), true);
+        SpeciesGeneral species = SpeciesWater3P.create(true, true);
         sim.addSpecies(species);
         Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
         sim.addBox(box);
@@ -117,8 +117,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         integrator.setTemperature(Kelvin.UNIT.toSim(298));
 //        integrator.setIsothermal(true);
         integrator.setThermostatInterval(100);
-        ActivityIntegrate ai = new ActivityIntegrate(integrator);
-        sim.getController().addAction(ai);
+        sim.getController().addActivity(new ActivityIntegrate(integrator));
         BoxImposePbcMolecule pbc = new BoxImposePbcMolecule(box, space);
         integrator.getEventManager().addListener(new IntegratorListenerAction(pbc));
         double oCharge = Electron.UNIT.toSim(-0.82);
@@ -133,8 +132,8 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
         pHH.setCharge1(hCharge);
         pHH.setCharge2(hCharge);
         P2LennardJones p2 = new P2LennardJones(sim.getSpace(), 3.1670, Kelvin.UNIT.toSim(78.23));
-        AtomType oType = species.getOxygenType();
-        AtomType hType = species.getHydrogenType();
+        AtomType oType = species.getTypeByName("O");
+        AtomType hType = species.getTypeByName("H");
 
         potentialMaster.addPotential(p2 /*new P2SoftSphericalTruncatedShifted(p2, boxlength*0.5)*/, new AtomType[]{oType, oType});
         PotentialGroup pGroup = potentialMaster.getPotential(new ISpecies[]{species, species});
@@ -154,11 +153,10 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
 
             graphic.makeAndDisplayFrame();
         } else {
-            ai.setMaxSteps(10000);
+            sim.getController().runActivityBlocking(new ActivityIntegrate(integrator, 10000));
 //            AtomSet atoms = box.getLeafList();
 //            Printme printme = new Printme((IAtomPositioned)atoms.getAtom(0), (IAtomPositioned)atoms.getAtom(1), new DataSourceCountTime(integrator), "quat"+(dt*1000));
 //            integrator.addIntervalAction(printme);
-            ai.actionPerformed();
 
 //            printme.cleanup();
 //            integrator.setThermostatInterval(1000);
@@ -220,7 +218,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
 
             MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent(molecule);
             Vector angularMomentum = ((IMoleculeOrientedKinetic)molecule).getAngularVelocity();
-            ISpeciesOriented orientedType = (ISpeciesOriented)molecule.getType();
+            ISpecies orientedType = molecule.getType();
             Vector moment = orientedType.getMomentOfInertia();
 
             if (stepCount%printInterval == 0) {
@@ -384,7 +382,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             }
 
             //advance linear velocity to full timestep
-            ((IAtomKinetic)molecule).getVelocity().PEa1Tv1(0.5*timeStep/((ISpeciesOriented)molecule.getType()).getMass(), agent.force);
+            ((IAtomKinetic)molecule).getVelocity().PEa1Tv1(0.5*timeStep/molecule.getType().getMass(), agent.force);
 
             //advance momentum to full timestep
             ((IAtomOrientedKinetic)molecule).getAngularVelocity().PEa1Tv1(0.5*timeStep, agent.torque);
@@ -423,7 +421,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent(molecule);
             Vector velocity = ((IMoleculeKinetic)molecule).getVelocity();
             Vector angularMomentum = ((IMoleculeOrientedKinetic)molecule).getAngularVelocity();
-            double mass = ((ISpeciesOriented)molecule.getType()).getMass();
+            double mass = molecule.getType().getMass();
 //            System.out.println("mass = "+mass);
             int D = velocity.getD();
             for(int i=0; i<D; i++) {
@@ -435,7 +433,7 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             for(int i=0; i<D; i++) {
                 angularVelocity.setX(i,random.nextGaussian());
             }
-            angularMomentum.Ea1Tv1(temperature, ((ISpeciesOriented)molecule.getType()).getMomentOfInertia());
+            angularMomentum.Ea1Tv1(temperature, molecule.getType().getMomentOfInertia());
             angularMomentum.map(new Function.Sqrt());
             angularMomentum.TE(angularVelocity);
             //angularMomentum is now the correct body-fixed angular momentum
@@ -448,49 +446,51 @@ public class IntegratorVelocityVerletQuaternion extends IntegratorMD implements 
             rotationTensor.transform(angularMomentum);
         }
     }
-    
-    public void randomizeMomentum(IAtomKinetic atom) {
-        if (atom instanceof Atom) {
-            super.randomizeMomentum(atom);
-            return;
+
+    public void shiftMomenta() {
+        IMoleculeList moleculeList = box.getMoleculeList();
+        int nMolecules = moleculeList.size();
+        momentum.E(0);
+        double totalMass = 0;
+        for (int iMolecule = 0; iMolecule < nMolecules; iMolecule++) {
+            IMolecule molecule = moleculeList.get(iMolecule);
+            MyTypeAgent typeAgent = (MyTypeAgent) typeAgentManager.getAgent(molecule.getType());
+            if (typeAgent == null) {
+                for (IAtom a : molecule.getChildList()) {
+                    double mass = a.getType().getMass();
+                    if (mass != Double.POSITIVE_INFINITY) {
+                        momentum.PEa1Tv1(mass, ((IAtomKinetic) a).getVelocity());
+                        totalMass += mass;
+                    }
+                }
+                continue;
+            }
+
+            Vector velocity = ((IMoleculeKinetic) molecule).getVelocity();
+            double mass = molecule.getType().getMass();
+            momentum.PEa1Tv1(mass, velocity);
+            totalMass += mass;
         }
 
-        MyTypeAgent typeAgent = (MyTypeAgent)typeAgentManager.getAgent(((IMolecule)atom).getType());
-        if (typeAgent == null) {
-            super.randomizeMomentum(atom);
-            return;
-        }
+        if (totalMass == 0) return;
+        momentum.TE(1.0 / totalMass);
+        //momentum is now net velocity
+        //set net momentum to 0
+        for (int iMolecule = 0; iMolecule < nMolecules; iMolecule++) {
+            IMolecule molecule = moleculeList.get(iMolecule);
+            MyTypeAgent typeAgent = (MyTypeAgent) typeAgentManager.getAgent(molecule.getType());
 
-        MoleculeAgent agent = (MoleculeAgent)moleculeAgentManager.getAgent((IMolecule)atom);
-        Vector velocity = atom.getVelocity();
-        Vector angularMomentum = ((IAtomOrientedKinetic)atom).getAngularVelocity();
-        double mass = ((ISpeciesOriented)((IMolecule)atom).getType()).getMass();
-        int D = velocity.getD();
-        for(int i=0; i<D; i++) {
-            velocity.setX(i,random.nextGaussian());
+            if (typeAgent == null) {
+                for (IAtom a : molecule.getChildList()) {
+                    double mass = a.getType().getMass();
+                    if (mass < Double.POSITIVE_INFINITY) ((IAtomKinetic) a).getVelocity().ME(momentum);
+                }
+                continue;
+            }
+            double mass = (molecule.getType()).getMass();
+            if (mass < Double.POSITIVE_INFINITY) ((IMoleculeKinetic) molecule).getVelocity().ME(momentum);
         }
-        velocity.TE(Math.sqrt(temperature/mass));
-
-        for(int i=0; i<D; i++) {
-            angularVelocity.setX(i,random.nextGaussian());
-        }
-        angularVelocity.TE(Math.sqrt(temperature/mass));
-        typeAgent.calcer.calcOrientation((IMolecule)atom, agent.quat);
-        rotationTensor.setQuaternions(agent.quat);
-        // body-fixed to space-fixed, so invert
-        rotationTensor.invert();
-        rotationTensor.transform(angularVelocity);
-
-        angularMomentum.E(angularVelocity);
-        angularMomentum.TE(angularMomentum);
-        angularMomentum.TE(temperature);
-        Vector moment = ((ISpeciesOriented)((IMolecule)atom).getType()).getMomentOfInertia();
-        angularMomentum.DE(moment);
-        angularMomentum.map(new Function.Sqrt());
-        angularMomentum.DE(moment);
     }
-    
-    public void shiftMomenta() {}
 
 //--------------------------------------------------------------
 
