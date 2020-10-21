@@ -8,7 +8,6 @@ import etomica.config.Configuration;
 import etomica.config.ConfigurationResourceFile;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
-import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterPressureFasterer;
 import etomica.tests.TestLJMC3D;
 import etomica.tests.TestLJMC3DBrute;
@@ -62,7 +61,7 @@ public class BenchSimLJMC3D {
 //        }
 
         {
-            simBrute = new TestLJMC3DBrute(numMolecules, numSteps, config);
+            simBrute = new TestLJMC3DBrute(numMolecules, config);
 
             MeterPressureFasterer pMeter = new MeterPressureFasterer(simBrute.box, simBrute.potentialMaster);
             pMeter.setTemperature(simBrute.integrator.getTemperature());

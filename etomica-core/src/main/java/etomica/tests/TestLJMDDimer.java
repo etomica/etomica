@@ -7,7 +7,6 @@ package etomica.tests;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.box.Box;
@@ -30,7 +29,8 @@ import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 
 import java.util.stream.Collectors;
@@ -42,10 +42,9 @@ import java.util.stream.IntStream;
 public class TestLJMDDimer extends Simulation {
 
     public IntegratorVelocityVerlet integrator;
-    public SpeciesSpheres species;
+    public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
-    public Controller controller;
     public MeterPotentialEnergy energy;
     public AccumulatorAverageCollapsing avgEnergy;
     public DataPump pump;
@@ -54,9 +53,11 @@ public class TestLJMDDimer extends Simulation {
     public TestLJMDDimer(int moleculeSize, int totalAtoms, boolean nbrListing) {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheres(this, space, moleculeSize);
-        species.setConformation(new ConformationChainLinear(space, 0.5, new double[]{Degree.UNIT.toSim(45), Degree.UNIT.toSim(45), 0}));
-        species.setIsDynamic(true);
+        species = new SpeciesBuilder(space)
+                .addCount(AtomType.simpleFromSim(this), moleculeSize)
+                .setDynamic(true)
+                .withConformation(new ConformationChainLinear(space, 0.5, new double[]{Degree.UNIT.toSim(45), Degree.UNIT.toSim(45), 0}))
+                .build();
         addSpecies(species);
 
         PotentialMaster potentialMaster = nbrListing ? new PotentialMasterList(this, 4, this.getSpace()) : new PotentialMaster();
@@ -66,10 +67,6 @@ public class TestLJMDDimer extends Simulation {
         integrator.setTimeStep(0.005);
         integrator.setTemperature(moleculeSize);
         integrator.setIsothermal(true);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(0);
-//        activityIntegrate.setMaxSteps(1000);
-        getController().addAction(activityIntegrate);
         box.setNMolecules(species, totalAtoms / moleculeSize);
         new BoxInflate(box, space, 0.9 / moleculeSize).actionPerformed();
         System.out.println("box size: "+box.getBoundary().getBoxSize());
@@ -128,6 +125,7 @@ public class TestLJMDDimer extends Simulation {
 //        System.out.println((t1 - t0) / 1e6);
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
 
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.getController().getDataStreamPumps().add(sim.pump);
         simGraphic.getDisplayBox(sim.box).setColorScheme(new ColorSchemeRandomByMolecule(sim, sim.box, sim.getRandom()));

@@ -6,7 +6,6 @@ package etomica.tests;
 
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -22,7 +21,7 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -32,19 +31,17 @@ import etomica.util.ParseArgs;
 public class TestLJMD3DSlowBrute extends Simulation {
 
     public IntegratorVelocityVerlet integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
-    public Controller controller;
     public MeterPotentialEnergy energy;
     public AccumulatorAverageCollapsing avgEnergy;
     public DataPump pump;
 
-    public TestLJMD3DSlowBrute(int numAtoms, int numSteps, Configuration config) {
+    public TestLJMD3DSlowBrute(int numAtoms, Configuration config) {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this);
@@ -52,9 +49,6 @@ public class TestLJMD3DSlowBrute extends Simulation {
         box = this.makeBox();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.02);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setMaxSteps(numSteps);
-        getController().addAction(activityIntegrate);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(0.65);
@@ -74,7 +68,7 @@ public class TestLJMD3DSlowBrute extends Simulation {
         int numAtoms = params.numAtoms;
         Configuration config = Configurations.fromResourceFile(String.format("LJMC3D%d.pos", numAtoms), TestLJMC3DSlowerer.class);
 
-        TestLJMD3DSlowBrute sim = new TestLJMD3DSlowBrute(numAtoms, params.numSteps / params.numAtoms, config);
+        TestLJMD3DSlowBrute sim = new TestLJMD3DSlowBrute(numAtoms, config);
 
         MeterPressure pMeter = new MeterPressure(sim.getSpace());
         pMeter.setIntegrator(sim.integrator);
@@ -88,7 +82,7 @@ public class TestLJMD3DSlowBrute extends Simulation {
         sim.integrator.getEventManager().addListener(energyPump);
 
         long t1 = System.currentTimeMillis();
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / params.numAtoms));
         long t2 = System.currentTimeMillis();
 
         double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(AccumulatorAverage.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());

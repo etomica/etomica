@@ -7,7 +7,6 @@ package etomica.tests;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.box.Box;
@@ -16,30 +15,24 @@ import etomica.config.ConformationChainLinear;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
-import etomica.data.meter.MeterPotentialEnergyFromIntegratorFasterer;
 import etomica.graphics.ColorSchemeRandomByMolecule;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.IntegratorMCFasterer;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.integrator.mcmove.MCMoveAtomFasterer;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.CriterionBondedSimple;
-import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.nbr.cell.PotentialMasterCellFasterer;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -49,10 +42,9 @@ import java.util.stream.IntStream;
 public class TestLJMCDimerSlow extends Simulation {
 
     public IntegratorMC integrator;
-    public SpeciesSpheres species;
+    public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
-    public Controller controller;
     public MeterPotentialEnergyFromIntegrator energy;
     public AccumulatorAverageCollapsing avgEnergy;
     public DataPump pump;
@@ -61,9 +53,11 @@ public class TestLJMCDimerSlow extends Simulation {
     public TestLJMCDimerSlow(int moleculeSize, int totalAtoms, boolean cellListing) {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheres(this, space, moleculeSize);
-        species.setConformation(new ConformationChainLinear(space, 0.5, new double[]{Degree.UNIT.toSim(45), Degree.UNIT.toSim(45), 0}));
-        species.setIsDynamic(false);
+        species = new SpeciesBuilder(space)
+                .addCount(AtomType.simpleFromSim(this), moleculeSize)
+                .setDynamic(true)
+                .withConformation(new ConformationChainLinear(space, 0.5, new double[]{Degree.UNIT.toSim(45), Degree.UNIT.toSim(45), 0}))
+                .build();
         addSpecies(species);
 
         double sigma = 1.0;
@@ -76,10 +70,6 @@ public class TestLJMCDimerSlow extends Simulation {
 
         integrator.getMoveManager().addMCMove(new MCMoveAtom(this.getRandom(), potentialMaster, this.getSpace()));
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-//        activityIntegrate.setSleepPeriod(1);
-//        activityIntegrate.setMaxSteps(1000);
-        getController().addAction(activityIntegrate);
         box.setNMolecules(species, totalAtoms / moleculeSize);
         new BoxInflate(box, space, 0.9 / moleculeSize).actionPerformed();
         System.out.println("box size: "+box.getBoundary().getBoxSize());
@@ -138,6 +128,8 @@ public class TestLJMCDimerSlow extends Simulation {
 //        long t1 = System.nanoTime();
 //        System.out.println((t1 - t0) / 1e6);
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
+
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.getController().getDataStreamPumps().add(sim.pump);

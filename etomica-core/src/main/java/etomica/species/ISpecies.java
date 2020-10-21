@@ -67,12 +67,6 @@ public interface ISpecies {
     int getAtomTypeCount();
 
     /**
-     *
-     * @return the total number of atoms in this Species.
-     */
-    int getLeafAtomCount();
-
-    /**
      * Returns the child type of this Species for the specified index.
      */
     AtomType getAtomType(int index);

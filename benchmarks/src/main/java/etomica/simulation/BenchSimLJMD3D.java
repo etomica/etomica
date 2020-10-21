@@ -51,19 +51,19 @@ public class BenchSimLJMD3D {
         );
 
         {
-            sim = new TestLJMD3D(numMolecules, numSteps, config);
+            sim = new TestLJMD3D(numMolecules, config);
             sim.integrator.reset();
             pm = sim.integrator.getPotentialMaster();
         }
 
         {
-            simBrute = new TestLJMD3DBrute(numMolecules, numSteps, config);
+            simBrute = new TestLJMD3DBrute(numMolecules, config);
             simBrute.integrator.reset();
             pmBrute = sim.integrator.getPotentialMaster();
         }
 
         {
-            simSlow = new TestLJMD3DSlowerer(numMolecules, numSteps, config);
+            simSlow = new TestLJMD3DSlowerer(numMolecules, config);
             simSlow.integrator.reset();
             pcSlow = simSlow.integrator.getForceSum();
             pmSlow = simSlow.integrator.getPotentialMaster();
@@ -71,7 +71,7 @@ public class BenchSimLJMD3D {
 
 
         {
-            simSlowBrute = new TestLJMD3DSlowBrute(numMolecules, numSteps, config);
+            simSlowBrute = new TestLJMD3DSlowBrute(numMolecules, config);
             simSlowBrute.integrator.reset();
             pcSlowBrute = simSlowBrute.integrator.getForceSum();
             pmSlowBrute = simSlowBrute.integrator.getPotentialMaster();
