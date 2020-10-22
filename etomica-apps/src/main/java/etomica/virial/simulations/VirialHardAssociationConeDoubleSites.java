@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.chem.elements.ElementSimple;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
@@ -93,7 +94,7 @@ public class VirialHardAssociationConeDoubleSites {
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 		
         //final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), temperature,refCluster,targetCluster);
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesSpheresRotating(space, new ElementSimple("O")), temperature, refCluster, targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesSpheresRotating.create(space, new ElementSimple("O")), temperature, refCluster, targetCluster);
         //sim.integratorOS.setStepFreq0(0.5);
         //sim.integratorOS.setAdjustStepFreq(false);
         /**sim.integratorOS.setNumSubSteps(1000);
@@ -116,7 +117,7 @@ public class VirialHardAssociationConeDoubleSites {
             sim.getController().removeAction(sim.ai);
             sim.getController().addAction(new IAction() {
                 public void actionPerformed() {
-                    sim.initRefPref(null, 100);
+                    sim.initRefPref(null, 100, false);
                     sim.equilibrate(null, 200);
                     sim.ai.setMaxSteps(Long.MAX_VALUE);
                 }
@@ -133,34 +134,27 @@ public class VirialHardAssociationConeDoubleSites {
 		configuration.initializeCoordinates(sim.box[1]);
 		sim.setAccumulatorBlockSize((int)steps*10);
 		
-		if (false) {
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+		if(false) {
+    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             simGraphic.makeAndDisplayFrame();
-    
+
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-                
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null,20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 10, false);
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            
-            return;
-        }
+    return;
+}
         sim.integratorOS.setNumSubSteps(1000);
         // if running interactively, don't use the file
         String refFileName = params.writeRefPref ? "refpref"+nPoints+"_"+temperature : null;
@@ -170,8 +164,8 @@ public class VirialHardAssociationConeDoubleSites {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/40);
-        
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+System.out.println("equilibration finished");
 
         IAction progressReport = new IAction() {
             public void actionPerformed() {
@@ -184,11 +178,10 @@ public class VirialHardAssociationConeDoubleSites {
         progressReportListener.setInterval((int) (steps / 10));
         sim.integratorOS.getEventManager().addListener(progressReportListener);
 
-        sim.ai.setMaxSteps(steps);
         for (int i = 0; i < 2; i++) {
             System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());

@@ -5,7 +5,7 @@
 package etomica.heVLE;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.SimulationGraphic;
@@ -44,17 +44,22 @@ public class DeviceThermoSliderGEMC extends Device {
     private final int DEFAULT_MIN_TEMPERATURE = 0;
     private final int DEFAULT_MAX_TEMPERATURE = 300;
 
-    public DeviceThermoSliderGEMC(Controller cont) {
+    private final IAction integratorBoxIsoChangeSetIso = new IAction() {
+        public void actionPerformed() {
+            integrator1.setIsothermal(isIsothermal());
+            integrator2.setIsothermal(isIsothermal());
+        }
+    };
 
-        //adiabatic/isothermal radio button
-        ButtonGroup thermalGroup = new ButtonGroup();
-        buttonAdiabatic = new JRadioButton("Adiabatic");
-        buttonIsothermal = new JRadioButton("Isothermal");
-        thermalGroup.add(buttonAdiabatic);
-        thermalGroup.add(buttonIsothermal);
+
+    public DeviceThermoSliderGEMC(Controller cont, IntegratorBox integratorBox1, IntegratorBox integratorBox2, IntegratorManagerMC integratorManagerMC) {
+        super(cont);
+        integrator1 = integratorBox1;
+        integrator2 = integratorBox2;
+        integrator3 = integratorManagerMC;
 
         //temperature selector
-        temperatureSlider = new DeviceSlider(controller);
+        temperatureSlider = new DeviceSlider(cont);
         temperatureSlider.setShowValues(true);
         temperatureSlider.setEditValues(true);
         temperatureSlider.setMinimum(DEFAULT_MIN_TEMPERATURE);
@@ -63,8 +68,43 @@ public class DeviceThermoSliderGEMC extends Device {
         temperatureSlider.setValue(300);
         temperatureSlider.getSlider().setEnabled(false);
         temperatureSlider.getTextField().setEnabled(false);
+        temperatureSlider.setModifier(new Modifier() {
 
-        setController(cont);
+            public Dimension getDimension() {
+                return Temperature.DIMENSION;
+            }
+
+            public String getLabel() {
+                return "Temperature";
+            }
+
+            public double getValue() {
+                return integrator1.getTemperature();
+            }
+
+            public void setValue(double newValue) {
+                integrator1.setTemperature(newValue);
+                integrator2.setTemperature(newValue);
+                integrator3.setTemperature(newValue);
+            }
+        });
+
+        ActionListener actionListen = evt -> controller.submitActionInterrupt(integratorBoxIsoChangeSetIso);
+
+        addRadioGroupActionListener(actionListen);
+        if (integrator1.isIsothermal()) {
+            setIsothermal();
+        } else {
+            setAdiabatic();
+        }
+
+        //adiabatic/isothermal radio button
+        ButtonGroup thermalGroup = new ButtonGroup();
+        buttonAdiabatic = new JRadioButton("Adiabatic");
+        buttonIsothermal = new JRadioButton("Isothermal");
+        thermalGroup.add(buttonAdiabatic);
+        thermalGroup.add(buttonIsothermal);
+
 
         // Tie the isothermal/adiabatic setting to the selectable status of
         // temperature slider
@@ -136,9 +176,7 @@ public class DeviceThermoSliderGEMC extends Device {
     }
 
     private void radioButtonChangeByClient() {
-        if (integrator1 != null && integrator2 != null) {
-            controller.doActionNow(integratorBoxIsoChangeSetIso);
-        }
+        controller.submitActionInterrupt(integratorBoxIsoChangeSetIso);
     }
 
     /**
@@ -258,101 +296,11 @@ public class DeviceThermoSliderGEMC extends Device {
     }
 
     /**
-     * Set the temperature slider controller.
-     */
-    public void setController(Controller cont) {
-        super.setController(cont);
-        temperatureSlider.setController(cont);
-        if (integrator1 != null && integrator2 != null) {
-            // invoke setIntegartor again so that the isothermal/adiabatic
-            // listener gets updated
-            setIntegrators(integrator1, integrator2, integrator3);
-        }
-    }
-
-    /**
      * Set the post slider value changed action.
      */
     public void setSliderPostAction(IAction action) {
         temperatureSlider.setPostAction(action);
     }
-
-    /**
-     * Sets the integrator for the device.  Adds actions to the device's
-     * controller to inform the integrator when the temperature and
-     * isothermal/adiabatic selection has changed based upon the type
-     * of integrator passed in.
-     *
-     * @param newIntegrator1
-     * @param newIntegrator2
-     * @param newIntegrator3
-     */
-    public void setIntegrators(IntegratorBox newIntegrator1, IntegratorBox newIntegrator2, IntegratorManagerMC newIntegrator3) {
-        integrator1 = newIntegrator1;
-        integrator2 = newIntegrator2;
-        integrator3 = newIntegrator3;
-        temperatureSlider.setModifier(new Modifier() {
-
-            public Dimension getDimension() {
-                return Temperature.DIMENSION;
-            }
-
-            public String getLabel() {
-                return "Temperature";
-            }
-
-            public double getValue() {
-                return integrator1.getTemperature();
-            }
-
-            public void setValue(double newValue) {
-                integrator1.setTemperature(newValue);
-                integrator2.setTemperature(newValue);
-                integrator3.setTemperature(newValue);
-            }
-        });
-
-        ActionListener actionListen = new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                controller.doActionNow(integratorBoxIsoChangeSetIso);
-            }
-        };
-
-        addRadioGroupActionListener(actionListen);
-        if (integrator1.isIsothermal()) {
-            setIsothermal();
-        } else {
-            setAdiabatic();
-        }
-    }
-
-    //
-    //main method to test device
-    //
-    public static void main(String[] args) {
-        final String APP_NAME = "Device Thermo Slider";
-
-        Controller controller = new Controller();
-        DeviceThermoSliderGEMC device = new DeviceThermoSliderGEMC(controller);
-        device.setMinimum(100.0);
-        device.setMaximum(1000.0);
-        device.setTemperature(250.0);
-
-        Space sp = Space2D.getInstance();
-        etomica.simulation.Simulation sim = new etomica.simulation.Simulation(sp);
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-        graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
-        graphic.add(device);
-        graphic.makeAndDisplayFrame(APP_NAME);
-
-    }
-
-    private IAction integratorBoxIsoChangeSetIso = new IAction() {
-        public void actionPerformed() {
-            integrator1.setIsothermal(isIsothermal());
-            integrator2.setIsothermal(isIsothermal());
-        }
-    };
 
     private void configureSliderAccessibility() {
         if (buttonAdiabatic.isSelected()) {

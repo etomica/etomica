@@ -18,7 +18,6 @@ import etomica.units.*;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Quantity;
 import etomica.util.Constants.CompassDirection;
-import org.knowm.xchart.XYSeries;
 
 import javax.swing.*;
 import java.awt.*;
@@ -61,7 +60,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
         final IAction resetAction = getController().getSimRestart().getDataResetAction();
         
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.controller1, sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
 
         // Sliders on Well depth page
         final DeviceSlider ABSlider = sliders(eMin, eMax, "Diol-Carboxylic Acid", sim.ABbonded);
@@ -205,7 +204,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
             }
         });
 
-        DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.controller1, sim.integratorHard);
+        DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integratorHard);
         temperatureSelect.setUnit(Kelvin.UNIT);
         temperatureSelect.setMaximum(1200);
         temperatureSelect.setIsothermal();

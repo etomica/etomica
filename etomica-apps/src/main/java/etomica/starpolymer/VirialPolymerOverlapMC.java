@@ -4,7 +4,7 @@
 
 package etomica.starpolymer;
 
-import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.box.Box;
@@ -24,6 +24,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
@@ -62,7 +63,8 @@ public class VirialPolymerOverlapMC {
         final double temperature = params.temperature;
 
         Space space = Space3D.getInstance();
-        SpeciesPolymerMono species = new SpeciesPolymerMono(space, new ElementSimple("A"), f, l);
+        SpeciesGeneral species = SpeciesPolymerMono.create(space, AtomType.simple("A"), f, l)
+                .build();
 
         final double sigmaTranslate = 30.0;
         final double refDiameter = 3.5 * Math.sqrt(l);
@@ -220,8 +222,8 @@ public class VirialPolymerOverlapMC {
         sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{lb, lb, lb}));
         sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{lb, lb, lb}));
 
-        if (false) {
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{lb, lb, lb}));
+        if(false) {
+    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{lb, lb, lb}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{lb, lb, lb}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "foo", 1);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
@@ -245,35 +247,27 @@ public class VirialPolymerOverlapMC {
             sim.setAccumulatorBlockSize(1000);
             sim.integratorOS.setNumSubSteps(1000);
 
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 1000);
-                    sim.equilibrate(null, 2000);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+			sim.initRefPref(null, 1000, false);
+    sim.equilibrate(null, 2000, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
 
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            return;
-        }
+    return;
+}
 
         long t1 = System.currentTimeMillis();
         steps = steps / 1000;
 
         sim.initRefPref(null, steps / 20);
         sim.equilibrate(null, steps / 10);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+sim.setAccumulatorBlockSize(steps);
+        sim.integratorOS.setNumSubSteps(steps);
+sim.getController().runActivityBlocking(ai);
 //        sim.initRefPref(null, 5);
 //        sim.equilibrate(null, 10);
-        sim.ai.setMaxSteps(1000);
-        sim.setAccumulatorBlockSize(steps);
-        sim.integratorOS.setNumSubSteps(steps);
-
-
-        sim.getController().actionPerformed();
 
         if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
             throw new RuntimeException("Oops");

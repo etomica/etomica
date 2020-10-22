@@ -6,7 +6,9 @@ package etomica.simulation.prototypes;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -30,7 +32,8 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresHetero;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Bar;
 import etomica.units.Debye;
 import etomica.units.Kelvin;
@@ -47,7 +50,6 @@ import etomica.util.ParseArgs;
 public class LJMC3DDimer extends Simulation {
 
     public final PotentialMaster potentialMaster;
-    public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
 
     /**
@@ -65,9 +67,11 @@ public class LJMC3DDimer extends Simulation {
         double rc = 3;
         potentialMaster = new PotentialMaster();
 
-        SpeciesSpheresHetero species = new SpeciesSpheresHetero(this, space, 2);
-        species.setChildCount(new int[]{1, 1});
-        species.setConformation(new ConformationLinear(space, 0.4847 + 0.6461));
+        SpeciesGeneral species = new SpeciesBuilder(space)
+                .addCount(AtomType.simpleFromSim(this), 1)
+                .addCount(AtomType.simpleFromSim(this), 1)
+                .withConformation(new ConformationLinear(space, 0.4847 + 0.6461))
+                .build();
         addSpecies(species);
 
         Box box = new Box(space);
@@ -99,10 +103,6 @@ public class LJMC3DDimer extends Simulation {
         bip.setApplyToMolecules(true);
         integrator.getEventManager().addListener(new IntegratorListenerAction(bip,params.numAtoms));
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-
-
     }
 
     public static void main(String[] args) {
@@ -129,25 +129,24 @@ public class LJMC3DDimer extends Simulation {
 
         // equilibration
         long t1 = System.currentTimeMillis();
-        sim.activityIntegrate.setMaxSteps(steps / 10);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
         System.out.println("equilibration finished");
 
         // data collection
         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverageFixed acc = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pump = new DataPumpListener(meterPE, acc, interval);
-        sim.getIntegrator().getEventManager().addListener(pump);
+        sim.integrator.getEventManager().addListener(pump);
 
         MeterPressureMolecular meterPM = new MeterPressureMolecular(sim.space);
+        meterPM.setIntegrator(sim.integrator);
         AccumulatorAverageFixed accp = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumpP = new DataPumpListener(meterPM, accp, params.numAtoms);
-        sim.getIntegrator().getEventManager().addListener(pumpP);
+        sim.integrator.getEventManager().addListener(pumpP);
 
-        sim.activityIntegrate.setMaxSteps(steps);
-        sim.getIntegrator().resetStepCount();
+        sim.integrator.resetStepCount();
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
         long t2 = System.currentTimeMillis();
 
@@ -173,6 +172,7 @@ public class LJMC3DDimer extends Simulation {
             }
 
             LJMC3DDimer sim = new LJMC3DDimer(params);
+            sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             ((DiameterHashByType) graphic.getDisplayBox(sim.box()).getDiameterHash()).setDiameter(sim.species().getAtomType(0), 3.0058);
             ((DiameterHashByType) graphic.getDisplayBox(sim.box()).getDiameterHash()).setDiameter(sim.species().getAtomType(1), 3.56379);
@@ -180,7 +180,7 @@ public class LJMC3DDimer extends Simulation {
             MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
             AccumulatorHistory accPE = new AccumulatorHistory(new HistoryCollapsingAverage());
             DataPumpListener pumpPE = new DataPumpListener(meterPE, accPE, 10);
-            sim.getIntegrator().getEventManager().addListener(pumpPE);
+            sim.integrator.getEventManager().addListener(pumpPE);
 
             MeterPressureMolecular meterPM = new MeterPressureMolecular(sim.space);
             meterPM.setIntegrator(sim.integrator);
@@ -190,7 +190,7 @@ public class LJMC3DDimer extends Simulation {
             df.addDataSink(accp);
             df.addDataSink(accph);
             DataPumpListener pumpP = new DataPumpListener(meterPM, df, params.numAtoms);
-            sim.getIntegrator().getEventManager().addListener(pumpP);
+            sim.integrator.getEventManager().addListener(pumpP);
 
             DisplayPlot historyPressure = new DisplayPlot();
             accph.addDataSink(historyPressure.getDataSet().makeDataSink());

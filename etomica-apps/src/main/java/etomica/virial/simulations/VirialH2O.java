@@ -4,6 +4,7 @@
 package etomica.virial.simulations;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
@@ -24,6 +25,7 @@ import etomica.potential.PotentialMolecularMonatomic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
@@ -191,8 +193,7 @@ public class VirialH2O {
         tarSubtract.setTemperature(temperature);
         diffClusterNew.setTemperature(temperature);
         // make species
-        final SpeciesSpheresRotating speciesH2O = new SpeciesSpheresRotating(space, new ElementSimple("H2O",Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()));
-        speciesH2O.setAxisSymmetric(false);
+        final SpeciesGeneral speciesH2O = SpeciesSpheresRotating.create(space, new ElementSimple("H2O",Oxygen.INSTANCE.getMass()+2*Hydrogen.INSTANCE.getMass()), false, false);
         
         // make simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesH2O, temperature, refCluster, diffClusterNew);
@@ -238,10 +239,11 @@ public class VirialH2O {
         }
         
         sim.equilibrate(refFileName, steps/10);
-        System.out.println("equilibration finished");        
-        
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+System.out.println("equilibration finished");
+
         // Collecting histogram in reference system
-        final HistogramNotSoSimple h1 = new HistogramNotSoSimple(new DoubleRange(0,100));        
+        final HistogramNotSoSimple h1 = new HistogramNotSoSimple(new DoubleRange(0,100));
         final HistogramNotSoSimple h2 = new HistogramNotSoSimple(new DoubleRange(0,100));
         IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorInitialized(IntegratorEvent e) {}
@@ -260,17 +262,17 @@ public class VirialH2O {
             }
         };
         sim.integrators[1].getEventManager().addListener(histListenerTarget);
-        
+
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
 
         // this is where the simulation takes place
-        sim.getController().actionPerformed();
+
+sim.getController().runActivityBlocking(ai);
         
         long t2 = System.currentTimeMillis(); // End time for simulation        
         

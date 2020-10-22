@@ -7,7 +7,7 @@ package etomica.graphics;
 import com.formdev.flatlaf.FlatLightLaf;
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.box.Box;
 import etomica.graphics.DisplayPlot.PopupListener;
 import etomica.integrator.Integrator;
@@ -367,18 +367,10 @@ public class SimulationGraphic implements SimulationContainer {
      */
     public void add(Device device) {
         Component component = device.graphic();
-        if (device instanceof DeviceTable) {
-            if (this.graphicType == GRAPHIC_ONLY) {
-                getPanel().graphicsPanel.add(component);
-            } else {
-                getPanel().tabbedPane.add(component);
-            }
+        if (device instanceof DeviceTrioControllerButton) {
+            getPanel().graphicsPanel.add(component, BorderLayout.SOUTH);
         } else {
-            if (device instanceof DeviceTrioControllerButton) {
-                getPanel().graphicsPanel.add(component, BorderLayout.SOUTH);
-            } else {
-                getPanel().controlPanel.add(component, SimulationPanel.getVertGBC());
-            }
+            getPanel().controlPanel.add(component, SimulationPanel.getVertGBC());
         }
         deviceList.add(device);
     }
@@ -386,19 +378,10 @@ public class SimulationGraphic implements SimulationContainer {
     public void remove(Device device) {
         final Component component = device.graphic();
         if (component == null) return; //display is not graphic
-        if (device instanceof DeviceTable) {
-            if (this.graphicType == GRAPHIC_ONLY) {
-                getPanel().graphicsPanel.remove(component);
-            } else {
-                getPanel().tabbedPane.remove(component);
-            }
-
+        if (device == dcb) {
+            getPanel().graphicsPanel.remove(component);
         } else {
-            if (device == dcb) {
-                getPanel().graphicsPanel.remove(component);
-            } else {
-                getPanel().controlPanel.remove(component);
-            }
+            getPanel().controlPanel.remove(component);
         }
         deviceList.remove(device);
     }

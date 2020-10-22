@@ -18,7 +18,6 @@ import etomica.simulation.Simulation;
 import etomica.space.IOrientation;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.Species;
 
 import java.io.Serializable;
 
@@ -101,7 +100,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
                 
         for (int iMolecule = 0; iMolecule<moleculeList.size(); iMolecule++) {
             IMolecule molecule = moleculeList.get(iMolecule);
-            IConformationOriented conformation = (IConformationOriented)((Species)molecule.getType()).getConformation();
+            IConformationOriented conformation = (IConformationOriented)(molecule.getType()).getConformation();
             
             if (configuration == null) {
             	// initialize the coordinate
@@ -233,7 +232,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
             axis.PEa1Tv1(mySinTheta*mySinPhi, myAxes[2]);
             orientation.setDirection(axis);
 
-            IConformationOriented conformationOriented = (IConformationOriented)((Species)molecule.getType()).getConformation();
+            IConformationOriented conformationOriented = (IConformationOriented) molecule.getType().getConformation();
             conformationOriented.initializePositions(molecule.getChildList(), orientation);
 	    	
 	    	j += coordinateDim/molecules.size();
@@ -264,7 +263,7 @@ public class CoordinateDefinitionHSDimer extends CoordinateDefinitionMolecule
         axis.PEa1Tv1(mySinTheta*mySinPhi, myAxes[2]);
         orientation.setDirection(axis);
 
-        IConformationOriented conformationOriented = (IConformationOriented)((Species)molecule.getType()).getConformation();
+        IConformationOriented conformationOriented = (IConformationOriented) molecule.getType().getConformation();
         conformationOriented.initializePositions(molecule.getChildList(), orientation);
 		        
         Vector site = getLatticePosition(molecule);

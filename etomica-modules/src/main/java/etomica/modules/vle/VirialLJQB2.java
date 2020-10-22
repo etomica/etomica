@@ -4,6 +4,7 @@
 
 package etomica.modules.vle;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.iterator.ApiIntergroup;
 import etomica.chem.elements.ElementSimple;
 import etomica.potential.P2LJQ;
@@ -52,7 +53,7 @@ public class VirialLJQB2 {
 
         steps /= 1000;
 		
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,new SpeciesSpheresRotating(space, new ElementSimple("O")), temperature,refCluster,targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,SpeciesSpheresRotating.create(space, new ElementSimple("O")), temperature,refCluster,targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
         // if running interactively, don't use the file
         // this will either read the refpref in from a file or run a short simulation to find it
@@ -61,10 +62,9 @@ public class VirialLJQB2 {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(null, steps/40);
-        
-        sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+sim.integratorOS.getMoveManager().setEquilibrating(false);
+sim.getController().runActivityBlocking(ai);
 
         double ratio = sim.dvo.getAverageAndError()[0];
         return ratio*HSB2;

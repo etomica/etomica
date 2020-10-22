@@ -4,7 +4,7 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorListener;
 import etomica.atom.AtomTypeOriented;
@@ -20,6 +20,7 @@ import etomica.potential.P2HSDipole;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Pixel;
 import etomica.util.Arrays;
@@ -98,8 +99,7 @@ public class VirialB3C2HSDipole {
         targetCluster.setTemperature(temperature);
         double refIntegral = HSB[nPoints];
 
-        SpeciesSpheresRotating species = new SpeciesSpheresRotating(space, new ElementSimple("A")); 
-        species.setIsDynamic(true);
+        SpeciesGeneral species = SpeciesSpheresRotating.create(space, new ElementSimple("A"), true, true);
         //simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space,species, temperature,refCluster,targetCluster,false);
         
@@ -114,48 +114,41 @@ public class VirialB3C2HSDipole {
             sim.box[1].trialNotify();
             sim.box[1].acceptNotify();
         }
-        if (false) {
-            double size = 10;
+        if(false) {
+    double size = 10;
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            simGraphic.getDisplayBox(sim.box[0]).setPixelUnit(new Pixel(300.0/size));
-            simGraphic.getDisplayBox(sim.box[1]).setPixelUnit(new Pixel(300.0/size));
+            simGraphic.getDisplayBox(sim.box[0]).setPixelUnit(new Pixel(300.0 / size));
+            simGraphic.getDisplayBox(sim.box[1]).setPixelUnit(new Pixel(300.0 / size));
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-            
-            ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
+
+            ColorSchemeByType colorScheme = (ColorSchemeByType) simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
             colorScheme.setColor(sim.getSpecies(0).getAtomType(0), Color.red);
             OrientedFullSite[] sites = new OrientedFullSite[2];
 
             sites[0] = new OrientedFullSite(Vector.of(new double[]{0.5, 0, 0}), Color.BLUE, 0.2);
             sites[1] = new OrientedFullSite(Vector.of(new double[]{-0.5, 0, 0}), Color.YELLOW, 0.2);
-            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box[0]).canvas).setOrientationSites(
+            ((DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box[0]).canvas).setOrientationSites(
                     (AtomTypeOriented) sim.getSpecies(0).getAtomType(0), sites);
-            ((DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box[1]).canvas).setOrientationSites(
+            ((DisplayBoxCanvasG3DSys) simGraphic.getDisplayBox(sim.box[1]).canvas).setOrientationSites(
                     (AtomTypeOriented) sim.getSpecies(0).getAtomType(0), sites);
             simGraphic.makeAndDisplayFrame();
 
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-                
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null, 20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 10, false);
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
                 throw new RuntimeException("Oops");
             }
-
-            return;
-        }
+    return;
+}
         
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+temperature : null;
@@ -164,7 +157,8 @@ public class VirialB3C2HSDipole {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/40);
-        if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
 
@@ -172,7 +166,6 @@ public class VirialB3C2HSDipole {
 
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps((int)steps);
-        sim.ai.setMaxSteps(1000);
         sim.integratorOS.getMoveManager().setEquilibrating(false);
 
         for (int i=0; i<2; i++) {
@@ -188,7 +181,7 @@ public class VirialB3C2HSDipole {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
@@ -203,7 +196,7 @@ public class VirialB3C2HSDipole {
 
         IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
@@ -235,7 +228,7 @@ public class VirialB3C2HSDipole {
             // only collect the histogram if we're forcing it to run the reference system
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
         if (false) {////
             double[] xValues = targHist.xValues();
             double[] h = targHist.getHistogram();

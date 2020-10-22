@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
@@ -27,6 +28,8 @@ import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.virial.*;
@@ -207,16 +210,16 @@ public class VirialRowleyAlcohol {
         PotentialMaster potentialMaster = new PotentialMaster();
 
         if(ethanol) {
-            sim = new SimulationVirialOverlap2(space, new SpeciesEthanol(space, pointCharges),
+            SpeciesGeneral species = SpeciesEthanol.create(pointCharges);
+            sim = new SimulationVirialOverlap2(space, species,
                     temperature, refCluster, targetCluster); //use first constructor; no need for intramolecular movement MC trial
-            SpeciesEthanol species = (SpeciesEthanol) sim.getSpecies(0);
             EthanolPotentialHelper.initPotential(space, species, U_a_b, pointCharges);
             //potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
         }
         else {
-            sim = new SimulationVirialOverlap2(space, new SpeciesMethanol(space, pointCharges),
+            SpeciesGeneral species = SpeciesMethanol.create(pointCharges);
+            sim = new SimulationVirialOverlap2(space, species,
                     temperature, refCluster, targetCluster); //use first constructor; no need for intramolecular movement MC trial
-            SpeciesMethanol species = (SpeciesMethanol) sim.getSpecies(0);
 
             MethanolPotentialHelper.initPotential(space, species, U_a_b, pointCharges, sigmaOC, sigmaOH);
             //potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
@@ -343,9 +346,8 @@ public class VirialRowleyAlcohol {
 
         }
 
-        if (graphics) {
-
-            referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        if(graphics) {
+    referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             targetBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(referenceBox).setShowBoundary(false);
@@ -360,15 +362,16 @@ public class VirialRowleyAlcohol {
 
             if (ethanol) {
 
-                SpeciesEthanol species = (SpeciesEthanol)sim.getSpecies(0);
-
+                ISpecies species = sim.getSpecies(0);
                 // Create instances of the types of molecular sites
-                AtomType type_O = species.getOxygenType();
-                AtomType type_aC = species.getAlphaCarbonType();
-                AtomType type_C = species.getCarbonType();
-                AtomType type_aH = species.getAlphaHydrogenType();
-                AtomType type_H = species.getHydrogenType();
-                AtomType type_X = species.getXType();
+
+                AtomType type_O = species.getTypeByName("O");
+                AtomType type_aC = species.getTypeByName("AC");
+                AtomType type_C = species.getTypeByName("C");
+                AtomType type_aH = species.getTypeByName("AH");
+                AtomType type_H = species.getTypeByName("H");
+                AtomType type_X = species.getTypeByName("X");
+
 
                 // Set color of each site type for each simulation
 
@@ -386,17 +389,16 @@ public class VirialRowleyAlcohol {
                 colorScheme1.setColor(type_H, Color.WHITE);
                 colorScheme1.setColor(type_X, Color.BLUE);
 
-            }
-            else {
+            } else {
 
-                SpeciesMethanol species = (SpeciesMethanol)sim.getSpecies(0);
+                ISpecies species = sim.getSpecies(0);
 
                 // Create instances of the types of molecular sites
-                AtomType type_O = species.getOxygenType();
-                AtomType type_aC = species.getAlphaCarbonType();
-                AtomType type_aH = species.getAlphaHydrogenType();
-                AtomType type_H = species.getHydrogenType();
-                AtomType type_X = species.getXType();
+                AtomType type_O = species.getTypeByName("O");
+                AtomType type_aC = species.getTypeByName("AC");
+                AtomType type_aH = species.getTypeByName("AH");
+                AtomType type_H = species.getTypeByName("H");
+                AtomType type_X = species.getTypeByName("X");
 
                 // Set color of each site type for each simulation
 
@@ -515,21 +517,14 @@ public class VirialRowleyAlcohol {
 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 100);
-                    sim.equilibrate(null, 200);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 100, false);
+    sim.equilibrate(null, 200, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-
-            return;
-        }
+    return;
+}
 
 
         /*
@@ -547,8 +542,8 @@ public class VirialRowleyAlcohol {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/20);
-
-        sim.setAccumulatorBlockSize((int)steps);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+sim.setAccumulatorBlockSize((int)steps);
 
         /*System.out.println();
         System.out.println("equilibration finished");
@@ -582,8 +577,7 @@ public class VirialRowleyAlcohol {
         sim.integratorOS.getEventManager().addListener(progressReportListener);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         sim.printResults(HSB[numMolecules]);
 	}

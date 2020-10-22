@@ -2,6 +2,7 @@ package etomica.starpolymer;
 
 import etomica.action.IAction;
 import etomica.action.WriteConfiguration;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -31,6 +32,7 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -41,28 +43,24 @@ public class StarPolymerMC extends Simulation {
 
     public Box box;
     public int f, l;
-    public SpeciesPolymerMono species;
+    public SpeciesGeneral species;
     public IntegratorMC integratorMC;
-    public final ActivityIntegrate ai;
     public P2Fene potentialFene;
     public P2WCA potentialWCA;
     public PotentialMaster potentialMaster;
 
-    public StarPolymerMC(int f, int l, double temperature, double tStep, boolean fromFile) {
+    public StarPolymerMC(int f, int l) {
         super(Space3D.getInstance());
         this.f = f;
         this.l = l;
-        species = new SpeciesPolymerMono(this, getSpace(), f, l);
-        species.setIsDynamic(true);
+        species = SpeciesPolymerMono.create(this.getSpace(), AtomType.simpleFromSim(this), f, l)
+                .setDynamic(true)
+                .build();
         addSpecies(species);
 
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector3D(1.5 * l * 2, 1.5 * l * 2, 1.5 * l * 2));
         box.setNMolecules(species, 1);
-        if (fromFile) {
-            ConformationStarPolymerAll conf = new ConformationStarPolymerAll(this.getSpace(), "./resource/f5L40.xyz", 0);
-            conf.initializePositions(box.getMoleculeList().get(0).getChildList());
-        }
         ArrayList<ArrayList<int[]>> pairArray = getPairArray(f, l);
         int[][] boundedPairs = pairArray.get(0).toArray(new int[0][0]);
         int[][] nonBoundedPairs = pairArray.get(1).toArray(new int[0][0]);
@@ -76,26 +74,20 @@ public class StarPolymerMC extends Simulation {
         }
 
         integratorMC = new IntegratorMC(this, potentialMaster, box);
-        if (fromFile) {
-            MCMoveUpdateConformation moveConformation = new MCMoveUpdateConformation(this, space, "./resource/f5L40.xyz");
-            integratorMC.getMoveManager().addMCMove(moveConformation);
-        } else {
 //            MCMoveAtom atomMove = new MCMoveAtom(random, potentialMaster, space);
 //            integratorMC.getMoveManager().addMCMove(atomMove);
 //            ((MCMoveStepTracker) atomMove.getTracker()).setNoisyAdjustment(true);
 //            MCMoveWiggle wiggleMove = new MCMoveWiggle(potentialMaster, random, 1, l, space);
 //            integratorMC.getMoveManager().addMCMove(wiggleMove);
 //            ((MCMoveStepTracker) wiggleMove.getTracker()).setNoisyAdjustment(true);
-            MCMoveRotateArm rotateArmMove = new MCMoveRotateArm(potentialMaster, random, 1, l, space);
-            integratorMC.getMoveManager().addMCMove(rotateArmMove);
+        MCMoveRotateArm rotateArmMove = new MCMoveRotateArm(potentialMaster, random, 1, l, space);
+        integratorMC.getMoveManager().addMCMove(rotateArmMove);
 //            ((MCMoveStepTracker) rotateArmMove.getTracker()).setNoisyAdjustment(true);
-            MCMoveBondLength bondMove = new MCMoveBondLength(potentialMaster, random, 1, l, space);
-            integratorMC.getMoveManager().addMCMove(bondMove);
+        MCMoveBondLength bondMove = new MCMoveBondLength(potentialMaster, random, 1, l, space);
+        integratorMC.getMoveManager().addMCMove(bondMove);
 //            ((MCMoveStepTracker) bondMove.getTracker()).setNoisyAdjustment(true);
-        }
 
-        ai = new ActivityIntegrate(integratorMC);
-        getController().addAction(ai);
+        this.getController().addActivity(new ActivityIntegrate(integratorMC));
 
         potentialFene = new P2Fene(space);
         potentialWCA = new P2WCA(space);
@@ -157,7 +149,7 @@ public class StarPolymerMC extends Simulation {
     }
 
     public static void main(String[] args) {
-        StarPolymerMC.PolymerParam params = new StarPolymerMC.PolymerParam();
+        PolymerParam params = new PolymerParam();
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
@@ -171,12 +163,12 @@ public class StarPolymerMC extends Simulation {
 
         double temperature = 1.0;
         final int dataInterval = 100;
-        boolean graphics = false;
+        boolean graphics = true;
         double tStep = 0.005;
         boolean fromFile = false;
         boolean writeConf = false;
 
-        final StarPolymerMC sim = new StarPolymerMC(f, l, temperature, tStep, fromFile);
+        final StarPolymerMC sim = new StarPolymerMC(f, l);
 
         final MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster, sim.box);
         double u = meterPE.getDataAsScalar();
@@ -254,8 +246,7 @@ public class StarPolymerMC extends Simulation {
             File file = new File("./resource/init_f" + f);
             writeConfigurationd.setFileName("./resource/init_f" + f);
             writeConfigurationd.actionPerformed();
-            sim.ai.setMaxSteps(steps);
-            sim.getController().actionPerformed();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorMC, steps));
 
             writeConfigurationd.setConfName("new conf");
             File file2 = new File("./resource/newConf_f" + f);
@@ -267,9 +258,8 @@ public class StarPolymerMC extends Simulation {
 
         System.out.println("Equilibration of " + steps + " steps starts...");
         long t1 = System.currentTimeMillis();
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
-        System.out.println("Equilibration finished! ");
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorMC, steps));
+System.out.println("Equilibration finished! ");
 
         DataFork rgFork = new DataFork();
         AccumulatorAverageFixed accRG = new AccumulatorAverageFixed(1000);
@@ -279,9 +269,8 @@ public class StarPolymerMC extends Simulation {
         sim.integratorMC.reset();
 
         System.out.println("Production starts...");
-        sim.getController().reset();
-        sim.ai.setMaxSteps(1000 * 10 * 100);
-        sim.getController().actionPerformed();
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integratorMC, 1000 * 10 * 100));
         System.out.println("Production finished! ");
         long t2 = System.currentTimeMillis();
         System.out.println("time : " + (t2 - t1) / 1000.0);

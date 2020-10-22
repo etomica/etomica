@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.potential.P2LennardJones;
@@ -166,10 +167,12 @@ public class LJTSRefLJ {
         
         
         sim.equilibrate(steps/40);
-        
-        System.out.println("equilibration finished");
-        
-        sim.ai.setMaxSteps(steps);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integrator, steps);
+System.out.println("equilibration finished");
+
+        System.out.println();
+        System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize());
+sim.getController().runActivityBlocking(ai);
 
 //        IAction progressReport = new IAction() {
 //            public void actionPerformed() {
@@ -181,12 +184,6 @@ public class LJTSRefLJ {
 //        };
 //        sim.integratorOS.addIntervalAction(progressReport);
 //        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
-
-        
-        System.out.println();
-        System.out.println("MC Move step sizes "+sim.mcMoveTranslate.getStepSize());
-        
-        sim.getController().actionPerformed();
 
         
        

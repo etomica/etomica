@@ -5,6 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.IAction;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -28,7 +29,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
@@ -52,7 +53,7 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
     public IntegratorOverlap integratorOverlap;
     public DataSourceVirialOverlap dsvo;
     public IntegratorBox[] integrators;
-    public ActivityIntegrate activityIntegrate;
+
     public Box boxTarget, boxHarmonic;
     public Boundary boundaryTarget, boundaryHarmonic;
     public int[] nCells;
@@ -67,8 +68,8 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
     public SimOverlapSoftSphereSuperBox(Space _space, int numAtoms, double density, double temperature, String filename, double harmonicFudge, int exponent) {
         super(_space);
         this.fname = filename;
-        SpeciesSpheresMono speciesA = new SpeciesSpheresMono(this, space);
-        SpeciesSpheresMono speciesB = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral speciesA = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
+        SpeciesGeneral speciesB = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(speciesA);
         addSpecies(speciesB);
 
@@ -202,9 +203,7 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
 
         setRefPref(1.0, 30);
 
-        activityIntegrate = new ActivityIntegrate(integratorOverlap);
-
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integratorOverlap));
     }
 
     /**
@@ -259,7 +258,8 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
         System.out.flush();
 
         sim.equilibrate(refFileName, numSteps / 10);
-        if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOverlap, numSteps);
+if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("Simulation failed to find a valid ref pref");
         }
 
@@ -321,9 +321,7 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
         };
 
         sim.integratorOverlap.getEventManager().addListener(new IntegratorListenerAction(output, (int) numSteps / 20));
-
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         sim.accumulators[0].closeFile();
         sim.accumulators[1].closeFile();
@@ -422,17 +420,15 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
 
         if (refPref == -1) {
             // equilibrate off the lattice to avoid anomolous contributions
-            activityIntegrate.setMaxSteps(initSteps/2);
-            getController().actionPerformed();
-            getController().reset();
+            getController().runActivityBlocking(new ActivityIntegrate(integratorOverlap, initSteps / 2));
+
             System.out.println("target equilibration finished");
 
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,false),1);
             setRefPref(1,200);
-            activityIntegrate.setMaxSteps(initSteps);
-            getController().actionPerformed();
-            getController().reset();
+            getController().runActivityBlocking(new ActivityIntegrate(integratorOverlap, initSteps));
+
 
             int newMinDiffLoc = dsvo.minDiffLocation();
             refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
@@ -450,7 +446,7 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
             // set refPref back to -1 so that later on we know that we've been looking for
             // the appropriate value
             refPref = -1;
-            getController().reset();
+
         }
 
     }
@@ -458,13 +454,11 @@ public class SimOverlapSoftSphereSuperBox extends Simulation {
     public void equilibrate(String fileName, long initSteps) {
         // run a short simulation to get reasonable MC Move step sizes and
         // (if needed) narrow in on a reference preference
-        activityIntegrate.setMaxSteps(initSteps);
-
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        getController().actionPerformed();
-        getController().reset();
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integratorOverlap, initSteps));
+
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
         }

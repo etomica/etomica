@@ -5,19 +5,20 @@
 package etomica.modules.nucleation;
 
 import etomica.action.BoxImposePbc;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
+import etomica.integrator.mcmove.MCMoveMoleculeExchangeVLE;
+import etomica.integrator.mcmove.MCMoveVolumeExchangeVLE;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.modules.vle.MCMoveMoleculeExchangeVLE;
-import etomica.modules.vle.MCMoveVolumeExchangeVLE;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2SquareWell;
@@ -26,16 +27,16 @@ import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.random.RandomMersenneTwister;
 
 public class SWVLESim extends Simulation {
 
     public final Box boxLiquid, boxVapor;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final IntegratorMC integratorLiquid, integratorVapor;
     public final IntegratorManagerMC integratorGEMC;
-    public final ActivityIntegrate activityIntegrate;
+
     protected final P2SquareWell p2;
     protected double temperature;
     protected double density;
@@ -50,7 +51,7 @@ public class SWVLESim extends Simulation {
 
         double initBoxSize = Math.pow(initNumMolecules / density, (1.0 / D));
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         boxLiquid = this.makeBox(new BoundaryRectangularPeriodic(space, initBoxSize));
@@ -106,8 +107,7 @@ public class SWVLESim extends Simulation {
         integratorGEMC.getMoveManager().addMCMove(moleculeExchange);
 //        integratorGEMC.getMoveManager().setFrequency(volumeExchange, 0.01);
 
-        activityIntegrate = new ActivityIntegrate(integratorGEMC);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integratorGEMC));
 
         if (doNBR) {
             ((PotentialMasterCell) potentialMaster).getBoxCellManager(boxLiquid).assignCellAll();

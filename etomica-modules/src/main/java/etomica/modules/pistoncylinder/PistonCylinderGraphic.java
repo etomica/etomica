@@ -8,7 +8,7 @@ import etomica.action.ActionGroupSeries;
 import etomica.action.IAction;
 import etomica.action.IntegratorReset;
 import etomica.action.SimulationRestart;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.atom.DiameterHashByElementType;
 import etomica.atom.IAtomList;
 import etomica.chem.elements.ElementSimple;
@@ -387,7 +387,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     	    scaleSlider.getSlider().setLabelTable(scaleLabels);
         }
 
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(pc.getController(), (ActivityIntegrate)pc.getController().getAllActions()[0]);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(pc.getController());
         
         // Add panels to the control panel
         getPanel().controlPanel.add(setupPanel, vertGBC);
@@ -679,8 +679,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         plotP.setLegend(new DataTag[]{targetPressureDataSource.getTag()}, "target");
         dataStreamPumps.add(pump);
 
-        densityMeter = new MeterDensity(pc.getSpace()); //pc.pistonPotential,1);
-        densityMeter.setBox(pc.box);
+        densityMeter = new MeterDensity(pc.box);
         final AccumulatorHistory densityHistory = new AccumulatorHistory();
         densityHistory.setTimeDataSource(meterCycles);
         densityHistory.getHistory().setHistoryLength(historyLength);
@@ -814,7 +813,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                         isFast = true;
                         goFastButton.setLabel("Go Slower");
                         pc.integrator.setTimeStep(10);
-                        pc.ai.setSleepPeriod(0);
+                        pc.getController().setSleepPeriod(0);
                         setRepaintInterval(10000);
                         densityHistory.setActive(false);
                         temperatureHistory.setActive(false);
@@ -833,7 +832,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public void setPotential(String potentialDesc) {
         final boolean HS = potentialDesc.equals(REPULSION_ONLY); 
         final boolean SW = potentialDesc.equals(REPULSION_ATTRACTION); 
-        pc.getController().doActionNow( new IAction() {
+        pc.getController().submitActionInterrupt(new IAction() {
             public void actionPerformed() {
                 if (HS) {
                     potentialHS.setBox(pc.box);

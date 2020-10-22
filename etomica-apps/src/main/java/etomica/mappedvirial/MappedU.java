@@ -5,6 +5,7 @@
 package etomica.mappedvirial;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -27,7 +28,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -37,18 +38,18 @@ import java.util.ArrayList;
 
 public class MappedU extends Simulation {
 
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public IntegratorMC integrator;
     public MCMoveAtom move;
-    public ActivityIntegrate activityIntegrate;
+
     public P2SoftSphericalTruncated p2Truncated;
 
     public MappedU(Space _space, int numAtoms, double temperature, double density, double rc) {
         super(_space);
 
         //species and potentials
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         //construct box
@@ -64,8 +65,7 @@ public class MappedU extends Simulation {
 
         //controller and integrator
         integrator = new IntegratorMC(potentialMaster, random, temperature, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         move = new MCMoveAtom(random, potentialMaster, space);
         integrator.getMoveManager().addMCMove(move);
 
@@ -157,11 +157,9 @@ public class MappedU extends Simulation {
 
         long t1 = System.currentTimeMillis();
 
-        sim.activityIntegrate.setMaxSteps(numSteps/10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.integrator.getMoveManager().setEquilibrating(false);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
+
+sim.integrator.getMoveManager().setEquilibrating(false);
 
         int nBins = 1000000;
         long numSamples = numSteps/numAtoms;
@@ -205,8 +203,7 @@ public class MappedU extends Simulation {
             meterRDF.getXDataSource().setXMax(eqncutoff);
             sim.integrator.getEventManager().addListener(new IntegratorListenerAction(meterRDF, numAtoms));
         }
-
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
 
 

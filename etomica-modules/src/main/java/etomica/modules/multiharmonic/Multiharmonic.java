@@ -5,8 +5,8 @@
 package etomica.modules.multiharmonic;
 
 import etomica.action.SimulationDataAction;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -23,7 +23,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 
 /**
@@ -39,12 +39,10 @@ public class Multiharmonic extends Simulation {
     MeterEnergy meterEnergy;
     AccumulatorAverageCollapsing accumulatorEnergy;
     AccumulatorHistory historyEnergy;
-    SpeciesSpheresMono species;
+    SpeciesGeneral species;
     Box box;
-    Controller controller;
     P1Harmonic potentialA, potentialB;
     IntegratorVelocityVerlet integrator;
-    ActivityIntegrate activityIntegrate;
     MeterFreeEnergy meter;
     AccumulatorAverageCollapsing accumulator;
     DataPump dataPump, dataPumpEnergy;
@@ -52,14 +50,12 @@ public class Multiharmonic extends Simulation {
     DataSourceCountTime timeCounter;
     public Multiharmonic() {
         super(Space1D.getInstance());
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         double x0 = 0;
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector1D(6.0));
-        controller = getController();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
         integrator.setTimeStep(0.02);
         integrator.setIsothermal(true);
@@ -78,9 +74,8 @@ public class Multiharmonic extends Simulation {
              a = iterator.nextAtom()) {
             a.getPosition().setX(0, x0);
         }
-        activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
-        getController().addAction(activityIntegrate);
+        getController().setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         potentialB = new P1Harmonic(space);
         potentialB.setX0(new Vector1D(x0 + 1));

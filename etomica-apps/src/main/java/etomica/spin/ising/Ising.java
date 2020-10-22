@@ -6,6 +6,7 @@ package etomica.spin.ising;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -19,7 +20,7 @@ import etomica.nbr.site.PotentialMasterSite;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 
 /**
@@ -34,7 +35,7 @@ public class Ising extends Simulation {
     private static final long serialVersionUID = 2L;
     public PotentialMasterSite potentialMaster;
     public Box box;
-    public SpeciesSpheresMono spins;
+    public SpeciesGeneral spins;
     public P2Spin potential;
     public P1MagneticField field;
     public MCMoveSpinFlip mcmove;
@@ -52,7 +53,7 @@ public class Ising extends Simulation {
      */
     public Ising(Space _space, int nCells) {
         super(_space);
-        spins = new SpeciesSpheresMono(this, space);
+        spins = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(spins);
         potentialMaster = new PotentialMasterSite(this, nCells, space);
         box = this.makeBox();
@@ -66,8 +67,7 @@ public class Ising extends Simulation {
         mcmove = new MCMoveSpinFlip(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(mcmove);
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         AtomType type = spins.getLeafType();
         potentialMaster.addPotential(field, new AtomType[]{type});

@@ -4,6 +4,7 @@
 
 package etomica.modules.multiharmonic.mbar;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -20,7 +21,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 
 /**
@@ -31,16 +32,16 @@ import etomica.species.SpeciesSpheresMono;
 public class MultiharmonicMC extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    protected final SpeciesSpheresMono species;
+    protected final SpeciesGeneral species;
     protected final Box boxA, boxB;
     protected final P1Harmonic potentialA, potentialB;
     protected final IntegratorMC integratorA, integratorB;
     protected final IntegratorOverlap integratorOS;
-    protected final ActivityIntegrate activityIntegrate;
+    
     protected final MeterMBAR meterOverlapA, meterOverlapB;
     public MultiharmonicMC() {
         super(Space1D.getInstance());
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
         PotentialMaster potentialMasterA = new PotentialMasterMonatomic(this);
         PotentialMaster potentialMasterB = new PotentialMasterMonatomic(this);
@@ -84,7 +85,6 @@ public class MultiharmonicMC extends Simulation {
         integratorOS.setRefStepFraction(0.5);
         integratorOS.setAdjustStepFraction(false);
 
-        activityIntegrate = new ActivityIntegrate(integratorOS, 1, false);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integratorOS, true));
     }
 }

@@ -4,18 +4,14 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
-import etomica.atom.IAtomList;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
-import etomica.chem.elements.ElementSimple;
-import etomica.chem.elements.IElement;
 import etomica.chem.elements.Nitrogen;
-import etomica.config.IConformation;
 import etomica.data.IData;
 import etomica.data.types.DataGroup;
 import etomica.graph.model.Graph;
@@ -33,7 +29,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresHetero;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -257,23 +254,16 @@ public class VirialN2AlkaneUAMix {
             targetDiagrams[i].setTemperature(temperature);
         }
         // nitrogen
-        final IConformation conformation = new IConformation() {
-        	public void initializePositions(IAtomList atomList) {
-                // atoms are C, O and O, so we arrange them as 1-0-2
-                double bondL = 1.10;
-                atomList.get(0).getPosition().E(0);
-                atomList.get(1).getPosition().E(0);
-                atomList.get(1).getPosition().setX(0, -0.5 * bondL);
-                atomList.get(2).getPosition().E(0);
-                atomList.get(2).getPosition().setX(0, + 0.5 * bondL);
-            }
-        };
-        SpeciesSpheresHetero speciesN2 = new SpeciesSpheresHetero(space, new IElement[]{new ElementSimple("A"), Nitrogen.INSTANCE});
-        speciesN2.setChildCount(new int[]{1,2});
-        speciesN2.setConformation(conformation);
+        AtomType nType = AtomType.element(Nitrogen.INSTANCE);
+        double bondL = 1.10;
+        SpeciesGeneral speciesN2 = new SpeciesBuilder(space)
+                .addAtom(AtomType.simple("A"), space.makeVector())
+                .addAtom(nType, Vector.of(-0.5 * bondL))
+                .addAtom(nType, Vector.of(+0.5 * bondL))
+                .build();
         // alkane
-        SpeciesAlkane speciesAlkane = new SpeciesAlkane(space, nSpheres);
-        
+        SpeciesGeneral speciesAlkane = SpeciesAlkane.create(nSpheres);
+
         ClusterWeight[] sampleClusters = new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), 
         		                                             ClusterWeightAbs.makeWeightCluster(targetCluster)};
 
@@ -438,56 +428,49 @@ public class VirialN2AlkaneUAMix {
         }
         sim.accumulators[1].reset();// don't want to collect these data!!!!
         
-        if (false) {
-        	  double size = 10;
-              sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
-              sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
-              SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-              DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
-              DisplayBox dBox1 = simGraphic.getDisplayBox(sim.box[1]);
-              dBox0.setPixelUnit(new Pixel(300.0/size));
-              dBox1.setPixelUnit(new Pixel(300.0/size));
-              dBox0.setShowBoundary(false);
-              dBox1.setShowBoundary(false);
-              
-              //set diameters
-              DiameterHashByType diameter = new DiameterHashByType();
-              diameter.setDiameter(speciesN2.getAtomType(0),0.2);
-              diameter.setDiameter(speciesN2.getAtomType(1),0.3);
-              diameter.setDiameter(speciesAlkane.getCH2Type(), 0.3);
-              diameter.setDiameter(speciesAlkane.getCH3Type(), 0.4);
+        if(false) {
+    double size = 10;
+            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+            sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
+            DisplayBox dBox0 = simGraphic.getDisplayBox(sim.box[0]);
+            DisplayBox dBox1 = simGraphic.getDisplayBox(sim.box[1]);
+            dBox0.setPixelUnit(new Pixel(300.0 / size));
+            dBox1.setPixelUnit(new Pixel(300.0 / size));
+            dBox0.setShowBoundary(false);
+            dBox1.setShowBoundary(false);
 
-              simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);
-              ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
-              colorScheme.setColor(speciesN2.getAtomType(0), Color.blue);
-              colorScheme.setColor(speciesN2.getAtomType(1), Color.red);
-              colorScheme.setColor(speciesAlkane.getCH2Type(), Color.green);
-              colorScheme.setColor(speciesAlkane.getCH3Type(), Color.yellow);          
+            //set diameters
+            DiameterHashByType diameter = new DiameterHashByType();
+            diameter.setDiameter(speciesN2.getAtomType(0), 0.2);
+            diameter.setDiameter(speciesN2.getAtomType(1), 0.3);
+            diameter.setDiameter(speciesAlkane.getTypeByName("CH2"), 0.3);
+            diameter.setDiameter(speciesAlkane.getTypeByName("CH3"), 0.4);
 
-              ((DisplayBoxCanvasG3DSys)dBox1.canvas).setBackgroundColor(Color.WHITE);
-              
-              simGraphic.makeAndDisplayFrame();
+            simGraphic.getDisplayBox(sim.box[1]).setDiameterHash(diameter);
+            ColorSchemeByType colorScheme = (ColorSchemeByType) simGraphic.getDisplayBox(sim.box[1]).getColorScheme();
+            colorScheme.setColor(speciesN2.getAtomType(0), Color.blue);
+            colorScheme.setColor(speciesN2.getAtomType(1), Color.red);
+            colorScheme.setColor(speciesAlkane.getTypeByName("CH2"), Color.green);
+            colorScheme.setColor(speciesAlkane.getTypeByName("CH3"), Color.yellow);
 
-              sim.integratorOS.setNumSubSteps(1000);
-              sim.setAccumulatorBlockSize(100);
-                  
-              // if running interactively, set filename to null so that it doens't read
-              // (or write) to a refpref file
-              sim.getController().removeAction(sim.ai);
-              sim.getController().addAction(new IAction() {
-              	public void actionPerformed() {
-                      sim.initRefPref(null, 10);
-                      sim.equilibrate(null, 20);
-                      sim.ai.setMaxSteps(Long.MAX_VALUE);
-                  }
-              });
-              sim.getController().addAction(sim.ai);
-              if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
-              	throw new RuntimeException("Oops");
-              }
+            ((DisplayBoxCanvasG3DSys) dBox1.canvas).setBackgroundColor(Color.WHITE);
 
-              return;
-          }
+            simGraphic.makeAndDisplayFrame();
+
+            sim.integratorOS.setNumSubSteps(1000);
+            sim.setAccumulatorBlockSize(100);
+
+            // if running interactively, set filename to null so that it doens't read
+            // (or write) to a refpref file
+            sim.initRefPref(null, 10, false);
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
+            if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
+                throw new RuntimeException("Oops");
+            }
+    return;
+}
           
 
         // if running interactively, don't use the file
@@ -497,17 +480,17 @@ public class VirialN2AlkaneUAMix {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/40);
-        if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
 
         System.out.println("equilibration finished");
-        
+
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps((int)steps);
-        sim.ai.setMaxSteps(1000);
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        
+
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
@@ -516,12 +499,12 @@ public class VirialN2AlkaneUAMix {
      	       		wiggleMove[1].getTracker().acceptanceRatio());
         	System.out.println("Wiggle move step sizes " + wiggleMove[0].getStepSize() + " "+	wiggleMove[1].getStepSize());
         }
-        
+
         if (nSpheres > 3) {
         	System.out.println("Torsion move acceptance "+torsionMoves[0].getTracker().acceptanceRatio()+" "+
     	                torsionMoves[1].getTracker().acceptanceRatio());
         	System.out.println("Torsion move step size "+torsionMoves[0].getStepSize() + " "+   torsionMoves[1].getStepSize());
-           
+
         }
         if (refFrac >= 0) {
             sim.integratorOS.setRefStepFraction(refFrac);
@@ -533,7 +516,7 @@ public class VirialN2AlkaneUAMix {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     System.out.println("abs average: "+ratioAndError[0]*HSB[nPoints]+", error: "+ratioAndError[1]*HSB[nPoints]);
@@ -541,8 +524,7 @@ public class VirialN2AlkaneUAMix {
             };
             sim.integratorOS.getEventManager().addListener(progressReport);
         }
-
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency "+sim.integratorOS.getRefStepFraction());

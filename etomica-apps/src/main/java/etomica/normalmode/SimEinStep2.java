@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -31,7 +32,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -49,7 +50,7 @@ public class SimEinStep2 extends Simulation {
     public final PotentialMasterList potentialMaster;
     public final PotentialMasterMonatomic potentialMasterHarmonic;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public int[] nCells;
@@ -59,7 +60,7 @@ public class SimEinStep2 extends Simulation {
     public SimEinStep2(Space _space, int numAtoms, double density, double temperature, double lambda, int exponent, double rc, boolean slanty) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         if (slanty) {
@@ -157,9 +158,7 @@ public class SimEinStep2 extends Simulation {
 //        integrator.setMeterPotentialEnergy(lambda==0 ? meterPE : meterPEComposite2);
 
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         // extend potential range, so that atoms that move outside the truncation range will still interact
         // atoms that move in will not interact since they won't be neighbors
@@ -260,9 +259,6 @@ public class SimEinStep2 extends Simulation {
         sim.initialize(numMolecules*100);
         System.out.flush();
 
-        sim.activityIntegrate.setMaxSteps(numSteps);
-
-        // potentialMasterHarmonic really just gives us sum[r^2]
         final MeterPotentialEnergy meterPEHarmonic = new MeterPotentialEnergy(sim.potentialMasterHarmonic, sim.box);
         int numBlocks = 100;
         int interval = numMolecules;
@@ -276,10 +272,11 @@ public class SimEinStep2 extends Simulation {
 //        if (blockSize == 0) blockSize = 1;
 //        AccumulatorAverageFixed accumulatorPEInt = new AccumulatorAverageFixed(blockSize);
 //        DataPumpListener accumulatorPEIntPump = new DataPumpListener(meterPEInt, accumulatorPEInt, interval);
-//        sim.integrator.getEventManager().addListener(accumulatorPEIntPump);
+//        sim.integrator.getEventManager().addListener(accumulatorPEIntPump)
 
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
-        sim.getController().actionPerformed();
+        // potentialMasterHarmonic really just gives us sum[r^2]
 
         DataGroup data = (DataGroup)accumulator.getData();
         IData dataErr = data.getData(accumulator.ERROR.index);
@@ -299,9 +296,8 @@ public class SimEinStep2 extends Simulation {
 
     public void initialize(long initSteps) {
         // equilibrate off the lattice to avoid anomolous contributions
-        activityIntegrate.setMaxSteps(initSteps);
-        getController().actionPerformed();
-        getController().reset();
+        this.getController().runActivityBlocking(new ActivityIntegrate(this.integrator, initSteps));
+
     }
     
     protected static class MeterPotentialEnergyComposite extends

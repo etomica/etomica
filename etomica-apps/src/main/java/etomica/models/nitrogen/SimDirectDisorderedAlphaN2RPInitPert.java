@@ -5,6 +5,7 @@
 package etomica.models.nitrogen;
 
 import etomica.action.WriteConfiguration;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
@@ -25,7 +26,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.ISpecies;
-import etomica.species.Species;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 
 import java.io.File;
@@ -38,6 +39,8 @@ import java.io.File;
  */
 public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
 
+    private final IntegratorMC integrator;
+
     public SimDirectDisorderedAlphaN2RPInitPert(Space space, int numMolecules, double density, double temperature, double angle, long numSteps) {
         super(space);
 
@@ -48,7 +51,7 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
         Basis basisFCC = new BasisCubicFcc();
         Basis basis = new BasisBigCell(space, basisFCC, new int[]{nC, nC, nC});
 
-        Species species = new SpeciesN2(space);
+        SpeciesGeneral species = SpeciesN2.create(false);
         addSpecies(species);
 
         Boundary boundary = new BoundaryRectangularPeriodic(space, nC * a);
@@ -77,7 +80,7 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
         move.setPotential(potential);
         move.setDoExcludeNonNeighbors(true);
 
-        IntegratorMC integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
         integrator.getMoveManager().addMCMove(move);
 
         int cellRange = 6;
@@ -106,8 +109,7 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
         IntegratorListenerAction boltzmannPumpListener = new IntegratorListenerAction(boltzmannPump, 100);
         integrator.getEventManager().addListener(boltzmannPumpListener);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
     }
 
     public void initializeConfigFromFile(String fname){
@@ -169,17 +171,15 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
 		} else {
 			long equiStep = (numMolecules*numSteps/1000);
 	        System.out.println("\nEquilibration step: " + equiStep);
-	        sim.activityIntegrate.setMaxSteps(equiStep);
-	        sim.getController().actionPerformed();     
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, equiStep));
 	        System.out.println("Equilibration finished");
-	        sim.getController().reset();
+
 		}
         
         long startTime = System.currentTimeMillis();
         System.out.println("Start Time: " + startTime);
-       
-        sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().actionPerformed();
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
 
         sim.writeConfiguration(configFileName);
         double average = sim.boltzmannAverage.getData().getValue(sim.boltzmannAverage.AVERAGE.index);
@@ -196,7 +196,7 @@ public class SimDirectDisorderedAlphaN2RPInitPert extends Simulation {
     }
 
     private static final long serialVersionUID = 1L;
-    protected ActivityIntegrate activityIntegrate;
+    
     protected AccumulatorAverageFixed boltzmannAverage;
     protected Box box;
 

@@ -291,7 +291,7 @@ public class ClusterWheatleySoft implements ClusterAbstract {
         }
 
         totCount++;
-        long bfac = (1 - n) / SpecialFunctions.factorial(n);
+        double bfac = (1.0 - n) / SpecialFunctions.factorial(n);
         if (Math.abs(fB[nf - 1]) < tol * 100 && fB[nf - 1] != 0) {
             double r = BDAccFrac < 1 ? random.nextDouble() : 1;
             boolean justChecking = Math.abs(fB[nf - 1]) > tol;

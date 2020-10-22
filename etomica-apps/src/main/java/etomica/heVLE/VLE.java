@@ -61,10 +61,9 @@ public class VLE extends SimulationGraphic {
             }
         };
 
-        DeviceThermoSliderGEMC thermoSlider = new DeviceThermoSliderGEMC(sim.getController());
+        DeviceThermoSliderGEMC thermoSlider = new DeviceThermoSliderGEMC(sim.getController(), sim.integratorLiquid, sim.integratorVapor, sim.integratorGEMC);
         thermoSlider.setUnit(Kelvin.UNIT);
         thermoSlider.setPrecision(1);
-        thermoSlider.setIntegrators(sim.integratorLiquid, sim.integratorVapor, sim.integratorGEMC);
         thermoSlider.setIsothermal();
         thermoSlider.setMinimum(5);
         thermoSlider.setMaximum(20);
@@ -78,8 +77,7 @@ public class VLE extends SimulationGraphic {
         getDisplayBox(sim.boxVapor).setDiameterHash(diameterManager);
         diameterManager.setDiameter(sim.species.getLeafType(), 2);
 
-        MeterDensity meterDensityLiquid = new MeterDensity(sim.getSpace());
-        meterDensityLiquid.setBox(sim.boxLiquid);
+        MeterDensity meterDensityLiquid = new MeterDensity(sim.boxLiquid);
         DataFork fork = new DataFork();
         DataPump pumpLiquidDensity = new DataPump(meterDensityLiquid, fork);
         getController().getDataStreamPumps().add(pumpLiquidDensity);
@@ -96,8 +94,7 @@ public class VLE extends SimulationGraphic {
         sim.integratorLiquid.getEventManager().addListener(pumpLiquidDensityListener);
         pumpLiquidDensityListener.setInterval(100);
 
-        MeterDensity meterDensityVapor = new MeterDensity(sim.getSpace());
-        meterDensityVapor.setBox(sim.boxVapor);
+        MeterDensity meterDensityVapor = new MeterDensity(sim.boxVapor);
         fork = new DataFork();
         DataPump pumpVaporDensity = new DataPump(meterDensityVapor, fork);
         getController().getDataStreamPumps().add(pumpVaporDensity);

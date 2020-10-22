@@ -5,8 +5,8 @@
 package etomica.tests;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -30,7 +30,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -44,15 +44,14 @@ public class TestLJGCMC3D extends Simulation {
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
     public MCMoveInsertDelete mcMoveID;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2LennardJones potential;
-    public Controller controller;
 
     public TestLJGCMC3D(int numAtoms, int numSteps, Configuration config) {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
@@ -68,9 +67,6 @@ public class TestLJGCMC3D extends Simulation {
         mcMoveID.setMu(-4.12);
         integrator.getMoveManager().addMCMove(mcMoveID);
         integrator.getMoveManager().setEquilibrating(false);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setMaxSteps(numSteps);
-        getController().addAction(activityIntegrate);
         mcMoveID.setSpecies(species);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
@@ -113,13 +109,12 @@ public class TestLJGCMC3D extends Simulation {
         energyAccumulator.setBlockSize(50);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
 
-        MeterDensity densityMeter = new MeterDensity(sim.space);
-        densityMeter.setBox(sim.box);
+        MeterDensity densityMeter = new MeterDensity(sim.box);
         AccumulatorAverage densityAccumulator = new AccumulatorAverageFixed(10);
         DataPumpListener pumpDensity = new DataPumpListener(densityMeter, densityAccumulator, 2 * numAtoms);
         sim.integrator.getEventManager().addListener(pumpDensity);
 
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
 
         double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
         double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;

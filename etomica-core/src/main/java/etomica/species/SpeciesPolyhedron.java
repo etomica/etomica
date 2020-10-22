@@ -10,6 +10,7 @@ import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.IElement;
+import etomica.config.ConformationLinear;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -22,17 +23,13 @@ import java.util.List;
  * @author Andrew Schultz
  * @see AtomTypeOriented
  */
-public class SpeciesPolyhedron extends SpeciesSpheresMono {
-    
-    public SpeciesPolyhedron(Simulation sim, Space _space, List<Vector> vertices, double sweepRadius) {
-        this(_space, vertices, sweepRadius, new ElementSimple(sim));
-    }
-    
-    public SpeciesPolyhedron(Space _space, List<Vector> vertices, double sweepRadius, IElement element) {
-        super(_space, new AtomTypeSpheroPolyhedron(element, _space, vertices, sweepRadius));
-    }
+public class SpeciesPolyhedron {
 
-    protected IAtom makeLeafAtom() {
-        return new AtomOrientedQuaternion(space, leafAtomType);
+    public static SpeciesGeneral create(Space space, List<Vector> vertices, double sweepRadius, IElement element) {
+        return new SpeciesBuilder(space)
+                .addCount(new AtomTypeSpheroPolyhedron(element, space, vertices, sweepRadius), 1)
+                .withConformation(new ConformationLinear(space))
+                .withAtomFactory((atomType -> new AtomOrientedQuaternion(space, atomType)))
+                .build();
     }
 }

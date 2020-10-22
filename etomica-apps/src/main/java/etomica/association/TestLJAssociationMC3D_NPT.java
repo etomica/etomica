@@ -5,9 +5,11 @@
 package etomica.association;
 
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverage.StatType;
@@ -29,6 +31,7 @@ import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2HardAssociationCone;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Degree;
 import etomica.util.ParameterBase;
@@ -45,13 +48,13 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
     public MCMoveAtomMonomer mcMoveAtomMonomer;
     public MCMoveAtomDimer mcMoveAtomDimer;
     //public MCMoveRotate mcMoveRotate;
-    public SpeciesSpheresRotating species;
+    public SpeciesGeneral species;
     public Box box;
     public P2HardAssociationCone potential;
     public MCMoveDimer mcMoveDimer;
     public MCMoveDimerRotate mcMoveDimerRotate;
     public MCMoveVolumeAssociated mcMoveVolume;
-    public ActivityIntegrate actionIntegrator;
+
     public MCMoveBiasUB mcMoveBiasUB;
     public AssociationManager associationManagerOriented;
     public AssociationHelperSingle associationHelper;
@@ -61,7 +64,7 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
     public TestLJAssociationMC3D_NPT(int numAtoms, double pressure, double density, double wellConstant, double temperature, long numSteps) {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresRotating(this, space);//Species in which molecules are made of a single atom of type OrientedSphere
+        species = SpeciesSpheresRotating.create(space, new ElementSimple(this), false,true);//Species in which molecules are made of a single atom of type OrientedSphere
         addSpecies(species);
 
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
@@ -107,10 +110,8 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         integrator.getMoveEventManager().addListener(associationManagerOriented);
         integrator.getMoveEventManager().addListener(associationManagerOriented);
         integrator.getMoveManager().setEquilibrating(true);
-        actionIntegrator = new ActivityIntegrate(integrator);
+        this.getController().addActivity(new ActivityIntegrate(integrator), numSteps);
         //actionIntegrate.setSleepPeriod(1);
-        actionIntegrator.setMaxSteps(numSteps);
-        getController().addAction(actionIntegrator);
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);
@@ -168,14 +169,10 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
             
         }
         TestLJAssociationMC3D_NPT sim = new TestLJAssociationMC3D_NPT(numAtoms, pressure, density, wellConstant, temperature, numSteps);
-        sim.actionIntegrator.setMaxSteps(numSteps/10);//equilibrium period
-        System.out.println("equilibrium period = " +numSteps/10);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
-        
-        sim.actionIntegrator.setMaxSteps(numSteps);
-        MeterDensity rhoMeter = new MeterDensity(sim.space);//Meter for measurement of the total molecule number density((number of molecules)/(volume of box)) in a box 
-        rhoMeter.setBox(sim.box);
+        System.out.println("equilibrium period = " +numSteps/10);//equilibrium period
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps / 10));
+
+MeterDensity rhoMeter = new MeterDensity(sim.box);
         AccumulatorAverage rhoAccumulator = new AccumulatorAverageFixed(10);//Accumulator that keeps statistics for averaging and error analysis
         DataPump rhoPump = new DataPump(rhoMeter,rhoAccumulator);
         IntegratorListenerAction listener = new IntegratorListenerAction(rhoPump);
@@ -187,7 +184,7 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         energyAccumulator.setBlockSize(50);
         IntegratorListenerAction energyListener = new IntegratorListenerAction(energyManager);
         sim.integrator.getEventManager().addListener(energyListener);
-        
+
         if (true) {
         	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE);
         	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -198,11 +195,10 @@ public class TestLJAssociationMC3D_NPT extends Simulation {
         	ColorSchemeSmer colorScheme = new ColorSchemeSmer(sim.associationHelper,sim.box,sim.getRandom());
         	graphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
         	graphic.makeAndDisplayFrame();
-        	sim.actionIntegrator.setMaxSteps(2000000);
         	return;
         }
-        
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
+        //Meter for measurement of the total molecule number density((number of molecules)/(volume of box)) in a box
         
         System.out.println("numAtom=" +numAtoms);
         double avgDensity = ((DataDouble) ((DataGroup) rhoAccumulator.getData()).getData(rhoAccumulator.AVERAGE.index)).x;//average density

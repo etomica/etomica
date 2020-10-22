@@ -5,6 +5,7 @@
 package etomica.modules.colloid;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
@@ -48,37 +49,38 @@ public class ColloidGraphic extends SimulationGraphic {
     
     public ColloidGraphic(final ColloidSim simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
-    	this.sim = simulation;
+        this.sim = simulation;
 
-    	getController().getSimRestart().setConfiguration(sim.configuration);
-    	getController().getSimRestart().setIgnoreOverlap(true);
-    	getController().getReinitButton().setPostAction(getPaintAction(sim.box));
+        getController().getSimRestart().setConfiguration(sim.configuration);
+        getController().getSimRestart().setIgnoreOverlap(true);
+        getController().getReinitButton().setPostAction(getPaintAction(sim.box));
 
-    	((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), sim.p2mm.getCoreDiameter());
-        ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.speciesColloid.getLeafType(), 7.5);
+        ((DiameterHashByType) getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), sim.p2mm.getCoreDiameter());
+        ((DiameterHashByType) getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.speciesColloid.getLeafType(), 7.5);
 
-        final Plane planeBottom = new Plane(space,0,1,0,sim.box.getBoundary().getBoxSize().getX(1)*0.5);
-        final Plane planeTop = new Plane(space,0,1,0,-sim.box.getBoundary().getBoxSize().getX(1)*0.5);
-        ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).addPlane(planeBottom);
-        ((DisplayBoxCanvasG3DSys)getDisplayBox(sim.box).canvas).addPlane(planeTop);
-    	
-    	getDisplayBox(sim.box).setPixelUnit(new Pixel(2));
+        final Plane planeBottom = new Plane(space, 0, 1, 0, sim.box.getBoundary().getBoxSize().getX(1) * 0.5);
+        final Plane planeTop = new Plane(space, 0, 1, 0, -sim.box.getBoundary().getBoxSize().getX(1) * 0.5);
+        ((DisplayBoxCanvasG3DSys) getDisplayBox(sim.box).canvas).addPlane(planeBottom);
+        ((DisplayBoxCanvasG3DSys) getDisplayBox(sim.box).canvas).addPlane(planeTop);
 
-        sim.activityIntegrate.setSleepPeriod(0);
-       
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(2));
+
+        sim.getController().setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator, true));
+
         // Simulation Time
         final DisplayTextBox displayCycles = new DisplayTextBox();
 
         final DataSourceCountTime meterCycles = new DataSourceCountTime(sim.integrator);
         displayCycles.setPrecision(6);
-        DataPump pump= new DataPump(meterCycles,displayCycles);
+        DataPump pump = new DataPump(meterCycles, displayCycles);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pump));
         displayCycles.setLabel("Simulation time");
-        
+
         DeviceSelector graftSelector = new DeviceSelector(sim.getController());
         graftSelector.addOption("1", new GraftAction(1));
         graftSelector.addOption("2", new GraftAction(2));
@@ -93,23 +95,26 @@ public class ColloidGraphic extends SimulationGraphic {
         DeviceSlider chainLengthSlider = new DeviceSlider(sim.getController());
         chainLengthSlider.setModifier(new Modifier() {
             public void setValue(double newValue) {
-                if (newValue > 2*(sim.box.getBoundary().getBoxSize().getX(1) - sim.getColloidSigma())) {
+                if (newValue > 2 * (sim.box.getBoundary().getBoxSize().getX(1) - sim.getColloidSigma())) {
                     throw new IllegalArgumentException("too large for box size");
                 }
                 int chainLength = (int) newValue;
                 sim.setChainLength(chainLength);
                 meterE2E.setChainLength(chainLength);
                 int n = sim.box.getLeafList().size();
-                sim.integrator.setThermostatInterval((1000+(n-1))/n);
+                sim.integrator.setThermostatInterval((1000 + (n - 1)) / n);
                 sim.p2mm.setChainLength(chainLength);
                 sim.p2mc.setChainLength(chainLength);
             }
+
             public double getValue() {
                 return sim.getChainLength();
             }
+
             public Dimension getDimension() {
                 return Quantity.DIMENSION;
             }
+
             public String getLabel() {
                 return "chain length";
             }
@@ -126,18 +131,18 @@ public class ColloidGraphic extends SimulationGraphic {
         MeterTemperature meterTemperature = new MeterTemperature(sim.box, 3);
         DisplayTextBox displayTemperature = new DisplayTextBox();
         DataPumpListener tempPump = new DataPumpListener(meterTemperature, displayTemperature);
-        sim.getIntegrator().getEventManager().addListener(tempPump);
+        sim.integrator.getEventManager().addListener(tempPump);
         add(displayTemperature);
-        
+
         DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController(), sim.integrator);
         thermoSlider.setMaximum(5);
         thermoSlider.setShowValues(true);
         thermoSlider.setPrecision(1);
         add(thermoSlider);
-        
+
         DeviceSlider boxSizeSlider = new DeviceSlider(sim.getController());
         boxSizeSlider.setModifier(new Modifier() {
-            
+
             public void setValue(double newValue) {
                 if (newValue == getValue()) return;
                 if (newValue < sim.getColloidSigma() + 1 || newValue < 12) {
@@ -152,25 +157,25 @@ public class ColloidGraphic extends SimulationGraphic {
                 sim.configuration.initializeCoordinates(sim.box);
                 try {
                     sim.integrator.reset();
+                } catch (ConfigurationOverlapException e) {
                 }
-                catch (ConfigurationOverlapException e) {}
-                planeBottom.setDistanceToOrigin(0.5*newValue);
-                planeTop.setDistanceToOrigin(-0.5*newValue);
+                planeBottom.setDistanceToOrigin(0.5 * newValue);
+                planeTop.setDistanceToOrigin(-0.5 * newValue);
 
                 densityProfileMeter.reset();
                 colloidDensityProfileMeter.reset();
 
                 getDisplayBox(sim.box).repaint();
             }
-            
+
             public double getValue() {
                 return sim.box.getBoundary().getBoxSize().getX(1);
             }
-            
+
             public String getLabel() {
                 return "Box size";
             }
-            
+
             public Dimension getDimension() {
                 return Length.DIMENSION;
             }
@@ -190,7 +195,7 @@ public class ColloidGraphic extends SimulationGraphic {
 //        monomerRangeBox.setLabel("Wall range");
 //        monomerRangeBox.setModifier(new WallRangeModifier(sim.p1WallMonomer, sim.criterionWallMonomer));
 //        monomerPanel.add(monomerRangeBox.graphic());
-        
+
 //        DeviceBox monomerEpsilonBox = new DeviceBox();
 //        monomerEpsilonBox.setController(sim.getController());
 //        monomerEpsilonBox.setLabel("W-W epsilon");
@@ -214,16 +219,24 @@ public class ColloidGraphic extends SimulationGraphic {
         mmEpsilonBox.setLabel("monomer epsilon");
         mmEpsilonBox.setModifier(new ModifierGeneral(sim.p2mm, "epsilon"));
         mmEpsilonBox.setModifier(new Modifier() {
-            
+
             public void setValue(double newValue) {
                 sim.p2mm.setEpsilon(newValue);
-                double epsMW = Math.sqrt(newValue*sim.epsWallWall);
+                double epsMW = Math.sqrt(newValue * sim.epsWallWall);
                 sim.p1WallMonomer.setEpsilon(epsMW);
             }
-            
-            public double getValue() { return sim.p2mm.getEpsilon(); }
-            public String getLabel() { return "monomer epsilon"; }
-            public Dimension getDimension() { return Energy.DIMENSION; }
+
+            public double getValue() {
+                return sim.p2mm.getEpsilon();
+            }
+
+            public String getLabel() {
+                return "monomer epsilon";
+            }
+
+            public Dimension getDimension() {
+                return Energy.DIMENSION;
+            }
         });
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -244,7 +257,7 @@ public class ColloidGraphic extends SimulationGraphic {
         colloidSigmaBox.setModifier(new ModifierGeneral(sim, "colloidSigma"));
         colloidSigmaBox.setPostAction(new IAction() {
             public void actionPerformed() {
-                ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.speciesColloid.getLeafType(), sim.getColloidSigma());
+                ((DiameterHashByType) getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.speciesColloid.getLeafType(), sim.getColloidSigma());
                 getPaintAction(sim.box).actionPerformed();
             }
         });
@@ -262,8 +275,8 @@ public class ColloidGraphic extends SimulationGraphic {
 
 
 //        potentialPanel.add(colloidPanel, "colloid");
-        
-        getPanel().controlPanel.add(potentialPanel,SimulationPanel.getVertGBC());
+
+        getPanel().controlPanel.add(potentialPanel, SimulationPanel.getVertGBC());
 
 
         densityProfileMeter = new MeterProfileByVolume(space);
@@ -306,7 +319,7 @@ public class ColloidGraphic extends SimulationGraphic {
         colloidProfilePlot.setDoLegend(false);
         colloidProfilePlot.setLabel("Colloid Density");
 
-        JPanel plotPanel = new JPanel(new GridLayout(2,1));
+        JPanel plotPanel = new JPanel(new GridLayout(2, 1));
         plotPanel.add(profilePlot.graphic());
         plotPanel.add(colloidProfilePlot.graphic());
 
@@ -330,7 +343,7 @@ public class ColloidGraphic extends SimulationGraphic {
 //        displayE2E.setAccumulator(avgE2E);
 //        displayE2E.setLabel("end to end distance");
 //        add(displayE2E);
-        
+
         DataProcessorFunction sqrtE2E = new DataProcessorFunction(Function.Sqrt.INSTANCE);
         avgE2E.addDataSink(sqrtE2E, new StatType[]{avgE2E.AVERAGE});
         AccumulatorHistory historyE2E = new AccumulatorHistory(new HistoryCollapsingDiscard());

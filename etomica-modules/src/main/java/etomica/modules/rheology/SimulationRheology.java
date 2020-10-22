@@ -4,7 +4,9 @@
 
 package etomica.modules.rheology;
 
+
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
 import etomica.simulation.Simulation;
@@ -12,7 +14,7 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesGeneral;
 
 /**
  * Simulation for rheology module.
@@ -22,44 +24,38 @@ import etomica.species.SpeciesSpheres;
 public class SimulationRheology extends Simulation {
 
     public final Box box;
-    public final SpeciesSpheres species;
+    public final SpeciesGeneral species;
     public final IntegratorPolymer integrator;
-    public final ActivityIntegrate activityIntegrate;
-    public final ConformationPolymer conformation;
+
+    public final ConfigurationPolymer config;
     
     public SimulationRheology(Space space) {
         super(space);
-        species = new SpeciesSpheres(this, space, 2);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         Vector d = space.makeVector();
         d.E(20);
         box.getBoundary().setBoxSize(d);
-        box.setNMolecules(species, 1);
-        conformation = new ConformationPolymer(space, random);
-        conformation.initializePositions(box.getMoleculeList().get(0).getChildList());
+        box.setNMolecules(species, 2);
+        config = new ConfigurationPolymer(space, random);
+        config.initializeCoordinates(box);
         integrator = new IntegratorPolymer(null, getRandom(), 0.01, 1.0, box);
         integrator.setB(1);
-        activityIntegrate = new ActivityIntegrate(integrator, 0, false);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integrator, true));
     }
     
     public void setChainLength(int newChainLength) {
         if (newChainLength < 2) {
             throw new IllegalArgumentException("too short");
         }
-        box.setNMolecules(species, 0);
-        species.setNumLeafAtoms(newChainLength);
-        box.setNMolecules(species, 1);
-        conformation.initializePositions(box.getMoleculeList().get(0).getChildList());
+        box.setNMolecules(species, newChainLength);
+        config.initializeCoordinates(box);
     }
 
     public int getChainLength() {
-        return species.getNumLeafAtoms();
+        return box.getNMolecules(species);
     }
-    
-    private static final long serialVersionUID = 1L;
 
     public static void main(String[] args) {
         SimulationRheology sim = new SimulationRheology(Space3D.getInstance());

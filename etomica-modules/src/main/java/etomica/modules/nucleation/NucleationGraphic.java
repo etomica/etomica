@@ -6,6 +6,7 @@ package etomica.modules.nucleation;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTest;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.IAtom;
@@ -122,7 +123,8 @@ public class NucleationGraphic extends SimulationGraphic {
         densitySlider.setEditValues(true);
         add(densitySlider);
 
-        sim.activityIntegrate.setSleepPeriod(0);
+        sim.getController().setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
         // Simulation Time
         final DisplayTextBox displayCycles = new DisplayTextBox();
@@ -280,7 +282,7 @@ public class NucleationGraphic extends SimulationGraphic {
         this.getController().getReinitButton().setPostAction(resetAction);
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);

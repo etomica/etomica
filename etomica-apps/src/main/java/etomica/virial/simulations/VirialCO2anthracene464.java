@@ -4,7 +4,7 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.graphics.SimulationGraphic;
@@ -17,7 +17,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.ParameterBase;
@@ -132,33 +132,18 @@ public class VirialCO2anthracene464 {
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 		// initialize
       
-      
-        // put SpeciesFactoryCO2 and SpeciesFactoryAn here and these classes contain conformations already
-        
-        // this is CO2 species factory, apply spherical species factory, SpeciesFactorySpheres is a subclass of SpeciesFactory
-        SpeciesFactorySpheres factoryCO2 = new SpeciesFactorySpheres();
-        
-        // this is anthracene species factory, apply  species factory
-        SpeciesFactory factoryAn = new SpeciesFactory() {
-            public ISpecies makeSpecies(Space space) {
-            	SpeciesAnthracene3site464 species = new SpeciesAnthracene3site464(space);
-                      return species;
-            }
-        };
-              
-        
         // now let us do the simulation!!!
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{new SpeciesTraPPECO2(space), new SpeciesAnthracene3site464(space)}, nTypes, temperature, new ClusterAbstract[]{refCluster, targetCluster},
+        SpeciesGeneral speciesAn = SpeciesAnthracene3site464.create(space);
+        SpeciesGeneral speciesTraPPECO2 = SpeciesTraPPECO2.create(space);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{speciesTraPPECO2, speciesAn}, nTypes, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                 new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster), ClusterWeightAbs.makeWeightCluster(targetCluster)}, false);
         
         //put the species in the box
-        SpeciesSpheresMono speciesCO2 = (SpeciesSpheresMono)sim.getSpecies(0);
-        SpeciesAnthracene3site464 speciesAn = (SpeciesAnthracene3site464)sim.getSpecies(1);
         sim.integratorOS.setNumSubSteps(1000);
 
-        AtomType typeC = speciesAn.getCType();
-        AtomType typeCH = speciesAn.getCHType();
-        AtomType typeCO2 = speciesCO2.getLeafType();
+        AtomType typeC = speciesAn.getTypeByName("C6H2");
+        AtomType typeCH = speciesAn.getTypeByName("C4H4");
+        AtomType typeCO2 = speciesTraPPECO2.getTypeByName("C");
 
        // interaction between one site potential to the another site potential
         //between two solutes
@@ -172,38 +157,31 @@ public class VirialCO2anthracene464 {
         pCO2An.addPotential(pC_CH, ApiBuilder.makeIntergroupTypeIterator(new AtomType[]{typeCO2, typeCH}));
 
         //graphic part
-        if (false) {
-            double size = 10;
+        if(false) {
+    double size = 10;
             sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            simGraphic.getDisplayBox(sim.box[0]).setPixelUnit(new Pixel(300.0/size));
-            simGraphic.getDisplayBox(sim.box[1]).setPixelUnit(new Pixel(300.0/size));
+            simGraphic.getDisplayBox(sim.box[0]).setPixelUnit(new Pixel(300.0 / size));
+            simGraphic.getDisplayBox(sim.box[1]).setPixelUnit(new Pixel(300.0 / size));
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-            
+
             simGraphic.makeAndDisplayFrame();
 
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
-                
+
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null, 20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 10, false);
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0) {
                 throw new RuntimeException("Oops");
             }
-
-            return;
-        }
+    return;
+}
         
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+temperature : null;
@@ -212,7 +190,8 @@ public class VirialCO2anthracene464 {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/40);
-        if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+if (sim.refPref == 0 || Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("oops");
         }
 
@@ -220,7 +199,6 @@ public class VirialCO2anthracene464 {
         sim.setAccumulatorBlockSize((int)steps);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
@@ -235,7 +213,7 @@ public class VirialCO2anthracene464 {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount() + " steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     System.out.println("abs average: " + ratioAndError[0] * HSB[nPoints] + ", error: " + ratioAndError[1] * HSB[nPoints]);
@@ -243,8 +221,7 @@ public class VirialCO2anthracene464 {
             };
             sim.integratorOS.getEventManager().addListener(progressReport);
         }
-
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());

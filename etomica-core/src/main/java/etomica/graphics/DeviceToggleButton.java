@@ -9,7 +9,7 @@ import java.awt.Color;
 import etomica.action.ActionGroupSeries;
 import etomica.action.ActionToggle;
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.modifier.ModifierBoolean;
 import etomica.simulation.prototypes.HSMD2D;
 

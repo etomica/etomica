@@ -4,6 +4,7 @@
 
 package etomica.models.nitrogen;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.box.Box;
@@ -33,6 +34,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pascal;
 import etomica.units.Pixel;
@@ -68,7 +70,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		Basis basisBCC = new BasisCubicBcc();
 		Basis basis = new BasisBigCell(space, basisBCC, new int[]{nCell, nCell, nCell});
 
-		species = new SpeciesN2ShellModel(space);
+		species = SpeciesN2ShellModel.create(false);
 		addSpecies(species);
 
         potentialMaster = new PotentialMaster();
@@ -134,8 +136,7 @@ public class SimulationGammaNitrogenModel extends Simulation{
 
 		integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
 
-		activityIntegrate = new ActivityIntegrate(integrator);
-		getController().addAction(activityIntegrate);
+		this.getController().addActivity(new ActivityIntegrate(integrator));
 	}
 	
 	public static void main (String[] args){
@@ -175,12 +176,12 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(50));
 		    
 			DiameterHashByType diameter = new DiameterHashByType();
-			diameter.setDiameter(sim.species.getNitrogenType(), 3.1);
-			diameter.setDiameter(sim.species.getPType(), 0.0);
+			diameter.setDiameter(sim.species.getTypeByName("N"), 3.1);
+			diameter.setDiameter(sim.species.getTypeByName("P"), 0.0);
 			
 			simGraphic.getDisplayBox(sim.box).setDiameterHash(diameter);
 			
-			System.out.println("Diameter is: " + diameter.getDiameter(sim.species.getPType()));
+			System.out.println("Diameter is: " + diameter.getDiameter(sim.species.getTypeByName("P")));
 		    
 				
 		
@@ -189,8 +190,6 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		    //colorScheme.setColor(sim.species.getNitrogenType(),java.awt.Color.red);
 		    simGraphic.makeAndDisplayFrame("Gamma-Phase Nitrogen Crystal Structure");
 		    
-			sim.activityIntegrate.setMaxSteps(simSteps);
-			//sim.getController().actionPerformed();
 			return;
 		}
 	    
@@ -217,18 +216,16 @@ public class SimulationGammaNitrogenModel extends Simulation{
 		IntegratorListenerAction energyListener = new IntegratorListenerAction(energyPump);
 		energyListener.setInterval(100);
 		sim.integrator.getEventManager().addListener(energyListener);
-		
-		sim.activityIntegrate.setMaxSteps(simSteps/5);
-		//sim.getController().actionPerformed();
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps / 5));
 		System.out.println("****System Equilibrated (20% of SimSteps)****");
 		
 		long startTime = System.currentTimeMillis();
 		System.out.println("\nStart Time: " + startTime);
 		sim.integrator.getMoveManager().setEquilibrating(false);
-		sim.getController().reset();
 
-		sim.activityIntegrate.setMaxSteps(simSteps);
-		//sim.getController().actionPerformed();
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
 
 		
 		double averageEnergy = energyAverage.getData().getValue(energyAverage.AVERAGE.index);
@@ -251,10 +248,10 @@ public class SimulationGammaNitrogenModel extends Simulation{
 	protected Space space;
 	protected PotentialMaster potentialMaster;
 	protected IntegratorMC integrator;
-	protected ActivityIntegrate activityIntegrate;
+	
 	protected PotentialMolecular potential;
 	protected CoordinateDefinitionNitrogen coordinateDef;
 	protected Primitive primitive;
-	protected SpeciesN2ShellModel species;
+	protected SpeciesGeneral species;
 	private static final long serialVersionUID = 1L;
 }

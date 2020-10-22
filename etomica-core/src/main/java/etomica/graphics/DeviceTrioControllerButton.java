@@ -6,7 +6,7 @@ package etomica.graphics;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.data.DataPump;
 import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD2D;
@@ -27,68 +27,50 @@ import java.util.ArrayList;
  
 public class DeviceTrioControllerButton extends Device {
     
-    private JPanel jp;
-    private DeviceControllerButton startButton;
-    private Simulation simulation;
-    private DeviceButton reinitButton;
-    private DeviceButton resetButton;
+    private final JPanel jp;
+    private final DeviceRunControls runControls;
+    private final Simulation simulation;
+    private final DeviceButton reinitButton;
+    private final DeviceButton resetButton;
 	private double width;
 	private boolean firstResized = true;
 	private String shape;
-	private SimulationRestart simRestart;
+	private final SimulationRestart simRestart;
 
     /**
      * Contructs device with buttons that affect the given simulation.
      */
-    public DeviceTrioControllerButton(Simulation simulation, Space space, Controller _controller) {
-        this();
-        setSimulation(simulation, space, _controller);
-    }
-    
-    /**
-     * No-argument contructor gives device that performs no action until
-     * setSimulation is used to specify the target simulation.
-     */
-    public DeviceTrioControllerButton() {
-        super();
+    public DeviceTrioControllerButton(Simulation simulation, Space space, Controller controller) {
+        super(controller);
+        this.simulation = simulation;
+        this.simRestart = new SimulationRestart(simulation);
+        this.controller = controller;
+        resetButton = new DeviceButton(controller);
+        reinitButton = new DeviceButton(controller);
+        this.runControls = new DeviceRunControls(controller);
+
+        reinitButton.setLabel("Reinitialize");
+        resetButton.setLabel("Reset averages");
+        reinitButton.setPreAction(new IAction() {
+            public void actionPerformed() {
+                controller.pause().whenComplete((res, ex) -> {
+                    runControls.reset();
+                });
+            }
+        });
+        reinitButton.setAction(simRestart);
+        resetButton.setAction(simRestart.getDataResetAction());
         jp = new JPanel(new java.awt.GridLayout(1,0, 20, 20)); //default shape of panel
 //        jp.setBorder(new TitledBorder(null, "Control", TitledBorder.CENTER, TitledBorder.TOP));
         jp.setOpaque(false);
 
-        startButton = new DeviceControllerButton(null);
-        reinitButton = new DeviceButton(null);
-        resetButton = new DeviceButton(null);
-        reinitButton.setLabel("Reinitialize");
-        resetButton.setLabel("Reset averages");
-        
-        jp.add(startButton.graphic()); 
-        jp.add(reinitButton.graphic());  
+
+//        jp.add(startButton.graphic());
+        jp.add(runControls.graphic());
+        jp.add(reinitButton.graphic());
         jp.add(resetButton.graphic());
-                       
+
         setShape("HORIZONTAL");
-    }
-        
-    /**
-     * Sets the controller that is toggled by this device.
-     */
-    protected void setSimulation(Simulation sim, Space space, Controller controller) {
-        simulation = sim;
-        simRestart = new SimulationRestart(sim);
-        final Controller c = controller;
-        setController(c);
-        startButton.setController(c);
-        reinitButton.setPreAction(new IAction() {
-            public void actionPerformed() {
-                if (c.isActive()) {
-                    c.halt();
-                    DeviceTrioControllerButton.this.reset();
-                }
-                c.reset();
-            }
-        });
-        resetButton.setController(c);
-        reinitButton.setAction(simRestart);
-        resetButton.setAction(simRestart.getDataResetAction());
     }
 
     /**
@@ -114,14 +96,14 @@ public class DeviceTrioControllerButton extends Device {
         return jp;
     }
     
-    public DeviceControllerButton getControllerButton() {return startButton;}
+    public DeviceRunControls getRunControls() {return runControls;}
     public DeviceButton getReinitButton() {return reinitButton;}
     public DeviceButton getResetAveragesButton() {return resetButton;}
     
     /**
      * Sets controller toggle button to read "Start"
      */
-    public void reset() {startButton.reset();}
+    public void reset() {runControls.reset();}
     
     /**
      * Sets display shape of the device.  The argument must be a string having

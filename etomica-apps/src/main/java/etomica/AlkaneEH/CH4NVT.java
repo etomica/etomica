@@ -5,8 +5,8 @@
 package etomica.AlkaneEH;
 
 import etomica.action.BoxImposePbc;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
 import etomica.atom.iterator.ApiBuilder;
@@ -34,6 +34,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.util.Constants;
@@ -52,21 +53,19 @@ public class CH4NVT extends Simulation {
 	private static final long serialVersionUID = 1L;
     private final static String APP_NAME = "methane, TraPPE-EH model";
     private static final int PIXEL_SIZE = 15;
-    public final ActivityIntegrate activityIntegrate;
-    protected final SpeciesMethane speciesCH4;
+    protected final SpeciesGeneral speciesCH4;
     protected final PotentialMaster potentialMaster;
 	protected final IntegratorMC integrator;
 	protected final MCMoveMolecule moveMolecule;//translation mc move
 	protected final MCMoveRotateMolecule3D rotateMolecule;//rotation mc move
 	protected final Box box;
-    public Controller controller; //control the simulation process
 
 	//************************************* constructor ********************************************//
 	public CH4NVT(Space space, int numberMolecules, double boxSize, double temperature,double truncation) {
 
         super(space);
         //setRandom(new RandomNumberGenerator(1));
-        speciesCH4 = new SpeciesMethane(space);
+        speciesCH4 = SpeciesMethane.create(false);
         addSpecies(speciesCH4);
         box = this.makeBox();
         box.setNMolecules(speciesCH4, numberMolecules);
@@ -102,9 +101,7 @@ public class CH4NVT extends Simulation {
         moveMolecule = new MCMoveMolecule(this, potentialMaster, space);//stepSize:1.0, stepSizeMax:15.0
         rotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random, space);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setMaxSteps(10000000);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         //******************************** periodic boundary condition ******************************** //
         BoxImposePbc imposePbc = new BoxImposePbc(box, space);
@@ -124,12 +121,12 @@ public class CH4NVT extends Simulation {
 		
 	// **************************** simulation part **************************** //
 	public static void main (String[] args){
-		
+
 		Param params = new Param();
 		if (args.length > 0) {
 			ParseArgs.doParseArgs(params, args);
 		} else {
-			
+
 		}
 		long t1 = System.currentTimeMillis();
 		Space space = Space3D.getInstance();
@@ -146,30 +143,29 @@ public class CH4NVT extends Simulation {
 		System.out.println("denisty(sim)="+densitySim);
 		System.out.println("temperature="+temperatureK+" Kelvin");
 		System.out.println("temperature(sim)="+temperature);
-		double boxSize = Math.pow(numberMolecules / densitySim, (1.0/3.0)); 
+		double boxSize = Math.pow(numberMolecules / densitySim, (1.0/3.0));
 		System.out.println("box size:"+boxSize+",number of molecules="+numberMolecules);
 		final CH4NVT sim = new CH4NVT(space,numberMolecules,boxSize,temperature,truncation);
-		
+
     	if (isGraphic){
 			SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
 		    simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(PIXEL_SIZE));
 	        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 	        //***********************************  set diameters  ******************************************************
-	        ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.speciesCH4.getCType(),.1);
-	        ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.speciesCH4.getHType(),.1);
+	        ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.speciesCH4.getTypeByName("C"),.1);
+	        ((DiameterHashByType)((DisplayBox)simGraphic.displayList().getFirst()).getDiameterHash()).setDiameter(sim.speciesCH4.getTypeByName("H"),.1);
 	        simGraphic.makeAndDisplayFrame(APP_NAME);
 			simGraphic.getDisplayBox(sim.box).repaint();
 	    	return ;
-	    	
+
 		}
-    	
+
     	System.out.println("no graphic simulation involved");
-   		sim.activityIntegrate.setMaxSteps(steps/10);// equilibration period
-   		sim.getController().actionPerformed();
-   		sim.getController().reset();
+   		sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps/10));// equilibration period
+
    		sim.integrator.getMoveManager().setEquilibrating(false);
    		System.out.println("equilibration finished");
-    		
+
     	// pressure
         MeterPressureMolecular pMeter = new MeterPressureMolecular(sim.space);
 
@@ -180,15 +176,14 @@ public class CH4NVT extends Simulation {
         IntegratorListenerAction pumpListener = new IntegratorListenerAction(pPump);
         pumpListener.setInterval(2*numberMolecules);//block nbr=steps/(10*2*N)
         sim.integrator.getEventManager().addListener(pumpListener);
-        
+
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed(10);
         DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(energyManager));
-        sim.activityIntegrate.setMaxSteps(steps);// equilibration period
-        sim.getController().actionPerformed();
-        
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
+
         // compressibility factor Z=P/rho/T(all in sim units)
         double Z = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.AVERAGE.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());
         double Zerr = ((DataDouble) ((DataGroup) pAccumulator.getData()).getData(pAccumulator.ERROR.index)).x * sim.box.getBoundary().volume() / (sim.box.getMoleculeList().size() * sim.integrator.getTemperature());

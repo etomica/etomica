@@ -21,6 +21,7 @@ import etomica.normalmode.BasisBigCell;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Joule;
 import etomica.units.dimensions.Energy;
 
@@ -38,9 +39,9 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 	public HarmonicBetaNitrogenModelLatticeSum(Space space, int numMolecule, double density, double rC) {
 		super(space);
 
-        SpeciesN2 species = new SpeciesN2(space);
+		SpeciesGeneral species = SpeciesN2.create(false);
         addSpecies(species);
-        SpeciesN2B ghostSpecies = new SpeciesN2B(space);
+		SpeciesGeneral ghostSpecies = SpeciesN2.create(false);
         addSpecies(ghostSpecies);
 
 	  	double ratio = 1.631;
@@ -52,10 +53,6 @@ public class HarmonicBetaNitrogenModelLatticeSum extends Simulation{
 		Basis basisHCP = new BasisHcp();
 		BasisBigCell basis = new BasisBigCell(space, basisHCP, nCells);
         
-		ConformationNitrogen conformation = new ConformationNitrogen(space);
-		species.setConformation(conformation);
-		ghostSpecies.setConformation(conformation);
-
         Box box = new Box(space);
 		addBox(box);
 		box.setNMolecules(species, numMolecule);		

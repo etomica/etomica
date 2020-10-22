@@ -4,8 +4,8 @@
 
 package etomica.graphics;
 
-import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
+
+import etomica.action.controller.Controller;
 import etomica.modifier.Modifier;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
@@ -17,7 +17,7 @@ public class DeviceDelaySlider {
 
     private DeviceSlider delaySlider;
     private JPanel delayPanel;
-    protected final ActivityIntegrate ai;
+    private final Controller controller;
 
     //DELAY_EXPONENT affects how sharply the delay increases as slider is moved from zero --
     //a larger value pushes increase off to larger slider values; 1.0 is a linear increase
@@ -25,10 +25,10 @@ public class DeviceDelaySlider {
     protected double  delayExponent;
     protected int maxSleep;
 
-    public DeviceDelaySlider(Controller cont, ActivityIntegrate ai) {
+    public DeviceDelaySlider(Controller cont) {
+		this.controller = cont;
         delayExponent = 2.0;
         maxSleep = 100;
-        this.ai = ai;
     	DelayModifier mod = new DelayModifier();
 
     	delaySlider = new DeviceSlider(cont, mod);
@@ -74,13 +74,14 @@ public class DeviceDelaySlider {
 
 	    public double getValue() {
 	        double delayMultiplier = maxSleep / Math.pow(10.0,delayExponent);
-	    	return Math.pow(ai.getSleepPeriod() / delayMultiplier, 1.0/delayExponent);
+	    	return Math.pow(controller.getSleepPeriod() / delayMultiplier, 1.0/delayExponent);
 	    }
 
 	    public void setValue(double d) {
 			double delayMultiplier = maxSleep / Math.pow(10.0, delayExponent);
 			double sleep = Math.pow(d, delayExponent) * delayMultiplier;
-			ai.setSleepPeriod(sleep);
+			System.out.println(sleep);
+			controller.setSleepPeriod(sleep);
 		}
 
         public Dimension getDimension() {return Null.DIMENSION;}

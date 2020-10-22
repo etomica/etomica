@@ -6,9 +6,12 @@ package etomica.species;
 
 import etomica.atom.AtomType;
 import etomica.box.Box;
+import etomica.config.IConformation;
 import etomica.meta.annotations.IgnoreProperty;
 import etomica.molecule.IMolecule;
 import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 import java.util.List;
 
@@ -17,9 +20,6 @@ import java.util.List;
  * actually creating molecules, ISpecies objects are often used as keys to pass and designate which species is of
  * interest (for assigning potentials or setting the number of molecules in the box, for instance).
  *
- * @author David Kofke
- * @author C. Daniel Barnes
- * @author Andrew Schultz
  * @see Box
  * @see PotentialMaster
  */
@@ -42,23 +42,47 @@ public interface ISpecies {
     IMolecule makeMolecule();
 
     /**
-     * Returns the number of child types of this group.
+     * Returns whether the Species is dynamic. If a Species is dynamic and has oriented molecules, then the molecules
+     * will have a velocity component. If a Species is dynamic and is not oriented, its atoms will have a velocity
+     * component.
+     *
+     * @return whether the Species is dynamic
+     */
+    boolean isDynamic();
+
+    /**
+     *
+     * @return the Space of the Species. This is the Space that molecules and atoms are constructed with.
+     */
+    Space getSpace();
+
+    /**
+     * Returns the number of unique AtomTypes that make up this Species.
      */
     @IgnoreProperty
     int getAtomTypeCount();
 
     /**
-     * Returns the child types of this group for the specified index.
+     *
+     * @return the total number of atoms in this Species.
+     */
+    int getLeafAtomCount();
+
+    /**
+     * Returns the child type of this Species for the specified index.
      */
     AtomType getAtomType(int index);
 
     /**
+     *
+     * @return the singular AtomType that makes up this Species.
+     */
+    AtomType getLeafType();
+
+    /**
      * Get the list of AtomTypes that make up this Species.
      * <p>
-     * In general this list will be unmodifiable (will throw an exception if you attempt to modify it), instead you
-     * should use methods defined on the implementing class to add or remove AtomTypes.
-     *
-     * @return
+     * The returned list should not be modified.
      */
     List<AtomType> getAtomTypes();
 
@@ -67,4 +91,53 @@ public interface ISpecies {
      * changed by this method.
      */
     void initializeConformation(IMolecule molecule);
+
+    /**
+     *
+     * @return the Conformation used by this Species to initialize positions of atoms within a molecule.
+     */
+    IConformation getConformation();
+
+    /**
+     * Get the index within a molecule instance of a named atom for this Species.
+     *
+     * @param atomName the name for a specific Atom in this Species.
+     * @return an index for use in {@link IMolecule#getChildList()}
+     */
+    int getByName(String atomName);
+
+    /**
+     * Get the index within the molecule of the nth atom of given AtomType name.
+     *
+     * @param name String matching the name for the AtomType.
+     * @param number The nth atom with that type to get, starting at 1.
+     * @return the index of that atom within a molecule of this species.
+     */
+    int getAtomByTypeName(String name, int number);
+
+    /**
+     * Get the index within the molecule of the first atom of a given AtomType name.
+     * @param name String matching the name for the AtomType.
+     * @return the index of that atom within a molecule of this species.
+     */
+    int getAtomByTypeName(String name);
+
+    /**
+     * Get the AtomType with a given name used in this Species.
+     * @param typeName String matching the name for the AtomType.
+     * @return AtomType with the given name.
+     */
+    AtomType getTypeByName(String typeName);
+
+    /**
+     *
+     * @return the moment of inertia for a molecule of this Species.
+     */
+    Vector getMomentOfInertia();
+
+    /**
+     *
+     * @return the total mass of all the atoms in a molecule of this Species.
+     */
+    double getMass();
 }

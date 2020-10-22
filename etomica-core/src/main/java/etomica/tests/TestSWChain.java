@@ -4,6 +4,7 @@
 
 package etomica.tests;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
@@ -31,7 +32,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -44,13 +46,16 @@ public class TestSWChain extends Simulation {
 
     public IntegratorHard integrator;
     public Box box;
+    static int chainLength = 10;
 
     public TestSWChain(Space _space, int numMolecules, double simTime, Configuration config) {
         super(_space);
 
-        int chainLength = 10;
-        SpeciesSpheres species = new SpeciesSpheres(this, _space, chainLength);
-        species.setIsDynamic(true);
+        SpeciesGeneral species = new SpeciesBuilder(space)
+                .withConformation(new ConformationLinear(space))
+                .addCount(AtomType.simpleFromSim(this), chainLength)
+                .setDynamic(true)
+                .build();
         addSpecies(species);
 
         PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
@@ -60,8 +65,6 @@ public class TestSWChain extends Simulation {
         double neighborRangeFac = 1.2;
         double bondFactor = 0.15;
         double timeStep = 0.005;
-        simTime /= chainLength;
-        int nSteps = (int) (simTime / timeStep);
 
         // makes eta = 0.35
         double l = 14.4094 * Math.pow((numAtoms / 2000.0), 1.0 / 3.0);
@@ -69,9 +72,6 @@ public class TestSWChain extends Simulation {
         integrator = new IntegratorHard(this, potentialMaster, box);
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-        activityIntegrate.setMaxSteps(nSteps);
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(neighborRangeFac * sqwLambda * sigma);
         P2HardBond bonded = new P2HardBond(space, sigma, bondFactor, false);
@@ -83,7 +83,7 @@ public class TestSWChain extends Simulation {
 
         P2SquareWell potential = new P2SquareWell(space, sigma, sqwLambda, 0.5, false);
 
-        AtomType sphereType = species.getLeafType();
+        AtomType sphereType = species.getAtomType(0);
         potentialMaster.addPotential(potential, new AtomType[]{sphereType, sphereType});
         CriterionInterMolecular sqwCriterion = (CriterionInterMolecular) potentialMaster.getCriterion(sphereType, sphereType);
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
@@ -111,8 +111,10 @@ public class TestSWChain extends Simulation {
         DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
         sim.integrator.getEventManager().addListener(energyPump);
-        
-        sim.getController().actionPerformed();
+
+        simTime /= chainLength;
+        int nSteps = (int) (simTime / sim.integrator.getTimeStep());
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, nSteps));
         
         double Z = pMeter.getDataAsScalar()*sim.box.getBoundary().volume()/(sim.box.getMoleculeList().size()*sim.integrator.getTemperature());
         double avgPE = ((DataDouble) ((DataGroup) energyAccumulator.getData()).getData(energyAccumulator.AVERAGE.index)).x;

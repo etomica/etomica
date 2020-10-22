@@ -4,13 +4,13 @@
 
 package etomica.virial.simulations;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.atom.iterator.ANIntergroupExchange;
 import etomica.atom.iterator.ANIntragroupExchange;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupExchange;
-import etomica.chem.elements.ElementChemical;
 import etomica.config.ConformationLinear;
 import etomica.data.IData;
 import etomica.data.histogram.HistogramNotSoSimple;
@@ -24,7 +24,8 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
@@ -366,10 +367,13 @@ public class VirialHePIXCOdd {
         System.out.println(steps+" steps ("+blocks+" blocks of "+stepsPerBlock+" steps)");
         System.out.println(1000+" steps per overlap-sampling block");
         
-        SpeciesSpheres[] species = new SpeciesSpheres[nRings];
+        SpeciesGeneral[] species = new SpeciesGeneral[nRings];
         int[] simMolecules = new int[nRings];
         for (int i=0;i<nRings;i++) {
-            species[i] = new SpeciesSpheres(space, (rings[i] * nBeads), new AtomType(new ElementChemical("He" + rings[i] + i, heMass, 2)), new ConformationLinear(space, 0));
+            species[i] = new SpeciesBuilder(space)
+                    .withConformation(new ConformationLinear(space, 0))
+                    .addCount(AtomType.simple("He" + rings[i] + i, heMass), rings[i] * nBeads)
+                    .build();
             simMolecules[i] = 1;
         }
       
@@ -511,7 +515,7 @@ public class VirialHePIXCOdd {
 //            sim.getController().removeAction(sim.ai);
 //            sim.getController().addAction(new IAction() {
 //                public void actionPerformed() {
-//                    sim.initRefPref(null, 10);
+//                    sim.initRefPref(null, 10, false);
 //                    sim.equilibrate(null, 20);
 //                    sim.ai.setMaxSteps(Long.MAX_VALUE);
 //                }
@@ -595,23 +599,16 @@ public class VirialHePIXCOdd {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, blocksEq*stepsPerBlock/1000);
-        /*
-        if (accumulatorDiagrams != null) {
-            accumulatorDiagrams.reset();
-        }
-*/
-        // make the accumulator block size equal to the # of steps performed for each overlap step.
-        // make the integratorOS aggressive so that it runs either reference or target
-        // then, we'll have some number of complete blocks in the accumulator
-        sim.setAccumulatorBlockSize(stepsPerBlock);
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+sim.setAccumulatorBlockSize(stepsPerBlock);
         //sim.integratorOS.setNumSubSteps((int)steps);
         //sim.integratorOS.setAgressiveAdjustStepFraction(true);
-        
+
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
 
-        
+
         final HistogramNotSoSimple targHist = new HistogramNotSoSimple(70, new DoubleRange(-1, 8));
         final HistogramNotSoSimple targPiHist = new HistogramNotSoSimple(70, new DoubleRange(-1, 8));
         final HistogramNotSoSimple hist = new HistogramNotSoSimple(100, new DoubleRange(0, sigmaHSRef));
@@ -619,7 +616,7 @@ public class VirialHePIXCOdd {
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
         IntegratorListener histListenerRef = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 CoordinatePairSet cPairs = sim.box[0].getCPairSet();
@@ -633,13 +630,13 @@ public class VirialHePIXCOdd {
                 hist.addValue(Math.sqrt(r2Max), v);
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
-            
+
             public void integratorInitialized(IntegratorEvent e) {
             }
         };
         IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
@@ -673,7 +670,7 @@ public class VirialHePIXCOdd {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -690,7 +687,7 @@ public class VirialHePIXCOdd {
                     public void integratorInitialized(IntegratorEvent e) {}
                     public void integratorStepStarted(IntegratorEvent e) {}
                     public void integratorStepFinished(IntegratorEvent e) {
-                        if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                        if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                         System.out.println("**** reference ****");
                         double[] xValues = hist.xValues();
                         double[] h = hist.getHistogram();
@@ -724,9 +721,15 @@ public class VirialHePIXCOdd {
             sim.integrators[0].getEventManager().addListener(histListenerRef);
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
-
-        sim.ai.setMaxSteps(steps); //sim.ai.setMaxSteps(1000);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
+        /*
+        if (accumulatorDiagrams != null) {
+            accumulatorDiagrams.reset();
+        }
+*/
+        // make the accumulator block size equal to the # of steps performed for each overlap step.
+        // make the integratorOS aggressive so that it runs either reference or target
+        // then, we'll have some number of complete blocks in the accumulator
         long t2 = System.currentTimeMillis();
         
         if (params.doHist) {

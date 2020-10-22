@@ -5,7 +5,7 @@
 package etomica.graphics;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.modifier.Modifier;
@@ -27,6 +27,7 @@ public class DeviceThermoSlider extends Device {
 	protected static final int DEFAULT_MAX_TEMPERATURE = 300;
 
 	public DeviceThermoSlider(Controller cont, final IntegratorBox integrator) {
+		super(cont);
         //adiabatic/isothermal radio button
 	    thermalButtons = new DeviceButtonGroup(cont, 2);
 	    thermalButtons.addButton("Adiabatic", new IAction() {
@@ -51,8 +52,6 @@ public class DeviceThermoSlider extends Device {
         temperatureSlider.setValue(300);
         temperatureSlider.getSlider().setEnabled(false);
         temperatureSlider.getTextField().setEnabled(false);
-
-        setController(cont);
 
         temperaturePanel = new JPanel(new GridBagLayout());
         temperaturePanel.setBorder(new TitledBorder(null, "Set Temperature", TitledBorder.CENTER, TitledBorder.TOP));
@@ -227,28 +226,6 @@ public class DeviceThermoSlider extends Device {
 	 */
     public void setSliderPostAction(IAction action) {
         temperatureSlider.setPostAction(action);
-    }
-
-    //
-    //main method to test device
-    //
-    public static void main(String[] args) {
-        final String APP_NAME = "Device Thermo Slider";
-
-        
-        etomica.space.Space sp = etomica.space3d.Space3D.getInstance();
-        etomica.simulation.Simulation sim = new etomica.simulation.Simulation(sp);
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-
-        DeviceThermoSlider device = new DeviceThermoSlider(new Controller(), new IntegratorVelocityVerlet(null, sim.getRandom(), 1, 1, sim.box()));
-        device.setMinimum(100.0);
-        device.setMaximum(1000.0);
-        device.setTemperature(250.0);
-
-        graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
-        graphic.add(device);
-        graphic.makeAndDisplayFrame(APP_NAME);
-
     }
 
     private void configureSliderAccessibility() {

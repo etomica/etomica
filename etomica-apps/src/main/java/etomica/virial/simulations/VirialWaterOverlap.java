@@ -4,11 +4,12 @@
 
 package etomica.virial.simulations;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.models.water.*;
 import etomica.potential.IPotentialMolecular;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
@@ -64,20 +65,19 @@ public class VirialWaterOverlap {
         MayerEHardSphere eRef = new MayerEHardSphere(sigmaHSRef);
 
         IPotentialMolecular pTarget = null;
-        Species species = null;
+        ISpecies species = null;
         switch (model) {
             case 0: // SPCE
                 pTarget = new P2WaterSPCE(space);
-                species = new SpeciesWater3P(space);
+                species = SpeciesWater3P.create();
                 break;
             case 1: // SPC
                 pTarget = new P2WaterSPC(space);
-                species = new SpeciesWater3P(space);
+                species = SpeciesWater3P.create();
                 break;
             case 2: // TIP4P
                 pTarget = new P2WaterTIP4P(space);
-                species = new SpeciesWater4P(space);
-                species.setConformation(new ConformationWaterTIP4P(space));
+                species = SpeciesWater4P.create();
                 break;
             default:
                 throw new RuntimeException("unknown model "+model);
@@ -118,18 +118,16 @@ public class VirialWaterOverlap {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/40);
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+System.out.println("equilibration finished");
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+//sim.mcMoveAtom1[i].getStepSize()+" "
                                                     +sim.mcMoveRotate[i].getStepSize()
                                                     +((sim.mcMoveTranslate==null) ? "" : (" "+sim.mcMoveTranslate[i].getStepSize())));
         }
-        
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
         

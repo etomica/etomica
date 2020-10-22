@@ -21,6 +21,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Degree;
 
 /**
@@ -38,7 +39,7 @@ public class HarmonicBetaNitrogenModelPairMoleculeSequential5dofLS extends Simul
 	public HarmonicBetaNitrogenModelPairMoleculeSequential5dofLS(Space space, int numMolecule, double density, double rC) {
         super(space);
 
-        SpeciesN2 species = new SpeciesN2(space);
+		SpeciesGeneral species = SpeciesN2.create(false);
         addSpecies(species);
 
         potentialMaster = new PotentialMaster();

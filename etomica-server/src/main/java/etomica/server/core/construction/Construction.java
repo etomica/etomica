@@ -8,7 +8,7 @@ import etomica.potential.PotentialMaster;
 import etomica.server.representations.ConstructionInfo;
 import etomica.server.representations.ConstructionParams;
 import etomica.space.Space;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.util.random.IRandom;
 import org.apache.commons.beanutils.PropertyUtils;
 
@@ -23,7 +23,7 @@ public class Construction {
     public static final Set<Class<?>> SIM_CONTEXT_CLASSES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             Box.class,
             Integrator.class,
-            Species.class,
+            ISpecies.class,
             Space.class,
             PotentialMaster.class,
             MCMove.class,

@@ -7,9 +7,12 @@ package etomica.atom;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.IElement;
 import etomica.meta.annotations.IgnoreProperty;
+import etomica.simulation.Simulation;
 import etomica.species.ISpecies;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Mass;
+
+import java.util.StringJoiner;
 
 /**
  * Identifies a set of atoms and defines properties of those atoms. Properties include indices used for tracking, mass
@@ -20,11 +23,16 @@ public class AtomType {
     protected final IElement element;
     protected int index;
     protected ISpecies species;
+    private final String name;
 
     public AtomType(IElement element) {
-        super();
+        this(element, element.getSymbol());
+    }
+
+    public AtomType(IElement element, String name) {
         this.element = element;
-        index = -1;
+        this.name = name;
+        this.index = -1;
     }
 
     /**
@@ -38,12 +46,37 @@ public class AtomType {
         return new AtomType(new ElementSimple(symbol, mass));
     }
 
+    public static AtomType simple(String symbol) {
+        return new AtomType(new ElementSimple(symbol));
+    }
+
+    public static AtomType simpleFromSim(Simulation sim) {
+        return new AtomType(new ElementSimple(sim));
+    }
+
+    public static AtomType element(IElement element) {
+        return new AtomType(element);
+    }
+
+    public static AtomType element(IElement element, String name) {
+        return new AtomType(element, name);
+    }
+
     /**
      * @return the index for this IAtomType, within the context of an Simulation.  The index is the IAtomType's position
      * in the list of atom types in the simulation.
      */
     public int getIndex() {
         return index;
+    }
+
+    /**
+     *
+     * @return the name of this AtomType. The name is by default the symbol of the element, but must be unique within
+     * a Species.
+     */
+    public String getName() {
+        return this.name;
     }
 
     /**
@@ -95,5 +128,10 @@ public class AtomType {
      */
     public final IElement getElement() {
         return element;
+    }
+
+    @Override
+    public String toString() {
+        return AtomType.class.getSimpleName() + "[" + this.name + "]";
     }
 }

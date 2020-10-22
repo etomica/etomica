@@ -63,7 +63,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
 
         final IAction resetAction = getController().getSimRestart().getDataResetAction();
         
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.controller1, sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
 
         // Sliders on Well depth page
         final DeviceSlider AASlider = sliders(eMin, eMax/2, "initiator-initiatior", sim.p2AA);
@@ -194,7 +194,7 @@ public class FreeRadicalPolymerizationGraphic extends SimulationGraphic {
             }
         });
 
-        DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.controller1, sim.integratorHard);
+        DeviceThermoSlider temperatureSelect = new DeviceThermoSlider(sim.getController(), sim.integratorHard);
         temperatureSelect.setUnit(Kelvin.UNIT);
         temperatureSelect.setMaximum(1200);
         temperatureSelect.setIsothermal();

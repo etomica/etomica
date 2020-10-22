@@ -4,6 +4,7 @@
 
 package etomica.spin.heisenberg;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -26,7 +27,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -48,10 +49,9 @@ import java.util.Calendar;
 public class Heisenberg extends Simulation {
 
     private static final String APP_NAME = "Heisenberg";
-    public final ActivityIntegrate activityIntegrate;
     public PotentialMasterSite potentialMaster; // difference betweet Pmaster pmastersite
     public Box box;
-    public SpeciesSpheresMono spins;
+    public SpeciesGeneral spins;
     public P2Spin potential;
     public MCMoveRotate mcMove;
     private IntegratorMC integrator;
@@ -69,7 +69,7 @@ public class Heisenberg extends Simulation {
 //        setRandom(new RandomNumberGenerator(1)); //debug only
 //        System.out.println("============================the RandomSeed is one ===========================");
 
-        spins = new SpeciesSpheresRotating(space, new ElementSimple("A"));
+        spins = SpeciesSpheresRotating.create(space, new ElementSimple("A"));
 
         addSpecies(spins);
 
@@ -90,8 +90,7 @@ public class Heisenberg extends Simulation {
         MCMoveSpinCluster spinMove = new MCMoveSpinCluster(space, random, potentialMaster, integrator, interactionS);
         integrator.getMoveManager().addMCMove(spinMove);
         integrator.setTemperature(temperature);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         AtomType type = spins.getLeafType();
 //        potentialMaster.addPotential(field, new IAtomType[] {type});
         potentialMaster.addPotential(potential, new AtomType[]{type, type});
@@ -179,9 +178,8 @@ public class Heisenberg extends Simulation {
         }
 
 
-        sim.activityIntegrate.setMaxSteps(steps / 5);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 5));
+
         int blockNumber = 100;
 
         System.out.println("equilibration finished");
@@ -283,9 +281,7 @@ public class Heisenberg extends Simulation {
             DataPumpListener pumpEnergyMF = new DataPumpListener(meterEnergyMF, energyMFAccumulator, sampleAtInterval);
             sim.integrator.getEventManager().addListener(pumpEnergyMF);
         }
-
-        sim.activityIntegrate.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long endTime = System.currentTimeMillis();
         double totalTime = (endTime - startTime) / (1000.0 * 60.0);
 

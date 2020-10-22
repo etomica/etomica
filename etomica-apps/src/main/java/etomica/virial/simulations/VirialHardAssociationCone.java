@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.chem.elements.ElementSimple;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.potential.P2HardAssociationCone;
@@ -91,7 +92,7 @@ public class VirialHardAssociationCone {
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
 		
         //final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySpheres(), temperature,refCluster,targetCluster);
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesSpheresRotating(space, new ElementSimple("O")), temperature, refCluster, targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesSpheresRotating.create(space, new ElementSimple("O")), temperature, refCluster, targetCluster);
         //sim.integratorOS.setStepFreq0(0.5);
         //sim.integratorOS.setAdjustStepFreq(false);
         /**sim.integratorOS.setNumSubSteps(1000);
@@ -114,7 +115,7 @@ public class VirialHardAssociationCone {
             sim.getController().removeAction(sim.ai);
             sim.getController().addAction(new IAction() {
                 public void actionPerformed() {
-                    sim.initRefPref(null, 100);
+                    sim.initRefPref(null, 100, false);
                     sim.equilibrate(null, 200);
                     sim.ai.setMaxSteps(Long.MAX_VALUE);
                 }
@@ -139,8 +140,8 @@ public class VirialHardAssociationCone {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/4);
-        
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+System.out.println("equilibration finished");
 
         IAction progressReport = new IAction() {
             public void actionPerformed() {
@@ -153,11 +154,10 @@ public class VirialHardAssociationCone {
         progressReportListener.setInterval((int) (steps / 10));
         sim.integratorOS.getEventManager().addListener(progressReportListener);
 
-        sim.ai.setMaxSteps(steps);
         for (int i = 0; i < 2; i++) {
             System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
         System.out.println("actual reference step frequency " + sim.integratorOS.getRefStepFraction());

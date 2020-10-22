@@ -66,8 +66,7 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         final HistoryPlotBits dHPB, peHPB, pHPB, widomHPB;
         final DataPumpListener pPump, dPump, pePump;
         if (moduleNum == 1) {
-            MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-            densityMeter.setBox(sim.box);
+            MeterDensity densityMeter = new MeterDensity(sim.box);
             dPump = new DataPumpListener(densityMeter, null, 100);
             dataStreamPumps.add(dPump);
 
@@ -317,9 +316,9 @@ public class StatisticsMCGraphic extends SimulationGraphic {
         final DeviceButton slowButton = new DeviceButton(sim.getController(), null);
         slowButton.setAction(new IAction() {
             public void actionPerformed() {
-                int sleep = (int) sim.activityIntegrate.getSleepPeriod();
+                int sleep = (int) sim.getController().getSleepPeriod();
                 sleep = 1 - sleep;
-                sim.activityIntegrate.setSleepPeriod(sleep);
+                sim.getController().setSleepPeriod(sleep);
                 slowButton.setLabel(sleep == 0 ? "Slow" : "Fast");
             }
         });

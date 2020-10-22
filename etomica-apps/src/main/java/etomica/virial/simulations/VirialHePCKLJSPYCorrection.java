@@ -4,12 +4,14 @@
 
 package etomica.virial.simulations;
 
+import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.potential.P2EffectiveFeynmanHibbs;
 import etomica.potential.P2HePCKLJS;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.virial.*;
@@ -223,7 +225,7 @@ public class VirialHePCKLJSPYCorrection {
 
         System.out.println((steps*1000)+" steps ("+steps+" IntegratorOverlap steps of 1000 steps)");
 
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesSpheresMono(space, new ElementSimple("A")), temperature, refCluster, targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesGeneral.monatomic(space, AtomType.element(new ElementSimple("A"))), temperature, refCluster, targetCluster);
         
         // The diagram which constitutes B4-B4PY is zero for an overlapped configuration.  Without ConfigurationClusterMove, the initial configuration will be overlapped, and gamma/pi will be zero.
         // Such configurations will not be visited later, precisely because pi is zero.
@@ -244,16 +246,16 @@ public class VirialHePCKLJSPYCorrection {
 
         sim.initRefPref(refFileName, steps/100);
         sim.equilibrate(refFileName, eqSteps); // 5000 IntegratorOverlap steps = 5e6 steps
-        System.out.println((eqSteps*1000) + " equilibration steps (" + eqSteps + " Integrator Overlap Steps)");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, steps);
+System.out.println((eqSteps*1000) + " equilibration steps (" + eqSteps + " Integrator Overlap Steps)");
 
         System.out.println("equilibration finished");
 
 
-        sim.ai.setMaxSteps(steps);
         for (int i = 0; i < 2; i++) {
             System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         System.out.println();
         System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());

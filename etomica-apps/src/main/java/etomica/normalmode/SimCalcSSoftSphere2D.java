@@ -5,6 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.PDBWriter;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -29,7 +30,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * MC simulation of FCC soft-sphere model in 2D with tabulation of the
@@ -41,7 +42,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public Primitive primitive;
@@ -52,7 +53,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
     public SimCalcSSoftSphere2D(Space _space, int numAtoms, int[] nCells, double temperature, int exponent) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMasterMonatomic(this);
@@ -73,8 +74,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
         integrator.getMoveManager().addMCMove(move);
         ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         // activityIntegrate.setMaxSteps(nSteps);
 
         basis = new BasisOrthorhombicHexagonal();
@@ -185,11 +185,10 @@ public class SimCalcSSoftSphere2D extends Simulation {
         energyPumpListener.setInterval(100);
         sim.integrator.getEventManager().addListener(energyPumpListener);
 
-        sim.activityIntegrate.setMaxSteps(simSteps/10);  //simSteps/10
-        sim.getController().actionPerformed();
-        System.out.println("equilibrated");
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps / 10));  //simSteps/10
+System.out.println("equilibrated");
         sim.integrator.getMoveManager().setEquilibrating(false);
-        sim.getController().reset();
+
         meterNormalMode.reset();
 
         WriteS sWriter = new WriteS(sim.space);
@@ -201,9 +200,7 @@ public class SimCalcSSoftSphere2D extends Simulation {
         IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
         sWriterListener.setInterval((int)simSteps/10);
         sim.integrator.getEventManager().addListener(sWriterListener);
-
-        sim.activityIntegrate.setMaxSteps(simSteps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
         PDBWriter pdbWriter = new PDBWriter(sim.box);
         pdbWriter.setFileName("calcS_nA"+nA+"_n"+exponent+"_T"+temperature+".pdb");
         pdbWriter.actionPerformed();

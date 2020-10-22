@@ -259,6 +259,7 @@ public class DropletGraphic extends SimulationGraphic {
 
         Droplet sim = new Droplet();
         DropletGraphic simGraphic = new DropletGraphic(sim, sp);
+        sim.getController().start();
 		SimulationGraphic.makeAndDisplayFrame
 		        (simGraphic.getPanel(), APP_NAME);
     }

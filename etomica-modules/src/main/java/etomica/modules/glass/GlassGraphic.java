@@ -5,6 +5,7 @@
 package etomica.modules.glass;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.cavity.DataProcessorErrorBar;
 import etomica.data.*;
@@ -33,6 +34,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 public class GlassGraphic extends SimulationGraphic {
 
@@ -425,8 +427,7 @@ public class GlassGraphic extends SimulationGraphic {
         };
 
         // Number density box
-        MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-        densityMeter.setBox(sim.box);
+        MeterDensity densityMeter = new MeterDensity(sim.box);
         final DisplayTextBox densityBox = new DisplayTextBox();
         final DataPump densityPump = new DataPump(densityMeter, densityBox);
         IntegratorListenerAction densityPumpListener = new IntegratorListenerAction(densityPump);
@@ -1523,7 +1524,7 @@ public class GlassGraphic extends SimulationGraphic {
         plotHistogramMSD.setDoLegend(false);
         plotHistogramMSD.getPlot().setYLog(true);
 
-        java.util.List<MeterStructureFactor.AtomSignalSourceByType> signalByTypes = new ArrayList<>();
+        List<MeterStructureFactor.AtomSignalSourceByType> signalByTypes = new ArrayList<>();
         DeviceButtonGroup sfacButtons = null;
         int n = sim.box.getLeafList().size();
         double cut1 = 10;
@@ -1621,7 +1622,7 @@ public class GlassGraphic extends SimulationGraphic {
         sfacButtons.setSelected("+v");
 
         Vector[] wv = meterSFac.getWaveVectors();
-        java.util.List<Vector> myWV = new ArrayList<>();
+        List<Vector> myWV = new ArrayList<>();
         double wvMax2 = 2.01 * Math.PI / L;
         for (Vector vector : wv) {
             int nd = 0;
@@ -2189,21 +2190,18 @@ public class GlassGraphic extends SimulationGraphic {
             JFrame f = new JFrame();
             f.setSize(700, 500);
             JPanel panel = new JPanel();
-            panel.add(new JLabel("<html><div style='width: 200px;'>Note: high-density simulations will be slightly delayed in starting up, as the simulation works to generate a configuration without overlaps.  Please be patient.</div></html>"));
+            panel.add(new JLabel("<html><div style='width: 200px;'>Note: high-density simulations will be slightly delayed in starting up, as the simulation works to generate a configuration without overlaps. Controls probably won't work properly until this dialog disappears. </div></html>"));
             f.getContentPane().add(panel);
             f.pack();
             f.setTitle("Generating configuration");
+            f.setLocationRelativeTo(null);
             f.setVisible(true);
-            sim.getController().removeAction(sim.activityIntegrate);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initConfig();
-                    ljmdGraphic.getController().getResetAveragesButton().getAction().actionPerformed();
-                    f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
-                }
+            sim.getController().addActivity(sim.makeInitConfigActivity()).future.whenComplete((res, ex) -> {
+                ljmdGraphic.getController().getResetAveragesButton().getAction().actionPerformed();
+                f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
             });
-            sim.getController().addAction(sim.activityIntegrate);
         }
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
     }
 
     /**

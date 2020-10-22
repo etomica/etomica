@@ -5,6 +5,7 @@
 package etomica.modules.multiharmonic.mbar;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.DiameterHashByType;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingDiscard;
@@ -26,7 +27,6 @@ import etomica.units.dimensions.Null;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 
 public class MultiharmonicGraphicMC extends SimulationGraphic {
@@ -51,19 +51,19 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         getPanel().footerPanel.add(controllerButtons.graphic());
         getPanel().graphicsPanel.setLayout(new MigLayout());
 
-        displayBoxA.setPixelUnit(new Pixel(350/sim.boxA.getBoundary().getBoxSize().getX(0)));
-        ((DiameterHashByType)displayBoxA.getDiameterHash()).setDiameter(sim.species.getLeafType(), 0.02);
-        displayBoxB.setPixelUnit(new Pixel(350/sim.boxB.getBoundary().getBoxSize().getX(0)));
+        displayBoxA.setPixelUnit(new Pixel(350 / sim.boxA.getBoundary().getBoxSize().getX(0)));
+        ((DiameterHashByType) displayBoxA.getDiameterHash()).setDiameter(sim.species.getLeafType(), 0.02);
+        displayBoxB.setPixelUnit(new Pixel(350 / sim.boxB.getBoundary().getBoxSize().getX(0)));
         displayBoxB.setDiameterHash(displayBoxA.getDiameterHash());
 
         final DisplayPlotXChart plot = new DisplayPlotXChart();
-        
+
         DataSourceCountSteps stepCounter = new DataSourceCountSteps(sim.integratorOS);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
 
         final boolean isBroken = false;
-        
+
         DataSourceScalar myDataSourceMin = new DataSourceFE("average", sim.meterOverlapA, sim.meterOverlapB, isBroken ? -1 : 0);
         AccumulatorHistory historyMin = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         DataPumpListener myPump = new DataPumpListener(myDataSourceMin, historyMin, 10);
@@ -91,7 +91,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         sim.integratorOS.getEventManager().addListener(alphaChiPump);
         alphaChiPlot.setDoLegend(false);
         alphaChiPlot.getPlot().setTitle("chi / alpha");
-        
+
         DeviceSlider x0Slider = new DeviceSlider(sim.getController());
         final DeviceSlider omegaASlider = new DeviceSlider(sim.getController());
         final DeviceSlider omegaBSlider = new DeviceSlider(sim.getController());
@@ -108,11 +108,18 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
             public void setValue(double value) {
                 sim.potentialB.setX0(new Vector1D(value));
             }
+
             public double getValue() {
                 return sim.potentialB.getX0().getX(0);
             }
-            public String getLabel() {return "x0";}
-            public Dimension getDimension() {return Length.DIMENSION;}
+
+            public String getLabel() {
+                return "x0";
+            }
+
+            public Dimension getDimension() {
+                return Length.DIMENSION;
+            }
         };
         x0Slider.setModifier(x0Modifier);
         x0Slider.setMinimum(0.0);
@@ -126,26 +133,26 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         omegaBSlider.setMinimum(0.1);
         omegaBSlider.setMaximum(10.0);
         omegaBSlider.setValue(1.0);
-        
+
         DeviceBox alphaCenterBox = new DeviceBox();
         alphaCenterBox.setController(sim.getController());
         alphaCenterBox.setModifier(new Modifier() {
-            
+
             public void setValue(double newValue) {
                 if (newValue <= 0) throw new IllegalArgumentException();
                 double[] span = sim.meterOverlapA.getAlphaSpan();
                 sim.meterOverlapA.setAlpha(new double[]{newValue}, span);
                 sim.meterOverlapB.setAlpha(new double[]{newValue}, span);
             }
-            
+
             public double getValue() {
                 return sim.meterOverlapA.getAlphaCenter()[0];
             }
-            
+
             public String getLabel() {
                 return "alpha center";
             }
-            
+
             public Dimension getDimension() {
                 return Null.DIMENSION;
             }
@@ -153,52 +160,52 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         DeviceBox alphaSpanBox = new DeviceBox();
         alphaSpanBox.setController(sim.getController());
         alphaSpanBox.setModifier(new Modifier() {
-            
+
             public void setValue(double newValue) {
                 if (newValue <= 0 || newValue >= 50) throw new IllegalArgumentException();
                 double[] center = sim.meterOverlapA.getAlphaCenter();
                 sim.meterOverlapA.setAlpha(center, new double[]{newValue});
                 sim.meterOverlapB.setAlpha(center, new double[]{newValue});
             }
-            
+
             public double getValue() {
                 return sim.meterOverlapA.getAlphaSpan()[0];
             }
-            
+
             public String getLabel() {
                 return "alpha span";
             }
-            
-            public Dimension getDimension() {
-                return Null.DIMENSION;
-            }
-        });
-        
-        DeviceBox numAlphaBox = new DeviceBox();
-        numAlphaBox.setController(sim.getController());
-        numAlphaBox.setInteger(true);
-        numAlphaBox.setModifier(new Modifier() {
-            
-            public void setValue(double newValue) {
-                if (newValue <= 0 || newValue >= 50 || newValue%2 == 0) throw new IllegalArgumentException();
-                sim.meterOverlapA.setNumAlpha((int)newValue);
-                sim.meterOverlapB.setNumAlpha((int)newValue);
-            }
-            
-            public double getValue() {
-                return sim.meterOverlapA.getNumAlpha();
-            }
-            
-            public String getLabel() {
-                return "# alpha";
-            }
-            
+
             public Dimension getDimension() {
                 return Null.DIMENSION;
             }
         });
 
-        
+        DeviceBox numAlphaBox = new DeviceBox();
+        numAlphaBox.setController(sim.getController());
+        numAlphaBox.setInteger(true);
+        numAlphaBox.setModifier(new Modifier() {
+
+            public void setValue(double newValue) {
+                if (newValue <= 0 || newValue >= 50 || newValue % 2 == 0) throw new IllegalArgumentException();
+                sim.meterOverlapA.setNumAlpha((int) newValue);
+                sim.meterOverlapB.setNumAlpha((int) newValue);
+            }
+
+            public double getValue() {
+                return sim.meterOverlapA.getNumAlpha();
+            }
+
+            public String getLabel() {
+                return "# alpha";
+            }
+
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
+        });
+
+
         DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setBox(sim.boxA);
         nSlider.setSpecies(sim.species);
@@ -208,12 +215,12 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         nSlider.setLabel("Number of atoms");
         nSlider.setShowBorder(true);
 
-        DataSourceScalar delta = new DataSourceScalar("exact",Energy.DIMENSION) {
+        DataSourceScalar delta = new DataSourceScalar("exact", Energy.DIMENSION) {
             public double getDataAsScalar() {
-                return 0.5*sim.boxA.getLeafList().size() * Math.log(omegaBSlider.getValue()/omegaASlider.getValue());
+                return 0.5 * sim.boxA.getLeafList().size() * Math.log(omegaBSlider.getValue() / omegaASlider.getValue());
             }
         };
-        
+
         AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(102, 3));
         deltaHistory.setPushInterval(10);
         DataPumpListener exactPump = new DataPumpListener(delta, deltaHistory, 10);
@@ -221,26 +228,26 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         sim.integratorOS.getEventManager().addListener(exactPump);
         dataStreamPumps.add(exactPump);
         deltaHistory.setTimeDataSource(stepCounter);
-        
+
         final DisplayPlotXChart uPlot = new DisplayPlotXChart();
         final double yMax = 2.0;
         uPlot.getPlot().setYRange(0.0, yMax);
-        
+
         Function fUA = new Function() {
             public double f(double x) {
                 double x0 = sim.potentialA.getX0().getX(0);
-                return 0.5*sim.potentialA.getSpringConstant()*(x - x0)*(x - x0);
+                return 0.5 * sim.potentialA.getSpringConstant() * (x - x0) * (x - x0);
             }
         };
         Function fUB = new Function() {
             public double f(double x) {
                 double x0 = sim.potentialB.getX0().getX(0);
-                return 0.5*sim.potentialB.getSpringConstant()*(x - x0)*(x - x0);
+                return 0.5 * sim.potentialB.getSpringConstant() * (x - x0) * (x - x0);
             }
         };
 
-        final DataSourceFunction uA = new DataSourceFunction("A",Null.DIMENSION,fUA,100,"x",Length.DIMENSION);
-        final DataSourceFunction uB = new DataSourceFunction("B",Null.DIMENSION,fUB,100,"x",Length.DIMENSION);
+        final DataSourceFunction uA = new DataSourceFunction("A", Null.DIMENSION, fUA, 100, "x", Length.DIMENSION);
+        final DataSourceFunction uB = new DataSourceFunction("B", Null.DIMENSION, fUB, 100, "x", Length.DIMENSION);
         uA.getXSource().setXMin(-sim.boxA.getBoundary().getBoxSize().getX(0) / 2);
         uB.getXSource().setXMin(-sim.boxA.getBoundary().getBoxSize().getX(0) / 2);
         uA.getXSource().setXMax(sim.boxA.getBoundary().getBoxSize().getX(0) / 2);
@@ -266,7 +273,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         sliderPanel.add(x0Slider.graphic(), "x0");
         sliderPanel.add(omegaASlider.graphic(), "omegaA");
         sliderPanel.add(omegaBSlider.graphic(), "omegaB");
-        
+
         JPanel topPanel = new JPanel(new MigLayout());
         JPanel displayPanel = new JPanel(new MigLayout("flowy, novisualpadding"));
         JPanel controlsPanel = new JPanel(new MigLayout("flowy, novisualpadding"));
@@ -288,7 +295,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         displayPanel.add(displayBoxPanel, "growx, center, gapx 4% 9%");
         topPanel.add(controlsPanel, "");
         topPanel.add(displayPanel, "");
-        
+
         getPanel().graphicsPanel.setLayout(new MigLayout());
         getPanel().graphicsPanel.add(topPanel, "wrap");
 
@@ -297,11 +304,11 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         getPanel().graphicsPanel.add(plotTabs);
 
         getController().getReinitButton().setPostAction(new IAction() {
-        	public void actionPerformed() {
+            public void actionPerformed() {
                 displayBoxA.repaint();
                 displayBoxB.repaint();
                 plot.getPanel().repaint();
-        	}
+            }
         });
 
         uUpdate.actionPerformed();
@@ -409,7 +416,8 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
 //        tab3.add(lfunPlot.graphic());
 //        tab3.add(dfunPlot.graphic(), horizGBC);
 
-        sim.activityIntegrate.setSleepPeriod(0);
+        sim.getController().setSleepPeriod(0);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
     }
 
     public static void main(String[] args) {

@@ -6,6 +6,7 @@ package etomica.cavity;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -31,7 +32,7 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialMasterMonatomic;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
@@ -45,8 +46,6 @@ import etomica.util.ParseArgs;
  */
 public class HSMDWidom extends Simulation {
 
-    public final ActivityIntegrate activityIntegrate;
-
     /**
      * The Box holding the atoms.
      */
@@ -58,7 +57,7 @@ public class HSMDWidom extends Simulation {
     /**
      * The single hard-sphere species.
      */
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     /**
      * The hard-sphere potential governing the interactions.
      */
@@ -75,8 +74,7 @@ public class HSMDWidom extends Simulation {
 
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         box = this.makeBox();
@@ -91,8 +89,7 @@ public class HSMDWidom extends Simulation {
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.005);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         potential = new P2HardSphere(space);
         AtomType leafType = species.getLeafType();
@@ -344,8 +341,7 @@ public class HSMDWidom extends Simulation {
         System.out.println("density: " + params.density);
 
         long steps = params.steps;
-        sim.activityIntegrate.setMaxSteps(steps / 10);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
         sim.integrator.resetStepCount();
 
         AccumulatorAverageFixed accRDFMapped = new AccumulatorAverageFixed(1);
@@ -404,8 +400,7 @@ public class HSMDWidom extends Simulation {
         sim.integrator.getEventManager().addListener(pumpPCC);
 
         long t1 = System.nanoTime();
-        sim.activityIntegrate.setMaxSteps(steps);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.nanoTime();
 
 

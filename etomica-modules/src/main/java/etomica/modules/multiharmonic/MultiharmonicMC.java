@@ -5,8 +5,8 @@
 package etomica.modules.multiharmonic;
 
 import etomica.action.SimulationDataAction;
+
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.*;
@@ -21,7 +21,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 
 /**
@@ -35,12 +35,10 @@ public class MultiharmonicMC extends Simulation {
     MeterPotentialEnergy meterEnergy;
     AccumulatorAverageCollapsing accumulatorEnergy;
     AccumulatorHistory historyEnergy;
-    SpeciesSpheresMono species;
+    SpeciesGeneral species;
     Box box;
-    Controller controller;
     P1Harmonic potentialA, potentialB;
     IntegratorMC integrator;
-    ActivityIntegrate activityIntegrate;
     MeterFreeEnergy meter;
     AccumulatorAverageCollapsing accumulator;
     DataPump dataPump, dataPumpEnergy;
@@ -48,12 +46,11 @@ public class MultiharmonicMC extends Simulation {
     DataSourceCountSteps stepCounter;
     public MultiharmonicMC() {
         super(Space1D.getInstance());
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector1D(6.0));
-        controller = getController();
         integrator = new IntegratorMC(this, potentialMaster, box);
         integrator.setTemperature(1.0);
         potentialA = new P1Harmonic(space);
@@ -62,9 +59,8 @@ public class MultiharmonicMC extends Simulation {
 
         box.setNMolecules(species, 10);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
-        getController().addAction(activityIntegrate);
+        getController().setSleepPeriod(1);
+        getController().addActivity(new ActivityIntegrate(integrator));
 
         potentialB = new P1Harmonic(space);
         meter = new MeterFreeEnergy(potentialA, potentialB);

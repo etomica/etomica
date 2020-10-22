@@ -5,13 +5,12 @@
 package etomica.atom.iterator;
 
 import etomica.UnitTestUtil;
-import etomica.atom.AtomType;
 import etomica.molecule.Molecule;
 import etomica.molecule.MoleculeArrayList;
 import etomica.molecule.iterator.MoleculeIteratorArrayListSimple;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresHetero;
+import etomica.species.SpeciesBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +30,7 @@ class MoleculeIteratorArrayListTest {
     
     @Test
     public void testListVariations() {
-        ISpecies species = new SpeciesSpheresHetero(Space3D.getInstance(), new AtomType[0]);
+        ISpecies species = new SpeciesBuilder(Space3D.getInstance()).build();
         MoleculeIteratorArrayListSimple iterator = new MoleculeIteratorArrayListSimple();
         
         //make sure new iterator gives no iterates

@@ -4,6 +4,7 @@
 
 package etomica.virial;
 
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.Argon;
 import etomica.molecule.IMoleculeList;
@@ -12,7 +13,7 @@ import etomica.potential.IPotentialMolecular;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.virial.cluster.VirialDiagrams;
 
 /**
@@ -260,7 +261,7 @@ public class PotentialNonAdditive implements IPotentialMolecular {
         PotentialEmulCached p3 = new PotentialEmulCached(space, "3body_template.in", 3);
         PotentialEmulCached p2 = new PotentialEmulCached(space, "2body_template.in", 3);
         Simulation sim = new Simulation(space);
-        SpeciesSpheresMono species = new SpeciesSpheresMono(space, Argon.INSTANCE);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.element(Argon.INSTANCE));
         sim.addSpecies(species);
         BoxCluster box = new BoxCluster(null, space);
         sim.addBox(box);

@@ -6,6 +6,7 @@ package etomica.normalmode;
 
 import etomica.action.BoxInflate;
 import etomica.action.IAction;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -41,7 +42,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.statmech.LennardJones;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
@@ -59,9 +60,8 @@ import java.util.List;
 public class SimLJVacancy extends Simulation {
     
     public final PotentialMasterCell potentialMaster;
-    public final ActivityIntegrate ai;
     public IntegratorMC integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public Potential2SoftSpherical p2LJ;
     public P2SoftSphericalTruncated potential;
@@ -71,8 +71,7 @@ public class SimLJVacancy extends Simulation {
 
     public SimLJVacancy(final int numAtoms, double temperature, double density, double rc, final int numV, final double bmu, final boolean ss, boolean shifted) {
         super(Space3D.getInstance());
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         double L = Math.pow(4.0 / density, 1.0 / 3.0);
@@ -96,8 +95,7 @@ public class SimLJVacancy extends Simulation {
 //        ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(move);
 
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         BoxInflate inflater = new BoxInflate(box, space);
         inflater.setTargetDensity(density);
@@ -352,7 +350,7 @@ public class SimLJVacancy extends Simulation {
                 int nmax = 12;
                 Api1ACell iter = new Api1ACell(rMax, sim.box, (NeighborCellManager) sim.potentialMaster.getBoxCellManager(sim.box));
                 public Color getAtomColor(IAtom a) {
-                    if (!sim.integrator.getEventManager().firingEvent() && !sim.ai.isPaused()) return new Color(1.0f, 1.0f, 1.0f);
+                    if (!sim.integrator.getEventManager().firingEvent()) return new Color(1.0f, 1.0f, 1.0f);
 
                     Vector pi = a.getPosition();
                     iter.setDirection(null);
@@ -648,8 +646,7 @@ public class SimLJVacancy extends Simulation {
         IData dsfe3Data = null;
         if (!fixedDaDef) {
             // equilibrate off the lattice
-            sim.ai.setMaxSteps(steps/40);
-            sim.ai.actionPerformed();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 40));
     
             dsfe3Data = dsfe3.getData();
             if (dsfe3Data.getLength() == 0) {
@@ -694,8 +691,7 @@ public class SimLJVacancy extends Simulation {
             });
         }
 
-        sim.ai.setMaxSteps(steps/10);
-        sim.ai.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
         System.out.println("equilibration finished");
 
         if (!fixedDaDef && params.doReweight) {
@@ -720,8 +716,7 @@ public class SimLJVacancy extends Simulation {
         
         // take real data
         long t1 = System.currentTimeMillis();
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.currentTimeMillis();
 
         System.out.println();
@@ -938,7 +933,7 @@ public class SimLJVacancy extends Simulation {
                 int nmax = 12;
                 Api1ACell iter = new Api1ACell(rMax, sim.box, (NeighborCellManager) sim.potentialMaster.getBoxCellManager(sim.box));
                 public Color getAtomColor(IAtom a) {
-                    if (!sim.integrator.getEventManager().firingEvent() && !sim.ai.isPaused()) return new Color(1.0f, 1.0f, 1.0f);
+                    if (!sim.integrator.getEventManager().firingEvent()) return new Color(1.0f, 1.0f, 1.0f);
 
                     Vector pi = a.getPosition();
                     iter.setDirection(null);

@@ -4,6 +4,7 @@
 
 package etomica.modules.pistoncylinder;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -18,7 +19,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Bar;
 
 /**
@@ -30,18 +31,17 @@ public class PistonCylinder extends Simulation {
     private final int INIT_NUM_MOLECULES = 100;
     public IntegratorHardPiston integrator;
     public P1HardMovingBoundary pistonPotential;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public P2HardWrapper potentialWrapper;
     public P1HardBoundary wallPotential;
-    public ActivityIntegrate ai;
+
     public double lambda;
     public ConfigurationLattice config;
 
     public PistonCylinder(int D) {
         super(Space.getInstance(D));
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         ((ElementSimple) species.getLeafType().getElement()).setMass(16);
         addSpecies(species);
         PotentialMaster potentialMaster = new PotentialMasterMonatomic(this);
@@ -100,8 +100,7 @@ public class PistonCylinder extends Simulation {
         integrator.setThermostatInterval(1);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setTimeStep(1.0);
-        ai = new ActivityIntegrate(integrator, 0, true);
-        getController().addAction(ai);
+        getController().addActivity(new ActivityIntegrate(integrator, true));
 
     }
 }

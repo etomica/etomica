@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -21,7 +22,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 /**
  * MD simulation of hard spheres in 1D or 3D with tabulation of the
@@ -31,7 +32,7 @@ public class SimCalcSLJ extends Simulation {
 
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
-    public ActivityIntegrate activityIntegrate;
+
     public Box box;
     public Boundary boundary;
     public Primitive primitive, primitiveUnitCell;
@@ -43,7 +44,7 @@ public class SimCalcSLJ extends Simulation {
     public SimCalcSLJ(Space _space, int numAtoms, double density, double temperature) {
         super(_space);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(this, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         potentialMaster = new PotentialMasterMonatomic(this);
@@ -76,8 +77,7 @@ public class SimCalcSLJ extends Simulation {
         integrator.getMoveManager().addMCMove(move);
         ((MCMoveStepTracker) move.getTracker()).setNoisyAdjustment(true);
 
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
@@ -200,14 +200,13 @@ public class SimCalcSLJ extends Simulation {
 		energyPumpListener.setInterval(100);
 		sim.integrator.getEventManager().addListener(energyPumpListener);
 
-        sim.activityIntegrate.setMaxSteps(simSteps/10);
-        sim.getController().actionPerformed();
-        System.out.println("equilibrated");
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps / 10));
+System.out.println("equilibrated");
 
     	long startTime = System.currentTimeMillis();
 		System.out.println("\nStart Time: " + startTime);
 		sim.integrator.getMoveManager().setEquilibrating(false);
-		sim.getController().reset();
+
 
         meterNormalMode.reset();
 
@@ -221,9 +220,7 @@ public class SimCalcSLJ extends Simulation {
         IntegratorListenerAction sWriterListener = new IntegratorListenerAction(sWriter);
         sWriterListener.setInterval((int)simSteps/10);
         sim.integrator.getEventManager().addListener(sWriterListener);
-
-        sim.activityIntegrate.setMaxSteps(simSteps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, simSteps));
 
         double A = sWriter.getLastA();
 		System.out.println("A/N: " + A/nA);

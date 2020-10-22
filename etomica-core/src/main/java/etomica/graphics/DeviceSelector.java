@@ -5,7 +5,7 @@
 package etomica.graphics;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -33,7 +33,9 @@ public class DeviceSelector extends Device {
             public void itemStateChanged(ItemEvent event) {
                 if (event.getStateChange() == ItemEvent.DESELECTED) return;
                 IAction action = actionHash.get(event.getItem());
-                doAction(action);
+                if (action != null) {
+                    doAction(action);
+                }
             }
         });
     }

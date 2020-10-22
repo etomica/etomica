@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.box.Box;
@@ -19,6 +20,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.virial.*;
@@ -163,10 +165,11 @@ public class VirialTraPPEAlcohol {
         	potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
         }
         else {*/
-        final SimulationVirialOverlap2 sim;
-        sim = new SimulationVirialOverlap2(space, new SpeciesMethanol(space),
+
+        	final SimulationVirialOverlap2 sim;
+        sim = new SimulationVirialOverlap2(space, SpeciesMethanol.create(),
                 temperature, refCluster, targetCluster, true); //use first constructor; no need for intramolecular movement MC trial
-        SpeciesMethanol species = (SpeciesMethanol) sim.getSpecies(0);
+        ISpecies species = sim.getSpecies(0);
         MethanolPotentialHelper.initPotential(space, species, U_a_b);
         //potentialMaster.addPotential(U_a_b, new ISpecies[] {species,species} );
 
@@ -216,9 +219,8 @@ public class VirialTraPPEAlcohol {
         ****************************************************************************
         */
 
-        if (graphics) {
-
-            referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        if(graphics) {
+    referenceBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             targetBox.getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(referenceBox).setShowBoundary(false);
@@ -265,19 +267,19 @@ public class VirialTraPPEAlcohol {
             //SpeciesMethanol species = (SpeciesMethanol)sim.species;
 
             // Create instances of the types of molecular sites
-            AtomType typeCH3 = species.getCH3Type();
-            AtomType typeO = species.getOType();
-            AtomType typeH = species.getHType();
+            AtomType typeCH3 = species.getTypeByName("CH3");
+            AtomType typeO = species.getTypeByName("O");
+            AtomType typeH = species.getTypeByName("H");
 
-                // Set color of each site type for each simulation
+            // Set color of each site type for each simulation
 
             colorScheme0.setColor(typeCH3, Color.GRAY);
-                colorScheme0.setColor(typeO, Color.RED);
-                colorScheme0.setColor(typeH, Color.WHITE);
+            colorScheme0.setColor(typeO, Color.RED);
+            colorScheme0.setColor(typeH, Color.WHITE);
 
             colorScheme1.setColor(typeCH3, Color.GRAY);
-                colorScheme1.setColor(typeO, Color.RED);
-                colorScheme1.setColor(typeH, Color.WHITE);
+            colorScheme1.setColor(typeO, Color.RED);
+            colorScheme1.setColor(typeH, Color.WHITE);
 
             //}
 
@@ -288,21 +290,14 @@ public class VirialTraPPEAlcohol {
 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 100);
-                    sim.equilibrate(null, 200);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 100, false);
+    sim.equilibrate(null, 200, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-
-            return;
-        }
+    return;
+}
 
         /*
         ****************************************************************************
@@ -349,8 +344,8 @@ public class VirialTraPPEAlcohol {
         sim.integratorOS.getEventManager().addListener(progressReportListener);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS), steps, 0);
+        sim.getController().completeActivities();
 
         System.out.println();
         System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());

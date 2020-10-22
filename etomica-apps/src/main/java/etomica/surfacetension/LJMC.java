@@ -5,6 +5,7 @@
 package etomica.surfacetension;
 
 import etomica.action.IAction;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
@@ -30,7 +31,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -39,9 +40,8 @@ import java.util.List;
 public class LJMC extends Simulation {
     
     public final PotentialMasterCell potentialMaster;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final Box box;
-    public final ActivityIntegrate activityIntegrate;
     public final IntegratorMC integrator;
     public final MCMoveAtomInRegion mcMoveAtom, mcMoveAtomBigStep;
 
@@ -49,8 +49,7 @@ public class LJMC extends Simulation {
         super(_space);
 
         //species
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);//index 1
         addSpecies(species);
 
         double rc = 4.0;
@@ -61,8 +60,7 @@ public class LJMC extends Simulation {
         //controller and integrator
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         //instantiate several potentials for selection in combo-box
         P2LennardJones potential = new P2LennardJones(space);
@@ -266,8 +264,8 @@ public class LJMC extends Simulation {
             
             return;
         }
-        
-        sim.getController().actionPerformed();
+
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
 
     }
     

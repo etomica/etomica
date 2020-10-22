@@ -5,6 +5,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.chem.elements.ElementSimple;
 import etomica.graphics.SimulationGraphic;
@@ -15,7 +16,7 @@ import etomica.potential.P2MoleculeMonatomic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.ParameterBase;
 import etomica.virial.*;
@@ -83,42 +84,35 @@ public class SingleAssociationSiteFluidGraph {
         ClusterAbstract refCluster = Standard.virialCluster(nBody, fRef, nBody > 3, eRef, true);
         refCluster.setTemperature(temperature);
         targetCluster.setTemperature(temperature);
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new SpeciesSpheresRotating(space, new ElementSimple("O")), temperature, refCluster, targetCluster);
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, SpeciesSpheresRotating.create(space, new ElementSimple("O")), temperature, refCluster, targetCluster);
         ConfigurationClusterMove configuration = new ConfigurationClusterMove(space, sim.getRandom());
         configuration.initializeCoordinates(sim.box[1]);
         sim.setAccumulatorBlockSize((int) numSteps * 10);
         sim.integratorOS.setNumSubSteps(1000);
 
-        if (false) {
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
+        if(false) {
+    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{10, 10, 10}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
-            Species species = (Species)sim.getSpecies(0);
+            ISpecies species = sim.getSpecies(0);
             AtomType typeLJ = species.getAtomType(0);
             simGraphic.makeAndDisplayFrame();
-    
+
             sim.integratorOS.setNumSubSteps(1000);
             sim.setAccumulatorBlockSize(1000);
 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 100);
-                    sim.equilibrate(null,200);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+            sim.initRefPref(null, 100, false);
+    sim.equilibrate(null, 200, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            
-            return;
-        }
+    return;
+}
         // if running interactively, don't use the file
         String refFileName = args.length > 0 ? "refpref"+nBody+"_"+temperature : null;
         // this will either read the refpref in from a file or run a short simulation to find it
@@ -127,8 +121,8 @@ public class SingleAssociationSiteFluidGraph {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, numSteps/40);
-                
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, numSteps);
+System.out.println("equilibration finished");
 
         IAction progressReport = new IAction() {
             public void actionPerformed() {
@@ -142,11 +136,10 @@ public class SingleAssociationSiteFluidGraph {
         sim.integratorOS.getEventManager().addListener(progressReportListener);
 
         sim.integratorOS.getMoveManager().setEquilibrating(false);
-        sim.ai.setMaxSteps(numSteps);
         for (int i = 0; i < 2; i++) {
             System.out.println("MC Move step sizes " + sim.mcMoveTranslate[i].getStepSize());
         }
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
 
         System.out.println("final reference step frequency " + sim.integratorOS.getIdealRefStepFraction());
 

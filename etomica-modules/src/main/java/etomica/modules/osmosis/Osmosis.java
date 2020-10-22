@@ -6,6 +6,7 @@ package etomica.modules.osmosis;
 
 import etomica.action.IAction;
 import etomica.action.SimulationRestart;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationLatticeWithPlane;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
@@ -119,7 +120,7 @@ public class Osmosis extends SimulationGraphic {
         //
         // Delay panel
         //
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
         
         //
         // temperature panel
@@ -292,28 +293,13 @@ public class Osmosis extends SimulationGraphic {
         OsmosisSim sim = null;
 
         Space sp = Space3D.getInstance();
-    	sim = new OsmosisSim(sp);
+        sim = new OsmosisSim(sp);
 
-        sim.activityIntegrate.setSleepPeriod(1);
+        sim.getController().setSleepPeriod(1);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
 
         Osmosis osmosis = new Osmosis(sim, sp);
         SimulationGraphic.makeAndDisplayFrame(osmosis.getPanel(), APP_NAME);
-    }
-
-    public static class Applet extends javax.swing.JApplet {
-	    public void init() {
-
-	    	OsmosisSim sim = null;
-
-	    	Space sp = Space3D.getInstance();
-	    	sim = new OsmosisSim(sp);
-
-	        sim.activityIntegrate.setSleepPeriod(1);
-
-		    getContentPane().add(new Osmosis(sim, sp).getPanel());
-	    }
-
-        private static final long serialVersionUID = 1L;
     }
 
     protected class InitializeMolecules {
@@ -370,7 +356,7 @@ public class Osmosis extends SimulationGraphic {
 
     	    		// Need to pause controller, do action, resume controller
     	    		// which is why the action is implemented in this manner.
-    	    		sim.getController().doActionNow(setAction);
+    	    		sim.getController().submitActionInterrupt(setAction);
     			}
     		};
 
@@ -416,7 +402,7 @@ public class Osmosis extends SimulationGraphic {
 
     	    		// Need to pause controller, do action, resume controller
     	    		// which is why the action is implemented in this manner.
-    	    		sim.getController().doActionNow(setAction);
+    	    		sim.getController().submitActionInterrupt(setAction);
     			}
     		};
 

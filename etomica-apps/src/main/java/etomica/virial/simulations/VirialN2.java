@@ -4,6 +4,7 @@
 package etomica.virial.simulations;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
 import etomica.chem.elements.ElementSimple;
@@ -16,6 +17,7 @@ import etomica.potential.P2SemiclassicalAtomic.AtomInfo;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.units.Kelvin;
 import etomica.units.Mole;
@@ -118,7 +120,7 @@ public class VirialN2 {
 
         // make species
         ElementSimple n2 = new ElementSimple("N2", 2*Nitrogen.INSTANCE.getMass());
-        final SpeciesSpheresRotating speciesN2 = new SpeciesSpheresRotating(space,n2);
+        final SpeciesGeneral speciesN2 = SpeciesSpheresRotating.create(space, n2);
 
         // make simulation
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesN2, temperature, refCluster, tarCluster);
@@ -194,18 +196,19 @@ public class VirialN2 {
         }
 
         sim.equilibrate(refFileName, steps/10);
-        System.out.println("equilibration finished");
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+System.out.println("equilibration finished");
 
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
-        sim.ai.setMaxSteps(1000);
         for (int i=0; i<2; i++) {
             System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
         }
 
         // this is where the simulation takes place
-        sim.getController().actionPerformed();
+
+sim.getController().runActivityBlocking(ai);
         //end of simulation
         long t2 = System.currentTimeMillis();
 

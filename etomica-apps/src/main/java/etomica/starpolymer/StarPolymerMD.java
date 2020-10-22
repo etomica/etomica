@@ -1,5 +1,6 @@
 package etomica.starpolymer;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.DiameterHashByType;
@@ -26,6 +27,7 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -35,11 +37,9 @@ public class StarPolymerMD extends Simulation {
 
     public Box box;
     public int f, l;
-    public SpeciesPolymerMono species;
+    public SpeciesGeneral species;
     public IntegratorBox integrator;
     public IntegratorVelocityVerlet integratorMD;
-    public IntegratorMC integratorMC;
-    public final ActivityIntegrate ai;
     public P2Fene potentialFene;
     public P2WCA potentialWCA;
     public PotentialMaster potentialMaster;
@@ -48,22 +48,17 @@ public class StarPolymerMD extends Simulation {
         super(Space3D.getInstance());
         this.f = f;
         this.l = l;
-        species = new SpeciesPolymerMono(this, getSpace(), f, l);
-        species.setIsDynamic(true);
+        species = SpeciesPolymerMono.create(getSpace(), AtomType.simpleFromSim(this), f, l)
+                .setDynamic(true)
+                .build();
         addSpecies(species);
 
         box = this.makeBox(new BoundaryRectangularNonperiodic(space));
         box.getBoundary().setBoxSize(new Vector3D(1.5 * l * 2, 1.5 * l * 2, 1.5 * l * 2));
         box.setNMolecules(species, 1);
-        if (false) {
-            ConformationStarPolymerAll conf = new ConformationStarPolymerAll(this.getSpace(), "./resource/f5L40.xyz", 0);
-            conf.initializePositions(box.getMoleculeList().get(0).getChildList());
-        }
         ArrayList<ArrayList<int[]>> pairArray = getPairArray(f, l);
         int[][] boundedPairs = pairArray.get(0).toArray(new int[0][0]);
         int[][] nonBoundedPairs = pairArray.get(1).toArray(new int[0][0]);
-        boolean doMC = false;
-        if (doMC) useNbrs = false;
         if (l < 30) useNbrs = false;
         if (useNbrs) {
             potentialMaster = new PotentialMasterList(this, 2, space);
@@ -77,13 +72,8 @@ public class StarPolymerMD extends Simulation {
         integratorMD.setThermostat(IntegratorMD.ThermostatType.ANDERSEN);
         integratorMD.setThermostatInterval(500);
 
-        integratorMC = new IntegratorMC(this, potentialMaster, box);
-        MCMoveUpdateConformation moveConformation = new MCMoveUpdateConformation(this, space, "./resource/f5L40.xyz");
-        integratorMC.getMoveManager().addMCMove(moveConformation);
-
-        integrator = doMC ? integratorMC : integratorMD;
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        integrator = integratorMD;
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         potentialFene = new P2Fene(space);
         potentialWCA = new P2WCA(space);
@@ -232,8 +222,7 @@ public class StarPolymerMD extends Simulation {
 
         System.out.println("MD starts...");
         long t1 = System.currentTimeMillis();
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.currentTimeMillis();
         System.out.println("MD finished! ");
         System.out.println("time : " + (t2 - t1) / 1000.0);
@@ -250,11 +239,9 @@ public class StarPolymerMD extends Simulation {
             DataArrayWriter writer = new DataArrayWriter();
             writer.setIncludeHeader(false);
             dataLogger.setDataSink(writer);
-            sim.getController().getEventManager().addListener(dataLogger);
             long t3 = System.currentTimeMillis();
-            sim.getController().reset();
-            sim.ai.setMaxSteps(xsteps);
-            sim.getController().actionPerformed();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, xsteps));
+            dataLogger.cleanUp();
             System.out.println("Dumping finished! ");
             System.out.println("time: " + (t3 - t1) / 1000.0);
         }

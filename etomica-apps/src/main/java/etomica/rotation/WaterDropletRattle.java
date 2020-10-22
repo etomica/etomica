@@ -4,6 +4,7 @@
 
 package etomica.rotation;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.ApiBuilder;
@@ -31,6 +32,7 @@ import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -43,7 +45,7 @@ public class WaterDropletRattle {
     public static SimulationGraphic makeWaterDroplet() {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesWater3P species = new SpeciesWater3P(sim.getSpace(), true);
+        SpeciesGeneral species = SpeciesWater3P.create(true);
         sim.addSpecies(species);
         Box box = new Box(new BoundaryRectangularNonperiodic(sim.getSpace()), space);
         sim.addBox(box);
@@ -70,9 +72,9 @@ public class WaterDropletRattle {
 //        MeterTemperature meterTemperature = new MeterTemperature(box, 3);
 //        System.out.println("T="+meterTemperature.getDataAsScalar());
 //        integrator.setThermostatInterval(100);
-        ActivityIntegrate ai = new ActivityIntegrate(integrator);
 //        System.out.println("using rigid with dt="+dt);
-        sim.getController().addAction(ai);
+        sim.getController().setSleepPeriod(2);
+        sim.getController().addActivity(new ActivityIntegrate(integrator));
 //        System.out.println("h1 at "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition());
 //        System.out.println("o at "+((IAtomPositioned)box.getLeafList().getAtom(2)).getPosition());
 
@@ -80,8 +82,8 @@ public class WaterDropletRattle {
         double chargeOxygen = Electron.UNIT.toSim(-0.82);
         double chargeHydrogen = Electron.UNIT.toSim(0.41);
 
-        AtomType oType = species.getOxygenType();
-        AtomType hType = species.getHydrogenType();
+        AtomType oType = species.getTypeByName("H");
+        AtomType hType = species.getTypeByName("O");
         double epsOxygen = new P2WaterSPC(space).getEpsilon();
         double sigOxygen = new P2WaterSPC(space).getSigma();
         PotentialGroup pGroup = potentialMaster.makePotentialGroup(2);
@@ -106,28 +108,22 @@ public class WaterDropletRattle {
 
         potentialMaster.addPotential(pGroup, new ISpecies[]{species, species});
 
-        if (false) {
-            ai.setSleepPeriod(2);
-            SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rattle", 1);
-            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getHydrogenType(), Color.WHITE);
-            ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getOxygenType(), Color.RED);
+        SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Rattle", 1);
+        ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("H"), Color.WHITE);
+        ((ColorSchemeByType) graphic.getDisplayBox(box).getColorScheme()).setColor(species.getTypeByName("O"), Color.RED);
 
-            MeterEnergy meterE = new MeterEnergy(potentialMaster, box);
-            AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsingAverage());
-            history.setTimeDataSource(new DataSourceCountTime(integrator));
-            DataPump pump = new DataPump(meterE, history);
-            DisplayPlot ePlot = new DisplayPlot();
-            history.setDataSink(ePlot.getDataSet().makeDataSink());
-            IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
-            pumpListener.setInterval(10);
-            integrator.getEventManager().addListener(pumpListener);
-            ePlot.setLabel("Energy");
-            graphic.add(ePlot);
-            return graphic;
-        }
-        sim.getController().actionPerformed();
-
-        return null;
+        MeterEnergy meterE = new MeterEnergy(potentialMaster, box);
+        AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsingAverage());
+        history.setTimeDataSource(new DataSourceCountTime(integrator));
+        DataPump pump = new DataPump(meterE, history);
+        DisplayPlot ePlot = new DisplayPlot();
+        history.setDataSink(ePlot.getDataSet().makeDataSink());
+        IntegratorListenerAction pumpListener = new IntegratorListenerAction(pump);
+        pumpListener.setInterval(10);
+        integrator.getEventManager().addListener(pumpListener);
+        ePlot.setLabel("Energy");
+        graphic.add(ePlot);
+        return graphic;
     }
 
     public static void main(String[] args) {

@@ -4,6 +4,7 @@
 
 package etomica.spin.heisenberg;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -16,7 +17,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -37,9 +38,8 @@ import java.util.Calendar;
 public class HeisenbergPair extends Simulation {
 
     private static final String APP_NAME = "Heisenberg";
-    public final ActivityIntegrate activityIntegrate;
     public Box box;
-    public SpeciesSpheresMono spins;
+    public SpeciesGeneral spins;
     public P2Spin potential;
     public MCMoveRotatePair mcMove;
     private IntegratorMC integrator;
@@ -60,7 +60,7 @@ public class HeisenbergPair extends Simulation {
         addBox(box);
         int numAtoms = 2;
 
-        spins = new SpeciesSpheresRotating(space, new ElementSimple("A"));
+        spins = SpeciesSpheresRotating.create(space, new ElementSimple("A"));
 
         addSpecies(spins);
         box.setNMolecules(spins, numAtoms);
@@ -70,8 +70,7 @@ public class HeisenbergPair extends Simulation {
         mcMove = new MCMoveRotatePair(potential, random, space);
         integrator.getMoveManager().addMCMove(mcMove);
         integrator.setTemperature(temperature);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         AtomType type = spins.getLeafType();
 //        potentialMaster.addPotential(field, new IAtomType[] {type});
     }
@@ -107,9 +106,8 @@ public class HeisenbergPair extends Simulation {
         MeterSpinMSquare meterMSquare = null;
         AccumulatorAverage dipoleSumSquaredAccumulator = null;
 
-        sim.activityIntegrate.setMaxSteps(steps / 5);
-        sim.getController().actionPerformed();
-        sim.getController().reset();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 5));
+
         int blockNumber = 100;
 
 
@@ -150,9 +148,7 @@ public class HeisenbergPair extends Simulation {
             AEEListener.setInterval(sampleAtInterval);
             sim.integrator.getEventManager().addListener(AEEListener);
         }
-
-        sim.activityIntegrate.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
 
         //******************************** simulation start ******************************** //

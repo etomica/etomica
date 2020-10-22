@@ -3,6 +3,7 @@ package etomica.association.GCPMWater;
 import etomica.action.BoxImposePbc;
 import etomica.action.BoxInflate;
 import etomica.action.WriteConfiguration;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
@@ -32,6 +33,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -55,11 +57,11 @@ public class SimGCPMWaterMCNPT extends Simulation {
     public MCMoveMolecule mcMoveMolecule;
     public MCMoveRotateMolecule3D mcMoveRotateMolecule;
     public MCMoveVolume mcMoveVolume;
-    public SpeciesWater4P species;
+    public SpeciesGeneral species;
     public Box box;
     public PNWaterGCPMReactionField potential;
     double epsilon = 1.0;
-    public ActivityIntegrate actionIntegrator;
+
         
     
     public SimGCPMWaterMCNPT(int numMolceules, double pressureBar, double densityMolLiter, double temperatureK, long numSteps) {
@@ -100,13 +102,10 @@ public class SimGCPMWaterMCNPT extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveRotateMolecule);
         integrator.getMoveManager().addMCMove(mcMoveVolume);
         integrator.getMoveManager().setEquilibrating(true);
-        actionIntegrator = new ActivityIntegrate(integrator);
+        this.getController().addActivity(new ActivityIntegrate(integrator), numSteps);
         //actionIntegrate.setSleepPeriod(1);
-        actionIntegrator.setMaxSteps(numSteps);
-        getController().addAction(actionIntegrator);
-        species = new SpeciesWater4P(space);
+        species = SpeciesWater4P.create(false, new ConformationWaterGCPM(space));
         addSpecies(species);
-        species.setConformation(new ConformationWaterGCPM(space));
         box.setNMolecules(species, numMolceules);
         BoxInflate inflater = new BoxInflate(box, space);//Performs actions that cause volume of system to expand or contract
         inflater.setTargetDensity(density);
@@ -154,7 +153,6 @@ public class SimGCPMWaterMCNPT extends Simulation {
         if (false) {
         	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,"water", 1);
         	graphic.makeAndDisplayFrame();
-        	sim.actionIntegrator.setMaxSteps(Long.MAX_VALUE);
         	return;
         }
         if (stepSizeTranslation==0.0){
@@ -167,9 +165,7 @@ public class SimGCPMWaterMCNPT extends Simulation {
         	sim.mcMoveVolume.setStepSize(stepSizeVolume);
         }
 
-        sim.actionIntegrator.setMaxSteps(numSteps);
-        MeterDensity rhoMeter = new MeterDensity(sim.space);//Meter for measurement of the total molecule number density((number of molecules)/(volume of box)) in a box 
-        rhoMeter.setBox(sim.box);
+        MeterDensity rhoMeter = new MeterDensity(sim.box);
         AccumulatorAverage rhoAccumulator = new AccumulatorAverageFixed(1000);//Accumulator that keeps statistics for averaging and error analysis
         DataPump rhoPump = new DataPump(rhoMeter,rhoAccumulator);
         IntegratorListenerAction listener = new IntegratorListenerAction(rhoPump);
@@ -183,9 +179,8 @@ public class SimGCPMWaterMCNPT extends Simulation {
 
         if (false) {
         	SimulationGraphic graphic = new SimulationGraphic(sim,SimulationGraphic.TABBED_PANE,"water", 1);
-        	SpeciesWater4P species = (SpeciesWater4P)sim.getSpecies(0);
-            ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(species.getAtomType(0), Color.WHITE);
-            ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(species.getAtomType(1), Color.RED);
+            ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getAtomType(0), Color.WHITE);
+            ((ColorSchemeByType)graphic.getDisplayBox(sim.box).getColorScheme()).setColor(sim.species.getAtomType(1), Color.RED);
         	AccumulatorHistory densityHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         	rhoAccumulator.addDataSink(densityHistory, new StatType[]{rhoAccumulator.MOST_RECENT});
         	DisplayPlot rhoPlot = new DisplayPlot();
@@ -193,7 +188,7 @@ public class SimGCPMWaterMCNPT extends Simulation {
         	rhoPlot.setLabel("density");
         	graphic.add(rhoPlot);
         	DataSourceCountSteps stepCounter = new DataSourceCountSteps(sim.integrator);
-        	AccumulatorHistory energyHistory = new AccumulatorHistory(new HistoryCollapsingAverage()); 
+        	AccumulatorHistory energyHistory = new AccumulatorHistory(new HistoryCollapsingAverage());
         	energyAccumulator.addDataSink(energyHistory, new StatType[]{energyAccumulator.MOST_RECENT});
         	DisplayPlot energyPlot = new DisplayPlot();
         	energyHistory.setTimeDataSource(stepCounter);
@@ -201,7 +196,6 @@ public class SimGCPMWaterMCNPT extends Simulation {
         	energyPlot.setLabel("energy");
         	graphic.add(energyPlot);
         	graphic.makeAndDisplayFrame();
-        	sim.actionIntegrator.setMaxSteps(Long.MAX_VALUE);
         	return;
         }
         sim.integrator.reset();
@@ -209,7 +203,7 @@ public class SimGCPMWaterMCNPT extends Simulation {
         System.out.println("initial Energy "+initialEnergy);
         double initialEnthalpy = meterEV.getData().getValue(0);
         System.out.println("initial Enthaply "+initialEnthalpy+"\n");
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps));
         System.out.println("step size of mcMoveMolecule "+sim.mcMoveMolecule.getStepSize());
         System.out.println("step size of mcMoveRotateMolecule "+sim.mcMoveRotateMolecule.getStepSize());
         System.out.println("step size of mcMoveVolume "+sim.mcMoveVolume.getStepSize());

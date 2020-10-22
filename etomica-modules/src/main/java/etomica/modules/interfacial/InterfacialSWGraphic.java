@@ -253,8 +253,7 @@ public class InterfacialSWGraphic extends SimulationGraphic {
         tBox.setLabelPosition(CompassDirection.NORTH);
 
         // Number density box
-        MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-        densityMeter.setBox(sim.box);
+        MeterDensity densityMeter = new MeterDensity(sim.box);
         final DisplayTextBox densityBox = new DisplayTextBox();
         final DataPump densityPump = new DataPump(densityMeter, densityBox);
         IntegratorListenerAction densityPumpListener = new IntegratorListenerAction(densityPump);

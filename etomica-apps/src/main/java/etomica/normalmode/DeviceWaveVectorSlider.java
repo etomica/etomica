@@ -5,7 +5,7 @@
       package etomica.normalmode;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.graphics.Device;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.SimulationGraphic;
@@ -121,7 +121,7 @@ public class DeviceWaveVectorSlider extends Device {
 
 	private void radioButtonChangeByClient() {
 		if(integrator != null) {
-	        controller.doActionNow(integratorBoxChangeSetOneWV);
+	        controller.submitActionInterrupt(integratorBoxChangeSetOneWV);
 	    }
 	}
 
@@ -274,7 +274,7 @@ public class DeviceWaveVectorSlider extends Device {
 
     	ActionListener actionListen = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-				controller.doActionNow(integratorBoxChangeSetOneWV);
+				controller.submitActionInterrupt(integratorBoxChangeSetOneWV);
             }
         };
 
@@ -292,29 +292,7 @@ public class DeviceWaveVectorSlider extends Device {
 
 
     
-    //
-    //main method to test device
-    //
-    public static void main(String[] args) {
-        final String APP_NAME = "Device Wave Vectors Number Slider";
 
-       
-        etomica.space.Space sp = etomica.space1d.Space1D.getInstance();
-        etomica.simulation.Simulation sim = new etomica.simulation.Simulation(sp);
-        
-        DeviceWaveVectorSlider device = new DeviceWaveVectorSlider(new Controller());
-        device.setMinimum(0);
-        device.setMaximum(100);
-        device.setWaveVectorNum(0);
-        
-        
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-        graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
-        graphic.add(device);
-        graphic.makeAndDisplayFrame(APP_NAME);
-
-    }
-    
     
     
     

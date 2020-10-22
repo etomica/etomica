@@ -7,6 +7,7 @@ package etomica.virial.simulations;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.IAction;
 import etomica.action.MoleculeChildAtomAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.atom.iterator.ApiIndexList;
 import etomica.atom.iterator.ApiIntergroupCoupled;
@@ -36,9 +37,11 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresHetero;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.*;
 import etomica.units.dimensions.*;
+import etomica.units.dimensions.Dimension;
 import etomica.util.Constants;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
@@ -320,17 +323,19 @@ public class VirialCO2PI {
         }
         
         System.out.println(steps+" steps (1000 blocks of "+steps/1000+")");
-        AtomTypeOriented atype = new AtomTypeOriented(new ElementSimple("CO2", Carbon.INSTANCE.getMass() + 2 * Oxygen.INSTANCE.getMass()), space);
-        SpeciesSpheresHetero species = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype}) {
-            protected IAtom makeLeafAtom(AtomType leafType) {
-                double bl = 2*p2c.getPos(5);
-                return new AtomHydrogen(space, (AtomTypeOriented) leafType, bl);
-            }
-        };
-        species.setChildCount(new int [] {nBeads});
-        species.setConformation(new ConformationLinear(space, 0));
-        
-        
+        SpeciesGeneral species = new SpeciesBuilder(space)
+                .withAtomFactory(atype -> {
+                    double bl = 2*p2c.getPos(5);
+                    return new AtomHydrogen(space, (AtomTypeOriented) atype, bl);
+                })
+                .addCount(
+                        new AtomTypeOriented(new ElementSimple("CO2", Carbon.INSTANCE.getMass() + 2 * Oxygen.INSTANCE.getMass()), space.makeVector()),
+                        nBeads)
+                .withConformation(new ConformationLinear(space, 0))
+                .build();
+
+
+
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{species}, new int[]{nPoints+(doFlex?1:0)}, temperature, new ClusterAbstract[]{refCluster, targetCluster},
                  targetDiagrams, new ClusterWeight[]{refSampleCluster,targetSampleCluster}, false);
@@ -366,7 +371,7 @@ public class VirialCO2PI {
         
         System.out.println("regrow full ring");
         MCMoveClusterRingRegrow ring0 = new MCMoveClusterRingRegrow(sim.getRandom(), space);
-        double lambda = Constants.PLANCK_H/Math.sqrt(2*Math.PI*atype.getMass()*temperature);
+        double lambda = Constants.PLANCK_H/Math.sqrt(2*Math.PI*species.getLeafType().getMass()*temperature);
         ring0.setEnergyFactor(nBeads*Math.PI/(lambda*lambda));
         
         MCMoveClusterRingRegrow ring1 = new MCMoveClusterRingRegrow(sim.getRandom(), space);
@@ -492,7 +497,7 @@ public class VirialCO2PI {
 //            sim.getController().removeAction(sim.ai);
 //            sim.getController().addAction(new IAction() {
 //                public void actionPerformed() {
-//                    sim.initRefPref(null, 10);
+//                    sim.initRefPref(null, 10, false);
 //                    sim.equilibrate(null, 20);
 //                    sim.ai.setMaxSteps(Long.MAX_VALUE);
 //                }
@@ -507,10 +512,10 @@ public class VirialCO2PI {
             final DisplayTextBox errorBox = new DisplayTextBox();
             errorBox.setLabel("Error");
             JLabel jLabelPanelParentGroup = new JLabel("B"+nPoints+" (L/mol)^"+(nPoints-1));
-            final JPanel panelParentGroup = new JPanel(new java.awt.BorderLayout());
+            final JPanel panelParentGroup = new JPanel(new BorderLayout());
             panelParentGroup.add(jLabelPanelParentGroup,CompassDirection.NORTH.toString());
-            panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.WEST);
-            panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
+            panelParentGroup.add(averageBox.graphic(), BorderLayout.WEST);
+            panelParentGroup.add(errorBox.graphic(), BorderLayout.EAST);
             simGraphic.getPanel().controlPanel.add(panelParentGroup, SimulationPanel.getVertGBC());
             
             IAction pushAnswer = new IAction() {
@@ -526,7 +531,7 @@ public class VirialCO2PI {
                     errorBox.putData(data);
                 }
             };
-            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new etomica.units.dimensions.Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
+            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, new CompoundDimension(new Dimension[]{new DimensionRatio(Volume.DIMENSION, Quantity.DIMENSION)}, new double[]{nPoints-1}));
             Unit unit = new CompoundUnit(new Unit[]{new UnitRatio(Liter.UNIT, Mole.UNIT)}, new double[]{nPoints-1});
             averageBox.putDataInfo(dataInfo);
             averageBox.setLabel("average");
@@ -573,8 +578,8 @@ public class VirialCO2PI {
         // run another short simulation to find MC move step sizes and maybe narrow in more on the best ref pref
         // if it does continue looking for a pref, it will write the value to the file
         sim.equilibrate(refFileName, steps/20);
-        
-        if (accumulatorDiagrams != null) {
+ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+if (accumulatorDiagrams != null) {
             accumulatorDiagrams.reset();
         }
 
@@ -584,7 +589,7 @@ public class VirialCO2PI {
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
-        
+
         System.out.println("equilibration finished");
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
@@ -622,7 +627,7 @@ public class VirialCO2PI {
         final ClusterAbstract finalTargetCluster = targetCluster.makeCopy();
         IntegratorListener histListenerRef = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 CoordinatePairSet cPairs = sim.box[0].getCPairSet();
@@ -636,13 +641,13 @@ public class VirialCO2PI {
                 hist.addValue(Math.sqrt(r2Max), v);
                 piHist.addValue(Math.sqrt(r2Max), Math.abs(v));
             }
-            
+
             public void integratorInitialized(IntegratorEvent e) {
             }
         };
         IntegratorListener histListenerTarget = new IntegratorListener() {
             public void integratorStepStarted(IntegratorEvent e) {}
-            
+
             public void integratorStepFinished(IntegratorEvent e) {
                 double r2Max = 0;
                 double r2Min = Double.POSITIVE_INFINITY;
@@ -676,7 +681,7 @@ public class VirialCO2PI {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -696,7 +701,7 @@ public class VirialCO2PI {
                     public void integratorInitialized(IntegratorEvent e) {}
                     public void integratorStepStarted(IntegratorEvent e) {}
                     public void integratorStepFinished(IntegratorEvent e) {
-                        if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                        if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                         System.out.println("**** reference ****");
                         double[] xValues = hist.xValues();
                         double[] h = hist.getHistogram();
@@ -730,9 +735,7 @@ public class VirialCO2PI {
             sim.integrators[0].getEventManager().addListener(histListenerRef);
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
-
-        sim.ai.setMaxSteps(1000);
-        sim.getController().actionPerformed();
+sim.getController().runActivityBlocking(ai);
         long t2 = System.currentTimeMillis();
         
         if (params.doHist) {

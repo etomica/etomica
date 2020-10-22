@@ -5,6 +5,7 @@
 package etomica.normalmode;
 
 import etomica.action.IAction;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.*;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -32,7 +33,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
@@ -51,24 +52,21 @@ public class HSNPT extends Simulation {
     
     public final PotentialMasterList potentialMaster;
     public final IntegratorMC integrator;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final Box box;
-    public final ActivityIntegrate activityIntegrate;
     public final CoordinateDefinition coordinateDefinition;
     public final P2HardSphere pCross;
 
     public HSNPT(Space _space, int numAtoms, double rho, boolean nvt, boolean fancyMove, double sigma2) {
         super(_space);
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         double sigma = 1.0;
-        SpeciesSpheresMono species2 = null;
+        SpeciesGeneral species2 = null;
         if (sigma2 != sigma) {
-            species2 = new SpeciesSpheresMono(this, space);
-            species.setIsDynamic(true);
+            species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
             addSpecies(species2);
         }
 
@@ -90,8 +88,7 @@ public class HSNPT extends Simulation {
         potentialMaster.setRange(neighborRangeFac * sigma);
         box = this.makeBox();
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         AtomType type1 = species.getLeafType();
 
         P2HardSphere p2 = new P2HardSphere(space, sigma, false);
@@ -372,8 +369,7 @@ public class HSNPT extends Simulation {
             return;
         }
         long t1 = System.currentTimeMillis();
-        sim.activityIntegrate.setMaxSteps(params.numSteps/10);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / 10));
         if (!params.nvt) {
             volumeAvg.reset();
         }
@@ -415,8 +411,7 @@ public class HSNPT extends Simulation {
             vfw = null;
         }
 
-        sim.activityIntegrate.setMaxSteps(params.numSteps);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
         System.out.println("time "+(System.currentTimeMillis()-t1)/1000);
 
         if (!params.nvt) {

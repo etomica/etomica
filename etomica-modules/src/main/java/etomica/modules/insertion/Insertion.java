@@ -5,6 +5,7 @@
 package etomica.modules.insertion;
 
 import etomica.action.BoxImposePbc;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -20,28 +21,26 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.random.RandomMersenneTwister;
 
 public class Insertion extends Simulation {
     
-    public SpeciesSpheresMono species, speciesGhost;
+    public SpeciesGeneral species, speciesGhost;
     public Box box;
     public IntegratorHard integrator;
     public P2HardWrapper potentialWrapper;
     public P2DoubleWell potentialGhost;
-    public ActivityIntegrate activityIntegrate;
+
     
     public Insertion(Space _space) {
         super(_space);
         setRandom(new RandomMersenneTwister(2));
 
         // species
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);//index 1
         addSpecies(species);
-        speciesGhost = new SpeciesSpheresMono(this, space);
-        speciesGhost.setIsDynamic(true);
+        speciesGhost = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         ((ElementSimple) speciesGhost.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
         addSpecies(speciesGhost);
 
@@ -62,8 +61,6 @@ public class Insertion extends Simulation {
         integrator.setThermostatNoDrift(true);
         integrator.setThermostatInterval(1);
         P1HardPeriodic nullPotential = new P1HardPeriodic(space, sigma * lambda);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
 
         //potentials
         integrator.setNullPotential(nullPotential, species.getLeafType());
@@ -99,6 +96,6 @@ public class Insertion extends Simulation {
         }
             
         Insertion sim = new Insertion(space);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }
 }

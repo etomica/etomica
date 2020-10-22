@@ -6,7 +6,7 @@ package etomica.dimer;
 
 import etomica.action.CalcVibrationalModes;
 import etomica.action.WriteConfiguration;
-import etomica.action.activity.ActivityIntegrate;
+
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomLeafAgentManager.AgentSource;
@@ -75,7 +75,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 	public AtomLeafAgentManager<Vector> atomAgent0, atomAgent1, atomAgent2;
 	public IteratorDirective allatoms;
 	public String file;
-	public ActivityIntegrate activityIntegrate;
 	public CalcVibrationalModes vib;
 
 	
@@ -910,10 +909,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource<Vect
 		    
 		}
 			
-	}
-	
-	public void setActivityIntegrate(ActivityIntegrate ai){
-		activityIntegrate = ai;
 	}
 
 	public Vector makeAgent(IAtom a, Box agentBox) {

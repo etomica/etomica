@@ -24,8 +24,8 @@ public class P2WaterTIP4PTest {
     private static final double EPSILON = 4e-7;
     @BeforeEach
     public void setUp() throws Exception {
-        IMolecule mol1 = new SpeciesWater4P(Space3D.getInstance()).makeMolecule();
-        IMolecule mol2 = new SpeciesWater4P(Space3D.getInstance()).makeMolecule();
+        IMolecule mol1 = SpeciesWater4P.create().makeMolecule();
+        IMolecule mol2 = SpeciesWater4P.create().makeMolecule();
 
         MoleculeActionTranslateTo act = new MoleculeActionTranslateTo(Space3D.getInstance());
         act.setDestination(new Vector3D(4, 4, 4));

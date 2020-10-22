@@ -4,6 +4,7 @@
 
 package etomica.modules.ljmd;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -20,22 +21,21 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 public class Ljmd extends Simulation {
     
     private static final long serialVersionUID = 1L;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public IntegratorVelocityVerlet integrator;
-    public ActivityIntegrate activityIntegrate;
+
     
     public Ljmd(Space _space) {
         super(_space);
 
         //species
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);//index 1
         addSpecies(species);
 
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.99, space);
@@ -48,8 +48,6 @@ public class Ljmd extends Simulation {
         integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
         integrator.setTimeStep(0.01);
         //   integrator.setDoSleep(false);
 
@@ -80,7 +78,7 @@ public class Ljmd extends Simulation {
         }
             
         Ljmd sim = new Ljmd(space);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }//end of main
     
 }

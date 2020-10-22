@@ -6,6 +6,7 @@ package etomica.liquidLJ;
 
 import etomica.action.BoxInflate;
 import etomica.action.WriteConfigurationBinary;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -39,7 +40,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.SimpleUnit;
 import etomica.units.dimensions.Energy;
 import etomica.units.dimensions.Null;
@@ -56,9 +57,8 @@ public class LjMd3D extends Simulation {
     
     public final PotentialMasterList potentialMasterList;
     public final PotentialMasterMonatomic potentialMasterLong, potentialMasterLongCut;
-    public final ActivityIntegrate ai;
     public IntegratorVelocityVerlet integrator;
-    public SpeciesSpheresMono species;
+    public SpeciesGeneral species;
     public Box box;
     public Potential2SoftSpherical potential;
     public IntegratorMC integratorMC;
@@ -68,8 +68,7 @@ public class LjMd3D extends Simulation {
     public LjMd3D(int numAtoms, double temperature, double density, double pressure, double tStep, double rcShort, double rcLong, int hybridInterval, IFunction vBias, boolean ss) {
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         box = this.makeBox();
@@ -93,8 +92,7 @@ public class LjMd3D extends Simulation {
         integrator.setTimeStep(tStep);
         integrator.setIsothermal(true);
         integrator.setTemperature(temperature);
-        ai = new ActivityIntegrate(integrator);
-        getController().addAction(ai);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
 
         potential = ss ? new P2SoftSphere(space, 1, 4, 12) : new P2LennardJones(space);
         AtomType leafType = species.getLeafType();
@@ -294,9 +292,7 @@ public class LjMd3D extends Simulation {
                 eqSteps = steps/4;
                 if (eqSteps > 4000) eqSteps = 4000;
             }
-            sim.ai.setMaxSteps(eqSteps);
-            sim.getController().actionPerformed();
-            sim.getController().reset();
+            sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, eqSteps));
 
             System.out.println("equilibration finished ("+eqSteps+" steps)");
         }
@@ -776,8 +772,7 @@ public class LjMd3D extends Simulation {
     	}
 
     	long t1 = System.currentTimeMillis();
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.currentTimeMillis();
 //        try {
 //            uWriter.close();

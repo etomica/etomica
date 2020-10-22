@@ -5,11 +5,13 @@
 package etomica.graphics;
 
 import etomica.action.IAction;
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
 import etomica.units.Unit;
 import etomica.units.dimensions.Dimension;
 
 import java.awt.*;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Base class for all Devices.  These are objects that permit manipulation of the
@@ -27,6 +29,10 @@ public abstract class Device {
     }
 
     public Device(Controller controller) {
+//        Objects.requireNonNull(controller);
+        if (controller == null) {
+            new Exception().printStackTrace();
+        }
         this.controller = controller;
     }
     
@@ -40,16 +46,18 @@ public abstract class Device {
      * If a controller has not been defined (is null), then the action is performed
      * on the thread calling this method.
      */
-    protected void doAction(IAction action) {
-        if (action == null) return;
-        actionSet.action = action;
-        if(controller != null) {
-            controller.doActionNow(actionSet);
-        } else {
-            actionSet.actionPerformed();
-        }
+    protected CompletableFuture<Void> doAction(IAction action) {
+        this.actionSet.action = Objects.requireNonNull(action);
+        return this.controller.submitActionInterrupt(this.actionSet);
+//        if (action == null) return;
+//        actionSet.action = action;
+//        if(controller != null) {
+//            controller.doActionNow(actionSet);
+//        } else {
+//            actionSet.actionPerformed();
+//        }
     }
-    
+
     /**
      * Sets an action to be performed before the primary action executed
      * by the device.  This is useful for modifying the behavior of concrete

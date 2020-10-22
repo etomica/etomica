@@ -5,15 +5,11 @@ import etomica.meta.properties.Property;
 import etomica.meta.wrappers.Wrapper;
 import etomica.server.dao.SimulationStore;
 import etomica.server.representations.PropertyUpdate;
-import io.dropwizard.jersey.PATCH;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.PropertyUtils;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 import java.util.UUID;
 
 @Path("/simulations/{simId}/properties")
@@ -34,7 +30,7 @@ public class PropertiesResource {
         Property wrapperProp = wrapper.getValueProperties().stream()
                 .filter(p -> p.getName().equalsIgnoreCase(propUpdate.getProperty()))
                 .findFirst().orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
-        model.getSimulation().getController().doActionNow(() -> {
+        model.getSimulation().getController().submitActionInterrupt(() -> {
             wrapperProp.invokeWriter(propUpdate.getNewValue());
         });
     }

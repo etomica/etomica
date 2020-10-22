@@ -68,9 +68,9 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         sim.historyEnergy.setDataSink(energyPlot.getDataSet().makeDataSink());
         energyPlot.setLegend(new DataTag[]{sim.historyEnergy.getTag()}, "measured");
         
-        DeviceSlider x0Slider = new DeviceSlider(sim.controller);
-        final DeviceSlider omegaASlider = new DeviceSlider(sim.controller);
-        final DeviceSlider omegaBSlider = new DeviceSlider(sim.controller);
+        DeviceSlider x0Slider = new DeviceSlider(sim.getController());
+        final DeviceSlider omegaASlider = new DeviceSlider(sim.getController());
+        final DeviceSlider omegaBSlider = new DeviceSlider(sim.getController());
         x0Slider.setShowValues(true);
         omegaASlider.setShowValues(true);
         omegaBSlider.setShowValues(true);
