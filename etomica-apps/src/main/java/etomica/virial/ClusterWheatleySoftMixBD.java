@@ -4,19 +4,21 @@
 
 package etomica.virial;
 
+import java.math.BigDecimal;
+
 /**
- * Cluster class using Whealtey's recursion to handle mixtures.
+ * Cluster class using Whealtey's recursion with BigDecimal to handle mixtures.
  * 
  * @author Andrew Schultz
  */
-public class ClusterWheatleySoftMix extends ClusterWheatleySoft {
+public class ClusterWheatleySoftMixBD extends ClusterWheatleySoftBD {
 
     protected final MayerFunction[][] mixF;
     protected final int[] nTypes;
     protected final MayerFunction[][] fMap;
     
-    public ClusterWheatleySoftMix(int nPoints, int[] nTypes, MayerFunction[][] f, double tol) {
-        super(nPoints, null, tol);
+    public ClusterWheatleySoftMixBD(int nPoints, int[] nTypes, MayerFunction[][] f, int precision) {
+        super(nPoints, null, precision);
         this.nTypes = nTypes;
         mixF = f;
         fMap = new MayerFunction[nPoints][nPoints];
@@ -37,13 +39,12 @@ public class ClusterWheatleySoftMix extends ClusterWheatleySoft {
                 fMap[i][j] = f[iType][jType];
             }
         }
-        clusterBD = new ClusterWheatleySoftMixBD(nPoints, nTypes, f, -3*(int)Math.log10(tol));
+                
     }
     
     public ClusterAbstract makeCopy() {
-        ClusterWheatleySoftMix c = new ClusterWheatleySoftMix(n, nTypes, mixF, tol);
+        ClusterWheatleySoftMixBD c = new ClusterWheatleySoftMixBD(n, nTypes, mixF, mc.getPrecision());
         c.setTemperature(1/beta);
-        c.setDoCaching(doCaching);
         return c;
     }
 
@@ -60,12 +61,10 @@ public class ClusterWheatleySoftMix extends ClusterWheatleySoft {
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
                 double ff = fMap[i][j].f(aPairs.getAPair(i,j),cPairs.getr2(i,j), beta);
-                if (debug && (Double.isNaN(ff) || Double.isInfinite(ff))) {
-                    System.err.println("oops in updateF "+i+" "+j+" "+ff);
-                }
 //                if (Math.abs(ff) < 1e-14) ff = 0;
-                fQ[(1<<i)|(1<<j)] = ff+1;
+                fQ[(1<<i)|(1<<j)] = new BigDecimal(ff).add(BDONE, mc);
             }
         }
     }
+
 }

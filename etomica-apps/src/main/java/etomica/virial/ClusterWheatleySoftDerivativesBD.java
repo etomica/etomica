@@ -71,6 +71,13 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
         Epow.add(E);
     }
 
+    public void makeClusterBDBD(int newPrecision){
+        clusterBDBD = new ClusterWheatleySoftDerivativesBD(n,f,newPrecision,nDer);
+        clusterBDBD.setTemperature(1 / beta);
+        clusterBDBD.setDoCaching(doCaching);
+        clusterBDBD.setPrecisionLimit(precisionLimit);
+    }
+
     public void setPrecisionLimit(int newLimit) {
         if (newLimit > 300) newLimit = 300;
         precisionLimit = newLimit;
@@ -186,6 +193,7 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
         BigDecimal el0 = BDexp(l0);
         // u = val/exp(l) - 1
         BigDecimal u = val.divide(el0, mc).subtract(BDONE, mc);
+        if (u.equals(BDZERO)) return l0;
         // log(val/exp(l)) = -u - u^2/2 - u^3/3 - ...
         BigDecimal xbd = u.negate();
         BigDecimal tvalbd = l0;
@@ -457,10 +465,7 @@ public class ClusterWheatleySoftDerivativesBD implements ClusterAbstract, Cluste
             if (clusterBDBD == null) {
                 int p = mc.getPrecision() + 20;
                 if (p > precisionLimit) p = precisionLimit;
-                clusterBDBD = new ClusterWheatleySoftDerivativesBD(n, f, p, nDer);
-                clusterBDBD.setTemperature(1 / beta);
-                clusterBDBD.setDoCaching(doCaching);
-                clusterBDBD.setPrecisionLimit(precisionLimit);
+                makeClusterBDBD(p);
             }
             System.arraycopy(clusterBDBD.getAllLastValues(box), 0, value, 0, nDer + 1);
             return;

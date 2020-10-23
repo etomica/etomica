@@ -50,6 +50,7 @@ public class ApiIntergroupIntraSpecies extends ApiIntergroup {
             pair.atom0 = nextOuter;
 
             aiInner.reset();
+            nextInner = aiInner.nextAtom();
             while (nextInner != null && nextInner.getType() == nextOuter.getType()) {
                 nextInner = aiInner.nextAtom();
             }
